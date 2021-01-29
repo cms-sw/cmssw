@@ -20,7 +20,7 @@ using DDRotation = ROOT::Math::Rotation3D;
 //#define EDM_ML_DEBUG
 
 namespace {
-  static constexpr double f_mm = (1.0 / dd4hep::mm);
+  constexpr double f_mm = (1.0 / dd4hep::mm);
   struct Endcap {
     string mat;
     double zOff;
@@ -205,7 +205,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                          0.5 * ee.crysRear,
                          0._deg);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << eeCRSolid.name() << " Trap with parameters: " << f_mm * 0.5 * ee.crysLength << ":" << (atan((ee.crysRear - ee.crysFront) / (sqrt(2.) * ee.crysLength))) << ":" << 45._deg << ":" << f_mm * 0.5 * ee.crysFront << ":" << f_mm * 0.5 * ee.crysFront << ":" << f_mm * 0.5 * ee.crysFront << ":" << 0._deg << ":" << f_mm * 0.5 * ee.crysRear << ":" << f_mm * 0.5 * ee.crysRear << ":" << f_mm * 0.5 * ee.crysRear << ":" << 0._deg;
+  edm::LogVerbatim("EcalGeom") << eeCRSolid.name() << " Trap with parameters: " << f_mm * 0.5 * ee.crysLength << ":"
+                               << (atan((ee.crysRear - ee.crysFront) / (sqrt(2.) * ee.crysLength))) << ":" << 45._deg
+                               << ":" << f_mm * 0.5 * ee.crysFront << ":" << f_mm * 0.5 * ee.crysFront << ":"
+                               << f_mm * 0.5 * ee.crysFront << ":" << 0._deg << ":" << f_mm * 0.5 * ee.crysRear << ":"
+                               << f_mm * 0.5 * ee.crysRear << ":" << f_mm * 0.5 * ee.crysRear << ":" << 0._deg;
 #endif
   Volume eeCRLog = Volume(myns + ee.cryName, eeCRSolid, ns.material(ee.crysMat));
 
@@ -223,7 +227,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         eeSCEnvName,
         Trap(eeSCEnvName, 0.5 * ee.sCELength, eAng, ffived, eFront, eFront, eFront, zerod, eRear, eRear, eRear, zerod));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << eeSCEnv.name() << " Trap with parameters: " << f_mm * 0.5 * ee.sCELength << ":" << eAng << ":" << ffived << ":" << f_mm * eFront << ":" << f_mm * eFront << ":" << f_mm * eFront << ":" << zerod << ":" << f_mm * eRear << ":" << f_mm * eRear << ":" << f_mm * eRear << ":" << zerod;
+    edm::LogVerbatim("EcalGeom") << eeSCEnv.name() << " Trap with parameters: " << f_mm * 0.5 * ee.sCELength << ":"
+                                 << eAng << ":" << ffived << ":" << f_mm * eFront << ":" << f_mm * eFront << ":"
+                                 << f_mm * eFront << ":" << zerod << ":" << f_mm * eRear << ":" << f_mm * eRear << ":"
+                                 << f_mm * eRear << ":" << zerod;
 #endif
 
     const double aFront(0.5 * ee.sCAFront);
@@ -235,7 +242,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         eeSCAlvName,
         Trap(eeSCAlvName, 0.5 * ee.sCALength, aAng, ffived, aFront, aFront, aFront, zerod, aRear, aRear, aRear, zerod));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << eeSCAlv.name() << " Trap with parameters: " << f_mm * 0.5 * ee.sCALength << ":" << aAng << ":" << ffived << ":" << f_mm * aFront << ":" << f_mm * aFront << ":" << f_mm * aFront << ":" << zerod << ":" << f_mm * aRear << ":" << f_mm * aRear << ":" << f_mm * aRear << ":" << zerod;
+    edm::LogVerbatim("EcalGeom") << eeSCAlv.name() << " Trap with parameters: " << f_mm * 0.5 * ee.sCALength << ":"
+                                 << aAng << ":" << ffived << ":" << f_mm * aFront << ":" << f_mm * aFront << ":"
+                                 << f_mm * aFront << ":" << zerod << ":" << f_mm * aRear << ":" << f_mm * aRear << ":"
+                                 << f_mm * aRear << ":" << zerod;
 #endif
 
     const double dwall(ee.sCAWall);
@@ -258,7 +268,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                        iRear,
                                        zerod));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << eeSCAlv.name() << " Trap with parameters: " << f_mm * iLen / 2. << ":" << (atan((ee.sCARear - ee.sCAFront) / (sqrt(2.) * ee.sCALength))) << ":" << ffived << ":" << f_mm * iFront << ":" << f_mm * iFront << ":" << f_mm * iFront << ":" << zerod << ":" << f_mm * iRear << ":" << f_mm * iRear << ":" << f_mm * iRear << ":" << zerod;
+    edm::LogVerbatim("EcalGeom") << eeSCAlv.name() << " Trap with parameters: " << f_mm * iLen / 2. << ":"
+                                 << (atan((ee.sCARear - ee.sCAFront) / (sqrt(2.) * ee.sCALength))) << ":" << ffived
+                                 << ":" << f_mm * iFront << ":" << f_mm * iFront << ":" << f_mm * iFront << ":" << zerod
+                                 << ":" << f_mm * iRear << ":" << f_mm * iRear << ":" << f_mm * iRear << ":" << zerod;
 #endif
 
     const double dz(-0.5 * (ee.sCELength - ee.sCALength));
@@ -308,7 +321,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         eeCutBox,
                                         Transform3D(cutRot, cutTra));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << eeCutEnv.name()  << " Subtracted by " << f_mm * ee.cutParms[0] << ":" << f_mm * ee.cutParms[1] << ":" << f_mm * ee.cutParms[2];
+      edm::LogVerbatim("EcalGeom") << eeCutEnv.name() << " Subtracted by " << f_mm * ee.cutParms[0] << ":"
+                                   << f_mm * ee.cutParms[1] << ":" << f_mm * ee.cutParms[2];
 #endif
 
       const DDTranslation extra(dxy, dxy, dz);
@@ -318,7 +332,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         eeCutBox,
                                         Transform3D(cutRot, cutTra - extra));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << eeCutAlv.name()  << " Subtracted by " << f_mm * ee.cutParms[0] << ":" << f_mm * ee.cutParms[1] << ":" << f_mm * ee.cutParms[2];
+      edm::LogVerbatim("EcalGeom") << eeCutAlv.name() << " Subtracted by " << f_mm * ee.cutParms[0] << ":"
+                                   << f_mm * ee.cutParms[1] << ":" << f_mm * ee.cutParms[2];
 #endif
 
       const double mySign(iSCType < 4 ? +1. : -1.);
@@ -330,7 +345,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         eeCutBox,
                                         Transform3D(cutRot, cutTra - extraI));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << eeCutInt.name()  << " Subtracted by " << f_mm * ee.cutParms[0] << ":" << f_mm * ee.cutParms[1] << ":" << f_mm * ee.cutParms[2];
+      edm::LogVerbatim("EcalGeom") << eeCutInt.name() << " Subtracted by " << f_mm * ee.cutParms[0] << ":"
+                                   << f_mm * ee.cutParms[1] << ":" << f_mm * ee.cutParms[2];
 #endif
 
       eeSCELog = ns.addVolumeNS(Volume(myns + ee.envName + std::to_string(iSCType), eeCutEnv, ns.material(ee.mat)));
@@ -342,8 +358,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("EEGeom") << eeSCALog.name() << " " << (iSCType * 100 + 1) << " in " << eeSCELog.name();
     edm::LogVerbatim("EEGeom") << eeSCILog.name() << " " << (iSCType * 100 + 1) << " in " << eeSCALog.name();
-    edm::LogVerbatim("EcalGeom") << eeSCALog.name() << " " << (iSCType * 100 + 1) << " in " << eeSCELog.name() << " at (" << f_mm * dxy << ", " << f_mm * dxy << ", " << f_mm * dz << ")";
-    edm::LogVerbatim("EcalGeom") << eeSCILog.name() << " " << (iSCType * 100 + 1) << " in " << eeSCALog.name() << " at (" << f_mm * xyIOff << ", " << f_mm * xyIOff << ", " << f_mm * zIOff << ")";
+    edm::LogVerbatim("EcalGeom") << eeSCALog.name() << " " << (iSCType * 100 + 1) << " in " << eeSCELog.name()
+                                 << " at (" << f_mm * dxy << ", " << f_mm * dxy << ", " << f_mm * dz << ")";
+    edm::LogVerbatim("EcalGeom") << eeSCILog.name() << " " << (iSCType * 100 + 1) << " in " << eeSCALog.name()
+                                 << " at (" << f_mm * xyIOff << ", " << f_mm * xyIOff << ", " << f_mm * zIOff << ")";
 #endif
     DDTranslation croffset(0., 0., 0.);
 
@@ -379,12 +397,16 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                     myrot(ns, rname, crystal.rotation()),
                     Position(crystal.centrePos().x(), crystal.centrePos().y(), crystal.centrePos().z() - ee.cryZOff)));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("EEGeom") << eeCRLog.name() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1)) << " in " << eeSCALog.name();
-	    edm::LogVerbatim("EcalGeom") << eeCRLog.name() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1)) << " in " << eeSCALog.name() << " at (" << f_mm * crystal.centrePos().x() << ", " << f_mm * crystal.centrePos().y() << ", " << f_mm * (crystal.centrePos().z() - ee.cryZOff) << ")";
+            edm::LogVerbatim("EEGeom") << eeCRLog.name() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1))
+                                       << " in " << eeSCALog.name();
+            edm::LogVerbatim("EcalGeom") << eeCRLog.name() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1))
+                                         << " in " << eeSCALog.name() << " at (" << f_mm * crystal.centrePos().x()
+                                         << ", " << f_mm * crystal.centrePos().y() << ", "
+                                         << f_mm * (crystal.centrePos().z() - ee.cryZOff) << ")";
 #endif
           }
         }
-      } 
+      }
     }
   }
 
@@ -417,8 +439,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                            100 * isctype + 10 * (icol - 1) + (irow - 1),
                            Transform3D(scrys.rotation(), scrys.centrePos()));
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("EEGeom") << childEnvLog.name() << " " << (100 * isctype + 10 * (icol - 1) + (irow - 1)) << " in " << quaLog.name();
-	edm::LogVerbatim("EcalGeom") << childEnvLog.name() << " " << (100 * isctype + 10 * (icol - 1) + (irow - 1)) << " in " << quaLog.name() << " at (" << f_mm * scrys.centrePos().x() << ", " << f_mm * scrys.centrePos().y() << ", " << f_mm * scrys.centrePos().z() << ")";
+        edm::LogVerbatim("EEGeom") << childEnvLog.name() << " " << (100 * isctype + 10 * (icol - 1) + (irow - 1))
+                                   << " in " << quaLog.name();
+        edm::LogVerbatim("EcalGeom") << childEnvLog.name() << " " << (100 * isctype + 10 * (icol - 1) + (irow - 1))
+                                     << " in " << quaLog.name() << " at (" << f_mm * scrys.centrePos().x() << ", "
+                                     << f_mm * scrys.centrePos().y() << ", " << f_mm * scrys.centrePos().z() << ")";
 #endif
       }
     }
