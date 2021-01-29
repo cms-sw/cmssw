@@ -75,6 +75,12 @@ _forPhase1 = dict(
 )
 trackingPhase1.toModify(earlyGeneralTracks, **_forPhase1)
 
+from Configuration.ProcessModifiers.displacedTracking_cff import displacedTracking
+def _extend_displacedGeneral(x):
+     x.trackProducers += ['displacedGeneralStepTracks']
+     x.inputClassifiers += ['displacedGeneralStep'] 
+(trackingPhase1 & displacedTracking).toModify(earlyGeneralTracks, _extend_displacedGeneral)
+
 # For Phase2PU140
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger as _trackListMerger
