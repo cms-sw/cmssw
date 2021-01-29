@@ -157,6 +157,8 @@ egamma_lowPt_exclusive.toModify(_scImporter,
                                 minSuperClusterPt = 1.0,
                                 minPTforBypass = 0.0)
 
+#
+# kill pfTICL tracks
 def _findIndicesByModule(name):
    ret = []
    for i, pset in enumerate(particleFlowBlock.elementImporters):
@@ -164,8 +166,6 @@ def _findIndicesByModule(name):
             ret.append(i)
    return ret
 
-#
-# kill tracks in the HGCal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 _insertTrackImportersWithVeto = {}
 _trackImporters = ['GeneralTracksImporter','ConvBremTrackImporter',
@@ -174,8 +174,8 @@ for importer in _trackImporters:
   for idx in _findIndicesByModule(importer):
     _insertTrackImportersWithVeto[idx] = dict(
       vetoEndcap = True,
-      vetoMode = cms.uint32(0), # HGCal-region PFTrack list for simPF
-      vetoSrc = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
+      vetoMode = cms.uint32(2), # pfTICL candidate list
+      vetoSrc = cms.InputTag("pfTICL")
     )
 phase2_hgcal.toModify(
     particleFlowBlock,
