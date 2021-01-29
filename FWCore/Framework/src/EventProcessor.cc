@@ -921,12 +921,11 @@ namespace edm {
     FinalWaitingTask globalWaitTask;
 
     ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-    tbb::task_group group;
     beginGlobalTransitionAsync<Traits>(
-        WaitingTaskHolder(group, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
+        WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
 
     do {
-      group.wait();
+      taskGroup_.wait();
     } while (not globalWaitTask.done());
 
     if (globalWaitTask.exceptionPtr() != nullptr) {
@@ -950,21 +949,20 @@ namespace edm {
       FinalWaitingTask globalWaitTask;
 
       ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-      tbb::task_group group;
       beginGlobalTransitionAsync<Traits>(
-          WaitingTaskHolder(group, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
+          WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
 
       do {
-        group.wait();
+        taskGroup_.wait();
       } while (not globalWaitTask.done());
       if (globalWaitTask.exceptionPtr() != nullptr) {
         std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
       }
 
       FinalWaitingTask writeWaitTask;
-      writeProcessBlockAsync(edm::WaitingTaskHolder{group, &writeWaitTask}, ProcessBlockType::Input);
+      writeProcessBlockAsync(edm::WaitingTaskHolder{taskGroup_, &writeWaitTask}, ProcessBlockType::Input);
       do {
-        group.wait();
+        taskGroup_.wait();
       } while (not writeWaitTask.done());
       if (writeWaitTask.exceptionPtr()) {
         std::rethrow_exception(*writeWaitTask.exceptionPtr());
@@ -984,15 +982,14 @@ namespace edm {
     FinalWaitingTask globalWaitTask;
 
     ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-    tbb::task_group group;
-    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(group, &globalWaitTask),
+    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
                                      *schedule_,
                                      transitionInfo,
                                      serviceToken_,
                                      subProcesses_,
                                      cleaningUpAfterException);
     do {
-      group.wait();
+      taskGroup_.wait();
     } while (not globalWaitTask.done());
     if (globalWaitTask.exceptionPtr() != nullptr) {
       std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
@@ -1000,9 +997,9 @@ namespace edm {
 
     if (beginProcessBlockSucceeded) {
       FinalWaitingTask writeWaitTask;
-      writeProcessBlockAsync(edm::WaitingTaskHolder{group, &writeWaitTask}, ProcessBlockType::New);
+      writeProcessBlockAsync(edm::WaitingTaskHolder{taskGroup_, &writeWaitTask}, ProcessBlockType::New);
       do {
-        group.wait();
+        taskGroup_.wait();
       } while (not writeWaitTask.done());
       if (writeWaitTask.exceptionPtr()) {
         std::rethrow_exception(*writeWaitTask.exceptionPtr());
@@ -1049,11 +1046,10 @@ namespace edm {
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
       FinalWaitingTask globalWaitTask;
       RunTransitionInfo transitionInfo(runPrincipal, es);
-      tbb::task_group group;
       beginGlobalTransitionAsync<Traits>(
-          WaitingTaskHolder(group, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
+          WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
       do {
-        group.wait();
+        taskGroup_.wait();
       } while (not globalWaitTask.done());
       if (globalWaitTask.exceptionPtr() != nullptr) {
         std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
@@ -1071,15 +1067,14 @@ namespace edm {
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
 
       RunTransitionInfo transitionInfo(runPrincipal, es);
-      tbb::task_group group;
-      beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(group, &streamLoopWaitTask),
+      beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
                                           *schedule_,
                                           preallocations_.numberOfStreams(),
                                           transitionInfo,
                                           serviceToken_,
                                           subProcesses_);
       do {
-        group.wait();
+        taskGroup_.wait();
       } while (not streamLoopWaitTask.done());
       if (streamLoopWaitTask.exceptionPtr() != nullptr) {
         std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
@@ -1105,10 +1100,9 @@ namespace edm {
         RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
         MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
         mergeableRunProductMetadata->preWriteRun();
-        tbb::task_group group;
-        writeRunAsync(edm::WaitingTaskHolder{group, &t}, phid, run, mergeableRunProductMetadata);
+        writeRunAsync(edm::WaitingTaskHolder{taskGroup_, &t}, phid, run, mergeableRunProductMetadata);
         do {
-          group.wait();
+          taskGroup_.wait();
         } while (not t.done());
         mergeableRunProductMetadata->postWriteRun();
         if (t.exceptionPtr()) {
@@ -1142,8 +1136,7 @@ namespace edm {
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
 
       RunTransitionInfo transitionInfo(runPrincipal, es);
-      tbb::task_group group;
-      endStreamsTransitionAsync<Traits>(WaitingTaskHolder(group, &streamLoopWaitTask),
+      endStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
                                         *schedule_,
                                         preallocations_.numberOfStreams(),
                                         transitionInfo,
@@ -1151,7 +1144,7 @@ namespace edm {
                                         subProcesses_,
                                         cleaningUpAfterException);
       do {
-        group.wait();
+        taskGroup_.wait();
       } while (not streamLoopWaitTask.done());
       if (streamLoopWaitTask.exceptionPtr() != nullptr) {
         std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
@@ -1166,15 +1159,14 @@ namespace edm {
 
       RunTransitionInfo transitionInfo(runPrincipal, es);
       using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
-      tbb::task_group group;
-      endGlobalTransitionAsync<Traits>(WaitingTaskHolder(group, &globalWaitTask),
+      endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
                                        *schedule_,
                                        transitionInfo,
                                        serviceToken_,
                                        subProcesses_,
                                        cleaningUpAfterException);
       do {
-        group.wait();
+        taskGroup_.wait();
       } while (not globalWaitTask.done());
       if (globalWaitTask.exceptionPtr() != nullptr) {
         std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
@@ -1188,19 +1180,18 @@ namespace edm {
 
   InputSource::ItemType EventProcessor::processLumis(std::shared_ptr<void> const& iRunResource) {
     FinalWaitingTask waitTask;
-    tbb::task_group group;
     if (streamLumiActive_ > 0) {
       assert(streamLumiActive_ == preallocations_.numberOfStreams());
       // Continue after opening a new input file
-      continueLumiAsync(WaitingTaskHolder{group, &waitTask});
+      continueLumiAsync(WaitingTaskHolder{taskGroup_, &waitTask});
     } else {
       beginLumiAsync(IOVSyncValue(EventID(input_->run(), input_->luminosityBlock(), 0),
                                   input_->luminosityBlockAuxiliary()->beginTime()),
                      iRunResource,
-                     WaitingTaskHolder{group, &waitTask});
+                     WaitingTaskHolder{taskGroup_, &waitTask});
     }
     do {
-      group.wait();
+      taskGroup_.wait();
     } while (not waitTask.done());
 
     if (waitTask.exceptionPtr() != nullptr) {
@@ -1556,9 +1547,8 @@ namespace edm {
   void EventProcessor::endUnfinishedLumi() {
     if (streamLumiActive_.load() > 0) {
       FinalWaitingTask globalWaitTask;
-      tbb::task_group group;
       {
-        WaitingTaskHolder globalTaskHolder{group, &globalWaitTask};
+        WaitingTaskHolder globalTaskHolder{taskGroup_, &globalWaitTask};
         for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
           if (streamLumiStatus_[i]) {
             streamEndLumiAsync(globalTaskHolder, i);
@@ -1566,7 +1556,7 @@ namespace edm {
         }
       }
       do {
-        group.wait();
+        taskGroup_.wait();
       } while (not globalWaitTask.done());
       if (globalWaitTask.exceptionPtr() != nullptr) {
         std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
