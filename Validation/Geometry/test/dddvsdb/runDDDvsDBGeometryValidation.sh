@@ -48,8 +48,8 @@ echo $geometry
 sed -i "{s/GeometryExtended/${geometry}/}" geometryxmlwriter.py >  GeometryValidation.log
 cmsRun geometryxmlwriter.py >>  GeometryValidation.log
 
-# cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrywriter.py .
-cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrywriter.py .
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrywriter.py .
+# cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrywriter.py .
 sed -i "{s/GeometryExtended/${geometry}/}" geometrywriter.py >>  GeometryValidation.log
 sed -i "{s/geTagXX.xml/geSingleBigFile.xml/g}" geometrywriter.py >>  GeometryValidation.log
 cmsRun geometrywriter.py >>  GeometryValidation.log
@@ -135,8 +135,8 @@ else
 endif
 
 cd ../tkdblocal
-# cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/python/trackerModuleInfoLocalDB_cfg.py .
-cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/python/trackerModuleInfoLocalDB_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/python/trackerModuleInfoLocalDB_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/python/trackerModuleInfoLocalDB_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log 
