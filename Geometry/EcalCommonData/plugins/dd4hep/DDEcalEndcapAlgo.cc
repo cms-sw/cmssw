@@ -20,7 +20,9 @@ using DDRotation = ROOT::Math::Rotation3D;
 //#define EDM_ML_DEBUG
 
 namespace {
+#ifdef EDM_ML_DEBUG
   constexpr double f_mm = (1.0 / dd4hep::mm);
+#endif
   struct Endcap {
     string mat;
     double zOff;
