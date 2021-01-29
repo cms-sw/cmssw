@@ -263,7 +263,7 @@ void DDEcalEndcapAlgo::initialize(const DDNumericArguments& nArgs,
                                   const DDStringArguments& sArgs,
                                   const DDStringVectorArguments& /*vsArgs*/) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeomX") << "DDEcalEndcapAlgo info: Initialize" ;
+  edm::LogVerbatim("EcalGeomX") << "DDEcalEndcapAlgo info: Initialize";
 #endif
   m_idNameSpace = DDCurrentNamespace::ns();
   // TRICK!
@@ -411,15 +411,16 @@ void DDEcalEndcapAlgo::execute(DDCompactView& cpv) {
         scrys.translate(DDTranslation(0., 0., -eezOff()));
 
         DDName rname(envName(isctype).name() + std::to_string(icol) + "R" + std::to_string(irow));
-        
+
 #ifdef EDM_ML_DEBUG
-         edm::LogVerbatim("EcalGeoXm") << "Quadrant, SC col/row " 
-				      << eeQuaName() << " " << icol << " / " << irow << std::endl
-				      << "   Limits " << int(colLimits[2*icol-2]) << "->" << int(colLimits[2*icol-1]) << std::endl
-				      << "   SC type = " << isctype << std::endl
-				      << "   Zoff = " << eezOff() << std::endl
-				      << "   Rotation " << rname << " " << scrys.rotation() << std::endl
-				      << "   Position " << scrys.centrePos();
+        edm::LogVerbatim("EcalGeoXm") << "Quadrant, SC col/row " << eeQuaName() << " " << icol << " / " << irow
+                                      << std::endl
+                                      << "   Limits " << int(colLimits[2 * icol - 2]) << "->"
+                                      << int(colLimits[2 * icol - 1]) << std::endl
+                                      << "   SC type = " << isctype << std::endl
+                                      << "   Zoff = " << eezOff() << std::endl
+                                      << "   Rotation " << rname << " " << scrys.rotation() << std::endl
+                                      << "   Position " << scrys.centrePos();
 #endif
         // Position SC in endcap
         cpv.position(envName(isctype),
@@ -428,8 +429,10 @@ void DDEcalEndcapAlgo::execute(DDCompactView& cpv) {
                      scrys.centrePos(),
                      myrot(rname.fullname(), scrys.rotation()));
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("EEGeom") << envName(isctype) << " " << (100 * isctype + 10 * (icol - 1) + (irow - 1)) << " in " << eeQuaName();
-	edm::LogVerbatim("EcalGeom") << envName(isctype) << " " << (100 * isctype + 10 * (icol - 1) + (irow - 1)) << " in " << eeQuaName() << " at " << scrys.centrePos();
+        edm::LogVerbatim("EEGeom") << envName(isctype) << " " << (100 * isctype + 10 * (icol - 1) + (irow - 1))
+                                   << " in " << eeQuaName();
+        edm::LogVerbatim("EcalGeom") << envName(isctype) << " " << (100 * isctype + 10 * (icol - 1) + (irow - 1))
+                                     << " in " << eeQuaName() << " at " << scrys.centrePos();
 #endif
       }
     }
@@ -467,7 +470,9 @@ void DDEcalEndcapAlgo::EECreateSC(const unsigned int iSCType,
                                        eRear,
                                        zerod));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << eeSCEnv.name() << " Trap with parameters: " << 0.5 * eeSCELength() << ":" << eAng << ffived << ":" << eFront << ":" << eFront << ":" << eFront << ":" << zerod << ":" << eRear << ":" << eRear << ":" << eRear << ":" << zerod;
+  edm::LogVerbatim("EcalGeom") << eeSCEnv.name() << " Trap with parameters: " << 0.5 * eeSCELength() << ":" << eAng
+                               << ffived << ":" << eFront << ":" << eFront << ":" << eFront << ":" << zerod << ":"
+                               << eRear << ":" << eRear << ":" << eRear << ":" << zerod;
 #endif
 
   const double aFront(0.5 * eeSCAFront());
@@ -486,7 +491,9 @@ void DDEcalEndcapAlgo::EECreateSC(const unsigned int iSCType,
                                              aRear,
                                              zerod));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << eeSCAlv.name()  << " Trap with parameters: " << 0.5 * eeSCALength() << ":" << aAng << ":" << ffived << ":" << aFront << ":" << aFront << ":" << aFront << ":" << zerod << ":" << aRear << ":" << aRear << ":" << aRear << ":" << zerod;
+  edm::LogVerbatim("EcalGeom") << eeSCAlv.name() << " Trap with parameters: " << 0.5 * eeSCALength() << ":" << aAng
+                               << ":" << ffived << ":" << aFront << ":" << aFront << ":" << aFront << ":" << zerod
+                               << ":" << aRear << ":" << aRear << ":" << aRear << ":" << zerod;
 #endif
   const double dwall(eeSCAWall());
   const double iFront(aFront - dwall);
@@ -505,7 +512,10 @@ void DDEcalEndcapAlgo::EECreateSC(const unsigned int iSCType,
                                              iRear,
                                              zerod));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << eeSCInt.name()  << " Trap with parameters: " <<  iLen / 2. << ":" << (atan((eeSCARear() - eeSCAFront()) / (sqrt(2.) * eeSCALength()))) << ":" << ffived << ":" << iFront << ":" << iFront << ":" << iFront << ":" << zerod << ":" << iRear << ":" << iRear << ":" << iRear << ":" << zerod;
+  edm::LogVerbatim("EcalGeom") << eeSCInt.name() << " Trap with parameters: " << iLen / 2. << ":"
+                               << (atan((eeSCARear() - eeSCAFront()) / (sqrt(2.) * eeSCALength()))) << ":" << ffived
+                               << ":" << iFront << ":" << iFront << ":" << iFront << ":" << zerod << ":" << iRear << ":"
+                               << iRear << ":" << iRear << ":" << zerod;
 #endif
   const double dz(-0.5 * (eeSCELength() - eeSCALength()));
   const double dxy(0.5 * dz * (eeSCERear() - eeSCEFront()) / eeSCELength());
@@ -549,7 +559,8 @@ void DDEcalEndcapAlgo::EECreateSC(const unsigned int iSCType,
     DDSolid eeCutEnv(
         DDSolidFactory::subtraction(envName(iSCType), addTmp(envName(iSCType)), cutBoxName(), cutTra, cutRot));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << eeCutEnv.name()  << " Subtracted by " << (eeSCERear() / sqrt(2.)) << ":" << (eeSCERear() / sqrt(2.)) << ":" << (eeSCELength() / sqrt(2.));
+    edm::LogVerbatim("EcalGeom") << eeCutEnv.name() << " Subtracted by " << (eeSCERear() / sqrt(2.)) << ":"
+                                 << (eeSCERear() / sqrt(2.)) << ":" << (eeSCELength() / sqrt(2.));
 #endif
     const DDTranslation extra(dxy, dxy, dz);
 
@@ -557,7 +568,8 @@ void DDEcalEndcapAlgo::EECreateSC(const unsigned int iSCType,
         DDSolidFactory::subtraction(alvName(iSCType), addTmp(alvName(iSCType)), cutBoxName(), cutTra - extra, cutRot));
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << eeCutAlv.name()  << " Subtracted by " << (eeSCERear() / sqrt(2.)) << ":" << (eeSCERear() / sqrt(2.)) << ":" << (eeSCELength() / sqrt(2.));
+    edm::LogVerbatim("EcalGeom") << eeCutAlv.name() << " Subtracted by " << (eeSCERear() / sqrt(2.)) << ":"
+                                 << (eeSCERear() / sqrt(2.)) << ":" << (eeSCELength() / sqrt(2.));
 #endif
     const double mySign(iSCType < 4 ? +1. : -1.);
 
@@ -566,7 +578,8 @@ void DDEcalEndcapAlgo::EECreateSC(const unsigned int iSCType,
     DDSolid eeCutInt(
         DDSolidFactory::subtraction(intName(iSCType), addTmp(intName(iSCType)), cutBoxName(), cutTra - extraI, cutRot));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << eeCutInt.name()  << " Subtracted by " << (eeSCERear() / sqrt(2.)) << ":" << (eeSCERear() / sqrt(2.)) << ":" << (eeSCELength() / sqrt(2.));
+    edm::LogVerbatim("EcalGeom") << eeCutInt.name() << " Subtracted by " << (eeSCERear() / sqrt(2.)) << ":"
+                                 << (eeSCERear() / sqrt(2.)) << ":" << (eeSCELength() / sqrt(2.));
 #endif
 
     eeSCELog = DDLogicalPart(envName(iSCType), eeMat(), eeCutEnv);
@@ -579,8 +592,10 @@ void DDEcalEndcapAlgo::EECreateSC(const unsigned int iSCType,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EEGeom") << eeSCALog.name() << " " << (iSCType * 100 + 1) << " in " << envName(iSCType);
   edm::LogVerbatim("EEGeom") << eeSCILog.name() << " " << (iSCType * 100 + 1) << " in " << alvName(iSCType);
-  edm::LogVerbatim("EcalGeom") << eeSCALog.name() << " " << (iSCType * 100 + 1) << " in " << envName(iSCType) << " at (" << dxy << ", " << dxy << ", " << dz << ")";
-  edm::LogVerbatim("EcalGeom") << eeSCILog.name() << " " << (iSCType * 100 + 1) << " in " << alvName(iSCType) << " at (" << xyIOff << ", " << xyIOff << ", " << zIOff << ")";
+  edm::LogVerbatim("EcalGeom") << eeSCALog.name() << " " << (iSCType * 100 + 1) << " in " << envName(iSCType) << " at ("
+                               << dxy << ", " << dxy << ", " << dz << ")";
+  edm::LogVerbatim("EcalGeom") << eeSCILog.name() << " " << (iSCType * 100 + 1) << " in " << alvName(iSCType) << " at ("
+                               << xyIOff << ", " << xyIOff << ", " << zIOff << ")";
 #endif
   DDTranslation croffset(0., 0., 0.);
   EEPositionCRs(alvName(iSCType), croffset, iSCType, cpv);
@@ -592,8 +607,7 @@ unsigned int DDEcalEndcapAlgo::EEGetSCType(const unsigned int iCol, const unsign
     if ((eevecEESCCutaway()[3 * ii] == iCol) && (eevecEESCCutaway()[3 * ii + 1] == iRow)) {
       iType = int(eevecEESCCutaway()[3 * ii + 2]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeomX") << "EEGetSCType: col, row, type = "
-				   << iCol << " " << iRow << " " << iType;
+      edm::LogVerbatim("EcalGeomX") << "EEGetSCType: col, row, type = " << iCol << " " << iRow << " " << iType;
 #endif
     }
   }
@@ -619,7 +633,11 @@ void DDEcalEndcapAlgo::EECreateCR() {
                                          0.5 * eeCrysRear(),
                                          0. * deg));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << EECRSolid.name()  << " Trap with parameters: " << 0.5 * eeCrysLength() << ":" << (atan((eeCrysRear() - eeCrysFront()) / (sqrt(2.) * eeCrysLength()))) << ":" << 45. * deg << ":" << 0.5 * eeCrysFront() << ":" << 0.5 * eeCrysFront() << ":" << 0.5 * eeCrysFront() << ":" << 0. * deg << ":" << 0.5 * eeCrysRear() << ":" << 0.5 * eeCrysRear() << ":" << 0.5 * eeCrysRear() << ":" << 0. * deg;
+  edm::LogVerbatim("EcalGeom") << EECRSolid.name() << " Trap with parameters: " << 0.5 * eeCrysLength() << ":"
+                               << (atan((eeCrysRear() - eeCrysFront()) / (sqrt(2.) * eeCrysLength()))) << ":"
+                               << 45. * deg << ":" << 0.5 * eeCrysFront() << ":" << 0.5 * eeCrysFront() << ":"
+                               << 0.5 * eeCrysFront() << ":" << 0. * deg << ":" << 0.5 * eeCrysRear() << ":"
+                               << 0.5 * eeCrysRear() << ":" << 0.5 * eeCrysRear() << ":" << 0. * deg;
 #endif
 
   DDLogicalPart part(cryName(), eeCrysMat(), EECRSolid);
@@ -651,8 +669,7 @@ void DDEcalEndcapAlgo::EEPositionCRs(const DDName& pName,
         // Loop over crystals in this row
         for (int irow(imin); irow <= imax; ++irow) {
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("EcalGeomX") << " type, col, row " << iSCType
-				       << " " << icol << " " << irow;
+          edm::LogVerbatim("EcalGeomX") << " type, col, row " << iSCType << " " << icol << " " << irow;
 #endif
           // Create crystal as a DDEcalEndcapTrap object and calculate rotation and
           // translation required to position it in the SC.
@@ -668,8 +685,10 @@ void DDEcalEndcapAlgo::EEPositionCRs(const DDName& pName,
                        crystal.centrePos() - DDTranslation(0, 0, m_cryZOff),
                        myrot(rname.fullname(), crystal.rotation()));
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("EEGeom") << cryName() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1)) << " in " << pName;
-	  edm::LogVerbatim("EcalGeom") << cryName() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1)) << " in " << pName << " at " << (crystal.centrePos() - DDTranslation(0, 0, m_cryZOff));
+          edm::LogVerbatim("EEGeom") << cryName() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1)) << " in "
+                                     << pName;
+          edm::LogVerbatim("EcalGeom") << cryName() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1)) << " in "
+                                       << pName << " at " << (crystal.centrePos() - DDTranslation(0, 0, m_cryZOff));
 #endif
         }
       }
