@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/mms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/mms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition>
 
   <!-- Unit of measurement: mm  -->
   <ConstantsSection label="etl.xml" eval="true">
