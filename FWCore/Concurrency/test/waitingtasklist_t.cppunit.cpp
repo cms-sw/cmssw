@@ -187,22 +187,18 @@ void WaitingTaskList_test::stressTest() {
   while (0 != --index) {
     edm::FinalWaitingTask waitTask;
     auto* pWaitTask = &waitTask;
-    waitTask.increment_ref_count();
-    waitTask.increment_ref_count();
     {
-      std::thread makeTasksThread([&waitList, pWaitTask, &group] {
+      edm::WaitingTaskHolder waitTaskH(group, pWaitTask);
+      std::thread makeTasksThread([&waitList, waitTaskH, &group] {
         for (unsigned int i = 0; i < nTasks; ++i) {
-          auto t = edm::make_waiting_task([h = edm::WaitingTaskHolder(group, pWaitTask)](std::exception_ptr const*) {});
-          waitList.add(&group, t);
+          waitList.add(waitTaskH);
         }
 
-        pWaitTask->decrement_ref_count();
       });
       std::shared_ptr<std::thread>(&makeTasksThread, join_thread);
 
-      std::thread doneWaitThread([&waitList, pWaitTask] {
+      std::thread doneWaitThread([&waitList, waitTaskH] {
         waitList.doneWaiting(std::exception_ptr{});
-        pWaitTask->decrement_ref_count();
       });
       std::shared_ptr<std::thread>(&doneWaitThread, join_thread);
     }
