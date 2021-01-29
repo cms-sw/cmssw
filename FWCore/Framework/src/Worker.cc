@@ -278,10 +278,10 @@ namespace edm {
           FinalWaitingTask waitTask;
           auto const& recs = esRecordsToGetFrom(iTrans);
           auto const& items = esItemsToGetFrom(iTrans);
-          auto group = task.group();
+          tbb::task_group group;
           {
             //Need hWaitTask to go out of scope before calling wait_for_all
-            WaitingTaskHolder hWaitTask(*group, &waitTask);
+            WaitingTaskHolder hWaitTask(group, &waitTask);
             for (size_t i = 0; i != items.size(); ++i) {
               if (recs[i] != ESRecordIndex{}) {
                 auto rec = iImpl.findImpl(recs[i]);
@@ -292,7 +292,7 @@ namespace edm {
             }
           }
           do {
-            group->wait();
+            group.wait();
           } while (not waitTask.done());
 
           auto exPtr = waitTask.exceptionPtr();
