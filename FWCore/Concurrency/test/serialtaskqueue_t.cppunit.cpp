@@ -38,31 +38,30 @@ void SerialTaskQueue_test::testPush() {
 
   edm::SerialTaskQueue queue;
   {
-    edm::FinalWaitingTask waitTask;
-    auto* pWaitTask = &waitTask;
+    std::atomic<unsigned int> waitingTasks{3};
     tbb::task_group group;
 
-    queue.push(group, [&count, pWaitTask] {
+    queue.push(group, [&count, &waitingTasks] {
       CPPUNIT_ASSERT(count++ == 0);
       usleep(10);
-      pWaitTask->decrement_ref_count();
+      --waitingTasks;
     });
 
-    queue.push(group, [&count, pWaitTask] {
+    queue.push(group, [&count, &waitingTasks] {
       CPPUNIT_ASSERT(count++ == 1);
       usleep(10);
-      pWaitTask->decrement_ref_count();
+      --waitingTasks;
     });
 
-    queue.push(group, [&count, pWaitTask] {
+    queue.push(group, [&count, &waitingTasks] {
       CPPUNIT_ASSERT(count++ == 2);
       usleep(10);
-      pWaitTask->decrement_ref_count();
+      --waitingTasks;
     });
 
     do {
       group.wait();
-    } while (not waitTask.done());
+    } while (0 != waitingTasks.load());
     CPPUNIT_ASSERT(count == 3);
   }
 }
@@ -74,46 +73,38 @@ void SerialTaskQueue_test::testPause() {
   {
     queue.pause();
     {
-      edm::FinalWaitingTask waitTask;
-      auto* pWaitTask = &waitTask;
+      std::atomic<unsigned int> waitingTasks{1};
       tbb::task_group group;
 
-      waitTask.increment_ref_count();
-
-      queue.push(group, [&count, pWaitTask] {
+      queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ == 0);
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
       usleep(1000);
       CPPUNIT_ASSERT(0 == count);
       queue.resume();
       do {
         group.wait();
-      } while (not waitTask.done());
+      } while (0 != waitingTasks.load());
       CPPUNIT_ASSERT(count == 1);
     }
 
     {
-      edm::FinalWaitingTask waitTask;
-      auto* pWaitTask = &waitTask;
+      std::atomic<unsigned int> waitingTasks{3};
       tbb::task_group group;
 
-      waitTask.increment_ref_count();
-      waitTask.increment_ref_count();
-      waitTask.increment_ref_count();
-
-      queue.push(group, [&count, &queue, pWaitTask] {
+      queue.push(group, [&count, &queue, &waitingTasks] {
         queue.pause();
         CPPUNIT_ASSERT(count++ == 1);
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
-      queue.push(group, [&count, pWaitTask] {
+      queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ == 2);
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
-      queue.push(group, [&count, pWaitTask] {
+      queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ == 3);
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
       usleep(100);
       //can't do == since the queue may not have processed the first task yet
@@ -121,7 +112,7 @@ void SerialTaskQueue_test::testPause() {
       queue.resume();
       do {
         group.wait();
-      } while (not waitTask.done());
+      } while (0 != waitingTasks.load());
       CPPUNIT_ASSERT(count == 4);
     }
   }
@@ -133,46 +124,42 @@ void SerialTaskQueue_test::stressTest() {
   unsigned int index = 100;
   const unsigned int nTasks = 1000;
   while (0 != --index) {
-    edm::FinalWaitingTask waitTask;
-    auto* pWaitTask = &waitTask;
+    std::atomic<unsigned int> waitingTasks{2};
     tbb::task_group group;
     std::atomic<unsigned int> count{0};
-
-    waitTask.increment_ref_count();
-    waitTask.increment_ref_count();
 
     std::atomic<bool> waitToStart{true};
     {
       {
         tbb::task_arena arena{tbb::task_arena::attach()};
-        arena.enqueue([&queue, &waitToStart, pWaitTask, &count, &group] {
+        arena.enqueue([&queue, &waitToStart, &waitingTasks, &count, &group] {
           while (waitToStart.load()) {
           };
           for (unsigned int i = 0; i < nTasks; ++i) {
-            pWaitTask->increment_ref_count();
-            queue.push(group, [&count, pWaitTask] {
+            ++waitingTasks;
+            queue.push(group, [&count, &waitingTasks] {
               ++count;
-              pWaitTask->decrement_ref_count();
+              --waitingTasks;
             });
           }
 
-          pWaitTask->decrement_ref_count();
+          --waitingTasks;
         });
       }
 
       waitToStart = false;
       for (unsigned int i = 0; i < nTasks; ++i) {
-        pWaitTask->increment_ref_count();
-        queue.push(group, [&count, pWaitTask] {
+        ++waitingTasks;
+        queue.push(group, [&count, &waitingTasks] {
           ++count;
-          pWaitTask->decrement_ref_count();
+          --waitingTasks;
         });
       }
-      pWaitTask->decrement_ref_count();
+      --waitingTasks;
     }
     do {
       group.wait();
-    } while (not waitTask.done());
+    } while (0 != waitingTasks.load());
 
     CPPUNIT_ASSERT(2 * nTasks == count);
   }
