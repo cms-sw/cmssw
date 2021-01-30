@@ -56,23 +56,18 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   edm::Handle<TTTrackCollectionView> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
 
-  std::vector<L1Track> l1Tracks;
-  l1Tracks.reserve(l1TracksHandle->size());
-
-  for (const auto& track : l1TracksHandle->ptrs())
-    l1Tracks.push_back(L1Track(track));
-
   std::vector<const L1Track*> l1TrackPtrs;
-  l1TrackPtrs.reserve(l1Tracks.size());
-  for (const auto& track : l1Tracks) {
-    if (track.pt() > settings_.vx_TrackMinPt()) {
-      if (track.pt() < 50 or track.getNumStubs() > 5)
-        l1TrackPtrs.push_back(&track);
+  l1TrackPtrs.reserve(l1TracksHandle->size());
+  for (const auto& track : l1TracksHandle->ptrs()) {
+    auto l1track = L1Track(track);
+    // Check the minimum pT of the tracks
+    // This is left here because it represents the smallest pT to be sent by the track finding boards
+    // This has less to do with the algorithms than the constraints of what will be sent to the vertexing algorithm
+    if (l1track.pt() > settings_.vx_TrackMinPt()) {
+      l1TrackPtrs.push_back(&l1track);
     }
   }
 
-  // FIXME: Check with Davide if the tracks should be filtered using the following cuts
-  //   fittedTracks[i].second.accepted() and fittedTracks[i].second.chi2dof()< settings_->chi2OverNdfCut()
   VertexFinder vf(l1TrackPtrs, settings_);
 
   switch (settings_.vx_algo()) {

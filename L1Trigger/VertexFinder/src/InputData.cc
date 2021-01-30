@@ -29,15 +29,12 @@ namespace l1tVertexFinder {
                        const edm::EDGetTokenT<TTStubAssMap> stubTruthToken,
                        const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken) {
     vTPs_.reserve(2500);
-    // FIXME - filling vStubs_ removed during migration to VertexFinder package; not used in migrated code.
-    //  vStubs_.reserve(35000);
     vAllStubs_.reserve(35000);
 
     // Get TrackingParticle info
     edm::Handle<TrackingParticleCollection> tpHandle;
     iEvent.getByToken(tpToken, tpHandle);
-
-    unsigned int tpCount = 0;
+    map<edm::Ptr<TrackingParticle>, const TP*> translateTP;
 
     genPt_ = 0.;
     genPt_PU_ = 0.;
@@ -45,30 +42,24 @@ namespace l1tVertexFinder {
     for (unsigned int i = 0; i < tpHandle->size(); i++) {
       TrackingParticlePtr tpPtr(tpHandle, i);
       // Store the TrackingParticle info, using class TP to provide easy access to the most useful info.
-      TP tp(tpPtr, tpCount, settings);
+      TP tp(tpPtr, settings);
 
       if (tp.physicsCollision()) {
-        genPt_ += tp.pt();
+        genPt_ += tp->pt();
       } else {
-        genPt_PU_ += tp.pt();
+        genPt_PU_ += tp->pt();
       }
 
       // Only bother storing tp if it could be useful for tracking efficiency or fake rate measurements.
+      // Also create map relating edm::Ptr<TrackingParticle> to TP.
       if (tp.use()) {
         vTPs_.push_back(tp);
-        tpCount++;
+        translateTP[tpPtr] = &vTPs_.back();
       }
     }
 
     if (settings.debug() > 0) {
       edm::LogInfo("InputData") << "InputData::genPt in the event " << genPt_;
-    }
-
-    // Also create map relating edm::Ptr<TrackingParticle> to TP.
-    map<edm::Ptr<TrackingParticle>, const TP*> translateTP;
-    for (const TP& tp : vTPs_) {
-      TrackingParticlePtr tpPtr(tp);
-      translateTP[tpPtr] = &tp;
     }
 
     // Get the tracker geometry info needed to unpack the stub info.
@@ -111,17 +102,15 @@ namespace l1tVertexFinder {
     }
     assert(lStubDetIds.size() == stubGeoDetIdMap_.size());
 
-    unsigned int stubCount = 0;
     for (DetSetVec::const_iterator p_module = ttStubHandle->begin(); p_module != ttStubHandle->end(); p_module++) {
       for (DetSet::const_iterator p_ttstub = p_module->begin(); p_ttstub != p_module->end(); p_ttstub++) {
         TTStubRef ttStubRef = edmNew::makeRefTo(ttStubHandle, p_ttstub);
         // Store the Stub info, using class Stub to provide easy access to the most useful info.
-        Stub stub(ttStubRef, stubCount, settings, trackerGeometry, trackerTopology, stubGeoDetIdMap_);
+        Stub stub(ttStubRef, settings, trackerGeometry, trackerTopology);
         // Also fill truth associating stubs to tracking particles.
         //      stub.fillTruth(vTPs_, mcTruthTTStubHandle, mcTruthTTClusterHandle);
         stub.fillTruth(translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle);
         vAllStubs_.push_back(stub);
-        stubCount++;
       }
     }
 
@@ -135,23 +124,6 @@ namespace l1tVertexFinder {
     }
 
     // Find the various vertices
-
-    // FIXME - filling vStubs_ removed during migration to VertexFinder package; not used in migrated code.
-    //  // Produced reduced list containing only the subset of stubs that the user has declared will be
-    //  // output by the front-end readout electronics.
-    //  for (const Stub& s : vAllStubs_) {
-    //    if (s.frontendPass()) vStubs_.push_back( &s );
-    //  }
-    // std::cout << "Number of stubs from FE : " << vStubs_.size() << std::endl;
-
-    // FIXME - stub ordering removed during migration to VertexFinder package; should not be required.
-    //  // Optionally sort stubs according to bend, so highest Pt ones are sent from DTC to GP first.
-    //  if (settings->orderStubsByBend()) std::sort(vStubs_.begin(), vStubs_.end(), SortStubsInBend());
-    //  // Note list of stubs produced by each tracking particle.
-
-    // (By passing vAllStubs_ here instead of vStubs_, it means that any algorithmic efficiencies
-    // measured will be reduced if the tightened frontend electronics cuts, specified in section StubCuts
-    // of Analyze_Defaults_cfi.py, are not 100% efficient).
     for (unsigned int j = 0; j < vTPs_.size(); j++) {
       assert(tpStubMap.count(&vTPs_.at(j)) == 1);
       vTPs_[j].setMatchingStubs(tpStubMap.find(&vTPs_.at(j))->second);
@@ -160,14 +132,14 @@ namespace l1tVertexFinder {
       } else if (vTPs_[j].useForVertexReco()) {
         bool found = false;
         for (unsigned int i = 0; i < vertices_.size(); ++i) {
-          if (vTPs_[j].vz() == vertices_[i].vz()) {
+          if (vTPs_[j]->vz() == vertices_[i].vz()) {
             vertices_[i].insert(vTPs_[j]);
             found = true;
             break;
           }
         }
         if (!found) {
-          Vertex vertex(vTPs_[j].vz());
+          Vertex vertex(vTPs_[j]->vz());
           vertex.insert(vTPs_[j]);
           vertices_.push_back(vertex);
         }

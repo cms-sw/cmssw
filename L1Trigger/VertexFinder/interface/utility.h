@@ -27,18 +27,7 @@ namespace l1tVertexFinder {
 
     unsigned int countLayers(const AnalysisSettings& settings,
                              const std::vector<const Stub*>& stubs,
-                             bool disableReducedLayerID = false,
                              bool onlyPS = false);
-
-    // Given a set of stubs (presumably on a reconstructed track candidate)
-    // return the best matching Tracking Particle (if any),
-    // the number of tracker layers in which one of the stubs matched one from this tracking particle,
-    // and the list of the subset of the stubs which match those on the tracking particle.
-
-    const TP* matchingTP(const AnalysisSettings& settings,
-                         const std::vector<Stub*>& vstubs,
-                         unsigned int& nMatchedLayersBest,
-                         std::vector<const Stub*>& matchedStubsBest);
 
   }  // end namespace utility
 }  // end namespace l1tVertexFinder

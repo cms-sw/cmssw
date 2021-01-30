@@ -1,35 +1,18 @@
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "L1Trigger/VertexFinder/interface/Stub.h"
-#include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
 
 namespace l1tVertexFinder {
 
   //=== Store useful info about this stub.
 
   Stub::Stub(const TTStubRef& ttStubRef,
-             unsigned int index_in_vStubs,
              const AnalysisSettings& settings,
              const TrackerGeometry* trackerGeometry,
-             const TrackerTopology* trackerTopology,
-             const std::map<DetId, DetId>& geoDetIdMap)
+             const TrackerTopology* trackerTopology)
       : TTStubRef(ttStubRef), settings_(&settings) {
-    // Get coordinates of stub.
-    // const TTStub<Ref_Phase2TrackerDigi_> *ttStubP = ttStubRef.get();
-
-    DetId geoDetId = geoDetIdMap.find(ttStubRef->getDetId())->second;
-
-    const GeomDetUnit* det0 = trackerGeometry->idToDetUnit(geoDetId);
-    // To get other module, can do this
-    // const GeomDetUnit* det1 = trackerGeometry->idToDetUnit( trackerTopology->partnerDetId( geoDetId ) );
-
-    const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(det0);
-    const PixelTopology* topol = dynamic_cast<const PixelTopology*>(&(theGeomDet->specificTopology()));
-    MeasurementPoint measurementPoint = ttStubRef->clusterRef(0)->findAverageLocalCoordinatesCentered();
-    LocalPoint clustlp = topol->localPosition(measurementPoint);
-    GlobalPoint pos = theGeomDet->surface().toGlobal(clustlp);
+    auto geoDetId = trackerGeometry->idToDet(ttStubRef->clusterRef(0)->getDetId())->geographicalId();
+    auto theGeomDet = trackerGeometry->idToDet(geoDetId);
+    auto measurementPoint = ttStubRef->clusterRef(0)->findAverageLocalCoordinatesCentered();
+    auto pos = theGeomDet->surface().toGlobal(theGeomDet->topology().localPosition(measurementPoint));
 
     phi_ = pos.phi();
     r_ = pos.perp();
@@ -56,11 +39,10 @@ namespace l1tVertexFinder {
 
     //--- Fill assocTP_ info. If both clusters in this stub were produced by the same single tracking particle, find out which one it was.
 
-    bool genuine = mcTruthTTStubHandle->isGenuine(ttStubRef);  // Same TP contributed to both clusters?
     assocTP_ = nullptr;
 
     // Require same TP contributed to both clusters.
-    if (genuine) {
+    if (mcTruthTTStubHandle->isGenuine(ttStubRef)) {
       edm::Ptr<TrackingParticle> tpPtr = mcTruthTTStubHandle->findTrackingParticlePtr(ttStubRef);
       if (translateTP.find(tpPtr) != translateTP.end()) {
         assocTP_ = translateTP.at(tpPtr);
@@ -92,51 +74,6 @@ namespace l1tVertexFinder {
         }
       }
     }
-
-    //--- Also note which tracking particles produced the two clusters that make up the stub
-
-    for (unsigned int iClus = 0; iClus <= 1; iClus++) {  // Loop over both clusters that make up stub.
-      const TTClusterRef& ttClusterRef = ttStubRef->clusterRef(iClus);
-
-      bool genuineCluster = mcTruthTTClusterHandle->isGenuine(ttClusterRef);  // Only 1 TP made cluster?
-      assocTPofCluster_[iClus] = nullptr;
-
-      // Only consider clusters produced by just one TP.
-      if (genuineCluster) {
-        edm::Ptr<TrackingParticle> tpPtr = mcTruthTTClusterHandle->findTrackingParticlePtr(ttClusterRef);
-
-        if (translateTP.find(tpPtr) != translateTP.end()) {
-          assocTPofCluster_[iClus] = translateTP.at(tpPtr);
-          // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
-        }
-      }
-    }
-  }
-
-  //=== Get reduced layer ID (in range 1-7), which can be packed into 3 bits so simplifying the firmware).
-
-  unsigned int Stub::layerIdReduced() const {
-    // Don't bother distinguishing two endcaps, as no track can have stubs in both.
-    unsigned int lay = (layerId_ < 20) ? layerId_ : layerId_ - 10;
-
-    // No genuine track can have stubs in both barrel layer 6 and endcap disk 11 etc., so merge their layer IDs.
-    // WARNING: This is tracker geometry dependent, so may need changing in future ...
-    if (lay == 6)
-      lay = 11;
-    if (lay == 5)
-      lay = 12;
-    if (lay == 4)
-      lay = 13;
-    if (lay == 3)
-      lay = 15;
-    // At this point, the reduced layer ID can have values of 1, 2, 11, 12, 13, 14, 15. So correct to put in range 1-7.
-    if (lay > 10)
-      lay -= 8;
-
-    if (lay < 1 || lay > 7)
-      throw cms::Exception("Stub: Reduced layer ID out of expected range");
-
-    return lay;
   }
 
   void Stub::setModuleInfo(const TrackerGeometry* trackerGeometry,

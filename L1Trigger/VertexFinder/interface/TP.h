@@ -3,7 +3,8 @@
 
 #include "DataFormats/Common/interface/Ptr.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-
+#include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
+#include "L1Trigger/VertexFinder/interface/Stub.h"
 #include "L1Trigger/VertexFinder/interface/utility.h"
 
 namespace l1tVertexFinder {
@@ -16,7 +17,7 @@ namespace l1tVertexFinder {
   class TP : public TrackingParticlePtr {
   public:
     // Fill useful info about tracking particle.
-    TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const AnalysisSettings& settings);
+    TP(TrackingParticlePtr tpPtr, const AnalysisSettings& settings);
     ~TP() {}
 
     // Fill truth info with association from tracking particle to stubs.
@@ -24,34 +25,13 @@ namespace l1tVertexFinder {
 
     // == Functions for returning info about tracking particles ===
 
-    // Location in InputData::vTPs_
-    unsigned int index() const { return index_in_vTPs_; }
     // Did it come from the main physics collision or from pileup?
-    // Basic TP properties
-    int pdgId() const { return pdgId_; }
     bool physicsCollision() const { return physicsCollision_; }
-    int charge() const { return charge_; }
-    float mass() const { return mass_; }
-    float pt() const { return pt_; }
-    float qOverPt() const { return (pt_ > 0) ? charge_ / pt_ : 9.9e9; }
-    float eta() const { return eta_; }
-    float theta() const { return theta_; }
-    float tanLambda() const { return tanLambda_; }
-    float phi0() const { return phi0_; }
-    // TP production vertex (x,y,z) coordinates.
-    float vx() const { return vx_; }
-    float vy() const { return vy_; }
-    float vz() const { return vz_; }
-    // d0 and z0 impact parameters with respect to (x,y) = (0,0).
-    float d0() const { return d0_; }
-    float z0() const { return z0_; }
-    float tip() const { return tip_; }
-    // == Functions returning stubs produced by tracking particle.
+    // Functions returning stubs produced by tracking particle.
     unsigned int numAssocStubs() const { return assocStubs_.size(); }
-
     // TP is worth keeping (e.g. for fake rate measurement)
     bool use() const { return use_; }
-
+    // TP can be used to measure the L1 tracking efficiency
     bool useForEff() const { return useForEff_; }
     // TP can be used for algorithmic efficiency measurement (also requires stubs in enough layers).
     bool useForAlgEff() const { return useForAlgEff_; }
@@ -65,32 +45,16 @@ namespace l1tVertexFinder {
     void fillUseForVertexReco();
 
     // Calculate how many tracker layers this TP has stubs in.
-    void calcNumLayers() { nLayersWithStubs_ = utility::countLayers(*settings_, assocStubs_, false); }
+    void calcNumLayers() { nLayersWithStubs_ = utility::countLayers(*settings_, assocStubs_); }
 
   private:
-    unsigned int index_in_vTPs_;  // location of this TP in InputData::vTPs
-
     const AnalysisSettings* settings_;  // Configuration parameters
 
-    int pdgId_;
     bool inTimeBx_;          // TP came from in-time bunch crossing.
     bool physicsCollision_;  // True if TP from physics collision rather than pileup.
-    int charge_;
-    float mass_;
-    float pt_;  // TP kinematics
-    float eta_;
-    float theta_;
-    float tanLambda_;
-    float phi0_;
-    float vx_;  // TP production point.
-    float vy_;
-    float vz_;
-    float d0_;  // d0 impact parameter with respect to (x,y) = (0,0)
-    float z0_;  // z0 impact parameter with respect to (x,y) = (0,0)
-    float tip_;
-    bool use_;           // TP is worth keeping (e.g. for fake rate measurement)
-    bool useForEff_;     // TP can be used for tracking efficiency measurement.
-    bool useForAlgEff_;  // TP can be used for tracking algorithmic efficiency measurement.
+    bool use_;               // TP is worth keeping (e.g. for fake rate measurement)
+    bool useForEff_;         // TP can be used for tracking efficiency measurement.
+    bool useForAlgEff_;      // TP can be used for tracking algorithmic efficiency measurement.
     bool useForVertexReco_;
 
     std::vector<const Stub*> assocStubs_;
