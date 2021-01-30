@@ -39,7 +39,7 @@
 #define LOGERR(x) edm::LogError(x)
 #define LOGDRESSED(x) edm::LogInfo(x)
 #else
-#define docast(x, y) reinterpret_cast<x>(y)
+#define docast(x, y) static_cast<x>(y)
 #define LOGVERB(x) LogTrace(x)
 #define LOGWARN(x) edm::LogWarning(x)
 #define LOGERR(x) edm::LogError(x)
@@ -94,7 +94,7 @@ namespace {
       case reco::PFBlockElement::GSF: {
         const reco::PFBlockElementGsfTrack* elemasgsf = docast(const reco::PFBlockElementGsfTrack*, elemkey);
         if (elemasgsf && valtype == PFBlockElement::ECAL) {
-          const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
+          const ClusterElement* elemasclus = static_cast<const ClusterElement*>(&(block->elements()[test]));
           float cluster_e = elemasclus->clusterRef()->correctedEnergy();
           float trk_pin = elemasgsf->Pin().P();
           if (cluster_e / trk_pin > EoPin_cut) {
@@ -106,7 +106,7 @@ namespace {
       case reco::PFBlockElement::TRACK: {
         const reco::PFBlockElementTrack* elemaskf = docast(const reco::PFBlockElementTrack*, elemkey);
         if (elemaskf && valtype == PFBlockElement::ECAL) {
-          const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
+          const ClusterElement* elemasclus = static_cast<const ClusterElement*>(&(block->elements()[test]));
           float cluster_e = elemasclus->clusterRef()->correctedEnergy();
           float trk_pin = std::sqrt(elemaskf->trackRef()->innerMomentum().mag2());
           if (cluster_e / trk_pin > EoPin_cut) {
@@ -148,7 +148,7 @@ namespace {
           if (!useConvs && elemaskf->trackType(ConvType))
             return false;
           if (elemaskf && valtype == PFBlockElement::ECAL) {
-            const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
+            const ClusterElement* elemasclus = static_cast<const ClusterElement*>(&(block->elements()[test]));
             float cluster_e = elemasclus->clusterRef()->correctedEnergy();
             float trk_pin = std::sqrt(elemaskf->trackRef()->innerMomentum().mag2());
             if (cluster_e / trk_pin > EoPin_cut)
