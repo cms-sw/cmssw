@@ -8,10 +8,10 @@
 
 // TTStubAssociationMap.h forgets to two needed files, so must include them here ...
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
 
 #include "L1Trigger/VertexFinder/interface/L1Track.h"
+#include "L1Trigger/VertexFinder/interface/utility.h"
 
 class TrackerGeometry;
 class TrackerTopology;
@@ -19,37 +19,37 @@ class TrackerTopology;
 namespace l1tVertexFinder {
 
   class AnalysisSettings;
-  class Stub;
   class TP;
 
-  typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_> TTStubAssMap;
-  typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_> TTClusterAssMap;
+  typedef TTTrackAssociationMap<Ref_Phase2TrackerDigi_> TTTrackAssMap;
 
   //! Simple wrapper class for TTTrack, with match to a tracking particle
   class L1TrackTruthMatched : public L1Track {
   public:
-    L1TrackTruthMatched(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>&,
-                        const AnalysisSettings&,
-                        const TrackerGeometry*,
-                        const TrackerTopology*,
+    L1TrackTruthMatched(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& aTrack,
                         const std::map<edm::Ptr<TrackingParticle>, const TP*>& translateTP,
-                        edm::Handle<TTStubAssMap> mcTruthTTStubHandle,
-                        edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle,
-                        const std::map<DetId, DetId>& geoDetIdMap);
-    ~L1TrackTruthMatched();
-    unsigned int getNumStubs() const { return numStubs; }
+                        edm::Handle<TTTrackAssMap> mcTruthTTTrackHandle)
+        : L1Track(aTrack) {
+      auto mcTruthTP = mcTruthTTTrackHandle->findTrackingParticlePtr(aTrack);
+      if (!mcTruthTP.isNull()) {
+        auto tpTranslation = translateTP.find(mcTruthTP);
+        if (tpTranslation != translateTP.end()) {
+          matchedTP_ = tpTranslation->second;
+        } else {
+          matchedTP_ = nullptr;
+        }
+      } else {
+        matchedTP_ = nullptr;
+      }
+    }
+    ~L1TrackTruthMatched() {}
 
     // Get best matching tracking particle (=nullptr if none).
-    const TP* getMatchedTP() const;
+    const TP* getMatchedTP() const { return matchedTP_; }
 
   private:
     edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> track_;
-
-    //--- Information about its association (if any) to a truth Tracking Particle.
     const TP* matchedTP_;
-    std::vector<const Stub*> matchedStubs_;
-    unsigned int nMatchedLayers_;
-    unsigned int numStubs;
   };
 
 }  // namespace l1tVertexFinder

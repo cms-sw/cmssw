@@ -28,14 +28,14 @@ namespace l1tVertexFinder {
 class VertexProducer : public edm::EDProducer {
 public:
   explicit VertexProducer(const edm::ParameterSet&);
-  ~VertexProducer() {}
+  ~VertexProducer() override {}
 
 private:
   typedef edm::View<TTTrack<Ref_Phase2TrackerDigi_>> TTTrackCollectionView;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 private:
   const edm::EDGetTokenT<TTTrackCollectionView> l1TracksToken_;

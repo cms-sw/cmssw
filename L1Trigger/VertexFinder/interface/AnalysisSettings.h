@@ -4,7 +4,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
+#include "SimTracker/Common/interface/TrackingParticleSelector.h"
 
+#include <algorithm>
+#include <functional>
 #include <vector>
 
 namespace l1tVertexFinder {
@@ -20,16 +23,19 @@ namespace l1tVertexFinder {
     double genMaxAbsEta() const { return genMaxAbsEta_; }
     double genMaxVertR() const { return genMaxVertR_; }
     double genMaxVertZ() const { return genMaxVertZ_; }
-    const std::vector<int>& genPdgIds() const { return genPdgIds_; }
+    const std::vector<int>& genPdgIds(bool all = false) const { return (all ? genPdgIdsAll_ : genPdgIds_); }
     // Additional cut on MC truth tracks for algorithmic tracking efficiency measurements.
     unsigned int genMinStubLayers() const { return genMinStubLayers_; }  // Min. number of layers TP made stub in.
+
+    //=== Selection of MC truth tracks.
+    const TrackingParticleSelector& tpsUseForVtxReco() const { return tpSelectorUseForVtxReco_; }
+    const TrackingParticleSelector& tpsUse() const { return tpSelectorUse_; }
+    const TrackingParticleSelector& tpsUseForEff() const { return tpSelectorUseForEff_; }
 
     //=== Rules for deciding when the track finding has found an L1 track candidate
 
     // Define layers using layer ID (true) or by bins in radius of 5 cm width (false)?
     bool useLayerID() const { return useLayerID_; }
-    // Reduce this layer ID, so that it takes no more than 8 different values in any eta region (simplifies firmware)?
-    bool reduceLayerID() const { return reduceLayerID_; }
 
     //=== Rules for deciding when a reconstructed L1 track matches a MC truth particle (i.e. tracking particle).
 
@@ -56,11 +62,11 @@ namespace l1tVertexFinder {
     double genMaxVertR_;
     double genMaxVertZ_;
     std::vector<int> genPdgIds_;
+    std::vector<int> genPdgIdsAll_;
     unsigned int genMinStubLayers_;
 
     // Rules for deciding when the track-finding has found an L1 track candidate
     bool useLayerID_;
-    bool reduceLayerID_;
 
     // Rules for deciding when a reconstructed L1 track matches a MC truth particle (i.e. tracking particle).
     double minFracMatchStubsOnReco_;
@@ -77,6 +83,11 @@ namespace l1tVertexFinder {
     bool killTrackFitWorstHit_;
     double generalResidualCut_;
     double killingResidualCut_;
+
+    // Tracking particle selectors
+    TrackingParticleSelector tpSelectorUseForVtxReco_;
+    TrackingParticleSelector tpSelectorUse_;
+    TrackingParticleSelector tpSelectorUseForEff_;
   };
 
 }  // end namespace l1tVertexFinder

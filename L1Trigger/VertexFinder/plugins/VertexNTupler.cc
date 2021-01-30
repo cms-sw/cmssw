@@ -29,8 +29,6 @@
 
 #include "TTree.h"
 
-#include "boost/lexical_cast.hpp"
-
 #include <map>
 #include <string>
 #include <vector>
@@ -43,7 +41,7 @@ namespace l1tVertexFinder {
   class VertexNTupler : public edm::EDAnalyzer {
   public:
     explicit VertexNTupler(const edm::ParameterSet&);
-    ~VertexNTupler();
+    ~VertexNTupler() override;
 
   private:
     struct GenJetsBranchData {
@@ -149,11 +147,12 @@ namespace l1tVertexFinder {
     };
 
     void beginJob() override;
-    void analyze(const edm::Event& evt, const edm::EventSetup& setup);
+    void analyze(const edm::Event& evt, const edm::EventSetup& setup) override;
     void endJob() override;
 
     // define types for stub-related classes
     typedef edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>> DetSetVec;
+    typedef TTTrackAssociationMap<Ref_Phase2TrackerDigi_> TTTrackAssMap;
     typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_> TTStubAssMap;
     typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_> TTClusterAssMap;
     typedef edm::View<TTTrack<Ref_Phase2TrackerDigi_>> TTTrackCollectionView;
@@ -227,15 +226,13 @@ namespace l1tVertexFinder {
         iConfig.getParameter<std::vector<edm::InputTag>>("l1TracksTruthMapInputTags"));
 
     if (trackBranchNames.size() != trackInputTags.size())
-      throw cms::Exception("The number of track branch names (" +
-                           boost::lexical_cast<std::string>(trackBranchNames.size()) +
+      throw cms::Exception("The number of track branch names (" + std::to_string(trackBranchNames.size()) +
                            ") specified in the config does not match the number of input tags (" +
-                           boost::lexical_cast<std::string>(trackInputTags.size()) + ")");
+                           std::to_string(trackInputTags.size()) + ")");
     if (trackBranchNames.size() != trackMapInputTags.size())
-      throw cms::Exception("The number of track branch names (" +
-                           boost::lexical_cast<std::string>(trackBranchNames.size()) +
+      throw cms::Exception("The number of track branch names (" + std::to_string(trackBranchNames.size()) +
                            ") specified in the config does not match the number of track map input tags (" +
-                           boost::lexical_cast<std::string>(trackMapInputTags.size()) + ")");
+                           std::to_string(trackMapInputTags.size()) + ")");
 
     std::vector<std::string>::const_iterator trackBranchNameIt = trackBranchNames.begin();
     std::vector<edm::InputTag>::const_iterator trackInputTagIt = trackInputTags.begin();
@@ -275,15 +272,14 @@ namespace l1tVertexFinder {
         iConfig.getParameter<std::vector<std::string>>("l1VertexTrackInputs"));
 
     if (vertexBranchNames.size() != vertexInputTags.size())
-      throw cms::Exception("The number of vertex branch names (" +
-                           boost::lexical_cast<std::string>(vertexBranchNames.size()) +
+      throw cms::Exception("The number of vertex branch names (" + std::to_string(vertexBranchNames.size()) +
                            ") specified in the config does not match the number of input tags (" +
-                           boost::lexical_cast<std::string>(vertexInputTags.size()) + ")");
+                           std::to_string(vertexInputTags.size()) + ")");
     if (vertexBranchNames.size() != vertexTrackNames.size())
       throw cms::Exception(
-          "The number of vertex branch names (" + boost::lexical_cast<std::string>(vertexBranchNames.size()) +
+          "The number of vertex branch names (" + std::to_string(vertexBranchNames.size()) +
           ") specified in the config does not match the number of associated input track collection names (" +
-          boost::lexical_cast<std::string>(vertexTrackNames.size()) + ")");
+          std::to_string(vertexTrackNames.size()) + ")");
 
     std::vector<std::string>::const_iterator branchNameIt = vertexBranchNames.begin();
     std::vector<edm::InputTag>::const_iterator inputTagIt = vertexInputTags.begin();
@@ -423,22 +419,6 @@ namespace l1tVertexFinder {
   }
 
   void VertexNTupler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
-    edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
-    iEvent.getByToken(stubTruthToken_, mcTruthTTStubHandle);
-    iEvent.getByToken(clusterTruthToken_, mcTruthTTClusterHandle);
-
-    std::map<std::string, edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>> truthAssocMapHandles;
-    std::set<edm::Ptr<TrackingParticle>> allMatchedTPs;
-    for (auto& entry : l1TracksMapTokenMap_) {
-      edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>& assocMapHandle = truthAssocMapHandles[entry.first];
-      iEvent.getByToken(l1TracksMapTokenMap_.at(entry.first), assocMapHandle);
-
-      for (auto& entry2 : assocMapHandle->getTTTrackToTrackingParticleMap()) {
-        allMatchedTPs.insert(entry2.second);
-      }
-    }
-
     // Note useful info about MC truth particles and about reconstructed stubs
     InputData inputData(iEvent,
                         iSetup,
@@ -456,13 +436,30 @@ namespace l1tVertexFinder {
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
     iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
 
+    // Fill the handles which change only once per event
+    edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
+    edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
+    iEvent.getByToken(stubTruthToken_, mcTruthTTStubHandle);
+    iEvent.getByToken(clusterTruthToken_, mcTruthTTClusterHandle);
+
+    // Create collections to hold the desired objects
     std::map<std::string, std::vector<L1TrackTruthMatched>> l1TrackCollections;
+    std::map<std::string, edm::Handle<TTTrackAssMap>> truthAssocMapHandles;
+    std::set<edm::Ptr<TrackingParticle>> allMatchedTPs;
 
-    for (auto& tokenMapEntry : l1TracksTokenMap_) {
+    // Create iterators for the maps
+    auto tokenMapEntry = l1TracksTokenMap_.begin(), tokenMapEntryEnd = l1TracksTokenMap_.end();
+    auto mapTokenMapEntry = l1TracksMapTokenMap_.begin(), mapTokenMapEntryEnd = l1TracksMapTokenMap_.end();
+
+    // Iterate over the maps
+    for (; (tokenMapEntry != tokenMapEntryEnd) && (mapTokenMapEntry != mapTokenMapEntryEnd);
+         ++tokenMapEntry, ++mapTokenMapEntry) {
       edm::Handle<TTTrackCollectionView> l1TracksHandle;
-      iEvent.getByToken(tokenMapEntry.second, l1TracksHandle);
+      edm::Handle<TTTrackAssMap>& mcTruthTTTrackHandle = truthAssocMapHandles[mapTokenMapEntry->first];
+      iEvent.getByToken(tokenMapEntry->second, l1TracksHandle);
+      iEvent.getByToken(l1TracksMapTokenMap_.at(mapTokenMapEntry->first), mcTruthTTTrackHandle);
 
-      std::vector<L1TrackTruthMatched>& l1Tracks = l1TrackCollections[tokenMapEntry.first];
+      std::vector<L1TrackTruthMatched>& l1Tracks = l1TrackCollections[tokenMapEntry->first];
       l1Tracks.reserve(l1TracksHandle->size());
       {
         map<edm::Ptr<TrackingParticle>, const TP*> translateTP;
@@ -473,15 +470,13 @@ namespace l1tVertexFinder {
           }
         }
 
-        for (const auto& track : l1TracksHandle->ptrs())
-          l1Tracks.push_back(L1TrackTruthMatched(track,
-                                                 settings_,
-                                                 trackerGeometryHandle.product(),
-                                                 trackerTopologyHandle.product(),
-                                                 translateTP,
-                                                 mcTruthTTStubHandle,
-                                                 mcTruthTTClusterHandle,
-                                                 inputData.getStubGeoDetIdMap()));
+        for (const auto& track : l1TracksHandle->ptrs()) {
+          l1Tracks.push_back(L1TrackTruthMatched(track, translateTP, mcTruthTTTrackHandle));
+        }
+      }
+
+      for (auto& entry : mcTruthTTTrackHandle->getTTTrackToTrackingParticleMap()) {
+        allMatchedTPs.insert(entry.second);
       }
     }
 
@@ -523,14 +518,14 @@ namespace l1tVertexFinder {
       inputDataTPs.insert(edm::Ptr<TrackingParticle>(tp));
     for (const auto& tpPtr : allMatchedTPs) {
       if (inputDataTPs.count(tpPtr) == 0)
-        tpVec.push_back(TP(tpPtr, tpVec.size(), settings_));
+        tpVec.push_back(TP(tpPtr, settings_));
     }
     for (const TP& track : tpVec) {
-      trueTracksBranchData_.pt.push_back(track.pt());
-      trueTracksBranchData_.eta.push_back(track.eta());
-      trueTracksBranchData_.phi.push_back(track.phi0());
-      trueTracksBranchData_.z0.push_back(track.z0());
-      trueTracksBranchData_.pdgId.push_back(track.pdgId());
+      trueTracksBranchData_.pt.push_back(track->pt());
+      trueTracksBranchData_.eta.push_back(track->eta());
+      trueTracksBranchData_.phi.push_back(track->phi());
+      trueTracksBranchData_.z0.push_back(track->z0());
+      trueTracksBranchData_.pdgId.push_back(track->pdgId());
       trueTracksBranchData_.physCollision.push_back(track.physicsCollision() ? 1.0 : 0.0);
       trueTracksBranchData_.use.push_back(track.use() ? 1.0 : 0.0);
       trueTracksBranchData_.useForEff.push_back(track.useForEff() ? 1.0 : 0.0);
@@ -588,8 +583,8 @@ namespace l1tVertexFinder {
         branchData.z0.push_back(track.z0());
         branchData.numStubs.push_back(track.getNumStubs());
         branchData.chi2dof.push_back(track.chi2dof());
-        if (track.getMatchedTP() != NULL) {
-          bool lFound = (track.getMatchedTP() >= &*inputData.getTPs().begin()) and
+        if (track.getMatchedTP() != nullptr) {
+          bool lFound = (track.getMatchedTP() >= &*inputData.getTPs().begin()) &&
                         (track.getMatchedTP() < &*inputData.getTPs().end());
           if (lFound) {
             const size_t lIdx = track.getMatchedTP() - &*inputData.getTPs().begin();

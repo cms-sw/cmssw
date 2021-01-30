@@ -8,9 +8,9 @@ namespace l1tVertexFinder {
     z0_ = 0.;
     float z0square = 0.;
     for (TP track : tracks_) {
-      pT_ += track.pt();
-      z0_ += track.z0();
-      z0square += track.z0() * track.z0();
+      pT_ += track->pt();
+      z0_ += track->z0();
+      z0square += track->z0() * track->z0();
     }
     z0_ /= tracks_.size();
     z0square /= tracks_.size();

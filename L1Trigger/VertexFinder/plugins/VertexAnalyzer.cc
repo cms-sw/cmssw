@@ -44,15 +44,18 @@ namespace l1tVertexFinder {
   class VertexAnalyzer : public edm::EDAnalyzer {
   public:
     explicit VertexAnalyzer(const edm::ParameterSet&);
-    ~VertexAnalyzer();
+    ~VertexAnalyzer() override;
 
   private:
+    template <typename T>
+    int getIndex(std::vector<T> collection, T reference);
     void beginJob() override;
-    void analyze(const edm::Event& evt, const edm::EventSetup& setup);
+    void analyze(const edm::Event& evt, const edm::EventSetup& setup) override;
     void endJob() override;
 
     // define types for stub-related classes
     typedef edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>> DetSetVec;
+    typedef TTTrackAssociationMap<Ref_Phase2TrackerDigi_> TTTrackAssMap;
     typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_> TTStubAssMap;
     typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_> TTClusterAssMap;
     typedef edm::View<TTTrack<Ref_Phase2TrackerDigi_>> TTTrackCollectionView;
@@ -61,6 +64,7 @@ namespace l1tVertexFinder {
     const edm::EDGetTokenT<edm::HepMCProduct> hepMCInputTag;
     const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticleInputTag;
     const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag;
+    const edm::EDGetTokenT<TTTrackAssMap> trackTruthInputTag;
     const edm::EDGetTokenT<DetSetVec> stubInputTag;
     const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag;
     const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
@@ -149,6 +153,7 @@ namespace l1tVertexFinder {
         genParticleInputTag(
             consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
         tpInputTag(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
+        trackTruthInputTag(consumes<TTTrackAssMap>(iConfig.getParameter<edm::InputTag>("l1TracksTruthMapInputTags"))),
         stubInputTag(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
         stubTruthInputTag(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
         clusterTruthInputTag(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
@@ -382,14 +387,19 @@ namespace l1tVertexFinder {
     emptyVector.assign(10, 0);
   }
 
+  template <typename T>
+  int VertexAnalyzer::getIndex(std::vector<T> collection, T reference) {
+    int index = -1;
+    auto itr = std::find(collection.begin(), collection.end(), reference);
+    if (itr != collection.end()) {
+      index = std::distance(collection.begin(), itr);
+    }
+    return index;
+  }
+
   void VertexAnalyzer::beginJob(){};
 
   void VertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
-    edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
-    iEvent.getByToken(stubTruthInputTag, mcTruthTTStubHandle);
-    iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle);
-
     // Note useful info about MC truth particles and about reconstructed stubs .
     InputData inputData(iEvent,
                         iSetup,
@@ -419,20 +429,15 @@ namespace l1tVertexFinder {
         translateTP[tpPtr] = &tp;
       }
 
+      edm::Handle<TTTrackAssMap> mcTruthTTTrackHandle;
       edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
       edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
+      iEvent.getByToken(trackTruthInputTag, mcTruthTTTrackHandle);
       iEvent.getByToken(stubTruthInputTag, mcTruthTTStubHandle);
       iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle);
 
       for (const auto& track : l1TracksHandle->ptrs())
-        l1Tracks.push_back(L1TrackTruthMatched(track,
-                                               settings_,
-                                               trackerGeometryHandle.product(),
-                                               trackerTopologyHandle.product(),
-                                               translateTP,
-                                               mcTruthTTStubHandle,
-                                               mcTruthTTClusterHandle,
-                                               inputData.getStubGeoDetIdMap()));
+        l1Tracks.push_back(L1TrackTruthMatched(track, translateTP, mcTruthTTTrackHandle));
     }
 
     std::vector<const L1TrackTruthMatched*> l1TrackPtrs;
@@ -513,14 +518,14 @@ namespace l1tVertexFinder {
     hisGenVertexNumTracks_->Fill(TruePrimaryVertex.numTracks());
 
     for (const TP& tp : TruePrimaryVertex.tracks()) {
-      hisGenVertexTrackPt_->Fill(tp.pt());
+      hisGenVertexTrackPt_->Fill(tp->pt());
     }
 
     for (const Vertex& vertex : inputData.getPileUpVertices()) {
       hisPUVertexPt_->Fill(vertex.pT());
       hisPUVertexNumTracks_->Fill(vertex.numTracks());
       for (const TP& tp : vertex.tracks()) {
-        hisPUVertexTrackPt_->Fill(tp.pt());
+        hisPUVertexTrackPt_->Fill(tp->pt());
       }
     }
 
@@ -575,17 +580,19 @@ namespace l1tVertexFinder {
       if (settings_.debug() > 2) {
         edm::LogInfo("VertexAnalyzer") << "analyzer::** RECO TRACKS in PV **";
         for (const L1TrackTruthMatched* track : RecoPrimaryVertex->tracks()) {
-          if (track->getMatchedTP() != nullptr)
-            edm::LogInfo("VertexAnalyzer") << "analyzer::matched TP " << track->getMatchedTP()->index();
+          if (track->getMatchedTP() != nullptr) {
+            edm::LogInfo("VertexAnalyzer")
+                << "analyzer::matched TP " << getIndex(inputData.getTPs(), *track->getMatchedTP());
+          }
           edm::LogInfo("VertexAnalyzer") << "analyzer::pT " << track->pt() << " phi0 " << track->phi0() << " z0 "
                                          << track->z0();
         }
 
         edm::LogInfo("VertexAnalyzer") << "analyzer::** TRUE TRACKS in PV **";
         for (TP track : TruePrimaryVertex.tracks()) {
-          edm::LogInfo("VertexAnalyzer") << "analyzer::index " << track.index() << " pT " << track.pt() << " phi0 "
-                                         << track.phi0() << " z0 " << track.z0() << " status "
-                                         << track.physicsCollision();
+          edm::LogInfo("VertexAnalyzer") << "analyzer::index " << getIndex(inputData.getTPs(), track) << " pT "
+                                         << track->pt() << " phi0 " << track->phi() << " z0 " << track->z0()
+                                         << " status " << track.physicsCollision();
         }
       }
 
@@ -639,15 +646,15 @@ namespace l1tVertexFinder {
         } else {
           edm::LogInfo("VertexAnalyzer") << "analyzer::Physics Collision track assigned to PV. Track z0: "
                                          << l1track->z0() << " track pT " << l1track->pt() << " numstubs "
-                                         << l1track->getNumStubs()
-                                         << "\n (real values) id: " << l1track->getMatchedTP()->index() << " pT "
-                                         << l1track->getMatchedTP()->pt() << " eta " << l1track->getMatchedTP()->eta()
-                                         << " d0 " << l1track->getMatchedTP()->d0() << " z0 "
-                                         << l1track->getMatchedTP()->z0() << " physicsCollision "
+                                         << l1track->getNumStubs() << "\n (real values) id: "
+                                         << getIndex(inputData.getTPs(), *l1track->getMatchedTP()) << " pT "
+                                         << (*l1track->getMatchedTP())->pt() << " eta "
+                                         << (*l1track->getMatchedTP())->eta() << " d0 "
+                                         << (*l1track->getMatchedTP())->d0() << " z0 "
+                                         << (*l1track->getMatchedTP())->z0() << " physicsCollision "
                                          << l1track->getMatchedTP()->physicsCollision() << " useForEff() "
                                          << l1track->getMatchedTP()->useForEff() << " pdg "
-                                         << l1track->getMatchedTP()->pdgId() << " tip "
-                                         << l1track->getMatchedTP()->tip();
+                                         << (*l1track->getMatchedTP())->pdgId();
         }
       }
     }
@@ -674,7 +681,7 @@ namespace l1tVertexFinder {
       bool found = false;
       for (const L1TrackTruthMatched* l1track : RecoPrimaryVertex->tracks()) {
         if (l1track->getMatchedTP() != nullptr) {
-          if (tp.index() == l1track->getMatchedTP()->index()) {
+          if (getIndex(inputData.getTPs(), tp) == getIndex(inputData.getTPs(), *l1track->getMatchedTP())) {
             found = true;
             break;
           }
@@ -686,13 +693,13 @@ namespace l1tVertexFinder {
         for (const L1Track* l1trackBase : l1TrackPtrs) {
           const L1TrackTruthMatched* l1track = trackAssociationMap[l1trackBase->getTTTrackPtr()];
           if (l1track->getMatchedTP() != nullptr) {
-            if (tp.index() == l1track->getMatchedTP()->index()) {
+            if (getIndex(inputData.getTPs(), tp) == getIndex(inputData.getTPs(), *l1track->getMatchedTP())) {
               TrackIsReconstructed = true;
               hisUnmatchZ0distance_->Fill(std::abs(l1track->z0() - RecoPrimaryVertex->z0()));
               hisUnmatchPt_->Fill(l1track->pt());
               hisUnmatchEta_->Fill(l1track->eta());
-              hisUnmatchTruePt_->Fill(tp.pt());
-              hisUnmatchTrueEta_->Fill(tp.eta());
+              hisUnmatchTruePt_->Fill(tp->pt());
+              hisUnmatchTrueEta_->Fill(tp->eta());
 
               double mindistance = 999.;
               for (const L1TrackTruthMatched* vertexTrack : RecoPrimaryVertex->tracks()) {
@@ -704,8 +711,8 @@ namespace l1tVertexFinder {
               if (settings_.debug() > 1) {
                 edm::LogInfo("VertexAnalyzer")
                     << "analyzer::PV Track assigned to wrong vertex. Track z0: " << l1track->z0()
-                    << " PV z0: " << RecoPrimaryVertex->z0() << " tp z0 " << tp.z0() << " track pT " << l1track->pt()
-                    << " tp pT " << tp.pt() << " tp d0 " << tp.d0() << " track eta " << l1track->eta();
+                    << " PV z0: " << RecoPrimaryVertex->z0() << " tp z0 " << tp->z0() << " track pT " << l1track->pt()
+                    << " tp pT " << tp->pt() << " tp d0 " << tp->d0() << " track eta " << l1track->eta();
               }
               break;
             }

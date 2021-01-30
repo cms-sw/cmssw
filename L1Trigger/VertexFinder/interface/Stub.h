@@ -4,6 +4,11 @@
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
@@ -33,11 +38,9 @@ namespace l1tVertexFinder {
   public:
     // Fill useful info about stub.
     Stub(const TTStubRef& ttStubRef,
-         unsigned int index_in_vStubs,
          const AnalysisSettings& settings,
          const TrackerGeometry* trackerGeometry,
-         const TrackerTopology* trackerTopology,
-         const std::map<DetId, DetId>& geoDetIdMap);
+         const TrackerTopology* trackerTopology);
     ~Stub() {}
 
     // Fill truth info with association from stub to tracking particles.
@@ -63,8 +66,6 @@ namespace l1tVertexFinder {
     bool psModule() const { return psModule_; }
     // Tracker layer ID number (1-6 = barrel layer; 11-15 = endcap A disk; 21-25 = endcap B disk)
     unsigned int layerId() const { return layerId_; }
-    // Reduced layer ID (in range 1-7). This encodes the layer ID in only 3 bits (to simplify firmware) by merging some barrel layer and endcap disk layer IDs into a single ID.
-    unsigned int layerIdReduced() const;
 
     //--- Truth info
 
@@ -111,8 +112,6 @@ namespace l1tVertexFinder {
     //--- Truth info about stub.
     const TP* assocTP_;
     std::set<const TP*> assocTPs_;
-    //--- Truth info about the two clusters that make up the stub
-    std::array<const TP*, 2> assocTPofCluster_;
   };
 
 }  // end namespace l1tVertexFinder
