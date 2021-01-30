@@ -1998,8 +1998,7 @@ void PFEGammaAlgo::unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO
       if (RO.localMap.contains(ecal->get(), *secd_kf)) {
         auto hcal_matched = std::partition(hcal_begin, hcal_end, tracksToHCALs);
         for (auto hcalclus = hcal_begin; hcalclus != hcal_matched; ++hcalclus) {
-          const reco::PFBlockElementCluster* clusthcal =
-              dynamic_cast<const reco::PFBlockElementCluster*>(hcalclus->get());
+          const reco::PFBlockElementCluster* clusthcal = docast(const reco::PFBlockElementCluster*, hcalclus->get());
           const double hcalenergy = clusthcal->clusterRef()->energy();
           const double hpluse = ecalenergy + hcalenergy;
           const bool isHoHE = ((hcalenergy / hpluse) > 0.1 && goodTrack);
