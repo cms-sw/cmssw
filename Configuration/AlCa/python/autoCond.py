@@ -26,28 +26,28 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '113X_mcRun2_pA_v2',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '113X_dataRun2_v2',
+    'run1_data'         :   '113X_dataRun2_v3',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '113X_dataRun2_v2',
+    'run2_data'         :   '113X_dataRun2_v3',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
-    'run2_data_HEfail'  :   '113X_dataRun2_HEfail_v2',
+    'run2_data_HEfail'  :   '113X_dataRun2_HEfail_v3',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '113X_dataRun2_relval_v2',
+    'run2_data_relval'  :   '113X_dataRun2_relval_v3',
     # GlobalTag for Run2 HI data
-    'run2_data_promptlike_hi' : '113X_dataRun2_PromptLike_HI_v2',
+    'run2_data_promptlike_hi' : '113X_dataRun2_PromptLike_HI_v3',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v11',
     # GlobalTag for Run2 HLT: it points to the online GT
     'run2_hlt'          :   '101X_dataRun2_HLT_frozen_v11',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'      :   '112X_dataRun2_HLT_relval_v2',
-    'run2_hlt_relval_hi'   :   '112X_dataRun2_HLT_relval_HI_v1',
+    'run2_hlt_relval'      :   '112X_dataRun2_HLT_relval_v3',
+    'run2_hlt_relval_hi'   :   '112X_dataRun2_HLT_relval_HI_v2',
     # GlobalTag for Run2 HLT for HI (not 2018 HI): it points to the online GT
     'run2_hlt_hi'       :   '101X_dataRun2_HLTHI_frozen_v11',
     # GlobalTag for Run3 data relvals (express GT)
-    'run3_data_express'        :   '112X_dataRun3_Express_v1',
+    'run3_data_express'        :   '112X_dataRun3_Express_v2',
     # GlobalTag for Run3 data relvals
-    'run3_data_promptlike'     :   '112X_dataRun3_Prompt_v1',
+    'run3_data_promptlike'     :   '112X_dataRun3_Prompt_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'       :  '113X_mc2017_design_v3',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
