@@ -17,7 +17,12 @@ using namespace cms_units::operators;
 using DDTranslation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 using DDRotation = ROOT::Math::Rotation3D;
 
+//#define EDM_ML_DEBUG
+
 namespace {
+#ifdef EDM_ML_DEBUG
+  constexpr double f_mm = (1.0 / dd4hep::mm);
+#endif
   struct Endcap {
     string mat;
     double zOff;
@@ -201,7 +206,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                          0.5 * ee.crysRear,
                          0.5 * ee.crysRear,
                          0._deg);
-  Volume eeCRLog = Volume(ee.cryName, eeCRSolid, ns.material(ee.crysMat));
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << eeCRSolid.name() << " Trap with parameters: " << f_mm * 0.5 * ee.crysLength << ":"
+                               << (atan((ee.crysRear - ee.crysFront) / (sqrt(2.) * ee.crysLength))) << ":" << 45._deg
+                               << ":" << f_mm * 0.5 * ee.crysFront << ":" << f_mm * 0.5 * ee.crysFront << ":"
+                               << f_mm * 0.5 * ee.crysFront << ":" << 0._deg << ":" << f_mm * 0.5 * ee.crysRear << ":"
+                               << f_mm * 0.5 * ee.crysRear << ":" << f_mm * 0.5 * ee.crysRear << ":" << 0._deg;
+#endif
+  Volume eeCRLog = Volume(myns + ee.cryName, eeCRSolid, ns.material(ee.crysMat));
 
   for (unsigned int isc(0); isc < ee.nSCTypes; ++isc) {
     unsigned int iSCType = isc + 1;
@@ -216,6 +228,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     Solid eeSCEnv = ns.addSolidNS(
         eeSCEnvName,
         Trap(eeSCEnvName, 0.5 * ee.sCELength, eAng, ffived, eFront, eFront, eFront, zerod, eRear, eRear, eRear, zerod));
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << eeSCEnv.name() << " Trap with parameters: " << f_mm * 0.5 * ee.sCELength << ":"
+                                 << eAng << ":" << ffived << ":" << f_mm * eFront << ":" << f_mm * eFront << ":"
+                                 << f_mm * eFront << ":" << zerod << ":" << f_mm * eRear << ":" << f_mm * eRear << ":"
+                                 << f_mm * eRear << ":" << zerod;
+#endif
 
     const double aFront(0.5 * ee.sCAFront);
     const double aRear(0.5 * ee.sCARear);
@@ -225,6 +243,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     Solid eeSCAlv = ns.addSolidNS(
         eeSCAlvName,
         Trap(eeSCAlvName, 0.5 * ee.sCALength, aAng, ffived, aFront, aFront, aFront, zerod, aRear, aRear, aRear, zerod));
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << eeSCAlv.name() << " Trap with parameters: " << f_mm * 0.5 * ee.sCALength << ":"
+                                 << aAng << ":" << ffived << ":" << f_mm * aFront << ":" << f_mm * aFront << ":"
+                                 << f_mm * aFront << ":" << zerod << ":" << f_mm * aRear << ":" << f_mm * aRear << ":"
+                                 << f_mm * aRear << ":" << zerod;
+#endif
 
     const double dwall(ee.sCAWall);
     const double iFront(aFront - dwall);
@@ -245,6 +269,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                        iRear,
                                        iRear,
                                        zerod));
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EcalGeom") << eeSCAlv.name() << " Trap with parameters: " << f_mm * iLen / 2. << ":"
+                                 << (atan((ee.sCARear - ee.sCAFront) / (sqrt(2.) * ee.sCALength))) << ":" << ffived
+                                 << ":" << f_mm * iFront << ":" << f_mm * iFront << ":" << f_mm * iFront << ":" << zerod
+                                 << ":" << f_mm * iRear << ":" << f_mm * iRear << ":" << f_mm * iRear << ":" << zerod;
+#endif
 
     const double dz(-0.5 * (ee.sCELength - ee.sCALength));
     const double dxy(0.5 * dz * (ee.sCERear - ee.sCEFront) / ee.sCELength);
@@ -257,8 +287,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
     if (1 == iSCType) {  // standard SC in this block
       eeSCELog = ns.addVolumeNS(Volume(myns + ee.envName + std::to_string(iSCType), eeSCEnv, ns.material(ee.mat)));
-      eeSCALog = Volume(ee.alvName + std::to_string(iSCType), eeSCAlv, ns.material(ee.wallMat));
-      eeSCILog = Volume(ee.intName + std::to_string(iSCType), eeSCInt, ns.material(ee.mat));
+      eeSCALog = Volume(myns + ee.alvName + std::to_string(iSCType), eeSCAlv, ns.material(ee.wallMat));
+      eeSCILog = Volume(myns + ee.intName + std::to_string(iSCType), eeSCInt, ns.material(ee.mat));
     } else {  // partial SCs this block: create subtraction volumes as appropriate
       const double half(ee.cutParms[0] - ee.pFHalf * ee.crysRear);
       const double fifth(ee.cutParms[0] + ee.pFFifth * ee.crysRear);
@@ -292,6 +322,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         ns.solid(ee.envName + std::to_string(iSCType) + "Tmp"),
                                         eeCutBox,
                                         Transform3D(cutRot, cutTra));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EcalGeom") << eeCutEnv.name() << " Subtracted by " << f_mm * ee.cutParms[0] << ":"
+                                   << f_mm * ee.cutParms[1] << ":" << f_mm * ee.cutParms[2];
+#endif
 
       const DDTranslation extra(dxy, dxy, dz);
 
@@ -299,6 +333,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         ns.solid(ee.alvName + std::to_string(iSCType) + "Tmp"),
                                         eeCutBox,
                                         Transform3D(cutRot, cutTra - extra));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EcalGeom") << eeCutAlv.name() << " Subtracted by " << f_mm * ee.cutParms[0] << ":"
+                                   << f_mm * ee.cutParms[1] << ":" << f_mm * ee.cutParms[2];
+#endif
 
       const double mySign(iSCType < 4 ? +1. : -1.);
 
@@ -308,14 +346,25 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         ns.solid(ee.intName + std::to_string(iSCType) + "Tmp"),
                                         eeCutBox,
                                         Transform3D(cutRot, cutTra - extraI));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EcalGeom") << eeCutInt.name() << " Subtracted by " << f_mm * ee.cutParms[0] << ":"
+                                   << f_mm * ee.cutParms[1] << ":" << f_mm * ee.cutParms[2];
+#endif
 
       eeSCELog = ns.addVolumeNS(Volume(myns + ee.envName + std::to_string(iSCType), eeCutEnv, ns.material(ee.mat)));
-      eeSCALog = Volume(ee.alvName + std::to_string(iSCType), eeCutAlv, ns.material(ee.wallMat));
-      eeSCILog = Volume(ee.intName + std::to_string(iSCType), eeCutInt, ns.material(ee.mat));
+      eeSCALog = Volume(myns + ee.alvName + std::to_string(iSCType), eeCutAlv, ns.material(ee.wallMat));
+      eeSCILog = Volume(myns + ee.intName + std::to_string(iSCType), eeCutInt, ns.material(ee.mat));
     }
     eeSCELog.placeVolume(eeSCALog, iSCType * 100 + 1, Position(dxy, dxy, dz));
     eeSCALog.placeVolume(eeSCILog, iSCType * 100 + 1, Position(xyIOff, xyIOff, zIOff));
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EEGeom") << eeSCALog.name() << " " << (iSCType * 100 + 1) << " in " << eeSCELog.name();
+    edm::LogVerbatim("EEGeom") << eeSCILog.name() << " " << (iSCType * 100 + 1) << " in " << eeSCALog.name();
+    edm::LogVerbatim("EcalGeom") << eeSCALog.name() << " " << (iSCType * 100 + 1) << " in " << eeSCELog.name()
+                                 << " at (" << f_mm * dxy << ", " << f_mm * dxy << ", " << f_mm * dz << ")";
+    edm::LogVerbatim("EcalGeom") << eeSCILog.name() << " " << (iSCType * 100 + 1) << " in " << eeSCALog.name()
+                                 << " at (" << f_mm * xyIOff << ", " << f_mm * xyIOff << ", " << f_mm * zIOff << ")";
+#endif
     DDTranslation croffset(0., 0., 0.);
 
     // Position crystals within parent supercrystal interior volume
@@ -349,6 +398,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                 Transform3D(
                     myrot(ns, rname, crystal.rotation()),
                     Position(crystal.centrePos().x(), crystal.centrePos().y(), crystal.centrePos().z() - ee.cryZOff)));
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("EEGeom") << eeCRLog.name() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1))
+                                       << " in " << eeSCALog.name();
+            edm::LogVerbatim("EcalGeom") << eeCRLog.name() << " " << (100 * iSCType + 10 * (icol - 1) + (irow - 1))
+                                         << " in " << eeSCALog.name() << " at (" << f_mm * crystal.centrePos().x()
+                                         << ", " << f_mm * crystal.centrePos().y() << ", "
+                                         << f_mm * (crystal.centrePos().z() - ee.cryZOff) << ")";
+#endif
           }
         }
       }
@@ -383,6 +440,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         quaLog.placeVolume(childEnvLog,
                            100 * isctype + 10 * (icol - 1) + (irow - 1),
                            Transform3D(scrys.rotation(), scrys.centrePos()));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("EEGeom") << childEnvLog.name() << " " << (100 * isctype + 10 * (icol - 1) + (irow - 1))
+                                   << " in " << quaLog.name();
+        edm::LogVerbatim("EcalGeom") << childEnvLog.name() << " " << (100 * isctype + 10 * (icol - 1) + (irow - 1))
+                                     << " in " << quaLog.name() << " at (" << f_mm * scrys.centrePos().x() << ", "
+                                     << f_mm * scrys.centrePos().y() << ", " << f_mm * scrys.centrePos().z() << ")";
+#endif
       }
     }
   }
