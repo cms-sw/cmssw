@@ -539,9 +539,9 @@ void CTPPSDirectProtonSimulation::processProton(
 
       // apply per-plane efficiency
       if ((useTimingEfficiencyPerPlane_ && isTimingRP) || (useTrackingEfficiencyPerPlane_ && isTrackingRP)) {
-        const auto it = efficiencyMapsPerRP_.find(detId);
+        const auto it = efficiencyMapsPerPlane_.find(detId);
 
-        if (it != efficiencyMapsPerRP_.end())
+        if (it != efficiencyMapsPerPlane_.end())
         {
           const double r = CLHEP::RandFlat::shoot(rndEngine, 0., 1.);
           auto *effMap = it->second.get();
