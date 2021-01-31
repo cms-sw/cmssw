@@ -262,7 +262,7 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
     // load the efficiency maps
     if (useTrackingEfficiencyPerRP_ || useTimingEfficiencyPerRP_)
       efficiencyMapsPerRP_ = directSimuData.loadEffeciencyHistogramsPerRP();
-    if (useTimingEfficiencyPerRP_ || useTimingEfficiencyPerRP_)
+    if (useTrackingEfficiencyPerPlane_ || useTimingEfficiencyPerPlane_)
       efficiencyMapsPerPlane_ = directSimuData.loadEffeciencyHistogramsPerPlane();
   }
 
