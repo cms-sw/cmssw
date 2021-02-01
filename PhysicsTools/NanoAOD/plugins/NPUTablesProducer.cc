@@ -68,7 +68,9 @@ public:
         }
         gpudensity /= (20.0 * (*(zbin) - *(zbin - 1)));
         if (savePtHatMax_) {
-          pthatmax = *max_element(npuProd[ibx].getPU_pT_hats().begin(), npuProd[ibx].getPU_pT_hats().end());
+          if (!npuProd[ibx].getPU_pT_hats().empty()) {
+            pthatmax = *max_element(npuProd[ibx].getPU_pT_hats().begin(), npuProd[ibx].getPU_pT_hats().end());
+          }
         }
       }
     }

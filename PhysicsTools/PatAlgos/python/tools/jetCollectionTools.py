@@ -7,6 +7,7 @@ from CommonTools.PileupAlgos.softKiller_cfi import softKiller
 
 from RecoJets.JetProducers.PFJetParameters_cfi         import PFJetParameters
 from RecoJets.JetProducers.GenJetParameters_cfi        import GenJetParameters
+from RecoJets.JetProducers.GenJetParameters_cfi        import GenJetParameters
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import AnomalousCellParameters
 
 from RecoJets.JetProducers.ak4GenJets_cfi  import ak4GenJets
@@ -76,17 +77,16 @@ class GenJetAdder(object):
       proc,
       jet,
       inputCollection    = "",
-      genName            = "",
+      minPtFastjet       = None,
     ):
     print("jetCollectionTools::GenJetAdder::addGenJetCollection: Adding Gen Jet Collection: {}".format(jet))
 
     #
     # Decide which genJet collection we are dealing with
     #
-    jetLower = jet.lower()
-    jetUpper = jet.upper()
-    tagName  = jetUpper
     genJetInfo = GenJetInfo(jet,inputCollection)
+    jetLower = genJetInfo.jetLower
+    jetUpper = genJetInfo.jetUpper
 
     #=======================================================
     #
@@ -117,10 +117,14 @@ class GenJetAdder(object):
           rParam        = cms.double(genJetInfo.jetSizeNr),
         )
       )
+      #
+      # Set minimum pt threshold of gen jets to be saved after fastjet clustering
+      #
+      if minPtFastjet != None:
+        getattr(proc, genJetsCollection).jetPtMin = minPtFastjet
       self.prerequisites.append(genJetsCollection)
 
     return genJetInfo
-
 #============================================
 #
 # RecoJetInfo
@@ -176,6 +180,8 @@ class RecoJetInfo(object):
       self.jetCorrPayload += "chs"
     else:
       self.jetCorrPayload += self.jetPUMethod.lower()
+
+    self.patJetFinalCollection = ""
       
 #============================================
 #
@@ -206,6 +212,7 @@ class RecoJetAdder(object):
     proc,
     jet,
     inputCollection    = "",
+    minPtFastjet       = None,
     genJetsCollection  = "",
     bTagDiscriminators = ["None"],
     JETCorrLevels      = ["L1FastJet", "L2Relative", "L3Absolute", "L2L3Residual"],
@@ -346,6 +353,11 @@ class RecoJetAdder(object):
         )
         getattr(proc, jetCollection).jetAlgorithm = supportedJetAlgos[recoJetInfo.jetAlgo]
         getattr(proc, jetCollection).rParam = recoJetInfo.jetSizeNr
+        #
+        # Set minimum pt threshold of reco jets to be saved after fastjet clustering
+        #
+        if minPtFastjet != None:
+          getattr(proc, jetCollection).jetPtMin = minPtFastjet
         currentTasks.append(jetCollection)
       else:
         jetCollection = inputCollection
@@ -399,16 +411,16 @@ class RecoJetAdder(object):
       # Need to set this explicitly for PUPPI jets
       #
       if recoJetInfo.jetPUMethod == "puppi":
-        getattr(proc, "patJetFlavourAssociation{}{}".format(tagName,postfix)).weights = cms.InputTag(pfCand)
+        getattr(proc, "patJetFlavourAssociation{}{}".format(jetUpper,postfix)).weights = cms.InputTag(pfCand)
 
       getJetMCFlavour = not recoJetInfo.doCalo and recoJetInfo.jetPUMethod != "cs"
       if not self.runOnMC: #Remove modules for Gen-level object matching
-        delattr(proc, 'patJetGenJetMatch{}{}'.format(tagName,postfix))
-        delattr(proc, 'patJetPartonMatch{}{}'.format(tagName,postfix))
+        delattr(proc, 'patJetGenJetMatch{}{}'.format(jetUpper,postfix))
+        delattr(proc, 'patJetPartonMatch{}{}'.format(jetUpper,postfix))
         getJetMCFlavour = False 
-      setattr(getattr(proc, "patJets{}{}".format(tagName,postfix)), "getJetMCFlavour", cms.bool(getJetMCFlavour))
+      setattr(getattr(proc, "patJets{}{}".format(jetUpper,postfix)), "getJetMCFlavour", cms.bool(getJetMCFlavour))
 
-      selectedPatJetCollection = "selectedPatJets{}{}".format(tagName,postfix)      
+      selectedPatJets = "selectedPatJets{}{}".format(jetUpper,postfix)
       #=============================================
       #
       # Update the patJet collection. 
@@ -421,14 +433,14 @@ class RecoJetAdder(object):
         proc,
         labelName          = jetUpper,
         postfix            = "Final",
-        jetSource          = cms.InputTag(selectedPatJetCollection),
+        jetSource          = cms.InputTag(selectedPatJets),
         jetCorrections     = jetCorrections,
         btagDiscriminators = bTagDiscriminators,
       )
 
-      patJetFinalCollection="selectedUpdatedPatJets{}{}".format(tagName,"Final")
+      recoJetInfo.patJetFinalCollection = "selectedUpdatedPatJets{}{}".format(jetUpper,"Final")
     else:
-      patJetFinalCollection = inputCollection
+      recoJetInfo.patJetFinalCollection = inputCollection
 
     self.main.extend(currentTasks)
 
