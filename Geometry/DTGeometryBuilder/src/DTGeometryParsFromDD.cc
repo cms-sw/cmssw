@@ -60,13 +60,13 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
 // DD4Hep
 
 void DTGeometryParsFromDD::build(const cms::DDCompactView* cview,
-                                  const MuonGeometryConstants& muonConstants,
-                                  RecoIdealGeometry& rgeo) {
+                                 const MuonGeometryConstants& muonConstants,
+                                 RecoIdealGeometry& rgeo) {
   const std::string attribute = "MuStructure";
   const std::string value = "MuonBarrelDT";
   const cms::DDFilter filter(attribute, value);
   cms::DDFilteredView fview(*cview, filter);
-  buildGeometry(fview, muonConstants, rgeo); 
+  buildGeometry(fview, muonConstants, rgeo);
 }
 
 // DD
@@ -138,7 +138,8 @@ void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
   par.emplace_back(DTChamberTag);
   vector<double> size = extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(4) DDD, Chamber DetID "<<rawid<<" "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" "<<par[3]<<" "<<par[4];
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(1) DDD, Chamber DetID " << rawid << " " << par[0] << " " << par[1]
+                                           << " " << par[2] << " " << par[3] << " " << par[4];
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
   // width is along local X
   // length is along local Y
@@ -158,13 +159,14 @@ void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTSuperLayerId slId(rawid);
   //cout << "inserting SuperLayer " << slId << endl;
-  
+
   // Slayer specific parameter (size)
   vector<double> par;
   par.emplace_back(DTSuperLayerTag);
   vector<double> size = extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(5) DDD, Super Layer DetID "<<rawid<<" "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" "<<par[3]<<" "<<par[4];
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(2) DDD, Super Layer DetID " << rawid << " " << par[0] << " " << par[1]
+                                           << " " << par[2] << " " << par[3] << " " << par[4];
   // Ok this is the slayer position...
   PosRotPair posRot(plane(fv));
 
@@ -204,14 +206,14 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
   fv.parent();
 
   PosRotPair posRot(plane(fv));
- edm::LogVerbatim("DTGeometryParsFromDD") << "(6) DDD, Layer DetID "<<rawid<<" "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" "<<par[3]<<" "<<par[4];
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(3) DDD, Layer DetID " << rawid << " " << par[0] << " " << par[1] << " "
+                                           << par[2] << " " << par[3] << " " << par[4];
   rig.insert(layId, posRot.first, posRot.second, par);
 }
 
 vector<double> DTGeometryParsFromDD::extractParameters(DDFilteredView& fv) const {
   vector<double> par;
   if (fv.logicalPart().solid().shape() != DDSolidShape::ddbox) {
-    //    edm::LogVerbatim("DTGeometryParsFromDD") << "(0) /1 - DDD "<<fv.logicalPart().solid().shape();
     DDBooleanSolid bs(fv.logicalPart().solid());
     DDSolid A = bs.solidA();
     while (A.shape() != DDSolidShape::ddbox) {
@@ -219,11 +221,8 @@ vector<double> DTGeometryParsFromDD::extractParameters(DDFilteredView& fv) const
       A = bs.solidA();
     }
     par = A.parameters();
-    // edm::LogVerbatim("DTGeometryParsFromDD") << "(0) /2 - DDD "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" "<<par[3]<<" "<<par[4];
   } else {
-    // edm::LogVerbatim("DTGeometryParsFromDD") << "(0) /3 - DDD "<<fv.logicalPart().solid().shape();
     par = fv.logicalPart().solid().parameters();
-    // edm::LogVerbatim("DTGeometryParsFromDD") << "(0) /4 - DDD "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" "<<par[3]<<" "<<par[4];
   }
   return par;
 }
@@ -236,8 +235,6 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const DDFilteredVie
   gtran[0] = convertMmToCm(trans.x());
   gtran[1] = convertMmToCm(trans.y());
   gtran[2] = convertMmToCm(trans.z());
-
-  //edm::LogVerbatim("DTGeometryParsFromDD") << "(1) DDD "<<gtran[0] << ", " << gtran[1]  << ", " << gtran[2];
 
   // now the rotation
   //     'active' and 'passive' rotations are inverse to each other
@@ -258,111 +255,86 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const DDFilteredVie
   grmat[7] = z.Y();
   grmat[8] = z.Z();
 
-  // edm::LogVerbatim("DTGeometryParsFromDD") << "(2) DDD "<< x.X() << ", " << x.Y() << ", " << x.Z()<< " , "<< y.X() << ", " << y.Y() << ", " << y.Z()<< " , "<< z.X() << ", " << z.Y() << ", " << z.Z();
-
   return pair<std::vector<double>, std::vector<double> >(gtran, grmat);
 }
 
 // DD4Hep
 
-
 void DTGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
                                          const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
-  
   edm::LogVerbatim("DTGeometryParsFromDD") << "(0) DTGeometryParsFromDD - DD4HEP ";
-  
+
   bool doChamber = fv.firstChild();
-  
+
   while (doChamber) {
     insertChamber(fv, muonConstants, rig);
-    
+
     bool doSL = fv.nextSibling();
     while (doSL) {
-       insertSuperLayer(fv, muonConstants, rig);
-      
+      insertSuperLayer(fv, muonConstants, rig);
+
       fv.down();
       bool doLayers = fv.sibling();
       while (doLayers) {
-	 insertLayer(fv, muonConstants, rig);
-	
+        insertLayer(fv, muonConstants, rig);
+
         doLayers = fv.sibling();
       }
 
       doSL = fv.nextSibling();
     }
-    
+
     fv.parent();
     doChamber = fv.firstChild();
   }
-  
 }
 
 DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const cms::DDFilteredView& fv) const {
+  const Double_t* tr = fv.trans();
 
-const Double_t* tr = fv.trans();
+  std::vector<double> gtran(3);
 
-std::vector<double> gtran(3);
+  gtran[0] = tr[0] / dd4hep::cm;
+  gtran[1] = tr[1] / dd4hep::cm;
+  gtran[2] = tr[2] / dd4hep::cm;
 
-gtran[0] = tr[0] / dd4hep::cm;
-gtran[1] = tr[1] / dd4hep::cm; 
-gtran[2] = tr[2] / dd4hep::cm;
+  DDRotationMatrix rotation = fv.rotation();
+  DD3Vector x, y, z;
+  rotation.GetComponents(x, y, z);
 
-//edm::LogVerbatim("DTGeometryParsFromDD") << "(1) DD4HEP "<< tr[0] / dd4hep::cm << ", " << tr[1] / dd4hep::cm << ", " << tr[2] / dd4hep::cm;
+  std::vector<double> grmat(9);
 
-DDRotationMatrix rotation = fv.rotation(); 
-DD3Vector x, y, z;
-rotation.GetComponents(x, y, z);
+  grmat[0] = x.X();
+  grmat[1] = x.Y();
+  grmat[2] = x.Z();
 
-// edm::LogVerbatim("DTGeometryParsFromDD") << "(2) DD4HEP "<< x.X() << ", " << x.Y() << ", " << x.Z()<< " , "<< y.X() << ", " << y.Y() << ", " << y.Z()<< " , "<< z.X() << ", " << z.Y() << ", " << z.Z();
+  grmat[3] = y.X();
+  grmat[4] = y.Y();
+  grmat[5] = y.Z();
 
-std::vector<double> grmat(9);
+  grmat[6] = z.X();
+  grmat[7] = z.Y();
+  grmat[8] = z.Z();
 
-grmat[0] = x.X();
-grmat[1] = x.Y();
-grmat[2] = x.Z();
-
-grmat[3] = y.X();
-grmat[4] = y.Y();
-grmat[5] = y.Z();
-
-grmat[6] = z.X();
-grmat[7] = z.Y();
-grmat[8] = z.Z();
-
-return pair<std::vector<double>, std::vector<double> >(gtran, grmat);
+  return pair<std::vector<double>, std::vector<double> >(gtran, grmat);
 }
-
-/*
-vector<double> DTGeometryParsFromDD::extractParameters(cms::DDFilteredView& fv) const {
-  vector<double> par;
-  std::string my_title(fv.solid()->GetTitle());
-  //edm::LogVerbatim("DTGeometryParsFromDD") << "(0) /1 - DD4HEP "<<my_title;
-  par = fv.parameters();
-  //edm::LogVerbatim("DTGeometryParsFromDD") << "(0) /2 - DD4HEP "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" "<<par[3]<<" "<<par[4];
-  return par;
-}
-*/
 
 void DTGeometryParsFromDD::insertChamber(cms::DDFilteredView& fv,
-					 const MuonGeometryConstants& muonConstants,
+                                         const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
   MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
-  DTChamberId detId(rawid);  
- 
+  DTChamberId detId(rawid);
+
   vector<double> par = fv.parameters();
-  //vector<double> par;
-  //vector<double> size = extractParameters(fv);
-  //par.insert(par.end(), size.begin(), size.end());
- 
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(4) DD4HEP, Chamber DetId "<<rawid<<" "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" "<<par[3]<<" "<<par[4];
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(1) DD4HEP, Chamber DetId " << rawid << " " << par[0] << " " << par[1]
+                                           << " " << par[2] << " " << par[3] << " " << par[4];
   PosRotPair posRot(plane(fv));
 
   rig.insert(rawid, posRot.first, posRot.second, par);
 }
-
 
 void DTGeometryParsFromDD::insertSuperLayer(cms::DDFilteredView& fv,
                                             const MuonGeometryConstants& muonConstants,
@@ -371,35 +343,25 @@ void DTGeometryParsFromDD::insertSuperLayer(cms::DDFilteredView& fv,
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
   DTSuperLayerId slId(rawid);
- 
-  vector<double> par = fv.parameters();
-  //vector<double> par;
-  //vector<double> size = extractParameters(fv);
-  // par.insert(par.end(), size.begin(), size.end());
-  
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(5) DD4HEP, Super Layer DetID "<<rawid<<" "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" "<<par[3]<<" "<<par[4];
 
+  vector<double> par = fv.parameters();
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(2) DD4HEP, Super Layer DetID " << rawid << " " << par[0] << " "
+                                           << par[1] << " " << par[2] << " " << par[3] << " " << par[4];
   PosRotPair posRot(plane(fv));
 
   rig.insert(slId, posRot.first, posRot.second, par);
 }
 
-
 void DTGeometryParsFromDD::insertLayer(cms::DDFilteredView& fv,
                                        const MuonGeometryConstants& muonConstants,
                                        RecoIdealGeometry& rig) const {
- 
   MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
   DTLayerId layId(rawid);
- 
-  vector<double> par = fv.parameters();
-// vector<double> par;
-// vector<double> size = extractParameters(fv);
-// par.insert(par.end(), size.begin(), size.end());
 
- fv.down();
+  vector<double> par = fv.parameters();
+  fv.down();
   bool doWire = fv.sibling();
   int firstWire = fv.volume()->GetNumber();
   auto const& wpar = fv.parameters();
@@ -410,7 +372,7 @@ void DTGeometryParsFromDD::insertLayer(cms::DDFilteredView& fv,
     doWire = fv.checkChild();
     WCounter++;
   }
- 
+
   par.emplace_back(firstWire);
   par.emplace_back(WCounter);
   par.emplace_back(wireLength);
@@ -418,8 +380,7 @@ void DTGeometryParsFromDD::insertLayer(cms::DDFilteredView& fv,
   fv.up();
 
   PosRotPair posRot(plane(fv));
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(6) DD4HEP, Layer DetID "<<rawid<<" "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" "<<par[3]<<" "<<par[4];
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(6) DD4HEP, Layer DetID " << rawid << " " << par[0] << " " << par[1]
+                                           << " " << par[2] << " " << par[3] << " " << par[4];
   rig.insert(layId, posRot.first, posRot.second, par);
 }
-
-
