@@ -66,14 +66,12 @@ private:
 
   //data processing
   void convert_collection_data_to_soa_(const uint32_t &,
-                                       const HGChefUncalibratedRecHitCollection &,
-                                       HGCUncalibratedRecHitSoA *);
+                                       const HGChefUncalibratedRecHitCollection &);
   void convert_constant_data_(KernelConstantData<HGChefUncalibratedRecHitConstantData> *);
 
   HGCRecHitGPUProduct prod_;
-  HGCUncalibratedRecHitSoA *h_uncalibSoA_ = nullptr;
-  HGCUncalibratedRecHitSoA *d_uncalibSoA_ = nullptr;
-  HGCRecHitSoA *d_calibSoA_ = nullptr;
+  HGCUncalibratedRecHitSoA h_uncalibSoA_, d_uncalibSoA_;
+  HGCRecHitSoA d_calibSoA_;
 
   KernelConstantData<HGChefUncalibratedRecHitConstantData> *kcdata_;
 };
@@ -96,9 +94,6 @@ HEFRecHitGPU::HEFRecHitGPU(const edm::ParameterSet& ps)
   cdata_.layerOffset_ = 28;
   assert_sizes_constants_(vdata_);
 
-  h_uncalibSoA_ = new HGCUncalibratedRecHitSoA();
-  d_uncalibSoA_ = new HGCUncalibratedRecHitSoA();
-  d_calibSoA_ = new HGCRecHitSoA();
   kcdata_ = new KernelConstantData<HGChefUncalibratedRecHitConstantData>(cdata_, vdata_);
 
   tools_ = std::make_unique<hgcal::RecHitTools>();
@@ -106,9 +101,6 @@ HEFRecHitGPU::HEFRecHitGPU(const edm::ParameterSet& ps)
 
 HEFRecHitGPU::~HEFRecHitGPU() {
   delete kcdata_;
-  delete h_uncalibSoA_;
-  delete d_uncalibSoA_;
-  delete d_calibSoA_;
 }
 
 std::string HEFRecHitGPU::assert_error_message_(std::string var, const size_t& s1, const size_t& s2) {
@@ -153,7 +145,7 @@ void HEFRecHitGPU::acquire(edm::Event const& event, edm::EventSetup const& setup
   prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
   allocate_memory_(ctx.stream());
   convert_constant_data_(kcdata_);
-  convert_collection_data_to_soa_(nhits, hits, h_uncalibSoA_);
+  convert_collection_data_to_soa_(nhits, hits);
 
   KernelManagerHGCalRecHit km(h_uncalibSoA_, d_uncalibSoA_, d_calibSoA_);
   km.run_kernels(kcdata_, ctx.stream());
@@ -187,18 +179,17 @@ void HEFRecHitGPU::convert_constant_data_(KernelConstantData<HGChefUncalibratedR
 }
 
 void HEFRecHitGPU::convert_collection_data_to_soa_(const uint32_t& nhits,
-                                                   const HGChefUncalibratedRecHitCollection& coll,
-                                                   HGCUncalibratedRecHitSoA* soa) {
+                                                   const HGChefUncalibratedRecHitCollection& coll) {
   for (unsigned i = 0; i < nhits; ++i) {
-    soa->amplitude_[i] = coll[i].amplitude();
-    soa->pedestal_[i] = coll[i].pedestal();
-    soa->jitter_[i] = coll[i].jitter();
-    soa->chi2_[i] = coll[i].chi2();
-    soa->OOTamplitude_[i] = coll[i].outOfTimeEnergy();
-    soa->OOTchi2_[i] = coll[i].outOfTimeChi2();
-    soa->flags_[i] = coll[i].flags();
-    soa->aux_[i] = 0;
-    soa->id_[i] = coll[i].id().rawId();
+    h_uncalibSoA_.amplitude_[i] = coll[i].amplitude();
+    h_uncalibSoA_.pedestal_[i] = coll[i].pedestal();
+    h_uncalibSoA_.jitter_[i] = coll[i].jitter();
+    h_uncalibSoA_.chi2_[i] = coll[i].chi2();
+    h_uncalibSoA_.OOTamplitude_[i] = coll[i].outOfTimeEnergy();
+    h_uncalibSoA_.OOTchi2_[i] = coll[i].outOfTimeChi2();
+    h_uncalibSoA_.flags_[i] = coll[i].flags();
+    h_uncalibSoA_.aux_[i] = 0;
+    h_uncalibSoA_.id_[i] = coll[i].id().rawId();
   }
 }
 
