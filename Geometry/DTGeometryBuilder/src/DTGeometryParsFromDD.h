@@ -39,11 +39,10 @@ public:
 
   // DD4Hep
   void build(const cms::DDCompactView* cview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
- 
+
   enum DTDetTag { DTChamberTag, DTSuperLayerTag, DTLayerTag };
 
 private:
-
   // DD
   /// create the chamber
   void insertChamber(DDFilteredView& fv,
@@ -71,29 +70,24 @@ private:
   PosRotPair plane(const DDFilteredView& fv) const;
 
   void buildGeometry(DDFilteredView& fv, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rig) const;
-  
+
   // DD4Hep
 
   void buildGeometry(cms::DDFilteredView& fv, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rig) const;
 
   /// create the chamber
-  void insertChamber(cms::DDFilteredView& fv,
-		     const MuonGeometryConstants& muonConstants,
-                     RecoIdealGeometry& rig) const;
+  void insertChamber(cms::DDFilteredView& fv, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rig) const;
 
   /// create the SL
   void insertSuperLayer(cms::DDFilteredView& fv,
-			const MuonGeometryConstants& muonConstants,
+                        const MuonGeometryConstants& muonConstants,
                         RecoIdealGeometry& rig) const;
 
   /// create the layer
-  void insertLayer(cms::DDFilteredView& fv,
-		   const MuonGeometryConstants& muonConstants,
-                   RecoIdealGeometry& rig) const;
+  void insertLayer(cms::DDFilteredView& fv, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rig) const;
 
   //  std::vector<double> extractParameters(cms::DDFilteredView& fv) const;
 
   PosRotPair plane(const cms::DDFilteredView& fv) const;
-
 };
 #endif

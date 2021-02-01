@@ -42,9 +42,9 @@ void DTRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
     edm::LogError("DTRecoIdealDBLoader") << "PoolDBOutputService unavailable";
     return;
   }
- 
+
   edm::ESHandle<MuonGeometryConstants> pMNDC;
-  DTGeometryParsFromDD dtgp; 
+  DTGeometryParsFromDD dtgp;
 
   if (fromDD4Hep_) {
     edm::ESTransientHandle<cms::DDCompactView> pDD;
@@ -52,7 +52,7 @@ void DTRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
     es.get<IdealGeometryRecord>().get(pMNDC);
     const cms::DDCompactView& cpv = *pDD;
     dtgp.build(&cpv, *pMNDC, *rig);
-  }  else { 
+  } else {
     edm::ESTransientHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
     es.get<IdealGeometryRecord>().get(pMNDC);
