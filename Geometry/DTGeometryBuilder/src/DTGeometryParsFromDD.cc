@@ -380,7 +380,7 @@ void DTGeometryParsFromDD::insertLayer(cms::DDFilteredView& fv,
   fv.up();
 
   PosRotPair posRot(plane(fv));
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(6) DD4HEP, Layer DetID " << rawid << " " << par[0] << " " << par[1]
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(3) DD4HEP, Layer DetID " << rawid << " " << par[0] << " " << par[1]
                                            << " " << par[2] << " " << par[3] << " " << par[4];
   rig.insert(layId, posRot.first, posRot.second, par);
 }
