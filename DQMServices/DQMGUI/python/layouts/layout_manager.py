@@ -16,7 +16,6 @@ class LayoutManager:
     if dataset == '/Global/Online/ALL':
       return cls.__online_layouts
     else:
-      print('off')
       return cls.__offline_layouts
 
 
