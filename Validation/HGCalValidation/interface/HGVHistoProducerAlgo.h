@@ -217,7 +217,19 @@ public:
                          unsigned int layers,
                          std::vector<int> thicknesses,
                          std::string pathtomatbudfile);
+
+  void bookClusterHistos_LCtoCP_association(DQMStore::IBooker& ibook,
+                                            Histograms& histograms,
+                                            unsigned int layers,
+                                            std::vector<int> thicknesses);
+
+  void bookClusterHistos_CellLevel(DQMStore::IBooker& ibook, 
+                                   Histograms& histograms, 
+                                   unsigned int layers, 
+                                   std::vector<int> thicknesses);
+
   void bookMultiClusterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
+
   void layerClusters_to_CaloParticles(const Histograms& histograms,
                                       edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                       const reco::CaloClusterCollection& clusters,
