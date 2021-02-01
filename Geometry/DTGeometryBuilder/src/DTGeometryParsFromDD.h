@@ -86,8 +86,6 @@ private:
   /// create the layer
   void insertLayer(cms::DDFilteredView& fv, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rig) const;
 
-  //  std::vector<double> extractParameters(cms::DDFilteredView& fv) const;
-
   PosRotPair plane(const cms::DDFilteredView& fv) const;
 };
 #endif
