@@ -1,4 +1,82 @@
-#include "HEFRecHitGPU.h"
+#include <iostream>
+#include <string>
+#include <memory>
+#include <chrono>
+#include <cuda_runtime.h>
+
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
+
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDACore/interface/ContextState.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+
+#include "HeterogeneousHGCalProducerMemoryWrapper.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
+
+#include "CUDADataFormats/HGCal/interface/HGCRecHitGPUProduct.h"
+
+class HEFRecHitGPU : public edm::stream::EDProducer<edm::ExternalWork> {
+public:
+  explicit HEFRecHitGPU(const edm::ParameterSet &ps);
+  ~HEFRecHitGPU() override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+
+  void acquire(edm::Event const &, edm::EventSetup const &, edm::WaitingTaskWithArenaHolder) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+private:
+  edm::EDGetTokenT<HGChefUncalibratedRecHitCollection> uncalibRecHitCPUToken_;
+  edm::EDPutTokenT<cms::cuda::Product<HGCRecHitGPUProduct>> recHitGPUToken_;
+
+  edm::Handle<HGChefUncalibratedRecHitCollection> handle_;
+  std::unique_ptr<HGChefRecHitCollection> rechits_;
+  cms::cuda::ContextState ctxState_;
+
+  //constants
+  HGChefUncalibratedRecHitConstantData cdata_;
+  HGCConstantVectorData vdata_;
+
+  //memory
+  std::string assert_error_message_(std::string, const size_t &, const size_t &);
+  void assert_sizes_constants_(const HGCConstantVectorData &);
+  void allocate_memory_(const cudaStream_t &);
+
+  //conditions (geometry, topology, ...)
+  std::unique_ptr<hgcal::RecHitTools> tools_;
+
+  //data processing
+  void convert_collection_data_to_soa_(const uint32_t &,
+                                       const HGChefUncalibratedRecHitCollection &,
+                                       HGCUncalibratedRecHitSoA *);
+  void convert_constant_data_(KernelConstantData<HGChefUncalibratedRecHitConstantData> *);
+
+  HGCRecHitGPUProduct prod_;
+  HGCUncalibratedRecHitSoA *h_uncalibSoA_ = nullptr;
+  HGCUncalibratedRecHitSoA *d_uncalibSoA_ = nullptr;
+  HGCRecHitSoA *d_calibSoA_ = nullptr;
+
+  KernelConstantData<HGChefUncalibratedRecHitConstantData> *kcdata_;
+};
 
 HEFRecHitGPU::HEFRecHitGPU(const edm::ParameterSet& ps)
     : uncalibRecHitCPUToken_{consumes<HGCUncalibratedRecHitCollection>(
@@ -42,19 +120,19 @@ std::string HEFRecHitGPU::assert_error_message_(std::string var, const size_t& s
 
 void HEFRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
   if (vdata_.fCPerMIP_.size() > HGChefUncalibratedRecHitConstantData::hef_fCPerMIP)
-    cms::cuda::LogError("WrongSize") << this->assert_error_message_(
+    edm::LogError("WrongSize") << this->assert_error_message_(
         "fCPerMIP", HGChefUncalibratedRecHitConstantData::hef_fCPerMIP, vdata_.fCPerMIP_.size());
   else if (vdata_.cce_.size() > HGChefUncalibratedRecHitConstantData::hef_cce)
-    cms::cuda::LogError("WrongSize") << this->assert_error_message_(
+    edm::LogError("WrongSize") << this->assert_error_message_(
         "cce", HGChefUncalibratedRecHitConstantData::hef_cce, vdata_.cce_.size());
   else if (vdata_.noise_fC_.size() > HGChefUncalibratedRecHitConstantData::hef_noise_fC)
-    cms::cuda::LogError("WrongSize") << this->assert_error_message_(
+    edm::LogError("WrongSize") << this->assert_error_message_(
         "noise_fC", HGChefUncalibratedRecHitConstantData::hef_noise_fC, vdata_.noise_fC_.size());
   else if (vdata_.rcorr_.size() > HGChefUncalibratedRecHitConstantData::hef_rcorr)
-    cms::cuda::LogError("WrongSize") << this->assert_error_message_(
+    edm::LogError("WrongSize") << this->assert_error_message_(
         "rcorr", HGChefUncalibratedRecHitConstantData::hef_rcorr, vdata_.rcorr_.size());
   else if (vdata_.weights_.size() > HGChefUncalibratedRecHitConstantData::hef_weights)
-    cms::cuda::LogError("WrongSize") << this->assert_error_message_(
+    edm::LogError("WrongSize") << this->assert_error_message_(
         "weights", HGChefUncalibratedRecHitConstantData::hef_weights, vdata_.weights_.size());
 }
 
