@@ -382,7 +382,7 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
                         << "\n\t hwQual     = 0x " << cand.hwQual() << "\n\t hwIso      = 0x " << cand.hwIso()
                         << std::dec << std::endl;
 
-  if( objPar.unconstrainedPtHigh > 0 ) // POTENTIAL FIX (HACK) RICK
+  if( objPar.unconstrainedPtHigh > 0 ) // Check if unconstrained pT cut-window is valid
   {
     if (!checkThreshold(objPar.unconstrainedPtLow, objPar.unconstrainedPtHigh, cand.hwPtUnconstrained(), m_gtMuonTemplate->condGEq())) 
     {
@@ -400,9 +400,6 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
     if (!passImpactParameterLUT) // POTENITAL PROBLEM RICK
       {
 	LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed impact parameter requirement" << std::endl;
-	std::cout << "\t\t l1t::Candidate failed impact parameter requirement" << std::endl;
-	std::cout << "\t\t l1t::Candidate impactParameterLUT = " << objPar.impactParameterLUT << std::endl;
-	std::cout << "\t\t l1t::Candidate cand.hwDXY()       = " << cand.hwDXY() << std::endl;
 	return false;
       }
   }
