@@ -22,26 +22,22 @@
 #include <unordered_map>
 
 /*Description
-  this is an evolution of the MicroStateService intended to be run standalone in cmsRun or similar
-  As such, it has to independently create a monitoring thread and run it in each forked process, which needs 
-  to be arranged following the standard CMSSW procedure.
-  A legenda for use by the monitoring process in the DAQ needs to be generated as soon as convenient - since 
-  no access to the EventProcessor is granted, this needs to wait until after beginJob is executed.
-  At the same time, we try to spare time in the monitoring by avoiding even a single string lookup and using the 
-  moduledesc pointer to key into the map instead.
-  As a bonus, we can now add to the monitored status the current path (and possibly associate modules to a path...)
-  this intermediate info will be called "ministate" :D
+  this is an evolution of the MicroStateService intended to be run in standalone multi-threaded cmsRun jobs
+  A legenda for use by the monitoring process in the DAQ needs to be generated at beginJob (when first available). 
+  We try to spare CPU time in the monitoring by avoiding even a single string lookup and using the 
+  moduledesc pointer to key into the map instead and no string or string pointers are used for the microstates.
+  Only a pointer value is stored using relaxed ordering at the time of module execution  which is fast.
+  At snapshot time only (every few seconds) we do the map lookup to produce snapshot.
+  Path names use a similar logic. However path names are not accessible in the same way as later so they need to be
+  when starting to run associated to the memory location of path name strings as accessible when path is executed.
+  Path intermediate info will be called "ministate" :D
   The general counters and status variables (event number, number of processed events, number of passed and stored 
-  events, luminosity section etc. are also monitored here.
+  events, luminosity section etc.) are also monitored here.
 
-  NOTA BENE!!! with respect to the MicroStateService, no string or string pointers are used for the microstates.
-  NOTA BENE!!! the state of the edm::EventProcessor cannot be monitored directly from within a service, so a 
-  different solution must be identified for that (especially one needs to identify error states). 
-  NOTA BENE!!! to keep backward compatibility with the MicroStateService, a common base class with abstract interface,
-  exposing the single  method to be used by all other packages (except EventFilter/Processor, 
-  which should continue to use the concrete class interface) will be defined 
-
+  N.B. MicroStateService is referenced by a common base class which is now trivial.
+  It's complete removal will be completed in the future commit.
 */
+
 class FedRawDataInputSource;
 
 namespace edm {
