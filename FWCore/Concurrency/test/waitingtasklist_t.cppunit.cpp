@@ -193,13 +193,10 @@ void WaitingTaskList_test::stressTest() {
         for (unsigned int i = 0; i < nTasks; ++i) {
           waitList.add(waitTaskH);
         }
-
       });
       std::shared_ptr<std::thread>(&makeTasksThread, join_thread);
 
-      std::thread doneWaitThread([&waitList, waitTaskH] {
-        waitList.doneWaiting(std::exception_ptr{});
-      });
+      std::thread doneWaitThread([&waitList, waitTaskH] { waitList.doneWaiting(std::exception_ptr{}); });
       std::shared_ptr<std::thread>(&doneWaitThread, join_thread);
     }
     do {

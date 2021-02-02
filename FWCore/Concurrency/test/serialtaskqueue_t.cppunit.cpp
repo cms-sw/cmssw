@@ -119,43 +119,43 @@ void SerialTaskQueue_test::testPause() {
 }
 
 void SerialTaskQueue_test::stressTest() {
+  //note group needs to live longer than queue
+  tbb::task_group group;
   edm::SerialTaskQueue queue;
 
   unsigned int index = 100;
   const unsigned int nTasks = 1000;
   while (0 != --index) {
     std::atomic<unsigned int> waitingTasks{2};
-    tbb::task_group group;
     std::atomic<unsigned int> count{0};
 
     std::atomic<bool> waitToStart{true};
     {
-      {
-        tbb::task_arena arena{tbb::task_arena::attach()};
-        arena.enqueue([&queue, &waitToStart, &waitingTasks, &count, &group] {
-          while (waitToStart.load()) {
-          };
-          for (unsigned int i = 0; i < nTasks; ++i) {
-            ++waitingTasks;
-            queue.push(group, [&count, &waitingTasks] {
-              ++count;
-              --waitingTasks;
-            });
-          }
+      group.run([&queue, &waitToStart, &waitingTasks, &count, &group] {
+        while (waitToStart.load()) {
+        }
+        for (unsigned int i = 0; i < nTasks; ++i) {
+          ++waitingTasks;
+          queue.push(group, [&count, &waitingTasks] {
+            ++count;
+            --waitingTasks;
+          });
+        }
 
-          --waitingTasks;
-        });
-      }
+        --waitingTasks;
+      });
 
-      waitToStart = false;
-      for (unsigned int i = 0; i < nTasks; ++i) {
-        ++waitingTasks;
-        queue.push(group, [&count, &waitingTasks] {
-          ++count;
-          --waitingTasks;
-        });
-      }
-      --waitingTasks;
+      group.run([&queue, &waitToStart, &waitingTasks, &count, &group] {
+        waitToStart = false;
+        for (unsigned int i = 0; i < nTasks; ++i) {
+          ++waitingTasks;
+          queue.push(group, [&count, &waitingTasks] {
+            ++count;
+            --waitingTasks;
+          });
+        }
+        --waitingTasks;
+      });
     }
     do {
       group.wait();
