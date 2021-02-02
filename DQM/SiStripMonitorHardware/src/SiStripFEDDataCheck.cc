@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -64,7 +64,7 @@ private:
 
   bool hasFatalError(const FEDRawData& fedData, unsigned int fedId) const;
   bool hasNonFatalError(const FEDRawData& fedData, unsigned int fedId) const;
-  void updateCabling(const edm::EventSetup& eventSetup);
+  void updateCabling(const SiStripFedCablingRcd& cablingRcd);
 
   inline void fillPresent(unsigned int fedId, bool present);
   inline void fillFatalError(unsigned int fedId, bool fatalError);
@@ -101,8 +101,11 @@ private:
   bool doPayloadChecks_, checkChannelLengths_, checkPacketCodes_, checkFELengths_, checkChannelStatusBits_, verbose_;
 
   //Cabling
-  uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
+
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   unsigned int siStripFedIdMin_;
   unsigned int siStripFedIdMax_;
@@ -139,7 +142,9 @@ SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
       checkFELengths_(iConfig.getUntrackedParameter<bool>("CheckFELengths", true)),
       checkChannelStatusBits_(iConfig.getUntrackedParameter<bool>("CheckChannelStatus", true)),
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
-      cablingCacheId_(0) {
+      fedCablingWatcher_(this, &SiStripFEDCheckPlugin::updateCabling),
+      fedCablingToken_(esConsumes<>()),
+      tTopoToken_(esConsumes<>()) {
   rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
   if (printDebug_ && !doPayloadChecks_ && (checkChannelLengths_ || checkPacketCodes_ || checkFELengths_)) {
     std::stringstream ss;
@@ -170,13 +175,8 @@ SiStripFEDCheckPlugin::~SiStripFEDCheckPlugin() {}
 
 // ------------ method called to for each event  ------------
 void SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  //update cabling
-  updateCabling(iSetup);
+  const auto tTopo = &iSetup.getData(tTopoToken_);
+  fedCablingWatcher_.check(iSetup);
 
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
@@ -355,14 +355,8 @@ void SiStripFEDCheckPlugin::bookHistograms(DQMStore::IBooker& ibooker,
 // ------------ method called once each run just after ending the event loop  ------------
 void SiStripFEDCheckPlugin::dqmEndRun(edm::Run const&, edm::EventSetup const&) { updateHistograms(); }
 
-void SiStripFEDCheckPlugin::updateCabling(const edm::EventSetup& eventSetup) {
-  uint32_t currentCacheId = eventSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
-  if (cablingCacheId_ != currentCacheId) {
-    edm::ESHandle<SiStripFedCabling> cablingHandle;
-    eventSetup.get<SiStripFedCablingRcd>().get(cablingHandle);
-    cabling_ = cablingHandle.product();
-    cablingCacheId_ = currentCacheId;
-  }
+void SiStripFEDCheckPlugin::updateCabling(const SiStripFedCablingRcd& cablingRcd) {
+  cabling_ = &cablingRcd.get(fedCablingToken_);
 }
 
 void SiStripFEDCheckPlugin::fillPresent(unsigned int fedId, bool present) {

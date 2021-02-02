@@ -14,7 +14,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('MuonGeom')
+    process.MessageLogger.MuonGeom=dict()
 
 process.hpa = cms.EDAnalyzer("MuonOffsetAnalyzer")
 process.Timing = cms.Service("Timing")

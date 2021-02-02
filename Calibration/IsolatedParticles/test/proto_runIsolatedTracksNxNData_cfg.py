@@ -5,8 +5,8 @@ process = cms.Process("L1SKIM")
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000000
-process.MessageLogger.categories.append('L1GtTrigReport')
-process.MessageLogger.categories.append('HLTrigReport')
+process.MessageLogger.L1GtTrigReport=dict()
+process.MessageLogger.HLTrigReport=dict()
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)

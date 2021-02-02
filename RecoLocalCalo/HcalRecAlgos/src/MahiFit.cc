@@ -85,13 +85,17 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 
   useTriple = false;
   if (tstrig > ts4Thresh_ && tsTOT > 0) {
-    //Average pedestal width (for covariance matrix constraint)
-    nnlsWork_.pedVal = 0.25f * (channelData.tsPedestalWidth(0) * channelData.tsPedestalWidth(0) +
-                                channelData.tsPedestalWidth(1) * channelData.tsPedestalWidth(1) +
-                                channelData.tsPedestalWidth(2) * channelData.tsPedestalWidth(2) +
-                                channelData.tsPedestalWidth(3) * channelData.tsPedestalWidth(3));
-
     nnlsWork_.noisecorr = channelData.noisecorr();
+
+    if (nnlsWork_.noisecorr != 0) {
+      nnlsWork_.pedVal = 0.f;
+    } else {
+      //Average pedestal width (for covariance matrix constraint)
+      nnlsWork_.pedVal = 0.25f * (channelData.tsPedestalWidth(0) * channelData.tsPedestalWidth(0) +
+                                  channelData.tsPedestalWidth(1) * channelData.tsPedestalWidth(1) +
+                                  channelData.tsPedestalWidth(2) * channelData.tsPedestalWidth(2) +
+                                  channelData.tsPedestalWidth(3) * channelData.tsPedestalWidth(3));
+    }
 
     // only do pre-fit with 1 pulse if chiSq threshold is positive
     if (chiSqSwitch_ > 0) {

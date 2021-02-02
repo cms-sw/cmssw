@@ -26,10 +26,6 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 
 #process.MessageLogger.debugModules = cms.untracked.vstring("testanalyzer","muonAssociatorByHits","process.muonTrackProducer")
 
-process.MessageLogger.categories = cms.untracked.vstring('testReader', 'MuonAssociatorEDProducer', 'MuonTrackProducer',
-    'MuonAssociatorByHits', 'DTHitAssociator', 'RPCHitAssociator', 'MuonTruth',
-    'FwkJob', 'FwkReport', 'FwkSummary', 'Root_NoDictionary')
-
 process.MessageLogger.cerr = cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(True),
 
@@ -59,6 +55,7 @@ process.MessageLogger.cerr = cms.untracked.PSet(
 )
 
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     noTimeStamps = cms.untracked.bool(True),
     
 #    threshold = cms.untracked.string('DEBUG'),
@@ -104,7 +101,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     )
 )
 
-#process.MessageLogger.statistics = cms.untracked.vstring('cout')
+#process.MessageLogger.cout.enableStatistics = cms.untracked.bool(True)
 
 #process.Tracer = cms.Service("Tracer")
 

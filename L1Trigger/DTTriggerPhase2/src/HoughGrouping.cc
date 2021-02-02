@@ -46,7 +46,7 @@ namespace {
       else
         return (sumdista < sumdistb);  // abs. dist. to digis
     }
-  } HoughOrdering;
+  } const HoughOrdering;
 }  // namespace
 // ============================================================================
 // Constructors and destructor

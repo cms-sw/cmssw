@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"

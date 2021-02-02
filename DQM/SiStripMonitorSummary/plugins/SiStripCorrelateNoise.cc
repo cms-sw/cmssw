@@ -7,7 +7,12 @@
 #include "TCanvas.h"
 
 SiStripCorrelateNoise::SiStripCorrelateNoise(const edm::ParameterSet &iConfig)
-    : refNoise(nullptr), oldGain(nullptr), newGain(nullptr), cacheID_noise(0xFFFFFFFF), cacheID_gain(0xFFFFFFFF) {
+    : noiseToken_{esConsumes<edm::Transition::BeginRun>()},
+      gainToken_{esConsumes<edm::Transition::BeginRun>()},
+      tTopoToken_{esConsumes<edm::Transition::BeginRun>()},
+      refNoise(nullptr),
+      oldGain(nullptr),
+      newGain(nullptr) {
   // now do what ever initialization is needed
   file = new TFile("correlTest.root", "RECREATE");
 
@@ -20,50 +25,33 @@ SiStripCorrelateNoise::~SiStripCorrelateNoise() {}
 //
 
 void SiStripCorrelateNoise::beginRun(const edm::Run &run, const edm::EventSetup &es) {
-  if (getNoiseCache(es) == cacheID_noise)
-    return;
-
-  edm::LogInfo("") << "[SiStripCorrelateNoise::beginRun]  cacheID_noise " << cacheID_noise << std::endl;
-
-  es.get<SiStripNoisesRcd>().get(noiseHandle_);
-  SiStripNoises *aNoise = new SiStripNoises(*noiseHandle_.product());
-
-  // Check if gain is the same from one noise iov to the other, otherwise cache
-  // the new gain (and the old one) to rescale
-
-  checkGainCache(es);
-
-  if (cacheID_noise != 0xFFFFFFFF) {
-    char dir[128];
-    theRun = run.run();
-    sprintf(dir, "Run_%d", theRun);
-    file->cd("");
-    file->mkdir(dir);
-    file->cd(dir);
-    DoAnalysis(es, *noiseHandle_.product(), *refNoise);
-    DoPlots();
+  if (noiseWatcher_.check(es)) {
+    auto aNoise = std::make_unique<SiStripNoises>(es.getData(noiseToken_));
+    // Check if gain is the same from one noise iov to the other, otherwise cache
+    // the new gain (and the old one) to rescale
+    checkGainCache(es);
+    if (refNoise) {
+      char dir[128];
+      theRun = run.run();
+      sprintf(dir, "Run_%d", theRun);
+      file->cd("");
+      file->mkdir(dir);
+      file->cd(dir);
+      DoAnalysis(es, *aNoise, *refNoise);
+      DoPlots();
+    }
+    refNoise = std::move(aNoise);
   }
-
-  cacheID_noise = getNoiseCache(es);
-  if (refNoise != nullptr)
-    delete refNoise;
-  refNoise = aNoise;
 }
 
 void SiStripCorrelateNoise::checkGainCache(const edm::EventSetup &es) {
   equalGain = true;
-  if (getGainCache(es) != cacheID_gain) {
-    es.get<SiStripApvGainRcd>().get(gainHandle_);
-    if (oldGain != nullptr)
-      delete oldGain;
-
-    oldGain = newGain;
-    newGain = new SiStripApvGain(*gainHandle_.product());
-
-    if (cacheID_gain != 0xFFFFFFFF)
+  if (gainWatcher_.check(es)) {
+    if (oldGain) {
       equalGain = false;
-    cacheID_gain = getGainCache(es);
-    edm::LogInfo("") << "[SiStripCorrelateNoise::checkGainCache]  cacheID_gain " << cacheID_gain << std::endl;
+    }
+    oldGain = std::move(newGain);
+    newGain = std::make_unique<SiStripApvGain>(es.getData(gainToken_));
   }
 }
 
@@ -106,10 +94,7 @@ void SiStripCorrelateNoise::DoAnalysis(const edm::EventSetup &es,
 
   edm::LogInfo("") << "[Doanalysis]";
 
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const auto tTopo = &es.getData(tTopoToken_);
 
   std::vector<TH1F *> histos;
 
@@ -151,16 +136,6 @@ float SiStripCorrelateNoise::getGainRatio(const uint32_t &detid, const uint16_t 
     return 1.;
 
   return oldGain->getApvGain(apv, oldRange) / newGain->getApvGain(apv, newRange);
-}
-
-float SiStripCorrelateNoise::getMeanNoise(const SiStripNoises::Range &noiseRange,
-                                          const uint32_t &firstStrip,
-                                          const uint32_t &range) {
-  float mean = 0;
-  for (size_t istrip = firstStrip; istrip < firstStrip + range; istrip++) {
-    mean += noiseHandle_->getNoise(istrip, noiseRange);
-  }
-  return mean / (1. * range);
 }
 
 void SiStripCorrelateNoise::getHistos(const uint32_t &detid,

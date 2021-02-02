@@ -2,5 +2,6 @@
 <use name="CondCore/Utilities"/>
 <use name="FWCore/PluginManager"/>
 <use name="CalibTracker/StandaloneTrackerTopology"/>
+<use name="roothistpainter"/>
 <bin file="testSiStripPayloadInspector.cpp" name="testSiStripPayloadInspector">
 </bin>

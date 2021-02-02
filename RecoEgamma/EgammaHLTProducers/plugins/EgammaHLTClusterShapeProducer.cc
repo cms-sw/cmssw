@@ -12,7 +12,6 @@
 //
 //
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -83,6 +82,11 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
 
   for (unsigned int iRecoEcalCand = 0; iRecoEcalCand < recoecalcandHandle->size(); iRecoEcalCand++) {
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);
+    if (recoecalcandref->superCluster()->seed()->seed().det() != DetId::Ecal) {  //HGCAL, skip for now
+      clshMap.insert(recoecalcandref, 0);
+      clsh5x5Map.insert(recoecalcandref, 0);
+      continue;
+    }
 
     std::vector<float> vCov;
     double sigmaee;

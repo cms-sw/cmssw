@@ -63,7 +63,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -77,7 +76,6 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -135,6 +133,12 @@ private:
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEB_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEE_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloHH_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
 
   int nEventProc_;
 
@@ -208,6 +212,12 @@ IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet &iConfi
                                  << a_charIsoR_ << "\t a_neutIsoR " << a_neutIsoR_ << "\t a_mipR " << a_mipR_
                                  << "\t time Range (" << tMinE_ << ":" << tMaxE_ << ")";
   }
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
 }
 
 void IsolatedTracksHcalScale::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -232,23 +242,11 @@ void IsolatedTracksHcalScale::fillDescriptions(edm::ConfigurationDescriptions &d
 }
 
 void IsolatedTracksHcalScale::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField *bField = bFieldH.product();
-
-  // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry *geo = pG.product();
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology *caloTopology = theCaloTopology.product();
-
-  // Retrieve the good/bad ECAL channels from the DB
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
-  const EcalChannelStatus *theEcalChStatus = ecalChStatus.product();
+  const CaloGeometry *geo = &iSetup.getData(tok_geom_);
+  const MagneticField *bField = &iSetup.getData(tok_magField_);
+  const EcalChannelStatus *theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
+  const EcalSeverityLevelAlgo *sevlv = &iSetup.getData(tok_sevlv_);
+  const CaloTopology *caloTopology = &iSetup.getData(tok_caloTopology_);
 
   clearTreeVectors();
 
@@ -447,16 +445,13 @@ void IsolatedTracksHcalScale::analyze(const edm::Event &iEvent, const edm::Event
 
       HcalDetId closestCell = (HcalDetId)(trkDetItr->detIdHCAL);
 
-      edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-      iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-
       e11x11_20SigP = spr::eECALmatrix(trkDetItr->detIdECAL,
                                        barrelRecHitsHandle,
                                        endcapRecHitsHandle,
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        5,
                                        5,
                                        0.060,
@@ -469,7 +464,7 @@ void IsolatedTracksHcalScale::analyze(const edm::Event &iEvent, const edm::Event
                                        *theEcalChStatus,
                                        geo,
                                        caloTopology,
-                                       sevlv.product(),
+                                       sevlv,
                                        7,
                                        7,
                                        0.060,

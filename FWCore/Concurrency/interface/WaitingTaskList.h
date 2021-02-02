@@ -75,6 +75,7 @@
 
 // user include files
 #include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
@@ -126,6 +127,11 @@ namespace edm {
        * Calls to add() and doneWaiting() can safely be done concurrently.
        */
     void add(WaitingTask*);
+
+    ///Adds task to the waiting list
+    /**Calls to add() and doneWaiting() can safely be done concurrently.
+      */
+    void add(WaitingTaskHolder);
 
     ///Signals that the resource is now available and tasks should be spawned
     /**The owner of the resource calls this function to allow the waiting tasks to

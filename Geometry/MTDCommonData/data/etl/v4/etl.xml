@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition>
 
   <ConstantsSection label="etl.xml" eval="true/false">
-    <Constant name="ETLrmin" value="[caloBase:Rmin100]"/>   <!-- 26.3 cm -->
+    <Constant name="ETLrmin" value="[caloBase:Rmin100]"/>   <!-- 28.5 cm -->
     <Constant name="ETLrmax" value="[caloBase:Rmax100]"/>   <!-- 125.525 cm -->
-    <Constant name="ETLthickness" value="7.7"/>
-    <Constant name="ETLcenter" value="3024.5*mm"/>
+    <Constant name="ETLthickness" value="77.0*mm"/>
+    <Constant name="ETLcenter" value="0.5*([caloBase:Zpos110]+[caloBase:Zpos100])"/>
     <Constant name="Disc1center" value="2999.62*mm"/>
     <Constant name="Disc2center" value="3029.62*mm"/>
     <Constant name="Disc_thickness" value="1.894"/>  <!-- thickness of one Disc comprising modules, service hybrids on both faces, mounted on the Al and MIC6-Al rings. Fig 3.73 TDR and line 354 Ulascan ETLDetectorDimensions.cc -->
@@ -36,7 +36,7 @@
   </ConstantsSection>
 
   <SolidSection label="etl.xml">
-    <Tubs name="EndcapTimingLayer" rMin="[ETLrmin]" rMax="[ETLrmax]" dz="0.5*[ETLthickness]*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="EndcapTimingLayer" rMin="[ETLrmin]" rMax="[ETLrmax]" dz="0.5*[ETLthickness]" startPhi="0*deg" deltaPhi="360*deg"/>
     <!-- Aluminium rings: dimensions as defined by ulascan (line 345 ETLDetectorDimensions.cc). Note: epoxy not considered as single element but included in "Aluminium_Disc" (0.081 + 0.008 cm) -->
     <Tubs name="Disc" rMin="31*cm" rMax="119*cm" dz="0.5*[Disc_thickness]*cm" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="Aluminium_Disc" rMin="31*cm" rMax="119*cm" dz="0.5*(0.089)*cm" startPhi="0*deg" deltaPhi="360*deg"/>

@@ -49,10 +49,6 @@ process.p1 = cms.Path(process.photonAnalysis*process.zmumugammaAnalysis*process.
 
 process.schedule = cms.Schedule(process.p1)
 
-<<<<<<< HEAD
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.MessageLogger = cms.Service("MessageLogger")
-=======
-#print process.dumpPython()
->>>>>>> automated DQM

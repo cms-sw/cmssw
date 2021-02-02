@@ -26,7 +26,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,6 +34,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CLHEP/Matrix/SymMatrix.h"
 
@@ -78,6 +78,7 @@ private:
 
   // ----------member data ---------------------------
   const edm::ParameterSet parameterSet_;
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> alignmentErrorToken_;
 
   bool firstEvent = true;
 
@@ -99,7 +100,7 @@ private:
 // constructors and destructor
 //
 ApeEstimatorSummary::ApeEstimatorSummary(const edm::ParameterSet& iConfig)
-    : parameterSet_(iConfig), inputFile_(nullptr) {}
+    : parameterSet_(iConfig), alignmentErrorToken_(esConsumes()), inputFile_(nullptr) {}
 
 ApeEstimatorSummary::~ApeEstimatorSummary() {}
 
@@ -364,9 +365,8 @@ void ApeEstimatorSummary::calculateApe() {
   TTree* sectorNameTree(nullptr);
   iterationFile->GetObject("nameTree;1", sectorNameTree);
 
-  bool firstIter(false);
-  if (!iterationTreeX) {  // should be always true in setBaseline mode, since file is recreated
-    firstIter = true;
+  const bool firstIter(!iterationTreeX);
+  if (firstIter) {  // should be always true in setBaseline mode, since file is recreated
     if (!setBaseline) {
       iterationTreeX = new TTree("iterTreeX", "Tree for APE x values of all iterations");
       iterationTreeY = new TTree("iterTreeY", "Tree for APE y values of all iterations");
@@ -438,9 +438,12 @@ void ApeEstimatorSummary::calculateApe() {
   }
 
   // Check whether sector definitions are identical with the ones of previous iterations and with the ones in baseline file
+  bool failed(false);
   for (auto& i_sector : m_tkSector_) {
     const std::string& name(i_sector.second.name);
-    if (!firstIter) {
+    if (firstIter) {
+      a_sectorName[i_sector.first] = new std::string(name);
+    } else {
       const std::string& nameLastIter(*a_sectorName[i_sector.first]);
       if (name != nameLastIter) {
         edm::LogError("CalculateAPE") << "Inconsistent sector definition in iterationFile for sector " << i_sector.first
@@ -448,22 +451,29 @@ void ApeEstimatorSummary::calculateApe() {
                                       << "Recent iteration has name \"" << name << "\", while previous had \""
                                       << nameLastIter << "\"\n"
                                       << "...APE calculation stopped. Please check sector definitions in config!\n";
-        return;
+        failed = true;
       }
-    } else {
-      a_sectorName[i_sector.first] = new std::string(name);
     }
     if (!setBaseline && baselineFile) {
       const std::string& nameBaseline(*a_sectorBaselineName[i_sector.first]);
       if (name != nameBaseline) {
+        failed = true;
         edm::LogError("CalculateAPE") << "Inconsistent sector definition in baselineFile for sector " << i_sector.first
                                       << ",\n"
                                       << "Recent iteration has name \"" << name << "\", while baseline had \""
                                       << nameBaseline << "\"\n"
                                       << "...APE calculation stopped. Please check sector definitions in config!\n";
-        return;
       }
     }
+  }
+
+  if (failed) {
+    if (firstIter) {
+      for (auto& i_sector : m_tkSector_) {
+        delete a_sectorName[i_sector.first];
+      }
+    }
+    return;
   }
 
   // Set up text file for writing out APE values per module
@@ -634,13 +644,13 @@ void ApeEstimatorSummary::calculateApe() {
       double correctionY_1 = correctionY2_1 >= 0. ? std::sqrt(correctionY2_1) : -std::sqrt(-correctionY2_1);
       double correctionY_2 = correctionY2_2 >= 0. ? std::sqrt(correctionY2_2) : -std::sqrt(-correctionY2_2);
       // Meanwhile, this got very bad default values, or? (negative corrections allowed)
-      if (isnan(correctionX_1))
+      if (edm::isNotFinite(correctionX_1))
         correctionX_1 = -0.0010;
-      if (isnan(correctionX_2))
+      if (edm::isNotFinite(correctionX_2))
         correctionX_2 = -0.0010;
-      if (isnan(correctionY_1))
+      if (edm::isNotFinite(correctionY_1))
         correctionY_1 = -0.0010;
-      if (isnan(correctionY_2))
+      if (edm::isNotFinite(correctionY_2))
         correctionY_2 = -0.0010;
 
       if (entriesX < minHitsPerInterval) {
@@ -876,6 +886,9 @@ void ApeEstimatorSummary::calculateApe() {
   if (firstIter) {
     sectorNameTree->Fill();
     sectorNameTree->Write("nameTree");
+    for (auto& i_sector : m_tkSector_) {
+      delete a_sectorName[i_sector.first];
+    }
   }
   iterationFile->Close();
   delete iterationFile;
@@ -894,8 +907,7 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
     // Set baseline or calculate APE value?
     const bool setBaseline(parameterSet_.getParameter<bool>("setBaseline"));
 
-    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-    iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
+    const AlignmentErrorsExtended* alignmentErrors = &iSetup.getData(alignmentErrorToken_);
 
     // Read in baseline file for calculation of APE value (if not setting baseline)
     // Has same format as iterationFile
@@ -932,9 +944,8 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
     TTree* sectorNameTree(nullptr);
     defaultFile->GetObject("nameTree;1", sectorNameTree);
 
-    bool firstIter(false);
-    if (!defaultTreeX) {  // should be always true in setBaseline mode, since file is recreated
-      firstIter = true;
+    const bool firstIter(!defaultTreeX);
+    if (firstIter) {  // should be always true in setBaseline mode, since file is recreated
       defaultTreeX = new TTree("iterTreeX", "Tree for default APE x values from GT");
       defaultTreeY = new TTree("iterTreeY", "Tree for default APE y values from GT");
       edm::LogInfo("CalculateAPE") << "First APE iteration (number 0.), create default file with TTree";
@@ -986,9 +997,12 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
     // Check whether sector definitions are identical with the ones of previous iterations and with the ones in baseline file
+    bool failed(false);
     for (auto& i_sector : m_tkSector_) {
       const std::string& name(i_sector.second.name);
-      if (!firstIter) {
+      if (firstIter) {
+        a_sectorName[i_sector.first] = new std::string(name);
+      } else {
         const std::string& nameLastIter(*a_sectorName[i_sector.first]);
         if (name != nameLastIter) {
           edm::LogError("CalculateAPE") << "Inconsistent sector definition in iterationFile for sector "
@@ -996,10 +1010,9 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
                                         << "Recent iteration has name \"" << name << "\", while previous had \""
                                         << nameLastIter << "\"\n"
                                         << "...APE calculation stopped. Please check sector definitions in config!\n";
-          return;
+          failed = true;
         }
-      } else
-        a_sectorName[i_sector.first] = new std::string(name);
+      }
       if (!setBaseline && baselineFile) {
         const std::string& nameBaseline(*a_sectorBaselineName[i_sector.first]);
         if (name != nameBaseline) {
@@ -1008,9 +1021,21 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
                                         << "Recent iteration has name \"" << name << "\", while baseline had \""
                                         << nameBaseline << "\"\n"
                                         << "...APE calculation stopped. Please check sector definitions in config!\n";
-          return;
+          failed = true;
         }
       }
+    }
+
+    if (failed) {
+      if (firstIter) {
+        delete defaultTreeX;
+        delete defaultTreeY;
+        delete sectorNameTree;
+        for (auto& i_sector : m_tkSector_) {
+          delete a_sectorName[i_sector.first];
+        }
+      }
+      return;
     }
 
     // Loop over sectors for calculating getting default APE
@@ -1042,11 +1067,19 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
     defaultTreeY->Write("iterTreeY");
 
     defaultFile->Close();
-    delete defaultFile;
-
     if (baselineFile) {
       baselineFile->Close();
       delete baselineFile;
+    }
+
+    delete defaultFile;
+    if (firstIter) {
+      for (auto& i_sector : m_tkSector_) {
+        delete a_sectorName[i_sector.first];
+      }
+      delete sectorNameTree;
+      delete defaultTreeX;
+      delete defaultTreeY;
     }
 
     firstEvent = false;

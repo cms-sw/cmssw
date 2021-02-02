@@ -193,26 +193,25 @@ void SiStripQualityChecker::resetStatus() {
 // -- Fill Status
 //
 void SiStripQualityChecker::fillStatus(DQMStore& dqm_store,
-                                       const edm::ESHandle<SiStripDetCabling>& cabling,
-                                       const edm::EventSetup& eSetup) {
+                                       const SiStripDetCabling* cabling,
+                                       const TkDetMap* tkDetMap,
+                                       const TrackerTopology* tTopo) {
   if (!bookedStripStatus_)
     bookStatus(dqm_store);
 
-  edm::ESHandle<TkDetMap> tkMapHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tkMapHandle);
-  tkDetMap_ = tkMapHandle.product();
+  tkDetMap_ = tkDetMap;
 
   fillDummyStatus();
   fillDetectorStatus(dqm_store, cabling);
 
   int faulty_moduleflag = pSet_.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
   if (faulty_moduleflag)
-    fillFaultyModuleStatus(dqm_store, eSetup);
+    fillFaultyModuleStatus(dqm_store, tTopo);
 }
 //
 // Fill Detector Status
 //
-void SiStripQualityChecker::fillDetectorStatus(DQMStore& dqm_store, const edm::ESHandle<SiStripDetCabling>& cabling) {
+void SiStripQualityChecker::fillDetectorStatus(DQMStore& dqm_store, const SiStripDetCabling* cabling) {
   unsigned int xbin = 0;
   float global_flag = 0;
   dqm_store.cd();
@@ -243,11 +242,8 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore& dqm_store, const edm::E
 //
 // -- Fill Sub detector Reports
 //
-void SiStripQualityChecker::fillSubDetStatus(DQMStore& dqm_store,
-                                             const edm::ESHandle<SiStripDetCabling>& cabling,
-                                             SubDetMEs& mes,
-                                             unsigned int xbin,
-                                             float& gflag) {
+void SiStripQualityChecker::fillSubDetStatus(
+    DQMStore& dqm_store, const SiStripDetCabling* cabling, SubDetMEs& mes, unsigned int xbin, float& gflag) {
   int status_flag = pSet_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
   if (status_flag < 1)
     return;
@@ -483,14 +479,9 @@ void SiStripQualityChecker::fillStatusHistogram(MonitorElement const* me,
 //
 // -- Create Monitor Elements for Modules
 //
-void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore& dqm_store, const edm::EventSetup& eSetup) {
+void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore& dqm_store, const TrackerTopology* tTopo) {
   if (badModuleList.empty())
     return;
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   dqm_store.cd();
   std::string mdir = "MechanicalView";

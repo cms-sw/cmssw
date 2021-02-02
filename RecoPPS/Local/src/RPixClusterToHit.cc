@@ -109,20 +109,19 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPix
 
   LocalPoint lp(avgLocalX, avgLocalY, 0);
   LocalError le(varianceX, 0, varianceY);
-  CTPPSPixelRecHit rh(lp,
-                      le,
-                      anEdgePixel,
-                      aBadPixel,
-                      twoRocs,
-                      thisClusterMinRow,
-                      thisClusterMinCol,
-                      thisClusterSize,
-                      thisClusterRowSize,
-                      thisClusterColSize);
   if (verbosity_)
     edm::LogInfo("RPixClusterToHit") << lp << " with error " << le;
 
-  hits.push_back(rh);
+  hits.emplace_back(lp,
+                    le,
+                    anEdgePixel,
+                    aBadPixel,
+                    twoRocs,
+                    thisClusterMinRow,
+                    thisClusterMinCol,
+                    thisClusterSize,
+                    thisClusterRowSize,
+                    thisClusterColSize);
 
   return;
 }

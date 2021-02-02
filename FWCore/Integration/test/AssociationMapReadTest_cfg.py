@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("READ")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cerr']
-process.MessageLogger.statistics = []
+
+process.MessageLogger.cerr.enableStatistics = False
 
 
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")

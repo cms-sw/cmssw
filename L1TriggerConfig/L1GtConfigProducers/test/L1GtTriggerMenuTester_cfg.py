@@ -110,30 +110,22 @@ else :
 
 # Message Logger
 process.MessageLogger.debugModules = ['l1GtTriggerMenuTester']
-process.MessageLogger.categories.append('L1GtTriggerMenuTester')
-process.MessageLogger.categories.append('L1GtTriggerMenuTesterWiki')
-process.MessageLogger.destinations = ['L1GtTriggerMenuTester_errors', 
-                                      'L1GtTriggerMenuTester_warnings', 
-                                      'L1GtTriggerMenuTester_info', 
-                                      'L1GtTriggerMenuTester_wiki', 
-                                      'L1GtTriggerMenuTester_debug'
-                                      ]
-process.MessageLogger.statistics = []
+process.MessageLogger.cerr.enable = False
 
-process.MessageLogger.L1GtTriggerMenuTester_errors = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTriggerMenuTester_errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GtTriggerMenuTester = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
        )
 
-process.MessageLogger.L1GtTriggerMenuTester_warnings = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTriggerMenuTester_warnings = cms.untracked.PSet( 
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtTriggerMenuTester = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtTriggerMenuTester_info = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTriggerMenuTester_info = cms.untracked.PSet( 
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -141,7 +133,7 @@ process.MessageLogger.L1GtTriggerMenuTester_info = cms.untracked.PSet(
         L1GtTriggerMenuTester = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtTriggerMenuTester_wiki = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTriggerMenuTester_wiki = cms.untracked.PSet( 
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -149,7 +141,7 @@ process.MessageLogger.L1GtTriggerMenuTester_wiki = cms.untracked.PSet(
         L1GtTriggerMenuTesterWiki = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
-process.MessageLogger.L1GtTriggerMenuTester_debug = cms.untracked.PSet( 
+process.MessageLogger.files.L1GtTriggerMenuTester_debug = cms.untracked.PSet( 
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),

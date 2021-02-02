@@ -10,35 +10,36 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring('sendSomeMessages'),
     default = cms.untracked.PSet(
         limit = cms.untracked.int32(100),
         timespan = cms.untracked.int32(60)
     ),
-    detailedInfo = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        INFO = cms.untracked.PSet(
-            timespan = cms.untracked.int32(1000)
+    files = cms.untracked.PSet(
+        critical = cms.untracked.PSet(
+            threshold = cms.untracked.string('ERROR')
         ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(10),
-            timespan = cms.untracked.int32(600)
-        ),
-        unimportant = cms.untracked.PSet(
-            limit = cms.untracked.int32(5)
-        ),
-        trkwarning = cms.untracked.PSet(
-            limit = cms.untracked.int32(100),
-            timespan = cms.untracked.int32(30)
+        detailedInfo = cms.untracked.PSet(
+            INFO = cms.untracked.PSet(
+                timespan = cms.untracked.int32(1000)
+            ),
+            default = cms.untracked.PSet(
+                limit = cms.untracked.int32(10),
+                timespan = cms.untracked.int32(600)
+            ),
+            threshold = cms.untracked.string('DEBUG'),
+            trkwarning = cms.untracked.PSet(
+                limit = cms.untracked.int32(100),
+                timespan = cms.untracked.int32(30)
+            ),
+            unimportant = cms.untracked.PSet(
+                limit = cms.untracked.int32(5)
+            )
         )
-    ),
-    critical = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
-    ),
-    debugModules = cms.untracked.vstring('sendSomeMessages'),
-    categories = cms.untracked.vstring('postBeginJob', 'unimportant',
-        'trkwarning'),
-    destinations = cms.untracked.vstring('detailedInfo', 
-        'critical')
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

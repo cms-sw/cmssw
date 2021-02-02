@@ -15,6 +15,7 @@
 #include <map>
 #include <vector>
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DD4hep/DD4hepUnits.h"
 
 class DDCompactView;
 class DDFilteredView;
@@ -66,6 +67,8 @@ private:
 
   // Common
   void buildRegions(GEMGeometry&, const std::vector<GEMSuperChamber*>&);
+
+  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
 };
 
 #endif

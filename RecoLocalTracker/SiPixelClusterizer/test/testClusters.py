@@ -46,15 +46,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('siPixelClusters'),
-    destinations = cms.untracked.vstring('cout'),
-#    destinations = cms.untracked.vstring("log","cout"),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('ERROR')
-    )
-#    log = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG')
-#    )
+    ),
+    debugModules = cms.untracked.vstring('siPixelClusters')
 )
 
 process.source = cms.Source("PoolSource",

@@ -13,7 +13,7 @@ process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('MaterialBudget')
+    process.MessageLogger.MaterialBudget=dict()
 
 process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),

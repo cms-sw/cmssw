@@ -13,6 +13,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 namespace reco {
   class TrackToTrackingParticleAssociator;
@@ -46,6 +48,8 @@ private:
   edm::EDGetTokenT<edm::View<reco::Track>> tracksToken_;
   edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociatorByHitsToken_;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
 };
 
 #endif

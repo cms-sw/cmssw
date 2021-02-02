@@ -2,7 +2,6 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -34,11 +33,13 @@ public:
 
 private:
   const bool debug_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
   std::vector<TH2D*> hist_;
 };
 
 EcalPreshowerCellParameterDump::EcalPreshowerCellParameterDump(const edm::ParameterSet& ps)
-    : debug_(ps.getUntrackedParameter<bool>("debug", false)) {
+    : debug_(ps.getUntrackedParameter<bool>("debug", false)),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   usesResource(TFileService::kSharedResource);
 
   if (debug_) {
@@ -63,9 +64,7 @@ void EcalPreshowerCellParameterDump::fillDescriptions(edm::ConfigurationDescript
 }
 
 void EcalPreshowerCellParameterDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const CaloSubdetectorGeometry* ecalGeom =
       static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
 

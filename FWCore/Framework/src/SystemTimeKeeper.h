@@ -58,6 +58,8 @@ namespace edm {
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
+    void removeModuleIfExists(ModuleDescription const& module);
+
     void startProcessingLoop();
     void stopProcessingLoop();
 

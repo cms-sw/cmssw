@@ -13,7 +13,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HCalGeom')
+    process.MessageLogger.HCalGeom=dict()
 
 process.hpa = cms.EDAnalyzer("HcalSimParametersAnalyzer")
 

@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -56,6 +55,10 @@ private:
   edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
   edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+
   int hotZone_, verbose_;
   bool histos_;
   TH1F* histoR1[NPBins_ + 1][NEtaBins_ + 1];
@@ -81,6 +84,10 @@ ElectronStudy::ElectronStudy(const edm::ParameterSet& ps) {
   hotZone_ = ps.getUntrackedParameter<int>("HotZone", 0);
   verbose_ = ps.getUntrackedParameter<int>("Verbosity", 0);
   edm::LogInfo("ElectronStudy") << "Module Label: " << g4Label << "   Hits: " << hitLabEB << ", " << hitLabEE;
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
   double tempP[NPBins_ + 1] = {0.0, 10.0, 20.0, 40.0, 60.0, 100.0, 500.0, 1000.0, 10000.0};
   double tempEta[NEtaBins_ + 1] = {0.0, 1.2, 1.6, 3.0};
@@ -156,17 +163,9 @@ void ElectronStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::LogVerbatim("IsoTrack") << "Run = " << iEvent.id().run() << " Event = " << iEvent.id().event();
 
   // get Geometry, B-field, Topology
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField* bField = bFieldH.product();
-
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology* caloTopology = theCaloTopology.product();
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
+  const MagneticField* bField = &iSetup.getData(tok_magField_);
+  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
 
   // get PCaloHits for ecal barrel
   edm::Handle<edm::PCaloHitContainer> caloHitEB;

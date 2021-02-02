@@ -30,6 +30,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -40,13 +41,13 @@
 
 namespace edm {
   class ModuleCallingContext;
+  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
   class ProductResolverIndexAndSkipBit;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
 
   namespace maker {
     template <typename T>
@@ -111,7 +112,8 @@ namespace edm {
 
       const EDConsumerBase* consumer() const;
 
-      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+      void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
+                                           std::vector<ModuleProcessName>& modulesInPreviousProcesses,
                                            ProductRegistry const& preg,
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                            std::string const& processName) const;
@@ -126,8 +128,9 @@ namespace edm {
       virtual void preallocLumis(unsigned int) {}
 
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {
-      }
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
+                                                    ModuleCallingContext const&,
+                                                    Principal const&) const {}
 
       virtual void setupStreamModules() = 0;
       virtual void doBeginJob() = 0;

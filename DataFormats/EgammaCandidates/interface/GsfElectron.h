@@ -680,8 +680,7 @@ namespace reco {
     bool passingPflowPreselection() const { return passPflowPreselection_; }
     bool ambiguous() const { return ambiguous_; }
     GsfTrackRefVector::size_type ambiguousGsfTracksSize() const { return ambiguousGsfTracks_.size(); }
-    GsfTrackRefVector::const_iterator ambiguousGsfTracksBegin() const { return ambiguousGsfTracks_.begin(); }
-    GsfTrackRefVector::const_iterator ambiguousGsfTracksEnd() const { return ambiguousGsfTracks_.end(); }
+    auto const &ambiguousGsfTracks() const { return ambiguousGsfTracks_; }
 
     // setters
     void setPassCutBasedPreselection(bool flag) { passCutBasedPreselection_ = flag; }

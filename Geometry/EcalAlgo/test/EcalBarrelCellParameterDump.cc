@@ -1,7 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -17,17 +16,21 @@ typedef EZArrayFL<GlobalPoint> CornersVec;
 
 class EcalBarrelCellParameterDump : public edm::one::EDAnalyzer<> {
 public:
-  explicit EcalBarrelCellParameterDump(const edm::ParameterSet&) {}
+  explicit EcalBarrelCellParameterDump(const edm::ParameterSet&);
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+
+private:
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 };
 
+EcalBarrelCellParameterDump::EcalBarrelCellParameterDump(const edm::ParameterSet&)
+    : tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
+
 void EcalBarrelCellParameterDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const CaloSubdetectorGeometry* ecalGeom =
       static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
 

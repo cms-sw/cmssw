@@ -66,7 +66,7 @@ namespace edm {
   }
 
   eventsetup::EventSetupRecordImpl const* EventSetupImpl::findImpl(ESRecordIndex iKey) const {
-    if UNLIKELY (iKey.value() == std::numeric_limits<int>::max()) {
+    if UNLIKELY (iKey.value() == ESRecordIndex::invalidValue()) {
       return nullptr;
     }
     return recordImpls_[iKey.value()];

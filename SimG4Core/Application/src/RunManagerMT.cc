@@ -29,6 +29,7 @@
 
 #include "HepPDT/ParticleDataTable.hh"
 
+#include "G4Timer.hh"
 #include "G4GeometryManager.hh"
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
@@ -111,8 +112,16 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
       << "              G4 verbosity: " << verb;
 
+  G4Timer timer;
+  timer.Start();
+
   m_world = std::make_unique<DDDWorld>(pDD, pDD4hep, m_catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
+
+  timer.Stop();
+  G4cout.precision(4);
+  G4cout << "RunManagerMT: geometry is initialized: " << timer << G4endl;
+  timer.Start();
 
   m_kernel->SetVerboseLevel(verb);
   edm::LogVerbatim("SimG4CoreApplication")
@@ -125,7 +134,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   unsigned int numLV = lvs->size();
   unsigned int nn = regStore->size();
   edm::LogVerbatim("SimG4CoreApplication")
-      << "###RunManagerMT: " << numPV << " PhysVolumes; " << numLV << " LogVolumes; " << nn << " Regions.";
+      << "RunManagerMT: " << numPV << " physical volumes; " << numLV << " logical volumes; " << nn << " regions.";
 
   if (m_check) {
     m_kernel->SetVerboseLevel(2);
@@ -196,6 +205,11 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     throw edm::Exception(edm::errors::LogicError, "G4RunManagerKernel initialization failed!");
   }
 
+  timer.Stop();
+  G4cout.precision(4);
+  G4cout << "RunManagerMT: physics is initialized: " << timer << G4endl;
+  timer.Start();
+
   if (m_StorePhysicsTables) {
     std::ostringstream dir;
     dir << m_PhysicsTablesDir << '\0';
@@ -237,7 +251,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_stateManager->SetNewState(G4State_GeomClosed);
   m_currentRun = new G4Run();
   m_userRunAction->BeginOfRunAction(m_currentRun);
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT:: initG4 done";
+  timer.Stop();
+  G4cout.precision(4);
+  G4cout << "RunManagerMT: initG4 done " << timer << G4endl;
 }
 
 void RunManagerMT::initializeUserActions() {

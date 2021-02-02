@@ -30,8 +30,7 @@ process.source = cms.Source("EmptyIOVSource"
                             , interval = cms.uint64(1)
 )
 
-process.MessageLogger.destinations.append("RPCLBLinkMapPopConAnalyzer_log")
-process.MessageLogger.RPCLBLinkMapPopConAnalyzer_log = cms.untracked.PSet(
+process.MessageLogger.files.RPCLBLinkMapPopConAnalyzer_log = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO")
     , FwkReport = cms.untracked.PSet(
         reportEvery = cms.untracked.int32(1)

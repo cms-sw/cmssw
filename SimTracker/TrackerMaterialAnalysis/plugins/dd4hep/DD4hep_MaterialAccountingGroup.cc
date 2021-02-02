@@ -9,6 +9,8 @@
 #include <TCanvas.h>
 #include <TFrame.h>
 
+#include <DD4hep/DD4hepUnits.h>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -39,7 +41,7 @@ DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string
       if (firstChild) {
         std::vector<std::vector<cms::Node*>> children = fv.children(k);
         for (auto const& path : children) {
-          cms::Translation trans = fv.translation(path);
+          cms::Translation trans = fv.translation(path) / dd4hep::cm;
           GlobalPoint gp = GlobalPoint(trans.x(), trans.y(), trans.z());
           m_elements.emplace_back(gp);
           edm::LogVerbatim("TrackerMaterialAnalysis")
