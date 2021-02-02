@@ -12,8 +12,8 @@ def customizeInitialStepOnly(process):
     process.initialStepSeedLayers.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
     process.initialStepHitQuadruplets.SeedComparitorPSet.clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
     process.initialStepSeeds.SeedComparitorPSet.ClusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
-    if hasattr(process, "initialStepTrackCandidatesMkFitInput"):
-        process.initialStepTrackCandidatesMkFitInput.pixelRecHits = "siPixelRecHitsPreSplitting"
+    if hasattr(process, "initialStepTrackCandidatesMkFitHits"):
+        process.initialStepTrackCandidatesMkFitHits.pixelRecHits = "siPixelRecHitsPreSplitting"
     if hasattr(process.initialStepTrackCandidates, "MeasurementTrackerEvent"):
         process.initialStepTrackCandidates.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
     process.initialStepTracks.MeasurementTrackerEvent = 'MeasurementTrackerEventPreSplitting'
@@ -55,10 +55,10 @@ def customizeInitialStepOnly(process):
             mod.dodEdxPlots = False
             mod.doResolutionPlotsForLabels = []
 
-    setInput(["trackValidatorTrackingOnly", "trackValidatorAllTPEfficStandalone",
-              "trackValidatorTPPtLess09Standalone", "trackValidatorBHadronTrackingOnly"],
+    setInput(["trackValidatorTrackingOnly", "trackValidatorAllTPEfficTrackingOnly",
+              "trackValidatorTPPtLess09TrackingOnly", "trackValidatorBHadronTrackingOnly"],
              ["cutsRecoTracksInitialStep", "cutsRecoTracksPt09InitialStep"])
-    setInput(["trackValidatorFromPVStandalone", "trackValidatorFromPVAllTPStandalone"],
+    setInput(["trackValidatorFromPVTrackingOnly", "trackValidatorFromPVAllTPTrackingOnly"],
              ["cutsRecoTracksFromPVInitialStep", "cutsRecoTracksFromPVPt09InitialStep"])
     setInput(["trackValidatorSeedingTrackingOnly"], ["seedTracksinitialStepSeeds"])
     setInput(["trackValidatorBuilding"], ["initialStepTracks"])
