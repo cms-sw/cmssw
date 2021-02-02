@@ -381,7 +381,11 @@ namespace edm {
         if (beginJobCalled_) {
           endJob();
         }
-        espController_->endIOVs();
+        edm::FinalWaitingTask task;
+        espController_->endIOVsAsync(edm::WaitingTaskHolder(taskGroup_, &task));
+        do {
+          taskGroup_.wait();
+        } while (not task.done());
       });
     }
 
@@ -424,11 +428,10 @@ namespace edm {
         ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
         using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
         FinalWaitingTask globalWaitTask;
-        tbb::task_group group;
         beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(group, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
+            WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
         do {
-          group.wait();
+          taskGroup_.wait();
         } while (not globalWaitTask.done());
         if (globalWaitTask.exceptionPtr() != nullptr) {
           std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
@@ -446,7 +449,7 @@ namespace edm {
       RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, runNumber_);
 
       IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0), runPrincipal.beginTime());
-      espController_->eventSetupForInstance(ts);
+      eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
 
       auto const& es = esp_->eventSetupImpl();
 
@@ -456,11 +459,10 @@ namespace edm {
       {
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
         FinalWaitingTask globalWaitTask;
-        tbb::task_group group;
         beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(group, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
+            WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
         do {
-          group.wait();
+          taskGroup_.wait();
         } while (not globalWaitTask.done());
         if (globalWaitTask.exceptionPtr() != nullptr) {
           std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
@@ -469,10 +471,9 @@ namespace edm {
       {
         //To wait, the ref count has to be 1+#streams
         FinalWaitingTask streamLoopWaitTask;
-        tbb::task_group group;
 
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
-        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(group, &streamLoopWaitTask),
+        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
                                             transitionInfo,
@@ -480,7 +481,7 @@ namespace edm {
                                             emptyList);
 
         do {
-          group.wait();
+          taskGroup_.wait();
         } while (not streamLoopWaitTask.done());
         if (streamLoopWaitTask.exceptionPtr() != nullptr) {
           std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
@@ -499,7 +500,7 @@ namespace edm {
       lumiPrincipal_->setRunPrincipal(principalCache_.runPrincipalPtr());
 
       IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_), lumiPrincipal_->beginTime());
-      espController_->eventSetupForInstance(ts);
+      eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
 
       auto const& es = esp_->eventSetupImpl();
 
@@ -509,11 +510,10 @@ namespace edm {
       {
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
         FinalWaitingTask globalWaitTask;
-        tbb::task_group group;
         beginGlobalTransitionAsync<Traits>(
-            WaitingTaskHolder(group, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
+            WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
         do {
-          group.wait();
+          taskGroup_.wait();
         } while (not globalWaitTask.done());
         if (globalWaitTask.exceptionPtr() != nullptr) {
           std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
@@ -522,11 +522,10 @@ namespace edm {
       {
         //To wait, the ref count has to be 1+#streams
         FinalWaitingTask streamLoopWaitTask;
-        tbb::task_group group;
 
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
-        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(group, &streamLoopWaitTask),
+        beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
                                             transitionInfo,
@@ -534,7 +533,7 @@ namespace edm {
                                             emptyList);
 
         do {
-          group.wait();
+          taskGroup_.wait();
         } while (not streamLoopWaitTask.done());
         if (streamLoopWaitTask.exceptionPtr() != nullptr) {
           std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
@@ -569,13 +568,12 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
 
       FinalWaitingTask waitTask;
-      tbb::task_group group;
 
       EventTransitionInfo info(*pep, esp_->eventSetupImpl());
-      schedule_->processOneEventAsync(edm::WaitingTaskHolder(group, &waitTask), 0, info, serviceToken_);
+      schedule_->processOneEventAsync(edm::WaitingTaskHolder(taskGroup_, &waitTask), 0, info, serviceToken_);
 
       do {
-        group.wait();
+        taskGroup_.wait();
       } while (not waitTask.done());
       if (waitTask.exceptionPtr() != nullptr) {
         std::rethrow_exception(*(waitTask.exceptionPtr()));
@@ -590,7 +588,7 @@ namespace edm {
         lumiPrincipal_.reset();
 
         IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_), lumiPrincipal->endTime());
-        espController_->eventSetupForInstance(ts);
+        eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
 
         auto const& es = esp_->eventSetupImpl();
 
@@ -601,11 +599,10 @@ namespace edm {
         //To wait, the ref count has to be 1+#streams
         {
           FinalWaitingTask streamLoopWaitTask;
-          tbb::task_group group;
 
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
 
-          endStreamsTransitionAsync<Traits>(WaitingTaskHolder(group, &streamLoopWaitTask),
+          endStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
                                             transitionInfo,
@@ -614,7 +611,7 @@ namespace edm {
                                             false);
 
           do {
-            group.wait();
+            taskGroup_.wait();
           } while (not streamLoopWaitTask.done());
           if (streamLoopWaitTask.exceptionPtr() != nullptr) {
             std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
@@ -622,13 +619,16 @@ namespace edm {
         }
         {
           FinalWaitingTask globalWaitTask;
-          tbb::task_group group;
 
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
-          endGlobalTransitionAsync<Traits>(
-              WaitingTaskHolder(group, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList, false);
+          endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
+                                           *schedule_,
+                                           transitionInfo,
+                                           serviceToken_,
+                                           emptyList,
+                                           false);
           do {
-            group.wait();
+            taskGroup_.wait();
           } while (not globalWaitTask.done());
           if (globalWaitTask.exceptionPtr() != nullptr) {
             std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
@@ -649,7 +649,7 @@ namespace edm {
         IOVSyncValue ts(
             EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
             runPrincipal.endTime());
-        espController_->eventSetupForInstance(ts);
+        eventsetup::synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
 
         auto const& es = esp_->eventSetupImpl();
 
@@ -660,11 +660,10 @@ namespace edm {
         //To wait, the ref count has to be 1+#streams
         {
           FinalWaitingTask streamLoopWaitTask;
-          tbb::task_group group;
 
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
 
-          endStreamsTransitionAsync<Traits>(WaitingTaskHolder(group, &streamLoopWaitTask),
+          endStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
                                             *schedule_,
                                             preallocations_.numberOfStreams(),
                                             transitionInfo,
@@ -673,7 +672,7 @@ namespace edm {
                                             false);
 
           do {
-            group.wait();
+            taskGroup_.wait();
           } while (not streamLoopWaitTask.done());
           if (streamLoopWaitTask.exceptionPtr() != nullptr) {
             std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
@@ -681,13 +680,16 @@ namespace edm {
         }
         {
           FinalWaitingTask globalWaitTask;
-          tbb::task_group group;
 
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
-          endGlobalTransitionAsync<Traits>(
-              WaitingTaskHolder(group, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList, false);
+          endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
+                                           *schedule_,
+                                           transitionInfo,
+                                           serviceToken_,
+                                           emptyList,
+                                           false);
           do {
-            group.wait();
+            taskGroup_.wait();
           } while (not globalWaitTask.done());
           if (globalWaitTask.exceptionPtr() != nullptr) {
             std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
@@ -707,14 +709,17 @@ namespace edm {
         std::vector<edm::SubProcess> emptyList;
         {
           FinalWaitingTask globalWaitTask;
-          tbb::task_group group;
 
           ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
           using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
-          endGlobalTransitionAsync<Traits>(
-              WaitingTaskHolder(group, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList, false);
+          endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
+                                           *schedule_,
+                                           transitionInfo,
+                                           serviceToken_,
+                                           emptyList,
+                                           false);
           do {
-            group.wait();
+            taskGroup_.wait();
           } while (not globalWaitTask.done());
           if (globalWaitTask.exceptionPtr() != nullptr) {
             std::rethrow_exception(*(globalWaitTask.exceptionPtr()));

@@ -47,7 +47,7 @@ namespace edm {
       EventSetupRecordIOVQueue(unsigned int nConcurrentIOVs);
       ~EventSetupRecordIOVQueue();
 
-      void endIOV();
+      void endIOVAsync(WaitingTaskHolder endTask);
 
       void setNewIntervalForAnySubProcess();
 
@@ -62,7 +62,7 @@ namespace edm {
     private:
       // Used to limit the number of concurrent IOVs
       edm::LimitedTaskQueue iovQueue_;
-      FinalWaitingTask waitForIOVsInFlight_;
+      edm::WaitingTaskList endIOVTasks_;
 
       // Each element of this vector corresponds to one IOV
       // out the set of possible concurrent IOVs.

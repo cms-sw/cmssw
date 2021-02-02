@@ -32,7 +32,7 @@
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
@@ -196,7 +196,7 @@ void testEventsetup::tryToGetTest() {
 }
 
 void testEventsetup::getExcTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
   controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
@@ -227,7 +227,7 @@ private:
 };
 
 void testEventsetup::recordValidityTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -270,7 +270,7 @@ void testEventsetup::recordValidityTest() {
 }
 
 void testEventsetup::recordValidityExcTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -289,7 +289,7 @@ void testEventsetup::recordValidityExcTest() {
 }
 
 void testEventsetup::recordValidityNoFinderTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -301,7 +301,7 @@ void testEventsetup::recordValidityNoFinderTest() {
 }
 
 void testEventsetup::recordValidityNoFinderExcTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -316,7 +316,7 @@ void testEventsetup::recordValidityNoFinderExcTest() {
 static eventsetup::RecordDependencyRegister<DummyRecord> s_factory;
 
 void testEventsetup::recordValidityProxyNoFinderTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -330,7 +330,7 @@ void testEventsetup::recordValidityProxyNoFinderTest() {
 }
 
 void testEventsetup::recordValidityProxyNoFinderExcTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -344,7 +344,7 @@ void testEventsetup::recordValidityProxyNoFinderExcTest() {
 }
 
 void testEventsetup::producerConflictTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -365,7 +365,7 @@ void testEventsetup::producerConflictTest() {
 }
 
 void testEventsetup::sourceConflictTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -386,7 +386,7 @@ void testEventsetup::sourceConflictTest() {
 }
 
 void testEventsetup::twoSourceTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -419,7 +419,7 @@ void testEventsetup::twoSourceTest() {
 }
 
 void testEventsetup::provenanceTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -463,7 +463,7 @@ void testEventsetup::provenanceTest() {
 }
 
 void testEventsetup::getDataWithLabelTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -509,7 +509,7 @@ void testEventsetup::getDataWithLabelTest() {
 }
 
 void testEventsetup::getDataWithESInputTagTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -594,9 +594,7 @@ namespace {
         if (rec) {
           edm::FinalWaitingTask waitTask;
           tbb::task_group group;
-          waitTask.increment_ref_count();
           rec->prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
-          waitTask.decrement_ref_count();
           do {
             group.wait();
           } while (not waitTask.done());
@@ -742,7 +740,7 @@ private:
 }  // namespace
 
 void testEventsetup::getDataWithESGetTokenTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -934,7 +932,7 @@ void testEventsetup::getDataWithESGetTokenTest() {
 }
 
 void testEventsetup::getHandleWithESGetTokenTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -1038,7 +1036,7 @@ void testEventsetup::getTransientHandleWithESGetTokenTest() {
   DummyData kGood{1};
   DummyData kBad{0};
 
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -1139,7 +1137,7 @@ void testEventsetup::getTransientHandleWithESGetTokenTest() {
 
 void testEventsetup::sourceProducerResolutionTest() {
   {
-    EventSetupsController controller;
+    SynchronousEventSetupsController controller;
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -1169,7 +1167,7 @@ void testEventsetup::sourceProducerResolutionTest() {
 
   //reverse order
   {
-    EventSetupsController controller;
+    SynchronousEventSetupsController controller;
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -1206,7 +1204,7 @@ void testEventsetup::preferTest() {
   edm::ESParentContext pc;
   try {
     {
-      EventSetupsController controller;
+      SynchronousEventSetupsController controller;
       EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
       provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
@@ -1236,7 +1234,7 @@ void testEventsetup::preferTest() {
 
     //sources
     {
-      EventSetupsController controller;
+      SynchronousEventSetupsController controller;
       EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
       provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
@@ -1266,7 +1264,7 @@ void testEventsetup::preferTest() {
 
     //specific name
     {
-      EventSetupsController controller;
+      SynchronousEventSetupsController controller;
       EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
       provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
@@ -1302,7 +1300,7 @@ void testEventsetup::preferTest() {
 }
 
 void testEventsetup::introspectionTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -1372,7 +1370,7 @@ void testEventsetup::introspectionTest() {
 }
 
 void testEventsetup::iovExtensionTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -1410,7 +1408,7 @@ void testEventsetup::iovExtensionTest() {
 }
 
 void testEventsetup::resetProxiesTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 

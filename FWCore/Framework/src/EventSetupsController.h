@@ -83,7 +83,7 @@ namespace edm {
       EventSetupsController(EventSetupsController const&) = delete;
       EventSetupsController const& operator=(EventSetupsController const&) = delete;
 
-      void endIOVs();
+      void endIOVsAsync(edm::WaitingTaskHolder iEndTask);
 
       std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&,
                                                        ActivityRegistry*,
@@ -103,13 +103,10 @@ namespace edm {
       // of EventSetup access to the EventSetup system such that for each record the IOV
       // associated with this IOVSyncValue will be used. The first element of the vector
       // is for the top level process and each additional element corresponds to a SubProcess.
-      void eventSetupForInstance(IOVSyncValue const&,
-                                 WaitingTaskHolder const& taskToStartAfterIOVInit,
-                                 WaitingTaskList& endIOVWaitingTasks,
-                                 std::vector<std::shared_ptr<const EventSetupImpl>>&);
-
-      // Version to use when IOVs are not allowed to run concurrently
-      void eventSetupForInstance(IOVSyncValue const&);
+      void eventSetupForInstanceAsync(IOVSyncValue const&,
+                                      WaitingTaskHolder const& taskToStartAfterIOVInit,
+                                      WaitingTaskList& endIOVWaitingTasks,
+                                      std::vector<std::shared_ptr<const EventSetupImpl>>&);
 
       bool doWeNeedToWaitForIOVsToFinish(IOVSyncValue const&) const;
 
@@ -189,6 +186,10 @@ namespace edm {
       bool hasNonconcurrentFinder_ = false;
       bool mustFinishConfiguration_ = true;
     };
+
+    void synchronousEventSetupForInstance(IOVSyncValue const& syncValue,
+                                          tbb::task_group& iGroup,
+                                          eventsetup::EventSetupsController& espController);
   }  // namespace eventsetup
 }  // namespace edm
 #endif

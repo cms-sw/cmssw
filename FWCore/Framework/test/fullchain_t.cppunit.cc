@@ -18,7 +18,7 @@
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
 #include "FWCore/Framework/test/DummyRecord.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/ThreadsController.h"
@@ -67,7 +67,7 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(testfullChain);
 
 void testfullChain::getfromDataproxyproviderTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
