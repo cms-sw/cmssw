@@ -191,10 +191,12 @@ CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet
 
   // check user input
   if (useTrackingEfficiencyPerRP_ && useTrackingEfficiencyPerPlane_)
-    throw cms::Exception("PPS") << "useTrackingEfficiencyPerRP and useTrackingEfficiencyPerPlane should not be simultaneously set true.";
+    throw cms::Exception("PPS")
+        << "useTrackingEfficiencyPerRP and useTrackingEfficiencyPerPlane should not be simultaneously set true.";
 
   if (useTimingEfficiencyPerRP_ && useTimingEfficiencyPerPlane_)
-    throw cms::Exception("PPS") << "useTimingEfficiencyPerRP and useTimingEfficiencyPerPlane should not be simultaneously set true.";
+    throw cms::Exception("PPS")
+        << "useTimingEfficiencyPerRP and useTimingEfficiencyPerPlane should not be simultaneously set true.";
 
   // v position of strip 0
   stripZeroPosition_ = RPTopology::last_strip_to_border_dist_ + (RPTopology::no_of_strips_ - 1) * RPTopology::pitch_ -
@@ -459,20 +461,19 @@ void CTPPSDirectProtonSimulation::processProton(
     }
 
     // RP type
-    const bool isTrackingRP = (rpId.subdetId() == CTPPSDetId::sdTrackingStrip || rpId.subdetId() == CTPPSDetId::sdTrackingPixel);
+    const bool isTrackingRP =
+        (rpId.subdetId() == CTPPSDetId::sdTrackingStrip || rpId.subdetId() == CTPPSDetId::sdTrackingPixel);
     const bool isTimingRP = (rpId.subdetId() == CTPPSDetId::sdTimingDiamond);
 
     // apply per-RP efficiency
     if ((useTimingEfficiencyPerRP_ && isTimingRP) || (useTrackingEfficiencyPerRP_ && isTrackingRP)) {
       const auto it = efficiencyMapsPerRP_.find(rpId);
 
-      if (it != efficiencyMapsPerRP_.end())
-      {
+      if (it != efficiencyMapsPerRP_.end()) {
         const double r = CLHEP::RandFlat::shoot(rndEngine, 0., 1.);
         auto *effMap = it->second.get();
         const double eff = effMap->GetBinContent(effMap->FindBin(b_x, b_y));
-        if (r > eff)
-        {
+        if (r > eff) {
           if (verbosity_)
             ssLog << "    stop due to per-RP efficiency" << std::endl;
           continue;
@@ -541,13 +542,11 @@ void CTPPSDirectProtonSimulation::processProton(
       if ((useTimingEfficiencyPerPlane_ && isTimingRP) || (useTrackingEfficiencyPerPlane_ && isTrackingRP)) {
         const auto it = efficiencyMapsPerPlane_.find(detId);
 
-        if (it != efficiencyMapsPerPlane_.end())
-        {
+        if (it != efficiencyMapsPerPlane_.end()) {
           const double r = CLHEP::RandFlat::shoot(rndEngine, 0., 1.);
           auto *effMap = it->second.get();
           const double eff = effMap->GetBinContent(effMap->FindBin(h_glo.x(), h_glo.y()));
-          if (r > eff)
-          {
+          if (r > eff) {
             if (verbosity_)
               ssLog << "    stop due to per-plane efficiency" << std::endl;
             continue;
