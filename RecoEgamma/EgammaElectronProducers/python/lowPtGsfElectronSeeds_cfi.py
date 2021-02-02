@@ -46,5 +46,7 @@ fastSim.toReplaceWith(lowPtGsfElectronSeeds,_fastSim_lowPtGsfElectronSeeds)
 
 # Modifiers for BParking
 from Configuration.Eras.Modifier_bParking_cff import bParking
-bParking.toModify(lowPtGsfElectronSeeds, ModelThresholds = thresholds("VL") )
-bParking.toModify(lowPtGsfElectronSeeds, MinPtThreshold = 0.5)
+bParking.toModify(lowPtGsfElectronSeeds, 
+    ModelThresholds = thresholds("VL"), 
+    MinPtThreshold = 0.5
+)
