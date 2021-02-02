@@ -22,7 +22,6 @@
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <DetectorDescription/DDCMS/interface/DDFilteredView.h>
 #include <DetectorDescription/DDCMS/interface/DDCompactView.h>
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
@@ -138,8 +137,8 @@ void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
   par.emplace_back(DTChamberTag);
   vector<double> size = extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(1) DDD, Chamber DetID " << rawid << " " << par[0] << " " << par[1]
-                                           << " " << par[2] << " " << par[3] << " " << par[4];
+  edm::LogVerbatim("DTGeometryParsFromDD")
+      << "(1) DDD, Chamber DetID " << rawid << " " << par[1] << " " << par[2] << " " << par[3];
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
   // width is along local X
   // length is along local Y
@@ -165,8 +164,8 @@ void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
   par.emplace_back(DTSuperLayerTag);
   vector<double> size = extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(2) DDD, Super Layer DetID " << rawid << " " << par[0] << " " << par[1]
-                                           << " " << par[2] << " " << par[3] << " " << par[4];
+  edm::LogVerbatim("DTGeometryParsFromDD")
+      << "(2) DDD, Super Layer DetID " << rawid << " " << par[1] << " " << par[2] << " " << par[3];
   // Ok this is the slayer position...
   PosRotPair posRot(plane(fv));
 
@@ -206,8 +205,9 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
   fv.parent();
 
   PosRotPair posRot(plane(fv));
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(3) DDD, Layer DetID " << rawid << " " << par[0] << " " << par[1] << " "
-                                           << par[2] << " " << par[3] << " " << par[4];
+
+  edm::LogVerbatim("DTGeometryParsFromDD")
+      << "(3) DDD, Layer DetID " << rawid << " " << par[1] << " " << par[2] << " " << par[3] << " " << par[6];
   rig.insert(layId, posRot.first, posRot.second, par);
 }
 
@@ -236,6 +236,8 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const DDFilteredVie
   gtran[1] = convertMmToCm(trans.y());
   gtran[2] = convertMmToCm(trans.z());
 
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(4) DDD, Position "
+                                           << " " << gtran[0] << " " << gtran[1] << " " << gtran[2];
   // now the rotation
   //     'active' and 'passive' rotations are inverse to each other
   const DDRotationMatrix& rotation = fv.rotation();  //REMOVED .Inverse();
@@ -299,6 +301,9 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const cms::DDFilter
   gtran[1] = tr[1] / dd4hep::cm;
   gtran[2] = tr[2] / dd4hep::cm;
 
+  edm::LogVerbatim("DTGeometryParsFromDD") << "(4) DD4HEP, Position "
+                                           << " " << gtran[0] << " " << gtran[1] << " " << gtran[2];
+
   DDRotationMatrix rotation = fv.rotation();
   DD3Vector x, y, z;
   rotation.GetComponents(x, y, z);
@@ -328,9 +333,15 @@ void DTGeometryParsFromDD::insertChamber(cms::DDFilteredView& fv,
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
   DTChamberId detId(rawid);
 
-  vector<double> par = fv.parameters();
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(1) DD4HEP, Chamber DetId " << rawid << " " << par[0] << " " << par[1]
-                                           << " " << par[2] << " " << par[3] << " " << par[4];
+  vector<double> par_temp = fv.parameters();
+  int dim = par_temp.size();
+  vector<double> par(dim);
+  for (int i = 0; i < dim; i++) {
+    par[i] = par_temp[i] / dd4hep::mm;
+  }
+
+  edm::LogVerbatim("DTGeometryParsFromDD")
+      << "(1) DD4HEP, Chamber DetId " << rawid << " " << par[0] << " " << par[1] << " " << par[2];
   PosRotPair posRot(plane(fv));
 
   rig.insert(rawid, posRot.first, posRot.second, par);
@@ -344,9 +355,14 @@ void DTGeometryParsFromDD::insertSuperLayer(cms::DDFilteredView& fv,
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
   DTSuperLayerId slId(rawid);
 
-  vector<double> par = fv.parameters();
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(2) DD4HEP, Super Layer DetID " << rawid << " " << par[0] << " "
-                                           << par[1] << " " << par[2] << " " << par[3] << " " << par[4];
+  vector<double> par_temp = fv.parameters();
+  int dim = par_temp.size();
+  vector<double> par(dim);
+  for (int i = 0; i < dim; i++) {
+    par[i] = par_temp[i] / dd4hep::mm;
+  }
+  edm::LogVerbatim("DTGeometryParsFromDD")
+      << "(2) DD4HEP, Super Layer DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2];
   PosRotPair posRot(plane(fv));
 
   rig.insert(slId, posRot.first, posRot.second, par);
@@ -360,12 +376,18 @@ void DTGeometryParsFromDD::insertLayer(cms::DDFilteredView& fv,
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
   DTLayerId layId(rawid);
 
-  vector<double> par = fv.parameters();
+  vector<double> par_temp = fv.parameters();
+  int dim = par_temp.size();
+  vector<double> par(dim);
+  for (int i = 0; i < dim; i++) {
+    par[i] = par_temp[i] / dd4hep::mm;
+  }
+
   fv.down();
   bool doWire = fv.sibling();
   int firstWire = fv.volume()->GetNumber();
   auto const& wpar = fv.parameters();
-  float wireLength = wpar[1] / dd4hep::cm;
+  float wireLength = wpar[1] / dd4hep::mm;
 
   int WCounter = 0;
   while (doWire) {
@@ -380,7 +402,8 @@ void DTGeometryParsFromDD::insertLayer(cms::DDFilteredView& fv,
   fv.up();
 
   PosRotPair posRot(plane(fv));
-  edm::LogVerbatim("DTGeometryParsFromDD") << "(3) DD4HEP, Layer DetID " << rawid << " " << par[0] << " " << par[1]
-                                           << " " << par[2] << " " << par[3] << " " << par[4];
+
+  edm::LogVerbatim("DTGeometryParsFromDD")
+      << "(3) DD4HEP, Layer DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[5];
   rig.insert(layId, posRot.first, posRot.second, par);
 }
