@@ -123,6 +123,19 @@ seedMonitoring['tobTecStep'] = cms.PSet(
     clusterMax       = cms.double(100000),
 )
 
+seedMonitoring['displacedGeneralStep'] = cms.PSet(
+    seedInputTag     = cms.InputTag("displacedGeneralStepSeeds"),
+    trackCandInputTag= cms.InputTag("displacedGeneralStepTrackCandidates"),
+    trackSeedSizeBin = cms.int32(400),
+    trackSeedSizeMin = cms.double(0),
+    trackSeedSizeMax = cms.double(100000),
+    TCSizeMax        = cms.double(199.5),
+    clusterLabel     = cms.vstring('Strip'),
+    clusterBin       = cms.int32(100),
+    clusterMax       = cms.double(100000),
+)
+
+
 seedMonitoring['muonSeededStepInOut'] = cms.PSet(
     seedInputTag      = cms.InputTag("muonSeededSeedsInOut"),
     trackCandInputTag = cms.InputTag("muonSeededTrackCandidatesInOut"),

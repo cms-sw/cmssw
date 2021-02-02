@@ -254,9 +254,7 @@ void LimitedTaskQueue_test::stressTest() {
     std::atomic<bool> waitToStart{true};
     {
       auto j = edm::make_functor_task(tbb::task::allocate_root(), [&queue, &waitToStart, pWaitTask, &count, &nRunningTasks] {
-        //gcc 4.7 doesn't preserve the 'atomic' nature of waitToStart in the loop
         while (waitToStart.load()) {
-          __sync_synchronize();
         };
         std::shared_ptr<tbb::task> guard{pWaitTask, [](tbb::task* iTask) { iTask->decrement_ref_count(); }};
         for (unsigned int i = 0; i < nTasks; ++i) {

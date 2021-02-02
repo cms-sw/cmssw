@@ -1,4 +1,6 @@
 <iftool name="cuda">
+  <use name="rootcore"/>
+  <use name="DataFormats/Common"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <export>
     <lib name="1"/>

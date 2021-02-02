@@ -9,9 +9,8 @@ process = cms.Process("DQMClient")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('')
-process.MessageLogger.destinations = cms.untracked.vstring('cerr')
-process.MessageLogger.categories.append('DTDQM')
-process.MessageLogger.categories.append('resolution')
+process.MessageLogger.DTDQM=dict()
+process.MessageLogger.resolution=dict()
 process.MessageLogger.cerr =  cms.untracked.PSet(
     threshold = cms.untracked.string('WARNING'),
     noLineBreaks = cms.untracked.bool(False),

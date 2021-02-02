@@ -7,6 +7,10 @@ Different versions of various subdetectors can be combined. The available versio
 Tracker:
 * T3: 2021 baseline after separating tracker specific material
 * T4: as T3, but with zero material
+* T5: as T3, but with tracker material budget reduced by 5%
+* T6: as T3, but with tracker material budget reduced by 10%
+* T7: as T3, but with tracker material budget increased by 5%
+* T8: as T3, but with tracker material budget increased by 10%
 
 Calorimeters:
 * C1: 2021 baseline
@@ -20,11 +24,16 @@ PPS:
 The script also handles the common and forward elements of the geometry:
 * O3: 2021 baseline
 * O4: as O3, but with zero material
+* O5: as O3, but with trackermaterial removed (they are in T5, T6, T7, T8)
 * F1: 2021 baseline
 
 Several detector combinations have been generated:
 * 2021 = T3+C1+M1+P2+O3+F1
 * 2021ZeroMaterial = T4+C1+M1+P2+O4+F1
+* 2021FlatMinus05Percent = T5+C1+M1+P2+O5+F1
+* 2021FlatMinus10Percent = T6+C1+M1+P2+O5+F1
+* 2021FlatPlus05Percent = T7+C1+M1+P2+O5+F1
+* 2021FlatPlus10Percent = T8+C1+M1+P2+O5+F1
 
 # Phase 2 Geometries
 
@@ -86,5 +95,7 @@ Several detector combinations have been generated:
 * D72 = T21+C11+M6+I12+O5+F4
 * D73 = T21+C11+M6+I13+O5+F4
 * D74 = T21+C14+M9+I11+O7+F6
+* D75 = T21+C14+M7+I13+O7+F6
+* D76 = T21+C14+M9+I13+O7+F6
 
 D49 is the HLT TDR baseline.

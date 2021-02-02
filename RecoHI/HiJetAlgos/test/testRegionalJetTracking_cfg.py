@@ -33,7 +33,7 @@ options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = ['*']  
-process.MessageLogger.categories = ['HeavyIonVertexing','heavyIonHLTVertexing','TauRegionalPixelSeedGenerator']
+
 process.MessageLogger.cerr = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'),
     DEBUG = cms.untracked.PSet(

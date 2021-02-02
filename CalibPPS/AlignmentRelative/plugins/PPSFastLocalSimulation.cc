@@ -1,6 +1,6 @@
 /****************************************************************************
-* Authors: 
-*  Jan Kašpar (jan.kaspar@gmail.com) 
+* Authors:
+*  Jan Kašpar (jan.kaspar@gmail.com)
 ****************************************************************************/
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -349,7 +349,7 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx,
           printf(" | m=%+8.4f, sigma=%+8.4f\n", v, sigma);
 
         DetSet<TotemRPRecHit> &hits = stripHitColl->find_or_insert(detId);
-        hits.push_back(TotemRPRecHit(v, sigma));
+        hits.emplace_back(v, sigma);
       }
 
       // diamonds
@@ -364,8 +364,7 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx,
         const double width = pitchDiamonds_;
 
         DetSet<CTPPSDiamondRecHit> &hits = diamondHitColl->find_or_insert(detId);
-        HPTDCErrorFlags flags;
-        hits.push_back(CTPPSDiamondRecHit(h_loc.x(), width, 0., 0., 0., 0., 0., 0., 0., 0, flags, false));
+        hits.emplace_back(h_loc.x(), width, 0., 0., 0., 0., 0., 0., 0., 0, HPTDCErrorFlags(), false);
       }
 
       // pixels
@@ -384,7 +383,7 @@ void PPSFastLocalSimulation::GenerateTrack(unsigned int idx,
         const LocalError le(sigma, 0., sigma);
 
         DetSet<CTPPSPixelRecHit> &hits = pixelHitColl->find_or_insert(detId);
-        hits.push_back(CTPPSPixelRecHit(lp, le));
+        hits.emplace_back(lp, le);
       }
     }
   }

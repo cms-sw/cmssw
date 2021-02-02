@@ -13,6 +13,7 @@ EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig)
       version_control_(iConfig),
       sector_processor_lut_(),
       pt_assign_engine_(nullptr),
+      pt_assign_engine_dxy_(nullptr),
       fw_ver_(0),
       pt_lut_ver_(0),
       pc_lut_ver_(0) {
@@ -27,7 +28,11 @@ EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig)
     throw cms::Exception("L1TMuonEndCap") << "Cannot recognize the era option: " << era();
   }
 
+  // No era setup for displaced pT assignment engine
+  pt_assign_engine_dxy_ = std::make_unique<PtAssignmentEngineDxy>();
+
   emtf_assert(pt_assign_engine_ != nullptr);
+  emtf_assert(pt_assign_engine_dxy_ != nullptr);
 }
 
 EMTFSetup::~EMTFSetup() {}

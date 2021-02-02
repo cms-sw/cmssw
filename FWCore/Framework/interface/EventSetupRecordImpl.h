@@ -40,6 +40,7 @@ through the 'validityInterval' method.
 #include "FWCore/Framework/interface/NoProxyException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
@@ -57,7 +58,6 @@ through the 'validityInterval' method.
 // forward declarations
 namespace cms {
   class Exception;
-  class WaitingTask;
 }  // namespace cms
 
 namespace edm {
@@ -66,7 +66,6 @@ namespace edm {
   class ESHandleExceptionFactory;
   class ESInputTag;
   class EventSetupImpl;
-  class WaitingTask;
   class ServiceToken;
 
   namespace eventsetup {
@@ -86,7 +85,10 @@ namespace edm {
       ValidityInterval validityInterval() const;
 
       ///prefetch the data to setup for subsequent calls to getImplementation
-      void prefetchAsync(WaitingTask* iTask, ESProxyIndex iProxyIndex, EventSetupImpl const*, ServiceToken const&) const;
+      void prefetchAsync(WaitingTaskHolder iTask,
+                         ESProxyIndex iProxyIndex,
+                         EventSetupImpl const*,
+                         ServiceToken const&) const;
 
       /**returns true only if someone has already requested data for this key
           and the data was retrieved

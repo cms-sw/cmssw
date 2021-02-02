@@ -10,7 +10,7 @@
 <use name="root"/>
 <use name="roottmva"/>
 <use name="CondFormats/DataRecord"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="DataFormats/ParticleFlowReco"/>
 <export>

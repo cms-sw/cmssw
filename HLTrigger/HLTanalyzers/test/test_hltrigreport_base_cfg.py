@@ -4,7 +4,7 @@ process = cms.Process("HLT")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 999999999
-process.MessageLogger.categories.append('HLTrigReport')
+process.MessageLogger.HLTrigReport=dict()
 
 process.options.wantSummary = False
 

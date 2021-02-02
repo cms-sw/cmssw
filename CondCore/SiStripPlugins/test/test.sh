@@ -95,3 +95,48 @@ getPayloadData.py \
     --test;
 
 mv *.png $W_DIR/results/SiStripConfObjectDisplay.png
+
+######################
+# Test DetVOff
+######################
+getPayloadData.py \
+    --plugin pluginSiStripDetVOff_PayloadInspector \
+    --plot plot_SiStripDetVOffTest \
+    --tag SiStripDetVOff_v3_offline \
+    --time_type Time \
+    --iovs '{"start_iov": "685006631803433472", "end_iov": "6850066318803433472"}' \
+    --db Prod \
+    --test ;
+
+######################
+# Test dumping of switched off modules
+######################
+getPayloadData.py \
+    --plugin pluginSiStripDetVOff_PayloadInspector \
+    --plot plot_SiStripLVOffListOfModules \
+    --tag SiStripDetVOff_v3_offline \
+    --time_type Time \
+    --iovs '{"start_iov": "6850066318803433472", "end_iov": "6850066318803433472"}' \
+    --db Prod \
+    --test;
+
+######################
+# Test SiStripTkMaps
+######################
+getPayloadData.py \
+    --plugin pluginSiStripBadStrip_PayloadInspector \
+    --plot plot_SiStripBadStripFractionTkMap \
+    --tag SiStripBadComponents_startupMC_for2017_v1_mc \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
+
+getPayloadData.py \
+    --plugin pluginSiStripLorentzAngle_PayloadInspector \
+    --plot plot_SiStripLorentzAngleTkMap \
+    --tag  SiStripLorentzAngleDeco_GR10_v1_prompt \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;

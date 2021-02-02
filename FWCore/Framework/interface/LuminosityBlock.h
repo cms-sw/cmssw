@@ -134,7 +134,9 @@ namespace edm {
     template <typename PROD, typename... Args>
     void emplace(EDPutToken token, Args&&... args);
 
-    Provenance getProvenance(BranchID const& theID) const;
+    Provenance const& getProvenance(BranchID const& theID) const;
+
+    StableProvenance const& getStableProvenance(BranchID const& theID) const;
 
     void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 

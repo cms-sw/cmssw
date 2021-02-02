@@ -30,7 +30,7 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
 
-  std::string lhcInfoLabel_;
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoESToken_;
 
   std::string outputFile_;
 
@@ -51,7 +51,7 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSLHCInfoPlotter::CTPPSLHCInfoPlotter(const edm::ParameterSet &iConfig)
-    : lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
+    : lhcInfoESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
       outputFile_(iConfig.getParameter<string>("outputFile")),
 
       h_beamEnergy_(new TH1D("h_beamEnergy", ";beam energy   (GeV)", 81, -50., 8050.)),
@@ -83,15 +83,14 @@ void CTPPSLHCInfoPlotter::fillDescriptions(edm::ConfigurationDescriptions &descr
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSLHCInfoPlotter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
+  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
 
-  h_beamEnergy_->Fill(hLHCInfo->energy());
-  h_xangle_->Fill(hLHCInfo->crossingAngle());
-  h_betaStar_->Fill(hLHCInfo->betaStar());
-  h2_betaStar_vs_xangle_->Fill(hLHCInfo->crossingAngle(), hLHCInfo->betaStar());
+  h_beamEnergy_->Fill(lhcInfo.energy());
+  h_xangle_->Fill(lhcInfo.crossingAngle());
+  h_betaStar_->Fill(lhcInfo.betaStar());
+  h2_betaStar_vs_xangle_->Fill(lhcInfo.crossingAngle(), lhcInfo.betaStar());
 
-  h_fill_->Fill(hLHCInfo->fillNumber());
+  h_fill_->Fill(lhcInfo.fillNumber());
   h_run_->Fill(iEvent.id().run());
 }
 

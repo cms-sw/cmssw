@@ -23,8 +23,8 @@ FTFPCMS_BERT_EMM::FTFPCMS_BERT_EMM(const edm::ParameterSet& p) : PhysicsList(p) 
   edm::LogVerbatim("PhysicsList") << "You are using the simulation engine: FTFP_BERT_EMM: \n Flags for EM Physics: "
                                   << emPhys << "; Hadronic Physics: " << hadPhys << "; tracking cut: " << tracking
                                   << "; time limit(ns)= " << timeLimit / CLHEP::ns
-                                  << "\n  transition energy Bertini/FTFP from " << minFTFP / CLHEP::GeV << " to "
-                                  << maxBERT / CLHEP::GeV << ":" << maxBERTpi / CLHEP::GeV << " GeV";
+                                  << "\n Transition energy Bertini/FTFP from " << minFTFP / CLHEP::GeV << " to "
+                                  << maxBERT / CLHEP::GeV << "; for pions to " << maxBERTpi / CLHEP::GeV << " GeV";
 
   if (emPhys) {
     // EM Physics

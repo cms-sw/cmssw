@@ -35,7 +35,7 @@
 class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 public:
   explicit HITRegionalPixelSeedGenerator(const edm::ParameterSet& conf_, edm::ConsumesCollector&& iC) {
-    edm::LogInfo("HITRegionalPixelSeedGenerator") << "Enter the HITRegionalPixelSeedGenerator";
+    edm::LogVerbatim("HITRegionalPixelSeedGenerator") << "Enter the HITRegionalPixelSeedGenerator";
 
     edm::ParameterSet regionPSet = conf_.getParameter<edm::ParameterSet>("RegionPSet");
 

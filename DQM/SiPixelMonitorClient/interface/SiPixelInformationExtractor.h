@@ -8,11 +8,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
@@ -64,7 +59,7 @@ public:
                        bool init,
                        float noiseRate,
                        int noiseRateDenominator,
-                       edm::ESHandle<SiPixelFedCablingMap> theCablingMap);
+                       const SiPixelFedCablingMap *theCablingMap);
 
 private:
   void getItemList(const std::multimap<std::string, std::string> &req_map,

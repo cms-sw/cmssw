@@ -6,11 +6,11 @@ process.load("Geometry.TrackerCommonData.cmsExtendedGeometry2017XML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('PixelGeom')
-    process.MessageLogger.categories.append('TIBGeom')
-    process.MessageLogger.categories.append('TIDGeom')
-    process.MessageLogger.categories.append('TOBGeom')
-    process.MessageLogger.categories.append('TECGeom')
+    process.MessageLogger.PixelGeom=dict()
+    process.MessageLogger.TIBGeom=dict()
+    process.MessageLogger.TIDGeom=dict()
+    process.MessageLogger.TOBGeom=dict()
+    process.MessageLogger.TECGeom=dict()
 
 process.source = cms.Source("EmptySource")
 

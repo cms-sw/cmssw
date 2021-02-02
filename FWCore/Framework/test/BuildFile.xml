@@ -180,6 +180,13 @@
   <use name="FWCore/ParameterSet"/>
 </library>
 
+<library file="stubs/TestModuleDelete.cc" name="FWCoreFrameworkTestModuleDelete">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+</library>
+
 <bin name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_producer_t.cppunit.cc,global_filter_t.cppunit.cc,one_outputmodule_t.cppunit.cc,global_outputmodule_t.cppunit.cc,stream_producer_t.cppunit.cc,stream_filter_t.cppunit.cc,limited_producer_t.cppunit.cc,limited_filter_t.cppunit.cc,limited_outputmodule_t.cppunit.cc,throwIfImproperDependencies_t.cppunit.cc">
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
@@ -385,3 +392,4 @@
 
 <test name="testFWCoreFrameworkNonEventOrdering" command="test_non_event_ordering.sh"/>
 <test name="testFWCoreFramework1ThreadESPrefetch" command="run_test_1_thread_es_prefetching.sh"/>
+<test name="testFWCoreFrameworkModuleDeletion" command="run_module_delete_tests.sh"/>

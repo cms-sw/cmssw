@@ -24,13 +24,13 @@ import FWCore.Utilities.FileUtils as FileUtils
 readFiles = cms.untracked.vstring()
 
 
-readFiles = cms.untracked.vstring( FileUtils.loadListFromFile (os.environ['CMSSW_BASE']+'/src/CosmicRateTool/TrackAnalyzer/test/'+'fileList.txt') )
+readFiles = cms.untracked.vstring( FileUtils.loadListFromFile (os.environ['CMSSW_BASE']+'/src/Alignment/TrackerAlignment/test/'+'fileList.txt') )
 process.source = cms.Source("PoolSource",
 			   fileNames = readFiles,
 			   )
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("Cosmic_rate_tuple.root") )
 
-process.load("CosmicRateTool.TrackAnalyzer.cosmicRateAnalyzer_cfi")
+process.load("Alignment.TrackerAlignment.cosmicRateAnalyzer_cfi")
 process.p = cms.Path(process.cosmicRateAnalyzer)
 

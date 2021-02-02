@@ -295,7 +295,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HcalSimData/data/CaloUtil/2026/v2/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv9.xml',
         ],
         4 : [
@@ -373,7 +373,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HcalSimData/data/CaloUtil/2026/v5/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv9.xml',
             'Geometry/ForwardSimData/data/hfnosesens.xml',
         ],
@@ -453,7 +453,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HcalSimData/data/CaloUtil/2026/v2/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv9.xml',
         ],
         4 : [
@@ -531,7 +531,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HcalSimData/data/CaloUtil/2026/v5/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv9.xml',
             'Geometry/ForwardSimData/data/hfnosesens.xml',
         ],
@@ -612,7 +612,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HcalSimData/data/CaloUtil/2026/v2/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv9.xml',
         ],
         4 : [
@@ -686,7 +686,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
+            'Geometry/HcalSimData/data/CaloUtil/2026/v2/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv9.xml',
         ],
         4 : [
@@ -1240,6 +1240,8 @@ detectorVersionDict = {
     ("O5","T21","C11","M6","F4","I12") : "D72",
     ("O5","T21","C11","M6","F4","I13") : "D73",
     ("O7","T21","C14","M9","F6","I11") : "D74",
+    ("O7","T21","C14","M7","F6","I13") : "D75",
+    ("O7","T21","C14","M9","F6","I13") : "D76",
  }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63" ])

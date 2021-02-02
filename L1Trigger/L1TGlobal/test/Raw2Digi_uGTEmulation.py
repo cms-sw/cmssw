@@ -75,17 +75,16 @@ process.TFileService.fileName = cms.string('l1t_histos.root')
 
 
 # enable debug message logging for our modules
-process.MessageLogger.categories.append('L1TCaloEvents')
-process.MessageLogger.categories.append('L1TGlobalEvents')
+
+process.MessageLogger.L1TCaloEvents=dict()
+process.MessageLogger.L1TGlobalEvents=dict()
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
 if (options.dump):
-    process.MessageLogger.destinations.append('infos')
-    process.MessageLogger.infos = cms.untracked.PSet(
+    process.MessageLogger.files.infos = cms.untracked.PSet(
         INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
         L1TCaloEvents = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(10000)
         )
     )

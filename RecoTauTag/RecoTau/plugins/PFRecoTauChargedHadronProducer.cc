@@ -230,10 +230,16 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
             track = chargedPFCand->muonRef()->outerTrack().get();
           else if (chargedPFCand->gsfTrackRef().isNonnull())
             track = chargedPFCand->gsfTrackRef().get();
+        } else {
+          track = nextChargedHadron->getChargedPFCandidate()->bestTrack();
         }
       }
-      if (nextChargedHadron->getTrack().isNonnull() && !track) {
-        track = nextChargedHadron->getTrack().get();
+      if (track == nullptr) {
+        if (nextChargedHadron->getTrack().isNonnull()) {
+          track = nextChargedHadron->getTrack().get();
+        } else if (nextChargedHadron->getLostTrackCandidate().isNonnull()) {
+          track = nextChargedHadron->getLostTrackCandidate()->bestTrack();
+        }
       }
 
       // discard candidate in case its track is "used" by any ChargedHadron in the clean collection

@@ -39,13 +39,13 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompac
   CmsTrackerBuilder<DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
-  if (DEBUG) {
-    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
-  }
-
   edm::LogVerbatim("DDDCmsTrackerContruction") << "Assign DetIds";
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
   theCmsTrackerDetIdBuilder.buildId(*tracker);
+
+  if (DEBUG) {
+    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
+  }
 
   fv.parent();
   //
@@ -63,6 +63,7 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
                                                                   std::vector<int> const& detidShifts) {
   std::string attribute("TkDDDStructure");
   cms::DDFilteredView fv(cpv, cms::DDFilter(attribute));
+  fv.firstChild();
 
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
   if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD<cms::DDFilteredView>::getString("TkDDDStructure", &fv)) !=
@@ -82,13 +83,13 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
   CmsTrackerBuilder<cms::DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
-  if (DEBUG) {
-    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
-  }
-
   edm::LogVerbatim("DDDCmsTrackerContruction") << "Assign DetIds";
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
   theCmsTrackerDetIdBuilder.buildId(*tracker);
+
+  if (DEBUG) {
+    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
+  }
 
   return tracker;
 }

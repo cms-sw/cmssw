@@ -101,8 +101,8 @@ void CTPPSTotemDataFormatter::formatRawData(unsigned int lvl1_ID,
     int fedId = itFed.first;
     int wordsS = words.find(fedId)->second.size();
     //due to OrbitCounter block at RawDataUnpacker
-    words16[fedId].push_back(Word16(0));
-    words16[fedId].push_back(Word16(0));
+    words16[fedId].emplace_back(0);
+    words16[fedId].emplace_back(0);
     //writing data in 16-bit words
     for (int k = 0; k < wordsS; k++) {
       for (int b = 0; b < 12; b++) {
@@ -112,7 +112,7 @@ void CTPPSTotemDataFormatter::formatRawData(unsigned int lvl1_ID,
     // since raw words are written in the form of 64-bit packets
     // add extra 16-bit words to make number of words even if necessary
     while (words16.find(fedId)->second.size() % 4 != 0)
-      words16[fedId].push_back(Word16(0));
+      words16[fedId].emplace_back(0);
 
     // size in Bytes; create output structure
     auto dataSize = (words16.find(fedId)->second.size()) * sizeof(Word16);

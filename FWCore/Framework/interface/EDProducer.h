@@ -15,6 +15,7 @@ EDProducts into an Event.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include <string>
 #include <vector>
@@ -25,7 +26,6 @@ namespace edm {
   class PreallocationConfiguration;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
 
   namespace maker {
     template <typename T>
@@ -63,7 +63,7 @@ namespace edm {
   private:
     bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
     //Needed by WorkerT but not supported
-    void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {}
+    void preActionBeforeRunEventAsync(WaitingTaskHolder, ModuleCallingContext const&, Principal const&) const {}
 
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();

@@ -73,6 +73,9 @@ namespace edm {
       void preModuleConstruction(ModuleDescription const&);
       void postModuleConstruction(ModuleDescription const&);
 
+      void preModuleDestruction(ModuleDescription const&);
+      void postModuleDestruction(ModuleDescription const&);
+
       void preSourceConstruction(ModuleDescription const&);
       void postSourceConstruction(ModuleDescription const&);
 

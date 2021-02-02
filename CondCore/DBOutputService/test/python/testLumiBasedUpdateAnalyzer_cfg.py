@@ -9,8 +9,13 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
-    destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    )
 )
 
 process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",

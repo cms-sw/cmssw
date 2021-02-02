@@ -27,7 +27,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, "GLOBALTAG")
 usedGlobalTag = process.GlobalTag.globaltag.value()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.LOGFILE = cms.untracked.PSet(
+process.MessageLogger.files.LOGFILE = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(
         limit = cms.untracked.int32(-1)
         ),
@@ -44,12 +44,11 @@ process.MessageLogger.LOGFILE = cms.untracked.PSet(
     Alignment = cms.untracked.PSet(
         limit = cms.untracked.int32(-1),
         reportEvery = cms.untracked.int32(1)
-        )
+        ),
+    enableStatistics = cms.untracked.bool(True)
     )
-process.MessageLogger.cerr.placeholder = cms.untracked.bool(True)
-process.MessageLogger.destinations = ['LOGFILE']
-process.MessageLogger.statistics = ['LOGFILE']
-process.MessageLogger.categories = ['Alignment']
+process.MessageLogger.cerr.enable = cms.untracked.bool(False)
+
 
 ## if alignment constants not from global tag, add this
 from CondCore.CondDB.CondDB_cfi import *

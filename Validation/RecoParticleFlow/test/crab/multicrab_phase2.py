@@ -10,12 +10,12 @@ def submit(config):
         fi.write(config.pythonise_())
 
 samples = [
-    ("/RelValQCD_Pt15To7000_Flat_14/CMSSW_11_2_0_pre6-112X_mcRun4_realistic_v2_2026D49noPU-v1/GEN-SIM-DIGI-RAW", "QCD_noPU_phase2"),
-    ("/RelValQCD_Pt15To7000_Flat_14/CMSSW_11_2_0_pre6-PU25ns_112X_mcRun4_realistic_v2_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "QCD_PU_phase2"),
-    ("/RelValZEE_14/CMSSW_11_2_0_pre6-PU25ns_112X_mcRun4_realistic_v2_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "ZEE_PU_phase2"),
-    ("/RelValZMM_14/CMSSW_11_2_0_pre6-PU25ns_112X_mcRun4_realistic_v2_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "ZMM_PU_phase2"),
-    ("/RelValTenTau_15_500_Eta3p1/CMSSW_11_2_0_pre6-PU25ns_112X_mcRun4_realistic_v2_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "TenTau_PU_phase2"),
-    ("/RelValNuGun/CMSSW_11_0_0-PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "NuGun_PU_phase2"),
+    ("/RelValQCD_Pt15To7000_Flat_14/CMSSW_11_3_0_pre1-113X_mcRun4_realistic_v1_2026D49noPU_rsb-v1/GEN-SIM-DIGI-RAW", "QCD_noPU_phase2"),
+    ("/RelValQCD_Pt15To7000_Flat_14/CMSSW_11_3_0_pre1-PU_113X_mcRun4_realistic_v1_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "QCD_PU_phase2"),
+    ("/RelValZEE_14/CMSSW_11_3_0_pre1-PU_113X_mcRun4_realistic_v1_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "ZEE_PU_phase2"),
+    ("/RelValZMM_14/CMSSW_11_3_0_pre1-PU_113X_mcRun4_realistic_v1_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "ZMM_PU_phase2"),
+    ("/RelValTenTau_15_500_Eta3p1/CMSSW_11_3_0_pre1-PU_113X_mcRun4_realistic_v1_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "TenTau_PU_phase2"),
+    ("/RelValNuGun/CMSSW_11_3_0_pre1-PU_113X_mcRun4_realistic_v1_2026D49PU200-v1/GEN-SIM-DIGI-RAW", "NuGun_PU_phase2"),
 ]
 
 if __name__ == "__main__":
@@ -34,12 +34,12 @@ if __name__ == "__main__":
         conf.JobType.maxJobRuntimeMin = 8*60
         conf.JobType.allowUndistributedCMSSW = True
         conf.JobType.outputFiles = ["step3_inMINIAODSIM.root"]
-        conf.JobType.maxMemoryMB = 5000
-        conf.JobType.numCores = 2
+        conf.JobType.maxMemoryMB = 20000
+        conf.JobType.numCores = 8
         
         conf.Data.inputDataset = dataset
         conf.Data.splitting = 'LumiBased'
-        conf.Data.unitsPerJob = 1
+        conf.Data.unitsPerJob = 5
         #conf.Data.totalUnits = 50
         conf.Data.publication = False
         conf.Data.outputDatasetTag = 'pfvalidation'

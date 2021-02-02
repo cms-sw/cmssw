@@ -30,6 +30,16 @@ namespace cond {
     static constexpr unsigned int COND_AUTHENTICATION_KEY_SIZE = 30;
     static constexpr unsigned int COND_DB_KEY_SIZE = 30;
 
+    static constexpr size_t COND_SESSION_HASH_SIZE = 16;
+
+    static constexpr int COND_SESSION_HASH_CODE = 4;
+    static constexpr int COND_DBKEY_CREDENTIAL_CODE = 1;
+
+    static constexpr int COND_DBTAG_LOCK_ACCESS_CODE = 8;
+    static constexpr int COND_DBTAG_WRITE_ACCESS_CODE = 2;
+    static constexpr int COND_DBTAG_READ_ACCESS_CODE = 1;
+    static constexpr int COND_DBTAG_NO_PROTECTION_CODE = 0;
+
     static constexpr const char* const COND_AUTH_PATH_PROPERTY = "AuthenticationFile";
   }  // namespace auth
 

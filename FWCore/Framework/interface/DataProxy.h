@@ -25,12 +25,12 @@
 
 // user include files
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 // forward declarations
 namespace edm {
   class ActivityRegistry;
   class EventSetupImpl;
-  class WaitingTask;
   class ServiceToken;
 
   namespace eventsetup {
@@ -48,8 +48,11 @@ namespace edm {
       // ---------- const member functions ---------------------
       bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
 
-      void prefetchAsync(
-          WaitingTask*, EventSetupRecordImpl const&, DataKey const&, EventSetupImpl const*, ServiceToken const&) const;
+      void prefetchAsync(WaitingTaskHolder,
+                         EventSetupRecordImpl const&,
+                         DataKey const&,
+                         EventSetupImpl const*,
+                         ServiceToken const&) const;
 
       void const* get(EventSetupRecordImpl const&,
                       DataKey const&,
@@ -80,7 +83,7 @@ namespace edm {
           the pointer must be a pointer to that base class interface and not a pointer to an inheriting class
           instance.
           */
-      virtual void prefetchAsyncImpl(WaitingTask*,
+      virtual void prefetchAsyncImpl(WaitingTaskHolder,
                                      EventSetupRecordImpl const&,
                                      DataKey const& iKey,
                                      EventSetupImpl const*,

@@ -46,7 +46,6 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet&
   m_timetype = cond::time::timeTypeFromName(timetypestr);
   m_autoCommit = iConfig.getUntrackedParameter<bool>("autoCommit", false);
   m_writeTransactionDelay = iConfig.getUntrackedParameter<unsigned int>("writeTransactionDelay", 0);
-
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters");
   m_connection.setParameters(connectionPset);
   m_connection.setLogDestination(m_logger);
@@ -55,10 +54,9 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet&
   m_session = m_connection.createSession(connectionString, true);
   bool saveLogsOnDb = iConfig.getUntrackedParameter<bool>("saveLogsOnDB", false);
   if (saveLogsOnDb)
-    m_logger.setDbDestination(connectionString, m_connection);
+    m_logger.setDbDestination(connectionString);
   // implicit start
   doStartTransaction();
-
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters toPut = iConfig.getParameter<Parameters>("toPut");
   for (Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut)
@@ -92,6 +90,36 @@ cond::persistency::Session cond::service::PoolDBOutputService::newReadOnlySessio
 }
 
 cond::persistency::Session cond::service::PoolDBOutputService::session() const { return m_session; }
+
+void cond::service::PoolDBOutputService::lockRecords() {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  doStartTransaction();
+  cond::persistency::TransactionScope scope(m_session.transaction());
+  this->initDB();
+  for (auto& iR : m_records) {
+    if (iR.second.m_isNewTag == false) {
+      cond::persistency::IOVEditor editor = m_session.editIov(iR.second.m_tag);
+      editor.lock();
+    }
+  }
+  doCommitTransaction();
+  scope.close();
+}
+
+void cond::service::PoolDBOutputService::releaseLocks() {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  doStartTransaction();
+  cond::persistency::TransactionScope scope(m_session.transaction());
+  this->initDB();
+  for (auto& iR : m_records) {
+    if (iR.second.m_isNewTag == false) {
+      cond::persistency::IOVEditor editor = m_session.editIov(iR.second.m_tag);
+      editor.unlock();
+    }
+  }
+  doCommitTransaction();
+  scope.close();
+}
 
 std::string cond::service::PoolDBOutputService::tag(const std::string& recordName) {
   return this->lookUpRecord(recordName).m_tag;

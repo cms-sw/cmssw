@@ -63,9 +63,8 @@ else:
         process.classByHits
     )
 
-process.MessageLogger.categories += [ 'MuonMCClassifier' ]
+
 process.MessageLogger.cerr.MuonMCClassifier = cms.untracked.PSet(
-    optionalPSet = cms.untracked.bool(True),
     limit = cms.untracked.int32(10000000)
 )
 

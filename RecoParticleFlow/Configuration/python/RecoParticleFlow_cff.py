@@ -43,7 +43,7 @@ particleFlowLinksTask = cms.Task( particleFlow, particleFlowPtrs, chargedHadronP
 particleFlowLinks = cms.Sequence(particleFlowLinksTask)
 
 from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
-from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
+from RecoParticleFlow.PFProducer.simPFProducer_cff import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 particleFlowTmpBarrel = particleFlowTmp.clone()
@@ -86,4 +86,9 @@ for e in [pp_on_XeXe_2017, pp_on_AA]:
     e.toModify(pfPileUp, enable = cms.bool(False))
     
 
+from Configuration.ProcessModifiers.mlpf_cff import mlpf
+from RecoParticleFlow.PFProducer.mlpfProducer_cfi import mlpfProducer
 
+_mlpfTask = cms.Task(mlpfProducer, particleFlowRecoTask.copy())
+
+mlpf.toReplaceWith(particleFlowRecoTask, _mlpfTask)

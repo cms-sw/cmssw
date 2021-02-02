@@ -54,6 +54,10 @@ upgradeKeys[2026] = [
     '2026D73PU',
     '2026D74',
     '2026D74PU',
+    '2026D75',
+    '2026D75PU',
+    '2026D76',
+    '2026D76PU',
 ]
 
 # pre-generation of WF numbers
@@ -311,6 +315,30 @@ upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFit'
 }
 
+#DeepCore seeding for JetCore iteration workflow
+class UpgradeWorkflow_seedingDeepCore(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step or 'HARVEST' in step: stepDict[stepName][k] = merge([{'--procModifiers': 'seedingDeepCore'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        result = (fragment=="QCD_Pt_1800_2400_14" or fragment=="TTbar_14TeV" ) and ('2021' in key or '2024' in key) and hasHarvest
+        if result:
+            # skip ALCA and Nano
+            skipList = [s for s in stepList if (("ALCA" in s) or ("Nano" in s))]
+            for skip in skipList:
+                stepList.remove(skip)
+        return result
+upgradeWFs['seedingDeepCore'] = UpgradeWorkflow_seedingDeepCore(
+    steps = [
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    PU = [],
+    suffix = '_seedingDeepCore',
+    offset = 0.17,
+)
+
 # Vector Hits workflows
 class UpgradeWorkflow_vectorHits(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -327,6 +355,30 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     suffix = '_vectorHits',
     offset = 0.9,
 )
+
+# MLPF workflows
+class UpgradeWorkflow_mlpf(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2021' in key
+
+upgradeWFs['mlpf'] = UpgradeWorkflow_mlpf(
+    steps = [
+        'Reco',
+    ],
+    PU = [
+        'Reco',
+    ],
+    suffix = '_mlpf',
+    offset = 0.13,
+)
+upgradeWFs['mlpf'].step3 = {
+    '--datatier': 'GEN-SIM-RECO,RECOSIM,MINIAODSIM,DQMIO',
+    '--eventcontent': 'FEVTDEBUGHLT,RECOSIM,MINIAODSIM,DQM',
+    '--procModifiers': 'mlpf'
+}
 
 # Patatrack workflows
 class UpgradeWorkflowPatatrack(UpgradeWorkflow):
@@ -359,6 +411,8 @@ upgradeWFs['PatatrackPixelOnlyCPU'] = UpgradeWorkflowPatatrack_PixelOnlyCPU(
     steps = [
         'Reco',
         'HARVEST',
+        'RecoFakeHLT',
+        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -388,6 +442,8 @@ upgradeWFs['PatatrackPixelOnlyGPU'] = UpgradeWorkflowPatatrack_PixelOnlyGPU(
     steps = [
         'Reco',
         'HARVEST',
+        'RecoFakeHLT',
+        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -417,6 +473,8 @@ upgradeWFs['PatatrackECALOnlyCPU'] = UpgradeWorkflowPatatrack_ECALOnlyCPU(
     steps = [
         'Reco',
         'HARVEST',
+        'RecoFakeHLT',
+        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -445,6 +503,8 @@ upgradeWFs['PatatrackECALOnlyGPU'] = UpgradeWorkflowPatatrack_ECALOnlyGPU(
     steps = [
         'Reco',
         'HARVEST',
+        'RecoFakeHLT',
+        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -474,6 +534,8 @@ upgradeWFs['PatatrackHCALOnlyCPU'] = UpgradeWorkflowPatatrack_HCALOnlyCPU(
     steps = [
         'Reco',
         'HARVEST',
+        'RecoFakeHLT',
+        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -502,6 +564,8 @@ upgradeWFs['PatatrackHCALOnlyGPU'] = UpgradeWorkflowPatatrack_HCALOnlyGPU(
     steps = [
         'Reco',
         'HARVEST',
+        'RecoFakeHLT',
+        'HARVESTFakeHLT',
         'RecoGlobal',
         'HARVESTGlobal',
     ],
@@ -1077,6 +1141,20 @@ upgradeProperties[2026] = {
     },
     '2026D74' : {
         'Geom' : 'Extended2026D74',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D75' : {
+        'Geom' : 'Extended2026D75',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D76' : {
+        'Geom' : 'Extended2026D76',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C11M9',

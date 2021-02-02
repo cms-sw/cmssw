@@ -10,9 +10,9 @@ process.load("Geometry.GEMGeometryBuilder.gemGeometry_cff")
 process.load("Geometry.GEMGeometryBuilder.gemGeometryDump_cfi")
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('Geometry')
-    process.MessageLogger.categories.append('GEMNumberingScheme')
-    process.MessageLogger.categories.append('GEMGeometry')
+    process.MessageLogger.Geometry=dict()
+    process.MessageLogger.GEMNumberingScheme=dict()
+    process.MessageLogger.GEMGeometry=dict()
 
 process.source = cms.Source('EmptySource')
 

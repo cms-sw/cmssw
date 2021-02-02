@@ -9,9 +9,10 @@ inputfile = '/store/relval/CMSSW_3_1_2/RelValCosmics/GEN-SIM-DIGI-RAW-HLTDEBUG/S
 process   = cms.Process("RPCTechnicalTrigger")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.categories = ['*']
-process.MessageLogger.destinations = ['cout']
+
+process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
     	threshold = cms.untracked.string('DEBUG'),
 	INFO = cms.untracked.PSet(
         limit = cms.untracked.int32(-1) ) )

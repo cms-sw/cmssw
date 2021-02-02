@@ -15,7 +15,7 @@ template <class SourceHandler>
 class SiStripPopConDQMEDHarvester : public DQMEDHarvester {
 public:
   SiStripPopConDQMEDHarvester(const edm::ParameterSet& pset)
-      : m_populator(pset), m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+      : m_populator(pset), m_source(pset.getParameter<edm::ParameterSet>("Source"), consumesCollector()) {}
 
   ~SiStripPopConDQMEDHarvester() override {}
 

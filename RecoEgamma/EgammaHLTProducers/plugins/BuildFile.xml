@@ -4,6 +4,7 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="RecoEgamma/EgammaIsolationAlgos"/>
+<use name="RecoEgamma/EgammaTools"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="DataFormats/DetId"/>

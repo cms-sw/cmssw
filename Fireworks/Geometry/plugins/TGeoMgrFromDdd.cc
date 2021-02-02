@@ -170,11 +170,10 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
     auto info = walker.current();
 
     if (m_verbose) {
-      for (unsigned int i = 0; i < parentStack.size(); ++i) {
-        std::cout << " ";
-      }
-      std::cout << info.first.name() << " " << info.second->copyno() << " "
-                << DDSolidShapesName::name(info.first.solid().shape()) << std::endl;
+      std::cout << "parentStack of size " << parentStack.size() << std::endl;
+      auto num = (info.second != nullptr) ? info.second->copyno() : 0;
+      std::cout << info.first.name() << " " << num << " " << DDSolidShapesName::name(info.first.solid().shape())
+                << std::endl;
     }
 
     std::string name = m_fullname ? info.first.name().fullname() : info.first.name().name();
@@ -235,7 +234,7 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
 //==============================================================================
 
 TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& iSolid) {
-  LogDebug("TGeoMgrFromDdd::createShape") << "with name: " << iName << " and solid: " << iSolid;
+  edm::LogVerbatim("TGeoMgrFromDdd") << "with name: " << iName << " and solid: " << iSolid;
 
   DDBase<DDName, DDI::Solid*>::def_type defined(iSolid.isDefined());
   if (!defined.first)
@@ -581,10 +580,10 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
     nameToShape_[iName] = rSolid;
   }
   if (rSolid == nullptr) {
-    std::cerr << "COULD NOT MAKE " << iName << " of a shape " << iSolid << std::endl;
+    edm::LogError("TGeoMgrFromDdd") << "COULD NOT MAKE " << iName << " of a shape " << iSolid;
   }
 
-  LogDebug("TGeoMgrFromDdd::createShape") << "solid " << iName << " has been created.";
+  edm::LogVerbatim("TGeoMgrFromDdd") << "solid " << iName << " has been created.";
 
   return rSolid;
 }

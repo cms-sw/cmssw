@@ -30,7 +30,7 @@
 #include <iostream>
 #include <atomic>
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 

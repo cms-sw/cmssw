@@ -31,8 +31,10 @@ public:
                                          bool deug = false);
   static bool goodTypeMode(
       double xpos, double ypos, double delX, double delY, double rin, double rout, int part, int rotn, bool debug);
+  static std::vector<std::pair<double, double> > waferXY(
+      int part, int orient, int zside, double delX, double delY, double xpos, double ypos);
 
-  static const int k_OffsetRotation = 10;
+  static constexpr int k_OffsetRotation = 10;
 };
 
 #endif

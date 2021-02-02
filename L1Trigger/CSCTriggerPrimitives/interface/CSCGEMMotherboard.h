@@ -203,8 +203,6 @@ protected:
 
   bool isPadInOverlap(int roll) const;
 
-  void setupGeometry();
-
   /** Chamber id (trigger-type labels). */
   unsigned gemId;
   int maxPads() const;

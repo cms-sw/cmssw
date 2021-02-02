@@ -140,6 +140,14 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<reco::MuonCollection> tok_muon_;
+
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
 };
 
 HcalRaddamMuon::HcalRaddamMuon(const edm::ParameterSet& iConfig)
@@ -171,6 +179,14 @@ HcalRaddamMuon::HcalRaddamMuon(const edm::ParameterSet& iConfig)
     tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   }
   tok_muon_ = consumes<reco::MuonCollection>(muonsrc_);
+
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
 }
 
 HcalRaddamMuon::~HcalRaddamMuon() {
@@ -197,11 +213,11 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(tok_trigRes_, _Triggers);
 
   if ((verbosity_ % 10) > 1)
-    std::cout << "size of all triggers " << all_triggers.size() << std::endl;
+    edm::LogVerbatim("HBHEMuon") << "size of all triggers " << all_triggers.size();
   int Ntriggers = all_triggers.size();
 
   if ((verbosity_ % 10) > 1)
-    std::cout << "size of HLT MENU: " << _Triggers->size() << std::endl;
+    edm::LogVerbatim("HBHEMuon") << "size of HLT MENU: " << _Triggers->size();
 
   if (_Triggers.isValid()) {
     const edm::TriggerNames& triggerNames_ = iEvent.triggerNames(*_Triggers);
@@ -211,42 +227,26 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       index.push_back(triggerNames_.triggerIndex(all_triggers[i]));
       int triggerSize = int(_Triggers->size());
       if ((verbosity_ % 10) > 2)
-        std::cout << "outside loop " << index[i] << "\ntriggerSize " << triggerSize << std::endl;
+        edm::LogVerbatim("HBHEMuon") << "outside loop " << index[i] << "\ntriggerSize " << triggerSize;
       if (index[i] < triggerSize) {
         hltresults.push_back(_Triggers->accept(index[i]));
         if ((verbosity_ % 10) > 2)
-          std::cout << "trigger_info " << triggerSize << " triggerSize " << index[i] << " trigger_index "
-                    << hltresults.at(i) << " hltresult " << std::endl;
+          edm::LogVerbatim("HBHEMuon") << "trigger_info " << triggerSize << " triggerSize " << index[i]
+                                       << " trigger_index " << hltresults.at(i) << " hltresult ";
       } else {
-        edm::LogInfo("TriggerBlock") << "Requested HLT path \""
+        edm::LogVerbatim("HBHEMuon") << "Requested HLT path \""
                                      << "\" does not exist";
       }
     }
   }
 
   // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
-
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField* bField = bFieldH.product();
-
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
-  const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
-
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology* caloTopology = theCaloTopology.product();
-
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
+  const MagneticField* bField = &iSetup.getData(tok_magField_);
+  const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
+  const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
+  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology* theHBHETopology = &iSetup.getData(tok_topo_);
 
   edm::Handle<reco::BeamSpot> bmspot;
   iEvent.getByToken(tok_bs_, bmspot);
@@ -390,7 +390,7 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                                           *theEcalChStatus,
                                                           geo,
                                                           caloTopology,
-                                                          sevlv.product(),
+                                                          sevlv,
                                                           1,
                                                           1,
                                                           -100.0,
@@ -400,7 +400,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                                           false);
 
           eEcal = e3x3.first;
-          //std::cout<<"eEcal"<<eEcal<<std::endl;
+          if (((verbosity_ / 10) % 10) > 1)
+            edm::LogVerbatim("HBHEMuon") << "eEcal" << eEcal;
         }
 
         if (trackID.okHCAL) {
@@ -423,7 +424,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           int iphi = ((HcalDetId)(closestCell)).iphi();
           int zside = ((HcalDetId)(closestCell)).iphi();
           int depthHE = theHBHETopology->dddConstants()->getMinDepth(1, 16, iphi, zside);
-          //std::cout<<"eHcal"<<eHcal<<std::endl;
+          if (((verbosity_ / 10) % 10) > 1)
+            edm::LogVerbatim("HBHEMuon") << "eHcal " << eHcal;
           std::vector<std::pair<double, int> > ehdepth;
           spr::energyHCALCell((HcalDetId)closestCell,
                               hbhe,
@@ -440,7 +442,9 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                               (((verbosity_ / 1000) % 10) > 0));
           for (unsigned int i = 0; i < ehdepth.size(); ++i) {
             eHcalDepth[ehdepth[i].second - 1] = ehdepth[i].first;
-            //std::cout<<eHcalDepth[ehdepth[i].second-1]<<std::endl;
+            if (((verbosity_ / 10) % 10) > 1)
+              edm::LogVerbatim("HBHEMuon")
+                  << "eHcalDepth " << i << ":" << (ehdepth[i].second - 1) << ":" << eHcalDepth[ehdepth[i].second - 1];
           }
 
           eHcal = spr::eHCALmatrix(theHBHETopology,
@@ -458,7 +462,8 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                    500.,
                                    useRaw_);
 
-          //std::cout<<"eHcal"<<eHcal<<std::endl;
+          if (((verbosity_ / 10) % 10) > 1)
+            edm::LogVerbatim("HBHEMuon") << "eHcal " << eHcal;
           const DetId closestCellCalo(trackID.detIdHCAL);
           iphi = ((HcalDetId)(closestCellCalo)).iphi();
           zside = ((HcalDetId)(closestCellCalo)).iphi();
@@ -479,13 +484,16 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                               (((verbosity_ / 1000) % 10) > 0));
           for (unsigned int i = 0; i < ehdepthCalo.size(); ++i) {
             eHcalDepthCalo[ehdepthCalo[i].second - 1] = ehdepthCalo[i].first;
-            //std::cout<<eHcalDepth[ehdepth[i].second-1]<<std::endl;
+            if (((verbosity_ / 10) % 10) > 1)
+              edm::LogVerbatim("HBHEMuon") << "eHcalDepthCalo " << i << ":" << (ehdepth[i].second - 1) << ":"
+                                           << eHcalDepth[ehdepth[i].second - 1];
           }
 
           HcalDetId hcid0(closestCell.rawId());
           activeL = activeLength(trackID.detIdHCAL);
 
-          std::cout << activeL << std::endl;
+          if (((verbosity_ / 10) % 10) > 0)
+            edm::LogVerbatim("HBHEMuon") << "activeL " << activeL;
           HcalDetId hotCell, hotCellCalo;
           h3x3 = spr::eHCALmatrix(geo, theHBHETopology, closestCell, hbhe, 1, 1, hotCell, false, useRaw_, false);
           h3x3Calo = spr::eHCALmatrix(
@@ -494,7 +502,10 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           isHot = matchId(closestCell, hotCell);
           isHotCalo = matchId(closestCellCalo, hotCellCalo);
 
-          // std::cout<<"hcal 3X3  < "<<h3x3<<">" << " ClosestCell <" << (HcalDetId)(closestCell) << "> hotCell id < " << hotCell << "> isHot" << isHot << std::endl;
+          if (((verbosity_ / 10) % 10) > 1)
+            edm::LogVerbatim("HBHEMuon") << "hcal 3X3  < " << h3x3 << ">"
+                                         << " ClosestCell <" << (HcalDetId)(closestCell) << "> hotCell id < " << hotCell
+                                         << "> isHot" << isHot;
           if (hotCell != HcalDetId()) {
             iphi = ((HcalDetId)(hotCell)).iphi();
             zside = ((HcalDetId)(hotCell)).iphi();
@@ -514,7 +525,9 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                 false);  //(((verbosity_/1000)%10)>0));
             for (unsigned int i = 0; i < ehdepth.size(); ++i) {
               eHcalDepthHot[ehdepth[i].second - 1] = ehdepth[i].first;
-              //  std::cout<<eHcalDepthHot[ehdepth[i].second-1]<<std::endl;
+              if (((verbosity_ / 10) % 10) > 1)
+                edm::LogVerbatim("HBHEMuon") << "eHcalDepthHot " << i << ":" << (ehdepth[i].second - 1) << ":"
+                                             << eHcalDepthHot[ehdepth[i].second - 1];
             }
           }
 
@@ -539,7 +552,9 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                 false);
             for (unsigned int i = 0; i < ehdepthCalo.size(); ++i) {
               eHcalDepthHotCalo[ehdepthCalo[i].second - 1] = ehdepthCalo[i].first;
-              //  std::cout<<eHcalDepthHot[ehdepth[i].second-1]<<std::endl;
+              if (((verbosity_ / 10) % 10) > 1)
+                edm::LogVerbatim("HBHEMuon") << "eHcalDepthHotCalo " << i << ":" << (ehdepth[i].second - 1) << ":"
+                                             << eHcalDepthHot[ehdepth[i].second - 1];
             }
           }
         }
@@ -697,21 +712,17 @@ void HcalRaddamMuon::endJob() {}
 
 // ------------ method called when starting to processes a run  ------------
 void HcalRaddamMuon::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  const HcalDDDRecConstants& hdc = (*pHRNDC);
+  const HcalDDDRecConstants* hdc = &iSetup.getData(tok_ddrec_);
   actHB.clear();
   actHE.clear();
-  actHB = hdc.getThickActive(0);
-  actHE = hdc.getThickActive(1);
+  actHB = hdc->getThickActive(0);
+  actHE = hdc->getThickActive(1);
 
   bool changed = true;
   all_triggers.clear();
   if (hltConfig_.init(iRun, iSetup, "HLT", changed)) {
     // if init returns TRUE, initialisation has succeeded!
-    edm::LogInfo("TriggerBlock") << "HLT config with process name "
-                                 << "HLT"
-                                 << " successfully extracted";
+    edm::LogVerbatim("HBHEMuon") << "HLT config with process name 'HLT' successfully extracted";
     std::string string_search[5] = {"HLT_IsoMu_", "HLT_L1SingleMu_", "HLT_L2Mu", "HLT_Mu", "HLT_RelIso1p0Mu"};
     unsigned int ntriggers = hltConfig_.size();
     for (unsigned int t = 0; t < ntriggers; ++t) {
@@ -723,11 +734,9 @@ void HcalRaddamMuon::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
         }
       }
     }  //loop over ntriggers
-    //  std::cout<<"all triggers size in begin run"<<all_triggers.size()<<std::endl;
+    edm::LogVerbatim("HBHEMuon") << "All triggers size in begin run" << all_triggers.size();
   } else {
-    edm::LogError("TriggerBlock") << "Error! HLT config extraction with process name "
-                                  << "HLT"
-                                  << " failed";
+    edm::LogError("HBHEMuon") << "Error! HLT config extraction with process name 'HLT' failed";
   }
 
 }  //firstmethod
@@ -832,7 +841,8 @@ double HcalRaddamMuon::activeLength(const DetId& id_) {
   int depth = id.depth();
   double lx(0);
   if (id.subdet() == HcalBarrel) {
-    //    std::cout<<"actHB.size()"<<actHB.size()<<std::endl;
+    if (((verbosity_ / 10) % 10) > 2)
+      edm::LogVerbatim("HBHEMuon") << "actHB.size() " << actHB.size();
     for (unsigned int i = 0; i < actHB.size(); ++i) {
       if (ieta == actHB[i].ieta && depth == actHB[i].depth) {
         lx = actHB[i].thick;
@@ -840,15 +850,17 @@ double HcalRaddamMuon::activeLength(const DetId& id_) {
       }
     }
   } else {
-    //    std::cout<<"actHE.size()"<<actHE.size()<<std::endl;
+    if (((verbosity_ / 10) % 10) > 2)
+      edm::LogVerbatim("HBHEMuon") << "actHE.size() " << actHE.size();
     for (unsigned int i = 0; i < actHE.size(); ++i) {
       if (ieta == actHE[i].ieta && depth == actHE[i].depth) {
         lx = actHE[i].thick;
-        //  std::cout<<"actHE[i].thick"<<actHE[i].thick<<std::endl;
         break;
       }
     }
   }
+  if (((verbosity_ / 10) % 10) > 2)
+    edm::LogVerbatim("HBHEMuon") << "active thick " << lx;
   return lx;
 }
 

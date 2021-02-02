@@ -74,10 +74,11 @@ public:
 private:
   // ----------member data ---------------------------
   edm::ParameterSet conf_;
-  edm::InputTag src_;
   const static bool PRINT = false;
   typedef std::vector<std::string> vstring;
   vstring trackerContainers;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken;
   // Histograms
   TFile *hFile;
   TH1F *hBunchCrossing, *htof1m, *htof0, *htof1p, *htof2p;
@@ -112,6 +113,8 @@ private:
 };
 //
 PixelMixedSimHitsTest::PixelMixedSimHitsTest(const edm::ParameterSet &iConfig) : conf_(iConfig) {
+  trackerTopoToken = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   trackerContainers.clear();
   trackerContainers = iConfig.getParameter<std::vector<std::string> >("ROUList");
   cout << " Construct PixelSimHitsTest " << endl;
@@ -253,8 +256,7 @@ void PixelMixedSimHitsTest::beginJob() {
 // ------------ method called to produce the data  ------------
 void PixelMixedSimHitsTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = iSetup.getHandle(trackerTopoToken);
 
   const double PI = 3.142;
 
@@ -263,8 +265,7 @@ void PixelMixedSimHitsTest::analyze(const edm::Event &iEvent, const edm::EventSe
     cout << " Analyze PixelSimHitsTest " << endl;
 
   // Get event setup (to get global transformation)
-  edm::ESHandle<TrackerGeometry> geom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle<TrackerGeometry> geom = iSetup.getHandle(trackerGeomToken);
   const TrackerGeometry &theTracker(*geom);
 
   // Get input data

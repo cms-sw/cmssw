@@ -251,5 +251,5 @@ void test_ep::failgetbyInvalidIdTest() {
 
 void test_ep::failgetProvenanceTest() {
   edm::BranchID id;
-  CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id, nullptr), edm::Exception);
+  CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id), edm::Exception);
 }

@@ -263,6 +263,9 @@ namespace edm {
         iRegistry.watchPreModuleConstruction(this, &Timing::preModule);
         iRegistry.watchPostModuleConstruction(this, &Timing::postModule);
 
+        iRegistry.watchPreModuleDestruction(this, &Timing::preModule);
+        iRegistry.watchPostModuleDestruction(this, &Timing::postModule);
+
         iRegistry.watchPreModuleBeginJob(this, &Timing::preModule);
         iRegistry.watchPostModuleBeginJob(this, &Timing::postModule);
 

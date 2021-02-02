@@ -110,10 +110,10 @@ import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 _fastSim_initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     trackingRegions = 'initialStepTrackingRegions',
-    seedFinderSelector = dict( pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitTriplets),
-                               layerList = initialStepSeedLayers.layerList.value())
+    seedFinderSelector = dict( pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitTriplets).clone(SeedComparitorPSet = dict(ComponentName = 'none')),
+                               layerList = initialStepSeedLayers.layerList.value()
+                             )
 )
-_fastSim_initialStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.SeedComparitorPSet.ComponentName = 'none'
 #new for phase1
 trackingPhase1.toModify(_fastSim_initialStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,

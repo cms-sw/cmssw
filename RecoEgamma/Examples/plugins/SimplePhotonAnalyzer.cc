@@ -1,33 +1,100 @@
-/**\class PhotonSimpleAnalyzer
+/**\class SimplePhotonAnalyzer
  **
+ ** Description: Get Photon collection from the event and make very basic histos
  ** \author Nancy Marinelli, U. of Notre Dame, US
-*/
+ **
+ **/
 
-#include "RecoEgamma/Examples/plugins/SimplePhotonAnalyzer.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
-//
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-//
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+
 #include "TFile.h"
+#include "TH1.h"
+#include "TProfile.h"
+
+#include <memory>
+#include <string>
+
+class SimplePhotonAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
+  explicit SimplePhotonAnalyzer(const edm::ParameterSet&);
+  ~SimplePhotonAnalyzer() override;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
+
+private:
+  float etaTransformation(float a, float b);
+
+  std::string mcProducer_;
+  std::string mcCollection_;
+  std::string photonCollectionProducer_;
+  std::string photonCollection_;
+  std::string valueMapPFCandPhoton_;
+  edm::InputTag pfEgammaCandidates_;
+  edm::InputTag barrelEcalHits_;
+  edm::InputTag endcapEcalHits_;
+
+  edm::ESHandle<CaloTopology> theCaloTopo_;
+
+  std::string vertexProducer_;
+  float sample_;
+
+  DQMStore* dbe_;
+
+  MonitorElement* h1_scEta_;
+  MonitorElement* h1_deltaEtaSC_;
+  MonitorElement* h1_pho_E_;
+  MonitorElement* h1_pho_Et_;
+  MonitorElement* h1_pho_Eta_;
+  MonitorElement* h1_pho_Phi_;
+  MonitorElement* h1_pho_R9Barrel_;
+  MonitorElement* h1_pho_R9Endcap_;
+  MonitorElement* h1_pho_sigmaIetaIetaBarrel_;
+  MonitorElement* h1_pho_sigmaIetaIetaEndcap_;
+  MonitorElement* h1_pho_hOverEBarrel_;
+  MonitorElement* h1_pho_hOverEEndcap_;
+  MonitorElement* h1_pho_ecalIsoBarrel_;
+  MonitorElement* h1_pho_ecalIsoEndcap_;
+  MonitorElement* h1_pho_hcalIsoBarrel_;
+  MonitorElement* h1_pho_hcalIsoEndcap_;
+  MonitorElement* h1_pho_trkIsoBarrel_;
+  MonitorElement* h1_pho_trkIsoEndcap_;
+
+  MonitorElement* h1_recEoverTrueEBarrel_;
+  MonitorElement* h1_recEoverTrueEEndcap_;
+  MonitorElement* h1_deltaEta_;
+  MonitorElement* h1_deltaPhi_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SimplePhotonAnalyzer);
 
 //========================================================================
 SimplePhotonAnalyzer::SimplePhotonAnalyzer(const edm::ParameterSet& ps)

@@ -8,7 +8,7 @@ gemRecHitsValidation = DQMEDAnalyzer('GEMRecHitValidation',
     GEMValidationCommonParameters,
     gemSimHit = muonSimHitMatcherPSet.gemSimHit,
     gemRecHit = gemRecHit,
-    detailPlot = cms.bool(True),
+    gemDigiSimLink = cms.InputTag("simMuonGEMDigis","GEM"),
 )
 
 gemLocalRecoValidation = cms.Sequence(gemRecHitsValidation)

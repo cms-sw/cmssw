@@ -2,10 +2,7 @@
 #include <iostream>
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
-#include "Geometry/HcalCommonData/interface/HcalCellType.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
@@ -29,7 +26,6 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"
-#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
 #include "PhysicsTools/HepMCCandAlgos/interface/GenParticlesHelper.h"
@@ -56,10 +52,10 @@ private:
   edm::EDGetTokenT<PHGCalValidInfo> g4Token_;
   std::vector<std::string> geometrySource_;
   int verbosity_;
+  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> geomToken_;
 
   //HGCal geometry scheme
   std::vector<const HGCalDDDConstants *> hgcGeometry_;
-  const HcalDDDSimConstants *hcons_;
 
   //histogram related stuff
   MonitorElement *heedzVsZ, *heedyVsY, *heedxVsX;
@@ -79,10 +75,13 @@ private:
   MonitorElement *hebdX, *hebdY, *hebdZ;
 };
 
-HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg) : hcons_(nullptr) {
+HGCGeometryValidation::HGCGeometryValidation(const edm::ParameterSet &cfg) {
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
-  geometrySource_ = cfg.getUntrackedParameter<std::vector<std::string> >("geometrySource");
+  geometrySource_ = cfg.getUntrackedParameter<std::vector<std::string>>("geometrySource");
   verbosity_ = cfg.getUntrackedParameter<int>("verbosity", 0);
+  for (const auto &name : geometrySource_)
+    geomToken_.emplace_back(
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
 }
 
 HGCGeometryValidation::~HGCGeometryValidation() {}
@@ -96,24 +95,7 @@ void HGCGeometryValidation::fillDescriptions(edm::ConfigurationDescriptions &des
 void HGCGeometryValidation::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   //initiating hgcnumbering
   for (size_t i = 0; i < geometrySource_.size(); i++) {
-    if (geometrySource_[i].find("Hcal") != std::string::npos) {
-      edm::ESHandle<HcalDDDSimConstants> pHRNDC;
-      iSetup.get<HcalSimNumberingRecord>().get(pHRNDC);
-      if (pHRNDC.isValid()) {
-        hcons_ = &(*pHRNDC);
-        hgcGeometry_.push_back(nullptr);
-      } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for " << geometrySource_[i];
-      }
-    } else {
-      edm::ESHandle<HGCalDDDConstants> hgcGeom;
-      iSetup.get<IdealGeometryRecord>().get(geometrySource_[i], hgcGeom);
-      if (hgcGeom.isValid()) {
-        hgcGeometry_.push_back(hgcGeom.product());
-      } else {
-        edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for " << geometrySource_[i];
-      }
-    }
+    hgcGeometry_.emplace_back(&iSetup.getData(geomToken_[i]));
   }
 }
 
@@ -301,36 +283,7 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent, const edm::EventSe
           hebdZ->Fill((hitVtxZ.at(i) - zz));
           hebdY->Fill((hitVtxY.at(i) - yy));
         }
-
-      } else if (hitDet.at(i) == (unsigned int)(DetId::Hcal)) {
-        int subdet, zside, depth, eta, phi, lay;
-        HcalTestNumbering::unpackHcalIndex(hitIdx.at(i), subdet, zside, depth, eta, phi, lay);
-        HcalCellType::HcalCell cell = hcons_->cell(subdet, zside, lay, eta, phi);
-
-        double zz = mmtocm * cell.rz;  //mm --> cm
-        if (zside == 0)
-          zz = -zz;
-        double rho = zz * tan(2.0 * atan(exp(-cell.eta)));
-        double xx = rho * cos(cell.phi);  //cm
-        double yy = rho * sin(cell.phi);  //cm
-
-        hebdzVsZ->Fill(zz, (hitVtxZ.at(i) - zz));
-        hebdyVsY->Fill(yy, (hitVtxY.at(i) - yy));
-        hebdxVsX->Fill(xx, (hitVtxX.at(i) - xx));
-
-        hebXG4VsId->Fill(hitVtxX.at(i), xx);
-        hebYG4VsId->Fill(hitVtxY.at(i), yy);
-        hebZG4VsId->Fill(hitVtxZ.at(i), zz);
-
-        hebdzVsLayer->Fill(lay, (hitVtxZ.at(i) - zz));
-        hebdyVsLayer->Fill(lay, (hitVtxY.at(i) - yy));
-        hebdxVsLayer->Fill(lay, (hitVtxX.at(i) - xx));
-
-        hebdX->Fill((hitVtxX.at(i) - xx));
-        hebdZ->Fill((hitVtxZ.at(i) - zz));
-        hebdY->Fill((hitVtxY.at(i) - yy));
       }
-
     }  //end G4 hits
 
   } else {

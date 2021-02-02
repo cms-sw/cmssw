@@ -42,7 +42,6 @@ options.register('etaMin2',
 
 # Messages
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
 
 from CondCore.DBCommon.CondDBSetup_cfi import *

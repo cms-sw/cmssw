@@ -18,8 +18,8 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.load("FWCore/MessageService/MessageLogger_cfi")
-process.MessageLogger.destinations = cms.untracked.vstring("logfile")
-process.MessageLogger.logfile = cms.untracked.PSet(threshold = cms.untracked.string('INFO'))
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.logfile = cms.untracked.PSet(threshold = cms.untracked.string('INFO'))
 
 process.Timing = cms.Service("Timing")
 

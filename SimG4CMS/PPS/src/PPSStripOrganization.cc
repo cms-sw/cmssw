@@ -20,9 +20,9 @@ uint32_t PPSStripOrganization::unitID(const G4Step* aStep) {
 
   for (int ii = 0; ii < touch->GetHistoryDepth(); ii++) {
     physVol = touch->GetVolume(ii);
-    if (physVol->GetName() == "RP_Silicon_Detector") {
+    if (physVol->GetName().contains("RP_Silicon_Detector")) {
       detector = physVol->GetCopyNo();
-    } else if (physVol->GetName() == "RP_box_primary_vacuum") {
+    } else if (physVol->GetName().contains("RP_box_primary_vacuum")) {
       int cpy_no = physVol->GetCopyNo();
       arm = (cpy_no / 100) % 10;
       station = (cpy_no / 10) % 10;

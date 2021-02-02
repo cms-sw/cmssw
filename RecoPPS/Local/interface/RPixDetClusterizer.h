@@ -16,8 +16,6 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 
 #include "CondFormats/PPSObjects/interface/CTPPSPixelGainCalibrations.h"
-#include "RecoPPS/Local/interface/CTPPSPixelGainCalibrationDBService.h"
-
 #include "CondFormats/PPSObjects/interface/CTPPSPixelAnalysisMask.h"
 
 #include <vector>
