@@ -172,55 +172,56 @@ void LimitedTaskQueue_test::testPause() {
 }
 
 void LimitedTaskQueue_test::stressTest() {
+  //NOTE: group needs to last longer than queue
+  tbb::task_group group;
+
   constexpr unsigned int kMax = 3;
   edm::LimitedTaskQueue queue{kMax};
 
   unsigned int index = 100;
   const unsigned int nTasks = 1000;
   while (0 != --index) {
-    tbb::task_group group;
     std::atomic<int> waiting{1};
     std::atomic<unsigned int> count{0};
     std::atomic<unsigned int> nRunningTasks{0};
 
     std::atomic<bool> waitToStart{true};
     {
-      {
-        tbb::task_arena arena{tbb::task_arena::attach()};
-        arena.enqueue([&queue, &waitToStart, &group, &waiting, &count, &nRunningTasks] {
-          while (waitToStart.load()) {
-          };
-          for (unsigned int i = 0; i < nTasks; ++i) {
-            ++waiting;
-            queue.push(group, [&count, &waiting, &nRunningTasks] {
-              std::shared_ptr<std::atomic<int>> guardAgain{&waiting, [](auto* v) { --(*v); }};
-              auto nrt = nRunningTasks++;
-              if (nrt >= kMax) {
-                std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
-              }
-              CPPUNIT_ASSERT(nrt < kMax);
-              ++count;
-              --nRunningTasks;
-            });
-          }
-        });
-      }
+      group.run([&queue, &waitToStart, &group, &waiting, &count, &nRunningTasks] {
+        while (waitToStart) {
+        };
+        for (unsigned int i = 0; i < nTasks; ++i) {
+          ++waiting;
+          queue.push(group, [&count, &waiting, &nRunningTasks] {
+            std::shared_ptr<std::atomic<int>> guardAgain{&waiting, [](auto* v) { --(*v); }};
+            auto nrt = nRunningTasks++;
+            if (nrt >= kMax) {
+              std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
+            }
+            CPPUNIT_ASSERT(nrt < kMax);
+            ++count;
+            --nRunningTasks;
+          });
+        }
+      });
 
-      waitToStart = false;
-      for (unsigned int i = 0; i < nTasks; ++i) {
-        ++waiting;
-        queue.push(group, [&count, &group, &waiting, &nRunningTasks] {
-          std::shared_ptr<std::atomic<int>> guard{&waiting, [](auto* v) { --(*v); }};
-          auto nrt = nRunningTasks++;
-          if (nrt >= kMax) {
-            std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
-          }
-          CPPUNIT_ASSERT(nrt < kMax);
-          ++count;
-          --nRunningTasks;
-        });
-      }
-      --waiting;
+      group.run([&queue, &waitToStart, &group, &waiting, &count, &nRunningTasks] {
+        waitToStart = false;
+        for (unsigned int i = 0; i < nTasks; ++i) {
+          ++waiting;
+          queue.push(group, [&count, &waiting, &nRunningTasks] {
+            std::shared_ptr<std::atomic<int>> guardAgain{&waiting, [](auto* v) { --(*v); }};
+            auto nrt = nRunningTasks++;
+            if (nrt >= kMax) {
+              std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
+            }
+            CPPUNIT_ASSERT(nrt < kMax);
+            ++count;
+            --nRunningTasks;
+          });
+        }
+        --waiting;
+      });
     }
     do {
       group.wait();
