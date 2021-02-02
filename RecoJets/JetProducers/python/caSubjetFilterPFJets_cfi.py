@@ -19,4 +19,4 @@ caSubjetFilterPFJets = cms.EDProducer(
     asymmCut     = cms.double(0.3),
     asymmCutLater= cms.bool(True)
     )
-caSubjetFilterPFJets.doAreaFastjet= cms.bool(True)
+caSubjetFilterPFJets.doAreaFastjet = True
