@@ -32,33 +32,14 @@ namespace edm {
       }
     }
 
-    EventSetupRecordIOVQueue::~EventSetupRecordIOVQueue() {
-      if (!endIOVCalled_) {
-        // This part will normally only be executed in tests
-        // Normally (in cmsRun) this is done by explicitly
-        // calling endIOV. This is necessary because in cmsRun
-        // we want the task ending the IOV to run inside the
-        // functor passed to arena::execute.
-        auto group = endIOVTaskHolder_.group();
-        if (group) {
-          {
-            WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)};
-          }
-          do {
-            group->wait();
-          } while (not waitForIOVsInFlight_.done());
-        }
-      }
-    }
+    EventSetupRecordIOVQueue::~EventSetupRecordIOVQueue() { assert(endIOVCalled_); }
 
-    void EventSetupRecordIOVQueue::endIOV() {
-      // The most recently opened IOV is held opened.
-      // This forces it to end.
-      tbb::task_group group;
-      { WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)}; }
-      do {
-        group.wait();
-      } while (not waitForIOVsInFlight_.done());
+    void EventSetupRecordIOVQueue::endIOVAsync(edm::WaitingTaskHolder iEndTask) {
+      endIOVTasks_.reset();
+      if (endIOVTaskHolder_.hasTask()) {
+        endIOVTasks_.add(std::move(iEndTask));
+        { WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)}; }
+      }
       endIOVCalled_ = true;
     }
 
@@ -129,17 +110,13 @@ namespace edm {
                 recordProvider->initializeForNewIOV(iovIndex, cacheIdentifier_);
               }
 
-              // Needed so the EventSetupRecordIOVQueue destructor knows when
-              // it can run.
-              waitForIOVsInFlight_.increment_ref_count();
-
               auto endIOVWaitingTask = make_waiting_task([this, iResumer, iovIndex](std::exception_ptr const*) mutable {
                 for (auto recordProvider : recordProviders_) {
                   recordProvider->endIOV(iovIndex);
                 }
                 isAvailable_[iovIndex].store(true);
                 iResumer.resume();
-                waitForIOVsInFlight_.decrement_ref_count();
+                endIOVTasks_.doneWaiting(std::exception_ptr());
                 // There is nothing in this task to catch an exception
                 // because it is extremely unlikely to throw.
               });

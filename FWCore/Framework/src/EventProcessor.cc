@@ -534,7 +534,12 @@ namespace edm {
     ParentageRegistry::instance()->clear();
   }
 
-  void EventProcessor::taskCleanup() { espController_->endIOVs(); }
+  void EventProcessor::taskCleanup() {
+    edm::FinalWaitingTask task;
+    espController_->endIOVsAsync(edm::WaitingTaskHolder{taskGroup_, &task});
+    taskGroup_.wait();
+    assert(task.done());
+  }
 
   void EventProcessor::beginJob() {
     if (beginJobCalled_)
@@ -1031,7 +1036,7 @@ namespace edm {
     }
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
-      espController_->eventSetupForInstance(ts);
+      synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
       eventSetupForInstanceSucceeded = true;
       sentry.completedSuccessfully();
     }
@@ -1125,7 +1130,7 @@ namespace edm {
         runPrincipal.endTime());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
-      espController_->eventSetupForInstance(ts);
+      synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
       sentry.completedSuccessfully();
     }
     auto const& es = esp_->eventSetupImpl();
@@ -1348,7 +1353,7 @@ namespace edm {
           // need to be processed and prepare IOVs for it.
           // Pass in the endIOVWaitingTasks so the lumi can notify them when the
           // lumi is done and no longer needs its EventSetup IOVs.
-          espController_->eventSetupForInstance(
+          espController_->eventSetupForInstanceAsync(
               iSync, queueLumiWorkTaskHolder, status->endIOVWaitingTasks(), status->eventSetupImpls());
           sentry.completedSuccessfully();
         } catch (...) {
@@ -1370,7 +1375,7 @@ namespace edm {
         // need to be processed and prepare IOVs for it.
         // Pass in the endIOVWaitingTasks so the lumi can notify them when the
         // lumi is done and no longer needs its EventSetup IOVs.
-        espController_->eventSetupForInstance(
+        espController_->eventSetupForInstanceAsync(
             iSync, queueLumiWorkTaskHolder, status->endIOVWaitingTasks(), status->eventSetupImpls());
         sentry.completedSuccessfully();
 

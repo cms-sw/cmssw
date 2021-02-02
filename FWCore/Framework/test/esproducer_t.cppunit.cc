@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 #include "FWCore/Framework/interface/es_Label.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
@@ -193,7 +193,7 @@ void testEsproducer::registerTest() {
 }
 
 void testEsproducer::getFromTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -220,7 +220,7 @@ void testEsproducer::getFromTest() {
 }
 
 void testEsproducer::getfromShareTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -244,7 +244,7 @@ void testEsproducer::getfromShareTest() {
 }
 
 void testEsproducer::getfromUniqueTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -268,7 +268,7 @@ void testEsproducer::getfromUniqueTest() {
 }
 
 void testEsproducer::getfromOptionalTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -292,7 +292,7 @@ void testEsproducer::getfromOptionalTest() {
 
 void testEsproducer::labelTest() {
   try {
-    EventSetupsController controller;
+    SynchronousEventSetupsController controller;
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -352,7 +352,7 @@ private:
 };
 
 void testEsproducer::decoratorTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -397,7 +397,7 @@ private:
 };
 
 void testEsproducer::dependsOnTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -423,7 +423,7 @@ void testEsproducer::dependsOnTest() {
 void testEsproducer::failMultipleRegistration() { MultiRegisterProducer dummy; }
 
 void testEsproducer::forceCacheClearTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
