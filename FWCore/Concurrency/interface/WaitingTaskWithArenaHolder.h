@@ -73,6 +73,10 @@ namespace edm {
     // the problem quickly).
     WaitingTaskHolder makeWaitingTaskHolderAndRelease();
 
+    bool taskHasFailed() const noexcept;
+
+    bool hasTask() const noexcept;
+
     /** since tbb::task_group is thread safe, we can return it non-const from here since
         the object is not really part of the state of the holder
      */
