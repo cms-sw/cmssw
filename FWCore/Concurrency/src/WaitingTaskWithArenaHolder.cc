@@ -35,20 +35,21 @@ namespace edm {
   }
 
   WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder const& iHolder)
-      : m_task(iHolder.m_task), m_arena(iHolder.m_arena) {
+      : m_task(iHolder.m_task), m_group(iHolder.m_group), m_arena(iHolder.m_arena) {
     if (LIKELY(m_task != nullptr)) {
       m_task->increment_ref_count();
     }
   }
 
   WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder&& iOther)
-      : m_task(iOther.m_task), m_arena(std::move(iOther.m_arena)) {
+      : m_task(iOther.m_task), m_group(iOther.m_group), m_arena(std::move(iOther.m_arena)) {
     iOther.m_task = nullptr;
   }
 
   WaitingTaskWithArenaHolder& WaitingTaskWithArenaHolder::operator=(const WaitingTaskWithArenaHolder& iRHS) {
     WaitingTaskWithArenaHolder tmp(iRHS);
     std::swap(m_task, tmp.m_task);
+    std::swap(m_group, tmp.m_group);
     std::swap(m_arena, tmp.m_arena);
     return *this;
   }
@@ -56,6 +57,7 @@ namespace edm {
   WaitingTaskWithArenaHolder& WaitingTaskWithArenaHolder::operator=(WaitingTaskWithArenaHolder&& iRHS) {
     WaitingTaskWithArenaHolder tmp(std::move(iRHS));
     std::swap(m_task, tmp.m_task);
+    std::swap(m_group, tmp.m_group);
     std::swap(m_arena, tmp.m_arena);
     return *this;
   }
