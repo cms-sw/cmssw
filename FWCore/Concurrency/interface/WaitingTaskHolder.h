@@ -68,12 +68,13 @@ namespace edm {
     }
 
     // ---------- const member functions ---------------------
-    bool taskHasFailed() const { return m_task->exceptionPtr() != nullptr; }
+    bool taskHasFailed() const noexcept { return m_task->exceptionPtr() != nullptr; }
 
+    bool hasTask() const noexcept { return m_task != nullptr; }
     /** since tbb::task_group is thread safe, we can return it non-const from here since
         the object is not really part of the state of the holder
      */
-    CMS_SA_ALLOW tbb::task_group* group() const { return m_group; }
+    CMS_SA_ALLOW tbb::task_group* group() const noexcept { return m_group; }
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
