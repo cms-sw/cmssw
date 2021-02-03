@@ -5,6 +5,7 @@
 #include <typeinfo>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "CUDADataFormats/HGCal/interface/HGCConditions.h"

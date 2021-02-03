@@ -19,13 +19,12 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
 #include "CUDADataFormats/HGCal/interface/HGCRecHitGPUProduct.h"
 
-class EERecHitGPU : public edm::stream::EDProducer<edm::ExternalWork> {
+class EERecHitGPU : public edm::stream::EDProducer<> {
 public:
   explicit EERecHitGPU(const edm::ParameterSet &ps);
   ~EERecHitGPU() override;
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
-  void acquire(edm::Event const &, edm::EventSetup const &, edm::WaitingTaskWithArenaHolder) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
@@ -33,16 +32,13 @@ private:
   edm::EDPutTokenT<cms::cuda::Product<HGCRecHitGPUProduct>> recHitGPUToken_;
 
   std::unique_ptr<HGCeeRecHitCollection> rechits_;
-  cms::cuda::ContextState ctxState_;
 
   //constants
   HGCeeUncalibratedRecHitConstantData cdata_;
   HGCConstantVectorData vdata_;
 
-  //memory
   std::string assert_error_message_(std::string, const size_t &, const size_t &);
   void assert_sizes_constants_(const HGCConstantVectorData &);
-  void allocate_memory_(const cudaStream_t &);
 
   //conditions (geometry, topology, ...)
   std::unique_ptr<hgcal::RecHitTools> tools_;
@@ -112,8 +108,8 @@ void EERecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
 
 void EERecHitGPU::beginRun(edm::Run const&, edm::EventSetup const& setup) {}
 
-void EERecHitGPU::acquire(edm::Event const& event, edm::EventSetup const& setup, edm::WaitingTaskWithArenaHolder w) {
-  const cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(w), ctxState_};
+void EERecHitGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
+  cms::cuda::ScopedContextProduce ctx{event.streamID()};
 
   const auto& hits = event.get(uncalibRecHitCPUToken_);
   unsigned int nhits = hits.size();
@@ -123,26 +119,21 @@ void EERecHitGPU::acquire(edm::Event const& event, edm::EventSetup const& setup,
     cms::cuda::LogError("EERecHitGPU") << "WARNING: no input hits!";
 
   prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
-  allocate_memory_(ctx.stream());
+
+  //_allocate memory for uncalibrated hits on the host
+  cms::cuda::host::unique_ptr<std::byte[]> dummy_hmem = memory::allocation::uncalibRecHitHost(prod_.nHits(), prod_.stride(), h_uncalibSoA_, ctx.stream());
+  //_allocate memory for uncalibrated hits on the device
+  cms::cuda::device::unique_ptr<std::byte[]> dummy_dmem = memory::allocation::uncalibRecHitDevice(prod_.nHits(), prod_.stride(), d_uncalibSoA_, ctx.stream());
+  //point SoA to allocated memory for calibrated hits on the device
+  memory::allocation::calibRecHitDevice(prod_.nHits(), prod_.stride(), prod_.nBytes(), d_calibSoA_, prod_.get());
+  
   convert_constant_data_(kcdata_);
   convert_collection_data_to_soa_(nhits, hits);
 
   KernelManagerHGCalRecHit km(h_uncalibSoA_, d_uncalibSoA_, d_calibSoA_);
   km.run_kernels(kcdata_, ctx.stream());
-}
-
-void EERecHitGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
-  cms::cuda::ScopedContextProduce ctx{ctxState_};
+  
   ctx.emplace(event, recHitGPUToken_, std::move(prod_));
-}
-
-void EERecHitGPU::allocate_memory_(const cudaStream_t& stream) {
-  //_allocate memory for uncalibrated hits on the host
-  memory::allocation::uncalibRecHitHost(prod_.nHits(), prod_.stride(), h_uncalibSoA_, stream);
-  //_allocate memory for uncalibrated hits on the device
-  memory::allocation::uncalibRecHitDevice(prod_.nHits(), prod_.stride(), d_uncalibSoA_, stream);
-  //point SoA to allocated memory for calibrated hits on the device
-  memory::allocation::calibRecHitDevice(prod_.nHits(), prod_.stride(), prod_.nBytes(), d_calibSoA_, prod_.get());
 }
 
 void EERecHitGPU::convert_constant_data_(KernelConstantData<HGCeeUncalibratedRecHitConstantData>* kcdata) {

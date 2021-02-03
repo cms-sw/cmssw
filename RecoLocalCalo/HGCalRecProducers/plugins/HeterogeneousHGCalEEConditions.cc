@@ -12,12 +12,12 @@ HeterogeneousHGCalEEConditionsWrapper::HeterogeneousHGCalEEConditionsWrapper(con
   for (unsigned int i = 1; i < cumsum_sizes.size(); ++i)  //start at second element (the first is zero)
   {
     unsigned int typesEEsize = 0;
-    if (cp::typesEE[i - 1] == cp::HeterogeneousHGCalEEParametersType::Double)
+    if (cp::typesEE[i-1] == cp::HeterogeneousHGCalEEParametersType::Double)
       typesEEsize = sizeof(double);
-    else if (cp::typesEE[i - 1] == cp::HeterogeneousHGCalEEParametersType::Int32_t)
+    else if (cp::typesEE[i-1] == cp::HeterogeneousHGCalEEParametersType::Int32_t)
       typesEEsize = sizeof(int32_t);
     else
-      edm::LogError("HeterogeneousHGCalEEConditionsWrapper") << "Wrong HeterogeneousHGCalParameters type";
+      throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "Wrong HeterogeneousHGCalParameters type";
     cumsum_sizes[i] /= typesEEsize;
   }
 
@@ -42,7 +42,7 @@ HeterogeneousHGCalEEConditionsWrapper::HeterogeneousHGCalEEConditionsWrapper(con
       } else if (cp::typesEE[j] == cp::HeterogeneousHGCalEEParametersType::Int32_t)
         select_pointer_i(&this->params_, j)[index] = select_pointer_i(cpuHGCalParameters, j)[index];
       else
-        edm::LogError("HeterogeneousHGCalEEConditionsWrapper") << "Wrong HeterogeneousHGCalParameters type";
+        throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "Wrong HeterogeneousHGCalParameters type";
     }
   }
 }
@@ -88,7 +88,7 @@ double*& HeterogeneousHGCalEEConditionsWrapper::select_pointer_d(cp::Heterogeneo
     case 3:
       return cpuObject->cellCoarseY_;
     default:
-      edm::LogError("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_d(heterogeneous): no item.";
+      throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_d(heterogeneous): no item.";
       return cpuObject->cellCoarseY_;
   }
 }
@@ -105,7 +105,7 @@ std::vector<double> HeterogeneousHGCalEEConditionsWrapper::select_pointer_d(cons
     case 3:
       return cpuObject->cellCoarseY_;
     default:
-      edm::LogError("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_d(non-heterogeneous): no item.";
+      throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_d(non-heterogeneous): no item.";
       return cpuObject->cellCoarseY_;
   }
 }
@@ -116,7 +116,7 @@ int32_t*& HeterogeneousHGCalEEConditionsWrapper::select_pointer_i(cp::Heterogene
     case 4:
       return cpuObject->waferTypeL_;
     default:
-      edm::LogError("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_i(heterogeneous): no item.";
+      throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_i(heterogeneous): no item.";
       return cpuObject->waferTypeL_;
   }
 }
@@ -127,7 +127,7 @@ std::vector<int32_t> HeterogeneousHGCalEEConditionsWrapper::select_pointer_i(con
     case 4:
       return cpuObject->waferTypeL_;
     default:
-      edm::LogError("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_i(non-heterogeneous): no item.";
+      throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_i(non-heterogeneous): no item.";
       return cpuObject->waferTypeL_;
   }
 }
@@ -161,7 +161,7 @@ HeterogeneousHGCalEEConditionsWrapper::getHeterogeneousConditionsESProductAsync(
         select_pointer_i(&(data.host->params), j + 1) =
             reinterpret_cast<int32_t*>(select_pointer_d(&(data.host->params), j) + this->sizes_[j]);
       else
-        edm::LogError("HeterogeneousHGCalEEConditionsWrapper")
+        throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper")
             << "compare this functions' logic with hgcal_conditions::parameters::typesEE";
     }
 
