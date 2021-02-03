@@ -1,5 +1,4 @@
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixDummyROCSimulator.h"
-#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
 #include <vector>
 #include "TRandom.h"
 #include <iostream>
@@ -12,7 +11,6 @@ RPixDummyROCSimulator::RPixDummyROCSimulator(const edm::ParameterSet &params, ui
   doSingleCalibration_ = params.getParameter<bool>("doSingleCalibration");
   dead_pixel_probability_ = params.getParameter<double>("RPixDeadPixelProbability");
   dead_pixels_simulation_on_ = params.getParameter<bool>("RPixDeadPixelSimulationOn");
-  pixels_no_ = CTPPSPixelTopology().detPixelNo();
   verbosity_ = params.getParameter<int>("RPixVerbosity");
   links_persistence_ = params.getParameter<bool>("CTPPSPixelDigiSimHitRelationsPersistence");
 }

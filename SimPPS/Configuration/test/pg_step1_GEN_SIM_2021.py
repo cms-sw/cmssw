@@ -51,7 +51,7 @@ t_min   = 0.
 t_max   = 2.
 xi_min  = 0.03
 xi_max  = 0.15
-ecms = 13000.
+ecms = 14000.
 
 process.generator = cms.EDProducer("RandomtXiGunProducer",
         PGunParameters = cms.PSet(

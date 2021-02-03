@@ -10,7 +10,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
-//#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelSimTopology.h"
 #include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
 
 class RPixClusterToHit {

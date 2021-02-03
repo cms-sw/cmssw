@@ -1,14 +1,11 @@
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixLinearChargeCollectionDrifter.h"
-#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
-#include <iostream>
-#include <vector>
 
-RPixLinearChargeCollectionDrifter::RPixLinearChargeCollectionDrifter(const edm::ParameterSet &params, uint32_t det_id) {
+RPixLinearChargeCollectionDrifter::RPixLinearChargeCollectionDrifter(const edm::ParameterSet &params, uint32_t det_id, const PPSPixelTopology &ppt) {
   verbosity_ = params.getParameter<int>("RPixVerbosity");
 
   GeV_per_electron_ = params.getParameter<double>("RPixGeVPerElectron");
   charge_cloud_sigmas_vect_ = params.getParameter<std::vector<double> >("RPixInterSmearing");
-  det_thickness_ = CTPPSPixelTopology().detThickness();
+  det_thickness_ = ppt.getThickness();
   det_id_ = det_id;
 }
 

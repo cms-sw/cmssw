@@ -69,8 +69,8 @@ public:
 
   };
 
-  unsigned short pixelIndex(PixelInfo pI);
-  bool isPixelHit(float xLocalCoordinate, float yLocalCoordinate, bool is3x2);
+  unsigned short pixelIndex(PixelInfo pI) const;
+  bool isPixelHit(float xLocalCoordinate, float yLocalCoordinate, bool is3x2) const;
   PixelInfo getPixelsInvolved(double x, double y, double sigma, double& hit_pos_x, double& hit_pos_y) const;
 
   void pixelRange(unsigned int arow,
@@ -94,6 +94,8 @@ public:
   double getDeadEdgeWidth() const;
   double getActiveEdgeSigma() const;
   double getPhysActiveEdgeDist() const;
+  double getActiveEdgeX() const;
+  double getActiveEdgeY() const;
   
 
   // Setters
@@ -110,7 +112,8 @@ public:
   void setDeadEdgeWidth(double dew);
   void setActiveEdgeSigma(double aes);
   void setPhysActiveEdgeDist(double pae);
-
+  void setActiveEdgeX(double aex);
+  void setActiveEdgeY(double aey);
 
   void printInfo(std::stringstream &s);
 

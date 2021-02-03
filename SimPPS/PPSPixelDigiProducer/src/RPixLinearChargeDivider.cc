@@ -1,7 +1,7 @@
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixLinearChargeDivider.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
 
 RPixLinearChargeDivider::RPixLinearChargeDivider(const edm::ParameterSet& params,
                                                  CLHEP::HepRandomEngine& eng,
