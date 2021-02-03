@@ -67,6 +67,7 @@ private:
   edm::ESGetToken<HcalLutMetadata, HcalLutMetadataRcd> tok_lutMetadata_;
   edm::ESGetToken<HcalTrigTowerGeometry, CaloGeometryRecord> tok_trigTowerGeom_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_caloGeom_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_hcalTopo_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_beginRun_;
 };
