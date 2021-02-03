@@ -2,8 +2,8 @@
 
 namespace l1tVertexFinder {
 
-  TP::TP(TrackingParticlePtr tpPtr, const AnalysisSettings& settings)
-      : TrackingParticlePtr(tpPtr), settings_(&settings) {
+  TP::TP(const TrackingParticle* tpPtr, const AnalysisSettings& settings)
+      : trackingParticle_(tpPtr), settings_(&settings) {
     const std::vector<SimTrack>& vst = tpPtr->g4Tracks();
     EncodedEventId eid = vst.at(0).eventId();
     inTimeBx_ = (eid.bunchCrossing() == 0);  // TP from in-time or out-of-time Bx.
@@ -26,7 +26,7 @@ namespace l1tVertexFinder {
   void TP::fillUseForVertexReco() {
     useForVertexReco_ = false;
     if (use_) {
-      useForVertexReco_ = settings_->tpsUseForVtxReco()(*(this->get()));
+      useForVertexReco_ = settings_->tpsUseForVtxReco()(trackingParticle_);
     }
 
     if (useForVertexReco_) {
@@ -39,14 +39,14 @@ namespace l1tVertexFinder {
   void TP::fillUse() {
     // Use looser cuts here those those used for tracking efficiency measurement.
     // Keep only those TP that have a chance (allowing for finite track resolution) of being reconstructed as L1 tracks. L1 tracks not matching these TP will be defined as fake.
-    use_ = settings_->tpsUse()(*(this->get()));
+    use_ = settings_->tpsUse()(trackingParticle_);
   }
 
   //=== Check if this tracking particle can be used to measure the L1 tracking efficiency.
   void TP::fillUseForEff() {
     useForEff_ = false;
     if (use_) {
-      useForEff_ = settings_->tpsUseForEff()(*(this->get()));
+      useForEff_ = settings_->tpsUseForEff()(trackingParticle_);
     }
   }
 

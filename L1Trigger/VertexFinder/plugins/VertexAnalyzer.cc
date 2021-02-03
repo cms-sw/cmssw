@@ -17,7 +17,7 @@
 #include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
 #include "L1Trigger/VertexFinder/interface/InputData.h"
 #include "L1Trigger/VertexFinder/interface/L1TrackTruthMatched.h"
-#include "L1Trigger/VertexFinder/interface/RecoVertexWithTP.h"
+#include "L1Trigger/VertexFinder/interface/RecoVertex.h"
 #include "L1Trigger/VertexFinder/interface/selection.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -388,7 +388,7 @@ namespace l1tVertexFinder {
   }
 
   template <typename T>
-  int VertexAnalyzer::getIndex(std::vector<T> collection, T reference) {
+  int VertexAnalyzer::getIndex(std::vector<T> collection, const T reference) {
     int index = -1;
     auto itr = std::find(collection.begin(), collection.end(), reference);
     if (itr != collection.end()) {
@@ -423,12 +423,6 @@ namespace l1tVertexFinder {
       edm::ESHandle<TrackerTopology> trackerTopologyHandle;
       iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
 
-      map<edm::Ptr<TrackingParticle>, const TP*> translateTP;
-      for (const TP& tp : inputData.getTPs()) {
-        TrackingParticlePtr tpPtr(tp);
-        translateTP[tpPtr] = &tp;
-      }
-
       edm::Handle<TTTrackAssMap> mcTruthTTTrackHandle;
       edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
       edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
@@ -437,7 +431,7 @@ namespace l1tVertexFinder {
       iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle);
 
       for (const auto& track : l1TracksHandle->ptrs())
-        l1Tracks.push_back(L1TrackTruthMatched(track, translateTP, mcTruthTTTrackHandle));
+        l1Tracks.push_back(L1TrackTruthMatched(track, inputData.getTPTranslationMap(), mcTruthTTTrackHandle));
     }
 
     std::vector<const L1TrackTruthMatched*> l1TrackPtrs;
@@ -486,7 +480,12 @@ namespace l1tVertexFinder {
 
     // generate reconstructed vertices (starting at 1 avoids PV)
     for (unsigned int i = 0; i < numVertices; ++i) {
-      RecoVertex recoVertexBase = RecoVertex();
+      RecoVertexWithTP* recoVertex = new RecoVertexWithTP(l1VerticesHandle->at(i), trackAssociationMap);
+      recoVertex->computeParameters(settings_.vx_weightedmean(), settings_.vx_TrackMaxPt(), settings_.vx_TrackMaxPtBehavior());
+      if (settings_.vx_algo() == Algorithm::Kmeans || settings_.vx_algo() == Algorithm::HPV)
+        recoVertex->setZ(l1VerticesHandle->at(i).z0());
+      /*
+      RecoVertex<> recoVertexBase = RecoVertex<>();
 
       // populate vertex with tracks
       for (const auto& track : l1VerticesHandle->at(i).tracks()) {
@@ -499,7 +498,7 @@ namespace l1tVertexFinder {
       if (settings_.vx_algo() == Algorithm::Kmeans || settings_.vx_algo() == Algorithm::HPV ||
           settings_.vx_algo() == Algorithm::FastHisto)
         recoVertex->setZ(recoVertexBase.z0());
-
+    */
       recoVertices.emplace_back(recoVertex);
     }
 

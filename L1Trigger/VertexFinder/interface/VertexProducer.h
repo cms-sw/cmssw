@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
-#include "L1Trigger/VertexFinder/interface/RecoVertexWithTP.h"
+#include "L1Trigger/VertexFinder/interface/RecoVertex.h"
 #include "L1Trigger/VertexFinder/interface/VertexFinder.h"
 
 #include <iostream>
@@ -43,6 +43,7 @@ private:
   const std::string outputCollectionName_;
 
   l1tVertexFinder::AlgoSettings settings_;
+  std::vector<l1tVertexFinder::L1Track> l1Tracks;
 };
 
 #endif

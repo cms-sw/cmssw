@@ -44,8 +44,9 @@ namespace l1tVertexFinder {
     // Require same TP contributed to both clusters.
     if (mcTruthTTStubHandle->isGenuine(ttStubRef)) {
       edm::Ptr<TrackingParticle> tpPtr = mcTruthTTStubHandle->findTrackingParticlePtr(ttStubRef);
-      if (translateTP.find(tpPtr) != translateTP.end()) {
-        assocTP_ = translateTP.at(tpPtr);
+      auto it = translateTP.find(tpPtr);
+      if (it != translateTP.end()) {
+        assocTP_ = it->second;
         // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
       }
     }
@@ -67,8 +68,9 @@ namespace l1tVertexFinder {
             mcTruthTTClusterHandle->findTrackingParticlePtrs(ttClusterRef);
 
         for (const edm::Ptr<TrackingParticle>& tpPtr : vecTpPtr) {
-          if (translateTP.find(tpPtr) != translateTP.end()) {
-            assocTPs_.insert(translateTP.at(tpPtr));
+          auto it = translateTP.find(tpPtr);
+          if (it != translateTP.end()) {
+            assocTPs_.insert(it->second);
             // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
           }
         }

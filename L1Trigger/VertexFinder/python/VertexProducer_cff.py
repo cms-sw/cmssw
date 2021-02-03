@@ -32,7 +32,7 @@ VertexProducer = cms.EDProducer('VertexProducer',
         # FastHisto algorithm histogram parameters (min,max,width) [cm]
         FH_HistogramParameters = cms.vdouble(-14.95, 15.0, 0.1),
         # The number of vertixes to return (i.e. N windows with the highest combined pT)
-        FH_NVtx = cms.uint32(1),
+        FH_NVtx = cms.uint32(10),
         # FastHisto algorithm assumed vertex half-width [cm]
         FH_VertexWidth = cms.double(.15),
         # Window size of the sliding window

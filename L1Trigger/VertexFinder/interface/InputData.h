@@ -13,6 +13,9 @@
 
 namespace l1tVertexFinder {
 
+  typedef edm::Ptr<TrackingParticle> TrackingParticlePtr;
+  typedef std::map<TrackingParticlePtr, const TP*> TPTranslationMap;
+
   class AnalysisSettings;
   class Stub;
 
@@ -36,8 +39,10 @@ namespace l1tVertexFinder {
       inline bool operator()(const Vertex vertex0, const Vertex vertex1) { return (vertex0.z0() < vertex1.z0()); }
     };
 
-    // Get tracking particles
+    /// Get tracking particles
     const std::vector<TP>& getTPs() const { return vTPs_; }
+    /// Get the TrackingParticle to TP translation map
+    const TPTranslationMap& getTPTranslationMap() const { return translateTP_; }
     /// Get primary vertex information (vertex from HepMCProduct)
     const Vertex& getHepMCVertex() const { return hepMCVertex_; }
     /// Get primary vertex information (vertex from gen particles)
@@ -65,6 +70,7 @@ namespace l1tVertexFinder {
         vAllStubs_;  // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure
                      // the efficiency of these cuts).
     std::map<DetId, DetId> stubGeoDetIdMap_;
+    TPTranslationMap translateTP_;
     float genPt_;
     float genPt_PU_;
   };
