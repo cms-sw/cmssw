@@ -70,7 +70,7 @@ async def index(request):
     return web.FileResponse(get_absolute_path('../frontend/index.html'))
 
 async def overlayPlotsWithDifferentNames(request):
-    return web.FileResponse(get_absolute_path('../frontend/plotsLocalOverlay.html'))
+    return web.FileResponse(get_absolute_path('../frontend/plotsLocalOverlay/index.html'))
 
 @getNotOlderThanFromUrl
 async def samples_legacy(request, notOlderThan):
