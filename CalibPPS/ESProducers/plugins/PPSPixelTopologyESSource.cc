@@ -27,10 +27,6 @@
 
 #include <memory>
 
-//----------------------------------------------------------------------------------------------------
-
-using namespace std;
-
 /**
  * \brief Loads PPSPixelTopology from a config file.
  **/
@@ -99,7 +95,7 @@ PPSPixelTopologyESSource::PPSPixelTopologyESSource(const edm::ParameterSet& iCon
 //----------------------------------------------------------------------------------------------------
 
 std::unique_ptr<PPSPixelTopology> PPSPixelTopologyESSource::produce(const PPSPixelTopologyRcd&) {
-  // If beam parameters are available from the config file, fill their values into PPSPixelTopology object
+ 
   auto topo = (setPPSPixelTopology_) ? fillPPSPixelTopology() : std::make_unique<PPSPixelTopology>();
 
   edm::LogInfo("PPSPixelTopologyESSource::produce") << "\n" << *topo;
@@ -141,7 +137,8 @@ std::unique_ptr<PPSPixelTopology> PPSPixelTopologyESSource::fillPPSPixelTopology
   p->setDeadEdgeWidth(dead_edge_width_);
   p->setActiveEdgeSigma(active_edge_sigma_);
   p->setPhysActiveEdgeDist(phys_active_edge_dist_);
-
+  p->setActiveEdgeX(simX_width_/2. - phys_active_edge_dist_);
+  p->setActiveEdgeY(simY_width_/2. - phys_active_edge_dist_);
 
   return p;
 }
@@ -149,11 +146,11 @@ std::unique_ptr<PPSPixelTopology> PPSPixelTopologyESSource::fillPPSPixelTopology
 //----------------------------------------------------------------------------------------------------
 
 void PPSPixelTopologyESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& key,
-                                                 const edm::IOVSyncValue& iosv,
-                                                 edm::ValidityInterval& oValidity) {
+					      const edm::IOVSyncValue& iosv,
+					      edm::ValidityInterval& oValidity) {
   edm::LogInfo("PPSPixelTopologyESSource")
-      << ">> PPSPixelTopologyESSource::setIntervalFor(" << key.name() << ")\n"
-      << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
+    << ">> PPSPixelTopologyESSource::setIntervalFor(" << key.name() << ")\n"
+    << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
 
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;

@@ -20,9 +20,6 @@ void RPixClusterToHit::buildHits(unsigned int detId,
 
 void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPixelRecHit> &hits, const PPSPixelTopology &ppt) {
   // take a cluster, generate a rec hit and push it in the rec hit vector
-
-  //call the topology
-//  CTPPSPixelSimTopology topology;
   
   //call the numbering inside the ROC
   CTPPSPixelIndices pxlInd;
@@ -80,7 +77,7 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPix
     double minPxlY = 0;
     double maxPxlX = 0;
     double maxPxlY = 0;
-//    topology.pixelRange(aCluster.pixelRow(i), aCluster.pixelCol(i), minPxlX, maxPxlX, minPxlY, maxPxlY);
+
     ppt.pixelRange(aCluster.pixelRow(i), aCluster.pixelCol(i), minPxlX, maxPxlX, minPxlY, maxPxlY);
     double halfSizeX = (maxPxlX - minPxlX) / 2.;
     double halfSizeY = (maxPxlY - minPxlY) / 2.;
