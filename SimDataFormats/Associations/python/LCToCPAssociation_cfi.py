@@ -1,12 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 
 layerClusterCaloParticleAssociation = cms.EDProducer("LCToCPAssociatorEDProducer",
     associator = cms.InputTag('lcAssocByEnergyScoreProducer'),
-    label_cp = cms.InputTag("mix","MergedCaloTruth"),
-    label_lc = cms.InputTag("hgcalLayerClusters")
-)
-
-from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-premix_stage2.toModify(layerClusterCaloParticleAssociation,
-    label_cp = "mixData:MergedCaloTruth"
+    label_cp = hgcalValidator.label_cp_effic,
+    label_lc = hgcalValidator.label_lcl
 )
