@@ -2222,12 +2222,14 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
 
 void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& histograms,
                                                           int count,
-                                                          const std::vector<reco::HGCalMultiCluster>& multiClusters,
+                                                          const reco::HGCalMultiClusterCollection& multiClusters,
                                                           std::vector<CaloParticle> const& cP,
                                                           std::vector<size_t> const& cPIndices,
                                                           std::vector<size_t> const& cPSelectedIndices,
                                                           std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-                                                          unsigned int layers) const {
+                                                          unsigned int layers,
+                                                          const hgcal::RecoToSimCollectionWithMultiClusters& cpsInMLClusterMap,
+                                                          const hgcal::SimToRecoCollectionWithMultiClusters& cPOnMLayerMap) const {
   auto nMultiClusters = multiClusters.size();
   //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
   auto nCaloParticles = cPIndices.size();
@@ -2828,12 +2830,14 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
 
 void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histograms,
                                                      int count,
-                                                     const std::vector<reco::HGCalMultiCluster>& multiClusters,
+                                                     const reco::HGCalMultiClusterCollection& multiClusters,
                                                      std::vector<CaloParticle> const& cP,
                                                      std::vector<size_t> const& cPIndices,
                                                      std::vector<size_t> const& cPSelectedIndices,
                                                      std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-                                                     unsigned int layers) const {
+                                                     unsigned int layers,
+                                                     const hgcal::RecoToSimCollectionWithMultiClusters& cpsInMLClusterMap,
+                                                     const hgcal::SimToRecoCollectionWithMultiClusters& cPOnMLayerMap) const {
   //Each event to be treated as two events:
   //an event in +ve endcap, plus another event in -ve endcap.
 
@@ -3009,7 +3013,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
   histograms.h_contmulticlusternum[count]->Fill(tncontmclpz + tncontmclmz);
   histograms.h_noncontmulticlusternum[count]->Fill(tnnoncontmclpz + tnnoncontmclmz);
 
-  multiClusters_to_CaloParticles(histograms, count, multiClusters, cP, cPIndices, cPSelectedIndices, hitMap, layers);
+  multiClusters_to_CaloParticles(histograms, count, multiClusters, cP, cPIndices, cPSelectedIndices, hitMap, layers,cpsInMLClusterMap, cPOnMLayerMap);
 }
 
 double HGVHistoProducerAlgo::distance2(const double x1,

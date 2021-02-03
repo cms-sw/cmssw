@@ -10,6 +10,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     : label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
       label_mcl(pset.getParameter<std::vector<edm::InputTag>>("label_mcl")),
       associator_(pset.getUntrackedParameter<edm::InputTag>("associator")),
+      associatorMult_(pset.getUntrackedParameter<edm::InputTag>("associatorMult")),
       associatorSim_(pset.getUntrackedParameter<edm::InputTag>("associatorSim")),
       SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
       doCaloParticlePlots_(pset.getUntrackedParameter<bool>("doCaloParticlePlots")),
@@ -44,11 +45,14 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   layerclusters_ = consumes<reco::CaloClusterCollection>(label_lcl);
 
   for (auto& itag : label_mcl) {
-    label_mclTokens.push_back(consumes<std::vector<reco::HGCalMultiCluster>>(itag));
+    label_mclTokens.push_back(consumes<reco::HGCalMultiClusterCollection>(itag));
   }
 
   associatorMapRtS = consumes<hgcal::RecoToSimCollection>(associator_);
   associatorMapStR = consumes<hgcal::SimToRecoCollection>(associator_);
+
+  associatorMapRMtS = consumes<hgcal::RecoToSimCollectionWithMultiClusters>(associatorMult_);
+  associatorMapStRM = consumes<hgcal::SimToRecoCollectionWithMultiClusters>(associatorMult_);
 
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
                                     pset.getParameter<double>("ptMaxCP"),
@@ -310,18 +314,18 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   // fill simcluster histograms
   // ##############################################
   if (dosimclustersPlots_) {
+    edm::Handle<hgcal::SimToRecoCollectionWithSimClusters> simtorecoCollectionH;
+    event.getByToken(associatorMapSimtR, simtorecoCollectionH);
+    auto simRecColl = *simtorecoCollectionH;
+    edm::Handle<hgcal::RecoToSimCollectionWithSimClusters> recotosimCollectionH;
+    event.getByToken(associatorMapRtSim, recotosimCollectionH);
+    auto recSimColl = *recotosimCollectionH;
+
     histoProducerAlgo_->fill_simcluster_histos(
         histograms.histoProducerAlgo, simclusters, totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
       const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
-
-      edm::Handle<hgcal::SimToRecoCollectionWithSimClusters> simtorecoCollectionH;
-      event.getByToken(associatorMapSimtR, simtorecoCollectionH);
-      auto simRecColl = *simtorecoCollectionH;
-      edm::Handle<hgcal::RecoToSimCollectionWithSimClusters> recotosimCollectionH;
-      event.getByToken(associatorMapRtSim, recotosimCollectionH);
-      auto recSimColl = *recotosimCollectionH;
 
       histoProducerAlgo_->fill_simclusterassosiation_histos(histograms.histoProducerAlgo,
                                                             ws,
@@ -375,11 +379,18 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   // ##############################################
   // fill multicluster histograms
   // ##############################################
+  edm::Handle<hgcal::SimToRecoCollectionWithMultiClusters> simtorecoMCollectionH;
+  event.getByToken(associatorMapStRM, simtorecoMCollectionH);
+  auto simRecMColl = *simtorecoMCollectionH;
+  edm::Handle<hgcal::RecoToSimCollectionWithMultiClusters> recoMtosimCollectionH;
+  event.getByToken(associatorMapRMtS, recoMtosimCollectionH);
+  auto recMSimColl = *recoMtosimCollectionH;
+
   for (unsigned int wml = 0; wml < label_mclTokens.size(); wml++) {
     if (domulticlustersPlots_) {
-      edm::Handle<std::vector<reco::HGCalMultiCluster>> multiClusterHandle;
+      edm::Handle<reco::HGCalMultiClusterCollection> multiClusterHandle;
       event.getByToken(label_mclTokens[wml], multiClusterHandle);
-      const std::vector<reco::HGCalMultiCluster>& multiClusters = *multiClusterHandle;
+      const reco::HGCalMultiClusterCollection& multiClusters = *multiClusterHandle;
 
       histoProducerAlgo_->fill_multi_cluster_histos(histograms.histoProducerAlgo,
                                                     wml,
@@ -388,7 +399,9 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     cPIndices,
                                                     selected_cPeff,
                                                     *hitMap,
-                                                    totallayers_to_monitor_);
+                                                    totallayers_to_monitor_,
+                                                    recMSimColl,
+                                                    simRecMColl);
 
       //General Info on multiclusters
       LogTrace("HGCalValidator") << "\n# of multi clusters with " << label_mcl[wml].process() << ":"

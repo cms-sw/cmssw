@@ -28,6 +28,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
+#include "SimDataFormats/Associations/interface/MultiClusterToCaloParticleAssociator.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 
 class PileupSummaryInfo;
@@ -63,6 +64,7 @@ protected:
   edm::InputTag label_lcl;
   std::vector<edm::InputTag> label_mcl;
   edm::InputTag associator_;
+  edm::InputTag associatorMult_;
   edm::InputTag associatorSim_;
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
@@ -76,7 +78,7 @@ protected:
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
   edm::EDGetTokenT<std::vector<SimCluster>> simclusters_;
   edm::EDGetTokenT<reco::CaloClusterCollection> layerclusters_;
-  std::vector<edm::EDGetTokenT<std::vector<reco::HGCalMultiCluster>>> label_mclTokens;
+  std::vector<edm::EDGetTokenT<reco::HGCalMultiClusterCollection>> label_mclTokens;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_effic;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
@@ -85,6 +87,8 @@ protected:
   edm::EDGetTokenT<Density> density_;
   edm::EDGetTokenT<hgcal::RecoToSimCollection> associatorMapRtS;
   edm::EDGetTokenT<hgcal::SimToRecoCollection> associatorMapStR;
+  edm::EDGetTokenT<hgcal::RecoToSimCollectionWithMultiClusters> associatorMapRMtS;
+  edm::EDGetTokenT<hgcal::SimToRecoCollectionWithMultiClusters> associatorMapStRM;
   edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimtR;
   edm::EDGetTokenT<hgcal::RecoToSimCollectionWithSimClusters> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
