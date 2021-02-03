@@ -35,33 +35,33 @@ namespace edm {
 
   namespace level {
     struct System {
-      static constexpr const ELseverityLevel level = ELsevere;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELsevere;
       constexpr static bool suppress() noexcept { return false; }
     };
     struct Error {
-      static constexpr const ELseverityLevel level = ELerror;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELerror;
       static bool suppress() noexcept { return !MessageDrop::instance()->errorEnabled; }
     };
     struct Warning {
-      static constexpr const ELseverityLevel level = ELwarning;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELwarning;
       static bool suppress() noexcept {
         return (MessageDrop::warningAlwaysSuppressed || !MessageDrop::instance()->warningEnabled);
       }
     };
     struct FwkInfo {
-      static constexpr const ELseverityLevel level = ELfwkInfo;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELfwkInfo;
       static bool suppress() noexcept {
         return (MessageDrop::fwkInfoAlwaysSuppressed || !MessageDrop::instance()->fwkInfoEnabled);
       }
     };
     struct Info {
-      static constexpr const ELseverityLevel level = ELinfo;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELinfo;
       static bool suppress() noexcept {
         return (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->infoEnabled);
       }
     };
     struct Debug {
-      static constexpr const ELseverityLevel level = ELdebug;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELdebug;
       constexpr static bool suppress() noexcept { return false; }
     };
   }  // namespace level
@@ -166,7 +166,7 @@ namespace edm {
 
   namespace edmmltest {
     struct WarningThatSuppressesLikeLogInfo {
-      static constexpr const ELseverityLevel level = ELwarning;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELwarning;
       static bool suppress() noexcept {
         return (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->warningEnabled);
       }
@@ -210,7 +210,7 @@ namespace edm {
 
   // The following two methods have no effect except in stand-alone apps
   // that do not create a MessageServicePresence:
-  void setStandAloneMessageThreshold(edm::ELseverityLevel const& severity);
+  void setStandAloneMessageThreshold(edm::messagelogger::ELseverityLevel const& severity);
   void squelchStandAloneMessageCategory(std::string const& category);
 
 }  // namespace edm

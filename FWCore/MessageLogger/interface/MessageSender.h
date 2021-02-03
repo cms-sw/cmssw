@@ -19,7 +19,10 @@ namespace edm {
   public:
     // ---  birth/death:
     MessageSender() = default;
-    MessageSender(ELseverityLevel const& sev, std::string_view id, bool verbatim = false, bool suppressed = false);
+    MessageSender(messagelogger::ELseverityLevel const& sev,
+                  std::string_view id,
+                  bool verbatim = false,
+                  bool suppressed = false);
     MessageSender(MessageSender&&) = default;
     MessageSender(MessageSender const&) = default;
     MessageSender& operator=(MessageSender&&) = default;
