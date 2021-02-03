@@ -1,0 +1,25 @@
+import FWCore.ParameterSet.Config as cms
+
+duplicateDisplacedTrackCandidates = cms.EDProducer("DuplicateTrackMerger",
+    GBRForestFileName = cms.string(''),
+    chi2EstimatorName = cms.string('duplicateDisplacedTrackCandidatesChi2Est'),
+    forestLabel = cms.string('MVADuplicate'),
+    maxDCA = cms.double(30),
+    maxDLambda = cms.double(0.3),
+    maxDPhi = cms.double(0.3),
+    maxDQoP = cms.double(0.25),
+    maxDdsz = cms.double(10),
+    maxDdxy = cms.double(10),
+    mightGet = cms.optional.untracked.vstring,
+    minBDTG = cms.double(-0.1),
+    minDeltaR3d = cms.double(-4),
+    minP = cms.double(0.4),
+    minpT = cms.double(0.2),
+    overlapCheckMaxHits = cms.uint32(4),
+    overlapCheckMaxMissingLayers = cms.uint32(1),
+    overlapCheckMinCosT = cms.double(0.99),
+    propagatorName = cms.string('PropagatorWithMaterial'),
+    source = cms.InputTag("preDuplicateMergingDisplacedTracks"),
+    ttrhBuilderName = cms.string('WithAngleAndTemplate'),
+    useInnermostState = cms.bool(True)
+)
