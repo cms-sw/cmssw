@@ -48,7 +48,6 @@ namespace l1tVertexFinder {
     const TP* getMatchedTP() const { return matchedTP_; }
 
   private:
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> track_;
     const TP* matchedTP_;
   };
 

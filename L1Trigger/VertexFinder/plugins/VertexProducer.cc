@@ -56,19 +56,19 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   edm::Handle<TTTrackCollectionView> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
 
-  std::vector<const L1Track*> l1TrackPtrs;
-  l1TrackPtrs.reserve(l1TracksHandle->size());
+  l1Tracks.clear();
+  l1Tracks.reserve(l1TracksHandle->size());
   for (const auto& track : l1TracksHandle->ptrs()) {
     auto l1track = L1Track(track);
     // Check the minimum pT of the tracks
     // This is left here because it represents the smallest pT to be sent by the track finding boards
     // This has less to do with the algorithms than the constraints of what will be sent to the vertexing algorithm
     if (l1track.pt() > settings_.vx_TrackMinPt()) {
-      l1TrackPtrs.push_back(&l1track);
+        l1Tracks.push_back(l1track);
     }
   }
 
-  VertexFinder vf(l1TrackPtrs, settings_);
+  VertexFinder vf(l1Tracks, settings_);
 
   switch (settings_.vx_algo()) {
     case Algorithm::FastHisto: {
@@ -102,7 +102,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       break;
   }
 
-  vf.SortVerticesInZ0();
+  vf.SortVerticesInPt();
   vf.FindPrimaryVertex();
 
   // //=== Store output EDM track and hardware stub collections.

@@ -1,7 +1,7 @@
 #ifndef __L1Trigger_VertexFinder_TP_h__
 #define __L1Trigger_VertexFinder_TP_h__
 
-#include "DataFormats/Common/interface/Ptr.h"
+//#include "DataFormats/Common/interface/Ptr.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
 #include "L1Trigger/VertexFinder/interface/Stub.h"
@@ -9,26 +9,42 @@
 
 namespace l1tVertexFinder {
 
-  typedef edm::Ptr<TrackingParticle> TrackingParticlePtr;
-
   class AnalysisSettings;
   class Stub;
 
-  class TP : public TrackingParticlePtr {
+  class TP {
   public:
     // Fill useful info about tracking particle.
-    TP(TrackingParticlePtr tpPtr, const AnalysisSettings& settings);
+    TP(const TrackingParticle* tpPtr, const AnalysisSettings& settings);
     ~TP() {}
+
+    // Need the operator== to compare 2 TP types.
+    bool operator==(const TP &rhs) const {
+        return (trackingParticle_ == rhs.trackingParticle_ &&
+                settings_ == rhs.settings_ &&
+                inTimeBx_ == rhs.inTimeBx_ &&
+                physicsCollision_ == rhs.physicsCollision_ &&
+                use_ == rhs.use_ &&
+                useForEff_ == rhs.useForEff_ &&
+                useForAlgEff_ == rhs.useForAlgEff_ &&
+                useForVertexReco_ == rhs.useForVertexReco_ &&
+                nLayersWithStubs_ == rhs.nLayersWithStubs_ &&
+                assocStubs_ == rhs. assocStubs_);
+    }
 
     // Fill truth info with association from tracking particle to stubs.
     void setMatchingStubs(const std::vector<const Stub*>& vMatchingStubs);
 
     // == Functions for returning info about tracking particles ===
 
+    // Return a C++ pointer to the tracking particle
+    const TrackingParticle* getTrackingParticle() const { return trackingParticle_; }
     // Did it come from the main physics collision or from pileup?
     bool physicsCollision() const { return physicsCollision_; }
     // Functions returning stubs produced by tracking particle.
     unsigned int numAssocStubs() const { return assocStubs_.size(); }
+    // Overload operator-> to return a C++ pointer to the underlying TrackingParticle
+    const TrackingParticle* operator->() const { return trackingParticle_; }
     // TP is worth keeping (e.g. for fake rate measurement)
     bool use() const { return use_; }
     // TP can be used to measure the L1 tracking efficiency
@@ -48,6 +64,7 @@ namespace l1tVertexFinder {
     void calcNumLayers() { nLayersWithStubs_ = utility::countLayers(*settings_, assocStubs_); }
 
   private:
+    const TrackingParticle* trackingParticle_; // Underlying TrackingParticle pointer
     const AnalysisSettings* settings_;  // Configuration parameters
 
     bool inTimeBx_;          // TP came from in-time bunch crossing.

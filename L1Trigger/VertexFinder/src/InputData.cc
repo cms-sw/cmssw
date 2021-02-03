@@ -34,7 +34,6 @@ namespace l1tVertexFinder {
     // Get TrackingParticle info
     edm::Handle<TrackingParticleCollection> tpHandle;
     iEvent.getByToken(tpToken, tpHandle);
-    map<edm::Ptr<TrackingParticle>, const TP*> translateTP;
 
     genPt_ = 0.;
     genPt_PU_ = 0.;
@@ -42,7 +41,7 @@ namespace l1tVertexFinder {
     for (unsigned int i = 0; i < tpHandle->size(); i++) {
       TrackingParticlePtr tpPtr(tpHandle, i);
       // Store the TrackingParticle info, using class TP to provide easy access to the most useful info.
-      TP tp(tpPtr, settings);
+      TP tp(&tpHandle->at(i), settings);
 
       if (tp.physicsCollision()) {
         genPt_ += tp->pt();
@@ -54,7 +53,7 @@ namespace l1tVertexFinder {
       // Also create map relating edm::Ptr<TrackingParticle> to TP.
       if (tp.use()) {
         vTPs_.push_back(tp);
-        translateTP[tpPtr] = &vTPs_.back();
+        translateTP_[tpPtr] = &vTPs_.back();
       }
     }
 
@@ -109,7 +108,7 @@ namespace l1tVertexFinder {
         Stub stub(ttStubRef, settings, trackerGeometry, trackerTopology);
         // Also fill truth associating stubs to tracking particles.
         //      stub.fillTruth(vTPs_, mcTruthTTStubHandle, mcTruthTTClusterHandle);
-        stub.fillTruth(translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle);
+        stub.fillTruth(translateTP_, mcTruthTTStubHandle, mcTruthTTClusterHandle);
         vAllStubs_.push_back(stub);
       }
     }
