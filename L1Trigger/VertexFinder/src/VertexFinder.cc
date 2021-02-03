@@ -14,7 +14,8 @@ namespace l1tVertexFinder {
       if ((i + 1 < fitTracks_.size() and fitTracks_[i + 1].z0() - fitTracks_[i].z0() > settings_->vx_distance()) or
           i == fitTracks_.size() - 1) {
         if (Vertex.numTracks() >= settings_->vx_minTracks()) {
-          Vertex.computeParameters(settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+          Vertex.computeParameters(
+              settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
           vertices_.push_back(Vertex);
         }
         Vertex.clear();
@@ -62,8 +63,10 @@ namespace l1tVertexFinder {
   }
 
   float VertexFinder::CentralDistance(RecoVertex<> cluster0, RecoVertex<> cluster1) {
-    cluster0.computeParameters(settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
-    cluster1.computeParameters(settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+    cluster0.computeParameters(
+        settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+    cluster1.computeParameters(
+        settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
 
     float distance = std::abs(cluster0.z0() - cluster1.z0());
     return distance;
@@ -116,7 +119,8 @@ namespace l1tVertexFinder {
 
     for (RecoVertex clust : vClusters) {
       if (clust.numTracks() >= settings_->vx_minTracks()) {
-        clust.computeParameters(settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+        clust.computeParameters(
+            settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
         vertices_.push_back(clust);
       }
     }
@@ -178,7 +182,8 @@ namespace l1tVertexFinder {
           if (find(saved.begin(), saved.end(), id) == saved.end())
             vertex.insert(&fitTracks_[id]);
         }
-        vertex.computeParameters(settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+        vertex.computeParameters(
+            settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
         if (vertex.numTracks() >= settings_->vx_minTracks())
           vertices_.push_back(vertex);
       }
@@ -241,7 +246,8 @@ namespace l1tVertexFinder {
         for (const L1Track track : acceptedTracks) {
           vertex.insert(&track);
         }
-        vertex.computeParameters(settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+        vertex.computeParameters(
+            settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
         vertices_.push_back(vertex);
       }
       if (settings_->debug() > 2)
@@ -306,7 +312,8 @@ namespace l1tVertexFinder {
         for (const L1Track track : acceptedTracks) {
           vertex.insert(&track);
         }
-        vertex.computeParameters(settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+        vertex.computeParameters(
+            settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
         vertices_.push_back(vertex);
       }
 
@@ -336,7 +343,8 @@ namespace l1tVertexFinder {
       }
     }
 
-    vertex.computeParameters(settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+    vertex.computeParameters(
+        settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
 
     vertex.setZ(z);
     vertices_.push_back(vertex);
@@ -380,7 +388,8 @@ namespace l1tVertexFinder {
       }
       for (unsigned int i = 0; i < NumberOfClusters; ++i) {
         if (vertices_[i].numTracks() >= settings_->vx_minTracks())
-          vertices_[i].computeParameters(settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+          vertices_[i].computeParameters(
+              settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
       }
       iterations++;
     }
@@ -420,7 +429,8 @@ namespace l1tVertexFinder {
           vertex.insert(&track);
         }
       }
-      vertex.computeParameters(settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
+      vertex.computeParameters(
+          settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
       vertex.setZ(z);
       if (vertex.pT() > vxPt) {
         leading_vertex = vertex;

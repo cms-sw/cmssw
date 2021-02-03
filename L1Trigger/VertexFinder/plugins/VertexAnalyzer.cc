@@ -481,7 +481,8 @@ namespace l1tVertexFinder {
     // generate reconstructed vertices (starting at 1 avoids PV)
     for (unsigned int i = 0; i < numVertices; ++i) {
       RecoVertexWithTP* recoVertex = new RecoVertexWithTP(l1VerticesHandle->at(i), trackAssociationMap);
-      recoVertex->computeParameters(settings_.vx_weightedmean(), settings_.vx_TrackMaxPt(), settings_.vx_TrackMaxPtBehavior());
+      recoVertex->computeParameters(
+          settings_.vx_weightedmean(), settings_.vx_TrackMaxPt(), settings_.vx_TrackMaxPtBehavior());
       if (settings_.vx_algo() == Algorithm::Kmeans || settings_.vx_algo() == Algorithm::HPV)
         recoVertex->setZ(l1VerticesHandle->at(i).z0());
       /*

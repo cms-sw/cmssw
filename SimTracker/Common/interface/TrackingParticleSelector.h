@@ -64,13 +64,9 @@ public:
     }
   }
 
-  bool isCharged(const TrackingParticle *tp) const {
-    return (tp->charge() == 0 ? false : true);
-  }
+  bool isCharged(const TrackingParticle *tp) const { return (tp->charge() == 0 ? false : true); }
 
-  bool isInTime(const TrackingParticle *tp) const {
-    return (tp->eventId().bunchCrossing() == 0);
-  }
+  bool isInTime(const TrackingParticle *tp) const { return (tp->eventId().bunchCrossing() == 0); }
 
   bool isSignal(const TrackingParticle *tp) const {
     return (tp->eventId().bunchCrossing() == 0 && tp->eventId().event() == 0);
@@ -85,8 +81,8 @@ public:
     // test for remaining unstabled due to lack of genparticle pointer
     auto pdgid = tp->pdgId();
     if (tp->status() == -99 && (std::abs(pdgid) != 11 && std::abs(pdgid) != 13 && std::abs(pdgid) != 211 &&
-                               std::abs(pdgid) != 321 && std::abs(pdgid) != 2212 && std::abs(pdgid) != 3112 &&
-                               std::abs(pdgid) != 3222 && std::abs(pdgid) != 3312 && std::abs(pdgid) != 3334)) {
+                                std::abs(pdgid) != 321 && std::abs(pdgid) != 2212 && std::abs(pdgid) != 3112 &&
+                                std::abs(pdgid) != 3222 && std::abs(pdgid) != 3312 && std::abs(pdgid) != 3334)) {
       return false;
     }
     return true;
@@ -94,12 +90,8 @@ public:
 
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
   /// https://stackoverflow.com/questions/14466620/c-template-specialization-calling-methods-on-types-that-could-be-pointers-or/14466705
-  bool operator()(const TrackingParticle &tp) const {
-    return select(&tp);
-  }
-  bool operator()(const TrackingParticle *tp) const {
-    return select(tp);
-  }
+  bool operator()(const TrackingParticle &tp) const { return select(&tp); }
+  bool operator()(const TrackingParticle *tp) const { return select(tp); }
 
   bool select(const TrackingParticle *tp) const {
     // signal only means no PU particles
@@ -111,7 +103,7 @@ public:
 
     // select only if charge!=0
     if (chargedOnly_ && !isCharged(tp))
-      return false; 
+      return false;
 
     // select for particle type
     if (!selectParticleType(tp)) {
@@ -144,7 +136,7 @@ public:
     };
     return (tp->numberOfTrackerLayers() >= minHit_ && ptOk(tp) && etaOk(tp) && phiOk(tp) &&
             std::abs(tp->vertex().z()) <= lip_ &&  // vertex last to avoid to load it if not striclty
-                                                  // necessary...
+                                                   // necessary...
             tp->vertex().perp2() <= tip2_);
   }
 
