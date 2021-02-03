@@ -10,10 +10,13 @@
 //         Created:  Wed, 13 Jan 2021 14:21:41 GMT
 //
 
+#include <cstdint>
 #include <string>
 
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
+using ROOT::Experimental::RNTupleModel;
+using ROOT::Experimental::RNTupleWriter;
 
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
@@ -45,15 +48,33 @@ private:
   std::string m_logicalFileName;
   edm::JobReport::Token m_jrToken;
 
-  std::unique_ptr<ROOT::Experimental::RNTupleModel> m_model;
+  std::unique_ptr<RNTupleWriter> m_ntuple;
+
+  class CommonEventFields {
+  public:
+    void createFields(RNTupleModel& model) {
+      model.AddField<UInt_t>("run", &m_run);
+      model.AddField<UInt_t>("luminosityBlock", &m_luminosityBlock);
+      model.AddField<std::uint64_t>("event", &m_event);
+    }
+    void fill(const edm::EventID& id) {
+      m_run = id.run();
+      m_luminosityBlock = id.luminosityBlock();
+      m_event = id.event();
+    }
+
+  private:
+    UInt_t m_run;
+    UInt_t m_luminosityBlock;
+    std::uint64_t m_event;
+  } m_commonFields;
 };
 
 NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& pset)
     : edm::one::OutputModuleBase::OutputModuleBase(pset),
       edm::one::OutputModule<>(pset),
       m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
-      m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
-      m_model(ROOT::Experimental::RNTupleModel::Create()) {}
+      m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")) {}
 
 NanoAODRNTupleOutputModule::~NanoAODRNTupleOutputModule() {}
 
@@ -61,12 +82,10 @@ void NanoAODRNTupleOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOut
 void NanoAODRNTupleOutputModule::writeRun(edm::RunForOutput const& iRun) {}
 
 bool NanoAODRNTupleOutputModule::isFileOpen() const {
-  return nullptr != m_model.get();
+  return nullptr != m_ntuple.get();
 }
 
 void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
-  // m_model->MakeField<std::vector<float>>("floats");
-
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
   m_jrToken = jr->outputFileOpened(m_fileName,
@@ -80,17 +99,25 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
+
+  // set up RNTuple schema
+  auto model = RNTupleModel::Create();
+  m_commonFields.createFields(*model);
+
+  m_ntuple = RNTupleWriter::Recreate(std::move(model), "Events", m_fileName);
 }
 
 void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
+  edm::Service<edm::JobReport> jr;
+  jr->eventWrittenToFile(m_jrToken, iEvent.id().run(), iEvent.id().event());
 
+  m_commonFields.fill(iEvent.id());
+  m_ntuple->Fill();
 }
 
 void NanoAODRNTupleOutputModule::reallyCloseFile() {
-  {
-    auto ntuple = ROOT::Experimental::RNTupleWriter::Recreate(std::move(m_model), "ntuple", m_fileName);
-    ntuple->Fill();
-  }
+  // write ntuple to disk by calling the RNTupleWriter destructor
+  m_ntuple.reset();
 
   edm::Service<edm::JobReport> jr;
   jr->outputFileClosed(m_jrToken);
