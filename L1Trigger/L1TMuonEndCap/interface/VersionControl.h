@@ -56,7 +56,6 @@ private:
   bool readPtLUTFile_, fixMode15HighPt_;
   bool bug9BitDPhi_, bugMode7CLCT_, bugNegPt_, bugGMTPhi_, promoteMode7_;
   int modeQualVer_;
-  std::string pbFileName_;
 };
 
 #endif

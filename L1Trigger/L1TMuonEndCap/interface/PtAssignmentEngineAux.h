@@ -14,10 +14,8 @@ class PtAssignmentEngineAux {
 public:
   // Functions for GMT quantities
   int getGMTPt(float pt) const;
-  int getGMTPtDxy(float pt) const;
 
   float getPtFromGMTPt(int gmt_pt) const;
-  float getPtFromGMTPtDxy(int gmt_pt_dxy) const;
 
   int getGMTPhi(int phi) const;
   int getGMTPhiV2(int phi) const;
@@ -27,8 +25,6 @@ public:
   int getGMTQuality(int mode, int theta, bool promoteMode7, int version) const;
 
   std::pair<int, int> getGMTCharge(int mode, const std::vector<int>& phidiffs) const;
-
-  int getGMTDxy(float dxy) const;
 };
 
 #endif
