@@ -9,7 +9,7 @@ namespace l1tVertexFinder {
     trueTracks_.clear();
   }
 
-  template<>
+  template <>
   void RecoVertexWithTP::insert(const L1TrackTruthMatched* fitTrack) {
     tracks_.push_back(fitTrack);
     if (fitTrack->getMatchedTP() != nullptr and fitTrack->getMatchedTP()->physicsCollision())

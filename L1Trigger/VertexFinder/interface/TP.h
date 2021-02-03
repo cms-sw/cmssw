@@ -19,17 +19,11 @@ namespace l1tVertexFinder {
     ~TP() {}
 
     // Need the operator== to compare 2 TP types.
-    bool operator==(const TP &rhs) const {
-        return (trackingParticle_ == rhs.trackingParticle_ &&
-                settings_ == rhs.settings_ &&
-                inTimeBx_ == rhs.inTimeBx_ &&
-                physicsCollision_ == rhs.physicsCollision_ &&
-                use_ == rhs.use_ &&
-                useForEff_ == rhs.useForEff_ &&
-                useForAlgEff_ == rhs.useForAlgEff_ &&
-                useForVertexReco_ == rhs.useForVertexReco_ &&
-                nLayersWithStubs_ == rhs.nLayersWithStubs_ &&
-                assocStubs_ == rhs. assocStubs_);
+    bool operator==(const TP& rhs) const {
+      return (trackingParticle_ == rhs.trackingParticle_ && settings_ == rhs.settings_ && inTimeBx_ == rhs.inTimeBx_ &&
+              physicsCollision_ == rhs.physicsCollision_ && use_ == rhs.use_ && useForEff_ == rhs.useForEff_ &&
+              useForAlgEff_ == rhs.useForAlgEff_ && useForVertexReco_ == rhs.useForVertexReco_ &&
+              nLayersWithStubs_ == rhs.nLayersWithStubs_ && assocStubs_ == rhs.assocStubs_);
     }
 
     // Fill truth info with association from tracking particle to stubs.
@@ -64,8 +58,8 @@ namespace l1tVertexFinder {
     void calcNumLayers() { nLayersWithStubs_ = utility::countLayers(*settings_, assocStubs_); }
 
   private:
-    const TrackingParticle* trackingParticle_; // Underlying TrackingParticle pointer
-    const AnalysisSettings* settings_;  // Configuration parameters
+    const TrackingParticle* trackingParticle_;  // Underlying TrackingParticle pointer
+    const AnalysisSettings* settings_;          // Configuration parameters
 
     bool inTimeBx_;          // TP came from in-time bunch crossing.
     bool physicsCollision_;  // True if TP from physics collision rather than pileup.

@@ -88,9 +88,17 @@ namespace l1tVertexFinder {
     /// Histogramming algorithm
     void FastHisto(const TrackerTopology* tTopo);
     /// Sort Vertices in pT
-    void SortVerticesInPt() { std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {return (vertex0.pT() > vertex1.pT()); }); }
+    void SortVerticesInPt() {
+      std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {
+        return (vertex0.pT() > vertex1.pT());
+      });
+    }
     /// Sort Vertices in z
-    void SortVerticesInZ0() { std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {return (vertex0.z0() < vertex1.z0()); }); }
+    void SortVerticesInZ0() {
+      std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {
+        return (vertex0.z0() < vertex1.z0());
+      });
+    }
     /// Number of iterations
     unsigned int NumIterations() const { return iterations_; }
     /// Number of iterations

@@ -64,7 +64,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     // This is left here because it represents the smallest pT to be sent by the track finding boards
     // This has less to do with the algorithms than the constraints of what will be sent to the vertexing algorithm
     if (l1track.pt() > settings_.vx_TrackMinPt()) {
-        l1Tracks.push_back(l1track);
+      l1Tracks.push_back(l1track);
     }
   }
 

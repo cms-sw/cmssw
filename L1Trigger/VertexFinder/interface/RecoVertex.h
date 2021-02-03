@@ -10,7 +10,7 @@
 
 namespace l1tVertexFinder {
 
-  template <typename T=L1Track>
+  template <typename T = L1Track>
   class RecoVertex {
   public:
     /// Basic constructor
@@ -73,7 +73,7 @@ namespace l1tVertexFinder {
     unsigned int numHighPtTracks_;
   };
 
-  using RecoVertexWithTP=RecoVertex<L1TrackTruthMatched>;
+  using RecoVertexWithTP = RecoVertex<L1TrackTruthMatched>;
 
   template <typename T>
   RecoVertex<T>::RecoVertex(const double z0) : z0_(z0) {
@@ -164,7 +164,7 @@ namespace l1tVertexFinder {
   template <>
   void RecoVertexWithTP::clear();
 
-  template<>
+  template <>
   void RecoVertexWithTP::insert(const L1TrackTruthMatched* fitTrack);
 
 }  // namespace l1tVertexFinder
