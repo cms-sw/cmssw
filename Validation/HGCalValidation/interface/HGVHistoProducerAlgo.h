@@ -24,6 +24,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociatorBaseImpl.h"
+#include "SimDataFormats/Associations/interface/MultiClusterToCaloParticleAssociatorBaseImpl.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociatorBaseImpl.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -243,12 +244,14 @@ public:
                                     const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
   void multiClusters_to_CaloParticles(const Histograms& histograms,
                                       int count,
-                                      const std::vector<reco::HGCalMultiCluster>& multiClusters,
+                                      const reco::HGCalMultiClusterCollection& multiClusters,
                                       std::vector<CaloParticle> const& cP,
                                       std::vector<size_t> const& cPIndices,
                                       std::vector<size_t> const& cPSelectedIndices,
                                       std::unordered_map<DetId, const HGCRecHit*> const&,
-                                      unsigned int layers) const;
+                                      unsigned int layers,
+                                      const hgcal::RecoToSimCollectionWithMultiClusters& recMSimColl,
+                                      const hgcal::SimToRecoCollectionWithMultiClusters& simRecMColl) const;
   void fill_info_histos(const Histograms& histograms, unsigned int layers) const;
   void fill_caloparticle_histos(const Histograms& histograms,
                                 int pdgid,
@@ -290,12 +293,14 @@ public:
   void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
   void fill_multi_cluster_histos(const Histograms& histograms,
                                  int count,
-                                 const std::vector<reco::HGCalMultiCluster>& multiClusters,
+                                 const reco::HGCalMultiClusterCollection& multiClusters,
                                  std::vector<CaloParticle> const& cP,
                                  std::vector<size_t> const& cPIndices,
                                  std::vector<size_t> const& cPSelectedIndices,
                                  std::unordered_map<DetId, const HGCRecHit*> const&,
-                                 unsigned int layers) const;
+                                 unsigned int layers,
+                                 const hgcal::RecoToSimCollectionWithMultiClusters& recMSimColl,
+                                 const hgcal::SimToRecoCollectionWithMultiClusters& simRecMColl) const;
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
