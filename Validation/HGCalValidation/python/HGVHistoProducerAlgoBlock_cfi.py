@@ -180,4 +180,3 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     nintZ = cms.int32(1100)
 
 )
-
