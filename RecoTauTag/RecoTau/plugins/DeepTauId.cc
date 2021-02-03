@@ -1305,7 +1305,7 @@ private:
   inline void checkInputs(const tensorflow::Tensor& inputs,
                           const std::string& block_name,
                           int n_inputs,
-                          const std::unique_ptr<CellGrid>& grid = nullptr) const {
+                          const CellGrid* grid = nullptr) const {
     if (debug_level >= 1) {
       std::cout << "<checkInputs>: block_name = " << block_name << std::endl;
       if (block_name == "input_tau") {
@@ -1361,7 +1361,7 @@ private:
   inline void saveInputs(const tensorflow::Tensor& inputs,
                          const std::string& block_name,
                          int n_inputs,
-                         const std::unique_ptr<CellGrid>& grid = nullptr) {
+                         const CellGrid* grid = nullptr) {
     if (debug_level >= 1) {
       std::cout << "<saveInputs>: block_name = " << block_name << std::endl;
     }
@@ -1565,19 +1565,19 @@ private:
                 << ")>:" << std::endl;
       std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << std::endl;
     }
-    std::unique_ptr<CellGrid> inner_grid = std::make_unique<CellGrid>(CellGrid(dnn_inputs_2017_v2::number_of_inner_cell,
-                                                                               dnn_inputs_2017_v2::number_of_inner_cell,
-                                                                               0.02,
-                                                                               0.02,
-                                                                               disable_CellIndex_workaround_));
-    std::unique_ptr<CellGrid> outer_grid = std::make_unique<CellGrid>(CellGrid(dnn_inputs_2017_v2::number_of_outer_cell,
-                                                                               dnn_inputs_2017_v2::number_of_outer_cell,
-                                                                               0.05,
-                                                                               0.05,
-                                                                               disable_CellIndex_workaround_));
-    fillGrids(dynamic_cast<const TauCastType&>(tau), *electrons, *inner_grid, *outer_grid);
-    fillGrids(dynamic_cast<const TauCastType&>(tau), *muons, *inner_grid, *outer_grid);
-    fillGrids(dynamic_cast<const TauCastType&>(tau), pfCands, *inner_grid, *outer_grid);
+    CellGrid inner_grid(dnn_inputs_2017_v2::number_of_inner_cell,
+                        dnn_inputs_2017_v2::number_of_inner_cell,
+                        0.02,
+                        0.02,
+                        disable_CellIndex_workaround_);
+    CellGrid outer_grid(dnn_inputs_2017_v2::number_of_outer_cell,
+                        dnn_inputs_2017_v2::number_of_outer_cell,
+                        0.05,
+                        0.05,
+                        disable_CellIndex_workaround_);
+    fillGrids(dynamic_cast<const TauCastType&>(tau), *electrons, inner_grid, outer_grid);
+    fillGrids(dynamic_cast<const TauCastType&>(tau), *muons, inner_grid, outer_grid);
+    fillGrids(dynamic_cast<const TauCastType&>(tau), pfCands, inner_grid, outer_grid);
 
     createTauBlockInputs<CandidateCastType>(
         dynamic_cast<const TauCastType&>(tau), tau_index, tau_ref, pv, rho, tau_funcs);
@@ -1591,12 +1591,12 @@ private:
                                           electrons,
                                           muons,
                                           pfCands,
-                                          *inner_grid,
+                                          inner_grid,
                                           tau_funcs,
                                           true);
-    checkInputs(*eGammaTensor_[true], "input_inner_egamma", EgammaBlockInputs::NumberOfInputs, inner_grid);
-    checkInputs(*muonTensor_[true], "input_inner_muon", MuonBlockInputs::NumberOfInputs, inner_grid);
-    checkInputs(*hadronsTensor_[true], "input_inner_hadrons", HadronBlockInputs::NumberOfInputs, inner_grid);
+    checkInputs(*eGammaTensor_[true], "input_inner_egamma", EgammaBlockInputs::NumberOfInputs, &inner_grid);
+    checkInputs(*muonTensor_[true], "input_inner_muon", MuonBlockInputs::NumberOfInputs, &inner_grid);
+    checkInputs(*hadronsTensor_[true], "input_inner_hadrons", HadronBlockInputs::NumberOfInputs, &inner_grid);
     createConvFeatures<CandidateCastType>(dynamic_cast<const TauCastType&>(tau),
                                           tau_index,
                                           tau_ref,
@@ -1605,12 +1605,12 @@ private:
                                           electrons,
                                           muons,
                                           pfCands,
-                                          *outer_grid,
+                                          outer_grid,
                                           tau_funcs,
                                           false);
-    checkInputs(*eGammaTensor_[false], "input_outer_egamma", EgammaBlockInputs::NumberOfInputs, outer_grid);
-    checkInputs(*muonTensor_[false], "input_outer_muon", MuonBlockInputs::NumberOfInputs, outer_grid);
-    checkInputs(*hadronsTensor_[false], "input_outer_hadrons", HadronBlockInputs::NumberOfInputs, outer_grid);
+    checkInputs(*eGammaTensor_[false], "input_outer_egamma", EgammaBlockInputs::NumberOfInputs, &outer_grid);
+    checkInputs(*muonTensor_[false], "input_outer_muon", MuonBlockInputs::NumberOfInputs, &outer_grid);
+    checkInputs(*hadronsTensor_[false], "input_outer_hadrons", HadronBlockInputs::NumberOfInputs, &outer_grid);
 
     if (save_inputs_) {
       std::string json_file_name = "DeepTauId_" + std::to_string(file_counter_) + ".json";
@@ -1621,23 +1621,23 @@ private:
       saveInputs(*eGammaTensor_[true],
                  "input_inner_egamma",
                  dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs,
-                 inner_grid);
+                 &inner_grid);
       saveInputs(
-          *muonTensor_[true], "input_inner_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, inner_grid);
+          *muonTensor_[true], "input_inner_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, &inner_grid);
       saveInputs(*hadronsTensor_[true],
                  "input_inner_hadrons",
                  dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs,
-                 inner_grid);
+                 &inner_grid);
       saveInputs(*eGammaTensor_[false],
                  "input_outer_egamma",
                  dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs,
-                 outer_grid);
+                 &outer_grid);
       saveInputs(
-          *muonTensor_[false], "input_outer_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, outer_grid);
+          *muonTensor_[false], "input_outer_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, &outer_grid);
       saveInputs(*hadronsTensor_[false],
                  "input_outer_hadrons",
                  dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs,
-                 outer_grid);
+                 &outer_grid);
       (*json_file_) << "}";
       delete json_file_;
       ++file_counter_;
