@@ -355,7 +355,7 @@ void DDEcalEndcapAlgo::execute(DDCompactView& cpv) {
   m_cutParms = &eeCutBox.parameters();
   //**************************************************************
 
-  const double zFix(m_zFront - 3172 * mm);  // fix for changing z offset
+  const double zFix(m_zFront - 3172.0 * mm);  // fix for changing z offset
 
   //** fill supercrystal front and rear center positions from xml input
   for (unsigned int iC(0); iC != (unsigned int)eenSCquad(); ++iC) {
