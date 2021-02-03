@@ -66,7 +66,7 @@ sed -i '{s/Extended/Extended2017Plan1ZeroMaterial/g}' xmlgeometrywriter.py
 sed -i '{s/\/ge/\/gez/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
-sed -i '{s/Extended2017ZeroMaterial/Extended2017Plan1FlatMinus05Percent/g}' xmlgeometrywriter.py
+sed -i '{s/Extended2017Plan1ZeroMaterial/Extended2017Plan1FlatMinus05Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/gez/\/geFM05/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
