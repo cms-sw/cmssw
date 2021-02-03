@@ -15,7 +15,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/VersionControl.h"
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
-#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineDxy.h"
 
 class EMTFSetup {
 public:
@@ -35,8 +34,6 @@ public:
   const SectorProcessorLUT& getSectorProcessorLUT() const { return sector_processor_lut_; }
 
   PtAssignmentEngine* getPtAssignmentEngine() const { return pt_assign_engine_.get(); }
-
-  PtAssignmentEngineDxy* getPtAssignmentEngineDxy() const { return pt_assign_engine_dxy_.get(); }
 
   // Setters
   //void set_fw_version(unsigned version) { fw_ver_ = version; }
@@ -65,8 +62,6 @@ private:
 
   // Polymorphic class
   std::unique_ptr<PtAssignmentEngine> pt_assign_engine_;
-  // Displaced muon pT assignment
-  std::unique_ptr<PtAssignmentEngineDxy> pt_assign_engine_dxy_;
 
   // Version numbers. Note: may be different from those in ConditionHelper
   unsigned fw_ver_;

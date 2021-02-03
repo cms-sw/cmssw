@@ -60,7 +60,6 @@ VersionControl::VersionControl(const edm::ParameterSet& iConfig) : config_(iConf
   bugGMTPhi_ = spPAParams16.getParameter<bool>("BugGMTPhi");
   promoteMode7_ = spPAParams16.getParameter<bool>("PromoteMode7");
   modeQualVer_ = spPAParams16.getParameter<int>("ModeQualVer");
-  pbFileName_ = spPAParams16.getParameter<std::string>("ProtobufFileName");
 }
 
 VersionControl::~VersionControl() {}
