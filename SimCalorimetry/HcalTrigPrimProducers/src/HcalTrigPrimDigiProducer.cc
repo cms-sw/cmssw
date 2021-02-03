@@ -79,6 +79,8 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   tok_lutMetadata_ = esConsumes<HcalLutMetadata, HcalLutMetadataRcd>();
   tok_trigTowerGeom_ = esConsumes<HcalTrigTowerGeometry, CaloGeometryRecord>();
   tok_caloGeom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
+  tok_hcalTopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+
   // register for data access
   if (runFrontEndFormatError_) {
     tok_raw_ = consumes<FEDRawDataCollection>(inputTagFEDRaw_);
@@ -112,9 +114,8 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
 
     std::map<int, double> weightsMap;
     edm::ESHandle<HcalDbService> db = eventSetup.getHandle(tok_dbService_beginRun_);
-    edm::ESHandle<HcalTopology> topo;
-    eventSetup.get<HcalRecNumberingRecord>().get(topo);
-    int lastHERing = (*topo).lastHERing();
+    const HcalTopology* topo = &eventSetup.getData(tok_hcalTopo_);
+    int lastHERing = topo->lastHERing();
     const HcalSubdetector subdetectors[2] = {HcalBarrel, HcalEndcap};
 
     for (HcalSubdetector subd : subdetectors) {
