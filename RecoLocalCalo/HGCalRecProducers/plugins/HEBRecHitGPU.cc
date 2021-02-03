@@ -1,38 +1,22 @@
 #include <iostream>
 #include <string>
-#include <memory>
-#include <chrono>
-#include <cuda_runtime.h>
 
-#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDACore/interface/ContextState.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include "HeterogeneousHGCalProducerMemoryWrapper.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
-
 #include "CUDADataFormats/HGCal/interface/HGCRecHitGPUProduct.h"
 
 class HEBRecHitGPU : public edm::stream::EDProducer<edm::ExternalWork> {
@@ -48,7 +32,6 @@ private:
   edm::EDGetTokenT<HGChebUncalibratedRecHitCollection> uncalibRecHitCPUToken_;
   edm::EDPutTokenT<cms::cuda::Product<HGCRecHitGPUProduct>> recHitGPUToken_;
 
-  edm::Handle<HGChebUncalibratedRecHitCollection> handle_;
   std::unique_ptr<HGChebRecHitCollection> rechits_;
   cms::cuda::ContextState ctxState_;
 
@@ -113,9 +96,7 @@ void HEBRecHitGPU::beginRun(edm::Run const&, edm::EventSetup const& setup) {}
 void HEBRecHitGPU::acquire(edm::Event const& event, edm::EventSetup const& setup, edm::WaitingTaskWithArenaHolder w) {
   const cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(w), ctxState_};
 
-  event.getByToken(uncalibRecHitCPUToken_, handle_);
-  const auto& hits = *handle_;
-
+  const auto& hits = event.get(uncalibRecHitCPUToken_);
   unsigned int nhits = hits.size();
   rechits_ = std::make_unique<HGCRecHitCollection>();
 
