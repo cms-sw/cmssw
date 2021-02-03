@@ -20,7 +20,9 @@ using DDRotation = ROOT::Math::Rotation3D;
 //#define EDM_ML_DEBUG
 
 namespace {
+#ifdef EDM_ML_DEBUG
   constexpr double f_mm = (1.0 / dd4hep::mm);
+#endif
   struct Endcap {
     string mat;
     double zOff;
@@ -160,7 +162,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   Solid eeCutBox = Box(ee.cutBoxName, ee.cutParms[0], ee.cutParms[1], ee.cutParms[2]);
   //**************************************************************
 
-  const double zFix(ee.zFront - 3172 * f_mm);  // fix for changing z offset
+  const double zFix(ee.zFront - 3172 * dd4hep::mm);  // fix for changing z offset
 
   //** fill supercrystal front and rear center positions from xml input
   for (unsigned int iC(0); iC != (unsigned int)ee.nSCquad; ++iC) {
@@ -292,7 +294,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       const double fifth(ee.cutParms[0] + ee.pFFifth * ee.crysRear);
       const double fac(ee.pF45);
 
-      const double zmm(0 * f_mm);
+      const double zmm(0 * dd4hep::mm);
 
       DDTranslation cutTra(
           2 == iSCType ? DDTranslation(zmm, half, zmm)
@@ -338,7 +340,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       const double mySign(iSCType < 4 ? +1. : -1.);
 
-      const DDTranslation extraI(xyIOff + mySign * 2 * f_mm, xyIOff + mySign * 2 * f_mm, zIOff);
+      const DDTranslation extraI(xyIOff + mySign * 2 * dd4hep::mm, xyIOff + mySign * 2 * dd4hep::mm, zIOff);
 
       Solid eeCutInt = SubtractionSolid(ee.intName + std::to_string(iSCType),
                                         ns.solid(ee.intName + std::to_string(iSCType) + "Tmp"),
