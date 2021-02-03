@@ -31,6 +31,7 @@ Implementation:
 #include <sys/time.h>
 #include <sys/resource.h>
 #include "tbb/task_arena.h"
+#include "tbb/task_group.h"
 
 #include "boost/ptr_container/ptr_deque.hpp"
 
@@ -276,6 +277,7 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
     std::atomic<char> exceptSet{0};
 
     tbb::this_task_arena::isolate([this, &except, &infiles, &exceptSet, nEventsAve, overflow, seed]() {
+      tbb::task_group group;
       tbb::empty_task* waitTask = new (tbb::task::allocate_root()) tbb::empty_task;
       waitTask->set_ref_count(1 + nThreads_);
 
@@ -284,27 +286,24 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
         if (nEvents_ % nThreads_ != 0 and t >= overflow) {
           nEvents += 1;
         }
-        auto task = edm::make_functor_task(tbb::task::allocate_root(),
-                                           [t, this, &infiles, seed, nEvents, &except, &exceptSet, waitTask]() {
-                                             CMS_SA_ALLOW try {
-                                               using namespace std::filesystem;
-                                               using namespace std::string_literals;
-                                               auto out = path("thread"s + std::to_string(t)) / path(outputFile_);
-                                               infiles[t] = out.native();
-                                               executeScript(makeArgs(nEvents, 1, seed + t), t);
-                                             } catch (...) {
-                                               char expected = 0;
-                                               if (exceptSet.compare_exchange_strong(expected, 1)) {
-                                                 except = std::current_exception();
-                                                 exceptSet.store(2);
-                                               }
-                                             }
-                                             waitTask->decrement_ref_count();
-                                           });
-        tbb::task::spawn(*task);
+        group.run([t, this, &infiles, seed, nEvents, &except, &exceptSet, waitTask]() {
+          CMS_SA_ALLOW try {
+            using namespace std::filesystem;
+            using namespace std::string_literals;
+            auto out = path("thread"s + std::to_string(t)) / path(outputFile_);
+            infiles[t] = out.native();
+            executeScript(makeArgs(nEvents, 1, seed + t), t);
+          } catch (...) {
+            char expected = 0;
+            if (exceptSet.compare_exchange_strong(expected, 1)) {
+              except = std::current_exception();
+              exceptSet.store(2);
+            }
+          }
+          waitTask->decrement_ref_count();
+        });
       }
-      waitTask->wait_for_all();
-      tbb::task::destroy(*waitTask);
+      group.wait();
     });
     if (exceptSet != 0) {
       std::rethrow_exception(except);
