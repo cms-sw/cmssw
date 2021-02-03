@@ -872,7 +872,9 @@ namespace edm {
           ->setComment(
               "If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which "
               "attempts to do a clean shutdown.");
-      desc.addUntracked<bool>("InteractiveDebug", false)->setComment("If True, leave gdb attached to cmsRun after a crash; "
+      desc.addUntracked<bool>("InteractiveDebug", false)
+          ->setComment(
+              "If True, leave gdb attached to cmsRun after a crash; "
               "if False, attach gdb, print a stack trace, and quit gdb");
       desc.addUntracked<int>("DebugLevel", 0)->setComment("Sets ROOT's gDebug value.");
       desc.addUntracked<int>("StackTracePauseTime", 300)
@@ -895,18 +897,16 @@ namespace edm {
       }
       std::string gdbcmd{"date; gdb -quiet -p %d"};
       if (!interactiveDebug_) {
-        gdbcmd += " 2>&1 <<EOF |\n"
-                   "set width 0\n"
-                   "set height 0\n"
-                   "set pagination no\n"
-                   "thread apply all bt\n"
-                   "EOF\n"
-                   "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'";
+        gdbcmd +=
+            " 2>&1 <<EOF |\n"
+            "set width 0\n"
+            "set height 0\n"
+            "set pagination no\n"
+            "thread apply all bt\n"
+            "EOF\n"
+            "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'";
       }
-      if (snprintf(pidString_,
-                   pidStringLength_ - 1,
-                   gdbcmd.c_str(),
-                   getpid()) >= pidStringLength_) {
+      if (snprintf(pidString_, pidStringLength_ - 1, gdbcmd.c_str(), getpid()) >= pidStringLength_) {
         std::ostringstream sstr;
         sstr << "Unable to pre-allocate stacktrace handler information";
         edm::Exception except(edm::errors::OtherCMS, sstr.str());
