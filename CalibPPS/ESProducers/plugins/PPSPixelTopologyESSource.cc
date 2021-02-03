@@ -140,6 +140,7 @@ std::unique_ptr<PPSPixelTopology> PPSPixelTopologyESSource::fillPPSPixelTopology
   p->setActiveEdgeX(simX_width_/2. - phys_active_edge_dist_);
   p->setActiveEdgeY(simY_width_/2. - phys_active_edge_dist_);
 
+  //std::cout << runType_ << " " << simY_width_ << std::endl;
   return p;
 }
 
