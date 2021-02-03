@@ -1,0 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
+hgcalHEScNumberingInitialize = cms.ESProducer("HGCalNumberingInitialization",
+    Name = cms.untracked.string('HGCalHEScintillatorSensitive')
+)
