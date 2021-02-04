@@ -21,43 +21,53 @@ public:
   typedef typename Client::Input Input;
   typedef typename Client::Output Output;
   //constructor
-  SonicOneEDAnalyzer(edm::ParameterSet const& cfg) : client_(cfg.getParameter<edm::ParameterSet>("Client")) {
+  SonicOneEDAnalyzer(edm::ParameterSet const& cfg, const std::string& debugName)
+      : clientPset_(cfg.getParameterSet("Client")), debugName_(debugName) {
     //ExternalWork is not compatible with one modules, so Sync mode is enforced
-    if (client_.mode() != SonicMode::Sync)
-      throw cms::Exception("UnsupportedMode") << "SonicOneEDAnalyzer can only use Sync mode for clients";
+    if (clientPset_.getParameter<std::string>("mode") != "Sync") {
+      edm::LogWarning("ResetClientMode") << "Resetting client mode to Sync for SonicOneEDAnalyzer";
+      clientPset_.addParameter<std::string>("mode", "Sync");
+    }
   }
   //destructor
   ~SonicOneEDAnalyzer() override = default;
 
-  //derived classes still use a dedicated acquire() interface that incorporates client_.input() for consistency
+  //construct client at beginning of job
+  //in case client constructor depends on operations happening in derived module constructors
+  void beginJob() override { makeClient(); }
+
+  //derived classes still use a dedicated acquire() interface that incorporates client_->input() for consistency
   virtual void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) = 0;
-  //derived classes use a dedicated analyze() interface that incorporates client_.output()
+  //derived classes use a dedicated analyze() interface that incorporates client_->output()
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) final {
     auto t0 = std::chrono::high_resolution_clock::now();
-    acquire(iEvent, iSetup, client_.input());
-    sonic_utils::printDebugTime(client_.debugName(), "acquire() time: ", t0);
+    acquire(iEvent, iSetup, client_->input());
+    sonic_utils::printDebugTime(debugName_, "acquire() time: ", t0);
 
     //pattern similar to ExternalWork, but blocking
     auto t1 = std::chrono::high_resolution_clock::now();
-    client_.dispatch();
+    client_->dispatch();
 
     //measure time between acquire and produce
-    sonic_utils::printDebugTime(client_.debugName(), "dispatch() time: ", t1);
+    sonic_utils::printDebugTime(debugName_, "dispatch() time: ", t1);
 
     auto t2 = std::chrono::high_resolution_clock::now();
-    analyze(iEvent, iSetup, client_.output());
-    sonic_utils::printDebugTime(client_.debugName(), "analyze() time: ", t2);
+    analyze(iEvent, iSetup, client_->output());
+    sonic_utils::printDebugTime(debugName_, "analyze() time: ", t2);
 
     //reset client data
-    client_.reset();
+    client_->reset();
   }
   virtual void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) = 0;
 
 protected:
-  //for debugging
-  void setDebugName(const std::string& debugName) { client_.setDebugName(debugName); }
+  //helper
+  void makeClient() { client_ = std::make_unique<Client>(clientPset_, debugName_); }
+
   //members
-  Client client_;
+  edm::ParameterSet clientPset_;
+  std::unique_ptr<Client> client_;
+  std::string debugName_;
 };
 
 #endif
