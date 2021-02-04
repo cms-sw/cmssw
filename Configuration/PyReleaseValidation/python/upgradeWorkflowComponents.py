@@ -361,11 +361,11 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
 class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         stepDict[stepName][k] = merge([{'--procModifiers': 'trackdnn'}, stepDict[step][k]])
-        custNew = "RecoTracker/FinalTrackSelectors/customiseForDNN.customiseForDNN"
-        if '--customise' in stepDict[stepName][k].keys():
-            stepDict[stepName][k]['--customise'] += ","+custNew
-        else:
-            stepDict[stepName][k]['--customise'] = custNew
+        #custNew = "RecoTracker/FinalTrackSelectors/customiseForDNN.customiseForDNN"
+        #if '--customise' in stepDict[stepName][k].keys():
+        #    stepDict[stepName][k]['--customise'] += ","+custNew
+        #else:
+        #    stepDict[stepName][k]['--customise'] = custNew
 
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and '2021' in key
