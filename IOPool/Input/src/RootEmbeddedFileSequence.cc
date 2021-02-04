@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -43,7 +44,8 @@ namespace edm {
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
         treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize)),
         enablePrefetching_(false),
-        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName", false)) {
+        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName", false)),
+        fileOpenAttempts_(pset.getUntrackedParameter<unsigned int>("fileOpenAttempts", numberOfFiles())) {
     if (noFiles()) {
       throw Exception(errors::NoSecondaryFiles)
           << "RootEmbeddedFileSequence no input files specified for secondary input source.\n";
@@ -92,8 +94,8 @@ namespace edm {
       unsigned int seed;
       f.read(reinterpret_cast<char*>(&seed), sizeof(seed));
       std::default_random_engine dre(seed);
-      size_t count = numberOfFiles();
-      std::uniform_int_distribution<int> distribution(0, count - 1);
+      auto count = fileOpenAttempts_;
+      std::uniform_int_distribution<int> distribution(0, numberOfFiles() - 1);
       while (!rootFile() && count != 0) {
         --count;
         int offset = distribution(dre);
@@ -229,7 +231,7 @@ namespace edm {
     if (!found) {
       throw Exception(errors::NotFound) << "RootEmbeddedFileSequence::readOneSpecified(): Secondary Input files"
                                         << " do not contain specified event:\n"
-                                        << id << "\n";
+                                        << id << " in file id " << idx.fileNameHash() << "\n";
     }
     assert(rootFile());
     found = rootFile()->readCurrentEvent(cache);
@@ -246,16 +248,32 @@ namespace edm {
     assert(engine);
     unsigned int currentSeqNumber = sequenceNumberOfFile();
     while (eventsRemainingInFile_ == 0) {
-      unsigned int newSeqNumber = CLHEP::RandFlat::shootInt(engine, fileCatalogItems().size());
-      setAtFileSequenceNumber(newSeqNumber);
-      if (newSeqNumber != currentSeqNumber) {
-        initFile(false);
-        currentSeqNumber = newSeqNumber;
+      auto tries{fileOpenAttempts_};
+      bool opened{false};
+      while (!opened && tries-- != 0) {
+        unsigned int newSeqNumber = CLHEP::RandFlat::shootInt(engine, fileCatalogItems().size());
+        setAtFileSequenceNumber(newSeqNumber);
+        if (newSeqNumber != currentSeqNumber) {
+          initFile(input_.skipBadFiles());
+          currentSeqNumber = newSeqNumber;
+        }
+        if (rootFile()) {
+          eventsRemainingInFile_ = rootFile()->eventTree().entries();
+          if (eventsRemainingInFile_ == 0) {
+            if (!input_.skipBadFiles()) {
+              throw Exception(errors::NotFound) << "RootEmbeddedFileSequence::readOneRandom(): Secondary Input file "
+                                                << fileNames()[0] << " contains no events.\n";
+            }
+            LogWarning("RootEmbeddedFileSequence") << "RootEmbeddedFileSequence::readOneRandom(): Secondary Input file "
+                                                   << fileNames()[0] << " contains no events and will be skipped.\n";
+          } else {
+            opened = true;
+          }
+        }
       }
-      eventsRemainingInFile_ = rootFile()->eventTree().entries();
-      if (eventsRemainingInFile_ == 0) {
-        throw Exception(errors::NotFound) << "RootEmbeddedFileSequence::readOneRandom(): Secondary Input file "
-                                          << fileNames()[0] << " contains no events.\n";
+      if (not rootFile()) {
+        throw Exception(errors::FileOpenError) << "RootEmbeddedFileSequence::readOneRandom(): "
+                                               << " input file retries exhausted.\n";
       }
       rootFile()->setAtEventEntry(CLHEP::RandFlat::shootInt(engine, eventsRemainingInFile_) - 1);
     }
@@ -336,6 +354,10 @@ namespace edm {
     desc.addUntracked<unsigned int>("skipEvents", 0U)
         ->setComment(
             "Skip the first 'skipEvents' events. Used only if 'sequential' is True and 'sameLumiBlock' is False");
+    desc.addUntracked<unsigned int>("fileOpenAttempts", 1U)
+        ->setComment(
+            "How many files to try if 'sequential' is False and 'skipBadFiles' is True.\n"
+            "Defaults to number of files.");
     desc.addUntracked<unsigned int>("cacheSize", roottree::defaultCacheSize)
         ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
     desc.addUntracked<bool>("enforceGUIDInFileName", false)
