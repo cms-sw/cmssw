@@ -138,7 +138,7 @@
     <Include ref='Geometry/TrackerCommonData/data/tobrod5l.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobrod5h.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobrod5.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/v2/tob.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tob/v3/tob.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodule0r.xml'/>
@@ -212,15 +212,15 @@
     <Include ref='SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI/v1/trackingMaterialGroups_ForPhaseI.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseI/trackerProdCuts.xml'/>
     <Include ref='Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/ebcon.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/eecon.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/escon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eregalgo/2017/v1/eregalgo.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebalgo.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/ebcon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebrot.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/eecon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eefixed/2021/v1/eefixed.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eehier.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eealgo.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/escon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/esalgo.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eeF.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eeB.xml'/>
