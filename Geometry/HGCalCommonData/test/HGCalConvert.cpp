@@ -90,7 +90,12 @@ public:
   void convert(const char*, const char*, const char*, int debug = 0);
 
 private:
-  void makeTitle(const char* outfile, const std::map<int, tile>& module, const std::map<int, std::pair<double, double> >& ringR,int lmin, int lmax, bool debug);
+  void makeTitle(const char* outfile,
+                 const std::map<int, tile>& module,
+                 const std::map<int, std::pair<double, double> >& ringR,
+                 int lmin,
+                 int lmax,
+                 bool debug);
 
   const int layMin_;
 };
@@ -494,7 +499,12 @@ void ConvertScintillator::convert(const char* infile, const char* outfile1, cons
   }
 }
 
-void ConvertScintillator::makeTitle(const char* outfile, const std::map<int, tile>& module, const std::map<int, std::pair<double, double> >& ringR, int lmin, int lmax, bool debug) {
+void ConvertScintillator::makeTitle(const char* outfile,
+                                    const std::map<int, tile>& module,
+                                    const std::map<int, std::pair<double, double> >& ringR,
+                                    int lmin,
+                                    int lmax,
+                                    bool debug) {
   const int zside = 1;
   std::vector<tileZone> zones;
   for (int layer = lmin; layer <= lmax; ++layer) {
@@ -567,9 +577,11 @@ void ConvertScintillator::makeTitle(const char* outfile, const std::map<int, til
       ++l2;
     }
     fout << "\n  </Vector>\n";
-    fout << "  <Vector name=" << apost << "TileLayerRings" << apost << " type=" << apost << "numeric" << apost << " nEntries=" << apost << nmax << apost << ">";
+    fout << "  <Vector name=" << apost << "TileLayerRings" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << nmax << apost << ">";
     if (debug)
-      std::cout << "  <Vector name=" << apost << "TileLayerRings" << apost << " type=" << apost << "numeric" << apost << " nEntries=" << apost << nmax << apost << ">";
+      std::cout << "  <Vector name=" << apost << "TileLayerRings" << apost << " type=" << apost << "numeric" << apost
+                << " nEntries=" << apost << nmax << apost << ">";
     for (int k = 0; k < nmax; ++k) {
       std::string last = ((k + 1) == nmax) ? " " : ",";
       int lyr1r2 = HGCalTileIndex::tilePack(zones[k].layer, zones[k].rmin, zones[k].rmax);
