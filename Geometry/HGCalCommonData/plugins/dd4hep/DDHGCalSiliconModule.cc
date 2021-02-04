@@ -42,7 +42,8 @@ struct HGCalSiliconModule {
     partialTypes_ = args.value<int>("PartialTypes");
     orientationTypes_ = args.value<int>("OrientationTypes");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Number of types of wafers: " << waferTypes_ << " facings: " << facingTypes_ << " partials: " << partialTypes_ << " Orientations: " << orientationTypes_;
+    edm::LogVerbatim("HGCalGeom") << "Number of types of wafers: " << waferTypes_ << " facings: " << facingTypes_
+                                  << " partials: " << partialTypes_ << " Orientations: " << orientationTypes_;
 #endif
     firstLayer_ = args.value<int>("FirstLayer");
     absorbMode_ = args.value<int>("AbsorberMode");
@@ -65,13 +66,14 @@ struct HGCalSiliconModule {
     waferFull_ = args.value<std::vector<std::string>>("WaferNamesFull");
     waferPart_ = args.value<std::vector<std::string>>("WaferNamesPartial");
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << waferFull_.size() << " full and " << waferPart_.size() << " partial modules\nDDHGCalSiliconModule:Full Modules:";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << waferFull_.size() << " full and " << waferPart_.size()
+                                  << " partial modules\nDDHGCalSiliconModule:Full Modules:";
     unsigned int i1max = static_cast<unsigned int>(waferFull_.size());
     for (unsigned int i1 = 0; i1 < i1max; i1 += 2) {
       std::ostringstream st1;
       unsigned int i2 = std::min((i1 + 2), i1max);
       for (unsigned int i = i1; i < i2; ++i)
-	st1 << " [" << i << "] " << waferFull_[i];
+        st1 << " [" << i << "] " << waferFull_[i];
       edm::LogVerbatim("HGCalGeom") << st1.str() << std::endl;
     }
     edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: Partial Modules:";
@@ -80,7 +82,7 @@ struct HGCalSiliconModule {
       std::ostringstream st1;
       unsigned int i2 = std::min((i1 + 2), i1max);
       for (unsigned int i = i1; i < i2; ++i)
-	st1 << " [" << i << "] " << waferPart_[i];
+        st1 << " [" << i << "] " << waferPart_[i];
       edm::LogVerbatim("HGCalGeom") << st1.str() << std::endl;
     }
 #endif
@@ -113,7 +115,7 @@ struct HGCalSiliconModule {
       for (unsigned int i = 0; i < layerType_.size(); ++i) {
         if (layerSense_[i] > 0) {
           int ii = layerType_[i];
-	  copyNumber_[ii] = (layerSense_[i] == 1) ? firstLayer_ : (firstLayer_ + 1);
+          copyNumber_[ii] = (layerSense_[i] == 1) ? firstLayer_ : (firstLayer_ + 1);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "First copy number for layer type " << i << ":" << ii << " with "
                                         << materials_[ii] << " changed to " << copyNumber_[ii];
@@ -147,7 +149,8 @@ struct HGCalSiliconModule {
     waferProperty_ = args.value<std::vector<int>>("WaferProperties");
     waferLayerStart_ = args.value<std::vector<int>>("WaferLayerStart");
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "waferProperties with " << waferIndex_.size() << " entries in " << waferLayerStart_.size() << " layers";
+    edm::LogVerbatim("HGCalGeom") << "waferProperties with " << waferIndex_.size() << " entries in "
+                                  << waferLayerStart_.size() << " layers";
     for (unsigned int k = 0; k < waferLayerStart_.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "LayerStart[" << k << "] " << waferLayerStart_[k];
     for (unsigned int k = 0; k < waferIndex_.size(); ++k)
@@ -262,11 +265,12 @@ struct HGCalSiliconModule {
 
         dd4hep::Position r1(0, 0, zz);
         mother.placeVolume(glog, copy, r1);
-	int inc = ((layerSense_[ly] > 0) && (facingTypes_ > 1)) ? 2 : 1;
+        int inc = ((layerSense_[ly] > 0) && (facingTypes_ > 1)) ? 2 : 1;
         copyNumber_[ii] = copy + inc;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << glog.name() << " number " << copy << " positioned in "
-                                      << mother.name() << " at (0, 0, " << (f2mm_ * zz) << ") with no rotation";
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << glog.name() << " number " << copy
+                                      << " positioned in " << mother.name() << " at (0, 0, " << (f2mm_ * zz)
+                                      << ") with no rotation";
 #endif
         zz += hthick;
       }  // End of loop over layers in a block
@@ -295,16 +299,14 @@ struct HGCalSiliconModule {
 #endif
   }
 
-  void positionSensitive(cms::DDParsingContext& ctxt,
-                         xml_h e,
-                         const dd4hep::Volume& glog,
-                         int layertype,
-                         int layer) {
+  void positionSensitive(cms::DDParsingContext& ctxt, xml_h e, const dd4hep::Volume& glog, int layertype, int layer) {
     cms::DDNamespace ns(ctxt, e, true);
     static const double sqrt3 = std::sqrt(3.0);
     int layercenter = layerCenter_[layer];
     int firstWafer = waferLayerStart_[layer];
-    int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1] : static_cast<int>(waferLayerStart_.size()));
+    int lastWafer =
+        ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
+                                                                 : static_cast<int>(waferLayerStart_.size()));
     double r = 0.5 * (waferSize_ + waferSepar_);
     double R = 2.0 * r / sqrt3;
     double dy = 0.75 * R;
@@ -312,7 +314,10 @@ struct HGCalSiliconModule {
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), kount(0);
     std::vector<int> ntype(3, 0);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << glog.name() << " r " << (f2mm_ * r) << " R " << (f2mm_ * R) << " dy " << (f2mm_ * dy) << " Shift " << (f2mm_ * xyoff.first) << ":" << (f2mm_ * xyoff.second) << " WaferSize " << (f2mm_ * (waferSize_ + waferSepar_)) << " index " << firstWafer << ":" << (lastWafer - 1);
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << glog.name() << " r " << (f2mm_ * r) << " R "
+                                  << (f2mm_ * R) << " dy " << (f2mm_ * dy) << " Shift " << (f2mm_ * xyoff.first) << ":"
+                                  << (f2mm_ * xyoff.second) << " WaferSize " << (f2mm_ * (waferSize_ + waferSepar_))
+                                  << " index " << firstWafer << ":" << (lastWafer - 1);
 #endif
     for (int k = firstWafer; k < lastWafer; ++k) {
       int u = HGCalWaferIndex::waferU(waferIndex_[k]);
@@ -331,36 +336,45 @@ struct HGCalSiliconModule {
       std::string wafer;
       int i(999);
       if (part == HGCalTypes::WaferFull) {
-	i = (layertype - 1) * waferTypes_ + type;
-	wafer = waferFull_[i];
+        i = (layertype - 1) * waferTypes_ + type;
+        wafer = waferFull_[i];
       } else {
-	i =  (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ + (layertype - 1) * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
+        i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ +
+            (layertype - 1) * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind "  << layertype << ":" << type << ":" << part << ":" << orien << ":" << i << ":" << waferPart_.size();
+        edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layertype << ":" << type << ":" << part
+                                      << ":" << orien << ":" << i << ":" << waferPart_.size();
 #endif
-	wafer = waferPart_[i];
+        wafer = waferPart_[i];
       }
       int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconModule: Layer" << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Wafer " << wafer << " number " << copy << " type:part:orien:ind " << type << ":" << part << ":" << orien << ":" << i << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v;
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconModule: Layer" << HGCalWaferIndex::waferLayer(waferIndex_[k])
+                                    << " Wafer " << wafer << " number " << copy << " type:part:orien:ind " << type
+                                    << ":" << part << ":" << orien << ":" << i << " layer:u:v:indx "
+                                    << (layer + firstLayer_) << ":" << u << ":" << v;
       if (iu > ium)
-	ium = iu;
+        ium = iu;
       if (iv > ivm)
-	ivm = iv;
+        ivm = iv;
       kount++;
       if (copies_.count(copy) == 0)
-	copies_.insert(copy);
+        copies_.insert(copy);
 #endif
       dd4hep::Position tran(xpos, ypos, 0.0);
       glog.placeVolume(ns.volume(wafer), copy, tran);
 #ifdef EDM_ML_DEBUG
       ++ntype[type];
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconModule: " << wafer << " number " << copy << " type " << layertype << ":" << type << " positioned in " << glog.name() << " at (" << (f2mm_ * xpos) << ", " << (f2mm_ * ypos) << ", 0) with no rotation";
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconModule: " << wafer << " number " << copy << " type " << layertype
+                                    << ":" << type << " positioned in " << glog.name() << " at (" << (f2mm_ * xpos)
+                                    << ", " << (f2mm_ * ypos) << ", 0) with no rotation";
 #endif
     }
-    
+
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: Maximum # of u " << ium << " # of v " << ivm << " and " << kount << " wafers (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2] << ") for " << glog.name();
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: Maximum # of u " << ium << " # of v " << ivm << " and "
+                                  << kount << " wafers (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2] << ") for "
+                                  << glog.name();
 #endif
   }
 

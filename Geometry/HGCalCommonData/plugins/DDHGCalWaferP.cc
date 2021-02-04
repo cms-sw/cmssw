@@ -162,7 +162,8 @@ void DDHGCalWaferP::execute(DDCompactView& cpv) {
     for (unsigned int l = 0; l < layers_.size(); l++) {
       unsigned int i = layers_[l];
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP:Layer " << l << ":" << i << " T " << layerThick_[i] << " Copy " << copyNumber[i];
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP:Layer " << l << ":" << i << " T " << layerThick_[i] << " Copy "
+                                    << copyNumber[i];
 #endif
       DDRotation rot;
       if (copyNumber[i] == 1) {
