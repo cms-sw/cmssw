@@ -7,7 +7,7 @@
 #include "DataFormats/BTauReco/interface/VertexTypes.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
 

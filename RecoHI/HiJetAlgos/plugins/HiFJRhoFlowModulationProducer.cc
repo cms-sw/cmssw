@@ -71,8 +71,8 @@ HiFJRhoFlowModulationProducer::HiFJRhoFlowModulationProducer(const edm::Paramete
       evtPlaneToken_(consumes<reco::EvtPlaneCollection>(iConfig.getParameter<edm::InputTag>("EvtPlane"))) {
   produces<std::vector<double>>("rhoFlowFitParams");
   TMinuitMinimizer::UseStaticMinuit(false);
-  lineFit_p_ = std::unique_ptr<TF1>(new TF1("lineFit", lineFunction, -TMath::Pi(), TMath::Pi()));
-  flowFit_p_ = std::unique_ptr<TF1>(new TF1("flowFit", flowFunction, -TMath::Pi(), TMath::Pi()));
+  lineFit_p_ = std::make_unique<TF1>("lineFit", lineFunction, -TMath::Pi(), TMath::Pi());
+  flowFit_p_ = std::make_unique<TF1>("flowFit", flowFunction, -TMath::Pi(), TMath::Pi());
 }
 
 // ------------ method called to produce the data  ------------
