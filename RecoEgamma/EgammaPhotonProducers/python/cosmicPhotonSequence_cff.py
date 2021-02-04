@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
-photonCore.scHybridBarrelProducer = cms.InputTag("cosmicSuperClusters","CosmicBarrelSuperClusters")
-photonCore.scIslandEndcapProducer = cms.InputTag("cosmicSuperClusters","CosmicEndcapSuperClusters")
-photonCore.minSCEt = cms.double(0.0)
+photonCore.scHybridBarrelProducer = "cosmicSuperClusters:CosmicBarrelSuperClusters"
+photonCore.scIslandEndcapProducer = "cosmicSuperClusters:CosmicEndcapSuperClusters"
+photonCore.minSCEt = 0.0
 
 
-photons.usePrimaryVertex = cms.bool(False)
-photons.minSCEtBarrel = cms.double(0.0)
-photons.minSCEtEndcap = cms.double(0.0)
+photons.usePrimaryVertex = False
+photons.minSCEtBarrel    = 0.0
+photons.minSCEtEndcap    = 0.0
 
 cosmicPhotonTask = cms.Task(photonCore,photons)
 cosmicPhotonSequence = cms.Sequence(cosmicPhotonTask)
