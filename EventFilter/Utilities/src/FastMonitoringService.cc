@@ -357,7 +357,8 @@ namespace evf {
     fmt_->jsonMonitor_->setNStreams(nStreams_);
     fmt_->m_data.registerVariables(fmt_->jsonMonitor_.get(), nStreams_, threadIDAvailable_ ? nThreads_ : 0);
     monInit_.store(false, std::memory_order_release);
-    fmt_->start(&FastMonitoringService::snapshotRunner, this);
+    if (sleepTime_ > 0)
+      fmt_->start(&FastMonitoringService::snapshotRunner, this);
 
     //this definition needs: #include "tbb/compat/thread"
     //however this would results in TBB imeplementation replacing std::thread
@@ -541,21 +542,22 @@ namespace evf {
     //full global and stream merge&output for this lumi
 
     // create file name for slow monitoring file
+    bool output = sleepTime_ > 0; 
     if (filePerFwkStream_) {
       std::stringstream slowFileNameStem;
       slowFileNameStem << slowName_ << "_ls" << std::setfill('0') << std::setw(4) << lumi << "_pid" << std::setfill('0')
                        << std::setw(5) << getpid();
       std::filesystem::path slow = workingDirectory_;
       slow /= slowFileNameStem.str();
-      fmt_->jsonMonitor_->outputFullJSONs(slow.string(), ".jsn", lumi);
+      fmt_->jsonMonitor_->outputFullJSONs(slow.string(), ".jsn", lumi, output);
     } else {
       std::stringstream slowFileName;
       slowFileName << slowName_ << "_ls" << std::setfill('0') << std::setw(4) << lumi << "_pid" << std::setfill('0')
                    << std::setw(5) << getpid() << ".jsn";
       std::filesystem::path slow = workingDirectory_;
       slow /= slowFileName.str();
-      fmt_->jsonMonitor_->outputFullJSON(slow.string(),
-                                        lumi);  //full global and stream merge and JSON write for this lumi
+      //full global and stream merge and JSON write for this lumi
+      fmt_->jsonMonitor_->outputFullJSON(slow.string(), lumi, output);
     }
     fmt_->jsonMonitor_->discardCollected(lumi);  //we don't do further updates for this lumi
   }
