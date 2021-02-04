@@ -348,7 +348,7 @@ void L1TStage2CaloLayer1::updateMismatch(
     int mismatchType,
     std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>>>& streamMismatches)
     const {
-  //check if this combination of Run/Lumi/Event already exists in the strem mismatch list
+  //check if this combination of Run/Lumi/Event already exists in the stream mismatch list
   //if it does, update that entry, otherwise insert a new one with this particular combination.
   for (auto mismatchIterator = streamMismatches.begin(); mismatchIterator != streamMismatches.end();
        ++mismatchIterator) {
