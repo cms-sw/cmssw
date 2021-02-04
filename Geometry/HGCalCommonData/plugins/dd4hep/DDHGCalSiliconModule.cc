@@ -269,7 +269,7 @@ struct HGCalSiliconModule {
         copyNumber_[ii] = copy + inc;
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << glog.name() << " number " << copy
-                                      << " positioned in " << mother.name() << " at (0, 0, " << (f2mm_ * zz)
+                                      << " positioned in " << mother.name() << " at (0,0," << (f2mm_ * zz)
                                       << ") with no rotation";
 #endif
         zz += hthick;
@@ -367,7 +367,7 @@ struct HGCalSiliconModule {
       ++ntype[type];
       edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconModule: " << wafer << " number " << copy << " type " << layertype
                                     << ":" << type << " positioned in " << glog.name() << " at (" << (f2mm_ * xpos)
-                                    << ", " << (f2mm_ * ypos) << ", 0) with no rotation";
+                                    << "," << (f2mm_ * ypos) << ",0) with no rotation";
 #endif
     }
 
