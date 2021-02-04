@@ -377,7 +377,7 @@ void DDHGCalEEFileAlgo::positionSensitive(
         if (layertype > 1)
           type += 3;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << wafers_[type] << " number " << copy << " type "
+        edm::LogVerbatim("HGCalGeom") << " DDHGCalEEFileAlgo: " << wafers_[type] << " number " << copy << " type "
                                       << type << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v
                                       << ":" << indx;
         if (iu > ium)

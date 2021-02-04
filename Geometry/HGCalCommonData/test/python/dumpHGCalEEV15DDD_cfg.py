@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
-process.load("Geometry.HGCalCommonData.testHGCalEEXML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalEEV15XML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.G4cerr=dict()
     process.MessageLogger.G4cout=dict()
     process.MessageLogger.HGCalGeom=dict()
-    process.MessageLogger.TGeoMgrFromDdd=dict()
 
 process.source = cms.Source("EmptySource")
 
@@ -17,11 +16,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.add_(cms.ESProducer("TGeoMgrFromDdd",
-        verbose = cms.untracked.bool(True),
+        verbose = cms.untracked.bool(False),
         level   = cms.untracked.int32(14)
 ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('hgcalEEDDD.root'))
+                              outputFileName = cms.untracked.string('hgcalEEV15DDD.root'))
 
 process.p = cms.Path(process.dump)
