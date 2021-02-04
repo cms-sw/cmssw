@@ -271,7 +271,7 @@ namespace edm {
           }
         }
       }
-      if (not rootFile()) {
+      if (not opened) {
         throw Exception(errors::FileOpenError) << "RootEmbeddedFileSequence::readOneRandom(): "
                                                << " input file retries exhausted.\n";
       }
