@@ -60,13 +60,13 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
   // 1 track Theta taken from stub coordinate in ME2, ME3, ME4 (in this priority)
   // 4 RPC bits indicating if ME or RE hit was used in each station (S1, S2, S3, S4)
   // Total: 23 variables
-  static std::array<float, 6> x_dphi;
-  static std::array<float, 6> x_dtheta;
-  static std::array<float, 4> x_bend_emtf;
-  static std::array<float, 1> x_fr_emtf;
-  static std::array<float, 1> x_trk_theta;
-  static std::array<float, 1> x_me11ring;
-  static std::array<float, 4> x_rpcbit;
+  std::array<float, 6> x_dphi;
+  std::array<float, 6> x_dtheta;
+  std::array<float, 4> x_bend_emtf;
+  std::array<float, 1> x_fr_emtf;
+  std::array<float, 1> x_trk_theta;
+  std::array<float, 1> x_me11ring;
+  std::array<float, 4> x_rpcbit;
 
   // Initialize to zeros
   x_dphi.fill(0);
@@ -239,8 +239,8 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
 }
 
 void PtAssignmentEngineDxy::call_tensorflow_dxy(const emtf::Feature& feature, emtf::Prediction& prediction) const {
-  static tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, emtf::NUM_FEATURES});
-  static std::vector<tensorflow::Tensor> outputs;
+  tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, emtf::NUM_FEATURES});
+  std::vector<tensorflow::Tensor> outputs;
   emtf_assert(feature.size() == emtf::NUM_FEATURES);
 
   float* d = input.flat<float>().data();
