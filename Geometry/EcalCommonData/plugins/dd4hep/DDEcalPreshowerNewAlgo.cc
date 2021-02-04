@@ -209,8 +209,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         const string& dd_Alname_l("esalgo:" + es.layName[i] + "LOutAltmp5");
         const string& dd_Alname_m("esalgo:" + es.layName[i] + "LOutAltmp6");
 
-        Solid outAl =
-            ns.addSolid(dd_Alname_f, Tube(dd_Alname_f, es.rMax_Abs_Al - 70 * dd4hep::cm, es.rMax_Abs_Al, zHalf, 0., 90._deg));
+        Solid outAl = ns.addSolid(
+            dd_Alname_f, Tube(dd_Alname_f, es.rMax_Abs_Al - 70 * dd4hep::cm, es.rMax_Abs_Al, zHalf, 0., 90._deg));
 
         outalbx = es.absAlX_X * 0.1;
         outalby = es.rMax_Abs_Al + 0.1 * dd4hep::mm - es.absAlX_subtr1_Yshift;
@@ -220,8 +220,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           outalby = es.rMax_Abs_Al + 0.1 * dd4hep::mm - es.absAlY_subtr1_Yshift;
           shiftR = es.absAlY_subtr1_Xshift;
         }
-        Solid outAltmp = ns.addSolid(
-            dd_Alname_h, Box(dd_Alname_h, outalbx * k_half + 0.1 * dd4hep::mm, outalby * k_half + 0.1 * dd4hep::mm, zHalf + 0.1 * dd4hep::mm));
+        Solid outAltmp = ns.addSolid(dd_Alname_h,
+                                     Box(dd_Alname_h,
+                                         outalbx * k_half + 0.1 * dd4hep::mm,
+                                         outalby * k_half + 0.1 * dd4hep::mm,
+                                         zHalf + 0.1 * dd4hep::mm));
         Solid outAltmp3 = ns.addSolid(
             dd_Alname_j,
             SubtractionSolid(dd_Alname_j, outAl, outAltmp, Position(outalbx * k_half, outalby * k_half + shiftR, 0)));
@@ -234,8 +237,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           outalbx2 = es.rMax_Abs_Al + 0.1 * dd4hep::mm - es.absAlY_subtr1_Xshift;
           shiftR2 = es.absAlY_subtr1_Xshift;
         }
-        Solid outAltmp2 = ns.addSolid(
-            dd_Alname_i, Box(dd_Alname_i, outalbx2 * k_half + 0.1 * dd4hep::mm, outalby2 * k_half + 0.1 * dd4hep::mm, zHalf + 0.1 * dd4hep::mm));
+        Solid outAltmp2 = ns.addSolid(dd_Alname_i,
+                                      Box(dd_Alname_i,
+                                          outalbx2 * k_half + 0.1 * dd4hep::mm,
+                                          outalby2 * k_half + 0.1 * dd4hep::mm,
+                                          zHalf + 0.1 * dd4hep::mm));
         Solid outAltmp4 = ns.addSolid(
             dd_Alname_k,
             SubtractionSolid(
@@ -326,7 +332,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           Solid solid_d2 =
               ns.addSolid(dd_FAl_name_d, UnionSolid(dd_FAl_name_d, solid_d1, solid_b2, Position(-sdx, -sdy, 0)));
 
-          if (((es.abs1stx[K] < rIn + 30 * dd4hep::cm) && I == 10) || ((es.abs2ndx[K] < rIn + 30 * dd4hep::cm) && I == 20)) {
+          if (((es.abs1stx[K] < rIn + 30 * dd4hep::cm) && I == 10) ||
+              ((es.abs2ndx[K] < rIn + 30 * dd4hep::cm) && I == 20)) {
             layerFinOutAl.placeVolume(layer, 3, Position(sdx, -sdy, 0));
             layerFinOutAl.placeVolume(layer, 4, Position(-sdx, -sdy, 0));
 
@@ -350,7 +357,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         Volume blayer = Volume(dd_tmp_name_d, final, ns.material(es.materials[i]));
         parentVolume.placeVolume(blayer, 1, Position(0, 0, zpos));
 
-        Solid iner_Al = Tube(dd_tmp_name_e, es.in_rad_Abs_Al, es.in_rad_Abs_Pb - 0.01 * dd4hep::mm, zHalf, 0., 360._deg);
+        Solid iner_Al =
+            Tube(dd_tmp_name_e, es.in_rad_Abs_Al, es.in_rad_Abs_Pb - 0.01 * dd4hep::mm, zHalf, 0., 360._deg);
         Volume layerAl = Volume(dd_tmp_name_e, iner_Al, ns.material(es.materials[i - 1]));
         parentVolume.placeVolume(layerAl, 1, Position(0, 0, zpos));
         parentVolume.placeVolume(layerFinOutAl, 1, Position(0, 0, zpos));
@@ -560,7 +568,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           xpos = xpos - es.dee_separation;
 
         ypos = (sz - int(es.startOfFirstLadd[J])) * es.waf_active - ladder_new_length * k_half +
-               (es.ldrFrnt_Length - es.ldrBck_Length) * k_half + es.micromodule_length + 0.05 * dd4hep::cm - prev_length;
+               (es.ldrFrnt_Length - es.ldrBck_Length) * k_half + es.micromodule_length + 0.05 * dd4hep::cm -
+               prev_length;
 
         prev_length += ladd_shift;
 
