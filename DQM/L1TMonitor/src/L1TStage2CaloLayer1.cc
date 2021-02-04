@@ -784,4 +784,8 @@ void L1TStage2CaloLayer1::globalEndRunSummary(
     }
     ++ibin;
   }
+  //remove the remaining empty string labels to prevent overlap
+  for (int emptyBinIndex = ibin; emptyBinIndex <= 20; ++emptyBinIndex) {
+    theRunCache->last20Mismatches_->setBinLabel(emptyBinIndex, std::to_string(emptyBinIndex), 2);
+  }
 }
