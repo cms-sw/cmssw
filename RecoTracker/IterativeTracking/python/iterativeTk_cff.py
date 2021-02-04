@@ -24,7 +24,10 @@ from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
 
+
+tf_dummy_source = cms.ESSource("EmptyESSource", recordName = cms.string("TfGraphRecord"), firstValid = cms.vuint32(1), iovIsRunNotTime = cms.bool(True) )
 iterTrackingEarlyTask = _cfg.createEarlyTask("", "", globals())
 for _eraName, _postfix, _era in _cfg.nonDefaultEras():
     _era.toReplaceWith(iterTrackingEarlyTask, _cfg.createEarlyTask(_eraName, _postfix, globals()))
@@ -40,4 +43,17 @@ iterTrackingTask = cms.Task(InitialStepPreSplittingTask,
                             ConvStepTask,
                             conversionStepTracks
                             )
+
+iterTrackingTask_trackdnn = cms.Task(tf_dummy_source,
+                            InitialStepPreSplittingTask,
+                            trackerClusterCheck,
+                            iterTrackingEarlyTask,
+                            earlyGeneralTracks,
+                            muonSeededStepTask,
+                            preDuplicateMergingGeneralTracks,
+                            generalTracksTask,
+                            ConvStepTask,
+                            conversionStepTracks
+                            )
+trackdnn.toReplaceWith(iterTrackingTask, iterTrackingTask_trackdnn)
 iterTracking = cms.Sequence(iterTrackingTask)
