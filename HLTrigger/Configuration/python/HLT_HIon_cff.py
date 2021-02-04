@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_3_0/HIon --type HIon
 
-# /dev/CMSSW_11_3_0/HIon/V3 (CMSSW_11_3_0_pre1)
+# /dev/CMSSW_11_3_0/HIon/V7 (CMSSW_11_3_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_3_0/HIon/V3')
+  tableName = cms.string('/dev/CMSSW_11_3_0/HIon/V7')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -12311,7 +12311,8 @@ fragment.hltParticleFlowBlockPPOnAA = cms.EDProducer( "PFBlockProducer",
         DPtOverPtCuts_byTrackAlgo = cms.vdouble( 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 ),
         muonMaxDPtOPt = cms.double( 1.0 ),
         trackQuality = cms.string( "highPurity" ),
-        cleanBadConvertedBrems = cms.bool( False )
+        cleanBadConvertedBrems = cms.bool( False ),
+        vetoEndcap = cms.bool( False )
       ),
       cms.PSet(  source = cms.InputTag( "hltParticleFlowClusterECALUnseeded" ),
         importerName = cms.string( "ECALClusterImporter" ),
