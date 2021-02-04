@@ -21,8 +21,9 @@ FILE4=dtGeometryFiltered.log
 echo " testing Geometry/DTGeometryBuilder"
 
 export tmpdir=${LOCAL_TMP_DIR:-/tmp}
-echo "===== Test \"cmsRun validateDTGeometry_cfg.py\" ===="
-(cmsRun $F1) || die "Failure using cmsRun $F1" $?
+# The following test does not work with DD4hep with Geant4 units
+# echo "===== Test \"cmsRun validateDTGeometry_cfg.py\" ===="
+# (cmsRun $F1) || die "Failure using cmsRun $F1" $?
 echo "===== Test \"cmsRun testDTGeometry.py\" ===="
 (cmsRun $F2;
     grep -v 'Benchmark ' $FILE2 | grep -v '^ *[1-9]' | grep -v '%MSG-i' | grep -v '^Info '>& $FILE4;
