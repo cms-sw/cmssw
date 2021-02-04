@@ -35,11 +35,15 @@ int32_t HGCalTileIndex::tileSiPM(int32_t property) {
 }
 
 int32_t HGCalTileIndex::tilePack(int32_t ly, int32_t k1, int32_t k2) {
-  return (((ly % HGCalProperty::kHGCalTilePack) * HGCalProperty::kHGCalTilePack + (k1 % HGCalProperty::kHGCalTilePack)) * HGCalProperty::kHGCalTilePack + (k2 % HGCalProperty::kHGCalTilePack));
+  return (
+      ((ly % HGCalProperty::kHGCalTilePack) * HGCalProperty::kHGCalTilePack + (k1 % HGCalProperty::kHGCalTilePack)) *
+          HGCalProperty::kHGCalTilePack +
+      (k2 % HGCalProperty::kHGCalTilePack));
 }
 
 std::tuple<int32_t, int32_t, int32_t> HGCalTileIndex::tileUnpack(int32_t index) {
-  int32_t ly = (index / (HGCalProperty::kHGCalTilePack * HGCalProperty::kHGCalTilePack)) % HGCalProperty::kHGCalTilePack;
+  int32_t ly =
+      (index / (HGCalProperty::kHGCalTilePack * HGCalProperty::kHGCalTilePack)) % HGCalProperty::kHGCalTilePack;
   int32_t k1 = (index / HGCalProperty::kHGCalTilePack) % HGCalProperty::kHGCalTilePack;
   int32_t k2 = (index % HGCalProperty::kHGCalTilePack);
   return std::make_tuple(ly, k1, k2);
