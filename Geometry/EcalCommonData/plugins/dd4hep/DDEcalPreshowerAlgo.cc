@@ -205,8 +205,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         const string& dd_Alname_l("esalgo:" + es.layName[i] + "LOutAltmp5");
         const string& dd_Alname_m("esalgo:" + es.layName[i] + "LOutAltmp6");
 
-        Solid outAl =
-            ns.addSolid(dd_Alname_f, Tube(dd_Alname_f, es.rMax_Abs_Al - 70 * dd4hep::cm, es.rMax_Abs_Al, zHalf, 0., 90._deg));
+        Solid outAl = ns.addSolid(
+            dd_Alname_f, Tube(dd_Alname_f, es.rMax_Abs_Al - 70 * dd4hep::cm, es.rMax_Abs_Al, zHalf, 0., 90._deg));
 
         outalbx = es.absAlX_X * 0.1;
         outalby = es.rMax_Abs_Al + 0.1 * dd4hep::mm - es.absAlX_subtr1_Yshift;
@@ -216,8 +216,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           outalby = es.rMax_Abs_Al + 0.1 * dd4hep::mm - es.absAlY_subtr1_Yshift;
           shiftR = es.absAlY_subtr1_Xshift;
         }
-        Solid outAltmp =
-            ns.addSolid(dd_Alname_h, Box(dd_Alname_h, outalbx / 2. + 0.1 * dd4hep::mm, outalby / 2. + 0.1 * dd4hep::mm, zHalf + 0.1 * dd4hep::mm));
+        Solid outAltmp = ns.addSolid(dd_Alname_h,
+                                     Box(dd_Alname_h,
+                                         outalbx / 2. + 0.1 * dd4hep::mm,
+                                         outalby / 2. + 0.1 * dd4hep::mm,
+                                         zHalf + 0.1 * dd4hep::mm));
         Solid outAltmp3 = ns.addSolid(
             dd_Alname_j,
             SubtractionSolid(dd_Alname_j, outAl, outAltmp, Position(outalbx / 2., outalby / 2. + shiftR, 0)));
@@ -230,8 +233,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           outalbx2 = es.rMax_Abs_Al + 0.1 * dd4hep::mm - es.absAlY_subtr1_Xshift;
           shiftR2 = es.absAlY_subtr1_Xshift;
         }
-        Solid outAltmp2 =
-            ns.addSolid(dd_Alname_i, Box(dd_Alname_i, outalbx2 / 2. + 0.1 * dd4hep::mm, outalby2 / 2. + 0.1 * dd4hep::mm, zHalf + 0.1 * dd4hep::mm));
+        Solid outAltmp2 = ns.addSolid(dd_Alname_i,
+                                      Box(dd_Alname_i,
+                                          outalbx2 / 2. + 0.1 * dd4hep::mm,
+                                          outalby2 / 2. + 0.1 * dd4hep::mm,
+                                          zHalf + 0.1 * dd4hep::mm));
         Solid outAltmp4 = ns.addSolid(
             dd_Alname_k,
             SubtractionSolid(dd_Alname_k, outAltmp3, outAltmp2, Position(outalbx2 / 2. + shiftR2, outalby2 / 2., 0)));
@@ -320,7 +326,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           Solid solid_d2 =
               ns.addSolid(dd_FAl_name_d, UnionSolid(dd_FAl_name_d, solid_d1, solid_b2, Position(-sdx, -sdy, 0)));
 
-          if (((es.abs1stx[K] < rIn + 30 * dd4hep::cm) && I == 10) || ((es.abs2ndx[K] < rIn + 30 * dd4hep::cm) && I == 20)) {
+          if (((es.abs1stx[K] < rIn + 30 * dd4hep::cm) && I == 10) ||
+              ((es.abs2ndx[K] < rIn + 30 * dd4hep::cm) && I == 20)) {
             layerFinOutAl.placeVolume(layer, 3, Position(sdx, -sdy, 0));
             layerFinOutAl.placeVolume(layer, 4, Position(-sdx, -sdy, 0));
 
@@ -344,7 +351,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         Volume blayer = Volume(dd_tmp_name_d, final, ns.material(es.materials[i]));
         parentVolume.placeVolume(blayer, 1, Position(0, 0, zpos));
 
-        Solid iner_Al = Tube(dd_tmp_name_e, es.in_rad_Abs_Al, es.in_rad_Abs_Pb - 0.01 * dd4hep::mm, zHalf, 0., 360._deg);
+        Solid iner_Al =
+            Tube(dd_tmp_name_e, es.in_rad_Abs_Al, es.in_rad_Abs_Pb - 0.01 * dd4hep::mm, zHalf, 0., 360._deg);
         Volume layerAl = Volume(dd_tmp_name_e, iner_Al, ns.material(es.materials[i - 1]));
         parentVolume.placeVolume(layerAl, 1, Position(0, 0, zpos));
         parentVolume.placeVolume(layerFinOutAl, 1, Position(0, 0, zpos));
@@ -382,16 +390,16 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 0.);
 
       Solid solid_lbck = Trap("esalgo:LDRBCK",
-                              es.ldrBck_Length / 2.,                                    // pDz
-                              -es.wedge_angle,                                          // pTheta
-                              0,                                                        // pPhi
-                              es.ladder_width / 2.,                                     // pDy1
+                              es.ldrBck_Length / 2.,                                              // pDz
+                              -es.wedge_angle,                                                    // pTheta
+                              0,                                                                  // pPhi
+                              es.ladder_width / 2.,                                               // pDy1
                               (es.box_thick / cos(es.wedge_angle * 2) + 0.02 * dd4hep::mm) / 2.,  // pDx1
                               (es.box_thick / cos(es.wedge_angle * 2) + 0.02 * dd4hep::mm) / 2.,  // pDx2
-                              0,                                                        // pAlp1
-                              es.ladder_width / 2.,                                     // pDy2
-                              (es.ladder_thick - es.wedge_back_thick) / 2.,             // pDx3
-                              (es.ladder_thick - es.wedge_back_thick) / 2.,             // pDx4
+                              0,                                                                  // pAlp1
+                              es.ladder_width / 2.,                                               // pDy2
+                              (es.ladder_thick - es.wedge_back_thick) / 2.,                       // pDx3
+                              (es.ladder_thick - es.wedge_back_thick) / 2.,                       // pDx4
                               0.);
 
       Solid solid_lfhalf = Trap("esalgo:LDRFHALF",
@@ -408,16 +416,16 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 0.);
 
       Solid solid_lbhalf = Trap("esalgo:LDRBHALF",
-                                es.ldrBck_Length / 2.,                                     // pDz
-                                -es.wedge_angle,                                           // pTheta
-                                0,                                                         // pPhi
-                                (es.ladder_width / 2.) / 2.,                               // pDy1
+                                es.ldrBck_Length / 2.,                                               // pDz
+                                -es.wedge_angle,                                                     // pTheta
+                                0,                                                                   // pPhi
+                                (es.ladder_width / 2.) / 2.,                                         // pDy1
                                 (es.box_thick / cos(es.wedge_angle * 2.) + 0.02 * dd4hep::mm) / 2.,  // pDx1
                                 (es.box_thick / cos(es.wedge_angle * 2.) + 0.02 * dd4hep::mm) / 2.,  // pDx2
-                                0,                                                         // pAlp1
-                                (es.ladder_width / 2.) / 2.,                               // pDy2
-                                (es.ladder_thick - es.wedge_back_thick) / 2.,              // pDx3
-                                (es.ladder_thick - es.wedge_back_thick) / 2.,              // pDx4
+                                0,                                                                   // pAlp1
+                                (es.ladder_width / 2.) / 2.,                                         // pDy2
+                                (es.ladder_thick - es.wedge_back_thick) / 2.,                        // pDx3
+                                (es.ladder_thick - es.wedge_back_thick) / 2.,                        // pDx4
                                 0.);
 
       Solid solid_lfhtrunc =
@@ -710,8 +718,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         for (int i = 0; i <= 1; i++) {
           for (int j = 0; j <= 4; j++) {
             xpos = (i * 2 - 1) * es.waf_intra_col_sep / 2.;
-            ypos = -ladder_length / 2. + 0.05 * dd4hep::mm - (es.ldrFrnt_Length - es.ldrBck_Length) / 2. + es.wedge_length / 2. +
-                   j * es.waf_active;
+            ypos = -ladder_length / 2. + 0.05 * dd4hep::mm - (es.ldrFrnt_Length - es.ldrBck_Length) / 2. +
+                   es.wedge_length / 2. + j * es.waf_active;
             zpos = -es.ladder_thick / 2. + 0.005 * dd4hep::mm + es.wedge_offset;
             if (es.laddL5map[(i + j * 2 + M * 10)] == 1) {
               scopy++;
@@ -740,8 +748,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         for (int i = 0; i <= 1; i++) {
           for (int j = 0; j <= 3; j++) {
             xpos = (i * 2 - 1) * es.waf_intra_col_sep / 2.;
-            ypos = -ladder_length / 2. + 0.05 * dd4hep::mm - (es.ldrFrnt_Length - es.ldrBck_Length) / 2. + es.wedge_length / 2. +
-                   j * es.waf_active;
+            ypos = -ladder_length / 2. + 0.05 * dd4hep::mm - (es.ldrFrnt_Length - es.ldrBck_Length) / 2. +
+                   es.wedge_length / 2. + j * es.waf_active;
             zpos = -es.ladder_thick / 2. + 0.005 * dd4hep::mm + es.wedge_offset;
             if (es.laddL4map[(i + j * 2 + (M - es.typesL5.size()) * 8)] == 1) {
               scopy++;
