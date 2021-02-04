@@ -51,64 +51,40 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(reducedEgamma, 
-        preshowerEcalHits = cms.InputTag(""),
+        preshowerEcalHits = "",
 )
 
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(
     reducedEgamma, 
-    photonFloatValueMapSources = cms.VInputTag(
-        cms.InputTag("photonEcalPFClusterIsolationProducer"),
-        cms.InputTag("photonHcalPFClusterIsolationProducer"),
-        ),
-    photonFloatValueMapOutput = cms.vstring(
-        "phoEcalPFClusIso",
-        "phoHcalPFClusIso",
-        ),
-    ootPhotonFloatValueMapSources = cms.VInputTag(
-        cms.InputTag("ootPhotonEcalPFClusterIsolationProducer"),
-        ),
-    ootPhotonFloatValueMapOutput = cms.vstring(
-        "ootPhoEcalPFClusIso",
-        ),
-    gsfElectronFloatValueMapSources = cms.VInputTag(
-        cms.InputTag("electronEcalPFClusterIsolationProducer"),
-        cms.InputTag("electronHcalPFClusterIsolationProducer"),
-        ),
-    gsfElectronFloatValueMapOutput = cms.vstring(
-        "eleEcalPFClusIso",
-        "eleHcalPFClusIso",
-        )
-    )
+    photonFloatValueMapSources      = ["photonEcalPFClusterIsolationProducer",
+                                       "photonHcalPFClusterIsolationProducer"],
+    photonFloatValueMapOutput       = ["phoEcalPFClusIso",
+                                       "phoHcalPFClusIso"],
+    ootPhotonFloatValueMapSources   = ["ootPhotonEcalPFClusterIsolationProducer"],
+    ootPhotonFloatValueMapOutput    = ["ootPhoEcalPFClusIso"],
+    gsfElectronFloatValueMapSources = ["electronEcalPFClusterIsolationProducer",
+                                       "electronHcalPFClusterIsolationProducer"],
+    gsfElectronFloatValueMapOutput  = ["eleEcalPFClusIso",
+                                       "eleHcalPFClusIso"]
+)
 
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 run2_miniAOD_94XFall17.toModify(
     reducedEgamma, 
-    photonFloatValueMapSources = cms.VInputTag(
-        cms.InputTag("photonEcalPFClusterIsolationProducer"),
-        cms.InputTag("photonHcalPFClusterIsolationProducer"),
-        ),
-    photonFloatValueMapOutput = cms.vstring(
-        "phoEcalPFClusIso",
-        "phoHcalPFClusIso",
-        ),
-    ootPhotonFloatValueMapSources = cms.VInputTag(
-        cms.InputTag("ootPhotonEcalPFClusterIsolationProducer"),
-        cms.InputTag("ootPhotonHcalPFClusterIsolationProducer"),
-        ),
-    ootPhotonFloatValueMapOutput = cms.vstring(
-        "ootPhoEcalPFClusIso",
-        "ootPhoHcalPFClusIso",
-        ),
-    gsfElectronFloatValueMapSources = cms.VInputTag(
-        cms.InputTag("electronEcalPFClusterIsolationProducer"),
-        cms.InputTag("electronHcalPFClusterIsolationProducer"),
-        ),
-    gsfElectronFloatValueMapOutput = cms.vstring(
-        "eleEcalPFClusIso",
-        "eleHcalPFClusIso",
-        )
-    )
+    photonFloatValueMapSources      = ["photonEcalPFClusterIsolationProducer",
+                                       "photonHcalPFClusterIsolationProducer"],
+    photonFloatValueMapOutput       = ["phoEcalPFClusIso",
+                                       "phoHcalPFClusIso"],
+    ootPhotonFloatValueMapSources   = ["ootPhotonEcalPFClusterIsolationProducer",
+                                       "ootPhotonHcalPFClusterIsolationProducer"],
+    ootPhotonFloatValueMapOutput    = ["ootPhoEcalPFClusIso",
+                                       "ootPhoHcalPFClusIso"],
+    gsfElectronFloatValueMapSources = ["electronEcalPFClusterIsolationProducer",
+                                       "electronHcalPFClusterIsolationProducer"],
+    gsfElectronFloatValueMapOutput  = ["eleEcalPFClusIso",
+                                       "eleHcalPFClusIso"],
+)
 
 from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReducedEgamma
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
