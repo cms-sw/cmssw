@@ -971,6 +971,41 @@ upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
 )
 upgradeWFs['DD4hep'].allowReuse = False
 
+class UpgradeWorkflow_SonicTriton(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'allSonicTriton'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=='TTbar_13' and '2021' in key) \
+            or (fragment=='TTbar_14TeV' and '2026' in key)
+upgradeWFs['SonicTriton'] = UpgradeWorkflow_SonicTriton(
+    steps = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'Reco',
+        'RecoGlobal',
+        'HARVEST',
+        'HARVESTGlobal',
+        'ALCA',
+    ],
+    PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'Reco',
+        'RecoGlobal',
+        'HARVEST',
+        'HARVESTGlobal',
+        'ALCA',
+    ],
+    suffix = '_SonicTriton',
+    offset = 0.9001,
+)
+
 # check for duplicate offsets
 offsets = [specialWF.offset for specialType,specialWF in six.iteritems(upgradeWFs)]
 seen = set()
