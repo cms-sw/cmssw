@@ -7,6 +7,8 @@
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
+#include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
+
 LayerClusterAssociatorByEnergyScoreImpl::LayerClusterAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
@@ -23,21 +25,11 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
   const auto& caloParticles = *cPCH.product();
   auto nLayerClusters = clusters.size();
   //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
-  auto nCaloParticles = caloParticles.size();
   std::vector<size_t> cPIndices;
   //Consider CaloParticles coming from the hard scatterer
   //excluding the PU contribution and save the indices.
-  for (unsigned int cpId = 0; cpId < nCaloParticles; ++cpId) {
-    if (hardScatterOnly_ && (caloParticles[cpId].g4Tracks()[0].eventId().event() != 0 or
-                             caloParticles[cpId].g4Tracks()[0].eventId().bunchCrossing() != 0)) {
-      LogDebug("LayerClusterAssociatorByEnergyScoreImpl")
-          << "Excluding CaloParticles from event: " << caloParticles[cpId].g4Tracks()[0].eventId().event()
-          << " with BX: " << caloParticles[cpId].g4Tracks()[0].eventId().bunchCrossing() << std::endl;
-      continue;
-    }
-    cPIndices.emplace_back(cpId);
-  }
-  nCaloParticles = cPIndices.size();
+  removeCPFromPU(caloParticles, cPIndices);
+  auto nCaloParticles = cPIndices.size();
 
   // Initialize cPOnLayer. To be returned outside, since it contains the
   // information to compute the CaloParticle-To-LayerCluster score.
