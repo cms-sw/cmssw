@@ -124,6 +124,7 @@ namespace edm {
       bool resetErrHandler_;
       bool loadAllDictionaries_;
       bool autoLibraryLoader_;
+      bool interactiveDebug_;
       std::shared_ptr<const void> sigBusHandler_;
       std::shared_ptr<const void> sigSegvHandler_;
       std::shared_ptr<const void> sigIllHandler_;
@@ -750,7 +751,8 @@ namespace edm {
           unloadSigHandler_(pset.getUntrackedParameter<bool>("UnloadRootSigHandler")),
           resetErrHandler_(pset.getUntrackedParameter<bool>("ResetRootErrHandler")),
           loadAllDictionaries_(pset.getUntrackedParameter<bool>("LoadAllDictionaries")),
-          autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool>("AutoLibraryLoader")) {
+          autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool>("AutoLibraryLoader")),
+          interactiveDebug_(pset.getUntrackedParameter<bool>("InteractiveDebug")) {
       stackTracePause_ = pset.getUntrackedParameter<int>("StackTracePauseTime");
 
       if (unloadSigHandler_) {
@@ -870,6 +872,10 @@ namespace edm {
           ->setComment(
               "If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which "
               "attempts to do a clean shutdown.");
+      desc.addUntracked<bool>("InteractiveDebug", false)
+          ->setComment(
+              "If True, leave gdb attached to cmsRun after a crash; "
+              "if False, attach gdb, print a stack trace, and quit gdb");
       desc.addUntracked<int>("DebugLevel", 0)->setComment("Sets ROOT's gDebug value.");
       desc.addUntracked<int>("StackTracePauseTime", 300)
           ->setComment("Seconds to pause other threads during stack trace.");
@@ -889,16 +895,18 @@ namespace edm {
         //In that case, we are already all setup
         return;
       }
-      if (snprintf(pidString_,
-                   pidStringLength_ - 1,
-                   "date; gdb -quiet -p %d 2>&1 <<EOF |\n"
-                   "set width 0\n"
-                   "set height 0\n"
-                   "set pagination no\n"
-                   "thread apply all bt\n"
-                   "EOF\n"
-                   "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'",
-                   getpid()) >= pidStringLength_) {
+      std::string gdbcmd{"date; gdb -quiet -p %d"};
+      if (!interactiveDebug_) {
+        gdbcmd +=
+            " 2>&1 <<EOF |\n"
+            "set width 0\n"
+            "set height 0\n"
+            "set pagination no\n"
+            "thread apply all bt\n"
+            "EOF\n"
+            "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'";
+      }
+      if (snprintf(pidString_, pidStringLength_ - 1, gdbcmd.c_str(), getpid()) >= pidStringLength_) {
         std::ostringstream sstr;
         sstr << "Unable to pre-allocate stacktrace handler information";
         edm::Exception except(edm::errors::OtherCMS, sstr.str());
