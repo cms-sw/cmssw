@@ -1,7 +1,7 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 // Header files for endcap supercrystal geometry
 #include "Geometry/EcalCommonData/interface/DDEcalEndcapTrap.h"
 #include <CLHEP/Geometry/Transform3D.h>
@@ -12,7 +12,7 @@
 using namespace std;
 using namespace cms;
 using namespace dd4hep;
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 using DDTranslation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 using DDRotation = ROOT::Math::Rotation3D;
