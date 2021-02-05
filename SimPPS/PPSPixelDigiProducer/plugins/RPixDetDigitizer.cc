@@ -26,7 +26,7 @@ void RPixDetDigitizer::run(const std::vector<PSimHit> &input,
                            const CTPPSPixelGainCalibrations *pcalibrations,
 			   const PPSPixelTopology *pixelTopology) {
   if (verbosity_)
-    edm::LogInfo("RPixDetDigitizer") << det_id_ << " received input.size()=" << input.size();
+    edm::LogInfo("PPS") << "RPixDetDigitizer " << det_id_ << " received input.size()=" << input.size();
   theRPixPileUpSignals->reset();
   bool links_persistence_checked = links_persistence_ && input_links.size() == input.size();
   int input_size = input.size();
@@ -35,7 +35,7 @@ void RPixDetDigitizer::run(const std::vector<PSimHit> &input,
     the_pixel_charge_map = theRPixHitChargeConverter->processHit(input[i], *pixelTopology);
 
     if (verbosity_)
-      edm::LogInfo("RPixDetDigitizer") << det_id_ << " returned hits=" << the_pixel_charge_map.size();
+      edm::LogInfo("PPS") << "RPixDetDigitizer " << det_id_ << " returned hits=" << the_pixel_charge_map.size();
     if (links_persistence_checked)
       theRPixPileUpSignals->add(the_pixel_charge_map, input_links[i]);
     else
