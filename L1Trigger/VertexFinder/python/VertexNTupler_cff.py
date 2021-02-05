@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.VertexFinder.VertexProducer_cff import VertexProducer
 
 L1TVertexNTupler = cms.EDAnalyzer('VertexNTupler',
-  hepMCInputTag = cms.InputTag("generator"),
+  hepMCInputTag = cms.InputTag("generatorSmeared","","SIM"),
   genParticleInputTag = cms.InputTag("genParticles",""),
   tpInputTag = cms.InputTag("mix", "MergedTrackTruth"),
   stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),

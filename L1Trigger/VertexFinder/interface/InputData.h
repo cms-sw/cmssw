@@ -38,7 +38,6 @@ namespace l1tVertexFinder {
               const edm::EDGetTokenT<TTStubAssMap> stubTruthToken,
               const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken);
 
-
     // Sort Tracking Particles by vertex z position
     struct SortVertexByPt {
       inline bool operator()(const Vertex vertex0, const Vertex vertex1) { return (vertex0.pT() > vertex1.pT()); }

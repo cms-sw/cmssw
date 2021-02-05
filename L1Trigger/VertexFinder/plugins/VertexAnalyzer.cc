@@ -482,10 +482,6 @@ namespace l1tVertexFinder {
     // generate reconstructed vertices (starting at 1 avoids PV)
     for (unsigned int i = 0; i < numVertices; ++i) {
       RecoVertexWithTP* recoVertex = new RecoVertexWithTP(l1VerticesHandle->at(i), trackAssociationMap);
-      recoVertex->computeParameters(
-          settings_.vx_weightedmean(), settings_.vx_TrackMaxPt(), settings_.vx_TrackMaxPtBehavior());
-      if (settings_.vx_algo() == Algorithm::Kmeans || settings_.vx_algo() == Algorithm::HPV)
-        recoVertex->setZ0(l1VerticesHandle->at(i).z0());
       recoVertices.emplace_back(recoVertex);
     }
 
@@ -496,7 +492,7 @@ namespace l1tVertexFinder {
     if (settings_.debug() > 2 and numVertices > 0) {
       edm::LogInfo("VertexAnalyzer") << "analyzer::Num Found Vertices " << numVertices
                                      << "\nReconstructed Primary Vertex z0 " << RecoPrimaryVertex->z0() << " pT "
-                                     << RecoPrimaryVertex->pT();
+                                     << RecoPrimaryVertex->pt();
     }
 
     hisGenVertexPt_->Fill(inputData.genPt());
@@ -515,21 +511,21 @@ namespace l1tVertexFinder {
       }
     }
 
-    if (RecoPrimaryVertex->pT() > 100.) {
+    if (RecoPrimaryVertex->pt() > 100.) {
       hisRecoVertexVsGenVertexPt_->Fill(inputData.genPt());
     }
 
     if (settings_.debug() > 2) {
       edm::LogInfo("VertexAnalyzer") << "analyzer::** RECO VERTICES **";
       for (RecoVertexWithTP* vertex : recoVertices) {
-        edm::LogInfo("VertexAnalyzer") << "analyzer::recovertex z0 " << vertex->z0() << " pt " << vertex->pT()
+        edm::LogInfo("VertexAnalyzer") << "analyzer::recovertex z0 " << vertex->z0() << " pt " << vertex->pt()
                                        << " highpt " << vertex->hasHighPt() << " numtracks " << vertex->numTracks()
                                        << " numTrueTracks " << vertex->numTrueTracks();
       }
       edm::LogInfo("VertexAnalyzer") << "analyzer::True PrimaryVertex z0 " << TruePrimaryVertex.z0() << " pT "
                                      << TruePrimaryVertex.pT();
       edm::LogInfo("VertexAnalyzer") << "analyzer::Reco PrimaryVertex z0 " << RecoPrimaryVertex->z0() << " pT "
-                                     << RecoPrimaryVertex->pT() << " nTracks " << RecoPrimaryVertex->numTracks();
+                                     << RecoPrimaryVertex->pt() << " nTracks " << RecoPrimaryVertex->numTracks();
     }
 
     unsigned int TrackRank = 0;
@@ -557,7 +553,7 @@ namespace l1tVertexFinder {
       hisPrimaryVertexTrueZ0_->Fill(TruePrimaryVertex.z0());
 
     float z0res = TruePrimaryVertex.z0() - RecoPrimaryVertex->z0();
-    float pTres = std::abs(TruePrimaryVertex.pT() - RecoPrimaryVertex->pT());
+    float pTres = std::abs(TruePrimaryVertex.pT() - RecoPrimaryVertex->pt());
     hisRecoVertexZ0Resolution_->Fill(z0res);
     hisRecoVertexZ0Separation_->Fill(std::abs(z0res));
 
@@ -582,7 +578,7 @@ namespace l1tVertexFinder {
         }
       }
 
-      if (RecoPrimaryVertex->pT() > 100.) {
+      if (RecoPrimaryVertex->pt() > 100.) {
         hisRecoGenuineVertexVsGenTkVertexPt_->Fill(TruePrimaryVertex.pT());
       }
 
@@ -594,11 +590,11 @@ namespace l1tVertexFinder {
       hisRecoVertexPTResolution_->Fill(pTres / TruePrimaryVertex.pT());
       hisRecoVertexPTResolutionVsTruePt_->Fill(TruePrimaryVertex.pT(), pTres / TruePrimaryVertex.pT());
 
-      hisRecoVertexPTVsTruePt_->Fill(RecoPrimaryVertex->pT(), TruePrimaryVertex.pT());
+      hisRecoVertexPTVsTruePt_->Fill(RecoPrimaryVertex->pt(), TruePrimaryVertex.pT());
       hisNoTracksFromPrimaryVertex_->Fill(RecoPrimaryVertex->numTracks(), TruePrimaryVertex.numTracks());
       hisNoTrueTracksFromPrimaryVertex_->Fill(RecoPrimaryVertex->numTrueTracks(), TruePrimaryVertex.numTracks());
       hisRecoPrimaryVertexZ0width_->Fill(RecoPrimaryVertex->z0width());
-      hisRecoVertexPT_->Fill(RecoPrimaryVertex->pT());
+      hisRecoVertexPT_->Fill(RecoPrimaryVertex->pt());
 
       float matchratio = float(RecoPrimaryVertex->numTrueTracks()) / float(TruePrimaryVertex.numTracks());
       if (matchratio > 1.)
@@ -611,7 +607,7 @@ namespace l1tVertexFinder {
       hisFakeTracksRateInPV_->Fill(fakeRate);
       hisRecoPrimaryVertexResolutionVsTrueZ0_->Fill(TruePrimaryVertex.z0(), std::abs(z0res));
     } else {
-      hisRecoVertexOffPT_->Fill(RecoPrimaryVertex->pT());
+      hisRecoVertexOffPT_->Fill(RecoPrimaryVertex->pt());
       hisUnmatchedVertexZ0distance_->Fill(std::abs(z0res));
       if (settings_.debug() > 2) {
         edm::LogInfo("VertexAnalyzer")
@@ -729,7 +725,7 @@ namespace l1tVertexFinder {
       }
       if (i != primaryVertexIndex) {
         hisRecoPileUpVertexZ0width_->Fill(recoVertices.at(i)->z0width());
-        hisRecoPileUpVertexPT_->Fill(recoVertices.at(i)->pT());
+        hisRecoPileUpVertexPT_->Fill(recoVertices.at(i)->pt());
         double PUres = 999.;
         for (unsigned int j = 0; j < inputData.getRecoPileUpVertices().size(); ++j) {
           if (std::abs(recoVertices.at(i)->z0() - inputData.getRecoPileUpVertices()[j].z0()) < PUres) {

@@ -350,26 +350,6 @@ namespace l1tVertexFinder {
 
   void VertexNTupler::beginJob() {}
 
-  std::vector<std::shared_ptr<const RecoVertexWithTP>> extractVertices(
-      const edm::Handle<std::vector<l1t::Vertex>>& handle,
-      const std::map<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const L1TrackTruthMatched*>& trackAssocMap,
-      const AnalysisSettings& settings) {
-    std::vector<std::shared_ptr<const RecoVertexWithTP>> recoVertices;
-    recoVertices.reserve(handle->size());
-
-    for (unsigned int i = 0; i < handle->size(); ++i) {
-      RecoVertexWithTP* recoVertex = new RecoVertexWithTP(handle->at(i), trackAssocMap);
-      recoVertex->computeParameters(
-          settings.vx_weightedmean(), settings.vx_TrackMaxPt(), settings.vx_TrackMaxPtBehavior());
-      if (settings.vx_algo() == Algorithm::Kmeans || settings.vx_algo() == Algorithm::HPV)
-        recoVertex->setZ0(handle->at(i).z0());
-
-      recoVertices.push_back(std::shared_ptr<const RecoVertexWithTP>(recoVertex));
-    }
-
-    return recoVertices;
-  }
-
   std::ostream& operator<<(std::ostream& out, const reco::GenParticle& particle) {
     const bool positive = (particle.pdgId() < 0);
     const size_t absId = abs(particle.pdgId());
@@ -514,12 +494,12 @@ namespace l1tVertexFinder {
 
     // True pile-up vertex info
     truePileUpVtxZ0_.clear();
-
     for (const Vertex& vtx : inputData.getPileUpVertices())
       truePileUpVtxZ0_.push_back(vtx.z0());
 
-    hepMCVtxZ0_ = inputData.getHepMCVertex().z0();
-    genVtxZ0_ = inputData.getGenVertex().z0();
+    // Generator level vertex info
+    hepMCVtxZ0_ = inputData.getHepMCVertex().vz();
+    genVtxZ0_ = inputData.getGenVertex().vz();
 
     // Gen particles
     genParticlesHardOutgoingBranchData_.clear();
@@ -593,8 +573,12 @@ namespace l1tVertexFinder {
 
       edm::Handle<std::vector<l1t::Vertex>> handle;
       iEvent.getByToken(tokenMapEntry.second, handle);
-      std::vector<std::shared_ptr<const RecoVertexWithTP>> recoVertices =
-          extractVertices(handle, edmL1TrackMaps.at(l1VerticesInputMap_.at(tokenMapEntry.first)), settings_);
+      std::vector<std::shared_ptr<const RecoVertexWithTP>> recoVertices;
+      recoVertices.reserve(handle->size());
+      for (unsigned int i = 0; i < handle->size(); ++i) {
+        recoVertices.push_back(std::shared_ptr<const RecoVertexWithTP>(
+            new RecoVertexWithTP(handle->at(i), edmL1TrackMaps.at(l1VerticesInputMap_.at(tokenMapEntry.first)))));
+      }
 
       branchData.clear();
       std::vector<L1TrackTruthMatched>& l1Tracks = l1TrackCollections.at(l1VerticesInputMap_.at(tokenMapEntry.first));
@@ -604,7 +588,7 @@ namespace l1tVertexFinder {
         for (const L1TrackTruthMatched* track : vtx->tracks())
           branchData.trackIdxs.back().push_back(track - l1Tracks.data());
         branchData.z0.push_back(vtx->z0());
-        branchData.sumPt.push_back(vtx->pT());
+        branchData.sumPt.push_back(vtx->pt());
       }
 
       if (printResults_) {
