@@ -113,7 +113,7 @@ mlpf.toReplaceWith(particleFlowRecoTask, _mlpfTask)
 # switch from pfTICL to simPF
 def _findIndicesByModule(process,name):
     ret = []
-    if getattr(process,'particleFlowBlock', None):
+    if hasattr(process,'particleFlowBlock'):
         for i, pset in enumerate(process.particleFlowBlock.elementImporters):
             if pset.importerName.value() == name:
                 ret.append(i)
@@ -121,10 +121,10 @@ def _findIndicesByModule(process,name):
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 def replaceTICLwithSimPF(process):
-    if getattr(process,'particleFlowTmp', None):
+    if hasattr(process,'particleFlowTmp'):
       process.particleFlowTmp.src = ['particleFlowTmpBarrel', 'simPFProducer']
 
-    if getattr(process,'particleFlowTmpBarrel', None):
+    if hasattr(process,'particleFlowTmpBarrel'):
       process.particleFlowTmpBarrel.vetoEndcap = False
 
     _insertTrackImportersWithVeto = {}
