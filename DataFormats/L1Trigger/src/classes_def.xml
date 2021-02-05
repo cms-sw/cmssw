@@ -56,6 +56,7 @@
   </class>
   <class name="l1t::EtSumBxCollection"/>
   <class name="std::vector<l1t::EtSum>"/>
+  <class name="edm::Wrapper<std::vector<l1t::EtSum>>"/>
   <class name="edm::Wrapper<l1t::EtSumBxCollection>"/>
   <class name="l1t::EtSumRef"/>
   <class name="edm::Wrapper<l1t::EtSumRef>"/>
