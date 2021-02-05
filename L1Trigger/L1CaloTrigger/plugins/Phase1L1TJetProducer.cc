@@ -501,22 +501,20 @@ std::vector< std::vector< edm::Ptr< reco::Candidate > > > Phase1L1TJetProducer::
 
     reco::CandidatePtr tp( triggerPrimitives, i );
 
+    if ( tp->phi() < phiRegionEdges_.front() || tp->phi() >=  phiRegionEdges_.back() 
+        || tp->eta() < etaRegionEdges_.front() || tp->eta() >= etaRegionEdges_.back() ) continue;
+
     // Which phi region does this tp belong to
     auto it_phi = phiRegionEdges_.begin();
-    if ( tp->phi() >= phiRegionEdges_.front() && tp->phi() < phiRegionEdges_.back()) {
-        it_phi = std::upper_bound (phiRegionEdges_.begin(), phiRegionEdges_.end(), tp->phi()) - 1;
-    }
+    it_phi = std::upper_bound (phiRegionEdges_.begin(), phiRegionEdges_.end(), tp->phi()) - 1;
 
     // Which eta region does this tp belong to
     auto it_eta = etaRegionEdges_.begin();
-    if ( tp->eta() >= etaRegionEdges_.front() && tp->eta() < etaRegionEdges_.back() ) {
-      it_eta = std::upper_bound (etaRegionEdges_.begin(), etaRegionEdges_.end(), tp->eta()) - 1;
-    }
+    it_eta = std::upper_bound (etaRegionEdges_.begin(), etaRegionEdges_.end(), tp->eta()) - 1;
 
     if ( it_phi != phiRegionEdges_.end() && it_eta != etaRegionEdges_.end() ) {
       auto phiRegion = it_phi - phiRegionEdges_.begin();
       auto etaRegion = it_eta - etaRegionEdges_.begin();
-
       inputsInRegions[ getRegionIndex( phiRegion, etaRegion ) ].emplace_back( tp );
     }
   }
