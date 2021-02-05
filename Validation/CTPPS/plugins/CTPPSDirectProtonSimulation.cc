@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
@@ -112,11 +113,17 @@ private:
   std::unique_ptr<TF2> empiricalAperture45_;
   std::unique_ptr<TF2> empiricalAperture56_;
 
-  // timing-RP efficiency
-  bool useTimingRPEfficiency_;
-  std::unique_ptr<TH2F> effTimeMap45_;
-  std::unique_ptr<TH2F> effTimeMap56_;
+  // efficiency flags
+  bool useTrackingEfficiencyPerRP_;
+  bool useTimingEfficiencyPerRP_;
+  bool useTrackingEfficiencyPerPlane_;
+  bool useTimingEfficiencyPerPlane_;
 
+  // efficiency maps
+  std::map<unsigned int, std::unique_ptr<TH2F>> efficiencyMapsPerRP_;
+  std::map<unsigned int, std::unique_ptr<TH2F>> efficiencyMapsPerPlane_;
+
+  // other parameters
   bool produceHitsRelativeToBeam_;
   bool roundToPitch_;
   bool checkIsHit_;
@@ -152,7 +159,11 @@ CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet
       produceRecHits_(iConfig.getParameter<bool>("produceRecHits")),
 
       useEmpiricalApertures_(iConfig.getParameter<bool>("useEmpiricalApertures")),
-      useTimingRPEfficiency_(iConfig.getParameter<bool>("useTimingRPEfficiency")),
+
+      useTrackingEfficiencyPerRP_(iConfig.getParameter<bool>("useTrackingEfficiencyPerRP")),
+      useTimingEfficiencyPerRP_(iConfig.getParameter<bool>("useTimingEfficiencyPerRP")),
+      useTrackingEfficiencyPerPlane_(iConfig.getParameter<bool>("useTrackingEfficiencyPerPlane")),
+      useTimingEfficiencyPerPlane_(iConfig.getParameter<bool>("useTimingEfficiencyPerPlane")),
 
       produceHitsRelativeToBeam_(iConfig.getParameter<bool>("produceHitsRelativeToBeam")),
       roundToPitch_(iConfig.getParameter<bool>("roundToPitch")),
@@ -178,6 +189,15 @@ CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet
     produces<std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>>();
   }
 
+  // check user input
+  if (useTrackingEfficiencyPerRP_ && useTrackingEfficiencyPerPlane_)
+    throw cms::Exception("PPS")
+        << "useTrackingEfficiencyPerRP and useTrackingEfficiencyPerPlane should not be simultaneously set true.";
+
+  if (useTimingEfficiencyPerRP_ && useTimingEfficiencyPerPlane_)
+    throw cms::Exception("PPS")
+        << "useTimingEfficiencyPerRP and useTimingEfficiencyPerPlane should not be simultaneously set true.";
+
   // v position of strip 0
   stripZeroPosition_ = RPTopology::last_strip_to_border_dist_ + (RPTopology::no_of_strips_ - 1) * RPTopology::pitch_ -
                        RPTopology::y_width_ / 2.;
@@ -198,7 +218,12 @@ void CTPPSDirectProtonSimulation::fillDescriptions(edm::ConfigurationDescription
   desc.add<bool>("produceRecHits", true);
 
   desc.add<bool>("useEmpiricalApertures", true);
-  desc.add<bool>("useTimingRPEfficiency", false);
+
+  desc.add<bool>("useTrackingEfficiencyPerRP", false);
+  desc.add<bool>("useTimingEfficiencyPerRP", false);
+  desc.add<bool>("useTrackingEfficiencyPerPlane", false);
+  desc.add<bool>("useTimingEfficiencyPerPlane", false);
+
   desc.add<bool>("produceHitsRelativeToBeam", true);
   desc.add<bool>("roundToPitch", true);
   desc.add<bool>("checkIsHit", true);
@@ -236,15 +261,11 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
     empiricalAperture56_ =
         std::make_unique<TF2>(TF2("empiricalAperture56", directSimuData.getEmpiricalAperture56().c_str()));
 
-    if (useTimingRPEfficiency_) {
-      edm::FileInPath fip(directSimuData.getEffTimePath().c_str());
-      std::unique_ptr<TFile> f_in(TFile::Open(fip.fullPath().c_str()));
-      effTimeMap45_ = std::unique_ptr<TH2F>((TH2F *)f_in->Get(directSimuData.getEffTimeObject45().c_str()));
-      effTimeMap56_ = std::unique_ptr<TH2F>((TH2F *)f_in->Get(directSimuData.getEffTimeObject56().c_str()));
-      effTimeMap45_->SetDirectory(nullptr);
-      effTimeMap56_->SetDirectory(nullptr);
-      f_in->Close();
-    }
+    // load the efficiency maps
+    if (useTrackingEfficiencyPerRP_ || useTimingEfficiencyPerRP_)
+      efficiencyMapsPerRP_ = directSimuData.loadEffeciencyHistogramsPerRP();
+    if (useTrackingEfficiencyPerPlane_ || useTimingEfficiencyPerPlane_)
+      efficiencyMapsPerPlane_ = directSimuData.loadEffeciencyHistogramsPerPlane();
   }
 
   // prepare outputs
@@ -439,6 +460,27 @@ void CTPPSDirectProtonSimulation::processProton(
             << " mm, b_y = " << b_y << " mm, z = " << z_scoringPlane << " mm" << std::endl;
     }
 
+    // RP type
+    const bool isTrackingRP =
+        (rpId.subdetId() == CTPPSDetId::sdTrackingStrip || rpId.subdetId() == CTPPSDetId::sdTrackingPixel);
+    const bool isTimingRP = (rpId.subdetId() == CTPPSDetId::sdTimingDiamond);
+
+    // apply per-RP efficiency
+    if ((useTimingEfficiencyPerRP_ && isTimingRP) || (useTrackingEfficiencyPerRP_ && isTrackingRP)) {
+      const auto it = efficiencyMapsPerRP_.find(rpId);
+
+      if (it != efficiencyMapsPerRP_.end()) {
+        const double r = CLHEP::RandFlat::shoot(rndEngine, 0., 1.);
+        auto *effMap = it->second.get();
+        const double eff = effMap->GetBinContent(effMap->FindBin(b_x, b_y));
+        if (r > eff) {
+          if (verbosity_)
+            ssLog << "    stop due to per-RP efficiency" << std::endl;
+          continue;
+        }
+      }
+    }
+
     // save scoring plane hit
     if (produceScoringPlaneHits_)
       out_tracks.emplace_back(
@@ -494,6 +536,22 @@ void CTPPSDirectProtonSimulation::processProton(
               << std::endl;
       }
 
+      // apply per-plane efficiency
+      if ((useTimingEfficiencyPerPlane_ && isTimingRP) || (useTrackingEfficiencyPerPlane_ && isTrackingRP)) {
+        const auto it = efficiencyMapsPerPlane_.find(detId);
+
+        if (it != efficiencyMapsPerPlane_.end()) {
+          const double r = CLHEP::RandFlat::shoot(rndEngine, 0., 1.);
+          auto *effMap = it->second.get();
+          const double eff = effMap->GetBinContent(effMap->FindBin(h_glo.x(), h_glo.y()));
+          if (r > eff) {
+            if (verbosity_)
+              ssLog << "    stop due to per-plane efficiency" << std::endl;
+            continue;
+          }
+        }
+      }
+
       // strips
       if (detId.subdetId() == CTPPSDetId::sdTrackingStrip) {
         double u = h_loc.x();
@@ -536,13 +594,6 @@ void CTPPSDirectProtonSimulation::processProton(
       // diamonds
       if (detId.subdetId() == CTPPSDetId::sdTimingDiamond) {
         CTPPSDiamondDetId diamondDetId(detIdInt);
-
-        //efficiency
-        if (useTimingRPEfficiency_) {
-          TH2F *effMap = (diamondDetId.arm() == 0) ? effTimeMap45_.get() : effTimeMap56_.get();
-          if (CLHEP::RandFlat::shoot(rndEngine, 0., 1.) > effMap->GetBinContent(effMap->FindBin(h_glo.x(), h_glo.y())))
-            continue;
-        }
 
         // check acceptance
         const auto *dg = geometry.sensor(detIdInt);
