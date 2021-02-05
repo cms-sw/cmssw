@@ -100,7 +100,7 @@ namespace edm {
     };
   }
 
-  template <typename ALLOC, typename F>
+  template <typename F>
   auto make_waiting_task_with_holder(WaitingTaskWithArenaHolder h, F&& f) {
     return make_waiting_task(
         [holder = h, func = make_lambda_with_holder(h, std::forward<F>(f))](std::exception_ptr const* excptr) mutable {
