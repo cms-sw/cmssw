@@ -376,11 +376,10 @@ trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
 from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
 trackdnn.toReplaceWith(tobTecStep, TrackTfClassifier.clone(
-     src = 'tobTecStepTracks',
+     src         = 'tobTecStepTracks',
      qualityCuts = qualityCutDictionary["TobTecStep"]
 ))
-
-(trackdnn & fastSim).toModify(tobTecStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+(trackdnn & fastSim).toModify(tobTecStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
 pp_on_AA.toModify(tobTecStep, qualityCuts = [-0.6,-0.3,0.7])
 

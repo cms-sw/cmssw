@@ -348,8 +348,8 @@ trackingPhase1.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone
 from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
 trackdnn.toReplaceWith(mixedTripletStep, TrackTfClassifier.clone(
-     src = 'mixedTripletStepTracks',
-     qualityCuts = qualityCutDictionary['MixedTripletStep']
+    src = 'mixedTripletStepTracks',
+    qualityCuts = qualityCutDictionary['MixedTripletStep']
 ))
 
 (trackdnn & fastSim).toModify(mixedTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")

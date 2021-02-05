@@ -1,3 +1,4 @@
+# https://indico.cern.ch/event/947686/contributions/3981867/attachments/2090510/3512658/TrackingDNN_24_8_2020.pdf
 qualityCutDictionary = {
    'InitialStep':                  [-0.2, 0.15, 0.40],
    'LowPtQuadStep':                [-0.2, 0.10, 0.45],
