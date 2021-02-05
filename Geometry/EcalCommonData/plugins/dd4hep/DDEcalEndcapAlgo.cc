@@ -1,7 +1,7 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 // Header files for endcap supercrystal geometry
 #include "Geometry/EcalCommonData/interface/DDEcalEndcapTrap.h"
 #include <CLHEP/Geometry/Transform3D.h>
@@ -12,7 +12,7 @@
 using namespace std;
 using namespace cms;
 using namespace dd4hep;
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 using DDTranslation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 using DDRotation = ROOT::Math::Rotation3D;
@@ -162,7 +162,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   Solid eeCutBox = Box(ee.cutBoxName, ee.cutParms[0], ee.cutParms[1], ee.cutParms[2]);
   //**************************************************************
 
-  const double zFix(ee.zFront - 3172_mm);  // fix for changing z offset
+  const double zFix(ee.zFront - 3172 * dd4hep::mm);  // fix for changing z offset
 
   //** fill supercrystal front and rear center positions from xml input
   for (unsigned int iC(0); iC != (unsigned int)ee.nSCquad; ++iC) {
@@ -294,7 +294,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       const double fifth(ee.cutParms[0] + ee.pFFifth * ee.crysRear);
       const double fac(ee.pF45);
 
-      const double zmm(0_mm);
+      const double zmm(0 * dd4hep::mm);
 
       DDTranslation cutTra(
           2 == iSCType ? DDTranslation(zmm, half, zmm)
@@ -340,7 +340,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       const double mySign(iSCType < 4 ? +1. : -1.);
 
-      const DDTranslation extraI(xyIOff + mySign * 2_mm, xyIOff + mySign * 2_mm, zIOff);
+      const DDTranslation extraI(xyIOff + mySign * 2 * dd4hep::mm, xyIOff + mySign * 2 * dd4hep::mm, zIOff);
 
       Solid eeCutInt = SubtractionSolid(ee.intName + std::to_string(iSCType),
                                         ns.solid(ee.intName + std::to_string(iSCType) + "Tmp"),
