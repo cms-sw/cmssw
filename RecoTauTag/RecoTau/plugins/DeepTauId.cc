@@ -2035,9 +2035,9 @@ private:
       get(dnn::pfCand_gamma_fromPV) = getValueLinear<int>(candFunc::getFromPV(gamma_cand), 0, 3, true);
       get(dnn::pfCand_gamma_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(gamma_cand, 0.9084110f))
                                                     : getValue(candFunc::getPuppiWeight(gamma_cand, 0.4211567f));
-      get(dnn::pfCand_gamma_puppiWeightNoLep) =
-          is_inner ? getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.8857716f))
-                   : getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.3822604f));
+      get(dnn::pfCand_gamma_puppiWeightNoLep) = is_inner
+                                                    ? getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.8857716f))
+                                                    : getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.3822604f));
       get(dnn::pfCand_gamma_lostInnerHits) = getValue<int>(candFunc::getLostInnerHits(gamma_cand, 0));
       get(dnn::pfCand_gamma_numberOfPixelHits) =
           getValueLinear(candFunc::getNumberOfPixelHits(gamma_cand, 0), 0, 7, true);
