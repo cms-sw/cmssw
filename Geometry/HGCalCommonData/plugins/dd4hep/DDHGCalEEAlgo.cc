@@ -274,8 +274,7 @@ struct HGCalEEAlgo {
             }
           }
 
-          dd4hep::Solid solid =
-              dd4hep::Polyhedra(sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
+          dd4hep::Solid solid = dd4hep::Polyhedra(sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
