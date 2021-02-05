@@ -9,18 +9,19 @@ RPixClusterToHit::~RPixClusterToHit() {}
 void RPixClusterToHit::buildHits(unsigned int detId,
                                  const std::vector<CTPPSPixelCluster> &clusters,
                                  std::vector<CTPPSPixelRecHit> &hits,
-				 const PPSPixelTopology &ppt) {
+                                 const PPSPixelTopology &ppt) {
   if (verbosity_)
-    edm::LogInfo("PPS") << " RPixClusterToHit " << detId
-                                     << " received cluster array of size = " << clusters.size();
+    edm::LogInfo("PPS") << " RPixClusterToHit " << detId << " received cluster array of size = " << clusters.size();
   for (unsigned int i = 0; i < clusters.size(); i++) {
     make_hit(clusters[i], hits, ppt);
   }
 }
 
-void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPixelRecHit> &hits, const PPSPixelTopology &ppt) {
+void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster,
+                                std::vector<CTPPSPixelRecHit> &hits,
+                                const PPSPixelTopology &ppt) {
   // take a cluster, generate a rec hit and push it in the rec hit vector
-  
+
   //call the numbering inside the ROC
   CTPPSPixelIndices pxlInd;
   // get information from the cluster
@@ -66,12 +67,13 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPix
   double weightedVarianceY = 0.;
 
   if (verbosity_)
-    edm::LogInfo("PPS") << "RPixClusterToHit " << " hit pixels: ";
+    edm::LogInfo("PPS") << "RPixClusterToHit "
+                        << " hit pixels: ";
 
   for (unsigned int i = 0; i < thisClusterSize; i++) {
     if (verbosity_)
       edm::LogInfo("PPS") << "RPixClusterToHit " << aCluster.pixelRow(i) << " " << aCluster.pixelCol(i) << " "
-                                       << aCluster.pixelADC(i);
+                          << aCluster.pixelADC(i);
 
     double minPxlX = 0;
     double minPxlY = 0;

@@ -37,7 +37,7 @@ public:
            std::vector<CTPPSPixelDigi> &output_digi,
            std::vector<std::vector<std::pair<int, double> > > &output_digi_links,
            const CTPPSPixelGainCalibrations *pcalibration,
-	   const PPSPixelTopology *ppt);
+           const PPSPixelTopology *ppt);
 
   ~RPixDetDigitizer();
 

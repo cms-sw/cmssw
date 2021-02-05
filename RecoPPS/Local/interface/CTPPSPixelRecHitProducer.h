@@ -30,7 +30,6 @@
 #include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
 #include "CondFormats/DataRecord/interface/PPSPixelTopologyRcd.h"
 
-
 class CTPPSPixelRecHitProducer : public edm::stream::EDProducer<> {
 public:
   explicit CTPPSPixelRecHitProducer(const edm::ParameterSet &param);
@@ -51,7 +50,9 @@ private:
 
   RPixClusterToHit cluster2hit_;
 
-  void run(const edm::DetSetVector<CTPPSPixelCluster> &input, edm::DetSetVector<CTPPSPixelRecHit> &output, const PPSPixelTopology &ppt);
+  void run(const edm::DetSetVector<CTPPSPixelCluster> &input,
+           edm::DetSetVector<CTPPSPixelRecHit> &output,
+           const PPSPixelTopology &ppt);
 };
 
 #endif

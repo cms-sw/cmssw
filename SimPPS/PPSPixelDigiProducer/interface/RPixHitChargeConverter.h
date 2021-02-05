@@ -9,7 +9,10 @@
 
 class RPixHitChargeConverter {
 public:
-  RPixHitChargeConverter(const edm::ParameterSet &params_, CLHEP::HepRandomEngine &eng, uint32_t det_id, const PPSPixelTopology &ppt);
+  RPixHitChargeConverter(const edm::ParameterSet &params_,
+                         CLHEP::HepRandomEngine &eng,
+                         uint32_t det_id,
+                         const PPSPixelTopology &ppt);
   ~RPixHitChargeConverter() = default;
 
   std::map<unsigned short, double> processHit(const PSimHit &hit, const PPSPixelTopology &ppt);

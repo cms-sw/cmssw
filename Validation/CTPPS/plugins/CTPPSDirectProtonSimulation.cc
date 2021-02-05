@@ -77,7 +77,7 @@ private:
                      const CTPPSGeometry &geometry,
                      const LHCInfo &lhcInfo,
                      const CTPPSBeamParameters &beamParameters,
-		     const PPSPixelTopology &ppt,
+                     const PPSPixelTopology &ppt,
                      const LHCInterpolatedOpticalFunctionsSetCollection &opticalFunctions,
                      CLHEP::HepRandomEngine *rndEngine,
 
@@ -288,7 +288,7 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
                     geometry,
                     lhcInfo,
                     beamParameters,
-		    ppt,
+                    ppt,
                     opticalFunctions,
                     engine,
                     *pTracks,

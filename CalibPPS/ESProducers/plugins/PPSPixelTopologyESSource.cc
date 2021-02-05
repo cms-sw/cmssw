@@ -40,10 +40,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-
   /// Set PPS Topology parameters to their values from config
   void setPPSPixelTopology(const edm::ParameterSet&);
-  ///  Fill PPSPixelTopology object 
+  ///  Fill PPSPixelTopology object
   std::unique_ptr<PPSPixelTopology> fillPPSPixelTopology();
 
   // Topology parameters
@@ -70,19 +69,18 @@ protected:
 //----------------------------------------------------------------------------------------------------
 
 PPSPixelTopologyESSource::PPSPixelTopologyESSource(const edm::ParameterSet& iConfig)
-  : runType_(""),
-    pitch_simY_(0.),
-    pitch_simX_(0.),
-    thickness_(0.),
-    no_of_pixels_simX_(0.),
-    no_of_pixels_simY_(0.),
-    no_of_pixels_(0.),
-    simX_width_(0.),
-    simY_width_(0.),
-    dead_edge_width_(0.),
-    active_edge_sigma_(0.),
-    phys_active_edge_dist_(0.)
-{
+    : runType_(""),
+      pitch_simY_(0.),
+      pitch_simX_(0.),
+      thickness_(0.),
+      no_of_pixels_simX_(0.),
+      no_of_pixels_simY_(0.),
+      no_of_pixels_(0.),
+      simX_width_(0.),
+      simY_width_(0.),
+      dead_edge_width_(0.),
+      active_edge_sigma_(0.),
+      phys_active_edge_dist_(0.) {
   setPPSPixelTopology(iConfig);
   setWhatProduced(this);
   findingRecord<PPSPixelTopologyRcd>();
@@ -91,7 +89,6 @@ PPSPixelTopologyESSource::PPSPixelTopologyESSource(const edm::ParameterSet& iCon
 //----------------------------------------------------------------------------------------------------
 
 std::unique_ptr<PPSPixelTopology> PPSPixelTopologyESSource::produce(const PPSPixelTopologyRcd&) {
- 
   auto topo = fillPPSPixelTopology();
 
   edm::LogInfo("PPS") << "PixelTopologyESSource::produce \n" << *topo;
@@ -133,21 +130,19 @@ std::unique_ptr<PPSPixelTopology> PPSPixelTopologyESSource::fillPPSPixelTopology
   p->setDeadEdgeWidth(dead_edge_width_);
   p->setActiveEdgeSigma(active_edge_sigma_);
   p->setPhysActiveEdgeDist(phys_active_edge_dist_);
-  p->setActiveEdgeX(simX_width_/2. - phys_active_edge_dist_);
-  p->setActiveEdgeY(simY_width_/2. - phys_active_edge_dist_);
+  p->setActiveEdgeX(simX_width_ / 2. - phys_active_edge_dist_);
+  p->setActiveEdgeY(simY_width_ / 2. - phys_active_edge_dist_);
 
-  std::cout << runType_ << " " << simY_width_ << std::endl;
   return p;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 void PPSPixelTopologyESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& key,
-					      const edm::IOVSyncValue& iosv,
-					      edm::ValidityInterval& oValidity) {
-  edm::LogInfo("PPS")
-    << ">> PPSPixelTopologyESSource::setIntervalFor(" << key.name() << ")\n"
-    << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
+                                              const edm::IOVSyncValue& iosv,
+                                              edm::ValidityInterval& oValidity) {
+  edm::LogInfo("PPS") << ">> PPSPixelTopologyESSource::setIntervalFor(" << key.name() << ")\n"
+                      << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
 
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
@@ -157,7 +152,7 @@ void PPSPixelTopologyESSource::setIntervalFor(const edm::eventsetup::EventSetupR
 
 void PPSPixelTopologyESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("RunType","Run3");
+  desc.add<std::string>("RunType", "Run3");
   desc.add<double>("PitchSimY", 150e-3);
   desc.add<double>("PitchSimX", 100e-3);
   desc.add<double>("thickness", 0.23);
