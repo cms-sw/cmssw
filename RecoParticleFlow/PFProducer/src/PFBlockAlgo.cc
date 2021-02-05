@@ -1,9 +1,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
-#include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <algorithm>
 #include <iostream>
