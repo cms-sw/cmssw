@@ -43,6 +43,7 @@ Phase1L1TJetProducer = cms.EDProducer('Phase1L1TJetProducer',
   trimmedGrid = cms.bool(False),
   seedPtThreshold = cms.double(5), # GeV
   puSubtraction = cms.bool(False),
+  ptlsb = cms.double(0.25),
   philsb = cms.double(0.0043633231),
   etalsb = cms.double(0.0043633231),
   outputCollectionName = cms.string("UncalibratedPhase1L1TJetFromPfCandidates"),
