@@ -97,6 +97,12 @@ private:
   std::pair< double, double> regionEtaPhiLowEdges( const unsigned int regionIndex ) const;
   std::pair< double, double> regionEtaPhiUpEdges( const unsigned int regionIndex ) const;
 
+  // Determine if this tower should be trimmed or not
+  // Used only when trimmedGrid_ option is set to true
+  // Trim means removing 3 towers in each corner of the square grid
+  // giving a cross shaped grid, which is a bit more circular in shape than a square
+  bool trimTower( const int etaIndex, const int phiIndex ) const;
+
 
   edm::EDGetTokenT<edm::View<reco::Candidate>> inputCollectionTag_;
   // histogram containing our clustered inputs
@@ -109,6 +115,7 @@ private:
   double phiUp_;
   unsigned int jetIEtaSize_;
   unsigned int jetIPhiSize_;
+  bool trimmedGrid_;
   double seedPtThreshold_;
   double philsb_;
   double etalsb_;
@@ -140,6 +147,7 @@ Phase1L1TJetProducer::Phase1L1TJetProducer(const edm::ParameterSet& iConfig)
       phiUp_(iConfig.getParameter<double>("phiUp")),
       jetIEtaSize_(iConfig.getParameter<unsigned int>("jetIEtaSize")),
       jetIPhiSize_(iConfig.getParameter<unsigned int>("jetIPhiSize")),
+      trimmedGrid_(iConfig.getParameter<bool>("trimmedGrid")),
       seedPtThreshold_(iConfig.getParameter<double>("seedPtThreshold")),
       philsb_(iConfig.getParameter<double>("philsb")),
       etalsb_(iConfig.getParameter<double>("etalsb")),
@@ -285,6 +293,11 @@ std::vector<std::tuple<int, int>> Phase1L1TJetProducer::findSeeds(float seedThre
       // Scanning through the grid centered on the seed
       for (int etaIndex = -etaHalfSize; etaIndex <= etaHalfSize; etaIndex++) {
         for (int phiIndex = -phiHalfSize; phiIndex <= phiHalfSize; phiIndex++) {
+          
+          if ( trimmedGrid_ ) {
+            if ( trimTower( etaIndex, phiIndex ) ) continue;
+          }
+
           if ((etaIndex == 0) && (phiIndex == 0))
             continue;
           if (phiIndex > 0) {
@@ -322,6 +335,9 @@ reco::CaloJet Phase1L1TJetProducer::buildJetFromSeed(const std::tuple<int, int>&
   // Scanning through the grid centered on the seed
   for (int etaIndex = -etaHalfSize; etaIndex <= etaHalfSize; etaIndex++) {
     for (int phiIndex = -phiHalfSize; phiIndex <= phiHalfSize; phiIndex++) {
+      if ( trimmedGrid_ ) {
+        if ( trimTower( etaIndex, phiIndex ) ) continue;
+      }
       ptSum += getTowerEnergy(iEta + etaIndex, iPhi + phiIndex);
     }
   }
@@ -440,6 +456,7 @@ void Phase1L1TJetProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("phiUp", M_PI);
   desc.add<unsigned int>("jetIEtaSize", 7);
   desc.add<unsigned int>("jetIPhiSize", 7);
+  desc.add<bool>("trimmedGrid", false);
   desc.add<double>("seedPtThreshold", 5);
   desc.add<double>("philsb", 0.0043633231),
   desc.add<double>("etalsb", 0.0043633231),
@@ -519,4 +536,22 @@ std::pair< double, double> Phase1L1TJetProducer::regionEtaPhiUpEdges( const unsi
   return std::pair< double, double > { phiRegionEdges_.at( phiRegion + 1 ), etaRegionEdges_.at( etaRegion + 1 ) };
 }
 
+bool Phase1L1TJetProducer::trimTower( const int etaIndex, const int phiIndex ) const
+{
+  int etaHalfSize = jetIEtaSize_/2;
+  int phiHalfSize = jetIPhiSize_/2;
+
+  if ( etaIndex == -etaHalfSize || etaIndex == etaHalfSize ) {
+    if ( phiIndex <= -phiHalfSize+1 || phiIndex >= phiHalfSize-1 ) {
+      return true;
+    }
+  }
+  else if ( etaIndex == -etaHalfSize+1 || etaIndex == etaHalfSize-1 ) {
+    if ( phiIndex == -phiHalfSize || phiIndex == phiHalfSize ) {
+      return true;
+    }    
+  }
+
+  return false;
+}
 DEFINE_FWK_MODULE(Phase1L1TJetProducer);
