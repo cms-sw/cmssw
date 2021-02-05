@@ -184,6 +184,9 @@ namespace l1tVertexFinder {
     edm::Handle<edm::View<reco::GenParticle>> GenParticleHandle;
     iEvent.getByToken(genParticlesToken, GenParticleHandle);
 
+    if (!HepMCEvt.isValid() && !GenParticleHandle.isValid()) {
+      throw cms::Exception("Neither the edm::HepMCProduct nor the generator particles are available.");
+    }
     if (HepMCEvt.isValid()) {
       const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
       for (HepMC::GenEvent::vertex_const_iterator ivertex = MCEvt->vertices_begin(); ivertex != MCEvt->vertices_end();
@@ -211,11 +214,14 @@ namespace l1tVertexFinder {
     }
     if (GenParticleHandle.isValid()) {
       for (const auto& genpart : *GenParticleHandle) {
-        if ((genpart.status() != 3) || (genpart.numberOfMothers() == 0))  // not stable or one of the incoming hadrons
+        if ((genpart.status() != 1) || (genpart.numberOfMothers() == 0))  // not stable or one of the incoming hadrons
           continue;
         genVertex_ = Vertex(genpart.vz());
         break;
       }
+    }
+    if ((hepMCVertex_.vz() == 0.0) && (genVertex_.vz() == 0.0)) {
+      throw cms::Exception("Neither the HepMC vertex nor the generator particle vertex were found.");
     }
 
   }  // end InputData::InputData
