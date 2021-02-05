@@ -1,6 +1,8 @@
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixLinearChargeCollectionDrifter.h"
 
-RPixLinearChargeCollectionDrifter::RPixLinearChargeCollectionDrifter(const edm::ParameterSet &params, uint32_t det_id, const PPSPixelTopology &ppt) {
+RPixLinearChargeCollectionDrifter::RPixLinearChargeCollectionDrifter(const edm::ParameterSet &params,
+                                                                     uint32_t det_id,
+                                                                     const PPSPixelTopology &ppt) {
   verbosity_ = params.getParameter<int>("RPixVerbosity");
 
   GeV_per_electron_ = params.getParameter<double>("RPixGeVPerElectron");
@@ -18,8 +20,8 @@ std::vector<RPixSignalPoint> RPixLinearChargeCollectionDrifter::Drift(
     temp_[i].setSigma(getSigma_(energy_deposition[i].Position().z()));
     temp_[i].setCharge(energy_deposition[i].Energy() / GeV_per_electron_);
     if (verbosity_ > 1) {
-      edm::LogInfo("PPS")
-	<< "RPixLinearChargeCollectionDrifter " << det_id_ << " :" << temp_[i].Position() << " " << temp_[i].Sigma() << " " << temp_[i].Charge();
+      edm::LogInfo("PPS") << "RPixLinearChargeCollectionDrifter " << det_id_ << " :" << temp_[i].Position() << " "
+                          << temp_[i].Sigma() << " " << temp_[i].Charge();
     }
   }
   return temp_;

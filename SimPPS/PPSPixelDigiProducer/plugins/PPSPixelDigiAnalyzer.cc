@@ -100,7 +100,6 @@ PPSPixelDigiAnalyzer::PPSPixelDigiAnalyzer(const ParameterSet &pset)
   psim_token = consumes<PSimHitContainer>(edm::InputTag("g4SimHits", "CTPPSPixelHits"));
   pixel_token = consumes<edm::DetSetVector<CTPPSPixelDigi>>(edm::InputTag(label_, ""));  //label=RPixDetDigitizer???
   pixelTopologyToken_ = esConsumes<PPSPixelTopology, PPSPixelTopologyRcd>();
-
 }
 
 PPSPixelDigiAnalyzer::~PPSPixelDigiAnalyzer() {}
@@ -145,11 +144,11 @@ void PPSPixelDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSe
   double myY = 0;
 
   thePixelTopology->pixelRange(SELECTED_PIXEL_ROW,
-                                 SELECTED_PIXEL_COLUMN,
-                                 selected_pixel_lower_x,
-                                 selected_pixel_upper_x,
-                                 selected_pixel_lower_y,
-                                 selected_pixel_upper_y);
+                               SELECTED_PIXEL_COLUMN,
+                               selected_pixel_lower_x,
+                               selected_pixel_upper_x,
+                               selected_pixel_lower_y,
+                               selected_pixel_upper_y);
 
   double hit_inside_selected_pixel[2];
   bool found_hit_inside_selected_pixel = false;

@@ -53,7 +53,8 @@ std::vector<RPixEnergyDepositUnit> RPixLinearChargeDivider::divide(const PSimHit
           << " " << the_energy_path_distribution_[i].Position().z() << " " << the_energy_path_distribution_[i].Energy();
       sum += the_energy_path_distribution_[i].Energy();
     }
-    edm::LogInfo("PPS") << "RPixLinearChargeDivider " << "energy dep. sum=" << sum;
+    edm::LogInfo("PPS") << "RPixLinearChargeDivider "
+                        << "energy dep. sum=" << sum;
   }
 
   return the_energy_path_distribution_;

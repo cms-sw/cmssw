@@ -4,25 +4,23 @@
 // Constructors
 
 PPSPixelTopology::PPSPixelTopology()
-  : runType_(""),  
-    pitch_simY_(0.),
-    pitch_simX_(0.),
-    thickness_(0.),
-    no_of_pixels_simX_(0.),
-    no_of_pixels_simY_(0.),
-    no_of_pixels_(0.),
-    simX_width_(0.),
-    simY_width_(0.),
-    dead_edge_width_(0.),
-    active_edge_sigma_(0.),
-    phys_active_edge_dist_(0.),
-    active_edge_x_(0.),
-    active_edge_y_(0.)
-{}
+    : runType_(""),
+      pitch_simY_(0.),
+      pitch_simX_(0.),
+      thickness_(0.),
+      no_of_pixels_simX_(0.),
+      no_of_pixels_simY_(0.),
+      no_of_pixels_(0.),
+      simX_width_(0.),
+      simY_width_(0.),
+      dead_edge_width_(0.),
+      active_edge_sigma_(0.),
+      phys_active_edge_dist_(0.),
+      active_edge_x_(0.),
+      active_edge_y_(0.) {}
 
 // Destructor
 PPSPixelTopology::~PPSPixelTopology() {}
-
 
 unsigned short PPSPixelTopology::pixelIndex(PixelInfo pI) const {
   return no_of_pixels_simX_ * pI.pixelColNo() + pI.pixelRowNo();
@@ -33,20 +31,20 @@ bool PPSPixelTopology::isPixelHit(float xLocalCoordinate, float yLocalCoordinate
   double xModuleSize = 2 * ((no_of_pixels_simX_ / 2. + 1) * pitch_simX_ + dead_edge_width_);
   if (xLocalCoordinate < -xModuleSize / 2. || xLocalCoordinate > xModuleSize / 2.)
     return false;
-  
+
   double yModuleSize = (no_of_pixels_simY_ + 4.) * pitch_simY_ + 2. * dead_edge_width_;
   double y2x2top = no_of_pixels_simY_ / 6. * pitch_simY_ + dead_edge_width_;
   if (is3x2 && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > yModuleSize / 2.))
     return false;
-  
+
   if (!is3x2 && (yLocalCoordinate < -yModuleSize / 2. || yLocalCoordinate > y2x2top))
     return false;
-  
+
   return true;
 }
 
 PPSPixelTopology::PixelInfo PPSPixelTopology::getPixelsInvolved(
-								double x, double y, double sigma, double& hit_pos_x, double& hit_pos_y) const {
+    double x, double y, double sigma, double& hit_pos_x, double& hit_pos_y) const {
   //hit position wrt the bottom left corner of the sensor (-8.3, -12.2) in sensor view, rocs behind
   hit_pos_x = x + simX_width_ / 2.;
   hit_pos_y = y + simY_width_ / 2.;
@@ -59,23 +57,19 @@ PPSPixelTopology::PixelInfo PPSPixelTopology::getPixelsInvolved(
   unsigned int interested_col = col(y);
   double low_pixel_range_x, high_pixel_range_x, low_pixel_range_y, high_pixel_range_y;
   pixelRange(
-	     interested_row, interested_col, low_pixel_range_x, high_pixel_range_x, low_pixel_range_y, high_pixel_range_y);
+      interested_row, interested_col, low_pixel_range_x, high_pixel_range_x, low_pixel_range_y, high_pixel_range_y);
 
   return PPSPixelTopology::PixelInfo(low_pixel_range_x,
-				     high_pixel_range_x,
-				     low_pixel_range_y,
-				     high_pixel_range_y,
-				     hit_factor,
-				     interested_row,
-				     interested_col);
+                                     high_pixel_range_x,
+                                     low_pixel_range_y,
+                                     high_pixel_range_y,
+                                     hit_factor,
+                                     interested_row,
+                                     interested_col);
 }
 
-void PPSPixelTopology::pixelRange(unsigned int arow,
-				  unsigned int acol,
-				  double& lower_x,
-				  double& higher_x,
-				  double& lower_y,
-				  double& higher_y) const {
+void PPSPixelTopology::pixelRange(
+    unsigned int arow, unsigned int acol, double& lower_x, double& higher_x, double& lower_y, double& higher_y) const {
   // x and y in the system  of Geant4 SIMULATION
   arow = (2 * ROCSizeInX - 1) - arow;
   if (arow > (2 * ROCSizeInX - 1) || acol > (3 * ROCSizeInY - 1))
@@ -245,45 +239,35 @@ double PPSPixelTopology::getPhysActiveEdgeDist() const { return phys_active_edge
 double PPSPixelTopology::getActiveEdgeX() const { return active_edge_x_; }
 double PPSPixelTopology::getActiveEdgeY() const { return active_edge_y_; }
 
-
 // Setters
 
-void PPSPixelTopology::setRunType(std::string rt){runType_ = rt;}
-void PPSPixelTopology::setPitchSimY(double psy){pitch_simY_ = psy;}
-void PPSPixelTopology::setPitchSimX(double psx){pitch_simX_ = psx;}
-void PPSPixelTopology::setThickness(double tss){thickness_ = tss;}
-void PPSPixelTopology::setNoPixelsSimX(unsigned short npx){no_of_pixels_simX_ = npx;}
-void PPSPixelTopology::setNoPixelsSimY(unsigned short npy){no_of_pixels_simY_ = npy;}
-void PPSPixelTopology::setNoPixels(unsigned short np){no_of_pixels_ = np;}
-void PPSPixelTopology::setSimXWidth(double sxw){simX_width_ = sxw;}
-void PPSPixelTopology::setSimYWidth(double syw){simY_width_ = syw;}
-void PPSPixelTopology::setDeadEdgeWidth(double dew){dead_edge_width_ = dew;}
-void PPSPixelTopology::setActiveEdgeSigma(double aes){active_edge_sigma_ = aes;}
-void PPSPixelTopology::setPhysActiveEdgeDist(double pae){phys_active_edge_dist_ = pae;}
-void PPSPixelTopology::setActiveEdgeX(double aex){active_edge_x_ = aex;}
-void PPSPixelTopology::setActiveEdgeY(double aey){active_edge_y_ = aey;}
+void PPSPixelTopology::setRunType(std::string rt) { runType_ = rt; }
+void PPSPixelTopology::setPitchSimY(double psy) { pitch_simY_ = psy; }
+void PPSPixelTopology::setPitchSimX(double psx) { pitch_simX_ = psx; }
+void PPSPixelTopology::setThickness(double tss) { thickness_ = tss; }
+void PPSPixelTopology::setNoPixelsSimX(unsigned short npx) { no_of_pixels_simX_ = npx; }
+void PPSPixelTopology::setNoPixelsSimY(unsigned short npy) { no_of_pixels_simY_ = npy; }
+void PPSPixelTopology::setNoPixels(unsigned short np) { no_of_pixels_ = np; }
+void PPSPixelTopology::setSimXWidth(double sxw) { simX_width_ = sxw; }
+void PPSPixelTopology::setSimYWidth(double syw) { simY_width_ = syw; }
+void PPSPixelTopology::setDeadEdgeWidth(double dew) { dead_edge_width_ = dew; }
+void PPSPixelTopology::setActiveEdgeSigma(double aes) { active_edge_sigma_ = aes; }
+void PPSPixelTopology::setPhysActiveEdgeDist(double pae) { phys_active_edge_dist_ = pae; }
+void PPSPixelTopology::setActiveEdgeX(double aex) { active_edge_x_ = aex; }
+void PPSPixelTopology::setActiveEdgeY(double aey) { active_edge_y_ = aey; }
 
 void PPSPixelTopology::printInfo(std::stringstream& s) {
   s << "\n PPS Topology parameters : \n"
-    << "\n  runType_  = " <<  runType_
-    << "\n  pitch_simY_  = " <<  pitch_simY_
-    << "\n   pitch_simX_ = " <<  pitch_simX_
-    << "\n   thickness_ = " <<  thickness_
-    << "\n   no_of_pixels_simX_ " << no_of_pixels_simX_ 
-    << "\n   no_of_pixels_simY_ " << no_of_pixels_simY_
-    << "\n   no_of_pixels_ " << no_of_pixels_ 
-    << "\n   simX_width_ " << simX_width_
-    << "\n   simY_width_ " << simY_width_
-    << "\n   dead_edge_width_ " << dead_edge_width_ 
-    << "\n   active_edge_sigma_ " << active_edge_sigma_
-    << "\n   phys_active_edge_dist_ " << phys_active_edge_dist_
+    << "\n  runType_  = " << runType_ << "\n  pitch_simY_  = " << pitch_simY_ << "\n   pitch_simX_ = " << pitch_simX_
+    << "\n   thickness_ = " << thickness_ << "\n   no_of_pixels_simX_ " << no_of_pixels_simX_
+    << "\n   no_of_pixels_simY_ " << no_of_pixels_simY_ << "\n   no_of_pixels_ " << no_of_pixels_ << "\n   simX_width_ "
+    << simX_width_ << "\n   simY_width_ " << simY_width_ << "\n   dead_edge_width_ " << dead_edge_width_
+    << "\n   active_edge_sigma_ " << active_edge_sigma_ << "\n   phys_active_edge_dist_ " << phys_active_edge_dist_
 
-    << "\n   active_edge_x_ " << active_edge_x_
-    << "\n   active_edge_y_ " << active_edge_y_ 
+    << "\n   active_edge_x_ " << active_edge_x_ << "\n   active_edge_y_ " << active_edge_y_
 
     << std::endl;
 }
-
 
 std::ostream& operator<<(std::ostream& os, PPSPixelTopology info) {
   std::stringstream ss;
@@ -291,4 +275,3 @@ std::ostream& operator<<(std::ostream& os, PPSPixelTopology info) {
   os << ss.str();
   return os;
 }
-

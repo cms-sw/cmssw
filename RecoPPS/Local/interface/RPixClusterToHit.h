@@ -13,17 +13,17 @@
 #include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
 
 class RPixClusterToHit {
- public:
+public:
   RPixClusterToHit(edm::ParameterSet const &conf);
 
   void buildHits(unsigned int detId,
                  const std::vector<CTPPSPixelCluster> &clusters,
                  std::vector<CTPPSPixelRecHit> &hits,
-		 const PPSPixelTopology &ppt);
+                 const PPSPixelTopology &ppt);
   void make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPixelRecHit> &hits, const PPSPixelTopology &ppt);
   ~RPixClusterToHit();
 
- private:
+private:
   int verbosity_;
 };
 

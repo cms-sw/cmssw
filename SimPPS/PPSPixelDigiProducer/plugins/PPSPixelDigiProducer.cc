@@ -103,7 +103,7 @@ private:
 };
 
 CTPPSPixelDigiProducer::CTPPSPixelDigiProducer(const edm::ParameterSet& conf)
-  : conf_(conf), gainCalibESToken_(esConsumes()), thePixelTopologyToken_(esConsumes()) {
+    : conf_(conf), gainCalibESToken_(esConsumes()), thePixelTopologyToken_(esConsumes()) {
   produces<edm::DetSetVector<CTPPSPixelDigi>>();
 
   // register data to consume
@@ -164,7 +164,6 @@ void CTPPSPixelDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 
 // ------------ method called to produce the data  ------------
 void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
   if (!rndEngine_) {
     edm::Service<edm::RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
@@ -187,17 +186,17 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   if (verbosity_) {
     edm::LogInfo("PPS") << "PixelDigiProducer \n\n=================== Starting SimHit access"
-                                         << "  ===================";
+                        << "  ===================";
 
     MixCollection<PSimHit> col{cf.product(), std::pair(-0, 0)};
     MixCollection<PSimHit>::iterator cfi;
     int count = 0;
     for (cfi = col.begin(); cfi != col.end(); cfi++) {
       edm::LogInfo("PPS") << "PixelDigiProducer"
-			  << " Hit " << count << " has tof " << cfi->timeOfFlight() << " trackid " << cfi->trackId() << " bunchcr "
-			  << cfi.bunch() << " trigger " << cfi.getTrigger()
-			  << ", from EncodedEventId: " << cfi->eventId().bunchCrossing() << " " << cfi->eventId().event()
-			  << " bcr from MixCol " << cfi.bunch();
+                          << " Hit " << count << " has tof " << cfi->timeOfFlight() << " trackid " << cfi->trackId()
+                          << " bunchcr " << cfi.bunch() << " trigger " << cfi.getTrigger()
+                          << ", from EncodedEventId: " << cfi->eventId().bunchCrossing() << " "
+                          << cfi->eventId().event() << " bcr from MixCol " << cfi.bunch();
       edm::LogInfo("PPS") << " PixelDigiProducer Hit: " << (*cfi) << "  " << cfi->exitPoint();
       count++;
     }
@@ -226,15 +225,15 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     edm::DetSet<CTPPSPixelDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] =
-          std::make_unique<RPixDetDigitizer>(conf_, *rndEngine_, it->first, thePixelTopology);  //a digitizer for any detector
+      theAlgoMap[it->first] = std::make_unique<RPixDetDigitizer>(
+          conf_, *rndEngine_, it->first, thePixelTopology);  //a digitizer for any detector
     }
 
     std::vector<int> input_links;
     std::vector<std::vector<std::pair<int, double>>> output_digi_links;  // links to simhits
 
     theAlgoMap.at(it->first)->run(
-				  SimHitMap[it->first], input_links, digi_collector.data, output_digi_links, &gainCalibration, &thePixelTopology);
+        SimHitMap[it->first], input_links, digi_collector.data, output_digi_links, &gainCalibration, &thePixelTopology);
 
     if (!digi_collector.data.empty()) {
       theDigiVector.push_back(digi_collector);

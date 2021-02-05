@@ -24,7 +24,7 @@ void RPixDetDigitizer::run(const std::vector<PSimHit> &input,
                            std::vector<CTPPSPixelDigi> &output_digi,
                            std::vector<std::vector<std::pair<int, double> > > &output_digi_links,
                            const CTPPSPixelGainCalibrations *pcalibrations,
-			   const PPSPixelTopology *pixelTopology) {
+                           const PPSPixelTopology *pixelTopology) {
   if (verbosity_)
     edm::LogInfo("PPS") << "RPixDetDigitizer " << det_id_ << " received input.size()=" << input.size();
   theRPixPileUpSignals->reset();

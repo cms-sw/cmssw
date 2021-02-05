@@ -4,7 +4,7 @@
 #include <fstream>
 
 RPixChargeShare::RPixChargeShare(const edm::ParameterSet &params, uint32_t det_id, const PPSPixelTopology &ppt)
-  : det_id_(det_id) {
+    : det_id_(det_id) {
   verbosity_ = params.getParameter<int>("RPixVerbosity");
   signalCoupling_.clear();
   ChargeMapFile2E_[0] = params.getParameter<std::string>("ChargeMapFile2E");
@@ -39,7 +39,8 @@ RPixChargeShare::RPixChargeShare(const edm::ParameterSet &params, uint32_t det_i
   }
 }
 
-std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSignalPoint> &charge_map, const PPSPixelTopology &ppt) {
+std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSignalPoint> &charge_map,
+                                                        const PPSPixelTopology &ppt) {
   std::map<unsigned short, double> thePixelChargeMap;
   if (verbosity_ > 1)
     edm::LogInfo("PPS") << "RPixChargeShare " << det_id_ << " : Clouds to be induced= " << charge_map.size();
@@ -51,21 +52,23 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
     // Used to avoid the abort due to hits out of detector
     if (((*i).Position().x() + 16.6 / 2) < 0 || ((*i).Position().x() + 16.6 / 2) > 16.6) {
       edm::LogInfo("RPixChargeShare")
-	<< "**** Attention ((*i).Position().x()+simX_width_/2.)<0||((*i).Position().x()+simX_width_/2.)>simX_width  ";
-      edm::LogInfo("PPS") << "RPixChargeShare " << "(*i).Position().x() = " << (*i).Position().x();
+          << "**** Attention ((*i).Position().x()+simX_width_/2.)<0||((*i).Position().x()+simX_width_/2.)>simX_width  ";
+      edm::LogInfo("PPS") << "RPixChargeShare "
+                          << "(*i).Position().x() = " << (*i).Position().x();
       continue;
     }
     if (((*i).Position().y() + 24.4 / 2.) < 0 || ((*i).Position().y() + 24.4 / 2.) > 24.4) {
       edm::LogInfo("RPixChargeShare")
-	<< "**** Attention ((*i).Position().y()+simY_width_/2.)<0||((*i).Position().y()+simY_width_/2.)>simY_width  ";
-      edm::LogInfo("PPS") << "RPixChargeShare " << "(*i).Position().y() = " << (*i).Position().y();
+          << "**** Attention ((*i).Position().y()+simY_width_/2.)<0||((*i).Position().y()+simY_width_/2.)>simY_width  ";
+      edm::LogInfo("PPS") << "RPixChargeShare "
+                          << "(*i).Position().y() = " << (*i).Position().y();
       continue;
     }
 
-    PPSPixelTopology::PixelInfo relevant_pixels = ppt.getPixelsInvolved(
-									(*i).Position().x(), (*i).Position().y(), (*i).Sigma(), hit_pos_x, hit_pos_y);
+    PPSPixelTopology::PixelInfo relevant_pixels =
+        ppt.getPixelsInvolved((*i).Position().x(), (*i).Position().y(), (*i).Sigma(), hit_pos_x, hit_pos_y);
     double effic = relevant_pixels.effFactor();
- 
+
     unsigned short pixel_no = ppt.pixelIndex(relevant_pixels);
 
     double charge_in_pixel = (*i).Charge() * effic;
@@ -73,8 +76,9 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
     cH += charge_in_pixel;
 
     if (verbosity_ > 1)
-      edm::LogInfo("PPS") << "RPixChargeShare " << "Efficiency in detector " << det_id_ << " and pixel no " << pixel_no << "  : "
-                                      << effic << "  ch: " << charge_in_pixel << "   CHtot: " << cH;
+      edm::LogInfo("PPS") << "RPixChargeShare "
+                          << "Efficiency in detector " << det_id_ << " and pixel no " << pixel_no << "  : " << effic
+                          << "  ch: " << charge_in_pixel << "   CHtot: " << cH;
 
     if (signalCoupling_[0] == 0.) {
       thePixelChargeMap[pixel_no] += charge_in_pixel;
@@ -140,7 +144,7 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
           double neighbour_pixel_center_y = 0;
           //      Check the hit approach to the neighbours
           ppt.pixelRange(
-			 k, l, neighbour_pixel_lower_x, neighbour_pixel_upper_x, neighbour_pixel_lower_y, neighbour_pixel_upper_y);
+              k, l, neighbour_pixel_lower_x, neighbour_pixel_upper_x, neighbour_pixel_lower_y, neighbour_pixel_upper_y);
           neighbour_pixel_center_x = neighbour_pixel_lower_x + (neighbour_pixel_upper_x - neighbour_pixel_lower_x) / 2.;
           neighbour_pixel_center_y = neighbour_pixel_lower_y + (neighbour_pixel_upper_y - neighbour_pixel_lower_y) / 2.;
           hit2neighbour[m] = sqrt(pow((*i).Position().x() - neighbour_pixel_center_x, 2.) +
