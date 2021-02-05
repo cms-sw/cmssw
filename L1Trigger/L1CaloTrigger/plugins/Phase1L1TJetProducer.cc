@@ -5,7 +5,7 @@
 //
 /**\class Phase1L1TJetProducer Phase1L1TJetProducer.cc L1Trigger/L1CaloTrigger/plugin/Phase1L1TJetProducer.cc
 
-Description: Produces jets with a phase-1 like sliding window algorithm using a collection of reco::Candidates in input.
+Description: Produces jets with a phase-1 like sliding window algorithm using a collection of reco::Candidates in input.  Also calculates MET from the histogram used to find the jets.
 
 *** INPUT PARAMETERS ***
   * etaBinning: vdouble with eta binning (allows non-homogeneous binning in eta)
@@ -42,7 +42,7 @@ Description: Produces jets with a phase-1 like sliding window algorithm using a 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
 
 #include "TH2F.h"
 
@@ -97,6 +97,14 @@ private:
   std::pair< double, double> regionEtaPhiLowEdges( const unsigned int regionIndex ) const;
   std::pair< double, double> regionEtaPhiUpEdges( const unsigned int regionIndex ) const;
 
+  // computes MET
+  // Takes grid used by jet finder and projects to 1D histogram of phi, bin contents are total pt in that phi bin
+  // the phi bin index is used to retrieve the sin-cos value from the LUT emulator
+  // the pt of the input is multiplied by that sin cos value to obtain px and py that is added to the total event px & py
+  // after all the inputs have been processed we compute the total pt of the event, and set that as MET
+  l1t::EtSum computeMET( const double etaCut, l1t::EtSum::EtSumType sumType ) const;
+
+
   // Determine if this tower should be trimmed or not
   // Used only when trimmedGrid_ option is set to true
   // Trim means removing 3 towers in each corner of the square grid
@@ -117,6 +125,7 @@ private:
   unsigned int jetIPhiSize_;
   bool trimmedGrid_;
   double seedPtThreshold_;
+  double ptlsb_;
   double philsb_;
   double etalsb_;
   bool puSubtraction_;
@@ -149,6 +158,7 @@ Phase1L1TJetProducer::Phase1L1TJetProducer(const edm::ParameterSet& iConfig)
       jetIPhiSize_(iConfig.getParameter<unsigned int>("jetIPhiSize")),
       trimmedGrid_(iConfig.getParameter<bool>("trimmedGrid")),
       seedPtThreshold_(iConfig.getParameter<double>("seedPtThreshold")),
+      ptlsb_(iConfig.getParameter<double>("ptlsb")),
       philsb_(iConfig.getParameter<double>("philsb")),
       etalsb_(iConfig.getParameter<double>("etalsb")),
       puSubtraction_(iConfig.getParameter<bool>("puSubtraction")),
@@ -166,6 +176,7 @@ Phase1L1TJetProducer::Phase1L1TJetProducer(const edm::ParameterSet& iConfig)
   caloGrid_->GetXaxis()->SetTitle("#eta");
   caloGrid_->GetYaxis()->SetTitle("#phi");
   produces<std::vector<reco::CaloJet>>(outputCollectionName_).setBranchAlias(outputCollectionName_);
+  produces< std::vector<l1t::EtSum> >( outputCollectionName_ + "MET" ).setBranchAlias(outputCollectionName_ + "MET");
 }
 
 Phase1L1TJetProducer::~Phase1L1TJetProducer() {}
@@ -218,6 +229,12 @@ std::vector< std::vector< reco::CandidatePtr > > inputsInRegions = prepareInputs
   iEvent.put(std::move(l1jetVectorPtr), outputCollectionName_);
 
   // calculate METs
+  l1t::EtSum lMET = computeMET( metAbsEtaCut_, l1t::EtSum::EtSumType::kMissingEt );
+  l1t::EtSum lMETHF = computeMET( metHFAbsEtaCut_, l1t::EtSum::EtSumType::kMissingEtHF);
+  std::unique_ptr< std::vector<l1t::EtSum> > lSumVectorPtr(new std::vector<l1t::EtSum>(0));
+  lSumVectorPtr -> push_back(lMET);
+  lSumVectorPtr -> push_back(lMETHF);
+  iEvent.put(std::move(lSumVectorPtr), this -> outputCollectionName_+"MET");
 
   return;
 }
@@ -458,6 +475,7 @@ void Phase1L1TJetProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<unsigned int>("jetIPhiSize", 7);
   desc.add<bool>("trimmedGrid", false);
   desc.add<double>("seedPtThreshold", 5);
+  desc.add<double>("ptlsb", 0.25),
   desc.add<double>("philsb", 0.0043633231),
   desc.add<double>("etalsb", 0.0043633231),
   desc.add<bool>("puSubtraction", false);
@@ -534,6 +552,29 @@ std::pair< double, double> Phase1L1TJetProducer::regionEtaPhiUpEdges( const unsi
   }
 
   return std::pair< double, double > { phiRegionEdges_.at( phiRegion + 1 ), etaRegionEdges_.at( etaRegion + 1 ) };
+}
+
+
+l1t::EtSum Phase1L1TJetProducer::computeMET( const double etaCut, l1t::EtSum::EtSumType sumType ) const {
+  const auto lowEtaBin = caloGrid_->GetXaxis()->FindBin( -1.0 * etaCut );
+  const auto highEtaBin = caloGrid_->GetXaxis()->FindBin( etaCut ) - 1;
+  const auto phiProjection = caloGrid_->ProjectionY( "temp", lowEtaBin, highEtaBin );
+
+  // Use digitised quantities when summing to improve agreement with firmware
+  int totalDigiPx{0};
+  int totalDigiPy{0};
+
+  for ( int i = 1; i < phiProjection->GetNbinsX()+1; ++i ) {
+    double pt = phiProjection->GetBinContent( i );
+    totalDigiPx += trunc( floor( pt / ptlsb_ ) * cosPhi_[i-1] );
+    totalDigiPy += trunc( floor( pt / ptlsb_ ) * sinPhi_[i-1] );
+  }
+
+  double lMET = floor( sqrt(totalDigiPx * totalDigiPx + totalDigiPy * totalDigiPy) ) * ptlsb_;
+
+  math::PtEtaPhiMLorentzVector lMETVector( lMET, 0, acos(totalDigiPx / ( lMET / ptlsb_ )), 0 );
+  l1t::EtSum lMETSum(lMETVector, sumType, 0, 0, 0, 0 );
+  return lMETSum;
 }
 
 bool Phase1L1TJetProducer::trimTower( const int etaIndex, const int phiIndex ) const
