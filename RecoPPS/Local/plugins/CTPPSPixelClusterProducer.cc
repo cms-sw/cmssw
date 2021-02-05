@@ -4,7 +4,7 @@
 
 CTPPSPixelClusterProducer::CTPPSPixelClusterProducer(const edm::ParameterSet &conf)
     : tokenCTPPSPixelDigi_(
-          consumes<edm::DetSetVector<CTPPSPixelDigi> >(edm::InputTag(conf.getParameter<std::string>("label")))),
+          consumes<edm::DetSetVector<CTPPSPixelDigi> >(conf.getParameter<edm::InputTag>("label"))),
       tokenCTPPSPixelAnalysisMask_(esConsumes()),
       tokenGainCalib_(esConsumes()),
       verbosity_(conf.getUntrackedParameter<int>("RPixVerbosity")),
@@ -17,7 +17,7 @@ CTPPSPixelClusterProducer::~CTPPSPixelClusterProducer() {}
 void CTPPSPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<int>("RPixVerbosity", 0);
-  desc.add<std::string>("label", "ctppsPixelDigis");
+  desc.add<edm::InputTag>("label", edm::InputTag("ctppsPixelDigis"));
   desc.add<int>("SeedADCThreshold", 2);
   desc.add<int>("ADCThreshold", 2);
   desc.add<double>("ElectronADCGain", 135.0);
