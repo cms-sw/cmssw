@@ -293,7 +293,8 @@ void CMSSteppingVerbose::NextStep(const G4Step* step, const G4SteppingManager* s
     const G4RotationMatrix* rotm = pv1->GetFrameRotation();
     G4cout << "PreStepVolume: " << pv1->GetName() << G4endl;
     G4cout << "       Translation: " << pv1->GetObjectTranslation() << G4endl;
-    if(nullptr != rotm) G4cout << "       Rotation:    " << *rotm << G4endl;
+    if (nullptr != rotm)
+      G4cout << "       Rotation:    " << *rotm << G4endl;
     const G4VSolid* sv1 = pv1->GetLogicalVolume()->GetSolid();
     sv1->StreamInfo(G4cout);
     G4cout << G4endl;
@@ -301,7 +302,8 @@ void CMSSteppingVerbose::NextStep(const G4Step* step, const G4SteppingManager* s
       G4cout << "PostStepVolume: " << pv2->GetName() << G4endl;
       G4cout << "       Translation: " << pv2->GetObjectTranslation() << G4endl;
       rotm = pv2->GetFrameRotation();
-      if(nullptr != rotm) G4cout << "       Rotation:    " << *rotm << G4endl;
+      if (nullptr != rotm)
+        G4cout << "       Rotation:    " << *rotm << G4endl;
       const G4VSolid* sv2 = pv2->GetLogicalVolume()->GetSolid();
       sv2->StreamInfo(G4cout);
     }
@@ -315,8 +317,9 @@ void CMSSteppingVerbose::NextStep(const G4Step* step, const G4SteppingManager* s
           const G4VSolid* sol = pv->GetLogicalVolume()->GetSolid();
           G4cout << " Depth # " << k << "  PhysVolume " << pv->GetName() << G4endl;
           G4cout << "       Translation: " << pv->GetObjectTranslation() << G4endl;
-	  const G4RotationMatrix* rotm = pv->GetFrameRotation();
-          if(nullptr != rotm) G4cout << "       Rotation:    " << *rotm << G4endl;
+          const G4RotationMatrix* rotm = pv->GetFrameRotation();
+          if (nullptr != rotm)
+            G4cout << "       Rotation:    " << *rotm << G4endl;
           sol->StreamInfo(G4cout);
         }
       }
