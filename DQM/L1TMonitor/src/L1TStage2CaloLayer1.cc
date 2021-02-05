@@ -355,7 +355,7 @@ void L1TStage2CaloLayer1::updateMismatch(
     if (e.getRun().id() == std::get<0>(*mismatchIterator) &&
         e.getLuminosityBlock().id() == std::get<1>(*mismatchIterator) && e.id() == std::get<2>(*mismatchIterator)) {
       //the run, lumi and event exist. Check if this kind of mismatch has been reported before
-      std::vector<int> mismatchTypeVector = std::get<3>(*mismatchIterator);
+      std::vector<int>& mismatchTypeVector = std::get<3>(*mismatchIterator);
       for (auto mismatchTypeIterator = mismatchTypeVector.begin(); mismatchTypeIterator != mismatchTypeVector.end();
            ++mismatchTypeIterator) {
         if (mismatchType == *mismatchTypeIterator) {
