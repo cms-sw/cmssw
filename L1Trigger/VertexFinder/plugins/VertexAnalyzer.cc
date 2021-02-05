@@ -485,22 +485,7 @@ namespace l1tVertexFinder {
       recoVertex->computeParameters(
           settings_.vx_weightedmean(), settings_.vx_TrackMaxPt(), settings_.vx_TrackMaxPtBehavior());
       if (settings_.vx_algo() == Algorithm::Kmeans || settings_.vx_algo() == Algorithm::HPV)
-        recoVertex->setZ(l1VerticesHandle->at(i).z0());
-      /*
-      RecoVertex<> recoVertexBase = RecoVertex<>();
-
-      // populate vertex with tracks
-      for (const auto& track : l1VerticesHandle->at(i).tracks()) {
-        recoVertexBase.insert(new L1Track(track));
-      }
-
-      recoVertexBase.setZ(l1VerticesHandle->at(i).z0());
-      RecoVertexWithTP* recoVertex = new RecoVertexWithTP(recoVertexBase, trackAssociationMap);
-      recoVertex->computeParameters(settings_.vx_weightedmean());
-      if (settings_.vx_algo() == Algorithm::Kmeans || settings_.vx_algo() == Algorithm::HPV ||
-          settings_.vx_algo() == Algorithm::FastHisto)
-        recoVertex->setZ(recoVertexBase.z0());
-    */
+        recoVertex->setZ0(l1VerticesHandle->at(i).z0());
       recoVertices.emplace_back(recoVertex);
     }
 

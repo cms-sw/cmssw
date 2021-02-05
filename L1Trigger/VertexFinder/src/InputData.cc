@@ -174,8 +174,8 @@ namespace l1tVertexFinder {
       recoVertices_[i].computeParameters();
     }
 
-    std::sort(vertices_.begin(), vertices_.end(), SortVertexByZ0());
-    std::sort(recoVertices_.begin(), recoVertices_.end(), SortVertexByZ0());
+    std::sort(vertices_.begin(), vertices_.end(), SortVertexByPt());
+    std::sort(recoVertices_.begin(), recoVertices_.end(), SortVertexByPt());
 
     // Form the HepMC and GenParticle based vertices
     edm::Handle<edm::HepMCProduct> HepMCEvt;
