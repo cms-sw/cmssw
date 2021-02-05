@@ -40,9 +40,8 @@ profile_base = cms.PSet(
     timeResolutionDiamonds45 = cms.string("999"),
     timeResolutionDiamonds56 = cms.string("999"),
 
-    effTimePath = cms.string(""),
-    effTimeObject45 = cms.string(""),
-    effTimeObject56 = cms.string("")
+    efficienciesPerRP = cms.VPSet(),
+    efficienciesPerPlane = cms.VPSet()
   )
 )
 
@@ -105,7 +104,6 @@ ctppsDirectProtonSimulation.pitchStrips = 66E-3 * 12 / 19 # effective value to r
 ctppsDirectProtonSimulation.pitchPixelsHor = 50E-3
 ctppsDirectProtonSimulation.pitchPixelsVer = 80E-3
 ctppsDirectProtonSimulation.useEmpiricalApertures = True
-ctppsDirectProtonSimulation.useTimingRPEfficiency = False
 ctppsDirectProtonSimulation.produceHitsRelativeToBeam = True
 ctppsDirectProtonSimulation.produceScoringPlaneHits = False
 ctppsDirectProtonSimulation.produceRecHits = True
