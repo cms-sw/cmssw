@@ -62,8 +62,8 @@ private:
   std::vector<SensitiveCaloDetector *> m_sensCaloDets;
   edm::ParameterSet m_p;
 
-  mutable const DDCompactView* m_pDD;
-  mutable const cms::DDCompactView* m_pDD4hep;
+  mutable const DDCompactView *m_pDD;
+  mutable const cms::DDCompactView *m_pDD4hep;
 
   bool m_firstRun;
   bool m_pUseMagneticField;
