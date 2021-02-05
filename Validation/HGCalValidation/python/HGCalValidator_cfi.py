@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from Validation.HGCalValidation.CaloParticleSelectionForEfficiency_cfi import *
 from Validation.HGCalValidation.HGVHistoProducerAlgoBlock_cfi import *
 
+from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerClusterCaloParticleAssociation
+from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociation
+
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
@@ -13,7 +16,7 @@ hgcalValidator = DQMEDAnalyzer(
 
     ### reco input configuration ###
     #2dlayerclusters, pfclusters, multiclusters
-    label_lcl = cms.InputTag("hgcalLayerClusters"),
+    label_lcl = layerClusterCaloParticleAssociation.label_lc,
     label_mcl = cms.VInputTag(
       cms.InputTag("ticlMultiClustersFromTrackstersTrk"),
       cms.InputTag("ticlMultiClustersFromTrackstersEM"),
@@ -43,10 +46,10 @@ hgcalValidator = DQMEDAnalyzer(
     cummatbudinxo = cms.FileInPath('Validation/HGCalValidation/data/D41.cumulative.xo'),
 
     ### sim input configuration ###
-    label_cp_effic = cms.InputTag("mix","MergedCaloTruth"),
+    label_cp_effic = layerClusterCaloParticleAssociation.label_cp,
     label_cp_fake = cms.InputTag("mix","MergedCaloTruth"),
     #simClusters
-    label_scl = cms.InputTag("mix","MergedCaloTruth"),
+    label_scl = layerClusterSimClusterAssociation.label_scl,
 
     simVertices = cms.InputTag("g4SimHits"),
 
@@ -73,9 +76,7 @@ hgcalValidator = DQMEDAnalyzer(
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(hgcalValidator,
-    label_cp_effic = "mixData:MergedCaloTruth",
-    label_cp_fake = "mixData:MergedCaloTruth",
-    label_scl = "mixData:MergedCaloTruth"
+    label_cp_fake = "mixData:MergedCaloTruth"
 )
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10

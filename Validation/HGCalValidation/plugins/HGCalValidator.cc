@@ -1,5 +1,7 @@
 #include "Validation/HGCalValidation/interface/HGCalValidator.h"
 
+#include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -250,21 +252,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
     histoProducerAlgo_->fill_info_histos(histograms.histoProducerAlgo, totallayers_to_monitor_);
   }
 
-  auto nCaloParticles = caloParticles.size();
   std::vector<size_t> cPIndices;
   //Consider CaloParticles coming from the hard scatterer
   //excluding the PU contribution and save the indices.
-  for (unsigned int cpId = 0; cpId < nCaloParticles; ++cpId) {
-    if (caloParticles[cpId].g4Tracks()[0].eventId().event() != 0 or
-        caloParticles[cpId].g4Tracks()[0].eventId().bunchCrossing() != 0) {
-      LogDebug("HGCalValidator") << "Excluding CaloParticles from event: "
-                                 << caloParticles[cpId].g4Tracks()[0].eventId().event()
-                                 << " with BX: " << caloParticles[cpId].g4Tracks()[0].eventId().bunchCrossing()
-                                 << std::endl;
-      continue;
-    }
-    cPIndices.emplace_back(cpId);
-  }
+  removeCPFromPU(caloParticles, cPIndices);
 
   // ##############################################
   // fill caloparticles histograms
