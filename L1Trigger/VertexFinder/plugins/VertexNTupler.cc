@@ -185,7 +185,7 @@ namespace l1tVertexFinder {
     edm::Service<TFileService> fs_;
     // Histograms for Vertex Reconstruction
 
-    float numTrueInteractions_;
+    float numTrueInteractions_, hepMCVtxZ0_, genVtxZ0_;
     int numPileupVertices_;
 
     GenJetsBranchData genJetsBranchData_;
@@ -239,6 +239,38 @@ namespace l1tVertexFinder {
                            ") specified in the config does not match the number of track map input tags (" +
                            std::to_string(trackMapInputTags.size()) + ")");
 
+    const std::vector<std::string> vertexBranchNames(
+        iConfig.getParameter<std::vector<std::string>>("l1VertexBranchNames"));
+    const std::vector<edm::InputTag> vertexInputTags(
+        iConfig.getParameter<std::vector<edm::InputTag>>("l1VertexInputTags"));
+    const std::vector<std::string> vertexTrackNames(
+        iConfig.getParameter<std::vector<std::string>>("l1VertexTrackInputs"));
+
+    if (vertexBranchNames.size() != vertexInputTags.size())
+      throw cms::Exception("The number of vertex branch names (" + std::to_string(vertexBranchNames.size()) +
+                           ") specified in the config does not match the number of input tags (" +
+                           std::to_string(vertexInputTags.size()) + ")");
+    if (vertexBranchNames.size() != vertexTrackNames.size())
+      throw cms::Exception(
+          "The number of vertex branch names (" + std::to_string(vertexBranchNames.size()) +
+          ") specified in the config does not match the number of associated input track collection names (" +
+          std::to_string(vertexTrackNames.size()) + ")");
+
+    outputTree_->Branch("genJets_energy", &genJetsBranchData_.energy);
+    outputTree_->Branch("genJets_pt", &genJetsBranchData_.pt);
+    outputTree_->Branch("genJets_eta", &genJetsBranchData_.eta);
+    outputTree_->Branch("genJets_phi", &genJetsBranchData_.phi);
+    outputTree_->Branch("genParticles_hardProcOutgoing_energy", &genParticlesHardOutgoingBranchData_.energy);
+    outputTree_->Branch("genParticles_hardProcOutgoing_pt", &genParticlesHardOutgoingBranchData_.pt);
+    outputTree_->Branch("genParticles_hardProcOutgoing_eta", &genParticlesHardOutgoingBranchData_.eta);
+    outputTree_->Branch("genParticles_hardProcOutgoing_phi", &genParticlesHardOutgoingBranchData_.phi);
+    outputTree_->Branch("genParticles_hardProcOutgoing_pdgId", &genParticlesHardOutgoingBranchData_.pdgId);
+    outputTree_->Branch("genParticles_hardProcOutgoing_status", &genParticlesHardOutgoingBranchData_.status);
+    outputTree_->Branch("genVertex_z0", &genVtxZ0_);
+    outputTree_->Branch("hepMCVertex_z0", &hepMCVtxZ0_);
+    outputTree_->Branch("pileupSummary_trueNumInteractions", &numTrueInteractions_);
+    outputTree_->Branch("pileupSummary_numPileupVertices", &numPileupVertices_);
+
     std::vector<std::string>::const_iterator trackBranchNameIt = trackBranchNames.begin();
     std::vector<edm::InputTag>::const_iterator trackInputTagIt = trackInputTags.begin();
     std::vector<edm::InputTag>::const_iterator trackMapInputTagIt = trackMapInputTags.begin();
@@ -256,7 +288,6 @@ namespace l1tVertexFinder {
       outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_numStubs").c_str(), &branchData.numStubs);
       outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_chi2dof").c_str(), &branchData.chi2dof);
       outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_trueMatchIdx").c_str(), &branchData.trueMatchIdx);
-
       outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_matchIdx").c_str(),
                           &branchData.truthMapMatchIdx);
       outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_isGenuine").c_str(),
@@ -268,23 +299,6 @@ namespace l1tVertexFinder {
       outputTree_->Branch(("recoTracks_" + *trackBranchNameIt + "_truthMap_isUnknown").c_str(),
                           &branchData.truthMapIsUnknown);
     }
-
-    const std::vector<std::string> vertexBranchNames(
-        iConfig.getParameter<std::vector<std::string>>("l1VertexBranchNames"));
-    const std::vector<edm::InputTag> vertexInputTags(
-        iConfig.getParameter<std::vector<edm::InputTag>>("l1VertexInputTags"));
-    const std::vector<std::string> vertexTrackNames(
-        iConfig.getParameter<std::vector<std::string>>("l1VertexTrackInputs"));
-
-    if (vertexBranchNames.size() != vertexInputTags.size())
-      throw cms::Exception("The number of vertex branch names (" + std::to_string(vertexBranchNames.size()) +
-                           ") specified in the config does not match the number of input tags (" +
-                           std::to_string(vertexInputTags.size()) + ")");
-    if (vertexBranchNames.size() != vertexTrackNames.size())
-      throw cms::Exception(
-          "The number of vertex branch names (" + std::to_string(vertexBranchNames.size()) +
-          ") specified in the config does not match the number of associated input track collection names (" +
-          std::to_string(vertexTrackNames.size()) + ")");
 
     std::vector<std::string>::const_iterator branchNameIt = vertexBranchNames.begin();
     std::vector<edm::InputTag>::const_iterator inputTagIt = vertexInputTags.begin();
@@ -306,14 +320,7 @@ namespace l1tVertexFinder {
       outputTree_->Branch(("recoVertices_" + *branchNameIt + "_sumPt").c_str(), &branchData.sumPt);
     }
 
-    outputTree_->Branch("pileupSummary_trueNumInteractions", &numTrueInteractions_);
-    outputTree_->Branch("pileupSummary_numPileupVertices", &numPileupVertices_);
-
-    outputTree_->Branch("genJets_energy", &genJetsBranchData_.energy);
-    outputTree_->Branch("genJets_pt", &genJetsBranchData_.pt);
-    outputTree_->Branch("genJets_eta", &genJetsBranchData_.eta);
-    outputTree_->Branch("genJets_phi", &genJetsBranchData_.phi);
-
+    outputTree_->Branch("truePileUpVertices_z0", &truePileUpVtxZ0_);
     outputTree_->Branch("trueTracks_pt", &trueTracksBranchData_.pt);
     outputTree_->Branch("trueTracks_eta", &trueTracksBranchData_.eta);
     outputTree_->Branch("trueTracks_phi", &trueTracksBranchData_.phi);
@@ -324,15 +331,6 @@ namespace l1tVertexFinder {
     outputTree_->Branch("trueTracks_useForEff", &trueTracksBranchData_.useForEff);
     outputTree_->Branch("trueTracks_useForAlgEff", &trueTracksBranchData_.useForAlgEff);
     outputTree_->Branch("trueTracks_useForVtxReco", &trueTracksBranchData_.useForVertexReco);
-
-    outputTree_->Branch("truePileUpVertices_z0", &truePileUpVtxZ0_);
-
-    outputTree_->Branch("genParticles_hardProcOutgoing_energy", &genParticlesHardOutgoingBranchData_.energy);
-    outputTree_->Branch("genParticles_hardProcOutgoing_pt", &genParticlesHardOutgoingBranchData_.pt);
-    outputTree_->Branch("genParticles_hardProcOutgoing_eta", &genParticlesHardOutgoingBranchData_.eta);
-    outputTree_->Branch("genParticles_hardProcOutgoing_phi", &genParticlesHardOutgoingBranchData_.phi);
-    outputTree_->Branch("genParticles_hardProcOutgoing_pdgId", &genParticlesHardOutgoingBranchData_.pdgId);
-    outputTree_->Branch("genParticles_hardProcOutgoing_status", &genParticlesHardOutgoingBranchData_.status);
 
     const std::vector<edm::InputTag> extraVertexInputTags(
         iConfig.getParameter<std::vector<edm::InputTag>>("extraL1VertexInputTags"));
@@ -364,21 +362,8 @@ namespace l1tVertexFinder {
       recoVertex->computeParameters(
           settings.vx_weightedmean(), settings.vx_TrackMaxPt(), settings.vx_TrackMaxPtBehavior());
       if (settings.vx_algo() == Algorithm::Kmeans || settings.vx_algo() == Algorithm::HPV)
-        recoVertex->setZ(handle->at(i).z0());
-      /*
-      RecoVertex<> recoVertexBase = RecoVertex<>();
+        recoVertex->setZ0(handle->at(i).z0());
 
-      // populate vertex with tracks
-      for (const auto& track : handle->at(i).tracks()) {
-        recoVertexBase.insert(trackAssocMap.at(track));
-      }
-
-      recoVertexBase.setZ(handle->at(i).z0());
-      RecoVertexWithTP* recoVertex = new RecoVertexWithTP(recoVertexBase, trackAssocMap);
-      recoVertex->computeParameters(settings.vx_weightedmean());
-      if (settings.vx_algo() == Algorithm::Kmeans || settings.vx_algo() == Algorithm::HPV)
-        recoVertex->setZ(recoVertexBase.z0());
-    */
       recoVertices.push_back(std::shared_ptr<const RecoVertexWithTP>(recoVertex));
     }
 
@@ -507,32 +492,6 @@ namespace l1tVertexFinder {
     // True track info
     trueTracksBranchData_.clear();
 
-    /*
-    std::vector<TP> tpVec(inputData.getTPs());
-    std::set<edm::Ptr<TrackingParticle>> inputDataTPs;
-    for (const auto& tp : tpVec)
-      inputDataTPs.insert(edm::Ptr<TrackingParticle>(tp));
-    for (const auto& tpPtr : allMatchedTPs) {
-      if (inputDataTPs.count(tpPtr) == 0)
-        tpVec.push_back(TP(tpPtr, settings_));
-    }
-
-    std::map<const edm::Ptr<TrackingParticle>, const TP*> edmTPMap;
-    for (const auto& tp : tpVec) {
-      edmTPMap.insert(std::pair<const edm::Ptr<TrackingParticle>, const TP*>(tp, &tp));
-    }
-    */
-    /*
-    std::vector<TP> tpVec(inputData.getTPs());
-    std::set<edm::Ptr<TrackingParticle>> inputDataTPs;
-    for (const auto& [key, value]: inputData.getTPTranslationMap()) {
-      inputDataTPs.insert(key);
-    }
-    for (const auto& tpPtr : allMatchedTPs) {
-      if (inputDataTPs.count(tpPtr) == 0)
-        tpVec.push_back(TP(tpPtr.get(), settings_));
-    }
-    */
     TPTranslationMap edmTPMap(inputData.getTPTranslationMap());
     for (const auto& tpPtr : allMatchedTPs) {
       if (edmTPMap.count(tpPtr) == 0)
@@ -558,6 +517,9 @@ namespace l1tVertexFinder {
 
     for (const Vertex& vtx : inputData.getPileUpVertices())
       truePileUpVtxZ0_.push_back(vtx.z0());
+
+    hepMCVtxZ0_ = inputData.getHepMCVertex().z0();
+    genVtxZ0_ = inputData.getGenVertex().z0();
 
     // Gen particles
     genParticlesHardOutgoingBranchData_.clear();
@@ -613,15 +575,6 @@ namespace l1tVertexFinder {
         if (matchedTP.isNull())
           branchData.truthMapMatchIdx.push_back(-1);
         else {
-          /*
-          const TP* tp = edmTPMap.at(matchedTP);
-          bool lFound = (tp >= &*tpVec.begin()) and (tp < &*tpVec.end());
-          if (lFound) {
-            const size_t lIdx = tp - &*tpVec.begin();
-            branchData.truthMapMatchIdx.push_back(lIdx);
-          }
-          assert(lFound);
-          */
           auto edmTPMap_iterator = edmTPMap.find(matchedTP);
           assert(edmTPMap_iterator != edmTPMap.end());
           branchData.truthMapMatchIdx.push_back(std::distance(edmTPMap.begin(), edmTPMap_iterator));

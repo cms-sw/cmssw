@@ -346,7 +346,7 @@ namespace l1tVertexFinder {
     vertex.computeParameters(
         settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
 
-    vertex.setZ(z);
+    vertex.setZ0(z);
     vertices_.push_back(vertex);
   }
 
@@ -358,7 +358,7 @@ namespace l1tVertexFinder {
 
     for (unsigned int i = 0; i < NumberOfClusters; ++i) {
       float ClusterCentre = -15. + ClusterSeparation * (i + 0.5);
-      vertices_[i].setZ(ClusterCentre);
+      vertices_[i].setZ0(ClusterCentre);
     }
     unsigned int iterations = 0;
     // Initialise Clusters
@@ -431,7 +431,7 @@ namespace l1tVertexFinder {
       }
       vertex.computeParameters(
           settings_->vx_weightedmean(), settings_->vx_TrackMaxPt(), settings_->vx_TrackMaxPtBehavior());
-      vertex.setZ(z);
+      vertex.setZ0(z);
       if (vertex.pT() > vxPt) {
         leading_vertex = vertex;
         vxPt = vertex.pT();

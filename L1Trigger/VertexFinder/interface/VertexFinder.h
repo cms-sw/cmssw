@@ -87,13 +87,13 @@ namespace l1tVertexFinder {
     void fastHistoLooseAssociation();
     /// Histogramming algorithm
     void fastHisto(const TrackerTopology* tTopo);
-    /// Sort Vertices in pT
+    /// Sort vertices in pT
     void SortVerticesInPt() {
       std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {
         return (vertex0.pT() > vertex1.pT());
       });
     }
-    /// Sort Vertices in z
+    /// Sort vertices in z
     void SortVerticesInZ0() {
       std::sort(vertices_.begin(), vertices_.end(), [](const RecoVertex<>& vertex0, const RecoVertex<>& vertex1) {
         return (vertex0.z0() < vertex1.z0());

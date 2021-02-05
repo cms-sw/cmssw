@@ -52,10 +52,12 @@ namespace l1tVertexFinder {
     bool primaryVertex() const { return pv_; }
     /// Sum of fitted tracks transverse momentum [GeV]
     double pT() const { return pT_; }
-    /// Tracking Particles in vertex
+    /// Tracks in the vertex
     const std::vector<const T*>& tracks() const { return tracks_; }
+    /// Tracking particles asociated to the vertex
+    const std::set<const TP*>& trueTracks() const { return trueTracks_; }
     /// Set z0 position [cm]
-    void setZ(double z) { z0_ = z; }
+    void setZ0(double z) { z0_ = z; }
     /// Vertex z0 position [cm]
     double z0() const { return z0_; }
     /// Vertex z0 width [cm]
@@ -161,6 +163,9 @@ namespace l1tVertexFinder {
   }
 
   // Template specializations
+  template <>
+  RecoVertexWithTP& RecoVertexWithTP::operator+=(const RecoVertexWithTP& rhs);
+
   template <>
   void RecoVertexWithTP::clear();
 
