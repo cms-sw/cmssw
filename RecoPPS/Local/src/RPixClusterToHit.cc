@@ -11,7 +11,7 @@ void RPixClusterToHit::buildHits(unsigned int detId,
                                  std::vector<CTPPSPixelRecHit> &hits,
 				 const PPSPixelTopology &ppt) {
   if (verbosity_)
-    edm::LogInfo("RPixClusterToHit") << " RPixClusterToHit " << detId
+    edm::LogInfo("PPS") << " RPixClusterToHit " << detId
                                      << " received cluster array of size = " << clusters.size();
   for (unsigned int i = 0; i < clusters.size(); i++) {
     make_hit(clusters[i], hits, ppt);
@@ -66,11 +66,11 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPix
   double weightedVarianceY = 0.;
 
   if (verbosity_)
-    edm::LogInfo("RPixClusterToHit") << " hit pixels: ";
+    edm::LogInfo("PPS") << "RPixClusterToHit " << " hit pixels: ";
 
   for (unsigned int i = 0; i < thisClusterSize; i++) {
     if (verbosity_)
-      edm::LogInfo("RPixClusterToHit") << aCluster.pixelRow(i) << " " << aCluster.pixelCol(i) << " "
+      edm::LogInfo("PPS") << "RPixClusterToHit " << aCluster.pixelRow(i) << " " << aCluster.pixelCol(i) << " "
                                        << aCluster.pixelADC(i);
 
     double minPxlX = 0;
@@ -110,7 +110,7 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPix
   LocalPoint lp(avgLocalX, avgLocalY, 0);
   LocalError le(varianceX, 0, varianceY);
   if (verbosity_)
-    edm::LogInfo("RPixClusterToHit") << lp << " with error " << le;
+    edm::LogInfo("PPS") << "RPixClusterToHit " << lp << " with error " << le;
 
   hits.emplace_back(lp,
                     le,

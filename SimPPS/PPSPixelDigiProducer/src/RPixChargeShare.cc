@@ -42,7 +42,7 @@ RPixChargeShare::RPixChargeShare(const edm::ParameterSet &params, uint32_t det_i
 std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSignalPoint> &charge_map, const PPSPixelTopology &ppt) {
   std::map<unsigned short, double> thePixelChargeMap;
   if (verbosity_ > 1)
-    edm::LogInfo("RPixChargeShare") << det_id_ << " : Clouds to be induced= " << charge_map.size();
+    edm::LogInfo("PPS") << "RPixChargeShare " << det_id_ << " : Clouds to be induced= " << charge_map.size();
 
   double cH = 0;
 
@@ -52,13 +52,13 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
     if (((*i).Position().x() + 16.6 / 2) < 0 || ((*i).Position().x() + 16.6 / 2) > 16.6) {
       edm::LogInfo("RPixChargeShare")
 	<< "**** Attention ((*i).Position().x()+simX_width_/2.)<0||((*i).Position().x()+simX_width_/2.)>simX_width  ";
-      edm::LogInfo("RPixChargeShare") << "(*i).Position().x() = " << (*i).Position().x();
+      edm::LogInfo("PPS") << "RPixChargeShare " << "(*i).Position().x() = " << (*i).Position().x();
       continue;
     }
     if (((*i).Position().y() + 24.4 / 2.) < 0 || ((*i).Position().y() + 24.4 / 2.) > 24.4) {
       edm::LogInfo("RPixChargeShare")
 	<< "**** Attention ((*i).Position().y()+simY_width_/2.)<0||((*i).Position().y()+simY_width_/2.)>simY_width  ";
-      edm::LogInfo("RPixChargeShare") << "(*i).Position().y() = " << (*i).Position().y();
+      edm::LogInfo("PPS") << "RPixChargeShare " << "(*i).Position().y() = " << (*i).Position().y();
       continue;
     }
 
@@ -73,7 +73,7 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
     cH += charge_in_pixel;
 
     if (verbosity_ > 1)
-      edm::LogInfo("RPixChargeShare") << "Efficiency in detector " << det_id_ << " and pixel no " << pixel_no << "  : "
+      edm::LogInfo("PPS") << "RPixChargeShare " << "Efficiency in detector " << det_id_ << " and pixel no " << pixel_no << "  : "
                                       << effic << "  ch: " << charge_in_pixel << "   CHtot: " << cH;
 
     if (signalCoupling_[0] == 0.) {

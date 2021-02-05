@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 ppsPixelTopologyESSource = cms.ESSource('PPSPixelTopologyESSource',
-  setPPSPixelTopology = cms.bool(True),
   RunType = cms.string('Run2'),
   PitchSimY = cms.double(0.15),
   PitchSimX = cms.double(0.1),

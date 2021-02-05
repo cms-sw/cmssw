@@ -186,20 +186,19 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(tokenCrossingFramePPSPixel, cf);
 
   if (verbosity_) {
-    edm::LogInfo("PPSPixelDigiProducer") << "\n\n=================== Starting SimHit access"
+    edm::LogInfo("PPS") << "PixelDigiProducer \n\n=================== Starting SimHit access"
                                          << "  ===================";
 
     MixCollection<PSimHit> col{cf.product(), std::pair(-0, 0)};
-    edm::LogInfo("PPSPixelDigiProducer") << col;
     MixCollection<PSimHit>::iterator cfi;
     int count = 0;
     for (cfi = col.begin(); cfi != col.end(); cfi++) {
-      edm::LogInfo("PPSPixelDigiProducer")
-          << " Hit " << count << " has tof " << cfi->timeOfFlight() << " trackid " << cfi->trackId() << " bunchcr "
-          << cfi.bunch() << " trigger " << cfi.getTrigger()
-          << ", from EncodedEventId: " << cfi->eventId().bunchCrossing() << " " << cfi->eventId().event()
-          << " bcr from MixCol " << cfi.bunch();
-      edm::LogInfo("PPSPixelDigiProducer") << " Hit: " << (*cfi) << "  " << cfi->exitPoint();
+      edm::LogInfo("PPS") << "PixelDigiProducer"
+			  << " Hit " << count << " has tof " << cfi->timeOfFlight() << " trackid " << cfi->trackId() << " bunchcr "
+			  << cfi.bunch() << " trigger " << cfi.getTrigger()
+			  << ", from EncodedEventId: " << cfi->eventId().bunchCrossing() << " " << cfi->eventId().event()
+			  << " bcr from MixCol " << cfi.bunch();
+      edm::LogInfo("PPS") << " PixelDigiProducer Hit: " << (*cfi) << "  " << cfi->exitPoint();
       count++;
     }
   }
@@ -207,7 +206,7 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   MixCollection<PSimHit> allRPixHits{cf.product(), std::pair(0, 0)};
 
   if (verbosity_)
-    edm::LogInfo("PPSPixelDigiProducer") << "Input MixCollection size = " << allRPixHits.size();
+    edm::LogInfo("PPS") << "PixelDigiProducer Input MixCollection size = " << allRPixHits.size();
 
   //Loop on PSimHit
   simhit_map SimHitMap;
@@ -245,7 +244,7 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::unique_ptr<edm::DetSetVector<CTPPSPixelDigi>> digi_output(new edm::DetSetVector<CTPPSPixelDigi>(theDigiVector));
 
   if (verbosity_) {
-    edm::LogInfo("PPSPixelDigiProducer") << "digi_output->size()=" << digi_output->size();
+    edm::LogInfo("PPS") << "PixelDigiProducer digi_output->size()=" << digi_output->size();
   }
 
   iEvent.put(std::move(digi_output));

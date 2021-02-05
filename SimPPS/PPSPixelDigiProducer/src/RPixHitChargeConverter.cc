@@ -14,6 +14,6 @@ RPixHitChargeConverter::RPixHitChargeConverter(const edm::ParameterSet &params,
 std::map<unsigned short, double> RPixHitChargeConverter::processHit(const PSimHit &hit, const PPSPixelTopology &ppt) {
   std::vector<RPixEnergyDepositUnit> ions_along_path = theRPixChargeDivider->divide(hit);
   if (verbosity_)
-    edm::LogInfo("RPixHitChargeConverter") << det_id_ << " clouds no generated on the path=" << ions_along_path.size();
+    edm::LogInfo("PPS") << "RPixHitChargeConverter " << det_id_ << " clouds no generated on the path=" << ions_along_path.size();
   return theRPixChargeShare->Share(theRPixChargeCollectionDrifter->Drift(ions_along_path), ppt);
 }
