@@ -2036,8 +2036,8 @@ private:
       get(dnn::pfCand_gamma_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(gamma_cand, 0.9084110f))
                                                     : getValue(candFunc::getPuppiWeight(gamma_cand, 0.4211567f));
       get(dnn::pfCand_gamma_puppiWeightNoLep) =
-          is_inner ? getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.8857715703446466))
-                   : getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.38226042182344516));
+          is_inner ? getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.8857716f))
+                   : getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.3822604f));
       get(dnn::pfCand_gamma_lostInnerHits) = getValue<int>(candFunc::getLostInnerHits(gamma_cand, 0));
       get(dnn::pfCand_gamma_numberOfPixelHits) =
           getValueLinear(candFunc::getNumberOfPixelHits(gamma_cand, 0), 0, 7, true);
@@ -2810,7 +2810,7 @@ private:
       zeroOutputTensor_;
   const bool save_inputs_;
   std::ofstream* json_file_;
-  mutable bool is_first_block_;
+  bool is_first_block_;
   int file_counter_;
 
   //boolean to check if discriminator indices are already mapped
