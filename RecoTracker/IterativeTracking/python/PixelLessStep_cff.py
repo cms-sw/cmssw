@@ -348,11 +348,10 @@ trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
 from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
 trackdnn.toReplaceWith(pixelLessStep, TrackTfClassifier.clone(
-    src = 'pixelLessStepTracks',
+    src         = 'pixelLessStepTracks',
     qualityCuts = qualityCutDictionary['PixelLessStep']
 ))
-
-(trackdnn & fastSim).toModify(pixelLessStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+(trackdnn & fastSim).toModify(pixelLessStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
 pp_on_AA.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])
 
