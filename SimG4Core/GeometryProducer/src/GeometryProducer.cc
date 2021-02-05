@@ -134,13 +134,12 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
 
   SensitiveDetectorCatalog catalog;
   const DDDWorld *dddworld = new DDDWorld(m_pDD, m_pDD4hep, catalog, 1, false, false);
-  G4VPhysicalVolume* world = dddworld->GetWorldVolume();
-  if(nullptr != world)
+  G4VPhysicalVolume *world = dddworld->GetWorldVolume();
+  if (nullptr != world)
     edm::LogVerbatim("GeometryProducer") << " World Volume: " << world->GetName();
   m_kernel->DefineWorldVolume(world, true);
 
   m_registry.dddWorldSignal_(dddworld);
-
 
   edm::LogVerbatim("GeometryProducer") << " Magnetic field initialisation";
   updateMagneticField(es);
