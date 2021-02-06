@@ -199,8 +199,8 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
         pgonRin.emplace_back(rinB);
         pgonRout.emplace_back(rmax);
         pgonRout.emplace_back(rmax);
-        DDSolid solid = DDSolidFactory::polyhedra(
-            DDName(name, idNameSpace_), sectors_, -alpha, 2._pi, pgonZ, pgonRin, pgonRout);
+        DDSolid solid =
+            DDSolidFactory::polyhedra(DDName(name, idNameSpace_), sectors_, -alpha, 2._pi, pgonZ, pgonRin, pgonRout);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << solid.name() << " polyhedra of " << sectors_
@@ -210,8 +210,7 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
       } else {
-        DDSolid solid = DDSolidFactory::tubs(
-            DDName(name, idNameSpace_), 0.5 * thick_[ii], rinB, routF, 0.0, 2._pi);
+        DDSolid solid = DDSolidFactory::tubs(DDName(name, idNameSpace_), 0.5 * thick_[ii], rinB, routF, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << solid.name() << " Tubs made of " << matName

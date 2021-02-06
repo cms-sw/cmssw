@@ -207,8 +207,7 @@ void DDHGCalTBModule::constructLayers(const DDLogicalPart& module, DDCompactView
                                       << ":" << absorbH_ << ":" << 0.5 * thick_[ii];
 #endif
       } else {
-        DDSolid solid = DDSolidFactory::tubs(
-            DDName(name, idNameSpace_), 0.5 * thick_[ii], rinB, routF, 0.0, 2._pi);
+        DDSolid solid = DDSolidFactory::tubs(DDName(name, idNameSpace_), 0.5 * thick_[ii], rinB, routF, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalTBModule: " << solid.name() << " Tubs made of " << matName
