@@ -651,7 +651,7 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter(HcalGenericDetId fId
   HcalSiPMType theType = HcalNoSiPM;
   double thePe2fC = getParameters(fId).photoelectronsToAnalog();
   double theDC = getParameters(fId).darkCurrent(0, intlumi);
-  float theNoiseCN = (float)getParameters(fId).noiseCorrelation(0);
+  double theNoiseCN = getParameters(fId).noiseCorrelation(0);
   if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
     if (useHBUpgrade_) {
       HcalDetId hid(fId);
@@ -659,11 +659,11 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter(HcalGenericDetId fId
       if (nLayersInDepth > 4) {
         theType = HcalHBHamamatsu2;
         theDC = getParameters(fId).darkCurrent(1, intlumi);
-        theNoiseCN = (float)getParameters(fId).noiseCorrelation(1);
+        theNoiseCN = getParameters(fId).noiseCorrelation(1);
       } else {
         theType = HcalHBHamamatsu1;
         theDC = getParameters(fId).darkCurrent(0, intlumi);
-        theNoiseCN = (float)getParameters(fId).noiseCorrelation(0);
+        theNoiseCN = getParameters(fId).noiseCorrelation(0);
       }
     } else
       theType = HcalHPD;
@@ -674,11 +674,11 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter(HcalGenericDetId fId
       if (nLayersInDepth > 4) {
         theType = HcalHEHamamatsu2;
         theDC = getParameters(fId).darkCurrent(1, intlumi);
-        theNoiseCN = (float)getParameters(fId).noiseCorrelation(1);
+        theNoiseCN = getParameters(fId).noiseCorrelation(1);
       } else {
         theType = HcalHEHamamatsu1;
         theDC = getParameters(fId).darkCurrent(0, intlumi);
-        theNoiseCN = (float)getParameters(fId).noiseCorrelation(0);
+        theNoiseCN = getParameters(fId).noiseCorrelation(0);
       }
     } else
       theType = HcalHPD;
@@ -689,7 +689,7 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter(HcalGenericDetId fId
       theType = HcalHPD;
   }
 
-  return HcalSiPMParameter(fId.rawId(), theType, thePe2fC, theDC, 0, theNoiseCN);
+  return HcalSiPMParameter(fId.rawId(), theType, thePe2fC, theDC, 0, (float)theNoiseCN);
 }
 
 std::unique_ptr<HcalSiPMCharacteristics> HcalDbHardcode::makeHardcodeSiPMCharacteristics() const {
