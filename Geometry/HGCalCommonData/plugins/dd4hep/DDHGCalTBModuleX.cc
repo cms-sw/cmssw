@@ -7,7 +7,7 @@
 
 #include <unordered_set>
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
@@ -16,7 +16,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 namespace DDHGCalGeom {
   void constructLayers(const cms::DDNamespace& ns,
