@@ -44,6 +44,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 process.load('L1Trigger.VertexFinder.VertexProducer_cff')
 process.VertexProducer.l1TracksInputTag = l1TracksTag
 
+process.load('L1Trigger.VertexFinder.InputDataProducer_cff')
+
 process.load('L1Trigger.VertexFinder.VertexNTupler_cff')
 process.L1TVertexNTupler.l1TracksInputTag = l1TracksTag
 
@@ -102,5 +104,5 @@ print "Total number of producers =", len(additionalProducerAlgorithms)+1
 print "  Producers = [{0}]".format(producerSum.dumpSequenceConfig().replace('&',', '))
 print "  Algorithms = [FastHisto, {0}]".format(', '.join(additionalProducerAlgorithms))
  
-process.p = cms.Path(producerSum + process.L1TVertexNTupler)
+process.p = cms.Path(producerSum + process.InputDataProducer + process.L1TVertexNTupler)
 

@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="l1tVertexFinder::InputData"/>
+  <class name="edm::Wrapper<l1tVertexFinder::InputData>"/>
+</lcgdict>
