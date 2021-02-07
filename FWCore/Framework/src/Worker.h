@@ -1043,8 +1043,7 @@ namespace edm {
 
     waitingTasks_.add(task);
     if (workStarted) {
-      auto group = task.group();
-      auto toDo = [this, info = transitionInfo, streamID, parentContext, context, serviceToken, group]() {
+      auto toDo = [this, info = transitionInfo, streamID, parentContext, context, serviceToken]() {
         std::exception_ptr exceptionPtr;
         // Caught exception is propagated via WaitingTaskList
         CMS_SA_ALLOW try {
@@ -1059,6 +1058,7 @@ namespace edm {
       };
 
       if (needsESPrefetching(T::transition_)) {
+        auto group = task.group();
         auto afterPrefetch =
             edm::make_waiting_task([toDo = std::move(toDo), group, this](std::exception_ptr const* iExcept) {
               if (iExcept) {
@@ -1074,6 +1074,7 @@ namespace edm {
         esPrefetchAsync(
             WaitingTaskHolder(*group, afterPrefetch), transitionInfo.eventSetupImpl(), T::transition_, serviceToken);
       } else {
+        auto group = task.group();
         if (auto queue = this->serializeRunModule()) {
           queue.push(*group, toDo);
         } else {
