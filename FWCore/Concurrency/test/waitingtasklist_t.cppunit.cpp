@@ -189,7 +189,7 @@ void WaitingTaskList_test::stressTest() {
     auto* pWaitTask = &waitTask;
     {
       edm::WaitingTaskHolder waitTaskH(group, pWaitTask);
-      std::thread makeTasksThread([&waitList, waitTaskH, &group] {
+      std::thread makeTasksThread([&waitList, waitTaskH] {
         for (unsigned int i = 0; i < nTasks; ++i) {
           waitList.add(waitTaskH);
         }

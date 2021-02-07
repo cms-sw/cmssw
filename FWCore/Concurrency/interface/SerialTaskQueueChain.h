@@ -75,7 +75,7 @@ namespace edm {
   void SerialTaskQueueChain::push(tbb::task_group& iGroup, T&& iAction) {
     ++m_outstandingTasks;
     if (m_queues.size() == 1) {
-      m_queues[0]->push(iGroup, [this, &iGroup, iAction]() mutable { this->actionToRun(iAction); });
+      m_queues[0]->push(iGroup, [this, iAction]() mutable { this->actionToRun(iAction); });
     } else {
       assert(!m_queues.empty());
       m_queues[0]->push(iGroup, [this, &iGroup, iAction]() mutable { this->passDownChain(1, iGroup, iAction); });
@@ -89,7 +89,7 @@ namespace edm {
     m_queues[iQueueIndex - 1]->pause();
     //is this the last queue?
     if (iQueueIndex + 1 == m_queues.size()) {
-      m_queues[iQueueIndex]->push(iGroup, [this, iAction, &iGroup]() mutable { this->actionToRun(iAction); });
+      m_queues[iQueueIndex]->push(iGroup, [this, iAction]() mutable { this->actionToRun(iAction); });
     } else {
       auto nextQueue = iQueueIndex + 1;
       m_queues[iQueueIndex]->push(
