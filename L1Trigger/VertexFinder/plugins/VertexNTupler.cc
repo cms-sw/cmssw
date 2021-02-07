@@ -152,20 +152,13 @@ namespace l1tVertexFinder {
     void endJob() override;
 
     // define types for stub-related classes
-    typedef edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>> DetSetVec;
     typedef TTTrackAssociationMap<Ref_Phase2TrackerDigi_> TTTrackAssMap;
-    typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_> TTStubAssMap;
-    typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_> TTClusterAssMap;
     typedef edm::View<TTTrack<Ref_Phase2TrackerDigi_>> TTTrackCollectionView;
 
     // references to tags containing information relevant to perofrmance analysis
+    const edm::EDGetTokenT<l1tVertexFinder::InputData> inputDataToken_;
     const edm::EDGetTokenT<std::vector<PileupSummaryInfo>> pileupSummaryToken_;
-    const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_;
     const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken_;
-    const edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
-    const edm::EDGetTokenT<DetSetVec> stubToken_;
-    const edm::EDGetTokenT<TTStubAssMap> stubTruthToken_;
-    const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken_;
     const edm::EDGetTokenT<std::vector<reco::GenJet>> genJetsToken_;
     edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
     edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
@@ -209,14 +202,10 @@ namespace l1tVertexFinder {
   };
 
   VertexNTupler::VertexNTupler(const edm::ParameterSet& iConfig)
-      : pileupSummaryToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"))),
-        hepMCToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCInputTag"))),
+      : inputDataToken_(consumes<l1tVertexFinder::InputData>(iConfig.getParameter<edm::InputTag>("inputDataInputTag"))),
+        pileupSummaryToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag("addPileupInfo"))),
         genParticlesToken_(
             consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
-        tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
-        stubToken_(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
-        stubTruthToken_(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
-        clusterTruthToken_(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))),
         genJetsToken_(consumes<std::vector<reco::GenJet>>(iConfig.getParameter<edm::InputTag>("genJetsInputTag"))),
         trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("", ""))),
         trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),

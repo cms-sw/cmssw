@@ -17,6 +17,8 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
+  InputData::InputData() {}
+
   InputData::InputData(const edm::Event& iEvent,
                        const edm::EventSetup& iSetup,
                        const AnalysisSettings& settings,
@@ -220,10 +222,13 @@ namespace l1tVertexFinder {
         break;
       }
     }
-    if ((hepMCVertex_.vz() == 0.0) && (genVertex_.vz() == 0.0)) {
+    if ( (hepMCVertex_.vz() == 0.0) && (genVertex_.vz() == 0.0) ) {
       throw cms::Exception("Neither the HepMC vertex nor the generator particle vertex were found.");
     }
 
+
   }  // end InputData::InputData
+
+  InputData::~InputData() {}
 
 }  // end namespace l1tVertexFinder
