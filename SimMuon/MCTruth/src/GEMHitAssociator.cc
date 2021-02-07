@@ -16,7 +16,7 @@ GEMHitAssociator::GEMHitAssociator(const edm::ParameterSet &conf, edm::ConsumesC
     GEMsimhitsToken_ = iC.consumes<edm::PSimHitContainer>(GEMsimhitsTag);
   }
 
-  GEMdigisimlinkToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink>>(GEMdigisimlinkTag);
+  GEMdigisimlinkToken_ = iC.consumes<edm::DetSetVector<GEMDigiSimLink>>(GEMdigisimlinkTag);
 }
 
 GEMHitAssociator::GEMHitAssociator(const edm::Event &e,
@@ -82,11 +82,11 @@ std::vector<GEMHitAssociator::SimHitIdpr> GEMHitAssociator::associateRecHit(cons
       if (layerLinks != theDigiSimLinks->end()) {
         for (int i = fstrip; i < (fstrip + cls); ++i) {
           for (LayerLinks::const_iterator itlink = layerLinks->begin(); itlink != layerLinks->end(); ++itlink) {
-            int ch = static_cast<int>(itlink->channel());
+            int ch = static_cast<int>(itlink->getStrip());
             if (ch != i)
               continue;
 
-            SimHitIdpr currentId(itlink->SimTrackId(), itlink->eventId());
+            SimHitIdpr currentId(itlink->getTrackId(), itlink->getEventId());
             if (find(matched.begin(), matched.end(), currentId) == matched.end())
               matched.push_back(currentId);
           }

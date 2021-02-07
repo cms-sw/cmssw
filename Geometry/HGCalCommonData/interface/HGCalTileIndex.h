@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <tuple>
 
 namespace HGCalTileIndex {
   int32_t tileIndex(int32_t layer, int32_t ring, int32_t phi);
@@ -12,8 +13,8 @@ namespace HGCalTileIndex {
   int32_t tileProperty(int32_t, int32_t);
   int32_t tileType(int32_t);
   int32_t tileSiPM(int32_t);
-  int32_t tilePack(int32_t k1, int32_t k2);
-  std::pair<int32_t, int32_t> tileUnpack(int32_t index);
+  int32_t tilePack(int32_t ly, int32_t k1, int32_t k2);
+  std::tuple<int32_t, int32_t, int32_t> tileUnpack(int32_t index);
   bool tileExist(const int32_t* hex, int32_t zside, int32_t phi);
 };  // namespace HGCalTileIndex
 

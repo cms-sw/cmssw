@@ -1039,7 +1039,7 @@ namespace {
     int getPhiTensorIndex(const CellIndex& cellIndex) const { return cellIndex.phi + maxPhiIndex(); }
 
     bool tryGetCellIndex(double deltaEta, double deltaPhi, CellIndex& cellIndex) const {
-      static auto getCellIndex = [this](double x, double maxX, double size, int& index) {
+      const auto getCellIndex = [this](double x, double maxX, double size, int& index) {
         const double absX = std::abs(x);
         if (absX > maxX)
           return false;
