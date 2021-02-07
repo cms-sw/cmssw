@@ -1459,7 +1459,7 @@ def lhegensim2018(fragment,howMuch):
 # Run-Dependent MC
 def gen2018RD(fragment,howMuch):
     global step1Up2018Defaults
-    return merge([{'cfg':fragment},howMuch,{'--customise_commands': "\"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5) \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet( record = cms.string('EcalLaserAPDPNRatiosRcd'), tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) ) \""},step1Up2018Defaults])
+    return merge([{'cfg':fragment},howMuch,{'--conditions':'auto:phase1_2018_realistic_rd','--customise_commands': "\"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5) \""},step1Up2018Defaults])
 
 steps['ZEE_13UP18_RD']=gen2018RD('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(10,50))
 steps['ZMM_13UP18_RD']=gen2018RD('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(10,50))
@@ -1806,7 +1806,10 @@ digiPremixRD2018 = {
     '--pileup_input':'das:/RelValPREMIXUP18_PU25/%s/PREMIX'%baseDataSetRelease[24]
 }
 
-steps['DIGIPRMXUP18_PU25_RD']=merge([digiPremixRD2018, {'--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet(     record = cms.string('EcalLaserAPDPNRatiosMCRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC_first_IOV'), connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ), cms.PSet( record = cms.string('EcalLaserAPDPNRatiosRcd'),  tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'),  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )  \\n process.mixData.workers.ecal.timeDependent=True \\n process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(*[cms.LuminosityBlockID(x,y) for x,y in ((315257, 1), (316082, 222), (316720, 445), (317527, 668), (320917, 890), (321414, 1112), (321973, 1334), (322492, 1556), (324245, 1779))]) \""}, digiPremixUp2018Defaults25ns])
+steps['DIGIPRMXUP18_PU25_RD']=merge([digiPremixRD2018, {'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.mixData.workers.ecal.timeDependent=True \\n process.source.firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(*[cms.LuminosityBlockID(x,y) for x,y in ((315257, 1), (316082, 222), (316720, 445), (317527, 668), (320917, 890), (321414, 1112), (321973, 1334), (322492, 1556), (324245, 1779))]) \""}, digiPremixUp2018Defaults25ns])
+
+# configuration to simulate cross run number boundary in IB, given 5 events per lumi
+steps['DIGIPRMXUP18_PU25_RD_IB']=merge([digiPremixRD2018, {'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.mixData.workers.ecal.timeDependent=True \\n process.source.setRunNumberForEachLumi = cms.untracked.vuint32(315257,316083) \""}, digiPremixUp2018Defaults25ns])
 
 premixProd25ns = {'-s'             : 'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval2016',
                  '--eventcontent' : 'PREMIXRAW',
@@ -2424,7 +2427,7 @@ steps['RECOPRMXUP18_PU25_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,E
 steps['RECOPRMXUP18_PU25_L1TMuDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@L1TMuon'},steps['RECOPRMXUP18_PU25']])
 
 #Run-Dependent RECO
-step_RECO18_RD = {'--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n process.GlobalTag.toGet = cms.VPSet( cms.PSet( record = cms.string('EcalLaserAPDPNRatiosMCRcd'), tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC_first_IOV'), connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ), cms.PSet( record = cms.string('EcalLaserAPDPNRatiosRcd'), tag = cms.string('EcalLaserAPDPNRatios_Run_Dep_MC'), connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') ) )  \\n \""}
+step_RECO18_RD = {'--conditions':'auto:phase1_2018_realistic_rd', '--customise_commands':"\"process.EcalLaserCorrectionServiceMC = cms.ESProducer('EcalLaserCorrectionServiceMC') \\n \""}
 steps['RECOPRMXUP18_PU25_RD']=merge([step_RECO18_RD, steps['RECOPRMXUP18_PU25']])
 steps['RECOPRMXUP18_PU25_L1TEgDQM_RD']=merge([step_RECO18_RD, steps['RECOPRMXUP18_PU25_L1TEgDQM']])
 steps['RECOPRMXUP18_PU25_L1TMuDQM_RD']=merge([step_RECO18_RD, steps['RECOPRMXUP18_PU25_L1TMuDQM']])
