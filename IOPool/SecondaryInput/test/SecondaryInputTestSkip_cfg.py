@@ -24,7 +24,7 @@ process.source = cms.Source("PoolSource",
 process.Thing = cms.EDProducer("SecondaryProducer",
     input = cms.SecSource("EmbeddedRootSource",
         skipBadFiles = cms.untracked.bool(True),
-        fileOpenAttempts = cms.untracked.uint32(100),
+        maxFileSkips = cms.untracked.uint32(100),
         fileNames = cms.untracked.vstring(
             'file:SecondaryInputTest2.root',
             'file:missing.root',
