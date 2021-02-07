@@ -93,12 +93,9 @@ public:
   ///forwards our signals to slots connected to iOther
   void connect(SimActivityRegistry& iOther);
 
-private:
-  SimActivityRegistry(const SimActivityRegistry&) = delete;  // stop default
-
-  const SimActivityRegistry& operator=(const SimActivityRegistry&) = delete;  // stop default
-
-  // ---------- member data --------------------------------
+  // stop default
+  SimActivityRegistry(const SimActivityRegistry&) = delete;
+  const SimActivityRegistry& operator=(const SimActivityRegistry&) = delete;
 };
 
 #endif
