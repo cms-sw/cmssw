@@ -351,8 +351,7 @@ trackdnn.toReplaceWith(mixedTripletStep, TrackTfClassifier.clone(
     src = 'mixedTripletStepTracks',
     qualityCuts = qualityCutDictionary['MixedTripletStep']
 ))
-
-(trackdnn & fastSim).toModify(mixedTripletStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+(trackdnn & fastSim).toModify(mixedTripletStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
 highBetaStar_2018.toModify(mixedTripletStep,qualityCuts = [-0.7,0.0,0.5])
 pp_on_AA.toModify(mixedTripletStep, qualityCuts = [-0.5,0.0,0.9])
