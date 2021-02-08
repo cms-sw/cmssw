@@ -16,6 +16,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTTrigCodes.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //this is a pure virtual struct which defines the interface to the cut objects
 //it is also currently uncopyable
