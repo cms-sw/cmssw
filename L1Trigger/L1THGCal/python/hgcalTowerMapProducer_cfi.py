@@ -14,6 +14,7 @@ L1TTriggerTowerConfig_etaphi = cms.PSet(readMappingFile=cms.bool(False),
 
 towerMap2D_parValues = cms.PSet( useLayerWeights = cms.bool(False),
                                  layerWeights = cms.vdouble(),
+                                  AlgoName = cms.string('HGCalTowerMapsWrapper'),
                                  L1TTriggerTowerConfig = L1TTriggerTowerConfig_etaphi
 )
 

@@ -1,0 +1,5 @@
+#include "L1Trigger/L1THGCal/interface/HGCalAlgoWrapperBase.h"
+
+EDM_REGISTER_PLUGINFACTORY(HGCalHistoClusteringWrapperBaseFactory, "HGCalHistoClusteringWrapperBaseFactory");
+
+EDM_REGISTER_PLUGINFACTORY(HGCalTowerMapsWrapperBaseFactory, "HGCalTowerMapsWrapperBaseFactory");
