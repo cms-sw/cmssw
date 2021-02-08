@@ -14,8 +14,14 @@ Description: Produces jets with a phase-1 like sliding window algorithm using a 
   * phiUp: double, max phi (typically +pi)
   * jetIEtaSize: uint32, jet cluster size in ieta
   * jetIPhiSize: uint32, jet cluster size in iphi
+  * trimmedGrid: Flag (bool) to remove three bins in each corner of grid in jet finding
   * seedPtThreshold: double, threshold of the seed tower
+  * pt/eta/philsb : lsb of quantities used in firmware implementation
   * puSubtraction: bool, runs chunky doughnut pile-up subtraction, 9x9 jet only
+  * eta/phiRegionEdges: Boundaries of the input (PF) regions
+  * maxInputsPerRegion: Truncate number of inputes per input (PF) region
+  * sin/cosPhi: Value of sin/cos phi in the middle of each bin of the grid.
+  * met{HF}AbsETaCut: Eta selection of input candidates for calculation of MET
   * outputCollectionName: string, tag for the output collection
   * vetoZeroPt: bool, controls whether jets with 0 pt should be save. 
     It matters if PU is ON, as you can get negative or zero pt jets after it.
@@ -67,15 +73,24 @@ private:
   /// Finds the seeds in the caloGrid, seeds are saved in a vector that contain the index in the TH2F of each seed
   std::vector<std::tuple<int, int>> findSeeds(float seedThreshold) const;
 
+  // Calculates the pt sum of the bins around the seeds
+  // And applies some PU mitigation
+  // Warning - not used for some time, so user beware
   std::vector<reco::CaloJet> buildJetsFromSeedsWithPUSubtraction(const std::vector<std::tuple<int, int>>& seeds,
                                                                   bool killZeroPt) const;
+
+  // Calculates the pt sum of the bins around the seeds
   std::vector<reco::CaloJet> buildJetsFromSeeds(const std::vector<std::tuple<int, int>>& seeds) const;
 
+  // Used by buildJetsFromSeedsWithPUSubtraction
+  // Implementation of pileup mitigation
+  // Warning - not used for some time, so user beware
   void subtract9x9Pileup(reco::CaloJet& jet) const;
 
   /// Get the energy of a certain tower while correctly handling phi periodicity in case of overflow
   float getTowerEnergy(int iEta, int iPhi) const;
 
+  // Implementation of pt sum of bins around one seed
   reco::CaloJet buildJetFromSeed(const std::tuple<int, int>& seed) const;
 
   // <3 handy method to fill the calogrid with whatever type
@@ -93,8 +108,11 @@ private:
   template <class Handle >
   std::vector< std::vector< reco::CandidatePtr > > prepareInputsIntoRegions( const Handle triggerPrimitives );
 
+  // Converts phi and eta (PF) region indices to a single index
   unsigned int getRegionIndex( const unsigned int phiRegion, const unsigned int etaRegion ) const;
+  // From the single index, calculated by getRegionIndex, provides the lower eta and phi boundaries of the input (PF) region index
   std::pair< double, double> regionEtaPhiLowEdges( const unsigned int regionIndex ) const;
+  // From the single index, calculated by getRegionIndex, provides the upper eta and phi boundaries of the input (PF) region index
   std::pair< double, double> regionEtaPhiUpEdges( const unsigned int regionIndex ) const;
 
   // computes MET
@@ -206,7 +224,7 @@ void Phase1L1TJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(inputCollectionTag_, inputCollectionHandle);
 
   // sort inputs into PF regions
-std::vector< std::vector< reco::CandidatePtr > > inputsInRegions = prepareInputsIntoRegions<>( inputCollectionHandle );
+  std::vector< std::vector< reco::CandidatePtr > > inputsInRegions = prepareInputsIntoRegions<>( inputCollectionHandle );
 
   // histogramming the data
   caloGrid_->Reset();
@@ -421,6 +439,7 @@ std::pair<float, float> Phase1L1TJetProducer::getCandidateDigiEtaPhi( const floa
   // If eta or phi is on a bin edge
   // Put in bin above, to match behaviour of HLS
   // Unless it's on the last bin of this pf region
+  // Then it is placed in the last bin, not the overflow
   TAxis* etaAxis = caloGrid_->GetXaxis();
   std::pair< double, double > regionUpEdges = regionEtaPhiUpEdges( regionIndex );
   int digiEtaEdgeLastBinUp = floor( ( regionUpEdges.second - regionLowEdges.second ) / etalsb_ );
@@ -519,7 +538,7 @@ std::vector< std::vector< edm::Ptr< reco::Candidate > > > Phase1L1TJetProducer::
     }
   }
 
-  // Truncate inputs in each pf region
+  // Truncate number of inputs in each pf region
   for ( auto& inputs : inputsInRegions ) {
     if ( inputs.size() > maxInputsPerRegion_ ) {
       inputs.resize( maxInputsPerRegion_ );
