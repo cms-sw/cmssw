@@ -23,7 +23,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   std::vector<std::string> names = args.value<std::vector<std::string> >("Names");  //Names for rotation matrices
   std::string idName = args.value<std::string>("ChildName");                        //Children name
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo::Parameters for positioning: Axis " << iaxis << "\tRadius " << HcalDD4HepHelper::convert2mm(radius) << "\tOffset " << offset << "\tDx " << HcalDD4HepHelper::convert2mm(dx) << "\tDz " << HcalDD4HepHelper::convert2mm(dz) << "\tAngWidth " << convertRadToDeg(angwidth) << "\tNumbers " << names.size();
+  edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo::Parameters for positioning: Axis " << iaxis << "\tRadius "
+                               << HcalDD4HepHelper::convert2mm(radius) << "\tOffset " << offset << "\tDx "
+                               << HcalDD4HepHelper::convert2mm(dx) << "\tDz " << HcalDD4HepHelper::convert2mm(dz)
+                               << "\tAngWidth " << convertRadToDeg(angwidth) << "\tNumbers " << names.size();
   for (unsigned int i = 0; i < names.size(); i++)
     edm::LogVerbatim("HCalGeom") << "\tnames[" << i << "] = " << names[i];
   edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: Parent " << args.parentName() << "\tChild " << idName
@@ -69,7 +72,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     }
     parent.placeVolume(glog, i + 1, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: " << glog.name() << " number " << i + 1 << " positioned in " << parent.name() << " at (" << HcalDD4HepHelper::convert2mm(pos[0]) << "," << HcalDD4HepHelper::convert2mm(pos[1]) << "," << HcalDD4HepHelper::convert2mm(pos[2]) << " with " << rotation;
+    edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: " << glog.name() << " number " << i + 1 << " positioned in "
+                                 << parent.name() << " at (" << HcalDD4HepHelper::convert2mm(pos[0]) << ","
+                                 << HcalDD4HepHelper::convert2mm(pos[1]) << "," << HcalDD4HepHelper::convert2mm(pos[2])
+                                 << " with " << rotation;
 #endif
   }
 

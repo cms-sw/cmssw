@@ -169,9 +169,14 @@ struct HcalBarrelAlgo {
       rmax[2] = (zoff[3] - zoff[2]) / ttheta[2];
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: General material " << genMaterial << "\tSectors " << nsectors  << ", " << nsectortot << "\tHalves " << nhalf << "\tRotation matrix " << rotns << ":" << rotHalf << "\n\t\t" << HcalDD4HepHelper::convert2mm(rinner) << "\t" << HcalDD4HepHelper::convert2mm(router) << "\t" << rzones;
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: General material " << genMaterial << "\tSectors " << nsectors
+                                 << ", " << nsectortot << "\tHalves " << nhalf << "\tRotation matrix " << rotns << ":"
+                                 << rotHalf << "\n\t\t" << HcalDD4HepHelper::convert2mm(rinner) << "\t"
+                                 << HcalDD4HepHelper::convert2mm(router) << "\t" << rzones;
     for (int i = 0; i < rzones; i++)
-      edm::LogVerbatim("HCalGeom") << "\tTheta[" << i << "] = " << theta[i] << "\trmax[" << i << "] = " << HcalDD4HepHelper::convert2mm(rmax[i]) << "\tzoff[" << i << "] = " << HcalDD4HepHelper::convert2mm(zoff[i]);
+      edm::LogVerbatim("HCalGeom") << "\tTheta[" << i << "] = " << theta[i] << "\trmax[" << i
+                                   << "] = " << HcalDD4HepHelper::convert2mm(rmax[i]) << "\tzoff[" << i
+                                   << "] = " << HcalDD4HepHelper::convert2mm(zoff[i]);
 #endif
     ///////////////////////////////////////////////////////////////
     //Layers
@@ -192,7 +197,13 @@ struct HcalBarrelAlgo {
     layerGap = args.value<std::vector<double> >("Gap");
 #ifdef EDM_ML_DEBUG
     for (int i = 0; i < nLayers; i++)
-      edm::LogVerbatim("HCalGeom") << layerLabel[i] << "\t" << layerId[i] << "\t" << layerMat[i] << "\t" << HcalDD4HepHelper::convert2mm(layerWidth[i]) << "\t" << HcalDD4HepHelper::convert2mm(layerD1[i]) << "\t" << HcalDD4HepHelper::convert2mm(layerD2[i]) << "\t" << layerAlpha[i] << "\t" << HcalDD4HepHelper::convert2mm(layerT1[i]) << "\t" << HcalDD4HepHelper::convert2mm(layerT2[i]) << "\t" << layerAbsorb[i] << "\t" << HcalDD4HepHelper::convert2mm(layerGap[i]);
+      edm::LogVerbatim("HCalGeom") << layerLabel[i] << "\t" << layerId[i] << "\t" << layerMat[i] << "\t"
+                                   << HcalDD4HepHelper::convert2mm(layerWidth[i]) << "\t"
+                                   << HcalDD4HepHelper::convert2mm(layerD1[i]) << "\t"
+                                   << HcalDD4HepHelper::convert2mm(layerD2[i]) << "\t" << layerAlpha[i] << "\t"
+                                   << HcalDD4HepHelper::convert2mm(layerT1[i]) << "\t"
+                                   << HcalDD4HepHelper::convert2mm(layerT2[i]) << "\t" << layerAbsorb[i] << "\t"
+                                   << HcalDD4HepHelper::convert2mm(layerGap[i]);
 #endif
 
     ///////////////////////////////////////////////////////////////
@@ -204,13 +215,17 @@ struct HcalBarrelAlgo {
     nAbsorber = absorbName.size();
 #ifdef EDM_ML_DEBUG
     for (int i = 0; i < nAbsorber; i++)
-      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << absorbName[i] << " Material " << absorbMat[i] << " d " << HcalDD4HepHelper::convert2mm(absorbD[i]) << " t " << HcalDD4HepHelper::convert2mm(absorbT[i]);
+      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << absorbName[i] << " Material " << absorbMat[i] << " d "
+                                   << HcalDD4HepHelper::convert2mm(absorbD[i]) << " t "
+                                   << HcalDD4HepHelper::convert2mm(absorbT[i]);
 #endif
     middleMat = args.value<std::string>("MiddleMat");
     middleD = args.value<double>("MiddleD");
     middleW = args.value<double>("MiddleW");
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Middle material " << middleMat << " d " << HcalDD4HepHelper::convert2mm(middleD) << " w " << HcalDD4HepHelper::convert2mm(middleW);
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Middle material " << middleMat << " d "
+                                 << HcalDD4HepHelper::convert2mm(middleD) << " w "
+                                 << HcalDD4HepHelper::convert2mm(middleW);
 #endif
     midName = args.value<std::vector<std::string> >("MidAbsName");
     midMat = args.value<std::vector<std::string> >("MidAbsMat");
@@ -219,7 +234,9 @@ struct HcalBarrelAlgo {
     nMidAbs = midName.size();
 #ifdef EDM_ML_DEBUG
     for (int i = 0; i < nMidAbs; i++)
-      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << midName[i] << " Material " << midMat[i] << " W " << HcalDD4HepHelper::convert2mm(midW[i]) << " T " << HcalDD4HepHelper::convert2mm(midT[i]);
+      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << midName[i] << " Material " << midMat[i] << " W "
+                                   << HcalDD4HepHelper::convert2mm(midW[i]) << " T "
+                                   << HcalDD4HepHelper::convert2mm(midT[i]);
 #endif
 
     //Absorber layers in the side part
@@ -228,7 +245,9 @@ struct HcalBarrelAlgo {
     sideT = args.value<std::vector<double> >("SideT");
 #ifdef EDM_ML_DEBUG
     for (unsigned int i = 0; i < sideMat.size(); i++)
-      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Side material " << sideMat[i] << " d " << HcalDD4HepHelper::convert2mm(sideD[i]) << " t " << HcalDD4HepHelper::convert2mm(sideT[i]);
+      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: Side material " << sideMat[i] << " d "
+                                   << HcalDD4HepHelper::convert2mm(sideD[i]) << " t "
+                                   << HcalDD4HepHelper::convert2mm(sideT[i]);
 #endif
     sideAbsName = args.value<std::vector<std::string> >("SideAbsName");
     sideAbsMat = args.value<std::vector<std::string> >("SideAbsMat");
@@ -236,7 +255,8 @@ struct HcalBarrelAlgo {
     nSideAbs = sideAbsName.size();
 #ifdef EDM_ML_DEBUG
     for (int i = 0; i < nSideAbs; i++)
-      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << sideAbsName[i] << " Material " << sideAbsMat[i] << " W " << HcalDD4HepHelper::convert2mm(sideAbsW[i]);
+      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << sideAbsName[i] << " Material " << sideAbsMat[i] << " W "
+                                   << HcalDD4HepHelper::convert2mm(sideAbsW[i]);
 #endif
 
     ///////////////////////////////////////////////////////////////
@@ -263,7 +283,15 @@ struct HcalBarrelAlgo {
     detPosY = args.value<std::vector<int> >("DetPosY");
 #ifdef EDM_ML_DEBUG
     for (int i = 0; i < nLayers; i++)
-      edm::LogVerbatim("HCalGeom") << i + 1 << "\t" << detType[i] << "\t" << HcalDD4HepHelper::convert2mm(detdP1[i]) << ", " << HcalDD4HepHelper::convert2mm(detdP2[i]) << "\t" << HcalDD4HepHelper::convert2mm(detT11[i]) << ", " << HcalDD4HepHelper::convert2mm(detT12[i]) << "\t" << HcalDD4HepHelper::convert2mm(detTsc[i]) << "\t" << HcalDD4HepHelper::convert2mm(detT21[i]) << ", " << HcalDD4HepHelper::convert2mm(detT22[i]) << "\t" << HcalDD4HepHelper::convert2mm(detWidth1[i]) << "\t" << HcalDD4HepHelper::convert2mm(detWidth2[i]) << "\t" << detPosY[i];
+      edm::LogVerbatim("HCalGeom") << i + 1 << "\t" << detType[i] << "\t" << HcalDD4HepHelper::convert2mm(detdP1[i])
+                                   << ", " << HcalDD4HepHelper::convert2mm(detdP2[i]) << "\t"
+                                   << HcalDD4HepHelper::convert2mm(detT11[i]) << ", "
+                                   << HcalDD4HepHelper::convert2mm(detT12[i]) << "\t"
+                                   << HcalDD4HepHelper::convert2mm(detTsc[i]) << "\t"
+                                   << HcalDD4HepHelper::convert2mm(detT21[i]) << ", "
+                                   << HcalDD4HepHelper::convert2mm(detT22[i]) << "\t"
+                                   << HcalDD4HepHelper::convert2mm(detWidth1[i]) << "\t"
+                                   << HcalDD4HepHelper::convert2mm(detWidth2[i]) << "\t" << detPosY[i];
 #endif
 
     //  idName = parentName.name();
@@ -341,7 +369,10 @@ struct HcalBarrelAlgo {
                                    << " with " << nsectortot << " sectors from " << convertRadToDeg(-alpha) << " to "
                                    << convertRadToDeg(-alpha + dphi) << " and with " << nsec << " sections ";
       for (unsigned int i = 0; i < pgonZ.size(); i++)
-        edm::LogVerbatim("HCalGeom") << "\t" << "\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[i]) << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[i]) << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[i]);
+        edm::LogVerbatim("HCalGeom") << "\t"
+                                     << "\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[i])
+                                     << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[i])
+                                     << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[i]);
 #endif
     } else {
       solid = dd4hep::Polyhedra(ns.prepend(idName), nsectortot, -alpha, dphi, pgonZHalf, pgonRminHalf, pgonRmaxHalf);
@@ -350,7 +381,9 @@ struct HcalBarrelAlgo {
                                    << " with " << nsectortot << " sectors from " << convertRadToDeg(-alpha) << " to "
                                    << convertRadToDeg(-alpha + dphi) << " and with " << nsec << " sections ";
       for (unsigned int i = 0; i < pgonZHalf.size(); i++)
-        edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZHalf[i]) << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRminHalf[i]) << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmaxHalf[i]);
+        edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZHalf[i])
+                                     << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRminHalf[i])
+                                     << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmaxHalf[i]);
 #endif
     }
 
@@ -371,7 +404,9 @@ struct HcalBarrelAlgo {
                                  << " with " << nsectortot << " sectors from " << convertRadToDeg(-alpha) << " to "
                                  << convertRadToDeg(-alpha + dphi) << " and with " << nf << " sections ";
     for (unsigned int i = 0; i < pgonZHalf.size(); i++)
-      edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZHalf[i]) << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRminHalf[i]) << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmaxHalf[i]);
+      edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZHalf[i])
+                                   << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRminHalf[i])
+                                   << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmaxHalf[i]);
 #endif
     dd4hep::Volume genlogich(solid.name(), solid, matter);
     genlogic.placeVolume(genlogich, 1);
@@ -397,7 +432,9 @@ struct HcalBarrelAlgo {
                                  << " with 1 sector from " << convertRadToDeg(-alpha) << " to "
                                  << convertRadToDeg(alpha) << " and with " << nf << " sections";
     for (unsigned int i = 0; i < pgonZHalf.size(); i++)
-      edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZHalf[i]) << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRminHalf[i]) << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmaxHalf[i]);
+      edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZHalf[i])
+                                   << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRminHalf[i])
+                                   << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmaxHalf[i]);
 #endif
 
     for (int ii = 0; ii < nsectortot; ii++) {
@@ -497,7 +534,9 @@ struct HcalBarrelAlgo {
         double width = rmid * tan(alpha) - layerGap[i];
         alpha1 = atan(width / rmid);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "\tAlpha_1 modified from " << convertRadToDeg(alpha) << " to " << convertRadToDeg(alpha1) << " Rmid " << HcalDD4HepHelper::convert2mm(rmid) << " Reduced width " << HcalDD4HepHelper::convert2mm(width);
+        edm::LogVerbatim("HCalGeom") << "\tAlpha_1 modified from " << convertRadToDeg(alpha) << " to "
+                                     << convertRadToDeg(alpha1) << " Rmid " << HcalDD4HepHelper::convert2mm(rmid)
+                                     << " Reduced width " << HcalDD4HepHelper::convert2mm(width);
 #endif
       }
       solid = dd4hep::Polyhedra(ns.prepend(name), 1, -alpha1, 2 * alpha1, pgonZ, pgonRmin, pgonRmax);
@@ -507,7 +546,9 @@ struct HcalBarrelAlgo {
                                    << matter.name() << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
                                    << convertRadToDeg(alpha1) << " and with " << nsec << " sections";
       for (unsigned int k = 0; k < pgonZ.size(); k++)
-        edm::LogVerbatim("HCalGeom") << "\t\t" << HcalDD4HepHelper::convert2mm(pgonZ[k]) << "\t" << HcalDD4HepHelper::convert2mm(pgonRmin[k]) << "\t" << HcalDD4HepHelper::convert2mm(pgonRmax[k]);
+        edm::LogVerbatim("HCalGeom") << "\t\t" << HcalDD4HepHelper::convert2mm(pgonZ[k]) << "\t"
+                                     << HcalDD4HepHelper::convert2mm(pgonRmin[k]) << "\t"
+                                     << HcalDD4HepHelper::convert2mm(pgonRmax[k]);
 #endif
 
       seclogic.placeVolume(glog, layerId[i]);
@@ -577,7 +618,9 @@ struct HcalBarrelAlgo {
 
       solid = dd4hep::Box(ns.prepend(name + "1"), dx, dy, dz);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << matter.name() << " of dimensions " << HcalDD4HepHelper::convert2mm(dx) << ", " << HcalDD4HepHelper::convert2mm(dy) << ", " << HcalDD4HepHelper::convert2mm(dz);
+      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << matter.name()
+                                   << " of dimensions " << HcalDD4HepHelper::convert2mm(dx) << ", "
+                                   << HcalDD4HepHelper::convert2mm(dy) << ", " << HcalDD4HepHelper::convert2mm(dz);
 #endif
       glog = dd4hep::Volume(solid.name(), solid, matter);
 
@@ -589,7 +632,14 @@ struct HcalBarrelAlgo {
       mother.placeVolume(glog, idOffset + 1, r11);
       mother.placeVolume(glog, idOffset + 2, dd4hep::Transform3D(rot, r12));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number " << (idOffset + 1) << " positioned in " << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << "," << HcalDD4HepHelper::convert2mm(y) << "," << HcalDD4HepHelper::convert2mm(dz) << ") with no rotation\n" << "DDHCalBarrelAlgo: " << glog.name() << " Number " << (idOffset + 2) << " positioned in " << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << "," << -HcalDD4HepHelper::convert2mm(y) << "," << HcalDD4HepHelper::convert2mm(dz) << ") with " << rot;
+      edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number " << (idOffset + 1)
+                                   << " positioned in " << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(x)
+                                   << "," << HcalDD4HepHelper::convert2mm(y) << "," << HcalDD4HepHelper::convert2mm(dz)
+                                   << ") with no rotation\n"
+                                   << "DDHCalBarrelAlgo: " << glog.name() << " Number " << (idOffset + 2)
+                                   << " positioned in " << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(x)
+                                   << "," << -HcalDD4HepHelper::convert2mm(y) << "," << HcalDD4HepHelper::convert2mm(dz)
+                                   << ") with " << rot;
 #endif
       //Constructin the plastics and scintillators inside
       constructInsideDetectors(glog, nam0 + "1", id, dx, dy, dz, 1, ns);
@@ -611,7 +661,9 @@ struct HcalBarrelAlgo {
 
     solid = dd4hep::Box(ns.prepend(name + "2"), dx, dy, dz);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << matter.name() << " of dimensions " << HcalDD4HepHelper::convert2mm(dx) << ", " << HcalDD4HepHelper::convert2mm(dy) << ", " << HcalDD4HepHelper::convert2mm(dz);
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << matter.name()
+                                 << " of dimensions " << HcalDD4HepHelper::convert2mm(dx) << ", "
+                                 << HcalDD4HepHelper::convert2mm(dy) << ", " << HcalDD4HepHelper::convert2mm(dz);
 #endif
     glog = dd4hep::Volume(solid.name(), solid, matter);
 
@@ -623,7 +675,13 @@ struct HcalBarrelAlgo {
     mother.placeVolume(glog, idOffset + 3, r21);
     mother.placeVolume(glog, idOffset + 4, dd4hep::Transform3D(rot, r22));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number " << (idOffset + 3) << " positioned in " << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << "," << HcalDD4HepHelper::convert2mm(dy) << "," << HcalDD4HepHelper::convert2mm(dz) << ") with no rotation\nDDHCalBarrelAlgo: " << glog.name() << " Number " << (idOffset + 4) << " positioned in " << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << "," << -HcalDD4HepHelper::convert2mm(dy) << "," << HcalDD4HepHelper::convert2mm(dz) << ") with " << rot;
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number " << (idOffset + 3)
+                                 << " positioned in " << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(x)
+                                 << "," << HcalDD4HepHelper::convert2mm(dy) << "," << HcalDD4HepHelper::convert2mm(dz)
+                                 << ") with no rotation\nDDHCalBarrelAlgo: " << glog.name() << " Number "
+                                 << (idOffset + 4) << " positioned in " << mother.name() << " at ("
+                                 << HcalDD4HepHelper::convert2mm(x) << "," << -HcalDD4HepHelper::convert2mm(dy) << ","
+                                 << HcalDD4HepHelper::convert2mm(dz) << ") with " << rot;
 #endif
     //Constructin the plastics and scintillators inside
     constructInsideDetectors(glog, nam0 + "2", id, dx, dy, dz, 2, ns);
@@ -661,7 +719,9 @@ struct HcalBarrelAlgo {
                                  << " with 1 sector from " << convertRadToDeg(-alpha) << " to "
                                  << convertRadToDeg(alpha) << " and with " << pgonZ.size() << " sections";
     for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
-      edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii]) << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii]) << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
+      edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii])
+                                   << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii])
+                                   << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
 #endif
 
     laylog.placeVolume(glog, 1);
@@ -684,7 +744,9 @@ struct HcalBarrelAlgo {
                                        << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
                                        << convertRadToDeg(alpha1) << " and with " << pgonZ.size() << " sections";
           for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
-            edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii]) << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii]) << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
+            edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii])
+                                         << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii])
+                                         << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
 #endif
 
           mother.placeVolume(log, 1);
@@ -733,7 +795,9 @@ struct HcalBarrelAlgo {
                                    << " with 1 sector from " << convertRadToDeg(-alpha) << " to "
                                    << convertRadToDeg(alpha) << " and with " << pgonZ.size() << " sections";
       for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
-        edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii]) << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii]) << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
+        edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii])
+                                     << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii])
+                                     << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
 #endif
 
       laylog.placeVolume(log, 1);
@@ -756,7 +820,9 @@ struct HcalBarrelAlgo {
                                        << matter1.name() << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
                                        << convertRadToDeg(alpha1) << " and with " << pgonZ.size() << " sections";
           for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
-            edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii]) << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii]) << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
+            edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii])
+                                         << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii])
+                                         << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
 #endif
 
           mother.placeVolume(log, 1);
@@ -786,7 +852,9 @@ struct HcalBarrelAlgo {
                                      << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
                                      << convertRadToDeg(alpha1) << " and with " << pgonZ.size() << " sections";
         for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
-          edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii]) << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii]) << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
+          edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii])
+                                       << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii])
+                                       << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
 #endif
 
         mother.placeVolume(glog, 1);
@@ -815,7 +883,9 @@ struct HcalBarrelAlgo {
                                        << matter2.name() << " with 1 sector from " << convertRadToDeg(-alpha1) << " to "
                                        << convertRadToDeg(alpha1) << " and with " << pgonZ.size() << " sections";
           for (unsigned int ii = 0; ii < pgonZ.size(); ii++)
-            edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii]) << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii]) << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
+            edm::LogVerbatim("HCalGeom") << "\t\tZ = " << HcalDD4HepHelper::convert2mm(pgonZ[ii])
+                                         << "\tRmin = " << HcalDD4HepHelper::convert2mm(pgonRmin[ii])
+                                         << "\tRmax = " << HcalDD4HepHelper::convert2mm(pgonRmax[ii]);
 #endif
 
           mother.placeVolume(log, i);
@@ -870,36 +940,48 @@ struct HcalBarrelAlgo {
     solid = dd4hep::Box(ns.prepend(plname + "1"), dx1, wid, dz);
     glog = dd4hep::Volume(solid.name(), solid, plmatter);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << plmatter.name() << " of dimensions " << HcalDD4HepHelper::convert2mm(dx1) << ", " << HcalDD4HepHelper::convert2mm(wid) << ", " << HcalDD4HepHelper::convert2mm(dz);
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << plmatter.name()
+                                 << " of dimensions " << HcalDD4HepHelper::convert2mm(dx1) << ", "
+                                 << HcalDD4HepHelper::convert2mm(wid) << ", " << HcalDD4HepHelper::convert2mm(dz);
 #endif
 
     double x = shiftX + dx1 - dx;
     detector.placeVolume(glog, 1, dd4hep::Position(x, y, 0));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number 1 positioned in " << detector.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << "," << HcalDD4HepHelper::convert2mm(y) << ",0) with no rotation";
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number 1 positioned in " << detector.name()
+                                 << " at (" << HcalDD4HepHelper::convert2mm(x) << "," << HcalDD4HepHelper::convert2mm(y)
+                                 << ",0) with no rotation";
 #endif
     solid = dd4hep::Box(ns.prepend(scname), 0.5 * detTsc[id], wid, dz);
     glog = dd4hep::Volume(solid.name(), solid, scmatter);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << scmatter.name() << " of dimensions " << HcalDD4HepHelper::convert2mm(0.5 * detTsc[id]) << ", " << HcalDD4HepHelper::convert2mm(wid) << ", " << HcalDD4HepHelper::convert2mm(dz);
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << scmatter.name()
+                                 << " of dimensions " << HcalDD4HepHelper::convert2mm(0.5 * detTsc[id]) << ", "
+                                 << HcalDD4HepHelper::convert2mm(wid) << ", " << HcalDD4HepHelper::convert2mm(dz);
 #endif
 
     x += dx1 + 0.5 * detTsc[id];
     int copyNo = id * 10 + detType[id];
     detector.placeVolume(glog, copyNo, dd4hep::Position(x, y, 0));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number " << copyNo << " positioned in " << detector.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << "," << HcalDD4HepHelper::convert2mm(y) << ",0) with no rotation";
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number " << copyNo << " positioned in "
+                                 << detector.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << ","
+                                 << HcalDD4HepHelper::convert2mm(y) << ",0) with no rotation";
 #endif
     solid = dd4hep::Box(ns.prepend(plname + "2"), dx2, wid, dz);
     glog = dd4hep::Volume(solid.name(), solid, plmatter);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << plmatter.name() << " of dimensions " << HcalDD4HepHelper::convert2mm(dx2) << ", " << HcalDD4HepHelper::convert2mm(wid) << ", " << HcalDD4HepHelper::convert2mm(dz);
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << solid.name() << " Box made of " << plmatter.name()
+                                 << " of dimensions " << HcalDD4HepHelper::convert2mm(dx2) << ", "
+                                 << HcalDD4HepHelper::convert2mm(wid) << ", " << HcalDD4HepHelper::convert2mm(dz);
 #endif
 
     x += 0.5 * detTsc[id] + dx2;
     detector.placeVolume(glog, 1, dd4hep::Position(x, y, 0));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number 1 positioned in " << detector.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << "," << HcalDD4HepHelper::convert2mm(y) << ",0) with no rotation";
+    edm::LogVerbatim("HCalGeom") << "DDHCalBarrelAlgo: " << glog.name() << " Number 1 positioned in " << detector.name()
+                                 << " at (" << HcalDD4HepHelper::convert2mm(x) << "," << HcalDD4HepHelper::convert2mm(y)
+                                 << ",0) with no rotation";
 #endif
   }
 
