@@ -8,20 +8,16 @@
 Description: Computes HT and MHT from phase-1-like jets
 
 *** INPUT PARAMETERS ***
+  * sin/cosPhi: Value of sin/cos phi in the middle of each bin of the grid.
   * etaBinning: vdouble with eta binning (allows non-homogeneous binning in eta)
   * nBinsPhi: uint32, number of bins in phi
   * phiLow: double, min phi (typically -pi)
   * phiUp: double, max phi (typically +pi)
-  * jetIEtaSize: uint32, jet cluster size in ieta
-  * jetIPhiSize: uint32, jet cluster size in iphi
-  * seedPtThreshold: double, threshold of the seed tower
-  * puSubtraction: bool, runs chunky doughnut pile-up subtraction, 9x9 jet only
+  * {m}htPtThreshold: Minimum jet pt for HT/MHT calculation
+  * {m}htAbsEtaCut: 
+  * pt/eta/philsb : lsb of quantities used in firmware implementation
   * outputCollectionName: string, tag for the output collection
-  * vetoZeroPt: bool, controls whether jets with 0 pt should be save. 
-    It matters if PU is ON, as you can get negative or zero pt jets after it.
-  * outputSumsCollectionName: string, tag for the output collection containing MET and HT
-  * inputCollectionTag: inputtag, collection of reco::candidates used as input to the algo
-  * htPtThreshold: double, threshold for computing ht
+   * inputCollectionTag: tag for input jet collection
 
 */
 //
@@ -73,10 +69,6 @@ class Phase1L1TJetSumsProducer : public edm::one::EDProducer<edm::one::SharedRes
       double phiLow_;
       // higher phi value
       double phiUp_;
-      // lower eta value
-      double etaLow_;
-      // higher eta value
-      double etaUp_;
       // size of a phi bin
       double phiStep_;
       // threshold for ht calculation
@@ -102,8 +94,6 @@ Phase1L1TJetSumsProducer::Phase1L1TJetSumsProducer(const edm::ParameterSet& iCon
   nBinsPhi_(iConfig.getParameter<unsigned int>("nBinsPhi")),
   phiLow_(iConfig.getParameter<double>("phiLow")),
   phiUp_(iConfig.getParameter<double>("phiUp")),
-  etaLow_(iConfig.getParameter<double>("etaLow")),
-  etaUp_(iConfig.getParameter<double>("etaUp")),
   htPtThreshold_(iConfig.getParameter<double>("htPtThreshold")),
   mhtPtThreshold_(iConfig.getParameter<double>("mhtPtThreshold")),
   htAbsEtaCut_(iConfig.getParameter<double>("htAbsEtaCut")),
@@ -130,8 +120,8 @@ void Phase1L1TJetSumsProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   //packing sums in vector for event saving
   std::unique_ptr< std::vector<l1t::EtSum> > lSumVectorPtr(new std::vector<l1t::EtSum>(0));
-  lSumVectorPtr -> push_back(lHT);
-  lSumVectorPtr -> push_back(lMHT);
+  lSumVectorPtr->push_back(lHT);
+  lSumVectorPtr->push_back(lMHT);
   iEvent.put(std::move(lSumVectorPtr), outputCollectionName_ );
 
   return;
@@ -149,9 +139,7 @@ l1t::EtSum Phase1L1TJetSumsProducer::computeHT(const edm::Handle < std::vector<r
     if 
     (
       (lJetPhi < phiLow_) ||
-      (lJetPhi >= phiUp_)  ||
-      (lJetEta < etaLow_)||
-      (lJetEta >= etaUp_)
+      (lJetPhi >= phiUp_) 
     ) continue;
 
     lHT += (lJetPt >= htPtThreshold_ && std::fabs( lJetEta ) < htAbsEtaCut_ ) ? lJetPt : 0;
@@ -216,8 +204,6 @@ void Phase1L1TJetSumsProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<unsigned int>("nBinsPhi", 72);
   desc.add<double>("phiLow", -M_PI);
   desc.add<double>("phiUp", M_PI);
-  desc.add<double>("etaLow", -3);
-  desc.add<double>("etaUp", 3);
   desc.add<double>("htPtThreshold", 30);
   desc.add<double>("mhtPtThreshold", 30);
   desc.add<double>("htAbsEtaCut", 3);
