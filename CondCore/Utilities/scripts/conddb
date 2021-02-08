@@ -1992,7 +1992,7 @@ def edit(args):
                     editMatch = editRe.match(line)
                     if editMatch:
                         description,synchronization,endOfValidity = editMatch.groups()
-                        if synchronization not in tuple(conddb.Synchronization):
+                        if synchronization not in conddb.synch_list:
                             raise Exception('Invalid Synchronization value set: "%s"' %synchronization )
                         if int(endOfValidity)< -1:
                             raise Exception('Invalid End Of Validity set: "%s"' %endOfValidity ) 
