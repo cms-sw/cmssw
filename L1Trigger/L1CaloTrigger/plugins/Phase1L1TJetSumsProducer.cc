@@ -43,12 +43,12 @@ Description: Computes HT and MHT from phase-1-like jets
 class Phase1L1TJetSumsProducer : public edm::one::EDProducer<edm::one::SharedResources> {
    public:
       explicit Phase1L1TJetSumsProducer(const edm::ParameterSet&);
-      ~Phase1L1TJetSumsProducer();
+      ~Phase1L1TJetSumsProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
       // computes ht, adds jet pt to ht only if the pt of the jet is above the ht calculation threshold
       l1t::EtSum computeHT(const edm::Handle < std::vector<reco::CaloJet> > inputJets) const;
