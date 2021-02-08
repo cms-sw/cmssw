@@ -110,6 +110,7 @@ phase2_hgcalV10.toModify(histoMax_C3d_seeding_params,
 
 
 histoMaxVariableDR_C3d_params = histoMax_C3d_clustering_params.clone(
+        AlgoName = cms.string('HGCalHistoClusteringWrapper'),
         dR_multicluster = cms.double(0.),
         dR_multicluster_byLayer_coefficientA = cms.vdouble(dr_layerbylayer),
         dR_multicluster_byLayer_coefficientB = cms.vdouble([0]*(MAX_LAYERS+1))
