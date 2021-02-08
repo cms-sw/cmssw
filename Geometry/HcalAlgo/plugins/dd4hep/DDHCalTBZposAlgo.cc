@@ -26,7 +26,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
     childName = idNameSpace + childName;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parameters for positioning-- Eta " << eta << "\tTheta " << convertRadToDeg(theta) << "\tShifts " << HcalDD4HepHelper::convert2mm(shiftX) << ", " << HcalDD4HepHelper::convert2mm(shiftY) << " along x, y axes; \tZoffest " << HcalDD4HepHelper::convert2mm(zoffset) << "\tRadial Distance " << HcalDD4HepHelper::convert2mm(dist) << "\tTilt angle " << convertRadToDeg(tilt) << "\tcopyNumber " << copyNumber;
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parameters for positioning-- Eta " << eta << "\tTheta "
+                               << convertRadToDeg(theta) << "\tShifts " << HcalDD4HepHelper::convert2mm(shiftX) << ", "
+                               << HcalDD4HepHelper::convert2mm(shiftY) << " along x, y axes; \tZoffest "
+                               << HcalDD4HepHelper::convert2mm(zoffset) << "\tRadial Distance "
+                               << HcalDD4HepHelper::convert2mm(dist) << "\tTilt angle " << convertRadToDeg(tilt)
+                               << "\tcopyNumber " << copyNumber;
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parent " << args.parentName() << "\tChild " << childName
                                << " NameSpace " << idNameSpace;
 #endif
@@ -50,7 +55,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   }
   mother.placeVolume(child, copyNumber, dd4hep::Transform3D(rot, tran));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: " << child.name() << " number " << copyNumber << " positioned in " << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << ", " << HcalDD4HepHelper::convert2mm(y) << ", " << HcalDD4HepHelper::convert2mm(z) << ") with " << rot;
+  edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: " << child.name() << " number " << copyNumber << " positioned in "
+                               << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << ", "
+                               << HcalDD4HepHelper::convert2mm(y) << ", " << HcalDD4HepHelper::convert2mm(z)
+                               << ") with " << rot;
 #endif
 
   return cms::s_executed;

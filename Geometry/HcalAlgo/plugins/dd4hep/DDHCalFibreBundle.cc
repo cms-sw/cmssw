@@ -27,10 +27,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Parent " << args.parentName() << " with " << bundle.size()
                                << " children with prefix " << childPrefix << ", material " << material << " with "
                                << numberPhi << " bundles along phi; width of"
-                               << " mother " << HcalDD4HepHelper::convert2mm(deltaZ) << " along Z, " << convertRadToDeg(deltaPhi)
-                               << " along phi and with " << rStart.size() << " different bundle types";
+                               << " mother " << HcalDD4HepHelper::convert2mm(deltaZ) << " along Z, "
+                               << convertRadToDeg(deltaPhi) << " along phi and with " << rStart.size()
+                               << " different bundle types";
   for (unsigned int i = 0; i < areaSection.size(); ++i)
-    edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Child[" << i << "] Area " << HcalDD4HepHelper::convert2mm(areaSection[i] / dd4hep::mm) << " R at Start " << HcalDD4HepHelper::convert2mm(rStart[i]) << " R at End " << HcalDD4HepHelper::convert2mm(rEnd[i]);
+    edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Child[" << i << "] Area "
+                                 << HcalDD4HepHelper::convert2mm(areaSection[i] / dd4hep::mm) << " R at Start "
+                                 << HcalDD4HepHelper::convert2mm(rStart[i]) << " R at End "
+                                 << HcalDD4HepHelper::convert2mm(rEnd[i]);
   edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: NameSpace " << ns.name() << " Tilt Angle "
                                << convertRadToDeg(tilt) << " Bundle type at different positions";
   for (unsigned int i = 0; i < bundle.size(); ++i) {
@@ -67,7 +71,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     dd4hep::Solid solid = dd4hep::ConeSegment(
         name, 0.5 * deltaZ, rStart[i] - dStart, rStart[i] + dStart, r0 - dEnd, r0 + dEnd, -0.5 * dPhi, 0.5 * dPhi);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Creating a new solid " << name << " a cons with dZ " << HcalDD4HepHelper::convert2mm(deltaZ) << " rStart " << HcalDD4HepHelper::convert2mm(rStart[i] - dStart) << ":" << HcalDD4HepHelper::convert2mm(rStart[i] + dStart) << " rEnd " << HcalDD4HepHelper::convert2mm(r0 - dEnd) << ":" << HcalDD4HepHelper::convert2mm(r0 + dEnd) << " Phi " << convertRadToDeg(-0.5 * dPhi) << ":" << convertRadToDeg(0.5 * dPhi);
+    edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Creating a new solid " << name << " a cons with dZ "
+                                 << HcalDD4HepHelper::convert2mm(deltaZ) << " rStart "
+                                 << HcalDD4HepHelper::convert2mm(rStart[i] - dStart) << ":"
+                                 << HcalDD4HepHelper::convert2mm(rStart[i] + dStart) << " rEnd "
+                                 << HcalDD4HepHelper::convert2mm(r0 - dEnd) << ":"
+                                 << HcalDD4HepHelper::convert2mm(r0 + dEnd) << " Phi " << convertRadToDeg(-0.5 * dPhi)
+                                 << ":" << convertRadToDeg(0.5 * dPhi);
 #endif
     dd4hep::Volume log(name, solid, matter);
     logs.emplace_back(log);

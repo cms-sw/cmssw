@@ -29,7 +29,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   // Increment
   double dphi = rangeAngle / n;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parameters for positioning::"  << " n " << n << " Start, Range, Delta " << convertRadToDeg(startAngle) << " " << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(dphi) << " Shift " << HcalDD4HepHelper::convert2mm(shiftX) << ":" << HcalDD4HepHelper::convert2mm(shiftY) << "\n Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
+  edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parameters for positioning::"
+                               << " n " << n << " Start, Range, Delta " << convertRadToDeg(startAngle) << " "
+                               << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(dphi) << " Shift "
+                               << HcalDD4HepHelper::convert2mm(shiftX) << ":" << HcalDD4HepHelper::convert2mm(shiftY)
+                               << "\n Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
+                               << ns.name();
 #endif
   int copy = startCopyNo;
   double phix = startAngle;
@@ -53,7 +58,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     dd4hep::Position tran(xpos, ypos, zoffset);
     mother.placeVolume(child, copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalAngular:: " << child.name() << " number " << copy << " positioned in " << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(xpos) << ", " << HcalDD4HepHelper::convert2mm(ypos) << ", " << HcalDD4HepHelper::convert2mm(zoffset) << ") with rotation matrix: " << rotation;
+    edm::LogVerbatim("HCalGeom") << "DDHCalAngular:: " << child.name() << " number " << copy << " positioned in "
+                                 << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(xpos) << ", "
+                                 << HcalDD4HepHelper::convert2mm(ypos) << ", " << HcalDD4HepHelper::convert2mm(zoffset)
+                                 << ") with rotation matrix: " << rotation;
 #endif
     copy += incrCopyNo;
     phix += dphi;

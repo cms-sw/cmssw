@@ -4,5 +4,5 @@
 
 namespace HcalDD4HepHelper {
   const double convert2mm(double length) { return (length / dd4hep::mm); }
-}
+}  // namespace HcalDD4HepHelper
 #endif

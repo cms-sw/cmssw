@@ -28,8 +28,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ++k;
   }
   edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: Number along X/Y " << numberX << "/" << numberY
-                               << "\tDelta along X/Y " << HcalDD4HepHelper::convert2mm(deltaX) << "/" << HcalDD4HepHelper::convert2mm(deltaY)
-                               << "\tCentre (" << HcalDD4HepHelper::convert2mm(centre[0]) << ", " << HcalDD4HepHelper::convert2mm(centre[1]) << ","
+                               << "\tDelta along X/Y " << HcalDD4HepHelper::convert2mm(deltaX) << "/"
+                               << HcalDD4HepHelper::convert2mm(deltaY) << "\tCentre ("
+                               << HcalDD4HepHelper::convert2mm(centre[0]) << ", "
+                               << HcalDD4HepHelper::convert2mm(centre[1]) << ","
                                << HcalDD4HepHelper::convert2mm(centre[2]);
 #endif
   double xoff = centre[0] - (numberX - 1) * 0.5 * deltaX;
@@ -44,7 +46,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         dd4hep::Position tran(xoff + i * deltaX, yoff + j * deltaY, centre[2]);
         parent.placeVolume(ns.volume(child), copy, tran);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: " << child << " number " << copy << " positioned in " << parent.name() << " at (" << HcalDD4HepHelper::convert2mm((xoff + i * deltaX)) << ", " << HcalDD4HepHelper::convert2mm((yoff + j * deltaY)) << ", " << HcalDD4HepHelper::convert2mm(centre[2]) << ") with no rotation";
+        edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: " << child << " number " << copy << " positioned in "
+                                     << parent.name() << " at (" << HcalDD4HepHelper::convert2mm((xoff + i * deltaX))
+                                     << ", " << HcalDD4HepHelper::convert2mm((yoff + j * deltaY)) << ", "
+                                     << HcalDD4HepHelper::convert2mm(centre[2]) << ") with no rotation";
 #endif
       } else {
 #ifdef EDM_ML_DEBUG
