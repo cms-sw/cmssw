@@ -8,20 +8,10 @@
       <PartSelector path="//ITLayer1R3BModuleInnerPixelActive"/>
       <PartSelector path="//ITLayer1R4BModuleInnerPixelActive"/>
       <PartSelector path="//ITLayer1R5BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer1R1BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer1R2BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer1R3BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer1R4BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer1R5BModuleInnerPixelActive"/>
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelBarrelLayer1" />
     </SpecPar>
 
     <SpecPar name="TrackingMaterialGroupPhase2PixelBarrelLayer2">
-      <PartSelector path="//ITLayer2R1BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer2R2BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer2R3BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer2R4BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer2R5BModuleInnerPixelActive"/>
       <PartSelector path="//ITLayer2R1BModuleInnerPixelActive"/>
       <PartSelector path="//ITLayer2R2BModuleInnerPixelActive"/>
       <PartSelector path="//ITLayer2R3BModuleInnerPixelActive"/>
@@ -36,20 +26,10 @@
       <PartSelector path="//ITLayer3R3BModuleInnerPixelActive"/>
       <PartSelector path="//ITLayer3R4BModuleInnerPixelActive"/>
       <PartSelector path="//ITLayer3R5BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer3R1BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer3R2BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer3R3BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer3R4BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer3R5BModuleInnerPixelActive"/>
       <Parameter name="TrackingMaterialGroup" value="TrackerRecMaterialPhase2PixelBarrelLayer3" />
     </SpecPar>
 
     <SpecPar name="TrackingMaterialGroupPhase2PixelBarrelLayer4">
-      <PartSelector path="//ITLayer4R1BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer4R2BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer4R3BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer4R4BModuleInnerPixelActive"/>
-      <PartSelector path="//ITLayer4R5BModuleInnerPixelActive"/>
       <PartSelector path="//ITLayer4R1BModuleInnerPixelActive"/>
       <PartSelector path="//ITLayer4R2BModuleInnerPixelActive"/>
       <PartSelector path="//ITLayer4R3BModuleInnerPixelActive"/>
