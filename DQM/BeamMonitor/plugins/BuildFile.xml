@@ -9,6 +9,7 @@
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="TrackingTools/PatternTools"/>
+<use name ="dip"/>
 <library   file="BeamMonitor.cc" name="BeamMonitor">
   <flags   EDM_PLUGIN="1"/>
 </library>
@@ -34,5 +35,9 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="BeamSpotProblemMonitor.cc" name="BeamSpotProblemMonitor">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="BeamSpotDipServer.cc" name="BeamSpotDipServer">
+  <lib name="dip"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
