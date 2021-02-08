@@ -13,7 +13,7 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerDetIdBuilder.h"
 
-#define DEBUG true
+#define DEBUG false
 
 std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompactView& cpv,
                                                                   std::vector<int> const& detidShifts) {
