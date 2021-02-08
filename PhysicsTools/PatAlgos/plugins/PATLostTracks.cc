@@ -269,12 +269,23 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
     }
   }
 
+  pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
+  int nlost = trk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+  if (nlost == 0) {
+    if (trk->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1)) {
+      lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
+    }
+  } else {
+    lostHits = (nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
+  }
+
   reco::Candidate::PolarLorentzVector p4(trk->pt(), trk->eta(), trk->phi(), mass);
   cands.emplace_back(
       pat::PackedCandidate(p4, trk->vertex(), trk->pt(), trk->eta(), trk->phi(), id, pvSlimmedColl, pvSlimmed.key()));
 
   cands.back().setTrackHighPurity(trk->quality(reco::TrackBase::highPurity));
 
+  cands.back().setLostInnerHits(lostHits);
   if (trk->pt() > minPtToStoreProps_ || trkStatus == TrkStatus::VTX) {
     if (useLegacySetup_ || std::abs(id) == 11 || trkStatus == TrkStatus::VTX) {
       cands.back().setTrackProperties(*trk, covariancePackingSchemas_[4], covarianceVersion_);
