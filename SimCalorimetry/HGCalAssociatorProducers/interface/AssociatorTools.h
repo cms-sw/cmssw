@@ -1,3 +1,9 @@
+#if !defined(SimCalorimetry_HGCalAssociatorProducers_interface_AssociatorTools_h)
+#define SimCalorimetry_HGCalAssociatorProducers_interface_AssociatorTools_h
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
+#include <vector>
+
 void removeCPFromPU(const std::vector<CaloParticle>& caloParticles, std::vector<size_t>& cPIndices) {
   //Consider CaloParticles coming from the hard scatterer
   //excluding the PU contribution and save the indices.
@@ -13,3 +19,4 @@ void removeCPFromPU(const std::vector<CaloParticle>& caloParticles, std::vector<
     cPIndices.emplace_back(cpId);
   }
 }
+#endif
