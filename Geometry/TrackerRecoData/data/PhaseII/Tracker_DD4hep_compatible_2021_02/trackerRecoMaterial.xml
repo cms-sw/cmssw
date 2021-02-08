@@ -17,21 +17,11 @@ note: see OT800_IT615_2021_02_08.cfg for full config files
 <PartSelector path="//ITLayer1R3BModuleInnerPixelActive"/>
 <PartSelector path="//ITLayer1R4BModuleInnerPixelActive"/>
 <PartSelector path="//ITLayer1R5BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer1R1BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer1R2BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer1R3BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer1R4BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer1R5BModuleInnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.01868"/>
 <Parameter name="TrackerXi" value="3.736e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer2" eval="true">
-<PartSelector path="//ITLayer2R1BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer2R2BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer2R3BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer2R4BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer2R5BModuleInnerPixelActive"/>
 <PartSelector path="//ITLayer2R1BModuleInnerPixelActive"/>
 <PartSelector path="//ITLayer2R2BModuleInnerPixelActive"/>
 <PartSelector path="//ITLayer2R3BModuleInnerPixelActive"/>
@@ -47,21 +37,11 @@ note: see OT800_IT615_2021_02_08.cfg for full config files
 <PartSelector path="//ITLayer3R3BModuleInnerPixelActive"/>
 <PartSelector path="//ITLayer3R4BModuleInnerPixelActive"/>
 <PartSelector path="//ITLayer3R5BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer3R1BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer3R2BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer3R3BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer3R4BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer3R5BModuleInnerPixelActive"/>
 <Parameter name="TrackerRadLength" value="0.0147835"/>
 <Parameter name="TrackerXi" value="2.95669e-05"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialPhase2PixelBarrelLayer4" eval="true">
-<PartSelector path="//ITLayer4R1BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer4R2BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer4R3BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer4R4BModuleInnerPixelActive"/>
-<PartSelector path="//ITLayer4R5BModuleInnerPixelActive"/>
 <PartSelector path="//ITLayer4R1BModuleInnerPixelActive"/>
 <PartSelector path="//ITLayer4R2BModuleInnerPixelActive"/>
 <PartSelector path="//ITLayer4R3BModuleInnerPixelActive"/>
