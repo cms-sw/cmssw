@@ -12,6 +12,7 @@
 
 #include "RecoTauTag/RecoTau/plugins/PFRecoTauDiscriminationAgainstMuon2Helper.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauMuonTools.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
