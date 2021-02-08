@@ -1,4 +1,5 @@
 #include "SimMuon/MCTruth/interface/RPCHitAssociator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
