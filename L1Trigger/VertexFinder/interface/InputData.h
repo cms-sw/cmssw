@@ -16,7 +16,7 @@
 namespace l1tVertexFinder {
 
   typedef edm::Ptr<TrackingParticle> TrackingParticlePtr;
-  typedef std::map<TrackingParticlePtr, const TP*> TPTranslationMap;
+  typedef std::map<TrackingParticlePtr, edm::RefToBase<TrackingParticle>> TPPtrToRefMap;
 
   class AnalysisSettings;
   class Stub;
@@ -51,10 +51,8 @@ namespace l1tVertexFinder {
       inline bool operator()(const Vertex vertex0, const Vertex vertex1) { return (vertex0.z0() < vertex1.z0()); }
     };
 
-    /// Get tracking particles
-    const std::vector<TP>& getTPs() const { return vTPs_; }
     /// Get the TrackingParticle to TP translation map
-    const TPTranslationMap& getTPTranslationMap() const { return translateTP_; }
+    const TPPtrToRefMap& getTPPtrToRefMap() const { return tpPtrToRefMap_; }
     /// Get primary vertex information (vertex from HepMCProduct)
     const Vertex& getHepMCVertex() const { return hepMCVertex_; }
     /// Get primary vertex information (vertex from gen particles)
@@ -66,13 +64,10 @@ namespace l1tVertexFinder {
     /// Get reconstructable pile-up vertices information
     const std::vector<Vertex>& getRecoPileUpVertices() const { return recoVertices_; }
 
-    const std::map<DetId, DetId>& getStubGeoDetIdMap() const { return stubGeoDetIdMap_; }
-
     const float genPt() const { return genPt_; }
     const float genPt_PU() const { return genPt_PU_; }
 
   private:
-    std::vector<TP> vTPs_;              // tracking particles
     Vertex hepMCVertex_;                // primary vertex from the edm::HepMCProduct
     Vertex genVertex_;                  // primary vertex formed from the gen particles collection
     Vertex vertex_;                     // primary vertex formed from the tracking particles
@@ -81,8 +76,7 @@ namespace l1tVertexFinder {
     std::vector<Stub>
         vAllStubs_;  // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure
                      // the efficiency of these cuts).
-    std::map<DetId, DetId> stubGeoDetIdMap_;
-    TPTranslationMap translateTP_;
+    TPPtrToRefMap tpPtrToRefMap_;
     float genPt_;
     float genPt_PU_;
   };

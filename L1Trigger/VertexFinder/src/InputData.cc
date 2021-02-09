@@ -82,11 +82,7 @@ namespace l1tVertexFinder {
     // Get stub info, by looping over modules and then stubs inside each module.
     // Also get the association map from stubs to tracking particles.
     edm::Handle<DetSetVec> ttStubHandle;
-    edm::Handle<TTStubAssMap> mcTruthTTStubHandle;
-    edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
     iEvent.getByToken(stubToken, ttStubHandle);
-    iEvent.getByToken(stubTruthToken, mcTruthTTStubHandle);
-    iEvent.getByToken(clusterTruthToken, mcTruthTTClusterHandle);
 
     std::set<DetId> lStubDetIds;
     for (DetSetVec::const_iterator p_module = ttStubHandle->begin(); p_module != ttStubHandle->end(); p_module++) {
@@ -95,6 +91,7 @@ namespace l1tVertexFinder {
       }
     }
 
+    std::map<DetId, DetId> stubGeoDetIdMap;
     for (auto gd = trackerGeometry->dets().begin(); gd != trackerGeometry->dets().end(); gd++) {
       DetId detid = (*gd)->geographicalId();
       if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
@@ -104,51 +101,53 @@ namespace l1tVertexFinder {
       DetId stackDetid = trackerTopology->stack(detid);  // Stub module detid
 
       if (lStubDetIds.count(stackDetid) > 0) {
-        assert(stubGeoDetIdMap_.count(stackDetid) == 0);
-        stubGeoDetIdMap_[stackDetid] = detid;
+        assert(stubGeoDetIdMap.count(stackDetid) == 0);
+        stubGeoDetIdMap[stackDetid] = detid;
       }
     }
-    assert(lStubDetIds.size() == stubGeoDetIdMap_.size());
+    assert(lStubDetIds.size() == stubGeoDetIdMap.size());
 
-    for (DetSetVec::const_iterator p_module = ttStubHandle->begin(); p_module != ttStubHandle->end(); p_module++) {
-      for (DetSet::const_iterator p_ttstub = p_module->begin(); p_ttstub != p_module->end(); p_ttstub++) {
-        TTStubRef ttStubRef = edmNew::makeRefTo(ttStubHandle, p_ttstub);
-        // Store the Stub info, using class Stub to provide easy access to the most useful info.
-        Stub stub(ttStubRef, settings, trackerGeometry, trackerTopology);
-        // Also fill truth associating stubs to tracking particles.
-        //      stub.fillTruth(vTPs_, mcTruthTTStubHandle, mcTruthTTClusterHandle);
-        stub.fillTruth(translateTP_, mcTruthTTStubHandle, mcTruthTTClusterHandle);
-        vAllStubs_.push_back(stub);
-      }
-    }
+    // Get TrackingParticle info
+    edm::Handle<edm::View<TrackingParticle>> tpHandle;
+    edm::Handle<edm::ValueMap<TP>> tpValueMapHandle;
+    iEvent.getByToken(tpToken, tpHandle);
+    iEvent.getByToken(tpValueMapToken, tpValueMapHandle);
+    edm::ValueMap<TP> tpValueMap = *tpValueMapHandle;
 
-    std::map<const TP*, std::vector<const Stub*>> tpStubMap;
-    for (const TP& tp : vTPs_)
-      tpStubMap[&tp] = std::vector<const Stub*>();
-    for (const Stub& stub : vAllStubs_) {
-      for (const TP* tp : stub.assocTPs()) {
-        tpStubMap[tp].push_back(&stub);
+    for (unsigned int i = 0; i < tpHandle->size(); i++) {
+      if (tpValueMap[tpHandle->refAt(i)].use()) {
+        tpPtrToRefMap_[tpHandle->ptrAt(i)] = tpHandle->refAt(i);
       }
     }
 
     // Find the various vertices
-    for (unsigned int j = 0; j < vTPs_.size(); j++) {
-      assert(tpStubMap.count(&vTPs_.at(j)) == 1);
-      vTPs_[j].setMatchingStubs(tpStubMap.find(&vTPs_.at(j))->second);
-      if (vTPs_[j].useForAlgEff()) {
-        vertex_.insert(vTPs_[j]);
-      } else if (vTPs_[j].useForVertexReco()) {
+    genPt_ = 0.;
+    genPt_PU_ = 0.;
+    for (const auto& [edmPtr, edmRef] : tpPtrToRefMap_) {
+      TP tp = tpValueMap[edmRef];
+      if (tp.physicsCollision()) {
+        genPt_ += tp->pt();
+      } else {
+        genPt_PU_ += tp->pt();
+      }
+      if (settings.debug() > 0) {
+        edm::LogInfo("InputData") << "InputData::genPt in the event " << genPt_;
+      }
+
+      if (tp.useForAlgEff()) {
+        vertex_.insert(tp);
+      } else if (tp.useForVertexReco()) {
         bool found = false;
         for (unsigned int i = 0; i < vertices_.size(); ++i) {
-          if (vTPs_[j]->vz() == vertices_[i].vz()) {
-            vertices_[i].insert(vTPs_[j]);
+          if (tp->vz() == vertices_[i].vz()) {
+            vertices_[i].insert(tp);
             found = true;
             break;
           }
         }
         if (!found) {
-          Vertex vertex(vTPs_[j]->vz());
-          vertex.insert(vTPs_[j]);
+          Vertex vertex(tp->vz());
+          vertex.insert(tp);
           vertices_.push_back(vertex);
         }
       }
@@ -222,10 +221,9 @@ namespace l1tVertexFinder {
         break;
       }
     }
-    if ( (hepMCVertex_.vz() == 0.0) && (genVertex_.vz() == 0.0) ) {
+    if ((hepMCVertex_.vz() == 0.0) && (genVertex_.vz() == 0.0)) {
       throw cms::Exception("Neither the HepMC vertex nor the generator particle vertex were found.");
     }
-
 
   }  // end InputData::InputData
 

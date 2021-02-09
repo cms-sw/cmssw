@@ -25,7 +25,7 @@ namespace l1tVertexFinder {
     /// Number of tracks originating from this vertex
     unsigned int numTracks() const { return tracks_.size(); }
     /// Assign TP to this vertex
-    void insert(TP tp) { tracks_.push_back(tp); }
+    void insert(TP& tp) { tracks_.push_back(tp); }
     /// Compute vertex parameters
     void computeParameters();
     /// Sum of fitted tracks transverse momentum [GeV]
