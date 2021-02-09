@@ -20,6 +20,7 @@ l1ct::PFAlgo2HGCEmulator::PFAlgo2HGCEmulator(const edm::ParameterSet & iConfig) 
                            l1ct::Scales::makePtFromFloat(iConfig.getParameter<double>("tightTrackMaxInvisiblePt")))
 {
     debug_ = iConfig.getUntrackedParameter<bool>("debug",false);
+    loadPtErrBins(iConfig);
 }
     
 #endif

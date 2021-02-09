@@ -91,7 +91,7 @@ l1ct::PFRegionEmu::PFRegionEmu(float etamin,
            float phiwidth,
            float etaextra,
            float phiextra) :
-    etaCenter(0.5*(etamin+etamax)), etaMin(etamin), etaMax(etaMax), 
+    etaCenter(0.5*(etamin+etamax)), etaMin(etamin), etaMax(etamax), 
     phiCenter(phicenter), phiHalfWidth(0.5*phiwidth),
     etaExtra(etaextra), phiExtra(phiextra)
 {

@@ -145,8 +145,10 @@ struct PuppiObj {
   int intId() const { return hwId.rawId(); }
   int pdgId() const { return hwId.pdgId(); }
   int oldId() const { return hwPt > 0 ? hwId.oldId() : 0; }
+  int intCharge() const { return hwId.intCharge(); }
   float floatZ0() const { return Scales::floatZ0(hwZ0()); }
   float floatDxy() const { return Scales::floatDxy(hwDxy()); }
+  float floatPuppiW() const { return Scales::floatPuppiW(hwPuppiW()); }
 
   static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + 3 + DATA_BITS_TOTAL;
   inline ap_uint<BITWIDTH> pack() const {

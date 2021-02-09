@@ -22,6 +22,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/regionizer/regionizer_base_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo2hgc_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo3_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo_dummy_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/puppi/linpuppi_ref.h"
 
 #include "DataFormats/L1TCorrelator/interface/TkMuon.h"
@@ -95,8 +96,11 @@ private:
   void addDecodedMuon(std::vector<l1ct::MuObjEmu> & sec, const l1t::Muon &t);
   void addDecodedHadCalo(l1ct::DetectorSector<l1ct::HadCaloObjEmu> & sec, const l1t::PFCluster &t);
   void addDecodedEmCalo(l1ct::DetectorSector<l1ct::EmCaloObjEmu> & sec, const l1t::PFCluster &t);
-
-  // 
+  // fetching outputs
+  std::unique_ptr<l1t::PFCandidateCollection> fetchPF() const;
+  std::unique_ptr<l1t::PFCandidateCollection> fetchPuppi() const;
+  template<typename T>
+  void setRefs_(l1t::PFCandidate &pf, const T & p) const ; 
 };
 
 //
@@ -105,14 +109,14 @@ private:
 L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet& iConfig)
     : config_(iConfig),
       debug_(iConfig.getUntrackedParameter<int>("debug", 0)),
-      useStandaloneMuons_(iConfig.getParameter<bool>("useStandaloneMuons")),
-      useTrackerMuons_(iConfig.getParameter<bool>("useTrackerMuons")),
+      useStandaloneMuons_(true),//iConfig.getParameter<bool>("useStandaloneMuons")),
+      useTrackerMuons_(false), //iConfig.getParameter<bool>("useTrackerMuons")),
       hasTracks_(!iConfig.getParameter<edm::InputTag>("tracks").label().empty()),
       tkCands_(hasTracks_ ? consumes<l1t::PFTrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))
                           : edm::EDGetTokenT<l1t::PFTrackCollection>()),
       trkPt_(iConfig.getParameter<double>("trkPtCut")),
       muCands_(consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-      tkMuCands_(consumes<l1t::TkMuonCollection>(iConfig.getParameter<edm::InputTag>("tkMuons"))),
+      //tkMuCands_(consumes<l1t::TkMuonCollection>(iConfig.getParameter<edm::InputTag>("tkMuons"))),
       emPtCut_(iConfig.getParameter<double>("emPtCut")),
       hadPtCut_(iConfig.getParameter<double>("hadPtCut")),
       sortOutputs_(iConfig.getParameter<bool>("sortOutputs")),
@@ -151,7 +155,9 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   if (algo == "PFAlgo3") {
     l1pfalgo_ = std::make_unique<l1ct::PFAlgo3Emulator>(iConfig.getParameter<edm::ParameterSet>("pfAlgoParameters"));
   } else if (algo == "PFAlgo2HGC") {
-    l1pfalgo_ = std::make_unique<l1ct::PFAlgo2HGCEmulator>(iConfig);
+    l1pfalgo_ = std::make_unique<l1ct::PFAlgo2HGCEmulator>(iConfig.getParameter<edm::ParameterSet>("pfAlgoParameters"));
+  } else if (algo == "PFAlgoDummy") {
+    l1pfalgo_ = std::make_unique<l1ct::PFAlgoDummyEmulator>(iConfig.getParameter<edm::ParameterSet>("pfAlgoParameters"));
   } else
     throw cms::Exception("Configuration", "Unsupported pfAlgo");
 
@@ -189,6 +195,8 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
     produces<std::vector<unsigned>>(std::string("vecNL1Puppi") + l1tpf_impl::Region::outputTypeName(i));
   }
 #endif
+
+  initSectorsAndRegions(iConfig);
 }
 
 L1TCorrelatorLayer1Producer::~L1TCorrelatorLayer1Producer() {
@@ -309,24 +317,24 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event& iEvent, const edm::EventSe
     l1pfalgo_->run(event_.pfinputs[ir], event_.out[ir]);
     l1pfalgo_->mergeNeutrals(event_.out[ir]);
     //l1tkegalgo_->runTkEG(l1region);
-    l1pualgo_->run(event_.pfinputs[ir], event_.pvs, event_.out[ir]);
     //l1tkegalgo_->runTkIso(l1region, z0);
     //l1tkegalgo_->runPFIso(l1region, z0);
   }
 
-#if 0
   // Then run puppi (regionally)
-  for (auto& l1region : l1regions_.regions()) {
-    l1pualgo_->runNeutralsPU(l1region, z0, -1., puGlobals);
-    l1region.outputCrop(sortOutputs_);
+  for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
+    l1pualgo_->run(event_.pfinputs[ir], event_.pvs, event_.out[ir]);
+    //l1pualgo_->runNeutralsPU(l1region, z0, -1., puGlobals);
+    //l1region.outputCrop(sortOutputs_);
   }
 
   // save PF into the event
-  iEvent.put(l1regions_.fetch(false), "PF");
+  iEvent.put(fetchPF(), "PF");
 
   // and save puppi
-  iEvent.put(l1regions_.fetch(true), "Puppi");
+  iEvent.put(fetchPuppi(), "Puppi");
 
+#if 0
   // save the EG objects
   l1regions_.putEgObjects(iEvent, l1tkegalgo_->writeEgSta(), "L1Eg", "L1TkEm", "L1TkEle");
 
@@ -378,6 +386,7 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
     event_.decoded.hadcalo.clear();
     for (const edm::ParameterSet &preg : iConfig.getParameter<std::vector<edm::ParameterSet>>("caloSectors")) {
       std::vector<double> etaBoundaries = preg.getParameter<std::vector<double>>("etaBoundaries");
+      if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end())) throw cms::Exception("Configuration", "caloSectors.etaBoundaries not sorted\n");
       unsigned int phiSlices = preg.getParameter<uint32_t>("phiSlices");
       float phiWidth = 2 * M_PI / phiSlices;
       for (unsigned int ieta = 0, neta = etaBoundaries.size() - 1; ieta < neta; ++ieta) {
@@ -402,6 +411,7 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
     event_.pfinputs.clear();
     for (const edm::ParameterSet &preg : iConfig.getParameter<std::vector<edm::ParameterSet>>("regions")) {
       std::vector<double> etaBoundaries = preg.getParameter<std::vector<double>>("etaBoundaries");
+      if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end())) throw cms::Exception("Configuration", "regions.etaBoundaries not sorted\n");
       unsigned int phiSlices = preg.getParameter<uint32_t>("phiSlices");
       float etaExtra = preg.getParameter<double>("etaExtra");
       float phiExtra = preg.getParameter<double>("phiExtra");
@@ -464,7 +474,7 @@ void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkO
     tk.hwPt = l1ct::Scales::makePtFromFloat(t.pt());
     tk.hwEta = l1ct::Scales::makeEta(sec.region.localEta(t.caloEta()));
     tk.hwPhi = l1ct::Scales::makePhi(sec.region.localPhi(t.caloPhi()));
-    tk.hwCharge = t.charge();
+    tk.hwCharge = t.charge() > 0;
     tk.hwQuality = t.quality();
     tk.hwDEta = l1ct::Scales::makeEta(t.eta() - t.caloEta());
     tk.hwDPhi = l1ct::Scales::makePhi(std::abs(reco::deltaPhi(t.phi(), t.caloPhi())));
@@ -482,7 +492,7 @@ void L1TCorrelatorLayer1Producer::addDecodedMuon(std::vector<l1ct::MuObjEmu> & s
     mu.hwPt = l1ct::Scales::makePtFromFloat(t.pt());
     mu.hwEta = l1ct::Scales::makeEta(t.eta());
     mu.hwPhi = l1ct::Scales::makePhi(t.phi());
-    mu.hwCharge = t.charge();
+    mu.hwCharge = t.charge() > 0;
     mu.hwQuality = t.hwQual();
     mu.hwDEta = 0;
     mu.hwDPhi = 0;
@@ -512,6 +522,98 @@ void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::DetectorSector<l1ct::Em
     sec.obj.push_back(calo);
 }
 
+
+template<typename T>
+void L1TCorrelatorLayer1Producer::setRefs_(l1t::PFCandidate &pf, const T & p) const {
+    if (p.srcCluster) {
+        auto match = clusterRefMap_.find(p.srcCluster);
+        if (match == clusterRefMap_.end()) {
+            throw cms::Exception("CorruptData") << "Invalid cluster pointer in PF candidate id " << p.intId() << " pt "
+                << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
+        }
+        pf.setPFCluster(match->second);
+    }
+    if (p.srcTrack) {
+        auto match = trackRefMap_.find(p.srcTrack);
+        if (match == trackRefMap_.end()) {
+            throw cms::Exception("CorruptData") << "Invalid track pointer in PF candidate id " << p.intId() << " pt "
+                << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
+        }
+        pf.setPFTrack(match->second);
+    }
+    if (p.srcMu) {
+        auto match = muonRefMap_.find(p.srcMu);
+        if (match == muonRefMap_.end()) {
+            throw cms::Exception("CorruptData") << "Invalid muon pointer in PF candidate id " << p.intId() << " pt "
+                << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
+        }
+        pf.setMuon(match->second);
+    }
+}
+
+template<>
+void L1TCorrelatorLayer1Producer::setRefs_<l1ct::PFNeutralObjEmu>(l1t::PFCandidate &pf, const l1ct::PFNeutralObjEmu & p) const {
+    if (p.srcCluster) {
+        auto match = clusterRefMap_.find(p.srcCluster);
+        if (match == clusterRefMap_.end()) {
+            throw cms::Exception("CorruptData") << "Invalid cluster pointer in PF candidate id " << p.intId() << " pt "
+                << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
+        }
+        pf.setPFCluster(match->second);
+    }
+}
+
+std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF() const {
+  auto ret = std::make_unique<l1t::PFCandidateCollection>();
+  for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
+    const auto & reg = event_.pfinputs[ir].region;
+      for (const auto &p : event_.out[ir].pfcharged) {
+          if (p.hwPt == 0 ||  !reg.fiducialLocal(p.floatEta(), p.floatPhi())) continue;
+          reco::Particle::PolarLorentzVector p4(
+                  p.floatPt(), reg.globalEta(p.floatVtxEta()), reg.globalPhi(p.floatVtxPhi()), 0.13f);
+          l1t::PFCandidate::ParticleType type = l1t::PFCandidate::ChargedHadron;
+          if (p.hwId.isMuon()) type = l1t::PFCandidate::Muon;
+          else if (p.hwId.isElectron()) type = l1t::PFCandidate::Electron;
+          ret->emplace_back(type, p.intCharge(), p4, 1);
+          ret->back().setVertex(reco::Particle::Point(0, 0, p.floatZ0()));
+          setRefs_(ret->back(), p);
+      }
+      for (const auto &p : event_.out[ir].pfneutral) {
+          if (p.hwPt == 0 ||  !reg.fiducialLocal(p.floatEta(), p.floatPhi())) continue;
+          reco::Particle::PolarLorentzVector p4(
+                  p.floatPt(), reg.globalEta(p.floatEta()), reg.globalPhi(p.floatPhi()), 0.13f);
+          l1t::PFCandidate::ParticleType type = p.hwId.isPhoton() ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
+          ret->emplace_back(type, 0, p4, 1);
+          setRefs_(ret->back(), p);
+      }
+  }
+  return ret;
+}
+
+std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPuppi() const {
+    auto ret = std::make_unique<l1t::PFCandidateCollection>();
+    for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
+        const auto & reg = event_.pfinputs[ir].region;
+        for (const auto &p : event_.out[ir].puppi) {
+            if (p.hwPt == 0) continue;
+            reco::Particle::PolarLorentzVector p4(
+                    p.floatPt(), reg.globalEta(p.floatEta()), reg.globalPhi(p.floatPhi()), 0.13f);
+            l1t::PFCandidate::ParticleType type;
+            if (p.hwId.charged()) {
+                if (p.hwId.isMuon()) type = l1t::PFCandidate::Muon;
+                else if (p.hwId.isElectron()) type = l1t::PFCandidate::Electron;
+                else type = l1t::PFCandidate::ChargedHadron;
+            } else {
+                type = p.hwId.isPhoton() ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
+            }
+            ret->emplace_back(type, p.intCharge(), p4, p.hwId.charged() ? 1 : p.floatPuppiW());
+            if (p.hwId.charged()) {
+                ret->back().setVertex(reco::Particle::Point(0, 0, p.floatZ0()));
+            }
+        }
+    }
+    return ret;
+}
 
 
 
