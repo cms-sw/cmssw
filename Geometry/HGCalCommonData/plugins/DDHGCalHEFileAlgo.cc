@@ -3,7 +3,7 @@
 // Description: Geometry factory class for HGCal (Mix)
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -29,7 +29,7 @@
 #include <vector>
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 class DDHGCalHEFileAlgo : public DDAlgorithm {
 public:
