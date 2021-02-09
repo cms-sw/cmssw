@@ -140,7 +140,7 @@ namespace Scales {
     inline dpt_t makeDPt(int dpt) { return ap_fixed<18,16>(dpt) >> 2; }
     inline pt_t makePtFromFloat(float pt) { return pt_t(pt); }
     inline dpt_t makeDPtFromFloat(float dpt) { return dpt_t(dpt); }
-    inline z0_t makeZ0FromFloat(float z0) { return z0_t(round(z0/  Z0_LSB)); }
+    inline z0_t makeZ0(float z0) { return z0_t(round(z0/  Z0_LSB)); }
 
     inline ap_uint<pt_t::width> ptToInt(pt_t pt) {
         // note: this can be synthethized, e.g. when pT is used as intex in a LUT
@@ -160,6 +160,7 @@ namespace Scales {
     inline eta_t makeEta(float eta) { return round(eta / ETAPHI_LSB); }
     inline glbeta_t makeGlbEta(float eta) { return round(eta / ETAPHI_LSB); }
 
+    inline int makeDR2FromFloatDR(float dr) { return ceil(dr*dr/ETAPHI_LSB/ETAPHI_LSB); }
 };
 
 

@@ -57,6 +57,7 @@ struct HadCaloObj {
         return ret;
   }
   inline static HadCaloObj unpack(const ap_uint<BITWIDTH> & src) {
+        #pragma HLS inline
         HadCaloObj ret; unsigned int start = 0;
         _unpack_from_bits(src, start, ret.hwPt);
         _unpack_from_bits(src, start, ret.hwEta);
@@ -121,6 +122,7 @@ struct EmCaloObj {
         return ret;
   }
   inline static EmCaloObj unpack(const ap_uint<BITWIDTH> & src) {
+        #pragma HLS inline
         EmCaloObj ret; unsigned int start = 0;
         _unpack_from_bits(src, start, ret.hwPt);
         _unpack_from_bits(src, start, ret.hwEta);
@@ -211,6 +213,7 @@ struct TkObj {
         return ret;
   }
   inline static TkObj unpack(const ap_uint<BITWIDTH> & src) {
+        #pragma HLS inline
         TkObj ret; unsigned int start = 0;
         _unpack_from_bits(src, start, ret.hwPt);
         _unpack_from_bits(src, start, ret.hwEta);
@@ -301,6 +304,7 @@ struct MuObj {
         return ret;
   }
   inline static MuObj unpack(const ap_uint<BITWIDTH> & src) {
+        #pragma HLS inline
         MuObj ret; unsigned int start = 0;
         _unpack_from_bits(src, start, ret.hwPt);
         _unpack_from_bits(src, start, ret.hwEta);
