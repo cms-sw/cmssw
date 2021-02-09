@@ -26,7 +26,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << childNames.size() << " children: " << childNames[0] << "; " << childNames[1]
                                 << " positioned " << positionX.size() << " times with cell size " << cellSize;
   for (unsigned int k = 0; k < positionX.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << HGCalDD4HepHelper::convert2mm(positionX[k]) << " y " << HGCalDD4HepHelper::convert2mm(positionY[k]) << " angle " << angles[k] << " detector " << detectorType[k];
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << HGCalDD4HepHelper::convert2mm(positionX[k]) << " y "
+                                  << HGCalDD4HepHelper::convert2mm(positionY[k]) << " angle " << angles[k]
+                                  << " detector " << detectorType[k];
 
   std::string idName = args.parentName();  // Name of the "parent" volume.
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo debug: Parent " << idName << " NameSpace " << ns.name();
@@ -43,7 +45,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     if (angles[k] != 0) {
       double phi = convertDegToRad(angles[k]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: Creating new rotation \t90, " << angles[k] << ", 90, " << (angles[k] + 90) << ", 0, 0";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: Creating new rotation \t90, " << angles[k] << ", 90, "
+                                    << (angles[k] + 90) << ", 0, 0";
 #endif
       rotation = cms::makeRotation3D(90._deg, phi, 90._deg, (90._deg + phi), 0, 0);
     }
@@ -53,7 +56,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     int copy = HGCalTypes::packCellType6(cellType, k);
     mother.placeVolume(ns.volume(name), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: " << name << " number " << copy << " positioned in " << idName << " at (" << HGCalDD4HepHelper::convert2mm(xpos) << "," << HGCalDD4HepHelper::convert2mm(ypos) << ",0) with " << rotation;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: " << name << " number " << copy << " positioned in " << idName
+                                  << " at (" << HGCalDD4HepHelper::convert2mm(xpos) << ","
+                                  << HGCalDD4HepHelper::convert2mm(ypos) << ",0) with " << rotation;
 #endif
   }
 
