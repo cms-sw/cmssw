@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition>
 
-<ConstantsSection label="hgcalwafer.xml" eval="true">
+<ConstantsSection label="hgcalwaferpart.xml" eval="true">
   <Constant name="ModuleThicknessEE"     value="[hgcal:ModuleThicknessEE]"/>
   <Constant name="ModuleThicknessHE"     value="[hgcal:ModuleThicknessHE]"/>
   <Constant name="WaferSize"             value="[hgcal:WaferSize]"/>
@@ -12,7 +12,7 @@
   <Constant name="CellThicknessCoarse2"  value="[hgcal:CellThicknessCoarse2]"/>
 </ConstantsSection>
 
-<PosPartSection label="hgcalwafer.xml" eval="true">
+<PosPartSection label="hgcalwaferpart.xml" eval="true">
   <Algorithm name="hgcal:DDHGCalWaferP">
     <rParent name="hgcalwafer:HGCalEEWafer0Fine"/>
     <String name="ModuleMaterial"    value="materials:Air"/>

@@ -150,6 +150,8 @@ class Synchronization(enum.Enum):
     pcl        = 'pcl'
     offline    = 'offline'
 
+synch_list = list(x.value for x in list(Synchronization))
+
 class TimeType(enum.Enum):
     Run  = 'Run'
     Time = 'Time'

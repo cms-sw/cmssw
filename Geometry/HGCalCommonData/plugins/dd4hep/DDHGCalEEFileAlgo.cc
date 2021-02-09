@@ -16,12 +16,12 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 struct HGCalEEFileAlgo {
   HGCalEEFileAlgo() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalEEFileAlgo"; }
@@ -317,7 +317,7 @@ struct HGCalEEFileAlgo {
         if (corner.first > 0 && type >= 0) {
           int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << wafers_[type] << " number " << copy << " type "
+          edm::LogVerbatim("HGCalGeom") << " DDHGCalEEFileAlgo: " << wafers_[type] << " number " << copy << " type "
                                         << type << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v
                                         << ":" << indx;
           if (iu > ium)

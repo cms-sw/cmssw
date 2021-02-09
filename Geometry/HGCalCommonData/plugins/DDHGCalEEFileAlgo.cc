@@ -4,7 +4,7 @@
 //              information from the file
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -30,7 +30,7 @@
 #include <vector>
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 class DDHGCalEEFileAlgo : public DDAlgorithm {
 public:
@@ -377,7 +377,7 @@ void DDHGCalEEFileAlgo::positionSensitive(
         if (layertype > 1)
           type += 3;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << wafers_[type] << " number " << copy << " type "
+        edm::LogVerbatim("HGCalGeom") << " DDHGCalEEFileAlgo: " << wafers_[type] << " number " << copy << " type "
                                       << type << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v
                                       << ":" << indx;
         if (iu > ium)
