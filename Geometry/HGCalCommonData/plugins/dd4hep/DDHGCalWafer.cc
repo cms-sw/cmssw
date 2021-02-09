@@ -26,7 +26,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   std::string parentName = args.parentName();
   dd4hep::Volume mother = ns.volume(args.parentName());
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << childNames.size() << " children: " << childNames[0] << "; " << childNames[1] << " positioned in " << nCellsRow.size() << " rows and " << nColumns << " columns with lowest column at " << nBottomY << " in mother " << parentName << " of size " << HGCalDD4HepHelper::convert2mm(waferSize);
+  edm::LogVerbatim("HGCalGeom") << childNames.size() << " children: " << childNames[0] << "; " << childNames[1]
+                                << " positioned in " << nCellsRow.size() << " rows and " << nColumns
+                                << " columns with lowest column at " << nBottomY << " in mother " << parentName
+                                << " of size " << HGCalDD4HepHelper::convert2mm(waferSize);
   for (unsigned int k = 0; k < nCellsRow.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] Ncells " << nCellsRow[k] << " Edge rotations " << angleEdges[2 * k]
                                   << ":" << angleEdges[2 * k + 1] << " Type of edge cells " << detectorType[2 * k]
@@ -71,7 +74,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       mother.placeVolume(ns.volume(namx), copy, dd4hep::Transform3D(rotation, tran));
       ++kount;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer: " << name << " number " << copy << " positioned in " << parentName << " at (" << HGCalDD4HepHelper::convert2mm(xpos) << "," << HGCalDD4HepHelper::convert2mm(ypos) << ",0) with " << rotation;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer: " << name << " number " << copy << " positioned in " << parentName
+                                    << " at (" << HGCalDD4HepHelper::convert2mm(xpos) << ","
+                                    << HGCalDD4HepHelper::convert2mm(ypos) << ",0) with " << rotation;
 #endif
     }
     ny += incAlongY;
