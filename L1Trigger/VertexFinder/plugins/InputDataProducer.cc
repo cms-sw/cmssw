@@ -24,7 +24,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,12 +38,11 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
-
 //
 // class declaration
 //
 
-class InputDataProducer : public edm::stream::EDProducer<> {
+class InputDataProducer : public edm::global::EDProducer<> {
 public:
   explicit InputDataProducer(const edm::ParameterSet&);
   ~InputDataProducer() override;
@@ -51,63 +50,51 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------constants, enums and typedefs ---------
   typedef edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>> DetSetVec;
-  typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_> TTStubAssMap;
-  typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_> TTClusterAssMap;
 
   // ----------member data ---------------------------
   const std::string outputCollectionName_;
   l1tVertexFinder::AnalysisSettings settings_;
   const edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_;
   const edm::EDGetTokenT<edm::View<reco::GenParticle>> genParticlesToken_;
-  const edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
+  const edm::EDGetTokenT<edm::View<TrackingParticle>> tpToken_;
+  const edm::EDGetTokenT<edm::ValueMap<l1tVertexFinder::TP>> tpValueMapToken_;
   const edm::EDGetTokenT<DetSetVec> stubToken_;
-  const edm::EDGetTokenT<TTStubAssMap> stubTruthToken_;
-  const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken_;
+  const edm::EDGetTokenT<edm::ValueMap<l1tVertexFinder::Stub>> stubValueMapToken_;
 };
 
 //
 // constructors and destructor
 //
 InputDataProducer::InputDataProducer(const edm::ParameterSet& iConfig)
-  : outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")),
-    settings_(iConfig),
-    hepMCToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCInputTag"))),
-    genParticlesToken_(
-        consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
-    tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
-    stubToken_(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))),
-    stubTruthToken_(consumes<TTStubAssMap>(iConfig.getParameter<edm::InputTag>("stubTruthInputTag"))),
-    clusterTruthToken_(consumes<TTClusterAssMap>(iConfig.getParameter<edm::InputTag>("clusterTruthInputTag"))) {
-
+    : outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")),
+      settings_(iConfig),
+      hepMCToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("hepMCInputTag"))),
+      genParticlesToken_(
+          consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticleInputTag"))),
+      tpToken_(consumes<edm::View<TrackingParticle>>(iConfig.getParameter<edm::InputTag>("tpInputTag"))),
+      tpValueMapToken_(
+          consumes<edm::ValueMap<l1tVertexFinder::TP>>(iConfig.getParameter<edm::InputTag>("tpValueMapInputTag"))),
+      stubToken_(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))) {
   // Define EDM output to be written to file (if required)
   produces<l1tVertexFinder::InputData>(outputCollectionName_);
 
   //now do what ever other initialization is needed
 }
 
-InputDataProducer::~InputDataProducer()
-{
-}
+InputDataProducer::~InputDataProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void InputDataProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::unique_ptr<l1tVertexFinder::InputData> product(new l1tVertexFinder::InputData(iEvent,
-                                                                                     iSetup,
-                                                                                     settings_,
-                                                                                     hepMCToken_,
-                                                                                     genParticlesToken_,
-                                                                                     tpToken_,
-                                                                                     stubToken_,
-                                                                                     stubTruthToken_,
-                                                                                     clusterTruthToken_));
+void InputDataProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  std::unique_ptr<l1tVertexFinder::InputData> product = std::make_unique<l1tVertexFinder::InputData>(
+      iEvent, iSetup, settings_, hepMCToken_, genParticlesToken_, tpToken_, tpValueMapToken_, stubToken_);
 
   iEvent.put(std::move(product), outputCollectionName_);
 }

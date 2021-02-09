@@ -22,8 +22,8 @@ class TrackerGeometry;
 namespace l1tVertexFinder {
 
   class AnalysisSettings;
-  class TP;
 
+  typedef edm::Ptr<TrackingParticle> TrackingParticlePtr;
   typedef edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>> DetSetVec;
   typedef edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_>> DetSet;
   typedef edm::Ref<DetSetVec, TTStub<Ref_Phase2TrackerDigi_>> TTStubRef;
@@ -37,6 +37,7 @@ namespace l1tVertexFinder {
   class Stub : public TTStubRef {
   public:
     // Fill useful info about stub.
+    Stub();
     Stub(const TTStubRef& ttStubRef,
          const AnalysisSettings& settings,
          const TrackerGeometry* trackerGeometry,
@@ -44,10 +45,7 @@ namespace l1tVertexFinder {
     ~Stub() {}
 
     // Fill truth info with association from stub to tracking particles.
-    // The 1st argument is a map relating TrackingParticles to TP.
-    void fillTruth(const std::map<edm::Ptr<TrackingParticle>, const TP*>& translateTP,
-                   edm::Handle<TTStubAssMap> mcTruthTTStubHandle,
-                   edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle);
+    void fillTruth(edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle);
 
     // === Functions for returning info about reconstructed stubs ===
 
@@ -70,10 +68,10 @@ namespace l1tVertexFinder {
     //--- Truth info
 
     // Association of stub to tracking particles
-    const std::set<const TP*>& assocTPs() const {
+    const std::set<TrackingParticlePtr>& assocTPs() const {
       return assocTPs_;
     }  // Return TPs associated to this stub. (Whether only TPs contributing to both clusters are returned is determined by "StubMatchStrict" config param.)
-    const TP* assocTP() const {
+    const TrackingParticlePtr assocTP() const {
       return assocTP_;
     }  // If only one TP contributed to both clusters, this tells you which TP it is. Returns nullptr if none.
 
@@ -110,8 +108,8 @@ namespace l1tVertexFinder {
     float sensorWidth_;
     bool outerModuleAtSmallerR_;
     //--- Truth info about stub.
-    const TP* assocTP_;
-    std::set<const TP*> assocTPs_;
+    TrackingParticlePtr assocTP_;
+    std::set<TrackingParticlePtr> assocTPs_;
   };
 
 }  // end namespace l1tVertexFinder
