@@ -1,5 +1,22 @@
 #include "layer1_emulator.h"
 #include "emulator_io.h"
+#include <cmath>
+
+#ifdef CMSSW_GIT_HASH
+#include "DataFormats/Math/interface/deltaPhi.h"
+#else
+namespace reco {
+    template <typename T>
+    constexpr T reduceRange(T x) {
+        constexpr T o2pi = 1. / (2. * M_PI);
+        if (std::abs(x) <= T(M_PI))
+            return x;
+        T n = std::round(x * o2pi);
+        return x - n * T(2. * M_PI);
+    }
+    constexpr double deltaPhi(double phi1, double phi2) { return reduceRange(phi1 - phi2); }
+}
+#endif
 
 
 bool l1ct::HadCaloObjEmu::read(std::fstream & from) {
@@ -68,6 +85,34 @@ bool l1ct::PuppiObjEmu::write(std::fstream & to) const {
     return writeObj<PuppiObj>(*this, to);
 }
 
+l1ct::PFRegionEmu::PFRegionEmu(float etamin,
+           float etamax,
+           float phicenter,
+           float phiwidth,
+           float etaextra,
+           float phiextra) :
+    etaCenter(0.5*(etamin+etamax)), etaMin(etamin), etaMax(etaMax), 
+    phiCenter(phicenter), phiHalfWidth(0.5*phiwidth),
+    etaExtra(etaextra), phiExtra(phiextra)
+{
+    hwEtaCenter = Scales::makeGlbEta(etaCenter);
+}
+
+bool l1ct::PFRegionEmu::contains(float eta, float phi) const {
+    float dphi = reco::deltaPhi(phiCenter, phi);
+    return (etaMin - etaExtra < eta && eta <= etaMax + etaExtra && -phiHalfWidth - phiExtra < dphi &&
+            dphi <= phiHalfWidth + phiExtra);
+}
+bool l1ct::PFRegionEmu::fiducialLocal(float localEta, float localPhi) const {
+    float dphi = reco::reduceRange(localPhi);
+    return (etaMin < localEta + etaCenter && localEta + etaCenter <= etaMax && -phiHalfWidth < dphi &&
+            dphi <= phiHalfWidth);
+}
+float  l1ct::PFRegionEmu::globalEta(float localEta) const { return localEta + etaCenter; }
+float  l1ct::PFRegionEmu::globalPhi(float localPhi) const { return localPhi + phiCenter; }
+float  l1ct::PFRegionEmu::localEta(float globalEta) const { return globalEta - etaCenter; }
+float  l1ct::PFRegionEmu::localPhi(float globalPhi) const { return reco::deltaPhi(globalPhi, phiCenter); }
+
 bool l1ct::PFRegionEmu::read(std::fstream & from) {
     return 
         readObj<PFRegion>(from, *this) &&
@@ -98,6 +143,63 @@ bool l1ct::PVObjEmu::write(std::fstream & to) const {
     return writeAP(hwZ0, to);
 }
 
+bool l1ct::RegionizerDecodedInputs::read(std::fstream & from) {
+    uint32_t number;
+
+    if (!readVar(from, number)) return false;
+    hadcalo.resize(number);
+    for (auto & v : hadcalo) {
+        if (!(v.region.read(from) && readMany(from, v.obj))) return false;
+    }
+
+    if (!readVar(from, number)) return false;
+    emcalo.resize(number);
+    for (auto & v : emcalo) {
+        if (!(v.region.read(from) && readMany(from, v.obj))) return false;
+    }
+
+    if (!readVar(from, number)) return false;
+    track.resize(number);
+    for (auto & v : track) {
+        if (!(v.region.read(from) && readMany(from, v.obj))) return false;
+    }
+
+    if (!readMany(from, muon)) return false;
+
+    return true;
+}
+
+bool l1ct::RegionizerDecodedInputs::write(std::fstream & to) const {
+    uint32_t number;
+
+    number = hadcalo.size();
+    if (!writeVar(number, to)) return false;
+    for (const auto & v : hadcalo) {
+        if (!(v.region.write(to) && writeMany(v.obj, to))) return false;
+    }
+
+    number = emcalo.size();
+    if (!writeVar(number, to)) return false;
+    for (const auto & v : emcalo) {
+        if (!(v.region.write(to) && writeMany(v.obj, to))) return false;
+    }
+
+    number = track.size();
+    if (!writeVar(number, to)) return false;
+    for (const auto & v : track) {
+        if (!(v.region.write(to) && writeMany(v.obj, to))) return false;
+    }
+
+    if (!writeMany(muon, to)) return false;
+
+    return true;
+}
+void l1ct::RegionizerDecodedInputs::clear() {
+    for (auto & r : hadcalo) r.clear();
+    for (auto & r : emcalo) r.clear();
+    for (auto & r : track) r.clear();
+    for (auto & r : muon) r.clear();
+}
 
 bool l1ct::PFInputRegion::read(std::fstream & from) {
     return 
@@ -115,6 +217,13 @@ bool l1ct::PFInputRegion::write(std::fstream & to) const {
         writeMany(track, to) &&
         writeMany(muon, to);
 }
+void l1ct::PFInputRegion::clear() {
+    hadcalo.clear();
+    emcalo.clear();
+    track.clear();
+    muon.clear();
+}
+
 
 bool l1ct::OutputRegion::read(std::fstream & from) {
     return 
@@ -131,6 +240,13 @@ bool l1ct::OutputRegion::write(std::fstream & to) const {
         writeMany(pfphoton, to) &&
         writeMany(pfmuon, to) &&
         writeMany(puppi, to);
+}
+void l1ct::OutputRegion::clear() {
+    pfcharged.clear();
+    pfphoton.clear();
+    pfneutral.clear();
+    pfmuon.clear();
+    puppi.clear();
 }
 
 bool l1ct::Event::read(std::fstream & from) {
@@ -151,3 +267,16 @@ bool l1ct::Event::write(std::fstream & to) const {
         writeMany(pvs, to) &&
         writeMany(out, to);
 }
+void l1ct::Event::init(uint32_t arun, uint32_t alumi, uint64_t anevent) {
+    clear();
+    run = arun; lumi = alumi; event = anevent;
+}
+void l1ct::Event::clear() {
+    run = 0; lumi = 0; event = 0;
+    decoded.clear();
+    for (auto & i : pfinputs) i.clear();
+    pvs.clear();
+    for (auto & i : out) i.clear();
+}
+
+

@@ -408,7 +408,7 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           ptsum = vtx.sum();
 
           l1ct::PVObjEmu hwpv;
-          hwpv.hwZ0 = l1ct::Scales::makeZ0FromFloat(z0);
+          hwpv.hwZ0 = l1ct::Scales::makeZ0(z0);
           if (event.pvs.empty()) { event.pvs.push_back(hwpv); }
           else { event.pvs[0] = hwpv; }
         }

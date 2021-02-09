@@ -15,12 +15,20 @@ namespace l1ct {
         const l1t::PFCluster *src;
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
+        void clear() {
+            HadCaloObj::clear();
+            src = nullptr;
+        }
     };
 
     struct EmCaloObjEmu : public EmCaloObj { 
         const l1t::PFCluster *src;
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
+        void clear() {
+            EmCaloObj::clear();
+            src = nullptr;
+        }
     };
 
     struct TkObjEmu : public TkObj {
@@ -28,13 +36,23 @@ namespace l1ct {
         const l1t::PFTrack *src;
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
+        void clear() {
+            TkObj::clear();
+            src = nullptr;
+            hwChi2 = 0;
+            hwStubs = 0;
+        }
     };
 
     struct MuObjEmu : public MuObj {
         const l1t::Muon *src;
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
-    };
+        void clear() {
+            MuObj::clear();
+            src = nullptr;
+        }
+   };
 
     struct PFChargedObjEmu : public PFChargedObj {
         const l1t::PFCluster *srcCluster;
@@ -42,12 +60,22 @@ namespace l1ct {
         const l1t::Muon *srcMu;
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
+        void clear() {
+            PFChargedObj::clear();
+            srcCluster = nullptr;
+            srcTrack = nullptr;
+            srcMu = nullptr;
+        }
     };
 
     struct PFNeutralObjEmu : public PFNeutralObj {
         const l1t::PFCluster *srcCluster;
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
+        void clear() {
+            PFNeutralObj::clear();
+            srcCluster = nullptr;
+        }
     };
 
     struct PuppiObjEmu : public PuppiObj {
@@ -56,6 +84,33 @@ namespace l1ct {
         const l1t::Muon *srcMu;
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
+        void clear() {
+            PuppiObj::clear();
+            srcCluster = nullptr;
+            srcTrack = nullptr;
+            srcMu = nullptr;
+        }
+        inline void fill(const PFChargedObjEmu &src) {
+            PuppiObj::fill(src);
+            srcCluster = src.srcCluster;
+            srcTrack = src.srcTrack;
+            srcMu = src.srcMu;
+        }
+        inline void fill(const PFNeutralObjEmu &src, pt_t puppiPt,
+                puppiWgt_t puppiWgt) {
+            PuppiObj::fill(src, puppiPt, puppiWgt);
+            srcCluster = src.srcCluster;
+            srcTrack = nullptr;
+            srcMu = nullptr;
+        }
+        inline void fill(const HadCaloObjEmu &src, pt_t puppiPt,
+                puppiWgt_t puppiWgt) {
+            PuppiObj::fill(src, puppiPt, puppiWgt);
+            srcCluster = src.src;
+            srcTrack = nullptr;
+            srcMu = nullptr;
+        }
+
     };
 
 
@@ -63,8 +118,28 @@ namespace l1ct {
         float etaCenter, etaMin, etaMax, phiCenter, phiHalfWidth;
         float etaExtra, phiExtra;
 
+        PFRegionEmu() : PFRegion() {}
+        PFRegionEmu(float etamin,
+           float etamax,
+           float phicenter,
+           float phiwidth,
+           float etaextra,
+           float phiextra) ;
+            
+
+        // global coordinates
+        bool contains(float eta, float phi) const ;
+        // local coordinates
+        bool fiducialLocal(float localEta, float localPhi) const ;
+        float globalEta(float localEta) const ;
+        float globalPhi(float localPhi) const ;
+        float localEta(float globalEta) const ;
+        float localPhi(float globalPhi) const ;
+
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
+
+        
     };
    
     struct PVObjEmu {
@@ -73,6 +148,39 @@ namespace l1ct {
         bool write(std::fstream & to) const ;
     };
 
+    template<typename T>
+    struct DetectorSector {
+        PFRegionEmu region;
+        std::vector<T> obj;
+        DetectorSector() {}
+        DetectorSector(float etamin, float etamax, float phicenter, float phiwidth, float etaextra=0, float phiextra=0) : 
+               region(etamin, etamax, phicenter, phiwidth, etaextra, phiextra) {}
+        // convenience forwarding of some methods
+        typedef typename std::vector<T>::const_iterator const_iterator;
+        typedef typename std::vector<T>::iterator iterator;
+        inline const T & operator[](unsigned int i) const { return obj[i]; }
+        inline T & operator[](unsigned int i) { return obj[i]; }
+        inline const_iterator begin() const { return obj.begin(); }
+        inline iterator begin() { return obj.begin(); }
+        inline const_iterator end() const { return obj.end(); }
+        inline iterator end() { return obj.end(); }
+        inline unsigned int size() const { return obj.size(); }
+        inline void resize(unsigned int size) { obj.resize(size); }
+        inline void clear() { obj.clear(); }
+
+    };
+
+    struct RegionizerDecodedInputs {
+        std::vector<DetectorSector<HadCaloObjEmu>> hadcalo;
+        std::vector<DetectorSector<EmCaloObjEmu>> emcalo;
+        std::vector<DetectorSector<TkObjEmu>> track;
+        std::vector<MuObjEmu> muon; // muons are global
+
+        bool read(std::fstream & from) ;
+        bool write(std::fstream & to) const ;
+        void clear() ;
+    }; 
+
     struct PFInputRegion {
         PFRegionEmu region;
         std::vector<HadCaloObjEmu> hadcalo;
@@ -80,8 +188,12 @@ namespace l1ct {
         std::vector<TkObjEmu> track;
         std::vector<MuObjEmu> muon;
 
+        PFInputRegion() {}
+        PFInputRegion(float etamin, float etamax, float phicenter, float phiwidth, float etaextra, float phiextra) : 
+               region(etamin, etamax, phicenter, phiwidth, etaextra, phiextra) {}
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
+        void clear() ;
     }; 
 
     struct OutputRegion {
@@ -93,11 +205,13 @@ namespace l1ct {
 
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
+        void clear() ;
     };
 
 
     struct Event {
         uint32_t run, lumi; uint64_t event;
+        RegionizerDecodedInputs decoded;
         std::vector<PFInputRegion> pfinputs;
         std::vector<PVObjEmu> pvs;
         std::vector<OutputRegion> out;
@@ -106,6 +220,8 @@ namespace l1ct {
 
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
+        void clear() ;
+        void init(uint32_t run, uint32_t lumi, uint64_t event) ;
     };
   
     template<typename T1, typename T2>
