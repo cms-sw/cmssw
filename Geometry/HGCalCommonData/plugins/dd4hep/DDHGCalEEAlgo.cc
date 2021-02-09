@@ -21,10 +21,10 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
+#include "Geometry/HGCalCommonData/plugins/dd4hep/HGCalDD4HepHelper.h"
 
 //#define EDM_ML_DEBUG
 using namespace angle_units::operators;
-#include "Geometry/HGCalCommonData/plugins/dd4hep/HGCalDD4HepHelper.h"
 
 struct HGCalEEAlgo {
   HGCalGeomTools geomTools_;

@@ -19,10 +19,10 @@
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HGCalCommonData/plugins/dd4hep/HGCalDD4HepHelper.h"
 
 //#define EDM_ML_DEBUG
 using namespace angle_units::operators;
-#include "Geometry/HGCalCommonData/plugins/dd4hep/HGCalDD4HepHelper.h"
 
 struct HGCalHEFileAlgo {
   HGCalHEFileAlgo() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalHEFileAlgo"; }
