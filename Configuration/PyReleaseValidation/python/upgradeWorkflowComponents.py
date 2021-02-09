@@ -1104,18 +1104,19 @@ upgradeProperties[2026] = {
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D64' : {
-        'Geom' : 'Extended2026D64',                   # N.B.: Geometry with square 50x50 um2 pixels in the Inner Tracker.
+        'Geom' : 'Extended2026D64',             # N.B.: Geometry with square 50x50 um2 pixels in the Inner Tracker.
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T22',
-        'Era' : 'Phase2C11',
+        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
+        'Era' : 'Phase2C11T22',       # customized for square pixels
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D65' : {
-        'Geom' : 'Extended2026D65',                   # N.B.: Geometry with 3D pixels in the Inner Tracker.
+        'Geom' : 'Extended2026D65',             # N.B.: Geometry with 3D pixels in the Inner Tracker.
         'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T23',           # This symbolic GT has no pixel template / GenError informations.
-        'ProcessModifier': 'phase2_PixelCPEGeneric',  # This modifier removes all need for IT template information. DO NOT USE for standard planar sensors.
-        'Era' : 'Phase2C11',
+        'GT' : 'auto:phase2_realistic_T23',     # This symbolic GT has no pixel template / GenError informations.
+        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
+        'Era' : 'Phase2C11T23',           # customizes for 3D Pixels
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D66' : {
