@@ -60,8 +60,8 @@ protected:
 private:
   HGCalGeomTools geomTools_;
 
-  static constexpr double tol1_ = 0.01;
-  static constexpr double tol2_ = 0.00001;
+  static constexpr double tol1_ = 0.01 * dd4hep::mm;
+  static constexpr double tol2_ = 0.00001 * dd4hep::mm;
 
   std::vector<std::string> wafers_;        // Wafers
   std::vector<std::string> materials_;     // Materials

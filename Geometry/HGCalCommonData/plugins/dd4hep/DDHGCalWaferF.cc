@@ -15,11 +15,11 @@
 #include <sstream>
 
 //#define EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
+#include "Geometry/HGCalCommonData/plugins/dd4hep/HGCalDD4HepHelper.h"
+#endif
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
-#ifdef EDM_ML_DEBUG
-  static constexpr double f2mm = (1.0 / dd4hep::mm);
-#endif
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
   std::string motherName = args.parentName();
@@ -28,9 +28,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& waferSize = args.value<double>("WaferSize");
   const auto& waferSepar = args.value<double>("SensorSeparation");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Module " << motherName << " made of " << material << " T "
-                                << (f2mm * thick) << " Wafer 2r " << (f2mm * waferSize) << " Half Separation "
-                                << (f2mm * waferSepar);
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Module " << motherName << " made of " << material << " T " << HGCalDD4HepHelper::convert2mm(thick) << " Wafer 2r " << HGCalDD4HepHelper::convert2mm(waferSize) << " Half Separation " << HGCalDD4HepHelper::convert2mm(waferSepar);
 #endif
   const auto& layerNames = args.value<std::vector<std::string>>("LayerNames");
   const auto& materials = args.value<std::vector<std::string>>("LayerMaterials");
@@ -40,9 +38,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << layerNames.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames[i] << " of thickness "
-                                  << (f2mm * layerThick[i]) << " filled with " << materials[i] << " type "
-                                  << layerType[i];
+    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames[i] << " of thickness " << HGCalDD4HepHelper::convert2mm(layerThick[i]) << " filled with " << materials[i] << " type " << layerType[i];
 #endif
   const auto& layers = args.value<std::vector<int>>("Layers");
 #ifdef EDM_ML_DEBUG
@@ -62,7 +58,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   int counter(0);
 #endif
 
-  static constexpr double tol = 0.00001;
+  static constexpr double tol = 0.00001 * dd4hep::mm;
   static const double sqrt3 = std::sqrt(3.0);
   double rM = 0.5 * (waferSize + waferSepar);
   double RM2 = rM / sqrt3;
@@ -83,12 +79,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   dd4hep::Volume glogM = dd4hep::Volume(solid.name(), solid, matter);
   ns.addVolumeNS(glogM);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << material
-                                << " z|x|y|s (0) " << (f2mm * zw[0]) << ":" << (f2mm * zx[0]) << ":" << (f2mm * zy[0])
-                                << ":" << scale[0] << " z|x|y|s (1) " << (f2mm * zw[1]) << ":" << (f2mm * zx[1]) << ":"
-                                << (f2mm * zy[1]) << ":" << scale[1] << " and " << xM.size() << " edges";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << material << " z|x|y|s (0) " << HGCalDD4HepHelper::convert2mm(zw[0]) << ":" << HGCalDD4HepHelper::convert2mm(zx[0]) << ":" << HGCalDD4HepHelper::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) " << HGCalDD4HepHelper::convert2mm(zw[1]) << ":" << HGCalDD4HepHelper::convert2mm(zx[1]) << ":" << HGCalDD4HepHelper::convert2mm(zy[1]) << ":" << scale[1] << " and " << xM.size() << " edges";
   for (unsigned int k = 0; k < xM.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (f2mm * xM[k]) << ":" << (f2mm * yM[k]);
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCalDD4HepHelper::convert2mm(xM[k]) << ":" << HGCalDD4HepHelper::convert2mm(yM[k]);
 #endif
 
   // Then the layers
@@ -108,20 +101,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       glogs[i] = dd4hep::Volume(solid.name(), solid, matter);
       ns.addVolumeNS(glogs[i]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << materials[i]
-                                    << " z|x|y|s (0) " << (f2mm * zw[0]) << ":" << (f2mm * zx[0]) << ":"
-                                    << (f2mm * zy[0]) << ":" << scale[0] << " z|x|y|s (1) " << (f2mm * zw[1]) << ":"
-                                    << (f2mm * zx[1]) << ":" << (f2mm * zy[1]) << ":" << scale[1] << " and "
-                                    << xM.size() << " edges";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << solid.name() << " extruded polygon made of " << materials[i] << " z|x|y|s (0) " << HGCalDD4HepHelper::convert2mm(zw[0]) << ":" << HGCalDD4HepHelper::convert2mm(zx[0]) << ":" << HGCalDD4HepHelper::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) " << HGCalDD4HepHelper::convert2mm(zw[1]) << ":" << HGCalDD4HepHelper::convert2mm(zx[1]) << ":" << HGCalDD4HepHelper::convert2mm(zy[1]) << ":" << scale[1] << " and " << xM.size() << " edges";
       for (unsigned int k = 0; k < xL.size(); ++k)
-        edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (f2mm * xL[k]) << ":" << (f2mm * yL[k]);
+        edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCalDD4HepHelper::convert2mm(xL[k]) << ":" << HGCalDD4HepHelper::convert2mm(yL[k]);
 #endif
     }
     dd4hep::Position tran0(0, 0, (zi + 0.5 * layerThick[i]));
     glogM.placeVolume(glogs[i], copyNumber[i], tran0);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber[i]
-                                  << " positioned in " << glogM.name() << " at " << tran0 << " with no rotation";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber[i] << " positioned in " << glogM.name() << " at (0,0," << HGCalDD4HepHelper::convert2mm(zi + 0.5 * layerThick[i]) << ") with no rotation";
 #endif
     ++copyNumber[i];
     zi += layerThick[i];
@@ -166,9 +154,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             int copy = HGCalTypes::packCellTypeUV(cellType, u, v);
             glogs[i].placeVolume(ns.volume(cellNames[cell]), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("HGCalGeom")
-                << "DDHGCalWaferF: " << cellNames[cell] << " number " << copy << " positioned in " << glogs[i].name()
-                << " at (" << (f2mm * xp) << ", " << (f2mm * yp) << ",0)  with " << rotation;
+            edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << cellNames[cell] << " number " << copy << " positioned in " << glogs[i].name() << " at (" << HGCalDD4HepHelper::convert2mm(xp) << "," << HGCalDD4HepHelper::convert2mm(yp) << ",0)  with no rotation";
 #endif
           }
         }
