@@ -17,8 +17,6 @@
 #include "Geometry/HGCalCommonData/plugins/dd4hep/HGCalDD4HepHelper.h"
 
 //#define EDM_ML_DEBUG
-#ifdef EDM_ML_DEBUG
-#endif
 using namespace angle_units::operators;
 
 namespace DDHGCalGeom {
