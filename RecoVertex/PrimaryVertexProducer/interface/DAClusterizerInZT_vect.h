@@ -1,5 +1,5 @@
-#ifndef DAClusterizerInZT_vect_h
-#define DAClusterizerInZT_vect_h
+#ifndef RecoVertex_PrimaryVertexProducer_DAClusterizerInZT_vect_h
+#define RecoVertex_PrimaryVertexProducer_DAClusterizerInZT_vect_h
 
 /**\class DAClusterizerInZT_vect
 
@@ -29,7 +29,7 @@ public:
     std::vector<double> tpca_vec;                  // t-coordinate at point of closest approach to the beamline
     std::vector<double> dz2_vec;                   // square of the error of z(pca)
     std::vector<double> dt2_vec;                   // square of the error of t(pca)
-    std::vector<double> Z_sum_vec;                 // track contribution to the partition function, Z
+    std::vector<double> sum_Z_vec;                 // track contribution to the partition function, Z
     std::vector<double> tkwt_vec;                  // track weight, close to 1.0 for most tracks
     std::vector<unsigned int> kmin;                // index of the first cluster within zrange
     std::vector<unsigned int> kmax;                // 1 + index of the last cluster within zrange
@@ -47,7 +47,7 @@ public:
       dt2_vec.push_back(new_dt2);
       tt.push_back(new_tt);
       tkwt_vec.push_back(new_tkwt);
-      Z_sum_vec.push_back(1.0);
+      sum_Z_vec.push_back(1.0);
       kmin.push_back(0);
       kmax.push_back(0);
     }
@@ -65,7 +65,7 @@ public:
       dt2_vec.insert(dt2_vec.begin() + i, new_dt2);
       tt.insert(tt.begin() + i, new_tt);
       tkwt_vec.insert(tkwt_vec.begin() + i, new_tkwt);
-      Z_sum_vec.insert(Z_sum_vec.begin() + i, 1.0);
+      sum_Z_vec.insert(sum_Z_vec.begin() + i, 1.0);
       kmin.insert(kmin.begin() + i, 0);
       kmax.insert(kmax.begin() + i, 0);
     }
@@ -79,7 +79,7 @@ public:
       dz2 = &dz2_vec.front();
       dt2 = &dt2_vec.front();
       tkwt = &tkwt_vec.front();
-      Z_sum = &Z_sum_vec.front();
+      sum_Z = &sum_Z_vec.front();
     }
 
     // pointers to the first element of vectors, needed for vectorized code
@@ -88,7 +88,7 @@ public:
     double *__restrict__ dz2;
     double *__restrict__ dt2;
     double *__restrict__ tkwt;
-    double *__restrict__ Z_sum;
+    double *__restrict__ sum_Z;
   };
 
   // internal data structure for clusters
@@ -213,14 +213,6 @@ public:
       return k;
     }
 
-    void debugOut() {
-      std::cout << "vertex_t size: " << getSize() << std::endl;
-
-      for (unsigned int i = 0; i < getSize(); ++i) {
-        std::cout << " z = " << zvtx[i] << " t = " << tvtx[i] << " rho = " << rho[i] << std::endl;
-      }
-    }
-
     // pointers to the first element of vectors, needed for vectorized code
     double *__restrict__ zvtx;
     double *__restrict__ tvtx;
@@ -267,7 +259,7 @@ public:
   std::vector<std::vector<reco::TransientTrack> > clusterize(
       const std::vector<reco::TransientTrack> &tracks) const override;
 
-  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &tracks, const int verbosity = 0) const;
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &tracks) const;
 
   track_t fill(const std::vector<reco::TransientTrack> &tracks) const;
 
@@ -278,7 +270,8 @@ public:
   unsigned int thermalize(
       double beta, track_t &gtracks, vertex_t &gvertices, const double delta_max, const double rho0 = 0.) const;
 
-  double update(double beta, track_t &gtracks, vertex_t &gvertices, const double rho0 = 0) const;
+  double update(
+      double beta, track_t &gtracks, vertex_t &gvertices, const double rho0 = 0, const bool updateTc = false) const;
 
   void dump(const double beta, const vertex_t &y, const track_t &tks, const int verbosity = 0) const;
   bool zorder(vertex_t &y) const;
@@ -293,7 +286,6 @@ public:
   void verify(const vertex_t &v, const track_t &tks, unsigned int nv = 999999, unsigned int nt = 999999) const;
 
 private:
-  bool verbose_;
   double zdumpcenter_;
   double zdumpwidth_;
 
