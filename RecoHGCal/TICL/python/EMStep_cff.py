@@ -67,9 +67,8 @@ ticlTrackstersHFNoseEM = ticlTrackstersEM.clone(
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
     itername = "EMn",
     filter_on_categories = [0, 1],
-    min_layers_per_trackster = 6,
+    min_layers_per_trackster = 5,
     pid_threshold = 0.,
-#    energy_em_over_total_threshold = -1.,
     shower_start_max_layer = 5 ### inclusive
 )
 
