@@ -21,7 +21,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Geometry/HGCalCommonData/interface/AHCalParameters.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class DDAHcalModuleAlgo : public DDAlgorithm {
 public:
