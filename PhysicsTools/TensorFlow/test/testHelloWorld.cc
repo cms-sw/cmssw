@@ -9,8 +9,11 @@
 #include <stdexcept>
 #include <cppunit/extensions/HelperMacros.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
 #include "tensorflow/cc/saved_model/loader.h"
 #include "tensorflow/cc/saved_model/tag_constants.h"
+#pragma GCC diagnostic pop
 
 #include "testBase.h"
 

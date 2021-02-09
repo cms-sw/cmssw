@@ -9,6 +9,8 @@
 #ifndef PHYSICSTOOLS_TENSORFLOW_TENSORFLOW_H
 #define PHYSICSTOOLS_TENSORFLOW_TENSORFLOW_H
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
 #include "tensorflow/core/framework/tensor.h"
 #include "tensorflow/core/lib/core/threadpool.h"
 #include "tensorflow/core/lib/io/path.h"
@@ -18,6 +20,7 @@
 #include "tensorflow/cc/saved_model/loader.h"
 #include "tensorflow/cc/saved_model/constants.h"
 #include "tensorflow/cc/saved_model/tag_constants.h"
+#pragma GCC diagnostic pop
 
 #include "PhysicsTools/TensorFlow/interface/NoThreadPool.h"
 #include "PhysicsTools/TensorFlow/interface/TBBThreadPool.h"
