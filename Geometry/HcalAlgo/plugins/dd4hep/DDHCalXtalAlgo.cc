@@ -1,10 +1,13 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
+#ifdef EDM_ML_DEBUG
+#include "Geometry/HcalAlgo/plugins/dd4hep/HcalDD4HepHelper.h"
+#endif
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -20,10 +23,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   std::vector<std::string> names = args.value<std::vector<std::string> >("Names");  //Names for rotation matrices
   std::string idName = args.value<std::string>("ChildName");                        //Children name
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo::Parameters for positioning:"
-                               << " Axis " << iaxis << "\tRadius " << convertCmToMm(radius) << "\tOffset " << offset
-                               << "\tDx " << convertCmToMm(dx) << "\tDz " << convertCmToMm(dz) << "\tAngWidth "
-                               << convertRadToDeg(angwidth) << "\tNumbers " << names.size();
+  edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo::Parameters for positioning: Axis " << iaxis << "\tRadius "
+                               << HcalDD4HepHelper::convert2mm(radius) << "\tOffset " << offset << "\tDx "
+                               << HcalDD4HepHelper::convert2mm(dx) << "\tDz " << HcalDD4HepHelper::convert2mm(dz)
+                               << "\tAngWidth " << convertRadToDeg(angwidth) << "\tNumbers " << names.size();
   for (unsigned int i = 0; i < names.size(); i++)
     edm::LogVerbatim("HCalGeom") << "\tnames[" << i << "] = " << names[i];
   edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: Parent " << args.parentName() << "\tChild " << idName
@@ -70,11 +73,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     parent.placeVolume(glog, i + 1, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: " << glog.name() << " number " << i + 1 << " positioned in "
-                                 << parent.name() << " at " << tran << " with " << rotation;
+                                 << parent.name() << " at (" << HcalDD4HepHelper::convert2mm(pos[0]) << ","
+                                 << HcalDD4HepHelper::convert2mm(pos[1]) << "," << HcalDD4HepHelper::convert2mm(pos[2])
+                                 << " with " << rotation;
 #endif
   }
 
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file
