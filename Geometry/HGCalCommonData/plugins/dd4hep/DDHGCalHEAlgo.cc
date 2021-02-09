@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
@@ -21,7 +21,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 struct HGCalHEAlgo {
   HGCalHEAlgo() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalHEAlgo"; }
@@ -235,8 +235,7 @@ struct HGCalHEAlgo {
             }
           }
 
-          dd4hep::Solid solid =
-              dd4hep::Polyhedra(sectors_, -alpha_, 2. * cms_units::piRadians, pgonZ, pgonRin, pgonRout);
+          dd4hep::Solid solid = dd4hep::Polyhedra(sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
@@ -253,7 +252,7 @@ struct HGCalHEAlgo {
               (sensitiveMode_ < 1) ? rinB : HGCalGeomTools::radius(zz + hthick, zFrontB_, rMinFront_, slopeB_);
           double routs =
               (sensitiveMode_ < 1) ? routF : HGCalGeomTools::radius(zz - hthick, zFrontT_, rMaxFront_, slopeT_);
-          dd4hep::Solid solid = dd4hep::Tube(rins, routs, hthick, 0.0, 2. * cms_units::piRadians);
+          dd4hep::Solid solid = dd4hep::Tube(rins, routs, hthick, 0.0, 2._pi);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
@@ -326,7 +325,7 @@ struct HGCalHEAlgo {
     // Make the top part first
     std::string name = nameM + "Top";
 
-    dd4hep::Solid solid = dd4hep::Tube(rmid, rout, hthick, 0.0, 2. * cms_units::piRadians);
+    dd4hep::Solid solid = dd4hep::Tube(rmid, rout, hthick, 0.0, 2._pi);
     ns.addSolidNS(ns.prepend(name), solid);
     glog1 = dd4hep::Volume(solid.name(), solid, matter);
     ns.addVolumeNS(glog1);
@@ -354,7 +353,7 @@ struct HGCalHEAlgo {
 #endif
 
       dd4hep::Material matter1 = ns.material(materialsTop_[ii]);
-      solid = dd4hep::Tube(rmid, rout, hthickl, 0.0, 2. * cms_units::piRadians);
+      solid = dd4hep::Tube(rmid, rout, hthickl, 0.0, 2._pi);
       ns.addSolidNS(ns.prepend(name), solid);
       dd4hep::Volume glog2 = dd4hep::Volume(solid.name(), solid, matter1);
       ns.addVolumeNS(glog2);
@@ -394,7 +393,7 @@ struct HGCalHEAlgo {
     // Make the bottom part next
     name = nameM + "Bottom";
 
-    solid = dd4hep::Tube(rin, rmid, hthick, 0.0, 2. * cms_units::piRadians);
+    solid = dd4hep::Tube(rin, rmid, hthick, 0.0, 2._pi);
     ns.addSolidNS(ns.prepend(name), solid);
     glog1 = dd4hep::Volume(solid.name(), solid, matter);
     ns.addVolumeNS(glog1);
@@ -424,7 +423,7 @@ struct HGCalHEAlgo {
 #endif
 
       dd4hep::Material matter1 = ns.material(materialsBot_[ii]);
-      solid = dd4hep::Tube(rin, rmid, hthickl, 0.0, 2. * cms_units::piRadians);
+      solid = dd4hep::Tube(rin, rmid, hthickl, 0.0, 2._pi);
       ns.addSolidNS(ns.prepend(name), solid);
       dd4hep::Volume glog2 = dd4hep::Volume(solid.name(), solid, matter1);
       ns.addVolumeNS(glog2);

@@ -16,12 +16,12 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 struct HGCalHEFileAlgo {
   HGCalHEFileAlgo() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalHEFileAlgo"; }
