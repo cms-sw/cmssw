@@ -11,7 +11,7 @@ l1tdeCSCTPG = DQMEDAnalyzer(
     emulLCT = cms.InputTag("valCscTriggerPrimitiveDigis", "MPCSORTED"),
     monitorDir = cms.string("L1TEMU/L1TdeCSCTPG"),
     verbose = cms.bool(False),
-    chambers = cms.vstring("ME11", "ME12", "ME13", "ME21", "ME22",
+    chambers = cms.vstring("ME11a", "ME11b", "ME12", "ME13", "ME21", "ME22",
                            "ME31", "ME32", "ME41", "ME42"),
     dataEmul = cms.vstring("data","emul"),
     alctVars = cms.vstring("quality", "wiregroup", "bx"),
