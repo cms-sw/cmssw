@@ -1,6 +1,6 @@
 from collections import namedtuple
 from .offline_config import LAYOUTS as offline_layouts
-from  .online_config import LAYOUTS as online_layouts
+from .online_config import LAYOUTS as online_layouts
 
 def register_layout(plot):
     LayoutManager.add_layout(plot)
@@ -13,6 +13,7 @@ class LayoutManager:
 
   @classmethod
   def get_layouts(cls, dataset):
+    print(cls.__online_layouts)
     if dataset == '/Global/Online/ALL':
       return cls.__online_layouts
     else:
@@ -29,7 +30,7 @@ class LayoutManager:
     layout = Layout._make(values)
     if not layout or not layout.source or not layout.destination or not layout.name:
         raise Exception('source, destination and name has to be provided for the layout.')
-    if layout_object['file_path'] in online_layouts:
+    if layout_object['file_path'] in online_layouts or layout_object['destination'].split('/')[0] == 'Summary':
         cls.__online_layouts.append(layout)
     elif layout_object['file_path'] in offline_layouts:
         cls.__offline_layouts.append(layout)

@@ -70,7 +70,7 @@ async def index(request):
     return web.FileResponse(get_absolute_path('../frontend/index.html'))
 
 async def overlayPlotsWithDifferentNames(request):
-    return web.FileResponse(get_absolute_path('../frontend/plotsLocalOverlay/index.html'))
+    return web.FileResponse(get_absolute_path('../frontend/plotsLocalOverlay.html'))
 
 @getNotOlderThanFromUrl
 async def samples_legacy(request, notOlderThan):
@@ -416,8 +416,8 @@ def config_and_start_webserver(port):
 
     # Version 1 API routes
     app.add_routes([web.get('/api/v1/samples', samples_v1),
-                    web.get('/api/v1/layouts', layouts_v1),
                     web.get('/plotsLocalOverlay', overlayPlotsWithDifferentNames),
+                    web.get('/api/v1/layouts', layouts_v1),
                     web.get(r'/api/v1/archive/{run}/{path:.+}', archive_v1),
                     web.get(r'/api/v1/render/{run}/{path:.+}', render_v1),
                     web.get('/api/v1/render_overlay', render_overlay_v1),
@@ -430,7 +430,6 @@ def config_and_start_webserver(port):
 
     # Routes for HTML files
     app.add_routes([web.get('/', index), web.static('/', get_absolute_path('../frontend/'), show_index=True)])
-
     app.on_shutdown.append(on_shutdown)
 
     web.run_app(app, port=port)
