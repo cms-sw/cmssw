@@ -53,7 +53,6 @@ filteredLayerClustersHFNoseTrkEM = filteredLayerClustersTrkEM.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
     LayerClustersInputMask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask"),
     min_cluster_size = 2, # inclusive
-    #    max_layerId = 30, # inclusive
     algo_number = 9,
     iteration_label = "TrkEMn"
 )
@@ -65,22 +64,13 @@ ticlTrackstersHFNoseTrkEM = ticlTrackstersTrkEM.clone(
     original_mask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask"),
     filtered_mask = cms.InputTag("filteredLayerClustersHFNoseTrkEM", "TrkEMn"),
     seeding_regions = "ticlSeedingTrkHFNose",
-    filter_on_categories = [0, 1],
-    pid_threshold = 0.,
-#    energy_em_over_total_threshold = 0.9,
-#    max_longitudinal_sigmaPCA = 10,
-    shower_start_max_layer = 5, #inclusive
-#    max_out_in_hops = 1,
-#    max_missing_layers_in_trackster = 2,
-#    skip_layers = 2,
-    min_layers_per_trackster = 6,
-#    min_cos_theta = 0.97,  # ~14 degrees
-#    min_cos_pointing = 0.94, # ~20 degrees
-#    root_doublet_max_distance_from_seed_squared = 2.5e-3, # dR=0.05
-#    max_delta_time = 3.,
-    itername = "TrkEMn",
-#    algo_verbosity = 0,
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    itername = "TrkEMn",
+    filter_on_categories = [0, 1],
+    min_layers_per_trackster = 5,
+    pid_threshold = 0.,
+    shower_start_max_layer = 5 #inclusive
+
 )
 
 ticlHFNoseTrkEMStepTask = cms.Task(ticlSeedingTrkHFNose
