@@ -188,6 +188,7 @@ struct TkObj {
   int intPt() const { return Scales::intPt(hwPt); }
   int intEta() const { return hwEta.to_int(); }
   int intPhi() const { return hwPhi.to_int(); }
+  int intCharge() const { return hwCharge ? +1 : -1; }
   float floatPt() const { return Scales::floatPt(hwPt); }
   float floatEta() const { return Scales::floatEta(hwEta); }
   float floatPhi() const { return Scales::floatPhi(hwPhi); }
@@ -279,6 +280,7 @@ struct MuObj {
   int intPt() const { return Scales::intPt(hwPt); }
   int intEta() const { return hwEta.to_int(); }
   int intPhi() const { return hwPhi.to_int(); }
+  int intCharge() const { return hwCharge ? +1 : -1; }
   float floatPt() const { return Scales::floatPt(hwPt); }
   float floatEta() const { return Scales::floatEta(hwEta); }
   float floatPhi() const { return Scales::floatPhi(hwPhi); }

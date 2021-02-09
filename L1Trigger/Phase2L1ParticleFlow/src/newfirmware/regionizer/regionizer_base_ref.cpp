@@ -58,4 +58,10 @@ void l1ct::RegionizerEmulator::run(const RegionizerDecodedInputs & in, std::vect
         }
     }
 
+    for (auto & r : out) {
+        std::sort(r.track.begin(), r.track.end(), [](const l1ct::TkObjEmu & a, const l1ct::TkObjEmu & b) { return a.hwPt > b.hwPt; });
+        std::sort(r.hadcalo.begin(), r.hadcalo.end(), [](const l1ct::HadCaloObjEmu & a, const l1ct::HadCaloObjEmu & b) { return a.hwPt > b.hwPt; });
+        std::sort(r.emcalo.begin(), r.emcalo.end(), [](const l1ct::EmCaloObjEmu & a, const l1ct::EmCaloObjEmu & b) { return a.hwPt > b.hwPt; });
+        std::sort(r.muon.begin(), r.muon.end(), [](const l1ct::MuObjEmu & a, const l1ct::MuObjEmu & b) { return a.hwPt > b.hwPt; });
+    }
 }

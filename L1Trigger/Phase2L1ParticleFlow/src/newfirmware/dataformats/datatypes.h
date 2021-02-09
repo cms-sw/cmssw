@@ -68,7 +68,10 @@ struct ParticleID {
   }
   bool charged() const { return bits[1] || bits[2]; };
   bool neutral() const { return !charged(); }
+  int intCharge() const { return charged() ? (charge() ? +1 : -1) : 0; }
+
   void clear() { bits = 0; }
+
 
   static ParticleID mkChHad(bool charge) {
     return ParticleID(charge ? HADPLUS : HADMINUS);
@@ -138,7 +141,7 @@ namespace Scales {
 
     inline pt_t makePt(int pt) { return ap_ufixed<16,14>(pt) >> 2; }
     inline dpt_t makeDPt(int dpt) { return ap_fixed<18,16>(dpt) >> 2; }
-    inline pt_t makePtFromFloat(float pt) { return pt_t(pt); }
+    inline pt_t makePtFromFloat(float pt) { return pt_t(0.25*round(pt*4)); }
     inline dpt_t makeDPtFromFloat(float dpt) { return dpt_t(dpt); }
     inline z0_t makeZ0(float z0) { return z0_t(round(z0/  Z0_LSB)); }
 

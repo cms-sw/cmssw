@@ -21,6 +21,7 @@ struct PFCommonObj {
   int intId() const { return hwId.rawId(); }
   int oldId() const { return hwPt > 0 ? hwId.oldId() : 0; }
   int pdgId() const { return hwId.pdgId(); }
+  int intCharge() const { return hwId.intCharge(); }
 
   static const int _PFCOMMON_BITWIDTH = pt_t::width + eta_t::width + phi_t::width + 3;
   template<typename U>
