@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
@@ -23,7 +23,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 struct HGCalEEAlgo {
   HGCalGeomTools geomTools_;
@@ -274,8 +274,7 @@ struct HGCalEEAlgo {
             }
           }
 
-          dd4hep::Solid solid =
-              dd4hep::Polyhedra(sectors_, -alpha_, 2. * cms_units::piRadians, pgonZ, pgonRin, pgonRout);
+          dd4hep::Solid solid = dd4hep::Polyhedra(sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
