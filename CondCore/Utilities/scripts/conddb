@@ -36,6 +36,7 @@ from CondCore.Utilities.tier0 import Tier0Handler, Tier0Error, tier0Url
 # TODO: Support the old connection string syntax, e.g. sqlite_file://...
 
 maxSince = 18446744073709551615
+sizeOfTimestamp = 19
 
 # Utility functions
 
@@ -1200,13 +1201,84 @@ def listRuns_(args):
     connection = connect(args)
     session = connection.session()
     RunInfo = session.get_dbtype(conddb.RunInfo)
-    table = session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).\
-            order_by(RunInfo.run_number).\
-            all()
+    fromRun = None
+    toRun = None
+    match = args.match
+    limit = None
+    if args.last:
+        match = session.query(sqlalchemy.func.max(RunInfo.run_number)).one()[0]
+    if match is None:
+        fromTime = getattr(args, 'from')
+        if fromTime is not None:
+            fromTime = unicode(fromTime,'utf-8')
+            fromRun = fromTime
+            start = None
+            if fromTime.isnumeric():
+                if len(fromTime) >=  sizeOfTimestamp:
+                    start = datetime.datetime.utcfromtimestamp( int(fromTime) >> 32 )
+            else:
+                start = datetime.datetime.strptime(fromTime,'%Y-%m-%d %H:%M:%S')
+            if start is not None:
+                fromRun = session.query(sqlalchemy.func.min(RunInfo.run_number)).filter(RunInfo.end_time > start).one()[0]
+                logging.debug('run lower boundary: %s (%s)'%(fromRun, start.strftime('%Y-%m-%d %H:%M:%S')))
+        toTime = getattr(args, 'to')
+        if toTime is not None:   
+            toTime = unicode(toTime,'utf-8')
+            toRun = toTime
+            end = None
+            if toTime.isnumeric():
+                if len(toTime) >=  sizeOfTimestamp:
+                    end = datetime.datetime.utcfromtimestamp( int(toTime) >> 32 )
+            else:
+                end=datetime.datetime.strptime(toTime,'%Y-%m-%d %H:%M:%S')
+            if end is not None:
+                toRun = session.query(sqlalchemy.func.max(RunInfo.run_number)).filter(RunInfo.start_time < end).one()[0]
+                logging.debug('run upper boundary: %s (%s)' %(toRun,end.strftime('%Y-%m-%d %H:%M:%S')))
+    q = session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time)
+    sel = False
+    if match is not None:
+        q = q.filter(RunInfo.run_number == match)
+    else:
+        if fromRun is not None:
+            q = q.filter(RunInfo.run_number >= fromRun)
+            sel = True
+        if toRun is not None:
+            q = q.filter(RunInfo.run_number <= toRun)
+            sel = True
+        if not sel and args.limit is not None:
+            limit = args.limit
+            q = q.order_by(RunInfo.run_number.desc())
+            q = q.limit(limit)
+            q = q.from_self()
+    table = q.order_by(RunInfo.run_number).all()
+    if len(table)==0:
+        sel = ''
+        msg = 'No Run found'
+        if args.match is not None:
+            sel = 'matching Run=%s' %args.match
+        else:
+            fromTime = getattr(args, 'from')
+            if fromTime is not None:
+                sel = "with from='%s'"%fromTime
+            if args.to is not None:
+                if len(sel):
+                    sel = sel +' and '
+                else:
+                    sel = 'with '
+                sel = sel + "to='%s'"%args.to
+        msg = msg + ' %s'%sel
+        print(msg)
+        return 1
+    else:
+        if limit is not None:
+            logging.info('Run entries limited to %s'%limit)
+        else:
+            logging.info('Found %s Run entries.'%len(table))
     for i in range(len(table)):
         table[i] = table[i] + ( (calendar.timegm( table[i][1].utctimetuple() ) << 32), (calendar.timegm( table[i][2].utctimetuple() ) << 32) )
     output_table(args, table, ['Run_number','Start_time','End_time','Start_IOV','End_IOV'],
     )
+    return 0
 
 def showFcsr_(args):
     connection = connect(args)
@@ -1992,7 +2064,7 @@ def edit(args):
                     editMatch = editRe.match(line)
                     if editMatch:
                         description,synchronization,endOfValidity = editMatch.groups()
-                        if synchronization not in tuple(conddb.Synchronization):
+                        if synchronization not in conddb.synch_list:
                             raise Exception('Invalid Synchronization value set: "%s"' %synchronization )
                         if int(endOfValidity)< -1:
                             raise Exception('Invalid End Of Validity set: "%s"' %endOfValidity ) 
@@ -2444,7 +2516,12 @@ def main():
     parser_listGTs = parser_subparsers.add_parser('listGTs', description='Lists the GTs available in the DB.')
     parser_listGTs.set_defaults(func=listGTs_)
 
-    parser_listRuns = parser_subparsers.add_parser('listRuns', description='Lists all the Runs available in the DB.')
+    parser_listRuns = parser_subparsers.add_parser('listRuns', description='Lists all the Runs available in the DB, possibly applying the optional search criteria.')
+    parser_listRuns.add_argument('--limit','-L',type=int,default=50,help='Limit on the number of Run entries returned. The returned results are the latest N Runs. Only applies when no selection is specified.')
+    parser_listRuns.add_argument('--from', '-f', type=str, help='Select items from this "Time" onwards. Supported "Time" formats: Run, encoded TimeStamp, string TimeStamp (format: YYYY-mm-dd hh24:MM:SS)')
+    parser_listRuns.add_argument('--to', '-t', type=str, help='Ignore items from this "Time" onwards. Supported "Time" formats: Run, encoded TimeStamp, string TimeStamp (format: YYYY-mm-dd hh24:MM:SS)')
+    parser_listRuns.add_argument('--match', '-m', type=int, help='Search an exact match with this Run.')
+    parser_listRuns.add_argument('--last','-l', action='store_true', help='Select the last available Run entry.')
     parser_listRuns.set_defaults(func=listRuns_)
 
     parser_diff = parser_subparsers.add_parser('diff', description='Compares the contents of two objects. For tags, their IOVs are compared to determine which ranges have different payloads. For global tags, their tag names are compared. Both objects must be of the same type. If there is more than one valid pair (ambiguity), all diffs are listed.')
