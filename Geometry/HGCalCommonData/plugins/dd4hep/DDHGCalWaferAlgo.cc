@@ -1,11 +1,11 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
 #ifdef EDM_ML_DEBUG

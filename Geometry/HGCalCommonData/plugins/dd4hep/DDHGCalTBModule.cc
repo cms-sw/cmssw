@@ -1,4 +1,4 @@
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,7 +12,7 @@
 #ifdef EDM_ML_DEBUG
 #include <unordered_set>
 #endif
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   static constexpr double f2mm = (1.0 / dd4hep::mm);
@@ -136,7 +136,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                       << (f2mm * absorbW) << ":" << (f2mm * absorbH) << ":" << (f2mm * 0.5 * thick[ii]);
 #endif
       } else {
-        dd4hep::Solid solid = dd4hep::Tube(rinB, routF, 0.5 * thick[ii], 0.0, 2 * cms_units::piRadians);
+        dd4hep::Solid solid = dd4hep::Tube(rinB, routF, 0.5 * thick[ii], 0.0, 2._pi);
         ns.addSolidNS(ns.prepend(name), solid);
         glog = dd4hep::Volume(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG

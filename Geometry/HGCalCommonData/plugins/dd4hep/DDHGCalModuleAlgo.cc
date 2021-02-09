@@ -5,7 +5,7 @@
  *      Author: Sunanda Banerjee
  */
 
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,7 +19,7 @@
 #ifdef EDM_ML_DEBUG
 #include <unordered_set>
 #endif
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -116,7 +116,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       dd4hep::Material matter = ns.material(materials[ii]);
       dd4hep::Volume glog;
       if (layerSense[ly] == 0) {
-        double alpha = cms_units::piRadians / sectors;
+        double alpha = 1._pi / sectors;
         double rmax = routF * cos(alpha) - tol;
         std::vector<double> pgonZ, pgonRin, pgonRout;
         pgonZ.emplace_back(-0.5 * thick[ii]);
@@ -125,7 +125,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         pgonRin.emplace_back(rinB);
         pgonRout.emplace_back(rmax);
         pgonRout.emplace_back(rmax);
-        dd4hep::Solid solid = dd4hep::Polyhedra(sectors, -alpha, 2 * cms_units::piRadians, pgonZ, pgonRin, pgonRout);
+        dd4hep::Solid solid = dd4hep::Polyhedra(sectors, -alpha, 2._pi, pgonZ, pgonRin, pgonRout);
         ns.addSolidNS(ns.prepend(name), solid);
         glog = dd4hep::Volume(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
@@ -137,7 +137,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         << ":" << (f2mm * pgonRout[k]);
 #endif
       } else {
-        dd4hep::Solid solid = dd4hep::Tube(0.5 * thick[ii], rinB, routF, 0.0, 2 * cms_units::piRadians);
+        dd4hep::Solid solid = dd4hep::Tube(0.5 * thick[ii], rinB, routF, 0.0, 2._pi);
         ns.addSolidNS(ns.prepend(name), solid);
         glog = dd4hep::Volume(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
