@@ -96,10 +96,12 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = dataALCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 1;
     for (auto alct = range.first; alct != range.second; alct++) {
-      if (type>8) continue;
+      if (type > 9) continue;
+      std::cout << "alct analyze loop started" << std::endl;
       chamberHistos[type]["alct_quality_data"]->Fill(alct->getQuality());
       chamberHistos[type]["alct_wiregroup_data"]->Fill(alct->getKeyWG());
       chamberHistos[type]["alct_bx_data"]->Fill(alct->getBX());
+      std::cout << "alct a loop ended" << std::endl;
     }
   }
 
@@ -107,7 +109,8 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = emulALCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 1;
     for (auto alct = range.first; alct != range.second; alct++) {
-      if (type > 8) continue;
+      if (type > 9) continue;
+      std::cout << "emulALCT analyze loop started" << std::endl;
       chamberHistos[type]["alct_quality_emul"]->Fill(alct->getQuality());
       chamberHistos[type]["alct_wiregroup_emul"]->Fill(alct->getKeyWG());
       chamberHistos[type]["alct_bx_emul"]->Fill(alct->getBX());
@@ -118,7 +121,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = dataCLCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 1;
     for (auto clct = range.first; clct != range.second; clct++) {
-      if (type > 8) continue;
+      if (type > 9) continue;
       chamberHistos[type]["clct_pattern_data"]->Fill(clct->getPattern());
       chamberHistos[type]["clct_quality_data"]->Fill(clct->getQuality());
       chamberHistos[type]["clct_halfstrip_data"]->Fill(clct->getKeyStrip());
@@ -131,7 +134,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = emulCLCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 1;
     for (auto clct = range.first; clct != range.second; clct++) {
-      if (type > 8) continue;
+      if (type > 9) continue;
       chamberHistos[type]["clct_pattern_emul"]->Fill(clct->getPattern());
       chamberHistos[type]["clct_quality_emul"]->Fill(clct->getQuality());
       chamberHistos[type]["clct_halfstrip_emul"]->Fill(clct->getKeyStrip());
@@ -144,7 +147,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = dataLCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 1;
     for (auto lct = range.first; lct != range.second; lct++) {
-      if (type > 8) continue;
+      if (type > 9) continue;
       chamberHistos[type]["lct_pattern_data"]->Fill(lct->getCLCTPattern());
       chamberHistos[type]["lct_quality_data"]->Fill(lct->getQuality());
       chamberHistos[type]["lct_wiregroup_data"]->Fill(lct->getKeyWG());
@@ -158,7 +161,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
     auto range = emulLCTs->get((*it).first);
     const int type = ((*it).first).iChamberType() - 1;
     for (auto lct = range.first; lct != range.second; lct++) {
-      if (type > 8) continue;
+      if (type > 9) continue;
       chamberHistos[type]["lct_pattern_emul"]->Fill(lct->getCLCTPattern());
       chamberHistos[type]["lct_quality_emul"]->Fill(lct->getQuality());
       chamberHistos[type]["lct_wiregroup_emul"]->Fill(lct->getKeyWG());
