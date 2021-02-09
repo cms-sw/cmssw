@@ -398,11 +398,11 @@ double DAClusterizerInZT_vect::update(
     return ZTemp;
   };
 
-  auto kernel_calc_normalization_range = [beta, updateTc](const unsigned int track_num,
-                                                          track_t& tracks,
-                                                          vertex_t& vertices,
-                                                          const unsigned int kmin,
-                                                          const unsigned int kmax) {
+  auto kernel_calc_normalization_range = [updateTc](const unsigned int track_num,
+                                                    track_t& tracks,
+                                                    vertex_t& vertices,
+                                                    const unsigned int kmin,
+                                                    const unsigned int kmax) {
     auto tmp_trk_tkwt = tracks.tkwt[track_num];
     auto o_trk_sum_Z = 1. / tracks.sum_Z[track_num];
     auto o_trk_err_z = tracks.dz2[track_num];
