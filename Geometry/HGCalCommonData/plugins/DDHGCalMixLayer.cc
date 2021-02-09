@@ -46,12 +46,12 @@ public:
 protected:
   void constructLayers(const DDLogicalPart&, DDCompactView& cpv);
   void positionMix(const DDLogicalPart& glog,
-		   const std::string& nameM,
-		   int copyM,
-		   double thick,
-		   const DDMaterial& matter,
-		   int layerType,
-		   DDCompactView& cpv);
+                   const std::string& nameM,
+                   int copyM,
+                   double thick,
+                   const DDMaterial& matter,
+                   int layerType,
+                   DDCompactView& cpv);
 
 private:
   HGCalGeomTools geomTools_;
@@ -59,50 +59,50 @@ private:
   static constexpr double tol1_ = 0.01;
   static constexpr double tol2_ = 0.00001;
 
-  int waferTypes_;                       // Number of wafer types
-  int facingTypes_;                      // Types of facings of modules toward IP
-  int partialTypes_;                     // Number of partial wafer types
-  int orientationTypes_;                 // Number of partial wafer orienations
-  int phiBinsScint_;                     // Maximum number of cells along phi
-  int firstLayer_;                       // Copy # of the first sensitive layer
-  int absorbMode_;                       // Absorber mode
-  int sensitiveMode_;                    // Sensitive mode
-  double zMinBlock_;                     // Starting z-value of the block
-  double waferSize_;                     // Width of the wafer
-  double waferSepar_;                    // Sensor separation
-  int sectors_;                          // Sectors
-  std::vector<double> slopeB_;           // Slope at the lower R
-  std::vector<double> zFrontB_;          // Starting Z values for the slopes
-  std::vector<double> rMinFront_;        // Corresponding rMin's
-  std::vector<double> slopeT_;           // Slopes at the larger R
-  std::vector<double> zFrontT_;          // Starting Z values for the slopes
-  std::vector<double> rMaxFront_;        // Corresponding rMax's
-  std::vector<std::string> waferFull_;   // Names of full wafer modules
-  std::vector<std::string> waferPart_;   // Names of partial wafer modules
-  std::vector<std::string> materials_;   // Materials
-  std::vector<std::string> names_;       // Names
-  std::vector<double> thick_;            // Thickness of the material
-  std::vector<int> copyNumber_;          // Initial copy numbers
-  std::vector<int> layers_;              // Number of layers in a section
-  std::vector<double> layerThick_;       // Thickness of each section
-  std::vector<int> layerType_;           // Type of the layer
-  std::vector<int> layerSense_;          // Content of a layer (sensitive?)
-  std::vector<std::string> materialTop_; // Materials of top layers
-  std::vector<std::string> namesTop_;    // Names of top layers
-  std::vector<double> layerThickTop_;    // Thickness of the top sections
-  std::vector<int> layerTypeTop_;        // Type of the Top layer
-  std::vector<int> copyNumberTop_;       // Initial copy numbers (top section)
-  std::vector<int> layerCenter_;         // Centering of the wafers
-  std::vector<int> waferIndex_;          // Wafer index for the types
-  std::vector<int> waferProperty_;       // Wafer property
-  std::vector<int> waferLayerStart_;     // Start index of wafers in each layer
-  std::vector<double> tileRMin_;         // Minimum radius of each ring
-  std::vector<double> tileRMax_;         // Maximum radius of each ring
-  std::vector<int> tileIndex_;           // Index of tile (layer/start|end ring)
-  std::vector<int> tilePhis_;            // Tile phi range for each index
-  std::vector<int> tileLayerStart_;      // Start index of tiles in each layer
-  std::string nameSpace_;                // Namespace of this and ALL sub-parts
-  std::unordered_set<int> copies_;       // List of copy #'s
+  int waferTypes_;                        // Number of wafer types
+  int facingTypes_;                       // Types of facings of modules toward IP
+  int partialTypes_;                      // Number of partial wafer types
+  int orientationTypes_;                  // Number of partial wafer orienations
+  int phiBinsScint_;                      // Maximum number of cells along phi
+  int firstLayer_;                        // Copy # of the first sensitive layer
+  int absorbMode_;                        // Absorber mode
+  int sensitiveMode_;                     // Sensitive mode
+  double zMinBlock_;                      // Starting z-value of the block
+  double waferSize_;                      // Width of the wafer
+  double waferSepar_;                     // Sensor separation
+  int sectors_;                           // Sectors
+  std::vector<double> slopeB_;            // Slope at the lower R
+  std::vector<double> zFrontB_;           // Starting Z values for the slopes
+  std::vector<double> rMinFront_;         // Corresponding rMin's
+  std::vector<double> slopeT_;            // Slopes at the larger R
+  std::vector<double> zFrontT_;           // Starting Z values for the slopes
+  std::vector<double> rMaxFront_;         // Corresponding rMax's
+  std::vector<std::string> waferFull_;    // Names of full wafer modules
+  std::vector<std::string> waferPart_;    // Names of partial wafer modules
+  std::vector<std::string> materials_;    // Materials
+  std::vector<std::string> names_;        // Names
+  std::vector<double> thick_;             // Thickness of the material
+  std::vector<int> copyNumber_;           // Initial copy numbers
+  std::vector<int> layers_;               // Number of layers in a section
+  std::vector<double> layerThick_;        // Thickness of each section
+  std::vector<int> layerType_;            // Type of the layer
+  std::vector<int> layerSense_;           // Content of a layer (sensitive?)
+  std::vector<std::string> materialTop_;  // Materials of top layers
+  std::vector<std::string> namesTop_;     // Names of top layers
+  std::vector<double> layerThickTop_;     // Thickness of the top sections
+  std::vector<int> layerTypeTop_;         // Type of the Top layer
+  std::vector<int> copyNumberTop_;        // Initial copy numbers (top section)
+  std::vector<int> layerCenter_;          // Centering of the wafers
+  std::vector<int> waferIndex_;           // Wafer index for the types
+  std::vector<int> waferProperty_;        // Wafer property
+  std::vector<int> waferLayerStart_;      // Start index of wafers in each layer
+  std::vector<double> tileRMin_;          // Minimum radius of each ring
+  std::vector<double> tileRMax_;          // Maximum radius of each ring
+  std::vector<int> tileIndex_;            // Index of tile (layer/start|end ring)
+  std::vector<int> tilePhis_;             // Tile phi range for each index
+  std::vector<int> tileLayerStart_;       // Start index of tiles in each layer
+  std::string nameSpace_;                 // Namespace of this and ALL sub-parts
+  std::unordered_set<int> copies_;        // List of copy #'s
   double alpha_, cosAlpha_;
 };
 
@@ -113,23 +113,27 @@ DDHGCalMixLayer::DDHGCalMixLayer() {
 }
 
 void DDHGCalMixLayer::initialize(const DDNumericArguments& nArgs,
-				 const DDVectorArguments& vArgs,
-				 const DDMapArguments&,
-				 const DDStringArguments& sArgs,
-				 const DDStringVectorArguments& vsArgs) {
+                                 const DDVectorArguments& vArgs,
+                                 const DDMapArguments&,
+                                 const DDStringArguments& sArgs,
+                                 const DDStringVectorArguments& vsArgs) {
   waferTypes_ = static_cast<int>(nArgs["WaferTypes"]);
   facingTypes_ = static_cast<int>(nArgs["FacingTypes"]);
   partialTypes_ = static_cast<int>(nArgs["PartialTypes"]);
   orientationTypes_ = static_cast<int>(nArgs["OrientationTypes"]);
-  phiBinsScint_  = static_cast<int>(nArgs["NPhiBinScint"]);
+  phiBinsScint_ = static_cast<int>(nArgs["NPhiBinScint"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer::Number of types of wafers: " << waferTypes_ << " facings: " << facingTypes_   << " partials: " << partialTypes_ << " Orientations: " << orientationTypes_ << "; number of cells along phi " << phiBinsScint_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer::Number of types of wafers: " << waferTypes_
+                                << " facings: " << facingTypes_ << " partials: " << partialTypes_
+                                << " Orientations: " << orientationTypes_ << "; number of cells along phi "
+                                << phiBinsScint_;
 #endif
   firstLayer_ = (int)(nArgs["FirstLayer"]);
   absorbMode_ = (int)(nArgs["AbsorberMode"]);
   sensitiveMode_ = (int)(nArgs["SensitiveMode"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer::First Layer " << firstLayer_ << " and " << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer::First Layer " << firstLayer_ << " and "
+                                << "Absober:Sensitive mode " << absorbMode_ << ":" << sensitiveMode_;
 #endif
   zMinBlock_ = nArgs["zMinBlock"];
   waferSize_ = nArgs["waferSize"];
@@ -156,27 +160,28 @@ void DDHGCalMixLayer::initialize(const DDNumericArguments& nArgs,
     edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << zFrontT_[i] << " Rmax " << rMaxFront_[i]
                                   << " Slope " << slopeT_[i];
 #endif
-   waferFull_ = vsArgs["WaferNamesFull"];
-   waferPart_ = vsArgs["WaferNamesPartial"];
+  waferFull_ = vsArgs["WaferNamesFull"];
+  waferPart_ = vsArgs["WaferNamesPartial"];
 #ifdef EDM_ML_DEBUG
-   edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << waferFull_.size() << " full and " << waferPart_.size() << " partial modules\nDDHGCalMixLayer:Full Modules:";
-   unsigned int i1max = static_cast<unsigned int>(waferFull_.size());
-   for (unsigned int i1 = 0; i1 < i1max; i1 += 2) {
-     std::ostringstream st1;
-     unsigned int i2 = std::min((i1 + 2), i1max);
-     for (unsigned int i = i1; i < i2; ++i)
-       st1 << " [" << i << "] " << waferFull_[i];
-     edm::LogVerbatim("HGCalGeom") << st1.str() << std::endl;
-   }
-   edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Partial Modules:";
-   i1max = static_cast<unsigned int>(waferPart_.size());
-   for (unsigned int i1 = 0; i1 < i1max; i1 += 2) {
-     std::ostringstream st1;
-     unsigned int i2 = std::min((i1 + 2), i1max);
-     for (unsigned int i = i1; i < i2; ++i)
-       st1 << " [" << i << "] " << waferPart_[i];
-     edm::LogVerbatim("HGCalGeom") << st1.str() << std::endl;
-   }
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << waferFull_.size() << " full and " << waferPart_.size()
+                                << " partial modules\nDDHGCalMixLayer:Full Modules:";
+  unsigned int i1max = static_cast<unsigned int>(waferFull_.size());
+  for (unsigned int i1 = 0; i1 < i1max; i1 += 2) {
+    std::ostringstream st1;
+    unsigned int i2 = std::min((i1 + 2), i1max);
+    for (unsigned int i = i1; i < i2; ++i)
+      st1 << " [" << i << "] " << waferFull_[i];
+    edm::LogVerbatim("HGCalGeom") << st1.str() << std::endl;
+  }
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Partial Modules:";
+  i1max = static_cast<unsigned int>(waferPart_.size());
+  for (unsigned int i1 = 0; i1 < i1max; i1 += 2) {
+    std::ostringstream st1;
+    unsigned int i2 = std::min((i1 + 2), i1max);
+    for (unsigned int i = i1; i < i2; ++i)
+      st1 << " [" << i << "] " << waferPart_[i];
+    edm::LogVerbatim("HGCalGeom") << st1.str() << std::endl;
+  }
 #endif
   materials_ = vsArgs["MaterialNames"];
   names_ = vsArgs["VolumeNames"];
@@ -193,7 +198,8 @@ void DDHGCalMixLayer::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "There are " << layers_.size() << " blocks";
   for (unsigned int i = 0; i < layers_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick_[i] << " with " << layers_[i] << " layers";
+    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << layerThick_[i] << " with " << layers_[i]
+                                  << " layers";
 #endif
   layerType_ = dbl_to_int(vArgs["LayerType"]);
   layerSense_ = dbl_to_int(vArgs["LayerSense"]);
@@ -241,7 +247,8 @@ void DDHGCalMixLayer::initialize(const DDNumericArguments& nArgs,
   waferProperty_ = dbl_to_int(vArgs["WaferProperties"]);
   waferLayerStart_ = dbl_to_int(vArgs["WaferLayerStart"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "waferProperties with " << waferIndex_.size() << " entries in " << waferLayerStart_.size() << " layers";
+  edm::LogVerbatim("HGCalGeom") << "waferProperties with " << waferIndex_.size() << " entries in "
+                                << waferLayerStart_.size() << " layers";
   for (unsigned int k = 0; k < waferLayerStart_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "LayerStart[" << k << "] " << waferLayerStart_[k];
   for (unsigned int k = 0; k < waferIndex_.size(); ++k)
@@ -262,11 +269,17 @@ void DDHGCalMixLayer::initialize(const DDNumericArguments& nArgs,
   edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer:: with " << tileRMin_.size() << " rings";
   for (unsigned int k = 0; k < tileRMin_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "Ring[" << k << "] " << tileRMin_[k] << " : " << tileRMax_[k];
-  edm::LogVerbatim("HGCalGeom") << "TileProperties with " << tileIndex_.size() << " entries in " << tileLayerStart_.size() << " layers";
+  edm::LogVerbatim("HGCalGeom") << "TileProperties with " << tileIndex_.size() << " entries in "
+                                << tileLayerStart_.size() << " layers";
   for (unsigned int k = 0; k < tileLayerStart_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "LayerStart[" << k << "] " << tileLayerStart_[k];
   for (unsigned int k = 0; k < tileIndex_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << tileIndex_[k] << " (" << "Layer " << std::get<0>(HGCalTileIndex::tileUnpack(tileIndex_[k])) << " Ring " << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[k])) << ":" << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[k])) << ") Phi " << std::get<1>(HGCalTileIndex::tileUnpack(tilePhis_[k])) << ":" << std::get<2>(HGCalTileIndex::tileUnpack(tilePhis_[k]));
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << tileIndex_[k] << " ("
+                                  << "Layer " << std::get<0>(HGCalTileIndex::tileUnpack(tileIndex_[k])) << " Ring "
+                                  << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[k])) << ":"
+                                  << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[k])) << ") Phi "
+                                  << std::get<1>(HGCalTileIndex::tileUnpack(tilePhis_[k])) << ":"
+                                  << std::get<2>(HGCalTileIndex::tileUnpack(tilePhis_[k]));
 #endif
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
@@ -317,9 +330,8 @@ void DDHGCalMixLayer::constructLayers(const DDLogicalPart& module, DDCompactView
 
       std::string name = names_[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << ly << ":" << ii << " Front " << zi << ", "
-                                    << routF << " Back " << zo << ", " << rinB << " superlayer thickness "
-                                    << layerThick_[i];
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << ly << ":" << ii << " Front " << zi << ", " << routF
+                                    << " Back " << zo << ", " << rinB << " superlayer thickness " << layerThick_[i];
 #endif
       DDName matName(DDSplit(materials_[ii]).first, DDSplit(materials_[ii]).second);
       DDMaterial matter(matName);
@@ -353,10 +365,13 @@ void DDHGCalMixLayer::constructLayers(const DDLogicalPart& module, DDCompactView
             pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol1_;
           }
         }
-        DDSolid solid = DDSolidFactory::polyhedra(DDName(name, nameSpace_), sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
+        DDSolid solid =
+            DDSolidFactory::polyhedra(DDName(name, nameSpace_), sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << solid.name() << " polyhedra of " << sectors_ << " sectors covering " << convertRadToDeg(-alpha_) << ":" << convertRadToDeg(-alpha_ + 2._pi) << " with " << pgonZ.size() << " sections";
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << solid.name() << " polyhedra of " << sectors_
+                                      << " sectors covering " << convertRadToDeg(-alpha_) << ":"
+                                      << convertRadToDeg(-alpha_ + 2._pi) << " with " << pgonZ.size() << " sections";
         for (unsigned int k = 0; k < pgonZ.size(); ++k)
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
@@ -400,12 +415,12 @@ void DDHGCalMixLayer::constructLayers(const DDLogicalPart& module, DDCompactView
 }
 
 void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
-				  const std::string& nameM,
-				  int copyM,
-				  double thick,
-				  const DDMaterial& matter,
-				  int layerType,
-				  DDCompactView& cpv) {
+                                  const std::string& nameM,
+                                  int copyM,
+                                  double thick,
+                                  const DDMaterial& matter,
+                                  int layerType,
+                                  DDCompactView& cpv) {
   DDRotation rot;
 
   // Make the top part first
@@ -427,11 +442,13 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
     DDMaterial matter1(matName);
     unsigned int k = 0;
     int firstTile = tileLayerStart_[layer];
-    int lastTile = ((layer + 1 < static_cast<int>(tileLayerStart_.size())) ? tileLayerStart_[layer + 1] : static_cast<int>(tileIndex_.size()));
+    int lastTile = ((layer + 1 < static_cast<int>(tileLayerStart_.size())) ? tileLayerStart_[layer + 1]
+                                                                           : static_cast<int>(tileIndex_.size()));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << ly << ":" << ii << " Copy " << copy << " Tiles " << firstTile << ":" << lastTile;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << ly << ":" << ii << " Copy " << copy << " Tiles "
+                                  << firstTile << ":" << lastTile;
 #endif
-   for (int ti = firstTile; ti < lastTile; ++ti) {
+    for (int ti = firstTile; ti < lastTile; ++ti) {
       double r1 = tileRMin_[std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) - 1];
       double r2 = tileRMax_[std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) - 1];
       int fimin = std::get<1>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
@@ -439,19 +456,27 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
       double phi1 = dphi * (fimin - 1);
       double phi2 = dphi * (fimax - fimin + 1);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << copy << " iR " << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << ":" << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << " R " << r1 << ":" << r2 << " Thick " << (2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":" << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2);;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << copy << " iR "
+                                    << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << ":"
+                                    << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << " R " << r1 << ":"
+                                    << r2 << " Thick " << (2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":"
+                                    << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2);
+      ;
 #endif
       std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
       ++k;
       DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthickl, r1, r2, phi1, phi2);
       DDLogicalPart glog1 = DDLogicalPart(solid.ddname(), matter1, solid);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << glog1.name() << " Tubs made of " << matName << " of dimensions " << r1 << ", " << r2 << ", " << hthickl << ", " << convertRadToDeg(phi1) << ", " << convertRadToDeg(phi2);
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << glog1.name() << " Tubs made of " << matName
+                                    << " of dimensions " << r1 << ", " << r2 << ", " << hthickl << ", "
+                                    << convertRadToDeg(phi1) << ", " << convertRadToDeg(phi2);
 #endif
       DDTranslation tran(0, 0, zpos);
       cpv.position(glog1, glog, copy, tran, rot);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Position " << glog1.name() << " number " << copy << " in " << glog.name() << " at " << tran << " with no rotation";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Position " << glog1.name() << " number " << copy << " in "
+                                    << glog.name() << " at " << tran << " with no rotation";
 #endif
     }
     ++copyNumberTop_[ii];
@@ -472,7 +497,8 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
   static const double sqrt3 = std::sqrt(3.0);
   int layercenter = layerCenter_[layer];
   int firstWafer = waferLayerStart_[layer];
-  int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1] : static_cast<int>(waferLayerStart_.size()));
+  int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
+                                                                           : static_cast<int>(waferLayerStart_.size()));
   double r = 0.5 * (waferSize_ + waferSepar_);
   double R = 2.0 * r / sqrt3;
   double dy = 0.75 * R;
@@ -480,7 +506,9 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), kount(0);
   std::vector<int> ntype(3, 0);
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << glog.ddname() << "  r " << r << " R " << R << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1);
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: " << glog.ddname() << "  r " << r << " R " << R << " dy " << dy
+                                << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
+                                << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1);
 #endif
   for (int k = firstWafer; k < lastWafer; ++k) {
     int u = HGCalWaferIndex::waferU(waferIndex_[k]);
@@ -503,15 +531,19 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
       wafer = waferFull_[i];
     } else {
       i = (part - 1) * waferTypes_ * facingTypes_ * orientationTypes_ +
-	(layerType - 1) * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
+          (layerType - 1) * waferTypes_ * orientationTypes_ + type * orientationTypes_ + orien;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layerType << ":" << type << ":" << part << ":" << orien << ":" << i << ":" << waferPart_.size();
+      edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:ind " << layerType << ":" << type << ":" << part
+                                    << ":" << orien << ":" << i << ":" << waferPart_.size();
 #endif
       wafer = waferPart_[i];
     }
     int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << " DDHGCalMixLayer: Layer " << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Wafer " << wafer << " number " << copy << " type :part:orien:ind " << type << ":" << part << ":" << orien << ":" << i << " layer:u:v " << (layer + firstLayer_) << ":" << u << ":" << v;
+    edm::LogVerbatim("HGCalGeom") << " DDHGCalMixLayer: Layer " << HGCalWaferIndex::waferLayer(waferIndex_[k])
+                                  << " Wafer " << wafer << " number " << copy << " type :part:orien:ind " << type << ":"
+                                  << part << ":" << orien << ":" << i << " layer:u:v " << (layer + firstLayer_) << ":"
+                                  << u << ":" << v;
     if (iu > ium)
       ium = iu;
     if (iv > ivm)
@@ -525,11 +557,15 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
     cpv.position(name, glog.ddname(), copy, tran, rot);
 #ifdef EDM_ML_DEBUG
     ++ntype[type];
-    edm::LogVerbatim("HGCalGeom") << " DDHGCalMixLayer: " << name << " number " << copy << " type " << layerType << ":" << type << " positioned in " << glog.ddname() << " at " << tran << " with no rotation";
+    edm::LogVerbatim("HGCalGeom") << " DDHGCalMixLayer: " << name << " number " << copy << " type " << layerType << ":"
+                                  << type << " positioned in " << glog.ddname() << " at " << tran
+                                  << " with no rotation";
 #endif
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Maximum # of u " << ium << " # of v " << ivm << " and " << kount << " wafers (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2] << ") for " << glog.ddname();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Maximum # of u " << ium << " # of v " << ivm << " and " << kount
+                                << " wafers (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2] << ") for "
+                                << glog.ddname();
 #endif
 }
 
