@@ -32,7 +32,6 @@
 
 #include "CondCore/CondDB/interface/Serialization.h"
 
-
 CocoaDBMgr* CocoaDBMgr::instance = nullptr;
 
 //----------------------------------------------------------------------
@@ -364,12 +363,15 @@ AlignTransformErrorExtended* CocoaDBMgr::GetAlignInfoErrorFromOptO(OpticalObject
   CLHEP::HepMatrix errm(3, 3);
   const std::vector<Entry*>& theCoordinateEntryVector = opto->CoordinateEntryList();
   std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptOfill errm " << opto->name() << std::endl;
-  errm(0, 0) = GetEntryError(theCoordinateEntryVector[0]) * dd4hep::m;                               // m in COCOA, cm in DB
-  errm(1, 1) = GetEntryError(theCoordinateEntryVector[1]) * dd4hep::m;                               // m in COCOA, cm in DB
-  errm(2, 2) = GetEntryError(theCoordinateEntryVector[2]) * dd4hep::m;                               // m in COCOA, cm in DB
-  errm(0, 1) = GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[1]) * dd4hep::m;  // m in COCOA, cm in DB
-  errm(0, 2) = GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[2]) * dd4hep::m;  // m in COCOA, cm in DB
-  errm(1, 2) = GetEntryError(theCoordinateEntryVector[1], theCoordinateEntryVector[2]) * dd4hep::m;  // m in COCOA, cm in DB
+  errm(0, 0) = GetEntryError(theCoordinateEntryVector[0]) * dd4hep::m;  // m in COCOA, cm in DB
+  errm(1, 1) = GetEntryError(theCoordinateEntryVector[1]) * dd4hep::m;  // m in COCOA, cm in DB
+  errm(2, 2) = GetEntryError(theCoordinateEntryVector[2]) * dd4hep::m;  // m in COCOA, cm in DB
+  errm(0, 1) =
+      GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[1]) * dd4hep::m;  // m in COCOA, cm in DB
+  errm(0, 2) =
+      GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[2]) * dd4hep::m;  // m in COCOA, cm in DB
+  errm(1, 2) =
+      GetEntryError(theCoordinateEntryVector[1], theCoordinateEntryVector[2]) * dd4hep::m;  // m in COCOA, cm in DB
   //   errm(1,0) = errm(0,1);
   // errm(2,0) = errm(0,2);
   // errm(2,1) = errm(1,2);

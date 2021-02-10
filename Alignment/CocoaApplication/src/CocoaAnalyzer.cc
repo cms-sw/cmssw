@@ -51,7 +51,6 @@ private:
   std::string theCocoaDaqRootFileName_;
 };
 
-
 CocoaAnalyzer::CocoaAnalyzer(edm::ParameterSet const& pset) {
   theCocoaDaqRootFileName_ = pset.getParameter<std::string>("cocoaDaqRootFile");
   int maxEvents = pset.getParameter<int32_t>("maxEvents");
