@@ -178,7 +178,7 @@ void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
       const dd4hep::Direction& transl = myPlacedVolume.position();
 
       if (ALIUtils::debug >= 4) {
-        edm::LogInfo("Alignment") << "Local translation in cm = " << transl;
+        edm::LogInfo("Alignment") << "Local translation in dd4hep units = " << transl;
       }
 
       // B) READ INFO FROM XMLS
@@ -326,7 +326,8 @@ void CocoaAnalyzer::readXMLFile(const edm::EventSetup& evts) {
           double dimFactor = 1.;
           const std::string& type = dims[i];
           if (type == "centre" || type == "length") {
-            dimFactor = 1. / dd4hep::m;  // was converted to cm with getParameterValueFromSpecPar, COCOA unit is m
+            dimFactor =
+                1. / dd4hep::m;  // was converted to dd4hep unit with getParameterValueFromSpecPar, COCOA unit is m
           } else if (type == "angles" || type == "angle" || type == "nodim") {
             dimFactor = 1.;
           }
@@ -544,7 +545,7 @@ void CocoaAnalyzer::correctOpticalAlignmentParameter(OpticalAlignParam& myXMLPar
     double dimFactor = 1.;
 
     if (type == "centre" || type == "length") {
-      dimFactor = 1. / dd4hep::m;  // in DB it is in cm
+      dimFactor = 1. / dd4hep::m;  // in DB values are stored in dd4hep unit
     } else if (type == "angles" || type == "angle" || type == "nodim") {
       dimFactor = 1.;
     } else {
