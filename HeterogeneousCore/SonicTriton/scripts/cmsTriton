@@ -36,7 +36,7 @@ usage() {
 	$ECHO "-m [dir]    \t specific model directory (can be given more than one)"
 	$ECHO "-n [name]   \t name of container instance, also used for default hidden temporary dir (default: ${SERVER})"
 	$ECHO "-P [port]   \t base port number for services (-1: automatically find an unused port range) (default: ${BASEPORT})"
-	$ECHO "-p          \t automatically shut down server when parent process ends"
+	$ECHO "-p [pid]    \t automatically shut down server when process w/ specified PID ends (-1: use parent process PID)"
 	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
 	$ECHO "-s [dir]    \t Singularity sandbox directory (default: ${SANDBOX})"
 	$ECHO "-t [dir]    \t non-default hidden temporary dir"
@@ -56,7 +56,7 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cDdfgi:M:m:n:P:pr:s:t:vw:h" opt; do
+while getopts "cDdfgi:M:m:n:P:p:r:s:t:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
 		;;
@@ -78,7 +78,7 @@ while getopts "cDdfgi:M:m:n:P:pr:s:t:vw:h" opt; do
 		;;
 		P) if [ "$OPTARG" -eq -1 ]; then AUTOPORT=true; else BASEPORT="$OPTARG"; fi
 		;;
-		p) PARENTPID="$PPID"
+		p) if [ "$OPTARG" -eq -1 ]; then PARENTPID="$PPID"; else PARENTPID="$OPTARG"; fi
 		;;
 		r) RETRIES="$OPTARG"
 		;;
@@ -297,13 +297,25 @@ auto_stop(){
 	PARENTPID="$2"
 
 	if [ -n "$PARENTPID" ]; then
+		if [ -n "$VERBOSE" ]; then
+			echo "watching PID $PARENTPID"
+			ps
+		fi
 		PCOUNTER=0
 		PMAX=5
 		while [ "$PCOUNTER" -le "$PMAX" ]; do
 			if ! kill -0 $PARENTPID >& /dev/null; then
 				PCOUNTER=$((PCOUNTER+1))
+				if [ -n "$VERBOSE" ]; then
+					echo "trigger $PCOUNTER:"
+					ps
+				fi
 			else
-				# must get 5 in a row, otherwise reset
+				# must get N in a row, otherwise reset
+				if [ "$PCOUNTER" -gt 0 ] && [ -n "$VERBOSE" ]; then
+					echo "reset:"
+					ps
+				fi
 				PCOUNTER=0
 			fi
 			sleep 1
