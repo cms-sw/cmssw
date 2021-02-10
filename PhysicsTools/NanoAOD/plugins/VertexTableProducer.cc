@@ -171,18 +171,19 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             PV0, VertexState(RecoVertex::convertPos(sv.position()), RecoVertex::convertError(sv.error())));
         dxy.push_back(d2d.value());
         dxySig.push_back(d2d.significance());
-      }
 
-      int sum_charge = 0;
-      for (unsigned int id=0; id<sv.numberOfDaughters(); ++id) {
-	const reco::Candidate* daughter = sv.daughter(id);
-	sum_charge += daughter->charge(); 
+	int sum_charge = 0;
+	for (unsigned int id=0; id<sv.numberOfDaughters(); ++id) {
+	  const reco::Candidate* daughter = sv.daughter(id);
+	  sum_charge += daughter->charge(); 
+	}
+	charge.push_back(sum_charge);
       }
-      charge.push_back(sum_charge);
     }
     i++;
   }
 
+    
   auto svsTable = std::make_unique<nanoaod::FlatTable>(selCandSv->size(), svName_, false);
   // For SV we fill from here only stuff that cannot be created with the SimpleFlatTableProducer
   svsTable->addColumn<float>("dlen", dlen, "decay length in cm", 10);
@@ -190,7 +191,7 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   svsTable->addColumn<float>("dxy", dxy, "2D decay length in cm", 10);
   svsTable->addColumn<float>("dxySig", dxySig, "2D decay length significance", 10);
   svsTable->addColumn<float>("pAngle", pAngle, "pointing angle, i.e. acos(p_SV * (SV - PV)) ", 10);
-  svsTable->addColumn<float>("charge", charge, "sum of the charge of the SV tracks", 10);
+  svsTable->addColumn<int>("charge", charge, "sum of the charge of the SV tracks", 10);
   
   iEvent.put(std::move(pvTable), "pv");
   iEvent.put(std::move(otherPVsTable), "otherPVs");
