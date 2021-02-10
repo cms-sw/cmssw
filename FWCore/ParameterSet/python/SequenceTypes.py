@@ -211,7 +211,7 @@ class _SequenceCollection(_Sequenceable):
 
 
 def findDirectDependencies(element, collection):
-    dependencies = []
+    dependencies = set()
     for item in collection:
         # skip null items
         if item is None:
@@ -223,23 +223,23 @@ def findDirectDependencies(element, collection):
         # cms.ignore(module), ~(module)
         elif isinstance(item, (_SequenceIgnore, _SequenceNegation)):
             if isinstance(item._operand, _SequenceCollection):
-                dependencies += item.directDependencies()
+                dependencies.update(item.directDependencies())
                 continue
             t = 'modules'
         # _SequenceCollection
         elif isinstance(item, _SequenceCollection):
-            dependencies += item.directDependencies()
+            dependencies.update(item.directDependencies())
             continue
         # cms.Sequence
         elif isinstance(item, Sequence):
             if not item.hasLabel_():
-                dependencies += item.directDependencies()
+                dependencies.update(item.directDependencies())
                 continue
             t = 'sequences'
         # cms.Task
         elif isinstance(item, Task):
             if not item.hasLabel_():
-                dependencies += item.directDependencies()
+                dependencies.update(item.directDependencies())
                 continue
             t = 'tasks'
         # SequencePlaceholder and TaskPlaceholder do not add an explicit dependency
@@ -249,8 +249,8 @@ def findDirectDependencies(element, collection):
         else:
             sys.stderr.write("Warning: unsupported element '%s' in %s '%s'\n" % (str(item), type(element).__name__, element.label_()))
             continue
-        dependencies.append((t, item.label_()))
-    return dependencies
+        dependencies.add((t, item.label_()))
+    return sorted(dependencies, key = lambda t_item: (t_item[0].lower(), t_item[1].lower().replace('_cfi', '')))
 
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
