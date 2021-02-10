@@ -10,7 +10,7 @@
 #define PHYSICSTOOLS_TENSORFLOW_TENSORFLOW_H
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic warning "-Wsign-compare"
 #include "tensorflow/core/framework/tensor.h"
 #include "tensorflow/core/lib/core/threadpool.h"
 #include "tensorflow/core/lib/io/path.h"
