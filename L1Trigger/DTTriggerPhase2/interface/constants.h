@@ -205,6 +205,7 @@ namespace cmsdt {
   constexpr float PHIRES_CONV = 65536. / 0.8;
   constexpr float PHIBRES_CONV = 2048. / 1.4;
   constexpr int CHI2RES_CONV = 1000000;
+  constexpr int TDCTIME_REDUCED_SIZE = 10;
 
   constexpr int DIVISION_HELPER1 = 43691;
   constexpr int DIVISION_HELPER2 = 65536;
@@ -248,6 +249,21 @@ namespace cmsdt {
   constexpr int MEANTIME_2LAT = 16384;
   constexpr int MEANTIME_3LAT = 10923;
   constexpr int MEANTIME_4LAT = 8192;
+  
+  constexpr int DIV_SHR_BITS_T0 = 16;
+  constexpr int DIV_SHR_BITS_POS = 21;
+  constexpr int DIV_SHR_BITS_SLOPE = 21;
+  constexpr int DIV_SHR_BITS_SLOPE_XHH = 18;
+  
+  constexpr int INCREASED_RES_T0 = 0;
+  constexpr int INCREASED_RES_POS = 4;
+  constexpr int INCREASED_RES_SLOPE = 12;
+  constexpr int INCREASED_RES_SLOPE_XHH = 4;
+  
+  // constexpr int NUMER_CONST_BASE_SIZE_T0 = 13;
+  // constexpr int NUMER_CONST_BASE_SIZE_POS = 15;
+  // constexpr int NUMER_CONST_BASE_SIZE_SLOPE = 12;
+  // constexpr int NUMER_CONST_BASE_SIZE_SLOPE_XHH = 12;
 
 }  // namespace cmsdt
 
