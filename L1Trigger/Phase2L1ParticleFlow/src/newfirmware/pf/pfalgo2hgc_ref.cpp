@@ -46,16 +46,18 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion & in, OutputRegion & out)
 
     if (debug_) {
         for (unsigned int i = 0; i < nTRACK; ++i) { if (in.track[i].hwPt == 0) continue;
-            printf("FW  \t track %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+7d ]  calo phi %+5.2f [ %+7d ]  quality %d\n", 
-                                i, in.track[i].floatPt(), in.track[i].intPt(), in.track[i].floatEta(), in.track[i].intEta(), in.track[i].floatPhi(), in.track[i].intPhi(), int(in.track[i].hwQuality));
+            printf("FW  \t track %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  vtx eta %+5.2f   vtx phi %+5.2f   charge %+2d  quality %d\n", 
+                                i, in.track[i].floatPt(), in.track[i].intPt(), in.track[i].floatEta(), in.track[i].intEta(), in.track[i].floatPhi(), in.track[i].intPhi(), 
+                                in.track[i].floatVtxEta(), in.track[i].floatVtxPhi(),
+                                in.track[i].intCharge(), int(in.track[i].hwQuality));
         }
         for (unsigned int i = 0; i < nCALO; ++i) { if (in.hadcalo[i].hwPt == 0) continue;
-            printf("FW  \t calo  %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+7d ]  calo phi %+5.2f [ %+7d ]  calo emPt %8.2f [ %6d ]   isEM %d \n", 
+            printf("FW  \t calo  %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  calo emPt %8.2f [ %6d ]   isEM %d \n", 
                                 i, in.hadcalo[i].floatPt(), in.hadcalo[i].intPt(), in.hadcalo[i].floatEta(), in.hadcalo[i].intEta(), in.hadcalo[i].floatPhi(), in.hadcalo[i].intPhi(), in.hadcalo[i].floatEmPt(), in.hadcalo[i].intEmPt(), int(in.hadcalo[i].hwIsEM));
         } 
         for (unsigned int i = 0; i < nMU; ++i) { if (in.muon[i].hwPt == 0) continue;
-            printf("FW  \t muon  %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+7d ]  calo phi %+5.2f [ %+7d ]   \n", 
-                                i, in.muon[i].floatPt(), in.muon[i].intPt(), in.muon[i].floatEta(), in.muon[i].intEta(), in.muon[i].floatPhi(), in.muon[i].intPhi());
+            printf("FW  \t muon  %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  charge %+2d  \n", 
+                                i, in.muon[i].floatPt(), in.muon[i].intPt(), in.muon[i].floatEta(), in.muon[i].intEta(), in.muon[i].floatPhi(), in.muon[i].intPhi(), in.muon[i].intCharge());
         } 
     }
 
@@ -74,10 +76,11 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion & in, OutputRegion & out)
     for (unsigned int ic = 0; ic < nCALO; ++ic) { calo_sumtk[ic] = 0;  calo_sumtkErr2[ic] = 0;}
 
     // initialize good track bit
-    std::vector<bool> track_good(nTRACK);
-    std::vector<bool> isEle(nTRACK);
+    std::vector<bool> track_good(nTRACK, false);
+    std::vector<bool> isEle(nTRACK, false);
     for (unsigned int it = 0; it < nTRACK; ++it) { 
-        pt_t ptInv = (in.track[it].hwQuality & TkObj::PFTIGHT) ? tk_MAXINVPT_TIGHT_ : tk_MAXINVPT_LOOSE_;
+        if (!in.track[it].isPFLoose()) continue;
+        pt_t ptInv = in.track[it].isPFTight() ? tk_MAXINVPT_TIGHT_ : tk_MAXINVPT_LOOSE_;
         track_good[it] = (in.track[it].hwPt < ptInv) || (iMu[it] != -1); 
         isEle[it] = false;
     }
@@ -91,7 +94,7 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion & in, OutputRegion & out)
     // for each track, find the closest calo
     std::vector<int> tk2calo(nTRACK,-1);
     for (unsigned int it = 0; it < nTRACK; ++it) {
-        if (in.track[it].hwPt > 0 && iMu[it] == -1) {
+        if (in.track[it].hwPt > 0 && in.track[it].isPFLoose() && iMu[it] == -1) {
             pt_t tkCaloPtErr = ptErr_ref(in.region, in.track[it]);
             int  ibest = best_match_with_pt_ref(dR2MAX_TK_CALO_, in.hadcalo, in.track[it], tkCaloPtErr);
             if (ibest != -1) {
@@ -110,7 +113,7 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion & in, OutputRegion & out)
             pt_t ptdiff = in.hadcalo[ic].hwPt - calo_sumtk[ic];
             pt2_t sigmamult = calo_sumtkErr2[ic]; //  + (calo_sumtkErr2[ic] >> 1)); // this multiplies by 1.5 = sqrt(1.5)^2 ~ (1.2)^2
             if (debug_ && (in.hadcalo[ic].hwPt > 0)) {
-                printf("FW  \t calo  %3d pt %8.2f [ %7d ] eta %+5.2f [ %+7d ] has a sum track pt %8.2f, difference %7.2f +- %.2f \n",
+                printf("FW  \t calo  %3d pt %8.2f [ %7d ] eta %+5.2f [ %+5d ] has a sum track pt %8.2f, difference %7.2f +- %.2f \n",
                             ic, in.hadcalo[ic].floatPt(), in.hadcalo[ic].intPt(), in.hadcalo[ic].floatEta(), in.hadcalo[ic].intEta(),  
                                 Scales::floatPt(calo_sumtk[ic]), Scales::floatPt(ptdiff), std::sqrt(Scales::floatPt(calo_sumtkErr2[ic])));
                         
@@ -134,7 +137,6 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion & in, OutputRegion & out)
             // extra emulator information
             if (tk2calo[it] != -1) out.pfcharged[it].srcCluster = in.hadcalo[tk2calo[it]].src;
             if (iMu[it] != -1) out.pfcharged[it].srcMu = in.muon[iMu[it]].src;
-
         }
     }
 
@@ -158,11 +160,11 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion & in, OutputRegion & out)
 
     if (debug_) {
         for (unsigned int i = 0; i < nTRACK; ++i) { if (out.pfcharged[i].hwPt == 0) continue;
-            printf("FW  \t outch %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+7d ]  calo phi %+5.2f [ %+7d ]  pid %d\n", 
+            printf("FW  \t outch %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  pid %d\n", 
                                 i, out.pfcharged[i].floatPt(), out.pfcharged[i].intPt(), out.pfcharged[i].floatEta(), out.pfcharged[i].intEta(), out.pfcharged[i].floatPhi(), out.pfcharged[i].intPhi(), out.pfcharged[i].intId());
         }
         for (unsigned int i = 0; i < nSELCALO; ++i) { if (out.pfneutral[i].hwPt == 0) continue;
-            printf("FW  \t outne %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+7d ]  calo phi %+5.2f [ %+7d ]  pid %d\n", 
+            printf("FW  \t outne %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  pid %d\n", 
                                 i, out.pfneutral[i].floatPt(), out.pfneutral[i].intPt(), out.pfneutral[i].floatEta(), out.pfneutral[i].intEta(), out.pfneutral[i].floatPhi(), out.pfneutral[i].intPhi(), out.pfneutral[i].intId());
         }
     }
