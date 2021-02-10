@@ -25,8 +25,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 << " positioned " << positionX.size() << " times with cell size " << cellSize;
   for (unsigned int k = 0; k < positionX.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << cms::convert2mm(positionX[k]) << " y "
-                                  << cms::convert2mm(positionY[k]) << " angle " << angles[k]
-                                  << " detector " << detectorType[k];
+                                  << cms::convert2mm(positionY[k]) << " angle " << angles[k] << " detector "
+                                  << detectorType[k];
 
   std::string idName = args.parentName();  // Name of the "parent" volume.
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo debug: Parent " << idName << " NameSpace " << ns.name();
@@ -55,8 +55,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     mother.placeVolume(ns.volume(name), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: " << name << " number " << copy << " positioned in " << idName
-                                  << " at (" << cms::convert2mm(xpos) << ","
-                                  << cms::convert2mm(ypos) << ",0) with " << rotation;
+                                  << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos) << ",0) with "
+                                  << rotation;
 #endif
   }
 

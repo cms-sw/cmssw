@@ -54,8 +54,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << layers.size() << " blocks";
   for (unsigned int i = 0; i < layers.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << cms::convert2mm(layerThick[i])
-                                  << " with " << layers[i] << " layers";
+    edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << cms::convert2mm(layerThick[i]) << " with "
+                                  << layers[i] << " layers";
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << layerType.size() << " layers";
   for (unsigned int i = 0; i < layerType.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerType[i] << " sensitive class "
@@ -66,9 +66,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   double waferW = args.value<double>("waferW");        // Width of the wafer
   int sectors = args.value<int>("Sectors");            // Sectors
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << cms::convert2mm(zMinBlock)
-                                << " rFineCoarse " << cms::convert2mm(rMaxFine) << " wafer width "
-                                << cms::convert2mm(waferW) << " sectors " << sectors;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: zStart " << cms::convert2mm(zMinBlock) << " rFineCoarse "
+                                << cms::convert2mm(rMaxFine) << " wafer width " << cms::convert2mm(waferW)
+                                << " sectors " << sectors;
 #endif
   const auto& slopeB = args.value<std::vector<double> >("SlopeBottom");   // Slope at the lower R
   const auto& slopeT = args.value<std::vector<double> >("SlopeTop");      // Slopes at the larger R
@@ -108,9 +108,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       std::string name = "HGCal" + names[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: Layer " << ly << ":" << ii << " Front "
-                                    << cms::convert2mm(zi) << ", " << cms::convert2mm(routF)
-                                    << " Back " << cms::convert2mm(zo) << ", "
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: Layer " << ly << ":" << ii << " Front " << cms::convert2mm(zi)
+                                    << ", " << cms::convert2mm(routF) << " Back " << cms::convert2mm(zo) << ", "
                                     << cms::convert2mm(rinB) << " superlayer thickness "
                                     << cms::convert2mm(layerThick[i]);
 #endif
@@ -135,8 +134,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                       << (360.0 + convertRadToDeg(-alpha)) << " with " << pgonZ.size() << " sections";
         for (unsigned int k = 0; k < pgonZ.size(); ++k)
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << cms::convert2mm(pgonZ[k]) << " R "
-                                        << cms::convert2mm(pgonRin[k]) << ":"
-                                        << cms::convert2mm(pgonRout[k]);
+                                        << cms::convert2mm(pgonRin[k]) << ":" << cms::convert2mm(pgonRout[k]);
 #endif
       } else {
         dd4hep::Solid solid = dd4hep::Tube(0.5 * thick[ii], rinB, routF, 0.0, 2._pi);
@@ -144,9 +142,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         glog = dd4hep::Volume(solid.name(), solid, matter);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << solid.name() << " Tubs made of " << materials[ii]
-                                      << " of dimensions " << cms::convert2mm(rinB) << ", "
-                                      << cms::convert2mm(routF) << ", "
-                                      << cms::convert2mm(0.5 * thick[ii]) << ", 0.0, 360.0";
+                                      << " of dimensions " << cms::convert2mm(rinB) << ", " << cms::convert2mm(routF)
+                                      << ", " << cms::convert2mm(0.5 * thick[ii]) << ", 0.0, 360.0";
         edm::LogVerbatim("HGCalGeom") << "DDHGCalModule test position in: " << glog.name() << " number " << copy;
 #endif
         double dx = 0.5 * waferW;
@@ -156,8 +153,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         int nrow = static_cast<int>(routF / (waferW * tan(30._deg))) + 1;
 #ifdef EDM_ML_DEBUG
         int incm(0), inrm(0), kount(0), ntot(0), nin(0), nfine(0), ncoarse(0);
-        edm::LogVerbatim("HGCalGeom") << glog.name() << " rout " << cms::convert2mm(routF) << " Row "
-                                      << nrow << " Column " << ncol;
+        edm::LogVerbatim("HGCalGeom") << glog.name() << " rout " << cms::convert2mm(routF) << " Row " << nrow
+                                      << " Column " << ncol;
 #endif
         for (int nr = -nrow; nr <= nrow; ++nr) {
           int inr = (nr >= 0) ? nr : -nr;
@@ -194,8 +191,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                     ++ncoarse;
                   edm::LogVerbatim("HGCalGeom")
                       << "DDHGCalModule: " << glog1.name() << " number " << copyL << " positioned in " << glog.name()
-                      << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos)
-                      << ",0) with " << rotation;
+                      << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos) << ",0) with " << rotation;
 #endif
                 }
               }
@@ -215,8 +211,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       ++copyNumber[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at (0,0," << cms::convert2mm(zz)
-                                    << ") with no rotation";
+                                    << module.name() << " at (0,0," << cms::convert2mm(zz) << ") with no rotation";
 #endif
       zz += (0.5 * thick[ii]);
     }  // End of loop over layers in a block
@@ -229,8 +224,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                    << " of all its components **** ERROR ****\n";
       } else {
         edm::LogWarning("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(layerThick[i])
-                                     << " does not match with " << cms::convert2mm(thickTot)
-                                     << " of the components\n";
+                                     << " does not match with " << cms::convert2mm(thickTot) << " of the components\n";
       }
     }
   }  // End of loop over blocks

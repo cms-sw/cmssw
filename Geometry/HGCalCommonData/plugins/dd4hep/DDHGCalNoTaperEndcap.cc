@@ -23,10 +23,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   auto const& m_childName = args.value<std::string>("ChildName");  // Children name
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Tilt Angle " << m_tiltAngle << " R " << cms::convert2mm(m_rMin) << ":"
-                                << cms::convert2mm(m_rMax) << " Offset "
-                                << cms::convert2mm(m_zoffset) << ":"
-                                << cms::convert2mm(m_xyoffset) << " Copy " << m_startCopyNo << ":"
-                                << m_incrCopyNo << " Child " << m_childName;
+                                << cms::convert2mm(m_rMax) << " Offset " << cms::convert2mm(m_zoffset) << ":"
+                                << cms::convert2mm(m_xyoffset) << " Copy " << m_startCopyNo << ":" << m_incrCopyNo
+                                << " Child " << m_childName;
 
   edm::LogVerbatim("HGCalGeom") << "DDHGCalNoTaperEndcap: NameSpace " << ns.name() << "\tParent " << args.parentName();
 #endif
@@ -76,10 +75,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << m_childName << " copyNo = " << copyNo << " (" << column << "," << row
                                         << "): offsetX,Y = " << cms::convert2mm(offsetX) << ","
-                                        << cms::convert2mm(offsetY)
-                                        << " limit=" << cms::convert2mm(limit1) << ":"
-                                        << cms::convert2mm(limit2)
-                                        << " rMin, rMax = " << cms::convert2mm(m_rMin) << ","
+                                        << cms::convert2mm(offsetY) << " limit=" << cms::convert2mm(limit1) << ":"
+                                        << cms::convert2mm(limit2) << " rMin, rMax = " << cms::convert2mm(m_rMin) << ","
                                         << cms::convert2mm(m_rMax);
 #endif
 
@@ -88,17 +85,20 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           dd4hep::Position tran(offsetX, offsetY, offsetZ);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "Module " << copyNo << ": location = ("
-                                        << cms::convert2mm(offsetX) << ","
-                                        << cms::convert2mm(offsetY) << ","
-                                        << cms::convert2mm(offsetZ) << ") Rotation " << rotation;
+          edm::LogVerbatim("HGCalGeom") << "Module " << copyNo << ": location = (" << cms::convert2mm(offsetX) << ","
+                                        << cms::convert2mm(offsetY) << "," << cms::convert2mm(offsetZ) << ") Rotation "
+                                        << rotation;
 #endif
           parent.placeVolume(ns.volume(name), copyNo, dd4hep::Transform3D(rotation, tran));
 
           copyNo += m_incrCopyNo;
         } else {
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << " (" << column << "," << row << "): offsetX,Y = " << cms::convert2mm(offsetX) << "," << cms::convert2mm(offsetY) << " is out of limit=" << cms::convert2mm(limit1) << ":" << cms::convert2mm(limit2) << " rMin, rMax = " << cms::convert2mm(m_rMin) << "," << cms::convert2mm(m_rMax);
+          edm::LogVerbatim("HGCalGeom") << " (" << column << "," << row << "): offsetX,Y = " << cms::convert2mm(offsetX)
+                                        << "," << cms::convert2mm(offsetY)
+                                        << " is out of limit=" << cms::convert2mm(limit1) << ":"
+                                        << cms::convert2mm(limit2) << " rMin, rMax = " << cms::convert2mm(m_rMin) << ","
+                                        << cms::convert2mm(m_rMax);
 #endif
         }
         yphi += yQuadrant * 2. * tiltAngle;
