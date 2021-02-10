@@ -210,6 +210,7 @@ namespace l1ct {
 
 
     struct Event {
+        static const int VERSION = 1;
         uint32_t run, lumi; uint64_t event;
         RegionizerDecodedInputs decoded;
         std::vector<PFInputRegion> pfinputs;

@@ -1,20 +1,22 @@
 #include "layer1_emulator.h"
 #include "emulator_io.h"
 #include <cmath>
+#include <iostream>
+#include <cstdlib>
 
 #ifdef CMSSW_GIT_HASH
 #include "DataFormats/Math/interface/deltaPhi.h"
 #else
 namespace reco {
     template <typename T>
-    constexpr T reduceRange(T x) {
-        constexpr T o2pi = 1. / (2. * M_PI);
+    inline T reduceRange(T x) {
+        T o2pi = 1. / (2. * M_PI);
         if (std::abs(x) <= T(M_PI))
             return x;
         T n = std::round(x * o2pi);
         return x - n * T(2. * M_PI);
     }
-    constexpr double deltaPhi(double phi1, double phi2) { return reduceRange(phi1 - phi2); }
+    inline double deltaPhi(double phi1, double phi2) { return reduceRange(phi1 - phi2); }
 }
 #endif
 
@@ -250,19 +252,30 @@ void l1ct::OutputRegion::clear() {
 }
 
 bool l1ct::Event::read(std::fstream & from) {
+    uint32_t version;
+    if (!readVar(from, version)) return false;
+    if (version != VERSION) { 
+        std::cout << "ERROR: version mismatch between this code (" << VERSION << ") and dump file (" << version << ")." << std::endl;
+        std::cerr << "ERROR: version mismatch between this code (" << VERSION << ") and dump file (" << version << ")." << std::endl;
+        abort();
+    }
     return 
         readVar(from, run) &&
         readVar(from, lumi) &&
         readVar(from, event) &&
+        decoded.read(from) &&
         readMany(from, pfinputs) &&
         readMany(from, pvs) &&
         readMany(from, out);
 }
 bool l1ct::Event::write(std::fstream & to) const {
+    uint32_t version = VERSION;
     return 
+        writeVar(version, to) &&
         writeVar(run, to) &&
         writeVar(lumi, to) &&
         writeVar(event, to) &&
+        decoded.write(to) &&
         writeMany(pfinputs, to) &&
         writeMany(pvs, to) &&
         writeMany(out, to);

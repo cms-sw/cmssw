@@ -358,6 +358,11 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event& iEvent, const edm::EventSe
   }
 
 #endif
+  if (fRegionDump_.is_open()) {
+    event_.write(fRegionDump_);
+  }
+
+
   // finally clear the regions
   event_.clear();
 }
@@ -574,7 +579,7 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
           l1t::PFCandidate::ParticleType type = l1t::PFCandidate::ChargedHadron;
           if (p.hwId.isMuon()) type = l1t::PFCandidate::Muon;
           else if (p.hwId.isElectron()) type = l1t::PFCandidate::Electron;
-          ret->emplace_back(type, p.intCharge(), p4, 1);
+          ret->emplace_back(type, p.intCharge(), p4, 1, p.intPt(), p.intEta(), p.intPhi());
           ret->back().setVertex(reco::Particle::Point(0, 0, p.floatZ0()));
           setRefs_(ret->back(), p);
       }
@@ -583,7 +588,7 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
           reco::Particle::PolarLorentzVector p4(
                   p.floatPt(), reg.globalEta(p.floatEta()), reg.globalPhi(p.floatPhi()), 0.13f);
           l1t::PFCandidate::ParticleType type = p.hwId.isPhoton() ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
-          ret->emplace_back(type, 0, p4, 1);
+          ret->emplace_back(type, 0, p4, 1, p.intPt(), p.intEta(), p.intPhi());
           setRefs_(ret->back(), p);
       }
   }
@@ -593,20 +598,20 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
 std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPuppi() const {
     auto ret = std::make_unique<l1t::PFCandidateCollection>();
     for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
-        const auto & reg = event_.pfinputs[ir].region;
         for (const auto &p : event_.out[ir].puppi) {
             if (p.hwPt == 0) continue;
-            reco::Particle::PolarLorentzVector p4(
-                    p.floatPt(), reg.globalEta(p.floatEta()), reg.globalPhi(p.floatPhi()), 0.13f);
-            l1t::PFCandidate::ParticleType type;
+            // note: Puppi candidates are already in global coordinates!
+            l1t::PFCandidate::ParticleType type; float mass = 0.13f;
             if (p.hwId.charged()) {
-                if (p.hwId.isMuon()) type = l1t::PFCandidate::Muon;
-                else if (p.hwId.isElectron()) type = l1t::PFCandidate::Electron;
+                if (p.hwId.isMuon()) { type = l1t::PFCandidate::Muon; mass = 0.105; }
+                else if (p.hwId.isElectron()) { type = l1t::PFCandidate::Electron; mass = 0.005; }
                 else type = l1t::PFCandidate::ChargedHadron;
             } else {
                 type = p.hwId.isPhoton() ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
+                mass = p.hwId.isPhoton() ? 0.0 : 0.5;
             }
-            ret->emplace_back(type, p.intCharge(), p4, p.hwId.charged() ? 1 : p.floatPuppiW());
+            reco::Particle::PolarLorentzVector p4(p.floatPt(), p.floatEta(), p.floatPhi(), mass);
+            ret->emplace_back(type, p.intCharge(), p4, p.floatPuppiW(), p.intPt(), p.intEta(), p.intPhi());
             if (p.hwId.charged()) {
                 ret->back().setVertex(reco::Particle::Point(0, 0, p.floatZ0()));
             }

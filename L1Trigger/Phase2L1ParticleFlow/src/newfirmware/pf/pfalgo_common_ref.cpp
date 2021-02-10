@@ -70,6 +70,7 @@ void l1ct::PFAlgoEmulatorBase::pfalgo_mu_ref(const PFInputRegion & in, OutputReg
             int ibest = -1;
             pt_t dptmin = in.muon[im].hwPt >> 1;
             for (unsigned int it = 0; it < nTRACK; ++it) {
+                if (!in.track[it].isPFLoose()) continue;
                 unsigned int dr = dr2_int(in.muon[im].hwEta, in.muon[im].hwPhi, in.track[it].hwEta, in.track[it].hwPhi);
                 //printf("deltaR2(mu %d float pt %5.1f, tk %2d float pt %5.1f) = int %d  (float deltaR = %.3f); int cut at %d\n", im, 0.25*int(in.muon[im].hwPt), it, 0.25*int(in.track[it].hwPt), dr, std::sqrt(float(dr))/229.2, dR2MAX_TK_MU_);
                 if (dr < dR2MAX_TK_MU_) { 
