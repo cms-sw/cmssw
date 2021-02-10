@@ -72,7 +72,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       mother.placeVolume(ns.volume(namx), copy, dd4hep::Transform3D(rotation, tran));
       ++kount;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer: " << name << " number " << copy << " positioned in " << parentName << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos) << ",0) with " << rotation;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer: " << name << " number " << copy << " positioned in " << parentName
+                                    << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos) << ",0) with "
+                                    << rotation;
 #endif
     }
     ny += incAlongY;

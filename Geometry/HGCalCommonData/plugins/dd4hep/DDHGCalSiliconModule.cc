@@ -60,9 +60,9 @@ struct HGCalSiliconModule {
     alpha_ = (1._pi) / sectors_;
     cosAlpha_ = cos(alpha_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "zStart " << cms::convert2mm(zMinBlock_) << " wafer width " << cms::convert2mm(waferSize_)
-                                  << " separations " << cms::convert2mm(waferSepar_) << " sectors " << sectors_ << ":"
-                                  << convertRadToDeg(alpha_) << ":" << cosAlpha_;
+    edm::LogVerbatim("HGCalGeom") << "zStart " << cms::convert2mm(zMinBlock_) << " wafer width "
+                                  << cms::convert2mm(waferSize_) << " separations " << cms::convert2mm(waferSepar_)
+                                  << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_;
 #endif
     waferFull_ = args.value<std::vector<std::string>>("WaferNamesFull");
     waferPart_ = args.value<std::vector<std::string>>("WaferNamesPartial");
@@ -94,16 +94,17 @@ struct HGCalSiliconModule {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << materials_.size() << " types of volumes";
     for (unsigned int i = 0; i < names_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names_[i] << " of thickness " << cms::convert2mm(thick_[i])
-                                    << " filled with " << materials_[i] << " first copy number " << copyNumber_[i];
+      edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names_[i] << " of thickness "
+                                    << cms::convert2mm(thick_[i]) << " filled with " << materials_[i]
+                                    << " first copy number " << copyNumber_[i];
 #endif
     layers_ = args.value<std::vector<int>>("Layers");
     layerThick_ = args.value<std::vector<double>>("LayerThick");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "There are " << layers_.size() << " blocks";
     for (unsigned int i = 0; i < layers_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << cms::convert2mm(layerThick_[i]) << " with "
-                                    << layers_[i] << " layers";
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << cms::convert2mm(layerThick_[i])
+                                    << " with " << layers_[i] << " layers";
 #endif
     layerType_ = args.value<std::vector<int>>("LayerType");
     layerSense_ = args.value<std::vector<int>>("LayerSense");
@@ -188,8 +189,9 @@ struct HGCalSiliconModule {
 
         std::string name = names_[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: Layer " << ly << ":" << ii << " Front " << cms::convert2mm(zi)
-                                      << ", " << cms::convert2mm(routF) << " Back " << cms::convert2mm(zo) << ", " << cms::convert2mm(rinB)
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: Layer " << ly << ":" << ii << " Front "
+                                      << cms::convert2mm(zi) << ", " << cms::convert2mm(routF) << " Back "
+                                      << cms::convert2mm(zo) << ", " << cms::convert2mm(rinB)
                                       << " superlayer thickness " << cms::convert2mm(layerThick_[i]);
 #endif
 
@@ -241,8 +243,8 @@ struct HGCalSiliconModule {
                                         << convertRadToDeg(-alpha_ + 2._pi) << " with " << pgonZ.size()
                                         << " sections and filled with " << matter.name();
           for (unsigned int k = 0; k < pgonZ.size(); ++k)
-            edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << cms::convert2mm(pgonZ[k]) << " R " << cms::convert2mm(pgonRin[k])
-                                          << ":" << cms::convert2mm(pgonRout[k]);
+            edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << cms::convert2mm(pgonZ[k]) << " R "
+                                          << cms::convert2mm(pgonRin[k]) << ":" << cms::convert2mm(pgonRout[k]);
 #endif
         } else {
           double rins =
@@ -256,10 +258,10 @@ struct HGCalSiliconModule {
 
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << solid.name() << " Tubs made of " << matter.name()
-                                        << " of dimensions " << cms::convert2mm(rinB) << ":" << cms::convert2mm(rins) << ", "
-                                        << cms::convert2mm(routF) << ":" << cms::convert2mm(routs) << ", " << cms::convert2mm(hthick)
-                                        << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":"
-                                        << layerCenter_[copy - firstLayer_];
+                                        << " of dimensions " << cms::convert2mm(rinB) << ":" << cms::convert2mm(rins)
+                                        << ", " << cms::convert2mm(routF) << ":" << cms::convert2mm(routs) << ", "
+                                        << cms::convert2mm(hthick) << ", 0.0, 360.0 and position " << glog.name()
+                                        << " number " << copy << ":" << layerCenter_[copy - firstLayer_];
 #endif
           positionSensitive(ctxt, e, glog, layerSense_[ly], (copy - firstLayer_));
         }
@@ -280,8 +282,9 @@ struct HGCalSiliconModule {
       // Make consistency check of all the partitions of the block
       if (std::abs(thickTot - layerThick_[i]) >= tol2) {
         if (thickTot > layerThick_[i]) {
-          edm::LogError("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(layerThick_[i]) << " is smaller than "
-                                     << cms::convert2mm(thickTot) << ": thickness of all its components **** ERROR ****";
+          edm::LogError("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(layerThick_[i])
+                                     << " is smaller than " << cms::convert2mm(thickTot)
+                                     << ": thickness of all its components **** ERROR ****";
         } else {
           edm::LogWarning("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(layerThick_[i])
                                        << " does not match with " << cms::convert2mm(thickTot) << " of the components";
@@ -316,9 +319,10 @@ struct HGCalSiliconModule {
     int ium(0), ivm(0), kount(0);
     std::vector<int> ntype(3, 0);
     edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconModule: " << glog.name() << " r " << cms::convert2mm(r) << " R "
-                                  << cms::convert2mm(R) << " dy " << cms::convert2mm(dy) << " Shift " << cms::convert2mm(xyoff.first) << ":"
-                                  << cms::convert2mm(xyoff.second) << " WaferSize " << cms::convert2mm((waferSize_ + waferSepar_))
-                                  << " index " << firstWafer << ":" << (lastWafer - 1);
+                                  << cms::convert2mm(R) << " dy " << cms::convert2mm(dy) << " Shift "
+                                  << cms::convert2mm(xyoff.first) << ":" << cms::convert2mm(xyoff.second)
+                                  << " WaferSize " << cms::convert2mm((waferSize_ + waferSepar_)) << " index "
+                                  << firstWafer << ":" << (lastWafer - 1);
 #endif
     for (int k = firstWafer; k < lastWafer; ++k) {
       int u = HGCalWaferIndex::waferU(waferIndex_[k]);
@@ -367,8 +371,8 @@ struct HGCalSiliconModule {
 #ifdef EDM_ML_DEBUG
       ++ntype[type];
       edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconModule: " << wafer << " number " << copy << " type " << layertype
-                                    << ":" << type << " positioned in " << glog.name() << " at (" << cms::convert2mm(xpos)
-                                    << "," << cms::convert2mm(ypos) << ",0) with no rotation";
+                                    << ":" << type << " positioned in " << glog.name() << " at ("
+                                    << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos) << ",0) with no rotation";
 #endif
     }
 
