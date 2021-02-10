@@ -1,4 +1,5 @@
 #include "DD4hep/DetFactoryHelper.h"
+#include <DD4hep/DD4hepUnits.h>
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
