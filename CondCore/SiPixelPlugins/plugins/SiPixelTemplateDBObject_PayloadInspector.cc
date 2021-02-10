@@ -120,6 +120,7 @@ namespace {
 
     bool fill() override {
       gStyle->SetHistMinimumZero();  // will display zero as zero in the text map
+      gStyle->SetPalette(kMint);     // for the ghost plot (colored BPix and FPix bins)
 
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
@@ -149,47 +150,96 @@ namespace {
         canvas.Modified();
         canvas.SetGrid();
 
-        auto h2_TemplateHeaders = std::make_unique<TH2F>("Header", ";;", tempSize, 0, tempSize, 6, 0., 6.);
-        h2_TemplateHeaders->SetStats(false);
+        auto h2_Header = std::make_unique<TH2F>("Header", ";;", tempSize, 0, tempSize, 12, 0., 12.);
+        auto h2_ghost = std::make_unique<TH2F>("ghost", ";;", tempSize, 0, tempSize, 12, 0., 12.);
+
+        h2_Header->SetStats(false);
+        h2_ghost->SetStats(false);
+
+        int tempVersion = -999;
 
         for (const auto& theTemp : thePixelTemp_ | boost::adaptors::indexed(1)) {
           auto tempValue = theTemp.value();
-          auto tempIndex = theTemp.index();
+          auto idx = theTemp.index();
+
           float uH = -99.;
           if (tempValue.head.Bfield != 0.) {
             uH = roundoff(tempValue.head.lorxwidth / tempValue.head.zsize / tempValue.head.Bfield, 4);
           }
-          h2_TemplateHeaders->SetBinContent(tempIndex, 6, tempValue.head.ID);
-          h2_TemplateHeaders->SetBinContent(tempIndex, 5, tempValue.head.Bfield);
-          h2_TemplateHeaders->SetBinContent(tempIndex, 4, uH);
-          h2_TemplateHeaders->SetBinContent(tempIndex, 3, tempValue.head.xsize);
-          h2_TemplateHeaders->SetBinContent(tempIndex, 2, tempValue.head.ysize);
-          h2_TemplateHeaders->SetBinContent(tempIndex, 1, tempValue.head.zsize);
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(6, "TemplateID");
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(5, "B-field [T]");
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(4, "#mu_{H} [1/T]");
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(3, "x-size [#mum]");
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(2, "y-size [#mum]");
-          h2_TemplateHeaders->GetYaxis()->SetBinLabel(1, "z-size [#mum]");
-          h2_TemplateHeaders->GetXaxis()->SetBinLabel(tempIndex, "");
+
+          // clang-format off
+          h2_Header->SetBinContent(idx, 12, tempValue.head.ID);     //!< template ID number
+          h2_Header->SetBinContent(idx, 11, tempValue.head.Bfield); //!< Bfield in Tesla
+          h2_Header->SetBinContent(idx, 10, uH);                    //!< hall mobility
+          h2_Header->SetBinContent(idx, 9, tempValue.head.xsize);   //!< pixel size (for future use in upgraded geometry)
+          h2_Header->SetBinContent(idx, 8, tempValue.head.ysize);   //!< pixel size (for future use in upgraded geometry)
+          h2_Header->SetBinContent(idx, 7, tempValue.head.zsize);   //!< pixel size (for future use in upgraded geometry)
+          h2_Header->SetBinContent(idx, 6, tempValue.head.NTy);     //!< number of Template y entries
+          h2_Header->SetBinContent(idx, 5, tempValue.head.NTyx);    //!< number of Template y-slices of x entries
+          h2_Header->SetBinContent(idx, 4, tempValue.head.NTxx);    //!< number of Template x-entries in each slice
+          h2_Header->SetBinContent(idx, 3, tempValue.head.Dtype);   //!< detector type (0=BPix, 1=FPix)
+          h2_Header->SetBinContent(idx, 2, tempValue.head.qscale);  //!< Charge scaling to match cmssw and pixelav
+          h2_Header->SetBinContent(idx, 1, tempValue.head.Vbias);   //!< detector bias potential in Volts
+          // clang-format on
+
+          h2_Header->GetYaxis()->SetBinLabel(12, "TemplateID");
+          h2_Header->GetYaxis()->SetBinLabel(11, "B-field [T]");
+          h2_Header->GetYaxis()->SetBinLabel(10, "#mu_{H} [1/T]");
+          h2_Header->GetYaxis()->SetBinLabel(9, "x-size [#mum]");
+          h2_Header->GetYaxis()->SetBinLabel(8, "y-size [#mum]");
+          h2_Header->GetYaxis()->SetBinLabel(7, "z-size [#mum]");
+          h2_Header->GetYaxis()->SetBinLabel(6, "NTy");
+          h2_Header->GetYaxis()->SetBinLabel(5, "NTyx");
+          h2_Header->GetYaxis()->SetBinLabel(4, "NTxx");
+          h2_Header->GetYaxis()->SetBinLabel(3, "DetectorType");
+          h2_Header->GetYaxis()->SetBinLabel(2, "qScale");
+          h2_Header->GetYaxis()->SetBinLabel(1, "VBias [V]");
+          h2_Header->GetXaxis()->SetBinLabel(idx, "");
+
+          for (unsigned int iy = 1; iy <= 12; iy++) {
+            if (tempValue.head.Dtype != 0 || uH < 0) {
+              h2_ghost->SetBinContent(idx, iy, 1);
+            } else {
+              h2_ghost->SetBinContent(idx, iy, -1);
+            }
+            h2_ghost->GetYaxis()->SetBinLabel(iy, h2_Header->GetYaxis()->GetBinLabel(iy));
+            h2_ghost->GetXaxis()->SetBinLabel(idx, "");
+          }
+
+          if (tempValue.head.templ_version != tempVersion) {
+            tempVersion = tempValue.head.templ_version;
+          }
         }
 
-        h2_TemplateHeaders->GetXaxis()->LabelsOption("h");
-        h2_TemplateHeaders->GetXaxis()->SetNdivisions(500 + tempSize, false);
-        h2_TemplateHeaders->GetYaxis()->SetLabelSize(0.05);
-        h2_TemplateHeaders->SetMarkerSize(1.5);
+        h2_Header->GetXaxis()->LabelsOption("h");
+        h2_Header->GetXaxis()->SetNdivisions(500 + tempSize, false);
+        h2_Header->GetYaxis()->SetLabelSize(0.05);
+        h2_Header->SetMarkerSize(1.5);
+
+        h2_ghost->GetXaxis()->LabelsOption("h");
+        h2_ghost->GetXaxis()->SetNdivisions(500 + tempSize, false);
+        h2_ghost->GetYaxis()->SetLabelSize(0.05);
 
         canvas.cd();
-        h2_TemplateHeaders->Draw("TEXT");
+        h2_ghost->Draw("col");
+        h2_Header->Draw("TEXTsame");
+
+        TPaveText ksPt(0, 0, 0.88, 0.04, "NDC");
+        ksPt.SetBorderSize(0);
+        ksPt.SetFillColor(0);
+        const char* textToAdd = Form(
+            "Template Version: #color[2]{%i}. Payload hash: #color[2]{%s}", tempVersion, (std::get<1>(iov)).c_str());
+        ksPt.AddText(textToAdd);
+        ksPt.Draw();
 
         auto ltx = TLatex();
         ltx.SetTextFont(62);
-        ltx.SetTextColor(kBlue);
-        ltx.SetTextSize(0.045);
+        ltx.SetTextSize(0.040);
         ltx.SetTextAlign(11);
-        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                         1 - gPad->GetTopMargin() + 0.01,
-                         (tagname + ", IOV:" + std::to_string(std::get<0>(iov))).c_str());
+        ltx.DrawLatexNDC(
+            gPad->GetLeftMargin(),
+            1 - gPad->GetTopMargin() + 0.01,
+            ("#color[4]{" + tagname + "}, IOV: #color[4]{" + std::to_string(std::get<0>(iov)) + "}").c_str());
 
         std::string fileName(m_imageFileName);
         canvas.SaveAs(fileName.c_str());
