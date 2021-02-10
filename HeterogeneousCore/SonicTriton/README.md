@@ -94,7 +94,7 @@ The script has two operations (`start` and `stop`) and the following options:
 * `-m [dir]`: specific model directory (can be given more than one)
 * `-n [name]`: name of container instance, also used for hidden temporary dir (default: triton_server_instance)
 * `-P [port]`: base port number for services (-1: automatically find an unused port range) (default: 8000)
-* `-p`: automatically shut down server when parent process ends
+* `-p [pid]`: automatically shut down server when process w/ specified PID ends (-1: use parent process PID)
 * `-r [num]`: number of retries when starting container (default: 3)
 * `-s [dir]`: Singularity sandbox directory (default: /cvmfs/unpacked.cern.ch/registry.hub.docker.com/fastml/triton-torchgeo:20.09-py3-geometric)
 * `-t [dir]`: non-default hidden temporary dir
