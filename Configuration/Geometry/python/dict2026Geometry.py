@@ -274,7 +274,7 @@ trackerDict = {
             'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/trackersens.xml',
             'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/pixelsens.xml',
             'Geometry/TrackerRecoData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/trackerRecoMaterial.xml',
-            'SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII_dd4hep.xml',
+            'SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII/v1/trackingMaterialGroups_ForPhaseII.xml',
             'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/trackerProdCuts.xml',
             'Geometry/TrackerSimData/data/PhaseII/Tracker_DD4hep_compatible_2021_02/pixelProdCuts.xml',
             'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
