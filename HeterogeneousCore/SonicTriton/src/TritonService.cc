@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <utility>
 #include <tuple>
+#include <unistd.h>
 
 namespace ni = nvidia::inferenceserver;
 namespace nic = ni::client;
@@ -207,7 +208,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   }
 
   //assemble server start command
-  std::string command("cmsTriton -p -P -1");
+  std::string command("cmsTriton -P -1 -p " + std::to_string(::getpid()));
   if (fallbackOpts_.debug)
     command += " -c";
   if (fallbackOpts_.verbose)
