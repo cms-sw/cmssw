@@ -613,9 +613,9 @@ void BeamSpotDipServer::trueRcd()
     }
 
     // LHC
-    messageLHC->insert(Size,"Size");
-    messageLHC->insert(Centroid,"Centroid");
-    messageLHC->insert(Tilt,"Tilt");
+    messageLHC->insert(Size,3,"Size");
+    messageLHC->insert(Centroid,3,"Centroid");
+    messageLHC->insert(Tilt,2,"Tilt");
 
     // PV
     messagePV->insert(runnum,"runnum");
@@ -652,9 +652,9 @@ void BeamSpotDipServer::fakeRcd()
     Tilt[0] = 0;
     Tilt[1] = 0;
 
-    messageLHC->insert(Size,"Size");
-    messageLHC->insert(Centroid,"Centroid");
-    messageLHC->insert(Tilt,"Tilt");
+    messageLHC->insert(Size,3,"Size");
+    messageLHC->insert(Centroid,3,"Centroid");
+    messageLHC->insert(Tilt,2,"Tilt");
   } catch (exception & e){
     cerr << "[Dip] Exception (fakeRcd): " << e.what() << endl;
   }
