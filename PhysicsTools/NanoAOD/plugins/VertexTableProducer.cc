@@ -41,6 +41,12 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
 //
 // class declaration
 //
@@ -143,6 +149,7 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByToken(svs_, svsIn);
   auto selCandSv = std::make_unique<PtrVector<reco::Candidate>>();
   std::vector<float> dlen, dlenSig, pAngle, dxy, dxySig;
+  std::vector<int> charge;
   VertexDistance3D vdist;
   VertexDistanceXY vdistXY;
 
@@ -165,6 +172,13 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         dxy.push_back(d2d.value());
         dxySig.push_back(d2d.significance());
       }
+
+      int sum_charge = 0;
+      for (unsigned int id=0; id<sv.numberOfDaughters(); ++id) {
+	const reco::Candidate* daughter = sv.daughter(id);
+	sum_charge += daughter->charge(); 
+      }
+      charge.push_back(sum_charge);
     }
     i++;
   }
@@ -176,7 +190,8 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   svsTable->addColumn<float>("dxy", dxy, "2D decay length in cm", 10);
   svsTable->addColumn<float>("dxySig", dxySig, "2D decay length significance", 10);
   svsTable->addColumn<float>("pAngle", pAngle, "pointing angle, i.e. acos(p_SV * (SV - PV)) ", 10);
-
+  svsTable->addColumn<float>("charge", charge, "sum of the charge of the SV tracks", 10);
+  
   iEvent.put(std::move(pvTable), "pv");
   iEvent.put(std::move(otherPVsTable), "otherPVs");
   iEvent.put(std::move(svsTable), "svs");
