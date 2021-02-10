@@ -1,8 +1,8 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Geometry/HGCalCommonData/plugins/dd4hep/HGCalDD4HepHelper.h"
 
 //#define EDM_ML_DEBUG
 
@@ -50,9 +50,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         << cornrCN.size();
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << HGCalDD4HepHelper::convert2mm(waferSize) << " T "
-                                << HGCalDD4HepHelper::convert2mm(waferT) << " Cell T "
-                                << HGCalDD4HepHelper::convert2mm(cellT) << " Cells/Wafer " << nCells << " Material "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << cms::convert2mm(waferSize) << " T "
+                                << cms::convert2mm(waferT) << " Cell T "
+                                << cms::convert2mm(cellT) << " Cells/Wafer " << nCells << " Material "
                                 << material << "Sensitive Position " << posSens << " Full Cell: " << fullCN << ":"
                                 << fullSensN;
   for (int k = 0; k < 3; ++k)
@@ -98,14 +98,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   ns.addVolumeNS(glog1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                << " z|x|y|s (0) " << HGCalDD4HepHelper::convert2mm(zw[0]) << ":"
-                                << HGCalDD4HepHelper::convert2mm(zx[0]) << ":" << HGCalDD4HepHelper::convert2mm(zy[0])
-                                << ":" << scale[0] << " z|x|y|s (1) " << HGCalDD4HepHelper::convert2mm(zw[1]) << ":"
-                                << HGCalDD4HepHelper::convert2mm(zx[1]) << ":" << HGCalDD4HepHelper::convert2mm(zy[1])
+                                << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":"
+                                << cms::convert2mm(zx[0]) << ":" << cms::convert2mm(zy[0])
+                                << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":"
+                                << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1])
                                 << ":" << scale[1] << " and " << xw.size() << " edges";
   for (unsigned int k = 0; k < xw.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCalDD4HepHelper::convert2mm(xw[k]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(yw[k]);
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":"
+                                  << cms::convert2mm(yw[k]);
 #endif
   std::vector<double> zc = {-0.5 * cellT, 0.5 * cellT};
   solid = dd4hep::ExtrudedPolygon(xw, yw, zc, zx, zy, scale);
@@ -114,21 +114,21 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                << " z|x|y|s (0) " << HGCalDD4HepHelper::convert2mm(zc[0]) << ":"
-                                << HGCalDD4HepHelper::convert2mm(zx[0]) << ":" << HGCalDD4HepHelper::convert2mm(zy[0])
-                                << ":" << scale[0] << " z|x|y|s (1) " << HGCalDD4HepHelper::convert2mm(zc[1]) << ":"
-                                << HGCalDD4HepHelper::convert2mm(zx[1]) << ":" << HGCalDD4HepHelper::convert2mm(zy[1])
+                                << " z|x|y|s (0) " << cms::convert2mm(zc[0]) << ":"
+                                << cms::convert2mm(zx[0]) << ":" << cms::convert2mm(zy[0])
+                                << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zc[1]) << ":"
+                                << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1])
                                 << ":" << scale[1] << " and " << xw.size() << " edges";
   for (unsigned int k = 0; k < xw.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCalDD4HepHelper::convert2mm(xw[k]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(yw[k]);
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":"
+                                  << cms::convert2mm(yw[k]);
 #endif
 
   dd4hep::Rotation3D rotation;
   glog1.placeVolume(glog2, 1, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
-                                << " at (0,0," << HGCalDD4HepHelper::convert2mm(zpos) << ") with no rotation";
+                                << " at (0,0," << cms::convert2mm(zpos) << ") with no rotation";
 #endif
 
   static const int ir0[] = {0, 1, 0};
@@ -146,14 +146,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ns.addVolumeNS(glog1);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                  << " z|x|y|s (0) " << HGCalDD4HepHelper::convert2mm(zw[0]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[0]) << ":" << HGCalDD4HepHelper::convert2mm(zy[0])
-                                  << ":" << scale[0] << " z|x|y|s (1) " << HGCalDD4HepHelper::convert2mm(zw[1]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[1]) << ":" << HGCalDD4HepHelper::convert2mm(zy[1])
+                                  << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":"
+                                  << cms::convert2mm(zx[0]) << ":" << cms::convert2mm(zy[0])
+                                  << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":"
+                                  << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1])
                                   << ":" << scale[1] << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCalDD4HepHelper::convert2mm(xw[k]) << ":"
-                                    << HGCalDD4HepHelper::convert2mm(yw[k]);
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":"
+                                    << cms::convert2mm(yw[k]);
 #endif
 
     solid = dd4hep::ExtrudedPolygon(xw, yw, zc, zx, zy, scale);
@@ -162,19 +162,19 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                  << " z|x|y|s (0) " << HGCalDD4HepHelper::convert2mm(zw[0]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[0]) << ":" << HGCalDD4HepHelper::convert2mm(zy[0])
-                                  << ":" << scale[0] << " z|x|y|s (1) " << HGCalDD4HepHelper::convert2mm(zw[1]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[1]) << ":" << HGCalDD4HepHelper::convert2mm(zy[1])
+                                  << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":"
+                                  << cms::convert2mm(zx[0]) << ":" << cms::convert2mm(zy[0])
+                                  << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":"
+                                  << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1])
                                   << ":" << scale[1] << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCalDD4HepHelper::convert2mm(xw[k]) << ":"
-                                    << HGCalDD4HepHelper::convert2mm(yw[k]);
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":"
+                                    << cms::convert2mm(yw[k]);
 #endif
     glog1.placeVolume(glog2, 1, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
-                                  << " at (0,0," << HGCalDD4HepHelper::convert2mm(zpos) << ") with no rotation";
+                                  << " at (0,0," << cms::convert2mm(zpos) << ") with no rotation";
 #endif
   }
 
@@ -192,14 +192,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ns.addVolumeNS(glog1);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                  << " z|x|y|s (0) " << HGCalDD4HepHelper::convert2mm(zw[0]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[0]) << ":" << HGCalDD4HepHelper::convert2mm(zy[0])
-                                  << ":" << scale[0] << " z|x|y|s (1) " << HGCalDD4HepHelper::convert2mm(zw[1]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[1]) << ":" << HGCalDD4HepHelper::convert2mm(zy[1])
+                                  << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":"
+                                  << cms::convert2mm(zx[0]) << ":" << cms::convert2mm(zy[0])
+                                  << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":"
+                                  << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1])
                                   << ":" << scale[1] << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCalDD4HepHelper::convert2mm(xw[k]) << ":"
-                                    << HGCalDD4HepHelper::convert2mm(yw[k]);
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":"
+                                    << cms::convert2mm(yw[k]);
 #endif
     solid = dd4hep::ExtrudedPolygon(xw, yw, zc, zx, zy, scale);
     ns.addSolidNS(ns.prepend(extenSensN[i]), solid);
@@ -207,19 +207,19 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                  << " z|x|y|s (0) " << HGCalDD4HepHelper::convert2mm(zw[0]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[0]) << ":" << HGCalDD4HepHelper::convert2mm(zy[0])
-                                  << ":" << scale[0] << " z|x|y|s (1) " << HGCalDD4HepHelper::convert2mm(zw[1]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[1]) << ":" << HGCalDD4HepHelper::convert2mm(zy[1])
+                                  << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":"
+                                  << cms::convert2mm(zx[0]) << ":" << cms::convert2mm(zy[0])
+                                  << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":"
+                                  << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1])
                                   << ":" << scale[1] << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCalDD4HepHelper::convert2mm(xw[k]) << ":"
-                                    << HGCalDD4HepHelper::convert2mm(yw[k]);
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":"
+                                    << cms::convert2mm(yw[k]);
 #endif
     glog1.placeVolume(glog2, 1, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
-                                  << " at (0,0," << HGCalDD4HepHelper::convert2mm(zpos) << " with no rotation";
+                                  << " at (0,0," << cms::convert2mm(zpos) << " with no rotation";
 #endif
   }
 
@@ -237,14 +237,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ns.addVolumeNS(glog1);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                  << " z|x|y|s (0) " << HGCalDD4HepHelper::convert2mm(zw[0]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[0]) << ":" << HGCalDD4HepHelper::convert2mm(zy[0])
-                                  << ":" << scale[0] << " z|x|y|s (1) " << HGCalDD4HepHelper::convert2mm(zw[1]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[1]) << ":" << HGCalDD4HepHelper::convert2mm(zy[1])
+                                  << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":"
+                                  << cms::convert2mm(zx[0]) << ":" << cms::convert2mm(zy[0])
+                                  << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":"
+                                  << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1])
                                   << ":" << scale[1] << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCalDD4HepHelper::convert2mm(xw[k]) << ":"
-                                    << HGCalDD4HepHelper::convert2mm(yw[k]);
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":"
+                                    << cms::convert2mm(yw[k]);
 #endif
     solid = dd4hep::ExtrudedPolygon(xw, yw, zc, zx, zy, scale);
     ns.addSolidNS(ns.prepend(cornrSensN[i]), solid);
@@ -252,19 +252,19 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                  << " z|x|y|s (0) " << HGCalDD4HepHelper::convert2mm(zw[0]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[0]) << ":" << HGCalDD4HepHelper::convert2mm(zy[0])
-                                  << ":" << scale[0] << " z|x|y|s (1) " << HGCalDD4HepHelper::convert2mm(zw[1]) << ":"
-                                  << HGCalDD4HepHelper::convert2mm(zx[1]) << ":" << HGCalDD4HepHelper::convert2mm(zy[1])
+                                  << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":"
+                                  << cms::convert2mm(zx[0]) << ":" << cms::convert2mm(zy[0])
+                                  << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":"
+                                  << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1])
                                   << ":" << scale[1] << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCalDD4HepHelper::convert2mm(xw[k]) << ":"
-                                    << HGCalDD4HepHelper::convert2mm(yw[k]);
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":"
+                                    << cms::convert2mm(yw[k]);
 #endif
     glog1.placeVolume(glog2, 1, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
-                                  << " at (0,0," << HGCalDD4HepHelper::convert2mm(zpos) << " with no rotation";
+                                  << " at (0,0," << cms::convert2mm(zpos) << " with no rotation";
 #endif
   }
   return cms::s_executed;
