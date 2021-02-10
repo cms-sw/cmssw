@@ -74,9 +74,7 @@ public:
   }
 
 private:
-  tensorflow::Tensor getPredictions(edm::Event& event,
-                                    const edm::EventSetup& es,
-                                    edm::Handle<TauCollection> taus) override {
+  tensorflow::Tensor getPredictions(edm::Event& event, edm::Handle<TauCollection> taus) override {
     edm::Handle<pat::PackedCandidateCollection> pfcands;
     event.getByToken(pfcandToken_, pfcands);
 

@@ -16,7 +16,8 @@ void PositionAtECalEntranceComputer::beginEvent(const edm::EventSetup& es) {
   bField_z_ = bField->inTesla(GlobalPoint(0., 0., 0.)).z();
 }
 
-reco::Candidate::Point PositionAtECalEntranceComputer::operator()(const reco::Candidate* particle, bool& success) const {
+reco::Candidate::Point PositionAtECalEntranceComputer::operator()(const reco::Candidate* particle,
+                                                                  bool& success) const {
   assert(bField_z_ != -1.);
   BaseParticlePropagator propagator = BaseParticlePropagator(
       RawParticle(particle->p4(),

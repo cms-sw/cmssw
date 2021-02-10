@@ -36,6 +36,8 @@ public:
 
     calculateWeights_ = pset.getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation");
 
+    enableHGCalWorkaround_ = pset.getParameter<bool>("enableHGCalWorkaround");
+
     // RIC: multiply neutral isolation by a flat factor.
     //      Useful, for instance, to combine charged and neutral isolations
     //      with different relative weights
@@ -199,6 +201,7 @@ private:
   bool includeTracks_;
   bool includeGammas_;
   bool calculateWeights_;
+  bool enableHGCalWorkaround_;
   double weightGammas_;
   bool applyOccupancyCut_;
   uint32_t maximumOccupancy_;
@@ -498,7 +501,22 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) c
     double neutralPt = 0.;
     double weightedNeutralPt = 0.;
     for (auto const& isoObject : isoCharged_) {
-      chargedPt += isoObject->pt();
+      //-------------------------------------------------------------------------
+      // CV: fix for Phase-2 HLT tau trigger studies
+      //    (pT of PFCandidates within HGCal acceptance is significantly higher than track pT !!)
+      if (enableHGCalWorkaround_) {
+        double trackPt = (isoObject->bestTrack()) ? isoObject->bestTrack()->pt() : 0.;
+        double pfCandPt = isoObject->pt();
+        if (pfCandPt > trackPt) {
+          chargedPt += trackPt;
+          neutralPt += pfCandPt - trackPt;
+        } else {
+          chargedPt += isoObject->pt();
+        }
+      } else {
+        chargedPt += isoObject->pt();
+      }
+      //-------------------------------------------------------------------------
     }
     if (!calculateWeights_) {
       for (auto const& isoObject : isoNeutral_) {
@@ -657,6 +675,7 @@ void PFRecoTauDiscriminationByIsolation::fillDescriptions(edm::ConfigurationDesc
   desc.add<bool>("ApplyDiscriminationByTrackerIsolation", true);
   desc.add<bool>("storeRawPhotonSumPt_outsideSignalCone", false);
   desc.add<edm::InputTag>("rhoProducer", edm::InputTag("fixedGridRhoFastjetAll"));
+  desc.add<bool>("enableHGCalWorkaround", false);
 
   {
     edm::ParameterSetDescription vpsd1;
