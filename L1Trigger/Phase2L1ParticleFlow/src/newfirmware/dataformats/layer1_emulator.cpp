@@ -97,7 +97,10 @@ l1ct::PFRegionEmu::PFRegionEmu(float etamin,
     phiCenter(phicenter), phiHalfWidth(0.5*phiwidth),
     etaExtra(etaextra), phiExtra(phiextra)
 {
-    hwEtaCenter = Scales::makeGlbEta(etaCenter);
+    hwEtaCenter = Scales::makeGlbEta(0.5*(etamin+etamax));
+    hwPhiCenter = Scales::makeGlbPhi(phicenter);
+    hwEtaHalfWidth = Scales::makeGlbEta(0.5*(etamax-etamin));
+    hwPhiHalfWidth = Scales::makeGlbPhi(0.5*phiwidth);
 }
 
 bool l1ct::PFRegionEmu::contains(float eta, float phi) const {
