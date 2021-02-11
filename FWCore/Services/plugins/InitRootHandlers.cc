@@ -155,6 +155,7 @@ namespace {
             }) != substrs.end());
   }
 
+  //Contents of a message which should be reported as an INFO not a ERROR
   constexpr std::array<const char* const, 8> in_message{
       {"no dictionary for class",
        "already in TClassTable",
@@ -165,16 +166,19 @@ namespace {
        "nbins is <=0 - set to nbins = 1",
        "nbinsy is <=0 - set to nbinsy = 1"}};
 
-  constexpr std::array<const char* const, 6> in_location{{"Fit",
+  //Location generating messages which should be reported as an INFO not a ERROR
+  constexpr std::array<const char* const, 7> in_location{{"Fit",
                                                           "TDecompChol::Solve",
                                                           "THistPainter::PaintInit",
                                                           "TUnixSystem::SetDisplay",
                                                           "TGClient::GetFontByName",
-                                                          "Inverter::Dinv"}};
+                                                          "Inverter::Dinv",
+                                                          "RTaskArenaWrapper"}};
 
-  constexpr std::array<const char* const, 3> in_message_print{{"number of iterations was insufficient",
+  constexpr std::array<const char* const, 4> in_message_print{{"number of iterations was insufficient",
                                                                "bad integrand behavior",
-                                                               "integral is divergent, or slowly convergent"}};
+                                                               "integral is divergent, or slowly convergent",
+                                                               "tbb::global_control is limiting"}};
 
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
     bool die = false;
