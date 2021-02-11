@@ -29,7 +29,6 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/LinearizedPuppiAlgo.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/DiscretePFInputsIO.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/COEFile.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/dataformats/layer1_emulator.h"
 
 #include "DataFormats/L1TCorrelator/interface/TkMuon.h"
 #include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
@@ -75,8 +74,6 @@ private:
   edm::EDGetTokenT<math::XYZPointF> TokGenOrigin_;
 
   // Region dump/coe
-  const std::string regionDumpNameNew_;
-  std::fstream fRegionDumpNew_;
   const std::string regionDumpName_, regionCOEName_;
   FILE* fRegionDump_;
   std::unique_ptr<l1tpf_impl::COEFile> fRegionCOE_;
@@ -110,7 +107,6 @@ L1TPFProducer::L1TPFProducer(const edm::ParameterSet& iConfig)
       l1pfalgo_(nullptr),
       l1pualgo_(nullptr),
       l1tkegalgo_(nullptr),
-      regionDumpNameNew_(iConfig.getUntrackedParameter<std::string>("dumpFileNameNew", "")),
       regionDumpName_(iConfig.getUntrackedParameter<std::string>("dumpFileName", "")),
       regionCOEName_(iConfig.getUntrackedParameter<std::string>("coeFileName", "")),
       fRegionDump_(nullptr),
@@ -211,15 +207,6 @@ L1TPFProducer::~L1TPFProducer() {
 }
 
 void L1TPFProducer::beginStream(edm::StreamID id) {
-  if (!regionDumpNameNew_.empty()) {
-    if (id == 0) {
-      fRegionDumpNew_.open(regionDumpNameNew_.c_str(), std::ios::out | std::ios::binary);
-    } else {
-      edm::LogWarning("L1TPFProducer")
-          << "Job running with multiple streams, but dump file will have only events on stream zero.";
-    }
-  }
-
   if (!regionDumpName_.empty()) {
     if (id == 0) {
       fRegionDump_ = fopen(regionDumpName_.c_str(), "wb");
@@ -314,64 +301,6 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
-  // New firmware
-  l1ct::Event event; 
-  event.run = iEvent.id().run(); 
-  event.lumi = iEvent.id().luminosityBlock();
-  event.event = iEvent.id().event();
-  for (const auto & r : l1regions_.regions()) {
-      l1ct::PFInputRegion reg;
-      reg.region.etaCenter = r.etaCenter;
-      reg.region.phiCenter = r.phiCenter; // FIXME and the rest later
-      reg.region.hwEtaCenter = l1ct::Scales::makeGlbEta(r.etaCenter);
-      for (const auto & c : r.calo) {
-          l1ct::HadCaloObjEmu calo;
-          calo.hwPt = l1ct::Scales::makePt(c.hwPt);
-          calo.hwEta = c.hwEta;
-          calo.hwPhi = c.hwPhi;
-          calo.hwEmPt = l1ct::Scales::makePt(c.hwEmPt);
-          calo.hwIsEM = c.isEM;
-          reg.hadcalo.push_back(calo);
-      }
-      for (const auto & c : r.emcalo) {
-          l1ct::EmCaloObjEmu calo;
-          calo.hwPt = l1ct::Scales::makePt(c.hwPt);
-          calo.hwEta = c.hwEta;
-          calo.hwPhi = c.hwPhi;
-          calo.hwPtErr = l1ct::Scales::makePt(c.hwPtErr);
-          calo.hwFlags = c.hwFlags;
-          reg.emcalo.push_back(calo);
-      }
-      for (const auto & t : r.track) {
-          l1ct::TkObjEmu tk;
-          tk.hwPt = l1ct::Scales::makePt(t.hwPt);
-          tk.hwEta = t.hwEta;
-          tk.hwPhi = t.hwPhi;
-          tk.hwCharge = t.hwCharge;
-          tk.hwQuality = t.hwFlags;
-          tk.hwZ0 = t.hwZ0;
-          tk.hwDEta = l1ct::Scales::makeEta(t.floatVtxEta() - t.floatEta());
-          tk.hwDPhi = l1ct::Scales::makePhi(std::abs(reco::deltaPhi(t.floatVtxPhi(), t.floatPhi())));
-          tk.hwDxy = 0;
-          tk.hwChi2 = t.hwChi2;
-          tk.hwStubs = t.hwStubs;
-          reg.track.push_back(tk);
-      }
-      for (const auto & t : r.muon) {
-          l1ct::MuObjEmu tk;
-          tk.hwPt = l1ct::Scales::makePt(t.hwPt);
-          tk.hwEta = t.hwEta;
-          tk.hwPhi = t.hwPhi;
-          tk.hwCharge = t.hwCharge;
-          tk.hwQuality = t.hwFlags;
-          tk.hwDEta = 0;
-          tk.hwDPhi = 0;
-          tk.hwDxy = 0;
-          tk.hwZ0 = 0;
-          reg.muon.push_back(tk);
-      }
-      event.pfinputs.push_back(reg);
-  }
 
   // First, get a copy of the discretized and corrected inputs, and write them out
   iEvent.put(l1regions_.fetchCalo(/*ptmin=*/0.1, /*em=*/true), "EmCalo");
@@ -406,11 +335,6 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         if (ptsum == 0 || vtx.sum() > ptsum) {
           z0 = vtx.zvertex();
           ptsum = vtx.sum();
-
-          l1ct::PVObjEmu hwpv;
-          hwpv.hwZ0 = l1ct::Scales::makeZ0(z0);
-          if (event.pvs.empty()) { event.pvs.push_back(hwpv); }
-          else { event.pvs[0] = hwpv; }
         }
       }
     } else
@@ -425,10 +349,6 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     const math::XYZPointF& genOrigin = *hGenOrigin;
     float genZ = genOrigin.Z();
     fwrite(&genZ, sizeof(float), 1, fRegionDump_);
-  }
-
-  if (fRegionDumpNew_.is_open()) {
-    event.write(fRegionDumpNew_);
   }
 
 
