@@ -93,8 +93,6 @@ l1ct::PFRegionEmu::PFRegionEmu(float etamin,
            float phiwidth,
            float etaextra,
            float phiextra) :
-    etaCenter(0.5*(etamin+etamax)), etaMin(etamin), etaMax(etamax), 
-    phiCenter(phicenter), phiHalfWidth(0.5*phiwidth),
     etaExtra(etaextra), phiExtra(phiextra)
 {
     hwEtaCenter = Scales::makeGlbEta(0.5*(etamin+etamax));
@@ -104,39 +102,22 @@ l1ct::PFRegionEmu::PFRegionEmu(float etamin,
 }
 
 bool l1ct::PFRegionEmu::contains(float eta, float phi) const {
-    float dphi = reco::deltaPhi(phiCenter, phi);
-    return (etaMin - etaExtra < eta && eta <= etaMax + etaExtra && -phiHalfWidth - phiExtra < dphi &&
-            dphi <= phiHalfWidth + phiExtra);
+    float dphi = reco::deltaPhi(floatPhiCenter(), phi);
+    return (floatEtaMin() - etaExtra < eta && eta <= floatEtaMax() + etaExtra && -floatEtaHalfWidth() - phiExtra < dphi &&
+            dphi <= floatEtaHalfWidth() + phiExtra);
 }
-bool l1ct::PFRegionEmu::fiducialLocal(float localEta, float localPhi) const {
-    float dphi = reco::reduceRange(localPhi);
-    return (etaMin < localEta + etaCenter && localEta + etaCenter <= etaMax && -phiHalfWidth < dphi &&
-            dphi <= phiHalfWidth);
-}
-float  l1ct::PFRegionEmu::globalEta(float localEta) const { return localEta + etaCenter; }
-float  l1ct::PFRegionEmu::globalPhi(float localPhi) const { return localPhi + phiCenter; }
-float  l1ct::PFRegionEmu::localEta(float globalEta) const { return globalEta - etaCenter; }
-float  l1ct::PFRegionEmu::localPhi(float globalPhi) const { return reco::deltaPhi(globalPhi, phiCenter); }
+float  l1ct::PFRegionEmu::localEta(float globalEta) const { return globalEta - floatEtaCenter(); }
+float  l1ct::PFRegionEmu::localPhi(float globalPhi) const { return reco::deltaPhi(globalPhi, floatPhiCenter()); }
 
 bool l1ct::PFRegionEmu::read(std::fstream & from) {
     return 
         readObj<PFRegion>(from, *this) &&
-        readVar(from, etaCenter) &&
-        readVar(from, etaMin) &&
-        readVar(from, etaMax) &&
-        readVar(from, phiCenter) &&
-        readVar(from, phiHalfWidth) &&
         readVar(from, etaExtra) &&
         readVar(from, phiExtra);
 }
 bool l1ct::PFRegionEmu::write(std::fstream & to) const {
     return 
         writeObj<PFRegion>(*this, to) &&
-        writeVar(etaCenter, to) &&
-        writeVar(etaMin, to) &&
-        writeVar(etaMax, to) &&
-        writeVar(phiCenter, to) &&
-        writeVar(phiHalfWidth, to) &&
         writeVar(etaExtra, to) &&
         writeVar(phiExtra, to);
 }

@@ -45,6 +45,14 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion & in, OutputRegion & out)
     unsigned int nMU      = std::min<unsigned>(nMU_,    in.muon.size());
 
     if (debug_) {
+        printf("FW\nFW  \t region eta [ %+5.2f , %+5.2f ], phi [ %+5.2f , %+5.2f ]\n", 
+                in.region.floatEtaMin() - in.region.etaExtra, 
+                in.region.floatEtaMax() + in.region.etaExtra, 
+                in.region.floatPhiCenter() - in.region.floatPhiHalfWidth() - in.region.phiExtra, 
+                in.region.floatPhiCenter() + in.region.floatPhiHalfWidth() + in.region.phiExtra);
+
+        printf("FW  \t N(track) %3lu   N(calo) %3lu   N(mu) %3lu\n", in.track.size(), in.hadcalo.size(), in.muon.size());
+
         for (unsigned int i = 0; i < nTRACK; ++i) { if (in.track[i].hwPt == 0) continue;
             printf("FW  \t track %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  vtx eta %+5.2f   vtx phi %+5.2f   charge %+2d  quality %d\n", 
                                 i, in.track[i].floatPt(), in.track[i].intPt(), in.track[i].floatEta(), in.track[i].intEta(), in.track[i].floatPhi(), in.track[i].intPhi(), 
