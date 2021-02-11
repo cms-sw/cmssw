@@ -431,9 +431,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() const {
   return tmpV;
 }
 
-CSCShowerDigi CSCMotherboard::readoutShower() const {
-  return CSCShowerDigi(highMultiplicityBits_, theTrigChamber);
-}
+CSCShowerDigi CSCMotherboard::readoutShower() const { return CSCShowerDigi(highMultiplicityBits_, theTrigChamber); }
 
 void CSCMotherboard::correlateLCTs(
     const CSCALCTDigi& bALCT, const CSCALCTDigi& sALCT, const CSCCLCTDigi& bCLCT, const CSCCLCTDigi& sCLCT, int type) {

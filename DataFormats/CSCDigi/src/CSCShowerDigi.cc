@@ -11,9 +11,7 @@ CSCShowerDigi::CSCShowerDigi(const uint8_t bits, const uint16_t cscID) : bits_(b
 /// Default
 CSCShowerDigi::CSCShowerDigi() : bits_(0), cscID_(0) {}
 
-bool CSCShowerDigi::isValid() const {
-  return isLoose();
-}
+bool CSCShowerDigi::isValid() const { return isLoose(); }
 
 bool CSCShowerDigi::isLoose() const { return bits_ >= kLoose; }
 
