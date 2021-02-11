@@ -13,6 +13,7 @@
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
+#include "CondCore/SiPixelPlugins/interface/SiPixelTemplateHelper.h"
 
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
@@ -107,6 +108,13 @@ namespace {
       return true;
     }  // fill
   };
+
+  //************************************************
+  // Display of Template Titles
+  // *************************************************/
+  using namespace templateHelper;
+  using SiPixelTemplateTitles_Display =
+      SiPixelTitles_Display<SiPixelTemplateDBObject, SiPixelTemplateStore, SiPixelTemplate>;
 
   /************************************************
   // header plotting
@@ -477,6 +485,7 @@ namespace {
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiPixelTemplateDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateDBObjectTest);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateTitles_Display);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateHeaderTable);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsBPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsFPixMap);
