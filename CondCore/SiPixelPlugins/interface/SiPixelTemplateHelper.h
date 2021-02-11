@@ -36,14 +36,15 @@ namespace templateHelper {
       : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
   public:
     SiPixelTitles_Display()
-        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>("Table of Template titles") {
+        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
+              "Table of Template titles") {
       if constexpr (std::is_same_v<PayloadType, SiPixelTemplateDBObject>) {
         isTemplate_ = true;
         label_ = "SiPixelTemplateDBObject_PayloadInspector";
       } else {
         isTemplate_ = false;
         label_ = "SiPixelGenErrorDBObject_PayloadInspector";
-       }
+      }
     }
 
     bool fill() override {
@@ -57,11 +58,9 @@ namespace templateHelper {
 
       if (payload.get()) {
         if (!TransientType::pushfile(*payload, thePixelTemp_)) {
-          throw cms::Exception(label_)
-              << "\nERROR: Templates not filled correctly. Check the conditions. Using "
-	      << (isTemplate_ ? "SiPixelTemplateDBObject" : "SiPixelGenErrorDBObject")
-	      << " version "
-              << payload->version() << "\n\n";
+          throw cms::Exception(label_) << "\nERROR: Templates not filled correctly. Check the conditions. Using "
+                                       << (isTemplate_ ? "SiPixelTemplateDBObject" : "SiPixelGenErrorDBObject")
+                                       << " version " << payload->version() << "\n\n";
         }
 
         unsigned int mapsize = thePixelTemp_.size();
@@ -79,9 +78,9 @@ namespace templateHelper {
 
         y -= pitch;
         y_x1.push_back(y);
-        s_x1.push_back(Form("#scale[1.2]{%s}",( isTemplate_ ? "Template ID" : "GenError ID" ) ));
+        s_x1.push_back(Form("#scale[1.2]{%s}", (isTemplate_ ? "Template ID" : "GenError ID")));
         y_x2.push_back(y);
-        s_x2.push_back(Form("#scale[1.2]{#color[4]{%s} in IOV: #color[4]{%s}}",tagname.c_str(),IOVsince.c_str()));
+        s_x2.push_back(Form("#scale[1.2]{#color[4]{%s} in IOV: #color[4]{%s}}", tagname.c_str(), IOVsince.c_str()));
 
         y -= pitch / 2.;
         y_line.push_back(y);
@@ -139,7 +138,7 @@ namespace templateHelper {
     bool isTemplate_;
     std::string label_;
   };
-  
-}  // namespace templatebHelper
+
+}  // namespace templateHelper
 
 #endif
