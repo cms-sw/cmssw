@@ -39,6 +39,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer(
     writeOutAllCLCTs = cms.bool(False),
     writeOutAllALCTs = cms.bool(False),
     savePreTriggers = cms.bool(False),
+    writeOutShowers = cms.bool(False),
 
     commonParam = auxPSets.commonParam.clone(),
     mpcParam = auxPSets.mpcParamRun1.clone()

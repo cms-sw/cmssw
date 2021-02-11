@@ -46,6 +46,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
   writeOutAllALCTs_ = conf.getParameter<bool>("writeOutAllALCTs");
   savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
+  writeOutShowers_ = conf.getParameter<bool>("writeOutShowers");
 
   // check whether you need to run the integrated local triggers
   const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
@@ -77,7 +78,9 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   }
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
-  produces<CSCShowerDigiCollection>();
+  if (writeOutShowers_) {
+    produces<CSCShowerDigiCollection>();
+  }
   if (runME11ILT_ or runME21ILT_)
     produces<GEMCoPadDigiCollection>();
 
@@ -195,7 +198,9 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   ev.put(std::move(oc_pretrig));
   ev.put(std::move(oc_lct));
   ev.put(std::move(oc_sorted_lct), "MPCSORTED");
-  ev.put(std::move(oc_shower));
+  if (writeOutShowers_) {
+    ev.put(std::move(oc_shower));
+  }
   // only put GEM copad collections in the event when the
   // integrated local triggers are running
   if (runME11ILT_ or runME21ILT_)
