@@ -114,7 +114,7 @@ void l1ct::LinPuppiEmulator::linpuppi_chs_ref(const PFRegionEmu & region, const 
     outallch.resize(nTrack);
     for (unsigned int i = 0; i < nTrack; ++i) {
         int z0diff = pfch[i].hwZ0 - pv.hwZ0;
-        if (region.isFiducial(pfch[i]) && (std::abs(z0diff) <= dzCut_ || pfch[i].hwId.isMuon())) {
+        if (pfch[i].hwPt != 0 && region.isFiducial(pfch[i]) && (std::abs(z0diff) <= dzCut_ || pfch[i].hwId.isMuon())) {
             outallch[i].fill(region, pfch[i]);
             if (debug_ && pfch[i].hwPt > 0) printf("ref candidate %02u pt %7.2f pid %1d   vz %+6d  dz %+6d (cut %5d) -> pass\n", i, 
                                     pfch[i].floatPt(), pfch[i].intId(), int(pfch[i].hwZ0), z0diff, dzCut_);
