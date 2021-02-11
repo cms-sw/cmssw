@@ -884,6 +884,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hb.add<int>("recoShape", 105);
   desc_hb.add<double>("photoelectronsToAnalog", 0.0);
   desc_hb.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
+  desc_hb.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_hb.add<bool>("doRadiationDamage", false);
   desc.add<edm::ParameterSetDescription>("hb", desc_hb);
 
@@ -908,6 +909,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hbUpgrade.add<int>("recoShape", 206);
   desc_hbUpgrade.add<double>("photoelectronsToAnalog", 57.5);
   desc_hbUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
+  desc_hbUpgrade.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.26}));
   desc_hbUpgrade.add<bool>("doRadiationDamage", true);
   desc_hbUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_hbRaddam);
   desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
@@ -925,6 +927,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_he.add<int>("recoShape", 105);
   desc_he.add<double>("photoelectronsToAnalog", 0.0);
   desc_he.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
+  desc_he.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_he.add<bool>("doRadiationDamage", false);
   desc.add<edm::ParameterSetDescription>("he", desc_he);
 
@@ -949,6 +952,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_heUpgrade.add<int>("recoShape", 206);
   desc_heUpgrade.add<double>("photoelectronsToAnalog", 57.5);
   desc_heUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
+  desc_heUpgrade.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.26}));
   desc_heUpgrade.add<bool>("doRadiationDamage", true);
   desc_heUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_heRaddam);
   desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
@@ -966,6 +970,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hf.add<int>("recoShape", 301);
   desc_hf.add<double>("photoelectronsToAnalog", 0.0);
   desc_hf.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
+  desc_hf.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_hf.add<bool>("doRadiationDamage", false);
   desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
@@ -982,6 +987,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hfUpgrade.add<int>("recoShape", 301);
   desc_hfUpgrade.add<double>("photoelectronsToAnalog", 0.0);
   desc_hfUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
+  desc_hfUpgrade.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_hfUpgrade.add<bool>("doRadiationDamage", false);
   desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
 
@@ -1005,6 +1011,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_ho.add<int>("recoShape", 201);
   desc_ho.add<double>("photoelectronsToAnalog", 4.0);
   desc_ho.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
+  desc_ho.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_ho.add<bool>("doRadiationDamage", false);
   desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
