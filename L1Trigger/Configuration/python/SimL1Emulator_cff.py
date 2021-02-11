@@ -93,6 +93,9 @@ _phase2_siml1emulator.add(l1EGammaEEProducer)
 # ########################################################################
 # Phase-2 L1T - TrackTrigger dependent modules
 # ########################################################################
+from L1Trigger.VertexFinder.VertexProducer_cff import *
+L1VertexFinder = VertexProducer.clone()
+_phase2_siml1emulator.add(L1VertexFinder)
 
 # Tk + StandaloneObj, including L1TkPrimaryVertex
 # ########################################################################
@@ -192,7 +195,6 @@ _phase2_siml1emulator.add(L1TkIsoElectronsHGC)
 _phase2_siml1emulator.add(L1TkPhotonsHGC)
 
 _phase2_siml1emulator.add( L1TkMuons )
-_phase2_siml1emulator.add( L1TkGlbMuons )
 
 
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
