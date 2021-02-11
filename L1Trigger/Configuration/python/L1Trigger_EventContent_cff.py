@@ -177,6 +177,7 @@ def _appendPhase2Digis(obj):
         'keep *_hgcalTowerProducer_*_*',
         'keep *_L1EGammaClusterEmuProducer_*_*',
         'keep *_l1EGammaEEProducer_*_*',
+        'keep *_L1VertexFinder_*_*',
         'keep *_L1TkPrimaryVertex_*_*',
         'keep *_L1TkElectronsCrystal_*_*',
         'keep *_L1TkElectronsLooseCrystal_*_*',
