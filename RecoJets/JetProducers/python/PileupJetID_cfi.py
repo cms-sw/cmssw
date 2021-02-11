@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
+from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
 from RecoJets.JetProducers.PileupJetIDParams_cfi import *
 
 #_stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
@@ -35,7 +37,7 @@ pileupJetId = cms.EDProducer('PileupJetIdProducer',
 #     residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/download.url") # must be an existing file
 )
 run2_miniAOD_UL.toModify(pileupJetId, algos = _chsalgos_106X_UL17)
-run2_miniAOD_devel.toModify(pileupJetId, algos = _chsalgos_106X_UL18)
+(run2_miniAOD_devel & (~run2_jme_2016) & (~run2_jme_2017)).toModify(pileupJetId, algos = _chsalgos_106X_UL18)
 
 # Calculate variables, but don't run MVAs
 pileupJetIdCalculator = pileupJetId.clone(
