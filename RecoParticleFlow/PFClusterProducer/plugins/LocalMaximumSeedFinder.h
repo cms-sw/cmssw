@@ -25,6 +25,9 @@ private:
 
   std::array<I3tuple, 35> _thresholds;
   static constexpr int layerOffset = 15;
+
+  static constexpr double detacut = 0.01;
+  static constexpr double dphicut = 0.01;
 };
 
 DEFINE_EDM_PLUGIN(SeedFinderFactory, LocalMaximumSeedFinder, "LocalMaximumSeedFinder");
