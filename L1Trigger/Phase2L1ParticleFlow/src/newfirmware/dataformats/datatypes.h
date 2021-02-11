@@ -130,8 +130,10 @@ struct ParticleID {
 };
 
 namespace Scales {
+    const int INTPHI_PI = 720;
+    const int INTPHI_TWOPI = 2*INTPHI_PI;
     constexpr float INTPT_LSB = 0.25;
-    constexpr float ETAPHI_LSB = M_PI/720;
+    constexpr float ETAPHI_LSB = M_PI/INTPHI_PI;
     constexpr float Z0_LSB = 0.05;
     constexpr float DXY_LSB = 0.05;
     constexpr float PUPPIW_LSB = 1.0/256;
@@ -173,6 +175,7 @@ namespace Scales {
     inline phi_t makePhi(float phi) { return round(phi / ETAPHI_LSB); }
     inline eta_t makeEta(float eta) { return round(eta / ETAPHI_LSB); }
     inline glbeta_t makeGlbEta(float eta) { return round(eta / ETAPHI_LSB); }
+    inline glbphi_t makeGlbPhi(float phi) { return round(phi / ETAPHI_LSB); }
 
     inline int makeDR2FromFloatDR(float dr) { return ceil(dr*dr/ETAPHI_LSB/ETAPHI_LSB); }
 };

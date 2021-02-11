@@ -183,27 +183,92 @@ inline void clear(PFNeutralObj &c) {
 
 struct PFRegion {
     glbeta_t hwEtaCenter;
-
-    inline glbeta_t hwGlbEta(eta_t hwEta) const {
-        return hwEtaCenter + hwEta;
-    }
+    glbphi_t hwPhiCenter;
+    eta_t    hwEtaHalfWidth;
+    phi_t    hwPhiHalfWidth;
 
     inline float floatEtaCenter() const {
         return Scales::floatEta(hwEtaCenter);
     }
+    inline float floatPhiCenter() const {
+        return Scales::floatPhi(hwPhiCenter);
+    }
+    inline float floatEtaHalfWidth() const {
+        return Scales::floatEta(hwEtaHalfWidth);
+    }
+    inline float floatPhiHalfWidth() const {
+        return Scales::floatPhi(hwPhiHalfWidth);
+    }
+    inline float floatEtaMin() const {
+        return Scales::floatEta(glbeta_t(hwEtaCenter - hwEtaHalfWidth));
+    }
+    inline float floatEtaMax() const {
+        return Scales::floatEta(glbeta_t(hwEtaCenter + hwEtaHalfWidth));
+    }
+
+    inline glbeta_t hwGlbEta(eta_t hwEta) const {
+        return hwEtaCenter + hwEta;
+    }
+    inline glbphi_t hwGlbPhi(phi_t hwPhi) const {
+        ap_int<glbphi_t::width+1> ret = hwPhiCenter + hwPhi;
+        if      (ret >   Scales::INTPHI_PI) return ret - Scales::INTPHI_TWOPI;
+        else if (ret <= -Scales::INTPHI_PI) return ret + Scales::INTPHI_TWOPI;
+        else     return ret;
+    }
+
+    template<typename T>
+    inline glbeta_t hwGlbEtaOf(const T &t) const {
+        return hwGlbEta(t.hwEta);
+    }
+    template<typename T>
+    inline glbphi_t hwGlbPhiOf(const T &t) const {
+        return hwGlbPhi(t.hwPhi);
+    }
+
+
     inline float floatGlbEta(eta_t hwEta) const {
         return Scales::floatEta(hwGlbEta(hwEta));
     }
+    inline float floatGlbPhi(phi_t hwPhi) const {
+        return Scales::floatPhi(hwGlbPhi(hwPhi));
+    }
 
-    static const int BITWIDTH = glbeta_t::width;
+    template<typename T>
+    inline float floatGlbEtaOf(const T & t) const {
+        return floatGlbEta(t.hwEta);
+    }
+    template<typename T>
+    inline float floatGlbPhiOf(const T & t) const {
+        return floatGlbPhi(t.hwPhi);
+    }
+
+    inline bool isFiducial(eta_t hwEta, phi_t hwPhi) const {
+        return  hwEta <=  hwEtaHalfWidth &&
+                hwEta >  -hwEtaHalfWidth &&
+                hwPhi <=  hwPhiHalfWidth &&
+                hwPhi <  -hwPhiHalfWidth;
+    }
+
+    template<typename T>
+    inline bool isFiducial(const T & t) const {
+        return isFiducial(t.hwEta, t.hwPhi);
+    }
+
+    static const int BITWIDTH = glbeta_t::width + glbphi_t::width + eta_t::width + phi_t::width;
     inline ap_uint<BITWIDTH> pack() const {
         ap_uint<BITWIDTH> ret; unsigned int start = 0;
         _pack_into_bits(ret, start, hwEtaCenter);
+        _pack_into_bits(ret, start, hwPhiCenter);
+        _pack_into_bits(ret, start, hwEtaHalfWidth);
+        _pack_into_bits(ret, start, hwPhiHalfWidth);
         return ret;
     }
     inline static PFRegion unpack(const ap_uint<BITWIDTH> & src) {
         PFRegion ret; unsigned int start = 0;
         _unpack_from_bits(src, start, ret.hwEtaCenter);
+        _unpack_from_bits(src, start, ret.hwPhiCenter);
+        _unpack_from_bits(src, start, ret.hwEtaHalfWidth);
+        _unpack_from_bits(src, start, ret.hwPhiHalfWidth);
         return ret;
     }
 
