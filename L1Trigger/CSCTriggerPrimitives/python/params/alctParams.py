@@ -38,7 +38,29 @@ alctPhase1 = cms.PSet(
     # whether to store the "corrected" ALCT stub time
     # (currently it is median time of particular hits in a pattern) into the CSCCLCTDigi bx,
     # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
-    alctUseCorrectedBx = cms.bool(False)
+    alctUseCorrectedBx = cms.bool(False),
+
+    ## {loose, nominal, tight} thresholds for hit counters
+    shower_thresholds = cms.vuint32(
+        # ME1/1
+        104, 105, 107,
+        # ME1/2
+        92, 100, 102,
+        # ME1/3
+        32, 33, 48,
+        # ME2/1
+        133, 134, 136,
+        # ME2/2
+        83, 84, 86,
+        # ME3/1
+        130, 131, 133,
+        # ME3/2
+        74, 80, 87,
+        # ME4/1
+        127, 128, 130,
+        # ME4/2
+        88, 89, 94
+    )
 )
 
 # Parameters for upgrade ALCT processors

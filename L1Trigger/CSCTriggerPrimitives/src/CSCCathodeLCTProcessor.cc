@@ -98,6 +98,8 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     }
   }
 
+  thresholds_ = clctParams_.getParameter<std::vector<unsigned>>("shower_thresholds");
+
   thePreTriggerDigis.clear();
 
   // quality control of stubs
@@ -206,6 +208,7 @@ void CSCCathodeLCTProcessor::clear() {
     bestCLCT[bx].clear();
     secondCLCT[bx].clear();
   }
+  highMultiplicityBits_ = 0;
 }
 
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
@@ -289,12 +292,15 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
   }
 
   // Get comparator digis in this chamber.
-  bool noDigis = getDigis(compdc);
+  bool hasDigis = getDigis(compdc);
 
-  if (!noDigis) {
+  if (hasDigis) {
     // Get halfstrip times from comparator digis.
     std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS];
     readComparatorDigis(halfstrip);
+
+    // Get the high multiplicity bits in this chamber
+    encodeHighMultiplicityBits(halfstrip);
 
     // Pass arrays of halfstrips on to another run() doing the
     // LCT search.
@@ -396,7 +402,7 @@ void CSCCathodeLCTProcessor::run(
 }
 
 bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc) {
-  bool noDigis = true;
+  bool hasDigis = false;
 
   // Loop over layers and save comparator digis on each one into digiV[layer].
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
@@ -411,7 +417,7 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
     }
 
     if (!digiV[i_layer].empty()) {
-      noDigis = false;
+      hasDigis = true;
       if (infoV > 1) {
         LogTrace("CSCCathodeLCTProcessor") << "found " << digiV[i_layer].size() << " comparator digi(s) in layer "
                                            << i_layer << " of " << detid.chamberName() << " (trig. sector " << theSector
@@ -420,7 +426,7 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
     }
   }
 
-  return noDigis;
+  return hasDigis;
 }
 
 void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id) {
@@ -1446,4 +1452,30 @@ unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(const unsigned slope)
   const unsigned slopeList[32] = {2,  2,  2, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 10, 10,
                                   10, 10, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3,  3};
   return slopeList[slope];
+}
+
+void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
+    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
+  highMultiplicityBits_ = 0;
+
+  unsigned hits = 0;
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
+      hits += halfstrip[i_layer][i_hstrip].size();
+    }
+  }
+
+  // convert station and ring number to index
+  // index runs from 2 to 10, subtract 2
+  unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
+
+  // loose, nominal and tight
+  std::vector<unsigned> station_thresholds = {
+      thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
+
+  for (unsigned i = 0; i < station_thresholds.size(); i++) {
+    if (hits >= station_thresholds[i]) {
+      highMultiplicityBits_ = i + 1;
+    }
+  }
 }

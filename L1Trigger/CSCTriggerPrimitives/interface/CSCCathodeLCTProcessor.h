@@ -91,6 +91,9 @@ public:
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1a() const;
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b() const;
 
+  /* get special bits for high multiplicity triggers */
+  unsigned getHighMultiplicityBits() const { return highMultiplicityBits_; }
+
 protected:
   /** Best LCT in this chamber, as found by the processor. */
   CSCCLCTDigi bestCLCT[CSCConstants::MAX_CLCT_TBINS];
@@ -202,6 +205,12 @@ protected:
   std::vector<CSCComparatorDigi> digiV[CSCConstants::NUM_LAYERS];
   std::vector<int> thePreTriggerBXs;
   std::vector<CSCCLCTPreTriggerDigi> thePreTriggerDigis;
+
+  /* data members for high multiplicity triggers */
+  void encodeHighMultiplicityBits(
+      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+  unsigned highMultiplicityBits_;
+  std::vector<unsigned> thresholds_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig;  // only for test beam mode.

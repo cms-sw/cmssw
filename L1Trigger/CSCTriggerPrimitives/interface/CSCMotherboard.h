@@ -37,6 +37,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 
 class CSCMotherboard : public CSCBaseboard {
 public:
@@ -63,6 +64,9 @@ public:
 
   /** Returns vector of all found correlated LCTs, if any. */
   std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
+
+  /** Returns shower bits */
+  CSCShowerDigi readoutShower() const;
 
   /** Clears correlated LCT and passes clear signal on to cathode and anode
       LCT processors. */

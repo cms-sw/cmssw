@@ -15,6 +15,28 @@ clctPhase1 = cms.PSet(
 
     # BX to start CLCT finding (poor man's dead-time shortening):
     clctStartBxShift  = cms.int32(0),
+
+    ## {loose, nominal, tight} thresholds for hit counters
+    shower_thresholds = cms.vuint32(
+        # ME1/1
+        98, 99, 101,
+        # ME1/2
+        56, 62, 73,
+        # ME1/3
+        30, 31, 33,
+        # ME2/1
+        49, 53, 55,
+        # ME2/2
+        42, 43, 46,
+        # ME3/1
+        49, 50, 52,
+        # ME3/2
+        35, 36, 38,
+        # ME4/1
+        42, 49, 51,
+        # ME4/2
+        31, 34, 36
+    )
 )
 
 # Parameters for upgrade CLCT processors

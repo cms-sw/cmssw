@@ -273,9 +273,6 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   // Not used in Run-2. Will not be assigned in Run-3
   thisLCT.setSyncErr(0);
   thisLCT.setCSCID(theTrigChamber);
-  // in Run-3 we plan to denote the presence of exotic signatures in the chamber
-  if (useHighMultiplicityBits_)
-    thisLCT.setHMT(highMultiplicityBits_);
 
   // future work: add a section that produces LCTs according
   // to the new LCT dataformat (not yet defined)

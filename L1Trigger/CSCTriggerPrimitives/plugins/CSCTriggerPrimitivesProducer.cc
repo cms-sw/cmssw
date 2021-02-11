@@ -23,6 +23,8 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 // Configuration via EventSetup
@@ -75,6 +77,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   }
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
+  produces<CSCShowerDigiCollection>();
   if (runME11ILT_ or runME21ILT_)
     produces<GEMCoPadDigiCollection>();
 
@@ -139,6 +142,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
+  std::unique_ptr<CSCShowerDigiCollection> oc_shower(new CSCShowerDigiCollection);
   std::unique_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
 
   if (!wireDigis.isValid()) {
@@ -169,6 +173,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
                     *oc_pretrig,
                     *oc_lct,
                     *oc_sorted_lct,
+                    *oc_shower,
                     *oc_gemcopad);
     if (!checkBadChambers_)
       delete temp;
@@ -190,6 +195,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   ev.put(std::move(oc_pretrig));
   ev.put(std::move(oc_lct));
   ev.put(std::move(oc_sorted_lct), "MPCSORTED");
+  ev.put(std::move(oc_shower));
   // only put GEM copad collections in the event when the
   // integrated local triggers are running
   if (runME11ILT_ or runME21ILT_)

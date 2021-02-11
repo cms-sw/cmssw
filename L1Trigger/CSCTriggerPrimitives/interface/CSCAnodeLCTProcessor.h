@@ -88,7 +88,7 @@ public:
   CSCALCTDigi getBestALCT(int bx) const;
   CSCALCTDigi getSecondALCT(int bx) const;
 
-  /* encode special bits for high multiplicity triggers */
+  /* get special bits for high multiplicity triggers */
   unsigned getHighMultiplictyBits() const { return highMultiplicityBits_; }
 
 protected:
@@ -123,8 +123,9 @@ protected:
   std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
 
   /* data members for high multiplicity triggers */
-  void encodeHighMultiplicityBits();
+  void encodeHighMultiplicityBits(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
   unsigned int highMultiplicityBits_;
+  std::vector<unsigned> thresholds_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;

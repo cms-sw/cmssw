@@ -81,6 +81,8 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
 
   // quality control of stubs
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
+
+  thresholds_ = alctParams_.getParameter<std::vector<unsigned>>("shower_thresholds");
 }
 
 CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() : CSCBaseboard() {
@@ -1382,4 +1384,30 @@ void CSCAnodeLCTProcessor::setWireContainer(CSCALCTDigi& alct, CSCALCTDigi::Wire
 
   // set the hit container
   alct.setHits(wireHits);
+}
+
+void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(
+    const std::vector<int> wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+  highMultiplicityBits_ = 0;
+
+  unsigned hits = 0;
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
+      hits += wires[i_layer][i_hstrip].size();
+    }
+  }
+
+  // convert station and ring number to index
+  // index runs from 2 to 10, subtract 2
+  unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
+
+  // loose, nominal and tight
+  std::vector<unsigned> station_thresholds = {
+      thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
+
+  for (unsigned i = 0; i < station_thresholds.size(); i++) {
+    if (hits >= station_thresholds[i]) {
+      highMultiplicityBits_ = i + 1;
+    }
+  }
 }
