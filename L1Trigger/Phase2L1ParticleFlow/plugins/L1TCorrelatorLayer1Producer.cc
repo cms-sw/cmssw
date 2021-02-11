@@ -514,6 +514,7 @@ void L1TCorrelatorLayer1Producer::addDecodedHadCalo(l1ct::DetectorSector<l1ct::H
     calo.hwPhi = l1ct::Scales::makePhi(sec.region.localPhi(c.phi()));
     calo.hwEmPt = l1ct::Scales::makePtFromFloat(c.emEt());
     calo.hwIsEM = c.isEM();
+    calo.src = & c;
     sec.obj.push_back(calo);
 }
 
@@ -524,6 +525,7 @@ void L1TCorrelatorLayer1Producer::addDecodedEmCalo(l1ct::DetectorSector<l1ct::Em
     calo.hwPhi = l1ct::Scales::makePhi(sec.region.localPhi(c.phi()));
     calo.hwPtErr = l1ct::Scales::makePtFromFloat(c.ptError());
     calo.hwFlags = c.hwQual();
+    calo.src = & c;
     sec.obj.push_back(calo);
 }
 
