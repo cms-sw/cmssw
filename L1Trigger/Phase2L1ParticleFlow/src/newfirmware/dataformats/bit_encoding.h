@@ -34,7 +34,9 @@ template <unsigned int N, unsigned int OFFS=0, typename T, int NB>
 inline void l1pf_pattern_pack(const T objs[N], ap_uint<NB> data[]) {
   assert(T::BITWIDTH <= NB);
   for (unsigned int i = 0; i < N; ++i) {
+#ifdef __SYNTHESIS__
     #pragma HLS unroll
+#endif
     data[i + OFFS] = objs[i].pack();
   }
 }
@@ -43,7 +45,9 @@ template <unsigned int N, unsigned int OFFS=0, typename T, int NB>
 inline void l1pf_pattern_unpack(const ap_uint<NB> data[], T objs[N]) {
   assert(T::BITWIDTH <= NB);
   for (unsigned int i = 0; i < N; ++i) {
+#ifdef __SYNTHESIS__
     #pragma HLS unroll
+#endif
     objs[i] = T::unpack(data[i + OFFS]);
   }
 }
