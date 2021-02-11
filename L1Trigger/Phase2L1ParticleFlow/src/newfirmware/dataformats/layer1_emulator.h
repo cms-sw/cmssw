@@ -78,6 +78,27 @@ namespace l1ct {
         }
     };
 
+    struct PFRegionEmu : public PFRegion {
+        float etaExtra, phiExtra;
+
+        PFRegionEmu() : PFRegion() {}
+        PFRegionEmu(float etamin,
+           float etamax,
+           float phicenter,
+           float phiwidth,
+           float etaextra,
+           float phiextra) ;
+
+        // global coordinates
+        bool contains(float eta, float phi) const ;
+        float localEta(float globalEta) const ;
+        float localPhi(float globalPhi) const ;
+
+        bool read(std::fstream & from) ;
+        bool write(std::fstream & to) const ;
+    };
+
+
     struct PuppiObjEmu : public PuppiObj {
         const l1t::PFCluster *srcCluster;
         const l1t::PFTrack *srcTrack;
@@ -90,22 +111,22 @@ namespace l1ct {
             srcTrack = nullptr;
             srcMu = nullptr;
         }
-        inline void fill(const PFChargedObjEmu &src) {
-            PuppiObj::fill(src);
+        inline void fill(const PFRegionEmu & region, const PFChargedObjEmu &src) {
+            PuppiObj::fill(region, src);
             srcCluster = src.srcCluster;
             srcTrack = src.srcTrack;
             srcMu = src.srcMu;
         }
-        inline void fill(const PFNeutralObjEmu &src, pt_t puppiPt,
+        inline void fill(const PFRegionEmu & region, const PFNeutralObjEmu &src, pt_t puppiPt,
                 puppiWgt_t puppiWgt) {
-            PuppiObj::fill(src, puppiPt, puppiWgt);
+            PuppiObj::fill(region, src, puppiPt, puppiWgt);
             srcCluster = src.srcCluster;
             srcTrack = nullptr;
             srcMu = nullptr;
         }
-        inline void fill(const HadCaloObjEmu &src, pt_t puppiPt,
+        inline void fill(const PFRegionEmu & region, const HadCaloObjEmu &src, pt_t puppiPt,
                 puppiWgt_t puppiWgt) {
-            PuppiObj::fill(src, puppiPt, puppiWgt);
+            PuppiObj::fill(region, src, puppiPt, puppiWgt);
             srcCluster = src.src;
             srcTrack = nullptr;
             srcMu = nullptr;
@@ -113,30 +134,6 @@ namespace l1ct {
 
     };
 
-
-    struct PFRegionEmu : public PFRegion {
-        float etaCenter, etaMin, etaMax, phiCenter, phiHalfWidth;
-        float etaExtra, phiExtra;
-
-        PFRegionEmu() : PFRegion() {}
-        PFRegionEmu(float etamin,
-           float etamax,
-           float phicenter,
-           float phiwidth,
-           float etaextra,
-           float phiextra) ;
-            
-
-        // global coordinates
-        bool contains(float eta, float phi) const ;
-        float localEta(float globalEta) const ;
-        float localPhi(float globalPhi) const ;
-
-        bool read(std::fstream & from) ;
-        bool write(std::fstream & to) const ;
-
-        
-    };
    
     struct PVObjEmu {
         z0_t hwZ0;

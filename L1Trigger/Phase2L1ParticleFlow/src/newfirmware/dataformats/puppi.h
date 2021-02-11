@@ -106,9 +106,9 @@ struct PuppiObj {
   }
 
 
-  inline void fill(const PFChargedObj &src) {
-    hwEta = src.hwVtxEta(); 
-    hwPhi = src.hwVtxPhi();
+  inline void fill(const PFRegion & region, const PFChargedObj &src) {
+    hwEta = region.hwGlbEta(src.hwVtxEta()); 
+    hwPhi = region.hwGlbPhi(src.hwVtxPhi());
     hwId = src.hwId;
     hwPt = src.hwPt;
     hwData = 0;
@@ -116,19 +116,19 @@ struct PuppiObj {
     setHwDxy(src.hwDxy);
     setHwTkQuality(src.hwTkQuality);
   }
-  inline void fill(const PFNeutralObj &src, pt_t puppiPt,
+  inline void fill(const PFRegion & region, const PFNeutralObj &src, pt_t puppiPt,
                    puppiWgt_t puppiWgt) {
-    hwEta = src.hwEta;
-    hwPhi = src.hwPhi;
+    hwEta = region.hwGlbEta(src.hwEta);
+    hwPhi = region.hwGlbPhi(src.hwPhi);
     hwId = src.hwId;
     hwPt = puppiPt;
     hwData = 0;
     setHwPuppiW(puppiWgt);
   }
-  inline void fill(const HadCaloObj &src, pt_t puppiPt,
+  inline void fill(const PFRegion & region, const HadCaloObj &src, pt_t puppiPt,
                    puppiWgt_t puppiWgt) {
-    hwEta = src.hwEta;
-    hwPhi = src.hwPhi;
+    hwEta = region.hwGlbEta(src.hwEta);
+    hwPhi = region.hwGlbPhi(src.hwPhi);
     hwId = src.hwIsEM ? ParticleID::PHOTON : ParticleID::HADZERO;
     hwPt = puppiPt;
     hwData = 0;

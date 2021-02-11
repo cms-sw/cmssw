@@ -43,7 +43,7 @@ l1ctLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
         dr     = cms.double(0.3),
         drMin  = cms.double(0.07),
         ptMax  = cms.double(50.),
-        absEtaCuts         = cms.vdouble( 1.6 ), # just one bin
+        absEtaCuts         = cms.vdouble( ), # just one bin, so no edge needd
         ptCut             = cms.vdouble( 1.0 ),
         ptSlopes           = cms.vdouble( 0.3 ), # coefficient for pT
         ptSlopesPhoton    = cms.vdouble( 0.3 ),
@@ -61,7 +61,7 @@ l1ctLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     caloSectors = cms.VPSet(
         cms.PSet( 
             etaBoundaries = cms.vdouble(-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5),
-            phiSlices     = cms.uint32(9)
+            phiSlices     = cms.uint32(6)
         )
     ),
     regions = cms.VPSet(
@@ -114,7 +114,7 @@ l1ctLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         dr     = cms.double(0.3),
         drMin  = cms.double(0.04),
         ptMax  = cms.double(50.),
-        absEtaCuts         = cms.vdouble( 2.0, 2.5 ), # two bins in the tracker (different pT), one outside
+        absEtaCuts         = cms.vdouble( 2.0 ), # two bins in the tracker (different eta); give only the one boundary between them 
         ptCut             = cms.vdouble( 1.0, 2.0 ),
         ptSlopes           = cms.vdouble( 0.3, 0.3 ), # coefficient for pT
         ptSlopesPhoton    = cms.vdouble( 0.4, 0.4 ), #When e/g ID not applied, use: cms.vdouble( 0.3, 0.3, 0.3 ),
@@ -184,7 +184,7 @@ l1ctLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
         dr     = cms.double(0.3),
         drMin  = cms.double(0.04),
         ptMax  = cms.double(50.),
-        absEtaCuts         = cms.vdouble( 3.1 ), # two bins in the tracker (different pT), one outside
+        absEtaCuts         = cms.vdouble( ), # just one bin
         ptCut             = cms.vdouble( 4.0 ),
         ptSlopes           = cms.vdouble( 0.3 ), # coefficient for pT
         ptSlopesPhoton    = cms.vdouble( 0.4 ), #When e/g ID not applied, use: cms.vdouble( 0.3, 0.3, 0.3 ),
@@ -202,11 +202,11 @@ l1ctLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     caloSectors = cms.VPSet(
         cms.PSet( 
             etaBoundaries = cms.vdouble(-3.0, -2.5),
-            phiSlices     = cms.uint32(9)
+            phiSlices     = cms.uint32(3)
         ),
         cms.PSet( 
             etaBoundaries = cms.vdouble(+2.5, +3.0),
-            phiSlices     = cms.uint32(9)
+            phiSlices     = cms.uint32(3)
         )
     ),
     regions = cms.VPSet(
@@ -253,7 +253,7 @@ l1ctLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
         dr     = cms.double(0.3),
         drMin  = cms.double(0.1),
         ptMax  = cms.double(100.),
-        absEtaCuts         = cms.vdouble(  5.5  ),
+        absEtaCuts         = cms.vdouble(   ), # just one bin
         ptCut             = cms.vdouble( 10.0  ),
         ptSlopes           = cms.vdouble(  0.25 ),
         ptSlopesPhoton    = cms.vdouble(  0.25 ),
