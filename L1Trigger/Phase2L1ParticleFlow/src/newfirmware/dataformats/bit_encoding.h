@@ -32,7 +32,6 @@ inline void _unpack_bool_from_bits(const U & u, unsigned int & start, bool & dat
 
 template <unsigned int N, unsigned int OFFS=0, typename T, int NB>
 inline void l1pf_pattern_pack(const T objs[N], ap_uint<NB> data[]) {
-  #pragma HLS inline
   assert(T::BITWIDTH <= NB);
   for (unsigned int i = 0; i < N; ++i) {
     #pragma HLS unroll
@@ -42,7 +41,6 @@ inline void l1pf_pattern_pack(const T objs[N], ap_uint<NB> data[]) {
 
 template <unsigned int N, unsigned int OFFS=0, typename T, int NB>
 inline void l1pf_pattern_unpack(const ap_uint<NB> data[], T objs[N]) {
-  #pragma HLS inline
   assert(T::BITWIDTH <= NB);
   for (unsigned int i = 0; i < N; ++i) {
     #pragma HLS unroll

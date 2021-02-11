@@ -246,7 +246,7 @@ struct PFRegion {
         return  hwEta <=  hwEtaHalfWidth &&
                 hwEta >  -hwEtaHalfWidth &&
                 hwPhi <=  hwPhiHalfWidth &&
-                hwPhi <  -hwPhiHalfWidth;
+                hwPhi >  -hwPhiHalfWidth;
     }
 
     template<typename T>

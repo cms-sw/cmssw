@@ -1,14 +1,14 @@
 #ifndef FIRMWARE_dataformats_datatypes_h
 #define FIRMWARE_dataformats_datatypes_h
 
-#if (!defined(__CLANG__)) && defined(__GNUC__)
+#if (!defined(__CLANG__)) && defined(__GNUC__) && defined(CMSSW_GIT_HASH)
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wint-in-bool-context"
     #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     #pragma GCC diagnostic ignored "-Wuninitialized"
 #endif
 #include <ap_int.h>
-#if (!defined(__CLANG__)) && defined(__GNUC__)
+#if (!defined(__CLANG__)) && defined(__GNUC__) && defined(CMSSW_GIT_HASH)
     #pragma GCC diagnostic pop
 #endif
 

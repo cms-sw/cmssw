@@ -103,8 +103,8 @@ l1ct::PFRegionEmu::PFRegionEmu(float etamin,
 
 bool l1ct::PFRegionEmu::contains(float eta, float phi) const {
     float dphi = reco::deltaPhi(floatPhiCenter(), phi);
-    return (floatEtaMin() - etaExtra < eta && eta <= floatEtaMax() + etaExtra && -floatEtaHalfWidth() - phiExtra < dphi &&
-            dphi <= floatEtaHalfWidth() + phiExtra);
+    return (floatEtaMin() - etaExtra < eta && eta <= floatEtaMax() + etaExtra && -floatPhiHalfWidth() - phiExtra < dphi &&
+            dphi <= floatPhiHalfWidth() + phiExtra);
 }
 float  l1ct::PFRegionEmu::localEta(float globalEta) const { return globalEta - floatEtaCenter(); }
 float  l1ct::PFRegionEmu::localPhi(float globalPhi) const { return reco::deltaPhi(globalPhi, floatPhiCenter()); }
