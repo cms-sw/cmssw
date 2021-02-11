@@ -34,7 +34,8 @@ RegionMapper::RegionMapper(const edm::ParameterSet &iConfig) : useRelativeRegion
         npuppimax = preg.getParameter<uint32_t>("puppiNMax");
       for (unsigned int ieta = 0, neta = etaBoundaries.size() - 1; ieta < neta; ++ieta) {
         for (unsigned int iphi = 0; iphi < phiSlices; ++iphi) {
-          float phiCenter = (iphi + 0.5) * phiWidth - M_PI;
+          //float phiCenter = (iphi + 0.5) * phiWidth - M_PI;
+          float phiCenter = reco::reduceRange(iphi * phiWidth);  //align with L1 TrackFinder phi sector indexing for now
           regions_.push_back(Region(etaBoundaries[ieta],
                                     etaBoundaries[ieta + 1],
                                     phiCenter,
