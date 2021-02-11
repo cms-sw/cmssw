@@ -97,6 +97,9 @@ private:
   void addDecodedHadCalo(l1ct::DetectorSector<l1ct::HadCaloObjEmu> & sec, const l1t::PFCluster &t);
   void addDecodedEmCalo(l1ct::DetectorSector<l1ct::EmCaloObjEmu> & sec, const l1t::PFCluster &t);
   // fetching outputs
+  std::unique_ptr<l1t::PFCandidateCollection> fetchHadCalo() const;
+  std::unique_ptr<l1t::PFCandidateCollection> fetchEmCalo() const;
+  std::unique_ptr<l1t::PFCandidateCollection> fetchTracks() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchPF() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchPuppi() const;
   template<typename T>
@@ -130,10 +133,10 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   produces<l1t::PFCandidateCollection>("PF");
   produces<l1t::PFCandidateCollection>("Puppi");
 
-#if 0 // LATER
   produces<l1t::PFCandidateCollection>("EmCalo");
   produces<l1t::PFCandidateCollection>("Calo");
   produces<l1t::PFCandidateCollection>("TK");
+#if 0 // LATER
   produces<l1t::PFCandidateCollection>("TKVtx");
 #endif
 
@@ -285,11 +288,9 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event& iEvent, const edm::EventSe
   regionizer_->run(event_.decoded, event_.pfinputs);
 
   // First, get a copy of the discretized and corrected inputs, and write them out
-#if 0
-  iEvent.put(fetchCalo(event_, /*ptmin=*/0.1, /*em=*/true), "EmCalo");
-  iEvent.put(fetchCalo(event_, /*ptmin=*/0.1, /*em=*/false), "Calo");
-  iEvent.put(fetchTracks(event_, /*ptmin=*/0.0, /*fromPV=*/false), "TK");
-#endif
+  iEvent.put(fetchEmCalo(), "EmCalo");
+  iEvent.put(fetchHadCalo(), "Calo");
+  iEvent.put(fetchTracks(), "TK");
 
   // Then do the vertexing, and save it out
   float z0 = 0; double ptsum = 0;
@@ -569,6 +570,90 @@ void L1TCorrelatorLayer1Producer::setRefs_<l1ct::PFNeutralObjEmu>(l1t::PFCandida
         pf.setPFCluster(match->second);
     }
 }
+
+template<>
+void L1TCorrelatorLayer1Producer::setRefs_<l1ct::HadCaloObjEmu>(l1t::PFCandidate &pf, const l1ct::HadCaloObjEmu & p) const {
+    if (p.src) {
+        auto match = clusterRefMap_.find(p.src);
+        if (match == clusterRefMap_.end()) {
+            throw cms::Exception("CorruptData") << "Invalid cluster pointer in hadcalo candidate  pt "
+                << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
+        }
+        pf.setPFCluster(match->second);
+    }
+}
+
+template<>
+void L1TCorrelatorLayer1Producer::setRefs_<l1ct::EmCaloObjEmu>(l1t::PFCandidate &pf, const l1ct::EmCaloObjEmu & p) const {
+    if (p.src) {
+        auto match = clusterRefMap_.find(p.src);
+        if (match == clusterRefMap_.end()) {
+            throw cms::Exception("CorruptData") << "Invalid cluster pointer in emcalo candidate  pt "
+                << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
+        }
+        pf.setPFCluster(match->second);
+    }
+}
+
+template<>
+void L1TCorrelatorLayer1Producer::setRefs_<l1ct::TkObjEmu>(l1t::PFCandidate &pf, const l1ct::TkObjEmu & p) const {
+    if (p.src) {
+        auto match = trackRefMap_.find(p.src);
+        if (match == trackRefMap_.end()) {
+            throw cms::Exception("CorruptData") << "Invalid track pointer in track candidate  pt "
+                << p.floatPt() << " eta " << p.floatEta() << " phi " << p.floatPhi();
+        }
+        pf.setPFTrack(match->second);
+    }
+}
+
+
+
+std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchHadCalo() const {
+  auto ret = std::make_unique<l1t::PFCandidateCollection>();
+  for (const auto r : event_.pfinputs) {
+      const auto & reg = r.region;
+      for (const auto &p : r.hadcalo) {
+          if (p.hwPt == 0 || !reg.isFiducial(p)) continue;
+          reco::Particle::PolarLorentzVector p4(
+                  p.floatPt(), reg.floatGlbEtaOf(p), reg.floatGlbPhiOf(p), 0.13f);
+          l1t::PFCandidate::ParticleType type = p.hwIsEM ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
+          ret->emplace_back(type, 0, p4, 1, p.intPt(), p.intEta(), p.intPhi());
+          setRefs_(ret->back(), p);
+      }
+  }
+  return ret;
+}
+std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchEmCalo() const {
+  auto ret = std::make_unique<l1t::PFCandidateCollection>();
+  for (const auto r : event_.pfinputs) {
+      const auto & reg = r.region;
+      for (const auto &p : r.emcalo) {
+          if (p.hwPt == 0 || !reg.isFiducial(p)) continue;
+          reco::Particle::PolarLorentzVector p4(
+                  p.floatPt(), reg.floatGlbEtaOf(p), reg.floatGlbPhiOf(p), 0.13f);
+          ret->emplace_back(l1t::PFCandidate::Photon, 0, p4, 1, p.intPt(), p.intEta(), p.intPhi());
+          setRefs_(ret->back(), p);
+      }
+  }
+  return ret;
+}
+std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchTracks() const {
+  auto ret = std::make_unique<l1t::PFCandidateCollection>();
+  for (const auto r : event_.pfinputs) {
+      const auto & reg = r.region;
+      for (const auto &p : r.track) {
+          if (p.hwPt == 0 || !reg.isFiducial(p)) continue;
+          reco::Particle::PolarLorentzVector p4(
+                  p.floatPt(), reg.floatGlbEta(p.hwVtxEta()), reg.floatGlbPhi(p.hwVtxPhi()), 0.13f);
+          ret->emplace_back(l1t::PFCandidate::ChargedHadron, p.intCharge(), p4, 1, p.intPt(), p.intEta(), p.intPhi());
+          setRefs_(ret->back(), p);
+      }
+  }
+  return ret;
+}
+
+
 
 std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF() const {
   auto ret = std::make_unique<l1t::PFCandidateCollection>();
