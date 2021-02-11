@@ -575,9 +575,9 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
   for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
     const auto & reg = event_.pfinputs[ir].region;
       for (const auto &p : event_.out[ir].pfcharged) {
-          if (p.hwPt == 0 ||  !reg.fiducialLocal(p.floatEta(), p.floatPhi())) continue;
+          if (p.hwPt == 0 || !reg.isFiducial(p)) continue;
           reco::Particle::PolarLorentzVector p4(
-                  p.floatPt(), reg.globalEta(p.floatVtxEta()), reg.globalPhi(p.floatVtxPhi()), 0.13f);
+                  p.floatPt(), reg.floatGlbEta(p.hwVtxEta()), reg.floatGlbPhi(p.hwVtxPhi()), 0.13f);
           l1t::PFCandidate::ParticleType type = l1t::PFCandidate::ChargedHadron;
           if (p.hwId.isMuon()) type = l1t::PFCandidate::Muon;
           else if (p.hwId.isElectron()) type = l1t::PFCandidate::Electron;
@@ -586,9 +586,9 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
           setRefs_(ret->back(), p);
       }
       for (const auto &p : event_.out[ir].pfneutral) {
-          if (p.hwPt == 0 ||  !reg.fiducialLocal(p.floatEta(), p.floatPhi())) continue;
+          if (p.hwPt == 0 || !reg.isFiducial(p)) continue;
           reco::Particle::PolarLorentzVector p4(
-                  p.floatPt(), reg.globalEta(p.floatEta()), reg.globalPhi(p.floatPhi()), 0.13f);
+                  p.floatPt(), reg.floatGlbEtaOf(p), reg.floatGlbPhiOf(p), 0.13f);
           l1t::PFCandidate::ParticleType type = p.hwId.isPhoton() ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
           ret->emplace_back(type, 0, p4, 1, p.intPt(), p.intEta(), p.intPhi());
           setRefs_(ret->back(), p);
@@ -602,7 +602,7 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPu
     for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
         for (const auto &p : event_.out[ir].puppi) {
             if (p.hwPt == 0) continue;
-            // note: Puppi candidates are already in global coordinates!
+            // note: Puppi candidates are already in global coordinates & fiducial-only!
             l1t::PFCandidate::ParticleType type; float mass = 0.13f;
             if (p.hwId.charged()) {
                 if (p.hwId.isMuon()) { type = l1t::PFCandidate::Muon; mass = 0.105; }

@@ -129,10 +129,6 @@ namespace l1ct {
 
         // global coordinates
         bool contains(float eta, float phi) const ;
-        // local coordinates
-        bool fiducialLocal(float localEta, float localPhi) const ;
-        float globalEta(float localEta) const ;
-        float globalPhi(float localPhi) const ;
         float localEta(float globalEta) const ;
         float localPhi(float globalPhi) const ;
 
@@ -210,7 +206,7 @@ namespace l1ct {
 
 
     struct Event {
-        static const int VERSION = 1;
+        static const int VERSION = 2;
         uint32_t run, lumi; uint64_t event;
         RegionizerDecodedInputs decoded;
         std::vector<PFInputRegion> pfinputs;
