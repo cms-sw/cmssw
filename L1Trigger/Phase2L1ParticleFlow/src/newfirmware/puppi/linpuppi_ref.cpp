@@ -131,7 +131,7 @@ unsigned int l1ct::LinPuppiEmulator::find_ieta(const PFRegionEmu & region, eta_t
     glbeta_t abseta = region.hwGlbEta(eta);
     if (abseta < 0) abseta = -abseta;
     for (int i = 0; i < n; ++i) {
-        if (eta <= absEtaBins_[i]) return i;
+        if (abseta <= absEtaBins_[i]) return i;
     }
     return n;
 }
@@ -204,8 +204,8 @@ std::pair<pt_t,puppiWgt_t> l1ct::LinPuppiEmulator::sum2puppiPt_ref(uint64_t sum,
 
     pt_t ptPuppi = Scales::makePt(( Scales::ptToInt(pt) * weight ) >> weight_bits);
 
-    if (debug_) printf("ref candidate %02d pt %7.2f  em %1d: alpha %+7.2f   x2a %+5d = %+7.3f  x2pt %+5d = %+7.3f   x2 %+5d = %+7.3f  --> weight %4d = %.4f  puppi pt %7.2f\n",
-               icand, Scales::floatPt(pt), int(isEM), 
+    if (debug_) printf("ref candidate %02d pt %7.2f  em %1d  ieta %1d: alpha %+7.2f   x2a %+5d = %+7.3f  x2pt %+5d = %+7.3f   x2 %+5d = %+7.3f  --> weight %4d = %.4f  puppi pt %7.2f\n",
+               icand, Scales::floatPt(pt), int(isEM), ieta,
                std::max<float>(alpha/float(1<<alpha_bits)*std::log(2.),-99.99f), 
                x2a, x2a/float(1<<x2_bits), x2pt, x2pt/float(1<<x2_bits), x2, x2/float(1<<x2_bits), 
                weight, weight/float( 1 << weight_bits ), 
@@ -319,8 +319,8 @@ std::pair<float,float> l1ct::LinPuppiEmulator::sum2puppiPt_flt(float sum, float 
     float weight = 1.0/(1.0 + std::exp(-x2));
 
     float puppiPt = pt *weight;
-    if (debug_) printf("flt candidate %02d pt %7.2f  em %1d: alpha %+7.2f   x2a         %+7.3f  x2pt         %+7.3f   x2         %+7.3f  --> weight        %.4f  puppi pt %7.2f\n",
-                   icand, pt, int(isEM), std::max(alpha,-99.99f), x2a, x2pt, x2, weight, puppiPt);
+    if (debug_) printf("flt candidate %02d pt %7.2f  em %1d  ieta %1d: alpha %+7.2f   x2a         %+7.3f  x2pt         %+7.3f   x2         %+7.3f  --> weight        %.4f  puppi pt %7.2f\n",
+                   icand, pt, int(isEM), ieta, std::max(alpha,-99.99f), x2a, x2pt, x2, weight, puppiPt);
 
     return std::make_pair(puppiPt,weight);
 }
