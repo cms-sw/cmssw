@@ -14,6 +14,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:
 //
+// Updated by Suvankar Roy Chowdhury February 2021
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
 // Framework
@@ -34,6 +35,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 //
 #include <string>
 #include <cstdlib>
@@ -101,35 +103,94 @@ SiPixelDigiSource::~SiPixelDigiSource() {
   LogInfo("PixelDQM") << "SiPixelDigiSource::~SiPixelDigiSource: Destructor" << endl;
 }
 
-std::shared_ptr<bool> SiPixelDigiSource::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
-                                                                    const edm::EventSetup& iSetup) const {
+std::shared_ptr<SiPixelDigiCounter> SiPixelDigiSource::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                                  const edm::EventSetup& iSetup) const {
   unsigned int currentLS = lumi.id().luminosityBlock();
   bool resetCounters = (currentLS % 10 == 0) ? true : false;
-  return std::make_shared<bool>(resetCounters);
+  auto lsc = std::make_shared<SiPixelDigiCounter>();
+
+  if (modOn && resetCounters && averageDigiOccupancy) {
+    lsc->nBPIXDigis = 0;
+    lsc->nFPIXDigis = 0;
+    for (int i = 0; i != FEDNumbering::MAXSiPixelFEDID; i++)
+      lsc->nDigisPerFed[i] = 0;
+  }
+
+  if (!modOn && averageDigiOccupancy) {
+    lsc->nBPIXDigis = 0;
+    lsc->nFPIXDigis = 0;
+    for (int i = 0; i != FEDNumbering::MAXSiPixelFEDID; i++)
+      lsc->nDigisPerFed[i] = 0;
+  }
+
+  if (modOn && resetCounters) {
+    lsc->ROCMapToReset = true;  //the ROC map is reset each 10 lumisections
+
+    for (int i = 0; i < 2; i++)
+      lsc->NzeroROCs[i] = 0;
+    for (int i = 0; i < 2; i++)
+      lsc->NloEffROCs[i] = 0;  //resetting also Zero and low eff. ROC counters
+
+    lsc->NzeroROCs[1] = -672;
+    lsc->NloEffROCs[1] =
+        -672;  //this magic number derives by the way the endcap occupancy is filled, there are always 672 empty bins by construction
+
+    //these bools are needed to count zero occupancy plots in the substructure only once each 10 LS
+    lsc->DoZeroRocsBMO1 = true;
+    lsc->DoZeroRocsBMO2 = true;
+    lsc->DoZeroRocsBMO3 = true;
+
+    lsc->DoZeroRocsBMI1 = true;
+    lsc->DoZeroRocsBMI2 = true;
+    lsc->DoZeroRocsBMI3 = true;
+
+    lsc->DoZeroRocsBPO1 = true;
+    lsc->DoZeroRocsBPO2 = true;
+    lsc->DoZeroRocsBPO3 = true;
+
+    lsc->DoZeroRocsBPI1 = true;
+    lsc->DoZeroRocsBPI2 = true;
+    lsc->DoZeroRocsBPI3 = true;
+
+    lsc->DoZeroRocsFPO1 = true;
+    lsc->DoZeroRocsFPO2 = true;
+
+    lsc->DoZeroRocsFMO1 = true;
+    lsc->DoZeroRocsFMO2 = true;
+
+    lsc->DoZeroRocsFPI1 = true;
+    lsc->DoZeroRocsFPI2 = true;
+
+    lsc->DoZeroRocsFMI1 = true;
+    lsc->DoZeroRocsFMI2 = true;
+  }
+  return lsc;
 }
 
 void SiPixelDigiSource::globalEndLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
   int thisls = lb.id().luminosityBlock();
-  const bool resetCounters = luminosityBlockCache(lb.index());
 
-  float averageBPIXFed = float(nBPIXDigis) / 32.;
-  float averageFPIXFed = float(nFPIXDigis) / 8.;
+  auto latestCounters = luminosityBlockCache(lb.index());
+
+  float averageBPIXFed = float(latestCounters->nBPIXDigis) / 32.;
+  float averageFPIXFed = float(latestCounters->nFPIXDigis) / 8.;
 
   if (averageDigiOccupancy) {
-    for (int i = 0; i != 40; i++) {
+    for (int i = 0; i != FEDNumbering::MAXSiPixelFEDID; i++) {
       float averageOcc = 0.;
       if (i < 32) {
         if (averageBPIXFed > 0.)
-          averageOcc = nDigisPerFed[i] / averageBPIXFed;
+          averageOcc = latestCounters->nDigisPerFed[i] / averageBPIXFed;
       } else {
         if (averageFPIXFed > 0.)
-          averageOcc = nDigisPerFed[i] / averageFPIXFed;
+          averageOcc = latestCounters->nDigisPerFed[i] / averageFPIXFed;
       }
       if (!modOn) {
         averageDigiOccupancy->Fill(
             i,
-            nDigisPerFed[i]);  //In offline we fill all digis and normalise at the end of the run for thread safe behaviour.
-        avgfedDigiOccvsLumi->setBinContent(thisls, i + 1, nDigisPerFed[i]);  //Same plot vs lumi section
+            latestCounters->nDigisPerFed
+                [i]);  //In offline we fill all digis and normalise at the end of the run for thread safe behaviour.
+        avgfedDigiOccvsLumi->setBinContent(thisls, i + 1, latestCounters->nDigisPerFed[i]);  //Same plot vs lumi section
       }
       if (modOn) {
         if (thisls % 10 == 0)
@@ -151,64 +212,6 @@ void SiPixelDigiSource::globalEndLuminosityBlock(const edm::LuminosityBlock& lb,
           int(thisls / 10), averageFPIXFed);  //<NDigis> vs lumisection for endcap, filled every 10 lumi sections
     }
   }
-
-  //reset counters
-
-  if (modOn && resetCounters && averageDigiOccupancy) {
-    nBPIXDigis = 0;
-    nFPIXDigis = 0;
-    for (int i = 0; i != 40; i++)
-      nDigisPerFed[i] = 0;
-  }
-
-  if (!modOn && averageDigiOccupancy) {
-    nBPIXDigis = 0;
-    nFPIXDigis = 0;
-    for (int i = 0; i != 40; i++)
-      nDigisPerFed[i] = 0;
-  }
-
-  if (modOn && resetCounters) {
-    ROCMapToReset = true;  //the ROC map is reset each 10 lumisections
-
-    for (int i = 0; i < 2; i++)
-      NzeroROCs[i] = 0;
-    for (int i = 0; i < 2; i++)
-      NloEffROCs[i] = 0;  //resetting also Zero and low eff. ROC counters
-
-    NzeroROCs[1] = -672;
-    NloEffROCs[1] =
-        -672;  //this magic number derives by the way the endcap occupancy is filled, there are always 672 empty bins by construction
-
-    //these bools are needed to count zero occupancy plots in the substructure only once each 10 LS
-    DoZeroRocsBMO1 = true;
-    DoZeroRocsBMO2 = true;
-    DoZeroRocsBMO3 = true;
-
-    DoZeroRocsBMI1 = true;
-    DoZeroRocsBMI2 = true;
-    DoZeroRocsBMI3 = true;
-
-    DoZeroRocsBPO1 = true;
-    DoZeroRocsBPO2 = true;
-    DoZeroRocsBPO3 = true;
-
-    DoZeroRocsBPI1 = true;
-    DoZeroRocsBPI2 = true;
-    DoZeroRocsBPI3 = true;
-
-    DoZeroRocsFPO1 = true;
-    DoZeroRocsFPO2 = true;
-
-    DoZeroRocsFMO1 = true;
-    DoZeroRocsFMO2 = true;
-
-    DoZeroRocsFPI1 = true;
-    DoZeroRocsFPI2 = true;
-
-    DoZeroRocsFMI1 = true;
-    DoZeroRocsFMI2 = true;
-  }
 }
 
 void SiPixelDigiSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup) {
@@ -219,10 +222,6 @@ void SiPixelDigiSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iS
 
   if (firstRun) {
     nBigEvents = 0;
-    nBPIXDigis = 0;
-    nFPIXDigis = 0;
-    for (int i = 0; i != 40; i++)
-      nDigisPerFed[i] = 0;
     for (int i = 0; i != 4; i++)
       nDigisPerDisk[i] = 0;
     nDP1P1M1 = 0;
@@ -273,42 +272,6 @@ void SiPixelDigiSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iS
     nL4M2 = 0;
     nL4M3 = 0;
     nL4M4 = 0;
-
-    ROCMapToReset = false;
-
-    DoZeroRocsBMO1 = false;
-    DoZeroRocsBMO2 = false;
-    DoZeroRocsBMO3 = false;
-
-    DoZeroRocsBMI1 = false;
-    DoZeroRocsBMI2 = false;
-    DoZeroRocsBMI3 = false;
-
-    DoZeroRocsBPO1 = false;
-    DoZeroRocsBPO2 = false;
-    DoZeroRocsBPO3 = false;
-
-    DoZeroRocsBPI1 = false;
-    DoZeroRocsBPI2 = false;
-    DoZeroRocsBPI3 = false;
-
-    DoZeroRocsFPO1 = false;
-    DoZeroRocsFPO2 = false;
-
-    DoZeroRocsFMO1 = false;
-    DoZeroRocsFMO2 = false;
-
-    DoZeroRocsFPI1 = false;
-    DoZeroRocsFPI2 = false;
-
-    DoZeroRocsFMI1 = false;
-    DoZeroRocsFMI2 = false;
-
-    for (int i = 0; i < 2; i++)
-      NzeroROCs[i] = 0;
-    for (int i = 0; i < 2; i++)
-      NloEffROCs[i] = 0;
-
     // Build map
     buildStructure(iSetup);
     // Book Monitoring Elements
@@ -326,7 +289,7 @@ void SiPixelDigiSource::bookHistograms(DQMStore::IBooker& iBooker, edm::Run cons
 void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
   const TrackerTopology* pTT = tTopoHandle.product();
-
+  auto latestCounters = luminosityBlockCache(iEvent.getLuminosityBlock().index());
   // get input data
   edm::Handle<edm::DetSetVector<PixelDigi> > input;
   iEvent.getByToken(srcToken_, input);
@@ -390,40 +353,40 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
         PixelBarrelName::Shell shell = PixelBarrelName(DetId((*struct_iter).first), pTT, isUpgrade).shell();
 
         //Count Zero Occ Rocs in Barrel in the first event after each 10 Ls
-        if (ROCMapToReset && shell == PixelBarrelName::mO && twoDimOnlyLayDisk) {
-          if (DoZeroRocsBMO1 && layer == 1)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBMO1, (*struct_iter).second);
-          if (DoZeroRocsBMO2 && layer == 2)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBMO2, (*struct_iter).second);
-          if (DoZeroRocsBMO3 && layer == 3)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBMO3, (*struct_iter).second);
-        } else if (ROCMapToReset && shell == PixelBarrelName::mI && twoDimOnlyLayDisk) {
-          if (DoZeroRocsBMI1 && layer == 1)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBMI1, (*struct_iter).second);
-          if (DoZeroRocsBMI2 && layer == 2)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBMI2, (*struct_iter).second);
-          if (DoZeroRocsBMI3 && layer == 3)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBMI3, (*struct_iter).second);
-        } else if (ROCMapToReset && shell == PixelBarrelName::pO && twoDimOnlyLayDisk) {
-          if (DoZeroRocsBPO1 && layer == 1)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBPO1, (*struct_iter).second);
-          if (DoZeroRocsBPO2 && layer == 2)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBPO2, (*struct_iter).second);
-          if (DoZeroRocsBPO3 && layer == 3)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBPO3, (*struct_iter).second);
-        } else if (ROCMapToReset && shell == PixelBarrelName::pI && twoDimOnlyLayDisk) {
-          if (DoZeroRocsBPI1 && layer == 1)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBPI1, (*struct_iter).second);
-          if (DoZeroRocsBPI2 && layer == 2)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBPI2, (*struct_iter).second);
-          if (DoZeroRocsBPI3 && layer == 3)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsBPI3, (*struct_iter).second);
+        if (latestCounters->ROCMapToReset && shell == PixelBarrelName::mO && twoDimOnlyLayDisk) {
+          if (latestCounters->DoZeroRocsBMO1 && layer == 1)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBMO1, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsBMO2 && layer == 2)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBMO2, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsBMO3 && layer == 3)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBMO3, (*struct_iter).second, latestCounters);
+        } else if (latestCounters->ROCMapToReset && shell == PixelBarrelName::mI && twoDimOnlyLayDisk) {
+          if (latestCounters->DoZeroRocsBMI1 && layer == 1)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBMI1, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsBMI2 && layer == 2)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBMI2, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsBMI3 && layer == 3)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBMI3, (*struct_iter).second, latestCounters);
+        } else if (latestCounters->ROCMapToReset && shell == PixelBarrelName::pO && twoDimOnlyLayDisk) {
+          if (latestCounters->DoZeroRocsBPO1 && layer == 1)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBPO1, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsBPO2 && layer == 2)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBPO2, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsBPO3 && layer == 3)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBPO3, (*struct_iter).second, latestCounters);
+        } else if (latestCounters->ROCMapToReset && shell == PixelBarrelName::pI && twoDimOnlyLayDisk) {
+          if (latestCounters->DoZeroRocsBPI1 && layer == 1)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBPI1, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsBPI2 && layer == 2)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBPI2, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsBPI3 && layer == 3)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsBPI3, (*struct_iter).second, latestCounters);
         }
 
-        nBPIXDigis = nBPIXDigis + numberOfDigisMod;
+        latestCounters->nBPIXDigis = latestCounters->nBPIXDigis + numberOfDigisMod;
         for (int i = 0; i != nBPiXmodules; ++i) {
           if ((*struct_iter).first == I_detId[i]) {
-            nDigisPerFed[I_fedId[i]] = nDigisPerFed[I_fedId[i]] + numberOfDigisMod;
+            latestCounters->nDigisPerFed[I_fedId[i]] = latestCounters->nDigisPerFed[I_fedId[i]] + numberOfDigisMod;
             int index1 = 0;
             int index2 = 0;
             if (I_linkId1[i] > 0)
@@ -438,7 +401,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
           }
         }
       } else if (endcap && !isUpgrade) {  // Endcap
-        nFPIXDigis = nFPIXDigis + numberOfDigisMod;
+        latestCounters->nFPIXDigis = latestCounters->nFPIXDigis + numberOfDigisMod;
         PixelEndcapName::HalfCylinder side =
             PixelEndcapName(DetId((*struct_iter).first), pTT, isUpgrade).halfCylinder();
         int disk = PixelEndcapName(DetId((*struct_iter).first), pTT, isUpgrade).diskName();
@@ -449,26 +412,26 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
         int i = 0;
 
         //count Zero Occupancy ROCs in Endcap in the first event after each 10 Ls
-        if (ROCMapToReset && side == PixelEndcapName::mO && twoDimOnlyLayDisk) {
-          if (DoZeroRocsFMO1 && disk == 1)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsFMO1, (*struct_iter).second);
-          if (DoZeroRocsFMO2 && disk == 2)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsFMO2, (*struct_iter).second);
-        } else if (ROCMapToReset && side == PixelEndcapName::mI && twoDimOnlyLayDisk) {
-          if (DoZeroRocsFMI1 && disk == 1)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsFMI1, (*struct_iter).second);
-          if (DoZeroRocsFMI2 && disk == 2)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsFMI2, (*struct_iter).second);
-        } else if (ROCMapToReset && side == PixelEndcapName::pO && twoDimOnlyLayDisk) {
-          if (DoZeroRocsFPO1 && disk == 1)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsFPO1, (*struct_iter).second);
-          if (DoZeroRocsFPO2 && disk == 2)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsFPO2, (*struct_iter).second);
-        } else if (ROCMapToReset && side == PixelEndcapName::pI && twoDimOnlyLayDisk) {
-          if (DoZeroRocsFPI1 && disk == 1)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsFPI1, (*struct_iter).second);
-          if (DoZeroRocsFPI2 && disk == 2)
-            CountZeroROCsInSubstructure(barrel, DoZeroRocsFPI2, (*struct_iter).second);
+        if (latestCounters->ROCMapToReset && side == PixelEndcapName::mO && twoDimOnlyLayDisk) {
+          if (latestCounters->DoZeroRocsFMO1 && disk == 1)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsFMO1, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsFMO2 && disk == 2)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsFMO2, (*struct_iter).second, latestCounters);
+        } else if (latestCounters->ROCMapToReset && side == PixelEndcapName::mI && twoDimOnlyLayDisk) {
+          if (latestCounters->DoZeroRocsFMI1 && disk == 1)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsFMI1, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsFMI2 && disk == 2)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsFMI2, (*struct_iter).second, latestCounters);
+        } else if (latestCounters->ROCMapToReset && side == PixelEndcapName::pO && twoDimOnlyLayDisk) {
+          if (latestCounters->DoZeroRocsFPO1 && disk == 1)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsFPO1, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsFPO2 && disk == 2)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsFPO2, (*struct_iter).second, latestCounters);
+        } else if (latestCounters->ROCMapToReset && side == PixelEndcapName::pI && twoDimOnlyLayDisk) {
+          if (latestCounters->DoZeroRocsFPI1 && disk == 1)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsFPI1, (*struct_iter).second, latestCounters);
+          if (latestCounters->DoZeroRocsFPI2 && disk == 2)
+            CountZeroROCsInSubstructure(barrel, latestCounters->DoZeroRocsFPI2, (*struct_iter).second, latestCounters);
         }
 
         if (side == PixelEndcapName::mI) {
@@ -652,13 +615,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
         for (int i = nBPiXmodules; i != nTOTmodules; i++) {
           if ((*struct_iter).first == I_detId[i]) {
-            nDigisPerFed[I_fedId[i]] = nDigisPerFed[I_fedId[i]] + numberOfDigisMod;
+            latestCounters->nDigisPerFed[I_fedId[i]] = latestCounters->nDigisPerFed[I_fedId[i]] + numberOfDigisMod;
             i = nTOTmodules - 1;
           }
         }
       }  //endif Barrel/(Endcap && !isUpgrade)
       else if (endcap && isUpgrade) {
-        nFPIXDigis = nFPIXDigis + numberOfDigisMod;
+        latestCounters->nFPIXDigis = latestCounters->nFPIXDigis + numberOfDigisMod;
         PixelEndcapName::HalfCylinder side =
             PixelEndcapName(DetId((*struct_iter).first), pTT, isUpgrade).halfCylinder();
         int disk = PixelEndcapName(DetId((*struct_iter).first), pTT, isUpgrade).diskName();
@@ -812,7 +775,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
         numberOfDigis[iter] = numberOfDigis[iter] + numberOfDigisMod;
         for (int i = nBPiXmodules; i != nTOTmodules; i++) {
           if ((*struct_iter).first == I_detId[i]) {
-            nDigisPerFed[I_fedId[i]] = nDigisPerFed[I_fedId[i]] + numberOfDigisMod;
+            latestCounters->nDigisPerFed[I_fedId[i]] = latestCounters->nDigisPerFed[I_fedId[i]] + numberOfDigisMod;
             i = nTOTmodules - 1;
           }
         }
@@ -820,18 +783,18 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }    // endif any digis in this module
   }      // endfor loop over all modules
 
-  if (lumiSection % 10 == 0 && ROCMapToReset) {
+  if (lumiSection % 10 == 0 && latestCounters->ROCMapToReset) {
     for (int i = 0; i < 2; ++i)
-      NloEffROCs[i] = NloEffROCs[i] - NzeroROCs[i];
+      latestCounters->NloEffROCs[i] = latestCounters->NloEffROCs[i] - latestCounters->NzeroROCs[i];
     if (noOccROCsBarrel)
-      noOccROCsBarrel->setBinContent(lumiSection / 10, NzeroROCs[0]);
+      noOccROCsBarrel->setBinContent(lumiSection / 10, latestCounters->NzeroROCs[0]);
     if (loOccROCsBarrel)
-      loOccROCsBarrel->setBinContent(lumiSection / 10, NloEffROCs[0]);
+      loOccROCsBarrel->setBinContent(lumiSection / 10, latestCounters->NloEffROCs[0]);
     if (noOccROCsEndcap)
-      noOccROCsEndcap->setBinContent(lumiSection / 10, NzeroROCs[1]);
+      noOccROCsEndcap->setBinContent(lumiSection / 10, latestCounters->NzeroROCs[1]);
     if (loOccROCsEndcap)
-      loOccROCsEndcap->setBinContent(lumiSection / 10, NloEffROCs[1]);
-    ROCMapToReset =
+      loOccROCsEndcap->setBinContent(lumiSection / 10, latestCounters->NloEffROCs[1]);
+    latestCounters->ROCMapToReset =
         false;  // in this way the ROC maps are reset for one event only (the first event in LS multiple of 10
   }
 
@@ -1430,15 +1393,18 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
   iBooker.cd(topFolderName_);
 }
 
-void SiPixelDigiSource::CountZeroROCsInSubstructure(bool barrel, bool& DoZeroRocs, SiPixelDigiModule* mod) {
+void SiPixelDigiSource::CountZeroROCsInSubstructure(bool barrel,
+                                                    bool& DoZeroRocs,
+                                                    SiPixelDigiModule* mod,
+                                                    SiPixelDigiCounter* latestCounters) {
   std::pair<int, int> tempPair = mod->getZeroLoEffROCs();
 
   if (barrel) {
-    NzeroROCs[0] += tempPair.first;
-    NloEffROCs[0] += tempPair.second;
+    latestCounters->NzeroROCs[0] += tempPair.first;
+    latestCounters->NloEffROCs[0] += tempPair.second;
   } else {
-    NzeroROCs[1] += tempPair.first;
-    NloEffROCs[1] += tempPair.second;
+    latestCounters->NzeroROCs[1] += tempPair.first;
+    latestCounters->NloEffROCs[1] += tempPair.second;
   }
 
   DoZeroRocs = false;
