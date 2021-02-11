@@ -5,7 +5,6 @@
 
 template <typename U, typename T> 
 inline void _pack_into_bits(U & u, unsigned int & start, const T & data) {
-    #pragma HLS inline
     const unsigned int w = T::width;
     u(start+w-1,start) = data(w-1,0);
     start += w;
@@ -13,7 +12,6 @@ inline void _pack_into_bits(U & u, unsigned int & start, const T & data) {
 
 template <typename U, typename T> 
 inline void _unpack_from_bits(const U & u, unsigned int & start, T & data) {
-    #pragma HLS inline
     const unsigned int w = T::width;
     data(w-1,0) = u(start+w-1,start);
     start += w;
@@ -21,13 +19,11 @@ inline void _unpack_from_bits(const U & u, unsigned int & start, T & data) {
 
 template <typename U> 
 inline void _pack_bool_into_bits(U & u, unsigned int & start, bool data) {
-    #pragma HLS inline
     u[start++] = data;
 }
 
 template <typename U> 
 inline void _unpack_bool_from_bits(const U & u, unsigned int & start, bool & data) {
-    #pragma HLS inline
     data = u[start++];
 }
 
