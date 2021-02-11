@@ -81,9 +81,9 @@ namespace tmtt {
   //=== Fill all histograms
 
   void Histos::fill(const InputData& inputData,
-                    const matrix<unique_ptr<Sector>>& mSectors,
-                    const matrix<unique_ptr<HTrphi>>& mHtRphis,
-                    const matrix<unique_ptr<Make3Dtracks>>& mMake3Dtrks,
+                    const Array2D<unique_ptr<Sector>>& mSectors,
+                    const Array2D<unique_ptr<HTrphi>>& mHtRphis,
+                    const Array2D<unique_ptr<Make3Dtracks>>& mMake3Dtrks,
                     const std::map<std::string, std::list<const L1fittedTrack*>>& mapFinalTracks) {
     // Each function here protected by a mytex lock, so only one thread can run it at a time.
 
@@ -383,7 +383,7 @@ namespace tmtt {
 
   //=== Fill histograms checking if (eta,phi) sector definition choices are good.
 
-  void Histos::fillEtaPhiSectors(const InputData& inputData, const matrix<unique_ptr<Sector>>& mSectors) {
+  void Histos::fillEtaPhiSectors(const InputData& inputData, const Array2D<unique_ptr<Sector>>& mSectors) {
     // Allow only one thread to run this function at a time
     static std::mutex myMutex;
     std::lock_guard<std::mutex> myGuard(myMutex);
@@ -442,7 +442,7 @@ namespace tmtt {
 
   //=== Fill histograms checking filling of r-phi HT array.
 
-  void Histos::fillRphiHT(const matrix<unique_ptr<HTrphi>>& mHtRphis) {
+  void Histos::fillRphiHT(const Array2D<unique_ptr<HTrphi>>& mHtRphis) {
     //--- Loop over (eta,phi) sectors, counting the number of stubs in the HT array of each.
 
     // Allow only one thread to run this function at a time (UNCOMMENT IF YOU ADD HISTOS HERE)
@@ -460,7 +460,7 @@ namespace tmtt {
 
   //=== Fill histograms about r-z track filters.
 
-  void Histos::fillRZfilters(const matrix<unique_ptr<Make3Dtracks>>& mMake3Dtrks) {
+  void Histos::fillRZfilters(const Array2D<unique_ptr<Make3Dtracks>>& mMake3Dtrks) {
     // Allow only one thread to run this function at a time (UNCOMMENT IF YOU ADD HISTOS HERE)
     //static std::mutex myMutex;
     //std::lock_guard<std::mutex> myGuard(myMutex);
@@ -585,7 +585,7 @@ namespace tmtt {
   //=== Fill histograms studying track candidates found before track fit is run.
 
   void Histos::fillTrackCands(const InputData& inputData,
-                              const matrix<std::unique_ptr<Make3Dtracks>>& mMake3Dtrks,
+                              const Array2D<std::unique_ptr<Make3Dtracks>>& mMake3Dtrks,
                               const string& tName) {
     // Allow only one thread to run this function at a time
     static std::mutex myMutex;

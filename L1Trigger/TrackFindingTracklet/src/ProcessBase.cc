@@ -128,7 +128,7 @@ void ProcessBase::initLayerDisksandISeed(unsigned int& layerdisk1, unsigned int&
   }
 }
 
-unsigned int ProcessBase::getISeed(std::string name) {
+unsigned int ProcessBase::getISeed(const std::string& name) {
   std::size_t pos = name.find('_');
   std::string name1 = name.substr(pos + 1);
   pos = name1.find('_');
