@@ -3,7 +3,10 @@
 
 /*----------------------------------------------------------------------
 
-RootInputFileSequence: This is an InputSource. initTheFile tries to open a file using a list of PFN names constructed from multiple data catalogs in site-local-config.xml. These are accessed via FileCatalogItem iterator fileIter_.  
+RootInputFileSequence: This is an InputSource. initTheFile tries to open
+a file using a list of PFN names constructed from multiple data catalogs
+in site-local-config.xml. These are accessed via FileCatalogItem iterator
+fileIter_.
 
 ----------------------------------------------------------------------*/
 
