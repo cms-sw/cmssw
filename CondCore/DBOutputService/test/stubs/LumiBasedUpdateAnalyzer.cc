@@ -9,14 +9,7 @@
 #include <iostream>
 
 LumiBasedUpdateAnalyzer::LumiBasedUpdateAnalyzer(const edm::ParameterSet& iConfig)
-    : m_record(iConfig.getParameter<std::string>("record")) {
-  m_lastLumiFile = iConfig.getUntrackedParameter<std::string>("lastLumiFile", "");
-  std::cout << "LumiBasedUpdateAnalyzer::LumiBasedUpdateAnalyzer" << std::endl;
-  m_prevLumi = 0;
-  m_prevLumiTime = std::chrono::steady_clock::now();
-  m_omsServiceUrl = iConfig.getUntrackedParameter<std::string>("omsServiceUrl", "");
-  edm::Service<cond::service::OnlineDBOutputService> mydbservice;
-}
+    : m_record(iConfig.getParameter<std::string>("record")) {}
 LumiBasedUpdateAnalyzer::~LumiBasedUpdateAnalyzer() {
   std::cout << "LumiBasedUpdateAnalyzer::~LumiBasedUpdateAnalyzer" << std::endl;
 }
@@ -33,23 +26,9 @@ void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSet
     m_tagLocks = true;
   }
   ::sleep(2);
-  unsigned int irun = evt.id().run();
-  cond::Time_t lastLumi = cond::time::MIN_VAL;
-  if (!m_omsServiceUrl.empty()) {
-    lastLumi = cond::getLastLumiFromOMS(m_omsServiceUrl);
-  } else {
-    lastLumi = cond::getLatestLumiFromFile(m_lastLumiFile);
-    if (lastLumi == m_prevLumi) {
-      mydbservice->logger().logInfo() << "Last lumi:" << lastLumi << " Prev lumi:" << m_prevLumi;
-      mydbservice->logger().end(1);
-      return;
-    }
-    m_prevLumi = lastLumi;
-    m_prevLumiTime = std::chrono::steady_clock::now();
-  }
-  unsigned int lumiId = cond::time::unpack(lastLumi).second;
-  mydbservice->logger().logInfo() << "Last lumi: " << lastLumi << " run: " << cond::time::unpack(lastLumi).first
-                                  << " lumiid:" << lumiId;
+  //unsigned int irun = evt.id().run();
+  unsigned int irun = evt.getLuminosityBlock().run();
+  unsigned int lumiId = evt.getLuminosityBlock().luminosityBlock();
   std::string tag = mydbservice->tag(m_record);
   std::cout << "tag " << tag << std::endl;
   std::cout << "run " << irun << std::endl;
