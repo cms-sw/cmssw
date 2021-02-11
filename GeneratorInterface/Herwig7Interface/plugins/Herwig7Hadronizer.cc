@@ -94,12 +94,6 @@ bool Herwig7Hadronizer::initializeForInternalPartons()
 {
 	if (currentLumiBlock==firstLumiBlock)
 	{
-		initRepository(paramSettings);
-	}
-	if (!initGenerator())
-	{
-		edm::LogInfo("Generator|Herwig7Hadronizer") << "No run step for Herwig chosen. Program will be aborted.";
-		exit(0);
 		std::ifstream runFile(runFileName+".run");
 		if (runFile.fail()) //required for showering of LHE files
 		{
