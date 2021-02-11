@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <queue>
 #include <cfloat>
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "CommonTools/Utils/interface/DynArray.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -155,8 +156,8 @@ void LocalMaximumSeedFinder::findSeeds(const edm::Handle<reco::PFRecHitCollectio
             auto const& nei = (*input)[neighbour];
             if (maybeseed.depth() != nei.depth())
               continue;  // masking is done only if the neighbor is on the same depth layer as the seed
-            if ((abs(deltaPhi(maybeseed.positionREP().phi(), nei.positionREP().phi())) > dphicut) &&
-                (abs(maybeseed.positionREP().eta() - nei.positionREP().eta()) > detacut))
+            if (std::abs(deltaPhi(maybeseed.positionREP().phi(), nei.positionREP().phi())) > dphicut &&
+                std::abs(maybeseed.positionREP().eta() - nei.positionREP().eta()) > detacut)
               continue;  // masking is done only if the neighbor is on the swiss-cross w.r.t. the seed
             break;
         }

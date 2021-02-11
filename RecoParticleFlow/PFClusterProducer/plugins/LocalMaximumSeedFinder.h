@@ -1,7 +1,6 @@
 #ifndef __LocalMaximumSeedFinder_H__
 #define __LocalMaximumSeedFinder_H__
 
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
 
 #include <unordered_map>
