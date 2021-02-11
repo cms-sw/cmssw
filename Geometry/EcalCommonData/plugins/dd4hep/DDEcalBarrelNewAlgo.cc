@@ -2154,7 +2154,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       const double halfZCoolVFE(thickVFE + backCool.barThick / 2.);
       Solid backCoolVFESolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., halfZCoolVFE);
-      Volume backCoolVFELog = Volume(backCool.vFEName, backCoolVFESolid, ns.material(backCool.vFEMat));
+      Volume backCoolVFELog = ns.addVolume(Volume(backCool.vFEName, backCoolVFESolid, ns.material(backCool.vFEMat)));
       if (0 != backCool.barHere) {
         backCoolVFELog.placeVolume(backCoolBarLog, copyOne, Transform3D());
 #ifdef EDM_ML_DEBUG
