@@ -22,9 +22,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   std::string idName = args.value<std::string>("ChildName");                        //Children name
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo::Parameters for positioning: Axis " << iaxis << "\tRadius "
-                               << cms::convert2mm(radius) << "\tOffset " << offset << "\tDx "
-                               << cms::convert2mm(dx) << "\tDz " << cms::convert2mm(dz)
-                               << "\tAngWidth " << convertRadToDeg(angwidth) << "\tNumbers " << names.size();
+                               << cms::convert2mm(radius) << "\tOffset " << offset << "\tDx " << cms::convert2mm(dx)
+                               << "\tDz " << cms::convert2mm(dz) << "\tAngWidth " << convertRadToDeg(angwidth)
+                               << "\tNumbers " << names.size();
   for (unsigned int i = 0; i < names.size(); i++)
     edm::LogVerbatim("HCalGeom") << "\tnames[" << i << "] = " << names[i];
   edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: Parent " << args.parentName() << "\tChild " << idName
@@ -72,8 +72,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo: " << glog.name() << " number " << i + 1 << " positioned in "
                                  << parent.name() << " at (" << cms::convert2mm(pos[0]) << ","
-                                 << cms::convert2mm(pos[1]) << "," << cms::convert2mm(pos[2])
-                                 << " with " << rotation;
+                                 << cms::convert2mm(pos[1]) << "," << cms::convert2mm(pos[2]) << " with " << rotation;
 #endif
   }
 

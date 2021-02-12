@@ -26,10 +26,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parameters for positioning-- Eta " << eta << "\tTheta "
                                << convertRadToDeg(theta) << "\tShifts " << cms::convert2mm(shiftX) << ", "
-                               << cms::convert2mm(shiftY) << " along x, y axes; \tZoffest "
-                               << cms::convert2mm(zoffset) << "\tRadial Distance "
-                               << cms::convert2mm(dist) << "\tTilt angle " << convertRadToDeg(tilt)
-                               << "\tcopyNumber " << copyNumber;
+                               << cms::convert2mm(shiftY) << " along x, y axes; \tZoffest " << cms::convert2mm(zoffset)
+                               << "\tRadial Distance " << cms::convert2mm(dist) << "\tTilt angle "
+                               << convertRadToDeg(tilt) << "\tcopyNumber " << copyNumber;
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parent " << args.parentName() << "\tChild " << childName
                                << " NameSpace " << idNameSpace;
 #endif
@@ -54,9 +53,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   mother.placeVolume(child, copyNumber, dd4hep::Transform3D(rot, tran));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: " << child.name() << " number " << copyNumber << " positioned in "
-                               << mother.name() << " at (" << cms::convert2mm(x) << ", "
-                               << cms::convert2mm(y) << ", " << cms::convert2mm(z)
-                               << ") with " << rot;
+                               << mother.name() << " at (" << cms::convert2mm(x) << ", " << cms::convert2mm(y) << ", "
+                               << cms::convert2mm(z) << ") with " << rot;
 #endif
 
   return cms::s_executed;
