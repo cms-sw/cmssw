@@ -682,16 +682,6 @@ def customiseHcalLocalReconstruction(process):
     return process
 
 
-# customisation for running the Patatrack reconstruction, with automatic offload via CUDA when a supported gpu is available
-def customizeHLTforPatatrack(process):
-    process = customiseCommon(process)
-    process = customisePixelLocalReconstruction(process)
-    process = customisePixelTrackReconstruction(process)
-    process = customiseEcalLocalReconstruction(process)
-    process = customiseHcalLocalReconstruction(process)
-    return process
-
-
 # customisation to enable pixel triplets instead of quadruplets
 def enablePatatrackPixelTriplets(process):
 
@@ -705,6 +695,27 @@ def enablePatatrackPixelTriplets(process):
 
   # done
   return process
+
+
+# customisation for running the Patatrack reconstruction, with automatic offload via CUDA when a supported gpu is available
+def customizeHLTforPatatrack(process):
+    process = customiseCommon(process)
+    process = customisePixelLocalReconstruction(process)
+    process = customisePixelTrackReconstruction(process)
+    process = customiseEcalLocalReconstruction(process)
+    process = customiseHcalLocalReconstruction(process)
+    return process
+
+
+# customisation for running the Patatrack triplets reconstruction, with automatic offload via CUDA when a supported gpu is available
+def customizeHLTforPatatrackTriplets(process):
+    process = customiseCommon(process)
+    process = customisePixelLocalReconstruction(process)
+    process = customisePixelTrackReconstruction(process)
+    process = customiseEcalLocalReconstruction(process)
+    process = customiseHcalLocalReconstruction(process)
+    process = enablePatatrackPixelTriplets(process)
+    return process
 
 
 def _addConsumerPath(process):
