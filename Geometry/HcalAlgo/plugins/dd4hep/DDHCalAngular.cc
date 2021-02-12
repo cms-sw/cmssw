@@ -1,13 +1,11 @@
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/DetFactoryHelper.h"
 
 //#define EDM_ML_DEBUG
 using namespace angle_units::operators;
-#ifdef EDM_ML_DEBUG
-#include "Geometry/HcalAlgo/plugins/dd4hep/HcalDD4HepHelper.h"
-#endif
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -32,7 +30,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parameters for positioning::"
                                << " n " << n << " Start, Range, Delta " << convertRadToDeg(startAngle) << " "
                                << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(dphi) << " Shift "
-                               << HcalDD4HepHelper::convert2mm(shiftX) << ":" << HcalDD4HepHelper::convert2mm(shiftY)
+                               << cms::convert2mm(shiftX) << ":" << cms::convert2mm(shiftY)
                                << "\n Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
                                << ns.name();
 #endif
@@ -59,8 +57,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     mother.placeVolume(child, copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalAngular:: " << child.name() << " number " << copy << " positioned in "
-                                 << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(xpos) << ", "
-                                 << HcalDD4HepHelper::convert2mm(ypos) << ", " << HcalDD4HepHelper::convert2mm(zoffset)
+                                 << mother.name() << " at (" << cms::convert2mm(xpos) << ", "
+                                 << cms::convert2mm(ypos) << ", " << cms::convert2mm(zoffset)
                                  << ") with rotation matrix: " << rotation;
 #endif
     copy += incrCopyNo;
