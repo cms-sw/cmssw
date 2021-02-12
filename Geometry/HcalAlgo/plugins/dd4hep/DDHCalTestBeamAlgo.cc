@@ -23,9 +23,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: Parameters for positioning-- Eta " << eta << "\tPhi "
                                << convertRadToDeg(phi) << "\tTheta " << convertRadToDeg(theta) << "\tDistance "
-                               << cms::convert2mm(distance) << "/"
-                               << cms::convert2mm(distanceZ) << "/" << cms::convert2mm(dist)
-                               << "\tDz " << cms::convert2mm(dz) << "\tcopyNumber " << copyNumber;
+                               << cms::convert2mm(distance) << "/" << cms::convert2mm(distanceZ) << "/"
+                               << cms::convert2mm(dist) << "\tDz " << cms::convert2mm(dz) << "\tcopyNumber "
+                               << copyNumber;
   edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo:Parent " << args.parentName() << "\tChild " << childName
                                << " NameSpace " << ns.name();
 #endif
@@ -63,18 +63,17 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   parent.placeVolume(child, copyNumber, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTestBeamAlgo: " << child.name() << " number " << copyNumber
-                               << " positioned in " << parent.name() << " at (" << cms::convert2mm(xpos)
-                               << ", " << cms::convert2mm(ypos) << ", "
-                               << cms::convert2mm(zpos) << ") with rotation: " << rotation;
+                               << " positioned in " << parent.name() << " at (" << cms::convert2mm(xpos) << ", "
+                               << cms::convert2mm(ypos) << ", " << cms::convert2mm(zpos)
+                               << ") with rotation: " << rotation;
 #endif
   xpos = (dist - dz) * sin(theta) * cos(phi);
   ypos = (dist - dz) * sin(theta) * sin(phi);
   zpos = (dist - dz) * cos(theta);
 
-  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo: Suggested Beam position (" << cms::convert2mm(xpos)
-                           << ", " << cms::convert2mm(ypos) << ", " << cms::convert2mm(zpos)
-                           << ") and (dist, eta, phi) = (" << cms::convert2mm(dist - dz) << ", " << eta
-                           << ", " << phi << ")";
+  edm::LogInfo("HCalGeom") << "DDHCalTestBeamAlgo: Suggested Beam position (" << cms::convert2mm(xpos) << ", "
+                           << cms::convert2mm(ypos) << ", " << cms::convert2mm(zpos) << ") and (dist, eta, phi) = ("
+                           << cms::convert2mm(dist - dz) << ", " << eta << ", " << phi << ")";
 
   return cms::s_executed;
 }

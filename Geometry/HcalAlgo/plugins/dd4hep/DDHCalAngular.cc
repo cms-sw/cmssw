@@ -30,9 +30,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HCalGeom") << "DDHCalAngular: Parameters for positioning::"
                                << " n " << n << " Start, Range, Delta " << convertRadToDeg(startAngle) << " "
                                << convertRadToDeg(rangeAngle) << " " << convertRadToDeg(dphi) << " Shift "
-                               << cms::convert2mm(shiftX) << ":" << cms::convert2mm(shiftY)
-                               << "\n Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
-                               << ns.name();
+                               << cms::convert2mm(shiftX) << ":" << cms::convert2mm(shiftY) << "\n Parent "
+                               << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
 #endif
   int copy = startCopyNo;
   double phix = startAngle;
@@ -57,9 +56,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     mother.placeVolume(child, copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalAngular:: " << child.name() << " number " << copy << " positioned in "
-                                 << mother.name() << " at (" << cms::convert2mm(xpos) << ", "
-                                 << cms::convert2mm(ypos) << ", " << cms::convert2mm(zoffset)
-                                 << ") with rotation matrix: " << rotation;
+                                 << mother.name() << " at (" << cms::convert2mm(xpos) << ", " << cms::convert2mm(ypos)
+                                 << ", " << cms::convert2mm(zoffset) << ") with rotation matrix: " << rotation;
 #endif
     copy += incrCopyNo;
     phix += dphi;

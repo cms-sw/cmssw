@@ -124,21 +124,15 @@ struct HCalEndcapAlgo {
     edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: General material " << genMaterial << "\tSectors " << nsectors
                                  << ",  " << nsectortot << "\tEndcaps " << nEndcap << "\tRotation matrix for half "
                                  << rotHalf << "\n\tzFront " << cms::convert2mm(zFront) << " zEnd "
-                                 << cms::convert2mm(zEnd) << " ziNose "
-                                 << cms::convert2mm(ziNose) << " ziL0Nose "
-                                 << cms::convert2mm(ziL0Nose) << " ziBody "
-                                 << cms::convert2mm(ziBody) << " ziL0Body "
-                                 << cms::convert2mm(ziL0Body) << " z0Beam "
-                                 << cms::convert2mm(z0Beam) << " ziDip "
-                                 << cms::convert2mm(ziDip) << " dzStep "
-                                 << cms::convert2mm(dzStep) << " Gap " << cms::convert2mm(gap)
-                                 << " z1 " << cms::convert2mm(z1) << "\n\tr1 "
-                                 << cms::convert2mm(r1) << " rout " << cms::convert2mm(rout)
-                                 << " HeboxDepth " << cms::convert2mm(heboxDepth) << " drEnd "
-                                 << cms::convert2mm(drEnd) << "\tetamin " << etamin << " Bottom angle "
-                                 << angBot << " Gap angle " << angGap << " Z-Shift "
-                                 << cms::convert2mm(zShift) << " "
-                                 << cms::convert2mm(zShiftHac2);
+                                 << cms::convert2mm(zEnd) << " ziNose " << cms::convert2mm(ziNose) << " ziL0Nose "
+                                 << cms::convert2mm(ziL0Nose) << " ziBody " << cms::convert2mm(ziBody) << " ziL0Body "
+                                 << cms::convert2mm(ziL0Body) << " z0Beam " << cms::convert2mm(z0Beam) << " ziDip "
+                                 << cms::convert2mm(ziDip) << " dzStep " << cms::convert2mm(dzStep) << " Gap "
+                                 << cms::convert2mm(gap) << " z1 " << cms::convert2mm(z1) << "\n\tr1 "
+                                 << cms::convert2mm(r1) << " rout " << cms::convert2mm(rout) << " HeboxDepth "
+                                 << cms::convert2mm(heboxDepth) << " drEnd " << cms::convert2mm(drEnd) << "\tetamin "
+                                 << etamin << " Bottom angle " << angBot << " Gap angle " << angGap << " Z-Shift "
+                                 << cms::convert2mm(zShift) << " " << cms::convert2mm(zShiftHac2);
 #endif
 
     //Derived quantities
@@ -152,12 +146,10 @@ struct HCalEndcapAlgo {
     dzShift = (z1Beam - z0Beam) - gap / sin(angGap);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: angTop " << convertRadToDeg(angTop) << "\tSlope " << slope
-                                 << "\tDzShift " << cms::convert2mm(dzShift) << "\n\tz1Beam "
-                                 << cms::convert2mm(z1Beam) << "\tziKink"
-                                 << cms::convert2mm(ziKink) << "\triKink "
-                                 << cms::convert2mm(riKink) << "\triDip "
-                                 << cms::convert2mm(riDip) << "\n\troDip "
-                                 << cms::convert2mm(roDip) << "\tRotation " << rotation;
+                                 << "\tDzShift " << cms::convert2mm(dzShift) << "\n\tz1Beam " << cms::convert2mm(z1Beam)
+                                 << "\tziKink" << cms::convert2mm(ziKink) << "\triKink " << cms::convert2mm(riKink)
+                                 << "\triDip " << cms::convert2mm(riDip) << "\n\troDip " << cms::convert2mm(roDip)
+                                 << "\tRotation " << rotation;
 #endif
 
     ///////////////////////////////////////////////////////////////
@@ -187,11 +179,9 @@ struct HCalEndcapAlgo {
 #ifdef EDM_ML_DEBUG
     for (int i = 0; i < modules; i++) {
       edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << modName[i] << " type " << modType[i] << " Sections "
-                                   << sectionModule[i] << " thickness of absorber/air "
-                                   << cms::convert2mm(thick[i]) << " trim "
-                                   << cms::convert2mm(trimLeft[i]) << ", "
-                                   << cms::convert2mm(trimRight[i]) << " equip module " << eModule[i]
-                                   << " with " << layerN[i] << " layers";
+                                   << sectionModule[i] << " thickness of absorber/air " << cms::convert2mm(thick[i])
+                                   << " trim " << cms::convert2mm(trimLeft[i]) << ", " << cms::convert2mm(trimRight[i])
+                                   << " equip module " << eModule[i] << " with " << layerN[i] << " layers";
       if (i == 0) {
         for (int j = 0; j < layerN[i]; j++) {
           edm::LogVerbatim("HCalGeom") << "\t " << layerN0[j] << "/" << layerN0[j + 1];
@@ -240,8 +230,7 @@ struct HCalEndcapAlgo {
                                  << rotmat << "\n\tNumber of layers " << layers;
     for (int i = 0; i < layers; i++) {
       edm::LogVerbatim("HCalGeom") << "\t" << layerName[i] << "\tType " << layerType[i] << "\tThickness "
-                                   << cms::convert2mm(layerT[i]) << "\tScint.Thick "
-                                   << cms::convert2mm(scintT[i]);
+                                   << cms::convert2mm(layerT[i]) << "\tScint.Thick " << cms::convert2mm(scintT[i]);
     }
 #endif
 
@@ -311,12 +300,9 @@ struct HCalEndcapAlgo {
 #ifdef EDM_ML_DEBUG
     for (int i = 0; i < module; i++)
       edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: Module " << i << "\tZ/Rin/Rout "
-                                   << cms::convert2mm(zminBlock[i]) << ", "
-                                   << cms::convert2mm(zmaxBlock[i]) << "/ "
-                                   << cms::convert2mm(rinBlock1[i]) << ", "
-                                   << cms::convert2mm(rinBlock2[i]) << "/ "
-                                   << cms::convert2mm(routBlock1[i]) << ", "
-                                   << cms::convert2mm(routBlock2[i]);
+                                   << cms::convert2mm(zminBlock[i]) << ", " << cms::convert2mm(zmaxBlock[i]) << "/ "
+                                   << cms::convert2mm(rinBlock1[i]) << ", " << cms::convert2mm(rinBlock2[i]) << "/ "
+                                   << cms::convert2mm(routBlock1[i]) << ", " << cms::convert2mm(routBlock2[i]);
 #endif
 
     idName = args.value<std::string>("MotherName");
@@ -329,9 +315,8 @@ struct HCalEndcapAlgo {
     tolPos = args.value<double>("TolPos");
     tolAbs = args.value<double>("TolAbs");
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: Tolerances - Positioning "
-                                 << cms::convert2mm(tolPos) << " Absorber "
-                                 << cms::convert2mm(tolAbs);
+    edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: Tolerances - Positioning " << cms::convert2mm(tolPos)
+                                 << " Absorber " << cms::convert2mm(tolAbs);
     edm::LogVerbatim("HCalGeom") << "==>> Constructing DDHCalEndcapAlgo...";
 #endif
 
@@ -424,8 +409,8 @@ struct HCalEndcapAlgo {
       parent.placeVolume(genlogic, 2, dd4hep::Transform3D(rot, r0));
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << genlogic.name() << " number 2 "
-                                   << "positioned in " << parent.name() << " at (0, 0, "
-                                   << cms::convert2mm(zShift) << ") with rotation: " << rot;
+                                   << "positioned in " << parent.name() << " at (0, 0, " << cms::convert2mm(zShift)
+                                   << ") with rotation: " << rot;
 #endif
     }
 
@@ -453,8 +438,7 @@ struct HCalEndcapAlgo {
     genlogic.placeVolume(genlogich, 1, dd4hep::Position(0, 0, -dzShift));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << genlogich.name() << " number 1 positioned in "
-                                 << genlogic.name() << " at (0,0," << -cms::convert2mm(dzShift)
-                                 << ") with no rotation";
+                                 << genlogic.name() << " at (0,0," << -cms::convert2mm(dzShift) << ") with no rotation";
 #endif
 
     //Construct sector (from -alpha to +alpha)
@@ -615,12 +599,11 @@ struct HCalEndcapAlgo {
       solid = dd4hep::Trap(ns.prepend(name), 0.5 * layerT[layer], 0, 0, yh, bl, tl, alp, yh, bl, tl, alp);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << solid.name() << " Trap made of " << plastMat
-                                   << " of dimensions " << cms::convert2mm(0.5 * layerT[layer])
-                                   << ", 0, 0, " << cms::convert2mm(yh) << ", "
-                                   << cms::convert2mm(bl) << ", " << cms::convert2mm(tl)
+                                   << " of dimensions " << cms::convert2mm(0.5 * layerT[layer]) << ", 0, 0, "
+                                   << cms::convert2mm(yh) << ", " << cms::convert2mm(bl) << ", " << cms::convert2mm(tl)
                                    << ", " << convertRadToDeg(alp) << ", " << cms::convert2mm(yh) << ", "
-                                   << cms::convert2mm(bl) << ", " << cms::convert2mm(tl)
-                                   << ", " << convertRadToDeg(alp);
+                                   << cms::convert2mm(bl) << ", " << cms::convert2mm(tl) << ", "
+                                   << convertRadToDeg(alp);
 #endif
 
       glog = dd4hep::Volume(solid.name(), solid, matplastic);
@@ -630,9 +613,9 @@ struct HCalEndcapAlgo {
 
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << glog.name() << " number " << (idOffset + layer + 1)
-                                   << " positioned in " << module.name() << " at ("
-                                   << cms::convert2mm(xpos) << ", " << cms::convert2mm(ypos)
-                                   << ", " << cms::convert2mm(zpos) << " with rotation: " << rot;
+                                   << " positioned in " << module.name() << " at (" << cms::convert2mm(xpos) << ", "
+                                   << cms::convert2mm(ypos) << ", " << cms::convert2mm(zpos)
+                                   << " with rotation: " << rot;
 #endif
 
       //Now construct the layer of scintillator inside this
@@ -658,10 +641,9 @@ struct HCalEndcapAlgo {
     }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: Module " << mod << " Front " << cms::convert2mm(zi)
-                                 << ", " << cms::convert2mm(rinF) << ", "
-                                 << cms::convert2mm(routF) << " Back " << cms::convert2mm(zo)
-                                 << ", " << cms::convert2mm(rinB) << ", "
+    edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: Module " << mod << " Front " << cms::convert2mm(zi) << ", "
+                                 << cms::convert2mm(rinF) << ", " << cms::convert2mm(routF) << " Back "
+                                 << cms::convert2mm(zo) << ", " << cms::convert2mm(rinB) << ", "
                                  << cms::convert2mm(routB);
 #endif
 
@@ -672,10 +654,9 @@ struct HCalEndcapAlgo {
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: Trim " << cms::convert2mm(fact) << " Param "
-                                 << cms::convert2mm(yh1) << ", " << cms::convert2mm(bl1)
-                                 << ", " << cms::convert2mm(tl1) << ", "
-                                 << cms::convert2mm(yh2) << ", " << cms::convert2mm(bl2)
-                                 << ", " << cms::convert2mm(tl2);
+                                 << cms::convert2mm(yh1) << ", " << cms::convert2mm(bl1) << ", " << cms::convert2mm(tl1)
+                                 << ", " << cms::convert2mm(yh2) << ", " << cms::convert2mm(bl2) << ", "
+                                 << cms::convert2mm(tl2);
 #endif
 
     bl1 -= fact;
@@ -689,10 +670,10 @@ struct HCalEndcapAlgo {
     edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << solid.name() << " Trap made of " << absMat
                                  << " of dimensions " << cms::convert2mm(0.5 * thick[mod]) << ", "
                                  << convertRadToDeg(theta) << ", " << convertRadToDeg(phi) << ", "
-                                 << cms::convert2mm(yh1) << ", " << cms::convert2mm(bl1)
-                                 << ", " << cms::convert2mm(tl1) << ", " << convertRadToDeg(alp) << ", "
-                                 << cms::convert2mm(yh2) << ", " << cms::convert2mm(bl2)
-                                 << ", " << cms::convert2mm(tl2) << ", " << convertRadToDeg(alp);
+                                 << cms::convert2mm(yh1) << ", " << cms::convert2mm(bl1) << ", " << cms::convert2mm(tl1)
+                                 << ", " << convertRadToDeg(alp) << ", " << cms::convert2mm(yh2) << ", "
+                                 << cms::convert2mm(bl2) << ", " << cms::convert2mm(tl2) << ", "
+                                 << convertRadToDeg(alp);
 #endif
 
     glog = dd4hep::Volume(solid.name(), solid, matabsorbr);
@@ -702,9 +683,8 @@ struct HCalEndcapAlgo {
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << glog.name() << " number 1 positioned in " << module.name()
-                                 << " at (" << cms::convert2mm(xpos) << ", "
-                                 << cms::convert2mm(ypos) << ", " << cms::convert2mm(zpos)
-                                 << ") with rotation: " << rot;
+                                 << " at (" << cms::convert2mm(xpos) << ", " << cms::convert2mm(ypos) << ", "
+                                 << cms::convert2mm(zpos) << ") with rotation: " << rot;
 #endif
   }
 
@@ -748,11 +728,9 @@ struct HCalEndcapAlgo {
 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: Layer " << i << " Phi " << iphi << " Front "
-                                     << cms::convert2mm(ziAir) << ", "
-                                     << cms::convert2mm(rinF) << ", "
-                                     << cms::convert2mm(routF) << " Back "
-                                     << cms::convert2mm(zo) << ", " << cms::convert2mm(rinB)
-                                     << ", " << cms::convert2mm(routB);
+                                     << cms::convert2mm(ziAir) << ", " << cms::convert2mm(rinF) << ", "
+                                     << cms::convert2mm(routF) << " Back " << cms::convert2mm(zo) << ", "
+                                     << cms::convert2mm(rinB) << ", " << cms::convert2mm(routB);
 #endif
 
         double yh1, bl1, tl1, yh2, bl2, tl2, theta, phi, alp;
@@ -766,11 +744,10 @@ struct HCalEndcapAlgo {
         edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << solid.name() << " Trap made of " << matter.name()
                                      << " of dimensions " << cms::convert2mm(0.5 * thick[mod]) << ", "
                                      << convertRadToDeg(theta) << ", " << convertRadToDeg(phi) << ", "
-                                     << cms::convert2mm(yh1) << ", " << cms::convert2mm(bl1)
-                                     << ", " << cms::convert2mm(tl1) << ", " << convertRadToDeg(alp)
-                                     << ", " << cms::convert2mm(yh2) << ", "
-                                     << cms::convert2mm(bl2) << ", " << cms::convert2mm(tl2)
-                                     << ", " << convertRadToDeg(alp);
+                                     << cms::convert2mm(yh1) << ", " << cms::convert2mm(bl1) << ", "
+                                     << cms::convert2mm(tl1) << ", " << convertRadToDeg(alp) << ", "
+                                     << cms::convert2mm(yh2) << ", " << cms::convert2mm(bl2) << ", "
+                                     << cms::convert2mm(tl2) << ", " << convertRadToDeg(alp);
 #endif
 
         glog = dd4hep::Volume(solid.name(), solid, matter);
@@ -779,9 +756,9 @@ struct HCalEndcapAlgo {
 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << glog.name() << " number " << (layer + 1)
-                                     << " positioned in " << module.name() << " at ("
-                                     << cms::convert2mm(xpos) << ", " << cms::convert2mm(ypos)
-                                     << ", " << cms::convert2mm(zpos) << ") with rotation: " << rot;
+                                     << " positioned in " << module.name() << " at (" << cms::convert2mm(xpos) << ", "
+                                     << cms::convert2mm(ypos) << ", " << cms::convert2mm(zpos)
+                                     << ") with rotation: " << rot;
 #endif
 
         //Now the plastic with scintillators
@@ -792,12 +769,11 @@ struct HCalEndcapAlgo {
         solid = dd4hep::Trap(ns.prepend(name), 0.5 * layerT[layer], 0, 0, yh, bl, tl, alp, yh, bl, tl, alp);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << solid.name() << " Trap made of " << plastMat
-                                     << " of dimensions " << cms::convert2mm(0.5 * layerT[layer])
-                                     << ", 0, 0, " << cms::convert2mm(yh) << ", "
-                                     << cms::convert2mm(bl) << ", " << cms::convert2mm(tl)
-                                     << ", " << convertRadToDeg(alp) << ", " << cms::convert2mm(yh) << ", "
-                                     << cms::convert2mm(bl) << ", " << cms::convert2mm(tl)
-                                     << ", " << convertRadToDeg(alp);
+                                     << " of dimensions " << cms::convert2mm(0.5 * layerT[layer]) << ", 0, 0, "
+                                     << cms::convert2mm(yh) << ", " << cms::convert2mm(bl) << ", "
+                                     << cms::convert2mm(tl) << ", " << convertRadToDeg(alp) << ", "
+                                     << cms::convert2mm(yh) << ", " << cms::convert2mm(bl) << ", "
+                                     << cms::convert2mm(tl) << ", " << convertRadToDeg(alp);
 #endif
 
         plog = dd4hep::Volume(solid.name(), solid, matplastic);
@@ -806,8 +782,8 @@ struct HCalEndcapAlgo {
 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << plog.name() << " number " << (idOffset + layer + 1)
-                                     << " positioned in " << glog.name() << " at (0, "
-                                     << cms::convert2mm(ypos) << ", 0) with no rotation";
+                                     << " positioned in " << glog.name() << " at (0, " << cms::convert2mm(ypos)
+                                     << ", 0) with no rotation";
 #endif
 
         //Constructing the scintillators inside
@@ -835,11 +811,10 @@ struct HCalEndcapAlgo {
     dd4hep::Solid solid = dd4hep::Trap(ns.prepend(name), 0.5 * dz, 0, 0, yh, bl, tl, alp, yh, bl, tl, alp);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalEndcapAlgo: " << solid.name() << " Trap made of " << scintMat
-                                 << " of dimensions " << cms::convert2mm(0.5 * dz) << ", 0, 0, "
-                                 << cms::convert2mm(yh) << ", " << cms::convert2mm(bl) << ", "
-                                 << cms::convert2mm(tl) << ", " << convertRadToDeg(alp) << ", "
-                                 << cms::convert2mm(yh) << ", " << cms::convert2mm(bl) << ", "
-                                 << cms::convert2mm(tl) << ", " << convertRadToDeg(alp);
+                                 << " of dimensions " << cms::convert2mm(0.5 * dz) << ", 0, 0, " << cms::convert2mm(yh)
+                                 << ", " << cms::convert2mm(bl) << ", " << cms::convert2mm(tl) << ", "
+                                 << convertRadToDeg(alp) << ", " << cms::convert2mm(yh) << ", " << cms::convert2mm(bl)
+                                 << ", " << cms::convert2mm(tl) << ", " << convertRadToDeg(alp);
 #endif
 
     dd4hep::Volume glog(solid.name(), solid, matter);
@@ -933,10 +908,10 @@ struct HCalEndcapAlgo {
     }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "Output Dimensions " << cms::convert2mm(yh) << " "
-                                 << cms::convert2mm(bl) << " " << cms::convert2mm(tl) << " "
-                                 << convertRadToDeg(alp) << " Position " << cms::convert2mm(xpos) << " "
-                                 << cms::convert2mm(ypos) << " " << cms::convert2mm(zpos);
+    edm::LogVerbatim("HCalGeom") << "Output Dimensions " << cms::convert2mm(yh) << " " << cms::convert2mm(bl) << " "
+                                 << cms::convert2mm(tl) << " " << convertRadToDeg(alp) << " Position "
+                                 << cms::convert2mm(xpos) << " " << cms::convert2mm(ypos) << " "
+                                 << cms::convert2mm(zpos);
 #endif
   }
 
@@ -965,9 +940,8 @@ struct HCalEndcapAlgo {
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "Input " << iphi << " Front " << cms::convert2mm(rinF) << " "
-                                 << cms::convert2mm(routF) << " " << cms::convert2mm(zi)
-                                 << " Back " << cms::convert2mm(rinB) << " "
-                                 << cms::convert2mm(routB) << " " << cms::convert2mm(zo)
+                                 << cms::convert2mm(routF) << " " << cms::convert2mm(zi) << " Back "
+                                 << cms::convert2mm(rinB) << " " << cms::convert2mm(routB) << " " << cms::convert2mm(zo)
                                  << " Alpha " << convertRadToDeg(alpha);
 #endif
 
@@ -995,13 +969,12 @@ struct HCalEndcapAlgo {
     phi = atan2(dy, dx);
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "Output Dimensions " << cms::convert2mm(yh1) << " "
-                                 << cms::convert2mm(bl1) << " " << cms::convert2mm(tl1) << " "
-                                 << cms::convert2mm(yh2) << " " << cms::convert2mm(bl2) << " "
-                                 << cms::convert2mm(tl2) << " " << convertRadToDeg(alp) << " "
+    edm::LogVerbatim("HCalGeom") << "Output Dimensions " << cms::convert2mm(yh1) << " " << cms::convert2mm(bl1) << " "
+                                 << cms::convert2mm(tl1) << " " << cms::convert2mm(yh2) << " " << cms::convert2mm(bl2)
+                                 << " " << cms::convert2mm(tl2) << " " << convertRadToDeg(alp) << " "
                                  << convertRadToDeg(theta) << " " << convertRadToDeg(phi) << " Position "
-                                 << cms::convert2mm(xpos) << " " << cms::convert2mm(ypos)
-                                 << " " << cms::convert2mm(zpos);
+                                 << cms::convert2mm(xpos) << " " << cms::convert2mm(ypos) << " "
+                                 << cms::convert2mm(zpos);
 #endif
   }
 
