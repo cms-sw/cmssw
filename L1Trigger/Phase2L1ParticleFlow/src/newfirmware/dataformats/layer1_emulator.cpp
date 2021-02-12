@@ -87,6 +87,25 @@ bool l1ct::PuppiObjEmu::write(std::fstream & to) const {
     return writeObj<PuppiObj>(*this, to);
 }
 
+bool l1ct::EGIsoObjEmu::read(std::fstream & from) {
+    srcCluster = nullptr; // not persistent
+    return readObj<EGIsoObj>(from, *this);
+}
+
+bool l1ct::EGIsoObjEmu::write(std::fstream & to) const {
+    return writeObj<EGIsoObj>(*this, to);
+}
+
+bool l1ct::EGIsoEleObjEmu::read(std::fstream & from) {
+    srcCluster = nullptr;
+    srcTrack = nullptr;
+    return readObj<EGIsoEleObj>(from, *this);
+}
+
+bool l1ct::EGIsoEleObjEmu::write(std::fstream & to) const {
+    return writeObj<EGIsoEleObj>(*this, to);
+}
+
 l1ct::PFRegionEmu::PFRegionEmu(float etamin,
            float etamax,
            float phicenter,
@@ -275,5 +294,3 @@ void l1ct::Event::clear() {
     pvs.clear();
     for (auto & i : out) i.clear();
 }
-
-

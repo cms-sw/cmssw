@@ -24,6 +24,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo3_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo_dummy_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/puppi/linpuppi_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/egamma/pftkegalgo_ref.h"
 
 #include "DataFormats/L1TCorrelator/interface/TkMuon.h"
 #include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
@@ -66,7 +67,9 @@ private:
   std::unique_ptr<l1ct::RegionizerEmulator> regionizer_;
   std::unique_ptr<l1ct::PFAlgoEmulatorBase> l1pfalgo_;
   std::unique_ptr<l1ct::LinPuppiEmulator> l1pualgo_;
+  std::unique_ptr<l1ct::PFTkEGAlgoEmulator> l1tkegalgo_;
 
+  bool writeEgSta_;
   // Region dump
   const std::string regionDumpName_;
   std::fstream fRegionDump_;
@@ -102,6 +105,13 @@ private:
   std::unique_ptr<l1t::PFCandidateCollection> fetchTracks() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchPF() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchPuppi() const;
+
+  void putEgObjects(edm::Event &iEvent,
+                    const bool writeEgSta,
+                    const std::string &egLablel,
+                    const std::string &tkEmLabel,
+                    const std::string &tkEleLabel) const;
+                    
   template<typename T>
   void setRefs_(l1t::PFCandidate &pf, const T & p) const ; 
 };
@@ -126,6 +136,8 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
       regionizer_(nullptr),
       l1pfalgo_(nullptr),
       l1pualgo_(nullptr),
+      l1tkegalgo_(nullptr),
+      writeEgSta_(iConfig.getParameter<bool>("writeEGSta")),
       regionDumpName_(iConfig.getUntrackedParameter<std::string>("dumpFileName", "")),
       debugEta_(iConfig.getUntrackedParameter<double>("debugEta", 0)),
       debugPhi_(iConfig.getUntrackedParameter<double>("debugPhi", 0)),
@@ -139,6 +151,12 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
 #if 0 // LATER
   produces<l1t::PFCandidateCollection>("TKVtx");
 #endif
+
+  if (writeEgSta_)
+    produces<BXVector<l1t::EGamma>>("L1Eg");
+  produces<l1t::TkElectronCollection>("L1TkEle");
+  produces<l1t::TkEmCollection>("L1TkEm");
+
 
   for (const auto& tag : iConfig.getParameter<std::vector<edm::InputTag>>("emClusters")) {
     emCands_.push_back(consumes<l1t::PFClusterCollection>(tag));
@@ -170,13 +188,8 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   } else
     throw cms::Exception("Configuration", "Unsupported puAlgo");
 
-  /*
-  l1tkegalgo_.reset(new l1tpf_impl::PFTkEGAlgo(iConfig.getParameter<edm::ParameterSet>("tkEgAlgoConfig")));
-  if (l1tkegalgo_->writeEgSta())
-    produces<BXVector<l1t::EGamma>>("L1Eg");
-  produces<l1t::TkElectronCollection>("L1TkEle");
-  produces<l1t::TkEmCollection>("L1TkEm");
-  */
+
+  l1tkegalgo_ = std::make_unique<l1ct::PFTkEGAlgoEmulator>(l1ct::pftkegalgo_config(iConfig.getParameter<edm::ParameterSet>("tkEgAlgoParameters")));
 
   extTkVtx_ = consumes<std::vector<l1t::TkPrimaryVertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"));
 
@@ -317,7 +330,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event& iEvent, const edm::EventSe
   for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
     l1pfalgo_->run(event_.pfinputs[ir], event_.out[ir]);
     l1pfalgo_->mergeNeutrals(event_.out[ir]);
-    //l1tkegalgo_->runTkEG(l1region);
+    l1tkegalgo_->run(event_.pfinputs[ir], event_.out[ir]);
     //l1tkegalgo_->runTkIso(l1region, z0);
     //l1tkegalgo_->runPFIso(l1region, z0);
   }
@@ -335,9 +348,9 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event& iEvent, const edm::EventSe
   // and save puppi
   iEvent.put(fetchPuppi(), "Puppi");
 
-#if 0
   // save the EG objects
-  l1regions_.putEgObjects(iEvent, l1tkegalgo_->writeEgSta(), "L1Eg", "L1TkEm", "L1TkEle");
+  putEgObjects(iEvent, writeEgSta_, "L1Eg", "L1TkEm", "L1TkEle");
+#if 0
 
   // Then go do the multiplicities
 
@@ -707,6 +720,71 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPu
     return ret;
 }
 
+void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
+                                               const bool writeEgSta,
+                                               const std::string &egLablel,
+                                               const std::string &tkEmLabel,
+                                               const std::string &tkEleLabel) const {
+  auto egs = std::make_unique<BXVector<l1t::EGamma>>();
+  auto tkems = std::make_unique<l1t::TkEmCollection>();
+  auto tkeles = std::make_unique<l1t::TkElectronCollection>();
+
+  // edm::RefProd<BXVector<l1t::EGamma>> ref_egs;
+  // if (writeEgSta)
+  //   ref_egs = iEvent.getRefBeforePut<BXVector<l1t::EGamma>>(egLablel);
+  // 
+  // edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
+  // 
+  // for (const Region &r : regions_) {
+  //   for (const auto &egphoton : r.egphotons) {
+  //     if (egphoton.floatPt() < ptMin)
+  //       continue;
+  // 
+  //     if (!r.fiducialLocal(egphoton.floatEta(), egphoton.floatPhi()))
+  //       continue;
+  // 
+  //     edm::Ref<BXVector<l1t::EGamma>> reg;
+  //     auto mom = reco::Candidate::PolarLorentzVector(
+  //         egphoton.floatPt(), r.globalEta(egphoton.floatEta()), r.globalPhi(egphoton.floatPhi()), 0.);
+  //     if (writeEgSta) {
+  //       l1t::EGamma eg(mom);
+  //       eg.setHwQual(egphoton.hwQual);
+  //       egs->push_back(0, eg);
+  //       reg = edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx++);
+  //     } else {
+  //       auto egptr = egphoton.cluster.src->constituentsAndFractions()[0].first;
+  //       reg = edm::Ref<BXVector<l1t::EGamma>>(egptr.id(), dynamic_cast<const l1t::EGamma *>(egptr.get()), egptr.key());
+  //     }
+  // 
+  //     l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), reg, egphoton.floatIso(), egphoton.floatIsoPV());
+  //     tkem.setHwQual(egphoton.hwQual);
+  //     tkem.setPFIsol(egphoton.floatPFIso());
+  //     tkem.setPFIsolPV(egphoton.floatPFIsoPV());
+  //     tkems->push_back(tkem);
+  // 
+  //     if (egphoton.ele_idx == -1)
+  //       continue;
+  // 
+  //     const auto &egele = r.egeles[egphoton.ele_idx];
+  // 
+  //     if (!r.fiducialLocal(egele.floatEta(), egele.floatPhi()))
+  //       continue;
+  // 
+  //     auto mom_ele = reco::Candidate::PolarLorentzVector(
+  //         egele.floatPt(), r.globalEta(egele.floatEta()), r.globalPhi(egele.floatPhi()), 0.);
+  // 
+  //     l1t::TkElectron tkele(
+  //         reco::Candidate::LorentzVector(mom_ele), reg, edm::refToPtr(egele.track.src->track()), egele.floatIso());
+  //     tkele.setHwQual(egele.hwQual);
+  //     tkele.setPFIsol(egele.floatPFIso());
+  //     tkeles->push_back(tkele);
+  //   }
+  // }
+  if (writeEgSta)
+    iEvent.put(std::move(egs), egLablel);
+  iEvent.put(std::move(tkems), tkEmLabel);
+  iEvent.put(std::move(tkeles), tkEleLabel);
+}
 
 
 

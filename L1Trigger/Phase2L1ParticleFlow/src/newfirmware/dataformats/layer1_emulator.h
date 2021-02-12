@@ -6,6 +6,8 @@
 #include "layer1_objs.h"
 #include "pf.h"
 #include "puppi.h"
+#include "egamma.h"
+
 
 namespace l1t { class PFTrack; class PFCluster; class PFCandidate; class Muon; }
 
@@ -135,6 +137,31 @@ namespace l1ct {
     };
 
    
+    struct EGIsoObjEmu : public EGIsoObj {
+      const l1t::PFCluster *srcCluster;
+      bool read(std::fstream & from) ;
+      bool write(std::fstream & to) const ;
+      void clear() {
+          EGIsoObj::clear();
+          srcCluster = nullptr;
+      }
+      
+    };
+
+    struct EGIsoEleObjEmu : public EGIsoEleObj {
+      const l1t::PFCluster *srcCluster;
+      const l1t::PFTrack *srcTrack;
+      bool read(std::fstream & from) ;
+      bool write(std::fstream & to) const ;
+      void clear() {
+          EGIsoEleObj::clear();
+          srcCluster = nullptr;
+          srcTrack = nullptr;
+      }      
+    };
+
+   
+   
     struct PVObjEmu {
         z0_t hwZ0;
         bool read(std::fstream & from) ;
@@ -195,6 +222,8 @@ namespace l1ct {
         std::vector<PFNeutralObjEmu> pfneutral;
         std::vector<PFChargedObjEmu> pfmuon;
         std::vector<PuppiObjEmu> puppi;
+        std::vector<EGIsoObjEmu> egphoton;
+        std::vector<EGIsoEleObjEmu> egelectron;
 
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;
