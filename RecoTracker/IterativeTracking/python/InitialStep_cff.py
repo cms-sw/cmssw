@@ -229,18 +229,16 @@ import RecoTracker.MkFit.mkFitHitConverter_cfi as mkFitHitConverter_cfi
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
-initialStepTrackCandidatesMkFitHits = mkFitHitConverter_cfi.mkFitHitConverter.clone()
+mkFitHits = mkFitHitConverter_cfi.mkFitHitConverter.clone() # TODO: figure out better place for this module?
 initialStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
-    hits = 'initialStepTrackCandidatesMkFitHits',
     seeds = 'initialStepSeeds',
 )
 initialStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
-    hits = 'initialStepTrackCandidatesMkFitHits',
     seeds = 'initialStepTrackCandidatesMkFitSeeds',
+    iterationNumber = 0,
 )
 trackingMkFit.toReplaceWith(initialStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
     seeds = 'initialStepSeeds',
-    mkfitHits = 'initialStepTrackCandidatesMkFitHits',
     mkfitSeeds = 'initialStepTrackCandidatesMkFitSeeds',
     tracks = 'initialStepTrackCandidatesMkFit',
 ))
@@ -420,7 +418,7 @@ InitialStepTask = cms.Task(initialStepSeedLayers,
 InitialStep = cms.Sequence(InitialStepTask)
 
 _InitialStepTask_trackingMkFit = InitialStepTask.copy()
-_InitialStepTask_trackingMkFit.add(initialStepTrackCandidatesMkFitHits, initialStepTrackCandidatesMkFitSeeds, initialStepTrackCandidatesMkFit, mkFitGeometryESProducer)
+_InitialStepTask_trackingMkFit.add(mkFitHits, initialStepTrackCandidatesMkFitSeeds, initialStepTrackCandidatesMkFit, mkFitGeometryESProducer)
 trackingMkFit.toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFit)
 
 _InitialStepTask_LowPU = InitialStepTask.copyAndExclude([firstStepPrimaryVerticesUnsorted, initialStepTrackRefsForJets, caloJetsForTrkTask, firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])

@@ -3,6 +3,7 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
+#include "RecoTracker/MkFit/interface/MkFitClusterIndexToHit.h"
 #include "RecoTracker/MkFit/interface/MkFitSeedWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitOutputWrapper.h"
 

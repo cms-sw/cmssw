@@ -11,7 +11,7 @@ namespace mkfit {
 class MkFitOutputWrapper {
 public:
   MkFitOutputWrapper();
-  MkFitOutputWrapper(mkfit::TrackVec&& candidateTracks, mkfit::TrackVec&& fitTracks);
+  MkFitOutputWrapper(mkfit::TrackVec tracks, bool propagatedToFirstLayer);
   ~MkFitOutputWrapper();
 
   MkFitOutputWrapper(MkFitOutputWrapper const&) = delete;
@@ -19,12 +19,12 @@ public:
   MkFitOutputWrapper(MkFitOutputWrapper&&);
   MkFitOutputWrapper& operator=(MkFitOutputWrapper&&);
 
-  mkfit::TrackVec const& candidateTracks() const { return candidateTracks_; }
-  mkfit::TrackVec const& fitTracks() const { return fitTracks_; }
+  mkfit::TrackVec const& tracks() const { return tracks_; }
+  bool propagatedToFirstLayer() const { return propagatedToFirstLayer_; }
 
 private:
-  mkfit::TrackVec candidateTracks_;
-  mkfit::TrackVec fitTracks_;
+  mkfit::TrackVec tracks_;
+  bool propagatedToFirstLayer_;
 };
 
 #endif

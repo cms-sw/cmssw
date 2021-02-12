@@ -29,6 +29,7 @@
 #include "TrackingTools/MaterialEffects/src/PropagatorWithMaterial.cc"
 
 #include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
+#include "RecoTracker/MkFit/interface/MkFitClusterIndexToHit.h"
 #include "RecoTracker/MkFit/interface/MkFitSeedWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitOutputWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
@@ -37,6 +38,7 @@
 // mkFit indludes
 #include "LayerNumberConverter.h"
 #include "Track.h"
+#include "mkFit/HitStructures.h"
 
 namespace {
   template <typename T>
@@ -63,7 +65,8 @@ private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   TrackCandidateCollection convertCandidates(const MkFitOutputWrapper& mkFitOutput,
-                                             const MkFitHitIndexMap& hitIndexMap,
+                                             const mkfit::EventOfHits& eventOfHits,
+                                             const MkFitClusterIndexToHit& clusterIndexToHit,
                                              const edm::View<TrajectorySeed>& seeds,
                                              const MagneticField& mf,
                                              const Propagator& propagatorAlong,
@@ -86,6 +89,7 @@ private:
                                                                             const Propagator& propagatorOpposite) const;
 
   const edm::EDGetTokenT<MkFitHitWrapper> mkfitHitToken_;
+  const edm::EDGetTokenT<MkFitClusterIndexToHit> clusterIndexToHitToken_;
   const edm::EDGetTokenT<MkFitSeedWrapper> mkfitSeedToken_;
   edm::EDGetTokenT<MkFitOutputWrapper> tracksToken_;
   edm::EDGetTokenT<edm::View<TrajectorySeed>> seedToken_;
@@ -99,11 +103,11 @@ private:
   std::string ttrhBuilderName_;
   std::string propagatorAlongName_;
   std::string propagatorOppositeName_;
-  bool backwardFitInCMSSW_;
 };
 
 MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
     : mkfitHitToken_{consumes<MkFitHitWrapper>(iConfig.getParameter<edm::InputTag>("mkfitHits"))},
+      clusterIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("mkfitHits"))},
       mkfitSeedToken_{consumes<MkFitSeedWrapper>(iConfig.getParameter<edm::InputTag>("mkfitSeeds"))},
       tracksToken_{consumes<MkFitOutputWrapper>(iConfig.getParameter<edm::InputTag>("tracks"))},
       seedToken_{consumes<edm::View<TrajectorySeed>>(iConfig.getParameter<edm::InputTag>("seeds"))},
@@ -116,28 +120,24 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
           iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
       mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
       putTrackCandidateToken_{produces<TrackCandidateCollection>()},
-      putSeedStopInfoToken_{produces<std::vector<SeedStopInfo>>()},
-      backwardFitInCMSSW_{iConfig.getParameter<bool>("backwardFitInCMSSW")} {}
+      putSeedStopInfoToken_{produces<std::vector<SeedStopInfo>>()} {}
 
 void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add("mkfitHits", edm::InputTag{"mkFitHitConverter"});
+  desc.add("mkfitHits", edm::InputTag{"mkFitHits"});
   desc.add("mkfitSeeds", edm::InputTag{"mkFitSeedConverter"});
   desc.add("tracks", edm::InputTag{"mkFitProducer"});
   desc.add("seeds", edm::InputTag{"initialStepSeeds"});
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
   desc.add("propagatorAlong", edm::ESInputTag{"", "PropagatorWithMaterial"});
   desc.add("propagatorOpposite", edm::ESInputTag{"", "PropagatorWithMaterialOpposite"});
-  desc.add("backwardFitInCMSSW", false)
-      ->setComment("Do backward fit (to innermost hit) in CMSSW (true) or mkFit (false)");
 
   descriptions.addWithDefaultLabel(desc);
 }
 
 void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   const auto& seeds = iEvent.get(seedToken_);
-  const auto& mkfitHits = iEvent.get(mkfitHitToken_);
   const auto& mkfitSeeds = iEvent.get(mkfitSeedToken_);
 
   const auto& ttrhBuilder = iSetup.getData(ttrhBuilderToken_);
@@ -150,7 +150,8 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
   // Convert mkfit presentation back to CMSSW
   iEvent.emplace(putTrackCandidateToken_,
                  convertCandidates(iEvent.get(tracksToken_),
-                                   mkfitHits.hitIndexMap(),
+                                   iEvent.get(mkfitHitToken_).eventOfHits(),
+                                   iEvent.get(clusterIndexToHitToken_),
                                    seeds,
                                    iSetup.getData(mfToken_),
                                    iSetup.getData(propagatorAlongToken_),
@@ -164,7 +165,8 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
 }
 
 TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutputWrapper& mkFitOutput,
-                                                                 const MkFitHitIndexMap& hitIndexMap,
+                                                                 const mkfit::EventOfHits& eventOfHits,
+                                                                 const MkFitClusterIndexToHit& clusterIndexToHit,
                                                                  const edm::View<TrajectorySeed>& seeds,
                                                                  const MagneticField& mf,
                                                                  const Propagator& propagatorAlong,
@@ -173,10 +175,10 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
                                                                  const std::vector<const DetLayer*>& detLayers,
                                                                  const mkfit::TrackVec& mkFitSeeds) const {
   TrackCandidateCollection output;
-  const auto& candidates = backwardFitInCMSSW_ ? mkFitOutput.candidateTracks() : mkFitOutput.fitTracks();
+  const auto& candidates = mkFitOutput.tracks();
   output.reserve(candidates.size());
 
-  LogTrace("MkFitOutputConverter") << "Number of candidates " << mkFitOutput.candidateTracks().size();
+  LogTrace("MkFitOutputConverter") << "Number of candidates " << candidates.size();
 
   int candIndex = -1;
   for (const auto& cand : candidates) {
@@ -214,14 +216,15 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         // them in the TrackProducer.
         lastHitInvalid = true;
       } else {
-        recHits.push_back(hitIndexMap.hitPtr(MkFitHitIndexMap::MkFitHit{hitOnTrack.index, hitOnTrack.layer})->clone());
+        auto const isPixel = eventOfHits[hitOnTrack.layer].is_pix_lyr();
+        auto const& hits = isPixel ? clusterIndexToHit.pixelHits() : clusterIndexToHit.outerHits();
+
+        recHits.push_back(hits[hitOnTrack.index]->clone());
         LogTrace("MkFitOutputConverter") << "  pos " << recHits.back().globalPosition().x() << " "
                                          << recHits.back().globalPosition().y() << " "
                                          << recHits.back().globalPosition().z() << " mag2 "
                                          << recHits.back().globalPosition().mag2() << " detid "
-                                         << recHits.back().geographicalId().rawId() << " cluster "
-                                         << hitIndexMap.clusterIndex(
-                                                MkFitHitIndexMap::MkFitHit{hitOnTrack.index, hitOnTrack.layer});
+                                         << recHits.back().geographicalId().rawId() << " cluster " << hitOnTrack.index;
         lastHitInvalid = false;
       }
     }
@@ -296,9 +299,9 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     }
 
     auto tsosDet =
-        backwardFitInCMSSW_
-            ? backwardFit(fts, recHits, propagatorAlong, propagatorOpposite, hitCloner, lastHitInvalid, lastHitChanged)
-            : convertInnermostState(fts, recHits, propagatorAlong, propagatorOpposite);
+        mkFitOutput.propagatedToFirstLayer()
+            ? convertInnermostState(fts, recHits, propagatorAlong, propagatorOpposite)
+            : backwardFit(fts, recHits, propagatorAlong, propagatorOpposite, hitCloner, lastHitInvalid, lastHitChanged);
     if (!tsosDet.first.isValid()) {
       edm::LogWarning("MkFitOutputConverter")
           << "Backward fit of candidate " << candIndex << " failed, ignoring the candidate";

@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -19,6 +20,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
+#include "RecoTracker/MkFit/interface/MkFitClusterIndexToHit.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
@@ -29,6 +31,8 @@
 // mkFit includes
 #include "Hit.h"
 #include "LayerNumberConverter.h"
+#include "mkFit/HitStructures.h"
+#include "mkFit/MkStdSeqs.h"
 
 class MkFitHitConverter : public edm::global::EDProducer<> {
 public:
@@ -42,9 +46,9 @@ private:
 
   template <typename HitCollection>
   void convertHits(const HitCollection& hits,
-                   std::vector<mkfit::HitVec>& mkFitHits,
-                   MkFitHitIndexMap& hitIndexMap,
-                   int& totalHits,
+                   mkfit::EventOfHits& mkFitEventOfHits,
+                   mkfit::HitVec& mkFitHits,
+                   std::vector<TrackingRecHit const*>& clusterIndexToHit,
                    const TrackerTopology& ttopo,
                    const TransientTrackingRecHitBuilder& ttrhBuilder,
                    const MkFitGeometry& mkFitGeom) const;
@@ -68,7 +72,8 @@ private:
   edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhBuilderToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
-  edm::EDPutTokenT<MkFitHitWrapper> putToken_;
+  edm::EDPutTokenT<MkFitHitWrapper> wrapperPutToken_;
+  edm::EDPutTokenT<MkFitClusterIndexToHit> clusterIndexPutToken_;
   const float minGoodStripCharge_;
 };
 
@@ -82,7 +87,8 @@ MkFitHitConverter::MkFitHitConverter(edm::ParameterSet const& iConfig)
           iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
       ttopoToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()},
       mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
-      putToken_{produces<MkFitHitWrapper>()},
+      wrapperPutToken_{produces<MkFitHitWrapper>()},
+      clusterIndexPutToken_{produces<MkFitClusterIndexToHit>()},
       minGoodStripCharge_{static_cast<float>(
           iConfig.getParameter<edm::ParameterSet>("minGoodStripCharge").getParameter<double>("value"))} {}
 
@@ -107,15 +113,22 @@ void MkFitHitConverter::produce(edm::StreamID iID, edm::Event& iEvent, const edm
   const auto& ttopo = iSetup.getData(ttopoToken_);
   const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
 
-  std::vector<mkfit::HitVec> mkFitHits(mkFitGeom.layerNumberConverter().nLayers());
-  MkFitHitIndexMap hitIndexMap;
-  int totalHits = 0;  // I need to have a global hit index in order to have the hit remapping working?
-  // Process strips first for better memory allocation pattern
-  convertHits(iEvent.get(stripRphiRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, mkFitGeom);
-  convertHits(iEvent.get(stripStereoRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, mkFitGeom);
-  convertHits(iEvent.get(pixelRecHitToken_), mkFitHits, hitIndexMap, totalHits, ttopo, ttrhBuilder, mkFitGeom);
+  MkFitHitWrapper hitWrapper{mkFitGeom.trackerInfo()};
+  mkfit::StdSeq::Cmssw_LoadHits_Begin(hitWrapper.eventOfHits(), {&hitWrapper.pixelHits(), &hitWrapper.outerHits()});
 
-  iEvent.emplace(putToken_, std::move(hitIndexMap), std::move(mkFitHits));
+  MkFitClusterIndexToHit clusterIndexToHit;
+
+  auto convert = [&](auto& hits, auto& mkFitHits, auto& clusterIndexToHit) {
+    convertHits(hits, hitWrapper.eventOfHits(), mkFitHits, clusterIndexToHit, ttopo, ttrhBuilder, mkFitGeom);
+  };
+  convert(iEvent.get(pixelRecHitToken_), hitWrapper.pixelHits(), clusterIndexToHit.pixelHits());
+  convert(iEvent.get(stripRphiRecHitToken_), hitWrapper.outerHits(), clusterIndexToHit.outerHits());
+  convert(iEvent.get(stripStereoRecHitToken_), hitWrapper.outerHits(), clusterIndexToHit.outerHits());
+
+  mkfit::StdSeq::Cmssw_LoadHits_End(hitWrapper.eventOfHits());
+
+  iEvent.emplace(wrapperPutToken_, std::move(hitWrapper));
+  iEvent.emplace(clusterIndexPutToken_, std::move(clusterIndexToHit));
 }
 
 float MkFitHitConverter::clusterCharge(const SiStripRecHit2D& hit, DetId hitId) const {
@@ -137,9 +150,9 @@ void MkFitHitConverter::setDetails(mkfit::Hit& mhit, const SiStripCluster& clust
 
 template <typename HitCollection>
 void MkFitHitConverter::convertHits(const HitCollection& hits,
-                                    std::vector<mkfit::HitVec>& mkFitHits,
-                                    MkFitHitIndexMap& hitIndexMap,
-                                    int& totalHits,
+                                    mkfit::EventOfHits& mkFitEventOfHits,
+                                    mkfit::HitVec& mkFitHits,
+                                    std::vector<TrackingRecHit const*>& clusterIndexToHit,
                                     const TrackerTopology& ttopo,
                                     const TransientTrackingRecHitBuilder& ttrhBuilder,
                                     const MkFitGeometry& mkFitGeom) const {
@@ -150,13 +163,12 @@ void MkFitHitConverter::convertHits(const HitCollection& hits,
   };
 
   {
-    const DetId detid{hits.ids().back()};
-    const auto ilay = mkFitGeom.layerNumberConverter().convertLayerNumber(
-        detid.subdetId(), ttopo.layer(detid), false, ttopo.isStereo(detid), isPlusSide(detid));
-    // Do initial reserves to minimize further memory allocations
     const auto& lastClusterRef = hits.data().back().firstClusterRef();
-    hitIndexMap.resizeByClusterIndex(lastClusterRef.id(), lastClusterRef.index());
-    hitIndexMap.increaseLayerSize(ilay, hits.detsetSize(hits.ids().size() - 1));
+    if (lastClusterRef.index() >= mkFitHits.size()) {
+      auto const size = lastClusterRef.index();
+      mkFitHits.resize(size);
+      clusterIndexToHit.resize(size, nullptr);
+    }
   }
 
   for (const auto& detset : hits) {
@@ -166,8 +178,6 @@ void MkFitHitConverter::convertHits(const HitCollection& hits,
     const auto isStereo = ttopo.isStereo(detid);
     const auto ilay =
         mkFitGeom.layerNumberConverter().convertLayerNumber(subdet, layer, false, isStereo, isPlusSide(detid));
-    const auto uniqueIdInLayer = mkFitGeom.uniqueIdInLayer(ilay, detid.rawId());
-    hitIndexMap.increaseLayerSize(ilay, detset.size());  // to minimize memory allocations
 
     for (const auto& hit : detset) {
       const auto charge = clusterCharge(hit, detid);
@@ -185,17 +195,21 @@ void MkFitHitConverter::convertHits(const HitCollection& hits,
       err.At(0, 2) = gerr.czx();
       err.At(1, 2) = gerr.czy();
 
+      const auto clusterIndex = hit.firstClusterRef().index();
       LogTrace("MkFitHitConverter") << "Adding hit detid " << detid.rawId() << " subdet " << subdet << " layer "
-                                    << layer << " isStereo " << isStereo << " zplus " << isPlusSide(detid) << " ilay "
-                                    << ilay;
+                                    << layer << " isStereo " << isStereo << " zplus " << isPlusSide(detid) << " index "
+                                    << clusterIndex << " ilay " << ilay;
 
-      hitIndexMap.insert(hit.firstClusterRef().id(),
-                         hit.firstClusterRef().index(),
-                         MkFitHitIndexMap::MkFitHit{static_cast<int>(mkFitHits[ilay].size()), ilay},
-                         &hit);
-      mkFitHits[ilay].emplace_back(pos, err, totalHits);
-      setDetails(mkFitHits[ilay].back(), *(hit.cluster()), uniqueIdInLayer, charge);
-      ++totalHits;
+      if UNLIKELY (clusterIndex >= mkFitHits.size()) {
+        mkFitHits.resize(clusterIndex + 1);
+        clusterIndexToHit.resize(clusterIndex + 1, nullptr);
+      }
+      mkFitHits[clusterIndex] = mkfit::Hit(pos, err);
+      clusterIndexToHit[clusterIndex] = &hit;
+      const auto uniqueIdInLayer = mkFitGeom.uniqueIdInLayer(ilay, detid.rawId());
+      setDetails(mkFitHits[clusterIndex], *(hit.cluster()), uniqueIdInLayer, charge);
+
+      mkFitEventOfHits[ilay].RegisterHit(clusterIndex);
     }
   }
 }
