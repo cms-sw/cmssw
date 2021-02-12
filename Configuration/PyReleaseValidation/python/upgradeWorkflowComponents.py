@@ -50,8 +50,6 @@ upgradeKeys[2026] = [
     '2026D71PU',
     '2026D72',
     '2026D72PU',
-    '2026D73',
-    '2026D73PU',
     '2026D74',
     '2026D74PU',
     '2026D75',
@@ -1163,13 +1161,6 @@ upgradeProperties[2026] = {
     },
     '2026D72' : {
         'Geom' : 'Extended2026D72',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11_etlV4',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D73' : {
-        'Geom' : 'Extended2026D73',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C11_etlV4',
