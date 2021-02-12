@@ -56,6 +56,23 @@ l1ctLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
         priorsPhoton      = cms.vdouble( 1.0 ),
         debug = cms.untracked.bool(False)
     ),
+    tkEgAlgoParameters = cms.PSet(
+        nTRACK=cms.uint32(50), # very large numbers for first test
+        nEMCALO=cms.uint32(50), # very large numbers for first test
+        nEMCALOSEL_EGIN=cms.uint32(50), # very large numbers for first test
+        nEM_EGOUT=cms.uint32(50), # very large numbers for first test
+        doBremRecovery=cms.bool(False),
+        filterHwQuality=cms.bool(False),
+        caloHwQual=cms.int32(4),
+        dEtaMaxBrem=cms.double(0.02),
+        dPhiMaxBrem=cms.double(0.1),
+        absEtaBoundaries=cms.vdouble(0.0, 0.9, 1.5),
+        dEtaValues=cms.vdouble(0.025, 0.015, 0.01),  # last was  0.0075  in TDR
+        dPhiValues=cms.vdouble(0.07, 0.07, 0.07),
+        caloEtMin=cms.double(0.0),
+        trkQualityPtMin=cms.double(10.0),
+    ),
+    writeEGSta = cms.bool(False),
     sortOutputs = cms.bool(True),
     sortInputs = cms.bool(True),
     caloSectors = cms.VPSet(
@@ -127,6 +144,23 @@ l1ctLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         priorsPhoton      = cms.vdouble( 1.5, 1.5 ), #When e/g ID not applied, use: cms.vdouble( 3.5, 3.5, 7.0 ),
         debug = cms.untracked.bool(False)
     ),
+    tkEgAlgoParameters = cms.PSet(
+        nTRACK=cms.uint32(50), # very large numbers for first test
+        nEMCALO=cms.uint32(50), # very large numbers for first test
+        nEMCALOSEL_EGIN=cms.uint32(50), # very large numbers for first test
+        nEM_EGOUT=cms.uint32(50), # very large numbers for first test
+        doBremRecovery=cms.bool(True),
+        filterHwQuality=cms.bool(True),
+        caloHwQual=cms.int32(4),
+        dEtaMaxBrem=cms.double(0.02),
+        dPhiMaxBrem=cms.double(0.1),
+        absEtaBoundaries=cms.vdouble(0.0, 0.9, 1.5),
+        dEtaValues=cms.vdouble(0.025, 0.015, 0.01),  # last was  0.0075  in TDR
+        dPhiValues=cms.vdouble(0.07, 0.07, 0.07),
+        caloEtMin=cms.double(0.0),
+        trkQualityPtMin=cms.double(10.0),
+    ),
+    writeEGSta = cms.bool(True),    
     sortOutputs = cms.bool(True),
     sortInputs = cms.bool(True),
     caloSectors = cms.VPSet(
@@ -197,6 +231,23 @@ l1ctLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
         priorsPhoton      = cms.vdouble( 5.0 ), #When e/g ID not applied, use: cms.vdouble( 3.5, 3.5, 7.0 ),
         debug = cms.untracked.bool(False)
     ),
+    tkEgAlgoParameters = cms.PSet(
+        nTRACK=cms.uint32(50), # very large numbers for first test
+        nEMCALO=cms.uint32(50), # very large numbers for first test
+        nEMCALOSEL_EGIN=cms.uint32(50), # very large numbers for first test
+        nEM_EGOUT=cms.uint32(50), # very large numbers for first test
+        doBremRecovery=cms.bool(True),
+        filterHwQuality=cms.bool(True),
+        caloHwQual=cms.int32(4),
+        dEtaMaxBrem=cms.double(0.02),
+        dPhiMaxBrem=cms.double(0.1),
+        absEtaBoundaries=cms.vdouble(0.0, 0.9, 1.5),
+        dEtaValues=cms.vdouble(0.025, 0.015, 0.01),  # last was  0.0075  in TDR
+        dPhiValues=cms.vdouble(0.07, 0.07, 0.07),
+        caloEtMin=cms.double(0.0),
+        trkQualityPtMin=cms.double(10.0),
+    ),
+    writeEGSta = cms.bool(True),    
     sortOutputs = cms.bool(True),
     sortInputs = cms.bool(True),
     caloSectors = cms.VPSet(
@@ -266,6 +317,23 @@ l1ctLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
         priorsPhoton      = cms.vdouble(  6.0  ),
         debug = cms.untracked.bool(False)
     ),
+    tkEgAlgoParameters = cms.PSet(
+        nTRACK=cms.uint32(50), # very large numbers for first test
+        nEMCALO=cms.uint32(50), # very large numbers for first test
+        nEMCALOSEL_EGIN=cms.uint32(50), # very large numbers for first test
+        nEM_EGOUT=cms.uint32(50), # very large numbers for first test
+        doBremRecovery=cms.bool(True),
+        filterHwQuality=cms.bool(True),
+        caloHwQual=cms.int32(4),
+        dEtaMaxBrem=cms.double(0.02),
+        dPhiMaxBrem=cms.double(0.1),
+        absEtaBoundaries=cms.vdouble(0.0, 0.9, 1.5),
+        dEtaValues=cms.vdouble(0.025, 0.015, 0.01),  # last was  0.0075  in TDR
+        dPhiValues=cms.vdouble(0.07, 0.07, 0.07),
+        caloEtMin=cms.double(0.0),
+        trkQualityPtMin=cms.double(10.0),
+    ),
+    writeEGSta = cms.bool(True),
     sortOutputs = cms.bool(True),
     sortInputs = cms.bool(True),
     caloSectors = cms.VPSet(
@@ -304,4 +372,3 @@ l1ctLayer1 = cms.EDProducer("L1TPFCandMultiMerger",
     ),
     labelsToMerge = cms.vstring("PF", "Puppi"),
 )
-
