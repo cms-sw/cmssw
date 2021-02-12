@@ -322,16 +322,15 @@ double DAClusterizerInZ_vect::update(
     return ZTemp;
   };
 
-  auto kernel_calc_normalization_range = [beta, updateTc](const unsigned int track_num,
-                                                          track_t& tracks,
-                                                          vertex_t& vertices,
-                                                          const unsigned int kmin,
-                                                          const unsigned int kmax) {
+  auto kernel_calc_normalization_range = [updateTc](const unsigned int track_num,
+                                                    track_t& tracks,
+                                                    vertex_t& vertices,
+                                                    const unsigned int kmin,
+                                                    const unsigned int kmax) {
     auto tmp_trk_tkwt = tracks.tkwt[track_num];
     auto o_trk_sum_Z = 1. / tracks.sum_Z[track_num];
     auto o_trk_dz2 = tracks.dz2[track_num];
     auto tmp_trk_z = tracks.zpca[track_num];
-    auto obeta = -1. / beta;
 
     // auto-vectorized
     if (updateTc) {
@@ -341,7 +340,7 @@ double DAClusterizerInZ_vect::update(
         auto w = vertices.rho[k] * vertices.exp[k] * (tmp_trk_tkwt * o_trk_sum_Z * o_trk_dz2);
         vertices.sw[k] += w;
         vertices.swz[k] += w * tmp_trk_z;
-        vertices.swE[k] += w * vertices.exp_arg[k] * obeta;
+        vertices.swE[k] += w * vertices.exp_arg[k];
       }
     } else {
       // same loop but without updating sWE
@@ -355,11 +354,19 @@ double DAClusterizerInZ_vect::update(
     }
   };
 
-  for (auto ivertex = 0U; ivertex < nv; ++ivertex) {
-    gvertices.se[ivertex] = 0.0;
-    gvertices.sw[ivertex] = 0.0;
-    gvertices.swz[ivertex] = 0.0;
-    gvertices.swE[ivertex] = 0.0;
+  if (updateTc) {
+    for (auto ivertex = 0U; ivertex < nv; ++ivertex) {
+      gvertices.se[ivertex] = 0.0;
+      gvertices.sw[ivertex] = 0.0;
+      gvertices.swz[ivertex] = 0.0;
+      gvertices.swE[ivertex] = 0.0;
+    }
+  } else {
+    for (auto ivertex = 0U; ivertex < nv; ++ivertex) {
+      gvertices.se[ivertex] = 0.0;
+      gvertices.sw[ivertex] = 0.0;
+      gvertices.swz[ivertex] = 0.0;
+    }
   }
 
   // loop over tracks
@@ -378,6 +385,14 @@ double DAClusterizerInZ_vect::update(
 
     if (gtracks.sum_Z[itrack] > 1.e-100) {
       kernel_calc_normalization_range(itrack, gtracks, gvertices, kmin, kmax);
+    }
+  }
+
+  // (un-)apply the factor -beta which is needed in exp_arg, but not in swE
+  if (updateTc) {
+    auto obeta = -1. / beta;
+    for (auto ivertex = 0U; ivertex < nv; ++ivertex) {
+      gvertices.swE[ivertex] *= obeta;
     }
   }
 
@@ -840,7 +855,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
   }
 
   thermalize(beta, tks, y, delta_lowT_, rho0);
-  update(beta, tks, y, rho0, true);
+  //update(beta, tks, y, rho0, true);//to be introduced in a forthcoming PR
 
 #ifdef DEBUG
   verify(y, tks);
@@ -855,7 +870,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
   // merge again  (some cluster split by outliers collapse here)
   while (merge(y, tks, beta)) {
     set_vtx_range(beta, tks, y);
-    update(beta, tks, y, rho0, true);
+    update(beta, tks, y, rho0, false);  //change to "true" in a forthcoming PR
   }
 
 #ifdef DEBUG
