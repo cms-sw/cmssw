@@ -13,14 +13,14 @@ generator = cms.EDFilter("ExhumeGeneratorFilter",
         TauMass = cms.double(1.78),
         TopMass = cms.double(172.8),
         WMass = cms.double(80.38),
-        ZMass = cms.double(91.187)
+        ZMass = cms.double(91.187),
         HiggsMass = cms.double(125.1),
         HiggsVev = cms.double(246.0),
         LambdaQCD = cms.double(80.0),
         MinQt2 = cms.double(0.64),
         PDF = cms.double(11000),
         Rg = cms.double(1.2),
-        Survive = cms.double(0.03),
+        Survive = cms.double(0.03)
     ),
     ExhumeProcess = cms.PSet(
         MassRangeHigh = cms.double(2000.0),
