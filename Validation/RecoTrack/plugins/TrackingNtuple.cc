@@ -1151,7 +1151,7 @@ private:
   std::vector<float>
       glu_radL;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> glu_bbxi;
-  std::vector<float> glu_chargePerCM ;
+  std::vector<float> glu_chargePerCM;
   std::vector<int> glu_clustSizeMono;
   std::vector<int> glu_clustSizeStereo;
   std::vector<uint64_t> glu_usedMaskMono;
@@ -1161,10 +1161,10 @@ private:
   // (first) index runs through hits
   std::vector<short> ph2_isBarrel;
   DetIdPhase2OT ph2_detId;
-  std::vector<std::vector<int>> ph2_trkIdx;     // second index runs through tracks containing this hit
-  std::vector<std::vector<int>> ph2_seeIdx;     // second index runs through seeds containing this hit
-  std::vector<std::vector<int>> ph2_simHitIdx;  // second index runs through SimHits inducing this hit
-  std::vector<std::vector<float>> ph2_xySignificance; // second index runs through SimHits inducing this hit
+  std::vector<std::vector<int>> ph2_trkIdx;            // second index runs through tracks containing this hit
+  std::vector<std::vector<int>> ph2_seeIdx;            // second index runs through seeds containing this hit
+  std::vector<std::vector<int>> ph2_simHitIdx;         // second index runs through SimHits inducing this hit
+  std::vector<std::vector<float>> ph2_xySignificance;  // second index runs through SimHits inducing this hit
   //std::vector<std::vector<float>> ph2_chargeFraction; // Not supported at the moment for Phase2
   std::vector<unsigned short> ph2_simType;
   std::vector<float> ph2_x;
@@ -1400,11 +1400,12 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     for (auto const& mask : maskVPset) {
       auto index = mask.getUntrackedParameter<unsigned int>("index");
       assert(index < 64);
-      pixelUseMaskTokens_.emplace_back(index, consumes<PixelMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
+      pixelUseMaskTokens_.emplace_back(index,
+                                       consumes<PixelMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
       if (includeStripHits_)
-        stripUseMaskTokens_.emplace_back(index, consumes<StripMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
+        stripUseMaskTokens_.emplace_back(
+            index, consumes<StripMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
     }
-
   }
 
   const bool tpRef = iConfig.getUntrackedParameter<bool>("trackingParticlesRef");
@@ -1694,7 +1695,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("simhit_x", &simhit_x);
       t->Branch("simhit_y", &simhit_y);
       t->Branch("simhit_z", &simhit_z);
-      if (saveSimHitsP3_){
+      if (saveSimHitsP3_) {
         t->Branch("simhit_px", &simhit_px);
         t->Branch("simhit_py", &simhit_py);
         t->Branch("simhit_pz", &simhit_pz);
@@ -1744,7 +1745,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     t->Branch("see_stateTrajGlbPx", &see_stateTrajGlbPx);
     t->Branch("see_stateTrajGlbPy", &see_stateTrajGlbPy);
     t->Branch("see_stateTrajGlbPz", &see_stateTrajGlbPz);
-    if (addSeedCartesianCov_){
+    if (addSeedCartesianCov_) {
       t->Branch("see_stateCcov00", &see_stateCcov00);
       t->Branch("see_stateCcov01", &see_stateCcov01);
       t->Branch("see_stateCcov02", &see_stateCcov02);
@@ -2451,9 +2452,9 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
   else
     simTrackIdToChargeFraction = chargeFraction(GetCluster<SimLink>::call(cluster), hitId, digiSimLinks);
 
-  float h_x=0, h_y=0;
-  float h_xx=0, h_xy=0, h_yy=0;
-  if (simHitBySignificance_){
+  float h_x = 0, h_y = 0;
+  float h_xx = 0, h_xy = 0, h_yy = 0;
+  if (simHitBySignificance_) {
     h_x = ttrh->localPosition().x();
     h_y = ttrh->localPosition().y();
     h_xx = ttrh->localPositionError().xx();
@@ -2473,7 +2474,8 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
       HitSimType type = HitSimType::OOTPileup;
       if (bx == 0) {
         type = (event == 0 ? HitSimType::Signal : HitSimType::ITPileup);
-      } else type = HitSimType::OOTPileup;
+      } else
+        type = HitSimType::OOTPileup;
       ret.type = static_cast<HitSimType>(std::min(static_cast<int>(ret.type), static_cast<int>(type)));
 
       // Limit to only input TrackingParticles (usually signal+ITPU)
@@ -2492,56 +2494,57 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
       bool foundElectron = false;
       int foundElectrons = 0;
       int foundNonElectrons = 0;
-      for(auto ip = range.first; ip != range.second; ++ip) {
+      for (auto ip = range.first; ip != range.second; ++ip) {
         TrackPSimHitRef TPhit = ip->second;
         DetId dId = DetId(TPhit->detUnitId());
-        if (dId.rawId()==hitId.rawId()) {
+        if (dId.rawId() == hitId.rawId()) {
           // skip electron SimHits for non-electron TPs also here
-          if(std::abs(TPhit->particleType()) == 11 && std::abs(trackingParticle->pdgId()) != 11) {
-	    foundElectrons++;
+          if (std::abs(TPhit->particleType()) == 11 && std::abs(trackingParticle->pdgId()) != 11) {
+            foundElectrons++;
           } else {
-	    foundNonElectrons++;
-	  }
+            foundNonElectrons++;
+          }
         }
       }
 
       float minSignificance = 1e12;
-      if (simHitBySignificance_){//save the best matching hit
-	
+      if (simHitBySignificance_) {  //save the best matching hit
+
         int simHitKey = -1;
         edm::ProductID simHitID;
-	for(auto ip = range.first; ip != range.second; ++ip) {
-	  TrackPSimHitRef TPhit = ip->second;
-	  DetId dId = DetId(TPhit->detUnitId());
-	  if (dId.rawId()==hitId.rawId()) {
-	    // skip electron SimHits for non-electron TPs also here
-	    if(std::abs(TPhit->particleType()) == 11 && std::abs(trackingParticle->pdgId()) != 11) {
-	      foundElectron = true;
-	      if (!keepEleSimHits_) continue;
-	    }
-	    
-	    float sx = TPhit->localPosition().x();
-	    float sy = TPhit->localPosition().y();
-	    float dx = sx - h_x;
-	    float dy = sy - h_y;
-	    float sig = (dx*dx*h_yy - 2*dx*dy*h_xy + dy*dy*h_xx)/(h_xx*h_yy - h_xy*h_xy);
-	    
-	    if (sig < minSignificance){
-	      minSignificance = sig;
+        for (auto ip = range.first; ip != range.second; ++ip) {
+          TrackPSimHitRef TPhit = ip->second;
+          DetId dId = DetId(TPhit->detUnitId());
+          if (dId.rawId() == hitId.rawId()) {
+            // skip electron SimHits for non-electron TPs also here
+            if (std::abs(TPhit->particleType()) == 11 && std::abs(trackingParticle->pdgId()) != 11) {
+              foundElectron = true;
+              if (!keepEleSimHits_)
+                continue;
+            }
+
+            float sx = TPhit->localPosition().x();
+            float sy = TPhit->localPosition().y();
+            float dx = sx - h_x;
+            float dy = sy - h_y;
+            float sig = (dx * dx * h_yy - 2 * dx * dy * h_xy + dy * dy * h_xx) / (h_xx * h_yy - h_xy * h_xy);
+
+            if (sig < minSignificance) {
+              minSignificance = sig;
               foundSimHit = true;
-	      simHitKey = TPhit.key();
-	      simHitID = TPhit.id();
-	    }
-	  }
-	}//loop over matching hits
+              simHitKey = TPhit.key();
+              simHitID = TPhit.id();
+            }
+          }
+        }  //loop over matching hits
 
         auto simHitIndex = simHitRefKeyToIndex.at(std::make_pair(simHitKey, simHitID));
         ret.matchingSimHit.push_back(simHitIndex);
 
         double chargeFraction = 0.;
-        for(const SimTrack& simtrk: trackingParticle->g4Tracks()) {
+        for (const SimTrack& simtrk : trackingParticle->g4Tracks()) {
           auto found = simTrackIdToChargeFraction.find(simtrk.trackId());
-          if(found != simTrackIdToChargeFraction.end()) {
+          if (found != simTrackIdToChargeFraction.end()) {
             chargeFraction += found->second;
           }
         }
@@ -2554,8 +2557,8 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
 
         simhit_hitIdx[simHitIndex].push_back(clusterKey);
         simhit_hitType[simHitIndex].push_back(static_cast<int>(hitType));
-	
-      } else {//save all matching hits
+
+      } else {  //save all matching hits
         for (auto ip = range.first; ip != range.second; ++ip) {
           TrackPSimHitRef TPhit = ip->second;
           DetId dId = DetId(TPhit->detUnitId());
@@ -2563,17 +2566,19 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
             // skip electron SimHits for non-electron TPs also here
             if (std::abs(TPhit->particleType()) == 11 && std::abs(trackingParticle->pdgId()) != 11) {
               foundElectron = true;
-              if (!keepEleSimHits_) continue;
-              if (foundNonElectrons > 0) continue;//prioritize: skip electrons if non-electrons are present
+              if (!keepEleSimHits_)
+                continue;
+              if (foundNonElectrons > 0)
+                continue;  //prioritize: skip electrons if non-electrons are present
             }
-            
+
             foundSimHit = true;
             auto simHitKey = TPhit.key();
             auto simHitID = TPhit.id();
-            
+
             auto simHitIndex = simHitRefKeyToIndex.at(std::make_pair(simHitKey, simHitID));
             ret.matchingSimHit.push_back(simHitIndex);
-            
+
             double chargeFraction = 0.;
             for (const SimTrack& simtrk : trackingParticle->g4Tracks()) {
               auto found = simTrackIdToChargeFraction.find(simtrk.trackId());
@@ -2583,17 +2588,17 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
             }
             ret.xySignificance.push_back(minSignificance);
             ret.chargeFraction.push_back(chargeFraction);
-            
+
             // only for debug prints
             ret.bunchCrossing.push_back(bx);
             ret.event.push_back(event);
-            
+
             simhit_hitIdx[simHitIndex].push_back(clusterKey);
             simhit_hitType[simHitIndex].push_back(static_cast<int>(hitType));
           }
         }
-      }//if/else simHitBySignificance_
-      if(!foundSimHit) {
+      }  //if/else simHitBySignificance_
+      if (!foundSimHit) {
         // In case we didn't find a simhit because of filtered-out
         // electron SimHit, just ignore the missing SimHit.
         if (foundElectron && !keepEleSimHits_)
@@ -2617,7 +2622,7 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
       }
     }
   }
-  
+
   return ret;
 }
 
@@ -2718,7 +2723,7 @@ void TrackingNtuple::fillSimHits(const TrackerGeometry& tracker,
     simhit_x.push_back(pos.x());
     simhit_y.push_back(pos.y());
     simhit_z.push_back(pos.z());
-    if (saveSimHitsP3_){
+    if (saveSimHitsP3_) {
       const auto mom = det->surface().toGlobal(simhit.momentumAtEntry());
       simhit_px.push_back(mom.x());
       simhit_py.push_back(mom.y());
@@ -2755,7 +2760,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
     iEvent.getByToken(itoken.second, aH);
     pixelMasks.emplace_back(1 << itoken.first, aH.product());
   }
-  auto pixUsedMask = [&pixelMasks] (size_t key) {
+  auto pixUsedMask = [&pixelMasks](size_t key) {
     uint64_t mask = 0;
     for (auto const& m : pixelMasks) {
       if (m.second->mask(key))
@@ -2844,7 +2849,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
     iEvent.getByToken(itoken.second, aH);
     stripMasks.emplace_back(1 << itoken.first, aH.product());
   }
-  auto strUsedMask = [&stripMasks] (size_t key) {
+  auto strUsedMask = [&stripMasks](size_t key) {
     uint64_t mask = 0;
     for (auto const& m : stripMasks) {
       if (m.second->mask(key))
@@ -2906,7 +2911,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
         str_zx[key] = ttrh->globalPositionError().czx();
         str_radL[key] = ttrh->surface()->mediumProperties().radLen();
         str_bbxi[key] = ttrh->surface()->mediumProperties().xi();
-        str_chargePerCM[key] = siStripClusterTools::chargePerCM(hitId,hit.firstClusterRef().stripCluster());
+        str_chargePerCM[key] = siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster());
         str_clustSize[key] = hit.cluster()->amplitudes().size();
         str_usedMask[key] = strUsedMask(key);
         LogTrace("TrackingNtuple") << name << " cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
@@ -2954,7 +2959,7 @@ size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
                                           const TrackerTopology& tTopo,
                                           const std::vector<std::pair<uint64_t, StripMaskContainer const*>>& stripMasks,
                                           std::vector<std::pair<int, int>>& monoStereoClusterList) {
-  auto strUsedMask = [&stripMasks] (size_t key) {
+  auto strUsedMask = [&stripMasks](size_t key) {
     uint64_t mask = 0;
     for (auto const& m : stripMasks) {
       if (m.second->mask(key))
@@ -2983,7 +2988,7 @@ size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
   glu_zx.push_back(ttrh->globalPositionError().czx());
   glu_radL.push_back(ttrh->surface()->mediumProperties().radLen());
   glu_bbxi.push_back(ttrh->surface()->mediumProperties().xi());
-  glu_chargePerCM.push_back(siStripClusterTools::chargePerCM(hitId,hit.firstClusterRef().stripCluster()));
+  glu_chargePerCM.push_back(siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster()));
   glu_clustSizeMono.push_back(hit.monoHit().cluster()->amplitudes().size());
   glu_clustSizeStereo.push_back(hit.stereoHit().cluster()->amplitudes().size());
   glu_usedMaskMono.push_back(strUsedMask(hit.monoHit().cluster().key()));
@@ -3011,7 +3016,7 @@ void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
   iEvent.getByToken(stripMatchedRecHitToken_, matchedHits);
   for (auto it = matchedHits->begin(); it != matchedHits->end(); it++) {
     for (auto hit = it->begin(); hit != it->end(); hit++) {
-      addStripMatchedHit(*hit, theTTRHBuilder, tTopo, monoStereoClusterList);
+      addStripMatchedHit(*hit, theTTRHBuilder, tTopo, stripMasks, monoStereoClusterList);
     }
   }
 }
@@ -3149,7 +3154,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
     //for HLT seeds
     label.ReplaceAll("FromPixelTracks", "");
     label.ReplaceAll("PFLowPixel", "");
-    label.ReplaceAll("hltDoubletRecovery", "pixelPairStep");//random choice
+    label.ReplaceAll("hltDoubletRecovery", "pixelPairStep");  //random choice
     int algo = reco::TrackBase::algoByName(label.Data());
 
     edm::ProductID id = seedTracks[0].seedRef().id();
@@ -3244,10 +3249,10 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_stateTrajPy.push_back(mom.y());
       see_stateTrajPz.push_back(mom.z());
 
-      ///the following is useful for analysis in global coords at seed hit surface      
-      TransientTrackingRecHit::RecHitPointer lastRecHit = theTTRHBuilder.build(&*(seed.recHits().second-1));
-      TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(seed.startingState(),
-                                                                               lastRecHit->surface(), &theMF);
+      ///the following is useful for analysis in global coords at seed hit surface
+      TransientTrackingRecHit::RecHitPointer lastRecHit = theTTRHBuilder.build(&*(seed.recHits().end() - 1));
+      TrajectoryStateOnSurface tsos =
+          trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), &theMF);
       auto const& stateGlobal = tsos.globalParameters();
       see_stateTrajGlbX.push_back(stateGlobal.position().x());
       see_stateTrajGlbY.push_back(stateGlobal.position().y());
@@ -3255,29 +3260,29 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_stateTrajGlbPx.push_back(stateGlobal.momentum().x());
       see_stateTrajGlbPy.push_back(stateGlobal.momentum().y());
       see_stateTrajGlbPz.push_back(stateGlobal.momentum().z());
-      if (addSeedCartesianCov_){
-	auto const& stateCcov = tsos.cartesianError().matrix();
-	see_stateCcov00.push_back( stateCcov[0][0] );
-	see_stateCcov01.push_back( stateCcov[0][1] );
-	see_stateCcov02.push_back( stateCcov[0][2] );
-	see_stateCcov03.push_back( stateCcov[0][3] );
-	see_stateCcov04.push_back( stateCcov[0][4] );
-	see_stateCcov05.push_back( stateCcov[0][5] );
-	see_stateCcov11.push_back( stateCcov[1][1] );
-	see_stateCcov12.push_back( stateCcov[1][2] );
-	see_stateCcov13.push_back( stateCcov[1][3] );
-	see_stateCcov14.push_back( stateCcov[1][4] );
-	see_stateCcov15.push_back( stateCcov[1][5] );
-	see_stateCcov22.push_back( stateCcov[2][2] );
-	see_stateCcov23.push_back( stateCcov[2][3] );
-	see_stateCcov24.push_back( stateCcov[2][4] );
-	see_stateCcov25.push_back( stateCcov[2][5] );
-	see_stateCcov33.push_back( stateCcov[3][3] );
-	see_stateCcov34.push_back( stateCcov[3][4] );
-	see_stateCcov35.push_back( stateCcov[3][5] );
-	see_stateCcov44.push_back( stateCcov[4][4] );
-	see_stateCcov45.push_back( stateCcov[4][5] );
-	see_stateCcov55.push_back( stateCcov[5][5] );
+      if (addSeedCartesianCov_) {
+        auto const& stateCcov = tsos.cartesianError().matrix();
+        see_stateCcov00.push_back(stateCcov[0][0]);
+        see_stateCcov01.push_back(stateCcov[0][1]);
+        see_stateCcov02.push_back(stateCcov[0][2]);
+        see_stateCcov03.push_back(stateCcov[0][3]);
+        see_stateCcov04.push_back(stateCcov[0][4]);
+        see_stateCcov05.push_back(stateCcov[0][5]);
+        see_stateCcov11.push_back(stateCcov[1][1]);
+        see_stateCcov12.push_back(stateCcov[1][2]);
+        see_stateCcov13.push_back(stateCcov[1][3]);
+        see_stateCcov14.push_back(stateCcov[1][4]);
+        see_stateCcov15.push_back(stateCcov[1][5]);
+        see_stateCcov22.push_back(stateCcov[2][2]);
+        see_stateCcov23.push_back(stateCcov[2][3]);
+        see_stateCcov24.push_back(stateCcov[2][4]);
+        see_stateCcov25.push_back(stateCcov[2][5]);
+        see_stateCcov33.push_back(stateCcov[3][3]);
+        see_stateCcov34.push_back(stateCcov[3][4]);
+        see_stateCcov35.push_back(stateCcov[3][5]);
+        see_stateCcov44.push_back(stateCcov[4][4]);
+        see_stateCcov45.push_back(stateCcov[4][5]);
+        see_stateCcov55.push_back(stateCcov[5][5]);
       }
 
       see_trkIdx.push_back(-1);  // to be set correctly in fillTracks
@@ -4034,10 +4039,10 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   cMaskDesc.addUntracked<unsigned int>("index");
   cMaskDesc.addUntracked<edm::InputTag>("src");
   std::vector<edm::ParameterSet> cMasks;
-  auto addMask = [&cMasks](reco::Track::TrackAlgorithm algo){
+  auto addMask = [&cMasks](reco::Track::TrackAlgorithm algo) {
     edm::ParameterSet ps;
     ps.addUntrackedParameter<unsigned int>("index", static_cast<unsigned int>(algo));
-    ps.addUntrackedParameter<edm::InputTag>("src", {reco::Track::algoName(algo)+"Clusters"});
+    ps.addUntrackedParameter<edm::InputTag>("src", {reco::Track::algoName(algo) + "Clusters"});
     cMasks.push_back(ps);
   };
   addMask(reco::Track::detachedQuadStep);
