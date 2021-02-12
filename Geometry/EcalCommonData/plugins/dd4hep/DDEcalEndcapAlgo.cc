@@ -419,7 +419,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     }
   }
 
-  //** Loop over endcap columnsp
+  //** Loop over endcap columns
   for (int icol = 1; icol <= int(ee.nColumns); icol++) {
     //**  Loop over SCs in column, using limits from xml input
     for (int irow = int(ee.vecEEShape[2 * icol - 2]); irow <= int(ee.vecEEShape[2 * icol - 1]); ++irow) {
