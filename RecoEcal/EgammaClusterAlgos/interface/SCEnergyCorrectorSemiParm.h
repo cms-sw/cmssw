@@ -127,7 +127,6 @@ protected:
   }
 
 private:
-  float getInputEnergy(const reco::SuperCluster& sc) const;
   std::vector<float> getRegDataECALV1(const reco::SuperCluster& sc) const;
   std::vector<float> getRegDataECALHLTV1(const reco::SuperCluster& sc) const;
   std::vector<float> getRegDataHGCALV1(const reco::SuperCluster& sc) const;
