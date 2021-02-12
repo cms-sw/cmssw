@@ -16,7 +16,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
-#include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
@@ -70,8 +69,6 @@ private:
   const bool doNose_ = false;
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
-  edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
-  edm::EDGetTokenT<TICLLayerTilesHFNose> layer_clusters_tiles_hfnose_token_;
   edm::EDGetTokenT<std::vector<SimCluster>> simclusters_token_;
 
   edm::InputTag associatorLayerClusterSimCluster_;
@@ -90,12 +87,6 @@ TrackstersFromSimClustersProducer::TrackstersFromSimClustersProducer(const edm::
       associatorLayerClusterSimCluster_(ps.getUntrackedParameter<edm::InputTag>("layerClusterSimClusterAssociator")),
       associatorMapSimToReco_token_(
           consumes<hgcal::SimToRecoCollectionWithSimClusters>(associatorLayerClusterSimCluster_)) {
-  if (doNose_) {
-    layer_clusters_tiles_hfnose_token_ =
-        consumes<TICLLayerTilesHFNose>(ps.getParameter<edm::InputTag>("layer_clusters_hfnose_tiles"));
-  } else {
-    layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
-  }
   produces<std::vector<Trackster>>();
 }
 
@@ -105,8 +96,6 @@ void TrackstersFromSimClustersProducer::fillDescriptions(edm::ConfigurationDescr
   desc.add<std::string>("detector", "HGCAL");
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
   desc.add<edm::InputTag>("time_layerclusters", edm::InputTag("hgcalLayerClusters", "timeLayerCluster"));
-  desc.add<edm::InputTag>("layer_clusters_tiles", edm::InputTag("ticlLayerTileProducer"));
-  desc.add<edm::InputTag>("layer_clusters_hfnose_tiles", edm::InputTag("ticlLayerTileHFNose"));
   desc.add<edm::InputTag>("simclusters", edm::InputTag("mix", "MergedCaloTruth"));
   desc.addUntracked<edm::InputTag>("layerClusterSimClusterAssociator",
                                    edm::InputTag("layerClusterSimClusterAssociationProducer"));
@@ -125,12 +114,8 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
   rhtools_.setGeometry(*geom);
   auto num_simclusters = simclusters.size();
   result->reserve(num_simclusters);
-
-  std::cout << num_simclusters << std::endl;
-
   for (const auto& [key, values] : simToRecoColl) {
     auto const& sc = *(key);
-    std::cout << values.size() << " " << sc.numberOfRecHits() << std::endl;
     Trackster tmpTrackster;
     tmpTrackster.zeroProbabilities();
     tmpTrackster.vertices().reserve(values.size());
