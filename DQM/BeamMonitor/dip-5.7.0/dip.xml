@@ -2,7 +2,7 @@
   <info url="https://readthedocs.web.cern.ch/display/ICKB/DIP+API"/>
   <lib name="dip"/>
   <client>
-    <environment name="DIP_BASE" default="/afs/cern.ch/user/s/sikler/group/beamspot/CMSSW_11_0_1/src/DQM/BeamMonitor/dip-5.7.0"/>
+    <environment name="DIP_BASE" default="/afs/cern.ch/user/s/sikler/group/beamspot/CMSSW_12_0_pre10/src/DQM/BeamMonitor/dip-5.7.0"/>
     <environment name="LIBDIR" default="$DIP_BASE/lib64"/>
     <environment name="INCLUDE" default="$DIP_BASE/include"/>      
   </client>
