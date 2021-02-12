@@ -10,6 +10,7 @@ TICL_AOD = cms.PSet(
       'keep *_ticlMultiClustersFromTrackstersTrkEM_*_*',
       'keep *_ticlMultiClustersFromTrackstersMIP_*_*',
       'keep *_ticlMultiClustersFromTrackstersMerge_*_*',
+      'keep *_ticlMultiClustersFromSimTracksters_*_*',
       )
     )
 
