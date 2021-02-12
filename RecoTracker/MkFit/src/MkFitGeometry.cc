@@ -5,12 +5,21 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 
+// these two are only temporarily in this file
+#define USE_MATRIPLEX
+#include "mkFit/SteeringParams.h"
+
 #include "LayerNumberConverter.h"
+#include "TrackerInfo.h"
 
 MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
                              const GeometricSearchTracker& tracker,
-                             const TrackerTopology& ttopo)
-    : lnc_{std::make_unique<mkfit::LayerNumberConverter>(mkfit::TkLayout::phase1)} {
+                             const TrackerTopology& ttopo,
+                             std::unique_ptr<mkfit::TrackerInfo> trackerInfo,
+                             std::unique_ptr<mkfit::IterationsInfo> iterationsInfo)
+    : lnc_{std::make_unique<mkfit::LayerNumberConverter>(mkfit::TkLayout::phase1)},
+      trackerInfo_(std::move(trackerInfo)),
+      iterationsInfo_(std::move(iterationsInfo)) {
   if (geom.numberOfLayers(PixelSubdetector::PixelBarrel) != 4 ||
       geom.numberOfLayers(PixelSubdetector::PixelEndcap) != 3) {
     throw cms::Exception("Assert") << "For now this code works only with phase1 tracker, you have something else";

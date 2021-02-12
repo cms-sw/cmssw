@@ -30,7 +30,6 @@ def customizeHLTIter0ToMkFit(process):
         minGoodStripCharge = dict(refToPSet_ = 'HLTSiStripClusterChargeCutLoose'),
     )
     process.hltIter0PFlowCkfTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
-        hits = "hltIter0PFlowCkfTrackCandidatesMkFitHits",
         seeds = "hltIter0PFLowPixelSeedsFromPixelTracks",
         ttrhBuilder = ":hltESPTTRHBWithTrackAngle",
     )
