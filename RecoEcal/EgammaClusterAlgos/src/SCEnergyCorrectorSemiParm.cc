@@ -28,6 +28,7 @@ namespace {
       const double dr2 = reco::deltaR2(*clus, *seedClus);
       if (dr2 > maxDR2) {
         maxDR2 = dr2;
+        maxDRClus = clus;
       }
     }
     return {maxDRClus, maxDR2 != 0. ? std::sqrt(maxDR2) : 999.};
@@ -138,8 +139,11 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
   double mean = regParam.mean(regData);
   double sigma = regParam.sigma(regData);
 
-  const double energyCorr = mean * getInputEnergy(sc);
-  const double resolutionEst = sigma * energyCorr;
+  double energyCorr = mean * sc.rawEnergy();
+  if (isHLT_ && sc.seed()->seed().det() == DetId::Ecal && sc.seed()->seed().subdetId() == EcalEndcap) {
+    energyCorr += sc.preshowerEnergy();
+  }
+  double resolutionEst = sigma * energyCorr;
 
   corrEnergyAndRes.first = energyCorr;
   corrEnergyAndRes.second = resolutionEst;
@@ -190,17 +194,6 @@ double SCEnergyCorrectorSemiParm::RegParam::mean(const std::vector<float>& data)
 
 double SCEnergyCorrectorSemiParm::RegParam::sigma(const std::vector<float>& data) const {
   return sigmaForest_ ? sigmaOutTrans_(sigmaForest_->GetResponse(data.data())) : -1;
-}
-
-float SCEnergyCorrectorSemiParm::getInputEnergy(const reco::SuperCluster& sc) const {
-  const DetId& seedId = sc.seed()->seed();
-  //preshower is only used for HLT Ecal Endcap
-  //for reco, the mustache is mainly used to calibrate the ECAL hence no preshower
-  if (isHLT_ && seedId.det() == DetId::Ecal && seedId.subdetId() == EcalEndcap) {
-    return sc.rawEnergy() + sc.preshowerEnergy();
-  } else {
-    return sc.rawEnergy();
-  }
 }
 
 std::vector<float> SCEnergyCorrectorSemiParm::getRegDataECALV1(const reco::SuperCluster& sc) const {
