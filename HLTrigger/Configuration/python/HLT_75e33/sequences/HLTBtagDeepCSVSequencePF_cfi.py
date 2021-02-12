@@ -1,0 +1,12 @@
+import FWCore.ParameterSet.Config as cms
+
+from ..modules.hltDeepBLifetimeTagInfosPF_cfi import *
+from ..modules.hltDeepCombinedSecondaryVertexBJetTagsInfos_cfi import *
+from ..modules.hltDeepCombinedSecondaryVertexBJetTagsPF_cfi import *
+from ..modules.hltDeepInclusiveMergedVerticesPF_cfi import *
+from ..modules.hltDeepInclusiveSecondaryVerticesPF_cfi import *
+from ..modules.hltDeepInclusiveVertexFinderPF_cfi import *
+from ..modules.hltDeepSecondaryVertexTagInfosPF_cfi import *
+from ..modules.hltDeepTrackVertexArbitratorPF_cfi import *
+
+HLTBtagDeepCSVSequencePF = cms.Sequence(hltDeepBLifetimeTagInfosPF+hltDeepInclusiveVertexFinderPF+hltDeepInclusiveSecondaryVerticesPF+hltDeepTrackVertexArbitratorPF+hltDeepInclusiveMergedVerticesPF+hltDeepSecondaryVertexTagInfosPF+hltDeepCombinedSecondaryVertexBJetTagsInfos+hltDeepCombinedSecondaryVertexBJetTagsPF)
