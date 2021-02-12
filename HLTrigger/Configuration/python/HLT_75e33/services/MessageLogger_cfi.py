@@ -60,6 +60,8 @@ MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring(),
     suppressDebug = cms.untracked.vstring(),
     suppressInfo = cms.untracked.vstring(),
-    suppressWarning = cms.untracked.vstring(),
+    suppressWarning = cms.untracked.vstring(
+        'hltDeepInclusiveVertexFinderPF'
+    ),
     suppressError = cms.untracked.vstring()
 )

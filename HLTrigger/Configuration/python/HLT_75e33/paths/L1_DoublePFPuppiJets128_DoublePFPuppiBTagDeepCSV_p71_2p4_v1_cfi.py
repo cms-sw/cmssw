@@ -1,0 +1,6 @@
+import FWCore.ParameterSet.Config as cms
+
+from ..modules.l1tDoublePFPuppiJet112offMaxEta2p4_cfi import *
+from ..modules.l1tDoublePFPuppiJets128Eta2p3MaxDeta1p6_cfi import *
+
+L1_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_p71_2p4_v1 = cms.Path(l1tDoublePFPuppiJet112offMaxEta2p4+l1tDoublePFPuppiJets128Eta2p3MaxDeta1p6)
