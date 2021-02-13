@@ -35,8 +35,6 @@
 
 #include "DataFormats/PatCandidates/interface/throwMissingLabel.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 namespace pat {
   const reco::CandidatePtrVector &get_empty_cpv();
   const std::string &get_empty_str();

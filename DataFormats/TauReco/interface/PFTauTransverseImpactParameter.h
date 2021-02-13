@@ -13,7 +13,6 @@
  * Thanks goes to Christian Veelken and Evan Klose Friis for their help and suggestions. 
  */
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"

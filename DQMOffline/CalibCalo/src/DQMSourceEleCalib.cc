@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM include files
 
