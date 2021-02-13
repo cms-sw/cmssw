@@ -37,7 +37,7 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
     connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS'),
     preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
     runNumber = cms.untracked.uint64(options.runNumber),
-    lastLumiFile = cms.untracked.string('last_lumi.txt'),
+    #lastLumiFile = cms.untracked.string('last_lumi.txt'),
     writeTransactionDelay = cms.untracked.uint32(options.transDelay),
     autoCommit = cms.untracked.bool(True),
     saveLogsOnDB = cms.untracked.bool(True),
@@ -50,7 +50,6 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 )
 
 process.mytest = cms.EDAnalyzer("LumiBasedUpdateAnalyzer",
-    lastLumiFile = cms.untracked.string('last_lumi.txt'),
     record = cms.string('PedestalsRcd')
 )
 
