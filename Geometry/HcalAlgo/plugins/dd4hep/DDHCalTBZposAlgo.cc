@@ -1,13 +1,11 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
 using namespace angle_units::operators;
-#ifdef EDM_ML_DEBUG
-#include "Geometry/HcalAlgo/plugins/dd4hep/HcalDD4HepHelper.h"
-#endif
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -27,11 +25,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     childName = idNameSpace + childName;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parameters for positioning-- Eta " << eta << "\tTheta "
-                               << convertRadToDeg(theta) << "\tShifts " << HcalDD4HepHelper::convert2mm(shiftX) << ", "
-                               << HcalDD4HepHelper::convert2mm(shiftY) << " along x, y axes; \tZoffest "
-                               << HcalDD4HepHelper::convert2mm(zoffset) << "\tRadial Distance "
-                               << HcalDD4HepHelper::convert2mm(dist) << "\tTilt angle " << convertRadToDeg(tilt)
-                               << "\tcopyNumber " << copyNumber;
+                               << convertRadToDeg(theta) << "\tShifts " << cms::convert2mm(shiftX) << ", "
+                               << cms::convert2mm(shiftY) << " along x, y axes; \tZoffest " << cms::convert2mm(zoffset)
+                               << "\tRadial Distance " << cms::convert2mm(dist) << "\tTilt angle "
+                               << convertRadToDeg(tilt) << "\tcopyNumber " << copyNumber;
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: Parent " << args.parentName() << "\tChild " << childName
                                << " NameSpace " << idNameSpace;
 #endif
@@ -56,9 +53,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   mother.placeVolume(child, copyNumber, dd4hep::Transform3D(rot, tran));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalTBZposAlgo: " << child.name() << " number " << copyNumber << " positioned in "
-                               << mother.name() << " at (" << HcalDD4HepHelper::convert2mm(x) << ", "
-                               << HcalDD4HepHelper::convert2mm(y) << ", " << HcalDD4HepHelper::convert2mm(z)
-                               << ") with " << rot;
+                               << mother.name() << " at (" << cms::convert2mm(x) << ", " << cms::convert2mm(y) << ", "
+                               << cms::convert2mm(z) << ") with " << rot;
 #endif
 
   return cms::s_executed;
