@@ -1,6 +1,6 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitTimingCCAlgo.h"
 
-EcalUncalibRecHitTimingCCAlgo::EcalUncalibRecHitTimingCCAlgo(const float startTime, const float stopTime) : _startTime(startTime), _stopTime(stopTime) {}
+EcalUncalibRecHitTimingCCAlgo::EcalUncalibRecHitTimingCCAlgo(const float startTime, const float stopTime) : startTime_(startTime), stopTime_(stopTime) {}
 
 double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFrame, const std::vector<double> &amplitudes, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const FullSampleVector &fullpulse, EcalUncalibratedRecHit& uncalibRecHit) {
   const unsigned int nsample = EcalDataFrame::MAXSAMPLES;
@@ -55,17 +55,15 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
     int firstsamplet = std::max(0,bx + 3);
     int offset = 7-3-bx;
 
-    TVectorD pulse;
-    pulse.ResizeTo(nsample);
+    std::vector<double> pulse(nsample);
     for (unsigned int isample = firstsamplet; isample<nsample; ++isample) {
-      pulse(isample) = fullpulse(isample+offset);
-      pedSubSamples.at(isample) = std::max(0., pedSubSamples.at(isample) - amplitudes[ipulse]*pulse(isample)/pulsenorm);
+      pulse.at(isample) = fullpulse(isample+offset);
+      pedSubSamples.at(isample) = std::max(0., pedSubSamples.at(isample) - amplitudes[ipulse]*pulse.at(isample)/pulsenorm);
     }
   }
 
-  float globalTimeShift = 100;
-  float tStart = _startTime+globalTimeShift;
-  float tStop = _stopTime+globalTimeShift;
+  float tStart = startTime_+GLOBAL_TIME_SHIFT;
+  float tStop = stopTime_+GLOBAL_TIME_SHIFT;
   float tM = (tStart+tStop)/2;
 
   float distStart, distStop;
@@ -87,43 +85,34 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
     }
     tM = (tStart+tStop)/2;
 
-    } while ( tStop - tStart > 0.001 && counter<40 );
+    } while ( tStop - tStart > TARGET_TIME_PRECISION && counter<MAX_NUM_OF_ITERATIONS );
     // } while ( std::abs((distStart - distStop)/distStop) > 0.0001 && counter<100 );
 
-  tM -= globalTimeShift;
+  tM -= GLOBAL_TIME_SHIFT;
 
-  if (counter<2 || counter>38) {  
-    if (counter>15)
-      std::cout<<"Counter KUTMF "<<counter<<std::endl;
-    tM = 100*25;
+  if (counter<MIN_NUM_OF_ITERATIONS || counter>MAX_NUM_OF_ITERATIONS-1) {  
+    if (counter>MAX_NUM_OF_ITERATIONS/2)
+      //Produce a log if minimization took too long
+      edm::LogWarning("EcalUncalibRecHitTimingCCAlgo::computeTimeCC") <<"Minimization Counter too high: "<<counter<<std::endl;
+    tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period;
   }
 
-  return tM/25;
+  return tM/ecalPh1::Samp_Period ;
 }
 
 FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampleVector& fullpulse, const float t){
-  int shift = t/25;
+  // t is in ns
+  int shift = t/ecalPh1::Samp_Period ; 
   if (t<0)
     shift -= 1;
-  float timeShift = t-25*shift; 
-  float tt = timeShift/25;
+  float timeShift = t-ecalPh1::Samp_Period *shift; 
+  float tt = timeShift/ecalPh1::Samp_Period ;
 
-  // t is in ns
+  
   FullSampleVector interpPulse;
-  // Linear
-  // for (int i=0; i<fullpulse.size()-1; ++i)
-  //       interpPulse[i] = fullpulse[i] + tt*(fullpulse[i+1]-fullpulse[i]);
-  // interpPulse[fullpulse.size()-1] = fullpulse[fullpulse.size()-1];
-
-  // 2nd poly
-  // 
-  // for (int i=1; i<fullpulse.size()-1; ++i)
-  //       interpPulse[i] = 0.5*tt*(tt-1)*fullpulse[i-1] - (tt+1)*(tt-1)*fullpulse[i] + 0.5*tt*(tt+1)*fullpulse[i+1];
-  // interpPulse[0] = (tt+1)*(tt-1)*fullpulse[0] + 0.5*tt*(tt+1)*fullpulse[1];
-  // interpPulse[fullpulse.size()-1] = 0.5*tt*(tt-1)*fullpulse[fullpulse.size()-2] - (tt+1)*(tt-1)*fullpulse[fullpulse.size()-1];
-
   // 2nd poly with avg
-  for (int i=1; i<fullpulse.size()-2; ++i) {
+  unsigned int numberOfSamples = fullpulse.size();
+  for (unsigned int i=1; i<numberOfSamples-2; ++i) {
         float a = 0.25*tt*(tt-1)*fullpulse[i-1] + (0.25*(tt-2)-0.5*(tt+1))*(tt-1)*fullpulse[i] + (0.25*(tt+1)-0.5*(tt-2))*tt*fullpulse[i+1] + 0.25*(tt-1)*tt*fullpulse[i+2];
         if (a>0) 
           interpPulse[i] = a;
@@ -131,8 +120,8 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
           interpPulse[i] = 0;
   }
   interpPulse[0] = (0.25*(tt-2) - 0.5*(tt+1))*((tt-1)*fullpulse[0]) + (0.25*(tt+1)+0.5*(tt-2))*tt*fullpulse[1] + 0.25*tt*(tt-1)*fullpulse[2];
-  interpPulse[fullpulse.size()-2] = 0.25*tt*(tt-1)*fullpulse[fullpulse.size()-3] + (0.25*(tt-2)-0.5*(tt+1))*(tt-1)*fullpulse[fullpulse.size()-2] + (0.25*(tt+1)-0.5*(tt-2))*tt*fullpulse[fullpulse.size()-1];
-  interpPulse[fullpulse.size()-1] = 0.5*tt*(tt-1)*fullpulse[fullpulse.size()-2] - (tt+1)*(tt-1)*fullpulse[fullpulse.size()-1] + (0.25*(tt+1)-0.5*(tt-2))*tt*fullpulse[fullpulse.size()-1];
+  interpPulse[numberOfSamples-2] = 0.25*tt*(tt-1)*fullpulse[numberOfSamples-3] + (0.25*(tt-2)-0.5*(tt+1))*(tt-1)*fullpulse[numberOfSamples-2] + (0.25*(tt+1)-0.5*(tt-2))*tt*fullpulse[numberOfSamples-1];
+  interpPulse[numberOfSamples-1] = 0.5*tt*(tt-1)*fullpulse[numberOfSamples-2] - (tt+1)*(tt-1)*fullpulse[numberOfSamples-1] + (0.25*(tt+1)-0.5*(tt-2))*tt*fullpulse[numberOfSamples-1];
 
   FullSampleVector interpPulseShifted;
   for (int i=0; i<interpPulseShifted.size(); ++i) {
@@ -146,18 +135,18 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
 
 float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<double>& samples, const FullSampleVector& sigmalTemplate, const float& t) {
   int exclude = 1;
-  double powerSamples = .0;
+  double powerSamples = 0.;
   for (int i=exclude; i<int(samples.size()-exclude); ++i)
     powerSamples += std::pow(samples[i],2);
 
   auto interpolated = interpolatePulse(sigmalTemplate, t);
-  double powerTemplate = .0;
+  double powerTemplate = 0.;
   for (int i=exclude; i<int(interpolated.size()-exclude); ++i)
     powerTemplate += std::pow(interpolated[i],2);
 
   double denominator = std::sqrt(powerTemplate*powerSamples);
 
-  double cc = .0;
+  double cc = 0.;
   for (int i=exclude; i<int(samples.size()-exclude); ++i){
       cc += interpolated[i]*samples[i];
   }
