@@ -25,8 +25,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   dd4hep::Volume child = ns.volume(childName);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Parameters for positioning:: n " << n << " Start, Step " << convertRadToDeg(startAngle) << ", " << convertRadToDeg(stepAngle) << ", zoffset " << cms::convert2mm(zoffset) << ", RotNameSpace " << rotns;
-  edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
+  edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Parameters for positioning:: n " << n << " Start, Step "
+                               << convertRadToDeg(startAngle) << ", " << convertRadToDeg(stepAngle) << ", zoffset "
+                               << cms::convert2mm(zoffset) << ", RotNameSpace " << rotns;
+  edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Parent " << mother.name() << "\tChild " << child.name()
+                               << " NameSpace " << ns.name();
 #endif
   double phi = startAngle;
   int copyNo = startCopyNo;
@@ -44,7 +47,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     dd4hep::Position tran(0., 0., zoffset);
     mother.placeVolume(child, copyNo, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MuonGeom") << "DDMuonAngular:" << child.name() << " number " << copyNo << " positioned in " << mother.name() << " at (0,0," << cms::convert2mm(zoffset) << ") with " << rotstr << ": " << rotation;
+    edm::LogVerbatim("MuonGeom") << "DDMuonAngular:" << child.name() << " number " << copyNo << " positioned in "
+                                 << mother.name() << " at (0,0," << cms::convert2mm(zoffset) << ") with " << rotstr
+                                 << ": " << rotation;
 #endif
     phi += stepAngle;
     copyNo += incrCopyNo;
