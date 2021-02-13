@@ -27,7 +27,7 @@
 #include <map>
 
 // user include files
-#include "DQM/SiPixelPhase1Analyzer/interface/mat4.h"
+#include "DQM/TrackerRemapper/interface/mat4.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
