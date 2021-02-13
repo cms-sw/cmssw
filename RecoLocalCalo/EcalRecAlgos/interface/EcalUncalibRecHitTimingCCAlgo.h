@@ -12,17 +12,22 @@
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/PulseChiSqSNNLS.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
-
-#include "TMatrixDSym.h"
 #include "TVectorD.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 
 class EcalUncalibRecHitTimingCCAlgo
 {
-    float _startTime;
-    float _stopTime;
+    float startTime_;
+    float stopTime_;
+
+    static constexpr int TIME_WHEN_NOT_CONVERGING = 100;
+    static constexpr int MAX_NUM_OF_ITERATIONS = 30;
+    static constexpr int MIN_NUM_OF_ITERATIONS = 2;
+    static constexpr float TARGET_TIME_PRECISION = 0.001;
+    static constexpr float GLOBAL_TIME_SHIFT = 100;
 
     public:
         EcalUncalibRecHitTimingCCAlgo(const float startTime=-5, const float stopTime=5);
