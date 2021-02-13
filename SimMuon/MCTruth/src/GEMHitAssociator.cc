@@ -1,4 +1,5 @@
 #include "SimMuon/MCTruth/interface/GEMHitAssociator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
