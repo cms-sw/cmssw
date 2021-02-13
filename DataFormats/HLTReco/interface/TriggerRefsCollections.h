@@ -57,9 +57,6 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/MessageDrop.h"
-
 #include <cassert>
 #include <vector>
 

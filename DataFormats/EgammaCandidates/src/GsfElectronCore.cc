@@ -3,6 +3,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
 

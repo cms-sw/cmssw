@@ -15,7 +15,6 @@
 //#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 #include <limits>
 

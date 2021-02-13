@@ -1,11 +1,9 @@
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/DetFactoryHelper.h"
 
 //#define EDM_ML_DEBUG
-#ifdef EDM_ML_DEBUG
-#include "Geometry/HcalAlgo/plugins/dd4hep/HcalDD4HepHelper.h"
-#endif
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -28,11 +26,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ++k;
   }
   edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: Number along X/Y " << numberX << "/" << numberY
-                               << "\tDelta along X/Y " << HcalDD4HepHelper::convert2mm(deltaX) << "/"
-                               << HcalDD4HepHelper::convert2mm(deltaY) << "\tCentre ("
-                               << HcalDD4HepHelper::convert2mm(centre[0]) << ", "
-                               << HcalDD4HepHelper::convert2mm(centre[1]) << ","
-                               << HcalDD4HepHelper::convert2mm(centre[2]);
+                               << "\tDelta along X/Y " << cms::convert2mm(deltaX) << "/" << cms::convert2mm(deltaY)
+                               << "\tCentre (" << cms::convert2mm(centre[0]) << ", " << cms::convert2mm(centre[1])
+                               << "," << cms::convert2mm(centre[2]);
 #endif
   double xoff = centre[0] - (numberX - 1) * 0.5 * deltaX;
   double yoff = centre[1] - (numberY - 1) * 0.5 * deltaY;
@@ -47,9 +43,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         parent.placeVolume(ns.volume(child), copy, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HCalGeom") << "DDHCalLinearXY: " << child << " number " << copy << " positioned in "
-                                     << parent.name() << " at (" << HcalDD4HepHelper::convert2mm((xoff + i * deltaX))
-                                     << ", " << HcalDD4HepHelper::convert2mm((yoff + j * deltaY)) << ", "
-                                     << HcalDD4HepHelper::convert2mm(centre[2]) << ") with no rotation";
+                                     << parent.name() << " at (" << cms::convert2mm((xoff + i * deltaX)) << ", "
+                                     << cms::convert2mm((yoff + j * deltaY)) << ", " << cms::convert2mm(centre[2])
+                                     << ") with no rotation";
 #endif
       } else {
 #ifdef EDM_ML_DEBUG
