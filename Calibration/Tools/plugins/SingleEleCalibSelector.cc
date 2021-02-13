@@ -2,6 +2,7 @@
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Geometry
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
