@@ -1,10 +1,10 @@
 // -*- C++ -*-
 //
-// Package:    DQM/SiPixelPhase1Analyzer
+// Package:    DQM/TrackerRemapper
 // Class:      SiPixelPhase1Analyzer
 //
 
-#include "DQM/SiPixelPhase1Analyzer/interface/SiPixelPhase1Analyzer.h"
+#include "DQM/TrackerRemapper/interface/SiPixelPhase1Analyzer.h"
 
 SiPixelPhase1Analyzer::SiPixelPhase1Analyzer(const edm::ParameterSet& iConfig)
     : opMode(static_cast<OperationMode>(iConfig.getUntrackedParameter<unsigned int>("opMode"))),
