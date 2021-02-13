@@ -1982,6 +1982,11 @@
      542, 402, 402, 402, 402, 402, 402, 402, 402, 402, 442, 542,
      512, 402, 402, 402, 402, 402, 512, 442, 452, 472, 472, 452 
   </Vector>
+  <Vector name="WaferLayerStartEE" type="numeric" nEntries="28">
+        0,  306,  582,  888, 1176, 1482, 1770, 2076, 2364, 2670,
+     2964, 3270, 3564, 3870, 4176, 4494, 4800, 5118, 5424, 5748,
+     6054, 6384, 6690, 7020, 7344, 7698, 8040, 8394 
+  </Vector>
   <Vector name="WaferIndexHE" type="numeric" nEntries="5961">
       262146,  262147,  262148,  262149,  262150,  262151,  262152,
       262153,  262178,  262179,  262180,  262181,  262182,  262183,
@@ -3335,6 +3340,11 @@
      572, 402, 402, 402, 402, 202, 202, 372, 402, 542, 402, 402,
      402, 402, 402, 442, 542, 512, 512, 512, 442 
   </Vector>
+  <Vector name="WaferLayerStartHE" type="numeric" nEntries="22">
+        0,  345,  702, 1071, 1446, 1821, 2223, 2673, 3153, 3453,
+     3753, 4053, 4353, 4581, 4809, 4977, 5145, 5313, 5481, 5601,
+     5721, 5841 
+  </Vector>
   <Vector name="TileRMin" type="numeric" nEntries="42">
      1037.83*mm, 1060.98*mm, 1084.12*mm,  1108.3*mm, 1132.48*mm, 1157.73*mm,
      1182.99*mm, 1209.37*mm, 1235.75*mm, 1263.31*mm, 1290.87*mm, 1319.66*mm,
@@ -3737,7 +3747,7 @@
      0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff,
      0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff,
      0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0xffffff,
-     0xffffff, 0xffffff
+     0xffffff, 0xffffff 
   </Vector>
 </ConstantsSection>
 
