@@ -9,6 +9,8 @@ process.load('CondCore.CondDB.CondDB_cfi')
 # the reco part of the database need the DDCompactView.
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
 process.load('Geometry.CaloEventSetup.CaloGeometryDBWriter_cfi')
 process.load('CondTools.Geometry.HcalParametersWriter_cff')
 
@@ -36,7 +38,7 @@ process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder")
 
 process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader")
 
-process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader")
+process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
 process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader")
 
@@ -46,22 +48,22 @@ process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_TagXX_Extended2021_mc')),
-                                                            cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('PTrackerParametersRcd'),tag = cms.string('TKParameters_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('HCALRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('HcalParametersRcd'), tag = cms.string('HCALParameters_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('CTRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('ZDCRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('CASTORRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('CSCRecoGeometryRcd'),tag = cms.string('CSCRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('CSCRecoDigiParametersRcd'),tag = cms.string('CSCRECODIGI_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('DTRecoGeometryRcd'),tag = cms.string('DTRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('RPCRecoGeometryRcd'),tag = cms.string('RPCRECO_Geometry_TagXX')),
-                                                            cms.PSet(record = cms.string('GEMRecoGeometryRcd'),tag = cms.string('GEMRECO_Geometry_TagXX'))
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_113YV1_Extended2021_mc')),
+                                                            cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('PTrackerParametersRcd'),tag = cms.string('TKParameters_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('HCALRECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('HcalParametersRcd'), tag = cms.string('HCALParameters_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('CTRECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('ZDCRECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('CASTORRECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('CSCRecoGeometryRcd'),tag = cms.string('CSCRECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('CSCRecoDigiParametersRcd'),tag = cms.string('CSCRECODIGI_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('DTRecoGeometryRcd'),tag = cms.string('DTRECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('RPCRecoGeometryRcd'),tag = cms.string('RPCRECO_Geometry_113YV1')),
+                                                            cms.PSet(record = cms.string('GEMRecoGeometryRcd'),tag = cms.string('GEMRECO_Geometry_113YV1'))
                                                             )
                                           )
 
