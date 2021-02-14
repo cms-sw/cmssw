@@ -164,6 +164,11 @@ full_106x_UL17_chs.trainings[3].tmvaWeights = "RecoJets/JetProducers/data/pileup
 full_106x_UL17_chs.trainings[3].tmvaVariables = trainingVariables_106X_Eta3To5
 
 ####################################################################################################################
+full_106x_UL18_chs = full_106x_UL17_chs.clone(JetIdParams = full_106x_UL18_chs_wp)
+for train in full_106x_UL18_chs.trainings:
+    train.tmvaWeights = train.tmvaWeights.value().replace("UL17", "UL18")
+
+####################################################################################################################
 full_80x_chs = cms.PSet(
         impactParTkThreshold = cms.double(1.),
         cutBased = cms.bool(False),
