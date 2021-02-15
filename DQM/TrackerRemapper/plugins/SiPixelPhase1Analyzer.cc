@@ -826,7 +826,7 @@ void SiPixelPhase1Analyzer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<unsigned int>("opMode", 1);
   desc.addUntracked<std::string>("debugFileName", "debug.txt");
   desc.addUntracked<std::vector<unsigned int>>("isBarrelSource", {0, 0, 1});
-  desc.addUntracked<std::vector<std::string>>("remapRootFile", {"dqmFile.root"});
+  desc.addUntracked<std::vector<std::string>>("remapRootFileName", {"dqmFile.root"});
   desc.addUntracked<std::vector<std::string>>(
       "pathToHistograms",
       {"DQMData/Run 1/PixelPhase1/Run summary/Phase1_MechanicalView/PXForward/",
