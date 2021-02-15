@@ -16,7 +16,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/MessageLogger.h"
 
-#include "HeterogeneousHGCalProducerMemoryWrapper.h"
+#include "HeterogeneousHGCRecHitMemAllocations.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
 #include "CUDADataFormats/HGCal/interface/HGCRecHitGPUProduct.h"
 
