@@ -28,9 +28,9 @@ HeterogeneousHGCalRecHitsValidator::HeterogeneousHGCalRecHitsValidator(const edm
   edm::Service<TFileService> fs;
   for (unsigned int i = 0; i < nsubdetectors; ++i) {
     trees_[i] = fs->make<TTree>(treenames_[i].c_str(), treenames_[i].c_str());
-    trees_[i]->Branch("cpu", "validHitCollection", &cpuValidRecHits[i]);
-    trees_[i]->Branch("gpu", "validHitCollection", &gpuValidRecHits[i]);
-    trees_[i]->Branch("diffs", "validHitCollection", &diffsValidRecHits[i]);
+    trees_[i]->Branch("cpu", "ValidHitCollection", &cpuValidRecHits[i]);
+    trees_[i]->Branch("gpu", "ValidHitCollection", &gpuValidRecHits[i]);
+    trees_[i]->Branch("diffs", "ValidHitCollection", &diffsValidRecHits[i]);
   }
 }
 
@@ -88,9 +88,9 @@ void HeterogeneousHGCalRecHitsValidator::analyze(const edm::Event &event, const 
       const float gpuSoN = gpuHit.signalOverSigmaNoise();
       sum_son_gpu += gpuSoN;
 
-      validHit vCPU(cpuEn, cpuTime, cpuTimeErr, cpuDetId, cpuFB, cpuSoN);
-      validHit vGPU(gpuEn, gpuTime, gpuTimeErr, gpuDetId, gpuFB, gpuSoN);
-      validHit vDiffs(cpuEn - gpuEn,
+      ValidHit vCPU(cpuEn, cpuTime, cpuTimeErr, cpuDetId, cpuFB, cpuSoN);
+      ValidHit vGPU(gpuEn, gpuTime, gpuTimeErr, gpuDetId, gpuFB, gpuSoN);
+      ValidHit vDiffs(cpuEn - gpuEn,
                       cpuTime - gpuTime,
                       cpuTimeErr - gpuTimeErr,
                       cpuDetId - gpuDetId,
