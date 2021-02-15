@@ -54,8 +54,8 @@ void HeterogeneousHGCalHEFCellPositionsConditions::transfer_data_to_heterogeneou
         select_pointer_u_(&this->posmap_, j) =
             reinterpret_cast<uint32_t*>(select_pointer_i_(&this->posmap_, jm1) + shift);
       else
-        edm::LogError("HeterogeneousHGCalHEFCellPositionsConditions")
-            << "Wrong HeterogeneousHGCalPositionsMapping type";
+        throw cms::Exception("HeterogeneousHGCalHEFCellPositionsConditions")
+	  << "Wrong HeterogeneousHGCalPositionsMapping type";
     }
 
     //copying the pointers' content
