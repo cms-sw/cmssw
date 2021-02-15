@@ -1,32 +1,17 @@
 #ifndef _HGCalMaskResolutionAna_h_
 #define _HGCalMaskResolutionAna_h_
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
 #include "Validation/HGCalValidation/interface/ValidHit.h"
 
 #include "TTree.h"
@@ -44,7 +29,7 @@ struct ValidRecHits {
   std::vector<float> son;
 };
 
-class HeterogeneousHGCalRecHitsValidator : public edm::EDAnalyzer {
+class HeterogeneousHGCalRecHitsValidator : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HeterogeneousHGCalRecHitsValidator(const edm::ParameterSet&);
   ~HeterogeneousHGCalRecHitsValidator() override;
@@ -56,7 +41,6 @@ private:
   static const unsigned int ncomputingdevices = 2;  //cpu, gpu
   //cpu amd gpu tokens and handles for the 3 subdetectors, cpu and gpu
   std::array<std::array<edm::EDGetTokenT<HGChefRecHitCollection>, ncomputingdevices>, nsubdetectors> tokens_;
-  std::array<std::array<edm::Handle<HGChefRecHitCollection>, ncomputingdevices>, nsubdetectors> handles_;
   std::array<std::string, nsubdetectors> handles_str_ = {
       {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"}};
   hgcal::RecHitTools recHitTools_;

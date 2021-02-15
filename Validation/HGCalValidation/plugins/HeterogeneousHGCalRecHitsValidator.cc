@@ -1,22 +1,5 @@
 #include "Validation/HGCalValidation/plugins/HeterogeneousHGCalRecHitsValidator.h"
 
-#include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "SimG4CMS/Calo/interface/CaloHitID.h"
-
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 HeterogeneousHGCalRecHitsValidator::HeterogeneousHGCalRecHitsValidator(const edm::ParameterSet &ps)
     : tokens_({{{{consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("cpuRecHitsEEToken")),
                   consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("gpuRecHitsEEToken"))}},
@@ -25,6 +8,7 @@ HeterogeneousHGCalRecHitsValidator::HeterogeneousHGCalRecHitsValidator(const edm
                 {{consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("cpuRecHitsHSciToken")),
                   consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("gpuRecHitsHSciToken"))}}}}),
       treenames_({{"CEE", "CHSi", "CHSci"}}) {
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   for (unsigned int i = 0; i < nsubdetectors; ++i) {
     trees_[i] = fs->make<TTree>(treenames_[i].c_str(), treenames_[i].c_str());
@@ -53,12 +37,10 @@ void HeterogeneousHGCalRecHitsValidator::analyze(const edm::Event &event, const 
     set_geometry_(setup, idet);
 
     //get hits produced with the CPU
-    event.getByToken(tokens_[idet][0], handles_[idet][0]);
-    const auto &cpuhits = *handles_[idet][0];
+    const auto &cpuhits = event.get(tokens_[idet][0]);
 
     //get hits produced with the GPU
-    event.getByToken(tokens_[idet][1], handles_[idet][1]);
-    const auto &gpuhits = *handles_[idet][1];
+    const auto &gpuhits = event.get(tokens_[idet][1]);
 
     size_t nhits = cpuhits.size();
     assert(nhits == gpuhits.size());
