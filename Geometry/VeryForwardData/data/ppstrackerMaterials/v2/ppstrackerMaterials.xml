@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  
+
+<MaterialSection label="ppstrackerMaterials.xml">
+
+  <CompositeMaterial name="Pix_Fwd_Bump" density="0.41391*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.00">
+      <rMaterial name="pixfwdMaterials:FPix_TinLeadSolder"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+</MaterialSection>
+
+</DDDefinition>
