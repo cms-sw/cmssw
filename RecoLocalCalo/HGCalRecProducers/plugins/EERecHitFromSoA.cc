@@ -22,12 +22,11 @@ private:
   std::unique_ptr<HGCeeRecHitCollection> rechits_;
   edm::EDGetTokenT<HGCRecHitSoA> recHitSoAToken_;
   edm::EDPutTokenT<HGCeeRecHitCollection> recHitCollectionToken_;
-  const std::string collectionName_ = "HeterogeneousHGCalEERecHits";
 };
 
 EERecHitFromSoA::EERecHitFromSoA(const edm::ParameterSet& ps) {
   recHitSoAToken_ = consumes<HGCRecHitSoA>(ps.getParameter<edm::InputTag>("EERecHitSoATok"));
-  recHitCollectionToken_ = produces<HGCeeRecHitCollection>(collectionName_);
+  recHitCollectionToken_ = produces<HGCeeRecHitCollection>();
 }
 
 EERecHitFromSoA::~EERecHitFromSoA() {}
@@ -36,7 +35,7 @@ void EERecHitFromSoA::produce(edm::Event& event, const edm::EventSetup& setup) {
   HGCRecHitSoA recHitsSoA = event.get(recHitSoAToken_);
   rechits_ = std::make_unique<HGCRecHitCollection>();
   convert_soa_data_to_collection_(recHitsSoA.nhits_, *rechits_, &recHitsSoA);
-  event.put(std::move(rechits_), collectionName_);
+  event.put(std::move(rechits_));
 }
 
 void EERecHitFromSoA::convert_soa_data_to_collection_(const uint32_t& nhits,

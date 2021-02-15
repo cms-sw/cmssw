@@ -4,6 +4,11 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalRecHitKernelImpl.cuh"
 
+namespace { //kernel parameters
+  dim3 nb_rechits_;
+  constexpr dim3 nt_rechits_(1024);
+}
+
 KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCUncalibratedRecHitSoA& h_uncalibSoA,
                                                    const HGCUncalibratedRecHitSoA& d_uncalibSoA,
                                                    const HGCRecHitSoA& d_calibSoA)
