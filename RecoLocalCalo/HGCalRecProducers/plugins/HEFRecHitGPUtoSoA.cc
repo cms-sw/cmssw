@@ -25,7 +25,7 @@
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
-#include "HeterogeneousHGCalProducerMemoryWrapper.h"
+#include "HeterogeneousHGCRecHitMemAllocations.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
