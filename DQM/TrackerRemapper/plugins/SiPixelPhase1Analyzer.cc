@@ -61,7 +61,7 @@ SiPixelPhase1Analyzer::~SiPixelPhase1Analyzer() {
 
 // ------------ method called for each event  ------------
 void SiPixelPhase1Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const auto& theTrackerGeometry = &iSetup.getData(geomToken_);
+  const auto& theTrackerGeometry = iSetup.getData(geomToken_);
   const auto& tt = &iSetup.getData(topoToken_);
 
   if (firstEvent) {
@@ -125,7 +125,10 @@ void SiPixelPhase1Analyzer::BookHistograms() {
 void SiPixelPhase1Analyzer::BookBarrelHistograms(TDirectory* currentDir, const string& currentHistoName) {
   string histName;
   TH2Poly* th2p;
+
+#ifdef DEBUG_MODE
   TH2* th2;
+#endif
 
   for (unsigned i = 0; i < 4; ++i) {
     histName = "barrel_layer_";
@@ -183,7 +186,9 @@ void SiPixelPhase1Analyzer::BookBarrelHistograms(TDirectory* currentDir, const s
 void SiPixelPhase1Analyzer::BookForwardHistograms(TDirectory* currentDir, const string& currentHistoName) {
   string histName;
   TH2Poly* th2p;
+#ifdef DEBUG_MODE
   TH2* th2;
+#endif
 
   for (unsigned side = 1; side <= 2; ++side) {
     for (unsigned disk = 1; disk <= 3; ++disk) {
@@ -248,7 +253,7 @@ void SiPixelPhase1Analyzer::BookForwardHistograms(TDirectory* currentDir, const 
   pxfTh2PolyForwardSummary[currentHistoName] = th2p;
 }
 
-void SiPixelPhase1Analyzer::BookBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt) {
+void SiPixelPhase1Analyzer::BookBins(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt) {
   BookBarrelBins(theTrackerGeometry, tt);
   BookForwardBins(theTrackerGeometry, tt);
 
@@ -257,8 +262,8 @@ void SiPixelPhase1Analyzer::BookBins(const TrackerGeometry* theTrackerGeometry, 
 #endif
 }
 
-void SiPixelPhase1Analyzer::BookBarrelBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt) {
-  TrackingGeometry::DetContainer pxb = theTrackerGeometry->detsPXB();
+void SiPixelPhase1Analyzer::BookBarrelBins(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt) {
+  TrackingGeometry::DetContainer pxb = theTrackerGeometry.detsPXB();
 #ifdef DEBUG_MODE
   debugFile << "There are " << pxb.size() << " detector elements in the PXB." << endl;
 #endif
@@ -272,9 +277,9 @@ void SiPixelPhase1Analyzer::BookBarrelBins(const TrackerGeometry* theTrackerGeom
 
     int layer = tt->pxbLayer(id);
     int ladder = tt->pxbLadder(id);
-    int module = tt->pxbModule(id);
 
 #ifdef DEBUG_MODE
+    int module = tt->pxbModule(id);
     PixelBarrelName pixelBarrelName(id, tt, true);
     SaveDetectorData(
         true, id.rawId(), pixelBarrelName.shell(), pixelBarrelName.layerName(), pixelBarrelName.ladderName());
@@ -322,8 +327,8 @@ void SiPixelPhase1Analyzer::BookBarrelBins(const TrackerGeometry* theTrackerGeom
   }
 }
 
-void SiPixelPhase1Analyzer::BookForwardBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt) {
-  TrackingGeometry::DetContainer pxf = theTrackerGeometry->detsPXF();
+void SiPixelPhase1Analyzer::BookForwardBins(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt) {
+  TrackingGeometry::DetContainer pxf = theTrackerGeometry.detsPXF();
 #ifdef DEBUG_MODE
   debugFile << "There are " << pxf.size() << " detector elements in the PXF." << endl;
 #endif
@@ -345,9 +350,9 @@ void SiPixelPhase1Analyzer::BookForwardBins(const TrackerGeometry* theTrackerGeo
     int side = tt->side(id);   //tt->pxfSide(id);
     int disk = tt->layer(id);  //tt->pxfDisk(id);
     int blade = tt->pxfBlade(id);
-    int module = tt->module(id);  //tt->pxfModule(id);
 
 #ifdef DEBUG_MODE
+    int module = tt->module(id);  //tt->pxfModule(id);
     PixelEndcapName pixelEndcapName(id, tt, true);
     SaveDetectorData(
         false, id.rawId(), pixelEndcapName.halfCylinder(), pixelEndcapName.diskName(), pixelEndcapName.bladeName());
@@ -543,7 +548,7 @@ void SiPixelPhase1Analyzer::SaveDetectorVertices(const TrackerTopology* tt) {
 }
 
 void SiPixelPhase1Analyzer::FillBins(edm::Handle<reco::TrackCollection>* tracks,
-                                     const TrackerGeometry* theTrackerGeometry,
+                                     const TrackerGeometry& theTrackerGeometry,
                                      const TrackerTopology* tt) {
   switch (opMode) {
     case MODE_ANALYZE:
@@ -561,8 +566,8 @@ void SiPixelPhase1Analyzer::FillBins(edm::Handle<reco::TrackCollection>* tracks,
             continue;
 
           const PixelGeomDetUnit* geomdetunit =
-              dynamic_cast<const PixelGeomDetUnit*>(theTrackerGeometry->idToDet(id));  // theTrackerGeometry ?????
-          const PixelTopology& topol = geomdetunit->specificTopology();
+              dynamic_cast<const PixelGeomDetUnit*>(theTrackerGeometry.idToDet(id));  // theTrackerGeometry ?????
+          //const PixelTopology& topol = geomdetunit->specificTopology();
 
           LocalPoint localPoint = recHit->localPosition();
           GlobalPoint globalPoint = geomdetunit->surface().toGlobal(localPoint);
@@ -583,7 +588,7 @@ void SiPixelPhase1Analyzer::FillBins(edm::Handle<reco::TrackCollection>* tracks,
   }
 }
 
-void SiPixelPhase1Analyzer::FillBarrelBinsAnalyze(const TrackerGeometry* theTrackerGeometry,
+void SiPixelPhase1Analyzer::FillBarrelBinsAnalyze(const TrackerGeometry& theTrackerGeometry,
                                                   const TrackerTopology* tt,
                                                   unsigned rawId,
                                                   const GlobalPoint& globalPoint) {
@@ -604,7 +609,7 @@ void SiPixelPhase1Analyzer::FillBarrelBinsAnalyze(const TrackerGeometry* theTrac
   }
 }
 
-void SiPixelPhase1Analyzer::FillForwardBinsAnalyze(const TrackerGeometry* theTrackerGeometry,
+void SiPixelPhase1Analyzer::FillForwardBinsAnalyze(const TrackerGeometry& theTrackerGeometry,
                                                    const TrackerTopology* tt,
                                                    unsigned rawId,
                                                    const GlobalPoint& globalPoint) {
@@ -627,7 +632,7 @@ void SiPixelPhase1Analyzer::FillForwardBinsAnalyze(const TrackerGeometry* theTra
   }
 }
 
-void SiPixelPhase1Analyzer::FillBarrelBinsRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt) {
+void SiPixelPhase1Analyzer::FillBarrelBinsRemap(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt) {
   rootFileHandle = new TFile(analazedRootFileName[0].c_str());
 
   if (!rootFileHandle) {
@@ -650,8 +655,9 @@ void SiPixelPhase1Analyzer::FillBarrelBinsRemap(const TrackerGeometry* theTracke
     string baseHistogramNameWithPath = pathToHistograms[nameNum] + baseHistogramName[nameNum] + "_";
 
     const TProfile2D* handles[4];
+#ifndef DEBUG_MODE
     const TProfile2D* h;
-
+#endif
     bool problemWithHandles = false;
 
     for (unsigned i = 0; i < 4; ++i) {
@@ -677,7 +683,7 @@ void SiPixelPhase1Analyzer::FillBarrelBinsRemap(const TrackerGeometry* theTracke
         currDir->Add(handles[i]->Clone());
       }
 
-      TrackingGeometry::DetContainer pxb = theTrackerGeometry->detsPXB();
+      TrackingGeometry::DetContainer pxb = theTrackerGeometry.detsPXB();
 #ifdef DEBUG_MODE
       debugFile << "There are " << pxb.size() << " detector elements in the PXB." << endl;
 #endif
@@ -688,7 +694,7 @@ void SiPixelPhase1Analyzer::FillBarrelBinsRemap(const TrackerGeometry* theTracke
         unsigned rawId = id.rawId();
 
         int module = tt->pxbModule(id);
-        int ladder = tt->pxbLadder(id);
+        //int ladder = tt->pxbLadder(id);
         int layer = tt->pxbLayer(id);
 
         int signedOnlineModule = module - 4;
@@ -699,21 +705,17 @@ void SiPixelPhase1Analyzer::FillBarrelBinsRemap(const TrackerGeometry* theTracke
         int onlineShell = pixelBarrelName.shell();
 
         int signedOnlineLadder = ((onlineShell & 1) ? -pixelBarrelName.ladderName() : pixelBarrelName.ladderName());
-
-        h = handles[layer - 1];
-
-        unsigned nx = h->GetNbinsX();
-        unsigned ny = h->GetNbinsY();
-
-        unsigned binX = signedOnlineModule + ((nx + 1) >> 1);
-        unsigned binY = (signedOnlineLadder) + ((ny + 1) >> 1);
-
         string strName = baseHistogramName[nameNum];
 
 #ifdef DEBUG_MODE
         th2PolyBarrel[strName][layer - 1]->Fill(TString::Format("%u", rawId), signedOnlineLadder);
         th2PolyBarrelSummary[strName]->Fill(TString::Format("%u", rawId), signedOnlineLadder);
 #else
+        h = handles[layer - 1];
+        unsigned nx = h->GetNbinsX();
+        unsigned ny = h->GetNbinsY();
+        unsigned binX = signedOnlineModule + ((nx + 1) >> 1);
+        unsigned binY = (signedOnlineLadder) + ((ny + 1) >> 1);
         double val = h->GetBinContent(binX, binY);
         th2PolyBarrel[strName][layer - 1]->Fill(TString::Format("%u", rawId), val);
         th2PolyBarrelSummary[strName]->Fill(TString::Format("%u", rawId), val);
@@ -726,14 +728,14 @@ void SiPixelPhase1Analyzer::FillBarrelBinsRemap(const TrackerGeometry* theTracke
   delete rootFileHandle;
 }
 
-void SiPixelPhase1Analyzer::FillForwardBinsRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt) {
+void SiPixelPhase1Analyzer::FillForwardBinsRemap(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt) {
   rootFileHandle = new TFile(analazedRootFileName[0].c_str());
 
   if (!rootFileHandle) {
     return;
   }
 
-  TrackingGeometry::DetContainer pxf = theTrackerGeometry->detsPXF();
+  TrackingGeometry::DetContainer pxf = theTrackerGeometry.detsPXF();
 
 #ifdef DEBUG_MODE
   rootFileHandle->ls();
@@ -750,8 +752,9 @@ void SiPixelPhase1Analyzer::FillForwardBinsRemap(const TrackerGeometry* theTrack
 
     const TProfile2D* h_1 = (TProfile2D*)rootFileHandle->Get((baseHistogramNameWithPath + "1;1 ").c_str());
     const TProfile2D* h_2 = (TProfile2D*)rootFileHandle->Get((baseHistogramNameWithPath + "2;1 ").c_str());
+#ifndef DEBUG_MODE
     const TProfile2D* h;
-
+#endif
     if (h_2 && h_1) {
       LogInfo("Analyzer") << "\nInput histograms: " << baseHistogramNameWithPath << " opened successfully\n";
 
@@ -768,38 +771,38 @@ void SiPixelPhase1Analyzer::FillForwardBinsRemap(const TrackerGeometry* theTrack
 
         int side = tt->side(id);   //tt->pxfSide(id);
         int disk = tt->layer(id);  //tt->pxfDisk(id);
-        int blade = tt->pxfBlade(id);
-        unsigned mapIdx = disk + (side - 1) * 3 - 1;
 
         unsigned rawId = id.rawId();
-
         PixelEndcapName pixelEndcapName = PixelEndcapName(PXFDetId(rawId), tt, true);
 
-        if (pixelEndcapName.ringName() == 1)
-          h = h_1;
-        else
-          h = h_2;
-
-        // ---- REMAP (Online -> Offline)
-        unsigned nx = h->GetNbinsX();
-        unsigned ny = h->GetNbinsY();
-
+#ifdef DEBUG_MODE
+        int blade = tt->pxfBlade(id);
+#else
         int onlineBlade = pixelEndcapName.bladeName();
         bool isInnerOnlineBlade = !(pixelEndcapName.halfCylinder() & 1);  // inner -> blade > 0 (?)
 
         int signedOnlineBlade = (isInnerOnlineBlade) ? onlineBlade : -onlineBlade;
         int signedDisk = (side == 2) ? disk : -disk;
+
         int pannel = pixelEndcapName.pannelName() - 1;
 
-        unsigned binX = signedDisk + ((nx + 1) >> 1);
-        unsigned binY = (signedOnlineBlade * 2) + (ny >> 1);
-
+#endif
+        unsigned mapIdx = disk + (side - 1) * 3 - 1;
         string strName = baseHistogramName[nameNum];
 
 #ifdef DEBUG_MODE
         pxfTh2PolyForward[strName][mapIdx]->Fill(TString::Format("%u", rawId), blade);
         pxfTh2PolyForwardSummary[strName]->Fill(TString::Format("%u", rawId), blade);
 #else
+        if (pixelEndcapName.ringName() == 1)
+          h = h_1;
+        else
+          h = h_2;
+        // ---- REMAP (Online -> Offline)
+        unsigned nx = h->GetNbinsX();
+        unsigned ny = h->GetNbinsY();
+        unsigned binX = signedDisk + ((nx + 1) >> 1);
+        unsigned binY = (signedOnlineBlade * 2) + (ny >> 1);
         double val = h->GetBinContent(binX, binY + pannel);
         pxfTh2PolyForward[strName][mapIdx]->Fill(TString::Format("%u", rawId), val);
         pxfTh2PolyForwardSummary[strName]->Fill(TString::Format("%u", rawId), val);

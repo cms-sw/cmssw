@@ -1,5 +1,5 @@
-#ifndef SiPixelPhase1Analyzer__H_
-#define SiPixelPhase1Analyzer__H_
+#ifndef DQM_TRACKERREMAPPER_SIPIXELPHASE1ANALYZER_H
+#define DQM_TRACKERREMAPPER_SIPIXELPHASE1ANALYZER_H
 
 /**\class SiPixelPhase1Analyzer SiPixelPhase1Analyzer.cc EJTerm/SiPixelPhase1Analyzer/plugins/SiPixelPhase1Analyzer.cc
 
@@ -27,39 +27,30 @@
 #include <map>
 
 // user include files
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DQM/TrackerRemapper/interface/mat4.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
-#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/GeometrySurface/interface/DiskSectorBounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/GeometrySurface/interface/DiskSectorBounds.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "TH2.h"
 #include "TProfile2D.h"
@@ -68,7 +59,7 @@
 
 #define CODE_FORWARD(s, d, b) ((unsigned short)((b << 8) + (d << 4) + s))
 
-// #define DEBUG_MODE
+//#define DEBUG_MODE
 
 //
 // class declaration
@@ -93,27 +84,27 @@ private:
   void BookBarrelHistograms(TDirectory* currentDir, const string& currentHistoName);
   void BookForwardHistograms(TDirectory* currentDir, const string& currentHistoName);
 
-  void BookBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
-  void BookBarrelBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
-  void BookForwardBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
+  void BookBins(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt);
+  void BookBarrelBins(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt);
+  void BookForwardBins(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt);
 
   void SaveDetectorVertices(const TrackerTopology* tt);
 
   void FillBins(edm::Handle<reco::TrackCollection>* tracks,
-                const TrackerGeometry* theTrackerGeometry,
+                const TrackerGeometry& theTrackerGeometry,
                 const TrackerTopology* tt);
 
-  void FillBarrelBinsAnalyze(const TrackerGeometry* theTrackerGeometry,
+  void FillBarrelBinsAnalyze(const TrackerGeometry& theTrackerGeometry,
                              const TrackerTopology* tt,
                              unsigned rawId,
                              const GlobalPoint& globalPoint);
-  void FillForwardBinsAnalyze(const TrackerGeometry* theTrackerGeometry,
+  void FillForwardBinsAnalyze(const TrackerGeometry& theTrackerGeometry,
                               const TrackerTopology* tt,
                               unsigned rawId,
                               const GlobalPoint& globalPoint);
 
-  void FillBarrelBinsRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
-  void FillForwardBinsRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
+  void FillBarrelBinsRemap(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt);
+  void FillForwardBinsRemap(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt);
 
   // ----------member data ---------------------------
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
