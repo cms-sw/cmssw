@@ -95,7 +95,7 @@ private:
   edm::ESGetToken<EcalSampleMask, EcalSampleMaskRcd> sampleMaskToken_;
 
   // time algorithm to be used to set the jitter and its uncertainty
-  enum TimeAlgo { noMethod, ratioMethod, weightsMethod, kansasMethodCC };
+  enum TimeAlgo { noMethod, ratioMethod, weightsMethod, crossCorrelationMethod };
   TimeAlgo timealgo_ = noMethod;
 
   // time weights method

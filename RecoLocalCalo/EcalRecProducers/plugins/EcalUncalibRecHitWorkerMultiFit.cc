@@ -475,7 +475,7 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         uncalibRecHit.setJitter(timerh);
         uncalibRecHit.setJitterError(0.);  // not computed with weights
 
-      } else if (timealgo_ == kansasMethodCC) {
+      } else if (timealgo_ == crossCorrelationMethod) {
         float startTime = -25;
         float stopTime = 25;
         EcalUncalibRecHitTimingCCAlgo computeCC(startTime, stopTime);
