@@ -74,12 +74,6 @@
 // class declaration
 //
 
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<> and also remove the line from
-// constructor "usesResource("TFileService");"
-// This will improve performance in multithreaded jobs.
-
 using namespace std;
 using namespace edm;
 
@@ -93,38 +87,38 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
-
   void BookHistograms();
 
   void BookBarrelHistograms(TDirectory* currentDir, const string& currentHistoName);
   void BookForwardHistograms(TDirectory* currentDir, const string& currentHistoName);
 
-  void BookBins(ESHandle<TrackerGeometry>& theTrackerGeometry, const TrackerTopology* tt);
-  void BookBarrelBins(ESHandle<TrackerGeometry>& theTrackerGeometry, const TrackerTopology* tt);
-  void BookForwardBins(ESHandle<TrackerGeometry>& theTrackerGeometry, const TrackerTopology* tt);
+  void BookBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
+  void BookBarrelBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
+  void BookForwardBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
 
   void SaveDetectorVertices(const TrackerTopology* tt);
 
   void FillBins(edm::Handle<reco::TrackCollection>* tracks,
-                ESHandle<TrackerGeometry>& theTrackerGeometry,
+                const TrackerGeometry* theTrackerGeometry,
                 const TrackerTopology* tt);
 
-  void FillBarrelBinsAnalyze(ESHandle<TrackerGeometry>& theTrackerGeometry,
+  void FillBarrelBinsAnalyze(const TrackerGeometry* theTrackerGeometry,
                              const TrackerTopology* tt,
                              unsigned rawId,
                              const GlobalPoint& globalPoint);
-  void FillForwardBinsAnalyze(ESHandle<TrackerGeometry>& theTrackerGeometry,
+  void FillForwardBinsAnalyze(const TrackerGeometry* theTrackerGeometry,
                               const TrackerTopology* tt,
                               unsigned rawId,
                               const GlobalPoint& globalPoint);
 
-  void FillBarrelBinsRemap(ESHandle<TrackerGeometry>& theTrackerGeometry, const TrackerTopology* tt);
-  void FillForwardBinsRemap(ESHandle<TrackerGeometry>& theTrackerGeometry, const TrackerTopology* tt);
+  void FillBarrelBinsRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
+  void FillForwardBinsRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt);
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+
   OperationMode opMode;
 
   edm::EDGetTokenT<reco::TrackCollection> tracksToken;
