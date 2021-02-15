@@ -1,14 +1,9 @@
 #ifndef RecoLocalCalo_HGCalRecProducers_KernelManagerHGCalRecHit_h
 #define RecoLocalCalo_HGCalRecProducers_KernelManagerHGCalRecHit_h
 
-#include "FWCore/Utilities/interface/Exception.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/MessageLogger.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalRecHitKernelImpl.cuh"
 #include "CUDADataFormats/HGCal/interface/HGCConditions.h"
-//#include "Types.h"
 
 #include <vector>
 #include <algorithm>  //std::swap

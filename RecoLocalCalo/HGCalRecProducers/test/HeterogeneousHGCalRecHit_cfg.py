@@ -86,9 +86,9 @@ process.heb_task = cms.Task( process.HEBRecHitGPUProd, process.HEBRecHitGPUtoSoA
 process.recHits_task = cms.Task( process.ee_task, process.hef_task, process.heb_task )
 process.path = cms.Path( process.recHits_task )
 
-outkeeps = ['keep *_*_' + f + '*_*' for f in ['HeterogeneousHGCalEERecHits',
-                                              'HeterogeneousHGCalHEFRecHits',
-                                              'HeterogeneousHGCalHEBRecHits']]
+outkeeps = ['keep *_EERecHitFromSoAProd_*_*',
+            'keep *_HEFRecHitFromSoAProd_*_*',
+            'keep *_HEBRecHitFromSoAProd_*_*']
 
 process.out = cms.OutputModule( "PoolOutputModule", 
                                 fileName = cms.untracked.string( '/eos/user/b/bfontana/GPUs/GPUs_' + str(F.PU) + '.root'),
