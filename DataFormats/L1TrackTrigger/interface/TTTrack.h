@@ -16,11 +16,14 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+
+namespace tttrack {
+  void errorSetTrackWordBits(unsigned int);
+}
 
 template <typename T>
 class TTTrack : public TTTrack_TrackWord {
@@ -422,8 +425,7 @@ void TTTrack<T>::setBField(double aBField) {
 template <typename T>
 void TTTrack<T>::setTrackWordBits() {
   if (!(theNumFitPars_ == Npars4 || theNumFitPars_ == Npars5)) {
-    edm::LogError("TTTrack") << " setTrackWordBits method is called with theNumFitPars_=" << theNumFitPars_
-                             << " only possible values are 4/5" << std::endl;
+    tttrack::errorSetTrackWordBits(theNumFitPars_);
     return;
   }
 

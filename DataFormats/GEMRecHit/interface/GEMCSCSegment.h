@@ -17,8 +17,6 @@
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include <iosfwd>
 
 class CSCDetId;
@@ -63,13 +61,7 @@ public:
 
   int degreesOfFreedom() const override { return 2 * nRecHits() - 4; }
 
-  int nRecHits() const {
-    return (theGEMRecHits.size() + theCSCSegment.specificRecHits().size());
-    edm::LogVerbatim("GEMCSCSegment") << "[GEMCSCSegment :: nRecHits] CSC RecHits: "
-                                      << theCSCSegment.specificRecHits().size()
-                                      << " + GEM RecHits: " << theGEMRecHits.size() << " = "
-                                      << (theGEMRecHits.size() + theCSCSegment.specificRecHits().size());
-  }
+  int nRecHits() const { return (theGEMRecHits.size() + theCSCSegment.specificRecHits().size()); }
 
   //--- Return the constituents in different ways
   const CSCSegment cscSegment() const { return theCSCSegment; }
