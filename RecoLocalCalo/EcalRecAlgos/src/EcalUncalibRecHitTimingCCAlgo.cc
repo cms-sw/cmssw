@@ -54,6 +54,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   std::vector<double>::const_iterator amplit;
   for (amplit = amplitudes.begin(); amplit < amplitudes.end(); ++amplit) {
     int ipulse = std::distance(amplitudes.begin(), amplit);
+    // The following 3 lines are copied from EcalRecAlgos/interface/EcalUncalibRecHitTimeWeightsAlgo.h
     int bx = ipulse - 5;
     int firstsamplet = std::max(0, bx + 3);
     int offset = 7 - 3 - bx;
