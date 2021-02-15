@@ -27,7 +27,7 @@ void HeterogeneousHGCalHEFConditionsWrapper::transfer_data_to_heterogeneous_poin
     else if (cpar::typesHEF[i - 1] == cpar::HeterogeneousHGCalHEFParametersType::Int32_t)
       typesHEFsize = sizeof(int32_t);
     else
-      edm::LogError("HeterogeneousHGCalHEFConditionsWrapper") << "Wrong HeterogeneousHGCalParameters type";
+      throw cms::Exception("HeterogeneousHGCalHEFConditionsWrapper") << "Wrong HeterogeneousHGCalParameters type";
     cumsum_sizes[i] /= typesHEFsize;
   }
 
@@ -53,7 +53,7 @@ void HeterogeneousHGCalHEFConditionsWrapper::transfer_data_to_heterogeneous_poin
       } else if (cpar::typesHEF[j] == cpar::HeterogeneousHGCalHEFParametersType::Int32_t) {
         select_pointer_i_(&this->params_, j)[index] = select_pointer_i_(cpuParams, j)[index];
       } else
-        edm::LogError("HeterogeneousHGCalHEFConditionsWrapper") << "Wrong HeterogeneousHGCalParameters type";
+        throw cms::Exception("HeterogeneousHGCalHEFConditionsWrapper") << "Wrong HeterogeneousHGCalParameters type";
     }
   }
 }
@@ -174,8 +174,8 @@ HeterogeneousHGCalHEFConditionsWrapper::getHeterogeneousConditionsESProductAsync
         select_pointer_i_(&(data.host->params), j + 1) =
             reinterpret_cast<int32_t*>(select_pointer_d_(&(data.host->params), j) + (this->sizes_params_[j] / sdouble));
       else
-        edm::LogError("HeterogeneousHGCalHEFConditionsWrapper")
-            << "compare this functions' logic with hgcal_conditions::parameters::typesHEF";
+        throw cms::Exception("HeterogeneousHGCalHEFConditionsWrapper")
+	  << "compare this functions' logic with hgcal_conditions::parameters::typesHEF";
     }
 
     // Allocate the payload object on the device memory.
