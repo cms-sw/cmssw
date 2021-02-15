@@ -27,7 +27,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include "Validation/HGCalValidation/interface/validHit.h"
+#include "Validation/HGCalValidation/interface/ValidHit.h"
 
 #include "TTree.h"
 #include "TH1F.h"
@@ -63,7 +63,7 @@ private:
 
   std::array<TTree*, nsubdetectors> trees_;
   std::array<std::string, nsubdetectors> treenames_;
-  std::array<validHitCollection, nsubdetectors> cpuValidRecHits, gpuValidRecHits, diffsValidRecHits;
+  std::array<ValidHitCollection, nsubdetectors> cpuValidRecHits, gpuValidRecHits, diffsValidRecHits;
   //std::vector< TH1F* > zhist;
 
   void set_geometry_(const edm::EventSetup&, const unsigned int&);

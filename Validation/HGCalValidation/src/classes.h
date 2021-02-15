@@ -3,14 +3,14 @@
 #pragma link off all classes;
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
-#pragma link C++ class validHit + ;
-#pragma link C++ class vector < validHit> + ;
+#pragma link C++ class ValidHit + ;
+#pragma link C++ class vector <ValidHit> + ;
 #endif /* __CINT__ */
 
-#include "Validation/HGCalValidation/interface/validHit.h"
+#include "Validation/HGCalValidation/interface/ValidHit.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 
-validHit vh;
-std::vector<validHit> vvh;
-edm::Wrapper<std::vector<validHit> > wvvh;
+ValidHit vh;
+std::vector<ValidHit> vvh;
+edm::Wrapper<std::vector<ValidHit> > wvvh;
