@@ -32,12 +32,10 @@ KernelManagerHGCalRecHit::~KernelManagerHGCalRecHit() {}
 void KernelManagerHGCalRecHit::transfer_soa_to_device_(const cudaStream_t& stream) {
   cudaCheck(cudaMemcpyAsync(
       d_uncalibSoA_.amplitude_, h_uncalibSoA_.amplitude_, nbytes_device_, cudaMemcpyHostToDevice, stream));
-  cudaCheck(cudaGetLastError());
 }
 
 void KernelManagerHGCalRecHit::transfer_soa_to_host(const cudaStream_t& stream) {
   cudaCheck(cudaMemcpyAsync(h_calibSoA_.energy_, d_calibSoA_.energy_, nbytes_host_, cudaMemcpyDeviceToHost, stream));
-  cudaCheck(cudaGetLastError());
 }
 
 void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGCeeUncalibratedRecHitConstantData>* kcdata,
