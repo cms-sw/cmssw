@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include <memory>
 #include <chrono>
 #include <cuda_runtime.h>

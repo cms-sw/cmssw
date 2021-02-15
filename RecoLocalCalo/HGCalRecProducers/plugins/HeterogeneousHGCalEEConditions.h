@@ -39,10 +39,6 @@ private:
   size_t chunk_;
 
   void calculate_memory_bytes(const HGCalParameters *);
-  double *&select_pointer_d(cp::HeterogeneousHGCalEEParameters *, const unsigned int &) const;
-  std::vector<double> select_pointer_d(const HGCalParameters *, const unsigned int &) const;
-  int32_t *&select_pointer_i(cp::HeterogeneousHGCalEEParameters *, const unsigned int &) const;
-  std::vector<int32_t> select_pointer_i(const HGCalParameters *, const unsigned int &) const;
 
   // Helper struct to hold all information that has to be allocated and
   // deallocated per device

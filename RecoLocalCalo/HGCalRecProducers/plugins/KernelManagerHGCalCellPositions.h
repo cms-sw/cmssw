@@ -21,11 +21,6 @@ extern __constant__ uint32_t calo_rechit_masks[];
 #endif
 */
 
-namespace {  //kernel parameters
-  dim3 nb_celpos_;
-  constexpr dim3 nt_celpos_(256);
-}  // namespace
-
 class KernelManagerHGCalCellPositions {
 public:
   KernelManagerHGCalCellPositions(const size_t&);
