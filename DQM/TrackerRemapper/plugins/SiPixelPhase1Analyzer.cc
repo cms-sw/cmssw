@@ -7,7 +7,9 @@
 #include "DQM/TrackerRemapper/interface/SiPixelPhase1Analyzer.h"
 
 SiPixelPhase1Analyzer::SiPixelPhase1Analyzer(const edm::ParameterSet& iConfig)
-    : opMode(static_cast<OperationMode>(iConfig.getUntrackedParameter<unsigned int>("opMode"))),
+    : geomToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      opMode(static_cast<OperationMode>(iConfig.getUntrackedParameter<unsigned int>("opMode"))),
       debugFileName(iConfig.getUntrackedParameter<string>("debugFileName")),
       firstEvent(true),
       rootFileHandle(nullptr),
@@ -59,13 +61,8 @@ SiPixelPhase1Analyzer::~SiPixelPhase1Analyzer() {
 
 // ------------ method called for each event  ------------
 void SiPixelPhase1Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  ESHandle<TrackerGeometry> theTrackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-
-  const TrackerTopology* tt = trackerTopologyHandle.operator->();
+  const auto& theTrackerGeometry = &iSetup.getData(geomToken_);
+  const auto& tt = &iSetup.getData(topoToken_);
 
   if (firstEvent) {
     /////////////////////////////////
@@ -251,7 +248,7 @@ void SiPixelPhase1Analyzer::BookForwardHistograms(TDirectory* currentDir, const 
   pxfTh2PolyForwardSummary[currentHistoName] = th2p;
 }
 
-void SiPixelPhase1Analyzer::BookBins(ESHandle<TrackerGeometry>& theTrackerGeometry, const TrackerTopology* tt) {
+void SiPixelPhase1Analyzer::BookBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt) {
   BookBarrelBins(theTrackerGeometry, tt);
   BookForwardBins(theTrackerGeometry, tt);
 
@@ -260,7 +257,7 @@ void SiPixelPhase1Analyzer::BookBins(ESHandle<TrackerGeometry>& theTrackerGeomet
 #endif
 }
 
-void SiPixelPhase1Analyzer::BookBarrelBins(ESHandle<TrackerGeometry>& theTrackerGeometry, const TrackerTopology* tt) {
+void SiPixelPhase1Analyzer::BookBarrelBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt) {
   TrackingGeometry::DetContainer pxb = theTrackerGeometry->detsPXB();
 #ifdef DEBUG_MODE
   debugFile << "There are " << pxb.size() << " detector elements in the PXB." << endl;
@@ -325,7 +322,7 @@ void SiPixelPhase1Analyzer::BookBarrelBins(ESHandle<TrackerGeometry>& theTracker
   }
 }
 
-void SiPixelPhase1Analyzer::BookForwardBins(ESHandle<TrackerGeometry>& theTrackerGeometry, const TrackerTopology* tt) {
+void SiPixelPhase1Analyzer::BookForwardBins(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt) {
   TrackingGeometry::DetContainer pxf = theTrackerGeometry->detsPXF();
 #ifdef DEBUG_MODE
   debugFile << "There are " << pxf.size() << " detector elements in the PXF." << endl;
@@ -546,7 +543,7 @@ void SiPixelPhase1Analyzer::SaveDetectorVertices(const TrackerTopology* tt) {
 }
 
 void SiPixelPhase1Analyzer::FillBins(edm::Handle<reco::TrackCollection>* tracks,
-                                     ESHandle<TrackerGeometry>& theTrackerGeometry,
+                                     const TrackerGeometry* theTrackerGeometry,
                                      const TrackerTopology* tt) {
   switch (opMode) {
     case MODE_ANALYZE:
@@ -586,7 +583,7 @@ void SiPixelPhase1Analyzer::FillBins(edm::Handle<reco::TrackCollection>* tracks,
   }
 }
 
-void SiPixelPhase1Analyzer::FillBarrelBinsAnalyze(ESHandle<TrackerGeometry>& theTrackerGeometry,
+void SiPixelPhase1Analyzer::FillBarrelBinsAnalyze(const TrackerGeometry* theTrackerGeometry,
                                                   const TrackerTopology* tt,
                                                   unsigned rawId,
                                                   const GlobalPoint& globalPoint) {
@@ -607,7 +604,7 @@ void SiPixelPhase1Analyzer::FillBarrelBinsAnalyze(ESHandle<TrackerGeometry>& the
   }
 }
 
-void SiPixelPhase1Analyzer::FillForwardBinsAnalyze(ESHandle<TrackerGeometry>& theTrackerGeometry,
+void SiPixelPhase1Analyzer::FillForwardBinsAnalyze(const TrackerGeometry* theTrackerGeometry,
                                                    const TrackerTopology* tt,
                                                    unsigned rawId,
                                                    const GlobalPoint& globalPoint) {
@@ -630,8 +627,7 @@ void SiPixelPhase1Analyzer::FillForwardBinsAnalyze(ESHandle<TrackerGeometry>& th
   }
 }
 
-void SiPixelPhase1Analyzer::FillBarrelBinsRemap(ESHandle<TrackerGeometry>& theTrackerGeometry,
-                                                const TrackerTopology* tt) {
+void SiPixelPhase1Analyzer::FillBarrelBinsRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt) {
   rootFileHandle = new TFile(analazedRootFileName[0].c_str());
 
   if (!rootFileHandle) {
@@ -730,8 +726,7 @@ void SiPixelPhase1Analyzer::FillBarrelBinsRemap(ESHandle<TrackerGeometry>& theTr
   delete rootFileHandle;
 }
 
-void SiPixelPhase1Analyzer::FillForwardBinsRemap(ESHandle<TrackerGeometry>& theTrackerGeometry,
-                                                 const TrackerTopology* tt) {
+void SiPixelPhase1Analyzer::FillForwardBinsRemap(const TrackerGeometry* theTrackerGeometry, const TrackerTopology* tt) {
   rootFileHandle = new TFile(analazedRootFileName[0].c_str());
 
   if (!rootFileHandle) {
@@ -817,19 +812,28 @@ void SiPixelPhase1Analyzer::FillForwardBinsRemap(ESHandle<TrackerGeometry>& theT
   delete rootFileHandle;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void SiPixelPhase1Analyzer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void SiPixelPhase1Analyzer::endJob() {}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void SiPixelPhase1Analyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.setComment(
+      "Creates TH2Poly Pixel Tracker maps by either analyzing the event or remapping exising DQM historams");
+  desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+  desc.addUntracked<unsigned int>("opMode", 1);
+  desc.addUntracked<std::string>("debugFileName", "debug.txt");
+  desc.addUntracked<std::vector<unsigned int>>("isBarrelSource", {0, 0, 1});
+  desc.addUntracked<std::vector<std::string>>("remapRootFile", {"dqmFile.root"});
+  desc.addUntracked<std::vector<std::string>>(
+      "pathToHistograms",
+      {"DQMData/Run 1/PixelPhase1/Run summary/Phase1_MechanicalView/PXForward/",
+       "DQMData/Run 1/PixelPhase1/Run summary/Phase1_MechanicalView/PXForward/",
+       "DQMData/Run 1/PixelPhase1/Run summary/Phase1_MechanicalView/PXBarrel/"});
+  desc.addUntracked<std::vector<std::string>>("baseHistogramName",
+                                              {"num_clusters_per_PXDisk_per_SignedBladePanel_PXRing",
+                                               "num_digis_per_PXDisk_per_SignedBladePanel_PXRing",
+                                               "num_digis_per_SignedModule_per_SignedLadder_PXLayer"});
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
