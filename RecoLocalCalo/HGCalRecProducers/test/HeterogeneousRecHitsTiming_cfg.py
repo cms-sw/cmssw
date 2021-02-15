@@ -75,7 +75,9 @@ if withGPU:
     process.hef_t = cms.Task( process.HEFRecHitGPUProd, process.HEFRecHitGPUtoSoAProd, process.HEFRecHitFromSoAProd )
     process.heb_t = cms.Task( process.HEBRecHitGPUProd, process.HEBRecHitGPUtoSoAProd, process.HEBRecHitFromSoAProd )
     process.recHitsTask = cms.Task( process.ee_t, process.hef_t, process.heb_t )
-    outkeeps = ['keep *_*_' + f + '*_*' for f in ['HeterogeneousHGCalEERecHits', 'HeterogeneousHGCalHEFRecHits', 'HeterogeneousHGCalHEBRecHits']]
+    outkeeps = ['keep *_EERecHitFromSoAProd_*_*',
+                'keep *_HEFRecHitFromSoAProd_*_*',
+                'keep *_HEBRecHitFromSoAProd_*_*']
 else:
     process.recHitsClone = HGCalRecHit.clone()
     process.recHitsTask = cms.Task( process.recHitsClone ) #CPU version

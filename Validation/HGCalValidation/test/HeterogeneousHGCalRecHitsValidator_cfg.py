@@ -3,7 +3,25 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import HGCalRecHit
-from RecoLocalCalo.HGCalRecProducers.HeterogeneousHGCalRecHit_cfg import getHeterogeneousRecHitsSource
+
+def getHeterogeneousRecHitsSource(pu):
+    indir = '/eos/user/b/bfontana/Samples/' #indir = '/home/bfontana/'
+    filename_suff = 'step3_ttbar_PU' + str(pu) #filename_suff = 'hadd_out_PU' + str(pu)
+    fNames = [ 'file:' + x for x in glob.glob(os.path.join(indir, filename_suff + '*.root')) ]
+    print(indir, filename_suff, pu, fNames)
+    for _ in range(4):
+        fNames.extend(fNames)
+    if len(fNames)==0:
+        print('Used globbing: ', glob.glob(os.path.join(indir, filename_suff + '*.root')))
+        raise ValueError('No input files!')
+
+    keep = 'keep *'
+    drop1 = 'drop CSCDetIdCSCALCTPreTriggerDigiMuonDigiCollection_simCscTriggerPrimitiveDigis__HLT'
+    drop2 = 'drop HGCRecHitsSorted_HGCalRecHit_HGC*E*RecHits_*'
+    return cms.Source("PoolSource",
+                      fileNames = cms.untracked.vstring(fNames),
+                      inputCommands = cms.untracked.vstring(keep, drop1, drop2),
+                      duplicateCheckMode = cms.untracked.string("noDuplicateCheck"))
 
 #arguments parsing
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -61,11 +79,11 @@ process.HGCalRecHits = HGCalRecHit.clone()
 
 process.valid = cms.EDAnalyzer( 'HeterogeneousHGCalRecHitsValidator',
                                 cpuRecHitsEEToken = cms.InputTag('HGCalRecHits', 'HGCEERecHits'),
-                                gpuRecHitsEEToken = cms.InputTag('EERecHitFromSoAProd','HeterogeneousHGCalEERecHits'),
+                                gpuRecHitsEEToken = cms.InputTag('EERecHitFromSoAProd'),
                                 cpuRecHitsHSiToken = cms.InputTag('HGCalRecHits', 'HGCHEFRecHits'),
-                                gpuRecHitsHSiToken = cms.InputTag('HEFRecHitFromSoAProd','HeterogeneousHGCalHEFRecHits'),
+                                gpuRecHitsHSiToken = cms.InputTag('HEFRecHitFromSoAProd'),
                                 cpuRecHitsHSciToken = cms.InputTag('HGCalRecHits', 'HGCHEBRecHits'),
-                                gpuRecHitsHSciToken = cms.InputTag('HEBRecHitFromSoAProd','HeterogeneousHGCalHEBRecHits')
+                                gpuRecHitsHSciToken = cms.InputTag('HEBRecHitFromSoAProd')
 )
 
 process.ee_t = cms.Task( process.EERecHitGPUProd, process.EERecHitGPUtoSoAProd, process.EERecHitFromSoAProd )
