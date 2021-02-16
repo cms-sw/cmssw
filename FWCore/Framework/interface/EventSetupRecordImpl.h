@@ -149,6 +149,8 @@ namespace edm {
 
       void validate(ComponentDescription const*, ESInputTag const&) const;
 
+      ActivityRegistry const* activityRegistry() const noexcept { return activityRegistry_; }
+
       void addTraceInfoToCmsException(cms::Exception& iException,
                                       char const* iName,
                                       ComponentDescription const*,
