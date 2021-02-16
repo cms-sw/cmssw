@@ -5,13 +5,13 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "HGCalRecHitKernelImpl.cuh"
 
-__device__ float get_weight_from_layer(const int32_t& layer, const double (&weights)[HGChefUncalibratedRecHitConstantData::hef_weights]) {
+__device__ float get_weight_from_layer(const int32_t& layer, const double (&weights)[HGChefUncalibRecHitConstantData::hef_weights]) {
   return (float)weights[layer];
 }
 
 __device__ void make_rechit_silicon(unsigned tid,
                                     HGCRecHitSoA dst_soa,
-                                    HGCUncalibratedRecHitSoA src_soa,
+                                    HGCUncalibRecHitSoA src_soa,
                                     const float& weight,
                                     const float& rcorr,
                                     const float& cce_correction,
@@ -50,7 +50,7 @@ __device__ void make_rechit_silicon(unsigned tid,
 
 __device__ void make_rechit_scintillator(unsigned tid,
                                          HGCRecHitSoA dst_soa,
-                                         HGCUncalibratedRecHitSoA src_soa,
+                                         HGCUncalibRecHitSoA src_soa,
                                          const float& weight,
                                          const float& sigmaNoiseGeV) {
   dst_soa.id_[tid] = src_soa.id_[tid];
@@ -67,25 +67,25 @@ __device__ void make_rechit_scintillator(unsigned tid,
   dst_soa.timeError_[tid] = -1;
 }
 
-__device__ float get_thickness_correction(const int& type, const double (&rcorr)[HGChefUncalibratedRecHitConstantData::hef_rcorr]) {
+__device__ float get_thickness_correction(const int& type, const double (&rcorr)[HGChefUncalibRecHitConstantData::hef_rcorr]) {
   return __fdividef(1.f, (float)rcorr[type]);
 }
 
-__device__ float get_noise(const int& type, const double (&noise_fC)[HGChefUncalibratedRecHitConstantData::hef_noise_fC]) {
+__device__ float get_noise(const int& type, const double (&noise_fC)[HGChefUncalibRecHitConstantData::hef_noise_fC]) {
   return (float)noise_fC[type];
 }
 
-__device__ float get_cce_correction(const int& type, const double (&cce)[HGChefUncalibratedRecHitConstantData::hef_cce]) {
+__device__ float get_cce_correction(const int& type, const double (&cce)[HGChefUncalibRecHitConstantData::hef_cce]) {
   return (float)cce[type];
 }
 
-__device__ float get_fCPerMIP(const int& type, const double (&fCPerMIP)[HGChefUncalibratedRecHitConstantData::hef_fCPerMIP]) {
+__device__ float get_fCPerMIP(const int& type, const double (&fCPerMIP)[HGChefUncalibRecHitConstantData::hef_fCPerMIP]) {
   return (float)fCPerMIP[type];
 }
 
 __global__ void ee_to_rechit(HGCRecHitSoA dst_soa,
-                             HGCUncalibratedRecHitSoA src_soa,
-                             const HGCeeUncalibratedRecHitConstantData cdata,
+                             HGCUncalibRecHitSoA src_soa,
+                             const HGCeeUncalibRecHitConstantData cdata,
                              int length) {
   unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -114,13 +114,13 @@ __global__ void ee_to_rechit(HGCRecHitSoA dst_soa,
 }
 
 __global__ void hef_to_rechit(HGCRecHitSoA dst_soa,
-                              HGCUncalibratedRecHitSoA src_soa,
-                              const HGChefUncalibratedRecHitConstantData cdata,
+                              HGCUncalibRecHitSoA src_soa,
+                              const HGChefUncalibRecHitConstantData cdata,
                               int length) {
   unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
   for (unsigned i = tid; i < length; i += blockDim.x * gridDim.x) {
     /*Uncomment the lines set to 1. as soon as those factors are centrally defined for the HSi.
-	CUDADataFormats/HGCal/interface/HGCUncalibratedRecHitsToRecHitsConstants.h maxsizes_constanats will perhaps have to be changed (change some 3's to 6's) 
+	CUDADataFormats/HGCal/interface/HGCUncalibRecHitsToRecHitsConstants.h maxsizes_constanats will perhaps have to be changed (change some 3's to 6's) 
       */
     HeterogeneousHGCSiliconDetId detid(src_soa.id_[i]);
     int32_t layer = detid.layer() + cdata.layerOffset_;
@@ -146,8 +146,8 @@ __global__ void hef_to_rechit(HGCRecHitSoA dst_soa,
 }
 
 __global__ void heb_to_rechit(HGCRecHitSoA dst_soa,
-                              HGCUncalibratedRecHitSoA src_soa,
-                              const HGChebUncalibratedRecHitConstantData cdata,
+                              HGCUncalibRecHitSoA src_soa,
+                              const HGChebUncalibRecHitConstantData cdata,
                               int length) {
   unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
 

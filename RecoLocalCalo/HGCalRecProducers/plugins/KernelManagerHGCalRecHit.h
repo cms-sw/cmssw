@@ -19,9 +19,9 @@ template <typename T>
 class KernelConstantData {
 public:
   KernelConstantData(T& data, HGCConstantVectorData& vdata) : data_(data), vdata_(vdata) {
-    static_assert(std::is_same<T, HGCeeUncalibratedRecHitConstantData>::value or
-		  std::is_same<T, HGChefUncalibratedRecHitConstantData>::value or
-		  std::is_same<T, HGChebUncalibratedRecHitConstantData>::value,
+    static_assert(std::is_same<T, HGCeeUncalibRecHitConstantData>::value or
+		  std::is_same<T, HGChefUncalibRecHitConstantData>::value or
+		  std::is_same<T, HGChebUncalibRecHitConstantData>::value,
 		  "The KernelConstantData class does not support this type.");
   }
   T data_;
@@ -31,12 +31,12 @@ public:
 class KernelManagerHGCalRecHit {
 public:
   KernelManagerHGCalRecHit();
-  KernelManagerHGCalRecHit(const HGCUncalibratedRecHitSoA&, const HGCUncalibratedRecHitSoA&, const HGCRecHitSoA&);
+  KernelManagerHGCalRecHit(const HGCUncalibRecHitSoA&, const HGCUncalibRecHitSoA&, const HGCRecHitSoA&);
   KernelManagerHGCalRecHit(const HGCRecHitSoA&, const HGCRecHitSoA&);
   ~KernelManagerHGCalRecHit();
-  void run_kernels(const KernelConstantData<HGCeeUncalibratedRecHitConstantData>*, const cudaStream_t&);
-  void run_kernels(const KernelConstantData<HGChefUncalibratedRecHitConstantData>*, const cudaStream_t&);
-  void run_kernels(const KernelConstantData<HGChebUncalibratedRecHitConstantData>*, const cudaStream_t&);
+  void run_kernels(const KernelConstantData<HGCeeUncalibRecHitConstantData>*, const cudaStream_t&);
+  void run_kernels(const KernelConstantData<HGChefUncalibRecHitConstantData>*, const cudaStream_t&);
+  void run_kernels(const KernelConstantData<HGChebUncalibRecHitConstantData>*, const cudaStream_t&);
   void transfer_soa_to_host(const cudaStream_t&);
   HGCRecHitSoA* get_output();
 
@@ -47,7 +47,7 @@ private:
   uint32_t pad_;
   uint32_t nbytes_host_;
   uint32_t nbytes_device_;
-  HGCUncalibratedRecHitSoA h_uncalibSoA_, d_uncalibSoA_;
+  HGCUncalibRecHitSoA h_uncalibSoA_, d_uncalibSoA_;
   HGCRecHitSoA h_calibSoA_, d_calibSoA_;
 };
 

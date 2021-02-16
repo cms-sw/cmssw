@@ -9,8 +9,8 @@ namespace { //kernel parameters
   constexpr dim3 nt_rechits_(1024);
 }
 
-KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCUncalibratedRecHitSoA& h_uncalibSoA,
-                                                   const HGCUncalibratedRecHitSoA& d_uncalibSoA,
+KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCUncalibRecHitSoA& h_uncalibSoA,
+                                                   const HGCUncalibRecHitSoA& d_uncalibSoA,
                                                    const HGCRecHitSoA& d_calibSoA)
   : h_uncalibSoA_(h_uncalibSoA), d_uncalibSoA_(d_uncalibSoA), d_calibSoA_(d_calibSoA) {
   nhits_ = h_uncalibSoA_.nhits_;
@@ -38,21 +38,21 @@ void KernelManagerHGCalRecHit::transfer_soa_to_host(const cudaStream_t& stream) 
   cudaCheck(cudaMemcpyAsync(h_calibSoA_.energy_, d_calibSoA_.energy_, nbytes_host_, cudaMemcpyDeviceToHost, stream));
 }
 
-void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGCeeUncalibratedRecHitConstantData>* kcdata,
+void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGCeeUncalibRecHitConstantData>* kcdata,
                                            const cudaStream_t& stream) {
   transfer_soa_to_device_(stream);
   ee_to_rechit<<<::nb_rechits_, ::nt_rechits_, 0, stream>>>(d_calibSoA_, d_uncalibSoA_, kcdata->data_, nhits_);
   cudaCheck(cudaGetLastError());
 }
 
-void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGChefUncalibratedRecHitConstantData>* kcdata,
+void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGChefUncalibRecHitConstantData>* kcdata,
                                            const cudaStream_t& stream) {
   transfer_soa_to_device_(stream);
   hef_to_rechit<<<::nb_rechits_, ::nt_rechits_, 0, stream>>>(d_calibSoA_, d_uncalibSoA_, kcdata->data_, nhits_);
   cudaCheck(cudaGetLastError());
 }
 
-void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGChebUncalibratedRecHitConstantData>* kcdata,
+void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGChebUncalibRecHitConstantData>* kcdata,
                                            const cudaStream_t& stream) {
   transfer_soa_to_device_(stream);
   heb_to_rechit<<<::nb_rechits_, ::nt_rechits_, 0, stream>>>(d_calibSoA_, d_uncalibSoA_, kcdata->data_, nhits_);

@@ -6,7 +6,7 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "CUDADataFormats/HGCal/interface/HGCRecHitSoA.h"
-#include "CUDADataFormats/HGCal/interface/HGCUncalibratedRecHitSoA.h"
+#include "CUDADataFormats/HGCal/interface/HGCUncalibRecHitSoA.h"
 
 class HGCRecHitGPUProduct {
 public:

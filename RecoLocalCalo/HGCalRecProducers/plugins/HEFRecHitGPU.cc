@@ -19,6 +19,7 @@
 #include "HeterogeneousHGCRecHitMemAllocations.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
 #include "CUDADataFormats/HGCal/interface/HGCRecHitGPUProduct.h"
+#include "CUDADataFormats/HGCal/interface/HGCUncalibRecHitDevice.h"
 
 class HEFRecHitGPU : public edm::stream::EDProducer<> {
 public:
@@ -35,7 +36,7 @@ private:
   std::unique_ptr<HGChefRecHitCollection> rechits_;
 
   //constants
-  HGChefUncalibratedRecHitConstantData cdata_;
+  HGChefUncalibRecHitConstantData cdata_;
   HGCConstantVectorData vdata_;
 
   //memory
@@ -48,12 +49,13 @@ private:
   //data processing
   void convert_collection_data_to_soa_(const uint32_t &,
                                        const HGChefUncalibratedRecHitCollection &);
-  void convert_constant_data_(KernelConstantData<HGChefUncalibratedRecHitConstantData> *);
+  void convert_constant_data_(KernelConstantData<HGChefUncalibRecHitConstantData> *);
 
   HGCRecHitGPUProduct prod_;
-  HGCUncalibratedRecHitSoA h_uncalibSoA_, d_uncalibSoA_;
+  HGCUncalibRecHitDevice d_uncalib_;
+  HGCUncalibRecHitSoA h_uncalibSoA_;
 
-  KernelConstantData<HGChefUncalibratedRecHitConstantData> *kcdata_;
+  KernelConstantData<HGChefUncalibRecHitConstantData> *kcdata_;
 };
 
 HEFRecHitGPU::HEFRecHitGPU(const edm::ParameterSet& ps)
@@ -74,7 +76,7 @@ HEFRecHitGPU::HEFRecHitGPU(const edm::ParameterSet& ps)
   cdata_.layerOffset_ = 28;
   assert_sizes_constants_(vdata_);
 
-  kcdata_ = new KernelConstantData<HGChefUncalibratedRecHitConstantData>(cdata_, vdata_);
+  kcdata_ = new KernelConstantData<HGChefUncalibRecHitConstantData>(cdata_, vdata_);
 
   tools_ = std::make_unique<hgcal::RecHitTools>();
 }
@@ -91,21 +93,21 @@ std::string HEFRecHitGPU::assert_error_message_(std::string var, const size_t& s
 }
 
 void HEFRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
-  if (vdata_.fCPerMIP_.size() > HGChefUncalibratedRecHitConstantData::hef_fCPerMIP)
+  if (vdata_.fCPerMIP_.size() > HGChefUncalibRecHitConstantData::hef_fCPerMIP)
     edm::LogError("WrongSize") << this->assert_error_message_(
-        "fCPerMIP", HGChefUncalibratedRecHitConstantData::hef_fCPerMIP, vdata_.fCPerMIP_.size());
-  else if (vdata_.cce_.size() > HGChefUncalibratedRecHitConstantData::hef_cce)
+        "fCPerMIP", HGChefUncalibRecHitConstantData::hef_fCPerMIP, vdata_.fCPerMIP_.size());
+  else if (vdata_.cce_.size() > HGChefUncalibRecHitConstantData::hef_cce)
     edm::LogError("WrongSize") << this->assert_error_message_(
-        "cce", HGChefUncalibratedRecHitConstantData::hef_cce, vdata_.cce_.size());
-  else if (vdata_.noise_fC_.size() > HGChefUncalibratedRecHitConstantData::hef_noise_fC)
+        "cce", HGChefUncalibRecHitConstantData::hef_cce, vdata_.cce_.size());
+  else if (vdata_.noise_fC_.size() > HGChefUncalibRecHitConstantData::hef_noise_fC)
     edm::LogError("WrongSize") << this->assert_error_message_(
-        "noise_fC", HGChefUncalibratedRecHitConstantData::hef_noise_fC, vdata_.noise_fC_.size());
-  else if (vdata_.rcorr_.size() > HGChefUncalibratedRecHitConstantData::hef_rcorr)
+        "noise_fC", HGChefUncalibRecHitConstantData::hef_noise_fC, vdata_.noise_fC_.size());
+  else if (vdata_.rcorr_.size() > HGChefUncalibRecHitConstantData::hef_rcorr)
     edm::LogError("WrongSize") << this->assert_error_message_(
-        "rcorr", HGChefUncalibratedRecHitConstantData::hef_rcorr, vdata_.rcorr_.size());
-  else if (vdata_.weights_.size() > HGChefUncalibratedRecHitConstantData::hef_weights)
+        "rcorr", HGChefUncalibRecHitConstantData::hef_rcorr, vdata_.rcorr_.size());
+  else if (vdata_.weights_.size() > HGChefUncalibRecHitConstantData::hef_weights)
     edm::LogError("WrongSize") << this->assert_error_message_(
-        "weights", HGChefUncalibratedRecHitConstantData::hef_weights, vdata_.weights_.size());
+        "weights", HGChefUncalibRecHitConstantData::hef_weights, vdata_.weights_.size());
 }
 
 void HEFRecHitGPU::beginRun(edm::Run const&, edm::EventSetup const& setup) {}
@@ -114,29 +116,28 @@ void HEFRecHitGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
   cms::cuda::ScopedContextProduce ctx{event.streamID()};
 
   const auto& hits = event.get(uncalibRecHitCPUToken_);
-  unsigned int nhits = hits.size();
+  unsigned int nhits(hits.size());
   rechits_ = std::make_unique<HGCRecHitCollection>();
 
   if (nhits == 0)
     cms::cuda::LogError("HEFRecHitGPU") << "WARNING: no input hits!";
 
   prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
+  d_uncalib_ = HGCUncalibRecHitDevice(nhits, ctx.stream());
 
   //_allocate memory for uncalibrated hits on the host
   cms::cuda::host::unique_ptr<std::byte[]> dummy_hmem = memory::allocation::uncalibRecHitHost(prod_.nHits(), prod_.pad(), h_uncalibSoA_, ctx.stream());
-  //_allocate memory for uncalibrated hits on the device
-  cms::cuda::device::unique_ptr<std::byte[]> dummy_dmem = memory::allocation::uncalibRecHitDevice(prod_.nHits(), prod_.pad(), d_uncalibSoA_, ctx.stream());
 
   convert_constant_data_(kcdata_);
   convert_collection_data_to_soa_(nhits, hits);
 
-  KernelManagerHGCalRecHit km(h_uncalibSoA_, d_uncalibSoA_, prod_.get());
+  KernelManagerHGCalRecHit km(h_uncalibSoA_, d_uncalib_.get(), prod_.get());
   km.run_kernels(kcdata_, ctx.stream());
   
   ctx.emplace(event, recHitGPUToken_, std::move(prod_));
 }
 
-void HEFRecHitGPU::convert_constant_data_(KernelConstantData<HGChefUncalibratedRecHitConstantData>* kcdata) {
+void HEFRecHitGPU::convert_constant_data_(KernelConstantData<HGChefUncalibRecHitConstantData>* kcdata) {
   for (size_t i = 0; i < kcdata->vdata_.fCPerMIP_.size(); ++i)
     kcdata->data_.fCPerMIP_[i] = kcdata->vdata_.fCPerMIP_[i];
   for (size_t i = 0; i < kcdata->vdata_.cce_.size(); ++i)
@@ -151,7 +152,7 @@ void HEFRecHitGPU::convert_constant_data_(KernelConstantData<HGChefUncalibratedR
 
 void HEFRecHitGPU::convert_collection_data_to_soa_(const uint32_t& nhits,
                                                    const HGChefUncalibratedRecHitCollection& coll) {
-  for (unsigned i = 0; i < nhits; ++i) {
+  for (unsigned i(0); i < nhits; ++i) {
     h_uncalibSoA_.amplitude_[i] = coll[i].amplitude();
     h_uncalibSoA_.pedestal_[i] = coll[i].pedestal();
     h_uncalibSoA_.jitter_[i] = coll[i].jitter();
