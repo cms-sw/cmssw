@@ -79,6 +79,7 @@ namespace edm {
         taskList_.add(iTask);
         if (doPrefetch) {
           callingContext_.setContext(ESModuleCallingContext::State::kPrefetching, iParent);
+          iRecord->activityRegistry()->preESModulePrefetchingSignal_.emit(iRecord->key(), callingContext_);
           if UNLIKELY (producer_->hasMayConsumes()) {
             //after prefetching need to do the mayGet
             auto mayGetTask = edm::make_waiting_task(
@@ -174,7 +175,9 @@ namespace edm {
           taskList_.doneWaiting(*iExcept);
           return;
         }
+        iRecord->activityRegistry()->postESModulePrefetchingSignal_.emit(iRecord->key(), callingContext_);
         producer_->queue().push([this, iRecord, iEventSetupImpl, token]() {
+          callingContext_.setState(ESModuleCallingContext::State::kRunning);
           std::exception_ptr exceptPtr;
           try {
             convertException::wrap([this, iRecord, iEventSetupImpl, token] {
@@ -186,6 +189,15 @@ namespace edm {
               edm::ESParentContext pc{&callingContext_};
               rec.setImpl(iRecord, transitionID(), proxies, iEventSetupImpl, &pc, true);
               ServiceRegistry::Operate operate(token);
+              iRecord->activityRegistry()->preESModuleSignal_.emit(iRecord->key(), callingContext_);
+              struct EndGuard {
+                EndGuard(EventSetupRecordImpl const* iRecord, ESModuleCallingContext const& iContext)
+                    : record_{iRecord}, context_{iContext} {}
+                ~EndGuard() { record_->activityRegistry()->postESModuleSignal_.emit(record_->key(), context_); }
+                EventSetupRecordImpl const* record_;
+                ESModuleCallingContext const& context_;
+              };
+              EndGuard guard(iRecord, callingContext_);
               decorator_.pre(rec);
               storeReturnedValues((producer_->*method_)(rec));
               decorator_.post(rec);
