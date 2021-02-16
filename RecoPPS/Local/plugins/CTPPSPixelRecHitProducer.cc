@@ -30,8 +30,6 @@ void CTPPSPixelRecHitProducer::produce(edm::Event &iEvent, const edm::EventSetup
     run(*rpCl, output, *thePixelTopology);
 
   iEvent.put(std::make_unique<edm::DetSetVector<CTPPSPixelRecHit> >(output));
-
-  //  std::cout << (*thePixelTopology) << std::endl;
 }
 
 void CTPPSPixelRecHitProducer::run(const edm::DetSetVector<CTPPSPixelCluster> &input,
