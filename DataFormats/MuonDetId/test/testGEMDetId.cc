@@ -11,7 +11,7 @@ int testCell() {
         for (int st = GEMDetId::minStationId; st <= GEMDetId::maxStationId; ++st) {
           for (int la = GEMDetId::minLayerId; la <= GEMDetId::maxLayerId; ++la) {
             for (int ch = 1 + GEMDetId::minChamberId; ch <= GEMDetId::maxChamberId; ++ch) {
-              for (int ro = GEMDetId::minRollId; ro <= GEMDetId::maxRollId; ++ro) {
+              for (int ro = GEMDetId::minEtaPartitionId; ro <= GEMDetId::maxEtaPartitionId; ++ro) {
                 GEMDetId id(re, ri, st, la, ch, ro);
                 if ((id.region() != re) || (id.ring() != ri) || (id.station() != st) || (id.layer() != la) ||
                     (id.chamber() != ch) || (id.roll() != ro)) {
