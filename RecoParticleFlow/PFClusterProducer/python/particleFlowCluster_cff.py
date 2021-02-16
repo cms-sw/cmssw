@@ -84,4 +84,4 @@ from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toReplaceWith(particleFlowClusterECALTask,
                                   _phase2_timing_particleFlowClusterECALTask)
 phase2_timing.toModify(particleFlowClusterECAL,
-                            inputECAL = cms.InputTag('particleFlowTimeAssignerECAL'))
+                            inputECAL = 'particleFlowTimeAssignerECAL')
