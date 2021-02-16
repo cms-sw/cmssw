@@ -16,10 +16,10 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/MessageLogger.h"
 
-#include "HeterogeneousHGCRecHitMemAllocations.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
 #include "CUDADataFormats/HGCal/interface/HGCRecHitGPUProduct.h"
 #include "CUDADataFormats/HGCal/interface/HGCUncalibRecHitDevice.h"
+#include "CUDADataFormats/HGCal/interface/HGCUncalibRecHitHost.h"
 
 class EERecHitGPU : public edm::stream::EDProducer<> {
 public:
@@ -52,8 +52,7 @@ private:
 
   HGCRecHitGPUProduct prod_;
   HGCUncalibRecHitDevice d_uncalib_;
-  
-  HGCUncalibRecHitHost h_uncalibSoA_;
+  HGCUncalibRecHitHost<HGCeeUncalibratedRecHitCollection> h_uncalib_;
 
   KernelConstantData<HGCeeUncalibRecHitConstantData> *kcdata_;
 };
@@ -123,14 +122,11 @@ void EERecHitGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
 
   prod_      = HGCRecHitGPUProduct(nhits, ctx.stream());
   d_uncalib_ = HGCUncalibRecHitDevice(nhits, ctx.stream());
-
-  //_allocate memory for uncalibrated hits on the host
-  cms::cuda::host::unique_ptr<std::byte[]> dummy_hmem = memory::allocation::uncalibRecHitHost(prod_.nHits(), prod_.pad(), h_uncalibSoA_, ctx.stream());
+  h_uncalib_ = HGCUncalibRecHitHost<HGCeeUncalibratedRecHitCollection>(nhits, hits, ctx.stream());
   
   convert_constant_data_(kcdata_);
-  convert_collection_data_to_soa_(nhits, hits);
 
-  KernelManagerHGCalRecHit km(h_uncalibSoA_, d_uncalib_.get(), prod_.get());
+  KernelManagerHGCalRecHit km(h_uncalib_.get(), d_uncalib_.get(), prod_.get());
   km.run_kernels(kcdata_, ctx.stream());
   
   ctx.emplace(event, recHitGPUToken_, std::move(prod_));
@@ -147,21 +143,6 @@ void EERecHitGPU::convert_constant_data_(KernelConstantData<HGCeeUncalibRecHitCo
     kcdata->data_.rcorr_[i] = kcdata->vdata_.rcorr_[i];
   for (size_t i = 0; i < kcdata->vdata_.weights_.size(); ++i)
     kcdata->data_.weights_[i] = kcdata->vdata_.weights_[i];
-}
-
-void EERecHitGPU::convert_collection_data_to_soa_(const uint32_t& nhits,
-                                                  const HGCeeUncalibratedRecHitCollection& coll) {
-  for (unsigned i = 0; i < nhits; ++i) {
-    h_uncalibSoA_.amplitude_[i] = coll[i].amplitude();
-    h_uncalibSoA_.pedestal_[i] = coll[i].pedestal();
-    h_uncalibSoA_.jitter_[i] = coll[i].jitter();
-    h_uncalibSoA_.chi2_[i] = coll[i].chi2();
-    h_uncalibSoA_.OOTamplitude_[i] = coll[i].outOfTimeEnergy();
-    h_uncalibSoA_.OOTchi2_[i] = coll[i].outOfTimeChi2();
-    h_uncalibSoA_.flags_[i] = coll[i].flags();
-    h_uncalibSoA_.aux_[i] = 0;
-    h_uncalibSoA_.id_[i] = coll[i].id().rawId();
-  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
