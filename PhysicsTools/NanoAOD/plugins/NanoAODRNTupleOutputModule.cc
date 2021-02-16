@@ -29,6 +29,8 @@ using ROOT::Experimental::RNTupleWriter;
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
+#include "PhysicsTools/NanoAOD/plugins/TableOutputFields.h"
+
 class NanoAODRNTupleOutputModule : public edm::one::OutputModule<> {
 public:
   NanoAODRNTupleOutputModule(edm::ParameterSet const& pset);
@@ -44,11 +46,14 @@ private:
   void writeRun(edm::RunForOutput const&) override;
   void reallyCloseFile() override;
 
+  void initializeNTuple(edm::EventForOutput const& e);
+
   std::string m_fileName;
   std::string m_logicalFileName;
   edm::JobReport::Token m_jrToken;
 
   std::unique_ptr<RNTupleWriter> m_ntuple;
+  TableCollections m_tables;
 
   class CommonEventFields {
   public:
@@ -99,19 +104,39 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
+}
 
+void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEvent) {
   // set up RNTuple schema
   auto model = RNTupleModel::Create();
   m_commonFields.createFields(*model);
 
+  //m_tables.clear();
+  const auto& keeps = keptProducts();
+  for (const auto& keep: keeps[edm::InEvent]) {
+    //std::cout << "branch name: " << keep.first->branchName() << "\n";
+    if (keep.first->className() == "nanoaod::FlatTable") {
+      edm::Handle<nanoaod::FlatTable> handle;
+      const auto& token = keep.second;
+      iEvent.getByToken(token, handle);
+      m_tables.add(token, *handle);
+    }
+  }
+  m_tables.createFields(iEvent, *model);
+  m_tables.print();
   m_ntuple = RNTupleWriter::Recreate(std::move(model), "Events", m_fileName);
 }
 
 void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
+  if (!m_ntuple) {
+    initializeNTuple(iEvent);
+  }
+
   edm::Service<edm::JobReport> jr;
   jr->eventWrittenToFile(m_jrToken, iEvent.id().run(), iEvent.id().event());
 
   m_commonFields.fill(iEvent.id());
+  m_tables.fill(iEvent);
   m_ntuple->Fill();
 }
 
