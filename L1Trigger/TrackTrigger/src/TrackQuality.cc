@@ -96,7 +96,8 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
       // Iterate through hitpattern binary
       for (int k = 0; k <= 6; k++)
         // Fill expanded binary entries using the expected hitmap table positions
-        hitpattern_expanded_binary[hitmap[j-1][k]] = hitpattern_binary[k];
+        hitpattern_expanded_binary[hitmap[j - 1][k]] = hitpattern_binary[k];
+      break;
     }
   }
 
