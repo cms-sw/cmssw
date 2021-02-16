@@ -354,6 +354,26 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     offset = 0.9,
 )
 
+
+# Track DNN workflows
+class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'trackdnn'}, stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2021' in key
+upgradeWFs['trackdnn'] = UpgradeWorkflow_trackdnn(
+    steps = [
+        'Reco',
+    ],
+    PU = [
+        'Reco',
+    ],
+    suffix = '_trackdnn',
+    offset = 0.91,
+)
+
+
 # MLPF workflows
 class UpgradeWorkflow_mlpf(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
