@@ -13,7 +13,7 @@ TString GEMUtils::getSuffixName(Int_t region_id, Int_t station_id, Int_t layer_i
 }
 
 TString GEMUtils::getSuffixName(Int_t region_id, Int_t station_id, Int_t layer_id, Int_t roll_id) {
-  return TString::Format("_GE%+.2d_L%d_R%d", region_id * (station_id * 10 + 1), layer_id, roll_id);
+  return TString::Format("_GE%+.2d_L%d_iEta%d", region_id * (station_id * 10 + 1), layer_id, roll_id);
 }
 
 TString GEMUtils::getSuffixName(const ME2IdsKey& key) {
@@ -42,7 +42,7 @@ TString GEMUtils::getSuffixTitle(Int_t region_id, Int_t station_id, Int_t layer_
 }
 
 TString GEMUtils::getSuffixTitle(Int_t region_id, Int_t station_id, Int_t layer_id, Int_t roll_id) {
-  return TString::Format(" GE%+.2d Layer %d Roll %d", region_id * (station_id * 10 + 1), layer_id, roll_id);
+  return TString::Format(" GE%+.2d Layer %d iEta %d", region_id * (station_id * 10 + 1), layer_id, roll_id);
 }
 
 TString GEMUtils::getSuffixTitle(const ME2IdsKey& key) {

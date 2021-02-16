@@ -179,7 +179,7 @@ void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetu
     Int_t station_id = gemid.station();
     Int_t layer_id = gemid.layer();
     Int_t chamber_id = gemid.chamber();
-    Int_t roll_id = gemid.roll();
+    Int_t ieta = gemid.ieta();
     Int_t num_layers = gemid.nlayers();
 
     ME2IdsKey key2(region_id, station_id);
@@ -211,7 +211,7 @@ void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetu
         me_detail_occ_xy_[key3]->Fill(g_x, g_y);
         me_detail_occ_phi_pad_[key3]->Fill(g_phi, pad);
         me_detail_occ_pad_[key3]->Fill(pad);
-        me_detail_occ_det_[key2]->Fill(bin_x, roll_id);
+        me_detail_occ_det_[key2]->Fill(bin_x, ieta);
         me_detail_bx_[key3]->Fill(bx);
       }  // if detail_plot
     }    // digi loop
@@ -256,7 +256,7 @@ void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetu
     Int_t station_id = simhit_gemid.station();
     Int_t layer_id = simhit_gemid.layer();
     Int_t chamber_id = simhit_gemid.chamber();
-    Int_t roll_id = simhit_gemid.roll();
+    Int_t ieta = simhit_gemid.ieta();
     Int_t num_layers = simhit_gemid.nlayers();
 
     ME2IdsKey key2{region_id, station_id};
@@ -292,7 +292,7 @@ void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetu
         me_pad_occ_eta_[key3]->Fill(simhit_g_eta);
         me_pad_occ_phi_[key3]->Fill(simhit_g_phi);
         if (detail_plot_) {
-          me_detail_pad_occ_det_[key2]->Fill(bin_x, roll_id);
+          me_detail_pad_occ_det_[key2]->Fill(bin_x, ieta);
         }
         break;
       }
