@@ -854,7 +854,9 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       idx = sector * 1000 + cell;
 #ifdef EDM_ML_DEBUG
       std::pair<float, float> xy = hgcons_[type]->locateCell(cell, layer, sector, false);
-      edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer::detId " << std::hex << id << std::dec << " Layer:Wafer:Cell " << layer << ":" << sector << ":" << cell << " Position " << xy.first << ":" << xy.second << ":" << hgcons_[type]->waferZ(layer, false);
+      edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer::detId " << std::hex << id << std::dec << " Layer:Wafer:Cell "
+                                 << layer << ":" << sector << ":" << cell << " Position " << xy.first << ":"
+                                 << xy.second << ":" << hgcons_[type]->waferZ(layer, false);
 #endif
     }
 #ifdef EDM_ML_DEBUG
@@ -875,7 +877,7 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
     }
     if (map_hitWafer.count(sector) != 0)
       map_hitWafer[sector] += energy;
-    else 
+    else
       map_hitWafer[sector] = energy;
     if (depth >= 0) {
       if (map_hitCell.count(idx) != 0) {
