@@ -855,7 +855,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
   }
 
   thermalize(beta, tks, y, delta_lowT_, rho0);
-  //update(beta, tks, y, rho0, true);//to be introduced in a forthcoming PR
+  update(beta, tks, y, rho0, true);
 
 #ifdef DEBUG
   verify(y, tks);
@@ -870,7 +870,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
   // merge again  (some cluster split by outliers collapse here)
   while (merge(y, tks, beta)) {
     set_vtx_range(beta, tks, y);
-    update(beta, tks, y, rho0, false);  //change to "true" in a forthcoming PR
+    update(beta, tks, y, rho0, true);
   }
 
 #ifdef DEBUG
