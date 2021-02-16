@@ -51,7 +51,6 @@ private:
 
   HGCRecHitGPUProduct prod_;
   HGCUncalibratedRecHitSoA h_uncalibSoA_, d_uncalibSoA_;
-  HGCRecHitSoA d_calibSoA_;
 
   KernelConstantData<HGCeeUncalibratedRecHitConstantData> *kcdata_;
 };
@@ -122,16 +121,14 @@ void EERecHitGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
   prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
 
   //_allocate memory for uncalibrated hits on the host
-  cms::cuda::host::unique_ptr<std::byte[]> dummy_hmem = memory::allocation::uncalibRecHitHost(prod_.nHits(), prod_.stride(), h_uncalibSoA_, ctx.stream());
+  cms::cuda::host::unique_ptr<std::byte[]> dummy_hmem = memory::allocation::uncalibRecHitHost(prod_.nHits(), prod_.pad(), h_uncalibSoA_, ctx.stream());
   //_allocate memory for uncalibrated hits on the device
-  cms::cuda::device::unique_ptr<std::byte[]> dummy_dmem = memory::allocation::uncalibRecHitDevice(prod_.nHits(), prod_.stride(), d_uncalibSoA_, ctx.stream());
-  //point SoA to allocated memory for calibrated hits on the device
-  memory::allocation::calibRecHitDevice(prod_.nHits(), prod_.stride(), prod_.nBytes(), d_calibSoA_, prod_.get());
+  cms::cuda::device::unique_ptr<std::byte[]> dummy_dmem = memory::allocation::uncalibRecHitDevice(prod_.nHits(), prod_.pad(), d_uncalibSoA_, ctx.stream());
   
   convert_constant_data_(kcdata_);
   convert_collection_data_to_soa_(nhits, hits);
 
-  KernelManagerHGCalRecHit km(h_uncalibSoA_, d_uncalibSoA_, d_calibSoA_);
+  KernelManagerHGCalRecHit km(h_uncalibSoA_, d_uncalibSoA_, prod_.get());
   km.run_kernels(kcdata_, ctx.stream());
   
   ctx.emplace(event, recHitGPUToken_, std::move(prod_));

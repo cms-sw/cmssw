@@ -14,7 +14,7 @@ public:
 
   std::uint32_t nbytes_;  //number of bytes of the SoA
   std::uint32_t nhits_;   //number of hits stored in the SoA
-  std::uint32_t stride_;  //stride of memory block (used for warp alignment, slighlty larger than 'nhits_')
+  std::uint32_t pad_;  //pad of memory block (used for warp alignment, slighlty larger than 'nhits_')
 };
 
 namespace memory {

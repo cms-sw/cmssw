@@ -14,17 +14,17 @@ KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCUncalibratedRecHitSo
                                                    const HGCRecHitSoA& d_calibSoA)
   : h_uncalibSoA_(h_uncalibSoA), d_uncalibSoA_(d_uncalibSoA), d_calibSoA_(d_calibSoA) {
   nhits_ = h_uncalibSoA_.nhits_;
-  stride_ = h_uncalibSoA_.stride_;
-  ::nb_rechits_ = (stride_ + ::nt_rechits_.x - 1) / ::nt_rechits_.x;
-  nbytes_device_ = d_uncalibSoA_.nbytes_ * stride_;
+  pad_ = h_uncalibSoA_.pad_;
+  ::nb_rechits_ = (pad_ + ::nt_rechits_.x - 1) / ::nt_rechits_.x;
+  nbytes_device_ = d_uncalibSoA_.nbytes_ * pad_;
 }
 
 KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCRecHitSoA& h_calibSoA, const HGCRecHitSoA& d_calibSoA)
   : h_calibSoA_(h_calibSoA), d_calibSoA_(d_calibSoA) {
   nhits_ = h_calibSoA_.nhits_;
-  stride_ = h_calibSoA_.stride_;
-  ::nb_rechits_ = (stride_ + ::nt_rechits_.x - 1) / ::nt_rechits_.x;
-  nbytes_host_ = h_calibSoA_.nbytes_ * stride_;
+  pad_ = h_calibSoA_.pad_;
+  ::nb_rechits_ = (pad_ + ::nt_rechits_.x - 1) / ::nt_rechits_.x;
+  nbytes_host_ = h_calibSoA_.nbytes_ * pad_;
 }
 
 KernelManagerHGCalRecHit::~KernelManagerHGCalRecHit() {}

@@ -44,7 +44,7 @@ private:
   void transfer_soa_to_device_(const cudaStream_t&);
 
   uint32_t nhits_;
-  uint32_t stride_;
+  uint32_t pad_;
   uint32_t nbytes_host_;
   uint32_t nbytes_device_;
   HGCUncalibratedRecHitSoA h_uncalibSoA_, d_uncalibSoA_;

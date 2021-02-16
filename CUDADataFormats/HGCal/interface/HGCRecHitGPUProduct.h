@@ -11,7 +11,7 @@
 class HGCRecHitGPUProduct {
 public:
   HGCRecHitGPUProduct() = default;
-  explicit HGCRecHitGPUProduct(const uint32_t &nhits, const cudaStream_t &stream);
+  explicit HGCRecHitGPUProduct(uint32_t nhits, const cudaStream_t &stream);
   ~HGCRecHitGPUProduct() = default;
 
   HGCRecHitGPUProduct(const HGCRecHitGPUProduct &) = delete;
@@ -19,15 +19,16 @@ public:
   HGCRecHitGPUProduct(HGCRecHitGPUProduct &&) = default;
   HGCRecHitGPUProduct &operator=(HGCRecHitGPUProduct &&) = default;
 
-  std::byte *get() const { return ptr_.get(); }
-
+  void defineSoAMemoryLayout_();
+  HGCRecHitSoA get() const { return soa_; }
   uint32_t nHits() const { return nhits_; }
-  uint32_t stride() const { return stride_; }
+  uint32_t pad() const { return pad_; }
   uint32_t nBytes() const { return size_tot_; }
 
 private:
   cms::cuda::device::unique_ptr<std::byte[]> ptr_;
-  uint32_t stride_;
+  HGCRecHitSoA soa_;
+  uint32_t pad_;
   uint32_t nhits_;
   uint32_t size_tot_;
 };
