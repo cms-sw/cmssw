@@ -103,4 +103,3 @@ process.load("DQMServices.Core.DQMStore_cfg")
 
 # Output root file name:
 process.TFileService = cms.Service("TFileService", fileName = cms.string('outputStrip.root') )
-
