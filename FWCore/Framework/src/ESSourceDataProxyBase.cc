@@ -24,7 +24,8 @@ void edm::eventsetup::ESSourceDataProxyBase::prefetchAsyncImpl(edm::WaitingTaskH
                                                                edm::eventsetup::EventSetupRecordImpl const& iRecord,
                                                                edm::eventsetup::DataKey const& iKey,
                                                                edm::EventSetupImpl const*,
-                                                               edm::ServiceToken const&) {
+                                                               edm::ServiceToken const&,
+                                                               edm::ESParentContext const&) {
   bool expected = false;
   auto doPrefetch = m_prefetching.compare_exchange_strong(expected, true);
   m_waitingList.add(iTask);
