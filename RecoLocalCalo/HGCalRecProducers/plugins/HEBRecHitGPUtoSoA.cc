@@ -25,12 +25,12 @@
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
-#include "HeterogeneousHGCRecHitMemAllocations.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
 
 #include "CUDADataFormats/HGCal/interface/HGCRecHitGPUProduct.h"
+#include "CUDADataFormats/HGCal/interface/HGCRecHitHost.h"
 
 class HEBRecHitGPUtoSoA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -45,7 +45,7 @@ private:
   edm::EDGetTokenT<cms::cuda::Product<HGCRecHitGPUProduct>> recHitGPUToken_;
   edm::EDPutTokenT<HGCRecHitSoA> recHitCPUSoAToken_;
 
-  std::unique_ptr<HGCRecHitSoA> recHitsSoA_;
+  std::unique_ptr<HGCRecHitSoA> rhPtr_;
 };
 
 HEBRecHitGPUtoSoA::HEBRecHitGPUtoSoA(const edm::ParameterSet& ps)
@@ -61,17 +61,14 @@ void HEBRecHitGPUtoSoA::acquire(edm::Event const& event,
   cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(w)};
   const auto& gpuRecHits = ctx.get(event, recHitGPUToken_);
 
-  recHitsSoA_ = std::make_unique<HGCRecHitSoA>();
-  
-  //_allocate memory for calibrated hits on the host
-  memory::allocation::calibRecHitHost(gpuRecHits.nHits(), gpuRecHits.pad(), *recHitsSoA_, ctx.stream());
-  
-  KernelManagerHGCalRecHit km(*recHitsSoA_, gpuRecHits.get());
+  rhPtr_ = layoutHGCRecHitHost(gpuRecHits.nHits(), ctx.stream());
+
+  KernelManagerHGCalRecHit km(*rhPtr_, gpuRecHits.get());
   km.transfer_soa_to_host(ctx.stream());
 }
 
 void HEBRecHitGPUtoSoA::produce(edm::Event& event, const edm::EventSetup& setup) {
-  event.put(std::move(recHitsSoA_));
+  event.put(std::move(rhPtr_));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
