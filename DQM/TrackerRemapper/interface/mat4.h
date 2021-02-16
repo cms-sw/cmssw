@@ -1,5 +1,5 @@
-#ifndef MAT4__H_
-#define MAT4__H_
+#ifndef DQM_TRACKERREMAPPER_MAT4_H
+#define DQM_TRACKERREMAPPER_MAT4_H
 
 // helper class for matrix operations
 // - 4 rows
