@@ -68,7 +68,10 @@ bool HGCalTestNumbering::isValidSquare(int zp, int lay, int sec, int subsec, int
 bool HGCalTestNumbering::isValidHexagon(int subdet, int zp, int lay, int wafer, int celltyp, int cell) {
   if (cell > kHGCalCellHMask || celltyp > kHGCalCellTypHMask || wafer > kHGCalWaferHMask || lay > kHGCalLayerSMask ||
       subdet > kHGCalSubdetHMask) {
-    edm::LogWarning("HGCSim") << "[HGCalTestNumbering] request for new id for layer=" << lay << " zp=" << zp << " wafer=" << wafer << " celltyp=" << celltyp << " cell=" << cell << " for subdet=" << subdet << " has one or more fields out of bounds and will be reset *****";
+    edm::LogWarning("HGCSim") << "[HGCalTestNumbering] request for new id for layer=" << lay << " zp=" << zp
+                              << " wafer=" << wafer << " celltyp=" << celltyp << " cell=" << cell
+                              << " for subdet=" << subdet
+                              << " has one or more fields out of bounds and will be reset *****";
     return false;
   }
   return true;
