@@ -46,8 +46,6 @@ private:
   edm::EDPutTokenT<HGCRecHitSoA> recHitCPUSoAToken_;
 
   std::unique_ptr<HGCRecHitSoA> recHitsSoA_;
-  HGCRecHitSoA d_calibSoA_;
-  std::byte* prodMem_;
 };
 
 HEBRecHitGPUtoSoA::HEBRecHitGPUtoSoA(const edm::ParameterSet& ps)
@@ -62,17 +60,13 @@ void HEBRecHitGPUtoSoA::acquire(edm::Event const& event,
                                 edm::WaitingTaskWithArenaHolder w) {
   cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(w)};
   const auto& gpuRecHits = ctx.get(event, recHitGPUToken_);
-  prodMem_ = gpuRecHits.get();
 
   recHitsSoA_ = std::make_unique<HGCRecHitSoA>();
   
   //_allocate memory for calibrated hits on the host
-  memory::allocation::calibRecHitHost(gpuRecHits.nHits(), gpuRecHits.stride(), *recHitsSoA_, ctx.stream());
-  //point SoA to allocated memory for calibrated hits on the device
-  memory::allocation::calibRecHitDevice(gpuRecHits.nHits(), gpuRecHits.stride(), gpuRecHits.nBytes(), d_calibSoA_, prodMem_);
-
+  memory::allocation::calibRecHitHost(gpuRecHits.nHits(), gpuRecHits.pad(), *recHitsSoA_, ctx.stream());
   
-  KernelManagerHGCalRecHit km(*recHitsSoA_, d_calibSoA_);
+  KernelManagerHGCalRecHit km(*recHitsSoA_, gpuRecHits.get());
   km.transfer_soa_to_host(ctx.stream());
 }
 
