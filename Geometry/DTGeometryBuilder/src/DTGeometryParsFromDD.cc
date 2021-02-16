@@ -334,7 +334,7 @@ void DTGeometryParsFromDD::insertChamber(cms::DDFilteredView& fv,
 
   vector<double> par_temp = fv.parameters();
   vector<double> par(4);
-  par[0] = 0;  // 0 is the ID of a Chamber, please see DTGeometryBuilderCondDB.cc
+  par[0] = DTChamberTag;  //DTChamberTag is the ID of a Chamber
   par[1] = par_temp[0] / dd4hep::mm;
   par[2] = par_temp[1] / dd4hep::mm;
   par[3] = par_temp[2] / dd4hep::mm;
@@ -355,7 +355,7 @@ void DTGeometryParsFromDD::insertSuperLayer(cms::DDFilteredView& fv,
 
   vector<double> par_temp = fv.parameters();
   vector<double> par(4);
-  par[0] = 1;  // 1 is the ID of a SuperLayer, please see DTGeometryBuilderCondDB.cc
+  par[0] = DTSuperLayerTag;  //DTSuperLayerTag is the ID of a SuperLayer
   par[1] = par_temp[0] / dd4hep::mm;
   par[2] = par_temp[1] / dd4hep::mm;
   par[3] = par_temp[2] / dd4hep::mm;
@@ -376,7 +376,7 @@ void DTGeometryParsFromDD::insertLayer(cms::DDFilteredView& fv,
 
   vector<double> par_temp = fv.parameters();
   vector<double> par(4);
-  par[0] = 2;  // 2 is the ID of a Layer, please see DTGeometryBuilderCondDB.cc
+  par[0] = DTLayerTag;  //DTLayerTag is the ID of a Layer
   par[1] = par_temp[0] / dd4hep::mm;
   par[2] = par_temp[1] / dd4hep::mm;
   par[3] = par_temp[2] / dd4hep::mm;
