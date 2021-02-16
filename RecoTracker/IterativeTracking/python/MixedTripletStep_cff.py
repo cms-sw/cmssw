@@ -5,6 +5,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 ###############################################################
 # Large impact parameter Tracking using mixed-triplet seeding #
@@ -344,11 +345,11 @@ trackingPhase1.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone
     qualityCuts = [-0.5,0.0,0.5]
 ))
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(mixedTripletStep, TrackLwtnnClassifier.clone(
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(mixedTripletStep, TrackTfClassifier.clone(
     src = 'mixedTripletStepTracks',
-    qualityCuts = [-0.8, -0.35, 0.1]
+    qualityCuts = qualityCutDictionary['MixedTripletStep']
 ))
 (trackdnn & fastSim).toModify(mixedTripletStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
