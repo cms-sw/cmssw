@@ -11,14 +11,11 @@ namespace edm {
       : componentDescription_(componentDescription), parent_(), state_(State::kInvalid) {}
 
   ESModuleCallingContext::ESModuleCallingContext(edm::eventsetup::ComponentDescription const* componentDescription,
-                                             State state,
-                                             ESParentContext const& parent)
-      : componentDescription_(componentDescription),
-        parent_(parent),
-        state_(state) {}
+                                                 State state,
+                                                 ESParentContext const& parent)
+      : componentDescription_(componentDescription), parent_(parent), state_(state) {}
 
-  void ESModuleCallingContext::setContext(State state,
-                                          ESParentContext const& parent) {
+  void ESModuleCallingContext::setContext(State state, ESParentContext const& parent) {
     state_ = state;
     parent_ = parent;
   }
