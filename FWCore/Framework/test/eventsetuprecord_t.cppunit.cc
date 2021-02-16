@@ -29,6 +29,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include <memory>
 
@@ -185,7 +186,8 @@ void testEventsetupRecord::getTest() {
   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
 
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, false);
+  ESParentContext pc;
+  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, &pc, false);
   ESHandle<Dummy> dummyPtr;
   CPPUNIT_ASSERT(not dummyRecord.get(dummyPtr));
   CPPUNIT_ASSERT(not dummyPtr.isValid());
@@ -254,7 +256,8 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto waitTask = edm::make_empty_waiting_task();
         waitTask->set_ref_count(2);
-        iRec.prefetchAsync(WaitingTaskHolder(waitTask.get()), proxies[i], nullptr, edm::ServiceToken{});
+        iRec.prefetchAsync(
+            WaitingTaskHolder(waitTask.get()), proxies[i], nullptr, edm::ServiceToken{}, edm::ESParentContext{});
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
         if (waitTask->exceptionPtr()) {
@@ -275,7 +278,8 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto waitTask = edm::make_empty_waiting_task();
         waitTask->set_ref_count(2);
-        iRec.prefetchAsync(WaitingTaskHolder(waitTask.get()), proxies[i], nullptr, edm::ServiceToken{});
+        iRec.prefetchAsync(
+            WaitingTaskHolder(waitTask.get()), proxies[i], nullptr, edm::ServiceToken{}, edm::ESParentContext{});
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
         if (waitTask->exceptionPtr()) {
@@ -318,7 +322,8 @@ namespace {
 
     DummyRecord makeRecord() {
       DummyRecord ret;
-      ret.setImpl(&dummyRecordImpl, 0, consumer.esGetTokenIndices(edm::Transition::Event), nullptr, false);
+      ESParentContext pc;
+      ret.setImpl(&dummyRecordImpl, 0, consumer.esGetTokenIndices(edm::Transition::Event), nullptr, &pc, false);
       return ret;
     }
   };
@@ -503,7 +508,8 @@ void testEventsetupRecord::getWithTokenTest() {
 void testEventsetupRecord::getNodataExpTest() {
   EventSetupRecordImpl recImpl(DummyRecord::keyForClass(), &activityRegistry);
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&recImpl, 0, nullptr, nullptr, false);
+  ESParentContext pc;
+  dummyRecord.setImpl(&recImpl, 0, nullptr, nullptr, &pc, false);
   FailingDummyProxy dummyProxy;
 
   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(), "");
@@ -523,7 +529,8 @@ void testEventsetupRecord::getExepTest() {
   dummyRecordImpl.add(dummyDataKey, &dummyProxy);
 
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, false);
+  ESParentContext pc;
+  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, &pc, false);
   dummyRecord.get(dummyPtr);
   //CPPUNIT_ASSERT_THROW(dummyRecord.get(dummyPtr), ExceptionType);
 }
@@ -593,7 +600,8 @@ void testEventsetupRecord::introspectionTest() {
   CPPUNIT_ASSERT(keys.empty());
 
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, false);
+  ESParentContext pc;
+  dummyRecord.setImpl(&dummyRecordImpl, 0, nullptr, nullptr, &pc, false);
 
   std::vector<ComponentDescription const*> esproducers;
   dummyRecordImpl.getESProducers(esproducers);
@@ -732,7 +740,8 @@ void testEventsetupRecord::proxyResetTest() {
   EventSetupRecordProvider const* constRecordProvider = dummyProvider.get();
 
   DummyRecord dummyRecord;
-  dummyRecord.setImpl(&constRecordProvider->firstRecordImpl(), 0, nullptr, nullptr, false);
+  ESParentContext pc;
+  dummyRecord.setImpl(&constRecordProvider->firstRecordImpl(), 0, nullptr, nullptr, &pc, false);
 
   Dummy myDummy;
   std::shared_ptr<WorkingDummyProxy> workingProxy = std::make_shared<WorkingDummyProxy>(&myDummy);
@@ -780,7 +789,8 @@ void testEventsetupRecord::transientTest() {
   auto dummyProvider = std::make_unique<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
 
   DummyRecord dummyRecordNoConst;
-  dummyRecordNoConst.setImpl(&dummyProvider->firstRecordImpl(), 0, nullptr, nullptr, false);
+  ESParentContext pc;
+  dummyRecordNoConst.setImpl(&dummyProvider->firstRecordImpl(), 0, nullptr, nullptr, &pc, false);
   EventSetupRecord const& dummyRecord = dummyRecordNoConst;
 
   eventsetup::EventSetupRecordImpl& nonConstDummyRecordImpl = *const_cast<EventSetupRecordImpl*>(dummyRecord.impl_);
