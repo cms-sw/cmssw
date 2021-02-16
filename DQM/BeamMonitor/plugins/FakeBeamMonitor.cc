@@ -554,8 +554,12 @@ void FakeBeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const
     beginLumiOfBSFit_ = 0;
 
     if (debug_)
-      edm::LogInfo("FakeBeamMonitor") << " beginLuminosityBlock:  Size of mapBeginBSLS before =  "
-                                      << mapBeginBSLS.size() << endl;
+    {
+      edm::LogInfo("FakeBeamMonitor") << " beginLuminosityBlock:  Size of mapBeginBSLS before =  " << mapBeginBSLS.size() << endl;
+      if (onlineDbService_.isAvailable()) {
+        onlineDbService_->logger().logInfo() << "FakeBeamMonitor::beginLuminosityBlock - Size of mapBeginBSLS before =" << mapBeginBSLS.size();
+      }
+    }
     if (nthlumi >
         nextlumi_) {  //this make sure that it does not take into account this lumi for fitting and only look forward for new lumi
       //as countLumi also remains the same so map value  get overwritten once return to normal running.
@@ -583,8 +587,12 @@ void FakeBeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const
     }
 
     if (debug_)
-      edm::LogInfo("FakeBeamMonitor") << " beginLuminosityBlock::  Size of mapBeginBSLS After = " << mapBeginBSLS.size()
-                                      << endl;
+    {
+      edm::LogInfo("FakeBeamMonitor") << " beginLuminosityBlock::  Size of mapBeginBSLS After = " << mapBeginBSLS.size() << endl;
+      if (onlineDbService_.isAvailable()) {
+        onlineDbService_->logger().logInfo() << "FakeBeamMonitor::beginLuminosityBlock - Size of mapBeginBSLS After =" << mapBeginBSLS.size();
+      }
+    }
 
     map<int, int>::iterator bbs = mapBeginBSLS.begin();
     map<int, int>::iterator bpv = mapBeginPVLS.begin();
@@ -614,6 +622,9 @@ void FakeBeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const
         FitAndFill(lumiSeg, lastlumi_, nextlumi_, nthlumi);
       nextlumi_ = nthlumi;
       edm::LogInfo("FakeBeamMonitor") << "beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
+      if (onlineDbService_.isAvailable()) {
+        onlineDbService_->logger().logInfo() << "FakeBeamMonitor::beginLuminosityBlock - Next Lumi to Fit: " << nextlumi_;
+      }
       if ((StartAverage_) && refBStime[0] == 0)
         refBStime[0] = nbbst->second;
       if ((StartAverage_) && refPVtime[0] == 0)
@@ -624,6 +635,9 @@ void FakeBeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const
       FitAndFill(lumiSeg, lastlumi_, nextlumi_, nthlumi);
     nextlumi_ = nthlumi;
     edm::LogInfo("FakeBeamMonitor") << " beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
+    if (onlineDbService_.isAvailable()) {
+      onlineDbService_->logger().logInfo() << "FakeBeamMonitor:: beginLuminosityBlock - Next Lumi to Fit: " << nextlumi_;
+    }
     if ((StartAverage_) && refBStime[0] == 0)
       refBStime[0] = nbbst->second;
     if ((StartAverage_) && refPVtime[0] == 0)
@@ -634,6 +648,9 @@ void FakeBeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const
   if (processed_)
     processed_ = false;
   edm::LogInfo("FakeBeamMonitor") << " beginLuminosityBlock::  Begin of Lumi: " << nthlumi << endl;
+  if (onlineDbService_.isAvailable()) {
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::beginLuminosityBlock - Begin of Lumi: " << nthlumi;
+  }
 }
 
 // ----------------------------------------------------------
@@ -642,10 +659,16 @@ void FakeBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   if (onlineMode_ && (nthlumi < nextlumi_)) {
     edm::LogInfo("FakeBeamMonitor") << "analyze::  Spilt event from previous lumi section!" << std::endl;
+    if (onlineDbService_.isAvailable()) {
+      onlineDbService_->logger().logInfo() << "FakeBeamMonitor::analyze - Spilt event from previous lumi section! Returning! " << nthlumi;
+    }
     return;
   }
   if (onlineMode_ && (nthlumi > nextlumi_)) {
     edm::LogInfo("FakeBeamMonitor") << "analyze::  Spilt event from next lumi section!!!" << std::endl;
+    if (onlineDbService_.isAvailable()) {
+      onlineDbService_->logger().logInfo() << "FakeBeamMonitor::analyze - Spilt event from next lumi section!!! Returning! " << nthlumi;
+    }
     return;
   }
 
@@ -778,20 +801,19 @@ void FakeBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
 //--------------------------------------------------------
 void FakeBeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& iSetup) {
   int nthlumi = lumiSeg.id().luminosityBlock();
-  edm::LogInfo("FakeBeamMonitor") << "endLuminosityBlock:: Lumi of the last event before endLuminosityBlock: "
-                                  << nthlumi << endl;
+  edm::LogInfo("FakeBeamMonitor") << "endLuminosityBlock:: Lumi of the last event before endLuminosityBlock: " << nthlumi << endl;
+
+  // end DB logger
+  if (onlineDbService_.isAvailable()) {
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::endLuminosityBlock - Lumi of the last event before endLuminosityBlock: " << nthlumi;
+    onlineDbService_->logger().end(DBloggerReturn_);
+  }
 
   if (onlineMode_ && nthlumi < nextlumi_)
     return;
   const edm::TimeValue_t fendtimestamp = lumiSeg.endTime().value();
   const std::time_t fendtime = fendtimestamp >> 32;
   tmpTime = refBStime[1] = refPVtime[1] = fendtime;
-
-  // end DB logger
-  if (onlineDbService_.isAvailable()) {
-    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::endLuminosityBlock";
-    onlineDbService_->logger().end(DBloggerReturn_);
-  }
 }
 
 //--------------------------------------------------------
@@ -805,6 +827,9 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
 
   int currentlumi = nextlumi;
   edm::LogInfo("FakeBeamMonitor") << "FitAndFill::  Lumi of the current fit: " << currentlumi << endl;
+  if (onlineDbService_.isAvailable()) {
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - Lumi of the current fit: " << currentlumi;
+  }
   lastlumi = currentlumi;
   endLumiOfBSFit_ = currentlumi;
   endLumiOfPVFit_ = currentlumi;
@@ -904,6 +929,9 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
     const int countLS_pv = hs[k_PVx_lumi]->getTH1()->GetEntries();
     edm::LogInfo("FakeBeamMonitor") << "FitAndFill:: countLS_bs = " << countLS_bs << " ; countLS_pv = " << countLS_pv
                                     << std::endl;
+    if (onlineDbService_.isAvailable()) {
+      onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - countLS_bs = " << countLS_bs << " ; countLS_pv = " << countLS_pv;
+    }
     int LSgap_bs = currentlumi / fitNLumi_ - countLS_bs;
     int LSgap_pv = currentlumi / fitPVNLumi_ - countLS_pv;
     if (currentlumi % fitNLumi_ == 0)
@@ -912,6 +940,9 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
       LSgap_pv--;
     edm::LogInfo("FakeBeamMonitor") << "FitAndFill::  LSgap_bs = " << LSgap_bs << " ; LSgap_pv = " << LSgap_pv
                                     << std::endl;
+    if (onlineDbService_.isAvailable()) {
+      onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - LSgap_bs = " << LSgap_bs << " ; LSgap_pv = " << LSgap_pv;
+    }
     // filling previous fits if LS gap ever exists
     for (int ig = 0; ig < LSgap_bs; ig++) {
       hs[k_x0_lumi]->ShiftFillLast(0., 0., fitNLumi_);  //x0 , x0err, fitNLumi_;  see DQMCore....
@@ -934,6 +965,9 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   }
 
   edm::LogInfo("FakeBeamMonitor") << "FitAndFill:: Time lapsed since last scroll = " << tmpTime - refTime << std::endl;
+  if (onlineDbService_.isAvailable()) {
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - Time lapsed since last scroll = " << tmpTime - refTime;
+  }
 
   if (testScroll(tmpTime, refTime)) {
     scrollTH1(hs[k_x0_time]->getTH1(), refTime);
@@ -961,6 +995,9 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   //  if (doPVFit) {
   edm::LogInfo("FakeBeamMonitor") << "FitAndFill:: Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to "
                                   << endLumiOfPVFit_ << std::endl;
+  if (onlineDbService_.isAvailable()) {
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - Do PV Fitting for LS = " << beginLumiOfPVFit_ << " to " << endLumiOfPVFit_;
+  }
   // Primary Vertex Fit:
   if (h_PVx[0]->getTH1()->GetEntries() > minNrVertices_) {
     pvResults->Reset();
@@ -982,8 +1019,13 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
     hs[k_PVx_lumi_all]->setBinError(currentlumi, width);
     int nthBin = tmpTime - refTime;
     if (nthBin < 0)
+    {
       edm::LogInfo("FakeBeamMonitor") << "FitAndFill::  Event time outside current range of time histograms!"
                                       << std::endl;
+      if (onlineDbService_.isAvailable()) {
+        onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - Event time outside current range of time histograms!";
+      }
+    }
     if (nthBin > 0) {
       hs[k_PVx_time]->setBinContent(nthBin, mean);
       hs[k_PVx_time]->setBinError(nthBin, width);
@@ -1147,6 +1189,9 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
     nthBSTrk_ = PreviousRecords;  //after average proccess is ON//for 2-6 LS fit PreviousRecords is size from 2-5 LS
 
   edm::LogInfo("FakeBeamMonitor") << " The Previous Recored for this fit is  =" << nthBSTrk_ << endl;
+  if (onlineDbService_.isAvailable()) {
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - The Previous Recored for this fit is = " << nthBSTrk_;
+  }
 
   //  unsigned int itrk = 0;
   //  for (vector<BSTrkParameters>::const_iterator BSTrk = theBSvector.begin(); BSTrk != theBSvector.end();
@@ -1166,6 +1211,9 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   //  nthBSTrk_ = theBSvector.size();  // keep track of num of tracks filled so far
 
   edm::LogInfo("FakeBeamMonitor") << " The Current Recored for this fit is  =" << nthBSTrk_ << endl;
+  if (onlineDbService_.isAvailable()) {
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - The Current Recored for this fit is = " << nthBSTrk_;
+  }
 
   //  if (countFitting)
   //    edm::LogInfo("FakeBeamMonitor") << "FitAndFill::  Num of tracks collected = " << nthBSTrk_ << endl;
@@ -1191,6 +1239,11 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   edm::LogInfo("FakeBeamMonitor") << "FitAndFill:: [DebugTime] refBStime[1] = " << refBStime[1]
                                   << "; address =  " << &refBStime[1] << std::endl;
 
+  if (onlineDbService_.isAvailable()) {
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - [DebugTime] refBStime[0] = " << refBStime[0] << "; address = " << &refBStime[0];
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - [DebugTime] refBStime[1] = " << refBStime[1] << "; address = " << &refBStime[1];
+  }
+
   //Fill for all LS even if fit fails
   //  h_nVtx_lumi->ShiftFillLast((theBeamFitter->getPVvectorSize()), 0., fitNLumi_);
   //  h_nVtx_lumi_all->setBinContent(currentlumi, (theBeamFitter->getPVvectorSize()));
@@ -1203,6 +1256,9 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   //                                << fitLS.second << std::endl;
   edm::LogInfo("FakeBeamMonitor") << "FitAndFill::  [FakeBeamMonitor] Do BeamSpot Fit for LS = " << beginLumiOfBSFit_
                                   << " to " << endLumiOfBSFit_ << std::endl;
+  if (onlineDbService_.isAvailable()) {
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - Do BeamSpot Fit for LS = " << beginLumiOfBSFit_ << " to " << endLumiOfBSFit_;
+  }
 
   //Now Run the PV and Track Fitter over the collected tracks and pvs
   //    if (theBeamFitter->runPVandTrkFitter()) {
@@ -1239,6 +1295,11 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   edm::LogInfo("FakeBeamMonitor") << "\n RESULTS OF DEFAULT FIT:" << endl;
   edm::LogInfo("FakeBeamMonitor") << bs << endl;
   edm::LogInfo("FakeBeamMonitor") << "[BeamFitter] fitting done \n" << endl;
+  if (onlineDbService_.isAvailable()) {
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - RESULTS OF DEFAULT FIT:";
+    onlineDbService_->logger().logInfo() << "\n" << bs;
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - [BeamFitter] fitting done";
+  }
 
   hs[k_x0_lumi]->ShiftFillLast(bs.x0(), bs.x0Error(), fitNLumi_);
   hs[k_y0_lumi]->ShiftFillLast(bs.y0(), bs.y0Error(), fitNLumi_);
@@ -1406,8 +1467,8 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
                                          << fitLS.first << " to " << fitLS.second;
     onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - [FakeBeamMonitor] Do BeamSpot Fit for LS = "
                                          << beginLumiOfBSFit_ << " to " << endLumiOfBSFit_;
-    onlineDbService_->logger().logInfo() << "FakeBeamMonitor - RESULTS OF DEFAULT FIT:";
-    onlineDbService_->logger().logInfo() << "\n" << bs;
+    //onlineDbService_->logger().logInfo() << "FakeBeamMonitor - RESULTS OF DEFAULT FIT:";
+    //onlineDbService_->logger().logInfo() << "\n" << bs;
     onlineDbService_->logger().logInfo()
         << "FakeBeamMonitor::FitAndFill - [PayloadCreation] BeamSpotOnline object created:";
     onlineDbService_->logger().logInfo() << "\n" << *BSOnline;
@@ -1489,6 +1550,9 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
         (!onlineMode_ && countLumi_ == resetFitNLumi_))) ||
       (StartAverage_)) {
     edm::LogInfo("FakeBeamMonitor") << "FitAndFill:: The flag is ON for running average Beam Spot fit" << endl;
+    if (onlineDbService_.isAvailable()) {
+      onlineDbService_->logger().logInfo() << "FakeBeamMonitor::FitAndFill - The flag is ON for running average Beam Spot fit";
+    }
     StartAverage_ = true;
     firstAverageFit_++;
     resetHistos_ = true;
@@ -1501,8 +1565,13 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
 //--------------------------------------------------------
 void FakeBeamMonitor::RestartFitting() {
   if (debug_)
+  {
     edm::LogInfo("FakeBeamMonitor")
         << " RestartingFitting:: Restart Beami everything to a fresh start !!! because Gap is > 10 LS" << endl;
+    if (onlineDbService_.isAvailable()) {
+      onlineDbService_->logger().logInfo() << "FakeBeamMonitor::RestartingFitting - Restart Beami everything to a fresh start !!! because Gap is > 10 LS";
+    }
+  }
   //track based fit reset here
   resetHistos_ = true;
   nthBSTrk_ = 0;
