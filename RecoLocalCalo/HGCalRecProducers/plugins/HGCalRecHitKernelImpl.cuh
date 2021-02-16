@@ -4,19 +4,19 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/HGCal/interface/HGCUncalibratedRecHitSoA.h"
+#include "CUDADataFormats/HGCal/interface/HGCUncalibRecHitSoA.h"
 #include "CUDADataFormats/HGCal/interface/HGCRecHitSoA.h"
-#include "CUDADataFormats/HGCal/interface/HGCUncalibratedRecHitsToRecHitsConstants.h"
+#include "CUDADataFormats/HGCal/interface/HGCUncalibRecHitsToRecHitsConstants.h"
 
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
 
 __global__
-void ee_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, HGCeeUncalibratedRecHitConstantData cdata, int length);
+void ee_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibRecHitSoA src_soa, HGCeeUncalibRecHitConstantData cdata, int length);
 
 __global__
-void hef_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, HGChefUncalibratedRecHitConstantData cdata, int length);
+void hef_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibRecHitSoA src_soa, HGChefUncalibRecHitConstantData cdata, int length);
 
 __global__
-void heb_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibratedRecHitSoA src_soa, HGChebUncalibratedRecHitConstantData cdata, int length);
+void heb_to_rechit(HGCRecHitSoA dst_soa, HGCUncalibRecHitSoA src_soa, HGChebUncalibRecHitConstantData cdata, int length);
   
 #endif //RecoLocalCalo_HGCalRecProducers_HGCalRecHitKernelImpl_cuh
