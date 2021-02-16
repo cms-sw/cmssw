@@ -463,7 +463,7 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 #        btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="CMVA V2 btag discriminator",precision=10),
 #puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pileup ID discriminant",precision=10),
-#        nConstituents = Var("numberOfDaughters()",int,doc="Number of particles in the jet"),
+        nConstituents = Var("numberOfDaughters()",int,doc="Number of particles in the jet"),
 #        rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
     ),
     externalVariables = cms.PSet(
