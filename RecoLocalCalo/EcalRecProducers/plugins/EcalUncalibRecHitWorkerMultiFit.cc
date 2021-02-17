@@ -65,8 +65,8 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     timealgo_ = ratioMethod;
   else if (timeAlgoName == "WeightsMethod")
     timealgo_ = weightsMethod;
-  else if (timeAlgoName == "KansasCC")
-    timealgo_ = kansasMethodCC;
+  else if (timeAlgoName == "crossCorrelationMethod")
+    timealgo_ = crossCorrelationMethod;
   else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
