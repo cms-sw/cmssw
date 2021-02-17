@@ -7,6 +7,7 @@ import time
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineTestLegacy'
 BSOnlineJobName = 'BeamSpotOnlineTestLegacy'
+BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 
 import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
@@ -16,6 +17,7 @@ process = cms.Process("FakeBeamMonitor", Run2_2018)
 if "dqm_cmssw/playback" in str(sys.argv[1]):
     BSOnlineTag = BSOnlineTag + 'Playback'
     BSOnlineJobName = BSOnlineJobName + 'Playback'
+    BSOnlineOmsServiceUrl = ''
 
 #
 process.MessageLogger = cms.Service("MessageLogger",
@@ -127,6 +129,7 @@ process.siStripDigis.ProductLabel        = rawDataInputTag
  """
 process.dqmFakeBeamMonitor.OnlineMode = True
 process.dqmFakeBeamMonitor.recordName = BSOnlineRecordName
+process.dqmFakeBeamMonitor.Debug = True
 
 process.dqmFakeBeamMonitor.resetEveryNLumi   = 5 # was 10 for HI
 process.dqmFakeBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
@@ -150,7 +153,7 @@ if unitTest == False:
         runNumber = cms.untracked.uint64(options.runNumber),
         #lastLumiFile = cms.untracked.string('last_lumi.txt'),
         #lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
-        omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
+        omsServiceUrl = cms.untracked.string(BSOnlineOmsServiceUrl),
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
