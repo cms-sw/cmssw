@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEMGeometryWriter")
 process.load('CondCore.CondDB.CondDB_cfi')
-process.load('Configuration.StandardSequences.GeometryExtended_cff')
+process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
@@ -23,7 +23,7 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
-process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",
+process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader",
                                            fromDD4Hep = cms.untracked.bool(False))
 
 process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader")

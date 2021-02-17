@@ -15,6 +15,10 @@
 #include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 
 class GEMRecoIdealDBLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
@@ -55,6 +59,7 @@ void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
       const cms::DDCompactView& cpv = *pDD;
       // rpcpd.build(&cpv, *pMNDC, *rig); // to be fixed
     } else {
+      edm::LogVerbatim("GEMRecoIdealDBLoader")<< "(0) GEMRecoIdealDBLoader - DDD ";
       edm::ESTransientHandle<DDCompactView> pDD;
       es.get<IdealGeometryRecord>().get(pDD);
       es.get<IdealGeometryRecord>().get(pMNDC);

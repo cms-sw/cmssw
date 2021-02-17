@@ -27,6 +27,8 @@ GEMGeometryParsFromDD::GEMGeometryParsFromDD() {}
 
 GEMGeometryParsFromDD::~GEMGeometryParsFromDD() {}
 
+// DDD
+
 void GEMGeometryParsFromDD::build(const DDCompactView* cview,
                                   const MuonGeometryConstants& muonConstants,
                                   RecoIdealGeometry& rgeo) {
@@ -47,13 +49,17 @@ void GEMGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
   LogDebug("GEMGeometryParsFromDD") << "About to run through the GEM structure\n"
                                     << " First logical part " << fv.logicalPart().name().name();
 
+ edm::LogVerbatim("GEMGeometryParsFromDD")
+   << "(0) GEMGeometryParsFromDD - DDD ";  
   MuonGeometryNumbering muonDDDNumbering(muonConstants);
   GEMNumberingScheme gemNumbering(muonConstants);
 
   bool doSuper = fv.firstChild();
+ 
   LogDebug("GEMGeometryParsFromDD") << "doSuperChamber = " << doSuper;
   // loop over superchambers
   while (doSuper) {
+
     // getting chamber id from eta partitions
     fv.firstChild();
     fv.firstChild();
@@ -115,6 +121,8 @@ void GEMGeometryParsFromDD::buildSuperChamber(DDFilteredView& fv, GEMDetId detId
   std::vector<double> vrot = getRotation(fv);
 
   LogDebug("GEMGeometryParsFromDD") << "dimension dx1 " << dx1 << ", dx2 " << dx2 << ", dy " << dy << ", dz " << dz;
+  edm::LogVerbatim("GEMGeometryParsFromDD")
+    << "(1) DDD, Chamber DetID " << gemid.rawId() <<" Name "<<fv.logicalPart().name().name()<<" dx1 " << dx1 << ", dx2 " << dx2 << ", dy " << dy << ", dz " << dz; 
   rgeo.insert(gemid.rawId(), vtra, vrot, pars, {fv.logicalPart().name().name()});
 }
 
