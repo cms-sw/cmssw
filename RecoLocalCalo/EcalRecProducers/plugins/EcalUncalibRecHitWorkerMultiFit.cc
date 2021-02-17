@@ -65,8 +65,13 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     timealgo_ = ratioMethod;
   else if (timeAlgoName == "WeightsMethod")
     timealgo_ = weightsMethod;
-  else if (timeAlgoName == "crossCorrelationMethod")
+  else if (timeAlgoName == "crossCorrelationMethod") {
     timealgo_ = crossCorrelationMethod;
+    float startTime = -25;
+    float stopTime = 25;
+    float targetTimePrecision = 0.01;
+    computeCC_ = EcalUncalibRecHitTimingCCAlgo(startTime, stopTime, targetTimePrecision);
+  }
   else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
@@ -476,25 +481,18 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         uncalibRecHit.setJitterError(0.);  // not computed with weights
 
       } else if (timealgo_ == crossCorrelationMethod) {
-        float startTime = -25;
-        float stopTime = 25;
-        EcalUncalibRecHitTimingCCAlgo computeCC(startTime, stopTime);
-
         uncalibRecHit.setJitterError(0.);
-        float timeStep = 1;
-        float tempt = 0;
 
         std::vector<double> amplitudes;
         for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
           amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
 
-        tempt = computeCC.computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit);
+        float jitterError=0.;
+        float jitter = computeCC_.computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError);
 
-        uncalibRecHit.setJitter(-tempt);
-        if (tempt > stopTime - timeStep || tempt < startTime + timeStep)
-          uncalibRecHit.setJitterError(-timeStep / ecalPh1::Samp_Period);
-        else
-          uncalibRecHit.setJitterError(timeStep / ecalPh1::Samp_Period);
+        uncalibRecHit.setJitter(jitter);
+        uncalibRecHit.setJitterError(jitterError);
+      
       } else {  // no time method;
         uncalibRecHit.setJitter(0.);
         uncalibRecHit.setJitterError(0.);

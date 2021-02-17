@@ -1,14 +1,15 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitTimingCCAlgo.h"
 
-EcalUncalibRecHitTimingCCAlgo::EcalUncalibRecHitTimingCCAlgo(const float startTime, const float stopTime)
-    : startTime_(startTime), stopTime_(stopTime) {}
+EcalUncalibRecHitTimingCCAlgo::EcalUncalibRecHitTimingCCAlgo(const float startTime, const float stopTime, const float targetTimePrecision)
+    : startTime_(startTime), stopTime_(stopTime), targetTimePrecision_(targetTimePrecision) {}
 
 double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFrame,
                                                     const std::vector<double>& amplitudes,
                                                     const EcalPedestals::Item* aped,
                                                     const EcalMGPAGainRatio* aGain,
                                                     const FullSampleVector& fullpulse,
-                                                    EcalUncalibratedRecHit& uncalibRecHit) {
+                                                    EcalUncalibratedRecHit& uncalibRecHit,
+                                                    float& errOnTime) {
   const unsigned int nsample = EcalDataFrame::MAXSAMPLES;
 
   double maxamplitude = -std::numeric_limits<double>::max();
@@ -88,7 +89,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
     }
     tM = (tStart + tStop) / 2;
 
-  } while (tStop - tStart > TARGET_TIME_PRECISION && counter < MAX_NUM_OF_ITERATIONS);
+  } while (tStop - tStart > targetTimePrecision_ && counter < MAX_NUM_OF_ITERATIONS);
 
   tM -= GLOBAL_TIME_SHIFT;
 
@@ -98,9 +99,11 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
       edm::LogWarning("EcalUncalibRecHitTimingCCAlgo::computeTimeCC")
           << "Minimization Counter too high: " << counter << std::endl;
     tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period;
+    //Negative error means that there was a problem with the CC
+    errOnTime = - targetTimePrecision_ / ecalPh1::Samp_Period;
   }
-
-  return tM / ecalPh1::Samp_Period;
+  
+  return -tM / ecalPh1::Samp_Period;
 }
 
 FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampleVector& fullpulse, const float t) {
