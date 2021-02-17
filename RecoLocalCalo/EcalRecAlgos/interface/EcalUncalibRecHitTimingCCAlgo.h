@@ -18,22 +18,23 @@
 class EcalUncalibRecHitTimingCCAlgo {
   float startTime_;
   float stopTime_;
+  float targetTimePrecision_;
 
   static constexpr int TIME_WHEN_NOT_CONVERGING = 100;
   static constexpr int MAX_NUM_OF_ITERATIONS = 30;
   static constexpr int MIN_NUM_OF_ITERATIONS = 2;
-  static constexpr float TARGET_TIME_PRECISION = 0.001;
   static constexpr float GLOBAL_TIME_SHIFT = 100;
 
 public:
-  EcalUncalibRecHitTimingCCAlgo(const float startTime = -5, const float stopTime = 5);
+  EcalUncalibRecHitTimingCCAlgo(const float startTime = -5, const float stopTime = 5, const float targetTimePrecision = 0.001);
   ~EcalUncalibRecHitTimingCCAlgo(){};
   double computeTimeCC(const EcalDataFrame& dataFrame,
                        const std::vector<double>& amplitudes,
                        const EcalPedestals::Item* aped,
                        const EcalMGPAGainRatio* aGain,
                        const FullSampleVector& fullpulse,
-                       EcalUncalibratedRecHit& uncalibRecHit);
+                       EcalUncalibratedRecHit& uncalibRecHit,
+                       float& errOnTime );
 
 private:
   FullSampleVector interpolatePulse(const FullSampleVector& fullpulse, const float t = 0);

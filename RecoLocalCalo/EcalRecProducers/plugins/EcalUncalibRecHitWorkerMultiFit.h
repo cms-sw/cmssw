@@ -164,6 +164,9 @@ private:
   bool kPoorRecoFlagEE_;
   double chi2ThreshEB_;
   double chi2ThreshEE_;
+
+  //Timing Cross Correlation Algo
+  EcalUncalibRecHitTimingCCAlgo computeCC_;
 };
 
 #endif
