@@ -13,8 +13,6 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
-
-#include "TVectorD.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 class EcalUncalibRecHitTimingCCAlgo {

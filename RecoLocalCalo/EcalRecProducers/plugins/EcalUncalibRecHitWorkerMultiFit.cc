@@ -487,15 +487,14 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         std::vector<double> amplitudes;
         for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
           amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
-        // seedTime = 0;
 
         tempt = computeCC.computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit);
 
         uncalibRecHit.setJitter(-tempt);
         if (tempt > stopTime - timeStep || tempt < startTime + timeStep)
-          uncalibRecHit.setJitterError(-timeStep / 25);
+          uncalibRecHit.setJitterError(-timeStep / ecalPh1::Samp_Period);
         else
-          uncalibRecHit.setJitterError(timeStep / 25);
+          uncalibRecHit.setJitterError(timeStep / ecalPh1::Samp_Period);
       } else {  // no time method;
         uncalibRecHit.setJitter(0.);
         uncalibRecHit.setJitterError(0.);

@@ -89,7 +89,6 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
     tM = (tStart + tStop) / 2;
 
   } while (tStop - tStart > TARGET_TIME_PRECISION && counter < MAX_NUM_OF_ITERATIONS);
-  // } while ( std::abs((distStart - distStop)/distStop) > 0.0001 && counter<100 );
 
   tM -= GLOBAL_TIME_SHIFT;
 
