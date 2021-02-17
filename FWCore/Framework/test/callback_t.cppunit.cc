@@ -14,6 +14,8 @@
 #include "FWCore/Concurrency/interface/ThreadsController.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
+
 #include <memory>
 #include <cassert>
 
@@ -39,6 +41,7 @@ namespace callbacktest {
                  void const* iEventSetupImpl,
                  void const* ESParentContext,
                  bool requireTokens) {}
+    constexpr static bool allowConcurrentIOVs_ = false;
   };
 
   struct Queue {
@@ -98,13 +101,18 @@ namespace callbacktest {
   };
 }  // namespace callbacktest
 
+EVENTSETUP_RECORD_REG(callbacktest::Record);
+
 namespace {
   template <typename CALLBACK>
   void call(CALLBACK& iCallback) {
+    edm::ActivityRegistry ar;
+    edm::eventsetup::EventSetupRecordImpl rec(edm::eventsetup::EventSetupRecordKey::makeKey<callbacktest::Record>(),
+                                              &ar);
     auto waitTask = edm::make_empty_waiting_task();
     waitTask->set_ref_count(1);
     iCallback.prefetchAsync(
-        edm::WaitingTaskHolder(waitTask.get()), nullptr, nullptr, edm::ServiceToken{}, edm::ESParentContext{});
+        edm::WaitingTaskHolder(waitTask.get()), &rec, nullptr, edm::ServiceToken{}, edm::ESParentContext{});
     waitTask->wait_for_all();
   }
 }  // namespace
