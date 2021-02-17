@@ -1619,7 +1619,7 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
     double xpos = hgpar_->waferPosX_[wafer] + hgpar_->xLayerHex_[lay];
     double ypos = hgpar_->waferPosY_[wafer] + hgpar_->yLayerHex_[lay];
     std::pair<int, int> corner = HGCalGeomTools::waferCorner(
-        xpos, ypos, rmax_, hexside_, hgpar_->rMinLayHex_[lay], hgpar_->rMaxLayHex_[lay], true);
+        xpos, ypos, rmax_, hexside_, hgpar_->rMinLayHex_[lay], hgpar_->rMaxLayHex_[lay], in);
     in = (full ? (corner.first > 0) : (corner.first == (int)(HGCalParameters::k_CornerSize)));
     if (in && fullAndPart_) {
       int indx = waferIndex(wafer, lay);
