@@ -6,7 +6,7 @@
  *  
  *  DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
  *  Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) 
- *  Created:  Mon, 25 Jan 2021 
+ *  Created:  Mon, 15 Feb 2021 
  *
  */
 

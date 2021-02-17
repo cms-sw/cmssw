@@ -8,7 +8,6 @@ process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('myLog'),
     myLog = cms.untracked.PSet(
