@@ -67,9 +67,9 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     timealgo_ = weightsMethod;
   else if (timeAlgoName == "crossCorrelationMethod") {
     timealgo_ = crossCorrelationMethod;
-    float startTime = -25;
-    float stopTime = 25;
-    float targetTimePrecision = 0.01;
+    double startTime = ps.getParameter<double>("crossCorrelationStartTime");
+    double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
+    double targetTimePrecision = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
     computeCC_ = EcalUncalibRecHitTimingCCAlgo(startTime, stopTime, targetTimePrecision);
   }
   else if (timeAlgoName != "None")
