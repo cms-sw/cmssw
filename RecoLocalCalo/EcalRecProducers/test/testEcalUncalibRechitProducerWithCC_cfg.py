@@ -9,7 +9,7 @@ process = cms.Process('RECO', eras.Run2_2018)
 process.load('Configuration.StandardSequences.Services_cff')
 #process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('HeterogeneousCore.CUDAServices.CUDAService_cfi')
+# process.load('HeterogeneousCore.CUDAServices.CUDAService_cfi')
 #process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        '/store/data/Run2018D/ZeroBias/RAW/v1/000/325/240/00000/FFA4CC2A-A63C-8440-ADC4-D7E2FF53BB4F.root'
+        '/store/data/Run2018D/EGamma/RAW/v1/000/323/414/00000/042D6023-E0A2-8649-8D86-445F752A8F6B.root',
     ),
 )
 
@@ -33,14 +33,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 
 process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(100)
     input = cms.untracked.int32(1000)
 )
 
 # load data using the DAQ source
-import sys, os, inspect
-sys.path.append(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
-process.load('sourceFromRawCmggpu_cff')
+# import sys, os, inspect
+# sys.path.append(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
+# process.load('sourceFromRawCmggpu_cff')
 
 #-----------------------------------------
 # CMSSW/Hcal non-DQM Related Module import
@@ -56,7 +55,7 @@ process.load("RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi")
 #
 # ../cfipython/slc7_amd64_gcc700/RecoLocalCalo/EcalRecProducers/ecalUncalibRecHitProducerGPU_cfi.py
 #
-process.load("RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitProducerGPU_cfi")
+# process.load("RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitProducerGPU_cfi")
 process.load("RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi")
 
 # for validation of gpu multifit products
@@ -65,8 +64,8 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalCPUUncalibRecHitProducer_cfi")
 # ../cfipython/slc7_amd64_gcc700/RecoLocalCalo/EcalRecProducers/ecalCPUUncalibRecHitProducer_cfi.py
 #
 
-process.load("EventFilter.EcalRawToDigi.ecalRawToDigiGPU_cfi")
-process.load("EventFilter.EcalRawToDigi.ecalElectronicsMappingGPUESProducer_cfi")
+# process.load("EventFilter.EcalRawToDigi.ecalRawToDigiGPU_cfi")
+# process.load("EventFilter.EcalRawToDigi.ecalElectronicsMappingGPUESProducer_cfi")
 
 #process.ecalUncalibRecHitProducerGPU.kernelsVersion = 0
 #process.ecalUncalibRecHitProducerGPU.kernelMinimizeThreads = cms.vuint32(16, 1, 1)
@@ -160,15 +159,19 @@ process.ecalMultiFitUncalibRecHit.algoPSet = cms.PSet(
       EEtimeConstantTerm = cms.double( 1.0 ),
       EBtimeConstantTerm = cms.double( 0.6 ),
       chi2ThreshEB_ = cms.double( 65.0 ),
-      outOfTimeThresholdGain61mEB = cms.double( 5.0 )
+      outOfTimeThresholdGain61mEB = cms.double( 5.0 ),
+    #   # for crossCorrelationMethod
+    #   crossCorrelationStartTime = cms.double(-24),
+    #   crossCorrelationStopTime = cms.double(25),
+    #   crossCorrelationTargetTimePrecision = cms.double(0.01),
 )     
       
 ##    
     
     
     
-#process.load('Configuration.StandardSequences.Reconstruction_cff')
-#process.ecalRecHit
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.ecalRecHit
 
     
     
@@ -203,7 +206,7 @@ process.bunchSpacing = cms.Path(
 process.digiPath = cms.Path(
     #process.hcalDigis
     process.ecalDigis
-    *process.ecalRawToDigiGPU    
+    # *process.ecalRawToDigiGPU    
 )
 
 process.recoPath = cms.Path(
@@ -211,8 +214,8 @@ process.recoPath = cms.Path(
     process.ecalMultiFitUncalibRecHit
     #*process.ecalRecHit
 #   gpu
-    *process.ecalUncalibRecHitProducerGPU
-    *process.ecalCPUUncalibRecHitProducer
+    # *process.ecalUncalibRecHitProducerGPU
+    # *process.ecalCPUUncalibRecHitProducer
     #*process.ecalRecHitGPU
 )
 
@@ -220,7 +223,7 @@ process.schedule = cms.Schedule(
     process.bunchSpacing,
     process.digiPath,
     process.recoPath,
-#    process.ecalecalLocalRecoSequence
+    # process.ecalecalLocalRecoSequence,
     process.finalize
 )
 
