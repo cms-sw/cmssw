@@ -682,6 +682,9 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
       edm::ParameterDescription<bool>("kPoorRecoFlagEE", false, true) and
       edm::ParameterDescription<double>("chi2ThreshEB_", 65.0, true) and
       edm::ParameterDescription<double>("chi2ThreshEE_", 50.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
+      edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and
       edm::ParameterDescription<edm::ParameterSetDescription>("EcalPulseShapeParameters", psd0, true));
 
   return psd;
