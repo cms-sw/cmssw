@@ -6,7 +6,7 @@ from RecoMET.Configuration.RecoMET_BeamHaloId_cff import *
 
 hcalnoise.fillTracks = False
 
-CSCHaloData.CosmicMuonLabel = cms.InputTag("muons")
+CSCHaloData.CosmicMuonLabel = "muons"
 
 ##____________________________________________________________________________||
 metrecoCosmicsTask = cms.Task(
