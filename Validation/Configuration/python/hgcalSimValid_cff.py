@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer, scAssocByEnergyScoreProducer
+from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer, scAssocByEnergyScoreProducer, mcAssocByEnergyScoreProducer
 from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerClusterCaloParticleAssociation as layerClusterCaloParticleAssociationProducer
 from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociation as layerClusterSimClusterAssociationProducer
+from SimCalorimetry.HGCalAssociatorProducers.MCToCPAssociation_cfi import multiClusterCaloParticleAssociation as multiClusterCaloParticleAssociationProducer
 
 from Validation.HGCalValidation.simhitValidation_cff    import *
 from Validation.HGCalValidation.digiValidation_cff      import *
@@ -22,6 +23,7 @@ hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValida
 
 hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer, layerClusterCaloParticleAssociationProducer,
                             scAssocByEnergyScoreProducer, layerClusterSimClusterAssociationProducer,
+                            mcAssocByEnergyScoreProducer, multiClusterCaloParticleAssociationProducer
                             )
 
 hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
