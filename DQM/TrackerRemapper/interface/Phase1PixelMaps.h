@@ -8,6 +8,7 @@
 #include "TStyle.h"
 #include "TCanvas.h"
 
+#include <fmt/printf.h>
 #include <fstream>
 #include <boost/tokenizer.hpp>
 #include <boost/range/adaptor/indexed.hpp>
@@ -15,7 +16,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
-#define MYOUT LogDebug("Phase1PixelMaps")
+#ifndef PHASE1PIXELMAP_STANDALONE
+#define LOGDEBUG(x) LogDebug(x)
+#else
+#define LOGDEBUG(x) std::cout << x << ": "
+#endif
 
 using indexedCorners = std::map<unsigned int, std::pair<std::vector<float>, std::vector<float>>>;
 
@@ -83,11 +88,11 @@ public:
             iss >> corners.at(i);
           }
 
-          MYOUT << id << " : ";
+          LOGDEBUG("Phase1PixelMaps") << id << " : ";
           for (unsigned int i = 0; i < reads; i++) {
             // remove the leading and trailing " signs in the corners list
             (corners[i]).erase(std::remove(corners[i].begin(), corners[i].end(), '"'), corners[i].end());
-            MYOUT << corners.at(i) << " ";
+            LOGDEBUG("Phase1PixelMaps") << corners.at(i) << " ";
             typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
             boost::char_separator<char> sep{","};
             tokenizer tok{corners.at(i), sep};
@@ -101,13 +106,13 @@ public:
               }
             }
           }
-          MYOUT << std::endl;
+          LOGDEBUG("Phase1PixelMaps") << std::endl;
 
           xP.push_back(xP.front());
           yP.push_back(yP.front());
 
           for (unsigned int i = 0; i < xP.size(); i++) {
-            MYOUT << "x[" << i << "]=" << xP[i] << " y[" << i << "]" << yP[i] << std::endl;
+            LOGDEBUG("Phase1PixelMaps") << "x[" << i << "]=" << xP[i] << " y[" << i << "]" << yP[i] << std::endl;
           }
 
           theOutMap[id] = std::make_pair(xP, yP);
@@ -438,7 +443,7 @@ public:
   }
 
   //============================================================================
-  void drawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas) {
+  void drawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption = NULL) {
     canvas.Divide(2, 2);
     for (int i = 1; i <= 4; i++) {
       canvas.cd(i);
@@ -450,12 +455,18 @@ public:
           rescaleAllBarrel(currentHistoName);
         adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
-      pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw();
+      if (drawOption) {
+         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw("L");
+         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%s%ssame", m_option, drawOption).c_str());
+       } else {
+         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw("L");
+         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%ssame", m_option).c_str());
+       }
     }
   }
 
   //============================================================================
-  void drawForwardMaps(const std::string& currentHistoName, TCanvas& canvas) {
+  void drawForwardMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption = NULL) {
     canvas.Divide(3, 2);
     for (int i = 1; i <= 6; i++) {
       canvas.cd(i);
@@ -467,7 +478,13 @@ public:
           rescaleAllForward(currentHistoName);
         adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
-      pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw();
+      if (drawOption) {
+         pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw("L");
+         pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%s%ssame", m_option, drawOption).c_str());
+       } else {
+         pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw("L");
+         pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%ssame", m_option).c_str());
+      }
     }
   }
 
