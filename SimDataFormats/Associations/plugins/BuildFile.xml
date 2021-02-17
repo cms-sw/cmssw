@@ -4,6 +4,3 @@
 <library name="CPLCAssociation_plugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
-<library name="CPMCAssociation_plugins" file="*.cc">
-  <flags EDM_PLUGIN="1"/>
-</library>

@@ -5,6 +5,7 @@ from Validation.HGCalValidation.HGVHistoProducerAlgoBlock_cfi import *
 
 from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerClusterCaloParticleAssociation
 from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociation
+from SimCalorimetry.HGCalAssociatorProducers.MCToCPAssociation_cfi import multiClusterCaloParticleAssociation
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hgcalValidator = DQMEDAnalyzer(
@@ -26,6 +27,8 @@ hgcalValidator = DQMEDAnalyzer(
     associator = cms.untracked.InputTag("layerClusterCaloParticleAssociationProducer"),
 
     associatorSim = cms.untracked.InputTag("layerClusterSimClusterAssociationProducer"),
+
+    associatorMult = cms.untracked.InputTag("multiClusterCaloParticleAssociationProducer"),
 
     #General info on layers etc.
     SaveGeneralInfo = cms.untracked.bool(True),

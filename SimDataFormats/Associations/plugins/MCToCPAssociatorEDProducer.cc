@@ -48,7 +48,7 @@ MCToCPAssociatorEDProducer::MCToCPAssociatorEDProducer(const edm::ParameterSet &
   produces<hgcal::RecoToSimCollectionWithMultiClusters>();
 
   CPCollectionToken_ = consumes<CaloParticleCollection>(pset.getParameter<edm::InputTag>("label_cp"));
-  MCCollectionToken_ = consumes<reco::HGCalMultiClusterCollection>(pset.getParameter<edm::InputTag>("label_lc"));
+  MCCollectionToken_ = consumes<reco::HGCalMultiClusterCollection>(pset.getParameter<edm::InputTag>("label_mcl"));
   associatorToken_ =
       consumes<hgcal::MultiClusterToCaloParticleAssociator>(pset.getParameter<edm::InputTag>("associator"));
 }
