@@ -21,7 +21,7 @@ Services as an argument to their callback functions.
 namespace edm {
 
   namespace eventsetup {
-    class ComponentDescription;
+    struct ComponentDescription;
   }
   class ModuleCallingContext;
   class ESModuleCallingContext {
