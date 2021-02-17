@@ -41,12 +41,6 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-
 //
 // class declaration
 //
