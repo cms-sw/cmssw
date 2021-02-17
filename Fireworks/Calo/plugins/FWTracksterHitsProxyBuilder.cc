@@ -5,7 +5,7 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "TEveBoxSet.h"
@@ -252,22 +252,24 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
     for (auto edge : edges) {
       auto doublet = std::make_pair(layerClusters[edge[0]], layerClusters[edge[1]]);
 
-      int layerIn = HGCSiliconDetId(doublet.first.seed()).layer();
-      int layerOut = HGCSiliconDetId(doublet.second.seed()).layer();
-      bool isAdjacent = (layerOut-layerIn) == 1;
+      int layerIn = HGCalDetId(doublet.first.seed()).layer();
+      int layerOut = HGCalDetId(doublet.second.seed()).layer();
+      //int det1 = HGCalDetId(doublet.first.seed()).det();
+      //int det2 = HGCalDetId(doublet.second.seed()).det();
+      //int sub1 = HGCalDetId(doublet.first.seed()).subdetId();
+      //int sub2 = HGCalDetId(doublet.second.seed()).subdetId();
+      bool isAdjacent = (layerOut-layerIn) == 2;
+      //std::cout << det1 << ", " << sub1 << ", " << layer1 << ", " << det2 << ", " << sub2 << ", " << layer2 << std::endl;
 
       TEveStraightLineSet *marker = new TEveStraightLineSet;
       marker->SetLineWidth(2);
-      if (isAdjacent) {
-        marker->SetLineColor(kYellow);
-      }
-      else {
-        marker->SetLineColor(kRed);
-
+      marker->SetLineColor(kRed);
+      if (!isAdjacent) {
+        marker->SetLineStyle(kYellow);
       }
 
       // draw 3D cross
-      if (layer == 0 || fabs(layerIn-layer) == 0 || fabs(layerOut-layer) == 0) {
+      if (layer == 0 || fabs(layerIn-layer) == 1 || fabs(layerOut-layer) == 1) {
         marker->AddLine(doublet.first.x(),
                         doublet.first.y(),
                         doublet.first.z(),
