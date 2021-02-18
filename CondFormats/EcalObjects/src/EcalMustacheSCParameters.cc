@@ -1,4 +1,5 @@
 #include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include <boost/range/algorithm/lower_bound.hpp>
 
 float EcalMustacheSCParameters::sqrtLogClustETuning() const { return sqrtLogClustETuning_; }
 
