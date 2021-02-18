@@ -418,11 +418,10 @@ bool CSCSegAlgoRU::areHitsCloseInR(const AlgoState& aState, const CSCRecHit2D* h
     h1z = 1;
     h2z = 1;
   }
-  
   return (gp2.perp() > ((gp1.perp() - aState.dRMax * aState.strip_iadd * maxWG_width[iStn]) * h2z) / h1z &&
-            gp2.perp() < ((gp1.perp() + aState.dRMax * aState.strip_iadd * maxWG_width[iStn]) * h2z) / h1z)
-               ? true
-               : false;
+          gp2.perp() < ((gp1.perp() + aState.dRMax * aState.strip_iadd * maxWG_width[iStn]) * h2z) / h1z)
+             ? true
+             : false;
 }
 
 bool CSCSegAlgoRU::areHitsCloseInGlobalPhi(const AlgoState& aState,
@@ -529,9 +528,9 @@ bool CSCSegAlgoRU::isHitNearSegment(const AlgoState& aState, const CSCRecHit2D* 
     }
   }
   return (fabs(phidif) < aState.dPhiIntMax * aState.strip_iadd * pos_str + dphi_incr &&
-            fabs(dr) < aState.dRIntMax * aState.strip_iadd * maxWG_width[iStn])
-               ? true
-               : false;
+          fabs(dr) < aState.dRIntMax * aState.strip_iadd * maxWG_width[iStn])
+             ? true
+             : false;
 }
 
 float CSCSegAlgoRU::phiAtZ(const AlgoState& aState, float z) const {
