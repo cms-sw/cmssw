@@ -212,7 +212,7 @@ public:
                                        unsigned int layers,
                                        std::vector<int> thicknesses);
 
-  void bookClusterHistos(DQMStore::IBooker& ibook,
+  void bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibook,
                          Histograms& histograms,
                          unsigned int layers,
                          std::vector<int> thicknesses,
@@ -223,9 +223,9 @@ public:
                                             unsigned int layers,
                                             std::vector<int> thicknesses);
 
-  void bookClusterHistos_CellLevel(DQMStore::IBooker& ibook, 
-                                   Histograms& histograms, 
-                                   unsigned int layers, 
+  void bookClusterHistos_CellLevel(DQMStore::IBooker& ibook,
+                                   Histograms& histograms,
+                                   unsigned int layers,
                                    std::vector<int> thicknesses);
 
   void bookMultiClusterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);

@@ -591,11 +591,11 @@ void HGVHistoProducerAlgo::bookSimClusterAssociationHistos(DQMStore::IBooker& ib
   histograms.h_sharedenergy_simcluster2layercl_vs_phi_perlayer.push_back(
       std::move(sharedenergy_simcluster2layercl_vs_phi_perlayer));
 }
-void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
-                                             Histograms& histograms,
-                                             unsigned int layers,
-                                             std::vector<int> thicknesses,
-                                             std::string pathtomatbudfile) {
+void HGVHistoProducerAlgo::bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibook,
+                                                          Histograms& histograms,
+                                                          unsigned int layers,
+                                                          std::vector<int> thicknesses,
+                                                          std::string pathtomatbudfile) {
   //---------------------------------------------------------------------------------------------------------------------------
   histograms.h_cluster_eta.push_back(
       ibook.book1D("num_reco_cluster_eta", "N of reco clusters vs eta", nintEta_, minEta_, maxEta_));
@@ -689,9 +689,9 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
 }
 
 void HGVHistoProducerAlgo::bookClusterHistos_LCtoCP_association(DQMStore::IBooker& ibook,
-                                                                Histograms& histograms,
-                                                                unsigned int layers,
-                                                                std::vector<int> thicknesses){
+                                                                      Histograms& histograms,
+                                                                      unsigned int layers,
+                                                                      std::vector<int> thicknesses) {
   //----------------------------------------------------------------------------------------------------------------------------
   for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
     auto istr1 = std::to_string(ilayer);
@@ -789,12 +789,6 @@ void HGVHistoProducerAlgo::bookClusterHistos_LCtoCP_association(DQMStore::IBooke
     histograms.h_numDup_caloparticle_eta_perlayer[ilayer] =
         ibook.book1D("NumDup_CaloParticle_Eta_perlayer" + istr1,
                      "Num Duplicate CaloParticle Eta per Layer Cluster for layer " + istr2,
-                     nintEta_,
-                     minEta_,
-                     maxEta_);
-    histograms.h_denom_caloparticle_eta_perlayer[ilayer] =
-        ibook.book1D("Denom_CaloParticle_Eta_perlayer" + istr1,
-                     "Denom CaloParticle Eta per Layer Cluster for layer " + istr2,
                      nintEta_,
                      minEta_,
                      maxEta_);
