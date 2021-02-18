@@ -36,6 +36,13 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
     _lheRunInfoToken = consumes<LHERunInfoProduct, edm::InRun>(_lheLabel);
     _LHECollection = consumes<LHEEventProduct>(_lheLabel);
   }
+  
+  _weightCap = pset.getParameter<double>("weightCap");
+  _NLOSmearing = pset.getParameter<double>("NLOSmearing");
+  _skipMultiWeights = pset.getParameter<bool>("skipMultiWeights");
+  _selectMultiWeights = pset.getParameter<std::string>("selectMultiWeights");
+  _deselectMultiWeights = pset.getParameter<std::string>("deselectMultiWeights");
+  _setNominalWeightName = pset.getParameter<std::string>("setNominalWeightName");
 
   //set user cross section if needed
   _xsection = pset.getParameter<double>("CrossSection");
@@ -161,6 +168,15 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (_isFirstEvent) {
     _analysisHandler = std::make_unique<Rivet::AnalysisHandler>();
     _analysisHandler->addAnalyses(_analysisNames);
+    
+    /// Set analysis handler weight options
+    _analysisHandler->skipMultiWeights(_skipMultiWeights);
+    _analysisHandler->selectMultiWeights(_selectMultiWeights);
+    _analysisHandler->deselectMultiWeights(_deselectMultiWeights);
+    _analysisHandler->setNominalWeightName(_setNominalWeightName);
+    _analysisHandler->setWeightCap(_weightCap);
+    _analysisHandler->setNLOSmearing(_NLOSmearing);
+
     _analysisHandler->init(*myGenEvent);
 
     _isFirstEvent = false;
