@@ -1,7 +1,7 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCLBPacker.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include <algorithm>
 #include "CondFormats/RPCObjects/interface/RPCInverseLBLinkMap.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 
