@@ -47,11 +47,13 @@ private:
   void normalizeTree();
 
   edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
-  bool _useExternalWeight;
   bool _useLHEweights;
-  int _LHEweightNumber;
-  bool _useGENweights;
-  int _GENweightNumber;
+  double _weightCap;
+  double _NLOSmearing;
+  bool _skipMultiWeights;
+  std::string _selectMultiWeights;
+  std::string _deselectMultiWeights;
+  std::string _setNominalWeightName;
   edm::EDGetTokenT<LHEEventProduct> _LHECollection;
   edm::EDGetTokenT<GenEventInfoProduct> _genEventInfoCollection;
   edm::EDGetTokenT<GenLumiInfoHeader> _genLumiInfoToken;
