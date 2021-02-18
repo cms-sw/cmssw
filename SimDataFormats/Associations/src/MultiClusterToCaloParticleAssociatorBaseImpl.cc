@@ -7,12 +7,14 @@ namespace hgcal {
   MultiClusterToCaloParticleAssociatorBaseImpl::~MultiClusterToCaloParticleAssociatorBaseImpl(){};
 
   hgcal::RecoToSimCollectionWithMultiClusters MultiClusterToCaloParticleAssociatorBaseImpl::associateRecoToSim(
-      const edm::Handle<reco::HGCalMultiClusterCollection> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH) const {
+      const edm::Handle<reco::HGCalMultiClusterCollection> &cCCH,
+      const edm::Handle<CaloParticleCollection> &cPCH) const {
     return hgcal::RecoToSimCollectionWithMultiClusters();
   }
 
   hgcal::SimToRecoCollectionWithMultiClusters MultiClusterToCaloParticleAssociatorBaseImpl::associateSimToReco(
-      const edm::Handle<reco::HGCalMultiClusterCollection> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH) const {
+      const edm::Handle<reco::HGCalMultiClusterCollection> &cCCH,
+      const edm::Handle<CaloParticleCollection> &cPCH) const {
     return hgcal::SimToRecoCollectionWithMultiClusters();
   }
 

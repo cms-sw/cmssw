@@ -97,7 +97,7 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       maxSharedEneFrac_(pset.getParameter<double>("maxSharedEneFrac")),
       nintSharedEneFrac_(pset.getParameter<int>("nintSharedEneFrac")),
 
-      //Same as above for multiclusters
+      //Same as above for multiClusters
       minMCLSharedEneFrac_(pset.getParameter<double>("minMCLSharedEneFrac")),
       maxMCLSharedEneFrac_(pset.getParameter<double>("maxMCLSharedEneFrac")),
       nintMCLSharedEneFrac_(pset.getParameter<int>("nintMCLSharedEneFrac")),
@@ -152,23 +152,23 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       maxCellsEneDensperthick_(pset.getParameter<double>("maxCellsEneDensperthick")),
       nintCellsEneDensperthick_(pset.getParameter<int>("nintCellsEneDensperthick")),
 
-      //Parameters for the total number of multiclusters per event
+      //Parameters for the total number of multiClusters per event
       //We always treet one event as two events, one in +z one in -z
       minTotNMCLs_(pset.getParameter<double>("minTotNMCLs")),
       maxTotNMCLs_(pset.getParameter<double>("maxTotNMCLs")),
       nintTotNMCLs_(pset.getParameter<int>("nintTotNMCLs")),
 
-      //Parameters for the total number of layer clusters in multicluster
+      //Parameters for the total number of layer clusters in multiCluster
       minTotNClsinMCLs_(pset.getParameter<double>("minTotNClsinMCLs")),
       maxTotNClsinMCLs_(pset.getParameter<double>("maxTotNClsinMCLs")),
       nintTotNClsinMCLs_(pset.getParameter<int>("nintTotNClsinMCLs")),
 
-      //Parameters for the total number of layer clusters in multicluster per layer
+      //Parameters for the total number of layer clusters in multiCluster per layer
       minTotNClsinMCLsperlayer_(pset.getParameter<double>("minTotNClsinMCLsperlayer")),
       maxTotNClsinMCLsperlayer_(pset.getParameter<double>("maxTotNClsinMCLsperlayer")),
       nintTotNClsinMCLsperlayer_(pset.getParameter<int>("nintTotNClsinMCLsperlayer")),
 
-      //Parameters for the multiplicity of layer clusters in multicluster
+      //Parameters for the multiplicity of layer clusters in multiCluster
       minMplofLCs_(pset.getParameter<double>("minMplofLCs")),
       maxMplofLCs_(pset.getParameter<double>("maxMplofLCs")),
       nintMplofLCs_(pset.getParameter<int>("nintMplofLCs")),
@@ -944,7 +944,7 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::IBooker& ibook,
                    minMCLSharedEneFrac_,
                    maxMCLSharedEneFrac_));
 
-  //back to all multiclusters
+  //back to all multiClusters
   histograms.h_num_multicl_eta.push_back(
       ibook.book1D("Num_MultiCluster_Eta", "Num MultiCluster Eta per Multi Cluster ", nintEta_, minEta_, maxEta_));
   histograms.h_numMerge_multicl_eta.push_back(ibook.book1D(
@@ -2220,18 +2220,19 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
   histograms.h_longdepthbarycentre_zminus[count]->Fill(sumldbarmi / sumeneallclusmi);
 }
 
-void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& histograms,
-                                                          int count,
-                                                          edm::Handle<reco::HGCalMultiClusterCollection> multiClusterHandle,
-                                                          const reco::HGCalMultiClusterCollection& multiClusters,
-                                                          edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-                                                          std::vector<CaloParticle> const& cP,
-                                                          std::vector<size_t> const& cPIndices,
-                                                          std::vector<size_t> const& cPSelectedIndices,
-                                                          std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-                                                          unsigned int layers,
-                                                          const hgcal::RecoToSimCollectionWithMultiClusters& cpsInMClusterMap,
-                                                          const hgcal::SimToRecoCollectionWithMultiClusters& cPOnMLayerMap) const {
+void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(
+    const Histograms& histograms,
+    int count,
+    edm::Handle<reco::HGCalMultiClusterCollection> multiClusterHandle,
+    const reco::HGCalMultiClusterCollection& multiClusters,
+    edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+    std::vector<CaloParticle> const& cP,
+    std::vector<size_t> const& cPIndices,
+    std::vector<size_t> const& cPSelectedIndices,
+    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+    unsigned int layers,
+    const hgcal::RecoToSimCollectionWithMultiClusters& cpsInMClusterMap,
+    const hgcal::SimToRecoCollectionWithMultiClusters& cPOnMLayerMap) const {
   auto nMultiClusters = multiClusters.size();
   //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
   auto nCaloParticles = cPIndices.size();
@@ -2240,7 +2241,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
   std::vector<int> tracksters_fakemerge(nMultiClusters, 0);
   std::vector<int> tracksters_duplicate(nMultiClusters, 0);
 
-  //Loop through multiclusters
+  //Loop through multiClusters
   for (unsigned int mclId = 0; mclId < nMultiClusters; ++mclId) {
     const auto& hits_and_fractions = multiClusters[mclId].hitsAndFractions();
     if (!hits_and_fractions.empty()) {
@@ -2250,23 +2251,23 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
         continue;
 
       const auto& cps = cpsIt->val;
-      auto score = std::min_element(std::begin(cps), std::end(cps),
-                                    [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
+      auto score = std::min_element(
+          std::begin(cps), std::end(cps), [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
       for (auto& cpPair : cps) {
         LogDebug("HGCalValidator") << "multiCluster Id: \t" << mclId << "\t CP id: \t" << cpPair.first << "\t score \t"
                                    << cpPair.second << std::endl;
         if (cpPair.first == score->first) {
           histograms.h_score_multicl2caloparticle[count]->Fill(score->second);
         }
-        auto const& cp_linked =
-          std::find_if(std::begin(cPOnMLayerMap[cpPair.first]),
-                       std::end(cPOnMLayerMap[cpPair.first]),
-                       [&mclRef](const std::pair<edm::Ref<reco::HGCalMultiClusterCollection>, std::pair<float, float>>& p) {
-                         return p.first == mclRef;
-                       });
+        auto const& cp_linked = std::find_if(
+            std::begin(cPOnMLayerMap[cpPair.first]),
+            std::end(cPOnMLayerMap[cpPair.first]),
+            [&mclRef](const std::pair<edm::Ref<reco::HGCalMultiClusterCollection>, std::pair<float, float>>& p) {
+              return p.first == mclRef;
+            });
         if (cp_linked ==
-          cPOnMLayerMap[cpPair.first].end())  // This should never happen by construction of the association maps
-        continue;
+            cPOnMLayerMap[cpPair.first].end())  // This should never happen by construction of the association maps
+          continue;
         float sharedeneCPallLayers = cp_linked->second.first;
         LogDebug("HGCalValidator") << "sharedeneCPallLayers " << sharedeneCPallLayers << std::endl;
         if (cpPair.first == score->first) {
@@ -2281,7 +2282,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
                                           [](const auto& obj) { return obj.second < ScoreCutMCLtoCPFakeMerge_; });
       tracksters_fakemerge[mclId] = assocFakeMerge;
     }
-  }  //end of loop through multiclusters
+  }  // end of loop through multiClusters
 
   std::unordered_map<int, std::vector<float>> score3d;
   std::unordered_map<int, std::vector<float>> mclsharedenergy;
@@ -2303,7 +2304,6 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
   // gen-level, namely efficiency an duplicate. In this loop we should restrict
   // only to the selected caloParaticles.
   for (const auto& cpId : cPSelectedIndices) {
-
     // Compute the correct normalization
     // We need to loop on the simClusters since this is the only data structure
     // that has the compressed information for multiple usage
@@ -2333,7 +2333,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
     const edm::Ref<CaloParticleCollection> cpRef(caloParticleHandle, cpId);
     const auto& mlcsIt = cPOnMLayerMap.find(cpRef);
     if (mlcsIt == cPOnMLayerMap.end())
-        continue;
+      continue;
     const auto& mlcs = mlcsIt->val;
     for (const auto& mlcPair : mlcs) {
       auto score3d = mlcPair.second.second / invCPEnergyWeight;
@@ -2348,9 +2348,8 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
       histograms.h_score_caloparticle2multicl[count]->Fill(score3d);
 
       histograms.h_sharedenergy_caloparticle2multicl[count]->Fill(mclsharedenergyfrac);
-      histograms.h_energy_vs_score_caloparticle2multicl[count]->Fill(score3d,
-                                                                     mclsharedenergyfrac);
-    }  //end of loop through multiclusters
+      histograms.h_energy_vs_score_caloparticle2multicl[count]->Fill(score3d, mclsharedenergyfrac);
+    }  //end of loop through multiClusters
 
     auto is_assoc = [&](const auto& v) -> bool { return v < ScoreCutCPtoMCLDup_; };
 
@@ -2399,15 +2398,15 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
         auto best = std::min_element(std::begin(cpsInMClusterMap[mclRef]),
                                      std::end(cpsInMClusterMap[mclRef]),
                                      [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
-        const auto& best_cp_linked =
-            std::find_if(std::begin(cPOnMLayerMap[best->first]),
-                         std::end(cPOnMLayerMap[best->first]),
-                         [&mclRef](const std::pair<edm::Ref<reco::HGCalMultiClusterCollection>, std::pair<float, float>>& p) {
-                           return p.first == mclRef;
-                         });
+        const auto& best_cp_linked = std::find_if(
+            std::begin(cPOnMLayerMap[best->first]),
+            std::end(cPOnMLayerMap[best->first]),
+            [&mclRef](const std::pair<edm::Ref<reco::HGCalMultiClusterCollection>, std::pair<float, float>>& p) {
+              return p.first == mclRef;
+            });
         if (best_cp_linked ==
             cPOnMLayerMap[best->first].end())  // This should never happen by construction of the association maps
-        continue;
+          continue;
         //This is the shared energy taking the best caloparticle in each layer
         float sharedeneCPallLayers = best_cp_linked->second.first;
         histograms.h_sharedenergy_multicl2caloparticle_vs_eta[count]->Fill(
@@ -2425,31 +2424,32 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
   }
 }
 
-void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histograms,
-                                                     int count,
-                                                     edm::Handle<reco::HGCalMultiClusterCollection> multiClusterHandle,
-                                                     const reco::HGCalMultiClusterCollection& multiClusters,
-                                                     edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-                                                     std::vector<CaloParticle> const& cP,
-                                                     std::vector<size_t> const& cPIndices,
-                                                     std::vector<size_t> const& cPSelectedIndices,
-                                                     std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
-                                                     unsigned int layers,
-                                                     const hgcal::RecoToSimCollectionWithMultiClusters& cpsInMClusterMap,
-                                                     const hgcal::SimToRecoCollectionWithMultiClusters& cPOnMLayerMap) const {
+void HGVHistoProducerAlgo::fill_multi_cluster_histos(
+    const Histograms& histograms,
+    int count,
+    edm::Handle<reco::HGCalMultiClusterCollection> multiClusterHandle,
+    const reco::HGCalMultiClusterCollection& multiClusters,
+    edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+    std::vector<CaloParticle> const& cP,
+    std::vector<size_t> const& cPIndices,
+    std::vector<size_t> const& cPSelectedIndices,
+    std::unordered_map<DetId, const HGCRecHit*> const& hitMap,
+    unsigned int layers,
+    const hgcal::RecoToSimCollectionWithMultiClusters& cpsInMClusterMap,
+    const hgcal::SimToRecoCollectionWithMultiClusters& cPOnMLayerMap) const {
   //Each event to be treated as two events:
   //an event in +ve endcap, plus another event in -ve endcap.
 
-  //To keep track of total num of multiclusters
+  //To keep track of total num of multiClusters
   int tnmclmz = 0;  //-z
   int tnmclpz = 0;  //+z
-  //To count the number of multiclusters with 3 contiguous layers per event.
+  //To count the number of multiClusters with 3 contiguous layers per event.
   int tncontmclpz = 0;  //+z
   int tncontmclmz = 0;  //-z
-  //For the number of multiclusters without 3 contiguous layers per event.
+  //For the number of multiClusters without 3 contiguous layers per event.
   int tnnoncontmclpz = 0;  //+z
   int tnnoncontmclmz = 0;  //-z
-  //We want to check below the score of cont and non cont multiclusters
+  //We want to check below the score of cont and non cont multiClusters
   std::vector<bool> contmulti;
   contmulti.clear();
 
@@ -2464,7 +2464,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
   // }
 
   auto nMultiClusters = multiClusters.size();
-  //loop through multiclusters of the event
+  //loop through multiClusters of the event
   for (unsigned int mclId = 0; mclId < nMultiClusters; ++mclId) {
     const auto layerClusters = multiClusters[mclId].clusters();
     auto nLayerClusters = layerClusters.size();
@@ -2479,14 +2479,14 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
       tnmclpz++;
     }
 
-    //Total number of layer clusters in multicluster
+    //Total number of layer clusters in multiCluster
     int tnlcinmcl = 0;
 
-    //To keep track of total num of layer clusters per multicluster
+    //To keep track of total num of layer clusters per multiCluster
     //tnlcinmclperlaypz[layerid], tnlcinmclperlaymz[layerid]
     std::vector<int> tnlcinmclperlay(1000, 0);  //+z
 
-    //For the layers the multicluster expands to. Will use a set because there would be many
+    //For the layers the multiCluster expands to. Will use a set because there would be many
     //duplicates and then go back to vector for random access, since they say it is faster.
     std::set<int> multicluster_layers;
 
@@ -2498,7 +2498,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
       //take the hits and their fraction of the specific layer cluster.
       const std::vector<std::pair<DetId, float>>& hits_and_fractions = layerClusters[lcId]->hitsAndFractions();
 
-      //For the multiplicity of the 2d layer clusters in multiclusters
+      //For the multiplicity of the 2d layer clusters in multiClusters
       multiplicity[mclId].emplace_back(hits_and_fractions.size());
 
       const auto firstHitDetId = hits_and_fractions[0].first;
@@ -2525,22 +2525,22 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
       if (histograms.h_clusternum_in_multicluster_perlayer[count].count(ilayer) && tnlcinmclperlay[ilayer] != 0) {
         histograms.h_clusternum_in_multicluster_perlayer[count].at(ilayer)->Fill((float)tnlcinmclperlay[ilayer]);
       }
-      //For the profile now of 2d layer cluster in multiclusters vs layer number.
+      //For the profile now of 2d layer cluster in multiClusters vs layer number.
       if (tnlcinmclperlay[ilayer] != 0) {
         histograms.h_clusternum_in_multicluster_vs_layer[count]->Fill((float)ilayer, (float)tnlcinmclperlay[ilayer]);
       }
     }  //end of loop over layers
 
-    //Looking for multiclusters with 3 contiguous layers per event.
+    //Looking for multiClusters with 3 contiguous layers per event.
     std::vector<int> multicluster_layers_vec(multicluster_layers.begin(), multicluster_layers.end());
-    //Since we want to also check for non contiguous multiclusters
+    //Since we want to also check for non contiguous multiClusters
     bool contimulti = false;
     //Observe that we start from 1 and go up to size - 1 element.
     if (multicluster_layers_vec.size() >= 3) {
       for (unsigned int i = 1; i < multicluster_layers_vec.size() - 1; ++i) {
         if ((multicluster_layers_vec[i - 1] + 1 == multicluster_layers_vec[i]) &&
             (multicluster_layers_vec[i + 1] - 1 == multicluster_layers_vec[i])) {
-          //So, this is a multicluster with 3 contiguous layers per event
+          //So, this is a multiCluster with 3 contiguous layers per event
           if (multiclusterInZplus) {
             tncontmclpz++;
           }
@@ -2552,7 +2552,7 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
         }
       }
     }
-    //Count non contiguous multiclusters
+    //Count non contiguous multiClusters
     if (!contimulti) {
       if (multiclusterInZplus) {
         tnnoncontmclpz++;
@@ -2606,13 +2606,24 @@ void HGVHistoProducerAlgo::fill_multi_cluster_histos(const Histograms& histogram
       histograms.h_multicluster_energy[count]->Fill(multiClusters[mclId].energy());
     }
 
-  }  //end of loop through multiclusters
+  }  //end of loop through multiClusters
 
   histograms.h_multiclusternum[count]->Fill(tnmclmz + tnmclpz);
   histograms.h_contmulticlusternum[count]->Fill(tncontmclpz + tncontmclmz);
   histograms.h_noncontmulticlusternum[count]->Fill(tnnoncontmclpz + tnnoncontmclmz);
 
-  multiClusters_to_CaloParticles(histograms, count, multiClusterHandle, multiClusters, caloParticleHandle, cP, cPIndices, cPSelectedIndices, hitMap, layers, cpsInMClusterMap, cPOnMLayerMap);
+  multiClusters_to_CaloParticles(histograms,
+                                 count,
+                                 multiClusterHandle,
+                                 multiClusters,
+                                 caloParticleHandle,
+                                 cP,
+                                 cPIndices,
+                                 cPSelectedIndices,
+                                 hitMap,
+                                 layers,
+                                 cpsInMClusterMap,
+                                 cPOnMLayerMap);
 }
 
 double HGVHistoProducerAlgo::distance2(const double x1,
