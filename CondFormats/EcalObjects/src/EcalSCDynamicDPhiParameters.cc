@@ -1,5 +1,5 @@
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
-#include <boost/range/algorithm/lower_bound.hpp>
+#include <algorithm>
 
 const EcalSCDynamicDPhiParameters::DynamicDPhiParameters* EcalSCDynamicDPhiParameters::dynamicDPhiParameters(
     double clustE, double absSeedEta) const {
