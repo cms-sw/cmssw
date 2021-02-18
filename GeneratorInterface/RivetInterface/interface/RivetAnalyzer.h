@@ -56,15 +56,17 @@ private:
   edm::EDGetTokenT<GenEventInfoProduct> _genEventInfoCollection;
   edm::EDGetTokenT<GenLumiInfoHeader> _genLumiInfoToken;
   edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfoToken;
-  Rivet::AnalysisHandler _analysisHandler;
+  std::unique_ptr<Rivet::AnalysisHandler> _analysisHandler;
   bool _isFirstEvent;
   std::string _outFileName;
+  std::vector<std::string> _analysisNames;
   bool _doFinalize;
   bool _produceDQM;
   const edm::InputTag _lheLabel;
   double _xsection;
   std::vector<std::string> _weightNames;
   std::vector<std::string> _lheWeightNames;
+  std::vector<std::string> _cleanedWeightNames;
 
   DQMStore *dbe;
   std::vector<MonitorElement *> _mes;
