@@ -24,8 +24,8 @@ struct ValidRecHits {
   std::vector<float> energy;
   std::vector<float> time;
   std::vector<float> timeError;
-  std::vector<unsigned int> detid;
-  std::vector<unsigned int> flagBits;
+  std::vector<unsigned> detid;
+  std::vector<unsigned> flagBits;
   std::vector<float> son;
 };
 
@@ -37,8 +37,8 @@ public:
   void endJob() override;
 
 private:
-  static const unsigned int nsubdetectors = 3;      //ce-e, ce-h-fine, ce-h-coarse
-  static const unsigned int ncomputingdevices = 2;  //cpu, gpu
+  static const unsigned nsubdetectors = 3;      //ce-e, ce-h-fine, ce-h-coarse
+  static const unsigned ncomputingdevices = 2;  //cpu, gpu
   //cpu amd gpu tokens and handles for the 3 subdetectors, cpu and gpu
   std::array<std::array<edm::EDGetTokenT<HGChefRecHitCollection>, ncomputingdevices>, nsubdetectors> tokens_;
   std::array<std::string, nsubdetectors> handles_str_ = {
@@ -50,7 +50,7 @@ private:
   std::array<ValidHitCollection, nsubdetectors> cpuValidRecHits, gpuValidRecHits, diffsValidRecHits;
   //std::vector< TH1F* > zhist;
 
-  void set_geometry_(const edm::EventSetup&, const unsigned int&);
+  void set_geometry_(const edm::EventSetup&, const unsigned&);
 };
 
 #endif
