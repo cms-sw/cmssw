@@ -49,6 +49,7 @@ GeometryConf={
     'TrackerOnly' : 'Configuration.Geometry.GeometrySimTracker_cff,Configuration.Geometry.GeometryRecoTracker_cff',
     'HCal'        : 'Configuration.Geometry.GeometrySimHCAL_cff,Configuration.Geometry.GeometryRecoHCAL_cff',
     'Extended2026D49' : 'Extended2026D49,Extended2026D49Reco',
+    'DD4hepExtended2026D49' : 'DD4hepExtended2026D49,DD4hepExtended2026D49Reco',
     'Extended2026D50' : 'Extended2026D50,Extended2026D50Reco',
     'Extended2026D60' : 'Extended2026D60,Extended2026D60Reco',
     'Extended2026D64' : 'Extended2026D64,Extended2026D64Reco',
@@ -63,5 +64,6 @@ GeometryConf={
     'Extended2026D74' : 'Extended2026D74,Extended2026D74Reco',
     'Extended2026D75' : 'Extended2026D75,Extended2026D75Reco',
     'Extended2026D76' : 'Extended2026D76,Extended2026D76Reco',
-    'DD4hepExtended2026D49' : 'DD4hepExtended2026D49,DD4hepExtended2026D49Reco',
+    'Extended2026D77' : 'Extended2026D77,Extended2026D77Reco',
+    'DD4hepExtended2026D77' : 'DD4hepExtended2026D77,DD4hepExtended2026D77Reco',
     }
