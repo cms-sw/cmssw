@@ -10,7 +10,7 @@ import sys
 import cmsml
 
 
-# get tensorflow and work the with v1 compatibility layer
+# get tensorflow and work with the v1 compatibility layer
 tf, tf1, tf_version = cmsml.tensorflow.import_tf()
 tf = tf1
 tf.disable_eager_execution()
