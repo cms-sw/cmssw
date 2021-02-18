@@ -122,7 +122,7 @@ void GEMGeometryParsFromDD::buildSuperChamber(DDFilteredView& fv, GEMDetId detId
 
   LogDebug("GEMGeometryParsFromDD") << "dimension dx1 " << dx1 << ", dx2 " << dx2 << ", dy " << dy << ", dz " << dz;
   edm::LogVerbatim("GEMGeometryParsFromDD")
-    << "(1) DDD, Chamber DetID " << gemid.rawId() <<" Name "<<fv.logicalPart().name().name()<<" dx1 " << dx1 << ", dx2 " << dx2 << ", dy " << dy << ", dz " << dz; 
+    << "(1) DDD, SuperChamber DetID " << gemid.rawId() <<" Name "<<fv.logicalPart().name().name()<<" dx1 " << dx1 << " dx2 " << dx2 << " dy " << dy << " dz " << dz; 
   rgeo.insert(gemid.rawId(), vtra, vrot, pars, {fv.logicalPart().name().name()});
 }
 
@@ -146,6 +146,8 @@ void GEMGeometryParsFromDD::buildChamber(DDFilteredView& fv, GEMDetId detId, Rec
   std::vector<double> vrot = getRotation(fv);
 
   LogDebug("GEMGeometryParsFromDD") << "dimension dx1 " << dx1 << ", dx2 " << dx2 << ", dy " << dy << ", dz " << dz;
+ edm::LogVerbatim("GEMGeometryParsFromDD")
+    << "(2) DDD, Chamber DetID " << gemid.rawId() <<" Name "<<fv.logicalPart().name().name()<<" dx1 " << dx1 << " dx2 " << dx2 << " dy " << dy << " dz " << dz; 
   rgeo.insert(gemid.rawId(), vtra, vrot, pars, {fv.logicalPart().name().name()});
 }
 
@@ -184,12 +186,17 @@ void GEMGeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, GEMDetId detId
   std::vector<double> vtra = getTranslation(fv);
   std::vector<double> vrot = getRotation(fv);
 
-  LogDebug("GEMGeometryParsFromDD") << "dimension dx1 " << dx1 << ", dx2 " << dx2 << ", dy " << dy << ", dz " << dz;
+  LogDebug("GEMGeometryParsFromDD") << " dx1 " << dx1 << " dx2 " << dx2 << " dy " << dy << " dz " << dz <<" nStrips "<<nStrips<<" nPads "<<nPads<<" dPhi "<<dPhi;
+ 
+ edm::LogVerbatim("GEMGeometryParsFromDD")
+    << "(3) DDD, Eta Partion DetID " << detId.rawId() <<" Name "<<fv.logicalPart().name().name()<<" dx1 " << dx1 << " dx2 " << dx2 << " dy " << dy << " dz " << dz; 
   rgeo.insert(detId.rawId(), vtra, vrot, pars, {fv.logicalPart().name().name()});
 }
 
 std::vector<double> GEMGeometryParsFromDD::getTranslation(DDFilteredView& fv) {
   const DDTranslation& tran = fv.translation();
+edm::LogVerbatim("GEMGeometryParsFromDD")
+    << "(4) DDD, tran vector " << tran.x() << "  " << tran.y() << "  " << tran.z();
   return {tran.x(), tran.y(), tran.z()};
 }
 
@@ -197,5 +204,10 @@ std::vector<double> GEMGeometryParsFromDD::getRotation(DDFilteredView& fv) {
   const DDRotationMatrix& rota = fv.rotation();  //.Inverse();
   DD3Vector x, y, z;
   rota.GetComponents(x, y, z);
+  edm::LogVerbatim("GEMGeometryParsFromDD")
+    << "(5) DDD, rot matrix " << x.X() << "  " << x.Y() << "  " << x.Z()<<" "<< y.X() << "  " << y.Y() << "  " << y.Z()<<" "<< z.X() << "  " << z.Y() << "  " << z.Z();
   return {x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()};
 }
+
+// DD4Hep
+
