@@ -244,7 +244,9 @@ public:
                                     const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
   void multiClusters_to_CaloParticles(const Histograms& histograms,
                                       int count,
+                                      edm::Handle<reco::HGCalMultiClusterCollection> multiClusterHandle,
                                       const reco::HGCalMultiClusterCollection& multiClusters,
+                                      edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
                                       std::vector<CaloParticle> const& cP,
                                       std::vector<size_t> const& cPIndices,
                                       std::vector<size_t> const& cPSelectedIndices,
@@ -293,7 +295,9 @@ public:
   void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
   void fill_multi_cluster_histos(const Histograms& histograms,
                                  int count,
+                                 edm::Handle<reco::HGCalMultiClusterCollection> multiClusterHandle,
                                  const reco::HGCalMultiClusterCollection& multiClusters,
+                                 edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
                                  std::vector<CaloParticle> const& cP,
                                  std::vector<size_t> const& cPIndices,
                                  std::vector<size_t> const& cPSelectedIndices,
