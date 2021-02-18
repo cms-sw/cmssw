@@ -10,7 +10,7 @@ HeterogeneousHGCalRecHitsValidator::HeterogeneousHGCalRecHitsValidator(const edm
       treenames_({{"CEE", "CHSi", "CHSci"}}) {
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
-  for (unsigned int i = 0; i < nsubdetectors; ++i) {
+  for (unsigned i(0); i < nsubdetectors; ++i) {
     trees_[i] = fs->make<TTree>(treenames_[i].c_str(), treenames_[i].c_str());
     trees_[i]->Branch("cpu", "ValidHitCollection", &cpuValidRecHits[i]);
     trees_[i]->Branch("gpu", "ValidHitCollection", &gpuValidRecHits[i]);
@@ -22,7 +22,7 @@ HeterogeneousHGCalRecHitsValidator::~HeterogeneousHGCalRecHitsValidator() {}
 
 void HeterogeneousHGCalRecHitsValidator::endJob() {}
 
-void HeterogeneousHGCalRecHitsValidator::set_geometry_(const edm::EventSetup &setup, const unsigned int &detidx) {
+void HeterogeneousHGCalRecHitsValidator::set_geometry_(const edm::EventSetup &setup, const unsigned &detidx) {
   edm::ESHandle<HGCalGeometry> handle;
   setup.get<IdealGeometryRecord>().get(handles_str_[detidx], handle);
 }
@@ -44,18 +44,14 @@ void HeterogeneousHGCalRecHitsValidator::analyze(const edm::Event &event, const 
 
     size_t nhits = cpuhits.size();
     assert(nhits == gpuhits.size());
-    float sum_cpu = 0.f;
-    float sum_gpu = 0.f;
-    float sum_son_cpu = 0.f;
-    float sum_son_gpu = 0.f;
-    for (unsigned int i = 0; i < nhits; i++) {
+    //float sum_cpu = 0.f, sum_gpu = 0.f, sum_son_cpu = 0.f, sum_son_gpu = 0.f;
+    for (unsigned i(0); i < nhits; i++) {
       const HGCRecHit &cpuHit = cpuhits[i];
       const HGCRecHit &gpuHit = gpuhits[i];
 
       const float cpuEn = cpuHit.energy();
-      sum_cpu += cpuEn;
       const float gpuEn = gpuHit.energy();
-      sum_gpu += gpuEn;
+      //sum_cpu += cpuEn; sum_gpu += gpuEn;
 
       const float cpuTime = cpuHit.time();
       const float gpuTime = gpuHit.time();
@@ -66,9 +62,8 @@ void HeterogeneousHGCalRecHitsValidator::analyze(const edm::Event &event, const 
       const float cpuFB = cpuHit.flagBits();
       const float gpuFB = gpuHit.flagBits();
       const float cpuSoN = cpuHit.signalOverSigmaNoise();
-      sum_son_cpu += cpuSoN;
       const float gpuSoN = gpuHit.signalOverSigmaNoise();
-      sum_son_gpu += gpuSoN;
+      //sum_son_cpu += cpuSoN; sum_son_gpu += gpuSoN;
 
       ValidHit vCPU(cpuEn, cpuTime, cpuTimeErr, cpuDetId, cpuFB, cpuSoN);
       ValidHit vGPU(gpuEn, gpuTime, gpuTimeErr, gpuDetId, gpuFB, gpuSoN);
