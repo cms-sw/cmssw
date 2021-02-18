@@ -33,12 +33,14 @@ namespace hgcal {
     virtual ~MultiClusterToCaloParticleAssociatorBaseImpl();
 
     /// Associate a MultiCluster to CaloParticles
-    virtual hgcal::RecoToSimCollectionWithMultiClusters associateRecoToSim(const edm::Handle<reco::HGCalMultiClusterCollection> &cCH,
-                                                          const edm::Handle<CaloParticleCollection> &cPCH) const;
+    virtual hgcal::RecoToSimCollectionWithMultiClusters associateRecoToSim(
+        const edm::Handle<reco::HGCalMultiClusterCollection> &cCH,
+        const edm::Handle<CaloParticleCollection> &cPCH) const;
 
     /// Associate a CaloParticle to MultiClusters
-    virtual hgcal::SimToRecoCollectionWithMultiClusters associateSimToReco(const edm::Handle<reco::HGCalMultiClusterCollection> &cCH,
-                                                          const edm::Handle<CaloParticleCollection> &cPCH) const;
+    virtual hgcal::SimToRecoCollectionWithMultiClusters associateSimToReco(
+        const edm::Handle<reco::HGCalMultiClusterCollection> &cCH,
+        const edm::Handle<CaloParticleCollection> &cPCH) const;
   };
 }  // namespace hgcal
 

@@ -23,14 +23,16 @@ namespace hgcal {
 
     // ---------- const member functions ---------------------
     /// Associate a MultiCluster to CaloParticles
-    hgcal::RecoToSimCollectionWithMultiClusters associateRecoToSim(const edm::Handle<reco::HGCalMultiClusterCollection> &cCCH,
-                                                  const edm::Handle<CaloParticleCollection> &cPCH) const {
+    hgcal::RecoToSimCollectionWithMultiClusters associateRecoToSim(
+        const edm::Handle<reco::HGCalMultiClusterCollection> &cCCH,
+        const edm::Handle<CaloParticleCollection> &cPCH) const {
       return m_impl->associateRecoToSim(cCCH, cPCH);
     };
 
     /// Associate a CaloParticle to MultiClusters
-    hgcal::SimToRecoCollectionWithMultiClusters associateSimToReco(const edm::Handle<reco::HGCalMultiClusterCollection> &cCCH,
-                                                  const edm::Handle<CaloParticleCollection> &cPCH) const {
+    hgcal::SimToRecoCollectionWithMultiClusters associateSimToReco(
+        const edm::Handle<reco::HGCalMultiClusterCollection> &cCCH,
+        const edm::Handle<CaloParticleCollection> &cPCH) const {
       return m_impl->associateSimToReco(cCCH, cPCH);
     }
 

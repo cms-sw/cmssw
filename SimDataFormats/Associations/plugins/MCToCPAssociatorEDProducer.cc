@@ -75,11 +75,13 @@ void MCToCPAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, cons
   // associate MutiCluster and CP
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method"
                                   << "\n";
-  hgcal::RecoToSimCollectionWithMultiClusters recSimColl = theAssociator->associateRecoToSim(MCCollection, CPCollection);
+  hgcal::RecoToSimCollectionWithMultiClusters recSimColl =
+      theAssociator->associateRecoToSim(MCCollection, CPCollection);
 
   LogTrace("AssociatorValidator") << "Calling associateSimToReco method"
                                   << "\n";
-  hgcal::SimToRecoCollectionWithMultiClusters simRecColl = theAssociator->associateSimToReco(MCCollection, CPCollection);
+  hgcal::SimToRecoCollectionWithMultiClusters simRecColl =
+      theAssociator->associateSimToReco(MCCollection, CPCollection);
 
   auto rts = std::make_unique<hgcal::RecoToSimCollectionWithMultiClusters>(recSimColl);
   auto str = std::make_unique<hgcal::SimToRecoCollectionWithMultiClusters>(simRecColl);

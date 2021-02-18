@@ -51,11 +51,13 @@ public:
                                                    std::shared_ptr<hgcal::RecHitTools>,
                                                    const std::unordered_map<DetId, const HGCRecHit *> *&);
 
-  hgcal::RecoToSimCollectionWithMultiClusters associateRecoToSim(const edm::Handle<reco::HGCalMultiClusterCollection> &mCCH,
-                                                   const edm::Handle<CaloParticleCollection> &cPCH) const override;
+  hgcal::RecoToSimCollectionWithMultiClusters associateRecoToSim(
+      const edm::Handle<reco::HGCalMultiClusterCollection> &mCCH,
+      const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
-  hgcal::SimToRecoCollectionWithMultiClusters associateSimToReco(const edm::Handle<reco::HGCalMultiClusterCollection> &mCCH,
-                                                   const edm::Handle<CaloParticleCollection> &cPCH) const override;
+  hgcal::SimToRecoCollectionWithMultiClusters associateSimToReco(
+      const edm::Handle<reco::HGCalMultiClusterCollection> &mCCH,
+      const edm::Handle<CaloParticleCollection> &cPCH) const override;
 
 private:
   const bool hardScatterOnly_;
