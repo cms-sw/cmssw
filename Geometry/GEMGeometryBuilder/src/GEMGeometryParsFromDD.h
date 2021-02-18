@@ -48,6 +48,13 @@ private:
 
   // DD4Hep
 
+  void buildGeometry(cms::DDFilteredView& fview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
+  void buildSuperChamber(cms::DDFilteredView& fv, GEMDetId detId, RecoIdealGeometry& rgeo);
+  void buildChamber(cms::DDFilteredView& fv, GEMDetId detId, RecoIdealGeometry& rgeo);
+  void buildEtaPartition(cms::DDFilteredView& fv, GEMDetId detId, RecoIdealGeometry& rgeo);
+
+  std::vector<double> getTranslation(cms::DDFilteredView& fv);
+  std::vector<double> getRotation(cms::DDFilteredView& fv);
 
 };
 #endif
