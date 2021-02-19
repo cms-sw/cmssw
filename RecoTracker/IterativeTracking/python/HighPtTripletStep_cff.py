@@ -215,6 +215,24 @@ highPtTripletStepTrackCandidates = _CkfTrackCandidates_cfi.ckfTrackCandidates.cl
     useHitsSplitting = True
 )
 
+from Configuration.ProcessModifiers.trackingMkFit_cff import trackingMkFit
+from RecoTracker.MkFit.mkFitGeometryESProducer_cfi import mkFitGeometryESProducer
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+highPtTripletStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'highPtTripletStepSeeds',
+)
+highPtTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'highPtTripletStepTrackCandidatesMkFitSeeds',
+    iterationNumber = 1,
+)
+trackingMkFit.toReplaceWith(highPtTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'highPtTripletStepSeeds',
+    mkfitSeeds = 'highPtTripletStepTrackCandidatesMkFitSeeds',
+    tracks = 'highPtTripletStepTrackCandidatesMkFit',
+))
+
 # For Phase2PU140
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits as _trajectoryCleanerBySharedHits
 highPtTripletStepTrajectoryCleanerBySharedHits = _trajectoryCleanerBySharedHits.clone(
@@ -332,6 +350,11 @@ HighPtTripletStepTask = cms.Task(highPtTripletStepClusters,
                                  highPtTripletStepTracks,
                                  highPtTripletStep)
 HighPtTripletStep = cms.Sequence(HighPtTripletStepTask)
+
+_HighPtTripletStepTask_trackingMkFit = HighPtTripletStepTask.copy()
+_HighPtTripletStepTask_trackingMkFit.add(highPtTripletStepTrackCandidatesMkFitSeeds, highPtTripletStepTrackCandidatesMkFit)
+trackingMkFit.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_trackingMkFit)
+
 _HighPtTripletStepTask_Phase2PU140 = HighPtTripletStepTask.copy()
 _HighPtTripletStepTask_Phase2PU140.replace(highPtTripletStep, highPtTripletStepSelector)
 _HighPtTripletStep_Phase2PU140 = cms.Sequence(_HighPtTripletStepTask_Phase2PU140)
