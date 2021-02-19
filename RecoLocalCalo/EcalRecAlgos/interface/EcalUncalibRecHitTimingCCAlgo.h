@@ -26,7 +26,9 @@ class EcalUncalibRecHitTimingCCAlgo {
   static constexpr float GLOBAL_TIME_SHIFT = 100;
 
 public:
-  EcalUncalibRecHitTimingCCAlgo(const float startTime = -5, const float stopTime = 5, const float targetTimePrecision = 0.001);
+  EcalUncalibRecHitTimingCCAlgo(const float startTime = -5,
+                                const float stopTime = 5,
+                                const float targetTimePrecision = 0.001);
   ~EcalUncalibRecHitTimingCCAlgo(){};
   double computeTimeCC(const EcalDataFrame& dataFrame,
                        const std::vector<double>& amplitudes,
@@ -34,7 +36,7 @@ public:
                        const EcalMGPAGainRatio* aGain,
                        const FullSampleVector& fullpulse,
                        EcalUncalibratedRecHit& uncalibRecHit,
-                       float& errOnTime );
+                       float& errOnTime);
 
 private:
   FullSampleVector interpolatePulse(const FullSampleVector& fullpulse, const float t = 0);

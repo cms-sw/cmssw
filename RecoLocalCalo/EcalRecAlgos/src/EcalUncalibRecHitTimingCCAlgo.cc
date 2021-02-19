@@ -1,6 +1,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitTimingCCAlgo.h"
 
-EcalUncalibRecHitTimingCCAlgo::EcalUncalibRecHitTimingCCAlgo(const float startTime, const float stopTime, const float targetTimePrecision)
+EcalUncalibRecHitTimingCCAlgo::EcalUncalibRecHitTimingCCAlgo(const float startTime,
+                                                             const float stopTime,
+                                                             const float targetTimePrecision)
     : startTime_(startTime), stopTime_(stopTime), targetTimePrecision_(targetTimePrecision) {}
 
 double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFrame,
@@ -100,9 +102,9 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
           << "Minimization Counter too high: " << counter << std::endl;
     tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period;
     //Negative error means that there was a problem with the CC
-    errOnTime = - targetTimePrecision_ / ecalPh1::Samp_Period;
+    errOnTime = -targetTimePrecision_ / ecalPh1::Samp_Period;
   }
-  
+
   return -tM / ecalPh1::Samp_Period;
 }
 
