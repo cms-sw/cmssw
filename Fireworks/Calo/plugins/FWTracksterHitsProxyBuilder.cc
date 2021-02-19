@@ -252,9 +252,19 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
     for (auto edge : edges) {
       auto doublet = std::make_pair(layerClusters[edge[0]], layerClusters[edge[1]]);
 
-      int layerIn = HGCSiliconDetId(doublet.first.seed()).layer();
-      int layerOut = HGCSiliconDetId(doublet.second.seed()).layer();
-      bool isAdjacent = (layerOut-layerIn) == 1;
+      const bool isScintillatorIn = doublet.first.seed().det() == DetId::HGCalHSc;
+      const bool isScintillatorOut = doublet.second.seed().det() == DetId::HGCalHSc;
+      int layerIn = isScintillatorIn ? HGCScintillatorDetId(doublet.first.seed()).layer() : HGCSiliconDetId(doublet.first.seed()).layer();
+      int layerOut = isScintillatorOut ? HGCScintillatorDetId(doublet.double.seed()).layer() : HGCSiliconDetId(doublet.double.seed()).layer();
+
+      // Check if offset is needed
+      const int offset = 28;
+      const bool hasOffsetIn = (doublet.first.seed().det() == DetId::HGCalHSi) || (doublet.first.seed().det() == DetId::HGCalHSc);
+      const bool hasOffsetOut = (doublet.double.seed().det() == DetId::HGCalHSi) || (doublet.double.seed().det() == DetId::HGCalHSc);
+      layerIn = hasOffsetIn ? layerIn+offset : layerIn;
+      layerOut = hasOffsetOut ? layerOut+offset : layerOut;
+
+      const bool isAdjacent = (layerOut-layerIn) == 1;
 
       TEveStraightLineSet *marker = new TEveStraightLineSet;
       marker->SetLineWidth(2);
@@ -263,7 +273,6 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
       }
       else {
         marker->SetLineColor(kRed);
-
       }
 
       // draw 3D cross
