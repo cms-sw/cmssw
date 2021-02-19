@@ -156,7 +156,7 @@ namespace {
   }
 
   //Contents of a message which should be reported as an INFO not a ERROR
-  constexpr std::array<const char* const, 8> in_message{
+  constexpr std::array<const char* const, 9> in_message{
       {"no dictionary for class",
        "already in TClassTable",
        "matrix not positive definite",
@@ -164,7 +164,8 @@ namespace {
        "Problems declaring payload",
        "Announced number of args different from the real number of argument passed",  // Always printed if gDebug>0 - regardless of whether warning message is real.
        "nbins is <=0 - set to nbins = 1",
-       "nbinsy is <=0 - set to nbinsy = 1"}};
+       "nbinsy is <=0 - set to nbinsy = 1",
+       "tbb::global_control is limiting"}};
 
   //Location generating messages which should be reported as an INFO not a ERROR
   constexpr std::array<const char* const, 7> in_location{{"Fit",
@@ -175,10 +176,9 @@ namespace {
                                                           "Inverter::Dinv",
                                                           "RTaskArenaWrapper"}};
 
-  constexpr std::array<const char* const, 4> in_message_print{{"number of iterations was insufficient",
-                                                               "bad integrand behavior",
-                                                               "integral is divergent, or slowly convergent",
-                                                               "tbb::global_control is limiting"}};
+  constexpr std::array<const char* const, 3> in_message_print_error{{"number of iterations was insufficient",
+                                                                     "bad integrand behavior",
+                                                                     "integral is divergent, or slowly convergent"}};
 
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
     bool die = false;
@@ -262,7 +262,7 @@ namespace {
     // These are a special case because we do not want them to
     // be fatal, but we do want an error to print.
     bool alreadyPrinted = false;
-    if (find_if_string(el_message, in_message_print)) {
+    if (find_if_string(el_message, in_message_print_error)) {
       el_severity = edm::RootHandlers::SeverityLevel::kInfo;
       edm::LogError("Root_Error") << el_location << el_message;
       alreadyPrinted = true;
