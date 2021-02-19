@@ -1,22 +1,22 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
-
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaHGCALIDParamDefaults.h"
 
 #include <vdt/vdtMath.h>
 
 using namespace reco;
 
 namespace {
-  std::pair<edm::Ptr<reco::CaloCluster>, float> getMaxDRNonSeedCluster(const reco::SuperCluster& sc) {
+  //bool is if a valid dr was found, float is the dr
+  std::pair<bool, float> getMaxDRNonSeedCluster(const reco::SuperCluster& sc) {
     float maxDR2 = 0.;
-    edm::Ptr<reco::CaloCluster> maxDRClus;
     const edm::Ptr<reco::CaloCluster>& seedClus = sc.seed();
 
     for (const auto& clus : sc.clusters()) {
@@ -28,10 +28,9 @@ namespace {
       const double dr2 = reco::deltaR2(*clus, *seedClus);
       if (dr2 > maxDR2) {
         maxDR2 = dr2;
-        maxDRClus = clus;
       }
     }
-    return {maxDRClus, maxDR2 != 0. ? std::sqrt(maxDR2) : 999.};
+    return {sc.clustersSize() != 1, sc.clustersSize() != 1 ? std::sqrt(maxDR2) : 999.};
   }
   template <typename T>
   int countRecHits(const T& recHitHandle, float threshold) {
@@ -85,7 +84,7 @@ void SCEnergyCorrectorSemiParm::fillPSetDescription(edm::ParameterSetDescription
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("offlinePrimaryVertices"));
   desc.add<double>("eRecHitThreshold", 1.);
   desc.add<edm::InputTag>("hgcalRecHits", edm::InputTag());
-  desc.add<double>("hgcalCylinderR", 2.8);
+  desc.add<double>("hgcalCylinderR", EgammaHGCALIDParamDefaults::kRCylinder);
 }
 
 edm::ParameterSetDescription SCEnergyCorrectorSemiParm::makePSetDescription() {
@@ -95,8 +94,8 @@ edm::ParameterSetDescription SCEnergyCorrectorSemiParm::makePSetDescription() {
 }
 
 void SCEnergyCorrectorSemiParm::setEventSetup(const edm::EventSetup& es) {
-  caloTopo_ = es.getHandle(caloTopoToken_);
-  caloGeom_ = es.getHandle(caloGeomToken_);
+  caloTopo_ = &es.getData(caloTopoToken_);
+  caloGeom_ = &es.getData(caloGeomToken_);
 
   regParamBarrel_.setForests(es);
   regParamEndcap_.setForests(es);
@@ -134,13 +133,14 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
     //supercluster has no valid regression, return default values
     return corrEnergyAndRes;
   }
-  const auto& regParam = getRegParam(sc.seed()->seed());
+  DetId seedId = sc.seed()->seed();
+  const auto& regParam = getRegParam(seedId);
 
   double mean = regParam.mean(regData);
   double sigma = regParam.sigma(regData);
 
   double energyCorr = mean * sc.rawEnergy();
-  if (isHLT_ && sc.seed()->seed().det() == DetId::Ecal && sc.seed()->seed().subdetId() == EcalEndcap) {
+  if (isHLT_ && sc.seed()->seed().det() == DetId::Ecal && seedId.subdetId() == EcalEndcap) {
     energyCorr += sc.preshowerEnergy();
   }
   double resolutionEst = sigma * energyCorr;
@@ -184,8 +184,8 @@ std::vector<float> SCEnergyCorrectorSemiParm::getRegData(const reco::SuperCluste
 }
 
 void SCEnergyCorrectorSemiParm::RegParam::setForests(const edm::EventSetup& setup) {
-  meanForest_ = setup.getHandle(meanForestToken_);
-  sigmaForest_ = setup.getHandle(sigmaForestToken_);
+  meanForest_ = &setup.getData(meanForestToken_);
+  sigmaForest_ = &setup.getData(sigmaForestToken_);
 }
 
 double SCEnergyCorrectorSemiParm::RegParam::mean(const std::vector<float>& data) const {
@@ -203,17 +203,15 @@ std::vector<float> SCEnergyCorrectorSemiParm::getRegDataECALV1(const reco::Super
   const bool iseb = seedCluster.hitsAndFractions()[0].first.subdetId() == EcalBarrel;
   const EcalRecHitCollection* recHits = iseb ? recHitsEB_.product() : recHitsEE_.product();
 
-  const CaloTopology* topo = caloTopo_.product();
-
   const double raw_energy = sc.rawEnergy();
   const int numberOfClusters = sc.clusters().size();
 
-  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster, recHits, topo);
+  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster, recHits, caloTopo_);
 
-  const float eLeft = EcalClusterTools::eLeft(seedCluster, recHits, topo);
-  const float eRight = EcalClusterTools::eRight(seedCluster, recHits, topo);
-  const float eTop = EcalClusterTools::eTop(seedCluster, recHits, topo);
-  const float eBottom = EcalClusterTools::eBottom(seedCluster, recHits, topo);
+  const float eLeft = EcalClusterTools::eLeft(seedCluster, recHits, caloTopo_);
+  const float eRight = EcalClusterTools::eRight(seedCluster, recHits, caloTopo_);
+  const float eTop = EcalClusterTools::eTop(seedCluster, recHits, caloTopo_);
+  const float eBottom = EcalClusterTools::eBottom(seedCluster, recHits, caloTopo_);
 
   float sigmaIetaIeta = sqrt(localCovariances[0]);
   float sigmaIetaIphi = std::numeric_limits<float>::max();
@@ -275,7 +273,7 @@ std::vector<float> SCEnergyCorrectorSemiParm::getRegDataECALV1(const reco::Super
   eval[1] = raw_energy;
   eval[2] = sc.etaWidth();
   eval[3] = sc.phiWidth();
-  eval[4] = EcalClusterTools::e3x3(seedCluster, recHits, topo) / raw_energy;
+  eval[4] = EcalClusterTools::e3x3(seedCluster, recHits, caloTopo_) / raw_energy;
   eval[5] = seedCluster.energy() / raw_energy;
   eval[6] = EcalClusterTools::eMax(seedCluster, recHits) / raw_energy;
   eval[7] = EcalClusterTools::e2nd(seedCluster, recHits) / raw_energy;
@@ -317,7 +315,7 @@ std::vector<float> SCEnergyCorrectorSemiParm::getRegDataECALV1(const reco::Super
 std::vector<float> SCEnergyCorrectorSemiParm::getRegDataECALHLTV1(const reco::SuperCluster& sc) const {
   std::vector<float> eval(7, 0.);
   auto maxDRNonSeedClus = getMaxDRNonSeedCluster(sc);
-  const float clusterMaxDR = maxDRNonSeedClus.first.isNonnull() ? maxDRNonSeedClus.second : 999.;
+  const float clusterMaxDR = maxDRNonSeedClus.first ? maxDRNonSeedClus.second : 999.;
 
   const reco::CaloCluster& seedCluster = *(sc.seed());
   const bool iseb = seedCluster.hitsAndFractions()[0].first.subdetId() == EcalBarrel;
@@ -326,7 +324,7 @@ std::vector<float> SCEnergyCorrectorSemiParm::getRegDataECALHLTV1(const reco::Su
   eval[0] = nHitsAboveThresholdEB_ + nHitsAboveThresholdEE_;
   eval[1] = sc.eta();
   eval[2] = sc.phiWidth();
-  eval[3] = EcalClusterTools::e3x3(seedCluster, recHits, caloTopo_.product()) / sc.rawEnergy();
+  eval[3] = EcalClusterTools::e3x3(seedCluster, recHits, caloTopo_) / sc.rawEnergy();
   eval[4] = std::max(0, static_cast<int>(sc.clusters().size()) - 1);
   eval[5] = clusterMaxDR;
   eval[6] = sc.rawEnergy();
@@ -342,7 +340,7 @@ std::vector<float> SCEnergyCorrectorSemiParm::getRegDataHGCALV1(const reco::Supe
   auto energyHighestHits = ssCalc.getEnergyHighestHits(2);
 
   auto maxDRNonSeedClus = getMaxDRNonSeedCluster(sc);
-  const float clusterMaxDR = maxDRNonSeedClus.first.isNonnull() ? maxDRNonSeedClus.second : 999.;
+  const float clusterMaxDR = maxDRNonSeedClus.first ? maxDRNonSeedClus.second : 999.;
 
   eval[0] = sc.rawEnergy();
   eval[1] = sc.eta();
