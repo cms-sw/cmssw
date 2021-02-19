@@ -55,7 +55,7 @@ public:
 
   std::vector<float> getRegData(const reco::SuperCluster& sc) const;
 
-protected:
+private:
   class RegParam {
   public:
     RegParam(std::string meanKey = "",
@@ -90,18 +90,28 @@ protected:
     std::string sigmaKey_;
     EgammaBDTOutputTransformer meanOutTrans_;
     EgammaBDTOutputTransformer sigmaOutTrans_;
-    edm::ESHandle<GBRForestD> meanForest_;
-    edm::ESHandle<GBRForestD> sigmaForest_;
+    const GBRForestD* meanForest_;
+    const GBRForestD* sigmaForest_;
     edm::ESGetToken<GBRForestD, GBRDWrapperRcd> meanForestToken_;
     edm::ESGetToken<GBRForestD, GBRDWrapperRcd> sigmaForestToken_;
   };
+
+  //returns barrel for ecal barrel, otherwise returns endcap
+  const RegParam& getRegParam(const DetId& detId) const {
+    return detId.det() == DetId::Ecal && detId.subdetId() == EcalBarrel ? regParamBarrel_ : regParamEndcap_;
+  }
+
+  std::vector<float> getRegDataECALV1(const reco::SuperCluster& sc) const;
+  std::vector<float> getRegDataECALHLTV1(const reco::SuperCluster& sc) const;
+  std::vector<float> getRegDataHGCALV1(const reco::SuperCluster& sc) const;
+  std::vector<float> getRegDataHGCALHLTV1(const reco::SuperCluster& sc) const;
 
   //barrel = always ecal barrel, endcap may be ECAL or HGCAL
   RegParam regParamBarrel_;
   RegParam regParamEndcap_;
 
-  edm::ESHandle<CaloTopology> caloTopo_;
-  edm::ESHandle<CaloGeometry> caloGeom_;
+  const CaloTopology* caloTopo_;
+  const CaloGeometry* caloGeom_;
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopoToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 
@@ -115,23 +125,6 @@ protected:
   edm::Handle<reco::PFRecHitCollection> recHitsHgcal_;
   edm::Handle<reco::VertexCollection> vertices_;
 
-  edm::InputTag ecalHitsEBInputTag_;
-  edm::InputTag ecalHitsEEInputTag_;
-  edm::InputTag hgcalHitsInputTag_;
-
-  edm::InputTag vertexInputTag_;
-
-  //returns barrel for ecal barrel, otherwise returns endcap
-  const RegParam& getRegParam(const DetId& detId) const {
-    return detId.det() == DetId::Ecal && detId.subdetId() == EcalBarrel ? regParamBarrel_ : regParamEndcap_;
-  }
-
-private:
-  std::vector<float> getRegDataECALV1(const reco::SuperCluster& sc) const;
-  std::vector<float> getRegDataECALHLTV1(const reco::SuperCluster& sc) const;
-  std::vector<float> getRegDataHGCALV1(const reco::SuperCluster& sc) const;
-  std::vector<float> getRegDataHGCALHLTV1(const reco::SuperCluster& sc) const;
-
   bool isHLT_;
   bool isPhaseII_;
   bool applySigmaIetaIphiBug_;  //there was a bug in sigmaIetaIphi for the 74X application
@@ -142,6 +135,7 @@ private:
   float hgcalCylinderR_;
   HGCalShowerShapeHelper hgcalShowerShapes_;
 };
+
 template <edm::Transition esTransition>
 void SCEnergyCorrectorSemiParm::RegParam::setTokens(edm::ConsumesCollector cc) {
   meanForestToken_ = cc.esConsumes<GBRForestD, GBRDWrapperRcd, esTransition>(edm::ESInputTag("", meanKey_));

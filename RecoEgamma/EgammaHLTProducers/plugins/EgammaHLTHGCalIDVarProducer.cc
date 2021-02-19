@@ -16,6 +16,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "RecoEgamma/EgammaTools/interface/HGCalShowerShapeHelper.h"
 #include "RecoEgamma/EgammaTools/interface/HGCalClusterTools.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaHGCALIDParamDefaults.h"
 
 class EgammaHLTHGCalIDVarProducer : public edm::stream::EDProducer<> {
 public:
@@ -89,7 +90,7 @@ void EgammaHLTHGCalIDVarProducer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidate"));
   desc.add<edm::InputTag>("hgcalRecHits", edm::InputTag("hgcalRecHits"));
   desc.add<edm::InputTag>("layerClusters", edm::InputTag("layerClusters"));
-  desc.add<double>("rCylinder", 2.8);
+  desc.add<double>("rCylinder", EgammaHGCALIDParamDefaults::kRCylinder);
   desc.add<double>("hOverECone", 0.15);
   descriptions.add(("hltEgammaHLTHGCalIDVarProducer"), desc);
 }
