@@ -99,5 +99,7 @@ Several detector combinations have been generated:
 * D75 = T21+C14+M7+I13+O7+F6
 * D76 = T21+C14+M9+I13+O7+F6
 * D77 = T24+C14+M9+I13+O7+F6
+* D78 = T22+C14+M9+I13+O7+F6
+* D79 = T23+C14+M9+I13+O7+F6
 
 D49 is the HLT TDR baseline.
