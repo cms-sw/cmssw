@@ -6,6 +6,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "TEveBoxSet.h"
@@ -254,13 +255,13 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
 
       const bool isScintillatorIn = doublet.first.seed().det() == DetId::HGCalHSc;
       const bool isScintillatorOut = doublet.second.seed().det() == DetId::HGCalHSc;
-      int layerIn = isScintillatorIn ? HGCScintillatorDetId(doublet.first.seed()).layer() : HGCSiliconDetId(doublet.first.seed()).layer();
-      int layerOut = isScintillatorOut ? HGCScintillatorDetId(doublet.double.seed()).layer() : HGCSiliconDetId(doublet.double.seed()).layer();
+      int layerIn = (isScintillatorIn) ? (HGCScintillatorDetId(doublet.first.seed()).layer()) : (HGCSiliconDetId(doublet.first.seed()).layer());
+      int layerOut = (isScintillatorOut) ? (HGCScintillatorDetId(doublet.second.seed()).layer()) : (HGCSiliconDetId(doublet.second.seed()).layer());
 
       // Check if offset is needed
       const int offset = 28;
       const bool hasOffsetIn = (doublet.first.seed().det() == DetId::HGCalHSi) || (doublet.first.seed().det() == DetId::HGCalHSc);
-      const bool hasOffsetOut = (doublet.double.seed().det() == DetId::HGCalHSi) || (doublet.double.seed().det() == DetId::HGCalHSc);
+      const bool hasOffsetOut = (doublet.second.seed().det() == DetId::HGCalHSi) || (doublet.second.seed().det() == DetId::HGCalHSc);
       layerIn = hasOffsetIn ? layerIn+offset : layerIn;
       layerOut = hasOffsetOut ? layerOut+offset : layerOut;
 
