@@ -34,7 +34,7 @@ private:
 };
 
 GEMRecoIdealDBLoader::GEMRecoIdealDBLoader(const edm::ParameterSet& iC) {
-  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);
+  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false); // set true for DD4HEP
 }
 
 void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
@@ -53,11 +53,12 @@ void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
     RecoIdealGeometry* rig = new RecoIdealGeometry;
 
     if (fromDD4Hep_) {
+      edm::LogVerbatim("GEMRecoIdealDBLoader")<< "(0) GEMRecoIdealDBLoader - DD4HEP ";
       edm::ESTransientHandle<cms::DDCompactView> pDD;
       es.get<IdealGeometryRecord>().get(pDD);
       es.get<IdealGeometryRecord>().get(pMNDC);
       const cms::DDCompactView& cpv = *pDD;
-      // rpcpd.build(&cpv, *pMNDC, *rig); // to be fixed
+      rpcpd.build(&cpv, *pMNDC, *rig); 
     } else {
       edm::LogVerbatim("GEMRecoIdealDBLoader")<< "(0) GEMRecoIdealDBLoader - DDD ";
       edm::ESTransientHandle<DDCompactView> pDD;
