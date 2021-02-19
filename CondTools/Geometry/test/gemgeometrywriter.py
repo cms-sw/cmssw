@@ -22,9 +22,6 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
-process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader",
-                                           fromDD4Hep = cms.untracked.bool(False))
-
 process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader")
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
