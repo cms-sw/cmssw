@@ -678,7 +678,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   ily.bndlName = myns + args.str("IlyBndlName");
   ily.bndlMat = args.str("IlyBndlMat");
   ily.bndlOff = args.dble("IlyBndlOff");
-  ily.bndlLengthHalf = args.dble("IlyBndlLength");
+  ily.bndlLengthHalf = 0.5 * args.dble("IlyBndlLength");
   ily.fEMName = myns + args.str("IlyFEMName");
   ily.fEMMat = args.str("IlyFEMMat");
   ily.fEMWidthHalf = 0.5 * args.dble("IlyFEMWidth");
