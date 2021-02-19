@@ -15,7 +15,7 @@ public:
 
 private:
   tensorflow::Session* session_;
-  tensorflow::GraphDef* graph_;
+  std::unique_ptr<tensorflow::GraphDef> graph_;
 };
 
 #endif

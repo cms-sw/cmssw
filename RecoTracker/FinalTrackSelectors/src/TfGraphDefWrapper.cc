@@ -2,11 +2,6 @@
 
 TfGraphDefWrapper::TfGraphDefWrapper(tensorflow::Session* session, tensorflow::GraphDef* graph)
     : session_(session), graph_(graph) {}
-const tensorflow::Session* TfGraphDefWrapper::getSession() const {
-  return const_cast<const tensorflow::Session*>(session_);
-}
+const tensorflow::Session* TfGraphDefWrapper::getSession() const { return session_; }
 
-TfGraphDefWrapper::~TfGraphDefWrapper() {
-  tensorflow::closeSession(session_);
-  delete graph_;
-};
+TfGraphDefWrapper::~TfGraphDefWrapper() { tensorflow::closeSession(session_); };
