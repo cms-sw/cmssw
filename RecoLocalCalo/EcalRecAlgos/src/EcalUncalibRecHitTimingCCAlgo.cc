@@ -71,7 +71,6 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   float tStart = startTime_ + GLOBAL_TIME_SHIFT;
   float tStop = stopTime_ + GLOBAL_TIME_SHIFT;
   float tM = (tStart + tStop) / 2;
-  std::cout<<"HEREEEEEE "<<tStart<<"   "<<tStop<<std::endl;
 
   float distStart, distStop;
   int counter = 0;
