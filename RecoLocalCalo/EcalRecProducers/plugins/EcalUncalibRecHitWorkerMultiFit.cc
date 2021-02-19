@@ -71,8 +71,7 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
     double targetTimePrecision = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
     computeCC_ = EcalUncalibRecHitTimingCCAlgo(startTime, stopTime, targetTimePrecision);
-  }
-  else if (timeAlgoName != "None")
+  } else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
   // ratio method parameters
@@ -487,12 +486,12 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
           amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
 
-        float jitterError=0.;
+        float jitterError = 0.;
         float jitter = computeCC_.computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError);
 
         uncalibRecHit.setJitter(jitter);
         uncalibRecHit.setJitterError(jitterError);
-      
+
       } else {  // no time method;
         uncalibRecHit.setJitter(0.);
         uncalibRecHit.setJitterError(0.);
