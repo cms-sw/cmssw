@@ -1,2 +1,4 @@
-<test name="test-rivet-list" command="test-rivet-list.sh"/>
-<test name="test-rivet-run" command="test-rivet-run.sh"/>
+<test name="test1-rivet-list" command="test-rivet-list.sh"/>
+<test name="test2-rivet-run" command="test-rivet-run.sh"/>
+<test name="test3-rivet-nan" command="test-rivet-nan.sh"/>
+<test name="test4-yoda-merge" command="test-yoda-merge.sh"/>
