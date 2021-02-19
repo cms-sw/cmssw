@@ -132,7 +132,7 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
                                      (0.25 * (tt - 2) - 0.5 * (tt + 1)) * (tt - 1) * fullpulse[numberOfSamples - 2] +
                                      (0.25 * (tt + 1) - 0.5 * (tt - 2)) * tt * fullpulse[numberOfSamples - 1];
   interpPulse[numberOfSamples - 1] = 0.5 * tt * (tt - 1) * fullpulse[numberOfSamples - 2] -
-                                     (tt + 1) * (tt - 1) * fullpulse[numberOfSamples - 1] +
+                                     (tt * tt - 1) * fullpulse[numberOfSamples - 1] +
                                      (0.25 * (tt + 1) - 0.5 * (tt - 2)) * tt * fullpulse[numberOfSamples - 1];
 
   FullSampleVector interpPulseShifted;
