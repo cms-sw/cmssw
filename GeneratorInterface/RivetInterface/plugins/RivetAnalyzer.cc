@@ -36,7 +36,7 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
     _lheRunInfoToken = consumes<LHERunInfoProduct, edm::InRun>(_lheLabel);
     _LHECollection = consumes<LHEEventProduct>(_lheLabel);
   }
-  
+
   _weightCap = pset.getParameter<double>("weightCap");
   _NLOSmearing = pset.getParameter<double>("NLOSmearing");
   _skipMultiWeights = pset.getParameter<bool>("skipMultiWeights");
@@ -155,7 +155,6 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       mergedWeights.push_back(tmpGenEvtPtr->weights()[0] * lheEventHandle->weights().at(i).wgt /
                               lheEventHandle->originalXWGTUP());
     }
-
   }
 
   tmpGenEvtPtr->weights().clear();
@@ -168,7 +167,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (_isFirstEvent) {
     _analysisHandler = std::make_unique<Rivet::AnalysisHandler>();
     _analysisHandler->addAnalyses(_analysisNames);
-    
+
     /// Set analysis handler weight options
     _analysisHandler->skipMultiWeights(_skipMultiWeights);
     _analysisHandler->selectMultiWeights(_selectMultiWeights);
