@@ -5,8 +5,8 @@
 
 class TfGraphDefWrapper {
 public:
-  TfGraphDefWrapper(tensorflow::Session*);
-  ~TfGraphDefWrapper() { tensorflow::closeSession(session_); };
+  TfGraphDefWrapper(tensorflow::Session*, tensorflow::GraphDef*);
+  ~TfGraphDefWrapper();
   TfGraphDefWrapper(const TfGraphDefWrapper&) = delete;
   TfGraphDefWrapper& operator=(const TfGraphDefWrapper&) = delete;
   TfGraphDefWrapper(TfGraphDefWrapper&&) = delete;
@@ -15,6 +15,7 @@ public:
 
 private:
   tensorflow::Session* session_;
+  std::unique_ptr<tensorflow::GraphDef> graph_;
 };
 
 #endif
