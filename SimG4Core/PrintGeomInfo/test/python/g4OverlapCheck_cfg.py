@@ -2,19 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 #from Configuration.Eras.Era_Run2_cff import Run2
 #process = cms.Process('SIM',Run2)
+#process.load('Configuration.Geometry.GeometryExtended2015_cff')
+#process.load('Configuration.Geometry.GeometryExtended2017_cff')
 
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process('SIM',Run3)
+process.load('Configuration.Geometry.GeometryExtended2021_cff')
 
 #from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 #process = cms.Process('SIM',Phase2C11)
-
-process = cms.Process("G4PrintGeometry")
-
-process.load('Configuration.Geometry.GeometryExtended2021_cff')
-#process.load('Configuration.Geometry.GeometryExtended2015_cff')
-#process.load('Configuration.Geometry.GeometryExtended2017_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
+
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 #if hasattr(process,'MessageLogger'):
