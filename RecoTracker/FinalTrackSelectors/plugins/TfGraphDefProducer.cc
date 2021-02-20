@@ -46,8 +46,9 @@ TfGraphDefProducer::TfGraphDefProducer(const edm::ParameterSet& iConfig)
 }
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<TfGraphDefWrapper> TfGraphDefProducer::produce(const TfGraphRecord& iRecord) {
-  return std::make_unique<TfGraphDefWrapper>(tensorflow::createSession(tensorflow::loadGraphDef(filename_), 1));
+TfGraphDefProducer::ReturnType TfGraphDefProducer::produce(const TfGraphRecord& iRecord) {
+  auto* graph = tensorflow::loadGraphDef(filename_);
+  return std::make_unique<TfGraphDefWrapper>(tensorflow::createSession(graph, 1), graph);
 }
 
 void TfGraphDefProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
