@@ -3286,6 +3286,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     # setup baseline steps
     upgradeStepDict['GenSim'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
+                                       '--customise_commands': '"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5)"',
                                        '--conditions' : gt,
                                        '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
                                        '--datatier' : 'GEN-SIM',
@@ -3296,6 +3297,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     upgradeStepDict['GenSimHLBeamSpot'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
+                                       '--customise_commands': '"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5)"',
                                        '--conditions' : gt,
                                        '--beamspot' : 'HLLHC',
                                        '--datatier' : 'GEN-SIM',
@@ -3305,6 +3307,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     upgradeStepDict['GenSimHLBeamSpot14'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
+                                       '--customise_commands': '"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5)"',
                                        '--conditions' : gt,
                                        '--beamspot' : 'HLLHC14TeV',
                                        '--datatier' : 'GEN-SIM',
