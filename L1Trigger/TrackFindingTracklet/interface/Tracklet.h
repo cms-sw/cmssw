@@ -470,7 +470,9 @@ namespace trklet {
                     int hitpattern,
                     const std::vector<const L1TStub*>& l1stubs = std::vector<const L1TStub*>());
 
-    std::string trackfitstr();
+    const std::string layerstubstr(const unsigned layer) const;
+    const std::string diskstubstr(const unsigned disk) const;
+    std::string trackfitstr() const;
 
     Track makeTrack(const std::vector<const L1TStub*>& l1stubs);
 
@@ -499,8 +501,11 @@ namespace trklet {
 
     int TCID() const { return TCIndex_ * (1 << settings_.nbitstrackletindex()) + trackletIndex_; }
 
-    int getISeed() const;
-    int getITC() const;
+    const int getISeed() const;
+    const int getITC() const;
+
+    void setTrackIndex(int index);
+    const int trackIndex() const;
 
     unsigned int PSseed() const { return ((layer() == 1) || (layer() == 2) || (disk() != 0)) ? 1 : 0; }
 
@@ -527,6 +532,7 @@ namespace trklet {
 
     int trackletIndex_;
     int TCIndex_;
+    int trackIndex_;
 
     //Tracklet track parameters
     TrackPars<FPGAWord> fpgapars_;
