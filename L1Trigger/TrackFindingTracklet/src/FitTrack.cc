@@ -996,6 +996,7 @@ void FitTrack::execute() {
       if (settings_.removalType() == "merge") {
         trackfit_->addStubList(trackstublist);
         trackfit_->addStubidsList(stubidslist);
+        bestTracklet->setTrackIndex(trackfit_->nTracks());
         trackfit_->addTrack(bestTracklet);
       } else if (bestTracklet->fit()) {
         assert(trackfit_ != nullptr);
@@ -1005,6 +1006,7 @@ void FitTrack::execute() {
                << endl;
           fout.close();
         }
+        bestTracklet->setTrackIndex(trackfit_->nTracks());
         trackfit_->addTrack(bestTracklet);
       }
     }

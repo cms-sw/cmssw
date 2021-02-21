@@ -473,11 +473,9 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   FTTimer_.start();
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     sectors_[k]->executeFT();
-#ifndef USEHYBRID  //don't try to print these memories if running hybrid
     if ((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) {
       sectors_[k]->writeTF(first);
     }
-#endif
   }
   FTTimer_.stop();
 
@@ -485,12 +483,10 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   PDTimer_.start();
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     sectors_[k]->executePD(tracks_);
-#ifndef USEHYBRID  //don't try to print these memories if running hybrid
     if (((settings_->writeMem() || settings_->writeMonitorData("IFit")) && k == settings_->writememsect()) ||
         settings_->writeMonitorData("CT")) {
       sectors_[k]->writeCT(first);
     }
-#endif
   }
   PDTimer_.stop();
 }
