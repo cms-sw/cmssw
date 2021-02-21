@@ -24,7 +24,7 @@ genParticleTable.variables = cms.PSet(genParticleTable.variables,
     charge = CandVars.charge)
 
 nanoHGCMLSequence = cms.Sequence(nanoMetadata+genVertexTables+genParticleTable+
-        trackingParticleTable+caloParticleTable+simClusterTables+
+        #trackingParticleTable+caloParticleTable+simClusterTables+
         simTrackTables+hgcSimHitsSequence+trackerSimHitTables)
 
 def customizeReco(process):
@@ -32,19 +32,4 @@ def customizeReco(process):
     process.nanoHGCMLSequence.insert(2, pfCandTable)
     process.nanoHGCMLSequence.insert(3, pfTICLCandTable)
     process.nanoHGCMLSequence.insert(4, trackTables)
-    return process
-
-def customizeNoMergedCaloTruth(process):
-    process.nanoHGCMLSequence.remove(simClusterTable)
-    process.nanoHGCMLSequence.remove(simClusterToCaloPartTable)
-    process.nanoHGCMLSequence.remove(hgcEEHitsToSimClusterTable)
-    process.nanoHGCMLSequence.remove(hgcHEfrontHitsToSimClusterTable)
-    process.nanoHGCMLSequence.remove(hgcHEbackHitsToSimClusterTable)
-    process.nanoHGCMLSequence.remove(simTrackToSimClusterTable)
-
-    process.nanoHGCMLSequence.remove(caloParticleTable)
-    return process
-
-def customizeMergedSimClusters(process):
-    process.nanoHGCMLSequence.insert(1, mergedSimClusterTables)
     return process
