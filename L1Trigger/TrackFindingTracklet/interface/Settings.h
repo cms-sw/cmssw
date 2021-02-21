@@ -248,6 +248,13 @@ namespace trklet {
     unsigned int nbitstrackletindex() const { return nbitstrackletindex_; }
     void setNbitstrackletindex(unsigned int nbitstrackletindex) { nbitstrackletindex_ = nbitstrackletindex; }
 
+    unsigned int nbitsitc() const { return nbitsitc_; }
+    unsigned int nbitsseed() const { return (extended_ ? nbitsseedextended_ : nbitsseed_); }
+    unsigned int nbitstcindex() const { return nbitsseed() + nbitsitc(); }
+    void setNbitsitc(unsigned int nbitsitc) { nbitsitc_ = nbitsitc; }
+    void setNbitsseed(unsigned int nbitsseed) { nbitsseed_ = nbitsseed; }
+    void setNbitsseedextended(unsigned int nbitsseed) { nbitsseedextended_ = nbitsseed; }
+
     double dphisectorHG() const {
       return 2 * M_PI / N_SECTOR +
              2 * std::max(std::abs(asin(0.5 * rinvmax() * rmean(0)) - asin(0.5 * rinvmax() * rcrit_)),
@@ -449,6 +456,12 @@ namespace trklet {
     double ptcutte_{1.8};  //Minimum pt in TE
 
     unsigned int nbitstrackletindex_{7};  //Bits used to store the tracklet index
+
+    unsigned int nbitsitc_{4};           //Bits used to store the iTC, a unique
+                                         //identifier assigned to each TC within a sector
+    unsigned int nbitsseed_{3};          //Bits used to store the seed number
+    unsigned int nbitsseedextended_{4};  //Bits used to store the seed number
+                                         //in the extended project
 
     //Bits used to store track parameter in tracklet
     int nbitsrinv_{14};
