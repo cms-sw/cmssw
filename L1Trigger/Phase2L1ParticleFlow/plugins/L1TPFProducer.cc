@@ -301,7 +301,6 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
-
   // First, get a copy of the discretized and corrected inputs, and write them out
   iEvent.put(l1regions_.fetchCalo(/*ptmin=*/0.1, /*em=*/true), "EmCalo");
   iEvent.put(l1regions_.fetchCalo(/*ptmin=*/0.1, /*em=*/false), "Calo");
@@ -350,7 +349,6 @@ void L1TPFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     float genZ = genOrigin.Z();
     fwrite(&genZ, sizeof(float), 1, fRegionDump_);
   }
-
 
   // Then also save the tracks with a vertex cut
   iEvent.put(l1regions_.fetchTracks(/*ptmin=*/0.0, /*fromPV=*/true), "TKVtx");

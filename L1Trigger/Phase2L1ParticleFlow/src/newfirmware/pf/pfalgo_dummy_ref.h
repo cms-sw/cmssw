@@ -3,27 +3,27 @@
 
 #include "pfalgo_common_ref.h"
 
-namespace edm { class ParameterSet; }
+namespace edm {
+  class ParameterSet;
+}
 
 namespace l1ct {
 
-    class PFAlgoDummyEmulator : public PFAlgoEmulatorBase {
-        public:
-            PFAlgoDummyEmulator(unsigned int nCalo, unsigned int nMu) :
-                PFAlgoEmulatorBase(0, nCalo, nMu, 0, 0, 0, 0, 0) {}
+  class PFAlgoDummyEmulator : public PFAlgoEmulatorBase {
+  public:
+    PFAlgoDummyEmulator(unsigned int nCalo, unsigned int nMu) : PFAlgoEmulatorBase(0, nCalo, nMu, 0, 0, 0, 0, 0) {}
 
-            // note: this one will work only in CMSSW
-            PFAlgoDummyEmulator(const edm::ParameterSet & iConfig) ;
+    // note: this one will work only in CMSSW
+    PFAlgoDummyEmulator(const edm::ParameterSet& iConfig);
 
-            ~PFAlgoDummyEmulator() override {}
+    ~PFAlgoDummyEmulator() override {}
 
-            void run(const PFInputRegion & in, OutputRegion & out) const override;
+    void run(const PFInputRegion& in, OutputRegion& out) const override;
 
-            /// moves all objects from out.pfphoton to the beginning of out.pfneutral: nothing to do for this algo
-            void mergeNeutrals(OutputRegion & out) const override {} 
+    /// moves all objects from out.pfphoton to the beginning of out.pfneutral: nothing to do for this algo
+    void mergeNeutrals(OutputRegion& out) const override {}
+  };
 
-    };
-
-} // namespace
+}  // namespace l1ct
 
 #endif
