@@ -556,6 +556,7 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     objType = electronTable.name, #cms.string("Electron"),
     branchName = cms.string("genPart"),
     docString = cms.string("MC matching to status==1 electrons or photons"),
+    genparticles     = cms.InputTag("finalGenParticles"), 
 )
 
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
