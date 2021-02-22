@@ -20,7 +20,6 @@ namespace l1ct {
     float floatPt() const { return Scales::floatPt(hwPt); }
     float floatEta() const { return Scales::floatEta(hwEta); }
     float floatPhi() const { return Scales::floatPhi(hwPhi); }
-    // int intId() const { return hwId.rawId(); }
 
     inline bool operator==(const EGIsoObj & other) const {
       // FIXME: add quality and isolation
@@ -44,25 +43,19 @@ namespace l1ct {
     }
 
     // FIXME: fix bit width once object fully defined
-    static const int BITWIDTH = pt_t::width + eta_t::width + phi_t::width + 3;
+    static const int BITWIDTH = pt_t::width + eta_t::width + phi_t::width;
     inline ap_uint<BITWIDTH> pack() const {
           ap_uint<BITWIDTH> ret; unsigned int start = 0;
-          // EGIsoObj::pack(ret, start);
-          // _pack_into_bits(ret, start, hwDEta);
-          // _pack_into_bits(ret, start, hwDPhi);
-          // _pack_into_bits(ret, start, hwZ0);
-          // _pack_into_bits(ret, start, hwDxy);
-          // _pack_into_bits(ret, start, hwTkQuality);
+          _pack_into_bits(ret, start, hwPt);
+          _pack_into_bits(ret, start, hwEta);
+          _pack_into_bits(ret, start, hwPhi);
           return ret;
     }
     inline static EGIsoObj unpack(const ap_uint<BITWIDTH> & src) {
           EGIsoObj ret; unsigned int start = 0;
-          // ret._unpack_common(src, start);
-          // _unpack_from_bits(src, start, ret.hwDEta);
-          // _unpack_from_bits(src, start, ret.hwDPhi);
-          // _unpack_from_bits(src, start, ret.hwZ0);
-          // _unpack_from_bits(src, start, ret.hwDxy);
-          // _unpack_from_bits(src, start, ret.hwTkQuality);
+          _unpack_from_bits(src, start, ret.hwPt);
+          _unpack_from_bits(src, start, ret.hwEta);
+          _unpack_from_bits(src, start, ret.hwPhi);
           return ret;
     }
   };
@@ -94,11 +87,10 @@ namespace l1ct {
       return hwPt == other.hwPt &&
              hwEta == other.hwEta &&
              hwPhi == other.hwPhi &&
-             // hwDEta == other.hwDEta &&
-             // hwDPhi == other.hwDPhi &&
-             hwZ0 == other.hwZ0;
-             // hwZ0 == other.hwZ0 &&
-             // hwCharge == other.hwCharge;
+             hwDEta == other.hwDEta &&
+             hwDPhi == other.hwDPhi &&
+             hwZ0 == other.hwZ0 &&
+             hwCharge == other.hwCharge;
     }
     
     inline bool operator>(const EGIsoEleObj &other) const { 
@@ -114,39 +106,40 @@ namespace l1ct {
       hwPt = 0;
       hwEta = 0;
       hwPhi = 0;
-      // hwId.clear();
       hwDEta = 0;
       hwDPhi = 0;
       hwZ0 = 0;
       hwCharge = false;
     }
 
+    int intCharge() const { return hwCharge ? +1 : -1; }
     float floatDEta() const { return Scales::floatEta(hwDEta); }
     float floatDPhi() const { return Scales::floatPhi(hwDPhi); }
     float floatVtxEta() const { return Scales::floatEta(hwVtxEta()); }
     float floatVtxPhi() const { return Scales::floatPhi(hwVtxPhi()); }
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
 
-    // FIXME: fix bit width once object fully defined
-    static const int BITWIDTH = EGIsoObj::BITWIDTH + tkdeta_t::width + tkdphi_t::width + z0_t::width + tkquality_t::width;
+    static const int BITWIDTH = EGIsoObj::BITWIDTH + tkdeta_t::width + tkdphi_t::width + z0_t::width + 1;
     inline ap_uint<BITWIDTH> pack() const {
           ap_uint<BITWIDTH> ret; unsigned int start = 0;
-          // EGIsoObj::pack(ret, start);
-          // _pack_into_bits(ret, start, hwDEta);
-          // _pack_into_bits(ret, start, hwDPhi);
-          // _pack_into_bits(ret, start, hwZ0);
-          // _pack_into_bits(ret, start, hwDxy);
-          // _pack_into_bits(ret, start, hwTkQuality);
+          _pack_into_bits(ret, start, hwPt);
+          _pack_into_bits(ret, start, hwEta);
+          _pack_into_bits(ret, start, hwPhi);
+          _pack_into_bits(ret, start, hwDEta);
+          _pack_into_bits(ret, start, hwDPhi);
+          _pack_into_bits(ret, start, hwZ0);
+          _pack_bool_into_bits(ret, start, hwCharge);
           return ret;
     }
     inline static EGIsoEleObj unpack(const ap_uint<BITWIDTH> & src) {
           EGIsoEleObj ret; unsigned int start = 0;
-          // ret._unpack_common(src, start);
-          // _unpack_from_bits(src, start, ret.hwDEta);
-          // _unpack_from_bits(src, start, ret.hwDPhi);
-          // _unpack_from_bits(src, start, ret.hwZ0);
-          // _unpack_from_bits(src, start, ret.hwDxy);
-          // _unpack_from_bits(src, start, ret.hwTkQuality);
+          _unpack_from_bits(src, start, ret.hwPt);
+          _unpack_from_bits(src, start, ret.hwEta);
+          _unpack_from_bits(src, start, ret.hwPhi);
+          _unpack_from_bits(src, start, ret.hwDEta);
+          _unpack_from_bits(src, start, ret.hwDPhi);
+          _unpack_from_bits(src, start, ret.hwZ0);
+          _unpack_bool_from_bits(src, start, ret.hwCharge);
           return ret;
     }
 
