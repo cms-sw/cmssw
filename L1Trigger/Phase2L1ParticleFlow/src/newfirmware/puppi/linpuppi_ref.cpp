@@ -114,7 +114,7 @@ void l1ct::LinPuppiEmulator::linpuppi_chs_ref(const PFRegionEmu & region, const 
     outallch.resize(nTrack);
     for (unsigned int i = 0; i < nTrack; ++i) {
         int z0diff = pfch[i].hwZ0 - pv.hwZ0;
-        if (pfch[i].hwPt != 0 && region.isFiducial(pfch[i]) && (std::abs(z0diff) <= dzCut_ || pfch[i].hwId.isMuon())) {
+        if (pfch[i].hwPt != 0 && region.isFiducial(pfch[i]) && (std::abs(z0diff) <= int(dzCut_) || pfch[i].hwId.isMuon())) {
             outallch[i].fill(region, pfch[i]);
             if (debug_ && pfch[i].hwPt > 0) printf("ref candidate %02u pt %7.2f pid %1d   vz %+6d  dz %+6d (cut %5d) -> pass\n", i, 
                                     pfch[i].floatPt(), pfch[i].intId(), int(pfch[i].hwZ0), z0diff, dzCut_);
@@ -271,7 +271,7 @@ void l1ct::LinPuppiEmulator::linpuppi_ref(const PFRegionEmu & region, const std:
         uint64_t sum = 0; // 2 ^ sum_bitShift times (int pt^2)/(int dr2)
         for (unsigned int it = 0; it < nTrack; ++it) {
             if (track[it].hwPt == 0) continue;
-            if (std::abs(int(track[it].hwZ0 - pv.hwZ0)) > dzCut_) continue;
+            if (std::abs(int(track[it].hwZ0 - pv.hwZ0)) > int(dzCut_)) continue;
             unsigned int dr2 = dr2_int(pfallne[in].hwEta, pfallne[in].hwPhi, track[it].hwEta, track[it].hwPhi); // if dr is inside puppi cone
             if (dr2 <= dR2Max_) {
                 ap_uint<9> dr2short = (dr2 >= dR2Min_ ? dr2 : dR2Min_) >> 5; // reduce precision to make divide LUT cheaper
@@ -366,7 +366,7 @@ void l1ct::LinPuppiEmulator::linpuppi_flt(const PFRegionEmu & region, const std:
         float sum = 0;
         for (unsigned int it = 0; it < nTrack; ++it) {
             if (track[it].hwPt == 0) continue;
-            if (std::abs(int(track[it].hwZ0 - pv.hwZ0)) > dzCut_) continue;
+            if (std::abs(int(track[it].hwZ0 - pv.hwZ0)) > int(dzCut_)) continue;
             unsigned int dr2 = dr2_int(pfallne[in].hwEta, pfallne[in].hwPhi, track[it].hwEta, track[it].hwPhi); // if dr is inside puppi cone
             if (dr2 <= dR2Max_) {
                 sum += std::pow(std::min<float>(track[it].floatPt(),f_ptMax),2) / (std::max<int>(dr2,dR2Min_) * LINPUPPI_DR2LSB);
