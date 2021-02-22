@@ -62,7 +62,7 @@ namespace edm {
                              const DataKey& iKey,
                              EventSetupImpl const* iEventSetupImpl,
                              edm::ServiceToken const& iToken,
-                             edm::ESParentContext const&) override {
+                             edm::ESParentContext const& iParent) override {
         assert(iRecord.key() == RecordT::keyForClass());
         bool expected = false;
         bool doPrefetch = prefetching_.compare_exchange_strong(expected, true);
@@ -70,11 +70,12 @@ namespace edm {
 
         if (doPrefetch) {
           tbb::task::spawn(*edm::make_waiting_task(
-              tbb::task::allocate_root(), [this, &iRecord, iKey, iEventSetupImpl, iToken](std::exception_ptr const*) {
+              tbb::task::allocate_root(),
+              [this, &iRecord, iKey, iEventSetupImpl, iToken, iParent](std::exception_ptr const*) {
                 try {
                   RecordT rec;
-                  ESParentContext pc;
-                  rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, &pc, true);
+                  rec.setImpl(
+                      &iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, &iParent, true);
                   ServiceRegistry::Operate operate(iToken);
                   this->make(rec, iKey);
                 } catch (...) {
