@@ -13,10 +13,10 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
-#include <Geometry/CaloGeometry/interface/CaloGeometry.h>
-#include <Geometry/HGCalGeometry/interface/HGCalGeometry.h>
-#include <Geometry/Records/interface/CaloGeometryRecord.h>
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
