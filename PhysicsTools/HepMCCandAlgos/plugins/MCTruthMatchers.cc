@@ -35,13 +35,11 @@ typedef reco::PhysObjectMatcher<
 
 // JET Match by deltaR and dPt, ranking by deltaR
 typedef reco::PhysObjectMatcher<
-  reco::CandidateView,
-  reco::GenJetCollection,
-  reco::MCMatchSelector<reco::CandidateView::value_type,
-			reco::GenJetCollection::value_type>,
-  reco::MatchByDRDPt<reco::CandidateView::value_type,
-  reco::GenJetCollection::value_type>
-  > GenJetMatcherDRPtByDR;
+    reco::CandidateView,
+    reco::GenJetCollection,
+    reco::MCMatchSelector<reco::CandidateView::value_type, reco::GenJetCollection::value_type>,
+    reco::MatchByDRDPt<reco::CandidateView::value_type, reco::GenJetCollection::value_type> >
+    GenJetMatcherDRPtByDR;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(MCMatcher);
