@@ -220,8 +220,7 @@ public:
 
   void bookClusterHistos_LCtoCP_association(DQMStore::IBooker& ibook,
                                             Histograms& histograms,
-                                            unsigned int layers,
-                                            std::vector<int> thicknesses);
+                                            unsigned int layers);
 
   void bookClusterHistos_CellLevel(DQMStore::IBooker& ibook,
                                    Histograms& histograms,
