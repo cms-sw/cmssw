@@ -494,12 +494,6 @@ namespace edm {
 
     copySlotsToFrom(preESModuleSignal_, iOther.preESModuleSignal_);
     copySlotsToFromReverse(postESModuleSignal_, iOther.postESModuleSignal_);
-
-    copySlotsToFrom(preModuleEventAcquireSignal_, iOther.preModuleEventAcquireSignal_);
-    copySlotsToFromReverse(postModuleEventAcquireSignal_, iOther.postModuleEventAcquireSignal_);
-
-    copySlotsToFrom(preModuleEventDelayedGetSignal_, iOther.preModuleEventDelayedGetSignal_);
-    copySlotsToFromReverse(postModuleEventDelayedGetSignal_, iOther.postModuleEventDelayedGetSignal_);
     /*
     copySlotsToFrom(preModuleSignal_, iOther.preModuleSignal_);
     copySlotsToFromReverse(postModuleSignal_, iOther.postModuleSignal_);
