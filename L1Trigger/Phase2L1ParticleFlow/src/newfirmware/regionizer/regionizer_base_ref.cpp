@@ -47,7 +47,7 @@ void l1ct::RegionizerEmulator::run(const RegionizerDecodedInputs & in, std::vect
         }
     }
 
-    for (const auto & mu : in.muon) {
+    for (const auto & mu : in.muon.obj) {
         float glbEta  = mu.floatEta(), glbPhi = mu.floatPhi();
         for (auto & r : out) {
             if (r.region.contains(glbEta,glbPhi)) {

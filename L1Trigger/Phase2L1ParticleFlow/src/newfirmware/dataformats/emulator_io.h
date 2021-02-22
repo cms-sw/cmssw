@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <vector>
+#include "datatypes.h"
 
 namespace l1ct {
 
