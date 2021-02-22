@@ -690,8 +690,7 @@ void HGVHistoProducerAlgo::bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibo
 
 void HGVHistoProducerAlgo::bookClusterHistos_LCtoCP_association(DQMStore::IBooker& ibook,
                                                                       Histograms& histograms,
-                                                                      unsigned int layers,
-                                                                      std::vector<int> thicknesses) {
+                                                                      unsigned int layers) {
   //----------------------------------------------------------------------------------------------------------------------------
   for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
     auto istr1 = std::to_string(ilayer);
