@@ -3,28 +3,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProducer;
 
-#include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
-typedef SimpleFlatTableProducer<SimCluster> SimpleSimClusterFlatTableProducer;
-
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-typedef SimpleFlatTableProducer<PCaloHit> SimplePCaloHitFlatTableProducer;
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-typedef SimpleFlatTableProducer<PSimHit> SimplePSimHitFlatTableProducer;
-#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-typedef SimpleFlatTableProducer<CaloRecHit> SimpleCaloRecHitFlatTableProducer;
-
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-typedef SimpleFlatTableProducer<TrackingParticle> SimpleTrackingParticleFlatTableProducer;
-#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
-typedef SimpleFlatTableProducer<CaloParticle> SimpleCaloParticleFlatTableProducer;
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-typedef SimpleFlatTableProducer<reco::PFCandidate> SimplePFCandidateFlatTableProducer;
-
-#include "SimDataFormats/Track/interface/SimTrack.h"
-typedef SimpleFlatTableProducer<SimTrack> SimpleSimTrackFlatTableProducer;
-#include "DataFormats/TrackReco/interface/Track.h"
-typedef SimpleFlatTableProducer<reco::Track> SimpleTrackFlatTableProducer;
-
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 typedef EventSingletonSimpleFlatTableProducer<GenEventInfoProduct> SimpleGenEventFlatTableProducer;
 
@@ -41,22 +19,9 @@ typedef SimpleFlatTableProducer<CTPPSLocalTrackLite> SimpleLocalTrackFlatTablePr
 typedef EventSingletonSimpleFlatTableProducer<math::XYZPointF> SimpleXYZPointFlatTableProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(SimplePCaloHitFlatTableProducer);
-DEFINE_FWK_MODULE(SimpleCaloRecHitFlatTableProducer);
-DEFINE_FWK_MODULE(SimplePSimHitFlatTableProducer);
-DEFINE_FWK_MODULE(SimpleSimTrackFlatTableProducer);
-DEFINE_FWK_MODULE(SimpleSimClusterFlatTableProducer);
-DEFINE_FWK_MODULE(SimpleTrackingParticleFlatTableProducer);
-DEFINE_FWK_MODULE(SimpleTrackFlatTableProducer);
-DEFINE_FWK_MODULE(SimplePFCandidateFlatTableProducer);
-DEFINE_FWK_MODULE(SimpleCaloParticleFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleGenEventFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleHTXSFlatTableProducer);
-<<<<<<< HEAD
 DEFINE_FWK_MODULE(SimpleProtonTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleLocalTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleXYZPointFlatTableProducer);
-=======
-DEFINE_FWK_MODULE(SimpleXYZPointFlatTableProducer);
->>>>>>> Add PFParticle outline and ntuples

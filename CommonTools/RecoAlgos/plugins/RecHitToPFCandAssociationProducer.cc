@@ -47,7 +47,7 @@ public:
   ~RecHitToPFCandAssociationProducer() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::vector<edm::InputTag> caloRechitTags_;
   std::vector<edm::EDGetTokenT<edm::PCaloHitContainer>> caloSimhitCollectionTokens_;
@@ -67,7 +67,7 @@ RecHitToPFCandAssociationProducer::RecHitToPFCandAssociationProducer(const edm::
     pfCollectionToken_(consumes<reco::PFCandidateCollection>(pset.getParameter<edm::InputTag>("pfCands")))
 {
   for (auto& tag : caloRechitTags_) {
-    std::string label = tag.instance();
+    const std::string& label = tag.instance();
     //TODO: Can this be an edm::View?
     produces<edm::Association<reco::PFCandidateCollection>>(label+"ToPFCand");
   }
@@ -92,7 +92,7 @@ void RecHitToPFCandAssociationProducer::produce(edm::Event &iEvent, const edm::E
           const reco::PFBlockRef blockRef = element.first;
           for (const auto& block : blockRef->elements()) {
               if (block.type() == reco::PFBlockElement::HGCAL) {
-                  const reco::PFClusterRef cluster = block.clusterRef();
+                  const reco::PFClusterRef& cluster = block.clusterRef();
                   const std::vector<reco::PFRecHitFraction>& rhf = cluster->recHitFractions();
                   for (const auto& hf : rhf) {
                       auto& hit = hf.recHitRef();

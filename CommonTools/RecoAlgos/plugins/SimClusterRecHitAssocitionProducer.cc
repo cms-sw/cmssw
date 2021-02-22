@@ -38,7 +38,7 @@ public:
   ~SimClusterRecHitAssociationProducer() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::vector<edm::InputTag> caloRechitTags_;
   std::vector<edm::EDGetTokenT<edm::PCaloHitContainer>> caloSimhitCollectionTokens_;
@@ -58,7 +58,7 @@ SimClusterRecHitAssociationProducer::SimClusterRecHitAssociationProducer(const e
     scCollectionToken_(consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("simClusters")))
 {
   for (auto& tag : caloRechitTags_) {
-    std::string label = tag.instance();
+    const std::string& label = tag.instance();
     produces<edm::Association<SimClusterCollection>>(label+"ToSimClus");
   }
   produces<std::unordered_map<int, float>>();

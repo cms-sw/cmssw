@@ -42,7 +42,7 @@ hgcHEbackHitsToSimClusterTable.src = hgcHEbackSimHitsTable.src
 hgcHEbackHitsToSimClusterTable.objName = hgcHEbackSimHitsTable.name
 hgcHEbackHitsToSimClusterTable.objMap = "mix:simHitHGCHEbackToSimCluster"
 
-hgcEESimHitsPositionTable = cms.EDProducer("PCaloHitPositionFromDetIDTableProducer",
+hgcEESimHitsPositionTable = cms.EDProducer("PCaloHitPositionTableProducer",
     src = hgcEESimHitsTable.src,
     cut = hgcEESimHitsTable.cut, 
     name = hgcEESimHitsTable.name,

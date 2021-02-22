@@ -85,7 +85,7 @@ hgcHEbackRecHitsToPFCandTable.src = hgcHEbackRecHitsTable.src
 hgcHEbackRecHitsToPFCandTable.objName = hgcHEbackRecHitsTable.name
 hgcHEbackRecHitsToPFCandTable.objMap = "hgcRecHitsToPFCands:HGCHEBRecHitsToPFCand"
 
-hgcEERecHitsPositionTable = cms.EDProducer("HGCRecHitPositionFromDetIDTableProducer",
+hgcEERecHitsPositionTable = cms.EDProducer("HGCRecHitPositionTableProducer",
     src = hgcEERecHitsTable.src,
     cut = hgcEERecHitsTable.cut, 
     name = hgcEERecHitsTable.name,

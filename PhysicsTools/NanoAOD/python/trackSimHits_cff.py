@@ -17,7 +17,7 @@ trackerHitsPixelEndcapLowTofTable = cms.EDProducer("SimplePSimHitFlatTableProduc
     )
 )
 
-trackerHitsPixelEndcapLowTofPositionTable = cms.EDProducer("PSimHitPositionFromDetIDTableProducer",
+trackerHitsPixelEndcapLowTofPositionTable = cms.EDProducer("PSimHitPositionTableProducer",
     src = trackerHitsPixelEndcapLowTofTable.src,
     cut = trackerHitsPixelEndcapLowTofTable.cut, 
     name = trackerHitsPixelEndcapLowTofTable.name,
@@ -29,7 +29,7 @@ trackerHitsPixelBarrelLowTofTable.src = "g4SimHits:TrackerHitsPixelBarrelLowTof"
 trackerHitsPixelBarrelLowTofTable.name = "SimHitPixelLowTof"
 trackerHitsPixelBarrelLowTofTable.doc = "Geant4 SimHits in pixel barrel"
 
-trackerHitsPixelBarrelLowTofPositionTable = cms.EDProducer("PSimHitPositionFromDetIDTableProducer",
+trackerHitsPixelBarrelLowTofPositionTable = cms.EDProducer("PSimHitPositionTableProducer",
     src = trackerHitsPixelBarrelLowTofTable.src,
     cut = trackerHitsPixelBarrelLowTofTable.cut, 
     name = trackerHitsPixelBarrelLowTofTable.name,
@@ -41,7 +41,7 @@ muonCSCHitsTable.src = "g4SimHits:MuonCSCHits"
 muonCSCHitsTable.name = "SimHitMuonCSC"
 muonCSCHitsTable.doc = "Geant4 SimHits in Muon CSCs"
 
-muonCSCHitsPositionTable = cms.EDProducer("PSimHitPositionFromDetIDTableProducer",
+muonCSCHitsPositionTable = cms.EDProducer("PSimHitPositionTableProducer",
     src = muonCSCHitsTable.src,
     cut = muonCSCHitsTable.cut, 
     name = muonCSCHitsTable.name,

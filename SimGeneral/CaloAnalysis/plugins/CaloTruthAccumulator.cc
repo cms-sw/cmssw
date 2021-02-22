@@ -733,7 +733,7 @@ void CaloTruthAccumulator::accumulateEvent(const T &event,
   std::unordered_map<int, int> trackIdxToSimClusterIdx;
   for (size_t i = 0; i < output_.pSimClusters->size(); i ++) {
     auto& sc = output_.pSimClusters->at(i);
-    for (auto tk : sc.g4Tracks()) {
+    for (const auto& tk : sc.g4Tracks()) {
       trackIdxToSimClusterIdx[trackid_to_track_index.at(tk.trackId())] = i;
     }
   }

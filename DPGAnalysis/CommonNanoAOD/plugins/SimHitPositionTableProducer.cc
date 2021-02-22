@@ -27,9 +27,9 @@
 #include <iostream>
 
 template <typename T>
-class PositionFromDetIDTableProducer : public edm::stream::EDProducer<> {
+class HitPositionTableProducer : public edm::stream::EDProducer<> {
 public:
-  PositionFromDetIDTableProducer(edm::ParameterSet const& params)
+  HitPositionTableProducer(edm::ParameterSet const& params)
       : name_(params.getParameter<std::string>("name")),
         doc_(params.getParameter<std::string>("doc")),
         src_(consumes<T>(params.getParameter<edm::InputTag>("src"))),
@@ -37,12 +37,12 @@ public:
     produces<nanoaod::FlatTable>();
   }
 
-  ~PositionFromDetIDTableProducer() override {}
+  ~HitPositionTableProducer() override {}
 
-  void beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-      // TODO: check that the geometry exists
-      iSetup.get<CaloGeometryRecord>().get(caloGeom_);
-      iSetup.get<GlobalTrackingGeometryRecord>().get(trackGeom_);
+  void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override {
+    // TODO: check that the geometry exists
+    iSetup.get<CaloGeometryRecord>().get(caloGeom_);
+    iSetup.get<GlobalTrackingGeometryRecord>().get(trackGeom_);
   }
 
   GlobalPoint positionFromHit(const PCaloHit& hit) {
@@ -50,15 +50,13 @@ public:
     return positionFromDetId(id);
   }
 
-  GlobalPoint positionFromHit(const CaloRecHit& hit) {
-    return positionFromDetId(hit.detid());
-  }
+  GlobalPoint positionFromHit(const CaloRecHit& hit) { return positionFromDetId(hit.detid()); }
 
   GlobalPoint positionFromDetId(DetId id) {
     DetId::Detector det = id.det();
     int subid = (det == DetId::HGCalEE || det == DetId::HGCalHSi || det == DetId::HGCalHSc)
-                   ? ForwardSubdetector::ForwardEmpty
-                   : id.subdetId();
+                    ? ForwardSubdetector::ForwardEmpty
+                    : id.subdetId();
     auto geom = caloGeom_->getSubdetectorGeometry(det, subid);
 
     GlobalPoint position;
@@ -67,19 +65,18 @@ public:
     } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc) {
       auto hg = static_cast<const HGCalGeometry*>(geom);
       position = hg->getPosition(id);
-    }
-    else {
-        throw cms::Exception("PositionFromDetIDTableProducer") << "Unsupported DetId type";
+    } else {
+      throw cms::Exception("HitPositionTableProducer") << "Unsupported DetId type";
     }
 
     return position;
   }
 
   GlobalPoint positionFromHit(const PSimHit& hit) {
-      auto surface = trackGeom_->idToDet(hit.detUnitId())->surface();
-      //LocalPoint localPos = surface.position();
-      GlobalPoint position = surface.toGlobal(hit.localPosition());
-      return position;
+    auto surface = trackGeom_->idToDet(hit.detUnitId())->surface();
+    //LocalPoint localPos = surface.position();
+    GlobalPoint position = surface.toGlobal(hit.localPosition());
+    return position;
   }
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
@@ -112,13 +109,12 @@ protected:
   const StringCutObjectSelector<typename T::value_type> cut_;
   edm::ESHandle<CaloGeometry> caloGeom_;
   edm::ESHandle<GlobalTrackingGeometry> trackGeom_;
-
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-typedef PositionFromDetIDTableProducer<std::vector<PCaloHit>> PCaloHitPositionFromDetIDTableProducer;
-typedef PositionFromDetIDTableProducer<std::vector<PSimHit>> PSimHitPositionFromDetIDTableProducer;
-typedef PositionFromDetIDTableProducer<HGCRecHitCollection> HGCRecHitPositionFromDetIDTableProducer;
-DEFINE_FWK_MODULE(HGCRecHitPositionFromDetIDTableProducer);
-DEFINE_FWK_MODULE(PCaloHitPositionFromDetIDTableProducer);
-DEFINE_FWK_MODULE(PSimHitPositionFromDetIDTableProducer);
+typedef HitPositionTableProducer<std::vector<PCaloHit>> PCaloHitPositionTableProducer;
+typedef HitPositionTableProducer<std::vector<PSimHit>> PSimHitPositionTableProducer;
+typedef HitPositionTableProducer<HGCRecHitCollection> HGCRecHitPositionTableProducer;
+DEFINE_FWK_MODULE(HGCRecHitPositionTableProducer);
+DEFINE_FWK_MODULE(PCaloHitPositionTableProducer);
+DEFINE_FWK_MODULE(PSimHitPositionTableProducer);
