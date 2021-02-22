@@ -17,4 +17,6 @@ from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv2_cff import run2_nanoAOD_106Xv2
 
+from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_devel
+
 from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
