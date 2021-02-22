@@ -10,7 +10,6 @@
 #include <DataFormats/Math/interface/deltaR.h>
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
-
 #include <vector>
 #include <iostream>
 
@@ -66,11 +65,12 @@ public:
       candMapVisTau_ =
           consumes<edm::Association<reco::GenParticleCollection>>(params.getParameter<edm::InputTag>("mcMapVisTau"));
     }
-    
-    if ( type_ == MElectron){
-      candMapDressedLep_ = consumes<edm::Association<reco::GenJetCollection>>(params.getParameter<edm::InputTag>("mcMapDressedLep"));
-      mapTauAnc_         = consumes<edm::ValueMap<bool>>(params.getParameter<edm::InputTag>("mapTauAnc"));
-      genPartsToken_     = consumes<reco::GenParticleCollection>(params.getParameter<edm::InputTag>("genparticles"));
+
+    if (type_ == MElectron) {
+      candMapDressedLep_ =
+          consumes<edm::Association<reco::GenJetCollection>>(params.getParameter<edm::InputTag>("mcMapDressedLep"));
+      mapTauAnc_ = consumes<edm::ValueMap<bool>>(params.getParameter<edm::InputTag>("mapTauAnc"));
+      genPartsToken_ = consumes<reco::GenParticleCollection>(params.getParameter<edm::InputTag>("genparticles"));
     }
   }
 
@@ -94,10 +94,10 @@ public:
     edm::Handle<edm::Association<reco::GenJetCollection>> mapDressedLep;
     edm::Handle<edm::ValueMap<bool>> mapTauAnc;
     edm::Handle<reco::GenParticleCollection> genParts;
-    if ( type_ == MElectron ){
+    if (type_ == MElectron) {
       iEvent.getByToken(candMapDressedLep_, mapDressedLep);
       iEvent.getByToken(mapTauAnc_, mapTauAnc);
-      iEvent.getByToken(genPartsToken_, genParts); 
+      iEvent.getByToken(genPartsToken_, genParts);
     }
 
     std::vector<int> key(ncand, -1), flav(ncand, 0);
@@ -105,22 +105,23 @@ public:
       //std::cout << "cand #" << i << ": pT = " << cands->ptrAt(i)->pt() << ", eta = " << cands->ptrAt(i)->eta() << ", phi = " << cands->ptrAt(i)->phi() << std::endl;
       reco::GenParticleRef match = (*map)[cands->ptrAt(i)];
       reco::GenParticleRef matchVisTau;
-      reco::GenJetRef      matchDressedLep;
-      bool  hasTauAnc=false; 
+      reco::GenJetRef matchDressedLep;
+      bool hasTauAnc = false;
       if (type_ == MTau) {
         matchVisTau = (*mapVisTau)[cands->ptrAt(i)];
       }
-      if ( type_ == MElectron){
-	matchDressedLep = (*mapDressedLep)[cands->ptrAt(i)];
-	if (matchDressedLep.isNonnull()){
-	  hasTauAnc = (*mapTauAnc)[matchDressedLep];
-	}
-      } 
+      if (type_ == MElectron) {
+        matchDressedLep = (*mapDressedLep)[cands->ptrAt(i)];
+        if (matchDressedLep.isNonnull()) {
+          hasTauAnc = (*mapTauAnc)[matchDressedLep];
+        }
+      }
       if (match.isNonnull())
         key[i] = match.key();
       else if (matchVisTau.isNonnull())
         key[i] = matchVisTau.key();
-      else if ( type_ != MElectron) continue; // go ahead with electrons, as those may be matched to a dressed lepton 
+      else if (type_ != MElectron)
+        continue;  // go ahead with electrons, as those may be matched to a dressed lepton
 
       switch (type_) {
         case MMuon:
@@ -132,29 +133,33 @@ public:
             flav[i] = getParentHadronFlag(match);  // 3 = light, 4 = charm, 5 = b
           break;
         case MElectron:
-	  if (matchDressedLep.isNonnull()){
-	    if (matchDressedLep->pdgId() == 22)
-	      flav[i]=22;
-	    else
-	      flav[i]=(hasTauAnc) ? 15 : 1;
-	    
-	    float minpt = 0;
-	    for (auto & consti :  matchDressedLep->getGenConstituents()){
-	      if (abs(consti->pdgId()) != 11) continue;
-	      if (consti->pt() < minpt) continue;
-	      minpt=consti->pt();
-	      for (unsigned int gen=0; gen < genParts->size(); ++gen){
-		auto genp=genParts->at(gen);
-		if (abs(genp.pdgId()) != 11) continue;
-		if (deltaR( genp, *consti) <0.01 && abs(genp.pt()-consti->pt())/consti->pt() < 0.01){ // they are the same objects
-		  key[i]=gen;
-		}
-	      }
-	    }
-	  } 
-	  else if (!match.isNonnull())
-	    flav[i]=0;
-	  else if (match->isPromptFinalState()) flav[i] = (match->pdgId() == 22 ? 22 : 1); // prompt electron or photon 
+          if (matchDressedLep.isNonnull()) {
+            if (matchDressedLep->pdgId() == 22)
+              flav[i] = 22;
+            else
+              flav[i] = (hasTauAnc) ? 15 : 1;
+
+            float minpt = 0;
+            for (auto& consti : matchDressedLep->getGenConstituents()) {
+              if (abs(consti->pdgId()) != 11)
+                continue;
+              if (consti->pt() < minpt)
+                continue;
+              minpt = consti->pt();
+              for (unsigned int gen = 0; gen < genParts->size(); ++gen) {
+                auto genp = genParts->at(gen);
+                if (abs(genp.pdgId()) != 11)
+                  continue;
+                if (deltaR(genp, *consti) < 0.01 &&
+                    abs(genp.pt() - consti->pt()) / consti->pt() < 0.01) {  // they are the same objects
+                  key[i] = gen;
+                }
+              }
+            }
+          } else if (!match.isNonnull())
+            flav[i] = 0;
+          else if (match->isPromptFinalState())
+            flav[i] = (match->pdgId() == 22 ? 22 : 1);  // prompt electron or photon
           else if (match->isDirectPromptTauDecayProductFinalState())
             flav[i] = 15;  // tau
           else
@@ -186,7 +191,9 @@ public:
     }
 
     tab->addColumn<int>(branchName_ + "Idx", key, "Index into genParticle list for " + doc_);
-    tab->addColumn<uint8_t>(branchName_+"Flav", flav, "Flavour of genParticle (DressedLeptons for electrons) for "+doc_+": "+flavDoc_); 
+    tab->addColumn<uint8_t>(branchName_ + "Flav",
+                            flav,
+                            "Flavour of genParticle (DressedLeptons for electrons) for " + doc_ + ": " + flavDoc_);
 
     iEvent.put(std::move(tab));
   }
@@ -230,8 +237,10 @@ public:
         "type of object to match (Muon, Electron, Tau, Photon, Other), taylors what's in t Flav branch");
     desc.addOptional<edm::InputTag>("mcMapVisTau")
         ->setComment("as mcMap, but pointing to the visible gen taus (only if objType == Tau)");
-    desc.addOptional<edm::InputTag>("mcMapDressedLep")->setComment("as mcMap, but pointing to gen dressed leptons (only if objType == Electrons)");
-    desc.addOptional<edm::InputTag>("mapTauAnc")->setComment("Value map of matched gen electrons containing info on the tau ancestry"); 
+    desc.addOptional<edm::InputTag>("mcMapDressedLep")
+        ->setComment("as mcMap, but pointing to gen dressed leptons (only if objType == Electrons)");
+    desc.addOptional<edm::InputTag>("mapTauAnc")
+        ->setComment("Value map of matched gen electrons containing info on the tau ancestry");
     desc.addOptional<edm::InputTag>("genparticles")->setComment("Collection of genParticles to be stored.");
     descriptions.add("candMcMatchTable", desc);
   }
@@ -242,7 +251,7 @@ protected:
   const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>> candMap_;
   edm::EDGetTokenT<edm::Association<reco::GenParticleCollection>> candMapVisTau_;
   edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> candMapDressedLep_;
-  edm::EDGetTokenT<edm::ValueMap<bool>> mapTauAnc_        ; 
+  edm::EDGetTokenT<edm::ValueMap<bool>> mapTauAnc_;
   edm::EDGetTokenT<reco::GenParticleCollection> genPartsToken_;
   enum MatchType { MMuon, MElectron, MTau, MPhoton, MOther } type_;
   std::string flavDoc_;
