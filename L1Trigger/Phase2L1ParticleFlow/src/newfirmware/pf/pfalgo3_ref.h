@@ -19,9 +19,9 @@ namespace l1ct {
             // note: this one will work only in CMSSW
             PFAlgo3Emulator(const edm::ParameterSet & iConfig) ;
 
-            virtual ~PFAlgo3Emulator() override {} 
+            ~PFAlgo3Emulator() override {} 
 
-            virtual void run(const PFInputRegion & in, OutputRegion & out) const override;
+            void run(const PFInputRegion & in, OutputRegion & out) const override;
 
             void toFirmware(const PFInputRegion & in, PFRegion & region, HadCaloObj calo[/*nCALO*/], EmCaloObj emcalo[/*nEMCALO*/], TkObj track[/*nTRACK*/], MuObj mu[/*nMU*/]) const ;
             void toFirmware(const OutputRegion & out, PFChargedObj outch[/*nTRACK*/], PFNeutralObj outpho[/*nPHOTON*/], PFNeutralObj outne[/*nSELCALO*/], PFChargedObj outmu[/*nMU*/]) const ;
