@@ -3,6 +3,8 @@
 
 #include "datatypes.h"
 #include "bit_encoding.h"
+#include "layer1_objs.h"
+#include "pf.h"
 
 namespace l1ct {
 

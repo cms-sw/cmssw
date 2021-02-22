@@ -96,7 +96,7 @@ private:
   void addEmCalo(const l1t::PFCluster &t, l1t::PFClusterRef ref);
   // add objects in already-decoded format
   void addDecodedTrack(l1ct::DetectorSector<l1ct::TkObjEmu> & sec, const l1t::PFTrack &t);
-  void addDecodedMuon(std::vector<l1ct::MuObjEmu> & sec, const l1t::Muon &t);
+  void addDecodedMuon(l1ct::DetectorSector<l1ct::MuObjEmu> & sec, const l1t::Muon &t);
   void addDecodedHadCalo(l1ct::DetectorSector<l1ct::HadCaloObjEmu> & sec, const l1t::PFCluster &t);
   void addDecodedEmCalo(l1ct::DetectorSector<l1ct::EmCaloObjEmu> & sec, const l1t::PFCluster &t);
   // fetching outputs
@@ -408,24 +408,27 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
       if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end())) throw cms::Exception("Configuration", "caloSectors.etaBoundaries not sorted\n");
       unsigned int phiSlices = preg.getParameter<uint32_t>("phiSlices");
       float phiWidth = 2 * M_PI / phiSlices;
+      if (phiWidth > 2*l1ct::Scales::maxAbsPhi()) throw cms::Exception("Configuration", "caloSectors phi range too large for phi_t data type");
       for (unsigned int ieta = 0, neta = etaBoundaries.size() - 1; ieta < neta; ++ieta) {
+          float etaWidth = etaBoundaries[ieta + 1]-etaBoundaries[ieta];
+          if (etaWidth > 2*l1ct::Scales::maxAbsEta()) throw cms::Exception("Configuration", "caloSectors eta range too large for eta_t data type");
           for (unsigned int iphi = 0; iphi < phiSlices; ++iphi) {
               float phiCenter = reco::reduceRange(iphi * phiWidth);  //align with L1 TrackFinder phi sector indexing for now
               event_.decoded.hadcalo.emplace_back(etaBoundaries[ieta],
                           etaBoundaries[ieta + 1],
                           phiCenter,
-                          phiWidth,
-                          0.,
-                          0.);
+                          phiWidth);
               event_.decoded.emcalo.emplace_back(etaBoundaries[ieta],
                           etaBoundaries[ieta + 1],
                           phiCenter,
-                          phiWidth,
-                          0.,
-                          0.);
+                          phiWidth);
         }
       }
     }
+    
+    event_.decoded.muon.region = l1ct::PFRegionEmu(
+            -l1ct::Scales::maxAbsGlbEta(), l1ct::Scales::maxAbsGlbEta(),
+            0.f, 2*l1ct::Scales::maxAbsGlbPhi(), 0.f, 0.f);
 
     event_.pfinputs.clear();
     for (const edm::ParameterSet &preg : iConfig.getParameter<std::vector<edm::ParameterSet>>("regions")) {
@@ -506,7 +509,7 @@ void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkO
 }
 
 
-void L1TCorrelatorLayer1Producer::addDecodedMuon(std::vector<l1ct::MuObjEmu> & sec, const l1t::Muon &t) {
+void L1TCorrelatorLayer1Producer::addDecodedMuon(l1ct::DetectorSector<l1ct::MuObjEmu> & sec, const l1t::Muon &t) {
     l1ct::MuObjEmu mu;
     mu.hwPt = l1ct::Scales::makePtFromFloat(t.pt());
     mu.hwEta = l1ct::Scales::makeEta(t.eta());
@@ -518,7 +521,7 @@ void L1TCorrelatorLayer1Producer::addDecodedMuon(std::vector<l1ct::MuObjEmu> & s
     mu.hwZ0 =   l1ct::Scales::makeZ0(t.vertex().Z());
     mu.hwDxy  = 0;
     mu.src = & t;
-    sec.push_back(mu);
+    sec.obj.push_back(mu);
 }
 
 void L1TCorrelatorLayer1Producer::addDecodedHadCalo(l1ct::DetectorSector<l1ct::HadCaloObjEmu> & sec, const l1t::PFCluster &c) {

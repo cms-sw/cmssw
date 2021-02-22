@@ -83,7 +83,7 @@ namespace l1ct {
     struct PFRegionEmu : public PFRegion {
         float etaExtra, phiExtra;
 
-        PFRegionEmu() : PFRegion() {}
+        PFRegionEmu() : PFRegion(), etaExtra(0), phiExtra(0) {}
         PFRegionEmu(float etamin,
            float etamax,
            float phicenter,
@@ -187,14 +187,13 @@ namespace l1ct {
         inline unsigned int size() const { return obj.size(); }
         inline void resize(unsigned int size) { obj.resize(size); }
         inline void clear() { obj.clear(); }
-
     };
 
     struct RegionizerDecodedInputs {
         std::vector<DetectorSector<HadCaloObjEmu>> hadcalo;
         std::vector<DetectorSector<EmCaloObjEmu>> emcalo;
         std::vector<DetectorSector<TkObjEmu>> track;
-        std::vector<MuObjEmu> muon; // muons are global
+        DetectorSector<MuObjEmu> muon; // muons are global
 
         bool read(std::fstream & from) ;
         bool write(std::fstream & to) const ;

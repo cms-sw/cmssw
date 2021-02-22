@@ -178,6 +178,11 @@ namespace Scales {
     inline glbphi_t makeGlbPhi(float phi) { return round(phi / ETAPHI_LSB); }
 
     inline int makeDR2FromFloatDR(float dr) { return ceil(dr*dr/ETAPHI_LSB/ETAPHI_LSB); }
+
+    inline float maxAbsEta() { return ((1 << (eta_t::width-1)) - 1) * ETAPHI_LSB; }
+    inline float maxAbsPhi() { return ((1 << (phi_t::width-1)) - 1) * ETAPHI_LSB; }
+    inline float maxAbsGlbEta() { return ((1 << (glbeta_t::width-1)) - 1) * ETAPHI_LSB; }
+    inline float maxAbsGlbPhi() { return ((1 << (glbphi_t::width-1)) - 1) * ETAPHI_LSB; }
 };
 
 

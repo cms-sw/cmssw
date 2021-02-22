@@ -169,7 +169,7 @@ bool l1ct::RegionizerDecodedInputs::read(std::fstream & from) {
         if (!(v.region.read(from) && readMany(from, v.obj))) return false;
     }
 
-    if (!readMany(from, muon)) return false;
+    if (!(muon.region.read(from) && readMany(from, muon.obj))) return false;
 
     return true;
 }
@@ -195,7 +195,7 @@ bool l1ct::RegionizerDecodedInputs::write(std::fstream & to) const {
         if (!(v.region.write(to) && writeMany(v.obj, to))) return false;
     }
 
-    if (!writeMany(muon, to)) return false;
+    if (!(muon.region.write(to) && writeMany(muon.obj, to))) return false;
 
     return true;
 }
@@ -203,7 +203,7 @@ void l1ct::RegionizerDecodedInputs::clear() {
     for (auto & r : hadcalo) r.clear();
     for (auto & r : emcalo) r.clear();
     for (auto & r : track) r.clear();
-    for (auto & r : muon) r.clear();
+    muon.clear();
 }
 
 bool l1ct::PFInputRegion::read(std::fstream & from) {

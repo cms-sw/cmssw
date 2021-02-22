@@ -2,6 +2,7 @@
 #define FIRMWARE_L1PF_ENCODING_H
 
 #include <cassert>
+#include "datatypes.h"
 
 template <typename U, typename T> 
 inline void _pack_into_bits(U & u, unsigned int & start, const T & data) {
