@@ -1,0 +1,18 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/HGCalGeometry"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="PhysicsTools/PatAlgos"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="SimDataFormats/CaloAnalysis"/>
+<use name="SimDataFormats/Track"/>
+<use name="IOPool/Provenance"/>
+<use name="CondFormats/RunInfo"/>
+<use name="CondFormats/DataRecord"/>
+<library file="*.cc" name="DPGAnalysisHGCalNanoAODPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

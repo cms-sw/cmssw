@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import CandVars,Var
 
-pfCandTable = cms.EDProducer("SimplePFCandidateFlatTableProducer",
+pfCandTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("particleFlow"),
     cut = cms.string(""), 
     name = cms.string("PFCand"),
@@ -15,7 +15,7 @@ pfCandTable = cms.EDProducer("SimplePFCandidateFlatTableProducer",
     )
 )
 
-pfTICLCandTable = cms.EDProducer("SimplePFCandidateFlatTableProducer",
+pfTICLCandTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("pfTICL"),
     cut = cms.string(""), 
     name = cms.string("PFTICLCand"),
