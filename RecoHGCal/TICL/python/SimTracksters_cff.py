@@ -16,7 +16,6 @@ filteredLayerClustersSimTracksters = _filteredLayerClustersProducer.clone(
 )
 
 ticlSimTracksters = _trackstersFromSimClustersProducer.clone(
-    # filtered_mask = cms.InputTag("filteredLayerClustersSimTracksters", "ticlSimTracksters"),
 )
 
 ticlMultiClustersFromSimTracksters = _multiClustersFromTrackstersProducer.clone(
