@@ -98,9 +98,9 @@ namespace l1t {
     ///       Below checkUnconstrainedPt allows value to overflow and only evaluates cut if threshold window is valid
     template <class Type1, class Type2>
     const bool checkUnconstrainedPt(const Type1& thresholdL,
-                                    const Type1& thresholdH,
-                                    const Type2& value,
-                                    bool condGEqValue) const;
+				    const Type1& thresholdH,
+				    const Type2& value,
+				    bool condGEqValue) const;
 
     /// check if a index is in a given range
     template <class Type1>
@@ -202,29 +202,37 @@ namespace l1t {
   ///       Below checkUnconstrainedPt allows value to overflow and only evaluates cut if threshold window is valid
   template <class Type1, class Type2>
   const bool ConditionEvaluation::checkUnconstrainedPt(const Type1& thresholdL,
-                                                       const Type1& thresholdH,
-                                                       const Type2& value,
-                                                       const bool condGEqValue) const {
-    if (value > 0) {
-      LogTrace("L1GlobalTrigger") << "  checkUnconstrainedPt check for condGEqValue = " << condGEqValue
-                                  << "\n    hex: " << std::hex << "threshold = " << thresholdL << " - " << thresholdH
-                                  << " value = " << value << "\n    dec: " << std::dec << "threshold = " << thresholdL
-                                  << " - " << thresholdH << " value = " << value << std::endl;
-    }
-    if (thresholdH > 0)  // Only evaluate cut if threshold window is valid
-    {
-      if (condGEqValue) {
-        if (value >= (Type2)thresholdL && (Type1)value <= thresholdH) {
-          return true;
-        }
-        return false;
-      } else {
-        if (value == (Type2)thresholdL) {
-          return true;
-        }
-        return false;
+						       const Type1& thresholdH,
+						       const Type2& value,
+						       const bool condGEqValue) const 
+  {
+    if( value > 0 ) 
+      {
+	LogTrace("L1GlobalTrigger") << "  checkUnconstrainedPt check for condGEqValue = " << condGEqValue
+				    << "\n    hex: " << std::hex << "threshold = " << thresholdL << " - " << thresholdH
+				    << " value = " << value << "\n    dec: " << std::dec << "threshold = " << thresholdL
+				    << " - " << thresholdH << " value = " << value << std::endl;
       }
-    } else  // If invalid threshold window, do not evaluate cut (ie. pass through)
+    if( thresholdH > 0 ) // Only evaluate cut if threshold window is valid
+      {
+	if( condGEqValue ) 
+	  {
+	    if( value >= (Type2)thresholdL && (Type1)value <= thresholdH ) 
+	      {
+		return true;
+	      }
+	    return false;
+	  } 
+	else 
+	  {
+	    if (value == (Type2)thresholdL) 
+	      {
+		return true;
+	      }	
+	    return false;
+	  }
+      }
+    else  // If invalid threshold window, do not evaluate cut (ie. pass through)
       return true;
   }
 
