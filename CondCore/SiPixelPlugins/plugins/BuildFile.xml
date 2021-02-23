@@ -49,17 +49,23 @@
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
-<library file="plugin.cc" name="CondCoreSiPixelPluginsPlugin">
-  <flags EDM_PLUGIN="1"/>
-  <use name="CondCore/ESSources"/>
-  <use name="CondFormats/SiPixelObjects"/>
-  <use name="CondFormats/DataRecord"/>
-</library>
-
 <library file="SiPixelQualityProbabilities_PayloadInspector.cc" name="SiPixelQualityProbabilities_PayloadInspector">
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
-  <use   name="boost_python"/>
+</library>
+
+<library file="SiPixelFEDChannelContainer_PayloadInspector.cc" name="SiPixelFEDChannelContainer_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
+</library>
+
+<library file="plugin.cc" name="CondCoreSiPixelPluginsPlugin">
+  <flags EDM_PLUGIN="1"/>
+  <use name="CondCore/ESSources"/>
+  <use name="CondFormats/SiPixelObjects"/>
+  <use name="CondFormats/DataRecord"/>
 </library>

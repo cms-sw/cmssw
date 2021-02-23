@@ -39,21 +39,20 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
   1d histogram of SiPixelQualityProbabilities of 1 IOV 
   *************************************************/
 
-  class SiPixelQualityProbabilitiesScenariosCount
-      : public cond::payloadInspector::PlotImage<SiPixelQualityProbabilities> {
+  class SiPixelQualityProbabilitiesScenariosCount : public PlotImage<SiPixelQualityProbabilities, SINGLE_IOV> {
   public:
     SiPixelQualityProbabilitiesScenariosCount()
-        : cond::payloadInspector::PlotImage<SiPixelQualityProbabilities>(
-              "SiPixelQualityProbabilities scenarios count") {
-      setSingleIov(true);
-    }
+        : PlotImage<SiPixelQualityProbabilities, SINGLE_IOV>("SiPixelQualityProbabilities scenarios count") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelQualityProbabilities> payload = fetchPayload(std::get<1>(iov));
       auto PUbins = payload->getPileUpBins();
       auto span = PUbins.back() - PUbins.front();
