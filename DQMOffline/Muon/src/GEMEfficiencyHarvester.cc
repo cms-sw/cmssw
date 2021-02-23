@@ -364,7 +364,12 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
 
     h_mean->SetBinContent(xbin, ybin, hist->GetMean());
     h_stddev->SetBinContent(xbin, ybin, hist->GetStdDev());
-    h_skewness->SetBinContent(xbin, ybin, hist->GetSkewness());
+
+    // FIXME
+    // `GetSkewness` seems to returns nan when its histogram has no entry..
+    const double skewness = hist->GetSkewness();
+    if (not std::isnan(skewness))
+      h_skewness->SetBinContent(xbin, ybin, skewness);
 
     h_mean->SetBinError(xbin, ybin, hist->GetMeanError());
     h_stddev->SetBinError(xbin, ybin, hist->GetStdDevError());
