@@ -70,7 +70,7 @@ private:
 //------------------------------------------------------------------------------------------------//
 
 CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterSet &parameterSet) {
-  inputTag_ = parameterSet.getParameter<edm::InputTag>("label");
+  inputTag_ = parameterSet.getParameter<edm::InputTag>("tag");
   verbosity_ = parameterSet.getUntrackedParameter<int>("verbosity");
   maxHitPerRomanPot_ = parameterSet.getParameter<int>("maxHitPerRomanPot");
   maxHitPerPlane_ = parameterSet.getParameter<int>("maxHitPerPlane");
@@ -119,8 +119,8 @@ CTPPSPixelLocalTrackProducer::~CTPPSPixelLocalTrackProducer() {}
 void CTPPSPixelLocalTrackProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("label", edm::InputTag("ctppsPixelRecHits"))
-      ->setComment("label of the RecHits input for the tracking algorithm");
+  desc.add<edm::InputTag>("tag", edm::InputTag("ctppsPixelRecHits"))
+      ->setComment("inputTag of the RecHits input for the tracking algorithm");
   desc.add<std::string>("patternFinderAlgorithm", "RPixRoadFinder")->setComment("algorithm type for pattern finder");
   desc.add<std::string>("trackFinderAlgorithm", "RPixPlaneCombinatoryTracking")
       ->setComment("algorithm type for track finder");
