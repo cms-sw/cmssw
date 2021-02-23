@@ -21,7 +21,7 @@ class GEMEfficiencyHarvester : public DQMEDHarvester {
 public:
   GEMEfficiencyHarvester(const edm::ParameterSet&);
   ~GEMEfficiencyHarvester() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
@@ -39,8 +39,7 @@ private:
   std::string log_category_;
 };
 
-
-template<typename T>
+template <typename T>
 int GEMEfficiencyHarvester::findResolutionBin(const T& elem, const std::vector<T>& vec) {
   auto iter = std::find(vec.begin(), vec.end(), elem);
   int bin = (iter != vec.end()) ? std::distance(vec.begin(), iter) + 1 : -1;

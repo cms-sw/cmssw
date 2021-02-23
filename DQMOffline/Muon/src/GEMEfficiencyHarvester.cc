@@ -207,7 +207,7 @@ std::vector<std::string> GEMEfficiencyHarvester::splitString(std::string name, c
 }
 
 std::tuple<std::string, int, int> GEMEfficiencyHarvester::parseResidualName(const std::string org_name,
-                                                                                  const std::string prefix) {
+                                                                            const std::string prefix) {
   std::string name = org_name;
 
   // e.g. residual_rdphi_GE-11_R4 -> _GE-11_R4
@@ -300,7 +300,6 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
 
     } else {
       return (lhs.first == "-");
-
     }
   };
 
@@ -324,9 +323,7 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
   const TString h_stddev_title = title_prefix + " : Standard Deviation";
   const TString h_skewness_title = title_prefix + " : Skewness";
 
-  TH2F* h_mean = new TH2F(h_mean_name, h_mean_title,
-                          num_ieta, 0.5, num_ieta + 0.5,
-                          num_st, 0.5, num_st + 0.5);
+  TH2F* h_mean = new TH2F(h_mean_name, h_mean_title, num_ieta, 0.5, num_ieta + 0.5, num_st, 0.5, num_st + 0.5);
   // x-axis
   h_mean->GetXaxis()->SetTitle("i#eta");
   for (unsigned int idx = 0; idx < ieta_vec.size(); idx++) {

@@ -19,7 +19,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-
 class GEMEfficiencyAnalyzer : public GEMOfflineDQMBase {
 public:
   explicit GEMEfficiencyAnalyzer(const edm::ParameterSet &);
@@ -32,38 +31,40 @@ protected:
 
 private:
   struct GEMLayerData {
-    GEMLayerData(Disk::DiskPointer surface,
-                 std::vector<const GEMChamber*> chambers,
-                 int region, int station, int layer)
-        : surface(surface), chambers(chambers), region(region),
-          station(station), layer(layer) {}
+    GEMLayerData(Disk::DiskPointer surface, std::vector<const GEMChamber *> chambers, int region, int station, int layer)
+        : surface(surface), chambers(chambers), region(region), station(station), layer(layer) {}
 
     Disk::DiskPointer surface;
-    std::vector<const GEMChamber*> chambers;
+    std::vector<const GEMChamber *> chambers;
     int region, station, layer;
   };
 
-  MonitorElement* bookNumerator1D(DQMStore::IBooker&, MonitorElement*);
-  MonitorElement* bookNumerator2D(DQMStore::IBooker&, MonitorElement*);
+  MonitorElement *bookNumerator1D(DQMStore::IBooker &, MonitorElement *);
+  MonitorElement *bookNumerator2D(DQMStore::IBooker &, MonitorElement *);
 
-  void bookEfficiencyMomentum(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry>&);
-  void bookEfficiencyChamber(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry>&);
-  void bookEfficiencyEtaPartition(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry>&);
-  void bookResolution(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry>&);
-  void bookMisc(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry>&);
+  void bookEfficiencyMomentum(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
+  void bookEfficiencyChamber(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
+  void bookEfficiencyEtaPartition(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
+  void bookResolution(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
+  void bookMisc(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
 
-  inline bool isInsideOut(const reco::Track&);
+  inline bool isInsideOut(const reco::Track &);
 
-  std::vector<GEMLayerData> buildGEMLayers(const edm::ESHandle<GEMGeometry>&);
-  const reco::Track* getTrack(const reco::Muon&);
-  std::pair<TrajectoryStateOnSurface, DetId> getStartingState(const reco::TransientTrack&, const GEMLayerData&, const edm::ESHandle<GlobalTrackingGeometry>&);
-  std::pair<TrajectoryStateOnSurface, DetId> findStartingState(const reco::TransientTrack&, const GEMLayerData&, const edm::ESHandle<GlobalTrackingGeometry>&);
-  bool isME11(const DetId&);
-  bool skipLayer(const reco::Track*, const GEMLayerData&);
-  bool checkBounds(const GlobalPoint&, const Plane&);
-  const GEMEtaPartition* findEtaPartition(const GlobalPoint&, const std::vector<const GEMChamber*>&);
-  std::pair<const GEMRecHit *, float> findClosetHit(const GlobalPoint&, const GEMRecHitCollection::range &, const GEMEtaPartition*);
-
+  std::vector<GEMLayerData> buildGEMLayers(const edm::ESHandle<GEMGeometry> &);
+  const reco::Track *getTrack(const reco::Muon &);
+  std::pair<TrajectoryStateOnSurface, DetId> getStartingState(const reco::TransientTrack &,
+                                                              const GEMLayerData &,
+                                                              const edm::ESHandle<GlobalTrackingGeometry> &);
+  std::pair<TrajectoryStateOnSurface, DetId> findStartingState(const reco::TransientTrack &,
+                                                               const GEMLayerData &,
+                                                               const edm::ESHandle<GlobalTrackingGeometry> &);
+  bool isME11(const DetId &);
+  bool skipLayer(const reco::Track *, const GEMLayerData &);
+  bool checkBounds(const GlobalPoint &, const Plane &);
+  const GEMEtaPartition *findEtaPartition(const GlobalPoint &, const std::vector<const GEMChamber *> &);
+  std::pair<const GEMRecHit *, float> findClosetHit(const GlobalPoint &,
+                                                    const GEMRecHitCollection::range &,
+                                                    const GEMEtaPartition *);
 
   // data members
 
@@ -93,31 +94,31 @@ private:
 
   // MonitorElement
   // efficiency
-  MEMap me_muon_pt_; // 1D, region-station
+  MEMap me_muon_pt_;  // 1D, region-station
   MEMap me_muon_pt_matched_;
-  MEMap me_muon_eta_; // 1D, region-station
+  MEMap me_muon_eta_;  // 1D, region-station
   MEMap me_muon_eta_matched_;
-  MEMap me_muon_phi_; // 1D, region-station
+  MEMap me_muon_phi_;  // 1D, region-station
   MEMap me_muon_phi_matched_;
-  MEMap me_chamber_; // 2D, region-station-layer
+  MEMap me_chamber_;  // 2D, region-station-layer
   MEMap me_chamber_matched_;
-  MEMap me_detector_; // 2D, region-station
+  MEMap me_detector_;  // 2D, region-station
   MEMap me_detector_matched_;
   // resolution
-  MEMap me_residual_rphi_;    // global
-  MEMap me_residual_y_;    // local
+  MEMap me_residual_rphi_;  // global
+  MEMap me_residual_y_;     // local
   MEMap me_pull_phi_;
   MEMap me_pull_y_;
   // MEs for optimizing cut values
-  MonitorElement* me_prop_r_err_; // clamped
-  MonitorElement* me_prop_phi_err_; // clamped
-  MonitorElement* me_all_abs_residual_rphi_;
+  MonitorElement *me_prop_r_err_;    // clamped
+  MonitorElement *me_prop_phi_err_;  // clamped
+  MonitorElement *me_all_abs_residual_rphi_;
 
   // const
   const std::string kLogCategory_ = "GEMEfficiencyAnalyzer";
 };
 
-inline bool GEMEfficiencyAnalyzer::isInsideOut(const reco::Track& track) {
+inline bool GEMEfficiencyAnalyzer::isInsideOut(const reco::Track &track) {
   return track.innerPosition().mag2() > track.outerPosition().mag2();
 }
 

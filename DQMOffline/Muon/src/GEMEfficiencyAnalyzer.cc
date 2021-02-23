@@ -12,7 +12,6 @@
 #include "Validation/MuonHits/interface/MuonHitHelper.h"
 #include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
-
 GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& pset) : GEMOfflineDQMBase(pset) {
   name_ = pset.getUntrackedParameter<std::string>("name");
   folder_ = pset.getUntrackedParameter<std::string>("folder");
@@ -57,12 +56,12 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.addUntracked<bool>("useGlobalMuon", true);
     desc.add<bool>("useSkipLayer", true);
     desc.add<bool>("useOnlyME11", false);
-    desc.add<double>("residualRPhiCut", 2.0); // TODO need to be tuned
+    desc.add<double>("residualRPhiCut", 2.0);  // TODO need to be tuned
     desc.add<bool>("usePropRErrorCut", false);
     desc.add<double>("propRErrorCut", 1.0);
     desc.add<bool>("usePropPhiErrorCut", false);
     desc.add<double>("propPhiErrorCut", 0.01);
-    desc.addUntracked<std::vector<double> >("ptBins", {20. ,30., 40., 50., 60., 70., 80., 90., 100., 120.});
+    desc.addUntracked<std::vector<double> >("ptBins", {20., 30., 40., 50., 60., 70., 80., 90., 100., 120.});
     desc.addUntracked<int>("etaNbins", 9);
     desc.addUntracked<double>("etaLow", 1.4);
     desc.addUntracked<double>("etaUp", 2.3);
@@ -72,12 +71,12 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
       desc.add<edm::ParameterSetDescription>("ServiceParameters", psd0);
     }
     descriptions.add("gemEfficiencyAnalyzerDefault", desc);
-  } // beam scenario
+  }  // beam scenario
 
   // cosmic scenario
   {
     edm::ParameterSetDescription desc;
-    desc.addUntracked<std::string>("name", "GlobalMuon"); // FIXME
+    desc.addUntracked<std::string>("name", "GlobalMuon");  // FIXME
     desc.addUntracked<std::string>("folder", "GEM/Efficiency/type0");
     desc.add<edm::InputTag>("recHitTag", edm::InputTag("gemRecHits"));
     desc.add<edm::InputTag>("muonTag", edm::InputTag("muons"));
@@ -85,12 +84,13 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.addUntracked<bool>("useGlobalMuon", false);
     desc.add<bool>("useSkipLayer", false);
     desc.add<bool>("useOnlyME11", true);
-    desc.add<double>("residualRPhiCut", 5.0); // TODO need to be tuned
+    desc.add<double>("residualRPhiCut", 5.0);  // TODO need to be tuned
     desc.add<bool>("usePropRErrorCut", true);
     desc.add<double>("propRErrorCut", 1.0);
     desc.add<bool>("usePropPhiErrorCut", true);
     desc.add<double>("propPhiErrorCut", 0.001);
-    desc.addUntracked<std::vector<double> >("ptBins", {0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 160., 180., 200., 220.});
+    desc.addUntracked<std::vector<double> >(
+        "ptBins", {0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 160., 180., 200., 220.});
     desc.addUntracked<int>("etaNbins", 9);
     desc.addUntracked<double>("etaLow", 1.4);
     desc.addUntracked<double>("etaUp", 2.3);
@@ -100,7 +100,7 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
       desc.add<edm::ParameterSetDescription>("ServiceParameters", psd0);
     }
     descriptions.add("gemEfficiencyAnalyzerCosmicsDefault", desc);
-  } // cosmics
+  }  // cosmics
 }
 
 void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
@@ -120,23 +120,19 @@ void GEMEfficiencyAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   bookMisc(ibooker, gem);
 }
 
-dqm::impl::MonitorElement* GEMEfficiencyAnalyzer::bookNumerator1D(
-    DQMStore::IBooker& ibooker, MonitorElement* me) {
+dqm::impl::MonitorElement* GEMEfficiencyAnalyzer::bookNumerator1D(DQMStore::IBooker& ibooker, MonitorElement* me) {
   const std::string name = me->getName() + "_matched";
   TH1F* hist = dynamic_cast<TH1F*>(me->getTH1F()->Clone(name.c_str()));
   return ibooker.book1D(name, hist);
 }
 
-dqm::impl::MonitorElement* GEMEfficiencyAnalyzer::bookNumerator2D(
-    DQMStore::IBooker& ibooker, MonitorElement* me) {
+dqm::impl::MonitorElement* GEMEfficiencyAnalyzer::bookNumerator2D(DQMStore::IBooker& ibooker, MonitorElement* me) {
   const std::string name = me->getName() + "_matched";
   TH2F* hist = dynamic_cast<TH2F*>(me->getTH2F()->Clone(name.c_str()));
   return ibooker.book2D(name, hist);
 }
 
-void GEMEfficiencyAnalyzer::bookEfficiencyMomentum(
-    DQMStore::IBooker& ibooker,
-    const edm::ESHandle<GEMGeometry>& gem) {
+void GEMEfficiencyAnalyzer::bookEfficiencyMomentum(DQMStore::IBooker& ibooker, const edm::ESHandle<GEMGeometry>& gem) {
   // TODO Efficiency/Source
   ibooker.setCurrentFolder(folder_ + "/Efficiency");
 
@@ -171,10 +167,7 @@ void GEMEfficiencyAnalyzer::bookEfficiencyMomentum(
   }  // station
 }
 
-
-void GEMEfficiencyAnalyzer::bookEfficiencyChamber(
-    DQMStore::IBooker& ibooker,
-    const edm::ESHandle<GEMGeometry>& gem) {
+void GEMEfficiencyAnalyzer::bookEfficiencyChamber(DQMStore::IBooker& ibooker, const edm::ESHandle<GEMGeometry>& gem) {
   // TODO Efficiency/Source
   ibooker.setCurrentFolder(folder_ + "/Efficiency");
 
@@ -196,7 +189,8 @@ void GEMEfficiencyAnalyzer::bookEfficiencyChamber(
       const TString&& title_suffix = GEMUtils::getSuffixTitle(region_id, station_id, layer_id);
       const GEMDetId&& key = getReStLaKey(chamber->id());
 
-      me_chamber_[key] = ibooker.book1D("chamber" + name_suffix, name_.c_str() + title_suffix, num_chambers, 0.5, num_chambers + 0.5);
+      me_chamber_[key] =
+          ibooker.book1D("chamber" + name_suffix, name_.c_str() + title_suffix, num_chambers, 0.5, num_chambers + 0.5);
       me_chamber_[key]->setAxisTitle("Chamber");
       me_chamber_[key]->getTH1F()->SetNdivisions(-num_chambers, "Y");
       for (int binx = 1; binx <= num_chambers; binx++) {
@@ -204,13 +198,12 @@ void GEMEfficiencyAnalyzer::bookEfficiencyChamber(
       }
 
       me_chamber_matched_[key] = bookNumerator1D(ibooker, me_chamber_[key]);
-    } // layer
-  } // station
+    }  // layer
+  }    // station
 }
 
-void GEMEfficiencyAnalyzer::bookEfficiencyEtaPartition(
-    DQMStore::IBooker& ibooker,
-    const edm::ESHandle<GEMGeometry>& gem) {
+void GEMEfficiencyAnalyzer::bookEfficiencyEtaPartition(DQMStore::IBooker& ibooker,
+                                                       const edm::ESHandle<GEMGeometry>& gem) {
   // TODO Efficiency/Source
   ibooker.setCurrentFolder(folder_ + "/Efficiency");
 
@@ -231,16 +224,20 @@ void GEMEfficiencyAnalyzer::bookEfficiencyEtaPartition(
     const int num_ch = superchambers.size() * superchambers.front()->nChambers();
     const int num_etas = getNumEtaPartitions(station);
 
-    me_detector_[key] = ibooker.book2D("detector" + name_suffix, name_.c_str() + title_suffix, num_ch, 0.5, num_ch + 0.5, num_etas, 0.5, num_etas + 0.5);
+    me_detector_[key] = ibooker.book2D("detector" + name_suffix,
+                                       name_.c_str() + title_suffix,
+                                       num_ch,
+                                       0.5,
+                                       num_ch + 0.5,
+                                       num_etas,
+                                       0.5,
+                                       num_etas + 0.5);
     setDetLabelsEta(me_detector_[key], station);
     me_detector_matched_[key] = bookNumerator2D(ibooker, me_detector_[key]);
   }  // station
 }
 
-void GEMEfficiencyAnalyzer::bookResolution(
-    DQMStore::IBooker & ibooker,
-    const edm::ESHandle<GEMGeometry>& gem) {
-
+void GEMEfficiencyAnalyzer::bookResolution(DQMStore::IBooker& ibooker, const edm::ESHandle<GEMGeometry>& gem) {
   ibooker.setCurrentFolder(folder_ + "/Resolution");
   for (const GEMStation* station : gem->stations()) {
     const int region_id = station->region();
@@ -264,9 +261,11 @@ void GEMEfficiencyAnalyzer::bookResolution(
       const GEMDetId&& key = getReStEtKey(eta_partition->id());
       // TODO
       const TString&& name_suffix = TString::Format("_GE%+.2d_R%d", region_id * (station_id * 10 + 1), ieta);
-      const TString&& title = name_.c_str() + TString::Format(" : GE%+.2d Roll %d", region_id * (station_id * 10 + 1), ieta);
+      const TString&& title =
+          name_.c_str() + TString::Format(" : GE%+.2d Roll %d", region_id * (station_id * 10 + 1), ieta);
 
-      me_residual_rphi_[key] = ibooker.book1D("residual_rphi" + name_suffix, title, 50, -residual_rphi_cut_, residual_rphi_cut_);
+      me_residual_rphi_[key] =
+          ibooker.book1D("residual_rphi" + name_suffix, title, 50, -residual_rphi_cut_, residual_rphi_cut_);
       me_residual_rphi_[key]->setAxisTitle("Residual in R#phi [cm]");
 
       me_residual_y_[key] = ibooker.book1D("residual_y" + name_suffix, title, 60, -12.0, 12.0);
@@ -277,19 +276,16 @@ void GEMEfficiencyAnalyzer::bookResolution(
 
       me_pull_y_[key] = ibooker.book1D("pull_y" + name_suffix, title, 60, -3.0, 3.0);
       me_pull_y_[key]->setAxisTitle("Pull in Local Y");
-    } // ieta
-  } // station
+    }  // ieta
+  }    // station
 }
 
-void GEMEfficiencyAnalyzer::bookMisc(
-    DQMStore::IBooker & ibooker,
-    const edm::ESHandle<GEMGeometry>& gem) {
+void GEMEfficiencyAnalyzer::bookMisc(DQMStore::IBooker& ibooker, const edm::ESHandle<GEMGeometry>& gem) {
   ibooker.setCurrentFolder(folder_ + "/Misc");
   me_prop_r_err_ = ibooker.book1D("prop_r_err", ";Propagation Global R Error [cm];Entries", 20, 0.0, 20.0);
   me_prop_phi_err_ = ibooker.book1D("prop_phi_err", "Propagation Global Phi Error [rad];Entries", 20, 0.0, 0.5);
   me_all_abs_residual_rphi_ = ibooker.book1D("all_abs_residual_rphi", ";Residual in R#phi [cm];Entries", 20, 0.0, 20.0);
 }
-
 
 void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   edm::Handle<GEMRecHitCollection> rechit_collection;
@@ -361,7 +357,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
 
     for (const GEMLayerData& layer : layer_vector) {
       if (use_skip_layer_ and skipLayer(track, layer)) {
-        edm::LogInfo(kLogCategory_) << "skip GEM Layer" << std::endl; 
+        edm::LogInfo(kLogCategory_) << "skip GEM Layer" << std::endl;
         continue;
       }
 
@@ -436,8 +432,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       fillME(me_muon_phi_, rs_key, muon.phi());
       fillME(me_chamber_, rsl_key, gem_id.chamber());
 
-      const auto&& [hit, residual_rphi] = findClosetHit(
-          dest_global_pos, rechit_collection->get(gem_id), eta_partition);
+      const auto&& [hit, residual_rphi] = findClosetHit(dest_global_pos, rechit_collection->get(gem_id), eta_partition);
 
       if (hit == nullptr) {
         edm::LogInfo(kLogCategory_) << "failed to find a hit" << std::endl;
@@ -465,7 +460,8 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
 
       const float dphi = reco::deltaPhi(dest_global_pos.barePhi(), hit_global_pos.barePhi());
       const float residual_y = dest_local_pos.y() - hit_local_pos.y();
-      const float global_phi_err = std::sqrt(dest_global_err.phierr(dest_global_pos) + hit_global_err.phierr(hit_global_pos));
+      const float global_phi_err =
+          std::sqrt(dest_global_err.phierr(dest_global_pos) + hit_global_err.phierr(hit_global_pos));
       const float pull_phi = dphi / global_phi_err;
       const float pull_y = residual_y / std::sqrt(dest_local_err.yy() + hit_local_err.yy());
 
@@ -477,9 +473,8 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   }    // Muon
 }
 
-
-std::vector<GEMEfficiencyAnalyzer::GEMLayerData>
-GEMEfficiencyAnalyzer::buildGEMLayers(const edm::ESHandle<GEMGeometry>& gem) {
+std::vector<GEMEfficiencyAnalyzer::GEMLayerData> GEMEfficiencyAnalyzer::buildGEMLayers(
+    const edm::ESHandle<GEMGeometry>& gem) {
   std::vector<GEMLayerData> layer_vector;
 
   for (const GEMStation* station : gem->stations()) {
@@ -487,7 +482,7 @@ GEMEfficiencyAnalyzer::buildGEMLayers(const edm::ESHandle<GEMGeometry>& gem) {
     const int station_id = station->station();
 
     // layer_id - chambers
-    std::map<int, std::vector<const GEMChamber*> > chambers_per_layer; // chambers per layer
+    std::map<int, std::vector<const GEMChamber*> > chambers_per_layer;  // chambers per layer
     for (const GEMSuperChamber* super_chamber : station->superChambers()) {
       for (const GEMChamber* chamber : super_chamber->chambers()) {
         const int layer_id = chamber->id().layer();
@@ -496,11 +491,10 @@ GEMEfficiencyAnalyzer::buildGEMLayers(const edm::ESHandle<GEMGeometry>& gem) {
           chambers_per_layer.insert({layer_id, std::vector<const GEMChamber*>()});
 
         chambers_per_layer[layer_id].push_back(chamber);
-      } // GEMChamber
-    } // GEMSuperChamber
+      }  // GEMChamber
+    }    // GEMSuperChamber
 
     for (auto [layer_id, chamber_vector] : chambers_per_layer) {
-
       auto [rmin, rmax] = chamber_vector[0]->surface().rSpan();
       auto [zmin, zmax] = chamber_vector[0]->surface().zSpan();
       for (const GEMChamber* chamber : chamber_vector) {
@@ -529,12 +523,11 @@ GEMEfficiencyAnalyzer::buildGEMLayers(const edm::ESHandle<GEMGeometry>& gem) {
 
       layer_vector.emplace_back(layer, chamber_vector, region_id, station_id, layer_id);
 
-    } // layer
-  } // GEMStation
+    }  // layer
+  }    // GEMStation
 
   return layer_vector;
 }
-
 
 const reco::Track* GEMEfficiencyAnalyzer::getTrack(const reco::Muon& muon) {
   const reco::Track* track = nullptr;
@@ -555,13 +548,10 @@ const reco::Track* GEMEfficiencyAnalyzer::getTrack(const reco::Muon& muon) {
   return track;
 }
 
-
-std::pair<TrajectoryStateOnSurface, DetId>
-GEMEfficiencyAnalyzer::getStartingState(
+std::pair<TrajectoryStateOnSurface, DetId> GEMEfficiencyAnalyzer::getStartingState(
     const reco::TransientTrack& transient_track,
     const GEMLayerData& layer,
     const edm::ESHandle<GlobalTrackingGeometry>& geometry) {
-
   TrajectoryStateOnSurface starting_state;
   DetId starting_id;
 
@@ -578,29 +568,26 @@ GEMEfficiencyAnalyzer::getStartingState(
       std::tie(starting_state, starting_id) = findStartingState(transient_track, layer, geometry);
 
     } else {
-      starting_id = std::move(inner_id);
+      starting_id = inner_id;
       if (is_insideout)
         starting_state = std::move(transient_track.outermostMeasurementState());
       else
         starting_state = std::move(transient_track.innermostMeasurementState());
     }
   }
- 
+
   return std::make_pair(starting_state, starting_id);
 }
 
-
-std::pair<TrajectoryStateOnSurface, DetId>
-GEMEfficiencyAnalyzer::findStartingState(
+std::pair<TrajectoryStateOnSurface, DetId> GEMEfficiencyAnalyzer::findStartingState(
     const reco::TransientTrack& transient_track,
     const GEMLayerData& layer,
     const edm::ESHandle<GlobalTrackingGeometry>& geometry) {
-
   GlobalPoint starting_point;
   DetId starting_id;
   float min_distance = 1e12;
   bool found = false;
- 
+
   // TODO optimize this loop because hits should be ordered..
   for (auto rechit = transient_track.recHitsBegin(); rechit != transient_track.recHitsEnd(); rechit++) {
     const DetId&& det_id = (*rechit)->geographicalId();
@@ -628,13 +615,13 @@ GEMEfficiencyAnalyzer::findStartingState(
 }
 
 bool GEMEfficiencyAnalyzer::isME11(const DetId& det_id) {
-  if (not MuonHitHelper::isCSC(det_id)) return false;
+  if (not MuonHitHelper::isCSC(det_id))
+    return false;
   const CSCDetId csc_id{det_id};
   return (csc_id.station() == 1) or ((csc_id.ring() == 1) or (csc_id.ring() == 4));
 }
 
-bool GEMEfficiencyAnalyzer::skipLayer(const reco::Track* track,
-                                      const GEMLayerData& layer) {
+bool GEMEfficiencyAnalyzer::skipLayer(const reco::Track* track, const GEMLayerData& layer) {
   const bool is_same_region = track->eta() * layer.region > 0;
 
   bool skip = false;
@@ -650,7 +637,6 @@ bool GEMEfficiencyAnalyzer::skipLayer(const reco::Track* track,
   } else {
     // beam scenario
     skip = not is_same_region;
-
   }
 
   return skip;
@@ -662,13 +648,11 @@ bool GEMEfficiencyAnalyzer::checkBounds(const GlobalPoint& global_point, const P
   return plane.bounds().inside(local_point_2d);
 }
 
-const GEMEtaPartition* GEMEfficiencyAnalyzer::findEtaPartition(
-    const GlobalPoint& global_point,
-    const std::vector<const GEMChamber*>& chamber_vector) {
-
+const GEMEtaPartition* GEMEfficiencyAnalyzer::findEtaPartition(const GlobalPoint& global_point,
+                                                               const std::vector<const GEMChamber*>& chamber_vector) {
   const GEMEtaPartition* bound = nullptr;
   for (const GEMChamber* chamber : chamber_vector) {
-    if (not checkBounds(global_point, chamber->surface())) 
+    if (not checkBounds(global_point, chamber->surface()))
       continue;
 
     for (const GEMEtaPartition* eta_partition : chamber->etaPartitions()) {
@@ -676,17 +660,15 @@ const GEMEtaPartition* GEMEfficiencyAnalyzer::findEtaPartition(
         bound = eta_partition;
         break;
       }
-    } // GEMEtaPartition
-  } // GEMChamber
+    }  // GEMEtaPartition
+  }    // GEMChamber
 
   return bound;
 }
 
-std::pair<const GEMRecHit*, float> GEMEfficiencyAnalyzer::findClosetHit(
-    const GlobalPoint& dest_global_pos,
-    const GEMRecHitCollection::range& range,
-    const GEMEtaPartition* eta_partition) {
-
+std::pair<const GEMRecHit*, float> GEMEfficiencyAnalyzer::findClosetHit(const GlobalPoint& dest_global_pos,
+                                                                        const GEMRecHitCollection::range& range,
+                                                                        const GEMEtaPartition* eta_partition) {
   const StripTopology& topology = eta_partition->specificTopology();
   const LocalPoint&& dest_local_pos = eta_partition->toLocal(dest_global_pos);
   const float dest_local_x = dest_local_pos.x();
@@ -698,7 +680,7 @@ std::pair<const GEMRecHit*, float> GEMEfficiencyAnalyzer::findClosetHit(
   for (auto hit = range.first; hit != range.second; ++hit) {
     const LocalPoint&& hit_local_pos = hit->localPosition();
     const float hit_local_phi = topology.stripAngle(eta_partition->strip(hit_local_pos));
- 
+
     const float residual_x = dest_local_x - hit_local_pos.x();
     const float residual_y = dest_local_y - hit_local_pos.y();
     const float residual_rphi = std::cos(hit_local_phi) * residual_x + std::sin(hit_local_phi) * residual_y;
