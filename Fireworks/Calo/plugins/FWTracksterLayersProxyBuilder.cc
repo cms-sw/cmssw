@@ -69,8 +69,9 @@ void FWTracksterLayersProxyBuilder::build(const FWEventItem *iItem, TEveElementL
   if (TimeValueMapHandle.isValid()) {
     timeLowerBound = item()->getConfig()->value<double>("TimeLowerBound(ns)");
     timeUpperBound = item()->getConfig()->value<double>("TimeUpperBound(ns)");
-    if (timeLowerBound > timeUpperBound){
-      edm::LogWarning("InvalidParameters") << "lower time bound is larger than upper time bound. Maybe opposite is desired?";
+    if (timeLowerBound > timeUpperBound) {
+      edm::LogWarning("InvalidParameters")
+          << "lower time bound is larger than upper time bound. Maybe opposite is desired?";
     }
   } else {
     edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file.";
@@ -93,9 +94,9 @@ void FWTracksterLayersProxyBuilder::build(const FWEventItem *iItem, TEveElementL
 }
 
 void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
-                                        unsigned int iIndex,
-                                        TEveElement &oItemHolder,
-                                        const FWViewContext *) {
+                                          unsigned int iIndex,
+                                          TEveElement &oItemHolder,
+                                          const FWViewContext *) {
   if (enableTimeFilter && TimeValueMapHandle.isValid()) {
     const float time = TimeValueMapHandle->get(iIndex).first;
     if (time < timeLowerBound || time > timeUpperBound)
@@ -121,32 +122,32 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
     if (displayMode == 0) {
       radius = sqrt(nHits);
     } else if (displayMode == 1) {
-        radius = nHits;
+      radius = nHits;
     } else if (displayMode == 2) {
       radius = energy;
     } else if (displayMode == 3) {
-      radius = energy/nHits;
+      radius = energy / nHits;
     } else if (displayMode == 4) {
       const bool isScintillator = layerCluster.seed().det() == DetId::HGCalHSc;
       float area = 0;
       if (isScintillator) {
         const bool isFine = (HGCScintillatorDetId(layerCluster.seed()).type() == 0);
-        float dphi = (isFine) ? 1.0*M_PI/180. : 1.25*M_PI/180.;
+        float dphi = (isFine) ? 1.0 * M_PI / 180. : 1.25 * M_PI / 180.;
         int ir = HGCScintillatorDetId(layerCluster.seed()).iradiusAbs();
-        float dr = (isFine) ? (0.0484*static_cast<float>(ir)+2.1) : (0.075*static_cast<float>(ir)+2.0);
-        float r = (isFine) ? (0.0239*static_cast<float>(pow(ir,2))+2.02*static_cast<float>(ir)+119.6) :
-                             (0.0367*static_cast<float>(pow(ir,2))+1.7*static_cast<float>(ir)+90.7);
-        area = r*dr*dphi;
+        float dr = (isFine) ? (0.0484 * static_cast<float>(ir) + 2.1) : (0.075 * static_cast<float>(ir) + 2.0);
+        float r = (isFine) ? (0.0239 * static_cast<float>(pow(ir, 2)) + 2.02 * static_cast<float>(ir) + 119.6)
+                           : (0.0367 * static_cast<float>(pow(ir, 2)) + 1.7 * static_cast<float>(ir) + 90.7);
+        area = r * dr * dphi;
       } else {
         const bool isFine = (HGCSiliconDetId(layerCluster.seed()).type() == 0);
         float side = (isFine) ? 0.465 : 0.698;
-        area = pow(side,2)*3*sqrt(3)/2;
+        area = pow(side, 2) * 3 * sqrt(3) / 2;
       }
-      radius = sqrt(nHits*area)/M_PI;
+      radius = sqrt(nHits * area) / M_PI;
     }
 
     auto eveCircle = new TEveGeoShape("Circle");
-    auto tube = new TGeoTube(0., proportionalityFactor*radius, 0.1);
+    auto tube = new TGeoTube(0., proportionalityFactor * radius, 0.1);
     eveCircle->SetShape(tube);
     eveCircle->InitMainTrans();
     eveCircle->RefMainTrans().Move3PF(position.x(), position.y(), position.z());
@@ -177,8 +178,10 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
 
       const bool isScintillatorIn = doublet.first.seed().det() == DetId::HGCalHSc;
       const bool isScintillatorOut = doublet.second.seed().det() == DetId::HGCalHSc;
-      int layerIn = (isScintillatorIn) ? (HGCScintillatorDetId(doublet.first.seed()).layer()) : (HGCSiliconDetId(doublet.first.seed()).layer());
-      int layerOut = (isScintillatorOut) ? (HGCScintillatorDetId(doublet.second.seed()).layer()) : (HGCSiliconDetId(doublet.second.seed()).layer());
+      int layerIn = (isScintillatorIn) ? (HGCScintillatorDetId(doublet.first.seed()).layer())
+                                       : (HGCSiliconDetId(doublet.first.seed()).layer());
+      int layerOut = (isScintillatorOut) ? (HGCScintillatorDetId(doublet.second.seed()).layer())
+                                         : (HGCSiliconDetId(doublet.second.seed()).layer());
 
       // Check if offset is needed
       const int offset = 28;
@@ -187,19 +190,18 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
       layerIn += offsetIn;
       layerOut += offsetOut;
 
-      const bool isAdjacent = (layerOut-layerIn) == 1;
+      const bool isAdjacent = (layerOut - layerIn) == 1;
 
       TEveStraightLineSet *marker = new TEveStraightLineSet;
       marker->SetLineWidth(2);
       if (isAdjacent) {
         marker->SetLineColor(kYellow);
-      }
-      else {
+      } else {
         marker->SetLineColor(kRed);
       }
 
       // draw 3D cross
-      if (layer == 0 || fabs(layerIn-layer) == 0 || fabs(layerOut-layer) == 0) {
+      if (layer == 0 || fabs(layerIn - layer) == 0 || fabs(layerOut - layer) == 0) {
         marker->AddLine(doublet.first.x(),
                         doublet.first.y(),
                         doublet.first.z(),
