@@ -20,7 +20,6 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-
 #include "DataFormats/Common/interface/Association.h"
 
 #include "FWCore/Utilities/interface/transform.h"
@@ -34,7 +33,7 @@ typedef std::pair<size_t, float> IdxAndFraction;
 
 class SimClusterRecHitAssociationProducer : public edm::stream::EDProducer<> {
 public:
-  explicit SimClusterRecHitAssociationProducer(const edm::ParameterSet &);
+  explicit SimClusterRecHitAssociationProducer(const edm::ParameterSet&);
   ~SimClusterRecHitAssociationProducer() override;
 
 private:
@@ -47,19 +46,18 @@ private:
   edm::EDGetTokenT<SimClusterCollection> scCollectionToken_;
 };
 
-SimClusterRecHitAssociationProducer::SimClusterRecHitAssociationProducer(const edm::ParameterSet &pset)
-    : //caloSimhitCollectionTokens_(edm::vector_transform(pset.getParameter<std::vector<edm::InputTag>>("caloSimHits"),
+SimClusterRecHitAssociationProducer::SimClusterRecHitAssociationProducer(const edm::ParameterSet& pset)
+    :  //caloSimhitCollectionTokens_(edm::vector_transform(pset.getParameter<std::vector<edm::InputTag>>("caloSimHits"),
       //  [this](const edm::InputTag& tag) {return mayConsume<edm::PCaloHitContainer>(tag); })),
-    //trackSimhitCollectionTokens_(edm::vector_transform(pset.getParameter<edm::InputTag>("trackSimHits"),
-    //    [this](const edm::InputTag& tag) {return mayConsume<std::vector<PSimHit>(tag); }),
-    caloRechitTags_(pset.getParameter<std::vector<edm::InputTag>>("caloRecHits")),
-    caloRechitCollectionTokens_(edm::vector_transform(caloRechitTags_,
-        [this](const edm::InputTag& tag) {return mayConsume<edm::View<CaloRecHit>>(tag); })),
-    scCollectionToken_(consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("simClusters")))
-{
+      //trackSimhitCollectionTokens_(edm::vector_transform(pset.getParameter<edm::InputTag>("trackSimHits"),
+      //    [this](const edm::InputTag& tag) {return mayConsume<std::vector<PSimHit>(tag); }),
+      caloRechitTags_(pset.getParameter<std::vector<edm::InputTag>>("caloRecHits")),
+      caloRechitCollectionTokens_(edm::vector_transform(
+          caloRechitTags_, [this](const edm::InputTag& tag) { return mayConsume<edm::View<CaloRecHit>>(tag); })),
+      scCollectionToken_(consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("simClusters"))) {
   for (auto& tag : caloRechitTags_) {
     const std::string& label = tag.instance();
-    produces<edm::Association<SimClusterCollection>>(label+"ToSimClus");
+    produces<edm::Association<SimClusterCollection>>(label + "ToSimClus");
   }
   produces<std::unordered_map<int, float>>();
 }
@@ -71,7 +69,7 @@ SimClusterRecHitAssociationProducer::~SimClusterRecHitAssociationProducer() {}
 //
 
 // ------------ method called to produce the data  ------------
-void SimClusterRecHitAssociationProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void SimClusterRecHitAssociationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto simClusterToRecEnergy = std::make_unique<std::unordered_map<int, float>>();
   edm::Handle<SimClusterCollection> scCollection;
   iEvent.getByToken(scCollectionToken_, scCollection);
@@ -82,18 +80,17 @@ void SimClusterRecHitAssociationProducer::produce(edm::Event &iEvent, const edm:
     const auto& sc = scCollection->at(s);
     (*simClusterToRecEnergy)[s] = 0.;
     for (auto& hf : sc.hits_and_fractions()) {
-        auto entry = hitDetIdToIndex.find(hf.first);
-        // Update SimCluster assigment if detId has been found in no other SCs or if
-        // SC has greater fraction of energy in DetId than the SC already found
-        if (entry == hitDetIdToIndex.end()) {
-            hitDetIdToTotalSimFrac[hf.first] = hf.second;
-            hitDetIdToIndex[hf.first] = {s, hf.second};
-        }
-        else {
-            hitDetIdToTotalSimFrac[hf.first] += hf.second;
-            if (entry->second.second < hf.second)
-                hitDetIdToIndex[hf.first] = {s, hf.second};
-        }
+      auto entry = hitDetIdToIndex.find(hf.first);
+      // Update SimCluster assigment if detId has been found in no other SCs or if
+      // SC has greater fraction of energy in DetId than the SC already found
+      if (entry == hitDetIdToIndex.end()) {
+        hitDetIdToTotalSimFrac[hf.first] = hf.second;
+        hitDetIdToIndex[hf.first] = {s, hf.second};
+      } else {
+        hitDetIdToTotalSimFrac[hf.first] += hf.second;
+        if (entry->second.second < hf.second)
+          hitDetIdToIndex[hf.first] = {s, hf.second};
+      }
     }
   }
 
@@ -107,34 +104,33 @@ void SimClusterRecHitAssociationProducer::produce(edm::Event &iEvent, const edm:
     iEvent.getByToken(caloRechitCollectionTokens_.at(i), caloRechitCollection);
 
     for (size_t h = 0; h < caloRechitCollection->size(); h++) {
-        const CaloRecHit& caloRh = caloRechitCollection->at(h);
-        size_t id = caloRh.detid().rawId();
-        auto entry = hitDetIdToTotalRecEnergy.find(id);
-        float energy = caloRh.energy();
-        if (entry == hitDetIdToTotalRecEnergy.end())
-            hitDetIdToTotalRecEnergy[id] = energy;
-        else
-            hitDetIdToTotalRecEnergy.at(id) += energy;
+      const CaloRecHit& caloRh = caloRechitCollection->at(h);
+      size_t id = caloRh.detid().rawId();
+      auto entry = hitDetIdToTotalRecEnergy.find(id);
+      float energy = caloRh.energy();
+      if (entry == hitDetIdToTotalRecEnergy.end())
+        hitDetIdToTotalRecEnergy[id] = energy;
+      else
+        hitDetIdToTotalRecEnergy.at(id) += energy;
 
-        int match = hitDetIdToIndex.find(id) == hitDetIdToIndex.end() ? -1 : hitDetIdToIndex.at(id).first;
-        float fraction = match != -1 ? hitDetIdToTotalSimFrac.at(id) : 1.;
-        if (simClusterToRecEnergy->find(match) == simClusterToRecEnergy->end())
-            (*simClusterToRecEnergy)[match] = energy*fraction;
-        else
-            simClusterToRecEnergy->at(match) += energy*fraction;
+      int match = hitDetIdToIndex.find(id) == hitDetIdToIndex.end() ? -1 : hitDetIdToIndex.at(id).first;
+      float fraction = match != -1 ? hitDetIdToTotalSimFrac.at(id) : 1.;
+      if (simClusterToRecEnergy->find(match) == simClusterToRecEnergy->end())
+        (*simClusterToRecEnergy)[match] = energy * fraction;
+      else
+        simClusterToRecEnergy->at(match) += energy * fraction;
 
-        rechitIndices.push_back(match);
+      rechitIndices.push_back(match);
     }
 
     auto assoc = std::make_unique<edm::Association<SimClusterCollection>>(scCollection);
     edm::Association<SimClusterCollection>::Filler filler(*assoc);
     filler.insert(caloRechitCollection, rechitIndices.begin(), rechitIndices.end());
     filler.fill();
-    iEvent.put(std::move(assoc), label+"ToSimClus");
+    iEvent.put(std::move(assoc), label + "ToSimClus");
   }
   iEvent.put(std::move(simClusterToRecEnergy));
 }
 
 // define this as a plug-in
 DEFINE_FWK_MODULE(SimClusterRecHitAssociationProducer);
-

@@ -54,8 +54,9 @@ public:
     for (unsigned int i = 0; i < objs->size(); ++i) {
       edm::Ref<T> obj(objs, i);
       if (cut_(*obj)) {
-        if (valueMap->find(i) == valueMap->end()) 
-            throw cms::Exception("ObjectPropertyFromIndexMapTableProducer") << "No entry in value map for candidate " << i;
+        if (valueMap->find(i) == valueMap->end())
+          throw cms::Exception("ObjectPropertyFromIndexMapTableProducer")
+              << "No entry in value map for candidate " << i;
         values.emplace_back(valueMap->at(i));
       }
     }

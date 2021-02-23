@@ -86,44 +86,43 @@ void edm::FlatEtaRangeGunProducer::produce(edm::Event& event, const edm::EventSe
     n = nParticles_;
   }
 
-  int particle_counter=0;
+  int particle_counter = 0;
   // shoot particles
-    for (int i = 0; i < 2 * n; i++) { //n for positive and n for negative eta
-        // create a random deltaR
+  for (int i = 0; i < 2 * n; i++) {  //n for positive and n for negative eta
+    // create a random deltaR
 
-        // obtain kinematics
-        int id = particleIDs_[exactShoot_ ? particle_counter : CLHEP::RandFlat::shoot(engine, 0, particleIDs_.size())];
-        particle_counter++;
-        if(particle_counter>=n)
-            particle_counter=0;
+    // obtain kinematics
+    int id = particleIDs_[exactShoot_ ? particle_counter : CLHEP::RandFlat::shoot(engine, 0, particleIDs_.size())];
+    particle_counter++;
+    if (particle_counter >= n)
+      particle_counter = 0;
 
-        const HepPDT::ParticleData* pData = pdgTable_->particle(HepPDT::ParticleID(abs(id)));
-        double eta = CLHEP::RandFlat::shoot(engine, etaMin_, etaMax_);
-        if (i < n)
-            eta *= -1;
-        double phi = CLHEP::RandFlat::shoot(engine, phiMin_, phiMax_);
-        double e = CLHEP::RandFlat::shoot(engine, eMin_, eMax_);
-        double m = pData->mass().value();
-        double p = sqrt(e * e - m * m);
-        math::XYZVector pVec = p
-                * math::XYZVector(cos(phi), sin(phi), sinh(eta)).unit();
+    const HepPDT::ParticleData* pData = pdgTable_->particle(HepPDT::ParticleID(abs(id)));
+    double eta = CLHEP::RandFlat::shoot(engine, etaMin_, etaMax_);
+    if (i < n)
+      eta *= -1;
+    double phi = CLHEP::RandFlat::shoot(engine, phiMin_, phiMax_);
+    double e = CLHEP::RandFlat::shoot(engine, eMin_, eMax_);
+    double m = pData->mass().value();
+    double p = sqrt(e * e - m * m);
+    math::XYZVector pVec = p * math::XYZVector(cos(phi), sin(phi), sinh(eta)).unit();
 
-        HepMC::GenVertex* vtx = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0));
+    HepMC::GenVertex* vtx = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0));
 
-        // create the GenParticle
-        HepMC::FourVector fVec(pVec.x(), pVec.y(), pVec.z(), e);
-        HepMC::GenParticle* particle = new HepMC::GenParticle(fVec, id, 1);
-        particle->suggest_barcode(i + 1);
+    // create the GenParticle
+    HepMC::FourVector fVec(pVec.x(), pVec.y(), pVec.z(), e);
+    HepMC::GenParticle* particle = new HepMC::GenParticle(fVec, id, 1);
+    particle->suggest_barcode(i + 1);
 
-        // add the particle to the vertex and the vertex to the event
-        vtx->add_particle_out(particle);
-        genEvent->add_vertex(vtx);
+    // add the particle to the vertex and the vertex to the event
+    vtx->add_particle_out(particle);
+    genEvent->add_vertex(vtx);
 
-        if (debug_) {
-            vtx->print();
-            particle->print();
-        }
+    if (debug_) {
+      vtx->print();
+      particle->print();
     }
+  }
 
   // fill event attributes
   genEvent->set_event_number(event.id().event());

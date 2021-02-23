@@ -18,10 +18,12 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include <vector>
 #include <iostream>
@@ -42,7 +44,7 @@ public:
   void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override {
     // TODO: check that the geometry exists
     iSetup.get<CaloGeometryRecord>().get(caloGeom_);
-    iSetup.get<GlobalTrackingGeometryRecord>().get(trackGeom_);
+    iSetup.get<TrackerDigiGeometryRecord>().get("idealForDigi", trackGeom_);
   }
 
   GlobalPoint positionFromHit(const PCaloHit& hit) {
@@ -108,7 +110,7 @@ protected:
   const edm::EDGetTokenT<T> src_;
   const StringCutObjectSelector<typename T::value_type> cut_;
   edm::ESHandle<CaloGeometry> caloGeom_;
-  edm::ESHandle<GlobalTrackingGeometry> trackGeom_;
+  edm::ESHandle<TrackerGeometry> trackGeom_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
