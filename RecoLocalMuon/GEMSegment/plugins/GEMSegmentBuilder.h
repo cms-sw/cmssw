@@ -40,9 +40,12 @@ public:
   void setGeometry(const GEMGeometry* g);
 
 private:
-  std::string algoName;
+  std::string segAlgoName;
+  std::string ge0AlgoName;
   edm::ParameterSet segAlgoPSet;
-  std::unique_ptr<GEMSegmentAlgorithmBase> algo;
+  edm::ParameterSet ge0AlgoPSet;
+  std::unique_ptr<GEMSegmentAlgorithmBase> segAlgo;
+  std::unique_ptr<GEMSegmentAlgorithmBase> ge0Algo;
   const GEMGeometry* geom_;
 };
 
