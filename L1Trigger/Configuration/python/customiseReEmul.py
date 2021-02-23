@@ -3,6 +3,7 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 def L1TCaloStage2ParamsForHW(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_HWConfig_cfi")
@@ -134,12 +135,13 @@ def L1TReEmulFromRAW2016(process):
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
     process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
 
+
     #cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis']
     #for b in cutlist:
     #    process.SimL1Emulator.remove(getattr(process,b))
     # TwinMux
     stage2L1Trigger.toModify(process.simTwinMuxDigis,
-        RPC_Source         = 'RPCTwinMuxRawToDigi',
+        RPC_Source         = 'rpcTwinMuxRawToDigi',
         DTDigi_Source      = 'twinMuxStage2Digis:PhIn',
         DTThetaDigi_Source = 'twinMuxStage2Digis:ThIn'
     )
@@ -179,16 +181,36 @@ def L1TReEmulFromRAW2016(process):
 
     process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
     process.schedule.append(process.L1TReEmulPath)
-    return process
+    return process 
 
 def L1TReEmulFromRAW(process):
     L1TReEmulFromRAW2016(process)
+    
 
     stage2L1Trigger_2017.toModify(process.simOmtfDigis,
         srcRPC   = 'omtfStage2Digis',
         srcCSC   = 'omtfStage2Digis',
         srcDTPh  = 'omtfStage2Digis',
         srcDTTh  = 'omtfStage2Digis'
+    )
+
+    stage2L1Trigger.toModify(process.simEmtfDigis,
+      CSCInput  = cms.InputTag('emtfStage2Digis'),
+      RPCInput  = cms.InputTag('muonRPCDigis'),
+      CPPFInput = cms.InputTag('emtfStage2Digis'),
+      GEMEnable = cms.bool(False),
+      GEMInput  = cms.InputTag('muonGEMPadDigis'),
+      CPPFEnable = cms.bool(True), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
+    )
+
+    run3_GEM.toModify(process.simMuonGEMPadDigis,
+        InputCollection         = 'muonGEMDigis',
+    )
+
+    run3_GEM.toModify(process.simTwinMuxDigis,
+        RPC_Source         = 'rpcTwinMuxRawToDigi',
+        DTDigi_Source      = 'simDtTriggerPrimitiveDigis',
+        DTThetaDigi_Source = 'simDtTriggerPrimitiveDigis'
     )
 
     print("# L1TReEmul sequence:  ")

@@ -151,7 +151,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       // best to skip these events since FED is most likely corrupt
       edm::LogWarning("GEMRawToDigiModule")
           << "FED trailer: fail check? " << failTrailerCheck << " fail match? " << failTrailerMatch;
-      continue;
+    //  continue;
     }
 
     bool unknownChamber = false, unknownVFat = false, badVfat = false;

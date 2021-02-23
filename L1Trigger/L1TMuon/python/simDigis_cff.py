@@ -96,10 +96,11 @@ phase2_trigger.toReplaceWith(SimL1TMuonTask, cms.Task(SimL1TMuonCommonTask, simT
 ## GEM TPs
 from L1Trigger.L1TGEM.simGEMDigis_cff import *
 _run3_SimL1TMuonTask = SimL1TMuonTask.copy()
-_run3_SimL1TMuonTask.add(simMuonGEMPadTask)
+#_run3_SimL1TMuonTask.add(simMuonGEMPadTask)
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-(stage2L1Trigger & run3_GEM).toReplaceWith( SimL1TMuonTask, _run3_SimL1TMuonTask )
+#(stage2L1Trigger & run3_GEM).toReplaceWith( SimL1TMuonTask, _run3_SimL1TMuonTask )
+(stage2L1Trigger & run3_GEM).toReplaceWith( SimL1TMuonTask, cms.Task(simMuonGEMPadTask,_run3_SimL1TMuonTask) )
 
 ## ME0 TPs
 from L1Trigger.L1TGEM.me0TriggerDigis_cff import *
