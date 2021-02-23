@@ -19,6 +19,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
@@ -44,7 +45,11 @@ public:
   void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override {
     // TODO: check that the geometry exists
     iSetup.get<CaloGeometryRecord>().get(caloGeom_);
+    rhtools_.setGeometry(*caloGeom_);
     iSetup.get<TrackerDigiGeometryRecord>().get("idealForDigi", trackGeom_);
+    // Believe this is ideal, but we're not so precise here...
+    iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeom_);
+
   }
 
   GlobalPoint positionFromHit(const PCaloHit& hit) {
@@ -54,29 +59,20 @@ public:
 
   GlobalPoint positionFromHit(const CaloRecHit& hit) { return positionFromDetId(hit.detid()); }
 
+  // Should really only be used for HGCAL
   GlobalPoint positionFromDetId(DetId id) {
     DetId::Detector det = id.det();
-    int subid = (det == DetId::HGCalEE || det == DetId::HGCalHSi || det == DetId::HGCalHSc)
-                    ? ForwardSubdetector::ForwardEmpty
-                    : id.subdetId();
-    auto geom = caloGeom_->getSubdetectorGeometry(det, subid);
-
-    GlobalPoint position;
-    if (id.det() == DetId::Hcal) {
-      position = geom->getGeometry(id)->getPosition();
-    } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc) {
-      auto hg = static_cast<const HGCalGeometry*>(geom);
-      position = hg->getPosition(id);
+    if (det == DetId::Hcal || det == DetId::HGCalEE || det == DetId::HGCalHSi || det== DetId::HGCalHSc) {
+      return rhtools_.getPosition(id);
     } else {
       throw cms::Exception("HitPositionTableProducer") << "Unsupported DetId type";
     }
-
-    return position;
   }
 
   GlobalPoint positionFromHit(const PSimHit& hit) {
-    auto surface = trackGeom_->idToDet(hit.detUnitId())->surface();
-    //LocalPoint localPos = surface.position();
+    auto detId = DetId(hit.detUnitId());
+    auto surface = detId.det() == DetId::Muon ? globalGeom_->idToDet(hit.detUnitId())->surface() :
+                                trackGeom_->idToDet(hit.detUnitId())->surface();
     GlobalPoint position = surface.toGlobal(hit.localPosition());
     return position;
   }
@@ -111,6 +107,8 @@ protected:
   const StringCutObjectSelector<typename T::value_type> cut_;
   edm::ESHandle<CaloGeometry> caloGeom_;
   edm::ESHandle<TrackerGeometry> trackGeom_;
+  edm::ESHandle<GlobalTrackingGeometry> globalGeom_;
+  hgcal::RecHitTools rhtools_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

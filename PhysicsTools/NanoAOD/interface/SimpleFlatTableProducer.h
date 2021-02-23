@@ -1,3 +1,6 @@
+#ifndef NanoAOD_SimpleFlatTableProducer_h
+#define NanoAOD_SimpleFlatTableProducer_h
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -271,3 +274,5 @@ public:
     return out;
   }
 };
+
+#endif

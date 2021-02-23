@@ -24,7 +24,7 @@ genParticleTable.variables = cms.PSet(genParticleTable.variables,
     charge = CandVars.charge)
 
 nanoHGCMLSequence = cms.Sequence(nanoMetadata+genVertexTables+genParticleTable+
-        #trackingParticleTable+caloParticleTable+simClusterTables+
+        trackingParticleTable+caloParticleTable+simClusterTables+
         simTrackTables+hgcSimHitsSequence+trackerSimHitTables)
 
 def customizeReco(process):

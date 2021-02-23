@@ -21,7 +21,7 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-process.load('PhysicsTools.NanoAOD.nanoHGCML_cff')
+process.load('DPGAnalysis.HGCalNanoAOD.nanoHGCML_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -102,13 +102,11 @@ from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 # customisation of the process.
+from DPGAnalysis.HGCalNanoAOD.nanoHGCML_cff import customizeReco
+#process = customizeReco(process)
 
 # End of customisation functions
-from PhysicsTools.NanoAOD.nanoHGCML_cff import customizeNoMergedCaloTruth,customizeMergedSimClusters
-# Uncomment if you didn't schedule SimClusters/CaloParticles
-# process = customizeNoMergedCaloTruth(process)
-# merged simclusters (turn off if you aren't running through PEPR)
-process = customizeMergedSimClusters(process)
+
 
 # Customisation from command line
 
@@ -116,3 +114,4 @@ process = customizeMergedSimClusters(process)
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
 process = customiseEarlyDelete(process)
 # End adding early deletion
+

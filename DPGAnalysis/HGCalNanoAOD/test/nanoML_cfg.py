@@ -103,7 +103,7 @@ associatePatAlgosToolsTask(process)
 
 # customisation of the process.
 from DPGAnalysis.HGCalNanoAOD.nanoHGCML_cff import customizeReco
-#process = customizeReco(process)
+process = customizeReco(process)
 
 # End of customisation functions
 

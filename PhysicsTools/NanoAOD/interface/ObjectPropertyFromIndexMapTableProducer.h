@@ -1,3 +1,6 @@
+#ifndef NanoAOD_ObjectPropertyFromIndexMapTableProducer_h
+#define NanoAOD_ObjectPropertyFromIndexMapTableProducer_h
+
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -72,6 +75,4 @@ protected:
   const StringCutObjectSelector<typename T::value_type> cut_;
 };
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-typedef ObjectPropertyFromIndexMapTableProducer<SimClusterCollection, float> SimClusterRecEnergyTableProducer;
-DEFINE_FWK_MODULE(SimClusterRecEnergyTableProducer);
+#endif
