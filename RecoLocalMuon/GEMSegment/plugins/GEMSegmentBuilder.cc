@@ -21,7 +21,7 @@ GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullpt
   segAlgoPSet = ps.getParameter<edm::ParameterSet>("algo_pset");
   ge0AlgoPSet = ps.getParameter<edm::ParameterSet>("ge0_pset");
 
-  // Ask factory to build these algorithms, giving it appropriate ParameterSets
+  // Ask factory to build these algorithms, giving them the appropriate ParameterSets
   segAlgo = GEMSegmentBuilderPluginFactory::get()->create(segAlgoName, segAlgoPSet);
   ge0Algo = GEMSegmentBuilderPluginFactory::get()->create(ge0AlgoName, ge0AlgoPSet);
 }
