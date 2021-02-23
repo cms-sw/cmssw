@@ -46,7 +46,6 @@ void ticl::SeedingRegionByL1::makeRegions(const edm::Event &ev,
                         iSide,
                         indx,
                         l1tkemsId);
-    indx++;
   }
 
   std::sort(result.begin(), result.end(), [](const TICLSeedingRegion &a, const TICLSeedingRegion &b) {
