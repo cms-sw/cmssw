@@ -3,7 +3,7 @@
 #include "RecoPPS/Local/interface/CTPPSPixelClusterProducer.h"
 
 CTPPSPixelClusterProducer::CTPPSPixelClusterProducer(const edm::ParameterSet &conf)
-    : tokenCTPPSPixelDigi_(consumes<edm::DetSetVector<CTPPSPixelDigi> >(conf.getParameter<edm::InputTag>("label"))),
+    : tokenCTPPSPixelDigi_(consumes<edm::DetSetVector<CTPPSPixelDigi> >(conf.getParameter<edm::InputTag>("tag"))),
       tokenCTPPSPixelAnalysisMask_(esConsumes()),
       tokenGainCalib_(esConsumes()),
       verbosity_(conf.getUntrackedParameter<int>("RPixVerbosity")),
@@ -16,7 +16,7 @@ CTPPSPixelClusterProducer::~CTPPSPixelClusterProducer() {}
 void CTPPSPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<int>("RPixVerbosity", 0);
-  desc.add<edm::InputTag>("label", edm::InputTag("ctppsPixelDigis"));
+  desc.add<edm::InputTag>("tag", edm::InputTag("ctppsPixelDigis"));
   desc.add<int>("SeedADCThreshold", 2);
   desc.add<int>("ADCThreshold", 2);
   desc.add<double>("ElectronADCGain", 135.0);
