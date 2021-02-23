@@ -334,7 +334,7 @@ DEFINE_FWK_MODULE(HLTEcalUnCalibRecHitsInRegionsProducer);
 
 // HGCAL Digis
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-using HLTHGCalDigisInRegionsProducer = HLTCaloObjInRegionsProducer<HGCalDataFrame,HGCalDigiCollection>;
+using HLTHGCalDigisInRegionsProducer = HLTCaloObjInRegionsProducer<HGCalDataFrame, HGCalDigiCollection>;
 DEFINE_FWK_MODULE(HLTHGCalDigisInRegionsProducer);
 
 // HGCAL RecHits
