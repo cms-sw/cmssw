@@ -38,6 +38,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
@@ -205,6 +206,11 @@ namespace edm {
 
       void preSourceConstruction(ModuleDescription const& md);
       void postSourceConstruction(ModuleDescription const& md);
+
+      void preESModulePrefetching(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void postESModulePrefetching(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void preESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void postESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
 
     private:
       std::string indention_;
@@ -383,6 +389,11 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
 
   iRegistry.watchPreSourceConstruction(this, &Tracer::preSourceConstruction);
   iRegistry.watchPostSourceConstruction(this, &Tracer::postSourceConstruction);
+
+  iRegistry.watchPreESModulePrefetching(this, &Tracer::preESModulePrefetching);
+  iRegistry.watchPostESModulePrefetching(this, &Tracer::postESModulePrefetching);
+  iRegistry.watchPreESModule(this, &Tracer::preESModule);
+  iRegistry.watchPostESModule(this, &Tracer::postESModule);
 
   iRegistry.preSourceEarlyTerminationSignal_.connect([this](edm::TerminationOrigin iOrigin) {
     LogAbsolute out("Tracer");
@@ -1610,6 +1621,50 @@ void Tracer::postSourceConstruction(ModuleDescription const& desc) {
   if (dumpNonModuleContext_) {
     out << "\n" << desc;
   }
+}
+
+void Tracer::preESModulePrefetching(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: prefetching for esmodule: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
+}
+
+void Tracer::postESModulePrefetching(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: prefetching for esmodule: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
+}
+
+void Tracer::preESModule(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: processing esmodule: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
+}
+
+void Tracer::postESModule(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: processing esmodule: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
 }
 
 using edm::service::Tracer;

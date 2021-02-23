@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -181,6 +182,7 @@ namespace edm {
     const void* EventSetupRecordImpl::getFromProxy(DataKey const& iKey,
                                                    const ComponentDescription*& iDesc,
                                                    bool iTransientAccessOnly,
+                                                   ESParentContext const& iParent,
                                                    EventSetupImpl const* iEventSetupImpl) const {
       const DataProxy* proxy = this->find(iKey);
 
@@ -189,7 +191,7 @@ namespace edm {
       if (nullptr != proxy) {
         try {
           convertException::wrap([&]() {
-            hold = proxy->get(*this, iKey, iTransientAccessOnly, activityRegistry_, iEventSetupImpl);
+            hold = proxy->get(*this, iKey, iTransientAccessOnly, activityRegistry_, iEventSetupImpl, iParent);
             iDesc = proxy->providerDescription();
           });
         } catch (cms::Exception& e) {
@@ -206,6 +208,7 @@ namespace edm {
                                                    bool iTransientAccessOnly,
                                                    const ComponentDescription*& iDesc,
                                                    DataKey const*& oGottenKey,
+                                                   ESParentContext const& iParent,
                                                    EventSetupImpl const* iEventSetupImpl) const {
       if (iProxyIndex.value() >= static_cast<ESProxyIndex::Value_t>(proxies_.size())) {
         return nullptr;
@@ -220,8 +223,9 @@ namespace edm {
       auto const& key = keysForProxies_[iProxyIndex.value()];
       oGottenKey = &key;
       try {
-        convertException::wrap(
-            [&]() { hold = proxy->get(*this, key, iTransientAccessOnly, activityRegistry_, iEventSetupImpl); });
+        convertException::wrap([&]() {
+          hold = proxy->get(*this, key, iTransientAccessOnly, activityRegistry_, iEventSetupImpl, iParent);
+        });
       } catch (cms::Exception& e) {
         addTraceInfoToCmsException(e, key.name().value(), proxy->providerDescription(), key);
         throw;
@@ -261,7 +265,8 @@ namespace edm {
     void EventSetupRecordImpl::prefetchAsync(WaitingTaskHolder iTask,
                                              ESProxyIndex iProxyIndex,
                                              EventSetupImpl const* iEventSetupImpl,
-                                             ServiceToken const& iToken) const {
+                                             ServiceToken const& iToken,
+                                             ESParentContext iParent) const {
       if UNLIKELY (iProxyIndex.value() == std::numeric_limits<int>::max()) {
         return;
       }
@@ -269,7 +274,7 @@ namespace edm {
       const DataProxy* proxy = proxies_[iProxyIndex.value()];
       if (nullptr != proxy) {
         auto const& key = keysForProxies_[iProxyIndex.value()];
-        proxy->prefetchAsync(iTask, *this, key, iEventSetupImpl, iToken);
+        proxy->prefetchAsync(iTask, *this, key, iEventSetupImpl, iToken, iParent);
       }
     }
 
