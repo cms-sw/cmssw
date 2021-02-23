@@ -13,6 +13,7 @@
 <test name="testDownhill" command="testTheano.sh testDownhill.py"/>
 <test name="testTheano" command="testTheano.sh testTheano.py"/>
 <test name="testhep_ml" command="testTheano.sh testhep_ml.py"/>
+<test name="testCorrectionlib" command="test_correctionlib.py"/>
 
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
   <use name="rootpymva"/>
