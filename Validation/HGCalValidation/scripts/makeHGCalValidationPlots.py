@@ -9,7 +9,7 @@ from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleV
 import Validation.HGCalValidation.hgcalPlots as hgcalPlots
 import Validation.RecoTrack.plotting.plotting as plotting
 
-simClustersIters = ["ClusterLevel","ticlTrackstersTrkEM","ticlTrackstersEM","ticlTrackstersTrk","ticlTrackstersHAD","ticlTrackstersMerge"]
+simClustersIters = ["ClusterLevel","ticlTrackstersTrkEM","ticlTrackstersEM","ticlTrackstersTrk","ticlTrackstersHAD"]
 
 trackstersIters = ["ticlMultiClustersFromTrackstersMerge", "ticlMultiClustersFromTrackstersMIP",
                    "ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersTrkEM",
