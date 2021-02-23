@@ -1,21 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("G4PrintGeometry")
+from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+process = cms.Process("G4PrintGeometry",Run3_dd4hep)
 
-process.load('Configuration.ProcessModifiers.dd4hep_cff')
-#process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
-process.load('Geometry.CMSCommonData.cmsExtendedGeometry2021XML_cfi')
-process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
-process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
-process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
-process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
-process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
-process.load('Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi')
-process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-from SimG4Core.PrintGeomInfo.g4PrintGeomInfo_cfi import *
 
+from SimG4Core.PrintGeomInfo.g4PrintGeomInfo_cfi import *
 process = printGeomInfo(process)
 
 if hasattr(process,'MessageLogger'):
@@ -56,12 +48,3 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type             = cms.string('PrintGeomInfoAction')
 ))
 
-process.hcalParameters.fromDD4Hep = cms.bool(True)
-process.hcalSimulationParameters.fromDD4Hep = cms.bool(True)
-process.caloSimulationParameters.fromDD4Hep = cms.bool(True)
-process.ecalSimulationParametersEB.fromDD4Hep = cms.bool(True)
-process.ecalSimulationParametersEE.fromDD4Hep = cms.bool(True)
-process.ecalSimulationParametersES.fromDD4Hep = cms.bool(True)
-process.hgcalEEParametersInitialize.fromDD4Hep = cms.bool(True)
-process.hgcalHESiParametersInitialize.fromDD4Hep = cms.bool(True)
-process.hgcalHEScParametersInitialize.fromDD4Hep = cms.bool(True)
