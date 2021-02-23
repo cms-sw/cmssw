@@ -91,8 +91,7 @@ TrackstersFromSimClustersProducer::TrackstersFromSimClustersProducer(const edm::
       associatorMapSimToReco_token_(
           consumes<hgcal::SimToRecoCollectionWithSimClusters>(associatorLayerClusterSimCluster_)) {
   produces<std::vector<Trackster>>();
-  produces<std::vector<float>>();  
-
+  produces<std::vector<float>>();
 }
 
 void TrackstersFromSimClustersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -114,7 +113,7 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
   const auto& layerClusters = evt.get(clusters_token_);
   const auto& layerClustersTimes = evt.get(clustersTime_token_);
   const auto& inputClusterMask = evt.get(filtered_layerclusters_mask_token_);
-  output_mask->resize(layerClusters.size(),1.f);
+  output_mask->resize(layerClusters.size(), 1.f);
 
   const auto& simclusters = evt.get(simclusters_token_);
   const auto& simToRecoColl = evt.get(associatorMapSimToReco_token_);
@@ -128,17 +127,16 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
     auto const& sc = *(key);
     auto simClusterIndex = &sc - &simclusters[0];
     Trackster tmpTrackster;
-    tmpTrackster.zeroProbabilities(); 
+    tmpTrackster.zeroProbabilities();
     tmpTrackster.vertices().reserve(values.size());
     tmpTrackster.vertex_multiplicity().reserve(values.size());
 
     for (auto const& [lc, energyScorePair] : values) {
-      if(inputClusterMask[lc.index()] > 0){
+      if (inputClusterMask[lc.index()] > 0) {
         tmpTrackster.vertices().push_back(lc.index());
-        double fraction = energyScorePair.first/lc->energy();
+        double fraction = energyScorePair.first / lc->energy();
         (*output_mask)[lc.index()] -= fraction;
-        // std::cout << lc->energy() << " " << energyScorePair.first << " " << energyScorePair.first/lc->energy() << " " << lc->energy()/energyScorePair.first << " " << (int)static_cast<uint8_t>(std::clamp(lc->energy()/energyScorePair.first, 0., 255.)) << std::endl;
-        tmpTrackster.vertex_multiplicity().push_back(static_cast<uint8_t>(std::clamp(1./fraction, 0., 255.)));
+        tmpTrackster.vertex_multiplicity().push_back(static_cast<uint8_t>(std::clamp(1. / fraction, 0., 255.)));
       }
     }
     tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(sc.pdgId(), sc.charge()), 1.f);
@@ -149,5 +147,4 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
       *result, layerClusters, layerClustersTimes, rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z());
   evt.put(std::move(result));
   evt.put(std::move(output_mask));
-
 }
