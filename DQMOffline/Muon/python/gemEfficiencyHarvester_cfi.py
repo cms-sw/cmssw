@@ -1,13 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+from DQMOffline.Muon.gemEfficiencyHarvesterDefault_cfi import gemEfficiencyHarvesterDefault as _gemEfficiencyHarvesterDefault
+from DQMOffline.Muon.gemEfficiencyAnalyzer_cfi import gemEfficiencyAnalyzerTightGlb as _gemEfficiencyAnalyzerTightGlb
+from DQMOffline.Muon.gemEfficiencyAnalyzer_cfi import gemEfficiencyAnalyzerSta as _gemEfficiencyAnalyzerSta
 
-gemEfficiencyHarvesterTight = DQMEDHarvester('GEMEfficiencyHarvester',
-    folder = cms.untracked.string('GEM/GEMEfficiency/TightGlobalMuon'),
-    logCategory = cms.untracked.string('GEMEfficiencyHarvesterTight')
+gemEfficiencyHarvesterTightGlb = _gemEfficiencyHarvesterDefault.clone(
+    folder = cms.untracked.string(_gemEfficiencyAnalyzerTightGlb.folder.value())
 )
 
-gemEfficiencyHarvesterSTA = DQMEDHarvester('GEMEfficiencyHarvester',
-    folder = cms.untracked.string('GEM/GEMEfficiency/StandaloneMuon'),
-    logCategory = cms.untracked.string('GEMEfficiencyHarvesterSTA')
+gemEfficiencyHarvesterSta = _gemEfficiencyHarvesterDefault.clone(
+    folder = cms.untracked.string(_gemEfficiencyAnalyzerSta.folder.value())
 )
