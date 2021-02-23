@@ -172,7 +172,7 @@ namespace cmsdt {
   constexpr int MAX_BX_IDX = 3564;
 
   // En nanosegundos (tiempo de deriva en la celda)
-  constexpr float MAXDRIFT = 386.75;
+  constexpr float MAXDRIFT = 387;
   // En milímetros (dimensiones de la celda)
   constexpr int CELL_HEIGHT = 13;
   constexpr float CELL_SEMIHEIGHT = 6.5;
