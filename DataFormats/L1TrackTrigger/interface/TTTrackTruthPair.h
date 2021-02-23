@@ -1,5 +1,5 @@
-#ifndef DataFormats_L1TrackTrigger_TTrackExtra_h
-#define DataFormats_L1TrackTrigger_TTrackExtra_h
+#ifndef DataFormats_L1TrackTrigger_TTrackTruthPair_h
+#define DataFormats_L1TrackTrigger_TTrackTruthPair_h
 
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -9,7 +9,7 @@
 //By storing a reference to the track and the tracking particle as well as the flags, it makes it much easier
 
 template <typename T>
-class TTTrackExtra {
+class TTTrackTruthPair {
 public:
   struct StatusFlags {
     enum Status { IsGenuine = 0x1, IsLooselyGenuine = 0x2, IsCombinatoric = 0x4, IsUnknown = 0x8 };
@@ -21,8 +21,8 @@ private:
   char flags_;
 
 public:
-  TTTrackExtra() : flags_(0) {}
-  TTTrackExtra(const edm::Ref<std::vector<TTTrack<T> > >& ttTrkRef,
+  TTTrackTruthPair() : flags_(0) {}
+  TTTrackTruthPair(const edm::Ref<std::vector<TTTrack<T> > >& ttTrkRef,
                const edm::Ref<TrackingParticleCollection>& trkPartRef,
                int flags)
       : ttTrkRef_(ttTrkRef), trkPartRef_(trkPartRef), flags_(flags) {}

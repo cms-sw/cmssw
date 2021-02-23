@@ -15,7 +15,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1Track.h"
-#include "DataFormats/L1TrackTrigger/interface/L1TrackExtra.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TrackTruthPair.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
@@ -178,7 +178,7 @@ EgammaHLTPhase2ExtraProducer::EgammaHLTPhase2ExtraProducer(const edm::ParameterS
       saveHitsPlusHalfPi_(pset.getParameter<bool>("saveHitsPlusHalfPi")),
       recHitCountThresholds_(pset.getParameter<std::vector<double>>("recHitCountThresholds")) {
   produces<L1TrackCollection>();
-  produces<L1TrackExtraCollection>();
+  produces<L1TrackTruthPairCollection>();
   produces<TrackingParticleCollection>();
   produces<reco::CaloClusterCollection>("hgcalLayerClusters");
   produces<edm::ValueMap<std::pair<float, float>>>("hgcalLayerClustersTime");
@@ -272,20 +272,20 @@ void EgammaHLTPhase2ExtraProducer::produce(edm::StreamID streamID,
   edm::OrphanHandle<L1TrackCollection> l1TrksFiltHandle = event.put(std::move(l1TrksFiltered));
   edm::OrphanHandle<TrackingParticleCollection> trkPartsFiltHandle = event.put(std::move(trkPartsFiltered));
 
-  auto l1TrkExtraColl = std::make_unique<L1TrackExtraCollection>();
+  auto l1TrkExtraColl = std::make_unique<L1TrackTruthPairCollection>();
 
   for (size_t l1TrkNr = 0; l1TrkNr < orgL1TrkRefs.size(); l1TrkNr++) {
     auto orgTrkRef = orgL1TrkRefs[l1TrkNr];
     auto orgTrkPtr = edm::refToPtr(orgTrkRef);
     int flags = 0;
     if (l1TrkToTrkPartMap->isGenuine(orgTrkPtr))
-      flags |= L1TrackExtra::StatusFlags::IsGenuine;
+      flags |= L1TrackTruthPair::StatusFlags::IsGenuine;
     if (l1TrkToTrkPartMap->isLooselyGenuine(orgTrkPtr))
-      flags |= L1TrackExtra::StatusFlags::IsLooselyGenuine;
+      flags |= L1TrackTruthPair::StatusFlags::IsLooselyGenuine;
     if (l1TrkToTrkPartMap->isCombinatoric(orgTrkPtr))
-      flags |= L1TrackExtra::StatusFlags::IsCombinatoric;
+      flags |= L1TrackTruthPair::StatusFlags::IsCombinatoric;
     if (l1TrkToTrkPartMap->isUnknown(orgTrkPtr))
-      flags |= L1TrackExtra::StatusFlags::IsUnknown;
+      flags |= L1TrackTruthPair::StatusFlags::IsUnknown;
 
     auto orgTPRef = l1TrkToTrkPartMap->findTrackingParticlePtr(orgTrkPtr);
     auto getNewTPRef = [&orgTPIndxToNewIndx, &orgTPRef, &trkPartsFiltHandle]() {
@@ -298,7 +298,7 @@ void EgammaHLTPhase2ExtraProducer::produce(edm::StreamID streamID,
     auto newTPRef = getNewTPRef();
     edm::Ref<L1TrackCollection> newL1TrkRef(l1TrksFiltHandle, l1TrkNr);
 
-    L1TrackExtra l1TrkExtra(newL1TrkRef, newTPRef, flags);
+    L1TrackTruthPair l1TrkExtra(newL1TrkRef, newTPRef, flags);
     l1TrkExtraColl->push_back(l1TrkExtra);
   }
   event.put(std::move(l1TrkExtraColl));
