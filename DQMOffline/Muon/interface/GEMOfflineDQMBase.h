@@ -8,13 +8,12 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-
 class GEMOfflineDQMBase : public DQMEDAnalyzer {
 public:
   using MEMap = std::map<GEMDetId, dqm::impl::MonitorElement*>;
 
   explicit GEMOfflineDQMBase(const edm::ParameterSet&);
- 
+
   inline int getVFATNumber(const int, const int, const int);
   inline int getVFATNumberByStrip(const int, const int, const int);
   inline int getMaxVFAT(const int);
@@ -26,19 +25,19 @@ public:
   inline GEMDetId getReStLaKey(const GEMDetId&);
   inline GEMDetId getReStEtKey(const GEMDetId&);
   inline GEMDetId getReStLaChKey(const GEMDetId&);
-  inline GEMDetId getKey(const GEMDetId&); // == getReStLaChEtKey
+  inline GEMDetId getKey(const GEMDetId&);  // == getReStLaChEtKey
 
   int getDetOccXBin(const GEMDetId&, const edm::ESHandle<GEMGeometry>&);
   void setDetLabelsVFAT(MonitorElement*, const GEMStation*);
   void setDetLabelsEta(MonitorElement*, const GEMStation*);
-  int getNumEtaPartitions(const GEMStation*); // the number of eta partitions per GEMChamber
+  int getNumEtaPartitions(const GEMStation*);  // the number of eta partitions per GEMChamber
   void fillME(MEMap& me_map, const GEMDetId& key, const float x);
   void fillME(MEMap& me_map, const GEMDetId& key, const float x, const float y);
 
   template <typename T>
   inline bool checkRefs(const std::vector<T*>&);
 
-  // 
+  //
   std::string log_category_;
 };
 
@@ -81,9 +80,7 @@ inline GEMDetId GEMOfflineDQMBase::getReStKey(const int region, const int statio
   return GEMDetId{region, 1, station, 0, 0, 0};
 }
 
-inline GEMDetId GEMOfflineDQMBase::getReStKey(const GEMDetId& id) {
-  return getReStKey(id.region(), id.station());
-}
+inline GEMDetId GEMOfflineDQMBase::getReStKey(const GEMDetId& id) { return getReStKey(id.region(), id.station()); }
 
 inline GEMDetId GEMOfflineDQMBase::getReStLaKey(const GEMDetId& id) {
   return GEMDetId{id.region(), 1, id.station(), id.layer(), 0, 0};

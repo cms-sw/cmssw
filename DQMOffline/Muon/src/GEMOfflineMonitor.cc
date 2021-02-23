@@ -4,7 +4,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
-
 GEMOfflineMonitor::GEMOfflineMonitor(const edm::ParameterSet& pset) : GEMOfflineDQMBase(pset) {
   digi_token_ = consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("digiTag"));
   rechit_token_ = consumes<GEMRecHitCollection>(pset.getParameter<edm::InputTag>("recHitTag"));
@@ -38,12 +37,9 @@ void GEMOfflineMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
 
   if (do_hit_occupancy_)
     bookHitOccupancy(ibooker, gem);
-
 }
 
-
-void GEMOfflineMonitor::bookDigiOccupancy(DQMStore::IBooker& ibooker,
-                                         const edm::ESHandle<GEMGeometry>& gem) {
+void GEMOfflineMonitor::bookDigiOccupancy(DQMStore::IBooker& ibooker, const edm::ESHandle<GEMGeometry>& gem) {
   ibooker.setCurrentFolder("GEM/GEMOfflineMonitor/DigiOccupancy");
 
   for (const GEMStation* station : gem->stations()) {
@@ -69,15 +65,19 @@ void GEMOfflineMonitor::bookDigiOccupancy(DQMStore::IBooker& ibooker,
     // the number of VFATs per GEMChamber
     const int num_vfat = num_etas * max_vfat;
 
-    me_digi_det_[key] = 
-        ibooker.book2D("digi_det" + name_suffix, "Digi Occupancy" + title_suffix, 
-                       num_chambers, 0.5, num_chambers + 0.5, num_vfat, 0.5, num_vfat + 0.5);
+    me_digi_det_[key] = ibooker.book2D("digi_det" + name_suffix,
+                                       "Digi Occupancy" + title_suffix,
+                                       num_chambers,
+                                       0.5,
+                                       num_chambers + 0.5,
+                                       num_vfat,
+                                       0.5,
+                                       num_vfat + 0.5);
     setDetLabelsVFAT(me_digi_det_[key], station);
   }  // station
 }
 
-void GEMOfflineMonitor::bookHitOccupancy(DQMStore::IBooker& ibooker,
-                                         const edm::ESHandle<GEMGeometry>& gem) {
+void GEMOfflineMonitor::bookHitOccupancy(DQMStore::IBooker& ibooker, const edm::ESHandle<GEMGeometry>& gem) {
   ibooker.setCurrentFolder("GEM/GEMOfflineMonitor/HitOccupancy");
 
   for (const GEMStation* station : gem->stations()) {
@@ -100,12 +100,17 @@ void GEMOfflineMonitor::bookHitOccupancy(DQMStore::IBooker& ibooker,
     // the number of eta partitions per GEMChamber
     const int num_etas = getNumEtaPartitions(station);
 
-    me_hit_det_[key] =
-        ibooker.book2D("hit_det" + name_suffix, "Hit Occupancy" + title_suffix, num_chambers, 0.5, num_chambers + 0.5, num_etas, 0.5, num_etas + 0.5);
+    me_hit_det_[key] = ibooker.book2D("hit_det" + name_suffix,
+                                      "Hit Occupancy" + title_suffix,
+                                      num_chambers,
+                                      0.5,
+                                      num_chambers + 0.5,
+                                      num_etas,
+                                      0.5,
+                                      num_etas + 0.5);
     setDetLabelsEta(me_hit_det_[key], station);
   }  // station
 }
-
 
 void GEMOfflineMonitor::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   edm::Handle<GEMDigiCollection> digi_collection;
@@ -140,10 +145,8 @@ void GEMOfflineMonitor::analyze(const edm::Event& event, const edm::EventSetup& 
     doHitOccupancy(gem, rechit_collection);
 }
 
-
-void GEMOfflineMonitor::doDigiOccupancy(
-    const edm::ESHandle<GEMGeometry>& gem,
-    const edm::Handle<GEMDigiCollection>& digi_collection) {
+void GEMOfflineMonitor::doDigiOccupancy(const edm::ESHandle<GEMGeometry>& gem,
+                                        const edm::Handle<GEMDigiCollection>& digi_collection) {
   for (auto range_iter = digi_collection->begin(); range_iter != digi_collection->end(); range_iter++) {
     const GEMDetId& gem_id = (*range_iter).first;
     const GEMDigiCollection::Range& range = (*range_iter).second;
@@ -154,14 +157,12 @@ void GEMOfflineMonitor::doDigiOccupancy(
       const int vfat_number = getVFATNumberByStrip(gem_id.station(), gem_id.roll(), digi->strip());
 
       fillME(me_digi_det_, rs_key, chamber_bin, vfat_number);
-    } // digi
-  } // range
+    }  // digi
+  }    // range
 }
 
-
-void GEMOfflineMonitor::doHitOccupancy(
-    const edm::ESHandle<GEMGeometry>& gem,
-    const edm::Handle<GEMRecHitCollection>& rechit_collection) {
+void GEMOfflineMonitor::doHitOccupancy(const edm::ESHandle<GEMGeometry>& gem,
+                                       const edm::Handle<GEMRecHitCollection>& rechit_collection) {
   for (auto hit = rechit_collection->begin(); hit != rechit_collection->end(); hit++) {
     const GEMDetId&& gem_id = hit->gemId();
     const GEMDetId&& rs_key = getReStKey(gem_id);
