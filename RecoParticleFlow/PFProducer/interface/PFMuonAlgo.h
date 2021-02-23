@@ -51,6 +51,7 @@ public:
   void setInputsForCleaning(reco::VertexCollection const&);
   void postClean(reco::PFCandidateCollection*);
   void addMissingMuons(edm::Handle<reco::MuonCollection>, reco::PFCandidateCollection* cands);
+  void setVetoes(const reco::PFCandidateCollection& vetoes) { vetoes_ = &vetoes; }
 
   std::unique_ptr<reco::PFCandidateCollection> transferCleanedCosmicCandidates() {
     return std::move(pfCosmicsMuonCleanedCandidates_);
@@ -79,6 +80,8 @@ public:
   static std::vector<reco::Muon::MuonTrackTypePair> muonTracks(const reco::MuonRef& muon,
                                                                double maxDPtOPt = 1e+9,
                                                                bool includeSA = false);
+
+  static int muAssocToTrack(const reco::TrackRef& trackref, const reco::MuonCollection& muons);
 
 private:
   //Give the track with the smallest Dpt/Pt
@@ -113,6 +116,8 @@ private:
   std::unique_ptr<reco::PFCandidateCollection> pfAddedMuonCandidates_;
 
   std::vector<unsigned int> maskedIndices_;
+
+  const reco::PFCandidateCollection* vetoes_ = nullptr;
 
   //////////////////////////////////////////////////////////////////////////////////////
   const reco::VertexCollection* vertices_;

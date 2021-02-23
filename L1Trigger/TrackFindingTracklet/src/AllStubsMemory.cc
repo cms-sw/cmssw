@@ -10,7 +10,8 @@ AllStubsMemory::AllStubsMemory(string name, Settings const& settings, unsigned i
     : MemoryBase(name, settings, iSector) {}
 
 void AllStubsMemory::writeStubs(bool first) {
-  openFile(first, "../data/MemPrints/Stubs/AllStubs_");
+  const string dirS = settings_.memPath() + "Stubs/";
+  openFile(first, dirS, "AllStubs_");
 
   for (unsigned int j = 0; j < stubs_.size(); j++) {
     string stub = stubs_[j]->str();

@@ -1,15 +1,13 @@
-#include "DataFormats/Common/interface/Handle.h"
+#include "HLTMuonTrkL1TkMuFilter.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "HLTMuonTrkL1TkMuFilter.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
@@ -18,12 +16,12 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
 
 HLTMuonTrkL1TkMuFilter::HLTMuonTrkL1TkMuFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   m_muonsTag = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
@@ -73,8 +71,6 @@ bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> previousLevelCands;
   std::vector<l1t::TkMuonRef> vl1cands;
-  std::vector<l1t::TkMuonRef>::iterator vl1cands_begin;
-  std::vector<l1t::TkMuonRef>::iterator vl1cands_end;
 
   bool check_l1match = true;
   if (m_previousCandTag == edm::InputTag(""))
@@ -82,8 +78,6 @@ bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
   if (check_l1match) {
     iEvent.getByToken(m_previousCandToken, previousLevelCands);
     previousLevelCands->getObjects(trigger::TriggerL1TkMu, vl1cands);
-    vl1cands_begin = vl1cands.begin();
-    vl1cands_end = vl1cands.end();
   }
 
   std::vector<unsigned int> filteredMuons;
@@ -92,8 +86,8 @@ bool HLTMuonTrkL1TkMuFilter::hltFilter(edm::Event& iEvent,
     // check for dR match to L1 muons
     if (check_l1match) {
       bool matchl1 = false;
-      for (auto l1cand = vl1cands_begin; l1cand != vl1cands_end; ++l1cand) {
-        if (deltaR(muon, **l1cand) < 0.3) {
+      for (auto const& l1cand : vl1cands) {
+        if (deltaR2(muon, *l1cand) < 0.3 * 0.3) {
           matchl1 = true;
           break;
         }

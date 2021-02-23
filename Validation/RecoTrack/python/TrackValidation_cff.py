@@ -633,6 +633,32 @@ for _eraName, _postfix, _era in _relevantEras:
     )
 
 
+# for displaced tracks
+trackValidatorDisplaced = trackValidator.clone(
+    dirName = "Tracking/TrackDisplaced/",
+    label = [x for x in trackValidator.label.value() if ("Pt09" not in x) and ("BtvLike" not in x) and ("AK4PFJets" not in x)],
+    ptMaxTP = 1e5,
+    dodEdxPlots = False,
+    invertRapidityCutTP = False,
+    histoProducerAlgoBlock = dict(
+        TpSelectorForEfficiencyVsPt   = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5), # enough to set min pT here
+        TpSelectorForEfficiencyVsEta  = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5), # enough to set min pT here
+        TpSelectorForEfficiencyVsPhi  = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsVTXR = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        generalTpSelector             = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        minDxy = -60,
+        maxDxy =  60,
+        nintDxy = 120,
+        minDz  = -30,
+        maxDz  =  30,
+        nintDz =  60,
+    ),
+    signalOnlyTP = True,
+    lipTP = 1e5,
+    tipTP = 1e5,
+)
+
 # the track selectors
 tracksValidationSelectors = cms.Task(
     tracksValidationSelectorsByAlgo,
@@ -711,8 +737,10 @@ tracksValidation = cms.Sequence(
 from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
 seedingDeepCore.toReplaceWith(tracksValidation, cms.Sequence(tracksValidation.copy()+trackValidatorJetCore))
 
+from Configuration.ProcessModifiers.displacedTrackValidation_cff import displacedTrackValidation
+displacedTrackValidation.toReplaceWith(tracksValidation, cms.Sequence(tracksValidation.copy()+trackValidatorDisplaced))
+
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-#tracksValidationPhase2 = cms.Sequence(tracksValidation+trackValidatorTPEtaGreater2p7) # it does not work
 tracksPreValidationPhase2 = tracksPreValidation.copy()
 tracksPreValidationPhase2.add(trackingParticlesEtaGreater2p7)
 phase2_tracker.toReplaceWith(tracksPreValidation, tracksPreValidationPhase2)
@@ -722,7 +750,6 @@ tracksValidationPhase2 = tracksValidation.copyAndExclude([
 ])
 tracksValidationPhase2+=trackValidatorTPEtaGreater2p7
 phase2_tracker.toReplaceWith(tracksValidation, tracksValidationPhase2)
-
 
 fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
     trackValidatorBuildingPreSplitting,
@@ -921,6 +948,9 @@ phase2_tracker.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackin
     trackValidatorJetCore,
     trackValidatorJetCoreSeedingTrackingOnly
 ])) 
+
+displacedTrackValidation.toReplaceWith(trackValidatorsTrackingOnly, cms.Sequence(trackValidatorsTrackingOnly.copy()+trackValidatorDisplaced))
+
 fastSim.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackingOnly.copyAndExclude([
     trackValidatorBuildingPreSplitting,
     trackValidatorSeedingPreSplittingTrackingOnly,

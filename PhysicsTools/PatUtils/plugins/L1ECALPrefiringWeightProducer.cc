@@ -55,6 +55,7 @@ private:
   std::string dataera_;
   bool useEMpt_;
   double prefiringRateSystUnc_;
+  double jetMaxMuonFraction_;
   bool skipwarnings_;
 };
 
@@ -65,6 +66,7 @@ L1ECALPrefiringWeightProducer::L1ECALPrefiringWeightProducer(const edm::Paramete
   dataera_ = iConfig.getParameter<std::string>("DataEra");
   useEMpt_ = iConfig.getParameter<bool>("UseJetEMPt");
   prefiringRateSystUnc_ = iConfig.getParameter<double>("PrefiringRateSystematicUncty");
+  jetMaxMuonFraction_ = iConfig.getParameter<double>("JetMaxMuonFraction");
   skipwarnings_ = iConfig.getParameter<bool>("SkipWarnings");
 
   TFile* file_prefiringmaps_;
@@ -135,7 +137,8 @@ void L1ECALPrefiringWeightProducer::produce(edm::StreamID, edm::Event& iEvent, c
         continue;
       if (fabs(eta_jet) > 3.)
         continue;
-
+      if (jetMaxMuonFraction_ > 0 && jet.muonEnergyFraction() > jetMaxMuonFraction_)
+        continue;
       //Loop over photons to remove overlap
       double nonprefiringprobfromoverlappingphotons = 1.;
       for (const auto& photon : *thePhotons) {
@@ -219,6 +222,7 @@ void L1ECALPrefiringWeightProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<std::string>("DataEra", "2017BtoF");
   desc.add<bool>("UseJetEMPt", false);
   desc.add<double>("PrefiringRateSystematicUncty", 0.2);
+  desc.add<double>("JetMaxMuonFraction", 0.5);
   desc.add<bool>("SkipWarnings", true);
   descriptions.add("l1ECALPrefiringWeightProducer", desc);
 }

@@ -10,24 +10,26 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
+#include "hdf5.h"
+
 #include <string>
 #include <fstream>
 #include <algorithm>
-
-using namespace std;
+#include <memory>
 
 EcalLaserCondTools::EcalLaserCondTools(const edm::ParameterSet& ps)
     : fout_(nullptr),
       eventList_(nullptr),
-      eventListFileName_(ps.getParameter<string>("eventListFile")),
+      eventListFileName_(ps.getParameter<std::string>("eventListFile")),
       verb_(ps.getParameter<int>("verbosity")),
-      mode_(ps.getParameter<string>("mode")),
-      fnames_(ps.getParameter<vector<string> >("laserCorrectionAsciiFiles")),
+      mode_(ps.getParameter<std::string>("mode")),
+      fnames_(ps.getParameter<std::vector<std::string> >("inputFiles")),
       skipIov_(ps.getParameter<int>("skipIov")),
       nIovs_(ps.getParameter<int>("nIovs")),
       fromTime_(ps.getParameter<int>("fromTime")),
@@ -54,17 +56,22 @@ EcalLaserCondTools::~EcalLaserCondTools() {
 void EcalLaserCondTools::analyze(const edm::Event& event, const edm::EventSetup& es) {
   static bool done = false;
 
+  if (done && (mode_ == "ascii_file_to_db" || mode_ == "hdf_file_to_db")) {
+    return;
+  }
+
   if (mode_ == "ascii_file_to_db") {
-    if (done)
-      return;
     if (verb_ > 2)
-      cout << "ascii_file_to_db mode" << endl;
+      std::cout << "ascii_file_to_db mode\n";
+
     if (!db_.isAvailable()) {
       throw cms::Exception("CondDBAccess") << "Failed to connect to PoolDBOutputService\n";
     }
     FileReader corrReader(fnames_);
     corrReader.setVerbosity(verb_);
     fillDb(corrReader);
+  } else if (mode_ == "hdf_file_to_db") {
+    from_hdf_to_db();
   } else if (mode_ == "db_to_ascii_file") {
     dbToAscii(es);
   } else {
@@ -72,11 +79,190 @@ void EcalLaserCondTools::analyze(const edm::Event& event, const edm::EventSetup&
   }
 }
 
+void EcalLaserCondTools::from_hdf_to_db() {
+  cond::Time_t iovStart = 0;
+
+  hid_t file, space, memspace;
+  hid_t dset_rawid, dset_t2, dset;
+
+  hsize_t dims[2] = {};
+
+  for (unsigned int ifile = 0; ifile < fnames_.size(); ++ifile) {
+    if (verb_) {
+      std::cout << " - converting file: " << fnames_[ifile] << "\n";
+    }
+
+    file = H5Fopen(fnames_[ifile].c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+
+    dset_rawid = H5Dopen(file, "cmssw_id", H5P_DEFAULT);
+    space = H5Dget_space(dset_rawid);
+    H5Sget_simple_extent_dims(space, dims, nullptr);
+
+    unsigned int nCrystals = dims[0];
+    int rawid[nCrystals];
+    herr_t status;
+
+    status = H5Dread(dset_rawid, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, rawid);
+    if (status < 0)
+      throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+    H5Dclose(dset_rawid);
+    H5Sclose(space);
+
+    dset_t2 = H5Dopen(file, "t2", H5P_DEFAULT);
+    space = H5Dget_space(dset_t2);
+    H5Sget_simple_extent_dims(space, dims, nullptr);
+
+    unsigned int nIovs = dims[0];
+    unsigned int nLME = dims[1];
+
+    if (verb_) {
+      std::cout << "Number of crystals: " << nCrystals << "\n";
+      std::cout << "Number of IOVs: " << nIovs << "\n";
+      std::cout << "Number of Monitoring regions: " << nLME << "\n";
+    }
+
+    int t1[nIovs], t3[nIovs], t2[nIovs][nLME];
+
+    // -- reading data (cmsswid, t2, t1, t3, p2, p1, p3
+    if (verb_ > 1)
+      std::cout << " * reading t2 table "
+                << "\n";
+    status = H5Dread(dset_t2, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, t2[0]);
+    if (status < 0)
+      throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+    H5Dclose(dset_t2);
+    //H5Sclose(space);
+
+    if (verb_ > 1)
+      std::cout << " * reading t1 table "
+                << "\n";
+    dset = H5Dopen(file, "t1", H5P_DEFAULT);
+    status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, t1);
+    if (status < 0)
+      throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+    H5Dclose(dset);
+
+    if (verb_ > 1)
+      std::cout << " * reading t3 table "
+                << "\n";
+    dset = H5Dopen(file, "t3", H5P_DEFAULT);
+    status = H5Dread(dset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, t3);
+    if (status < 0)
+      throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+    H5Dclose(dset);
+
+    assert(EcalLaserCondTools::nLmes == nLME);
+
+    // read crystal info IOV by IOV (otherwise too large)
+    float p1[nCrystals], p2[nCrystals], p3[nCrystals];
+    hsize_t iov_dim[1] = {nCrystals};
+    memspace = H5Screate_simple(1, iov_dim, nullptr);
+
+    auto corrSet = std::make_unique<EcalLaserAPDPNRatios>();
+    for (unsigned int iIov = skipIov_; iIov < nIovs && iIov < unsigned(nIovs_); ++iIov) {
+      EcalLaserAPDPNRatios::EcalLaserTimeStamp t;
+      iovStart = uint64_t(t1[iIov]) << 32;
+      for (size_t iLme = 0; iLme < EcalLaserCondTools::nLmes; ++iLme) {
+        t.t1 = edm::Timestamp(uint64_t(t1[iIov]) << 32);
+        t.t2 = edm::Timestamp(uint64_t(t2[iIov][iLme]) << 32);
+        t.t3 = edm::Timestamp(uint64_t(t3[iIov]) << 32);
+        corrSet->setTime(iLme, t);
+      }
+
+      hsize_t offset[2] = {iIov, 0};      // shift rows: iIov, columns: 0
+      hsize_t count[2] = {1, nCrystals};  // 1 row, nXtal columns
+
+      dset = H5Dopen(file, "p1", H5P_DEFAULT);
+      space = H5Dget_space(dset);
+      status = H5Sselect_hyperslab(space, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+      if (status < 0)
+        throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+      status = H5Dread(dset, H5T_NATIVE_FLOAT, memspace, space, H5P_DEFAULT, p1);
+      if (status < 0)
+        throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+      H5Dclose(dset);
+      //H5Sclose(space);
+
+      dset = H5Dopen(file, "p2", H5P_DEFAULT);
+      space = H5Dget_space(dset);
+      status = H5Sselect_hyperslab(space, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+      if (status < 0)
+        throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+      status = H5Dread(dset, H5T_NATIVE_FLOAT, memspace, space, H5P_DEFAULT, p2);
+      if (status < 0)
+        throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+      H5Dclose(dset);
+      //      H5Sclose(space);
+
+      dset = H5Dopen(file, "p3", H5P_DEFAULT);
+      space = H5Dget_space(dset);
+      status = H5Sselect_hyperslab(space, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+      if (status < 0)
+        throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+
+      status = H5Dread(dset, H5T_NATIVE_FLOAT, memspace, space, H5P_DEFAULT, p3);
+      if (status < 0)
+        throw cms::Exception("EcalLaserCondTool:HDF") << "Error while reading HD file.";
+      H5Dclose(dset);
+      H5Sclose(space);
+
+      for (size_t iXtal = 0; iXtal < nCrystals; ++iXtal) {
+        DetId detid = rawid[iXtal];
+
+        EcalLaserAPDPNRatios::EcalLaserAPDPNpair corr = EcalLaserAPDPNRatios::EcalLaserAPDPNpair();
+        corr.p1 = p1[iXtal];
+        corr.p2 = p2[iXtal];
+        corr.p3 = p3[iXtal];
+
+        if (!isfinite(corr.p1) || !isfinite(corr.p2) || !isfinite(corr.p3) || corr.p1 < minP_ || corr.p1 > maxP_ ||
+            corr.p2 < minP_ || corr.p2 > maxP_ || corr.p3 < minP_ || corr.p3 > maxP_) {
+          fprintf(ferr_, "%d %d %f %f %f\n", t1[iIov], (int)detid, corr.p1, corr.p2, corr.p3);
+          corr.p1 = corr.p2 = corr.p3 = 1;
+        }
+        corrSet->setValue((int)detid, corr);
+      }
+
+      try {
+        //Write correction set in DB (one IOV):
+        //if (db_->isNewTagRequest("EcalLaserAPDPNRatiosRcd")) {
+        //  if (verb_)
+        //    std::cout << "First IOV, extending starting time.\n";
+        //  iovStart = db_->beginOfTime();
+        //}
+        timeval t;
+        gettimeofday(&t, nullptr);
+        if (verb_ > 1)
+          std::cout << "[" << timeToString(t.tv_sec) << "] "
+                    << "Write IOV " << iIov << " starting from " << timeToString(iovStart >> 32) << "... ";
+        db_->writeOne(corrSet.get(), iovStart, "EcalLaserAPDPNRatiosRcd");
+      } catch (const cms::Exception& e) {
+        if (verb_ > 1)
+          std::cout << "Failed. ";
+        std::cout << "Exception catched while writting to cond DB" << e.what() << "\n";
+      }
+      if (verb_ > 1)
+        std::cout << "Suceeded.\n";
+
+    }  // loop over IOVs
+
+    H5Sclose(memspace);
+    H5Fclose(file);
+  }  // loop over input files
+}
+
 void EcalLaserCondTools::fillDb(CorrReader& r) {
   int iIov = 0;
   int processedIovs = 0;
   if (verb_ > 2)
-    cout << "Starting filling DB...\n";
+    std::cout << "Starting filling DB...\n";
   int t1 = 0;
   int t3 = 0;
   int t2[nLmes];
@@ -95,7 +281,7 @@ void EcalLaserCondTools::fillDb(CorrReader& r) {
 
       int n = fscanf(eventList_, "%*d %*d %*d %d%*[^\n]\n", &t);
       if (verb_ > 1)
-        cout << "Event time: t = " << t << ", " << timeToString(t) << "\n";
+        std::cout << "Event time: t = " << t << ", " << timeToString(t) << "\n";
       ++iline;
       if (n != 1)
         throw cms::Exception("User") << "Syntax error in event list file " << eventListFileName_ << " at line " << iline
@@ -112,7 +298,7 @@ void EcalLaserCondTools::fillDb(CorrReader& r) {
       bool iovFound = true;
       if (t <= t3) {  //IOV already inserted for previous event.
         if (verb_ > 1)
-          cout << "Event in same IOV than previous one.\n";
+          std::cout << "Event in same IOV than previous one.\n";
         continue;
       }
 
@@ -127,8 +313,8 @@ void EcalLaserCondTools::fillDb(CorrReader& r) {
           throw cms::Exception("User") << "Found interleaved IOVs in the correction ascii file!\n";
         processIov(r, t1, t2, t3);
       } else {
-        cout << "Warning: event beyond last IOV t3. Event time: " << timeToString(t)
-             << ". Last IOV t3: " << timeToString(t3) << "\n";
+        std::cout << "Warning: event beyond last IOV t3. Event time: " << timeToString(t)
+                  << ". Last IOV t3: " << timeToString(t3) << "\n";
       }
     }
   } else
@@ -159,11 +345,12 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
   cond::Time_t iovStart = 0;
 
   if (verb_ > 1) {
-    cout << "t1:" << t1 << "(" << timeToString(t1) << ") \n"
-         << "t3: " << t3 << "(" << timeToString(t3) << ")\nt2-t1: ";
+    std::cout << "t1:" << t1 << "(" << timeToString(t1) << ") \n"
+              << "t3: " << t3 << "(" << timeToString(t3) << ")\nt2-t1: ";
     for (int i = 0; i < EcalLaserCondTools::nLmes; ++i)
-      cout << t2[i] - t1 << "\t";
-    cout << "\n";
+      std::cout << t2[i] - t1 << "\t";
+
+    std::cout << "\n";
   }
   if (t1 < fromTime_) {
     std::cout << "Skipping IOV " << iIov << ", "
@@ -171,8 +358,11 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     return;
   }
 
-  //   if(toTime_!=-1 && t2 < toTime_) { std::cout << "Skipping IOV " << iIov << ", " << ", which is beyond 'toTime',"
-  //                                               << timeToString(toTime_) << "(" << toTime_ << ").\n"; return; }
+  if (toTime_ != -1 && t3 < toTime_) {
+    std::cout << "Skipping IOV " << iIov << ", "
+              << ", which is beyond 'toTime'," << timeToString(toTime_) << "(" << toTime_ << ").\n";
+    return;
+  }
 
   if (t1 == 0) {
     std::cout << "Skipping IOV with t1 = 0"
@@ -180,7 +370,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     return;
   }
 
-  EcalLaserAPDPNRatios* corrSet = new EcalLaserAPDPNRatios;
+  auto corrSet = std::make_unique<EcalLaserAPDPNRatios>();
 
   EcalLaserAPDPNRatios::EcalLaserTimeStamp t;
   iovStart = uint64_t(t1) << 32;
@@ -198,15 +388,15 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     //EcalLaserAPDPNRatios::EcalLaserAPDPNpair corr = {0, 0, 0};
     EcalLaserAPDPNRatios::EcalLaserAPDPNpair corr = EcalLaserAPDPNRatios::EcalLaserAPDPNpair();
     if (verb_ > 2)
-      cout << "Reading " << toNth(i + 1) << " crystal\n";
+      std::cout << "Reading " << toNth(i + 1) << " crystal\n";
     if (!r.readPs(detid, corr)) {
       throw cms::Exception("LasCor") << "Failed to read " << toNth(i + 1) << " crystal correction.\n";
     }
 
-    pair<std::set<int>::iterator, bool> res = detidList.insert(int(detid));
+    std::pair<std::set<int>::iterator, bool> res = detidList.insert(int(detid));
 
     if (!res.second) {  //detid already processed
-      std::cout << "Duplicate det id, for IOV " << iIov << " t1 = " << t1 << " detid = " << int(detid) << endl;
+      std::cout << "Duplicate det id, for IOV " << iIov << " t1 = " << t1 << " detid = " << int(detid) << "\n";
     }
 
     if (!isfinite(corr.p1) || !isfinite(corr.p2) || !isfinite(corr.p3) || corr.p1 < minP_ || corr.p1 > maxP_ ||
@@ -217,16 +407,16 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
 
     if (verb_ > 2) {
       if (detid.subdetId() == EcalBarrel) {
-        cout << EBDetId(detid);
+        std::cout << EBDetId(detid);
       } else if (detid.subdetId() == EcalEndcap) {
-        cout << EEDetId(detid);
+        std::cout << EEDetId(detid);
       } else {
-        cout << (int)detid;
+        std::cout << (int)detid;
       }
-      cout << ": "
-           << "p1 = " << corr.p1 << "\t"
-           << "p2 = " << corr.p2 << "\t"
-           << "p3 = " << corr.p3 << "\n";
+      std::cout << ": "
+                << "p1 = " << corr.p1 << "\t"
+                << "p2 = " << corr.p2 << "\t"
+                << "p3 = " << corr.p3 << "\n";
     }
 
     corrSet->setValue((int)detid, corr);
@@ -236,15 +426,16 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     //Write correction set in DB (one IOV):
     if (db_->isNewTagRequest("EcalLaserAPDPNRatiosRcd")) {
       if (verb_)
-        cout << "First IOV, extending starting time." << endl;
+        std::cout << "First IOV, extending starting time.\n";
+
       iovStart = db_->beginOfTime();
     }
     timeval t;
     gettimeofday(&t, nullptr);
     if (verb_ > 1)
-      cout << "[" << timeToString(t.tv_sec) << "] "
-           << "Write IOV " << iIov << " starting from " << timeToString(iovStart >> 32) << "... ";
-    db_->writeOne(corrSet, iovStart, "EcalLaserAPDPNRatiosRcd");
+      std::cout << "[" << timeToString(t.tv_sec) << "] "
+                << "Write IOV " << iIov << " starting from " << timeToString(iovStart >> 32) << "... ";
+    db_->writeOne(corrSet.get(), iovStart, "EcalLaserAPDPNRatiosRcd");
   } catch (const cms::Exception& e) {
     std::cout << "Failed.\nException cathed while writting to cond DB" << e.what() << "\n";
   }
@@ -256,11 +447,13 @@ bool EcalLaserCondTools::FileReader::nextFile() {
     ++ifile_;
     if (ifile_ >= fnames_.size()) {
       if (verb_ > 1)
-        cout << "No more correction files.\n";
+        std::cout << "No more correction files.\n";
+
       return false;
     }
     if (verb_ > 1)
-      cout << "Opening file " << fnames_[ifile_] << "\n";
+      std::cout << "Opening file " << fnames_[ifile_] << "\n";
+
     f_ = fopen(fnames_[ifile_].c_str(), "r");
     iline_ = 0;
     if (f_ == nullptr) {
@@ -275,7 +468,8 @@ bool EcalLaserCondTools::FileReader::readTime(int& t1, int t2[EcalLaserCondTools
   trim();
   if ((f_ == nullptr || feof(f_)) && !nextFile()) {
     if (verb_ > 1)
-      cout << "No more record\n";
+      std::cout << "No more record\n";
+
     return false;
   }
   int i;
@@ -297,7 +491,8 @@ bool EcalLaserCondTools::FileReader::readTime(int& t1, int t2[EcalLaserCondTools
 
   if (i != 'T') {
     if (verb_ > 1)
-      cout << "No more record or bad line type/marker (getc returned " << i << ")\n";
+      std::cout << "No more record or bad line type/marker (getc returned " << i << ")\n";
+
     return false;
   }
 
@@ -323,7 +518,8 @@ bool EcalLaserCondTools::FileReader::readTime(int& t1, int t2[EcalLaserCondTools
 bool EcalLaserCondTools::FileReader::readPs(DetId& detid, EcalLaserAPDPNRatios::EcalLaserAPDPNpair& corr) {
   if (f_ == nullptr) {
     if (verb_)
-      cout << "Requested to read p1..p3 parameter line while no file is closed.\n";
+      std::cout << "Requested to read p1..p3 parameter line while no file is closed.\n";
+
     return false;
   }
 
@@ -332,10 +528,12 @@ bool EcalLaserCondTools::FileReader::readPs(DetId& detid, EcalLaserAPDPNRatios::
 
   if (i != 'P') {
     if (verb_ && i >= 0)
-      cout << "File " << fnames_[ifile_] << " line " << iline_ << ": unexpected line type, '" << (char)i
-           << "' while expecting 'P'\n";
+      std::cout << "File " << fnames_[ifile_] << " line " << iline_ << ": unexpected line type, '" << (char)i
+                << "' while expecting 'P'\n";
+
     if (verb_ && i < 0)
-      cout << "Failed to read p1..p3 parameter line\n";
+      std::cout << "Failed to read p1..p3 parameter line\n";
+
     return false;
   }
 
@@ -387,8 +585,8 @@ void EcalLaserCondTools::FileReader::trim() {
   ungetc(c, f_);
 }
 
-string EcalLaserCondTools::toNth(int n) {
-  stringstream s;
+std::string EcalLaserCondTools::toNth(int n) {
+  std::stringstream s;
   s << n;
   if (n % 100 < 10 || n % 100 > 20) {
     switch (n % 10) {
@@ -416,7 +614,7 @@ std::string EcalLaserCondTools::timeToString(time_t t) {
   localtime_r(&t, &lt);
   strftime(buf, sizeof(buf), "%F %R:%S", &lt);
   buf[sizeof(buf) - 1] = 0;
-  return string(buf);
+  return std::string(buf);
 }
 
 void EcalLaserCondTools::dbToAscii(const edm::EventSetup& es) {
@@ -442,7 +640,7 @@ void EcalLaserCondTools::dbToAscii(const edm::EventSetup& es) {
   fprintf(fout_, "T %d\t%d", t1, t3);
 
   if (verb_)
-    cout << "Processing IOV " << t1 << " - " << t3 << "(" << timeToString(t1) << " - " << timeToString(t3) << "\n";
+    std::cout << "Processing IOV " << t1 << " - " << t3 << "(" << timeToString(t1) << " - " << timeToString(t3) << "\n";
 
   for (unsigned i = 0; i < t.size(); ++i) {
     if (t[i].t1.unixTime() != t1 || t[i].t3.unixTime() != t3) {

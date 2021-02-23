@@ -463,7 +463,7 @@ void VarBase::print_all(std::ofstream& fs, Verilog) {
   }
 }
 
-void VarBase::design_print(std::vector<VarBase*> v, std::ofstream& fs, Verilog) {
+void VarBase::design_print(const std::vector<VarBase*>& v, std::ofstream& fs, Verilog) {
   //step at which all the outputs should be valid
   int maxstep = 0;
 

@@ -22,10 +22,7 @@ public:
 
 private:
   std::string m_record;
-  std::string m_lastLumiFile;
-  cond::Time_t m_prevLumi;
-  std::chrono::time_point<std::chrono::steady_clock> m_prevLumiTime;
-  std::string m_omsServiceUrl;
+  bool m_tagLocks;
   // ----------member data ---------------------------
 };
 #endif

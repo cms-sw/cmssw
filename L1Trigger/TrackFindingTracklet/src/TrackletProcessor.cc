@@ -1,6 +1,8 @@
+
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessor.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
+#include "L1Trigger/TrackFindingTracklet/interface/AllStubsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
 
@@ -8,22 +10,15 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include <utility>
+#include <tuple>
+
 using namespace std;
 using namespace trklet;
 
 TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Globals* globals, unsigned int iSector)
-    : TrackletCalculatorBase(name, settings, globals, iSector) {
-  double dphi = 2 * M_PI / N_SECTOR;
-  double dphiHG = 0.5 * settings_.dphisectorHG() - M_PI / N_SECTOR;
-  phimin_ = iSector_ * dphi - dphiHG;
-  phimax_ = phimin_ + dphi + 2 * dphiHG;
-  phimin_ -= M_PI / N_SECTOR;
-  phimax_ -= M_PI / N_SECTOR;
-  phimin_ = reco::reduceRange(phimin_);
-  phimax_ = reco::reduceRange(phimax_);
-  if (phimin_ > phimax_)
-    phimin_ -= 2 * M_PI;
-  phioffset_ = phimin_;
+    : TrackletCalculatorBase(name, settings, globals, iSector), vmrtable_(settings) {
+  iAllStub_ = -1;
 
   for (unsigned int ilayer = 0; ilayer < N_LAYER; ilayer++) {
     vector<TrackletProjectionsMemory*> tmp(settings_.nallstubs(ilayer), nullptr);
@@ -35,91 +30,28 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
     trackletprojdisks_.push_back(tmp);
   }
 
+  outervmstubs_ = nullptr;
+
   initLayerDisksandISeed(layerdisk1_, layerdisk2_, iSeed_);
 
-  layer_ = 0;
-  disk_ = 0;
+  nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk1_);
+  nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk1_);
 
-  if (name_[3] == 'L') {
-    layer_ = name_[4] - '0';
-    if (name_[5] == 'D')
-      disk_ = name_[6] - '0';
-  }
-  if (name_[3] == 'D')
-    disk_ = name_[4] - '0';
+  vmrtable_.init(layerdisk1_, getName());
 
-  extra_ = (layer_ == 2 && disk_ == 0);
+  nbitsrzbin_ = NFINERZBITS;
+  if (iSeed_ == 4 || iSeed_ == 5)
+    nbitsrzbin_ = 2;
+
+  innerphibits_ = settings_.nfinephi(0, iSeed_);
+  outerphibits_ = settings_.nfinephi(1, iSeed_);
 
   // set TC index
-  if (name_[7] == 'A')
-    iTC_ = 0;
-  else if (name_[7] == 'B')
-    iTC_ = 1;
-  else if (name_[7] == 'C')
-    iTC_ = 2;
-  else if (name_[7] == 'D')
-    iTC_ = 3;
-  else if (name_[7] == 'E')
-    iTC_ = 4;
-  else if (name_[7] == 'F')
-    iTC_ = 5;
-  else if (name_[7] == 'G')
-    iTC_ = 6;
-  else if (name_[7] == 'H')
-    iTC_ = 7;
-  else if (name_[7] == 'I')
-    iTC_ = 8;
-  else if (name_[7] == 'J')
-    iTC_ = 9;
-  else if (name_[7] == 'K')
-    iTC_ = 10;
-  else if (name_[7] == 'L')
-    iTC_ = 11;
-  else if (name_[7] == 'M')
-    iTC_ = 12;
-  else if (name_[7] == 'N')
-    iTC_ = 13;
-  else if (name_[7] == 'O')
-    iTC_ = 14;
-
-  assert(iTC_ != -1);
-
-  iSeed_ = 99;
-  if (name_.substr(3, 4) == "L1L2")
-    iSeed_ = 0;
-  else if (name_.substr(3, 4) == "L3L4")
-    iSeed_ = 2;
-  else if (name_.substr(3, 4) == "L5L6")
-    iSeed_ = 3;
-  else if (name_.substr(3, 4) == "D1D2")
-    iSeed_ = 4;
-  else if (name_.substr(3, 4) == "D3D4")
-    iSeed_ = 5;
-  else if (name_.substr(3, 4) == "D1L1")
-    iSeed_ = 6;
-  else if (name_.substr(3, 4) == "D1L2")
-    iSeed_ = 7;
-  else if (name_.substr(3, 4) == "L1D1")
-    iSeed_ = 6;
-  else if (name_.substr(3, 4) == "L2D1")
-    iSeed_ = 7;
-  else if (name_.substr(3, 4) == "L2L3")
-    iSeed_ = 1;
-
-  assert(iSeed_ != 99);
+  iTC_ = name_[7] - 'A';
+  assert(iTC_ >= 0 && iTC_ < 14);
 
   TCIndex_ = (iSeed_ << 4) + iTC_;
   assert(TCIndex_ >= 0 && TCIndex_ <= (int)settings_.ntrackletmax());
-
-  assert((layer_ != 0) || (disk_ != 0));
-
-  if (settings_.usephicritapprox()) {
-    double phicritFactor =
-        0.5 * settings_.rcrit() * globals_->ITC_L1L2()->rinv_final.K() / globals_->ITC_L1L2()->phi0_final.K();
-    if (std::abs(phicritFactor - 2.) > 0.25)
-      edm::LogPrint("Tracklet")
-          << "TrackletProcessor::TrackletProcessor phicrit approximation may be invalid! Please check.";
-  }
 }
 
 void TrackletProcessor::addOutputProjection(TrackletProjectionsMemory*& outputProj, MemoryBase* memory) {
@@ -175,24 +107,57 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
                                  << input;
   }
 
-  if (input == "innervmstubin") {
-    auto* tmp = dynamic_cast<VMStubsTEMemory*>(memory);
-    assert(tmp != nullptr);
-    innervmstubs_.push_back(tmp);
-    setVMPhiBin();
-    return;
-  }
   if (input == "outervmstubin") {
     auto* tmp = dynamic_cast<VMStubsTEMemory*>(memory);
     assert(tmp != nullptr);
-    outervmstubs_.push_back(tmp);
-    setVMPhiBin();
+    outervmstubs_ = tmp;
+    iAllStub_ = tmp->getName()[11] - 'A';
+    if (iSeed_ == 1)
+      iAllStub_ = tmp->getName()[11] - 'I';
+    if (iSeed_ == 6 || iSeed_ == 7) {
+      if (tmp->getName()[11] == 'X')
+        iAllStub_ = 0;
+      if (tmp->getName()[11] == 'Y')
+        iAllStub_ = 1;
+      if (tmp->getName()[11] == 'Z')
+        iAllStub_ = 2;
+      if (tmp->getName()[11] == 'W')
+        iAllStub_ = 3;
+    }
+    buildLUT();  //need iAllStub_ set before building the table //FIXME should be in initiall
+
+    TrackletEngineUnit teunit(&settings_,
+                              nbitsfinephi_,
+                              layerdisk2_,
+                              iSeed_,
+                              nbitsfinephidiff_,
+                              iAllStub_,
+                              pttableinnernew_,
+                              pttableouternew_,
+                              outervmstubs_);
+    teunits_.resize(6, teunit);
+
     return;
   }
+
   if (input == "innerallstubin") {
     auto* tmp = dynamic_cast<AllStubsMemory*>(memory);
     assert(tmp != nullptr);
-    innerallstubs_.push_back(tmp);
+    if (innerallstubs_.size() == 2) {  //FIXME this should be done with better logic with reading the input stubs
+      innerallstubs_.insert(innerallstubs_.begin(), tmp);
+    } else {
+      innerallstubs_.push_back(tmp);
+    }
+
+    //FIXME should be done once after all inputs are added
+    tedatabuffers_.clear();
+    CircularBuffer<TEData> tedatabuffertmp(5);
+    tedatabuffertmp.reset();
+
+    tedatabuffers_.emplace_back(tedatabuffertmp, 0, 0, 0, (innerallstubs_.size() + 1) / 2);
+    tedatabuffers_.emplace_back(
+        tedatabuffertmp, 0, (innerallstubs_.size() + 1) / 2, (innerallstubs_.size() + 1) / 2, innerallstubs_.size());
+
     return;
   }
   if (input == "outerallstubin") {
@@ -205,729 +170,238 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
 }
 
 void TrackletProcessor::execute() {
+  if (!settings_.useSeed(iSeed_))
+    return;
+
+  //Consistency checks
+  assert(iAllStub_ >= 0);
+  assert(iAllStub_ < (int)settings_.nallstubs(layerdisk2_));
+  assert(outervmstubs_ != nullptr);
+
+  //used to collect performance data
   unsigned int countall = 0;
   unsigned int countsel = 0;
 
   unsigned int countteall = 0;
-  unsigned int counttepass = 0;
+  unsigned int stubpairs = 0;
 
-  StubPairsMemory stubpairs("tmp", settings_, iSector_);  //dummy arguments for now
+  unsigned int ntedata = 0;
 
-  bool print = false;
+  unsigned int ninnerstubs = 0;
 
-  assert(innervmstubs_.size() == outervmstubs_.size());
+  //Actual implemenation starts here
 
-  if (!settings_.useSeed(iSeed_))
-    return;
+  //Reset the tebuffers
+  for (auto& tebuffer : tedatabuffers_) {
+    std::get<0>(tebuffer).reset();
+    std::get<1>(tebuffer) = 0;
+    std::get<2>(tebuffer) = std::get<3>(tebuffer);
+  }
 
-  for (unsigned int ivmmem = 0; ivmmem < innervmstubs_.size(); ivmmem++) {
-    unsigned int innerphibin = innervmstubs_[ivmmem]->phibin();
-    unsigned int outerphibin = outervmstubs_[ivmmem]->phibin();
+  //Reset the teunits
+  for (auto& teunit : teunits_) {
+    teunit.reset();
+  }
 
-    unsigned phiindex = 32 * innerphibin + outerphibin;
+  for (unsigned int istep = 0; istep < settings_.maxStep("TP"); istep++) {
+    for (auto& tebuffer : tedatabuffers_) {
+      CircularBuffer<TEData>& tedatabuffer = std::get<0>(tebuffer);
+      unsigned int& istub = std::get<1>(tebuffer);
+      unsigned int& imem = std::get<2>(tebuffer);
+      unsigned int imemend = std::get<4>(tebuffer);
 
-    //overlap seeding
-    if (disk_ == 1 && (layer_ == 1 || layer_ == 2)) {
-      for (unsigned int i = 0; i < innervmstubs_[ivmmem]->nVMStubs(); i++) {
-        const VMStubTE& innervmstub = innervmstubs_[ivmmem]->getVMStubTE(i);
+      if ((!tedatabuffer.full()) && imem < imemend && istub < innerallstubs_[imem]->nStubs()) {
+        ninnerstubs++;
 
-        int lookupbits = innervmstub.vmbits().value();
+        const Stub* stub = innerallstubs_[imem]->getStub(istub);
 
-        int rdiffmax = (lookupbits >> 7);
-        int newbin = (lookupbits & 127);
-        int bin = newbin / 8;
+        bool negdisk = (stub->disk().value() < 0);  //FIXME stub needs to contain bit for +/- z disk
 
-        int rbinfirst = newbin & 7;
+        FPGAWord phicorr = stub->phicorr();
+        int innerfinephi = phicorr.bits(phicorr.nbits() - nbitsfinephi_, nbitsfinephi_);
+        FPGAWord innerbend = stub->bend();
 
-        int start = (bin >> 1);
-        int last = start + (bin & 1);
-
-        for (int ibin = start; ibin <= last; ibin++) {
-          if (settings_.debugTracklet()) {
-            edm::LogVerbatim("Tracklet") << getName() << " looking for matching stub in bin " << ibin << " with "
-                                         << outervmstubs_[ivmmem]->nVMStubsBinned(ibin) << " stubs";
+        //Take the top nbitszfinebintable_ bits of the z coordinate
+        int indexz =
+            (((1 << (stub->z().nbits() - 1)) + stub->z().value()) >> (stub->z().nbits() - nbitszfinebintable_));
+        int indexr = -1;
+        if (layerdisk1_ > (N_LAYER - 1)) {
+          if (negdisk) {
+            indexz = (1 << nbitszfinebintable_) - indexz;
           }
-          for (unsigned int j = 0; j < outervmstubs_[ivmmem]->nVMStubsBinned(ibin); j++) {
-            countall++;
-            countteall++;
-
-            const VMStubTE& outervmstub = outervmstubs_[ivmmem]->getVMStubTEBinned(ibin, j);
-            int rbin = (outervmstub.vmbits().value() & 7);
-            if (start != ibin)
-              rbin += 8;
-            if ((rbin < rbinfirst) || (rbin - rbinfirst > rdiffmax)) {
-              if (settings_.debugTracklet()) {
-                edm::LogVerbatim("Tracklet")
-                    << getName() << " layer-disk stub pair rejected because rbin cut : " << rbin << " " << rbinfirst
-                    << " " << rdiffmax;
-              }
-              continue;
-            }
-
-            int ir = ((start & 3) << 3) + rbinfirst;
-
-            assert(innerphibits_ != -1);
-            assert(outerphibits_ != -1);
-
-            FPGAWord iphiinnerbin = innervmstub.finephi();
-            FPGAWord iphiouterbin = outervmstub.finephi();
-
-            assert(iphiouterbin == outervmstub.finephi());
-
-            unsigned int index = (((iphiinnerbin.value() << outerphibits_) + iphiouterbin.value()) << 5) + ir;
-
-            assert(index < phitable_[phiindex].size());
-
-            if (!phitable_[phiindex][index]) {
-              if (settings_.debugTracklet()) {
-                edm::LogVerbatim("Tracklet") << "Stub pair rejected because of tracklet pt cut";
-              }
-              continue;
-            }
-
-            FPGAWord innerbend = innervmstub.bend();
-            FPGAWord outerbend = outervmstub.bend();
-
-            int ptinnerindex = (index << innerbend.nbits()) + innerbend.value();
-            int ptouterindex = (index << outerbend.nbits()) + outerbend.value();
-
-            if (!(pttableinner_[phiindex][ptinnerindex] && pttableouter_[phiindex][ptouterindex])) {
-              if (settings_.debugTracklet()) {
-                edm::LogVerbatim("Tracklet") << "Stub pair rejected because of stub pt cut bends : "
-                                             << benddecode(innervmstub.bend().value(), innervmstub.isPSmodule()) << " "
-                                             << benddecode(outervmstub.bend().value(), outervmstub.isPSmodule());
-              }
-              continue;
-            }
-
-            if (settings_.debugTracklet())
-              edm::LogVerbatim("Tracklet") << "Adding layer-disk pair in " << getName();
-            if (settings_.writeMonitorData("Seeds")) {
-              ofstream fout("seeds.txt", ofstream::app);
-              fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << iSeed_ << endl;
-              fout.close();
-            }
-            stubpairs.addStubPair(
-                innervmstub, outervmstub, 0, innervmstubs_[ivmmem]->getName() + " " + outervmstubs_[ivmmem]->getName());
-            counttepass++;
-            countall++;
+          indexr = stub->r().value();
+          if (stub->isPSmodule()) {
+            indexr = stub->r().value() >> (stub->r().nbits() - nbitsrfinebintable_);
           }
-        }
-      }
-
-    } else {
-      for (unsigned int i = 0; i < innervmstubs_[ivmmem]->nVMStubs(); i++) {
-        if (settings_.debugTracklet()) {
-          edm::LogVerbatim("Tracklet") << "In " << getName() << " have inner stub";
+        } else {
+          //Take the top nbitsfinebintable_ bits of the z coordinate
+          indexr = (((1 << (stub->r().nbits() - 1)) + stub->r().value()) >> (stub->r().nbits() - nbitsrfinebintable_));
         }
 
-        if ((layer_ == 1 && disk_ == 0) || (layer_ == 2 && disk_ == 0) || (layer_ == 3 && disk_ == 0) ||
-            (layer_ == 5 && disk_ == 0)) {
-          const VMStubTE& innervmstub = innervmstubs_[ivmmem]->getVMStubTE(i);
+        int lutval = -1;
+        if (iSeed_ < 6) {  //FIXME should only be one table...
+          lutval = vmrtable_.lookupinner(indexz, indexr);
+        } else {
+          lutval = vmrtable_.lookupinneroverlap(indexz, indexr);
+        }
 
-          int lookupbits = (int)innervmstub.vmbits().value();
-          int zdiffmax = (lookupbits >> 7);
-          int newbin = (lookupbits & 127);
-          int bin = newbin / 8;
+        if (lutval != -1) {
+          unsigned int lutwidth = settings_.lutwidthtab(0, iSeed_);
+          FPGAWord lookupbits(lutval, lutwidth, true, __LINE__, __FILE__);
 
-          int zbinfirst = newbin & 7;
+          int rzfinebinfirst = lookupbits.bits(0, 3);  //finephi
+          int next = lookupbits.bits(3, 1);            //next r/z bin
+          int start = lookupbits.bits(4, nbitsrzbin_);
+          int rzdiffmax = lookupbits.bits(lookupbits.nbits() - 3, 3);
 
-          int start = (bin >> 1);
-          int last = start + (bin & 1);
-
-          if (print) {
-            edm::LogVerbatim("Tracklet") << "start last : " << start << " " << last;
-          }
-
-          if (settings_.debugTracklet()) {
-            edm::LogVerbatim("Tracklet") << "Will look in zbins " << start << " to " << last;
-          }
-          for (int ibin = start; ibin <= last; ibin++) {
-            for (unsigned int j = 0; j < outervmstubs_[ivmmem]->nVMStubsBinned(ibin); j++) {
-              if (settings_.debugTracklet()) {
-                edm::LogVerbatim("Tracklet") << "In " << getName() << " have outer stub";
-              }
-
-              countteall++;
-              countall++;
-
-              const VMStubTE& outervmstub = outervmstubs_[ivmmem]->getVMStubTEBinned(ibin, j);
-
-              int zbin = (outervmstub.vmbits().value() & 7);
-
-              if (start != ibin)
-                zbin += 8;
-
-              if (zbin < zbinfirst || zbin - zbinfirst > zdiffmax) {
-                if (settings_.debugTracklet()) {
-                  edm::LogVerbatim("Tracklet") << "Stubpair rejected because of wrong fine z";
-                }
-                continue;
-              }
-
-              if (print) {
-                edm::LogVerbatim("Tracklet") << "ibin j " << ibin << " " << j;
-              }
-
-              assert(innerphibits_ != -1);
-              assert(outerphibits_ != -1);
-
-              FPGAWord iphiinnerbin = innervmstub.finephi();
-              FPGAWord iphiouterbin = outervmstub.finephi();
-
-              int index = (iphiinnerbin.value() << outerphibits_) + iphiouterbin.value();
-
-              assert(index < (int)phitable_[phiindex].size());
-
-              if (!phitable_[phiindex][index]) {
-                if (settings_.debugTracklet()) {
-                  edm::LogVerbatim("Tracklet") << "Stub pair rejected because of tracklet pt cut";
-                }
-                continue;
-              }
-
-              FPGAWord innerbend = innervmstub.bend();
-              FPGAWord outerbend = outervmstub.bend();
-
-              int ptinnerindex = (index << innerbend.nbits()) + innerbend.value();
-              int ptouterindex = (index << outerbend.nbits()) + outerbend.value();
-
-              if (!(pttableinner_[phiindex][ptinnerindex] && pttableouter_[phiindex][ptouterindex])) {
-                if (settings_.debugTracklet()) {
-                  edm::LogVerbatim("Tracklet")
-                      << "Stub pair rejected because of stub pt cut bends : "
-                      << benddecode(innervmstub.bend().value(), innervmstub.isPSmodule()) << " "
-                      << benddecode(outervmstub.bend().value(), outervmstub.isPSmodule());
-                }
-                continue;
-              }
-
-              if (settings_.debugTracklet())
-                edm::LogVerbatim("Tracklet") << "Adding layer-layer pair in " << getName();
-              if (settings_.writeMonitorData("Seeds")) {
-                ofstream fout("seeds.txt", ofstream::app);
-                fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << iSeed_ << endl;
-                fout.close();
-              }
-              stubpairs.addStubPair(innervmstub,
-                                    outervmstub,
-                                    0,
-                                    innervmstubs_[ivmmem]->getName() + " " + outervmstubs_[ivmmem]->getName());
-              counttepass++;
-              countall++;
-            }
-          }
-
-        } else if ((disk_ == 1 && layer_ == 0) || (disk_ == 3 && layer_ == 0)) {
-          if (settings_.debugTracklet())
-            edm::LogVerbatim("Tracklet") << getName() << "[" << iSector_ << "] Disk-disk pair";
-
-          const VMStubTE& innervmstub = innervmstubs_[ivmmem]->getVMStubTE(i);
-
-          int lookupbits = (int)innervmstub.vmbits().value();
-          bool negdisk = innervmstub.stub()->disk().value() < 0;  //TODO - need to store negative disk
-          int rdiffmax = (lookupbits >> 6);
-          int newbin = (lookupbits & 63);
-          int bin = newbin / 8;
-
-          int rbinfirst = newbin & 7;
-
-          int start = (bin >> 1);
-          if (negdisk)
+          if ((iSeed_ == 4 || iSeed_ == 5) && negdisk) {  //TODO - need to store negative disk
             start += 4;
-          int last = start + (bin & 1);
-          for (int ibin = start; ibin <= last; ibin++) {
-            if (settings_.debugTracklet())
-              edm::LogVerbatim("Tracklet") << getName() << " looking for matching stub in bin " << ibin << " with "
-                                           << outervmstubs_[ivmmem]->nVMStubsBinned(ibin) << " stubs";
-            for (unsigned int j = 0; j < outervmstubs_[ivmmem]->nVMStubsBinned(ibin); j++) {
-              countall++;
-              countteall++;
+          }
+          int last = start + next;
 
-              const VMStubTE& outervmstub = outervmstubs_[ivmmem]->getVMStubTEBinned(ibin, j);
+          int nbins = 8;
 
-              int vmbits = (int)outervmstub.vmbits().value();
-              int rbin = (vmbits & 7);
-              if (start != ibin)
-                rbin += 8;
-              if (rbin < rbinfirst)
-                continue;
-              if (rbin - rbinfirst > rdiffmax)
-                continue;
+          unsigned int useregindex = (innerfinephi << innerbend.nbits()) + innerbend.value();
+          if (iSeed_ >= 4) {
+            //FIXME If the lookupbits were rationally organized this would be much simpler
+            int ir = ((start & 3) << 1) + (rzfinebinfirst >> 2);
+            useregindex = (useregindex << 3) + ir;
+          }
 
-              int rzbin = outervmstub.vmbits().bits(0, 3);
+          assert(useregindex < useregion_.size());
+          vector<bool> usereg = useregion_[useregindex];
 
-              FPGAWord iphiinnerbin = innervmstub.finephi();
-              FPGAWord iphiouterbin = outervmstub.finephi();
+          TEData tedata;
+          tedata.stub_ = stub;
+          tedata.rzbinfirst_ = rzfinebinfirst;
+          tedata.start_ = start;
+          tedata.innerfinephi_ = innerfinephi;
+          tedata.rzdiffmax_ = rzdiffmax;
+          tedata.innerbend_ = innerbend;
 
-              unsigned int index = (iphiinnerbin.value() << outerphibits_) + iphiouterbin.value();
+          for (unsigned int ireg = 0; ireg < settings_.nvmte(1, iSeed_); ireg++) {
+            assert(ireg < usereg.size());
+            if (!usereg[ireg])
+              continue;
 
-              constexpr unsigned int n_barrelseed = 3;
-              if (iSeed_ > n_barrelseed) {  //Also use r-position for disk/overlap seeds
-                int ir = ((ibin & n_barrelseed) << 1) + (rzbin >> 2);
-                index = (index << n_barrelseed) + ir;
+            for (int ibin = start; ibin <= last; ibin++) {
+              if (settings_.debugTracklet()) {
+                edm::LogVerbatim("Tracklet") << getName() << " looking for matching stub in bin " << ibin << " with "
+                                             << outervmstubs_->nVMStubsBinned(ireg * nbins + ibin) << " stubs";
               }
-
-              FPGAWord innerbend = innervmstub.bend();
-              FPGAWord outerbend = outervmstub.bend();
-
-              unsigned int ptinnerindex = (index << innerbend.nbits()) + innerbend.value();
-              unsigned int ptouterindex = (index << outerbend.nbits()) + outerbend.value();
-
-              assert(ptinnerindex < pttableinner_[phiindex].size());
-              assert(ptouterindex < pttableouter_[phiindex].size());
-
-              if (!(pttableinner_[phiindex][ptinnerindex] && pttableouter_[phiindex][ptouterindex])) {
-                if (settings_.debugTracklet()) {
-                  edm::LogVerbatim("Tracklet")
-                      << "Stub pair rejected because of stub pt cut bends : "
-                      << benddecode(innervmstub.bend().value(), innervmstub.isPSmodule()) << " "
-                      << benddecode(outervmstub.bend().value(), outervmstub.isPSmodule())
-                      << " pass : " << pttableinner_[phiindex][ptinnerindex] << " "
-                      << pttableouter_[phiindex][ptouterindex];
-                }
+              assert(ireg * nbins + ibin < outervmstubs_->nBin());
+              int nstubs = outervmstubs_->nVMStubsBinned(ireg * nbins + ibin);
+              if (nstubs > 0) {
+                tedata.regions_.emplace_back(tuple<int, int, int>(ibin - start, ireg, nstubs));
+                countteall += nstubs;
               }
-
-              if (settings_.debugTracklet())
-                edm::LogVerbatim("Tracklet") << "Adding disk-disk pair in " << getName();
-
-              if (settings_.writeMonitorData("Seeds")) {
-                ofstream fout("seeds.txt", ofstream::app);
-                fout << __FILE__ << ":" << __LINE__ << " " << name_ << "_" << iSector_ << " " << iSeed_ << endl;
-                fout.close();
-              }
-              stubpairs.addStubPair(innervmstub,
-                                    outervmstub,
-                                    0,
-                                    innervmstubs_[ivmmem]->getName() + " " + outervmstubs_[ivmmem]->getName());
-              countall++;
-              counttepass++;
             }
+          }
+
+          if (!tedata.regions_.empty()) {
+            ntedata++;
+            //cout << getName() << " adding TE data" << endl;
+            tedatabuffer.store(tedata);
+          }
+        }
+        istub++;
+        if (istub >= innerallstubs_[imem]->nStubs()) {
+          istub = 0;
+          imem++;
+        }
+      }
+    }
+
+    bool tedatabuffersdone = true;
+    for (auto& tebuffer : tedatabuffers_) {
+      CircularBuffer<TEData>& tedatabuffer = std::get<0>(tebuffer);
+      tedatabuffersdone &= tedatabuffer.empty();                              //buffer empty
+      tedatabuffersdone &= (std::get<2>(tebuffer) == std::get<4>(tebuffer));  //buffer processed all stubs
+      if (!tedatabuffer.empty()) {
+        for (auto& teunit : teunits_) {
+          if (teunit.empty() && teunit.idle()) {
+            teunit.init(tedatabuffer.read());
+            break;
           }
         }
       }
     }
-  }
 
-  if (settings_.writeMonitorData("TE")) {
-    globals_->ofstream("trackletprocessor.txt") << getName() << " " << countteall << " " << counttepass << endl;
-  }
-
-  for (unsigned int i = 0; i < stubpairs.nStubPairs(); i++) {
-    if (trackletpars_->nTracklets() >= settings_.ntrackletmax()) {
-      edm::LogVerbatim("Tracklet") << "Will break on too many tracklets in " << getName();
-      break;
-    }
-    countall++;
-    const Stub* innerFPGAStub = stubpairs.getVMStub1(i).stub();
-    const L1TStub* innerStub = innerFPGAStub->l1tstub();
-
-    const Stub* outerFPGAStub = stubpairs.getVMStub2(i).stub();
-    const L1TStub* outerStub = outerFPGAStub->l1tstub();
-
-    if (settings_.debugTracklet()) {
-      edm::LogVerbatim("Tracklet") << "TrackletProcessor execute " << getName() << "[" << iSector_ << "]";
+    bool teunitsdone = true;
+    TrackletEngineUnit* teunitptr = nullptr;
+    for (auto& teunit : teunits_) {
+      if (!teunit.idle()) {
+        teunit.step();
+        teunitsdone = false;
+      }
+      if (!teunit.empty()) {
+        teunitptr = &teunit;
+        teunitsdone = false;
+      }
     }
 
-    bool accept = false;
+    if (teunitptr != nullptr) {
+      auto stubpair = teunitptr->read();
+      stubpairs++;
 
-    if (innerFPGAStub->isBarrel() && (getName() != "TC_D1L2A" && getName() != "TC_D1L2B")) {
-      if (outerFPGAStub->isDisk()) {
-        //overlap seeding
-        accept = overlapSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub);
-      } else {
-        //barrel+barrel seeding
+      if (trackletpars_->nTracklets() >= settings_.ntrackletmax()) {
+        edm::LogVerbatim("Tracklet") << "Will break on too many tracklets in " << getName();
+        break;
+      }
+      countall++;
+      const Stub* innerFPGAStub = stubpair.first;
+      const L1TStub* innerStub = innerFPGAStub->l1tstub();
+
+      const Stub* outerFPGAStub = stubpair.second;
+      const L1TStub* outerStub = outerFPGAStub->l1tstub();
+
+      if (settings_.debugTracklet()) {
+        edm::LogVerbatim("Tracklet") << "TrackletProcessor execute " << getName() << "[" << iSector_ << "]";
+      }
+
+      bool accept = false;
+
+      if (iSeed_ < 4) {
         accept = barrelSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
-      }
-    } else {
-      if (outerFPGAStub->isDisk()) {
-        //disk+disk seeding
+      } else if (iSeed_ < 6) {
         accept = diskSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
-      } else if (innerFPGAStub->isDisk()) {
-        //layer+disk seeding
-        accept = overlapSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
       } else {
-        throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " Invalid seeding!";
+        accept = overlapSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub);
+      }
+
+      if (accept)
+        countsel++;
+
+      if (trackletpars_->nTracklets() >= settings_.ntrackletmax()) {
+        edm::LogVerbatim("Tracklet") << "Will break on number of tracklets in " << getName();
+        break;
+      }
+
+      if (settings_.debugTracklet()) {
+        edm::LogVerbatim("Tracklet") << "TrackletProcessor execute done";
       }
     }
-
-    if (accept)
-      countsel++;
 
     if (settings_.writeMonitorData("TP")) {
-      globals_->ofstream("tc_seedpairs.txt") << stubpairs.getTEDName(i) << " " << accept << endl;
+      globals_->ofstream("trackletprocessor.txt") << getName() << " " << ninnerstubs   //# inner stubs
+                                                  << " " << outervmstubs_->nVMStubs()  //# outer stubs
+                                                  << " " << countteall                 //# pairs tried in TE
+                                                  << " " << stubpairs                  //# stubs pairs
+                                                  << " " << countsel                   //# tracklets found
+                                                  << endl;
     }
 
-    if (trackletpars_->nTracklets() >= settings_.ntrackletmax()) {
-      edm::LogVerbatim("Tracklet") << "Will break on number of tracklets in " << getName();
+    if (teunitsdone && tedatabuffersdone) {
       break;
-    }
-
-    if (countall >= settings_.maxStep("TP")) {
-      if (settings_.debugTracklet())
-        edm::LogVerbatim("Tracklet") << "Will break on MAXTC 1";
-      break;
-    }
-    if (settings_.debugTracklet()) {
-      edm::LogVerbatim("Tracklet") << "TrackletProcessor execute done";
-    }
-  }
-  if (countall >= settings_.maxStep("TP")) {
-    if (settings_.debugTracklet())
-      edm::LogVerbatim("Tracklet") << "Will break on MAXTC 2";
-    //break;
-  }
-
-  if (settings_.writeMonitorData("TP")) {
-    globals_->ofstream("trackletcalculator.txt") << getName() << " " << countall << " " << countsel << endl;
-  }
-}
-
-void TrackletProcessor::setVMPhiBin() {
-  if (innervmstubs_.size() != outervmstubs_.size())
-    return;
-
-  for (unsigned int ivmmem = 0; ivmmem < innervmstubs_.size(); ivmmem++) {
-    unsigned int innerphibin = innervmstubs_[ivmmem]->phibin();
-    unsigned int outerphibin = outervmstubs_[ivmmem]->phibin();
-
-    unsigned phiindex = 32 * innerphibin + outerphibin;
-
-    if (phitable_.find(phiindex) != phitable_.end())
-      continue;
-
-    innervmstubs_[ivmmem]->setother(outervmstubs_[ivmmem]);
-    outervmstubs_[ivmmem]->setother(innervmstubs_[ivmmem]);
-
-    if ((layer_ == 1 && disk_ == 0) || (layer_ == 2 && disk_ == 0) || (layer_ == 3 && disk_ == 0) ||
-        (layer_ == 5 && disk_ == 0)) {
-      innerphibits_ = settings_.nfinephi(0, iSeed_);
-      outerphibits_ = settings_.nfinephi(1, iSeed_);
-
-      int innerphibins = (1 << innerphibits_);
-      int outerphibins = (1 << outerphibits_);
-
-      double innerphimin, innerphimax;
-      innervmstubs_[ivmmem]->getPhiRange(innerphimin, innerphimax, iSeed_, 0);
-      double rinner = settings_.rmean(layer_ - 1);
-
-      double outerphimin, outerphimax;
-      outervmstubs_[ivmmem]->getPhiRange(outerphimin, outerphimax, iSeed_, 1);
-      double router = settings_.rmean(layer_);
-
-      double phiinner[2];
-      double phiouter[2];
-
-      std::vector<bool> vmbendinner;
-      std::vector<bool> vmbendouter;
-      unsigned int nbins1 = 8;
-      if (layer_ >= 4)
-        nbins1 = 16;
-      for (unsigned int i = 0; i < nbins1; i++) {
-        vmbendinner.push_back(false);
-      }
-
-      unsigned int nbins2 = 8;
-      if (layer_ >= 3)
-        nbins2 = 16;
-      for (unsigned int i = 0; i < nbins2; i++) {
-        vmbendouter.push_back(false);
-      }
-
-      for (int iphiinnerbin = 0; iphiinnerbin < innerphibins; iphiinnerbin++) {
-        phiinner[0] = innerphimin + iphiinnerbin * (innerphimax - innerphimin) / innerphibins;
-        phiinner[1] = innerphimin + (iphiinnerbin + 1) * (innerphimax - innerphimin) / innerphibins;
-        for (int iphiouterbin = 0; iphiouterbin < outerphibins; iphiouterbin++) {
-          phiouter[0] = outerphimin + iphiouterbin * (outerphimax - outerphimin) / outerphibins;
-          phiouter[1] = outerphimin + (iphiouterbin + 1) * (outerphimax - outerphimin) / outerphibins;
-
-          double bendinnermin = 20.0;
-          double bendinnermax = -20.0;
-          double bendoutermin = 20.0;
-          double bendoutermax = -20.0;
-          double rinvmin = 1.0;
-          for (int i1 = 0; i1 < 2; i1++) {
-            for (int i2 = 0; i2 < 2; i2++) {
-              double rinv1 = rinv(phiinner[i1], phiouter[i2], rinner, router);
-              double pitchinner =
-                  (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-              double pitchouter =
-                  (router < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-              double abendinner = -bend(rinner, rinv1, pitchinner);
-              double abendouter = -bend(router, rinv1, pitchouter);
-              if (abendinner < bendinnermin)
-                bendinnermin = abendinner;
-              if (abendinner > bendinnermax)
-                bendinnermax = abendinner;
-              if (abendouter < bendoutermin)
-                bendoutermin = abendouter;
-              if (abendouter > bendoutermax)
-                bendoutermax = abendouter;
-              if (std::abs(rinv1) < rinvmin) {
-                rinvmin = std::abs(rinv1);
-              }
-            }
-          }
-
-          phitable_[phiindex].push_back(rinvmin < settings_.rinvcutte());
-
-          int nbins1 = 8;
-          if (layer_ >= 4)
-            nbins1 = 16;
-          for (int ibend = 0; ibend < nbins1; ibend++) {
-            double bend = benddecode(ibend, layer_ <= 3);
-
-            bool passinner = bend - bendinnermin > -settings_.bendcutte(0, iSeed_) &&
-                             bend - bendinnermax < settings_.bendcutte(0, iSeed_);
-            if (passinner)
-              vmbendinner[ibend] = true;
-            pttableinner_[phiindex].push_back(passinner);
-          }
-
-          int nbins2 = 8;
-          if (layer_ >= 3)
-            nbins2 = 16;
-          for (int ibend = 0; ibend < nbins2; ibend++) {
-            double bend = benddecode(ibend, layer_ <= 2);
-
-            bool passouter = bend - bendoutermin > -settings_.bendcutte(1, iSeed_) &&
-                             bend - bendoutermax < settings_.bendcutte(1, iSeed_);
-            if (passouter)
-              vmbendouter[ibend] = true;
-            pttableouter_[phiindex].push_back(passouter);
-          }
-        }
-      }
-
-      innervmstubs_[ivmmem]->setbendtable(vmbendinner);
-      outervmstubs_[ivmmem]->setbendtable(vmbendouter);
-
-      if (iSector_ == 0 && settings_.writeTable())
-        writeTETable();
-    }
-
-    if ((disk_ == 1 && layer_ == 0) || (disk_ == 3 && layer_ == 0)) {
-      innerphibits_ = settings_.nfinephi(0, iSeed_);
-      outerphibits_ = settings_.nfinephi(1, iSeed_);
-
-      int outerrbits = 3;
-
-      int outerrbins = (1 << outerrbits);
-      int innerphibins = (1 << innerphibits_);
-      int outerphibins = (1 << outerphibits_);
-
-      double innerphimin, innerphimax;
-      innervmstubs_[ivmmem]->getPhiRange(innerphimin, innerphimax, iSeed_, 0);
-
-      double outerphimin, outerphimax;
-      outervmstubs_[ivmmem]->getPhiRange(outerphimin, outerphimax, iSeed_, 1);
-
-      double phiinner[2];
-      double phiouter[2];
-      double router[2];
-
-      std::vector<bool> vmbendinner;
-      std::vector<bool> vmbendouter;
-
-      for (unsigned int i = 0; i < 8; i++) {
-        vmbendinner.push_back(false);
-        vmbendouter.push_back(false);
-      }
-
-      for (int irouterbin = 0; irouterbin < outerrbins; irouterbin++) {
-        router[0] =
-            settings_.rmindiskvm() + irouterbin * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
-        router[1] =
-            settings_.rmindiskvm() + (irouterbin + 1) * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
-        for (int iphiinnerbin = 0; iphiinnerbin < innerphibins; iphiinnerbin++) {
-          phiinner[0] = innerphimin + iphiinnerbin * (innerphimax - innerphimin) / innerphibins;
-          phiinner[1] = innerphimin + (iphiinnerbin + 1) * (innerphimax - innerphimin) / innerphibins;
-          for (int iphiouterbin = 0; iphiouterbin < outerphibins; iphiouterbin++) {
-            phiouter[0] = outerphimin + iphiouterbin * (outerphimax - outerphimin) / outerphibins;
-            phiouter[1] = outerphimin + (iphiouterbin + 1) * (outerphimax - outerphimin) / outerphibins;
-
-            double bendinnermin = 20.0;
-            double bendinnermax = -20.0;
-            double bendoutermin = 20.0;
-            double bendoutermax = -20.0;
-            double rinvmin = 1.0;
-            double rinvmax = -1.0;
-            for (int i1 = 0; i1 < 2; i1++) {
-              for (int i2 = 0; i2 < 2; i2++) {
-                for (int i3 = 0; i3 < 2; i3++) {
-                  double rinner = router[i3] * settings_.zmean(disk_ - 1) / settings_.zmean(disk_);
-                  double rinv1 = rinv(phiinner[i1], phiouter[i2], rinner, router[i3]);
-                  double pitchinner =
-                      (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-                  double pitchouter =
-                      (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-                  double abendinner = bend(rinner, rinv1, pitchinner);
-                  double abendouter = bend(router[i3], rinv1, pitchouter);
-                  if (abendinner < bendinnermin)
-                    bendinnermin = abendinner;
-                  if (abendinner > bendinnermax)
-                    bendinnermax = abendinner;
-                  if (abendouter < bendoutermin)
-                    bendoutermin = abendouter;
-                  if (abendouter > bendoutermax)
-                    bendoutermax = abendouter;
-                  if (std::abs(rinv1) < rinvmin) {
-                    rinvmin = std::abs(rinv1);
-                  }
-                  if (std::abs(rinv1) > rinvmax) {
-                    rinvmax = std::abs(rinv1);
-                  }
-                }
-              }
-            }
-
-            phitable_[phiindex].push_back(rinvmin < settings_.rinvcutte());
-
-            for (int ibend = 0; ibend < 8; ibend++) {
-              double bend = benddecode(ibend, true);
-
-              bool passinner = bend - bendinnermin > -settings_.bendcutte(0, iSeed_) &&
-                               bend - bendinnermax < settings_.bendcutte(0, iSeed_);
-              if (passinner)
-                vmbendinner[ibend] = true;
-              pttableinner_[phiindex].push_back(passinner);
-            }
-
-            for (int ibend = 0; ibend < 8; ibend++) {
-              double bend = benddecode(ibend, true);
-
-              bool passouter = bend - bendoutermin > -settings_.bendcutte(1, iSeed_) &&
-                               bend - bendoutermax < settings_.bendcutte(1, iSeed_);
-              if (passouter)
-                vmbendouter[ibend] = true;
-              pttableouter_[phiindex].push_back(passouter);
-            }
-          }
-        }
-      }
-
-      innervmstubs_[ivmmem]->setbendtable(vmbendinner);
-      outervmstubs_[ivmmem]->setbendtable(vmbendouter);
-
-      if (iSector_ == 0 && settings_.writeTable())
-        writeTETable();
-
-    } else if (disk_ == 1 && (layer_ == 1 || layer_ == 2)) {
-      innerphibits_ = settings_.nfinephi(0, iSeed_);
-      outerphibits_ = settings_.nfinephi(1, iSeed_);
-      unsigned int nrbits = 5;
-
-      int innerphibins = (1 << innerphibits_);
-      int outerphibins = (1 << outerphibits_);
-
-      double innerphimin, innerphimax;
-      innervmstubs_[ivmmem]->getPhiRange(innerphimin, innerphimax, iSeed_, 0);
-
-      double outerphimin, outerphimax;
-      outervmstubs_[ivmmem]->getPhiRange(outerphimin, outerphimax, iSeed_, 1);
-
-      double phiinner[2];
-      double phiouter[2];
-      double router[2];
-
-      std::vector<bool> vmbendinner;
-      std::vector<bool> vmbendouter;
-
-      for (unsigned int i = 0; i < 8; i++) {
-        vmbendinner.push_back(false);
-        vmbendouter.push_back(false);
-      }
-
-      double dr = (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / (1 << nrbits);
-
-      for (int iphiinnerbin = 0; iphiinnerbin < innerphibins; iphiinnerbin++) {
-        phiinner[0] = innerphimin + iphiinnerbin * (innerphimax - innerphimin) / innerphibins;
-        phiinner[1] = innerphimin + (iphiinnerbin + 1) * (innerphimax - innerphimin) / innerphibins;
-        for (int iphiouterbin = 0; iphiouterbin < outerphibins; iphiouterbin++) {
-          phiouter[0] = outerphimin + iphiouterbin * (outerphimax - outerphimin) / outerphibins;
-          phiouter[1] = outerphimin + (iphiouterbin + 1) * (outerphimax - outerphimin) / outerphibins;
-          for (int irbin = 0; irbin < (1 << nrbits); irbin++) {
-            router[0] = settings_.rmindiskvm() + dr * irbin;
-            router[1] = router[0] + dr;
-            double bendinnermin = 20.0;
-            double bendinnermax = -20.0;
-            double bendoutermin = 20.0;
-            double bendoutermax = -20.0;
-            double rinvmin = 1.0;
-            for (int i1 = 0; i1 < 2; i1++) {
-              for (int i2 = 0; i2 < 2; i2++) {
-                for (int i3 = 0; i3 < 2; i3++) {
-                  double rinner = settings_.rmean(layer_ - 1);
-                  double rinv1 = rinv(phiinner[i1], phiouter[i2], rinner, router[i3]);
-                  double pitchinner =
-                      (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-                  double pitchouter =
-                      (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-                  double abendinner = bend(rinner, rinv1, pitchinner);
-                  double abendouter = bend(router[i3], rinv1, pitchouter);
-                  if (abendinner < bendinnermin)
-                    bendinnermin = abendinner;
-                  if (abendinner > bendinnermax)
-                    bendinnermax = abendinner;
-                  if (abendouter < bendoutermin)
-                    bendoutermin = abendouter;
-                  if (abendouter > bendoutermax)
-                    bendoutermax = abendouter;
-                  if (std::abs(rinv1) < rinvmin) {
-                    rinvmin = std::abs(rinv1);
-                  }
-                }
-              }
-            }
-
-            phitable_[phiindex].push_back(rinvmin < settings_.rinvcutte());
-
-            for (int ibend = 0; ibend < 8; ibend++) {
-              double bend = benddecode(ibend, true);
-
-              bool passinner = bend - bendinnermin > -settings_.bendcutte(0, iSeed_) &&
-                               bend - bendinnermax < settings_.bendcutte(0, iSeed_);
-              if (passinner)
-                vmbendinner[ibend] = true;
-              pttableinner_[phiindex].push_back(passinner);
-            }
-
-            for (int ibend = 0; ibend < 8; ibend++) {
-              double bend = benddecode(ibend, true);
-
-              bool passouter = bend - bendoutermin > -settings_.bendcutte(1, iSeed_) &&
-                               bend - bendoutermax < settings_.bendcutte(1, iSeed_);
-              if (passouter)
-                vmbendouter[ibend] = true;
-              pttableouter_[phiindex].push_back(passouter);
-            }
-          }
-        }
-      }
-
-      innervmstubs_[ivmmem]->setbendtable(vmbendinner);
-      outervmstubs_[ivmmem]->setbendtable(vmbendouter);
-
-      if (iSector_ == 0 && settings_.writeTable())
-        writeTETable();
     }
   }
 }
 
 void TrackletProcessor::writeTETable() {
-  ofstream outptcut;
-  outptcut.open(getName() + "_ptcut.tab");
-  outptcut << "{" << endl;
-  //for(unsigned int i=0;i<phitable_.size();i++){
-  //  if (i!=0) outptcut<<","<<endl;
-  //  outptcut << phitable_[i];
-  //}
-  outptcut << endl << "};" << endl;
-  outptcut.close();
-
   ofstream outstubptinnercut;
   outstubptinnercut.open(getName() + "_stubptinnercut.tab");
   outstubptinnercut << "{" << endl;
+  // the below is outcommented as the writing of these tables are currently not implemented, to be adressed
   //for(unsigned int i=0;i<pttableinner_.size();i++){
   //  if (i!=0) outstubptinnercut<<","<<endl;
   //  outstubptinnercut << pttableinner_[i];
@@ -938,10 +412,177 @@ void TrackletProcessor::writeTETable() {
   ofstream outstubptoutercut;
   outstubptoutercut.open(getName() + "_stubptoutercut.tab");
   outstubptoutercut << "{" << endl;
+  // the below is outcommented as the writing of these tables are currently not implemented, to be adressed
   //for(unsigned int i=0;i<pttableouter_.size();i++){
   //  if (i!=0) outstubptoutercut<<","<<endl;
   //  outstubptoutercut << pttableouter_[i];
   //}
   outstubptoutercut << endl << "};" << endl;
   outstubptoutercut.close();
+}
+
+void TrackletProcessor::buildLUT() {
+  //number of fine phi bins in sector
+  int nfinephibins =
+      settings_.nallstubs(layerdisk2_) * settings_.nvmte(1, iSeed_) * (1 << settings_.nfinephi(1, iSeed_));
+  double dfinephi = settings_.dphisectorHG() / nfinephibins;
+
+  double rmin = -1.0;
+  double rmax = -1.0;
+
+  if (iSeed_ < 4) {
+    rmin = settings_.rmean(layerdisk1_);
+    rmax = settings_.rmean(layerdisk2_);
+  } else {
+    if (iSeed_ > 5) {
+      if (iSeed_ == 6) {
+        rmax = settings_.rmaxdiskl1overlapvm();
+      } else if (iSeed_ == 7) {
+        rmax = settings_.rmaxdiskvm();
+      }
+      rmin = settings_.rmean(layerdisk1_);
+    } else {
+      rmax = settings_.rmaxdiskvm();
+      rmin = rmax * settings_.zmean(layerdisk2_ - 6 - 1) / settings_.zmean(layerdisk2_ - 6);
+    }
+  }
+
+  double dphimax = asin(0.5 * settings_.maxrinv() * rmax) - asin(0.5 * settings_.maxrinv() * rmin);
+
+  int nbins = 2.0 * (dphimax / dfinephi + 1.0);
+
+  nbitsfinephidiff_ = log(nbins) / log(2.0) + 1;
+
+  nbitsfinephi_ = settings_.nbitsallstubs(layerdisk2_) + settings_.nbitsvmte(1, iSeed_) + settings_.nfinephi(1, iSeed_);
+
+  int outerrbits = 3;
+  if (iSeed_ < 4) {
+    outerrbits = 0;
+  }
+
+  int outerrbins = (1 << outerrbits);
+
+  double dphi[2];
+  double router[2];
+
+  unsigned int nbendbitsinner = 3;
+  unsigned int nbendbitsouter = 3;
+  if (iSeed_ == 2) {
+    nbendbitsouter = 4;
+  } else if (iSeed_ == 3) {
+    nbendbitsinner = 4;
+    nbendbitsouter = 4;
+  }
+
+  int nbinsfinephidiff = (1 << nbitsfinephidiff_);
+
+  for (int iphibin = 0; iphibin < nbinsfinephidiff; iphibin++) {
+    int iphidiff = iphibin;
+    if (iphibin >= nbinsfinephidiff / 2) {
+      iphidiff = iphibin - nbinsfinephidiff;
+    }
+    //min and max dphi
+    dphi[0] = (iphidiff - 1.5) * dfinephi;
+    dphi[1] = (iphidiff + 1.5) * dfinephi;
+    for (int irouterbin = 0; irouterbin < outerrbins; irouterbin++) {
+      if (iSeed_ >= 4) {
+        router[0] =
+            settings_.rmindiskvm() + irouterbin * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
+        router[1] =
+            settings_.rmindiskvm() + (irouterbin + 1) * (settings_.rmaxdiskvm() - settings_.rmindiskvm()) / outerrbins;
+      } else {
+        router[0] = settings_.rmean(layerdisk2_);
+        router[1] = settings_.rmean(layerdisk2_);
+      }
+
+      double bendinnermin = 20.0;
+      double bendinnermax = -20.0;
+      double bendoutermin = 20.0;
+      double bendoutermax = -20.0;
+      double rinvmin = 1.0;
+      for (int i2 = 0; i2 < 2; i2++) {
+        for (int i3 = 0; i3 < 2; i3++) {
+          double rinner = 0.0;
+          if (iSeed_ == 4 || iSeed_ == 5) {
+            rinner = router[i3] * settings_.zmean(layerdisk1_ - N_LAYER) / settings_.zmean(layerdisk2_ - N_LAYER);
+          } else {
+            rinner = settings_.rmean(layerdisk1_);
+          }
+          double rinv1 = rinv(0.0, dphi[i2], rinner, router[i3]);
+          double pitchinner = (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
+          double pitchouter =
+              (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
+          double abendinner = -bend(rinner, rinv1, pitchinner);
+          double abendouter = -bend(router[i3], rinv1, pitchouter);
+          if (abendinner < bendinnermin)
+            bendinnermin = abendinner;
+          if (abendinner > bendinnermax)
+            bendinnermax = abendinner;
+          if (abendouter < bendoutermin)
+            bendoutermin = abendouter;
+          if (abendouter > bendoutermax)
+            bendoutermax = abendouter;
+          if (std::abs(rinv1) < rinvmin) {
+            rinvmin = std::abs(rinv1);
+          }
+        }
+      }
+
+      bool passptcut = rinvmin < settings_.rinvcutte();
+
+      for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
+        double bend = benddecode(ibend, nbendbitsinner == 3);
+
+        bool passinner = bend - bendinnermin > -settings_.bendcutte(0, iSeed_) &&
+                         bend - bendinnermax < settings_.bendcutte(0, iSeed_);
+        pttableinnernew_.push_back(passinner && passptcut);
+      }
+
+      for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
+        double bend = benddecode(ibend, nbendbitsouter == 3);
+
+        bool passouter = bend - bendoutermin > -settings_.bendcutte(1, iSeed_) &&
+                         bend - bendoutermax < settings_.bendcutte(1, iSeed_);
+        pttableouternew_.push_back(passouter && passptcut);
+      }
+    }
+  }
+
+  int nirbits = 0;
+  if (iSeed_ >= 4)
+    nirbits = 3;
+
+  int nregmax = 0;
+
+  for (int innerfinephi = 0; innerfinephi < (1 << nbitsfinephi_); innerfinephi++) {
+    for (int innerbend = 0; innerbend < (1 << nbendbitsinner); innerbend++) {
+      for (int ir = 0; ir < (1 << nirbits); ir++) {
+        int nreg = 0;
+        vector<bool> usereg;
+        for (unsigned int ireg = 0; ireg < settings_.nvmte(1, iSeed_); ireg++) {
+          bool match = false;
+          for (int ifinephiouter = 0; ifinephiouter < (1 << settings_.nfinephi(1, iSeed_)); ifinephiouter++) {
+            int outerfinephi = iAllStub_ * (1 << (nbitsfinephi_ - settings_.nbitsallstubs(layerdisk2_))) +
+                               ireg * (1 << settings_.nfinephi(1, iSeed_)) + ifinephiouter;
+            int idphi = outerfinephi - innerfinephi;
+            bool inrange = (idphi < (1 << (nbitsfinephidiff_ - 1))) && (idphi >= -(1 << (nbitsfinephidiff_ - 1)));
+            if (idphi < 0)
+              idphi = idphi + (1 << nbitsfinephidiff_);
+            int idphi1 = idphi;
+            if (iSeed_ >= 4)
+              idphi1 = (idphi << 3) + ir;
+            int ptinnerindexnew = (idphi1 << nbendbitsinner) + innerbend;
+            match = match || (inrange && pttableinnernew_[ptinnerindexnew]);
+          }
+          if (match && ir < 3)
+            nreg++;
+          usereg.push_back(match);
+        }
+
+        useregion_.push_back(usereg);
+        if (nreg > nregmax)
+          nregmax = nreg;
+      }
+    }
+  }
 }

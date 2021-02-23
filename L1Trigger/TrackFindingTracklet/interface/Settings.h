@@ -23,13 +23,18 @@ namespace trklet {
 
   constexpr unsigned int N_DSS_MOD = 5;  // # of rings with 2S modules per disk
 
+  constexpr unsigned int NRINVBITS = 5;    //number of bit for rinv in bend match table
+  constexpr unsigned int NFINERZBITS = 3;  //number of bit for r or z within a r/z bin
+
+  constexpr double sixth = 1.0 / 6.0;  //Commonly used factor
+
   class Settings {
   public:
     Settings() {
       //Comment out to run tracklet-only algorithm
 #ifdef CMSSW_GIT_HASH
 #ifndef USEHYBRID
-#error USEHYBRID is not defined
+#pragma message "USEHYBRID is undefined, so Hybrid L1 tracking disabled."
 #endif
 #endif
     }
@@ -74,8 +79,13 @@ namespace trklet {
     unsigned int nbendbitsmedisk() const { return nbendbitsmedisk_; }
 
     bool useSeed(unsigned int iSeed) const { return useseeding_.find(iSeed) != useseeding_.end(); }
-    unsigned int nbitsvmte(unsigned int inner, unsigned int iSeed) const { return nbitsvmte_[inner][iSeed]; }
-    unsigned int nvmte(unsigned int inner, unsigned int iSeed) const { return (1 << nbitsvmte_[inner][iSeed]); }
+    unsigned int nbitsvmte(unsigned int inner, unsigned int iSeed) const {
+      if (combined_) {
+        return nbitsvmtecm_[inner][iSeed];
+      }
+      return nbitsvmte_[inner][iSeed];
+    }
+    unsigned int nvmte(unsigned int inner, unsigned int iSeed) const { return (1 << nbitsvmte(inner, iSeed)); }
 
     unsigned int nbitsvmme(unsigned int layerdisk) const { return nbitsvmme_[layerdisk]; }
     unsigned int nvmme(unsigned int layerdisk) const { return (1 << nbitsvmme_[layerdisk]); }
@@ -109,8 +119,13 @@ namespace trklet {
 
     double bendcutte(unsigned int inner, unsigned int iSeed) const { return bendcutte_[inner][iSeed]; }
     double bendcutme(unsigned int layerdisk) const { return bendcutme_[layerdisk]; }
-    double nfinephi(unsigned int inner, unsigned int iSeed) const { return nfinephi_[inner][iSeed]; }
-    double nphireg(unsigned int inner, unsigned int iSeed) const { return nphireg_[inner][iSeed]; }
+    int nfinephi(unsigned int inner, unsigned int iSeed) const { return nfinephi_[inner][iSeed]; }
+    double nphireg(unsigned int inner, unsigned int iSeed) const {
+      if (combined_) {
+        return nphiregcm_[inner][iSeed];
+      }
+      return nphireg_[inner][iSeed];
+    }
     double lutwidthtab(unsigned int inner, unsigned int iSeed) const { return lutwidthtab_[inner][iSeed]; }
     double lutwidthtabextended(unsigned int inner, unsigned int iSeed) const {
       return lutwidthtabextended_[inner][iSeed];
@@ -151,6 +166,8 @@ namespace trklet {
 
     bool writeMem() const { return writeMem_; }
     bool writeTable() const { return writeTable_; }
+    std::string const& memPath() const { return memPath_; }
+    std::string const& tablePath() const { return tablePath_; }
 
     bool writeVerilog() const { return writeVerilog_; }
     bool writeHLS() const { return writeHLS_; }
@@ -159,6 +176,7 @@ namespace trklet {
 
     unsigned int writememsect() const { return writememsect_; }
 
+    bool enableTripletTables() const { return enableTripletTables_; }
     bool writeTripletTables() const { return writeTripletTables_; }
 
     bool writeoutReal() const { return writeoutReal_; }
@@ -227,6 +245,9 @@ namespace trklet {
     std::string skimfile() const { return skimfile_; }
     void setSkimfile(std::string skimfile) { skimfile_ = skimfile; }
 
+    unsigned int nbitstrackletindex() const { return nbitstrackletindex_; }
+    void setNbitstrackletindex(unsigned int nbitstrackletindex) { nbitstrackletindex_ = nbitstrackletindex; }
+
     double dphisectorHG() const {
       return 2 * M_PI / N_SECTOR +
              2 * std::max(std::abs(asin(0.5 * rinvmax() * rmean(0)) - asin(0.5 * rinvmax() * rcrit_)),
@@ -268,10 +289,12 @@ namespace trklet {
 
     double z0cut() const { return z0cut_; }
 
+    double disp_z0cut() const { return disp_z0cut_; }
+
     unsigned int NLONGVMBITS() const { return NLONGVMBITS_; }
     unsigned int NLONGVMBINS() const { return (1 << NLONGVMBITS_); }
 
-    unsigned int ntrackletmax() const { return ntrackletmax_; }
+    unsigned int ntrackletmax() const { return ((1 << nbitstrackletindex_) - 1); }
 
     //Bits used to store track parameter in tracklet
     int nbitsrinv() const { return nbitsrinv_; }
@@ -384,6 +407,11 @@ namespace trklet {
          {{3, 2, 3, 3, 2, 2, 2, 2, 3, 3, 2, 2}},
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1}}}};
 
+    std::array<std::array<unsigned int, N_SEED>, 3> nbitsvmtecm_{
+        {{{2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 3, 2}},  // (3 = #stubs/triplet, only row 1+2 used for tracklet)
+         {{3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2}},
+         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1}}}};
+
     std::array<std::array<double, 8>, 2> bendcutte_{
         {{{1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25}},    //inner (2 = #stubs/tracklet)
          {{1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25}}}};  //outer
@@ -400,6 +428,8 @@ namespace trklet {
     double rPS2S_{60.0};
 
     double z0cut_{15.0};
+
+    double disp_z0cut_{27.0};
 
     unsigned int NLONGVMBITS_{3};
 
@@ -418,7 +448,7 @@ namespace trklet {
 
     double ptcutte_{1.8};  //Minimum pt in TE
 
-    unsigned int ntrackletmax_{127};  //maximum number of tracklets that can be stored
+    unsigned int nbitstrackletindex_{7};  //Bits used to store the tracklet index
 
     //Bits used to store track parameter in tracklet
     int nbitsrinv_{14};
@@ -481,9 +511,16 @@ namespace trklet {
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3}}}};  //outermost (triplets only)
 
     //These are the number of bits used for the VM regions in the TE by seedindex
+    //FIXME not independed nbitsvmte
     std::array<std::array<unsigned int, N_SEED>, 3> nphireg_{
         {{{5, 4, 4, 4, 4, 4, 4, 3, 4, 4, 5, 4}},    //inner
          {{5, 4, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4}},    //outer
+         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost (triplets only)
+
+    //For combined modules
+    std::array<std::array<unsigned int, N_SEED>, 3> nphiregcm_{
+        {{{5, 4, 4, 4, 4, 4, 4, 3, 4, 4, 5, 4}},    //inner
+         {{5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4}},    //outer
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost (triplets only)
 
     std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtab_{{{{10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 11, 0}},
@@ -573,21 +610,22 @@ namespace trklet {
          {{3.6, 3.8, 0.0, 0.0, 3.6, 0.0, 3.5, 3.8, 0.0, 0.0, 3.0, 3.0}},    //disk 4
          {{0.0, 0.0, 0.0, 0.0, 3.6, 3.4, 3.7, 0.0, 0.0, 0.0, 0.0, 3.0}}}};  //disk 5
 
-    //Offset to the maximum number of steps in each processing step. Set to 0 for standard
-    //trunction. Set to large value, e.g. 10000 to remove truncation
-    unsigned int maxstepoffset_{10000};
+    // Offset to the maximum number of steps in each processing step:
+    // Set to 0 (default) means standard trunction
+    // Set to large value, e.g. 10000, to disable truncation
+    unsigned int maxstepoffset_{0};
 
     //Default number of processing steps for one event
     std::unordered_map<std::string, unsigned int> maxstep_{{"Link", 108},
-                                                           {"MC", 108},
-                                                           {"ME", 108},
+                                                           {"MC", 107},
+                                                           {"ME", 101},
                                                            {"MP", 108},
-                                                           {"PR", 108},
-                                                           {"TC", 108},
-                                                           {"TE", 108},
+                                                           {"PR", 107},
+                                                           {"TC", 107},
+                                                           {"TE", 101},
                                                            {"TP", 108},
                                                            {"TRE", 108},
-                                                           {"VMR", 108}};
+                                                           {"VMR", 101}};
 
     // If set to true this will generate debub printout in text files
     std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
@@ -599,6 +637,7 @@ namespace trklet {
                                                             {"FT", false},
                                                             {"Residuals", false},
                                                             {"MC", false},
+                                                            {"MP", false},
                                                             {"ME", false},
                                                             {"AP", false},
                                                             {"VMP", false},
@@ -635,8 +674,11 @@ namespace trklet {
     bool warnNoMem_{false};  //If true will print out warnings about missing projection memories
     bool warnNoDer_{false};  //If true will print out warnings about missing track fit derivatives
 
-    bool writeMem_{false};    //If true will print out content of memories to files
-    bool writeTable_{false};  //IF true will print out content of LUTs to files
+    //--- These used to create files needed by HLS code.
+    bool writeMem_{false};    //If true will print out content of memories (between algo steps) to files
+    bool writeTable_{false};  //If true will print out content of LUTs to files
+    std::string memPath_{"../data/MemPrints/"};  //path for writing memories
+    std::string tablePath_{"../data/LUTs/"};     //path for writing LUTs
 
     // Write various lookup tables and autogenerated code (from iMath)
     bool writeVerilog_{false};      //Write out auto-generated Verilog mudules used by TCs
@@ -646,10 +688,13 @@ namespace trklet {
 
     unsigned int writememsect_{3};  //writemem only for this sector (note that the files will have _4 extension)
 
-    bool writeTripletTables_{false};  //Train and write the TED and TRE tables. N.B.: the tables
-                                      //cannot be applied while they are being trained, i.e.,
-                                      //this flag effectively turns off the cuts in
-                                      //TrackletEngineDisplaced and TripletEngine
+    bool enableTripletTables_{false};  //Enable the application of the TED and
+                                       //TRE tables; when this flag is false,
+                                       //the tables will not be read from disk
+    bool writeTripletTables_{false};   //Train and write the TED and TRE tables. N.B.: the tables
+                                       //cannot be applied while they are being trained, i.e.,
+                                       //this flag effectively turns off the cuts in
+                                       //TrackletEngineDisplaced and TripletEngine
 
     bool writeoutReal_{false};
 

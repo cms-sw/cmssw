@@ -43,9 +43,10 @@
 SiStripMonitorQuality::SiStripMonitorQuality(edm::ParameterSet const &iConfig)
     : dqmStore_(edm::Service<DQMStore>().operator->()),
       conf_(iConfig),
-      m_cacheID_(0)
-
-{
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      detCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      qualityToken_(esConsumes<edm::Transition::BeginRun>(
+          edm::ESInputTag{"", iConfig.getParameter<std::string>("StripQualityLabel")})) {
   edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality  "
                                         << " Constructing....... ";
 }
@@ -58,20 +59,13 @@ SiStripMonitorQuality::~SiStripMonitorQuality() {
 void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
                                            const edm::Run &run,
                                            const edm::EventSetup &eSetup) {
-  unsigned long long cacheID = eSetup.get<SiStripQualityRcd>().cacheIdentifier();
-  if (m_cacheID_ == cacheID)
+  if (!qualityWatcher_.check(eSetup))
     return;
 
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const auto tTopo = &eSetup.getData(tTopoToken_);
 
-  m_cacheID_ = cacheID;
-
-  std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
-  eSetup.get<SiStripQualityRcd>().get(quality_label, stripQuality_);
-  eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
+  stripQuality_ = &eSetup.getData(qualityToken_);
+  detCabling_ = &eSetup.getData(detCablingToken_);
 
   edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze: "
                                         << " Reading SiStripQuality " << std::endl;
@@ -122,20 +116,12 @@ void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker &ibooker,
 
 // ------------ method called to produce the data  ------------
 void SiStripMonitorQuality::analyze(edm::Event const &iEvent, edm::EventSetup const &eSetup) {
-  unsigned long long cacheID = eSetup.get<SiStripQualityRcd>().cacheIdentifier();
-  if (m_cacheID_ == cacheID)
+  if (!qualityWatcher_.check(eSetup))
     return;
 
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
-
-  m_cacheID_ = cacheID;
-
-  std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
-  eSetup.get<SiStripQualityRcd>().get(quality_label, stripQuality_);
-  eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
+  const auto tTopo = &eSetup.getData(tTopoToken_);
+  stripQuality_ = &eSetup.getData(qualityToken_);
+  detCabling_ = &eSetup.getData(detCablingToken_);
 
   edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze: "
                                         << " Reading SiStripQuality " << std::endl;

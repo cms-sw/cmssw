@@ -249,9 +249,12 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
   desc_profile_ctppsDirectSimuData.add<std::string>("timeResolutionDiamonds45");
   desc_profile_ctppsDirectSimuData.add<std::string>("timeResolutionDiamonds56");
 
-  desc_profile_ctppsDirectSimuData.add<std::string>("effTimePath");
-  desc_profile_ctppsDirectSimuData.add<std::string>("effTimeObject45");
-  desc_profile_ctppsDirectSimuData.add<std::string>("effTimeObject56");
+  edm::ParameterSetDescription eps_desc;
+  eps_desc.add<unsigned int>("rpId")->setComment("RP id");
+  eps_desc.add<std::string>("file")->setComment("file name");
+  eps_desc.add<std::string>("object")->setComment("path to the efficiency histogram");
+  desc_profile_ctppsDirectSimuData.addVPSet("efficienciesPerRP", eps_desc, std::vector<edm::ParameterSet>());
+  desc_profile_ctppsDirectSimuData.addVPSet("efficienciesPerPlane", eps_desc, std::vector<edm::ParameterSet>());
 
   desc_profile.add<edm::ParameterSetDescription>("ctppsDirectSimuData", desc_profile_ctppsDirectSimuData);
 
@@ -273,9 +276,19 @@ void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet &profil
   pData.directSimuData.setTimeResolutionDiamonds56(
       ctppsDirectSimuData.getParameter<std::string>("timeResolutionDiamonds56"));
 
-  pData.directSimuData.setEffTimePath(ctppsDirectSimuData.getParameter<std::string>("effTimePath"));
-  pData.directSimuData.setEffTimeObject45(ctppsDirectSimuData.getParameter<std::string>("effTimeObject45"));
-  pData.directSimuData.setEffTimeObject56(ctppsDirectSimuData.getParameter<std::string>("effTimeObject56"));
+  for (const auto &ps : ctppsDirectSimuData.getParameterSetVector("efficienciesPerRP")) {
+    const auto rpId = ps.getParameter<unsigned int>("rpId");
+    const auto &file = ps.getParameter<std::string>("file");
+    const auto &object = ps.getParameter<std::string>("object");
+    pData.directSimuData.getEfficienciesPerRP()[rpId] = {file, object};
+  }
+
+  for (const auto &ps : ctppsDirectSimuData.getParameterSetVector("efficienciesPerPlane")) {
+    const auto rpId = ps.getParameter<unsigned int>("rpId");
+    const auto &file = ps.getParameter<std::string>("file");
+    const auto &object = ps.getParameter<std::string>("object");
+    pData.directSimuData.getEfficienciesPerPlane()[rpId] = {file, object};
+  }
 }
 
 //----------------------------------------------------------------------------------------------------

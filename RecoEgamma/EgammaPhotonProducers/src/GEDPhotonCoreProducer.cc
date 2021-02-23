@@ -6,16 +6,14 @@
  ***/
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValidHandle.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class GEDPhotonCoreProducer : public edm::stream::EDProducer<> {
@@ -42,10 +40,7 @@ void GEDPhotonCoreProducer::produce(edm::Event& event, const edm::EventSetup&) {
   reco::PhotonCoreCollection outputPhotonCoreCollection;
 
   // Get the  PF refined cluster  collection
-  auto pfCandidateHandle = event.getHandle(pfEgammaCandidates_);
-  if (!pfCandidateHandle.isValid()) {
-    edm::LogError("GEDPhotonCoreProducer") << "Error! Can't get the pfEgammaCandidates";
-  }
+  auto pfCandidateHandle = edm::makeValid(event.getHandle(pfEgammaCandidates_));
 
   // Get ElectronPixelSeeds
   bool validPixelSeeds = true;
@@ -54,29 +49,27 @@ void GEDPhotonCoreProducer::produce(edm::Event& event, const edm::EventSetup&) {
     validPixelSeeds = false;
   }
 
-  //  std::cout <<  "  GEDPhotonCoreProducer::produce input PFcandidate size " <<   pfCandidateHandle->size() << std::endl;
-
   // Loop over PF candidates and get only photons
-  for (unsigned int lCand = 0; lCand < pfCandidateHandle->size(); lCand++) {
-    reco::PFCandidateRef candRef(reco::PFCandidateRef(pfCandidateHandle, lCand));
-
+  for (auto const& cand : *pfCandidateHandle) {
     // Retrieve stuff from the pfPhoton
-    reco::PFCandidateEGammaExtraRef pfPhoRef = candRef->egammaExtraRef();
-    reco::SuperClusterRef refinedSC = pfPhoRef->superClusterRef();
-    reco::SuperClusterRef boxSC = pfPhoRef->superClusterPFECALRef();
+    auto const& pfPho = *cand.egammaExtraRef();
+    reco::SuperClusterRef refinedSC = pfPho.superClusterRef();
+    reco::SuperClusterRef boxSC = pfPho.superClusterPFECALRef();
 
-    //////////
-    reco::PhotonCore newCandidate;
+    // Construct new PhotonCore
+    outputPhotonCoreCollection.emplace_back();
+    auto& newCandidate = outputPhotonCoreCollection.back();
+
     newCandidate.setPFlowPhoton(true);
     newCandidate.setStandardPhoton(false);
     newCandidate.setSuperCluster(refinedSC);
     newCandidate.setParentSuperCluster(boxSC);
 
-    // fill conversion infos
-    for (auto const& conv : pfPhoRef->conversionRef()) {
+    // Fill conversion infos
+    for (auto const& conv : pfPho.conversionRef()) {
       newCandidate.addConversion(conv);
     }
-    for (auto const& conv : pfPhoRef->singleLegConversionRef()) {
+    for (auto const& conv : pfPho.singleLegConversionRef()) {
       newCandidate.addOneLegConversion(conv);
     }
 
@@ -92,11 +85,8 @@ void GEDPhotonCoreProducer::produce(edm::Event& event, const edm::EventSetup&) {
         }
       }
     }
-
-    outputPhotonCoreCollection.push_back(newCandidate);
   }
 
   // put the product in the event
-  //  edm::LogInfo("GEDPhotonCoreProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   event.emplace(putToken_, std::move(outputPhotonCoreCollection));
 }

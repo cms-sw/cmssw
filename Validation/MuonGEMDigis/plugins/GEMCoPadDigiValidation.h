@@ -13,8 +13,8 @@ public:
 
 private:
   //
-  MEMap1Ids me_occ_zr_;
-  MEMap2Ids me_occ_det_;
+  MEMap1Ids me_detail_occ_zr_;
+  MEMap2Ids me_detail_occ_det_;
   MEMap2Ids me_detail_occ_xy_;
   MEMap2Ids me_detail_occ_phi_pad_;
   MEMap2Ids me_detail_occ_pad_;
