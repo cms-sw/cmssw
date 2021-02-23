@@ -3,8 +3,7 @@
 #include "RecoPPS/Local/interface/CTPPSPixelClusterProducer.h"
 
 CTPPSPixelClusterProducer::CTPPSPixelClusterProducer(const edm::ParameterSet &conf)
-    : tokenCTPPSPixelDigi_(
-          consumes<edm::DetSetVector<CTPPSPixelDigi> >(conf.getParameter<edm::InputTag>("label"))),
+    : tokenCTPPSPixelDigi_(consumes<edm::DetSetVector<CTPPSPixelDigi> >(conf.getParameter<edm::InputTag>("label"))),
       tokenCTPPSPixelAnalysisMask_(esConsumes()),
       tokenGainCalib_(esConsumes()),
       verbosity_(conf.getUntrackedParameter<int>("RPixVerbosity")),
