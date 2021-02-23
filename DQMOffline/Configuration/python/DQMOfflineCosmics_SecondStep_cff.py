@@ -11,7 +11,7 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
 from DQM.DTMonitorClient.dtDQMOfflineClients_Cosmics_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_cosmics_cff import *
-from DQMOffline.Muon.gem_dqm_offline_client_cff import *
+from DQMOffline.Muon.gem_dqm_offline_client_cosmics_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
 DQMNone = cms.Sequence()
@@ -31,7 +31,7 @@ DQMOfflineCosmics_SecondStepMuonDPG = cms.Sequence( dtClientsCosmics *
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 _run3_GEM_DQMOfflineCosmics_SecondStepMuonDPG = DQMOfflineCosmics_SecondStepMuonDPG.copy()
-_run3_GEM_DQMOfflineCosmics_SecondStepMuonDPG += gemClients
+_run3_GEM_DQMOfflineCosmics_SecondStepMuonDPG += gemClientsCosmics
 run3_GEM.toReplaceWith(DQMOfflineCosmics_SecondStepMuonDPG, _run3_GEM_DQMOfflineCosmics_SecondStepMuonDPG)
 
 DQMOfflineCosmics_SecondStepFED = cms.Sequence( dqmFEDIntegrityClient )
