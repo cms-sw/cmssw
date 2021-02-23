@@ -8,7 +8,8 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 
-#include "CUDADataFormats/HGCal/interface/HGCRecHitSoA.h"
+#include "CUDADataFormats/HGCal/interface/HGCRecHitCPUProduct.h"
+#include "CUDADataFormats/HGCal/interface/ConstHGCRecHitSoA.h"
 
 class HEBRecHitFromSoA : public edm::stream::EDProducer<> {
 public:
@@ -16,31 +17,31 @@ public:
   ~HEBRecHitFromSoA() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void convert_soa_data_to_collection_(const uint32_t&, HGCRecHitCollection&, HGCRecHitSoA*);
+  void convert_soa_data_to_collection_(uint32_t, HGCRecHitCollection&, ConstHGCRecHitSoA*);
 
 private:
   std::unique_ptr<HGChefRecHitCollection> rechits_;
-  edm::EDGetTokenT<HGCRecHitSoA> recHitSoAToken_;
+  edm::EDGetTokenT<HGCRecHitCPUProduct> recHitSoAToken_;
   edm::EDPutTokenT<HGChefRecHitCollection> recHitCollectionToken_;
 };
 
 HEBRecHitFromSoA::HEBRecHitFromSoA(const edm::ParameterSet& ps) {
-  recHitSoAToken_ = consumes<HGCRecHitSoA>(ps.getParameter<edm::InputTag>("HEBRecHitSoATok"));
+  recHitSoAToken_ = consumes<HGCRecHitCPUProduct>(ps.getParameter<edm::InputTag>("HEBRecHitSoATok"));
   recHitCollectionToken_ = produces<HGChebRecHitCollection>();
 }
 
 HEBRecHitFromSoA::~HEBRecHitFromSoA() {}
 
 void HEBRecHitFromSoA::produce(edm::Event& event, const edm::EventSetup& setup) {
-  HGCRecHitSoA recHitsSoA = event.get(recHitSoAToken_);
+  ConstHGCRecHitSoA recHitsSoA = event.get(recHitSoAToken_).get();
   rechits_ = std::make_unique<HGCRecHitCollection>();
   convert_soa_data_to_collection_(recHitsSoA.nhits_, *rechits_, &recHitsSoA);
   event.put(std::move(rechits_));
 }
 
-void HEBRecHitFromSoA::convert_soa_data_to_collection_(const uint32_t& nhits,
+void HEBRecHitFromSoA::convert_soa_data_to_collection_(uint32_t nhits,
                                                        HGCRecHitCollection& rechits,
-                                                       HGCRecHitSoA* h_calibSoA) {
+                                                       ConstHGCRecHitSoA* h_calibSoA) {
   rechits.reserve(nhits);
   for (uint i = 0; i < nhits; ++i) {
     DetId id_converted(h_calibSoA->id_[i]);

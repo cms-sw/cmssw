@@ -19,8 +19,8 @@ KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCUncalibRecHitSoA& h_
   nbytes_device_ = d_uncalibSoA_.nbytes_ * pad_;
 }
 
-KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCRecHitSoA& h_calibSoA, const HGCRecHitSoA& d_calibSoA)
-  : h_calibSoA_(h_calibSoA), d_calibSoA_(d_calibSoA) {
+KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCRecHitSoA& h_calibSoA_, const HGCRecHitSoA& d_calibSoA)
+  : h_calibSoA_(h_calibSoA_), d_calibSoA_(d_calibSoA) {
   nhits_ = h_calibSoA_.nhits_;
   pad_ = h_calibSoA_.pad_;
   ::nb_rechits_ = (pad_ + ::nt_rechits_.x - 1) / ::nt_rechits_.x;

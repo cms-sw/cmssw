@@ -4,6 +4,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalRecHitKernelImpl.cuh"
 #include "CUDADataFormats/HGCal/interface/HGCConditions.h"
+#include "CUDADataFormats/HGCal/interface/HGCRecHitSoA.h"
+#include "CUDADataFormats/HGCal/interface/ConstHGCRecHitSoA.h"
 
 #include <vector>
 #include <algorithm>  //std::swap
@@ -38,7 +40,6 @@ public:
   void run_kernels(const KernelConstantData<HGChefUncalibRecHitConstantData>*, const cudaStream_t&);
   void run_kernels(const KernelConstantData<HGChebUncalibRecHitConstantData>*, const cudaStream_t&);
   void transfer_soa_to_host(const cudaStream_t&);
-  HGCRecHitSoA* get_output();
 
 private:
   void transfer_soa_to_device_(const cudaStream_t&);
