@@ -524,6 +524,7 @@ _possibleTrackingColls = [
     'tobTecStepPair',  # seeds
     'tobTecStepTripl', # seeds
     'tobTecStep',
+    'displacedGeneralStep',
     'jetCoreRegionalStep',
     'muonSeededStepInOut',
     'muonSeededStepOutIn',
@@ -1351,6 +1352,7 @@ _appendTrackingPlots("TrackBuilding", "building", _seedingBuildingPlots, buildin
 _appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, onlyForConversion=True, rawSummary=True, highPuritySummary=False)
 _appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForElectron=True, rawSummary=True, highPuritySummary=False)
 _appendTrackingPlots("TrackBHadron", "bhadron", _simBasedPlots+_recoBasedPlots, onlyForBHadron=True)
+_appendTrackingPlots("TrackDisplaced", "displaced", _simBasedPlots+_recoBasedPlots)
 # Pixel tracks
 _common = dict(purpose=PlotPurpose.Pixel, page="pixel")
 plotter.append("pixelTrack", _trackingFolders("PixelTrack"), TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
@@ -1542,6 +1544,16 @@ _iterations = [
                          "tobTecStepClassifier2",
                          "tobTecStep",
                          "tobTecStepSelector"]),
+    Iteration("displacedGeneralStep",
+              seeding=["displacedGeneralStepSeedLayers",
+                       "displacedGeneralStepTrackingRegions",
+                       "displacedGeneralStepHitDoublets",
+                       "displacedGeneralStepHitTriplets",
+                       "displacedGeneralStepSeeds"],
+              selection=["displacedGeneralStepClassifier1",
+                         "displacedGeneralStepClassifier2",
+                         "displacedGeneralStep",
+                         "displacedGeneralStepSelector"]),
     Iteration("jetCoreRegionalStep",
               clusterMasking=[],
               other=["jetsForCoreTracking",

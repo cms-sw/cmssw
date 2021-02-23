@@ -39,7 +39,7 @@ namespace edmtest {
   private:
     int identifier;
     int ev;
-    void printLES(std::vector<edm::ErrorSummaryEntry> const& v);
+    void printLES(std::vector<edm::messagelogger::ErrorSummaryEntry> const& v);
   };
 
 }  // namespace edmtest

@@ -17,6 +17,11 @@ HybridFit::HybridFit(unsigned int iSector, Settings const& settings, Globals* gl
 
 void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist) {
   if (settings_.fakefit()) {
+    vector<const L1TStub*> l1stubsFromFitTrack;
+    for (unsigned int k = 0; k < trackstublist.size(); k++) {
+      const L1TStub* L1stub = trackstublist[k]->l1tstub();
+      l1stubsFromFitTrack.push_back(L1stub);
+    }
     tracklet->setFitPars(tracklet->rinvapprox(),
                          tracklet->phi0approx(),
                          tracklet->d0approx(),
@@ -38,7 +43,8 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
                          tracklet->fpgaz0().value(),
                          0,
                          0,
-                         0);
+                         0,
+                         l1stubsFromFitTrack);
     return;
   }
 

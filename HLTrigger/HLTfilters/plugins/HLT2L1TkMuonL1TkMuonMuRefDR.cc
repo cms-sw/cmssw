@@ -1,23 +1,18 @@
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLT2L1TkMuonL1TkMuonMuRefDR.h"
+#include <cmath>
 
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
 #include "DataFormats/L1TCorrelator/interface/TkMuon.h"
 #include "DataFormats/L1TCorrelator/interface/TkMuonFwd.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "DataFormats/Math/interface/deltaR.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
-#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
-#include <cmath>
+#include "HLT2L1TkMuonL1TkMuonMuRefDR.h"
 
 //
 // constructors and destructor
@@ -32,8 +27,7 @@ HLT2L1TkMuonL1TkMuonMuRefDR::HLT2L1TkMuonL1TkMuonMuRefDR(const edm::ParameterSet
       inputToken2_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag2_)),
       minDR_(iConfig.getParameter<double>("MinDR")),
       min_N_(iConfig.getParameter<int>("MinN")),
-      same_(inputTag1_.encode() == inputTag2_.encode())  // same collections to be compared?
-{}
+      same_(inputTag1_.encode() == inputTag2_.encode()) {}  // same collections to be compared?
 
 HLT2L1TkMuonL1TkMuonMuRefDR::~HLT2L1TkMuonL1TkMuonMuRefDR() {}
 
@@ -49,7 +43,7 @@ void HLT2L1TkMuonL1TkMuonMuRefDR::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("MinDR", -1.0);
   desc.add<int>("MinN", 1);
 
-  descriptions.add("HLT2L1TkMuonL1TkMuonMuRefDR", desc);
+  descriptions.add("hlt2L1TkMuonL1TkMuonMuRefDR", desc);
 }
 
 bool HLT2L1TkMuonL1TkMuonMuRefDR::getCollections(edm::Event& iEvent,
@@ -103,49 +97,37 @@ bool HLT2L1TkMuonL1TkMuonMuRefDR::getCollections(edm::Event& iEvent,
     return false;
 }
 
+std::pair<float, float> HLT2L1TkMuonL1TkMuonMuRefDR::convertEtaPhi(l1t::TkMuonRef& tkmu) const {
+  float muRefEta = 0.;
+  float muRefPhi = 0.;
+
+  if (tkmu->muonDetector() != emtfRegion_) {
+    if (tkmu->muRef().isNull())
+      return std::make_pair(muRefEta, muRefPhi);
+
+    muRefEta = tkmu->muRef()->hwEta() * etaScale_;
+    muRefPhi = static_cast<float>(l1t::MicroGMTConfiguration::calcGlobalPhi(
+        tkmu->muRef()->hwPhi(), tkmu->muRef()->trackFinderType(), tkmu->muRef()->processor()));
+    muRefPhi = muRefPhi * phiScale_;
+  } else {
+    if (tkmu->emtfTrk().isNull())
+      return std::make_pair(muRefEta, muRefPhi);
+
+    muRefEta = tkmu->emtfTrk()->Eta();
+    muRefPhi = angle_units::operators::convertDegToRad(tkmu->emtfTrk()->Phi_glob());
+  }
+  muRefPhi = reco::reduceRange(muRefPhi);
+
+  return std::make_pair(muRefEta, muRefPhi);
+}
+
 bool HLT2L1TkMuonL1TkMuonMuRefDR::computeDR(edm::Event& iEvent, l1t::TkMuonRef& r1, l1t::TkMuonRef& r2) const {
-  float muRef1_eta = 0.;
-  float muRef1_phi = 0.;
-  if (r1->muonDetector() != 3) {
-    if (r1->muRef().isNull())
-      return false;
-
-    muRef1_eta = r1->muRef()->hwEta() * 0.010875;
-    muRef1_phi = static_cast<float>(l1t::MicroGMTConfiguration::calcGlobalPhi(
-        r1->muRef()->hwPhi(), r1->muRef()->trackFinderType(), r1->muRef()->processor()));
-    muRef1_phi = muRef1_phi * 2. * M_PI / 576.;
-  } else {
-    if (r1->emtfTrk().isNull())
-      return false;
-
-    muRef1_eta = r1->emtfTrk()->Eta();
-    muRef1_phi = angle_units::operators::convertDegToRad(r1->emtfTrk()->Phi_glob());
-  }
-  muRef1_phi = reco::reduceRange(muRef1_phi);
-
-  float muRef2_eta = 0.;
-  float muRef2_phi = 0.;
-  if (r2->muonDetector() != 3) {
-    if (r2->muRef().isNull())
-      return false;
-
-    muRef2_eta = r2->muRef()->hwEta() * 0.010875;
-    muRef2_phi = static_cast<float>(l1t::MicroGMTConfiguration::calcGlobalPhi(
-        r2->muRef()->hwPhi(), r2->muRef()->trackFinderType(), r2->muRef()->processor()));
-    muRef2_phi = muRef2_phi * 2. * M_PI / 576.;
-  } else {
-    if (r2->emtfTrk().isNull())
-      return false;
-
-    muRef2_eta = r2->emtfTrk()->Eta();
-    muRef2_phi = angle_units::operators::convertDegToRad(r2->emtfTrk()->Phi_glob());
-  }
-  muRef2_phi = reco::reduceRange(muRef2_phi);
-
-  if (reco::deltaR(muRef1_eta, muRef1_phi, muRef2_eta, muRef2_phi) > minDR_)
+  if (minDR_ < 0.)
     return true;
 
-  return false;
+  auto [eta1, phi1] = convertEtaPhi(r1);
+  auto [eta2, phi2] = convertEtaPhi(r2);
+  return (reco::deltaR2(eta1, phi1, eta2, phi2) > minDR_ * minDR_);
 }
 
 // ------------ method called to produce the data  ------------

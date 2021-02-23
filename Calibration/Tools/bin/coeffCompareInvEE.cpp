@@ -117,9 +117,6 @@ int main(int argc, char* argv[]) {
       int rad = static_cast<int>(sqrt((ix - 50) * (ix - 50) + (iy - 50) * (iy - 50)));
       if (rad < EEradStart || rad > EEradEnd)
         continue;
-      double phiTemp = atan2(iy - 50, ix - 50);
-      if (phiTemp < 0)
-        phiTemp += 2 * PI_GRECO;
       if (!EEDetId::validDetId(ix, iy, -1))
         continue;
       EEDetId det = EEDetId(ix, iy, -1, EEDetId::XYMODE);

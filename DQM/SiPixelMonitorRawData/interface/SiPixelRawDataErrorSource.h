@@ -28,7 +28,7 @@
 #include <memory>
 
 // user include files
-#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelRawDataErrorModule.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -38,7 +38,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <cstdint>
 
-class SiPixelRawDataErrorSource : public DQMOneLumiEDAnalyzer<> {
+class SiPixelRawDataErrorSource : public DQMEDAnalyzer {
 public:
   explicit SiPixelRawDataErrorSource(const edm::ParameterSet &conf);
   ~SiPixelRawDataErrorSource() override;

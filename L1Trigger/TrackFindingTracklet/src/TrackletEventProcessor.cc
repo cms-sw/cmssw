@@ -10,6 +10,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <iomanip>
+#include <filesystem>
 
 using namespace trklet;
 using namespace std;
@@ -58,17 +59,6 @@ void TrackletEventProcessor::init(Settings const& theSettings) {
                                  << "d0bitshift   = ??? \n"
                                  << "=========================================================";
   }
-
-  //option to write out tables for HLS code, not used in production
-  /*
-  const Settings& settings = *settings_;
-  Globals* globals = globals_;
-
-  if (settings_->writeVerilog() || settings_->writeHLS()) {
-#include "../test/WriteInvTables.icc"
-#include "../test/WriteDesign.icc"
-  }
-  */
 
   if (settings_->bookHistos()) {
     histbase_ = new HistBase;
@@ -245,22 +235,34 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
             dtcbase = dtc.substr(0, 4) + dtc.substr(6, dtc.size() - 6);
           }
 
-          string fname = "../data/MemPrints/InputStubs/Link_";
+          const string dirIS = settings_->memPath() + "InputStubs/";
+          string fname = dirIS + "Link_";
           fname += dtcbase;
           if (dtcstubs.find(dtcbase + "A") != dtcstubs.end())
             continue;
           fname += "_A.dat";
+
+          if (not std::filesystem::exists(dirIS)) {
+            int fail = system((string("mkdir -p ") + dirIS).c_str());
+            if (fail)
+              throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory " << dirIS;
+          }
+
           ofstream* out = new ofstream;
-          out->open(fname.c_str());
+          out->open(fname);
+          if (out->fail())
+            throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
           dtcstubs[dtcbase + "A"] = out;
 
-          fname = "../data/MemPrints/InputStubs/Link_";
+          fname = dirIS + "Link_";
           fname += dtcbase;
           if (dtcstubs.find(dtcbase + "B") != dtcstubs.end())
             continue;
           fname += "_B.dat";
           out = new ofstream;
-          out->open(fname.c_str());
+          out->open(fname);
+          if (out->fail())
+            throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
           dtcstubs[dtcbase + "B"] = out;
         }
 
@@ -297,20 +299,13 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
         assert(layerdiskcode < 4);
         FPGAWord ldcode;
         ldcode.set(layerdiskcode, 2);
-        string dataword = "1|" + ldcode.str() + "|" + fpgastub.str();
+        string dataword = fpgastub.str() + "|" + ldcode.str() + "|1";
         if (topbit == 0) {
           (*dtcstubs[dtcbase + "A"]) << dataword << " " << trklet::hexFormat(dataword) << endl;
         } else {
           (*dtcstubs[dtcbase + "B"]) << dataword << " " << trklet::hexFormat(dataword) << endl;
         }
       }
-    }
-  }
-
-  if (settings_->writeMem()) {
-    for (unsigned int k = 0; k < N_SECTOR; k++) {
-      if (k == settings_->writememsect())
-        sectors_[k]->writeInputStubs(first);
     }
   }
 
@@ -357,9 +352,11 @@ void TrackletEventProcessor::event(SLHCEvent& ev) {
   TRETimer_.stop();
 
   // tracklet processor (alternative implementation to TE+TC)
+  TPTimer_.start();
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     sectors_[k]->executeTP();
   }
+  TPTimer_.stop();
 
   for (unsigned int k = 0; k < N_SECTOR; k++) {
     if (settings_->writeMem() && k == settings_->writememsect()) {
@@ -507,34 +504,47 @@ void TrackletEventProcessor::printSummary() {
     globals_->histograms()->close();
   }
 
-  edm::LogVerbatim("Tracklet")
-      << "Process             Times called   Average time (ms)      Total time (s) \n"
-      << "Cleaning              " << setw(10) << cleanTimer_.ntimes() << setw(20) << setprecision(3)
-      << cleanTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << cleanTimer_.tottime() << "\n"
-      << "Add Stubs             " << setw(10) << addStubTimer_.ntimes() << setw(20) << setprecision(3)
-      << addStubTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << addStubTimer_.tottime() << "\n"
-      << "VMRouter              " << setw(10) << VMRouterTimer_.ntimes() << setw(20) << setprecision(3)
-      << VMRouterTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << VMRouterTimer_.tottime() << "\n"
-      << "TrackletEngine        " << setw(10) << TETimer_.ntimes() << setw(20) << setprecision(3)
-      << TETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TETimer_.tottime() << "\n"
-      << "TrackletEngineDisplaced" << setw(10) << TEDTimer_.ntimes() << setw(20) << setprecision(3)
-      << TEDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TEDTimer_.tottime() << "\n"
-      << "TripletEngine         " << setw(10) << TRETimer_.ntimes() << setw(20) << setprecision(3)
-      << TRETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TRETimer_.tottime() << "\n"
-      << "TrackletCalculator    " << setw(10) << TCTimer_.ntimes() << setw(20) << setprecision(3)
-      << TCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TCTimer_.tottime() << "\n"
-      << "TrackletCalculatorDisplaced" << setw(10) << TCDTimer_.ntimes() << setw(20) << setprecision(3)
-      << TCDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TCDTimer_.tottime() << "\n"
-      << "ProjectionRouter      " << setw(10) << PRTimer_.ntimes() << setw(20) << setprecision(3)
-      << PRTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << PRTimer_.tottime() << "\n"
-      << "MatchEngine           " << setw(10) << METimer_.ntimes() << setw(20) << setprecision(3)
-      << METimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << METimer_.tottime() << "\n"
-      << "MatchCalculator       " << setw(10) << MCTimer_.ntimes() << setw(20) << setprecision(3)
-      << MCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << MCTimer_.tottime() << "\n"
-      << "MatchProcessor        " << setw(10) << MPTimer_.ntimes() << setw(20) << setprecision(3)
-      << MPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << MPTimer_.tottime() << "\n"
-      << "FitTrack              " << setw(10) << FTTimer_.ntimes() << setw(20) << setprecision(3)
-      << FTTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << FTTimer_.tottime() << "\n"
-      << "PurgeDuplicate        " << setw(10) << PDTimer_.ntimes() << setw(20) << setprecision(3)
-      << PDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << PDTimer_.tottime();
+  edm::LogVerbatim("Tracklet") << "Process             Times called   Average time (ms)      Total time (s)"
+                               << "\n"
+                               << "Cleaning              " << setw(10) << cleanTimer_.ntimes() << setw(20)
+                               << setprecision(3) << cleanTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                               << cleanTimer_.tottime() << "\n"
+                               << "Add Stubs             " << setw(10) << addStubTimer_.ntimes() << setw(20)
+                               << setprecision(3) << addStubTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                               << addStubTimer_.tottime() << "\n"
+                               << "VMRouter              " << setw(10) << VMRouterTimer_.ntimes() << setw(20)
+                               << setprecision(3) << VMRouterTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                               << VMRouterTimer_.tottime();
+  if (settings_->combined()) {
+    edm::LogVerbatim("Tracklet") << "TrackletProcessor     " << setw(10) << TPTimer_.ntimes() << setw(20)
+                                 << setprecision(3) << TPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                 << TPTimer_.tottime() << "\n"
+                                 << "MatchProcessor        " << setw(10) << MPTimer_.ntimes() << setw(20)
+                                 << setprecision(3) << MPTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                                 << MPTimer_.tottime();
+  } else {
+    edm::LogVerbatim("Tracklet")
+        << "TrackletEngine        " << setw(10) << TETimer_.ntimes() << setw(20) << setprecision(3)
+        << TETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TETimer_.tottime() << "\n"
+        << "TrackletEngineDisplaced" << setw(10) << TEDTimer_.ntimes() << setw(20) << setprecision(3)
+        << TEDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TEDTimer_.tottime() << "\n"
+        << "TripletEngine         " << setw(10) << TRETimer_.ntimes() << setw(20) << setprecision(3)
+        << TRETimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TRETimer_.tottime() << "\n"
+        << "TrackletCalculator    " << setw(10) << TCTimer_.ntimes() << setw(20) << setprecision(3)
+        << TCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TCTimer_.tottime() << "\n"
+        << "TrackletCalculatorDisplaced" << setw(10) << TCDTimer_.ntimes() << setw(20) << setprecision(3)
+        << TCDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << TCDTimer_.tottime() << "\n"
+        << "ProjectionRouter      " << setw(10) << PRTimer_.ntimes() << setw(20) << setprecision(3)
+        << PRTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << PRTimer_.tottime() << "\n"
+        << "MatchEngine           " << setw(10) << METimer_.ntimes() << setw(20) << setprecision(3)
+        << METimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << METimer_.tottime() << "\n"
+        << "MatchCalculator       " << setw(10) << MCTimer_.ntimes() << setw(20) << setprecision(3)
+        << MCTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3) << MCTimer_.tottime();
+  }
+  edm::LogVerbatim("Tracklet") << "FitTrack              " << setw(10) << FTTimer_.ntimes() << setw(20)
+                               << setprecision(3) << FTTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                               << FTTimer_.tottime() << "\n"
+                               << "PurgeDuplicate        " << setw(10) << PDTimer_.ntimes() << setw(20)
+                               << setprecision(3) << PDTimer_.avgtime() * 1000.0 << setw(20) << setprecision(3)
+                               << PDTimer_.tottime();
 }

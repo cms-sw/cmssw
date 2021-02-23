@@ -1,5 +1,4 @@
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixDummyROCSimulator.h"
-#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
 #include <vector>
 #include "TRandom.h"
 #include <iostream>
@@ -12,7 +11,6 @@ RPixDummyROCSimulator::RPixDummyROCSimulator(const edm::ParameterSet &params, ui
   doSingleCalibration_ = params.getParameter<bool>("doSingleCalibration");
   dead_pixel_probability_ = params.getParameter<double>("RPixDeadPixelProbability");
   dead_pixels_simulation_on_ = params.getParameter<bool>("RPixDeadPixelSimulationOn");
-  pixels_no_ = CTPPSPixelTopology().detPixelNo();
   verbosity_ = params.getParameter<int>("RPixVerbosity");
   links_persistence_ = params.getParameter<bool>("CTPPSPixelDigiSimHitRelationsPersistence");
 }
@@ -27,7 +25,8 @@ void RPixDummyROCSimulator::ConvertChargeToHits(
     //one threshold per hybrid
     unsigned short pixel_no = i->first;
     if (verbosity_)
-      edm::LogInfo("RPixDummyROCSimulator") << "Dummy ROC adc and threshold : " << i->second << ", " << threshold_;
+      edm::LogInfo("PPS") << "RPixDummyROCSimulator "
+                          << "Dummy ROC adc and threshold : " << i->second << ", " << threshold_;
     if (i->second > threshold_ && (!dead_pixels_simulation_on_ || dead_pixels_.find(pixel_no) == dead_pixels_.end())) {
       float gain = 0;
       float pedestal = 0;
@@ -59,10 +58,12 @@ void RPixDummyROCSimulator::ConvertChargeToHits(
       if (links_persistence_) {
         output_digi_links.push_back(theSignalProvenance[pixel_no]);
         if (verbosity_) {
-          edm::LogInfo("RPixDummyROCSimulator") << "digi links size=" << theSignalProvenance[pixel_no].size();
+          edm::LogInfo("PPS") << "RPixDummyROCSimulator "
+                              << "digi links size=" << theSignalProvenance[pixel_no].size();
           for (unsigned int u = 0; u < theSignalProvenance[pixel_no].size(); ++u) {
-            edm::LogInfo("RPixDummyROCSimulator") << "   digi: particle=" << theSignalProvenance[pixel_no][u].first
-                                                  << " energy [electrons]=" << theSignalProvenance[pixel_no][u].second;
+            edm::LogInfo("PPS") << "RPixDummyROCSimulator "
+                                << "   digi: particle=" << theSignalProvenance[pixel_no][u].first
+                                << " energy [electrons]=" << theSignalProvenance[pixel_no][u].second;
           }
         }
       }

@@ -1,14 +1,15 @@
 #ifndef RecoBTag_SecondaryVertex_CombinedSVSoftLeptonComputer_h
 #define RecoBTag_SecondaryVertex_CombinedSVSoftLeptonComputer_h
 
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/TaggingVariable.h"
+#include "DataFormats/BTauReco/interface/TemplatedSoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/VertexTypes.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
-
-//(z)
-#include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
-#include "DataFormats/BTauReco/src/classes.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
 
 class CombinedSVSoftLeptonComputer : public CombinedSVComputer {
 public:

@@ -38,8 +38,6 @@ HLT_PFJet60_v*	#	CMSHLT-1233
 HLT_PFJet80_v*	#	CMSHLT-1233
 HLT_BTagMu_AK8DiJet170_Mu5_v*	#	CMSHLT-1234
 HLT_BTagMu_AK8Jet300_Mu5_v*	#	CMSHLT-1234
-DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v*	#	CMSHLT-1243, CMSHLT-1587
-DST_DoubleMu3_noVtx_CaloScouting_v*	#	CMSHLT-1243, CMSHLT-1587, CMSHLT-1589
 HLT_TrkMu12_DoubleTrkMu5NoFiltersNoVtx_v*	#	CMSHLT-1244
 HLT_TrkMu16_DoubleTrkMu6NoFiltersNoVtx_v*	#	CMSHLT-1244
 HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v*	#	CMSHLT-1244
@@ -293,20 +291,7 @@ HLT_RsqMR300_Rsq0p09_MR200_4jet_v*	#	CMSHLT-1323
 HLT_RsqMR300_Rsq0p09_MR200_v*	#	CMSHLT-1323
 HLT_RsqMR320_Rsq0p09_MR200_4jet_v*	#	CMSHLT-1323
 HLT_RsqMR320_Rsq0p09_MR200_v*	#	CMSHLT-1323
-DST_CaloJet40_BTagScouting_v*	#	CMSHLT-1324
-DST_CaloJet40_CaloBTagScouting_v*	#	CMSHLT-1324
-DST_CaloJet40_CaloScouting_PFScouting_v*	#	CMSHLT-1324
-DST_HT250_CaloBTagScouting_v*	#	CMSHLT-1324, CMSHLT-1574
-DST_HT250_CaloScouting_v*	#	CMSHLT-1324, CMSHLT-1574
-DST_HT410_BTagScouting_v*	#	CMSHLT-1324, CMSHLT-1574
-DST_HT410_PFScouting_v*	#	CMSHLT-1324, CMSHLT-1574
-DST_L1DoubleMu_BTagScouting_v*	#	CMSHLT-1324
-DST_L1DoubleMu_CaloScouting_PFScouting_v*	#	CMSHLT-1324
-DST_L1HTT_BTagScouting_v*	#	CMSHLT-1324, CMSHLT-1574
-DST_L1HTT_CaloBTagScouting_v*	#	CMSHLT-1324, CMSHLT-1574
-DST_L1HTT_CaloScouting_PFScouting_v*	#	CMSHLT-1324, CMSHLT-1574
-DST_ZeroBias_BTagScouting_v*	#	CMSHLT-1324
-DST_ZeroBias_CaloScouting_PFScouting_v*	#	CMSHLT-1324
+DST_Run3_PFScoutingPixelTracking_v*	# CMSHLT-2120
 HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v*	#	CMSHLT-1326, CMSHLT-1713, CMSHLT-1742
 HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_1pr_v*	#	CMSHLT-1326
 HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v*	#	CMSHLT-1326
@@ -504,8 +489,6 @@ HLT_PFJetFwd15_v*	#	CMSHLT-1662
 HLT_PFJetFwd25_v*	#	CMSHLT-1662
 HLT_AK8PFJetFwd15_v*	#	CMSHLT-1662
 HLT_AK8PFJetFwd25_v*	#	CMSHLT-1662
-DST_DoubleMu1_noVtx_CaloScouting_v*	#	CMSHLT-1725
-DST_DoubleMu3_noVtx_Mass10_PFScouting_v*	#	CMSHLT-1729
 HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_CaloMJJ300_PFJetsMJJ400DEta3_v*	#	CMSHLT-1750
 HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_CaloMJJ400_PFJetsMJJ600DEta3_v*	#	CMSHLT-1750
 HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET140_v*	#	CMSHLT-1742
@@ -730,7 +713,6 @@ PhysicsMuonsOutput
 ParkingHLTPhysicsOutput
 ParkingZeroBiasOutput
 PhysicsScoutingMonitorOutput       # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
-ScoutingCaloMuonOutput                    # CMSHLT-1243
 ScoutingPFOutput                          # CMSHLT-548
 DQMOutput
 DQMEventDisplayOutput

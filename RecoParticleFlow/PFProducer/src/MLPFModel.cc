@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/PFProducer/interface/MLPFModel.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"

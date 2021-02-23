@@ -11,7 +11,8 @@ HcalHardcodeParameters::HcalHardcodeParameters(double pedestal,
                                                int mcShape,
                                                int recoShape,
                                                double photoelectronsToAnalog,
-                                               const std::vector<double>& darkCurrent)
+                                               const std::vector<double>& darkCurrent,
+                                               const std::vector<double>& noiseCorrelation)
     : pedestal_(pedestal),
       pedestalWidth_(pedestalWidth),
       gain_(gain),
@@ -24,6 +25,7 @@ HcalHardcodeParameters::HcalHardcodeParameters(double pedestal,
       recoShape_(recoShape),
       photoelectronsToAnalog_(photoelectronsToAnalog),
       darkCurrent_(darkCurrent),
+      noiseCorrelation_(noiseCorrelation),
       doSipmRadiationDamage_(false) {}
 
 HcalHardcodeParameters::HcalHardcodeParameters(const edm::ParameterSet& p)
@@ -39,6 +41,7 @@ HcalHardcodeParameters::HcalHardcodeParameters(const edm::ParameterSet& p)
       recoShape_(p.getParameter<int>("recoShape")),
       photoelectronsToAnalog_(p.getParameter<double>("photoelectronsToAnalog")),
       darkCurrent_(p.getParameter<std::vector<double>>("darkCurrent")),
+      noiseCorrelation_(p.getParameter<std::vector<double>>("noiseCorrelation")),
       doSipmRadiationDamage_(p.getParameter<bool>("doRadiationDamage")) {
   if (doSipmRadiationDamage_)
     sipmRadiationDamage_ = HcalSiPMRadiationDamage(darkCurrent_, p.getParameter<edm::ParameterSet>("radiationDamage"));
@@ -49,3 +52,5 @@ const double HcalHardcodeParameters::darkCurrent(unsigned index, double intlumi)
     return sipmRadiationDamage_.getDarkCurrent(intlumi, index);
   return darkCurrent_.at(index);
 }
+
+const double HcalHardcodeParameters::noiseCorrelation(unsigned index) const { return noiseCorrelation_.at(index); }

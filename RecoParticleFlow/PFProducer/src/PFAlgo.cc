@@ -83,8 +83,6 @@ void PFAlgo::setEGammaCollections(const edm::View<reco::PFCandidate>& pfEgammaCa
   }
 }
 
-void PFAlgo::setMuonHandle(const edm::Handle<reco::MuonCollection>& muons) { muonHandle_ = muons; }
-
 void PFAlgo::setPostHFCleaningParameters(bool postHFCleaning, const edm::ParameterSet& pfHFCleaningParams) {
   postHFCleaning_ = postHFCleaning;
   minHFCleaningPt_ = pfHFCleaningParams.getParameter<double>("minHFCleaningPt");

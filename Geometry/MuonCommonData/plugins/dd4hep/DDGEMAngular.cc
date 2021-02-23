@@ -1,9 +1,10 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 //#define EDM_ML_DEBUG
 
@@ -23,8 +24,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonGeom") << "DDGEMAngular: Parameters for positioning-- " << n << " copies in steps of "
                                << convertRadToDeg(stepAngle) << " from " << convertRadToDeg(startAngle)
-                               << " (inversion flag " << invert << ") \trPos " << rPos << " Zoffest " << zoffset
-                               << "\tStart and inremental "
+                               << " (inversion flag " << invert << ") \trPos " << cms::convert2mm(rPos) << " Zoffest "
+                               << cms::convert2mm(zoffset) << "\tStart and inremental "
                                << "copy nos " << startCopyNo << ", " << incrCopyNo;
 #endif
   std::string childName = args.value<std::string>("ChildName");
@@ -58,12 +59,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     parent.placeVolume(child, copyNo, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("MuonGeom") << "DDGEMAngular: " << child.name() << " number " << copyNo << " positioned in "
-                                 << parentName << " at " << tran << " with " << rotation;
+                                 << parentName << " at (" << cms::convert2mm(rPos * cos(phiz)) << ","
+                                 << cms::convert2mm(rPos * sin(phiz)) << "," << cms::convert2mm(zoffset) << ") with "
+                                 << rotation;
 #endif
     phi += stepAngle;
     copyNo += incrCopyNo;
   }
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

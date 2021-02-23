@@ -90,7 +90,12 @@ public:
   void convert(const char*, const char*, const char*, int debug = 0);
 
 private:
-  void makeTitle(const char* outfile, const std::map<int, tile>& module, int lmin, int lmax, bool debug);
+  void makeTitle(const char* outfile,
+                 const std::map<int, tile>& module,
+                 const std::map<int, std::pair<double, double> >& ringR,
+                 int lmin,
+                 int lmax,
+                 bool debug);
 
   const int layMin_;
 };
@@ -490,12 +495,16 @@ void ConvertScintillator::convert(const char* infile, const char* outfile1, cons
     fOut.close();
 
     //Now write for the second file
-    makeTitle(outfile2, module, lmin, lmax, (((debug / 10) % 10) > 0));
+    makeTitle(outfile2, module, ringR, lmin, lmax, (((debug / 10) % 10) > 0));
   }
 }
 
-void ConvertScintillator::makeTitle(
-    const char* outfile, const std::map<int, tile>& module, int lmin, int lmax, bool debug) {
+void ConvertScintillator::makeTitle(const char* outfile,
+                                    const std::map<int, tile>& module,
+                                    const std::map<int, std::pair<double, double> >& ringR,
+                                    int lmin,
+                                    int lmax,
+                                    bool debug) {
   const int zside = 1;
   std::vector<tileZone> zones;
   for (int layer = lmin; layer <= lmax; ++layer) {
@@ -544,42 +553,46 @@ void ConvertScintillator::makeTitle(
   if (nmax > 0) {
     std::ofstream fout(outfile);
     char apost('"');
-    fout << "  <Vector name=" << apost << "TileLayer" << apost << " type=" << apost << "numeric" << apost
-         << " nEntries=" << apost << nmax << apost << ">";
-    if (debug)
-      std::cout << "  <Vector name=" << apost << "TileLayer" << apost << " type=" << apost << "numeric" << apost
-                << " nEntries=" << apost << nmax << apost << ">";
-    for (int k = 0; k < nmax; ++k) {
-      std::string last = ((k + 1) == nmax) ? " " : ",";
-      if (k % 14 == 0) {
-        fout << "\n    " << std::setw(4) << zones[k].layer << last;
-        if (debug)
-          std::cout << "\n    " << std::setw(4) << zones[k].layer << last;
-      } else {
-        fout << std::setw(4) << zones[k].layer << last;
-        if (debug)
-          std::cout << std::setw(4) << zones[k].layer << last;
-      }
+    unsigned int l1(0), l2(0);
+    std::map<int, std::pair<double, double> >::const_iterator it1;
+    fout << "  <Vector name=" << apost << "TileRMin" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << ringR.size() << apost << ">";
+    for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
+      std::string last = ((l1 + 1) == ringR.size()) ? " " : ",";
+      if (l1 % 6 == 0)
+        fout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+      else
+        fout << std::setw(8) << std::setprecision(6) << (it1->second).first << "*mm" << last;
+      ++l1;
     }
     fout << "\n  </Vector>\n";
-    if (debug)
-      std::cout << "\n  </Vector>\n";
-    fout << "  <Vector name=" << apost << "TileRings" << apost << " type=" << apost << "numeric" << apost
+    fout << "  <Vector name=" << apost << "TileRMax" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << ringR.size() << apost << ">";
+    for (it1 = ringR.begin(); it1 != ringR.end(); ++it1) {
+      std::string last = ((l2 + 1) == ringR.size()) ? " " : ",";
+      if (l2 % 6 == 0)
+        fout << "\n    " << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+      else
+        fout << std::setw(8) << std::setprecision(6) << (it1->second).second << "*mm" << last;
+      ++l2;
+    }
+    fout << "\n  </Vector>\n";
+    fout << "  <Vector name=" << apost << "TileLayerRings" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << nmax << apost << ">";
     if (debug)
-      std::cout << "  <Vector name=" << apost << "TileRings" << apost << " type=" << apost << "numeric" << apost
+      std::cout << "  <Vector name=" << apost << "TileLayerRings" << apost << " type=" << apost << "numeric" << apost
                 << " nEntries=" << apost << nmax << apost << ">";
     for (int k = 0; k < nmax; ++k) {
       std::string last = ((k + 1) == nmax) ? " " : ",";
-      int r1r2 = HGCalTileIndex::tilePack(zones[k].rmin, zones[k].rmax);
-      if (k % 9 == 0) {
-        fout << "\n    " << std::setw(7) << r1r2 << last;
+      int lyr1r2 = HGCalTileIndex::tilePack(zones[k].layer, zones[k].rmin, zones[k].rmax);
+      if (k % 7 == 0) {
+        fout << "\n    " << std::setw(9) << lyr1r2 << last;
         if (debug)
-          std::cout << "\n    " << std::setw(7) << r1r2 << last;
+          std::cout << "\n    " << std::setw(9) << lyr1r2 << last;
       } else {
-        fout << std::setw(7) << r1r2 << last;
+        fout << std::setw(9) << lyr1r2 << last;
         if (debug)
-          std::cout << std::setw(7) << r1r2 << last;
+          std::cout << std::setw(9) << lyr1r2 << last;
       }
     }
     fout << "\n  </Vector>\n";
@@ -594,7 +607,7 @@ void ConvertScintillator::makeTitle(
                 << " nEntries=" << apost << nmax << apost << ">";
     for (int k = 0; k < nmax; ++k) {
       std::string last = ((k + 1) == nmax) ? " " : ",";
-      int f1f2 = HGCalTileIndex::tilePack(zones[k].phimin, zones[k].phimax);
+      int f1f2 = HGCalTileIndex::tilePack(0, zones[k].phimin, zones[k].phimax);
       if (k % 9 == 0) {
         fout << "\n    " << std::setw(7) << f1f2 << last;
         if (debug)

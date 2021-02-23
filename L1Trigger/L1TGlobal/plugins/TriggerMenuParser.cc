@@ -1068,6 +1068,10 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
     relativeBx = object.getBxOffset();
 
     //  Loop over the cuts for this object
+    int upperUnconstrainedPtInd = -1;
+    int lowerUnconstrainedPtInd = 0;
+    int upperImpactParameterInd = -1;
+    int lowerImpactParameterInd = 0;
     int upperThresholdInd = -1;
     int lowerThresholdInd = 0;
     int upperIndexInd = -1;
@@ -1076,15 +1080,27 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
     unsigned int etaWindow1Lower = -1, etaWindow1Upper = -1, etaWindow2Lower = -1, etaWindow2Upper = -1;
     int cntPhi = 0;
     unsigned int phiWindow1Lower = -1, phiWindow1Upper = -1, phiWindow2Lower = -1, phiWindow2Upper = -1;
-    int isolationLUT = 0xF;   //default is to ignore unless specified.
-    int charge = -1;          //default value is to ignore unless specified
-    int qualityLUT = 0xFFFF;  //default is to ignore unless specified.
+    int isolationLUT = 0xF;        //default is to ignore unless specified.
+    int impactParameterLUT = 0xF;  //default is to ignore unless specified
+    int charge = -1;               //default value is to ignore unless specified
+    int qualityLUT = 0xFFFF;       //default is to ignore unless specified.
 
     const std::vector<esCut>& cuts = object.getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++) {
       const esCut cut = cuts.at(kk);
 
       switch (cut.getCutType()) {
+        case esCutType::UnconstrainedPt:
+          lowerUnconstrainedPtInd = cut.getMinimum().index;
+          upperUnconstrainedPtInd = cut.getMaximum().index;
+          break;
+
+        case esCutType::ImpactParameter:
+          lowerImpactParameterInd = cut.getMinimum().index;
+          upperImpactParameterInd = cut.getMaximum().index;
+          impactParameterLUT = l1tstr2int(cut.getData());
+          break;
+
         case esCutType::Threshold:
           lowerThresholdInd = cut.getMinimum().index;
           upperThresholdInd = cut.getMaximum().index;
@@ -1151,6 +1167,12 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
     }  //end loop over cuts
 
     // Set the parameter cuts
+    objParameter[cnt].unconstrainedPtHigh = upperUnconstrainedPtInd;
+    objParameter[cnt].unconstrainedPtLow = lowerUnconstrainedPtInd;
+    objParameter[cnt].impactParameterHigh = upperImpactParameterInd;
+    objParameter[cnt].impactParameterLow = lowerImpactParameterInd;
+    objParameter[cnt].impactParameterLUT = impactParameterLUT;
+
     objParameter[cnt].ptHighThreshold = upperThresholdInd;
     objParameter[cnt].ptLowThreshold = lowerThresholdInd;
 

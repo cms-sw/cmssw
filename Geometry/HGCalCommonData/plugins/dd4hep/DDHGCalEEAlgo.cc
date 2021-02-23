@@ -14,8 +14,9 @@
 #include <vector>
 
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
@@ -23,7 +24,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 struct HGCalEEAlgo {
   HGCalGeomTools geomTools_;
@@ -61,7 +62,6 @@ struct HGCalEEAlgo {
   std::vector<double> rMaxFront_;       // Corresponding rMax's
   std::unordered_set<int> copies_;      // List of copy #'s
   double alpha_, cosAlpha_;
-  static constexpr double f2mm_ = (1.0 / dd4hep::mm);
 
   HGCalEEAlgo() = delete;
 
@@ -84,8 +84,9 @@ struct HGCalEEAlgo {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << materials_.size() << " types of volumes";
     for (unsigned int i = 0; i < names_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names_[i] << " of thickness " << (f2mm_ * thick_[i])
-                                    << " filled with " << materials_[i] << " first copy number " << copyNumber_[i];
+      edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << names_[i] << " of thickness "
+                                    << cms::convert2mm(thick_[i]) << " filled with " << materials_[i]
+                                    << " first copy number " << copyNumber_[i];
 #endif
 
     layers_ = args.value<std::vector<int>>("Layers");
@@ -93,8 +94,8 @@ struct HGCalEEAlgo {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "There are " << layers_.size() << " blocks";
     for (unsigned int i = 0; i < layers_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << (f2mm_ * layerThick_[i]) << " with "
-                                    << layers_[i] << " layers";
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] of thickness " << cms::convert2mm(layerThick_[i])
+                                    << " with " << layers_[i] << " layers";
 #endif
 
     layerType_ = args.value<std::vector<int>>("LayerType");
@@ -146,11 +147,12 @@ struct HGCalEEAlgo {
     alpha_ = (1._pi) / sectors_;
     cosAlpha_ = cos(alpha_);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "zStart " << (f2mm_ * zMinBlock_) << " radius for wafer type separation uses "
-                                  << rad100to200_.size() << " parameters; zmin " << (f2mm_ * zMinRadPar_) << " cutoff "
-                                  << choiceType_ << ":" << nCutRadPar_ << ":" << fracAreaMin_ << " wafer width "
-                                  << (f2mm_ * waferSize_) << " separations " << (f2mm_ * waferSepar_) << " sectors "
-                                  << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_;
+    edm::LogVerbatim("HGCalGeom") << "zStart " << cms::convert2mm(zMinBlock_)
+                                  << " radius for wafer type separation uses " << rad100to200_.size()
+                                  << " parameters; zmin " << cms::convert2mm(zMinRadPar_) << " cutoff " << choiceType_
+                                  << ":" << nCutRadPar_ << ":" << fracAreaMin_ << " wafer width "
+                                  << cms::convert2mm(waferSize_) << " separations " << cms::convert2mm(waferSepar_)
+                                  << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_;
     for (unsigned int k = 0; k < rad100to200_.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] 100-200 " << rad100to200_[k] << " 200-300 " << rad200to300_[k];
 #endif
@@ -163,11 +165,11 @@ struct HGCalEEAlgo {
     rMaxFront_ = args.value<std::vector<double>>("RMaxFront");
 #ifdef EDM_ML_DEBUG
     for (unsigned int i = 0; i < slopeB_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << (f2mm_ * zFrontB_[i]) << " Rmin "
-                                    << (f2mm_ * rMinFront_[i]) << " Slope " << slopeB_[i];
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontB_[i]) << " Rmin "
+                                    << cms::convert2mm(rMinFront_[i]) << " Slope " << slopeB_[i];
     for (unsigned int i = 0; i < slopeT_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << (f2mm_ * zFrontT_[i]) << " Rmax "
-                                    << (f2mm_ * rMaxFront_[i]) << " Slope " << slopeT_[i];
+      edm::LogVerbatim("HGCalGeom") << "Block [" << i << "] Zmin " << cms::convert2mm(zFrontT_[i]) << " Rmax "
+                                    << cms::convert2mm(rMaxFront_[i]) << " Slope " << slopeT_[i];
 #endif
 
 #ifdef EDM_ML_DEBUG
@@ -176,8 +178,8 @@ struct HGCalEEAlgo {
 
     waferType_ = std::make_unique<HGCalWaferType>(rad100to200_,
                                                   rad200to300_,
-                                                  (f2mm_ * (waferSize_ + waferSepar_)),
-                                                  (f2mm_ * zMinRadPar_),
+                                                  cms::convert2mm((waferSize_ + waferSepar_)),
+                                                  cms::convert2mm(zMinRadPar_),
                                                   choiceType_,
                                                   nCutRadPar_,
                                                   fracAreaMin_);
@@ -204,8 +206,8 @@ struct HGCalEEAlgo {
   }
 
   void ConstructLayers(const dd4hep::Volume module, cms::DDParsingContext& ctxt, xml_h e) {
-    static constexpr double tol1 = 0.01;
-    static constexpr double tol2 = 0.00001;
+    static constexpr double tol1 = 0.01 * dd4hep::mm;
+    static constexpr double tol2 = 0.00001 * dd4hep::mm;
     cms::DDNamespace ns(ctxt, e, true);
 
 #ifdef EDM_ML_DEBUG
@@ -230,9 +232,10 @@ struct HGCalEEAlgo {
 
         std::string name = ns.prepend(names_[ii]) + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: Layer " << ly << ":" << ii << " Front " << (f2mm_ * zi) << ", "
-                                      << (f2mm_ * routF) << " Back " << (f2mm_ * zo) << ", " << (f2mm_ * rinB)
-                                      << " superlayer thickness " << (f2mm_ * layerThick_[i]);
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: Layer " << ly << ":" << ii << " Front " << cms::convert2mm(zi)
+                                      << ", " << cms::convert2mm(routF) << " Back " << cms::convert2mm(zo) << ", "
+                                      << cms::convert2mm(rinB) << " superlayer thickness "
+                                      << cms::convert2mm(layerThick_[i]);
 #endif
 
         std::string matName = materials_[ii];
@@ -262,11 +265,11 @@ struct HGCalEEAlgo {
                                    pgonRin,
                                    pgonRout);
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: z " << (f2mm_ * (zz - hthick)) << ":"
-                                          << (f2mm_ * (zz + hthick)) << " with " << pgonZ.size() << " palnes";
+            edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: z " << cms::convert2mm((zz - hthick)) << ":"
+                                          << cms::convert2mm((zz + hthick)) << " with " << pgonZ.size() << " palnes";
             for (unsigned int isec = 0; isec < pgonZ.size(); ++isec)
-              edm::LogVerbatim("HGCalGeom") << "[" << isec << "] z " << (f2mm_ * pgonZ[isec]) << " R "
-                                            << (f2mm_ * pgonRin[isec]) << ":" << (f2mm_ * pgonRout[isec]);
+              edm::LogVerbatim("HGCalGeom") << "[" << isec << "] z " << cms::convert2mm(pgonZ[isec]) << " R "
+                                            << cms::convert2mm(pgonRin[isec]) << ":" << cms::convert2mm(pgonRout[isec]);
 #endif
             for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
               pgonZ[isec] -= zz;
@@ -274,8 +277,7 @@ struct HGCalEEAlgo {
             }
           }
 
-          dd4hep::Solid solid =
-              dd4hep::Polyhedra(sectors_, -alpha_, 2. * cms_units::piRadians, pgonZ, pgonRin, pgonRout);
+          dd4hep::Solid solid = dd4hep::Polyhedra(sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
           ns.addSolidNS(ns.prepend(name), solid);
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
@@ -287,8 +289,8 @@ struct HGCalEEAlgo {
                                         << " sections and filled with " << matName;
 
           for (unsigned int k = 0; k < pgonZ.size(); ++k)
-            edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << (f2mm_ * pgonZ[k]) << " R " << (f2mm_ * pgonRin[k])
-                                          << ":" << (f2mm_ * pgonRout[k]);
+            edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << cms::convert2mm(pgonZ[k]) << " R "
+                                          << cms::convert2mm(pgonRin[k]) << ":" << cms::convert2mm(pgonRout[k]);
 #endif
         } else {
           double rins =
@@ -302,10 +304,10 @@ struct HGCalEEAlgo {
 
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matter.name()
-                                        << " of dimensions " << (f2mm_ * rinB) << ":" << (f2mm_ * rins) << ", "
-                                        << (f2mm_ * routF) << ":" << (f2mm_ * routs) << ", " << (f2mm_ * hthick)
-                                        << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":"
-                                        << layerCenter_[copy - firstLayer_];
+                                        << " of dimensions " << cms::convert2mm(rinB) << ":" << cms::convert2mm(rins)
+                                        << ", " << cms::convert2mm(routF) << ":" << cms::convert2mm(routs) << ", "
+                                        << cms::convert2mm(hthick) << ", 0.0, 360.0 and position " << glog.name()
+                                        << " number " << copy << ":" << layerCenter_[copy - firstLayer_];
 #endif
           PositionSensitive(
               ctxt, e, glog, rins, routs, zz, layerSense_[ly], layerCenter_[copy - firstLayer_]);  //, cpv);
@@ -317,7 +319,7 @@ struct HGCalEEAlgo {
 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                      << module.name() << " at (0, 0, " << (f2mm_ * zz) << ") with no rotation";
+                                      << module.name() << " at (0,0," << cms::convert2mm(zz) << ") with no rotation";
 #endif
         zz += hthick;
       }  // End of loop over layers in a block
@@ -325,11 +327,12 @@ struct HGCalEEAlgo {
       laymin = laymax;
       if (std::abs(thickTot - layerThick_[i]) >= tol2) {
         if (thickTot > layerThick_[i]) {
-          edm::LogError("HGCalGeom") << "Thickness of the partition " << (f2mm_ * layerThick_[i]) << " is smaller than "
-                                     << (f2mm_ * thickTot) << ": thickness of all its components **** ERROR ****";
+          edm::LogError("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(layerThick_[i])
+                                     << " is smaller than " << cms::convert2mm(thickTot)
+                                     << ": thickness of all its components **** ERROR ****";
         } else {
-          edm::LogWarning("HGCalGeom") << "Thickness of the partition " << (f2mm_ * layerThick_[i])
-                                       << " does not match with " << (f2mm_ * thickTot) << " of the components";
+          edm::LogWarning("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(layerThick_[i])
+                                       << " does not match with " << cms::convert2mm(thickTot) << " of the components";
         }
       }
 
@@ -354,10 +357,11 @@ struct HGCalEEAlgo {
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
     std::vector<int> ntype(6, 0);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.name() << " rout " << (f2mm_ * rout) << " N " << N
-                                  << " for maximum u, v;  r " << (f2mm_ * r) << " R " << (f2mm_ * R) << " dy "
-                                  << (f2mm_ * dy) << " Shift " << (f2mm_ * xyoff.first) << ":" << (f2mm_ * xyoff.second)
-                                  << " WaferSize " << (f2mm_ * (waferSize_ + waferSepar_));
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.name() << " rout " << cms::convert2mm(rout) << " N " << N
+                                  << " for maximum u, v;  r " << cms::convert2mm(r) << " R " << cms::convert2mm(R)
+                                  << " dy " << cms::convert2mm(dy) << " Shift " << cms::convert2mm(xyoff.first) << ":"
+                                  << cms::convert2mm(xyoff.second) << " WaferSize "
+                                  << cms::convert2mm((waferSize_ + waferSepar_));
 #endif
 
     for (int u = -N; u <= N; ++u) {
@@ -372,13 +376,14 @@ struct HGCalEEAlgo {
         int iv = std::abs(v);
         ++ntot;
         if (((corner.first <= 0) && std::abs(u) < 5 && std::abs(v) < 5) || (std::abs(u) < 2 && std::abs(v) < 2)) {
-          edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.name() << " R " << (f2mm_ * rin) << ":"
-                                        << (f2mm_ * rout) << "\n Z " << (f2mm_ * zpos) << " LayerType " << layertype
-                                        << " u " << u << " v " << v << " with " << corner.first << " corners";
+          edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.name() << " R " << cms::convert2mm(rin) << ":"
+                                        << cms::convert2mm(rout) << "\n Z " << cms::convert2mm(zpos) << " LayerType "
+                                        << layertype << " u " << u << " v " << v << " with " << corner.first
+                                        << " corners";
         }
 #endif
         if (corner.first > 0) {
-          int type = waferType_->getType((f2mm_ * xpos), (f2mm_ * ypos), (f2mm_ * zpos));
+          int type = waferType_->getType(cms::convert2mm(xpos), cms::convert2mm(ypos), cms::convert2mm(zpos));
           int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
           if (iu > ium)
@@ -406,7 +411,7 @@ struct HGCalEEAlgo {
             ++ntype[type];
             edm::LogVerbatim("HGCalGeom")
                 << " DDHGCalEEAlgo: " << wafers_[type] << " number " << copy << " positioned in " << glog.name()
-                << " at (" << (f2mm_ * xpos) << ", " << (f2mm_ * ypos) << ", 0) with no rotation";
+                << " at (" << cms::convert2mm(xpos) << ", " << cms::convert2mm(ypos) << ",0) with no rotation";
 #endif
           }
         }
@@ -417,8 +422,8 @@ struct HGCalEEAlgo {
     edm::LogVerbatim("HGCalGeom") << " DDHGCalEEAlgo: Maximum # of u " << ium << ":" << iumAll << " # of v " << ivm
                                   << ":" << ivmAll << " and " << nin << ":" << kount << ":" << ntot << " wafers ("
                                   << ntype[0] << ":" << ntype[1] << ":" << ntype[2] << ":" << ntype[3] << ":"
-                                  << ntype[4] << ":" << ntype[5] << ") for " << glog.name() << " R " << rin << ":"
-                                  << rout;
+                                  << ntype[4] << ":" << ntype[5] << ") for " << glog.name() << " R "
+                                  << cms::convert2mm(rin) << ":" << cms::convert2mm(rout);
 #endif
   }
 };
