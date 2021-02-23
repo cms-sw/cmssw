@@ -10,6 +10,7 @@ from RecoPPS.Local.ctppsLocalTrackLiteProducer_cff import ctppsLocalTrackLitePro
 from RecoPPS.ProtonReconstruction.ctppsProtons_cff import *
 
 from Geometry.VeryForwardGeometry.geometryRPFromDB_cfi import *
+from CalibPPS.ESProducers.ppsTopology_cff import *
 
 recoCTPPSTask = cms.Task(
     totemRPLocalReconstructionTask ,
