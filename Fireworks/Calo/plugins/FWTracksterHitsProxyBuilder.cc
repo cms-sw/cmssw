@@ -65,8 +65,9 @@ void FWTracksterHitsProxyBuilder::build(const FWEventItem *iItem, TEveElementLis
   if (TimeValueMapHandle.isValid()) {
     timeLowerBound = item()->getConfig()->value<double>("TimeLowerBound(ns)");
     timeUpperBound = item()->getConfig()->value<double>("TimeUpperBound(ns)");
-    if (timeLowerBound > timeUpperBound){
-      edm::LogWarning("InvalidParameters") << "lower time bound is larger than upper time bound. Maybe opposite is desired?";
+    if (timeLowerBound > timeUpperBound) {
+      edm::LogWarning("InvalidParameters")
+          << "lower time bound is larger than upper time bound. Maybe opposite is desired?";
     }
   } else {
     edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file.";
@@ -257,8 +258,10 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
 
       const bool isScintillatorIn = doublet.first.seed().det() == DetId::HGCalHSc;
       const bool isScintillatorOut = doublet.second.seed().det() == DetId::HGCalHSc;
-      int layerIn = (isScintillatorIn) ? (HGCScintillatorDetId(doublet.first.seed()).layer()) : (HGCSiliconDetId(doublet.first.seed()).layer());
-      int layerOut = (isScintillatorOut) ? (HGCScintillatorDetId(doublet.second.seed()).layer()) : (HGCSiliconDetId(doublet.second.seed()).layer());
+      int layerIn = (isScintillatorIn) ? (HGCScintillatorDetId(doublet.first.seed()).layer())
+                                       : (HGCSiliconDetId(doublet.first.seed()).layer());
+      int layerOut = (isScintillatorOut) ? (HGCScintillatorDetId(doublet.second.seed()).layer())
+                                         : (HGCSiliconDetId(doublet.second.seed()).layer());
 
       // Check if offset is needed
       const int offset = 28;
@@ -267,19 +270,18 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
       layerIn += offsetIn;
       layerOut += offsetOut;
 
-      const bool isAdjacent = (layerOut-layerIn) == 1;
+      const bool isAdjacent = (layerOut - layerIn) == 1;
 
       TEveStraightLineSet *marker = new TEveStraightLineSet;
       marker->SetLineWidth(2);
       if (isAdjacent) {
         marker->SetLineColor(kYellow);
-      }
-      else {
+      } else {
         marker->SetLineColor(kRed);
       }
 
       // draw 3D cross
-      if (layer == 0 || fabs(layerIn-layer) == 0 || fabs(layerOut-layer) == 0) {
+      if (layer == 0 || fabs(layerIn - layer) == 0 || fabs(layerOut - layer) == 0) {
         marker->AddLine(doublet.first.x(),
                         doublet.first.y(),
                         doublet.first.z(),
