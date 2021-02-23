@@ -14,7 +14,8 @@ GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullpt
   segAlgoName = ps.getParameter<std::string>("algo_name");
   ge0AlgoName = ps.getParameter<std::string>("ge0_name");
 
-  edm::LogVerbatim("GEMSegmentBuilder") << "GEMSegmentBuilder algorithm : ge0 name : " << ge0AlgoName << " name: " << segAlgoName;
+  edm::LogVerbatim("GEMSegmentBuilder") << "GEMSegmentBuilder algorithm : ge0 name : " << ge0AlgoName
+                                        << " name: " << segAlgoName;
 
   // SegAlgo parameter set
   segAlgoPSet = ps.getParameter<edm::ParameterSet>("algo_pset");
