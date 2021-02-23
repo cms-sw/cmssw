@@ -8,20 +8,20 @@ RPixClusterToHit::~RPixClusterToHit() {}
 
 void RPixClusterToHit::buildHits(unsigned int detId,
                                  const std::vector<CTPPSPixelCluster> &clusters,
-                                 std::vector<CTPPSPixelRecHit> &hits) {
+                                 std::vector<CTPPSPixelRecHit> &hits,
+                                 const PPSPixelTopology &ppt) {
   if (verbosity_)
-    edm::LogInfo("RPixClusterToHit") << " RPixClusterToHit " << detId
-                                     << " received cluster array of size = " << clusters.size();
+    edm::LogInfo("PPS") << " RPixClusterToHit " << detId << " received cluster array of size = " << clusters.size();
   for (unsigned int i = 0; i < clusters.size(); i++) {
-    make_hit(clusters[i], hits);
+    make_hit(clusters[i], hits, ppt);
   }
 }
 
-void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPixelRecHit> &hits) {
+void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster,
+                                std::vector<CTPPSPixelRecHit> &hits,
+                                const PPSPixelTopology &ppt) {
   // take a cluster, generate a rec hit and push it in the rec hit vector
 
-  //call the topology
-  CTPPSPixelSimTopology topology;
   //call the numbering inside the ROC
   CTPPSPixelIndices pxlInd;
   // get information from the cluster
@@ -67,18 +67,20 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPix
   double weightedVarianceY = 0.;
 
   if (verbosity_)
-    edm::LogInfo("RPixClusterToHit") << " hit pixels: ";
+    edm::LogInfo("PPS") << "RPixClusterToHit "
+                        << " hit pixels: ";
 
   for (unsigned int i = 0; i < thisClusterSize; i++) {
     if (verbosity_)
-      edm::LogInfo("RPixClusterToHit") << aCluster.pixelRow(i) << " " << aCluster.pixelCol(i) << " "
-                                       << aCluster.pixelADC(i);
+      edm::LogInfo("PPS") << "RPixClusterToHit " << aCluster.pixelRow(i) << " " << aCluster.pixelCol(i) << " "
+                          << aCluster.pixelADC(i);
 
     double minPxlX = 0;
     double minPxlY = 0;
     double maxPxlX = 0;
     double maxPxlY = 0;
-    topology.pixelRange(aCluster.pixelRow(i), aCluster.pixelCol(i), minPxlX, maxPxlX, minPxlY, maxPxlY);
+
+    ppt.pixelRange(aCluster.pixelRow(i), aCluster.pixelCol(i), minPxlX, maxPxlX, minPxlY, maxPxlY);
     double halfSizeX = (maxPxlX - minPxlX) / 2.;
     double halfSizeY = (maxPxlY - minPxlY) / 2.;
     double avgPxlX = minPxlX + halfSizeX;
@@ -110,7 +112,7 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPix
   LocalPoint lp(avgLocalX, avgLocalY, 0);
   LocalError le(varianceX, 0, varianceY);
   if (verbosity_)
-    edm::LogInfo("RPixClusterToHit") << lp << " with error " << le;
+    edm::LogInfo("PPS") << "RPixClusterToHit " << lp << " with error " << le;
 
   hits.emplace_back(lp,
                     le,
