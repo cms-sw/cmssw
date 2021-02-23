@@ -1,7 +1,7 @@
 #include "CondTools/RPC/interface/RPCLBLinkNameParser.h"
 
 #include <sstream>
-
+#include <algorithm>
 #include "FWCore/Utilities/interface/Exception.h"
 
 void RPCLBLinkNameParser::parse(std::string const& name, RPCLBLink& lb_link) {
