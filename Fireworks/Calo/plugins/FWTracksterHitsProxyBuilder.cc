@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Fireworks/Calo/interface/FWHeatmapProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -67,11 +68,11 @@ void FWTracksterHitsProxyBuilder::build(const FWEventItem *iItem, TEveElementLis
     timeUpperBound = std::max(item()->getConfig()->value<double>("TimeLowerBound(ns)"),
                               item()->getConfig()->value<double>("TimeUpperBound(ns)"));
   } else {
-    std::cerr << "Warning: couldn't locate 'timeLayerCluster' ValueMap in root file." << std::endl;
+    edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file."; 
   }
 
   if (!layerClustersHandle.isValid()) {
-    std::cerr << "Warning: couldn't locate 'hgcalLayerClusters' collection in root file." << std::endl;
+    edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file.";
   }
 
   layer = item()->getConfig()->value<long>("Layer");
@@ -260,10 +261,10 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
 
       // Check if offset is needed
       const int offset = 28;
-      const bool hasOffsetIn = (doublet.first.seed().det() == DetId::HGCalHSi) || (doublet.first.seed().det() == DetId::HGCalHSc);
-      const bool hasOffsetOut = (doublet.second.seed().det() == DetId::HGCalHSi) || (doublet.second.seed().det() == DetId::HGCalHSc);
-      layerIn = hasOffsetIn ? layerIn+offset : layerIn;
-      layerOut = hasOffsetOut ? layerOut+offset : layerOut;
+      const int offsetIn = offset * (doublet.first.seed().det() != DetId::HGCalEE);
+      const int offsetOut = offset * (doublet.second.seed().det() != DetId::HGCalEE);
+      layerIn += offsetIn;
+      layerOut += offsetOut;
 
       const bool isAdjacent = (layerOut-layerIn) == 1;
 
