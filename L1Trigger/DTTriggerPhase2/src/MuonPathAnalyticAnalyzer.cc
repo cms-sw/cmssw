@@ -249,7 +249,7 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
     int drift_time = reduced_times[lay] - time;
     if (valid[lay] == 1 && (drift_time < 0 || drift_time > MAXDRIFT)) return;
 
-    int drift_dist = (( (drift_time * int(pow(2, 4)) + 5) * 445 ) >> 13);
+    int drift_dist = (( (drift_time * int(pow(2, 4)) + 9) * 445 ) >> 13);
     int xdist = xwire_mm[lay] * pow(2, 4) - (pos - coarse_pos) + lat_array[lay] * drift_dist;
     xdist -= (3 - 2 * (3 - lay)) * slope_xhh;
     int res = xdist;
