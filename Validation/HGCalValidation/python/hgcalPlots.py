@@ -2269,7 +2269,7 @@ def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_colle
                 purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
 
 #=================================================================================================
-def _hgcalsimClustersFolders(lastDirName="ticlTrackstersTrkEM"):
+def _hgcalsimClustersFolders(lastDirName):
     return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/simClusters/"+lastDirName
 
 sc_clusterlevel = [
@@ -2362,7 +2362,6 @@ sc_ticltracksters = [
 hgcalSimClustersPlotter = Plotter()
 
 def append_hgcalSimClustersPlots(collection, name_collection):
-  print(_hgcalsimClustersFolders(collection))
   if collection == "ClusterLevel":
       hgcalSimClustersPlotter.append(collection, [
                   _hgcalsimClustersFolders(collection)
