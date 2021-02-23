@@ -10,11 +10,14 @@ profile_base_2016 = profile_base.clone(
 )
 
 # geometry (using 2017 here is OK)
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import totemGeomXMLFiles, ctppsDiamondGeomXMLFiles, ctppsUFSDGeomXMLFiles, ctppsPixelGeomXMLFiles
-from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import XMLIdealGeometryESSource_CTPPS
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import totemGeomXMLFiles as _strip, ctppsDiamondGeomXMLFiles as _diam, ctppsUFSDGeomXMLFiles as _ufsd, ctppsPixelGeomXMLFiles as _pix
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import XMLIdealGeometryESSource_CTPPS as _es_source
 from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import ctppsGeometryESModule as _geom
+
 ctppsCompositeESSource.compactViewTag = _geom.compactViewTag
 ctppsCompositeESSource.isRun2 = _geom.isRun2
+
+XMLIdealGeometryESSource_CTPPS = _es_source.clone()
 
 # local reconstruction
 ctppsLocalTrackLiteProducer.includeStrips = True
