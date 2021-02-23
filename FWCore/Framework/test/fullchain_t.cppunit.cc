@@ -78,10 +78,11 @@ void testfullChain::getfromDataproxyproviderTest() {
   auto proxyProvider = std::make_shared<DummyProxyProvider>();
   provider.add(proxyProvider);
 
+  edm::ESParentContext pc;
   for (unsigned int iTime = 1; iTime != 6; ++iTime) {
     const Timestamp time(iTime);
     controller.eventSetupForInstance(IOVSyncValue(time));
-    EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, false);
+    EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, pc, false);
     ESHandle<DummyData> pDummy;
     eventSetup.get<DummyRecord>().get(pDummy);
     CPPUNIT_ASSERT(0 != pDummy.product());
