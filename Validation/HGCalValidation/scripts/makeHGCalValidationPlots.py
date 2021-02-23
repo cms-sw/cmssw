@@ -94,7 +94,7 @@ def main(opts):
     elif (opts.collection == hitCalibrationLabel):
         hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
         val.doPlots(hgchitcalib, plotterDrawArgs=drawArgs)
-    else :
+    elif (opts.collection == allLabel):
         #caloparticles
         particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
                          "muon-": "-13", "muon+":"13", 

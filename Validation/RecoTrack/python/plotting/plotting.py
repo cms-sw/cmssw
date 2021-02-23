@@ -2915,6 +2915,8 @@ class PlotterItem:
                                 subf.append(key.GetName())
                         subFolders.append(subf)
                     break
+                else:
+                    print("Did not find directory '%s' from file %s" % (pd, tfile.GetName()))
 
             if not isOpenFile:
                 tfile.Close()
