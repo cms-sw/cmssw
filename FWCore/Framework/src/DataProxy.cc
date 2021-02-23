@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
@@ -66,8 +67,9 @@ namespace edm {
                                   EventSetupRecordImpl const& iRecord,
                                   DataKey const& iKey,
                                   EventSetupImpl const* iEventSetupImpl,
-                                  ServiceToken const& iToken) const {
-      const_cast<DataProxy*>(this)->prefetchAsyncImpl(iTask, iRecord, iKey, iEventSetupImpl, iToken);
+                                  ServiceToken const& iToken,
+                                  ESParentContext const& iParent) const {
+      const_cast<DataProxy*>(this)->prefetchAsyncImpl(iTask, iRecord, iKey, iEventSetupImpl, iToken, iParent);
     }
 
     void const* DataProxy::getAfterPrefetch(const EventSetupRecordImpl& iRecord,
@@ -96,14 +98,15 @@ namespace edm {
                                const DataKey& iKey,
                                bool iTransiently,
                                ActivityRegistry const* activityRegistry,
-                               EventSetupImpl const* iEventSetupImpl) const {
+                               EventSetupImpl const* iEventSetupImpl,
+                               ESParentContext const& iParent) const {
       if (!cacheIsValid()) {
         auto waitTask = edm::make_empty_waiting_task();
         waitTask->set_ref_count(2);
         auto waitTaskPtr = waitTask.get();
         auto token = ServiceRegistry::instance().presentToken();
-        edm::esTaskArena().execute([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl, token]() {
-          prefetchAsync(WaitingTaskHolder(waitTaskPtr), iRecord, iKey, iEventSetupImpl, token);
+        edm::esTaskArena().execute([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl, token, iParent]() {
+          prefetchAsync(WaitingTaskHolder(waitTaskPtr), iRecord, iKey, iEventSetupImpl, token, iParent);
           waitTaskPtr->decrement_ref_count();
           waitTaskPtr->wait_for_all();
         });

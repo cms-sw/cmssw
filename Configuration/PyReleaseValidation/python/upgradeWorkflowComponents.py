@@ -58,6 +58,10 @@ upgradeKeys[2026] = [
     '2026D76PU',
     '2026D77',
     '2026D77PU',
+    '2026D78',
+    '2026D78PU',
+    '2026D79',
+    '2026D79PU',
 ]
 
 # pre-generation of WF numbers
@@ -1214,6 +1218,22 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C11M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D78' : {
+        'Geom' : 'Extended2026D78', # N.B.: Geometry with square 50x50 um2 pixels in the Inner Tracker.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T22',
+        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
+        'Era' : 'Phase2C11T22M9', # customized for square pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D79' : {
+        'Geom' : 'Extended2026D79', # N.B.: Geometry with 3D pixels in the Inner Tracker.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T23',
+        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
+        'Era' : 'Phase2C11T23M9', # customizes for 3D Pixels and Muon M9
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }
