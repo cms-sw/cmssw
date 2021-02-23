@@ -2,6 +2,6 @@
   <class name="cms::cuda::Product<HGCRecHitGPUProduct>" persistent="false"/>
   <class name="edm::Wrapper<cms::cuda::Product<HGCRecHitGPUProduct>>" persistent="false"/>
 
-  <class name="HGCRecHitSoA" persistent="false"/>
-  <class name="edm::Wrapper<HGCRecHitSoA>" persistent="false"/>
+  <class name="HGCRecHitCPUProduct" persistent="false"/>
+  <class name="edm::Wrapper<HGCRecHitCPUProduct>" persistent="false"/>
 </lcgdict>

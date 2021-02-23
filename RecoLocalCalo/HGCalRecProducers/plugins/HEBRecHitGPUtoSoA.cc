@@ -30,7 +30,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalRecHit.h"
 
 #include "CUDADataFormats/HGCal/interface/HGCRecHitGPUProduct.h"
-#include "CUDADataFormats/HGCal/interface/HGCRecHitHost.h"
+#include "CUDADataFormats/HGCal/interface/HGCRecHitCPUProduct.h"
 
 class HEBRecHitGPUtoSoA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -43,15 +43,15 @@ public:
 private:
   cms::cuda::ContextState ctxState_;
   edm::EDGetTokenT<cms::cuda::Product<HGCRecHitGPUProduct>> recHitGPUToken_;
-  edm::EDPutTokenT<HGCRecHitSoA> recHitCPUSoAToken_;
+  edm::EDPutTokenT<HGCRecHitCPUProduct> recHitCPUSoAToken_;
 
-  std::unique_ptr<HGCRecHitSoA> rhPtr_;
+  std::unique_ptr<HGCRecHitCPUProduct> prodPtr_;
 };
 
 HEBRecHitGPUtoSoA::HEBRecHitGPUtoSoA(const edm::ParameterSet& ps)
     : recHitGPUToken_{consumes<cms::cuda::Product<HGCRecHitGPUProduct>>(
           ps.getParameter<edm::InputTag>("HEBRecHitGPUTok"))},
-      recHitCPUSoAToken_(produces<HGCRecHitSoA>()) {}
+      recHitCPUSoAToken_(produces<HGCRecHitCPUProduct>()) {}
 
 HEBRecHitGPUtoSoA::~HEBRecHitGPUtoSoA() {}
 
@@ -61,14 +61,14 @@ void HEBRecHitGPUtoSoA::acquire(edm::Event const& event,
   cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(w)};
   const auto& gpuRecHits = ctx.get(event, recHitGPUToken_);
 
-  rhPtr_ = layoutHGCRecHitHost(gpuRecHits.nHits(), ctx.stream());
+  prodPtr_ = std::make_unique<HGCRecHitCPUProduct>(gpuRecHits.nHits(), ctx.stream());
 
-  KernelManagerHGCalRecHit km(*rhPtr_, gpuRecHits.get());
+  KernelManagerHGCalRecHit km((*prodPtr_).get(), gpuRecHits.get());
   km.transfer_soa_to_host(ctx.stream());
 }
 
 void HEBRecHitGPUtoSoA::produce(edm::Event& event, const edm::EventSetup& setup) {
-  event.put(std::move(rhPtr_));
+  event.put(std::move(prodPtr_));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
