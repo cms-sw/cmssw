@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoHGCal/TICL/plugins/SeedingRegionAlgoBase.h"
+#include "SeedingRegionByL1.h"
 #include "SeedingRegionByTracks.h"
 #include "SeedingRegionGlobal.h"
 
@@ -47,6 +48,10 @@ TICLSeedingRegionProducer::TICLSeedingRegionProducer(const edm::ParameterSet& ps
     case 2:
       myAlgo_ = std::make_unique<SeedingRegionGlobal>(ps, sumes);
       break;
+  case 3:
+    myAlgo_ = std::make_unique<SeedingRegionByL1>(
+	 ps.getParameterSet("seedTiclByL1Config"), sumes);  // needed for HLT
+    break;
     default:
       break;
   }
@@ -62,6 +67,8 @@ void TICLSeedingRegionProducer::fillDescriptions(edm::ConfigurationDescriptions&
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<int>("algoId", 1);
+  desc.add<edm::ParameterSetDescription>(
+       "seedTiclByL1Config", SeedingRegionByL1::makePSetDescription());
   descriptions.add("ticlSeedingRegionProducer", desc);
 }
 
