@@ -40,8 +40,7 @@ public:
   explicit L1TEGammaFilteredCollectionProducer(const edm::ParameterSet&);
   ~L1TEGammaFilteredCollectionProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void produce(edm::StreamID sid, edm::Event& iEvent,
-               const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
 private:
   edm::InputTag l1EgTag_;
@@ -56,10 +55,8 @@ private:
   double getOfflineEt(double et) const;
 };
 
-L1TEGammaFilteredCollectionProducer::L1TEGammaFilteredCollectionProducer(
-	     const edm::ParameterSet& iConfig)
-  : l1EgTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
-    l1EgToken_(consumes<BXVector<l1t::EGamma>>(l1EgTag_)) {
+L1TEGammaFilteredCollectionProducer::L1TEGammaFilteredCollectionProducer(const edm::ParameterSet& iConfig)
+    : l1EgTag_(iConfig.getParameter<edm::InputTag>("inputTag")), l1EgToken_(consumes<BXVector<l1t::EGamma>>(l1EgTag_)) {
   quality_ = iConfig.getParameter<int>("quality");
   qualIsMask_ = iConfig.getParameter<bool>("qualIsMask");
   applyQual_ = iConfig.getParameter<bool>("applyQual");
@@ -71,14 +68,11 @@ L1TEGammaFilteredCollectionProducer::L1TEGammaFilteredCollectionProducer(
   produces<BXVector<l1t::EGamma>>();
 }
 
-L1TEGammaFilteredCollectionProducer::~L1TEGammaFilteredCollectionProducer() =
- default;
+L1TEGammaFilteredCollectionProducer::~L1TEGammaFilteredCollectionProducer() = default;
 
-void L1TEGammaFilteredCollectionProducer::fillDescriptions(
-       edm::ConfigurationDescriptions& descriptions) {
+void L1TEGammaFilteredCollectionProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("inputTag",
-                          edm::InputTag("L1EGammaClusterEmuProducer"));
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("L1EGammaClusterEmuProducer"));
   desc.add<int>("quality", 0x2);
   desc.add<bool>("qualIsMask", true);
   desc.add<bool>("applyQual", true);
@@ -89,9 +83,9 @@ void L1TEGammaFilteredCollectionProducer::fillDescriptions(
   descriptions.add("L1TEGammaFilteredCollectionProducer", desc);
 }
 
-void L1TEGammaFilteredCollectionProducer::produce(
-      edm::StreamID sid, edm::Event& iEvent,
-      const edm::EventSetup& iSetup) const {
+void L1TEGammaFilteredCollectionProducer::produce(edm::StreamID sid,
+                                                  edm::Event& iEvent,
+                                                  const edm::EventSetup& iSetup) const {
   auto outEgs = std::make_unique<BXVector<l1t::EGamma>>();
   auto l1Egs = iEvent.getHandle(l1EgToken_);
 
@@ -100,8 +94,7 @@ void L1TEGammaFilteredCollectionProducer::produce(
 
   for (int bx = startBX; bx <= endBX; bx++) {
     // Loop over all L1 e/gamma objects
-    for (BXVector<l1t::EGamma>::const_iterator iEg = (*l1Egs).begin(bx);
-         iEg != (*l1Egs).end(bx); iEg++) {
+    for (BXVector<l1t::EGamma>::const_iterator iEg = (*l1Egs).begin(bx); iEg != (*l1Egs).end(bx); iEg++) {
       double offlineEt = this->getOfflineEt((*iEg).pt());
       bool passQuality(false);
       if (applyQual_) {
