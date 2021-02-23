@@ -7,9 +7,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
 #include <vector>
-#include <iostream>
 
 template <typename T, typename M>
 class ObjectIndexFromAssociationTableProducer : public edm::global::EDProducer<> {

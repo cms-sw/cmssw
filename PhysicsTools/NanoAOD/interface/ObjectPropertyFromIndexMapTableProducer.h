@@ -8,14 +8,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/Common/interface/View.h"
-#include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
-#include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
 #include <unordered_map>
 #include <vector>
-#include <iostream>
 
 template <typename T, typename M>
 class ObjectPropertyFromIndexMapTableProducer : public edm::global::EDProducer<> {
