@@ -63,12 +63,13 @@ void FWTracksterHitsProxyBuilder::build(const FWEventItem *iItem, TEveElementLis
   iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters", "timeLayerCluster"), TimeValueMapHandle);
   iItem->getEvent()->getByLabel(edm::InputTag("hgcalLayerClusters"), layerClustersHandle);
   if (TimeValueMapHandle.isValid()) {
-    timeLowerBound = std::min(item()->getConfig()->value<double>("TimeLowerBound(ns)"),
-                              item()->getConfig()->value<double>("TimeUpperBound(ns)"));
-    timeUpperBound = std::max(item()->getConfig()->value<double>("TimeLowerBound(ns)"),
-                              item()->getConfig()->value<double>("TimeUpperBound(ns)"));
+    timeLowerBound = item()->getConfig()->value<double>("TimeLowerBound(ns)");
+    timeUpperBound = item()->getConfig()->value<double>("TimeUpperBound(ns)");
+    if (timeLowerBound > timeUpperBound){
+      edm::LogWarning("InvalidParameters") << "lower time bound is larger than upper time bound. Maybe opposite is desired?";
+    }
   } else {
-    edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file."; 
+    edm::LogWarning("DataNotFound|InvalidData") << "couldn't locate 'timeLayerCluster' ValueMap in root file.";
   }
 
   if (!layerClustersHandle.isValid()) {
