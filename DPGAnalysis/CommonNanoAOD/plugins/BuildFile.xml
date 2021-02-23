@@ -6,8 +6,6 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<use name="DataFormats/Candidate"/>
-<use name="DataFormats/PatCandidates"/>
 <use name="PhysicsTools/PatAlgos"/>
 <use name="DataFormats/NanoAOD"/>
 <use name="SimDataFormats/CaloAnalysis"/>
