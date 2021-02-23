@@ -11,19 +11,19 @@
 
 GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullptr) {
   // Algo name
-  segName = ps.getParameter<std::string>("algo_name");
-  ge0Name = ps.getParameter<std::string>("ge0_name");
+  segAlgoName = ps.getParameter<std::string>("algo_name");
+  ge0AlgoName = ps.getParameter<std::string>("ge0_name");
 
-  edm::LogVerbatim("GEMSegmentBuilder") << "GEMSegmentBuilder algorithm : ge0 name : " << ge0Name << " name: " << algoName;
+  edm::LogVerbatim("GEMSegmentBuilder") << "GEMSegmentBuilder algorithm : ge0 name : " << ge0AlgoName << " name: " << segAlgoName;
 
   // SegAlgo parameter set
   segAlgoPSet = ps.getParameter<edm::ParameterSet>("algo_pset");
   ge0AlgoPSet = ps.getParameter<edm::ParameterSet>("ge0_pset");
 
   // Ask factory to build this algorithm, giving it appropriate ParameterSet
-  seg_algo = GEMSegmentBuilderPluginFactory::get()->create(segName, segAlgoPSet);
+  segAlgo = GEMSegmentBuilderPluginFactory::get()->create(segAlgoName, segAlgoPSet);
   // Ask factory to build this algorithm, giving it appropriate ParameterSet
-  ge0_algo = GEMSegmentBuilderPluginFactory::get()->create(ge0Name, ge0AlgoPSet);
+  ge0Algo = GEMSegmentBuilderPluginFactory::get()->create(ge0AlgoName, ge0AlgoPSet);
 }
 GEMSegmentBuilder::~GEMSegmentBuilder() {}
 
@@ -93,7 +93,7 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
 
     // given the superchamber select the appropriate algo... and run it
     std::vector<GEMSegment> segv;
-    if (chamber->station() == 0)
+    if (chamber->id().station() == 0)
       segv = ge0Algo->run(ensemble, gemRecHits);
     else
       segv = segAlgo->run(ensemble, gemRecHits);
