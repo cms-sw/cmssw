@@ -25,7 +25,7 @@
 #include "TrackstersPCA.h"
 #include <vector>
 #include <iterator>
-
+#include <algorithm>
 using namespace ticl;
 
 namespace {
@@ -116,16 +116,20 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
   result->reserve(num_simclusters);
   for (const auto& [key, values] : simToRecoColl) {
     auto const& sc = *(key);
+    auto simClusterIndex = &sc - &simclusters[0];
     Trackster tmpTrackster;
-    tmpTrackster.zeroProbabilities();
+    tmpTrackster.zeroProbabilities(); 
     tmpTrackster.vertices().reserve(values.size());
-    tmpTrackster.vertex_multiplicity().resize(values.size(), 1);
+    tmpTrackster.vertex_multiplicity().reserve(values.size());
 
     for (auto const& [lc, energyScorePair] : values) {
       tmpTrackster.vertices().push_back(lc.index());
+      // std::cout << lc->energy() << " " << energyScorePair.first << " " << energyScorePair.first/lc->energy() << " " << lc->energy()/energyScorePair.first << " " << (int)static_cast<uint8_t>(std::clamp(lc->energy()/energyScorePair.first, 0., 255.)) << std::endl;
+
+      tmpTrackster.vertex_multiplicity().push_back(static_cast<uint8_t>(std::clamp(lc->energy()/energyScorePair.first, 0., 255.)));
     }
     tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(sc.pdgId(), sc.charge()), 1.f);
-    tmpTrackster.setSeed(key.id(), &sc - &simclusters[0]);
+    tmpTrackster.setSeed(key.id(), simClusterIndex);
     result->emplace_back(tmpTrackster);
   }
   ticl::assignPCAtoTracksters(
