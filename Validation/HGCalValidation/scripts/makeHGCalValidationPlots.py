@@ -53,8 +53,8 @@ def main(opts):
 
     #layerClusters
     if (opts.collection == layerClustersGeneralLabel):
-	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
+        hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
+        hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
         val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
     #simClusters
     elif (opts.collection == simClustersGeneralLabel):
@@ -91,7 +91,7 @@ def main(opts):
         val.doPlots(hgcaloPart, plotterDrawArgs=drawArgs)
     #hitValidation
     elif (opts.collection == hitValidationLabel):
-    	hgchit = [hgcalPlots.hgcalHitPlotter]
+        hgchit = [hgcalPlots.hgcalHitPlotter]
         hgcalPlots.append_hgcalHitsPlots('HGCalSimHitsV', "Simulated Hits")
         hgcalPlots.append_hgcalHitsPlots('HGCalRecHitsV', "Reconstruced Hits")
         hgcalPlots.append_hgcalDigisPlots('HGCalDigisV', "Digis")
@@ -113,11 +113,11 @@ def main(opts):
         val.doPlots(hgcaloPart, plotterDrawArgs=drawArgs)
 
         #hits
-    	hgchit = [hgcalPlots.hgcalHitPlotter]
+        hgchit = [hgcalPlots.hgcalHitPlotter]
         hgcalPlots.append_hgcalHitsPlots('HGCalSimHitsV', "Simulated Hits")
         hgcalPlots.append_hgcalHitsPlots('HGCalRecHitsV', "Reconstruced Hits")
         hgcalPlots.append_hgcalDigisPlots('HGCalDigisV', "Digis")
-    	val.doPlots(hgchit, plotterDrawArgs=drawArgs)   
+        val.doPlots(hgchit, plotterDrawArgs=drawArgs)   
 
         #calib
         hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
@@ -129,10 +129,10 @@ def main(opts):
             hgcalPlots.append_hgcalSimClustersPlots(i_iter, i_iter)
         val.doPlots(hgcsimclus, plotterDrawArgs=drawArgs)
 
-	#layer clusters
-	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
-	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+        #layer clusters
+        hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter] 
+        hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
+        val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
 
         #multiclusters
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
