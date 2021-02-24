@@ -51,8 +51,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   isOOTCollection_ = iConfig.getParameter<bool>("isOOTCollection");
   superClusterAlgo_.setIsOOTCollection(isOOTCollection_);
 
-  superClusterAlgo_.setTokens(iConfig, consumesCollector());
-
   std::string _typename = iConfig.getParameter<std::string>("ClusteringType");
   if (_typename == ClusterType__BOX) {
     _theclusteringtype = PFECALSuperClusterAlgo::kBOX;
@@ -62,6 +60,10 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
     throw cms::Exception("InvalidClusteringType") << "You have not chosen a valid clustering type,"
                                                   << " please choose from \"Box\" or \"Mustache\"!";
   }
+  superClusterAlgo_.setClusteringType(_theclusteringtype);
+  superClusterAlgo_.setUseDynamicDPhi(iConfig.getParameter<bool>("useDynamicDPhiWindow"));
+  // clusteringType and useDynamicDPhi need to be defined before setting the tokens in order to esConsume only the necessary records
+  superClusterAlgo_.setTokens(iConfig, consumesCollector());
 
   std::string _weightname = iConfig.getParameter<std::string>("EnergyWeight");
   if (_weightname == EnergyWeight__Raw) {
@@ -78,8 +80,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
   // parameters for clustering
   bool seedThresholdIsET = iConfig.getParameter<bool>("seedThresholdIsET");
-
-  bool useDynamicDPhi = iConfig.getParameter<bool>("useDynamicDPhiWindow");
 
   double threshPFClusterSeedBarrel = iConfig.getParameter<double>("thresh_PFClusterSeedBarrel");
   double threshPFClusterBarrel = iConfig.getParameter<double>("thresh_PFClusterBarrel");
@@ -102,10 +102,8 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   bool dropUnseedable = iConfig.getParameter<bool>("dropUnseedable");
 
   superClusterAlgo_.setVerbosityLevel(verbose_);
-  superClusterAlgo_.setClusteringType(_theclusteringtype);
   superClusterAlgo_.setEnergyWeighting(_theenergyweight);
   superClusterAlgo_.setUseETForSeeding(seedThresholdIsET);
-  superClusterAlgo_.setUseDynamicDPhi(useDynamicDPhi);
 
   superClusterAlgo_.setThreshSuperClusterEt(iConfig.getParameter<double>("thresh_SCEt"));
 
