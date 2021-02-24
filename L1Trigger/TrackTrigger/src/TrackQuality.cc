@@ -90,13 +90,14 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
   int eta_size = static_cast<int>(eta_bins.size());
   // First iterate through eta bins
 
-  for (int j = 0; j < eta_size; j++) {
-    if (eta >= eta_bins[j] && eta < eta_bins[j + 1])  // if track in eta bin
+  for (int j = 1; j < eta_size; j++) {
+    if (eta < eta_bins[j] && eta >= eta_bins[j - 1])  // if track in eta bin
     {
       // Iterate through hitpattern binary
       for (int k = 0; k <= 6; k++)
         // Fill expanded binary entries using the expected hitmap table positions
-        hitpattern_expanded_binary[hitmap[j][k]] = hitpattern_binary[k];
+        hitpattern_expanded_binary[hitmap[j - 1][k]] = hitpattern_binary[k];
+      break;
     }
   }
 
