@@ -337,6 +337,43 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
   make_cosh_ieta_map();
 
+  // Here we will determine if we are using new version of TPs (1TS)
+  // i.e. are we using a new pulse filter scheme.
+  const HcalElectronicsMap* emap = conditions.getHcalMapping();
+
+  int lastHBRing = topo_->lastHBRing();
+  int lastHERing = topo_->lastHERing();
+
+  // First, determine if we should configure for the filter scheme
+  // Check the tp version to make this determination
+  bool foundHB = false;
+  bool foundHE = false;
+  bool newHBtp = false;
+  bool newHEtp = false;
+  std::vector<HcalElectronicsId> vIds = emap->allElectronicsIdTrigger();
+  for (std::vector<HcalElectronicsId>::const_iterator eId = vIds.begin(); eId != vIds.end(); eId++) {
+    // The first HB or HE id is enough to tell whether to use new scheme in HB or HE
+    if (foundHB and foundHE)
+      break;
+
+    HcalTrigTowerDetId hcalTTDetId(emap->lookupTrigger(*eId));
+    if (hcalTTDetId.null())
+      continue;
+
+    int aieta = abs(hcalTTDetId.ieta());
+    int tp_version = hcalTTDetId.version();
+
+    if (aieta <= lastHBRing) {
+      foundHB = true;
+      if (tp_version > 1)
+        newHBtp = true;
+    } else if (aieta > lastHBRing and aieta < lastHERing) {
+      foundHE = true;
+      if (tp_version > 1)
+        newHEtp = true;
+    }
+  }
+
   for (const auto& id : metadata->getAllChannels()) {
     if (not(id.det() == DetId::Hcal and topo_->valid(id)))
       continue;
@@ -419,11 +456,10 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
       double correctionPhaseNS = conditions.getHcalRecoParam(cell)->correctionPhaseNS();
 
-      // When containPhaseNS is not -999.0, and for QIE11 only, override from configuration
       if (qieType == QIE11) {
-        if (containPhaseNSHB_ != -999.0 and cell.ietaAbs() <= topo_->lastHBRing())
+        if (overrideDBweightsAndFilterHB_ and cell.ietaAbs() <= lastHBRing)
           correctionPhaseNS = containPhaseNSHB_;
-        else if (containPhaseNSHE_ != -999.0 and cell.ietaAbs() > topo_->lastHBRing())
+        else if (overrideDBweightsAndFilterHE_ and cell.ietaAbs() > lastHBRing)
           correctionPhaseNS = containPhaseNSHE_;
       }
       for (unsigned int adc = 0; adc < SIZE; ++adc) {
@@ -444,8 +480,8 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
                 pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
             if (qieType == QIE11) {
               // When contain1TS_ is set, it should still only apply for QIE11-related things
-              if ((contain1TSHB_ and cell.ietaAbs() <= topo_->lastHBRing()) or
-                  (contain1TSHE_ and cell.ietaAbs() > topo_->lastHBRing())) {
+              if ((((contain1TSHB_ and overrideDBweightsAndFilterHB_) or newHBtp) and cell.ietaAbs() <= lastHBRing) or
+                  (((contain1TSHE_ and overrideDBweightsAndFilterHE_) or newHEtp) and cell.ietaAbs() > lastHBRing)) {
                 containmentCorrection = containmentCorrection1TS;
               } else {
                 containmentCorrection = containmentCorrection2TSCorrected;

@@ -4,7 +4,6 @@ from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import tpScales
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-from Configuration.Eras.Modifier_run3_HE_cff import run3_HE
 
 LSParameter =cms.untracked.PSet(
 HcalFeatureHFEMBit= cms.bool(False),
@@ -82,8 +81,8 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
         cms.InputTag('simHcalUnsuppressedDigis:HBHEQIE11DigiCollection'),
         cms.InputTag('simHcalUnsuppressedDigis:HFQIE10DigiCollection')),
     InputTagFEDRaw = cms.InputTag("rawDataCollector"),
-    useDBweightsAndFilterHB = cms.bool(False),
-    useDBweightsAndFilterHE = cms.bool(False),
+    overrideDBweightsAndFilterHB = cms.bool(False),
+    overrideDBweightsAndFilterHE = cms.bool(False),
     RunZS = cms.bool(False),
     FrontEndFormatError = cms.bool(False), # Front End Format Error, for real data only
     PeakFinderAlgorithm = cms.int32(2),
@@ -98,7 +97,5 @@ run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis,
                       numberOfPresamplesHF = cms.int32(1)
 )
 run2_HF_2017.toModify(tpScales.HF, NCTShift=cms.int32(2))
-run3_HE.toModify(simHcalTriggerPrimitiveDigis, useDBweightsAndFilter=cms.bool(False))
-run3_HB.toModify(simHcalTriggerPrimitiveDigis, useDBweightsAndFilter=cms.bool(False))
 run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=cms.bool(True))
 run3_HB.toModify(tpScales.HBHE, LSBQIE11Overlap=cms.double(1/16.))
