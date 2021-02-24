@@ -32,7 +32,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
   } else if (trackSelectionAlgorithm == "filterWithThreshold") {
     theTrackFilter = new HITrackFilterForPVFinding(conf.getParameter<edm::ParameterSet>("TkFilterParameters"));
   } else {
-    throw VertexException("PrimaryVertexProducerAlgorithm: unknown track selection algorithm: " +
+    throw VertexException("PrimaryVertexProducer: unknown track selection algorithm: " +
                           trackSelectionAlgorithm);
   }
 
@@ -57,7 +57,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
   }
 
   else {
-    throw VertexException("PrimaryVertexProducerAlgorithm: unknown clustering algorithm: " + clusteringAlgorithm);
+    throw VertexException("PrimaryVertexProducer: unknown clustering algorithm: " + clusteringAlgorithm);
   }
 
   if (f4D) {
@@ -80,7 +80,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
       } else if (fitterAlgorithm == "AdaptiveVertexFitter") {
         algorithm.fitter = new AdaptiveVertexFitter(GeometricAnnealing(algoconf->getParameter<double>("chi2cutoff")));
       } else {
-        throw VertexException("PrimaryVertexProducerAlgorithm: unknown algorithm: " + fitterAlgorithm);
+        throw VertexException("PrimaryVertexProducer: unknown algorithm: " + fitterAlgorithm);
       }
       algorithm.label = algoconf->getParameter<std::string>("label");
       algorithm.minNdof = algoconf->getParameter<double>("minNdof");
@@ -120,10 +120,10 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
   fRecoveryIteration = conf.getParameter<bool>("isRecoveryIteration");
   if (fRecoveryIteration) {
     if (algorithms.empty()) {
-      throw VertexException("PrimaryVertexProducerAlgorithm: No algorithm specified. ");
+      throw VertexException("PrimaryVertexProducer: No algorithm specified. ");
     } else if (algorithms.size() > 1) {
       throw VertexException(
-          "PrimaryVertexProducerAlgorithm: Running in Recovery mode and more than one algorithm specified.  Please "
+          "PrimaryVertexProducer: Running in Recovery mode and more than one algorithm specified.  Please "
           "only one algorithm.");
     }
     recoveryVtxToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("recoveryVtxCollection"));
@@ -144,7 +144,7 @@ PrimaryVertexProducer::~PrimaryVertexProducer() {
 }
 
 void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // get the BeamSpot, it will alwys be needed, even when not used as a constraint
+  // get the BeamSpot, it will always be needed, even when not used as a constraint
   reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByToken(bsToken, recoBeamSpotHandle);
@@ -251,8 +251,10 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
         if (f4D) {
           if (v.isValid()) {
             auto err = v.positionError().matrix4D();
+            auto trkweightMap3d = v.weightMap();  // copy the 3 fit weights
             err(3, 3) = vartime;
             v = TransientVertex(v.position(), meantime, err, v.originalTracks(), v.totalChiSquared());
+            v.weightMap(trkweightMap3d);
           }
         }
 
@@ -427,6 +429,7 @@ void PrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& des
       psd1.add<double>("coolingFactor", 0.6);
       psd1.add<double>("vertexSize", 0.006);
       psd1.add<double>("uniquetrkweight", 0.8);
+      psd1.add<double>("uniquetrkminp", 0.0);
       psd1.add<double>("zrange", 4.0);
 
       psd1.add<double>("tmerge", 0.01);           // 4D only
