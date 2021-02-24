@@ -20,10 +20,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-
 class GEMRecoIdealDBLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  GEMRecoIdealDBLoader(const edm::ParameterSet&); 
+  GEMRecoIdealDBLoader(const edm::ParameterSet&);
 
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
@@ -34,7 +33,7 @@ private:
 };
 
 GEMRecoIdealDBLoader::GEMRecoIdealDBLoader(const edm::ParameterSet& iC) {
-  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false); // set true for DD4HEP
+  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);  // set true for DD4HEP
 }
 
 void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
@@ -47,20 +46,19 @@ void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
   }
 
   if (mydbservice->isNewTagRequest("GEMRecoGeometryRcd")) {
-   
     edm::ESHandle<MuonGeometryConstants> pMNDC;
     GEMGeometryParsFromDD rpcpd;
     RecoIdealGeometry* rig = new RecoIdealGeometry;
 
     if (fromDD4Hep_) {
-      edm::LogVerbatim("GEMRecoIdealDBLoader")<< "(0) GEMRecoIdealDBLoader - DD4HEP ";
+      edm::LogVerbatim("GEMRecoIdealDBLoader") << "(0) GEMRecoIdealDBLoader - DD4HEP ";
       edm::ESTransientHandle<cms::DDCompactView> pDD;
       es.get<IdealGeometryRecord>().get(pDD);
       es.get<IdealGeometryRecord>().get(pMNDC);
       const cms::DDCompactView& cpv = *pDD;
-      rpcpd.build(&cpv, *pMNDC, *rig); 
+      rpcpd.build(&cpv, *pMNDC, *rig);
     } else {
-      edm::LogVerbatim("GEMRecoIdealDBLoader")<< "(0) GEMRecoIdealDBLoader - DDD ";
+      edm::LogVerbatim("GEMRecoIdealDBLoader") << "(0) GEMRecoIdealDBLoader - DDD ";
       edm::ESTransientHandle<DDCompactView> pDD;
       es.get<IdealGeometryRecord>().get(pDD);
       es.get<IdealGeometryRecord>().get(pMNDC);
