@@ -157,5 +157,5 @@
 <test name="run-ipython2" command="ipython2 -h"/>
 <test name="run-ipython3" command="ipython3 -h"/>
 <test name="run-pylint" command="pylint -h"/>
-<test name="run-pylint2" command="pylint2 -h"/
+<test name="run-pylint2" command="pylint2 -h"/>
 <test name="run-pylint3" command="pylint3 -h"/>
