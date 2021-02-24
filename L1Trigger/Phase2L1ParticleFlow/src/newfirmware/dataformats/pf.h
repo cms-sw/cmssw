@@ -161,13 +161,26 @@ namespace l1ct {
     glbphi_t hwPhiCenter;
     eta_t hwEtaHalfWidth;
     phi_t hwPhiHalfWidth;
+    eta_t hwEtaExtra;
+    phi_t hwPhiExtra;
 
+    inline int intEtaCenter() const { return hwEtaCenter.to_int(); }
+    inline int intPhiCenter() const { return hwPhiCenter.to_int(); }
     inline float floatEtaCenter() const { return Scales::floatEta(hwEtaCenter); }
     inline float floatPhiCenter() const { return Scales::floatPhi(hwPhiCenter); }
     inline float floatEtaHalfWidth() const { return Scales::floatEta(hwEtaHalfWidth); }
     inline float floatPhiHalfWidth() const { return Scales::floatPhi(hwPhiHalfWidth); }
+    inline float floatEtaExtra() const { return Scales::floatEta(hwEtaExtra); }
+    inline float floatPhiExtra() const { return Scales::floatPhi(hwPhiExtra); }
+    inline float floatPhiHalfWidthExtra() const { return floatPhiHalfWidth() + floatPhiExtra(); }
     inline float floatEtaMin() const { return Scales::floatEta(glbeta_t(hwEtaCenter - hwEtaHalfWidth)); }
     inline float floatEtaMax() const { return Scales::floatEta(glbeta_t(hwEtaCenter + hwEtaHalfWidth)); }
+    inline float floatEtaMinExtra() const {
+      return Scales::floatEta(glbeta_t(hwEtaCenter - hwEtaHalfWidth - hwEtaExtra));
+    }
+    inline float floatEtaMaxExtra() const {
+      return Scales::floatEta(glbeta_t(hwEtaCenter + hwEtaHalfWidth + hwEtaExtra));
+    }
 
     inline glbeta_t hwGlbEta(eta_t hwEta) const { return hwEtaCenter + hwEta; }
     inline glbphi_t hwGlbPhi(phi_t hwPhi) const {
@@ -204,13 +217,22 @@ namespace l1ct {
     inline bool isFiducial(eta_t hwEta, phi_t hwPhi) const {
       return hwEta <= hwEtaHalfWidth && hwEta > -hwEtaHalfWidth && hwPhi <= hwPhiHalfWidth && hwPhi > -hwPhiHalfWidth;
     }
+    template <typename ET, typename PT>  // forcing down to eta_t and phi_t may have overflows & crops
+    inline bool isInside(ET hwEta, PT hwPhi) const {
+      return hwEta <= hwEtaHalfWidth + hwEtaExtra && hwEta >= -hwEtaHalfWidth - hwEtaExtra &&
+             hwPhi <= hwPhiHalfWidth + hwPhiExtra && hwPhi >= -hwPhiHalfWidth - hwPhiExtra;
+    }
 
     template <typename T>
     inline bool isFiducial(const T &t) const {
       return isFiducial(t.hwEta, t.hwPhi);
     }
+    template <typename T>
+    inline bool isInside(const T &t) const {
+      return isInside(t.hwEta, t.hwPhi);
+    }
 
-    static const int BITWIDTH = glbeta_t::width + glbphi_t::width + eta_t::width + phi_t::width;
+    static const int BITWIDTH = glbeta_t::width + glbphi_t::width + 2 * eta_t::width + 2 * phi_t::width;
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -218,6 +240,8 @@ namespace l1ct {
       _pack_into_bits(ret, start, hwPhiCenter);
       _pack_into_bits(ret, start, hwEtaHalfWidth);
       _pack_into_bits(ret, start, hwPhiHalfWidth);
+      _pack_into_bits(ret, start, hwEtaExtra);
+      _pack_into_bits(ret, start, hwPhiExtra);
       return ret;
     }
     inline static PFRegion unpack(const ap_uint<BITWIDTH> &src) {
@@ -227,6 +251,8 @@ namespace l1ct {
       _unpack_from_bits(src, start, ret.hwPhiCenter);
       _unpack_from_bits(src, start, ret.hwEtaHalfWidth);
       _unpack_from_bits(src, start, ret.hwPhiHalfWidth);
+      _unpack_from_bits(src, start, ret.hwEtaExtra);
+      _unpack_from_bits(src, start, ret.hwPhiExtra);
       return ret;
     }
   };

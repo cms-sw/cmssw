@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <cstdlib>
+#include <algorithm>
 
 #ifdef CMSSW_GIT_HASH
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -84,28 +85,25 @@ bool l1ct::EGIsoEleObjEmu::read(std::fstream& from) {
 bool l1ct::EGIsoEleObjEmu::write(std::fstream& to) const { return writeObj<EGIsoEleObj>(*this, to); }
 
 l1ct::PFRegionEmu::PFRegionEmu(
-    float etamin, float etamax, float phicenter, float phiwidth, float etaextra, float phiextra)
-    : etaExtra(etaextra), phiExtra(phiextra) {
+    float etamin, float etamax, float phicenter, float phiwidth, float etaextra, float phiextra) {
   hwEtaCenter = Scales::makeGlbEta(0.5 * (etamin + etamax));
   hwPhiCenter = Scales::makeGlbPhi(phicenter);
   hwEtaHalfWidth = Scales::makeGlbEta(0.5 * (etamax - etamin));
   hwPhiHalfWidth = Scales::makeGlbPhi(0.5 * phiwidth);
+  hwEtaExtra = Scales::makeGlbEta(etaextra);
+  hwPhiExtra = Scales::makeGlbPhi(phiextra);
 }
 
 bool l1ct::PFRegionEmu::contains(float eta, float phi) const {
   float dphi = reco::deltaPhi(floatPhiCenter(), phi);
-  return (floatEtaMin() - etaExtra < eta && eta <= floatEtaMax() + etaExtra && -floatPhiHalfWidth() - phiExtra < dphi &&
-          dphi <= floatPhiHalfWidth() + phiExtra);
+  return (floatEtaMinExtra() < eta && eta <= floatEtaMaxExtra() && -floatPhiHalfWidthExtra() < dphi &&
+          dphi <= floatPhiHalfWidthExtra());
 }
 float l1ct::PFRegionEmu::localEta(float globalEta) const { return globalEta - floatEtaCenter(); }
 float l1ct::PFRegionEmu::localPhi(float globalPhi) const { return reco::deltaPhi(globalPhi, floatPhiCenter()); }
 
-bool l1ct::PFRegionEmu::read(std::fstream& from) {
-  return readObj<PFRegion>(from, *this) && readVar(from, etaExtra) && readVar(from, phiExtra);
-}
-bool l1ct::PFRegionEmu::write(std::fstream& to) const {
-  return writeObj<PFRegion>(*this, to) && writeVar(etaExtra, to) && writeVar(phiExtra, to);
-}
+bool l1ct::PFRegionEmu::read(std::fstream& from) { return readObj<PFRegion>(from, *this); }
+bool l1ct::PFRegionEmu::write(std::fstream& to) const { return writeObj<PFRegion>(*this, to); }
 
 bool l1ct::PVObjEmu::read(std::fstream& from) { return readAP(from, hwZ0); }
 bool l1ct::PVObjEmu::write(std::fstream& to) const { return writeAP(hwZ0, to); }
@@ -208,12 +206,90 @@ bool l1ct::OutputRegion::write(std::fstream& to) const {
   return writeMany(pfcharged, to) && writeMany(pfneutral, to) && writeMany(pfphoton, to) && writeMany(pfmuon, to) &&
          writeMany(puppi, to);
 }
+
 void l1ct::OutputRegion::clear() {
   pfcharged.clear();
   pfphoton.clear();
   pfneutral.clear();
   pfmuon.clear();
   puppi.clear();
+}
+
+// begin helper functions
+namespace {
+  template <typename TV>
+  unsigned int count_nonnull(const TV& v) {
+    typedef typename TV::value_type T;
+    return std::count_if(v.begin(), v.end(), [](const T& p) { return p.hwPt > 0; });
+  }
+  template <typename TV, typename F>
+  unsigned int count_nonnull_if(const TV& v, F pred) {
+    unsigned int n = 0;
+    for (auto& p : v) {
+      if (p.hwPt > 0 && pred(p.hwId))
+        ++n;
+    }
+    return n;
+  }
+}  // namespace
+// end helper functions
+unsigned int l1ct::OutputRegion::nObj(ObjType type, bool usePuppi) const {
+  switch (type) {
+    case anyType:
+      if (usePuppi)
+        return ::count_nonnull(puppi);
+      else
+        return ::count_nonnull(pfcharged) + ::count_nonnull(pfphoton) + ::count_nonnull(pfneutral);
+    case chargedType:
+      if (usePuppi)
+        return ::count_nonnull_if(puppi, [](const l1ct::ParticleID& i) { return i.charged(); });
+      else
+        return ::count_nonnull(pfcharged);
+    case neutralType:
+      if (usePuppi)
+        return ::count_nonnull_if(puppi, [](const l1ct::ParticleID& i) { return i.neutral(); });
+      else
+        return ::count_nonnull(pfphoton) + ::count_nonnull(pfneutral);
+    case electronType:
+      if (usePuppi)
+        return ::count_nonnull_if(puppi, [](const l1ct::ParticleID& i) { return i.isElectron(); });
+      else
+        return ::count_nonnull_if(pfcharged, [](const l1ct::ParticleID& i) { return i.isElectron(); });
+    case muonType:
+      if (usePuppi)
+        return ::count_nonnull_if(puppi, [](const l1ct::ParticleID& i) { return i.isMuon(); });
+      else
+        return ::count_nonnull_if(pfcharged, [](const l1ct::ParticleID& i) { return i.isMuon(); });
+    case chargedHadronType:
+      if (usePuppi)
+        return ::count_nonnull_if(puppi, [](const l1ct::ParticleID& i) { return i.isChargedHadron(); });
+      else
+        return ::count_nonnull_if(pfcharged, [](const l1ct::ParticleID& i) { return i.isChargedHadron(); });
+    case neutralHadronType:
+      if (usePuppi)
+        return ::count_nonnull_if(puppi,
+                                  [](const l1ct::ParticleID& i) { return i.rawId() == l1ct::ParticleID::HADZERO; });
+      else
+        return ::count_nonnull_if(pfneutral,
+                                  [](const l1ct::ParticleID& i) { return i.rawId() == l1ct::ParticleID::HADZERO; });
+    case photonType:
+      if (usePuppi)
+        return ::count_nonnull_if(puppi,
+                                  [](const l1ct::ParticleID& i) { return i.rawId() == l1ct::ParticleID::PHOTON; });
+      else
+        return ::count_nonnull_if(pfneutral,
+                                  [](const l1ct::ParticleID& i) { return i.rawId() == l1ct::ParticleID::PHOTON; }) +
+               ::count_nonnull_if(pfphoton,
+                                  [](const l1ct::ParticleID& i) { return i.rawId() == l1ct::ParticleID::PHOTON; });
+    case egisoType:
+      assert(!usePuppi);
+      return ::count_nonnull(egphoton);
+    case egisoeleType:
+      assert(!usePuppi);
+      return ::count_nonnull(egelectron);
+    default:
+      assert(false);
+  }
 }
 
 bool l1ct::Event::read(std::fstream& from) {

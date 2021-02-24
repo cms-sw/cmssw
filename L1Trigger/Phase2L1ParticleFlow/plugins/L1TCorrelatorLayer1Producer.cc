@@ -61,8 +61,6 @@ private:
 
   float emPtCut_, hadPtCut_;
 
-  bool sortOutputs_;
-
   l1ct::Event event_;
   std::unique_ptr<l1ct::RegionizerEmulator> regionizer_;
   std::unique_ptr<l1ct::PFAlgoEmulatorBase> l1pfalgo_;
@@ -114,6 +112,15 @@ private:
 
   template <typename T>
   void setRefs_(l1t::PFCandidate &pf, const T &p) const;
+
+  // for multiplicities
+  enum InputType { caloType = 0, emcaloType = 1, trackType = 2, l1muType = 3 };
+  static constexpr const char *inputTypeName[l1muType + 1] = {"Calo", "EmCalo", "TK", "Mu"};
+  std::unique_ptr<std::vector<unsigned>> vecSecInput(InputType i) const;
+  std::unique_ptr<std::vector<unsigned>> vecRegInput(InputType i) const;
+  typedef l1ct::OutputRegion::ObjType OutputType;
+  std::unique_ptr<std::vector<unsigned>> vecOutput(OutputType i, bool usePuppi) const;
+  std::pair<unsigned int, unsigned int> totAndMax(const std::vector<unsigned> &perRegion) const;
 };
 
 //
@@ -132,7 +139,6 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
       //tkMuCands_(consumes<l1t::TkMuonCollection>(iConfig.getParameter<edm::InputTag>("tkMuons"))),
       emPtCut_(iConfig.getParameter<double>("emPtCut")),
       hadPtCut_(iConfig.getParameter<double>("hadPtCut")),
-      sortOutputs_(iConfig.getParameter<bool>("sortOutputs")),
       regionizer_(nullptr),
       l1pfalgo_(nullptr),
       l1pualgo_(nullptr),
@@ -192,24 +198,22 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
 
   extTkVtx_ = consumes<std::vector<l1t::TkPrimaryVertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"));
 
-#if 0
-  for (int tot = 0; tot <= 1; ++tot) {
-    for (int i = 0; i < l1tpf_impl::Region::n_input_types; ++i) {
-      produces<unsigned int>(std::string(tot ? "totNL1" : "maxNL1") + l1tpf_impl::Region::inputTypeName(i));
+  const char *iprefix[4] = {"totNReg", "maxNReg", "totNSec", "maxNSec"};
+  for (int i = 0; i <= l1muType; ++i) {
+    for (int ip = 0; ip < 4; ++ip) {
+      produces<unsigned int>(std::string(iprefix[ip]) + inputTypeName[i]);
     }
-    for (int i = 0; i < l1tpf_impl::Region::n_output_types; ++i) {
-      produces<unsigned int>(std::string(tot ? "totNL1PF" : "maxNL1PF") + l1tpf_impl::Region::outputTypeName(i));
-      produces<unsigned int>(std::string(tot ? "totNL1Puppi" : "maxNL1Puppi") + l1tpf_impl::Region::outputTypeName(i));
+    produces<std::vector<unsigned>>(std::string("vecNReg") + inputTypeName[i]);
+    produces<std::vector<unsigned>>(std::string("vecNSec") + inputTypeName[i]);
+  }
+  const char *oprefix[4] = {"totNPF", "maxNPF", "totNPuppi", "maxNPuppi"};
+  for (int i = 0; i < l1ct::OutputRegion::nPFTypes; ++i) {
+    for (int ip = 0; ip < 4; ++ip) {
+      produces<unsigned int>(std::string(oprefix[ip]) + l1ct::OutputRegion::objTypeName[i]);
     }
+    produces<std::vector<unsigned>>(std::string("vecNPF") + l1ct::OutputRegion::objTypeName[i]);
+    produces<std::vector<unsigned>>(std::string("vecNPuppi") + l1ct::OutputRegion::objTypeName[i]);
   }
-  for (int i = 0; i < l1tpf_impl::Region::n_input_types; ++i) {
-    produces<std::vector<unsigned>>(std::string("vecNL1") + l1tpf_impl::Region::inputTypeName(i));
-  }
-  for (int i = 0; i < l1tpf_impl::Region::n_output_types; ++i) {
-    produces<std::vector<unsigned>>(std::string("vecNL1PF") + l1tpf_impl::Region::outputTypeName(i));
-    produces<std::vector<unsigned>>(std::string("vecNL1Puppi") + l1tpf_impl::Region::outputTypeName(i));
-  }
-#endif
 
   initSectorsAndRegions(iConfig);
 }
@@ -341,7 +345,6 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
     l1pualgo_->run(event_.pfinputs[ir], event_.pvs, event_.out[ir]);
     //l1pualgo_->runNeutralsPU(l1region, z0, -1., puGlobals);
-    //l1region.outputCrop(sortOutputs_);
   }
 
   // save PF into the event
@@ -352,28 +355,35 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
 
   // save the EG objects
   putEgObjects(iEvent, writeEgSta_, "L1Eg", "L1TkEm", "L1TkEle");
-#if 0
 
   // Then go do the multiplicities
-
-  for (int i = 0; i < l1tpf_impl::Region::n_input_types; ++i) {
-    auto totAndMax = l1regions_.totAndMaxInput(i);
-    addUInt(totAndMax.first, std::string("totNL1") + l1tpf_impl::Region::inputTypeName(i), iEvent);
-    addUInt(totAndMax.second, std::string("maxNL1") + l1tpf_impl::Region::inputTypeName(i), iEvent);
-    iEvent.put(l1regions_.vecInput(i), std::string("vecNL1") + l1tpf_impl::Region::inputTypeName(i));
+  for (int i = 0; i <= l1muType; ++i) {
+    auto vecInputs = vecSecInput(InputType(i));
+    auto tm = totAndMax(*vecInputs);
+    addUInt(tm.first, std::string("totNSec") + inputTypeName[i], iEvent);
+    addUInt(tm.second, std::string("maxNSec") + inputTypeName[i], iEvent);
+    iEvent.put(std::move(vecInputs), std::string("vecNSec") + inputTypeName[i]);
   }
-  for (int i = 0; i < l1tpf_impl::Region::n_output_types; ++i) {
-    auto totAndMaxPF = l1regions_.totAndMaxOutput(i, false);
-    auto totAndMaxPuppi = l1regions_.totAndMaxOutput(i, true);
-    addUInt(totAndMaxPF.first, std::string("totNL1PF") + l1tpf_impl::Region::outputTypeName(i), iEvent);
-    addUInt(totAndMaxPF.second, std::string("maxNL1PF") + l1tpf_impl::Region::outputTypeName(i), iEvent);
-    addUInt(totAndMaxPuppi.first, std::string("totNL1Puppi") + l1tpf_impl::Region::outputTypeName(i), iEvent);
-    addUInt(totAndMaxPuppi.second, std::string("maxNL1Puppi") + l1tpf_impl::Region::outputTypeName(i), iEvent);
-    iEvent.put(l1regions_.vecOutput(i, false), std::string("vecNL1PF") + l1tpf_impl::Region::outputTypeName(i));
-    iEvent.put(l1regions_.vecOutput(i, true), std::string("vecNL1Puppi") + l1tpf_impl::Region::outputTypeName(i));
+  for (int i = 0; i <= l1muType; ++i) {
+    auto vecInputs = vecRegInput(InputType(i));
+    auto tm = totAndMax(*vecInputs);
+    addUInt(tm.first, std::string("totNReg") + inputTypeName[i], iEvent);
+    addUInt(tm.second, std::string("maxNReg") + inputTypeName[i], iEvent);
+    iEvent.put(std::move(vecInputs), std::string("vecNReg") + inputTypeName[i]);
+  }
+  for (int i = 0; i < l1ct::OutputRegion::nPFTypes; ++i) {
+    auto vecPF = vecOutput(OutputType(i), false);
+    auto tmPF = totAndMax(*vecPF);
+    addUInt(tmPF.first, std::string("totNPF") + l1ct::OutputRegion::objTypeName[i], iEvent);
+    addUInt(tmPF.second, std::string("maxNPF") + l1ct::OutputRegion::objTypeName[i], iEvent);
+    iEvent.put(std::move(vecPF), std::string("vecNPF") + l1ct::OutputRegion::objTypeName[i]);
+    auto vecPuppi = vecOutput(OutputType(i), true);
+    auto tmPuppi = totAndMax(*vecPuppi);
+    addUInt(tmPuppi.first, std::string("totNPuppi") + l1ct::OutputRegion::objTypeName[i], iEvent);
+    addUInt(tmPuppi.second, std::string("maxNPuppi") + l1ct::OutputRegion::objTypeName[i], iEvent);
+    iEvent.put(std::move(vecPuppi), std::string("vecNPuppi") + l1ct::OutputRegion::objTypeName[i]);
   }
 
-#endif
   if (fRegionDump_.is_open()) {
     event_.write(fRegionDump_);
   }
@@ -787,6 +797,68 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
     iEvent.put(std::move(egs), egLablel);
   iEvent.put(std::move(tkems), tkEmLabel);
   iEvent.put(std::move(tkeles), tkEleLabel);
+}
+
+std::unique_ptr<std::vector<unsigned>> L1TCorrelatorLayer1Producer::vecSecInput(InputType t) const {
+  auto v = std::make_unique<std::vector<unsigned>>();
+  {
+    switch (t) {
+      case caloType:
+        for (const auto &s : event_.decoded.hadcalo)
+          v->push_back(s.size());
+        break;
+      case emcaloType:
+        for (const auto &s : event_.decoded.emcalo)
+          v->push_back(s.size());
+        break;
+      case trackType:
+        for (const auto &s : event_.decoded.track)
+          v->push_back(s.size());
+        break;
+      case l1muType:
+        v->push_back(event_.decoded.muon.size());
+        break;
+    }
+  }
+  return v;
+}
+
+std::unique_ptr<std::vector<unsigned>> L1TCorrelatorLayer1Producer::vecRegInput(InputType t) const {
+  auto v = std::make_unique<std::vector<unsigned>>();
+  for (const auto &reg : event_.pfinputs) {
+    switch (t) {
+      case caloType:
+        v->push_back(reg.hadcalo.size());
+        break;
+      case emcaloType:
+        v->push_back(reg.emcalo.size());
+        break;
+      case trackType:
+        v->push_back(reg.track.size());
+        break;
+      case l1muType:
+        v->push_back(reg.muon.size());
+        break;
+    }
+  }
+  return v;
+}
+
+std::unique_ptr<std::vector<unsigned>> L1TCorrelatorLayer1Producer::vecOutput(OutputType i, bool usePuppi) const {
+  auto v = std::make_unique<std::vector<unsigned>>();
+  for (const auto &reg : event_.out) {
+    v->push_back(reg.nObj(i, usePuppi));
+  }
+  return v;
+}
+std::pair<unsigned int, unsigned int> L1TCorrelatorLayer1Producer::totAndMax(
+    const std::vector<unsigned> &perRegion) const {
+  unsigned int ntot = 0, nmax = 0;
+  for (unsigned ni : perRegion) {
+    ntot += ni;
+    nmax = std::max(nmax, ni);
+  }
+  return std::make_pair(ntot, nmax);
 }
 
 //define this as a plug-in
