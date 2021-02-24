@@ -224,7 +224,8 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv) {
       DDSolid Out_Al =
           DDSolidFactory::tubs(dd_Alname_f, zHalf - 0.1 * mm, rMax_Abs_Al_ - 20 * cm, rMax_Abs_Al_, 0., 90. * deg);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeomX") << dd_Alname_f << " Tubs " << (zHalf - 0.1 * mm) << ":" << (rMax_Abs_Al_ - 20 * cm) << ":" << rMax_Abs_Al_ << ":0:90";
+      edm::LogVerbatim("SFGeomX") << dd_Alname_f << " Tubs " << (zHalf - 0.1 * mm) << ":" << (rMax_Abs_Al_ - 20 * cm)
+                                  << ":" << rMax_Abs_Al_ << ":0:90";
 #endif
 
       outalbx = absAlX_X_ * 0.1;
@@ -239,8 +240,10 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv) {
       DDSolid Out_Altmp3 = DDSolidFactory::subtraction(
           dd_Alname_j, Out_Al, OutAltmp, DDTranslation(outalbx / 2, outalby / 2 + shiftR, 0), DDRotation());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeomX") << dd_Alname_h << " Box " << (outalbx / 2 + 0.1 * mm) << ":" << (outalby / 2 + 0.1 * mm) << ":" << zHalf;
-      edm::LogVerbatim("SFGeomX") << dd_Alname_j << " Subtraction " << Out_Al.name() << ":" << OutAltmp.name() << " at " << DDTranslation(outalbx / 2, outalby / 2  + shiftR, 0) << " no rotation";
+      edm::LogVerbatim("SFGeomX") << dd_Alname_h << " Box " << (outalbx / 2 + 0.1 * mm) << ":"
+                                  << (outalby / 2 + 0.1 * mm) << ":" << zHalf;
+      edm::LogVerbatim("SFGeomX") << dd_Alname_j << " Subtraction " << Out_Al.name() << ":" << OutAltmp.name() << " at "
+                                  << DDTranslation(outalbx / 2, outalby / 2 + shiftR, 0) << " no rotation";
 #endif
       outalby2 = absAlX_Y_ * 0.1;
       outalbx2 = rMax_Abs_Al_ + 0.1 * mm - absAlX_subtr1_Xshift_;
@@ -260,14 +263,19 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv) {
       DDSolid Out_Al2 = DDSolidFactory::unionSolid(
           dd_Alname_g, Out_Altmp6, Out_Altmp4, DDTranslation(0, 0, 0), DDRotation("esalgo:R180"));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeomX") << dd_Alname_i << " Box " << (outalbx2 / 2 + 0.1 * mm) << ":" << (outalby2 / 2 + 0.1 * mm) << ":" << zHalf;
-      edm::LogVerbatim("SFGeomX") << dd_Alname_k << " Subtraction " << Out_Altmp3.name() << ":" << OutAltmp2.name() << " at " << DDTranslation(outalbx2 / 2 + shiftR2, outalby2 / 2, 0) << " no rotation";
-      edm::LogVerbatim("SFGeomX") << dd_Alname_l << " Union " << Out_Altmp4.name() << ":" << Out_Altmp4.name() << " at " << DDTranslation(0, 0, 0) << " rotation esalgo:RABS90";
-      edm::LogVerbatim("SFGeomX") << dd_Alname_m << " Union " << Out_Altmp5.name() << ":" << Out_Altmp4.name() << " at " << DDTranslation(0, 0, 0) << " rotation esalgo:RABS180B";
-      edm::LogVerbatim("SFGeomX") << dd_Alname_g << " Union " << Out_Altmp6.name() << ":" << Out_Altmp4.name() << " at " << DDTranslation(0, 0, 0) << " rotation esalgo:R180";
+      edm::LogVerbatim("SFGeomX") << dd_Alname_i << " Box " << (outalbx2 / 2 + 0.1 * mm) << ":"
+                                  << (outalby2 / 2 + 0.1 * mm) << ":" << zHalf;
+      edm::LogVerbatim("SFGeomX") << dd_Alname_k << " Subtraction " << Out_Altmp3.name() << ":" << OutAltmp2.name()
+                                  << " at " << DDTranslation(outalbx2 / 2 + shiftR2, outalby2 / 2, 0) << " no rotation";
+      edm::LogVerbatim("SFGeomX") << dd_Alname_l << " Union " << Out_Altmp4.name() << ":" << Out_Altmp4.name() << " at "
+                                  << DDTranslation(0, 0, 0) << " rotation esalgo:RABS90";
+      edm::LogVerbatim("SFGeomX") << dd_Alname_m << " Union " << Out_Altmp5.name() << ":" << Out_Altmp4.name() << " at "
+                                  << DDTranslation(0, 0, 0) << " rotation esalgo:RABS180B";
+      edm::LogVerbatim("SFGeomX") << dd_Alname_g << " Union " << Out_Altmp6.name() << ":" << Out_Altmp4.name() << " at "
+                                  << DDTranslation(0, 0, 0) << " rotation esalgo:R180";
       edm::LogVerbatim("SFGeomX") << Outer_Al;
 #endif
- 
+
       for (int L = 0; L < absz; ++L) {
         int K = L;
         std::ostringstream tmp_name_b, tmp_name_b2, tmp_FAl_name_c, tmp_FAl_name_d1, tmp_FAl_name_d2, tmp_FAl_name_d3,
@@ -319,8 +327,9 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv) {
         DDSolid solid_b = DDSolidFactory::box(dd_tmp_name_b, bdx, bdy, zHalf);
         DDSolid solid_b2 = DDSolidFactory::box(dd_tmp_name_b2, bdx + 0.1 * mm, bdy + 0.1 * mm, zHalf);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Box " << bdx << ":" << bdy << ":" << zHalf;
-      edm::LogVerbatim("SFGeomX") << dd_tmp_name_b2 << " Box " << (bdx + 0.1 * mm) << ":" << (bdy + 0.1 * mm) << ":" << zHalf;
+        edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Box " << bdx << ":" << bdy << ":" << zHalf;
+        edm::LogVerbatim("SFGeomX") << dd_tmp_name_b2 << " Box " << (bdx + 0.1 * mm) << ":" << (bdy + 0.1 * mm) << ":"
+                                    << zHalf;
 #endif
 
         sdx = abs1stx[K] - bdx;
@@ -340,8 +349,10 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv) {
         cpv.position(layer, layerFinOutAl, 1, DDTranslation(sdx, sdy, 0), DDRotation());
         cpv.position(layer, layerFinOutAl, 2, DDTranslation(-sdx, sdy, 0), DDRotation());
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("SFGeom") << layer.name() << " copy 1 in " << layerFinOutAl.name() << " at " << DDTranslation(sdx, sdy, 0) << " no rotation";
-	edm::LogVerbatim("SFGeom") << layer.name() << " copy 2 in " << layerFinOutAl.name() << " at " << DDTranslation(-sdx, sdy, 0) << " no rotation";
+        edm::LogVerbatim("SFGeom") << layer.name() << " copy 1 in " << layerFinOutAl.name() << " at "
+                                   << DDTranslation(sdx, sdy, 0) << " no rotation";
+        edm::LogVerbatim("SFGeom") << layer.name() << " copy 2 in " << layerFinOutAl.name() << " at "
+                                   << DDTranslation(-sdx, sdy, 0) << " no rotation";
 #endif
         DDSolid solid_c = DDSolid(dd_FAl_name_c);
         DDSolid solid_d1 =
@@ -349,15 +360,19 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv) {
         DDSolid solid_d2 =
             DDSolidFactory::unionSolid(dd_FAl_name_d, solid_d1, solid_b2, DDTranslation(-sdx, -sdy, 0), DDRotation());
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("SFGeomX") << dd_FAl_name_d1 << " Union " << solid_c.name() << ":" << solid_b2.name() << " at " << DDTranslation(sdx, sdy, 0) << " no rotation";
-	edm::LogVerbatim("SFGeomX") << dd_FAl_name_d << " Union " << solid_d1.name() << ":" << solid_b2.name() << " at " << DDTranslation(-sdx, -sdy, 0) << " no rotation";
+        edm::LogVerbatim("SFGeomX") << dd_FAl_name_d1 << " Union " << solid_c.name() << ":" << solid_b2.name() << " at "
+                                    << DDTranslation(sdx, sdy, 0) << " no rotation";
+        edm::LogVerbatim("SFGeomX") << dd_FAl_name_d << " Union " << solid_d1.name() << ":" << solid_b2.name() << " at "
+                                    << DDTranslation(-sdx, -sdy, 0) << " no rotation";
 #endif
         if (((abs1stx[K] < rIn + 30 * cm) && I == 10) || ((abs2ndx[K] < rIn + 30 * cm) && I == 20)) {
           cpv.position(layer, layerFinOutAl, 3, DDTranslation(sdx, -sdy, 0), DDRotation());
           cpv.position(layer, layerFinOutAl, 4, DDTranslation(-sdx, -sdy, 0), DDRotation());
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeom") << layer.name() << " copy 3 in " << layerFinOutAl.name() << " at " << DDTranslation(sdx, -sdy, 0) << " no rotation";
-	  edm::LogVerbatim("SFGeom") << layer.name() << " copy 4 in " << layerFinOutAl.name() << " at " << DDTranslation(-sdx, -sdy, 0) << " no rotation";
+          edm::LogVerbatim("SFGeom") << layer.name() << " copy 3 in " << layerFinOutAl.name() << " at "
+                                     << DDTranslation(sdx, -sdy, 0) << " no rotation";
+          edm::LogVerbatim("SFGeom") << layer.name() << " copy 4 in " << layerFinOutAl.name() << " at "
+                                     << DDTranslation(-sdx, -sdy, 0) << " no rotation";
 #endif
           DDSolid solid_c = DDSolid(dd_FAl_name_c);
           DDSolid solid_d1 =
@@ -369,10 +384,14 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv) {
           DDSolid solid_d4 =
               DDSolidFactory::unionSolid(dd_FAl_name_d, solid_d3, solid_b2, DDTranslation(-sdx, -sdy, 0), DDRotation());
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("SFGeomX") << dd_FAl_name_d1 << " Union " << solid_c.name() << ":" << solid_b2.name() << " at " << DDTranslation(sdx, sdy, 0) << " no rotation";
-	edm::LogVerbatim("SFGeomX") << dd_FAl_name_d2 << " Union " << solid_d1.name() << ":" << solid_b2.name() << " at " << DDTranslation(sdx, -sdy, 0) << " no rotation";
-	edm::LogVerbatim("SFGeomX") << dd_FAl_name_d3 << " Union " << solid_d2.name() << ":" << solid_b2.name() << " at " << DDTranslation(-sdx, sdy, 0) << " no rotation";
-	edm::LogVerbatim("SFGeomX") << dd_FAl_name_d << " Union " << solid_d3.name() << ":" << solid_b2.name() << " at " << DDTranslation(-sdx, -sdy, 0) << " no rotation";
+          edm::LogVerbatim("SFGeomX") << dd_FAl_name_d1 << " Union " << solid_c.name() << ":" << solid_b2.name()
+                                      << " at " << DDTranslation(sdx, sdy, 0) << " no rotation";
+          edm::LogVerbatim("SFGeomX") << dd_FAl_name_d2 << " Union " << solid_d1.name() << ":" << solid_b2.name()
+                                      << " at " << DDTranslation(sdx, -sdy, 0) << " no rotation";
+          edm::LogVerbatim("SFGeomX") << dd_FAl_name_d3 << " Union " << solid_d2.name() << ":" << solid_b2.name()
+                                      << " at " << DDTranslation(-sdx, sdy, 0) << " no rotation";
+          edm::LogVerbatim("SFGeomX") << dd_FAl_name_d << " Union " << solid_d3.name() << ":" << solid_b2.name()
+                                      << " at " << DDTranslation(-sdx, -sdy, 0) << " no rotation";
 #endif
         }
       }
@@ -389,32 +408,39 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv) {
       DDSolid final = DDSolidFactory::subtraction(dd_tmp_name_d, solidcut, iner, DDTranslation(0, 0, 0), DDRotation());
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Box " << bdx << ":" << bdy << ":" << zHalf;
-      edm::LogVerbatim("SFGeomX") << dd_tmp_name_c << " Tubs " << (zHalf + 0.1 * mm) << ":0:" << In_rad_Abs_Pb << ":0:360";
-      edm::LogVerbatim("SFGeomX") << dd_tmp_name_d << " Subtraction " << solidcut.name() << ":" << iner.name() << " at (0,0,0) no rotation";
+      edm::LogVerbatim("SFGeomX") << dd_tmp_name_c << " Tubs " << (zHalf + 0.1 * mm) << ":0:" << In_rad_Abs_Pb
+                                  << ":0:360";
+      edm::LogVerbatim("SFGeomX") << dd_tmp_name_d << " Subtraction " << solidcut.name() << ":" << iner.name()
+                                  << " at (0,0,0) no rotation";
 #endif
 
       DDLogicalPart layer = DDLogicalPart(dd_tmp_name_d, getMaterial(i), final);
       cpv.position(layer, parent(), 1, DDTranslation(0, 0, zpos), DDRotation());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeom") << layer.name() << " copy 1 in " << parent().name() << " at " << DDTranslation(0, 0, zpos) << " no rotation";
+      edm::LogVerbatim("SFGeom") << layer.name() << " copy 1 in " << parent().name() << " at "
+                                 << DDTranslation(0, 0, zpos) << " no rotation";
 #endif
       DDSolid iner_Al =
           DDSolidFactory::tubs(dd_tmp_name_e, zHalf, In_rad_Abs_Al, In_rad_Abs_Pb - 0.01 * mm, 0., 360. * deg);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeomX") << dd_tmp_name_e << " Tubs " << zHalf << ":" <<  In_rad_Abs_Al << ":" << (In_rad_Abs_Pb - 0.01 * mm) << ":0:360";
+      edm::LogVerbatim("SFGeomX") << dd_tmp_name_e << " Tubs " << zHalf << ":" << In_rad_Abs_Al << ":"
+                                  << (In_rad_Abs_Pb - 0.01 * mm) << ":0:360";
 #endif
 
       DDLogicalPart layerAl = DDLogicalPart(dd_tmp_name_e, getMaterial(i - 1), iner_Al);
       cpv.position(layerAl, parent(), 1, DDTranslation(0, 0, zpos), DDRotation());
       cpv.position(layerFinOutAl, parent(), 1, DDTranslation(0, 0, zpos), DDRotation());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeom") << layerAl.name() << " copy 1 in " << parent().name() << " at " << DDTranslation(0, 0, zpos) << " no rotation";
-      edm::LogVerbatim("SFGeom") << layerFinOutAl.name() << " copy 1 in " << parent().name() << " at " << DDTranslation(0, 0, zpos) << " no rotation";
+      edm::LogVerbatim("SFGeom") << layerAl.name() << " copy 1 in " << parent().name() << " at "
+                                 << DDTranslation(0, 0, zpos) << " no rotation";
+      edm::LogVerbatim("SFGeom") << layerFinOutAl.name() << " copy 1 in " << parent().name() << " at "
+                                 << DDTranslation(0, 0, zpos) << " no rotation";
 #endif
     } else {
       cpv.position(layer, parent(), 1, DDTranslation(0., 0., zpos), DDRotation());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeom") << layer.name() << " copy 1 in " << parent().name() << " at " << DDTranslation(0, 0, zpos) << " no rotation";
+      edm::LogVerbatim("SFGeom") << layer.name() << " copy 1 in " << parent().name() << " at "
+                                 << DDTranslation(0, 0, zpos) << " no rotation";
 #endif
     }
     zpos += zHalf;
@@ -499,11 +525,34 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                              (ladder_thick - (ceramic_length - waf_active) * sin(wedge_angle * 2)) / 2,  // pDx4
                              0);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("SFGeomX") << DDName("LDRFRNT", "esalgo") << " Trap " << (LdrFrnt_Length / 2) << ":" << -wedge_angle / CLHEP::deg << ":0:" << (ladder_width / 2) << ":" << (ladder_thick / 2) << ":" << (ladder_thick / 2) << ":0:" << (ladder_width / 2) << ":" << ((ladder_thick - ceramic_length * sin(wedge_angle * 2)) / 2) << ":" << ((ladder_thick - ceramic_length * sin(wedge_angle * 2)) / 2) << ":0";
-    edm::LogVerbatim("SFGeomX") << DDName("LDRBCK", "esalgo") << " Trap " << (LdrBck_Length / 2) << ":" << -wedge_angle / CLHEP::deg << ":0:" << (ladder_width / 2) << ":" << ((box_thick / cos(wedge_angle * 2) + 0.02 * mm) / 2) << ":" << ((box_thick / cos(wedge_angle * 2) + 0.02 * mm) / 2) << ":0:" << (ladder_width / 2) << ":" << ((ladder_thick - wedge_back_thick) / 2) << ":" << ((ladder_thick - wedge_back_thick) / 2) << ":0";
-    edm::LogVerbatim("SFGeomX") << DDName("LDRFHALF", "esalgo") << " Trap " << (LdrFrnt_Length / 2) << ":" << -wedge_angle / CLHEP::deg << ":0:" << ((ladder_width / 2) / 2) << ":" << (ladder_thick / 2) << ":" << (ladder_thick / 2) << ":0:" << ((ladder_width / 2) / 2) << ":" << ((ladder_thick - ceramic_length * sin(wedge_angle * 2)) / 2) << ":" << ((ladder_thick - ceramic_length * sin(wedge_angle * 2)) / 2) << ":0";
-    edm::LogVerbatim("SFGeomX") << DDName("LDRBHALF", "esalgo") << " Trap " << (LdrBck_Length / 2) << ":" << -wedge_angle / CLHEP::deg << ":0:" << ((ladder_width / 2) / 2) << ":" << ((box_thick / cos(wedge_angle * 2) + 0.02 * mm) / 2) << ":" << ((box_thick / cos(wedge_angle * 2) + 0.02 * mm) / 2) << ":0:" << ((ladder_width / 2) / 2) << ":" << ((ladder_thick - wedge_back_thick) / 2) << ":" << ((ladder_thick - wedge_back_thick) / 2) << ":0";
-    edm::LogVerbatim("SFGeomX") << DDName("LDRFHTR", "esalgo") << " Trap " << ((LdrFrnt_Length - waf_active) / 2) << ":" << -wedge_angle / CLHEP::deg << ":0:" << ((ladder_width / 2) / 2) << ":" << ((ladder_thick) / 2) << ":" << ((ladder_thick) / 2) << ":0:" << ((ladder_width / 2) / 2) << ":" << ((ladder_thick - (ceramic_length - waf_active) * sin(wedge_angle * 2)) / 2) << ":" << ((ladder_thick - (ceramic_length - waf_active) * sin(wedge_angle * 2)) / 2) << ":0";
+    edm::LogVerbatim("SFGeomX") << DDName("LDRFRNT", "esalgo") << " Trap " << (LdrFrnt_Length / 2) << ":"
+                                << -wedge_angle / CLHEP::deg << ":0:" << (ladder_width / 2) << ":" << (ladder_thick / 2)
+                                << ":" << (ladder_thick / 2) << ":0:" << (ladder_width / 2) << ":"
+                                << ((ladder_thick - ceramic_length * sin(wedge_angle * 2)) / 2) << ":"
+                                << ((ladder_thick - ceramic_length * sin(wedge_angle * 2)) / 2) << ":0";
+    edm::LogVerbatim("SFGeomX") << DDName("LDRBCK", "esalgo") << " Trap " << (LdrBck_Length / 2) << ":"
+                                << -wedge_angle / CLHEP::deg << ":0:" << (ladder_width / 2) << ":"
+                                << ((box_thick / cos(wedge_angle * 2) + 0.02 * mm) / 2) << ":"
+                                << ((box_thick / cos(wedge_angle * 2) + 0.02 * mm) / 2) << ":0:" << (ladder_width / 2)
+                                << ":" << ((ladder_thick - wedge_back_thick) / 2) << ":"
+                                << ((ladder_thick - wedge_back_thick) / 2) << ":0";
+    edm::LogVerbatim("SFGeomX") << DDName("LDRFHALF", "esalgo") << " Trap " << (LdrFrnt_Length / 2) << ":"
+                                << -wedge_angle / CLHEP::deg << ":0:" << ((ladder_width / 2) / 2) << ":"
+                                << (ladder_thick / 2) << ":" << (ladder_thick / 2) << ":0:" << ((ladder_width / 2) / 2)
+                                << ":" << ((ladder_thick - ceramic_length * sin(wedge_angle * 2)) / 2) << ":"
+                                << ((ladder_thick - ceramic_length * sin(wedge_angle * 2)) / 2) << ":0";
+    edm::LogVerbatim("SFGeomX") << DDName("LDRBHALF", "esalgo") << " Trap " << (LdrBck_Length / 2) << ":"
+                                << -wedge_angle / CLHEP::deg << ":0:" << ((ladder_width / 2) / 2) << ":"
+                                << ((box_thick / cos(wedge_angle * 2) + 0.02 * mm) / 2) << ":"
+                                << ((box_thick / cos(wedge_angle * 2) + 0.02 * mm) / 2)
+                                << ":0:" << ((ladder_width / 2) / 2) << ":" << ((ladder_thick - wedge_back_thick) / 2)
+                                << ":" << ((ladder_thick - wedge_back_thick) / 2) << ":0";
+    edm::LogVerbatim("SFGeomX") << DDName("LDRFHTR", "esalgo") << " Trap " << ((LdrFrnt_Length - waf_active) / 2) << ":"
+                                << -wedge_angle / CLHEP::deg << ":0:" << ((ladder_width / 2) / 2) << ":"
+                                << ((ladder_thick) / 2) << ":" << ((ladder_thick) / 2)
+                                << ":0:" << ((ladder_width / 2) / 2) << ":"
+                                << ((ladder_thick - (ceramic_length - waf_active) * sin(wedge_angle * 2)) / 2) << ":"
+                                << ((ladder_thick - (ceramic_length - waf_active) * sin(wedge_angle * 2)) / 2) << ":0";
 #endif
 
     // Creation of ladders with 5 micromodules length
@@ -548,7 +597,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 
           DDSolid solid_5a = DDSolidFactory::box(dd_tmp_name_5a, boxax / 2, boxay / 2, boxaz / 2.);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << dd_tmp_name_5a << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":" << (boxaz / 2);
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_5a << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":"
+                                      << (boxaz / 2);
 #endif
           if (ladd_side == 0)
             sdxe[enb] = ladder_width / 4;
@@ -563,7 +613,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                         DDTranslation(sdxe[enb], sdye[enb], sdze[enb]),
                                                         DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << dd_tmp_name_5b << " Union " << solid_5a.name() << ":" << solid_lfhalf.name() << " at " << DDTranslation(sdxe[enb], sdye[enb], sdze[enb]) << " rotation esalgo:RM1299";
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_5b << " Union " << solid_5a.name() << ":" << solid_lfhalf.name()
+                                      << " at " << DDTranslation(sdxe[enb], sdye[enb], sdze[enb])
+                                      << " rotation esalgo:RM1299";
 #endif
 
           if (ladd_side == 0)
@@ -579,7 +631,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                         DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb]),
                                                         DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << dd_tmp_name_5c << " Union " << solid_5b.name() << ":" << solid_lfhtrunc.name() << " at " << DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb]) << " rotation esalgo:RM1299";
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_5c << " Union " << solid_5b.name() << ":" << solid_lfhtrunc.name()
+                                      << " at " << DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb])
+                                      << " rotation esalgo:RM1299";
 #endif
 
           sdxe3[enb] = 0;
@@ -591,7 +645,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                      DDTranslation(sdxe3[enb], sdye3[enb], sdze3[enb]),
                                                      DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_5c.name() << ":" << solid_lbck.name() << " at " << DDTranslation(sdxe3[enb], sdye3[enb], sdze3[enb]) << " rotation esalgo:RM1299";
+          edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_5c.name() << ":" << solid_lbck.name() << " at "
+                                      << DDTranslation(sdxe3[enb], sdye3[enb], sdze3[enb]) << " rotation esalgo:RM1299";
 #endif
 
           DDLogicalPart ladder = DDLogicalPart(ddname, getLaddMaterial(), solid);
@@ -610,7 +665,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 
         DDSolid solid_5pa = DDSolidFactory::box(dd_tmp_name_5pa, boxax / 2, boxay / 2, boxaz / 2.);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("SFGeomX") << dd_tmp_name_5pa << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":" << (boxaz / 2);
+        edm::LogVerbatim("SFGeomX") << dd_tmp_name_5pa << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":"
+                                    << (boxaz / 2);
 #endif
         sdx = 0;
         sdy = -boxay / 2 - LdrFrnt_Length / 2;
@@ -619,7 +675,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
         DDSolid solid_5pb = DDSolidFactory::unionSolid(
             dd_tmp_name_5pb, solid_5pa, solid_lfront, DDTranslation(sdx, sdy, sdz), DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << dd_tmp_name_5pb << " Union " << solid_5pa.name() << ":" << solid_lfront.name() << " at " << DDTranslation(sdx, sdy, sdz) << " rotation esalgo:RM1299";
+        edm::LogVerbatim("SFGeomX") << dd_tmp_name_5pb << " Union " << solid_5pa.name() << ":" << solid_lfront.name()
+                                    << " at " << DDTranslation(sdx, sdy, sdz) << " rotation esalgo:RM1299";
 #endif
 
         sdx = 0;
@@ -629,7 +686,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
         DDSolid solid = DDSolidFactory::unionSolid(
             ddname, solid_5pb, solid_lbck, DDTranslation(sdx, sdy, sdz), DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_5pb.name() << ":" << solid_lbck.name() << " at " << DDTranslation(sdx, sdy, sdz) << " rotation esalgo:RM1299";
+        edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_5pb.name() << ":" << solid_lbck.name() << " at "
+                                    << DDTranslation(sdx, sdy, sdz) << " rotation esalgo:RM1299";
 #endif
 
         DDLogicalPart ladder = DDLogicalPart(ddname, getLaddMaterial(), solid);
@@ -677,7 +735,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
           boxaz = ladder_thick;
           DDSolid solid_a = DDSolidFactory::box(dd_tmp_name_a, boxax / 2, boxay / 2, boxaz / 2.);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << dd_tmp_name_a << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":" << (boxaz / 2);
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_a << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":"
+                                      << (boxaz / 2);
 #endif
 
           sdxe[enb] = 0;
@@ -689,7 +748,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                        DDTranslation(sdxe[enb], sdye[enb], sdze[enb]),
                                                        DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Union " << solid_a.name() << ":" << solid_lfront.name() << " at " << DDTranslation(sdxe[enb], sdye[enb], sdze[enb]) << " rotation esalgo:RM1299";
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Union " << solid_a.name() << ":" << solid_lfront.name()
+                                      << " at " << DDTranslation(sdxe[enb], sdye[enb], sdze[enb])
+                                      << " rotation esalgo:RM1299";
 #endif
 
           if (ladd_side == 0)
@@ -704,7 +765,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                      DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb]),
                                                      DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_b.name() << ":" << solid_lbhalf.name() << " at " << DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb]) << " rotation esalgo:RM1299";
+          edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_b.name() << ":" << solid_lbhalf.name() << " at "
+                                      << DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb]) << " rotation esalgo:RM1299";
 #endif
 
           DDLogicalPart ladder = DDLogicalPart(ddname, getLaddMaterial(), solid);
@@ -731,7 +793,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 
             DDSolid solid_a = DDSolidFactory::box(dd_tmp_name_a, boxax / 2, boxay / 2, boxaz / 2.);
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("SFGeomX") << dd_tmp_name_a << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":" << (boxaz / 2);
+            edm::LogVerbatim("SFGeomX") << dd_tmp_name_a << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":"
+                                        << (boxaz / 2);
 #endif
             if (ladd_side == 0)
               sdxe[enb] = ladder_width / 4;
@@ -746,7 +809,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                          DDTranslation(sdxe[enb], sdye[enb], sdze[enb]),
                                                          DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Union " << solid_a.name() << ":" << solid_lfhalf.name() << " at " << DDTranslation(sdxe[enb], sdye[enb], sdze[enb]) << " rotation esalgo:RM1299";
+            edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Union " << solid_a.name() << ":" << solid_lfhalf.name()
+                                        << " at " << DDTranslation(sdxe[enb], sdye[enb], sdze[enb])
+                                        << " rotation esalgo:RM1299";
 #endif
 
             sdxe2[enb] = 0;
@@ -759,7 +824,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                        DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb]),
                                                        DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_b.name() << ":" << solid_lbck.name() << " at " << DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb]) << " rotation esalgo:RM1299";
+            edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_b.name() << ":" << solid_lbck.name() << " at "
+                                        << DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb])
+                                        << " rotation esalgo:RM1299";
 #endif
 
             DDLogicalPart ladder = DDLogicalPart(ddname, getLaddMaterial(), solid);
@@ -781,7 +848,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
             boxaz = ladder_thick;
             DDSolid solid_a = DDSolidFactory::box(dd_tmp_name_a, boxax / 2, boxay / 2, boxaz / 2.);
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("SFGeomX") << dd_tmp_name_a << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":" << (boxaz / 2);
+            edm::LogVerbatim("SFGeomX") << dd_tmp_name_a << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":"
+                                        << (boxaz / 2);
 #endif
             if (ladd_side == 0)
               sdxe[enb] = ladder_width / 4;
@@ -796,7 +864,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                          DDTranslation(sdxe[enb], sdye[enb], sdze[enb]),
                                                          DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Union " << solid_a.name() << ":" << solid_lfhalf.name() << " at " << DDTranslation(sdxe[enb], sdye[enb], sdze[enb]) << " rotation esalgo:RM1299";
+            edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Union " << solid_a.name() << ":" << solid_lfhalf.name()
+                                        << " at " << DDTranslation(sdxe[enb], sdye[enb], sdze[enb])
+                                        << " rotation esalgo:RM1299";
 #endif
 
             if (ladd_side == 0)
@@ -812,7 +882,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                          DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb]),
                                                          DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("SFGeomX") << dd_tmp_name_c << " Union " << solid_b.name() << ":" << solid_lfhtrunc.name() << " at " << DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb]) << " rotation esalgo:RM1299";
+            edm::LogVerbatim("SFGeomX") << dd_tmp_name_c << " Union " << solid_b.name() << ":" << solid_lfhtrunc.name()
+                                        << " at " << DDTranslation(sdxe2[enb], sdye2[enb], sdze2[enb])
+                                        << " rotation esalgo:RM1299";
 #endif
 
             sdxe3[enb] = 0;
@@ -824,7 +896,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                        DDTranslation(sdxe3[enb], sdye3[enb], sdze3[enb]),
                                                        DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_c.name() << ":" << solid_lbck.name() << " at " << DDTranslation(sdxe3[enb], sdye3[enb], sdze3[enb]) << " rotation esalgo:RM1299";
+            edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_c.name() << ":" << solid_lbck.name() << " at "
+                                        << DDTranslation(sdxe3[enb], sdye3[enb], sdze3[enb])
+                                        << " rotation esalgo:RM1299";
 #endif
 
             DDLogicalPart ladder = DDLogicalPart(ddname, getLaddMaterial(), solid);
@@ -844,7 +918,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
 
         DDSolid solid_pa = DDSolidFactory::box(dd_tmp_name_pa, boxax / 2, boxay / 2, boxaz / 2.);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("SFGeomX") << dd_tmp_name_pa << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":" << (boxaz / 2);
+        edm::LogVerbatim("SFGeomX") << dd_tmp_name_pa << " Box " << (boxax / 2) << ":" << (boxay / 2) << ":"
+                                    << (boxaz / 2);
 #endif
         sdx = 0;
         sdy = -boxay / 2 - LdrFrnt_Length / 2;
@@ -853,7 +928,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
         DDSolid solid_pb = DDSolidFactory::unionSolid(
             dd_tmp_name_pb, solid_pa, solid_lfront, DDTranslation(sdx, sdy, sdz), DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("SFGeomX") << dd_tmp_name_pb << " Union " << solid_pa.name() << ":" << solid_lfront.name() << " at " << DDTranslation(sdx, sdy, sdz) << " rotation esalgo:RM1299";
+        edm::LogVerbatim("SFGeomX") << dd_tmp_name_pb << " Union " << solid_pa.name() << ":" << solid_lfront.name()
+                                    << " at " << DDTranslation(sdx, sdy, sdz) << " rotation esalgo:RM1299";
 #endif
 
         sdx = 0;
@@ -862,7 +938,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
         DDSolid solid = DDSolidFactory::unionSolid(
             ddname, solid_pb, solid_lbck, DDTranslation(sdx, sdy, sdz), DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_pb.name() << ":" << solid_lbck.name() << " at " << DDTranslation(sdx, sdy, sdz) << " rotation esalgo:RM1299";
+        edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_pb.name() << ":" << solid_lbck.name() << " at "
+                                    << DDTranslation(sdx, sdy, sdz) << " rotation esalgo:RM1299";
 #endif
         DDLogicalPart ladder = DDLogicalPart(ddname, getLaddMaterial(), solid);
         DDName ddname2(getLadPrefix(1) + types_l4_[d], "esalgo");
@@ -894,8 +971,12 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                          DDTranslation(xpos, ypos, zpos),
                          DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SWED").name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in " << ddname << " at " << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1299";
-	    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SWED").name() << " copy " << (scopy + 1000 * swed_scopy_glob + 100) << " in " << ddname2 << " at " << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1299";
+            edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SWED").name() << " copy "
+                                       << (scopy + 1000 * swed_scopy_glob) << " in " << ddname << " at "
+                                       << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1299";
+            edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SWED").name() << " copy "
+                                       << (scopy + 1000 * swed_scopy_glob + 100) << " in " << ddname2 << " at "
+                                       << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1299";
 #endif
             ypos = ypos + ywedge_ceramic_diff;
             zpos = -ladder_thick / 2. + 0.005 * mm + zwedge_ceramic_diff;
@@ -910,8 +991,12 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                          DDTranslation(xpos, ypos, zpos),
                          DDRotation("esalgo:RM1300A"));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFBX").name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in " << ddname << " at " << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1298";
-	    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFBY").name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in " << ddname2 << " at " << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1300A";
+            edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFBX").name() << " copy "
+                                       << (scopy + 1000 * swed_scopy_glob) << " in " << ddname << " at "
+                                       << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1298";
+            edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFBY").name() << " copy "
+                                       << (scopy + 1000 * swed_scopy_glob) << " in " << ddname2 << " at "
+                                       << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1300A";
 #endif
           }
         }
@@ -939,8 +1024,12 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                          DDTranslation(xpos, ypos, zpos),
                          DDRotation("esalgo:RM1299"));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SWED").name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in " << ddname << " at " << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1299";
-	    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SWED").name() << " copy " << (scopy + 1000 * swed_scopy_glob + 100) << " in " << ddname2 << " at " << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1299";
+            edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SWED").name() << " copy "
+                                       << (scopy + 1000 * swed_scopy_glob) << " in " << ddname << " at "
+                                       << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1299";
+            edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SWED").name() << " copy "
+                                       << (scopy + 1000 * swed_scopy_glob + 100) << " in " << ddname2 << " at "
+                                       << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1299";
 #endif
             ypos = ypos + ywedge_ceramic_diff;
             zpos = -ladder_thick / 2. + 0.005 * mm + zwedge_ceramic_diff;
@@ -955,8 +1044,12 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                          DDTranslation(xpos, ypos, zpos),
                          DDRotation("esalgo:RM1300A"));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFBX").name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in " << ddname << " at " << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1298";
-	    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFBY").name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in " << ddname2 << " at " << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1300A";
+            edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFBX").name() << " copy "
+                                       << (scopy + 1000 * swed_scopy_glob) << " in " << ddname << " at "
+                                       << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1298";
+            edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFBY").name() << " copy "
+                                       << (scopy + 1000 * swed_scopy_glob) << " in " << ddname2 << " at "
+                                       << DDTranslation(xpos, ypos, zpos) << " rotation esalgo:RM1300A";
 #endif
           }
         }
@@ -1031,7 +1124,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
       cpv.position(
           DDLogicalPart(ddname), DDName("SF", "esalgo"), icopy[j], DDTranslation(xpos, ypos, zpos), DDRotation());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeom") << DDLogicalPart(ddname).name() << " copy " << icopy[j] << " in " << DDName("SF", "esalgo") << " at " << DDTranslation(xpos, ypos, zpos) << " no rotation";
+      edm::LogVerbatim("SFGeom") << DDLogicalPart(ddname).name() << " copy " << icopy[j] << " in "
+                                 << DDName("SF", "esalgo") << " at " << DDTranslation(xpos, ypos, zpos)
+                                 << " no rotation";
 #endif
       DDName ddname2(getLadPrefix(1) + type, "esalgo");
 
@@ -1043,7 +1138,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                    DDTranslation(ypos, -xpos, zpos - zlead1_ + zlead2_),
                    DDRotation("esalgo:R270"));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeom") << DDLogicalPart(ddname2).name() << " copy " << icopy[j] << " in " << DDName("SF", "esalgo") << " at " << DDTranslation(ypos, -xpos, zpos - zlead1_ + zlead2_) << " rotation esalgo:R270";
+      edm::LogVerbatim("SFGeom") << DDLogicalPart(ddname2).name() << " copy " << icopy[j] << " in "
+                                 << DDName("SF", "esalgo") << " at "
+                                 << DDTranslation(ypos, -xpos, zpos - zlead1_ + zlead2_) << " rotation esalgo:R270";
 #endif
       int changed = 0;
       for (int t = 0; t < int(types_l5_.size()); t++)
@@ -1087,7 +1184,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                    DDTranslation(xpos, -ypos, zpos),
                    DDRotation("esalgo:R180"));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeom") << DDLogicalPart(ddname3).name() << " copy " << icopy[j] << " in " << DDName("SF", "esalgo") << " at " << DDTranslation(xpos, -ypos, zpos) << " rotation esalgo:R180";
+      edm::LogVerbatim("SFGeom") << DDLogicalPart(ddname3).name() << " copy " << icopy[j] << " in "
+                                 << DDName("SF", "esalgo") << " at " << DDTranslation(xpos, -ypos, zpos)
+                                 << " rotation esalgo:R180";
 #endif
       DDName ddname4(getLadPrefix(1) + type, "esalgo");
 
@@ -1099,7 +1198,9 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                    DDTranslation(-ypos, -xpos, zpos - zlead1_ + zlead2_),
                    DDRotation("esalgo:R090"));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SFGeom") << DDLogicalPart(ddname4).name() << " copy " << icopy[j] << " in " << DDName("SF", "esalgo") << " at " << DDTranslation(-ypos, -xpos, zpos - zlead1_ + zlead2_) << " rotation esalgo:R090";
+      edm::LogVerbatim("SFGeom") << DDLogicalPart(ddname4).name() << " copy " << icopy[j] << " in "
+                                 << DDName("SF", "esalgo") << " at "
+                                 << DDTranslation(-ypos, -xpos, zpos - zlead1_ + zlead2_) << " rotation esalgo:R090";
 #endif
     }
   }
@@ -1112,14 +1213,16 @@ void DDEcalPreshowerAlgo::doSens(DDCompactView& cpv) {
     cpv.position(
         DDLogicalPart("esalgo:SFSX"), DDName("SFWX", "esalgo"), i + 1, DDTranslation(xpos, 0., 0.), DDRotation());
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFSX").name() << " copy " << (i + 1) << " in " << DDName("SFWX", "esalgo") << " at " << DDTranslation(xpos, 0., 0.) << " no rotation";
+    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFSX").name() << " copy " << (i + 1) << " in "
+                               << DDName("SFWX", "esalgo") << " at " << DDTranslation(xpos, 0., 0.) << " no rotation";
 #endif
 
     ypos = -waf_active / 2. + i * waf_active / 32. + waf_active / 64.;
     cpv.position(
         DDLogicalPart("esalgo:SFSY"), DDName("SFWY", "esalgo"), i + 1, DDTranslation(0., ypos, 0.), DDRotation());
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFSY").name() << " copy " << (i + 1) << " in " << DDName("SFWY", "esalgo") << " at " << DDTranslation(0., ypos, 0.) << " no rotation";
+    edm::LogVerbatim("SFGeom") << DDLogicalPart("esalgo:SFSY").name() << " copy " << (i + 1) << " in "
+                               << DDName("SFWY", "esalgo") << " at " << DDTranslation(0., ypos, 0.) << " no rotation";
 #endif
   }
 }
