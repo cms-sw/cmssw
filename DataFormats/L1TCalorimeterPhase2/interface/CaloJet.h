@@ -6,7 +6,6 @@
 #include <string>
 #include <algorithm>
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace l1tp2 {
 
@@ -33,12 +32,13 @@ namespace l1tp2 {
       if (iter != experimentalParams_.end()) {
         return iter->second;
       } else {
-        edm::LogWarning("CaloJet") << "Error: no mapping for ExperimentalParam: " << name << std::endl;
+        warningNoMapping(name);
         return -99.;
       }
     };
 
   private:
+    static void warningNoMapping(std::string const&);
     // pT calibrated to get
     float calibratedPt_;
     // HCal energy in region behind cluster (for size, look in producer) / ECal energy in cluster

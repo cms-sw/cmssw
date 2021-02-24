@@ -271,10 +271,10 @@ namespace trklet {
     void pipe_increment() { pipe_counter_++; }
     void add_delay(int i) { pipe_delays_.push_back(i); }
     bool has_delay(int i);  //returns true if already have this variable delayed.
-    static void verilog_print(std::vector<VarBase *> v, std::ofstream &fs) { design_print(v, fs, verilog); }
-    static void hls_print(std::vector<VarBase *> v, std::ofstream &fs) { design_print(v, fs, hls); }
-    static void design_print(std::vector<VarBase *> v, std::ofstream &fs, Verilog);
-    static void design_print(std::vector<VarBase *> v, std::ofstream &fs, HLS);
+    static void verilog_print(const std::vector<VarBase *> &v, std::ofstream &fs) { design_print(v, fs, verilog); }
+    static void hls_print(const std::vector<VarBase *> &v, std::ofstream &fs) { design_print(v, fs, hls); }
+    static void design_print(const std::vector<VarBase *> &v, std::ofstream &fs, Verilog);
+    static void design_print(const std::vector<VarBase *> &v, std::ofstream &fs, HLS);
     static std::string pipe_delay(VarBase *v, int nbits, int delay);
     std::string pipe_delays(const int step);
     static std::string pipe_delay_wire(VarBase *v, std::string name_delayed, int nbits, int delay);

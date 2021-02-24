@@ -3,5 +3,4 @@
     <use name="rootgraphics"/>
     <use name="DataFormats/Common"/>
     <use name="DataFormats/EcalDigi"/>
-    <use name="DataFormats/EcalDetId"/>
 </bin>

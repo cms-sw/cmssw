@@ -6,6 +6,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 #include "TMatrixDSym.h"

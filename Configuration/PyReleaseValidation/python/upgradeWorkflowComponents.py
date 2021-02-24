@@ -56,6 +56,12 @@ upgradeKeys[2026] = [
     '2026D75PU',
     '2026D76',
     '2026D76PU',
+    '2026D77',
+    '2026D77PU',
+    '2026D78',
+    '2026D78PU',
+    '2026D79',
+    '2026D79PU',
 ]
 
 # pre-generation of WF numbers
@@ -1207,6 +1213,29 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C11M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
+    '2026D77' : {
+        'Geom' : 'Extended2026D77',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D78' : {
+        'Geom' : 'Extended2026D78', # N.B.: Geometry with square 50x50 um2 pixels in the Inner Tracker.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T22',
+        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
+        'Era' : 'Phase2C11T22M9', # customized for square pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D79' : {
+        'Geom' : 'Extended2026D79', # N.B.: Geometry with 3D pixels in the Inner Tracker.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T23',
+        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
+        'Era' : 'Phase2C11T23M9', # customizes for 3D Pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
 }
 
 # standard PU sequences
@@ -1352,5 +1381,6 @@ upgradeFragments = OrderedDict([
     ('Upsilon1SToMuMu_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'Upsilon1SToMuMu_14')),
     ('TenTau_E_15_500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500_Eta3p1')),
     ('QCD_Pt_1800_2400_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50), 'QCD_Pt_1800_2400_14')),
-    ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_14TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_stopToB_M_800_500mm_14')),
+    ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_14TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_14TeV')),
+    ('GluGluTo2Jets_M_300_2000_14TeV_Exhume_cff',UpgradeFragment(Kby(9,100),'GluGluTo2Jets_14TeV')),
 ])

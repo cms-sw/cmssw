@@ -53,6 +53,10 @@ public:
 public:
   // typedef for a single object template
   struct ObjectParameter {
+    unsigned int unconstrainedPtHigh;
+    unsigned int unconstrainedPtLow;
+    unsigned int impactParameterHigh;
+    unsigned int impactParameterLow;
     unsigned int ptHighThreshold;
     unsigned int ptLowThreshold;
     unsigned int indexHigh;
@@ -62,6 +66,7 @@ public:
     bool requestIso;
     unsigned int qualityLUT;
     unsigned int isolationLUT;
+    unsigned int impactParameterLUT;
     unsigned long long etaRange;
     unsigned int phiHigh;
     unsigned int phiLow;

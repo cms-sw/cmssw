@@ -20,6 +20,7 @@ namespace cond {
       conddb_column(LAST_VALIDATED_TIME, cond::Time_t);
       conddb_column(INSERTION_TIME, boost::posix_time::ptime);
       conddb_column(MODIFICATION_TIME, boost::posix_time::ptime);
+      conddb_column(PROTECTION_CODE, int);
 
       class Table : public ITagTable {
       public:
@@ -33,7 +34,8 @@ namespace cond {
                     std::string& objectType,
                     cond::SynchronizationType& synchronizationType,
                     cond::Time_t& endOfValidity,
-                    cond::Time_t& lastValidatedTime) override;
+                    cond::Time_t& lastValidatedTime,
+                    int& protectionCode) override;
         bool getMetadata(const std::string& name,
                          std::string& description,
                          boost::posix_time::ptime& insertionTime,
@@ -57,10 +59,14 @@ namespace cond {
         void updateValidity(const std::string& name,
                             cond::Time_t lastValidatedTime,
                             const boost::posix_time::ptime& updateTime) override;
-        void setValidationMode() override {}
+        void setProtectionCode(const std::string& name, int code) override;
+        void unsetProtectionCode(const std::string& name, int code) override;
+
+        bool isProtectable() { return m_isProtectable; }
 
       private:
         coral::ISchema& m_schema;
+        bool m_isProtectable = false;
       };
     }
 
@@ -180,6 +186,36 @@ namespace cond {
       };
     }
 
+    conddb_table(TAG_AUTHORIZATION) {
+      conddb_column(TAG_NAME, std::string);
+      conddb_column(ACCESS_TYPE, int);
+      conddb_column(CREDENTIAL, std::string);
+      conddb_column(CREDENTIAL_TYPE, int);
+
+      class Table : public ITagAccessPermissionTable {
+      public:
+        explicit Table(coral::ISchema& schema);
+        ~Table() override {}
+        bool exists() override;
+        void create() override;
+        bool getAccessPermission(const std::string& tagName,
+                                 const std::string& credential,
+                                 int credentialType,
+                                 int accessType) override;
+        void setAccessPermission(const std::string& tagName,
+                                 const std::string& credential,
+                                 int credentialType,
+                                 int accessType) override;
+        void removeAccessPermission(const std::string& tagName,
+                                    const std::string& credential,
+                                    int credentialType) override;
+        void removeEntriesForCredential(const std::string& credential, int credentialType) override;
+
+      private:
+        coral::ISchema& m_schema;
+      };
+    }
+
     conddb_table(TAG_LOG) {
       conddb_column(TAG_NAME, std::string);
       conddb_column(EVENT_TIME, boost::posix_time::ptime);
@@ -217,12 +253,14 @@ namespace cond {
       ITagTable& tagTable() override;
       IIOVTable& iovTable() override;
       ITagLogTable& tagLogTable() override;
+      ITagAccessPermissionTable& tagAccessPermissionTable() override;
       IPayloadTable& payloadTable() override;
 
     private:
       TAG::Table m_tagTable;
       IOV::Table m_iovTable;
       TAG_LOG::Table m_tagLogTable;
+      TAG_AUTHORIZATION::Table m_tagAccessPermissionTable;
       PAYLOAD::Table m_payloadTable;
     };
 

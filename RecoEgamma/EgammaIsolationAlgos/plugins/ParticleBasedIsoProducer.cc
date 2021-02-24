@@ -8,7 +8,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/PFBlockBasedIsolation.h"
 
 class ParticleBasedIsoProducer : public edm::stream::EDProducer<> {
@@ -17,6 +19,8 @@ public:
 
   void beginRun(edm::Run const& r, edm::EventSetup const& es) override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::ParameterSet conf_;
@@ -183,4 +187,28 @@ void ParticleBasedIsoProducer::produce(edm::Event& theEvent, const edm::EventSet
   fillerElectrons.insert(electronHandle, pfCandIsoPairVecEle.begin(), pfCandIsoPairVecEle.end());
   fillerElectrons.fill();
   theEvent.put(std::move(eleToPFCandIsoMap_p), valueMapElePFCandIso_);
+}
+
+void ParticleBasedIsoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // particleBasedIsolation
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("valueMapEleToEG", "");
+  desc.add<std::string>("valueMapPhoToEG", "valMapPFEgammaCandToPhoton");
+  desc.add<edm::InputTag>("electronTmpProducer", {"gedGsfElectronsTmp"});
+  desc.add<edm::InputTag>("pfCandidates", {"particleFlow"});
+  desc.add<std::string>("valueMapElePFblockIso", "gedGsfElectrons");
+  desc.add<edm::InputTag>("electronProducer", {"gedGsfElectrons"});
+  desc.add<edm::InputTag>("photonTmpProducer", {"gedPhotonsTmp"});
+  desc.add<edm::InputTag>("pfEgammaCandidates", {"particleFlowEGamma"});
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("ComponentName", "pfBlockBasedIsolation");
+    psd0.add<double>("coneSize", 9999999999.);
+    desc.add<edm::ParameterSetDescription>("pfBlockBasedIsolationSetUp", psd0);
+  }
+  desc.add<edm::InputTag>("photonProducer", {"gedPhotons"});
+  desc.add<std::string>("valueMapPhoPFblockIso", "gedPhotons");
+  descriptions.add("particleBasedIsolation", desc);
+  // or use the following to generate the label from the module's C++ type
+  //descriptions.addWithDefaultLabel(desc);
 }

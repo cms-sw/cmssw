@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -92,7 +92,7 @@ private:
   DQMStore *dqmStore_;
   edm::ParameterSet conf_;
   std::map<uint32_t, ModMEs> PedMEs;
-  edm::ESHandle<SiStripDetCabling> detcabling;
+  const SiStripDetCabling *detcabling;
   edm::ParameterSet pedsPSet_;
   bool analyzed;
   bool firstEvent;
@@ -109,7 +109,13 @@ private:
   int NumCMstripsInGroup_;
   std::string runTypeFlag_;
   std::string outPutFileName;
-  unsigned long long m_cacheID_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  edm::ESWatcher<SiStripDetCablingRcd> detCablingWatcher_;
+  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
 
   static const std::string RunMode1;
   static const std::string RunMode2;

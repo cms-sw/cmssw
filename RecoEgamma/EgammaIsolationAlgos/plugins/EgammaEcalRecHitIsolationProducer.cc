@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -26,11 +26,11 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-class EgammaEcalRecHitIsolationProducer : public edm::stream::EDProducer<> {
+class EgammaEcalRecHitIsolationProducer : public edm::global::EDProducer<> {
 public:
   explicit EgammaEcalRecHitIsolationProducer(const edm::ParameterSet&);
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   const edm::EDGetTokenT<edm::View<reco::Candidate>> emObjectProducer_;
@@ -91,7 +91,9 @@ EgammaEcalRecHitIsolationProducer::EgammaEcalRecHitIsolationProducer(const edm::
 }
 
 // ------------ method called to produce the data  ------------
-void EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaEcalRecHitIsolationProducer::produce(edm::StreamID,
+                                                edm::Event& iEvent,
+                                                const edm::EventSetup& iSetup) const {
   // Get the  filtered objects
   auto emObjectHandle = iEvent.getHandle(emObjectProducer_);
 

@@ -17,7 +17,7 @@ eleIsoDepositHcalDepth1FromTowers= cms.EDProducer("CandIsoDepositProducer",
     trackType = cms.string('candidate'),
     ExtractorPSet = cms.PSet( EleIsoHcalFromTowersExtractorBlock )
 )
-eleIsoDepositHcalDepth1FromTowers.ExtractorPSet.hcalDepth = cms.int32(1)
+eleIsoDepositHcalDepth1FromTowers.ExtractorPSet.hcalDepth = 1
 
 eleIsoDepositHcalDepth2FromTowers = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("gedGsfElectrons"),
@@ -25,4 +25,4 @@ eleIsoDepositHcalDepth2FromTowers = cms.EDProducer("CandIsoDepositProducer",
     trackType = cms.string('candidate'),
     ExtractorPSet = cms.PSet( EleIsoHcalFromTowersExtractorBlock )
 )
-eleIsoDepositHcalDepth2FromTowers.ExtractorPSet.hcalDepth = cms.int32(2)
+eleIsoDepositHcalDepth2FromTowers.ExtractorPSet.hcalDepth = 2

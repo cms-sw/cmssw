@@ -31,6 +31,7 @@
 
 // Possible Traces:
 // #define ELdestinationCONSTRUCTOR_TRACE
+using namespace edm::messagelogger;
 
 namespace edm {
   namespace service {

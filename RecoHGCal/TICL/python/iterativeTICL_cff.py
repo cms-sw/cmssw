@@ -42,9 +42,3 @@ iterHFNoseTICLTask = cms.Task(
     ticlHFNoseMIPStepTask,
     ticlHFNoseEMStepTask
 )
-
-def injectTICLintoPF(process):
-    if getattr(process,'particleFlowTmp', None):
-      process.particleFlowTmp.src = ['particleFlowTmpBarrel', 'pfTICL']
-
-    return process

@@ -1,12 +1,13 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include <DD4hep/DD4hepUnits.h>
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 static long algorithm(Detector& /* description */, cms::DDParsingContext& context, xml_h element) {
   using VecDouble = vector<double>;
@@ -249,12 +250,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& contex
     name = idName + "Rib" + std::to_string(i);
     double width = 2. * ribW[i] / (rin + rout);
     double dz = 0.5 * layerL - 2. * fillerDz;
-    double _rmi = std::min(rin + 0.5_mm, rout - 0.5_mm);
-    double _rma = std::max(rin + 0.5_mm, rout - 0.5_mm);
+    double _rmi = std::min(rin + 0.5 * dd4hep::mm, rout - 0.5 * dd4hep::mm);
+    double _rma = std::max(rin + 0.5 * dd4hep::mm, rout - 0.5 * dd4hep::mm);
     solid = ns.addSolidNS(name, Tube(_rmi, _rma, dz, -0.5 * width, width));
     LogDebug("TIBGeom") << solid.name() << " Tubs made of " << ribMat << " from " << -0.5 * convertRadToDeg(width)
-                        << " to " << 0.5 * convertRadToDeg(width) << " with Rin " << rin + 0.5_mm << " Rout "
-                        << rout - 0.5_mm << " ZHalf " << dz;
+                        << " to " << 0.5 * convertRadToDeg(width) << " with Rin " << rin + 0.5 * dd4hep::mm << " Rout "
+                        << rout - 0.5 * dd4hep::mm << " ZHalf " << dz;
     Volume cylinderRib = ns.addVolumeNS(Volume(name, solid, matrib));
     double phix = ribPhi[i];
     double theta = 90_deg;

@@ -145,20 +145,12 @@ unsigned int Muon::stationMask(ArbitrationType type) const {
     if (type == RPCHitAndTrackArbitration) {
       if (chamberMatch.rpcMatches.empty())
         continue;
-
       RPCDetId rollId = chamberMatch.id.rawId();
       int rpcIndex = rollId.region() == 0 ? 1 : 2;
-
-      //    for (auto& rpcMatch : chamberMatch.rpcMatches) { // TO BE FIXED: there is clearly something odd here
-      // Replaced by something which restores the previous functionality, but one should verify which were the
-      // original intentions of the author and provide a more appropriate fix (and remove these comment lines)
-      if (!chamberMatch.rpcMatches.empty()) {
-        curMask = 1 << ((chamberMatch.station() - 1) + 4 * (rpcIndex - 1));
-
-        // do not double count
-        if (!(totMask & curMask))
-          totMask += curMask;
-      }
+      curMask = 1 << ((chamberMatch.station() - 1) + 4 * (rpcIndex - 1));
+      // do not double count
+      if (!(totMask & curMask))
+        totMask += curMask;
       continue;
     }
 
@@ -228,7 +220,6 @@ unsigned int Muon::RPClayerMask(ArbitrationType type) const {
     RPCDetId rollId = chamberMatch.id.rawId();
     const int region = rollId.region();
     const int stationIndex = chamberMatch.station();
-
     int rpcLayer = stationIndex;
     if (region == 0) {
       const int layer = rollId.layer();
@@ -238,16 +229,10 @@ unsigned int Muon::RPClayerMask(ArbitrationType type) const {
     } else
       rpcLayer += 6;
 
-    //    for (auto& rpcMatch : chamberMatch.rpcMatches) { // TO BE FIXED: there is clearly something odd here
-    // Replaced by something which restores the previous functionality, but one should verify which were the
-    // original intentions of the author and provide a more appropriate fix (and remove these comment lines)
-    if (!chamberMatch.rpcMatches.empty()) {
-      curMask = 1 << (rpcLayer - 1);
-
-      // do not double count
-      if (!(totMask & curMask))
-        totMask += curMask;
-    }
+    curMask = 1 << (rpcLayer - 1);
+    // do not double count
+    if (!(totMask & curMask))
+      totMask += curMask;
   }
 
   return totMask;
