@@ -1,6 +1,6 @@
 from collections import namedtuple
 from .offline_config import LAYOUTS as offline_layouts
-from  .online_config import LAYOUTS as online_layouts
+from .online_config import LAYOUTS as online_layouts
 
 def register_layout(plot):
     LayoutManager.add_layout(plot)
@@ -33,6 +33,9 @@ class LayoutManager:
         cls.__online_layouts.append(layout)
     elif layout_object['file_path'] in offline_layouts:
         cls.__offline_layouts.append(layout)
+    elif layout_object['destination'].split('/')[0] == 'Summary':
+        cls.__offline_layouts.append(layout)
+        cls.__online_layouts.append(layout)
     cls.__layouts.append(layout)
 
 
