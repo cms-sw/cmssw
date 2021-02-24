@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/CaloTPG/interface/HcalTPGCompressor.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 
 #include <algorithm>
@@ -41,22 +40,10 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   upgrade_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return a; });
   legacy_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return !a; });
 
-  useDBweightsAndFilterHE_ = ps.getParameter<bool>("useDBweightsAndFilterHE");
-  useDBweightsAndFilterHB_ = ps.getParameter<bool>("useDBweightsAndFilterHB");
+  overrideDBweightsAndFilterHE_ = ps.getParameter<bool>("overrideDBweightsAndFilterHE");
+  overrideDBweightsAndFilterHB_ = ps.getParameter<bool>("overrideDBweightsAndFilterHB");
 
-  bool noDBweights = !useDBweightsAndFilterHE_ or !useDBweightsAndFilterHB_;
-
-  // Only if we are using DB weights for all HBHE do we skip this
-  if (noDBweights)
-    theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
-
-  // Fix number of filter presamples to one if we are using DB weights
-  // Size of filter is already known when using DB weights
-  if (useDBweightsAndFilterHE_)
-    theAlgo_.setNumFilterPresamplesHEQIE11(1);
-
-  if (useDBweightsAndFilterHB_)
-    theAlgo_.setNumFilterPresamplesHBQIE11(1);
+  theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
 
   if (ps.exists("parameters")) {
     auto pset = ps.getUntrackedParameter<edm::ParameterSet>("parameters");
@@ -78,7 +65,6 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   tok_tpgTranscoder_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();
   tok_lutMetadata_ = esConsumes<HcalLutMetadata, HcalLutMetadataRcd>();
   tok_trigTowerGeom_ = esConsumes<HcalTrigTowerGeometry, CaloGeometryRecord>();
-  tok_caloGeom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
   tok_hcalTopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
 
   // register for data access
@@ -107,45 +93,88 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 }
 
 void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
-  bool useDBweights = useDBweightsAndFilterHB_ or useDBweightsAndFilterHE_;
+  edm::ESHandle<HcalDbService> db = eventSetup.getHandle(tok_dbService_beginRun_);
+  const HcalTopology* topo = &eventSetup.getData(tok_hcalTopo_);
 
-  if (useDBweights) {
-    const CaloGeometry& geom = eventSetup.getData(tok_caloGeom_);
+  const HcalElectronicsMap* emap = db->getHcalMapping();
 
-    std::map<int, double> weightsMap;
-    edm::ESHandle<HcalDbService> db = eventSetup.getHandle(tok_dbService_beginRun_);
-    const HcalTopology* topo = &eventSetup.getData(tok_hcalTopo_);
-    int lastHERing = topo->lastHERing();
-    const HcalSubdetector subdetectors[2] = {HcalBarrel, HcalEndcap};
+  int lastHERing = topo->lastHERing();
+  int lastHBRing = topo->lastHBRing();
 
-    for (HcalSubdetector subd : subdetectors) {
-      // Skip HB or HE if we don't want to use DB weights
-      if ((subd == HcalBarrel and !useDBweightsAndFilterHB_) or (subd == HcalEndcap and !useDBweightsAndFilterHE_))
-        continue;
+  // First, determine if we should configure for the filter scheme
+  // Check the tp version to make this determination
+  bool foundHB = false;
+  bool foundHE = false;
+  bool newHBtp = false;
+  bool newHEtp = false;
+  std::vector<HcalElectronicsId> vIds = emap->allElectronicsIdTrigger();
+  for (std::vector<HcalElectronicsId>::const_iterator eId = vIds.begin(); eId != vIds.end(); eId++) {
+    // The first HB or HE id is enough to tell whether to use new scheme in HB or HE
+    if (foundHB and foundHE)
+      break;
 
-      const HcalGeometry* hcalGeom = static_cast<const HcalGeometry*>(geom.getSubdetectorGeometry(DetId::Hcal, subd));
-      const std::vector<DetId>& ids = hcalGeom->getValidDetIds(DetId::Hcal, subd);
+    HcalTrigTowerDetId hcalTTDetId(emap->lookupTrigger(*eId));
+    if (hcalTTDetId.null())
+      continue;
 
-      for (const auto cell : ids) {
-        const auto hcalDetId = HcalDetId(cell);
-        int aieta = hcalDetId.ietaAbs();
+    int aieta = abs(hcalTTDetId.ieta());
+    int tp_version = hcalTTDetId.version();
 
-        // Do not let ieta 29 in the map
-        // If the aieta already has a weight in the map, then move on
-        if (weightsMap.find(aieta) != weightsMap.end() or aieta >= lastHERing)
-          continue;
+    if (aieta <= lastHBRing) {
+      foundHB = true;
+      if (tp_version > 1)
+        newHBtp = true;
+    } else if (aieta > lastHBRing and aieta < lastHERing) {
+      foundHE = true;
+      if (tp_version > 1)
+        newHEtp = true;
+    }
+  }
 
-        // Filter weight represented in fixed point 8 bit
-        int fixedPointWeight = db->getHcalTPChannelParameter(hcalDetId)->getauxi1();
+  std::vector<HcalElectronicsId> eIds = emap->allElectronicsIdPrecision();
+  for (std::vector<HcalElectronicsId>::const_iterator eId = eIds.begin(); eId != eIds.end(); eId++) {
+    HcalGenericDetId gid(emap->lookup(*eId));
+    if (gid.null() or (gid.genericSubdet() != HcalGenericDetId::HcalGenBarrel and
+                       gid.genericSubdet() != HcalGenericDetId::HcalGenEndcap))
+      continue;
 
+    HcalDetId hcalDetId(emap->lookup(*eId));
+    if (hcalDetId.null())
+      continue;
+
+    int aieta = abs(hcalDetId.ieta());
+
+    // Do not let ieta 29 in the map
+    // If the aieta already has a weight in the map, then move on
+    if (aieta < lastHERing) {
+      // Filter weight represented in fixed point 8 bit
+      int fixedPointWeight = db->getHcalTPChannelParameter(hcalDetId)->getauxi1();
+
+      if (aieta <= lastHBRing) {
+        // Fix number of filter presamples to one if we are using DB weights
+        // Size of filter is already known when using DB weights
         // Weight from DB represented as 8-bit integer
-        double weight = -static_cast<double>(fixedPointWeight) / 256.0;
-
-        weightsMap[aieta] = weight;
+        if (!overrideDBweightsAndFilterHB_) {
+          if (newHBtp) {
+            theAlgo_.setNumFilterPresamplesHBQIE11(1);
+            theAlgo_.setWeightQIE11(aieta, -static_cast<double>(fixedPointWeight) / 256.0);
+          } else {
+            theAlgo_.setNumFilterPresamplesHBQIE11(0);
+            theAlgo_.setWeightQIE11(aieta, 1.0);
+          }
+        }
+      } else if (aieta > lastHBRing) {
+        if (!overrideDBweightsAndFilterHE_) {
+          if (newHEtp) {
+            theAlgo_.setNumFilterPresamplesHEQIE11(1);
+            theAlgo_.setWeightQIE11(aieta, -static_cast<double>(fixedPointWeight) / 256.0);
+          } else {
+            theAlgo_.setNumFilterPresamplesHEQIE11(0);
+            theAlgo_.setWeightQIE11(aieta, 1.0);
+          }
+        }
       }
     }
-
-    theAlgo_.setWeightsQIE11(weightsMap);
   }
 }
 
