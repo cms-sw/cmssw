@@ -67,6 +67,7 @@ namespace l1ct {
     }
     bool isMuon() const { return bits[2] && bits[1]; }
     bool isElectron() const { return bits[2] && !bits[1]; }
+    bool isChargedHadron() const { return !bits[2] && bits[1]; }
     bool charge() const {
 #ifndef __SYNTHESIS__
       assert(charged());

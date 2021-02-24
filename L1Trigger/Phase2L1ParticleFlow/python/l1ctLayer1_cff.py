@@ -73,8 +73,6 @@ l1ctLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
         trkQualityPtMin=cms.double(10.0),
     ),
     writeEGSta = cms.bool(False),
-    sortOutputs = cms.bool(True),
-    sortInputs = cms.bool(True),
     caloSectors = cms.VPSet(
         cms.PSet( 
             etaBoundaries = cms.vdouble(-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5),
@@ -161,8 +159,6 @@ l1ctLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         trkQualityPtMin=cms.double(10.0),
     ),
     writeEGSta = cms.bool(True),    
-    sortOutputs = cms.bool(True),
-    sortInputs = cms.bool(True),
     caloSectors = cms.VPSet(
         cms.PSet( 
             etaBoundaries = cms.vdouble(-2.5, -1.5),
@@ -248,8 +244,6 @@ l1ctLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
         trkQualityPtMin=cms.double(10.0),
     ),
     writeEGSta = cms.bool(True),    
-    sortOutputs = cms.bool(True),
-    sortInputs = cms.bool(True),
     caloSectors = cms.VPSet(
         cms.PSet( 
             etaBoundaries = cms.vdouble(-3.0, -2.5),
@@ -334,8 +328,6 @@ l1ctLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
         trkQualityPtMin=cms.double(10.0),
     ),
     writeEGSta = cms.bool(True),
-    sortOutputs = cms.bool(True),
-    sortInputs = cms.bool(True),
     caloSectors = cms.VPSet(
         cms.PSet( 
             etaBoundaries = cms.vdouble(-5.5, -3.0),

@@ -270,10 +270,10 @@ void l1ct::PFAlgo3Emulator::run(const PFInputRegion& in, OutputRegion& out) cons
 
   if (debug_) {
     printf("FW\nFW  \t region eta [ %+5.2f , %+5.2f ], phi [ %+5.2f , %+5.2f ]\n",
-           in.region.floatEtaMin() - in.region.etaExtra,
-           in.region.floatEtaMax() + in.region.etaExtra,
-           in.region.floatPhiCenter() - in.region.floatPhiHalfWidth() - in.region.phiExtra,
-           in.region.floatPhiCenter() + in.region.floatPhiHalfWidth() + in.region.phiExtra);
+           in.region.floatEtaMinExtra(),
+           in.region.floatEtaMaxExtra(),
+           in.region.floatPhiCenter() - in.region.floatPhiHalfWidthExtra(),
+           in.region.floatPhiCenter() + in.region.floatPhiHalfWidthExtra());
 
     printf("FW  \t N(track) %3lu   N(em) %3lu   N(calo) %3lu   N(mu) %3lu\n",
            in.track.size(),

@@ -85,9 +85,7 @@ namespace l1ct {
   };
 
   struct PFRegionEmu : public PFRegion {
-    float etaExtra, phiExtra;
-
-    PFRegionEmu() : PFRegion(), etaExtra(0), phiExtra(0) {}
+    PFRegionEmu() : PFRegion() {}
     PFRegionEmu(float etamin, float etamax, float phicenter, float phiwidth, float etaextra, float phiextra);
 
     // global coordinates
@@ -218,10 +216,29 @@ namespace l1ct {
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear();
+
+    // for multiplicities
+    enum ObjType {
+      anyType = 0,
+      chargedType = 1,
+      neutralType = 2,
+      electronType = 3,
+      muonType = 4,
+      chargedHadronType = 5,
+      neutralHadronType = 6,
+      photonType = 7,
+      nPFTypes = 8,
+      egisoType = 8,
+      egisoeleType = 9,
+      nObjTypes = 10
+    };
+    static constexpr const char *objTypeName[nObjTypes] = {
+        "", "Charged", "Neutral", "Electron", "Muon", "ChargedHadron", "NeutralHadron", "Photon", "EGIso", "EGIsoEle"};
+    unsigned int nObj(ObjType type, bool puppi) const;
   };
 
   struct Event {
-    static const int VERSION = 3;
+    static const int VERSION = 4;
     uint32_t run, lumi;
     uint64_t event;
     RegionizerDecodedInputs decoded;
