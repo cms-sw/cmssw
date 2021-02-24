@@ -55,6 +55,5 @@ private:
 
   std::vector<double> getTranslation(cms::DDFilteredView& fv);
   std::vector<double> getRotation(cms::DDFilteredView& fv);
-
 };
 #endif
