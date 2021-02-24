@@ -11,7 +11,7 @@ def apply_dqm_items_to_new_back_end(dqmitems, file_path):
     plots = []
 
     for n in range(lines_amount_in_layout):
-      plots_in_one_row = dqmitems[layout_path][n] # plot are made in tuple, element of tuple is array. Array reflects a line in html table
+      plots_in_one_row = dqmitems[layout_path][n] # In old backend, plots are made in tuple and one element of tuple is array. Array reflects a line in html table
       for one_plot in plots_in_one_row:
         if one_plot is not None:
             if ('path' in one_plot):

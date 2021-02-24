@@ -34,6 +34,9 @@ class LayoutManager:
         cls.__online_layouts.append(layout)
     elif layout_object['file_path'] in offline_layouts:
         cls.__offline_layouts.append(layout)
+    elif layout_object['destination'].split('/')[0] == 'Summary':
+        cls.__offline_layouts.append(layout)
+        cls.__online_layouts.append(layout)
     cls.__layouts.append(layout)
 
 
