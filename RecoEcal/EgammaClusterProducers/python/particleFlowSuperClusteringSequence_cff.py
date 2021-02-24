@@ -28,7 +28,15 @@ phase2_hgcal.toModify(
 particleFlowSuperClusterHGCalFromMultiCl = particleFlowSuperClusterHGCal.clone()
 phase2_hgcal.toModify(
     particleFlowSuperClusterHGCalFromMultiCl,
-    PFClusters = 'particleFlowClusterHGCalFromMultiCl'
+    PFClusters = 'particleFlowClusterHGCalFromMultiCl',
+    useRegression  = True,
+)
+phase2_hgcal.toModify( particleFlowSuperClusterHGCalFromMultiCl.regressionConfig,
+    regressionKeyEE = "superclus_hgcal_mean_offline",
+    uncertaintyKeyEE = "superclus_hgcal_sigma_offline",
+    isPhaseII = True,
+    hgcalRecHits = "particleFlowRecHitHGC"
+            
 )
 _phase2_hgcal_particleFlowSuperClusteringTask = particleFlowSuperClusteringTask.copy()
 _phase2_hgcal_particleFlowSuperClusteringTask.add(particleFlowSuperClusterHGCal)
