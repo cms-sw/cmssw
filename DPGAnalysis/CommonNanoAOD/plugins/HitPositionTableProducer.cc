@@ -49,7 +49,6 @@ public:
     iSetup.get<TrackerDigiGeometryRecord>().get("idealForDigi", trackGeom_);
     // Believe this is ideal, but we're not so precise here...
     iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeom_);
-
   }
 
   GlobalPoint positionFromHit(const PCaloHit& hit) {
@@ -62,7 +61,7 @@ public:
   // Should really only be used for HGCAL
   GlobalPoint positionFromDetId(DetId id) {
     DetId::Detector det = id.det();
-    if (det == DetId::Hcal || det == DetId::HGCalEE || det == DetId::HGCalHSi || det== DetId::HGCalHSc) {
+    if (det == DetId::Hcal || det == DetId::HGCalEE || det == DetId::HGCalHSi || det == DetId::HGCalHSc) {
       return rhtools_.getPosition(id);
     } else {
       throw cms::Exception("HitPositionTableProducer") << "Unsupported DetId type";
@@ -71,8 +70,8 @@ public:
 
   GlobalPoint positionFromHit(const PSimHit& hit) {
     auto detId = DetId(hit.detUnitId());
-    auto surface = detId.det() == DetId::Muon ? globalGeom_->idToDet(hit.detUnitId())->surface() :
-                                trackGeom_->idToDet(hit.detUnitId())->surface();
+    auto surface = detId.det() == DetId::Muon ? globalGeom_->idToDet(hit.detUnitId())->surface()
+                                              : trackGeom_->idToDet(hit.detUnitId())->surface();
     GlobalPoint position = surface.toGlobal(hit.localPosition());
     return position;
   }

@@ -53,4 +53,3 @@ protected:
   const edm::EDGetTokenT<edm::Association<M>> objMap_;
   const StringCutObjectSelector<typename T::value_type> cut_;
 };
-
