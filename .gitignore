@@ -1,3 +1,7 @@
+*protobuf/__init__.py
+*importing/__init__.py
+*nanoroot/__init__.py
+*reading/__init__.py
 *.pyc
 .*.swp
 .#*
