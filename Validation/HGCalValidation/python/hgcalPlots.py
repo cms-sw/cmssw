@@ -1315,7 +1315,7 @@ _common_sc_score = {"title": "Score SimCluster to LayerClusters in z-",
                  "ylog": True
                 }
 _common_sc_score.update(_legend_common)
-_score_simcluster_to_layerclusters_zminus = PlotGroup("score_simcluster_to_layercluster", [
+_score_simcluster_to_layerclusters_zminus = PlotGroup("score_simcluster_to_layercluster_zminus", [
         Plot("Score_simcluster2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(0,maxlayerzm)
         ], ncols=10 )
 
@@ -1330,7 +1330,7 @@ _common_sc_score = {"title": "Score LayerCluster to SimClusters in z-",
                  "ylog": True
                 }
 _common_sc_score.update(_legend_common)
-_score_layercluster_to_simclusters_zminus = PlotGroup("score_layercluster_to_simcluster", [
+_score_layercluster_to_simclusters_zminus = PlotGroup("score_layercluster_to_simcluster_zminus", [
         Plot("Score_layercl2simcluster_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(0,maxlayerzm)
         ], ncols=8 )
 
@@ -1425,21 +1425,21 @@ _common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
     xmax=1.,
     ymin=0.01,
     ymax=1.)
-_energyscore_sc2lc_zminus = PlotGroup("Energy_vs_Score_SC2LC", [Plot("Energy_vs_Score_simcluster2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_SC2LC", 
+_energyscore_sc2lc_zminus = PlotGroup("Energy_vs_Score_SC2LC_zminus", [Plot("Energy_vs_Score_simcluster2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_SC2LC",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(0, maxlayerzm)
                                                      ], ncols=10)
 
-_energyscore_sc2lc_zplus = PlotGroup("Energy_vs_Score_SC2LC", [Plot("Energy_vs_Score_simcluster2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_SC2LC", 
+_energyscore_sc2lc_zplus = PlotGroup("Energy_vs_Score_SC2LC_zplus", [Plot("Energy_vs_Score_simcluster2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_SC2LC",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(maxlayerzm,maxlayerzp)
                                                      ], ncols=10)
 
 _common_energy_score["xlog"]=False
 _common_energy_score["ylog"]=False
 _common_energy_score["xmin"]=-0.1
-_energyscore_lc2sc_zminus = PlotGroup("Energy_vs_Score_LC2SC", [Plot("Energy_vs_Score_layer2simcluster_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2SC", 
+_energyscore_lc2sc_zminus = PlotGroup("Energy_vs_Score_LC2SC_zminus", [Plot("Energy_vs_Score_layer2simcluster_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2SC",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(0, maxlayerzm)
                                                      ], ncols=10)
-_energyscore_lc2sc_zplus = PlotGroup("Energy_vs_Score_LC2SC", [Plot("Energy_vs_Score_layer2simcluster_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2SC", 
+_energyscore_lc2sc_zplus = PlotGroup("Energy_vs_Score_LC2SC_zplus", [Plot("Energy_vs_Score_layer2simcluster_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2SC",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(maxlayerzm,maxlayerzp)
                                                      ], ncols=10)
 
@@ -1457,7 +1457,7 @@ _common_sc_score = {"title": "Score SimCluster to LayerClusters in z+",
                  "ylog": True
                 }
 _common_sc_score.update(_legend_common)
-_score_simcluster_to_layerclusters_zplus = PlotGroup("score_simcluster_to_layercluster", [
+_score_simcluster_to_layerclusters_zplus = PlotGroup("score_simcluster_to_layercluster_zplus", [
         Plot("Score_simcluster2layercl_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(maxlayerzm,maxlayerzp)
         ], ncols=10 )
 
@@ -1472,7 +1472,7 @@ _common_sc_score = {"title": "Score LayerCluster to SimClusters in z+",
                  "ylog": True
                 }
 _common_sc_score.update(_legend_common)
-_score_layercluster_to_simclusters_zplus = PlotGroup("score_layercluster_to_simcluster", [
+_score_layercluster_to_simclusters_zplus = PlotGroup("score_layercluster_to_simcluster_zplus", [
         Plot("Score_layercl2simcluster_perlayer{:02d}".format(i), xtitle="Layer {:02d} in z-".format(i%maxlayerzm+1) if (i<maxlayerzm) else "Layer {:02d} in z+".format(i%maxlayerzm+1), **_common_sc_score) for i in range(maxlayerzm,maxlayerzp)
         ], ncols=8 )
 
@@ -2269,7 +2269,7 @@ def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_colle
                 purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
 
 #=================================================================================================
-def _hgcalsimClustersFolders(lastDirName="ticlTrackstersTrkEM"):
+def _hgcalsimClustersFolders(lastDirName):
     return "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/simClusters/"+lastDirName
 
 sc_clusterlevel = [
@@ -2361,9 +2361,8 @@ sc_ticltracksters = [
 
 hgcalSimClustersPlotter = Plotter()
 
-def append_hgcalSimClustersPlots(collection = 'ticlTrackstersTrkEM', name_collection = "ticlTrackstersTrkEM"):
+def append_hgcalSimClustersPlots(collection, name_collection):
   if collection == "ClusterLevel":
-      print(_hgcalsimClustersFolders(collection))
       hgcalSimClustersPlotter.append(collection, [
                   _hgcalsimClustersFolders(collection)
                   ], PlotFolder(
@@ -2371,7 +2370,6 @@ def append_hgcalSimClustersPlots(collection = 'ticlTrackstersTrkEM', name_collec
                   loopSubFolders=False,
                   purpose=PlotPurpose.Timing, page="SimClusters", section=name_collection))
   else:
-      print(_hgcalsimClustersFolders(collection))
       hgcalSimClustersPlotter.append(collection, [
                   _hgcalsimClustersFolders(collection)
                   ], PlotFolder(
