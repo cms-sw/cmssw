@@ -1527,3 +1527,117 @@
 2021-02-24 16:06:52,996 - INFO - helpers.logged - 115 GUIService.get_rendered_image() [OK 24.6ms]
 2021-02-24 16:06:52,996 - INFO - rendering - dqmRender: b"INFO: rendered 'RPC/AllHits/SummaryHistograms/RPC_System_Quality_Overview' version 0 as 'h=200;w=266', 1 objects in 10.647ms (OK)\n"
 2021-02-24 16:06:52,996 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:06:52 +0000] "GET /plotfairy/archive/334205:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/RPC/AllHits/SummaryHistograms/RPC_System_Quality_Overview?;w=266;h=200 HTTP/1.1" 200 3536 "http://localhost:8086/?folder_path=00+Shift%2FRPC&dataset_name=%2FCosmics%2FCommissioning2019-PromptReco-v1%2FDQMIO&run_number=334205&workspaces=Everything&overlay=overlay&normalize=True&lumi=0" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:36:25,043 - INFO - rendering - Initializing 2 DQM rendering sub processes...
+2021-02-24 16:36:28,855 - INFO - rendering - dqmRender: b'INFO: DQM image server started in path /tmp/epetrait/tmp89tie7va/\n'
+2021-02-24 16:36:32,287 - INFO - rendering - dqmRender: b'INFO: DQM image server started in path /tmp/epetrait/tmplnej_jr6/\n'
+2021-02-24 16:36:43,439 - INFO - helpers.logged - 1 GUIService.get_latest_runs('', 1614180999) [FAIL 3923.3ms]
+2021-02-24 16:37:19,553 - INFO - helpers.logged - 2 GUIService.get_latest_runs('', 1614181005) [FAIL 33249.7ms]
+2021-02-24 16:37:19,554 - INFO - helpers.logged - 3 GUIService.get_latest_runs('', 1614181026) [FAIL 13253.9ms]
+2021-02-24 16:37:27,757 - INFO - helpers.logged - 4 GUIService.get_latest_runs('', 1614181041) [FAIL 5400.7ms]
+2021-02-24 16:37:32,263 - ERROR - asyncio - Exception in callback Future.set_result(<sqlite3.Curs...x7f14d1e51d50>)
+handle: <Handle Future.set_result(<sqlite3.Curs...x7f14d1e51d50>)>
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/python3/3.8.2/lib/python3.8/asyncio/events.py", line 81, in _run
+    self._context.run(self._callback, *self._args)
+asyncio.exceptions.InvalidStateError: invalid state
+2021-02-24 16:37:32,289 - ERROR - asyncio - Exception in callback Future.set_result(<sqlite3.Curs...x7f14d1e0a420>)
+handle: <Handle Future.set_result(<sqlite3.Curs...x7f14d1e0a420>)>
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/python3/3.8.2/lib/python3.8/asyncio/events.py", line 81, in _run
+    self._context.run(self._callback, *self._args)
+asyncio.exceptions.InvalidStateError: invalid state
+2021-02-24 16:37:32,314 - ERROR - asyncio - Exception in callback Future.set_result(<sqlite3.Curs...x7f14d1e0a5e0>)
+handle: <Handle Future.set_result(<sqlite3.Curs...x7f14d1e0a5e0>)>
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/python3/3.8.2/lib/python3.8/asyncio/events.py", line 81, in _run
+    self._context.run(self._callback, *self._args)
+asyncio.exceptions.InvalidStateError: invalid state
+2021-02-24 16:37:32,338 - ERROR - asyncio - Exception in callback Future.set_result(<sqlite3.Curs...x7f14d15d7490>)
+handle: <Handle Future.set_result(<sqlite3.Curs...x7f14d15d7490>)>
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/python3/3.8.2/lib/python3.8/asyncio/events.py", line 81, in _run
+    self._context.run(self._callback, *self._args)
+asyncio.exceptions.InvalidStateError: invalid state
+2021-02-24 16:37:32,984 - INFO - helpers.logged - 5 GUIService.get_latest_runs('', 1614181050) [OK 24.9ms]
+2021-02-24 16:37:32,986 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:32 +0000] "GET /api/v1/latest_runs?notOlderThan=1614181050 HTTP/1.1" 200 968 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:32,999 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:32 +0000] "GET /api/v1/latest_runs?notOlderThan=1614181050 HTTP/1.1" 200 968 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:34,914 - INFO - helpers.logged - 6 GUIService.get_samples('334222', '', '') [OK 18.9ms]
+2021-02-24 16:37:34,915 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:34 +0000] "GET /api/v1/samples?run=334222&lumi=&dataset= HTTP/1.1" 200 256 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:38,963 - INFO - helpers.logged - 8 GUIService.get_samples('334222', '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '') [OK 533.8ms]
+2021-02-24 16:37:38,963 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:36 +0000] "GET /api/v1/samples?run=334222&lumi=&dataset=/Cosmics/Commissioning2019-PromptReco-v1/DQMIO HTTP/1.1" 200 256 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:38,988 - INFO - helpers.logged - 7   GUIService.__get_filename_fileformat_names_infos('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334222, 0) [OK 2275.2ms]
+2021-02-24 16:37:38,990 - INFO - helpers.logged - 9 GUIService.get_samples('', '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '') [OK 559.3ms]
+2021-02-24 16:37:38,991 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:38 +0000] "GET /api/v1/samples?run=&lumi=&dataset=/Cosmics/Commissioning2019-PromptReco-v1/DQMIO HTTP/1.1" 200 6043 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:38,992 - INFO - helpers.logged - 7  GUIService.get_rendered_image() [OK 2278.9ms]
+2021-02-24 16:37:38,992 - INFO - helpers.logged - 7 GUIService.get_rendered_json() [OK 2279.1ms]
+2021-02-24 16:37:38,992 - INFO - rendering - dqmRender: b"INFO: rendered '' version 0 as 'h=200;w=266;json=True', 1 objects in 2.233ms (OK)\n"
+2021-02-24 16:37:38,993 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:36 +0000] "GET /jsrootfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/HLT/EventInfo/iRun?jsroot=true; HTTP/1.1" 200 281 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:39,015 - INFO - helpers.logged - 10  GUIService.__get_me_names_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334222, 0) [OK 584.3ms]
+2021-02-24 16:37:39,020 - INFO - helpers.logged - 10  GUIService.__get_me_infos_list('/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', 334222, 0) [OK 4.5ms]
+2021-02-24 16:37:39,142 - INFO - helpers.logged - 10 GUIService.get_archive(334222, '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '', 0) [OK 711.5ms]
+2021-02-24 16:37:39,143 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:38 +0000] "GET /api/v1/archive/334222/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/ HTTP/1.1" 200 1424 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:39,150 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:39 +0000] "GET /api/v1/archive/334222/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/ HTTP/1.1" 200 1424 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:41,157 - INFO - helpers.logged - 11 GUIService.get_archive(334222, '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '00 Shift', 0) [OK 24.5ms]
+2021-02-24 16:37:41,158 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:41 +0000] "GET /api/v1/archive/334222/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/00%20Shift HTTP/1.1" 200 936 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:42,566 - INFO - helpers.logged - 12 GUIService.get_archive(334222, '/Cosmics/Commissioning2019-PromptReco-v1/DQMIO', '00 Shift/CSC', 0) [OK 23.4ms]
+2021-02-24 16:37:42,567 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:42 +0000] "GET /api/v1/archive/334222/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/00%20Shift/CSC HTTP/1.1" 200 2967 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,274 - INFO - helpers.logged - 13  IOService.__connect('root://eoscms.cern.ch//eos/cms/store/group/comm_dqm/DQMGUI_data/Run2019/Cosmics/R0003342xx/DQM_V0001_R000334222__Cosmics__Commissioning2019-PromptReco-v1__DQMIO.root') [OK 170.7ms]
+2021-02-24 16:37:43,283 - INFO - helpers.logged - 13  IOService.read_block('root://eoscms.cern.ch//eos/cms/store/group/comm_dqm/DQMGUI_data/Run2019/Cosmics/R0003342xx/DQM_V0001_R000334222__Cosmics__Commissioning2019-PromptReco-v1__DQMIO.root', 36) [OK 7.4ms]
+2021-02-24 16:37:43,533 - INFO - helpers.logged - 15 GUIService.get_rendered_image() [OK 430.0ms]
+2021-02-24 16:37:43,533 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/Summary/CSC_STATS_fifofull_err' version 0 as 'h=81;w=108', 1 objects in 245.076ms (OK)\n"
+2021-02-24 16:37:43,533 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/Summary/CSC_STATS_fifofull_err?;w=108;h=81 HTTP/1.1" 200 1062 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,534 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/Summary/CSC_STATS_occupancy' version 0 as 'h=200;w=266', 1 objects in 248.242ms (OK)\n"
+2021-02-24 16:37:43,534 - INFO - helpers.logged - 14 GUIService.get_rendered_image() [OK 432.2ms]
+2021-02-24 16:37:43,535 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/Summary/CSC_STATS_occupancy?;w=266;h=200 HTTP/1.1" 200 3052 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,555 - INFO - helpers.logged - 16 GUIService.get_rendered_image() [OK 451.9ms]
+2021-02-24 16:37:43,555 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/Summary/CSC_STATS_format_err' version 0 as 'h=81;w=108', 1 objects in 19.864ms (OK)\n"
+2021-02-24 16:37:43,555 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/Summary/CSC_STATS_format_err?;w=108;h=81 HTTP/1.1" 200 989 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,556 - INFO - helpers.logged - 13 GUIService.get_rendered_image() [OK 454.8ms]
+2021-02-24 16:37:43,556 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/EventInfo/reportSummaryMap' version 0 as 'h=200;w=266', 1 objects in 21.988ms (OK)\n"
+2021-02-24 16:37:43,556 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/EventInfo/reportSummaryMap?;w=266;h=200 HTTP/1.1" 200 2972 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,573 - INFO - helpers.logged - 17 GUIService.get_rendered_image() [OK 469.5ms]
+2021-02-24 16:37:43,573 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/Summary/CSC_STATS_inputto_err' version 0 as 'h=81;w=108', 1 objects in 16.963ms (OK)\n"
+2021-02-24 16:37:43,574 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/Summary/CSC_STATS_inputto_err?;w=108;h=81 HTTP/1.1" 200 1056 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,574 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/Summary/CSC_STATS_l1sync_err' version 0 as 'h=81;w=108', 1 objects in 16.457ms (OK)\n"
+2021-02-24 16:37:43,574 - INFO - helpers.logged - 18 GUIService.get_rendered_image() [OK 465.9ms]
+2021-02-24 16:37:43,574 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/Summary/CSC_STATS_l1sync_err?;w=108;h=81 HTTP/1.1" 200 977 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,584 - INFO - helpers.logged - 20 GUIService.get_rendered_image() [OK 38.2ms]
+2021-02-24 16:37:43,584 - INFO - helpers.logged - 19 GUIService.get_rendered_image() [OK 40.2ms]
+2021-02-24 16:37:43,584 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/CSCOfflineMonitor/recHits/hRHGlobalm4' version 0 as 'h=81;w=108', 1 objects in 8.512ms (OK)\n"
+2021-02-24 16:37:43,584 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/CSCOfflineMonitor/recHits/hRHGlobalm4?;w=108;h=81 HTTP/1.1" 200 1199 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,584 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/CSCOfflineMonitor/recHits/hRHGlobalp4' version 0 as 'h=81;w=108', 1 objects in 8.102ms (OK)\n"
+2021-02-24 16:37:43,585 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/CSCOfflineMonitor/recHits/hRHGlobalp4?;w=108;h=81 HTTP/1.1" 200 1196 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,592 - INFO - helpers.logged - 22 GUIService.get_rendered_image() [OK 26.3ms]
+2021-02-24 16:37:43,593 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/CSCOfflineMonitor/recHits/hRHGlobalp1' version 0 as 'h=81;w=108', 1 objects in 6.607ms (OK)\n"
+2021-02-24 16:37:43,593 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/CSCOfflineMonitor/recHits/hRHGlobalp1?;w=108;h=81 HTTP/1.1" 200 1202 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,600 - INFO - helpers.logged - 23 GUIService.get_rendered_image() [OK 18.8ms]
+2021-02-24 16:37:43,600 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/CSCOfflineMonitor/recHits/hRHGlobalm1' version 0 as 'h=81;w=108', 1 objects in 6.509ms (OK)\n"
+2021-02-24 16:37:43,601 - INFO - helpers.logged - 26  IOService.read_block('root://eoscms.cern.ch//eos/cms/store/group/comm_dqm/DQMGUI_data/Run2019/Cosmics/R0003342xx/DQM_V0001_R000334222__Cosmics__Commissioning2019-PromptReco-v1__DQMIO.root', 37) [OK 5.6ms]
+2021-02-24 16:37:43,601 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/CSCOfflineMonitor/recHits/hRHGlobalm1?;w=108;h=81 HTTP/1.1" 200 1195 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,602 - INFO - helpers.logged - 21 GUIService.get_rendered_image() [OK 38.2ms]
+2021-02-24 16:37:43,602 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/Summary/CSC_STATS_wo_alct' version 0 as 'h=81;w=108', 1 objects in 17.448ms (OK)\n"
+2021-02-24 16:37:43,602 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/Summary/CSC_STATS_wo_alct?;w=108;h=81 HTTP/1.1" 200 964 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,610 - INFO - helpers.logged - 25 GUIService.get_rendered_image() [OK 18.0ms]
+2021-02-24 16:37:43,610 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/CSCOfflineMonitor/recHits/hRHGlobalm2' version 0 as 'h=81;w=108', 1 objects in 6.837ms (OK)\n"
+2021-02-24 16:37:43,611 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/CSCOfflineMonitor/recHits/hRHGlobalm2?;w=108;h=81 HTTP/1.1" 200 1197 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,618 - INFO - helpers.logged - 27 GUIService.get_rendered_image() [OK 18.6ms]
+2021-02-24 16:37:43,618 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/CSCOfflineMonitor/recHits/hRHGlobalp2' version 0 as 'h=81;w=108', 1 objects in 6.764ms (OK)\n"
+2021-02-24 16:37:43,618 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/CSCOfflineMonitor/recHits/hRHGlobalp2?;w=108;h=81 HTTP/1.1" 200 1197 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,619 - INFO - helpers.logged - 24 GUIService.get_rendered_image() [OK 35.4ms]
+2021-02-24 16:37:43,619 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/Summary/CSC_STATS_cfeb_bwords' version 0 as 'h=81;w=108', 1 objects in 16.82ms (OK)\n"
+2021-02-24 16:37:43,619 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/Summary/CSC_STATS_cfeb_bwords?;w=108;h=81 HTTP/1.1" 200 1015 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,636 - INFO - helpers.logged - 26 GUIService.get_rendered_image() [OK 40.9ms]
+2021-02-24 16:37:43,636 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/Summary/CSC_STATS_wo_clct' version 0 as 'h=81;w=108', 1 objects in 17.061ms (OK)\n"
+2021-02-24 16:37:43,637 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/Summary/CSC_STATS_wo_clct?;w=108;h=81 HTTP/1.1" 200 957 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,637 - INFO - helpers.logged - 28 GUIService.get_rendered_image() [OK 27.2ms]
+2021-02-24 16:37:43,637 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/Summary/CSC_STATS_wo_cfeb' version 0 as 'h=81;w=108', 1 objects in 16.869ms (OK)\n"
+2021-02-24 16:37:43,637 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/Summary/CSC_STATS_wo_cfeb?;w=108;h=81 HTTP/1.1" 200 959 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,644 - INFO - helpers.logged - 29 GUIService.get_rendered_image() [OK 32.1ms]
+2021-02-24 16:37:43,644 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/CSCOfflineMonitor/recHits/hRHGlobalp3' version 0 as 'h=81;w=108', 1 objects in 6.908ms (OK)\n"
+2021-02-24 16:37:43,644 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/CSCOfflineMonitor/recHits/hRHGlobalp3?;w=108;h=81 HTTP/1.1" 200 1200 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:43,644 - INFO - helpers.logged - 30 GUIService.get_rendered_image() [OK 24.7ms]
+2021-02-24 16:37:43,645 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/CSCOfflineMonitor/recHits/hRHGlobalm3' version 0 as 'h=81;w=108', 1 objects in 6.633ms (OK)\n"
+2021-02-24 16:37:43,645 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:43 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/CSCOfflineMonitor/recHits/hRHGlobalm3?;w=108;h=81 HTTP/1.1" 200 1200 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+2021-02-24 16:37:45,077 - INFO - helpers.logged - 31 GUIService.get_rendered_image() [OK 43.6ms]
+2021-02-24 16:37:45,078 - INFO - rendering - dqmRender: b"INFO: rendered 'CSC/Summary/CSC_STATS_occupancy' version 0 as 'h=541;w=720;showstats=0', 1 objects in 41.706ms (OK)\n"
+2021-02-24 16:37:45,078 - INFO - aiohttp.access - 127.0.0.1 [24/Feb/2021:15:37:45 +0000] "GET /plotfairy/archive/334222:0/Cosmics/Commissioning2019-PromptReco-v1/DQMIO/CSC/Summary/CSC_STATS_occupancy?showstats=0;w=720;h=541 HTTP/1.1" 200 21029 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
