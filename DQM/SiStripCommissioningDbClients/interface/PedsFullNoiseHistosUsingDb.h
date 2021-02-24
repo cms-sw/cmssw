@@ -7,7 +7,10 @@
 
 class PedsFullNoiseHistosUsingDb : public CommissioningHistosUsingDb, public PedsFullNoiseHistograms {
 public:
-  PedsFullNoiseHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  PedsFullNoiseHistosUsingDb(const edm::ParameterSet& pset,
+                             DQMStore*,
+                             SiStripConfigDb* const,
+                             edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~PedsFullNoiseHistosUsingDb() override;
 

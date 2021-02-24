@@ -12,8 +12,8 @@
 class DummyClient : public SonicClient<int> {
 public:
   //constructor
-  DummyClient(const edm::ParameterSet& params)
-      : SonicClient<int>(params),
+  DummyClient(const edm::ParameterSet& params, const std::string& debugName)
+      : SonicClient<int>(params, debugName, "DummyClient"),
         factor_(params.getParameter<int>("factor")),
         wait_(params.getParameter<int>("wait")),
         fails_(params.getParameter<unsigned>("fails")) {}

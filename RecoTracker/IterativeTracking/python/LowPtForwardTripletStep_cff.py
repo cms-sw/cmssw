@@ -27,19 +27,20 @@ import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
 lowPtForwardTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
     RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
-    ComponentName     = 'GlobalRegionProducerFromBeamSpot',
-    RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
-    ptMin        = 0.2,
-    originRadius = 0.03,
-    nSigmaZ      = 4.0)
+	ComponentName     = 'GlobalRegionProducerFromBeamSpot',
+	RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
+	ptMin        = 0.2,
+	originRadius = 0.03,
+	nSigmaZ      = 4.0)
+    ),
+    OrderedHitsFactoryPSet = dict(
+	SeedingLayers = 'lowPtForwardTripletStepSeedLayers'
     )
 )
-lowPtForwardTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'lowPtForwardTripletStepSeedLayers'
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 lowPtForwardTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
-
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff

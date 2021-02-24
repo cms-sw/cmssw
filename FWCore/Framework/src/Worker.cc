@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
@@ -282,7 +283,7 @@ namespace edm {
                   if (recs[i] != ESRecordIndex{}) {
                     auto rec = iImpl.findImpl(recs[i]);
                     if (rec) {
-                      rec->prefetchAsync(hWaitTask, items[i], &iImpl, iToken);
+                      rec->prefetchAsync(hWaitTask, items[i], &iImpl, iToken, ESParentContext(&moduleCallingContext_));
                     }
                   }
                 }
@@ -319,7 +320,7 @@ namespace edm {
           if (recs[i] != ESRecordIndex{}) {
             auto rec = iImpl.findImpl(recs[i]);
             if (rec) {
-              rec->prefetchAsync(tempH, items[i], &iImpl, iToken);
+              rec->prefetchAsync(tempH, items[i], &iImpl, iToken, ESParentContext(&moduleCallingContext_));
             }
           }
         }

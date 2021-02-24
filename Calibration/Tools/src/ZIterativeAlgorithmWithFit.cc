@@ -365,13 +365,8 @@ void ZIterativeAlgorithmWithFit::gausfit(
   double sigma = gausa->GetParameter(2);
   double nor = gausa->GetParameter(0);
 
-  double xmi = p1 - 5 * sigma;
-  double xma = p1 + 5 * sigma;
+  double xmi, xma, xmin_fit, xmax_fit;
   double chi2 = 100;
-
-  double xmin_fit = p1 - nsigmalow * sigma;
-  double xmax_fit = p1 + nsigmaup * sigma;
-
   int iter = 0;
 
   while ((chi2 > 1. && iter < 5) || iter < 2) {

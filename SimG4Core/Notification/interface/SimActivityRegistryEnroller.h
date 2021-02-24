@@ -82,14 +82,10 @@ public:
   static void enroll(SimActivityRegistry& iReg, T* iObj) {
     enroller_helper::EnrollerHelper<T, Signals>::enroll(iReg, iObj);
   }
-  // ---------- member functions ---------------------------
 
-private:
-  SimActivityRegistryEnroller(const SimActivityRegistryEnroller&) = delete;  // stop default
-
-  const SimActivityRegistryEnroller& operator=(const SimActivityRegistryEnroller&) = delete;  // stop default
-
-  // ---------- member data --------------------------------
+  // stop default
+  SimActivityRegistryEnroller(const SimActivityRegistryEnroller&) = delete;
+  const SimActivityRegistryEnroller& operator=(const SimActivityRegistryEnroller&) = delete;
 };
 
 #endif

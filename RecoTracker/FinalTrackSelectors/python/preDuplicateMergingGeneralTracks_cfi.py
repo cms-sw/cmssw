@@ -24,15 +24,11 @@ trackingPhase2PU140.toReplaceWith(preDuplicateMergingGeneralTracks, _trackListMe
     selectedTrackQuals = ["muonSeededTracksInOutSelector:muonSeededTracksInOutHighPurity", # not used but needed
                           "muonSeededTracksInOutSelector:muonSeededTracksInOutHighPurity",
                           "muonSeededTracksOutInSelector:muonSeededTracksOutInHighPurity"],
-#    mvaValueTags       = ["earlyGeneralTracks:MVAVals",
-#                          "muonSeededTracksInOutSelector:MVAVals",
-#                          "muonSeededTracksOutInSelector:MVAVals"],
     mvaValueTags = cms.VInputTag(
         cms.InputTag("earlyGeneralTracks","MVAVals"),
         cms.InputTag("muonSeededTracksInOutSelector","MVAVals"),
         cms.InputTag("muonSeededTracksOutInSelector","MVAVals"),
     ),
-    #setsToMerge      = dict(pQual = False, tLists = [0, 1, 2]),
     setsToMerge = cms.VPSet(cms.PSet(pQual = cms.bool(False), tLists = cms.vint32(0, 1, 2))),
     FoundHitBonus    = 100.0,
     LostHitPenalty   = 1.0,

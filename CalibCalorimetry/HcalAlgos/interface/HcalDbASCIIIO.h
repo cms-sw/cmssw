@@ -5,7 +5,7 @@
 #define HcalDbASCIIIO_h
 
 #include <iostream>
-
+#include <memory>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationsSet.h"

@@ -42,7 +42,7 @@ namespace tmtt {
     }
   }
 
-  void MiniHTstage::exec(matrix<unique_ptr<HTrphi>>& mHtRphis) {
+  void MiniHTstage::exec(Array2D<unique_ptr<HTrphi>>& mHtRphis) {
     for (unsigned int iPhiNon = 0; iPhiNon < numPhiNonants_; iPhiNon++) {
       // Indices are ([link ID, MHT cell], #stubs).
       map<pair<unsigned int, unsigned int>, unsigned int> numStubsPerLinkStage1;

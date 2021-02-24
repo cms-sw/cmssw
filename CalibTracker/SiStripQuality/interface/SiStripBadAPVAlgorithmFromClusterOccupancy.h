@@ -31,7 +31,6 @@
 #include "TFile.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 
@@ -58,7 +57,7 @@ public:
     WriteOutputFile_ = WriteOutputFile;
   }
   void setTrackerGeometry(const TrackerGeometry* tkgeom) { TkGeom = tkgeom; }
-  void extractBadAPVs(SiStripQuality*, HistoMap&, edm::ESHandle<SiStripQuality>&);
+  void extractBadAPVs(SiStripQuality*, HistoMap&, const SiStripQuality*);
 
 private:
   struct Apv {
@@ -75,7 +74,7 @@ private:
                         std::vector<Apv>&,
                         std::pair<double, double>*,
                         std::vector<unsigned int>&,
-                        edm::ESHandle<SiStripQuality>&);
+                        const SiStripQuality*);
 
   struct pHisto {
     pHisto() : _NEntries(0), _NBins(0){};

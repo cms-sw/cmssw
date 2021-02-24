@@ -65,7 +65,7 @@ namespace edm {
     return file.substr(lastSlash + 1, file.size() - lastSlash - 1);
   }
 
-  void setStandAloneMessageThreshold(edm::ELseverityLevel const& severity) {
+  void setStandAloneMessageThreshold(edm::messagelogger::ELseverityLevel const& severity) {
     edm::MessageLoggerQ::standAloneThreshold(severity);
   }
   void squelchStandAloneMessageCategory(std::string const& category) { edm::MessageLoggerQ::squelch(category); }

@@ -1,4 +1,5 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/EnergyUncertaintyElectronSpecific.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
 

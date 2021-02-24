@@ -1,5 +1,8 @@
+<use name="CondFormats/PPSObjects"/>
+<use name="DataFormats/CTPPSDigi"/>
+<use name="FWCore/ParameterSet"/>
+<use name="Geometry/VeryForwardGeometry"/>
 <use name="SimTracker/Common"/>
-<use name="RecoPPS/Local"/>
 <export>
   <lib name="1"/>
 </export>

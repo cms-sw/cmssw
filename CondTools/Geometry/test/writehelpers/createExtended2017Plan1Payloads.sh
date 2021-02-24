@@ -41,15 +41,15 @@ sed -i '{s/Extended2017Plan1/Extended2017Plan1ZeroMaterial/g}' geometryExtended2
 sed -i '{s/\/ge/\/gez/g}' geometryExtended2017Plan1_xmlwriter.py
 cmsRun geometryExtended2017Plan1_xmlwriter.py
 
-sed -i '{s/Extended2017Plan1ZeroMaterial/Extended2017Plan1FlatMinus05Perecent/g}' geometryExtended2017Plan1_xmlwriter.py
+sed -i '{s/Extended2017Plan1ZeroMaterial/Extended2017Plan1FlatMinus05Percent/g}' geometryExtended2017Plan1_xmlwriter.py
 sed -i '{s/\/gez/\/geFM05/g}' geometryExtended2017Plan1_xmlwriter.py
 cmsRun geometryExtended2017Plan1_xmlwriter.py
 
-sed -i '{s/Extended2017Plan1FlatMinus10Percent/Extended2017Plan1FlatPlus05Perecent/g}' geometryExtended2017Plan1_xmlwriter.py
+sed -i '{s/Extended2017Plan1FlatMinus10Percent/Extended2017Plan1FlatPlus05Percent/g}' geometryExtended2017Plan1_xmlwriter.py
 sed -i '{s/\/geFM10/\/geFP05/g}' geometryExtended2017Plan1_xmlwriter.py
 cmsRun geometryExtended2017Plan1_xmlwriter.py
 
-sed -i '{s/Extended2017Plan1FlatPlus05Percent/Extended2017Plan1FlatPlus10Perecent/g}' geometryExtended2017Plan1_xmlwriter.py
+sed -i '{s/Extended2017Plan1FlatPlus05Percent/Extended2017Plan1FlatPlus10Percent/g}' geometryExtended2017Plan1_xmlwriter.py
 sed -i '{s/\/geFP05/\/geFP10/g}' geometryExtended2017Plan1_xmlwriter.py
 cmsRun geometryExtended2017Plan1_xmlwriter.py
 
@@ -66,7 +66,7 @@ sed -i '{s/Extended/Extended2017Plan1ZeroMaterial/g}' xmlgeometrywriter.py
 sed -i '{s/\/ge/\/gez/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
-sed -i '{s/Extended2017ZeroMaterial/Extended2017Plan1FlatMinus05Percent/g}' xmlgeometrywriter.py
+sed -i '{s/Extended2017Plan1ZeroMaterial/Extended2017Plan1FlatMinus05Percent/g}' xmlgeometrywriter.py
 sed -i '{s/\/gez/\/geFM05/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 

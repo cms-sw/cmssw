@@ -3,7 +3,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
@@ -17,6 +17,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
 #include <vector>
 #include <memory>
@@ -57,15 +58,12 @@ private:
   void bookHistos();
 
 private:
-  unsigned long long m_cacheID_;
-  std::string dataLabel_;
-  edm::ESHandle<SiStripQuality> SiStripQuality_;
   bool UseInputDB_;
   const edm::ParameterSet conf_;
 
-  edm::ESHandle<TrackerGeometry> theTrackerGeom;
   const TrackerGeometry* tracker_;
   const TrackerTopology* tTopo;
+  const SiStripQuality* SiStripQuality_;
 
   DQMStore* dqmStore_;
 
@@ -75,6 +73,11 @@ private:
   double TotNumberOfEvents;
   double MeanNumberOfCluster;
   uint32_t calibrationthreshold;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
+  edm::ESWatcher<SiStripQualityRcd> stripQualityWatcher_;
 
   SiStrip::QualityHistosMap ClusterPositionHistoMap;
   SiStripHotStripAlgorithmFromClusterOccupancy* theIdentifier;

@@ -76,7 +76,9 @@ namespace cond {
           ss << "\"" << entryLabel << "\":" << value.second;
         }
       } else if constexpr (std::is_same_v<V, double>) {
-        ss.precision(0);
+        if ((value - int(value)) == 0) {
+          ss.precision(0);
+        }
         ss << "\"" << entryLabel << "\":" << std::fixed << value;
       } else {
         ss << "\"" << entryLabel << "\":" << value;

@@ -2,6 +2,7 @@
 #define L1Trigger_TrackFindingTMTT_MuxHToutputs_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
+#include "L1Trigger/TrackFindingTMTT/interface/Array2D.h"
 
 #include <vector>
 #include <memory>
@@ -34,7 +35,7 @@ namespace tmtt {
     // of multiple (eta,phi) sectors onto single links and the truncation of the tracks caused by the requirement
     // to output all the tracks within the time-multiplexed period.
     // This function replaces the 2D track collection in the r-phi HT with the subset surviving the TM cut.
-    void exec(matrix<std::unique_ptr<HTrphi>>& mHtRphis) const;
+    void exec(Array2D<std::unique_ptr<HTrphi>>& mHtRphis) const;
 
     // Determine number of optical links used to output tracks from each phi nonant
     // (where "link" refers to a pair of links in the hardware).

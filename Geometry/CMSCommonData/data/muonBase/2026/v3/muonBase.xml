@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition>
 
 <SolidSection label="muonBase.xml">
-  <Tubs name="MUON1" rMin="[cms:CalorMuonR]-33.5*cm" rMax="[cms:CMSR4]" dz="[cms:MuonBeamZ2]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="MUON1" rMin="[cms:CalorMuonR]" rMax="[cms:CMSR4]" dz="[cms:MuonBeamZ2]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Polycone name="MUON2" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="-[cms:MuonBeamZ2]"  rMin="[cms:MERmin3]"     rMax="[cms:CalorMuonR]"/>
     <ZSection z="-[cms:TotemMuonZ2]" rMin="[cms:MERmin3]"     rMax="[cms:CalorMuonR]"/>

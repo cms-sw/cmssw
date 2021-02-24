@@ -81,13 +81,16 @@ combinatorialcosmicseedfinderP5Top = combinatorialcosmicseedfinderP5.clone(
     SeedsFromNegativeY      = False,
     ClusterCollectionLabel  = 'siStripClustersTop',
     MaxNumberOfCosmicClusters = 150,
+
+    OrderedHitsFactoryPSets = {0: dict(LayerSrc = "combinatorialcosmicseedingtripletsP5Top"),
+                               1: dict(LayerSrc = "combinatorialcosmicseedingpairsTOBP5Top"),
+                               2: dict(LayerSrc = "combinatorialcosmicseedingpairsTECposP5Top"),
+                               3: dict(LayerSrc = "combinatorialcosmicseedingpairsTECposP5Top"),
+                               4: dict(LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Top"),
+                               5: dict(LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Top")
+    }
+
 )
-combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[0].LayerSrc = "combinatorialcosmicseedingtripletsP5Top"
-combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[1].LayerSrc = "combinatorialcosmicseedingpairsTOBP5Top"
-combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[2].LayerSrc = "combinatorialcosmicseedingpairsTECposP5Top"
-combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[3].LayerSrc = "combinatorialcosmicseedingpairsTECposP5Top"
-combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[4].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Top"
-combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[5].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Top"
 
 simpleCosmicBONSeedingLayersTop = simpleCosmicBONSeedingLayers.clone(
     TIB   = dict(matchedRecHits = 'siStripMatchedRecHitsTop:matchedRecHit'),
@@ -179,20 +182,15 @@ combinatorialcosmicseedfinderP5Bottom = combinatorialcosmicseedfinderP5.clone(
     SeedsFromPositiveY      = False,
     SeedsFromNegativeY      = True,
     ClusterCollectionLabel    = 'siStripClustersBottom',
-    MaxNumberOfCosmicClusters = 150
+    MaxNumberOfCosmicClusters = 150,
+    OrderedHitsFactoryPSets = {0: dict(PropagationDirection = 'oppositeToMomentum', LayerSrc = "combinatorialcosmicseedingtripletsP5Bottom"),
+                               1: dict(PropagationDirection = 'oppositeToMomentum', LayerSrc = "combinatorialcosmicseedingpairsTOBP5Bottom"),
+                               2: dict(PropagationDirection = 'oppositeToMomentum', LayerSrc = "combinatorialcosmicseedingpairsTECposP5Bottom"),
+                               3: dict(PropagationDirection = 'oppositeToMomentum', LayerSrc = "combinatorialcosmicseedingpairsTECposP5Bottom"),
+                               4: dict(PropagationDirection = 'oppositeToMomentum', LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Bottom"),
+                               5: dict(PropagationDirection = 'oppositeToMomentum', LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Bottom"),
+    }
 )
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[0].PropagationDirection = 'oppositeToMomentum'
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[1].PropagationDirection = 'oppositeToMomentum'
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[2].PropagationDirection = 'oppositeToMomentum'
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[3].PropagationDirection = 'oppositeToMomentum'
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[4].PropagationDirection = 'oppositeToMomentum'
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[5].PropagationDirection = 'oppositeToMomentum'
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[0].LayerSrc = "combinatorialcosmicseedingtripletsP5Bottom"
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[1].LayerSrc = "combinatorialcosmicseedingpairsTOBP5Bottom"
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[2].LayerSrc = "combinatorialcosmicseedingpairsTECposP5Bottom"
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[3].LayerSrc = "combinatorialcosmicseedingpairsTECposP5Bottom"
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[4].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Bottom"
-combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[5].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Bottom"
 
 simpleCosmicBONSeedingLayersBottom = simpleCosmicBONSeedingLayers.clone(
     TIB  = dict(matchedRecHits = 'siStripMatchedRecHitsBottom:matchedRecHit'),

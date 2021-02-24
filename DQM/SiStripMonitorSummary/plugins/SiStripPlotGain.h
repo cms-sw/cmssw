@@ -23,7 +23,7 @@
 // user include files
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -35,6 +35,8 @@
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -55,24 +57,20 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override{};
   void endJob() override;
 
-  void DoAnalysis(const edm::EventSetup &es, const SiStripApvGain &);
-  void getHistos(const uint32_t &detid, const TrackerTopology *tTopo, std::vector<TH1F *> &histos);
+  void DoAnalysis(const TrackerTopology &tTopo, const SiStripApvGain &);
+  void getHistos(DetId detid, const TrackerTopology &tTopo, std::vector<TH1F *> &histos);
   TH1F *getHisto(const long unsigned int &index);
-
-  unsigned long long getCache(const edm::EventSetup &eSetup) {
-    return eSetup.get<SiStripApvGainRcd>().cacheIdentifier();
-  }
 
   // ----------member data ---------------------------
 
   SiStripDetInfoFileReader *fr;
 
-  edm::ESHandle<SiStripApvGain> Handle_;
+  edm::ESWatcher<SiStripApvGainRcd> gainWatcher_;
+  edm::ESGetToken<SiStripApvGain, SiStripApvGainRcd> gainToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   TFile *file;
   std::vector<TH1F *> vTH1;
 
   TrackerMap *tkmap;
-
-  unsigned long long cacheID;
 };

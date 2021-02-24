@@ -1,4 +1,5 @@
 #include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
+#include <algorithm>
 
 float EcalMustacheSCParameters::sqrtLogClustETuning() const { return sqrtLogClustETuning_; }
 

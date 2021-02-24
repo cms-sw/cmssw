@@ -62,7 +62,8 @@ particleFlowBlock.elementImporters = cms.VPSet(
               DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
                                                        1.0,1.0),
               NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3),
-              muonMaxDPtOPt = cms.double(1)
+              muonMaxDPtOPt = cms.double(1),
+              vetoEndcap = cms.bool(False)
               ),
     # to properly set SC based links you need to run ECAL importer
     # after you've imported all SCs to the block

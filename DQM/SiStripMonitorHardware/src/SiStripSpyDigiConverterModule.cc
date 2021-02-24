@@ -9,18 +9,17 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyDigiConverter.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
-
-class SiStripFedCabling;
 
 /**
    @file DQM/SiStripMonitorHardware/interface/SiStripSpyDigiConverterModule.cc
@@ -49,7 +48,10 @@ namespace sistrip {
     const uint32_t expectedHeaderBit_;
 
     //utilities for cabling etc...
-    SpyUtilities utility_;
+    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+    const SiStripFedCabling* fedCabling_;
+    edm::ESWatcher<SiStripFedCablingRcd> cablingWatcher_;
+    void updateFedCabling(const SiStripFedCablingRcd& rcd);
   };
 
 }  // namespace sistrip
@@ -63,7 +65,9 @@ namespace sistrip {
         storeReorderedDigis_(pset.getParameter<bool>("StoreReorderedDigis")),
         storeModuleDigis_(pset.getParameter<bool>("StoreModuleDigis")),
         discardDigisWithAPVAddressError_(pset.getParameter<bool>("DiscardDigisWithWrongAPVAddress")),
-        expectedHeaderBit_(pset.getParameter<uint32_t>("ExpectedPositionOfFirstHeaderBit")) {
+        expectedHeaderBit_(pset.getParameter<uint32_t>("ExpectedPositionOfFirstHeaderBit")),
+        fedCablingToken_(esConsumes<>()),
+        cablingWatcher_(this, &sistrip::SpyDigiConverterModule::updateFedCabling) {
     productToken_ = consumes<sistrip::SpyDigiConverter::DSVRawDigis>(productLabel_);
     if (edm::isDebugEnabled()) {
       LogTrace("SiStripSpyDigiConverter") << "[sistrip::SpyDigiConverterModule::" << __func__ << "]"
@@ -98,6 +102,10 @@ namespace sistrip {
     }
   }  // end of destructor.
 
+  void SpyDigiConverterModule::updateFedCabling(const SiStripFedCablingRcd& rcd) {
+    fedCabling_ = &rcd.get(fedCablingToken_);
+  }
+
   /** 
       Retrieves cabling map from EventSetup and spy channel scope mode digis
       from Event, creates DetSetVectors of SiStripRawDigis, at verious levels of
@@ -107,7 +115,7 @@ namespace sistrip {
   void SpyDigiConverterModule::produce(edm::Event& event, const edm::EventSetup& setup) {
     static bool lFirstEvent = true;
 
-    const SiStripFedCabling* lCabling = utility_.getCabling(setup);
+    cablingWatcher_.check(setup);
 
     if (!(storePayloadDigis_ || storeReorderedDigis_ || storeModuleDigis_ || storeAPVAddress_))
       return;
@@ -147,7 +155,7 @@ namespace sistrip {
 
     // Merge into modules
     if (storeModuleDigis_) {
-      moduleDigis = sistrip::SpyDigiConverter::mergeModuleChannels(reorderedDigis.get(), *lCabling);
+      moduleDigis = sistrip::SpyDigiConverter::mergeModuleChannels(reorderedDigis.get(), *fedCabling_);
     }
 
     //add to event

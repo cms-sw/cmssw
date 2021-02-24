@@ -45,7 +45,7 @@ common_MCtruth = cms.PSet(
     DoFineCalo = cms.bool(False),
     # currently unused; left in place for future studies
     EminFineTrack = cms.double(10000.0),
-    FineCaloNames = cms.vstring('ECAL', 'HCAL', 'HGCal', 'HFNoseVol', 'VCAL'),
+    FineCaloNames = cms.vstring('ECAL', 'HCal', 'HGCal', 'HFNoseVol', 'VCAL'),
     FineCaloLevels = cms.vint32(4, 4, 8, 3, 3),
     UseFineCalo = cms.vint32(2, 3),
 )

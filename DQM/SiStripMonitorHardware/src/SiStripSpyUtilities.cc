@@ -1,13 +1,4 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-// Needed for the FED cabling and pedestals
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 
 #include "DQM/SiStripMonitorHardware/interface/SiStripFEDSpyBuffer.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
@@ -17,95 +8,6 @@ using edm::LogInfo;
 using edm::LogWarning;
 
 namespace sistrip {
-  SpyUtilities::SpyUtilities()
-      : cabling_(nullptr),
-        cacheId_(0),
-        detCabling_(nullptr),
-        cacheIdDet_(0),
-        pedsCacheId_(0),
-        pedsHandle_(nullptr),
-        noiseCacheId_(0),
-        noiseHandle_(nullptr) {}
-
-  SpyUtilities::~SpyUtilities() {
-    if (cabling_)
-      cabling_ = nullptr;
-    if (detCabling_)
-      detCabling_ = nullptr;
-  }
-
-  const SiStripFedCabling* SpyUtilities::getCabling(const edm::EventSetup& setup) {
-    uint32_t cache_id = setup.get<SiStripFedCablingRcd>().cacheIdentifier();
-
-    if (cacheId_ != cache_id) {  // If the cache ID has changed since the last update...
-      // Update the cabling object
-      edm::ESHandle<SiStripFedCabling> c;
-      setup.get<SiStripFedCablingRcd>().get(c);
-      cabling_ = c.product();
-
-      //       	  if ( edm::isDebugEnabled() ) {
-      // 	    if ( !cacheId_ ) { // First time cabling has been retrieved - print it out in full.
-      // 	      std::stringstream ss;
-      // 	      ss << "[sistrip::SpyChannelUnpackerModule::" << __func__ << "]"
-      // 		 << " Updating cabling for first time..." << std::endl
-      // 		 << " Terse print out of FED cabling:" << std::endl;
-      // 	      //cabling_->terse(ss);
-      // 	      //LogTrace("SiStripMonitorHardwareUnpacker") << ss.str();
-      // 	    } // end of cacheId_ check
-      // 	  } // end of debugEnabled check
-
-      //       if ( edm::isDebugEnabled() ) {
-      // 	std::stringstream sss;
-      // 	sss << "[sistrip::SpyUtilities::" << __func__ << "]"
-      // 	    << " Summary of FED cabling:" << std::endl;
-      // 	cabling_->summary(sss);
-      // 	LogTrace("SiStripSpyUtilities") << sss.str();
-      //       }
-
-      // Update the cache ID with the new value.
-      cacheId_ = cache_id;
-
-    }  // end of new cache ID check
-
-    return cabling_;
-  }
-
-  const SiStripDetCabling* SpyUtilities::getDetCabling(const edm::EventSetup& setup) {
-    uint32_t cache_id = setup.get<SiStripDetCablingRcd>().cacheIdentifier();  //.get( cabling_ );
-
-    if (cacheIdDet_ != cache_id) {  // If the cache ID has changed since the last update...
-      // Update the cabling object
-      edm::ESHandle<SiStripDetCabling> c;
-      setup.get<SiStripDetCablingRcd>().get(c);
-      detCabling_ = c.product();
-      cacheIdDet_ = cache_id;
-    }  // end of new cache ID check
-
-    return detCabling_;
-  }
-
-  edm::ESHandle<SiStripPedestals> SpyUtilities::getPedestalHandle(const edm::EventSetup& eventSetup) {
-    //check if new pedestal values are available
-    uint32_t lCacheId = eventSetup.get<SiStripPedestalsRcd>().cacheIdentifier();
-    if (lCacheId != pedsCacheId_) {
-      eventSetup.get<SiStripPedestalsRcd>().get(pedsHandle_);
-      pedsCacheId_ = lCacheId;
-    }
-
-    return pedsHandle_;
-  }
-
-  edm::ESHandle<SiStripNoises> SpyUtilities::getNoiseHandle(const edm::EventSetup& eventSetup) {
-    //check if new noise values are available
-    uint32_t lCacheId = eventSetup.get<SiStripNoisesRcd>().cacheIdentifier();
-    if (lCacheId != noiseCacheId_) {
-      eventSetup.get<SiStripNoisesRcd>().get(noiseHandle_);
-      noiseCacheId_ = lCacheId;
-    }
-
-    return noiseHandle_;
-  }
-
   const SpyUtilities::Frame SpyUtilities::extractFrameInfo(
       const edm::DetSetVector<SiStripRawDigi>::detset& channelDigis, bool aPrintDebug) {
     SpyUtilities::Frame lFrame;

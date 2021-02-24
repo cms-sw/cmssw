@@ -60,7 +60,8 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(edm::ParameterSet const &iConfi
       nEvTot_(0),
       nIteration_(0),
       apvFactory_(nullptr),
-      m_cacheID_(0) {
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      detCablingToken_(esConsumes<edm::Transition::BeginRun>()) {
   // retrieve producer name of input StripDigiCollection
   std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
   std::string digiType = "VirginRaw";
@@ -73,6 +74,13 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(edm::ParameterSet const &iConfi
   theEventIterNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForIteration");
   NumCMstripsInGroup_ = pedsPSet_.getParameter<int>("NumCMstripsInGroup");
   runTypeFlag_ = conf_.getParameter<std::string>("RunTypeFlag");
+
+  if (runTypeFlag_ == RunMode1 || runTypeFlag_ == RunMode3) {
+    pedestalToken_ = esConsumes<edm::Transition::BeginRun>();
+    noiseToken_ = esConsumes<edm::Transition::BeginRun>();
+    qualityToken_ = esConsumes<edm::Transition::BeginRun>(
+        edm::ESInputTag{"", iConfig.getParameter<std::string>("StripQualityLabel")});
+  }
 }
 //
 // -- Destructor
@@ -91,10 +99,8 @@ SiStripMonitorPedestals::~SiStripMonitorPedestals() {
 void SiStripMonitorPedestals::bookHistograms(DQMStore::IBooker &ibooker,
                                              const edm::Run &run,
                                              const edm::EventSetup &eSetup) {
-  unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
-  if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;
-    eSetup.get<SiStripDetCablingRcd>().get(detcabling);
+  if (detCablingWatcher_.check(eSetup)) {
+    detcabling = &eSetup.getData(detCablingToken_);
     edm::LogInfo("SiStripMonitorPedestals") << "SiStripMonitorPedestals::bookHistograms: "
                                             << " Creating MEs for new Cabling ";
     createMEs(ibooker, eSetup);
@@ -108,10 +114,7 @@ void SiStripMonitorPedestals::bookHistograms(DQMStore::IBooker &ibooker,
 // -- Create Monitor Elements
 //
 void SiStripMonitorPedestals::createMEs(DQMStore::IBooker &ibooker, const edm::EventSetup &es) {
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const auto tTopo = &es.getData(tTopoToken_);
 
   std::vector<uint32_t> SelectedDetIds;
 
@@ -274,7 +277,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event &iEvent, const edm::Event
   edm::LogInfo("SiStripMonitorPedestals")
       << "SiStripMonitorPedestals::analyze: Run " << iEvent.id().run() << " Event " << iEvent.id().event();
 
-  eSetup.get<SiStripDetCablingRcd>().get(detcabling);
+  detcabling = &eSetup.getData(detCablingToken_);
 
   if (runTypeFlag_ != RunMode2 && runTypeFlag_ != RunMode3)
     return;
@@ -493,15 +496,9 @@ void SiStripMonitorPedestals::resetMEs(uint32_t idet) {
 // -- Fill CondDB Monitoring Elements
 //
 void SiStripMonitorPedestals::fillCondDBMEs(edm::EventSetup const &eSetup) {
-  // get Pedestal and Noise  ES handle
-  edm::ESHandle<SiStripPedestals> pedestalHandle;
-  edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripQuality> qualityHandle;
-
-  eSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
-  eSetup.get<SiStripNoisesRcd>().get(noiseHandle);
-  std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
-  eSetup.get<SiStripQualityRcd>().get(quality_label, qualityHandle);
+  const auto &pedestals = eSetup.getData(pedestalToken_);
+  const auto &noises = eSetup.getData(noiseToken_);
+  const auto &quality = eSetup.getData(qualityToken_);
 
   for (std::map<uint32_t, ModMEs>::const_iterator i = PedMEs.begin(); i != PedMEs.end(); i++) {
     uint32_t detid = i->first;
@@ -510,14 +507,14 @@ void SiStripMonitorPedestals::fillCondDBMEs(edm::EventSetup const &eSetup) {
                                             << " Get Ped/Noise/Bad Strips from CondDb for DetId " << detid;
     int nStrip = detcabling->nApvPairs(detid) * 256;
     // Get range of pedestal and noise for the detid
-    SiStripNoises::Range noiseRange = noiseHandle->getRange(detid);
-    SiStripPedestals::Range pedRange = pedestalHandle->getRange(detid);
-    SiStripQuality::Range qualityRange = qualityHandle->getRange(detid);
+    SiStripNoises::Range noiseRange = noises.getRange(detid);
+    SiStripPedestals::Range pedRange = pedestals.getRange(detid);
+    SiStripQuality::Range qualityRange = quality.getRange(detid);
 
     for (int istrip = 0; istrip < nStrip; ++istrip) {
       try {
         // Fill Pedestals
-        (local_modmes.PedsPerStripDB)->Fill(istrip + 1, pedestalHandle->getPed(istrip, pedRange));
+        (local_modmes.PedsPerStripDB)->Fill(istrip + 1, pedestals.getPed(istrip, pedRange));
       } catch (cms::Exception &e) {
         edm::LogError("SiStripMonitorPedestals") << "[SiStripMonitorPedestals::analyze]  cms::Exception accessing "
                                                     "SiStripPedestalsService_.getPedestal("
@@ -526,7 +523,7 @@ void SiStripMonitorPedestals::fillCondDBMEs(edm::EventSetup const &eSetup) {
       }
       try {
         // Fill Noises
-        (local_modmes.CMSubNoisePerStripDB)->Fill(istrip + 1, noiseHandle->getNoise(istrip, noiseRange));
+        (local_modmes.CMSubNoisePerStripDB)->Fill(istrip + 1, noises.getNoise(istrip, noiseRange));
 
       } catch (cms::Exception &e) {
         edm::LogError("SiStripMonitorPedestals") << "[SiStripMonitorPedestals::analyze]  cms::Exception accessing "
@@ -536,7 +533,7 @@ void SiStripMonitorPedestals::fillCondDBMEs(edm::EventSetup const &eSetup) {
       }
       try {
         // Fill BadStripsNoise
-        (local_modmes.BadStripsDB)->Fill(istrip + 1, qualityHandle->IsStripBad(qualityRange, istrip) ? 1. : 0.);
+        (local_modmes.BadStripsDB)->Fill(istrip + 1, quality.IsStripBad(qualityRange, istrip) ? 1. : 0.);
 
       } catch (cms::Exception &e) {
         edm::LogError("SiStripMonitorPedestals") << "[SiStripMonitorPedestals::analyze]  cms::Exception accessing "
