@@ -650,6 +650,7 @@ namespace pat {
       covarianceSchema_ = quality;
       normalizedChi2_ = tk.normalizedChi2();
       setHits(tk);
+      maybeUnpackBoth();
       packBoth();
       packCovariance(covariance, false);
     }
