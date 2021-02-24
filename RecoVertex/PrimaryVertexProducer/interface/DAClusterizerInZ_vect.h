@@ -29,6 +29,8 @@ public:
     std::vector<unsigned int> kmax;                // 1 + index of the last cluster within zrange
     std::vector<const reco::TransientTrack *> tt;  // a pointer to the Transient Track
 
+    double osumtkwt;  // 1. / (sum of all track weights)
+
     void addItemSorted(double new_zpca, double new_dz2, const reco::TransientTrack *new_tt, double new_tkwt) {
       // sort tracks with decreasing resolution (note that dz2 = 1/sigma^2)
       unsigned int i = 0;
@@ -206,6 +208,7 @@ private:
 
   double mintrkweight_;
   double uniquetrkweight_;
+  double uniquetrkminp_;
   double zmerge_;
   double betapurge_;
 
