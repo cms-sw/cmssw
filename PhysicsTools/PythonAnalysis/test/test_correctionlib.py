@@ -1,4 +1,4 @@
-#/usr/bin/env python3
+#!/usr/bin/env python3
 # from https://github.com/nsmith-/correctionlib/blob/master/tests/test_core.py
 
 import json
