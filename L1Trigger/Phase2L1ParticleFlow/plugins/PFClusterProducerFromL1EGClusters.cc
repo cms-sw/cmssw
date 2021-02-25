@@ -49,7 +49,7 @@ void l1tpf::PFClusterProducerFromL1EGClusters::produce(edm::Event &iEvent, const
     if (corrector_.valid())
       corrector_.correctPt(cluster);
     cluster.setPtError(resol_(cluster.pt(), std::abs(cluster.eta())));
-
+    cluster.setHwQual(it->hwQual());
     out->push_back(cluster);
     out->back().addConstituent(edm::Ptr<l1t::L1Candidate>(clusters, index));
   }
