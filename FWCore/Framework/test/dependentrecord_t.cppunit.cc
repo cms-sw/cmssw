@@ -759,7 +759,8 @@ namespace {
         if (rec) {
           edm::FinalWaitingTask waitTask;
           tbb::task_group group;
-          rec->prefetchAsync(edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
+          rec->prefetchAsync(
+              edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
           do {
             group.wait();
           } while (not waitTask.done());
@@ -786,7 +787,8 @@ namespace {
         if (rec) {
           edm::FinalWaitingTask waitTask;
           tbb::task_group group;
-          rec->prefetchAsync(edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
+          rec->prefetchAsync(
+              edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
           do {
             group.wait();
           } while (not waitTask.done());

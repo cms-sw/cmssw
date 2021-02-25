@@ -69,7 +69,7 @@ namespace edm {
         taskList_.add(iTask);
 
         if (doPrefetch) {
-            iTask.group()->run([this, &iRecord, iKey, iEventSetupImpl, iToken, iParent]() {
+          iTask.group()->run([this, &iRecord, iKey, iEventSetupImpl, iToken, iParent]() {
             try {
               RecordT rec;
               rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, &iParent, true);
