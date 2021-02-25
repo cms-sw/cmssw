@@ -29,7 +29,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "CondFormats/GBRForest/interface/GBRForestD.h"
+#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
 #include "RecoEgamma/EgammaTools/interface/EgammaBDTOutputTransformer.h"
 #include "RecoEgamma/EgammaTools/interface/HGCalShowerShapeHelper.h"
