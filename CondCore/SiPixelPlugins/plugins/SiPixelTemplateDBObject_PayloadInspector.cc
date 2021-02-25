@@ -28,7 +28,6 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
-#include <boost/range/adaptor/indexed.hpp>
 
 // include ROOT
 #include "TH2.h"
