@@ -195,7 +195,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         }
       }  // end of GEB loop
 
-      if (amcData->gebs()->size()) {
+      if (!amcData->gebs()->empty()) {
         amcSize += 5;
         amcData->setAMCheader1(amcSize, BX_id, LV1_id, amcNum);
         amcData->setAMCheader2(amcNum, OrN, 1);
@@ -234,7 +234,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       words.emplace_back(amc.getAMCheader1());
       words.emplace_back(amc.getAMCheader2());
       words.emplace_back(amc.getGEMeventHeader());
-      
+
       for (const auto& geb : *amc.gebs()) {
         words.emplace_back(geb.getChamberHeader());
 
@@ -264,7 +264,6 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       *(w++) = word;
     }
     LogDebug("GEMDigiToRawModule") << "fedId:" << amc13e->sourceId() << " words:" << words.size();
-
   }
 
   iEvent.put(std::move(fedRawDataCol));
