@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#define TBB_PREVIEW_RESUMABLE_TASKS 1
+#include "FWCore/Concurrency/interface/include_first_syncWait.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -16,7 +16,6 @@
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Framework/src/esTaskArenas.h"
 #include "tbb/global_control.h"
-#include "tbb/task.h"
 
 namespace edm {
   namespace {
@@ -272,46 +271,27 @@ namespace edm {
     // will work.
 
     if UNLIKELY (tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism) == 1) {
-      //We spawn this first so that the other ES tasks are before it in the TBB queue
-      tbb::task_arena edArena(tbb::task_arena::attach{});
-      auto fTask = make_functor_task([this, task = std::move(iTask), iTrans, &iImpl, iToken, edArena]() mutable {
-        esTaskArena().execute([this, iTrans, &iImpl, iToken, task = std::move(task), edArena]() {
-          //tbb::task::suspend can only be run from within a task running in this arena. For 1 thread,
-          // it is often (always?) the case where not such task is being run here. Therefore we need
-          // to use a temp task_group to start up such a task.
-          tbb::task_group tempGroup;
-          tempGroup.run([&]() {
+      auto taskGroup = iTask.group();
+      auto fTask = make_functor_task([this, task = std::move(iTask), iTrans, &iImpl, iToken]() mutable {
+        std::exception_ptr exceptPtr{};
+        esTaskArena().execute([this, iTrans, &iImpl, iToken, &exceptPtr]() {
+          exceptPtr = syncWait([&](WaitingTaskHolder&& iHolder) {
             auto const& recs = esRecordsToGetFrom(iTrans);
             auto const& items = esItemsToGetFrom(iTrans);
-            std::exception_ptr exceptPtr{};
-            tbb::task::suspend([&, this](tbb::task::suspend_point tag) {
-              //Need hWaitTask to go out of scope before calling wait_for_all
-              WaitingTaskHolder hWaitTask(*task.group(),
-                                          make_waiting_task([tag, &exceptPtr](std::exception_ptr const* iExcept) {
-                                            if (iExcept) {
-                                              exceptPtr = *iExcept;
-                                            }
-                                            tbb::task::resume(tag);
-                                          }));
-              for (size_t i = 0; i != items.size(); ++i) {
-                if (recs[i] != ESRecordIndex{}) {
-                  auto rec = iImpl.findImpl(recs[i]);
-                  if (rec) {
-                    rec->prefetchAsync(hWaitTask, items[i], &iImpl, iToken, ESParentContext(&moduleCallingContext_));
-                  }
+            auto hWaitTask = std::move(iHolder);
+            for (size_t i = 0; i != items.size(); ++i) {
+              if (recs[i] != ESRecordIndex{}) {
+                auto rec = iImpl.findImpl(recs[i]);
+                if (rec) {
+                  rec->prefetchAsync(hWaitTask, items[i], &iImpl, iToken, ESParentContext(&moduleCallingContext_));
                 }
               }
-            });
-
-            tbb::task_arena(edArena).execute([task, &exceptPtr]() {
-              auto t = task;
-              t.doneWaiting(exceptPtr);
-            });
-          });  //tempGroup.run
-          tempGroup.wait();
-        });  //esTaskArena().execute
-      });
-      iTask.group()->run([fTask]() {
+            }
+          });  //syncWait
+        });    //esTaskArena().execute
+        task.doneWaiting(exceptPtr);
+      });  //make_functor_task
+      taskGroup->run([fTask]() {
         fTask->execute();
         delete fTask;
       });

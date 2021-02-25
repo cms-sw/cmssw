@@ -10,11 +10,12 @@
 // Created:     Thu Mar 31 12:49:19 EST 2005
 //
 
-#define TBB_PREVIEW_RESUMABLE_TASKS 1
 // system include files
 #include <mutex>
 
 // user include files
+#include "FWCore/Concurrency/interface/include_first_syncWait.h"
+
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
@@ -26,9 +27,6 @@
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include "FWCore/Framework/src/esTaskArenas.h"
-
-#include "tbb/task.h"
-#include "tbb/task_group.h"
 
 namespace edm {
   namespace eventsetup {
@@ -109,23 +107,10 @@ namespace edm {
         auto token = ServiceRegistry::instance().presentToken();
         std::exception_ptr exceptPtr{};
         edm::esTaskArena().execute([this, &exceptPtr, &iRecord, &iKey, iEventSetupImpl, token, iParent]() {
-          //tbb::task::suspend can only be run from within a task running in this arena. For 1 thread,
-          // it is often (always?) the case where not such task is being run here. Therefore we need
-          // to use a temp task_group to start up such a task.
-          tbb::task_group group;
-          group.run([&]() {
-            tbb::task::suspend([&, this](tbb::task::suspend_point tag) {
-              auto waitTask = make_waiting_task([tag, &exceptPtr](std::exception_ptr const* iExcept) {
-                if (iExcept) {
-                  exceptPtr = *iExcept;
-                }
-                tbb::task::resume(tag);
-              });
-              prefetchAsync(WaitingTaskHolder(group, waitTask), iRecord, iKey, iEventSetupImpl, token, iParent);
-            });  //suspend
-          });    //group.run
-          group.wait();
-        });  //esTaskArena().execute
+          auto exceptPtr = syncWait([&, this](WaitingTaskHolder&& holder) {
+            prefetchAsync(std::move(holder), iRecord, iKey, iEventSetupImpl, token, iParent);
+          });
+        });
         cache_ = getAfterPrefetchImpl();
         cacheIsValid_.store(true, std::memory_order_release);
         if (exceptPtr) {
