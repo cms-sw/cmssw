@@ -74,7 +74,7 @@ class ROOTFilePB_Histo PROTOBUF_FINAL :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB.Histo) */ {
  public:
   inline ROOTFilePB_Histo() : ROOTFilePB_Histo(nullptr) {}
-  virtual ~ROOTFilePB_Histo();
+  ~ROOTFilePB_Histo() override;
   explicit constexpr ROOTFilePB_Histo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   ROOTFilePB_Histo(const ROOTFilePB_Histo& from);
@@ -285,7 +285,7 @@ class ROOTFilePB PROTOBUF_FINAL :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB) */ {
  public:
   inline ROOTFilePB() : ROOTFilePB(nullptr) {}
-  virtual ~ROOTFilePB();
+  ~ROOTFilePB() override;
   explicit constexpr ROOTFilePB(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   ROOTFilePB(const ROOTFilePB& from);
