@@ -65,6 +65,12 @@ namespace {
   using SiPixelGenErrorIDsFPixMap = SiPixelIDs<SiPixelGenErrorDBObject, SiPixelPI::t_forward>;
   using SiPixelGenErrorIDsMap = SiPixelIDs<SiPixelGenErrorDBObject, SiPixelPI::t_all>;
 
+  //************************************************
+  // Full Pixel Tracker Map of Template IDs
+  // ***********************************************/
+  using SiPixelGenErrorFullPixelMap =
+      SiPixelFullPixelMap<SiPixelGenErrorDBObject, SiPixelGenErrorStore, SiPixelGenError>;
+
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -74,4 +80,5 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelGenErrorDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsBPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsFPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorFullPixelMap);
 }
