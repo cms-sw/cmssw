@@ -32,8 +32,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
   } else if (trackSelectionAlgorithm == "filterWithThreshold") {
     theTrackFilter = new HITrackFilterForPVFinding(conf.getParameter<edm::ParameterSet>("TkFilterParameters"));
   } else {
-    throw VertexException("PrimaryVertexProducer: unknown track selection algorithm: " +
-                          trackSelectionAlgorithm);
+    throw VertexException("PrimaryVertexProducer: unknown track selection algorithm: " + trackSelectionAlgorithm);
   }
 
   // select and configure the track clusterizer
