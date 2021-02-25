@@ -1,7 +1,7 @@
 from ..layout_manager import register_layout
 
-register_layout({'source':'BeamMonitor/EventInfo/reportSummaryMap', 'destination':'Summary/reportSummaryMap', 'name':'Summaries',  'file_path':  __file__})
-register_layout({'source':'BeamPixel/EventInfo/reportSummaryMap', 'destination':'Summary/reportSummaryMap', 'name':'Summaries', 'file_path':  __file__})
+register_layout({'source':'FakeBeamMonitor/EventInfo/reportSummaryMap', 'destination':'Summary/reportSummaryMap', 'name':'Summaries',  'file_path':  __file__})
+register_layout({'source':'GEM/EventInfo/reportSummaryMap', 'destination':'Summary/reportSummaryMap', 'name':'Summaries', 'file_path':  __file__})
 register_layout({'source':'CSC/EventInfo/reportSummaryMap', 'destination':'Summary/reportSummaryMap', 'name':'Summaries', 'file_path':  __file__})
 register_layout({'source':'DT/EventInfo/reportSummaryMap', 'destination':'Summary/reportSummaryMap', 'name':'Summaries', 'file_path':  __file__})
 register_layout({'source':'Ecal/EventInfo/reportSummaryMap', 'destination':'Summary/reportSummaryMap', 'name':'Summaries', 'file_path':  __file__})
