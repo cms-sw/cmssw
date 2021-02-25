@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingGlobal, ticlSeedingGlobalHFNose, ticlSeedingForHFHFNose
+from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingGlobal, ticlSeedingGlobalHFNose
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer as _ticlLayerTileProducer
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer as _trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
@@ -72,5 +72,4 @@ ticlTrackstersHFNoseHAD = _trackstersProducer.clone(
 
 ticlHFNoseHADStepTask = cms.Task(ticlSeedingGlobalHFNose
                                  ,filteredLayerClustersHFNoseHAD
-                                 ,ticlTrackstersHFNoseHAD
-                                 ,ticlSeedingForHFHFNose)
+                                 ,ticlTrackstersHFNoseHAD)
