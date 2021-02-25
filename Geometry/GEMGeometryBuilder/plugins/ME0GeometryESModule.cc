@@ -76,18 +76,21 @@ std::unique_ptr<ME0Geometry> ME0GeometryESModule::produce(const MuonGeometryReco
   edm::LogVerbatim("GEMGeometry") << "ME0GeometryESModule::produce with fromDDD = " << fromDDD_ << " fromDD4hep "
                                   << fromDD4hep_;
   if (fromDDD_) {
+    edm::LogVerbatim("ME0GeometryESModule") << "(0) ME0GeometryESModule - DDD ";
     edm::LogVerbatim("GEMGeometry") << "ME0GeometryESModule::produce :: ME0GeometryBuilder builder";
     auto cpv = record.getTransientHandle(cpvToken_);
     const auto& mdc = record.get(mdcToken_);
     ME0GeometryBuilder builder;
     return std::unique_ptr<ME0Geometry>(builder.build(cpv.product(), mdc));
   } else if (fromDD4hep_) {
+    edm::LogVerbatim("ME0GeometryESModule") << "(0) ME0GeometryESModule - DD4HEP ";
     edm::LogVerbatim("GEMGeometry") << "ME0GeometryESModule::produce :: ME0GeometryBuilder builder DD4hep";
     auto cpv = record.getTransientHandle(dd4hepcpvToken_);
     const auto& mdc = record.get(mdcToken_);
     ME0GeometryBuilder builder;
     return std::unique_ptr<ME0Geometry>(builder.build(cpv.product(), mdc));
   } else {
+    edm::LogVerbatim("ME0GeometryESModule") << "(0) ME0GeometryESModule - DB ";
     edm::LogVerbatim("GEMGeometry") << "ME0GeometryESModule::produce :: ME0GeometryBuilderFromCondDB builder";
     const auto& rigme0 = record.get(rigme0Token_);
     ME0GeometryBuilderFromCondDB builder;
