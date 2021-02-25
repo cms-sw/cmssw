@@ -467,7 +467,7 @@ namespace edm {
         ->setComment(
             "True:  Allow fast copying, if possible.\n"
             "False: Disable fast copying.");
-    desc.addUntracked<bool>("compactEventAuxiliary", true)
+    desc.addUntracked<bool>("compactEventAuxiliary", false)
         ->setComment(
             "False: Write EventAuxiliary as we go like any other event metadata branch.\n"
             "True:  Optimize the file layout be deferring writing the EventAuxiliary branch until the output file is "
