@@ -1,4 +1,4 @@
-#define TBB_PREVIEW_RESUMABLE_TASKS 1
+#include "FWCore/Concurrency/interface/include_first_syncWait.h"
 #include "Mixing/Base/src/SecondaryEventProvider.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
@@ -6,9 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-
-#include "tbb/task_group.h"
-#include "tbb/task.h"
 
 namespace {
   template <typename T, typename U>
@@ -20,27 +17,10 @@ namespace {
                             bool cleaningUpAfterException = false) {
     manager.resetAll();
 
-    std::exception_ptr exceptPtr{};
-    tbb::task_group group;
-
-    group.run([&]() {
-      tbb::task::suspend([&](tbb::task::suspend_point tag) {
-        auto waitTask = edm::make_waiting_task([&](std::exception_ptr const* iPtr) {
-          if (iPtr) {
-            exceptPtr = *iPtr;
-          }
-          tbb::task::resume(tag);
-        });
-
-        manager.processOneOccurrenceAsync<T, U>(edm::WaitingTaskHolder(group, waitTask),
-                                                info,
-                                                edm::ServiceRegistry::instance().presentToken(),
-                                                streamID,
-                                                topContext,
-                                                context);
-      });  //suspend
-    });    //group.run
-    group.wait();
+    std::exception_ptr exceptPtr = edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
+      manager.processOneOccurrenceAsync<T, U>(
+          std::move(iHolder), info, edm::ServiceRegistry::instance().presentToken(), streamID, topContext, context);
+    });
 
     if (exceptPtr) {
       try {
