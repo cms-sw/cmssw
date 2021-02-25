@@ -28,10 +28,10 @@ void GEMeMap::convert(GEMROMapping& romap) {
                           abs(imap.gemNum[ix] % 100),
                           0);
       dc.vfatVer = imap.vfatVer[ix];
-      romap.add(ec, dc);      
+      romap.add(ec, dc);
     }
   }
-  
+
   // chamberType to vfatType
   for (auto imap : theVFatMap_) {
     for (unsigned int ix = 0; ix < imap.vfatAdd.size(); ix++) {
@@ -78,7 +78,6 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
 
   for (int st = GEMDetId::minStationId0; st <= GEMDetId::maxStationId; ++st) {
     for (int re = -1; re <= 1; re = re + 2) {
-
       uint8_t amcNum = 1;  //amc
       uint8_t gebId = 0;
       int maxVFat = 0;
@@ -86,18 +85,21 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
       if (st == 0) {
         maxVFat = maxVFatGE0_;
         fedId = FEDNumbering::MINME0FEDID;
-        if (re == 1) fedId = FEDNumbering::MINME0FEDID+1;
+        if (re == 1)
+          fedId = FEDNumbering::MINME0FEDID + 1;
         maxLayerId = GEMDetId::maxLayerId0;
       }
       if (st == 1) {
         maxVFat = maxVFatGE11_;
         fedId = FEDNumbering::MINGEMFEDID;
-        if (re == 1) fedId = FEDNumbering::MINGEMFEDID+1;
+        if (re == 1)
+          fedId = FEDNumbering::MINGEMFEDID + 1;
       }
       if (st == 2) {
         maxVFat = maxVFatGE21_;
-        fedId = FEDNumbering::MINGEMFEDID+2;
-        if (re == 1) fedId = FEDNumbering::MINGEMFEDID+3;
+        fedId = FEDNumbering::MINGEMFEDID + 2;
+        if (re == 1)
+          fedId = FEDNumbering::MINGEMFEDID + 3;
       }
 
       for (int ch = 1; ch <= GEMDetId::maxChamberId; ++ch) {
@@ -138,13 +140,12 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
           // 5 bits for gebId
           if (st > 0 && gebId == maxGEB1_) {
             gebId = 0;
-            amcNum = amcNum+2; // only odd amc No. is used for GE11
+            amcNum = amcNum + 2;  // only odd amc No. is used for GE11
           }
           if (st == 0 && gebId == maxGEBs_) {
             gebId = 0;
             amcNum++;
           }
-          
         }
       }
     }
