@@ -13,7 +13,6 @@
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelTemplateHelper.h"
-#include "DQM/TrackerRemapper/interface/Phase1PixelMaps.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 // the data format of the condition to be inspected
@@ -28,7 +27,6 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
-#include <boost/range/adaptor/indexed.hpp>
 
 // include ROOT
 #include "TH2.h"
@@ -48,7 +46,6 @@
 
 namespace {
 
-<<<<<<< HEAD
   //***********************************************
   // Display of Template Titles
   // **********************************************/

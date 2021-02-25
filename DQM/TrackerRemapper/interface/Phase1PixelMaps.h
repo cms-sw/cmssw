@@ -443,7 +443,7 @@ public:
   }
 
   //============================================================================
-  void drawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption = NULL) {
+  void drawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption = nullptr) {
     canvas.Divide(2, 2);
     for (int i = 1; i <= 4; i++) {
       canvas.cd(i);
@@ -456,17 +456,17 @@ public:
         adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
       if (drawOption) {
-         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw("L");
-         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%s%ssame", m_option, drawOption).c_str());
-       } else {
-         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw("L");
-         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%ssame", m_option).c_str());
-       }
+        pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw("L");
+        pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%s%ssame", m_option, drawOption).c_str());
+      } else {
+        pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw("L");
+        pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%ssame", m_option).c_str());
+      }
     }
   }
 
   //============================================================================
-  void drawForwardMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption = NULL) {
+  void drawForwardMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption = nullptr) {
     canvas.Divide(3, 2);
     for (int i = 1; i <= 6; i++) {
       canvas.cd(i);
@@ -479,11 +479,11 @@ public:
         adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
       }
       if (drawOption) {
-         pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw("L");
-         pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%s%ssame", m_option, drawOption).c_str());
-       } else {
-         pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw("L");
-         pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%ssame", m_option).c_str());
+        pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw("L");
+        pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%s%ssame", m_option, drawOption).c_str());
+      } else {
+        pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw("L");
+        pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw(fmt::sprintf("%ssame", m_option).c_str());
       }
     }
   }
