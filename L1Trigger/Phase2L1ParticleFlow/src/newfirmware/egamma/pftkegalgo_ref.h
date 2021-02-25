@@ -16,7 +16,7 @@ namespace edm {
 }
 
 namespace l1ct {
-
+  
   struct pftkegalgo_config {
     unsigned int nTRACK;
     unsigned int nEMCALO;
@@ -34,6 +34,24 @@ namespace l1ct {
     std::vector<double> dEtaValues;
     std::vector<double> dPhiValues;
     float trkQualityPtMin;  // GeV
+    bool writeEgSta;
+
+    struct IsoParameters {
+      IsoParameters(const edm::ParameterSet &);
+      IsoParameters(float tkQualityPtMin, float dZ, float dRMin, float dRMax) : tkQualityPtMin(tkQualityPtMin),
+                                                                                dZ(dZ),
+                                                                                dRMin2(dRMin*dRMin),
+                                                                                dRMax2(dRMax*dRMax) {}
+      float tkQualityPtMin;
+      float dZ;
+      float dRMin2;
+      float dRMax2;
+    };
+    
+    IsoParameters tkIsoParams_tkEle;
+    IsoParameters tkIsoParams_tkEm;
+    IsoParameters pfIsoParams_tkEle;
+    IsoParameters pfIsoParams_tkEm;
 
     pftkegalgo_config(const edm::ParameterSet &iConfig);
     pftkegalgo_config(unsigned int nTrack,
@@ -46,10 +64,15 @@ namespace l1ct {
                       float emClusterPtMin = 2.,
                       float dEtaMaxBrem = 0.02,
                       float dPhiMaxBrem = 0.1,
-                      std::vector<double> absEtaBoundaries = {0.0, 1.5},
-                      std::vector<double> dEtaValues = {0.015, 0.0174533},
-                      std::vector<double> dPhiValues = {0.07, 0.07},
-                      float trkQualityPtMin = 10.)
+                      const std::vector<double> &absEtaBoundaries = {0.0, 1.5},
+                      const std::vector<double> &dEtaValues = {0.015, 0.0174533},
+                      const std::vector<double> &dPhiValues = {0.07, 0.07},
+                      float trkQualityPtMin = 10.,
+                      bool writeEgSta=false,
+                      const IsoParameters &tkIsoParams_tkEle = {2., 0.6, 0.03, 0.2},
+                      const IsoParameters &tkIsoParams_tkEm = {2., 0.6, 0.07, 0.3},
+                      const IsoParameters &pfIsoParams_tkEle = {1., 0.6, 0.03, 0.2},
+                      const IsoParameters &pfIsoParams_tkEm = {1., 0.6, 0.07, 0.3})
         : nTRACK(nTrack),
           nEMCALO(nEmCalo),
           nEMCALOSEL_EGIN(nEmCaloSel_in),
@@ -63,7 +86,12 @@ namespace l1ct {
           absEtaBoundaries(std::move(absEtaBoundaries)),
           dEtaValues(std::move(dEtaValues)),
           dPhiValues(std::move(dPhiValues)),
-          trkQualityPtMin(trkQualityPtMin) {}
+          trkQualityPtMin(trkQualityPtMin),
+          writeEgSta(writeEgSta),
+          tkIsoParams_tkEle(tkIsoParams_tkEle),
+          tkIsoParams_tkEm(tkIsoParams_tkEm),
+          pfIsoParams_tkEle(pfIsoParams_tkEle),
+          pfIsoParams_tkEm(pfIsoParams_tkEm) {}
   };
 
   class PFTkEGAlgoEmulator {
@@ -79,6 +107,10 @@ namespace l1ct {
 
     void setDebug(int verbose) { debug_ = verbose; }
 
+    bool writeEgSta() const {
+      return cfg.writeEgSta;
+    }
+    
   private:
     void link_emCalo2emCalo(const std::vector<EmCaloObjEmu> &emcalo, std::vector<int> &emCalo2emCalo) const;
 
@@ -98,17 +130,26 @@ namespace l1ct {
                  const std::vector<TkObjEmu> &track,
                  const std::vector<int> &emCalo2emCalo,
                  const std::vector<int> &emCalo2tk,
+                 std::vector<EGObjEmu> &egstas,
                  std::vector<EGIsoObjEmu> &egobjs,
                  std::vector<EGIsoEleObjEmu> &egeleobjs) const;
 
-    void addEgObjsToPF(const std::vector<EmCaloObjEmu> &emcalo,
+    void addEgObjsToPF(std::vector<EGObjEmu> &egstas,
+                       std::vector<EGIsoObjEmu> &egobjs,
+                       std::vector<EGIsoEleObjEmu> &egeleobjs,
+                       const std::vector<EmCaloObjEmu> &emcalo,
                        const std::vector<TkObjEmu> &track,
                        const int calo_idx,
                        const int hwQual,
                        const pt_t ptCorr,
                        const int tk_idx,
-                       std::vector<EGIsoObjEmu> &egobjs,
-                       std::vector<EGIsoEleObjEmu> &egeleobjs) const;
+                       const std::vector<unsigned int> &components={}) const;
+
+    EGObjEmu &addEGStaToPF(std::vector<EGObjEmu> &egobjs,
+                           const EmCaloObjEmu &calo,
+                           const int hwQual,
+                           const pt_t ptCorr,
+                           const std::vector<unsigned int> &components) const;
 
     EGIsoObjEmu &addEGIsoToPF(std::vector<EGIsoObjEmu> &egobjs,
                               const EmCaloObjEmu &calo,
