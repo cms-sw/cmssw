@@ -21,11 +21,10 @@ SeedingRegionByTracks::SeedingRegionByTracks(const edm::ParameterSet &conf, edm:
       propName_(conf.getParameter<std::string>("propagator")),
       bfield_token_(sumes.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
       propagator_token_(sumes.esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
-													  edm::ESInputTag("", propName_))) {
-
-  std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive": "HGCalEESensitive";
+          edm::ESInputTag("", propName_))) {
+  std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
   hdc_token_ = sumes.esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
-												   edm::ESInputTag("", detectorName_));
+      edm::ESInputTag("", detectorName_));
 }
 
 SeedingRegionByTracks::~SeedingRegionByTracks() {}
