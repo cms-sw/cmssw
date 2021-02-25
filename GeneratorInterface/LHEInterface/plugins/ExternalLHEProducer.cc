@@ -276,15 +276,12 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
 
     tbb::this_task_arena::isolate([this, &except, &infiles, &exceptSet, nEventsAve, overflow, seed]() {
       tbb::task_group group;
-      tbb::empty_task* waitTask = new (tbb::task::allocate_root()) tbb::empty_task;
-      waitTask->set_ref_count(1 + nThreads_);
-
       for (unsigned int t = 0; t < nThreads_; ++t) {
         uint32_t nEvents = nEventsAve;
         if (nEvents_ % nThreads_ != 0 and t >= overflow) {
           nEvents += 1;
         }
-        group.run([t, this, &infiles, seed, nEvents, &except, &exceptSet, waitTask]() {
+        group.run([t, this, &infiles, seed, nEvents, &except, &exceptSet]() {
           CMS_SA_ALLOW try {
             using namespace std::filesystem;
             using namespace std::string_literals;
@@ -298,7 +295,6 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
               exceptSet.store(2);
             }
           }
-          waitTask->decrement_ref_count();
         });
       }
       group.wait();
