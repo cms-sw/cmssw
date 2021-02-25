@@ -1,4 +1,4 @@
-#ifndef DQMOffline_Muon_GEMEfficiencyAnalyzer_h
+eifndef DQMOffline_Muon_GEMEfficiencyAnalyzer_h
 #define DQMOffline_Muon_GEMEfficiencyAnalyzer_h
 
 /** \class GEMEfficiencyAnalyzer
@@ -107,7 +107,6 @@ private:
   // resolution
   MEMap me_residual_rphi_;  // global
   MEMap me_residual_y_;     // local
-  MEMap me_pull_phi_;
   MEMap me_pull_y_;
   // MEs for optimizing cut values
   MonitorElement *me_prop_r_err_;    // clamped
