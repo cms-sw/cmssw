@@ -72,25 +72,25 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
     verbosity = cms.int32(0)
 )
 
-pfMVAMEtSequence  = cms.Sequence(
-    kt6PFJets*
-    calibratedAK4PFJetsForPFMVAMEt*
+pfMVAMEtTask  = cms.Task(
+    kt6PFJets,
+    calibratedAK4PFJetsForPFMVAMEt,
     pfMVAMEt
 )
-
+pfMVAMEtSequence  = cms.Sequence(pfMVAMEtTask)
 
 ##================================================
 ## Pf No Pileup MET sequence
 ##================================================
-pfNoPUMEtSequence = cms.Sequence()
+pfNoPUMEtTask = cms.Task()
 
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 calibratedAK4PFJetsForPFNoPUMEt = cms.EDProducer('PFJetCorrectionProducer',
     src = cms.InputTag('ak4PFJets'),
     correctors = cms.vstring('ak4PFL1FastL2L3Residual') # NOTE: use "ak4PFL1FastL2L3" for MC / "ak4PFL1FastL2L3Residual" for Data
 )
-ak4PFJetSequenceForPFNoPUMEt = cms.Sequence(calibratedAK4PFJetsForPFNoPUMEt)
-pfNoPUMEtSequence += ak4PFJetSequenceForPFNoPUMEt
+ak4PFJetTaskForPFNoPUMEt = cms.Task(calibratedAK4PFJetsForPFNoPUMEt)
+pfNoPUMEtTask.add(ak4PFJetTaskForPFNoPUMEt)
 
 from RecoJets.JetProducers.PileupJetID_cfi import *
 puJetIdForPFNoPUMEt = pileupJetId.clone(
@@ -99,28 +99,28 @@ puJetIdForPFNoPUMEt = pileupJetId.clone(
         cutbased,
         PhilV1
         ),
-#    label = cms.string("fullId"), #MM does not work for weird reasons, cannot be cloned properly
+#    label = "fullId", #MM does not work for weird reasons, cannot be cloned properly
     produceJetIds    = True,
     runMvas          = True,
     jets             = "calibratedAK4PFJetsForPFNoPUMEt",
     applyJec         = False,
     inputIsCorrected = True,
     )
-pfNoPUMEtSequence += puJetIdForPFNoPUMEt
+pfNoPUMEtTask.add(puJetIdForPFNoPUMEt)
 
 from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
-pfNoPUMEtSequence += type0PFMEtCorrection
+pfNoPUMEtTask.add(type0PFMEtCorrection)
 pfCandidateToVertexAssociationForPFNoPUMEt = pfCandidateToVertexAssociation.clone(
     MaxNumberOfAssociations = 1,	
     doReassociation         = False,
     FinalAssociation        = 1,			    
     nTrackWeight            = 0.
 )
-pfNoPUMEtSequence += pfCandidateToVertexAssociationForPFNoPUMEt
+pfNoPUMEtTask.add(pfCandidateToVertexAssociationForPFNoPUMEt)
 pfMETcorrType0ForPFNoPUMEt = pfMETcorrType0.clone(
     srcPFCandidateToVertexAssociations = 'pfCandidateToVertexAssociationForPFNoPUMEt'
 )
-pfNoPUMEtSequence += pfMETcorrType0ForPFNoPUMEt
+pfNoPUMEtTask.add(pfMETcorrType0ForPFNoPUMEt)
 
 jvfJetIdForPFNoPUMEt = cms.EDProducer("JVFJetIdProducer",
     srcJets = cms.InputTag('calibratedAK4PFJetsForPFNoPUMEt'),
@@ -132,7 +132,7 @@ jvfJetIdForPFNoPUMEt = cms.EDProducer("JVFJetIdProducer",
     JVFcut = cms.double(0.75),
     neutralJetOption = cms.string("noPU")
 )
-pfNoPUMEtSequence += jvfJetIdForPFNoPUMEt
+pfNoPUMEtTask.add(jvfJetIdForPFNoPUMEt)
 
 import RecoMET.METProducers.METSigParams_cfi as met_config
 pfNoPUMEtData = cms.EDProducer("NoPileUpPFMEtDataProducer",
@@ -151,7 +151,7 @@ pfNoPUMEtData = cms.EDProducer("NoPileUpPFMEtDataProducer",
     resolution = met_config.METSignificance_params,
     verbosity = cms.int32(0)     
 )
-pfNoPUMEtSequence += pfNoPUMEtData
+pfNoPUMEtTask.add(pfNoPUMEtData)
 
 pfNoPUMEt = cms.EDProducer("NoPileUpPFMEtProducer",
     srcMEt = cms.InputTag('pfMet'),
@@ -180,11 +180,12 @@ pfNoPUMEt = cms.EDProducer("NoPileUpPFMEtProducer",
     saveInputs = cms.bool(True),
     verbosity = cms.int32(0)                               
 )
-pfNoPUMEtSequence += pfNoPUMEt
+pfNoPUMEtTask.add(pfNoPUMEt)
+pfNoPUMEtSequence = cms.Sequence(pfNoPUMEtTask)
 
-
-mitigatedMETSequence = cms.Sequence(
-selectionSequenceForMVANoPUMET+
-pfMVAMEtSequence+
-pfNoPUMEtSequence
+mitigatedMETTask = cms.Task(
+selectionSequenceForMVANoPUMETTask,
+pfMVAMEtTask,
+pfNoPUMEtTask
 )
+mitigatedMETSequence = cms.Sequence(mitigatedMETTask)

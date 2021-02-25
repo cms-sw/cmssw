@@ -91,7 +91,7 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
 )
 
 pfMVAMEtTask  = cms.Task(
-    #(isomuonseq+isotauseq+isoelectronseq)*
+    #isomuonTask,isotauTask,isoelectronTask,
     jetCorrectorsTask,
     calibratedAK4PFJetsForPFMVAMEt,
     puJetIdForPFMVAMEt,
