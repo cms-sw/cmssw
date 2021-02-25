@@ -1,3 +1,4 @@
+#define TBB_PREVIEW_RESUMABLE_TASKS 1
 #include "Mixing/Base/src/SecondaryEventProvider.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
@@ -7,6 +8,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "tbb/task_group.h"
+#include "tbb/task.h"
 
 namespace {
   template <typename T, typename U>
@@ -18,21 +20,31 @@ namespace {
                             bool cleaningUpAfterException = false) {
     manager.resetAll();
 
+    std::exception_ptr exceptPtr{};
     tbb::task_group group;
-    edm::FinalWaitingTask waitTask;
-    manager.processOneOccurrenceAsync<T, U>(edm::WaitingTaskHolder(group, &waitTask),
-                                            info,
-                                            edm::ServiceRegistry::instance().presentToken(),
-                                            streamID,
-                                            topContext,
-                                            context);
-    do {
-      group.wait();
-    } while (not waitTask.done());
 
-    if (waitTask.exceptionPtr() != nullptr) {
+    group.run([&]() {
+      tbb::task::suspend([&](tbb::task::suspend_point tag) {
+        auto waitTask = edm::make_waiting_task([&](std::exception_ptr const* iPtr) {
+          if (iPtr) {
+            exceptPtr = *iPtr;
+          }
+          tbb::task::resume(tag);
+        });
+
+        manager.processOneOccurrenceAsync<T, U>(edm::WaitingTaskHolder(group, waitTask),
+                                                info,
+                                                edm::ServiceRegistry::instance().presentToken(),
+                                                streamID,
+                                                topContext,
+                                                context);
+      });  //suspend
+    });    //group.run
+    group.wait();
+
+    if (exceptPtr) {
       try {
-        edm::convertException::wrap([&]() { std::rethrow_exception(*(waitTask.exceptionPtr())); });
+        edm::convertException::wrap([&]() { std::rethrow_exception(exceptPtr); });
       } catch (cms::Exception& ex) {
         if (ex.context().empty()) {
           edm::addContextAndPrintException("Calling SecondaryEventProvider", ex, cleaningUpAfterException);
