@@ -271,9 +271,6 @@ void GEMEfficiencyAnalyzer::bookResolution(DQMStore::IBooker& ibooker, const edm
       me_residual_y_[key] = ibooker.book1D("residual_y" + name_suffix, title, 60, -12.0, 12.0);
       me_residual_y_[key]->setAxisTitle("Residual in Local Y [cm]");
 
-      me_pull_phi_[key] = ibooker.book1D("pull_phi" + name_suffix, title, 60, -3.0, 3.0);
-      me_pull_phi_[key]->setAxisTitle("Pull in Global #phi");
-
       me_pull_y_[key] = ibooker.book1D("pull_y" + name_suffix, title, 60, -3.0, 3.0);
       me_pull_y_[key]->setAxisTitle("Pull in Local Y");
     }  // ieta
@@ -458,16 +455,11 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       const LocalError&& hit_local_err = hit->localPositionError();
       const GlobalError& hit_global_err = ErrorFrameTransformer().transform(hit_local_err, surface);
 
-      const float dphi = reco::deltaPhi(dest_global_pos.barePhi(), hit_global_pos.barePhi());
       const float residual_y = dest_local_pos.y() - hit_local_pos.y();
-      const float global_phi_err =
-          std::sqrt(dest_global_err.phierr(dest_global_pos) + hit_global_err.phierr(hit_global_pos));
-      const float pull_phi = dphi / global_phi_err;
       const float pull_y = residual_y / std::sqrt(dest_local_err.yy() + hit_local_err.yy());
 
       fillME(me_residual_rphi_, rse_key, residual_rphi);
       fillME(me_residual_y_, rse_key, residual_y);
-      fillME(me_pull_phi_, rse_key, pull_phi);
       fillME(me_pull_y_, rse_key, pull_y);
     }  // layer
   }    // Muon
