@@ -272,7 +272,7 @@ namespace edm {
 
     if UNLIKELY (tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism) == 1) {
       auto taskGroup = iTask.group();
-      auto fTask = make_functor_task([this, task = std::move(iTask), iTrans, &iImpl, iToken]() mutable {
+      taskGroup->run([this, task = std::move(iTask), iTrans, &iImpl, iToken]() {
         std::exception_ptr exceptPtr{};
         esTaskArena().execute([this, iTrans, &iImpl, iToken, &exceptPtr]() {
           exceptPtr = syncWait([&](WaitingTaskHolder&& iHolder) {
@@ -289,12 +289,10 @@ namespace edm {
             }
           });  //syncWait
         });    //esTaskArena().execute
-        task.doneWaiting(exceptPtr);
-      });  //make_functor_task
-      taskGroup->run([fTask]() {
-        fTask->execute();
-        delete fTask;
-      });
+        //note use of a copy gets around declaring the lambda as mutable
+        auto tempTask = task;
+        tempTask.doneWaiting(exceptPtr);
+      });  //group.run
     } else {
       auto group = iTask.group();
       //We need iTask to run in the default arena since it is not an ES task
