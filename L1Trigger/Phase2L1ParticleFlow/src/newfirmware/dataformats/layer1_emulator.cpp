@@ -199,10 +199,12 @@ void l1ct::PFInputRegion::clear() {
 }
 
 bool l1ct::OutputRegion::read(std::fstream& from) {
+  // FIXME: read photons and electrons
   return readMany(from, pfcharged) && readMany(from, pfneutral) && readMany(from, pfphoton) && readMany(from, pfmuon) &&
          readMany(from, puppi);
 }
 bool l1ct::OutputRegion::write(std::fstream& to) const {
+  // FIXME: write photons and electrons
   return writeMany(pfcharged, to) && writeMany(pfneutral, to) && writeMany(pfphoton, to) && writeMany(pfmuon, to) &&
          writeMany(puppi, to);
 }
@@ -213,6 +215,9 @@ void l1ct::OutputRegion::clear() {
   pfneutral.clear();
   pfmuon.clear();
   puppi.clear();
+  egsta.clear();
+  egphoton.clear();
+  egelectron.clear();
 }
 
 // begin helper functions
