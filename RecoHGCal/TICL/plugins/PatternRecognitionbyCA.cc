@@ -246,8 +246,10 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     tmp.swap(result);
   }
 
-  ticl::assignPCAtoTracksters(
-			      result, input.layerClusters, input.layerClustersTime, rhtools_.getPositionLayer(rhtools_.lastLayerEE(type), type).z());
+  ticl::assignPCAtoTracksters(result,
+                              input.layerClusters,
+                              input.layerClustersTime,
+                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(type), type).z());
 
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
