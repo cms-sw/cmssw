@@ -256,7 +256,8 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         edm::FinalWaitingTask waitTask;
         tbb::task_group group;
-        iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, edm::ServiceToken{}, edm::ESParentContext{});
+        iRec.prefetchAsync(
+            WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, edm::ServiceToken{}, edm::ESParentContext{});
         do {
           group.wait();
         } while (not waitTask.done());
@@ -278,7 +279,8 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         edm::FinalWaitingTask waitTask;
         tbb::task_group group;
-        iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, edm::ServiceToken{}, edm::ESParentContext{});
+        iRec.prefetchAsync(
+            WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, edm::ServiceToken{}, edm::ESParentContext{});
         do {
           group.wait();
         } while (not waitTask.done());
