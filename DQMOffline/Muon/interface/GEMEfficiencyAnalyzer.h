@@ -112,6 +112,7 @@ private:
   MonitorElement *me_prop_r_err_;    // clamped
   MonitorElement *me_prop_phi_err_;  // clamped
   MonitorElement *me_all_abs_residual_rphi_;
+  MEMap me_prop_chamber_;
 
   // const
   const std::string kLogCategory_ = "GEMEfficiencyAnalyzer";
