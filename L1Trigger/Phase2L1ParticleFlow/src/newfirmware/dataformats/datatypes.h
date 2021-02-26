@@ -188,9 +188,8 @@ namespace l1ct {
     inline glbeta_t makeGlbEta(float eta) { return round(eta / ETAPHI_LSB); }
     inline glbphi_t makeGlbPhi(float phi) { return round(phi / ETAPHI_LSB); }
     inline iso_t makeIso(float reliso) { return round(reliso / ISO_LSB); }
-    
-    inline int makeDR2FromFloatDR(float dr) { return ceil(dr * dr / ETAPHI_LSB / ETAPHI_LSB); }
 
+    inline int makeDR2FromFloatDR(float dr) { return ceil(dr * dr / ETAPHI_LSB / ETAPHI_LSB); }
 
     inline float maxAbsEta() { return ((1 << (eta_t::width - 1)) - 1) * ETAPHI_LSB; }
     inline float maxAbsPhi() { return ((1 << (phi_t::width - 1)) - 1) * ETAPHI_LSB; }

@@ -745,22 +745,21 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
   if (writeEgSta)
     ref_egs = iEvent.getRefBeforePut<BXVector<l1t::EGamma>>(egLablel);
 
-
   for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
     const auto &reg = event_.pfinputs[ir].region;
-  
+
     std::vector<edm::Ref<BXVector<l1t::EGamma>>> egsta_refs;
     edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
 
-    if(writeEgSta) {
+    if (writeEgSta) {
       egsta_refs.resize(event_.out[ir].egsta.size());
       // EG standalone objects
-      for(unsigned int ieg = 0, neg = event_.out[ir].egsta.size(); ieg < neg; ++ieg) {
+      for (unsigned int ieg = 0, neg = event_.out[ir].egsta.size(); ieg < neg; ++ieg) {
         const auto &p = event_.out[ir].egsta[ieg];
         if (p.hwPt == 0 || !reg.isFiducial(p))
           continue;
-        l1t::EGamma eg(reco::Candidate::PolarLorentzVector(
-          p.floatPt(), reg.floatGlbEta(p.hwEta), reg.floatGlbPhi(p.hwPhi), 0.));
+        l1t::EGamma eg(
+            reco::Candidate::PolarLorentzVector(p.floatPt(), reg.floatGlbEta(p.hwEta), reg.floatGlbPhi(p.hwPhi), 0.));
         eg.setHwQual(p.hwQual);
         egs->push_back(0, eg);
 
@@ -768,31 +767,33 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       }
     }
 
-
-    for(const auto& egiso: event_.out[ir].egphoton) {
+    for (const auto &egiso : event_.out[ir].egphoton) {
       if (egiso.hwPt == 0 || !reg.isFiducial(egiso))
         continue;
-      
-      
+
       edm::Ref<BXVector<l1t::EGamma>> ref_egsta;
       if (writeEgSta) {
         ref_egsta = egsta_refs[egiso.sta_idx];
       } else {
         auto egptr = egiso.srcCluster->constituentsAndFractions()[0].first;
-        ref_egsta = edm::Ref<BXVector<l1t::EGamma>>(egptr.id(), dynamic_cast<const l1t::EGamma *>(egptr.get()), egptr.key());
+        ref_egsta =
+            edm::Ref<BXVector<l1t::EGamma>>(egptr.id(), dynamic_cast<const l1t::EGamma *>(egptr.get()), egptr.key());
       }
 
       reco::Candidate::PolarLorentzVector mom(
-        egiso.floatPt(), reg.floatGlbEta(egiso.hwEta), reg.floatGlbPhi(egiso.hwPhi), 0.);
+          egiso.floatPt(), reg.floatGlbEta(egiso.hwEta), reg.floatGlbPhi(egiso.hwPhi), 0.);
 
-      l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), ref_egsta, egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIso), egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIsoPV));
+      l1t::TkEm tkem(reco::Candidate::LorentzVector(mom),
+                     ref_egsta,
+                     egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIso),
+                     egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIsoPV));
       tkem.setHwQual(egiso.hwQual);
       tkem.setPFIsol(egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::PfIso));
       tkem.setPFIsolPV(egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::PfIsoPV));
       tkems->push_back(tkem);
     }
 
-    for(const auto& egele: event_.out[ir].egelectron) {
+    for (const auto &egele : event_.out[ir].egelectron) {
       if (egele.hwPt == 0 || !reg.isFiducial(egele))
         continue;
 
@@ -801,20 +802,23 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
         ref_egsta = egsta_refs[egele.sta_idx];
       } else {
         auto egptr = egele.srcCluster->constituentsAndFractions()[0].first;
-        ref_egsta = edm::Ref<BXVector<l1t::EGamma>>(egptr.id(), dynamic_cast<const l1t::EGamma *>(egptr.get()), egptr.key());
+        ref_egsta =
+            edm::Ref<BXVector<l1t::EGamma>>(egptr.id(), dynamic_cast<const l1t::EGamma *>(egptr.get()), egptr.key());
       }
-      
+
       reco::Candidate::PolarLorentzVector mom(
-        egele.floatPt(), reg.floatGlbEta(egele.hwEta), reg.floatGlbPhi(egele.hwPhi), 0.);
-  
-      l1t::TkElectron tkele(
-          reco::Candidate::LorentzVector(mom), ref_egsta, edm::refToPtr(egele.srcTrack->track()), egele.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIso));
+          egele.floatPt(), reg.floatGlbEta(egele.hwEta), reg.floatGlbPhi(egele.hwPhi), 0.);
+
+      l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom),
+                            ref_egsta,
+                            edm::refToPtr(egele.srcTrack->track()),
+                            egele.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIso));
       tkele.setHwQual(egele.hwQual);
       tkele.setPFIsol(egele.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::PfIso));
       tkeles->push_back(tkele);
     }
   }
-  
+
   if (writeEgSta)
     iEvent.put(std::move(egs), egLablel);
   iEvent.put(std::move(tkems), tkEmLabel);
