@@ -38,7 +38,7 @@ process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder")
 
 process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
-process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader")
+process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
 process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
@@ -64,8 +64,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                                             cms.PSet(record = cms.string('DTRecoGeometryRcd'),tag = cms.string('DTRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('RPCRecoGeometryRcd'),tag = cms.string('RPCRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('GEMRecoGeometryRcd'),tag = cms.string('GEMRECO_Geometry_TagXX'))
-                                                            )
-                                          )
+                                                        )
+                                    )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
