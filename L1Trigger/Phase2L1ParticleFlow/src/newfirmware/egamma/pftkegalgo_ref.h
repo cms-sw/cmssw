@@ -17,7 +17,7 @@ namespace edm {
 
 namespace l1ct {
 
-  struct pftkegalgo_config {
+  struct PFTkEGAlgoEmuConfig {
     unsigned int nTRACK;
     unsigned int nEMCALO;
     unsigned int nEMCALOSEL_EGIN;
@@ -25,6 +25,7 @@ namespace l1ct {
 
     bool filterHwQuality;
     bool doBremRecovery;
+    bool writeBeforeBremRecovery;
     int caloHwQual;
     float emClusterPtMin;  // GeV
     float dEtaMaxBrem;
@@ -55,13 +56,14 @@ namespace l1ct {
     EGIsoVarsEmu::IsoType hwIsoTypeTkEle;
     EGIsoVarsEmu::IsoType hwIsoTypeTkEm;
 
-    pftkegalgo_config(const edm::ParameterSet &iConfig);
-    pftkegalgo_config(unsigned int nTrack,
+    PFTkEGAlgoEmuConfig(const edm::ParameterSet &iConfig);
+    PFTkEGAlgoEmuConfig(unsigned int nTrack,
                       unsigned int nEmCalo,
                       unsigned int nEmCaloSel_in,
                       unsigned int nEmOut,
                       bool filterHwQuality,
                       bool doBremRecovery,
+                      bool writeBeforeBremRecovery = false,
                       int caloHwQual = 4,
                       float emClusterPtMin = 2.,
                       float dEtaMaxBrem = 0.02,
@@ -86,6 +88,7 @@ namespace l1ct {
           nEM_EGOUT(nEmOut),
           filterHwQuality(filterHwQuality),
           doBremRecovery(doBremRecovery),
+          writeBeforeBremRecovery(writeBeforeBremRecovery),
           caloHwQual(caloHwQual),
           emClusterPtMin(emClusterPtMin),
           dEtaMaxBrem(dEtaMaxBrem),
@@ -107,7 +110,7 @@ namespace l1ct {
 
   class PFTkEGAlgoEmulator {
   public:
-    PFTkEGAlgoEmulator(const pftkegalgo_config &config) : cfg(config) {}
+    PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config) : cfg(config) {}
 
     virtual ~PFTkEGAlgoEmulator() {}
 
@@ -239,7 +242,7 @@ namespace l1ct {
                        float &sumPtPV,
                        const std::vector<TCH> &objects,
                        const TEG &egobj,
-                       const pftkegalgo_config::IsoParameters &params,
+                       const PFTkEGAlgoEmuConfig::IsoParameters &params,
                        const float z0) const {
       for (int itk = 0, ntk = objects.size(); itk < ntk; ++itk) {
         const auto &obj = objects[itk];
@@ -262,7 +265,7 @@ namespace l1ct {
                        float &sumPtPV,
                        const std::vector<PFNeutralObjEmu> &objects,
                        const TEG &egobj,
-                       const pftkegalgo_config::IsoParameters &params,
+                       const PFTkEGAlgoEmuConfig::IsoParameters &params,
                        const float z0) const {
       for (int itk = 0, ntk = objects.size(); itk < ntk; ++itk) {
         const auto &obj = objects[itk];
@@ -282,24 +285,24 @@ namespace l1ct {
 
     void compute_isolation(std::vector<EGIsoObjEmu> &egobjs,
                            const std::vector<TkObjEmu> &objects,
-                           const pftkegalgo_config::IsoParameters &params,
+                           const PFTkEGAlgoEmuConfig::IsoParameters &params,
                            const float z0) const;
     void compute_isolation(std::vector<EGIsoEleObjEmu> &egobjs,
                            const std::vector<TkObjEmu> &objects,
-                           const pftkegalgo_config::IsoParameters &params,
+                           const PFTkEGAlgoEmuConfig::IsoParameters &params,
                            const float z0) const;
     void compute_isolation(std::vector<EGIsoObjEmu> &egobjs,
                            const std::vector<PFChargedObjEmu> &charged,
                            const std::vector<PFNeutralObjEmu> &neutrals,
-                           const pftkegalgo_config::IsoParameters &params,
+                           const PFTkEGAlgoEmuConfig::IsoParameters &params,
                            const float z0) const;
     void compute_isolation(std::vector<EGIsoEleObjEmu> &egobjs,
                            const std::vector<PFChargedObjEmu> &charged,
                            const std::vector<PFNeutralObjEmu> &neutrals,
-                           const pftkegalgo_config::IsoParameters &params,
+                           const PFTkEGAlgoEmuConfig::IsoParameters &params,
                            const float z0) const;
 
-    pftkegalgo_config cfg;
+    PFTkEGAlgoEmuConfig cfg;
     int debug_ = 0;
   };
 }  // namespace l1ct
