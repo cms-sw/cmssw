@@ -75,7 +75,8 @@ EERecHitGPU::EERecHitGPU(const edm::ParameterSet& ps):
   assert_sizes_constants_(vdata_);
 
   kcdata_ = new KernelConstantData<HGCeeUncalibRecHitConstantData>(cdata_, vdata_);
-
+  convert_constant_data_(kcdata_);
+  
   tools_ = std::make_unique<hgcal::RecHitTools>();
 }
 
@@ -123,8 +124,6 @@ void EERecHitGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
   prod_      = HGCRecHitGPUProduct(nhits, ctx.stream());
   d_uncalib_ = HGCUncalibRecHitDevice(nhits, ctx.stream());
   h_uncalib_ = HGCUncalibRecHitHost<HGCeeUncalibratedRecHitCollection>(nhits, hits, ctx.stream());
-  
-  convert_constant_data_(kcdata_);
 
   KernelManagerHGCalRecHit km(h_uncalib_.get(), d_uncalib_.get(), prod_.get());
   km.run_kernels(kcdata_, ctx.stream());
