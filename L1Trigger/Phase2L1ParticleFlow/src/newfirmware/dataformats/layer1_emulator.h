@@ -129,7 +129,6 @@ namespace l1ct {
     }
   };
 
-
   struct EGObjEmu : EGObj {
     // FIXME: really needed? can not set compoments of Egamma objects...
     std::vector<const l1t::PFCluster *> components;
@@ -139,27 +138,21 @@ namespace l1ct {
     }
   };
 
-
   struct EGIsoVarsEmu {
     iso_t hwIsoVars[4];
-    
-    enum IsoType {
-      TkIso = 0,
-      PfIso = 1,
-      TkIsoPV = 2,
-      PfIsoPV = 3
-    };
-    
+
+    enum IsoType { TkIso = 0, PfIso = 1, TkIsoPV = 2, PfIsoPV = 3 };
+
     int intIsoVar(const IsoType type) const { return hwIsoVars[type].to_int(); }
     float floatIsoVar(const IsoType type) const { return Scales::floatIso(hwIsoVars[type]); }
     void setHwIsoVar(const IsoType type, iso_t value) { hwIsoVars[type] = value; }
     iso_t hwIsoVar(const IsoType type) const { return hwIsoVars[type]; }
-    
+
     void clear() {
-      hwIsoVars[0]=0;
-      hwIsoVars[1]=0;
-      hwIsoVars[2]=0;
-      hwIsoVars[3]=0;
+      hwIsoVars[0] = 0;
+      hwIsoVars[1] = 0;
+      hwIsoVars[2] = 0;
+      hwIsoVars[3] = 0;
     }
   };
 

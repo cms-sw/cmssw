@@ -72,7 +72,7 @@ bool l1ct::PuppiObjEmu::write(std::fstream& to) const { return writeObj<PuppiObj
 bool l1ct::EGIsoObjEmu::read(std::fstream& from) {
   srcCluster = nullptr;  // not persistent
   sta_idx = -1;
-  EGIsoVarsEmu::clear(); // not persistent
+  EGIsoVarsEmu::clear();  // not persistent
   return readObj<EGIsoObj>(from, *this);
 }
 
@@ -82,7 +82,7 @@ bool l1ct::EGIsoEleObjEmu::read(std::fstream& from) {
   srcCluster = nullptr;
   srcTrack = nullptr;
   sta_idx = -1;
-  EGIsoVarsEmu::clear(); // not persistent
+  EGIsoVarsEmu::clear();  // not persistent
   return readObj<EGIsoEleObj>(from, *this);
 }
 
@@ -204,7 +204,8 @@ void l1ct::PFInputRegion::clear() {
 
 bool l1ct::OutputRegion::read(std::fstream& from) {
   return readMany(from, pfcharged) && readMany(from, pfneutral) && readMany(from, pfphoton) && readMany(from, pfmuon) &&
-         readMany(from, puppi), readMany(from, egphoton), readMany(from, egelectron);
+             readMany(from, puppi),
+         readMany(from, egphoton), readMany(from, egelectron);
 }
 bool l1ct::OutputRegion::write(std::fstream& to) const {
   return writeMany(pfcharged, to) && writeMany(pfneutral, to) && writeMany(pfphoton, to) && writeMany(pfmuon, to) &&
