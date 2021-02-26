@@ -1,8 +1,7 @@
 #include "DQMOffline/Muon/interface/GEMOfflineDQMBase.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
-GEMOfflineDQMBase::GEMOfflineDQMBase(const edm::ParameterSet& pset) {
-  log_category_ = pset.getUntrackedParameter<std::string>("logCategory");
-}
+GEMOfflineDQMBase::GEMOfflineDQMBase(const edm::ParameterSet& pset) {}
 
 int GEMOfflineDQMBase::getDetOccXBin(const GEMDetId& gem_id, const edm::ESHandle<GEMGeometry>& gem) {
   const GEMSuperChamber* superchamber = gem->superChamber(gem_id);
@@ -88,4 +87,24 @@ int GEMOfflineDQMBase::getNumEtaPartitions(const GEMStation* station) {
   }
 
   return chambers.front()->nEtaPartitions();
+}
+
+void GEMOfflineDQMBase::fillME(MEMap& me_map, const GEMDetId& key, const float x) {
+  if UNLIKELY (me_map.find(key) == me_map.end()) {
+    const std::string hint = !me_map.empty() ? me_map.begin()->second->getName() : "empty";
+
+    edm::LogError(log_category_) << "got invalid key: " << key << ", hint=" << hint << std::endl;
+
+  } else {
+    me_map[key]->Fill(x);
+  }
+}
+
+void GEMOfflineDQMBase::fillME(MEMap& me_map, const GEMDetId& key, const float x, const float y) {
+  if UNLIKELY (me_map.find(key) == me_map.end()) {
+    edm::LogError(log_category_) << "got invalid key: " << key << std::endl;
+
+  } else {
+    me_map[key]->Fill(x, y);
+  }
 }
