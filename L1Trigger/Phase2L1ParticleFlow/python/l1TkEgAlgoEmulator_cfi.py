@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 
 tkEgAlgoParameters = cms.PSet(
-    nTRACK=cms.uint32(50), # very large numbers for first test
-    nEMCALO=cms.uint32(50), # very large numbers for first test
-    nEMCALOSEL_EGIN=cms.uint32(50), # very large numbers for first test
-    nEM_EGOUT=cms.uint32(50), # very large numbers for first test
+    nTRACK=cms.uint32(50),  # very large numbers for first test
+    nEMCALO=cms.uint32(50),  # very large numbers for first test
+    nEMCALOSEL_EGIN=cms.uint32(50),  # very large numbers for first test
+    nEM_EGOUT=cms.uint32(50),  # very large numbers for first test
     doBremRecovery=cms.bool(False),
     filterHwQuality=cms.bool(False),
     caloHwQual=cms.int32(4),
@@ -16,7 +16,7 @@ tkEgAlgoParameters = cms.PSet(
     dPhiValues=cms.vdouble(0.07, 0.07, 0.07),
     caloEtMin=cms.double(0.0),
     trkQualityPtMin=cms.double(10.0),
-    writeEGSta = cms.bool(False),
+    writeEGSta=cms.bool(False),
     tkIsoParametersTkEm=cms.PSet(
         tkQualityPtMin=cms.double(2.),
         dZ=cms.double(0.6),
@@ -44,5 +44,9 @@ tkEgAlgoParameters = cms.PSet(
         dRMin=cms.double(0.03),
         dRMax=cms.double(0.20),
         tkQualityChi2Max=cms.double(1e10),
-    )
+    ),
+    doTkIso=cms.bool(True),
+    doPfIso=cms.bool(True),
+    hwIsoTypeTkEle=cms.uint32(0),
+    hwIsoTypeTkEm=cms.uint32(1)
 )

@@ -30,7 +30,11 @@ l1ct::pftkegalgo_config::pftkegalgo_config(const edm::ParameterSet &pset)
       tkIsoParams_tkEle(pset.getParameter<edm::ParameterSet>("tkIsoParametersTkEle")),
       tkIsoParams_tkEm(pset.getParameter<edm::ParameterSet>("tkIsoParametersTkEm")),
       pfIsoParams_tkEle(pset.getParameter<edm::ParameterSet>("pfIsoParametersTkEle")),
-      pfIsoParams_tkEm(pset.getParameter<edm::ParameterSet>("pfIsoParametersTkEm")) {}
+      pfIsoParams_tkEm(pset.getParameter<edm::ParameterSet>("pfIsoParametersTkEm")),
+      doTkIso(pset.getParameter<bool>("doTkIso")),
+      doPfIso(pset.getParameter<bool>("doPfIso")),
+      hwIsoTypeTkEle(static_cast<EGIsoVarsEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEle"))),
+      hwIsoTypeTkEm(static_cast<EGIsoVarsEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEm"))) {}
 
 
 l1ct::pftkegalgo_config::IsoParameters::IsoParameters(const edm::ParameterSet &pset) :
@@ -305,5 +309,69 @@ void PFTkEGAlgoEmulator::addEgObjsToPF(std::vector<EGObjEmu> &egstas,
   if (tk_idx != -1) {
     EGIsoEleObjEmu &eleobj = addEGIsoEleToPF(egeleobjs, emcalo[calo_idx], track[tk_idx], hwQual, ptCorr);
     eleobj.sta_idx = sta_idx;
+  }
+}
+
+void PFTkEGAlgoEmulator::runIso(const PFInputRegion &in, const std::vector<l1ct::PVObjEmu> &pvs, OutputRegion &out) const {    
+  float z0 = Scales::floatZ0(pvs[0].hwZ0);
+  if(cfg.doTkIso) {
+    compute_isolation(out.egelectron, in.track, cfg.tkIsoParams_tkEle, z0);
+    compute_isolation(out.egphoton, in.track, cfg.tkIsoParams_tkEm, z0);
+  }
+  if(cfg.doPfIso) {
+    compute_isolation(out.egelectron, out.pfcharged, out.pfneutral, cfg.pfIsoParams_tkEle, z0);
+    compute_isolation(out.egphoton, out.pfcharged, out.pfneutral, cfg.pfIsoParams_tkEm, z0);
+  }
+  
+  std::for_each(out.egelectron.begin(), out.egelectron.end(), [&](EGIsoEleObjEmu &obj){ obj.hwIso = obj.hwIsoVar(cfg.hwIsoTypeTkEle); });
+  std::for_each(out.egphoton.begin(), out.egphoton.end(), [&](EGIsoObjEmu &obj){ obj.hwIso = obj.hwIsoVar(cfg.hwIsoTypeTkEm); });
+}
+
+
+void PFTkEGAlgoEmulator::compute_isolation(
+    std::vector<EGIsoObjEmu> &egobjs, const std::vector<TkObjEmu> &objects, const pftkegalgo_config::IsoParameters &params, const float z0) const {
+  for (int ic = 0, nc = egobjs.size(); ic < nc; ++ic) {
+    auto &egphoton = egobjs[ic];
+    float sumPt = 0.;
+    float sumPtPV = 0.;
+    compute_sumPt(sumPt, sumPtPV, objects, egphoton, params, z0);
+    egphoton.setHwIsoVar(EGIsoVarsEmu::IsoType::TkIso, Scales::makeIso(sumPt / egphoton.floatPt()));
+    egphoton.setHwIsoVar(EGIsoVarsEmu::IsoType::TkIsoPV, Scales::makeIso(sumPtPV / egphoton.floatPt()));
+  }
+}
+
+void PFTkEGAlgoEmulator::compute_isolation(
+    std::vector<EGIsoEleObjEmu> &egobjs, const std::vector<TkObjEmu> &objects, const pftkegalgo_config::IsoParameters &params, const float z0) const {
+  for (int ic = 0, nc = egobjs.size(); ic < nc; ++ic) {
+    auto &egele = egobjs[ic];
+    float sumPt = 0.;
+    float sumPtPV = 0.;
+    compute_sumPt(sumPt, sumPtPV, objects, egele, params, z0);
+    egele.setHwIsoVar(EGIsoVarsEmu::IsoType::TkIso, Scales::makeIso(sumPtPV / egele.floatPt()));
+  }
+}
+
+void PFTkEGAlgoEmulator::compute_isolation(
+    std::vector<EGIsoObjEmu> &egobjs, const std::vector<PFChargedObjEmu> &charged, const std::vector<PFNeutralObjEmu> &neutrals, const pftkegalgo_config::IsoParameters &params, const float z0) const {
+  for (int ic = 0, nc = egobjs.size(); ic < nc; ++ic) {
+    auto &egphoton = egobjs[ic];
+    float sumPt = 0.;
+    float sumPtPV = 0.;
+    compute_sumPt(sumPt, sumPtPV, charged, egphoton, params, z0);
+    compute_sumPt(sumPt, sumPtPV, neutrals, egphoton, params, z0);
+    egphoton.setHwIsoVar(EGIsoVarsEmu::IsoType::PfIso, Scales::makeIso(sumPt / egphoton.floatPt()));
+    egphoton.setHwIsoVar(EGIsoVarsEmu::IsoType::PfIsoPV, Scales::makeIso(sumPtPV / egphoton.floatPt()));
+  }
+}
+
+void PFTkEGAlgoEmulator::compute_isolation(
+    std::vector<EGIsoEleObjEmu> &egobjs, const std::vector<PFChargedObjEmu> &charged, const std::vector<PFNeutralObjEmu> &neutrals, const pftkegalgo_config::IsoParameters &params, const float z0) const {
+  for (int ic = 0, nc = egobjs.size(); ic < nc; ++ic) {
+    auto &egele = egobjs[ic];
+    float sumPt = 0.;
+    float sumPtPV = 0.;
+    compute_sumPt(sumPt, sumPtPV, charged, egele, params, z0);
+    compute_sumPt(sumPt, sumPtPV, neutrals, egele, params, z0);
+    egele.setHwIsoVar(EGIsoVarsEmu::IsoType::PfIso, Scales::makeIso(sumPtPV / egele.floatPt()));
   }
 }
