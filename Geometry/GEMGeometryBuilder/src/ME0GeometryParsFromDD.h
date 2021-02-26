@@ -43,7 +43,7 @@ private:
   std::vector<double> getDimension(DDFilteredView& fv);
   std::vector<double> getTranslation(DDFilteredView& fv);
   std::vector<double> getRotation(DDFilteredView& fv);
-  
+
   //DD4HEP
 
   void buildGeometry(cms::DDFilteredView&, const MuonGeometryConstants&, RecoIdealGeometry&);
