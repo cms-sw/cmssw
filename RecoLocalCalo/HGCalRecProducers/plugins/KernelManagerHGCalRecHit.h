@@ -34,7 +34,7 @@ class KernelManagerHGCalRecHit {
 public:
   KernelManagerHGCalRecHit();
   KernelManagerHGCalRecHit(const HGCUncalibRecHitSoA&, const HGCUncalibRecHitSoA&, const HGCRecHitSoA&);
-  KernelManagerHGCalRecHit(const HGCRecHitSoA&, const HGCRecHitSoA&);
+  KernelManagerHGCalRecHit(const HGCRecHitSoA&, const ConstHGCRecHitSoA&);
   ~KernelManagerHGCalRecHit();
   void run_kernels(const KernelConstantData<HGCeeUncalibRecHitConstantData>*, const cudaStream_t&);
   void run_kernels(const KernelConstantData<HGChefUncalibRecHitConstantData>*, const cudaStream_t&);
@@ -50,6 +50,7 @@ private:
   uint32_t nbytes_device_;
   HGCUncalibRecHitSoA h_uncalibSoA_, d_uncalibSoA_;
   HGCRecHitSoA h_calibSoA_, d_calibSoA_;
+  ConstHGCRecHitSoA d_calibConstSoA_;
 };
 
 #endif  //RecoLocalCalo_HGCalRecProducers_KernelManagerHGCalRecHit_h

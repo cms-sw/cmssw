@@ -19,8 +19,8 @@ KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCUncalibRecHitSoA& h_
   nbytes_device_ = d_uncalibSoA_.nbytes_ * pad_;
 }
 
-KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCRecHitSoA& h_calibSoA_, const HGCRecHitSoA& d_calibSoA)
-  : h_calibSoA_(h_calibSoA_), d_calibSoA_(d_calibSoA) {
+KernelManagerHGCalRecHit::KernelManagerHGCalRecHit(const HGCRecHitSoA& h_calibSoA_, const ConstHGCRecHitSoA& d_calibConstSoA)
+  : h_calibSoA_(h_calibSoA_), d_calibConstSoA_(d_calibConstSoA) {
   nhits_ = h_calibSoA_.nhits_;
   pad_ = h_calibSoA_.pad_;
   ::nb_rechits_ = (pad_ + ::nt_rechits_.x - 1) / ::nt_rechits_.x;
@@ -35,7 +35,7 @@ void KernelManagerHGCalRecHit::transfer_soa_to_device_(const cudaStream_t& strea
 }
 
 void KernelManagerHGCalRecHit::transfer_soa_to_host(const cudaStream_t& stream) {
-  cudaCheck(cudaMemcpyAsync(h_calibSoA_.energy_, d_calibSoA_.energy_, nbytes_host_, cudaMemcpyDeviceToHost, stream));
+  cudaCheck(cudaMemcpyAsync(h_calibSoA_.energy_, d_calibConstSoA_.energy_, nbytes_host_, cudaMemcpyDeviceToHost, stream));
 }
 
 void KernelManagerHGCalRecHit::run_kernels(const KernelConstantData<HGCeeUncalibRecHitConstantData>* kcdata,

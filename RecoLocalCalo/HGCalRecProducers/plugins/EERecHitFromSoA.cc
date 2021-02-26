@@ -31,9 +31,10 @@ EERecHitFromSoA::EERecHitFromSoA(const edm::ParameterSet& ps) {
 EERecHitFromSoA::~EERecHitFromSoA() {}
 
 void EERecHitFromSoA::produce(edm::Event& event, const edm::EventSetup& setup) {
-  ConstHGCRecHitSoA recHitsSoA = event.get(recHitSoAToken_).get();
+  const HGCRecHitCPUProduct& recHits = event.get(recHitSoAToken_);
+  ConstHGCRecHitSoA recHitsSoA = recHits.get();
   rechits_ = std::make_unique<HGCRecHitCollection>();
-  convert_soa_data_to_collection_(recHitsSoA.nhits_, *rechits_, &recHitsSoA);
+  convert_soa_data_to_collection_(recHits.nHits(), *rechits_, &recHitsSoA);
   event.put(std::move(rechits_));
 }
 
