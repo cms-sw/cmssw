@@ -28,7 +28,7 @@ TProfile* GEMEfficiencyHarvester::computeEfficiency(
 
   TProfile* eff_profile = new TProfile(name, title, total_x->GetNbins(), total_x->GetXmin(), total_x->GetXmax());
   eff_profile->GetXaxis()->SetTitle(total_x->GetTitle());
-  eff_profile->GetYaxis()->SetTitle("#epsilon");
+  eff_profile->GetYaxis()->SetTitle("Efficiency");
 
   for (int bin = 1; bin <= total->GetNbinsX(); bin++) {
     double num_passed = passed->GetBinContent(bin);

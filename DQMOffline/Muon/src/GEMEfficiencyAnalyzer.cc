@@ -54,7 +54,7 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.add<edm::InputTag>("muonTag", edm::InputTag("muons"));
     desc.addUntracked<bool>("isCosmics", false);
     desc.addUntracked<bool>("useGlobalMuon", true);
-    desc.add<bool>("useSkipLayer", true);
+    desc.add<bool>("useSkipLayer", false);
     desc.add<bool>("useOnlyME11", false);
     desc.add<double>("residualRPhiCut", 2.0);  // TODO need to be tuned
     desc.add<bool>("usePropRErrorCut", false);
@@ -280,8 +280,29 @@ void GEMEfficiencyAnalyzer::bookResolution(DQMStore::IBooker& ibooker, const edm
 void GEMEfficiencyAnalyzer::bookMisc(DQMStore::IBooker& ibooker, const edm::ESHandle<GEMGeometry>& gem) {
   ibooker.setCurrentFolder(folder_ + "/Misc");
   me_prop_r_err_ = ibooker.book1D("prop_r_err", ";Propagation Global R Error [cm];Entries", 20, 0.0, 20.0);
-  me_prop_phi_err_ = ibooker.book1D("prop_phi_err", "Propagation Global Phi Error [rad];Entries", 20, 0.0, 0.5);
+  me_prop_phi_err_ = ibooker.book1D("prop_phi_err", "Propagation Global Phi Error [rad];Entries", 20, 0.0, M_PI);
   me_all_abs_residual_rphi_ = ibooker.book1D("all_abs_residual_rphi", ";Residual in R#phi [cm];Entries", 20, 0.0, 20.0);
+
+  for (const GEMStation* station : gem->stations()) {
+    const int region_id = station->region();
+    const int station_id = station->station();
+
+    const std::vector<const GEMSuperChamber*>&& superchambers = station->superChambers();
+    if (not checkRefs(superchambers)) {
+      edm::LogError(kLogCategory_) << "failed to get a valid vector of GEMSuperChamber ptrs" << std::endl;
+      return;
+    }
+    // ignore layer ids
+    const int num_ch = superchambers.size();
+
+    const GEMDetId&& key = getReStKey(region_id, station_id);
+    const TString&& name_suffix = getSuffixName(region_id, station_id);
+    const TString&& title_suffix = getSuffixTitle(region_id, station_id);
+    me_prop_chamber_[key] = ibooker.book1D("prop_chamber" + name_suffix, title_suffix, num_ch, 0.5, num_ch + 0.5);
+    me_prop_chamber_[key]->setAxisTitle("Destination Chamber Id", 1);
+    me_prop_chamber_[key]->setAxisTitle("Entries", 2);
+  }  // station
+
 }
 
 void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -366,7 +387,7 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       }
 
       if (use_only_me11_ and (not isME11(start_id))) {
-        edm::LogInfo(kLogCategory_) << "skip" << std::endl;
+        edm::LogInfo(kLogCategory_) << "skip a starting state because it is not ME11" << std::endl;
         continue;
       }
 
@@ -399,10 +420,19 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       const double dest_global_r_err = std::sqrt(dest_global_err.rerr(dest_global_pos));
       const double dest_global_phi_err = std::sqrt(dest_global_err.phierr(dest_global_pos));
 
-      me_prop_r_err_->Fill(std::min(dest_global_r_err, 19.999));
-      me_prop_phi_err_->Fill(std::min(dest_global_r_err, 0.4999));
+      const GEMDetId&& gem_id = eta_partition->id();
+      const GEMDetId&& rs_key = getReStKey(gem_id);
+      const GEMDetId&& rsl_key = getReStLaKey(gem_id);
+      const GEMDetId&& rse_key = getReStEtKey(gem_id);
 
-      // TODO monitor elements for debugging
+      const int chamber_bin = getDetOccXBin(gem_id, gem);
+      const int ieta = gem_id.roll();
+
+      // FIXME clever way to clamp values?
+      me_prop_r_err_->Fill(std::min(dest_global_r_err, 19.999));
+      me_prop_phi_err_->Fill(std::min(dest_global_r_err, M_PI - 0.0001));
+      me_prop_chamber_[rs_key]->Fill(gem_id.chamber());
+
       if (use_prop_r_error_cut_ and (dest_global_r_err > prop_r_error_cut_)) {
         edm::LogInfo(kLogCategory_) << "failed to pass a propagation global R error cut" << std::endl;
         continue;
@@ -413,17 +443,10 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
         continue;
       }
 
-      const GEMDetId&& gem_id = eta_partition->id();
-
-      const GEMDetId&& rs_key = getReStKey(gem_id);
-      const GEMDetId&& rsl_key = getReStLaKey(gem_id);
-      const GEMDetId&& rse_key = getReStEtKey(gem_id);
-
-      const int chamber_bin = getDetOccXBin(gem_id, gem);
       const double muon_pt = std::min(muon.pt(), pt_clamp_max_);
       const double muon_eta = std::clamp(std::fabs(muon.eta()), eta_low_, eta_clamp_max_);
 
-      fillME(me_detector_, rs_key, chamber_bin, gem_id.roll());
+      fillME(me_detector_, rs_key, chamber_bin, ieta);
       fillME(me_muon_pt_, rs_key, muon_pt);
       fillME(me_muon_eta_, rs_key, muon_eta);
       fillME(me_muon_phi_, rs_key, muon.phi());
@@ -437,23 +460,19 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       }
 
       me_all_abs_residual_rphi_->Fill(std::min(std::abs(residual_rphi), 19.999f));
-
-      // TODO overall residual rphi for debugging
       if (std::abs(residual_rphi) > residual_rphi_cut_) {
         edm::LogInfo(kLogCategory_) << "failed to pass the residual rphi cut" << std::endl;
         continue;
       }
 
-      fillME(me_detector_matched_, rs_key, chamber_bin, gem_id.roll());
+      fillME(me_detector_matched_, rs_key, chamber_bin, ieta);
       fillME(me_muon_pt_matched_, rs_key, muon_pt);
       fillME(me_muon_eta_matched_, rs_key, muon_eta);
       fillME(me_muon_phi_matched_, rs_key, muon.phi());
       fillME(me_chamber_matched_, rsl_key, gem_id.chamber());
 
       const LocalPoint&& hit_local_pos = hit->localPosition();
-      const GlobalPoint&& hit_global_pos = eta_partition->toGlobal(hit_local_pos);
       const LocalError&& hit_local_err = hit->localPositionError();
-      const GlobalError& hit_global_err = ErrorFrameTransformer().transform(hit_local_err, surface);
 
       const float residual_y = dest_local_pos.y() - hit_local_pos.y();
       const float pull_y = residual_y / std::sqrt(dest_local_err.yy() + hit_local_err.yy());
