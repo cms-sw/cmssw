@@ -337,8 +337,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
     l1pfalgo_->run(event_.pfinputs[ir], event_.out[ir]);
     l1pfalgo_->mergeNeutrals(event_.out[ir]);
     l1tkegalgo_->run(event_.pfinputs[ir], event_.out[ir]);
-    //l1tkegalgo_->runTkIso(l1region, z0);
-    //l1tkegalgo_->runPFIso(l1region, z0);
+    l1tkegalgo_->runIso(event_.pfinputs[ir], event_.pvs, event_.out[ir]);
   }
 
   // Then run puppi (regionally)
@@ -762,9 +761,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
           continue;
         l1t::EGamma eg(reco::Candidate::PolarLorentzVector(
           p.floatPt(), reg.floatGlbEta(p.hwEta), reg.floatGlbPhi(p.hwPhi), 0.));
-        // FIXME: add components?
-        // // FIXME: add hwqual
-        // eg.setHwQual(p.hwQual);
+        eg.setHwQual(p.hwQual);
         egs->push_back(0, eg);
 
         egsta_refs[ieg] = edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx++);
@@ -788,13 +785,10 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       reco::Candidate::PolarLorentzVector mom(
         egiso.floatPt(), reg.floatGlbEta(egiso.hwEta), reg.floatGlbPhi(egiso.hwPhi), 0.);
 
-      // FIXME: add all variables
-      l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), ref_egsta, 0., 0.);
-
-      // l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), ref_egsta, egphoton.floatIso(), egphoton.floatIsoPV());
-      // tkem.setHwQual(egphoton.hwQual);
-      // tkem.setPFIsol(egphoton.floatPFIso());
-      // tkem.setPFIsolPV(egphoton.floatPFIsoPV());
+      l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), ref_egsta, egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIso), egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIsoPV));
+      tkem.setHwQual(egiso.hwQual);
+      tkem.setPFIsol(egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::PfIso));
+      tkem.setPFIsolPV(egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::PfIsoPV));
       tkems->push_back(tkem);
     }
 
@@ -814,17 +808,11 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
         egele.floatPt(), reg.floatGlbEta(egele.hwEta), reg.floatGlbPhi(egele.hwPhi), 0.);
   
       l1t::TkElectron tkele(
-          reco::Candidate::LorentzVector(mom), ref_egsta, edm::refToPtr(egele.srcTrack->track()), 0.);
-      // FIXME: add isolation
-      // l1t::TkElectron tkele(
-      //     reco::Candidate::LorentzVector(mom), ref_egsta, edm::refToPtr(egele.srcTrack->track()), egele.floatIso());
-      // tkele.setHwQual(egele.hwQual);
-      // tkele.setPFIsol(egele.floatPFIso());
+          reco::Candidate::LorentzVector(mom), ref_egsta, edm::refToPtr(egele.srcTrack->track()), egele.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIso));
+      tkele.setHwQual(egele.hwQual);
+      tkele.setPFIsol(egele.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::PfIso));
       tkeles->push_back(tkele);
-
     }
-
-
   }
   
   if (writeEgSta)

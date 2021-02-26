@@ -52,6 +52,10 @@ namespace l1ct {
     IsoParameters tkIsoParams_tkEm;
     IsoParameters pfIsoParams_tkEle;
     IsoParameters pfIsoParams_tkEm;
+    bool doTkIso;
+    bool doPfIso;
+    EGIsoVarsEmu::IsoType hwIsoTypeTkEle;
+    EGIsoVarsEmu::IsoType hwIsoTypeTkEm;
 
     pftkegalgo_config(const edm::ParameterSet &iConfig);
     pftkegalgo_config(unsigned int nTrack,
@@ -72,7 +76,12 @@ namespace l1ct {
                       const IsoParameters &tkIsoParams_tkEle = {2., 0.6, 0.03, 0.2},
                       const IsoParameters &tkIsoParams_tkEm = {2., 0.6, 0.07, 0.3},
                       const IsoParameters &pfIsoParams_tkEle = {1., 0.6, 0.03, 0.2},
-                      const IsoParameters &pfIsoParams_tkEm = {1., 0.6, 0.07, 0.3})
+                      const IsoParameters &pfIsoParams_tkEm = {1., 0.6, 0.07, 0.3},
+                      bool doTkIso = true,
+                      bool doPfIso = true,
+                      EGIsoVarsEmu::IsoType hwIsoTypeTkEle = EGIsoVarsEmu::IsoType::TkIso,
+                      EGIsoVarsEmu::IsoType hwIsoTypeTkEm = EGIsoVarsEmu::IsoType::TkIsoPV)
+
         : nTRACK(nTrack),
           nEMCALO(nEmCalo),
           nEMCALOSEL_EGIN(nEmCaloSel_in),
@@ -91,7 +100,11 @@ namespace l1ct {
           tkIsoParams_tkEle(tkIsoParams_tkEle),
           tkIsoParams_tkEm(tkIsoParams_tkEm),
           pfIsoParams_tkEle(pfIsoParams_tkEle),
-          pfIsoParams_tkEm(pfIsoParams_tkEm) {}
+          pfIsoParams_tkEm(pfIsoParams_tkEm),
+          doTkIso(doTkIso),
+          doPfIso(doPfIso),
+          hwIsoTypeTkEle(hwIsoTypeTkEle),
+          hwIsoTypeTkEm(hwIsoTypeTkEm) {}
   };
 
   class PFTkEGAlgoEmulator {
@@ -103,7 +116,8 @@ namespace l1ct {
     void toFirmware(const PFInputRegion &in, PFRegion &region, EmCaloObj calo[/*nCALO*/], TkObj track[/*nTRACK*/]) const;
     void toFirmware(const OutputRegion &out, EGIsoObj out_egphs[], EGIsoEleObj out_egeles[]) const;
 
-    virtual void run(const PFInputRegion &in, OutputRegion &out) const;
+    void run(const PFInputRegion &in, OutputRegion &out) const;
+    void runIso(const PFInputRegion &in, const std::vector<l1ct::PVObjEmu> &pvs, OutputRegion &out) const;
 
     void setDebug(int verbose) { debug_ = verbose; }
 
@@ -186,6 +200,93 @@ namespace l1ct {
       }
     }
 
+
+    template <typename T>
+    float deltaR2(const T&charged, const EGIsoObjEmu& egphoton) const {
+      // NOTE: we compare Tk at vertex against the calo variable...
+      float d_phi = deltaPhi(charged.floatVtxPhi(), egphoton.floatPhi());
+      float d_eta = charged.floatVtxEta() - egphoton.floatEta();
+      return d_phi * d_phi + d_eta * d_eta;
+    }
+
+    template <typename T>
+    float deltaR2(const T&charged, const EGIsoEleObjEmu& egele) const {
+      float d_phi = deltaPhi(charged.floatVtxPhi(), egele.floatVtxPhi());
+      float d_eta = charged.floatVtxEta() - egele.floatVtxEta();
+      return d_phi * d_phi + d_eta * d_eta;
+    }
+
+    float deltaR2(const PFNeutralObjEmu&neutral, const EGIsoObjEmu& egphoton) const {
+      float d_phi = deltaPhi(neutral.floatPhi(), egphoton.floatPhi());
+      float d_eta = neutral.floatEta() - egphoton.floatEta();
+      return d_phi * d_phi + d_eta * d_eta;
+    }
+
+    float deltaR2(const PFNeutralObjEmu&neutral, const EGIsoEleObjEmu& egele) const {
+      // NOTE: we compare Tk at vertex against the calo variable...
+      float d_phi = deltaPhi(neutral.floatPhi(), egele.floatVtxPhi());
+      float d_eta = neutral.floatEta() - egele.floatVtxEta();
+      return d_phi * d_phi + d_eta * d_eta;
+    }
+
+    template <typename T>
+    float deltaZ0(const T&charged, const EGIsoObjEmu& egphoton, float z0) const {
+      return  std::abs(charged.floatZ0() - z0);
+    }
+
+    template <typename T>
+    float deltaZ0(const T&charged, const EGIsoEleObjEmu& egele, float z0) const {
+      return std::abs(charged.floatZ0() - egele.floatZ0());
+    }
+
+    template <typename TCH, typename TEG>
+    void compute_sumPt(float &sumPt, float &sumPtPV, const std::vector<TCH> &objects, const TEG& egobj, const pftkegalgo_config::IsoParameters &params, const float z0) const {
+      for (int itk = 0, ntk = objects.size(); itk < ntk; ++itk) {
+        const auto &obj = objects[itk];
+
+        if (obj.floatPt() < params.tkQualityPtMin)
+          continue;
+
+        float dR2 = deltaR2(obj, egobj);
+
+        if (dR2 > params.dRMin2 && dR2 < params.dRMax2) {
+          sumPt += obj.floatPt();
+          if (deltaZ0(obj, egobj, z0) < params.dZ)
+            sumPtPV += obj.floatPt();
+        }
+      }
+    }
+
+    template <typename TEG>
+    void compute_sumPt(float &sumPt, float &sumPtPV, const std::vector<PFNeutralObjEmu> &objects, const TEG& egobj, const pftkegalgo_config::IsoParameters &params, const float z0) const {
+      for (int itk = 0, ntk = objects.size(); itk < ntk; ++itk) {
+        const auto &obj = objects[itk];
+
+        if (obj.floatPt() < params.tkQualityPtMin)
+          continue;
+
+        float dR2 = deltaR2(obj, egobj);
+
+        if (dR2 > params.dRMin2 && dR2 < params.dRMax2) {
+          sumPt += obj.floatPt();
+          // PF neutrals are not constrained by PV (since their Z0 is 0 by design)
+          sumPtPV += obj.floatPt();
+        }
+      }
+    }
+
+    void compute_isolation(
+        std::vector<EGIsoObjEmu> &egobjs, const std::vector<TkObjEmu> &objects, const pftkegalgo_config::IsoParameters &params, const float z0) const;
+    void compute_isolation(
+        std::vector<EGIsoEleObjEmu> &egobjs, const std::vector<TkObjEmu> &objects, const pftkegalgo_config::IsoParameters &params, const float z0) const;
+    void compute_isolation(
+        std::vector<EGIsoObjEmu> &egobjs, const std::vector<PFChargedObjEmu> &charged, const std::vector<PFNeutralObjEmu> &neutrals, const pftkegalgo_config::IsoParameters &params, const float z0) const;
+    void compute_isolation(
+        std::vector<EGIsoEleObjEmu> &egobjs, const std::vector<PFChargedObjEmu> &charged, const std::vector<PFNeutralObjEmu> &neutrals, const pftkegalgo_config::IsoParameters &params, const float z0) const;
+
+
+
+  
     pftkegalgo_config cfg;
     int debug_ = 0;
   };
