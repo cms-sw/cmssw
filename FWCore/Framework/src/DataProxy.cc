@@ -107,7 +107,7 @@ namespace edm {
         auto token = ServiceRegistry::instance().presentToken();
         std::exception_ptr exceptPtr{};
         edm::esTaskArena().execute([this, &exceptPtr, &iRecord, &iKey, iEventSetupImpl, token, iParent]() {
-          auto exceptPtr = syncWait([&, this](WaitingTaskHolder&& holder) {
+          exceptPtr = syncWait([&, this](WaitingTaskHolder&& holder) {
             prefetchAsync(std::move(holder), iRecord, iKey, iEventSetupImpl, token, iParent);
           });
         });
