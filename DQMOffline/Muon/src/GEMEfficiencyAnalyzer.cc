@@ -281,7 +281,6 @@ void GEMEfficiencyAnalyzer::bookMisc(DQMStore::IBooker& ibooker, const edm::ESHa
   me_prop_r_err_ = ibooker.book1D("prop_r_err", ";Propagation Global R Error [cm];Entries", 20, 0.0, 20.0);
   me_prop_phi_err_ = ibooker.book1D("prop_phi_err", ";Propagation Global Phi Error [rad];Entries", 20, 0.0, M_PI);
   me_all_abs_residual_rphi_ = ibooker.book1D("all_abs_residual_rphi", ";Residual in R#phi [cm];Entries", 20, 0.0, 20.0);
-  // me_start_id_ = ibooker.book2D("start_id", "",);
 
   for (const GEMStation* station : gem->stations()) {
     const int region_id = station->region();

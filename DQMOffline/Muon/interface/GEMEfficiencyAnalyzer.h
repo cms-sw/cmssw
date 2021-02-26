@@ -106,7 +106,6 @@ private:
   MEMap me_detector_matched_;
   // resolution
   MEMap me_residual_rphi_;  // global
-  MEMap me_residual_x_;     // local
   MEMap me_residual_y_;     // local
   MEMap me_pull_y_;
   // MEs for optimizing cut values
