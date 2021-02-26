@@ -206,9 +206,9 @@ void PFTkEGAlgoEmulator::eg_algo(const std::vector<EmCaloObjEmu> &emcalo,
       addEgObjsToPF(egstas, egobjs, egeleobjs, emcalo, track, ic, calo.hwFlags, calo.hwPt, itk);
     }
 
-    if(!cfg.doBremRecovery)
+    if (!cfg.doBremRecovery)
       continue;
-      
+
     // check if the cluster has already been used in a brem reclustering
     if (emCalo2emCalo[ic] != -1)
       continue;
