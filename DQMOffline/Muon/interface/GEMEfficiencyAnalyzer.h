@@ -1,4 +1,4 @@
-eifndef DQMOffline_Muon_GEMEfficiencyAnalyzer_h
+#ifndef DQMOffline_Muon_GEMEfficiencyAnalyzer_h;
 #define DQMOffline_Muon_GEMEfficiencyAnalyzer_h
 
 /** \class GEMEfficiencyAnalyzer

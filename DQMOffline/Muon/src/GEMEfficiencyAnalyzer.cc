@@ -296,13 +296,12 @@ void GEMEfficiencyAnalyzer::bookMisc(DQMStore::IBooker& ibooker, const edm::ESHa
     const int num_ch = superchambers.size();
 
     const GEMDetId&& key = getReStKey(region_id, station_id);
-    const TString&& name_suffix = getSuffixName(region_id, station_id);
-    const TString&& title_suffix = getSuffixTitle(region_id, station_id);
+    const TString&& name_suffix = GEMUtils::getSuffixName(region_id, station_id);
+    const TString&& title_suffix = GEMUtils::getSuffixTitle(region_id, station_id);
     me_prop_chamber_[key] = ibooker.book1D("prop_chamber" + name_suffix, title_suffix, num_ch, 0.5, num_ch + 0.5);
     me_prop_chamber_[key]->setAxisTitle("Destination Chamber Id", 1);
     me_prop_chamber_[key]->setAxisTitle("Entries", 2);
   }  // station
-
 }
 
 void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
