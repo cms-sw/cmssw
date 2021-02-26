@@ -7,6 +7,7 @@ tkEgAlgoParameters = cms.PSet(
     nEMCALOSEL_EGIN=cms.uint32(50),  # very large numbers for first test
     nEM_EGOUT=cms.uint32(50),  # very large numbers for first test
     doBremRecovery=cms.bool(False),
+    writeBeforeBremRecovery=cms.bool(True),
     filterHwQuality=cms.bool(False),
     caloHwQual=cms.int32(4),
     dEtaMaxBrem=cms.double(0.02),

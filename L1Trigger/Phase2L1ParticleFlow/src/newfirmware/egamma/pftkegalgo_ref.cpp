@@ -11,13 +11,14 @@ using namespace l1ct;
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-l1ct::pftkegalgo_config::pftkegalgo_config(const edm::ParameterSet &pset)
+l1ct::PFTkEGAlgoEmuConfig::PFTkEGAlgoEmuConfig(const edm::ParameterSet &pset)
     : nTRACK(pset.getParameter<uint32_t>("nTRACK")),
       nEMCALO(pset.getParameter<uint32_t>("nEMCALO")),
       nEMCALOSEL_EGIN(pset.getParameter<uint32_t>("nEMCALOSEL_EGIN")),
       nEM_EGOUT(pset.getParameter<uint32_t>("nEM_EGOUT")),
       filterHwQuality(pset.getParameter<bool>("filterHwQuality")),
       doBremRecovery(pset.getParameter<bool>("doBremRecovery")),
+      writeBeforeBremRecovery(pset.getParameter<bool>("writeBeforeBremRecovery")),
       caloHwQual(pset.getParameter<int>("caloHwQual")),
       emClusterPtMin(pset.getParameter<double>("caloEtMin")),
       dEtaMaxBrem(pset.getParameter<double>("dEtaMaxBrem")),
@@ -36,7 +37,7 @@ l1ct::pftkegalgo_config::pftkegalgo_config(const edm::ParameterSet &pset)
       hwIsoTypeTkEle(static_cast<EGIsoVarsEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEle"))),
       hwIsoTypeTkEm(static_cast<EGIsoVarsEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEm"))) {}
 
-l1ct::pftkegalgo_config::IsoParameters::IsoParameters(const edm::ParameterSet &pset)
+l1ct::PFTkEGAlgoEmuConfig::IsoParameters::IsoParameters(const edm::ParameterSet &pset)
     : tkQualityPtMin(pset.getParameter<double>("tkQualityPtMin")),
       dZ(pset.getParameter<double>("dZ")),
       dRMin2(pset.getParameter<double>("dRMin") * pset.getParameter<double>("dRMin")),
@@ -200,12 +201,14 @@ void PFTkEGAlgoEmulator::eg_algo(const std::vector<EmCaloObjEmu> &emcalo,
     int itk = emCalo2tk[ic];
 
     // check if brem recovery is on
-    if (!cfg.doBremRecovery) {
+    if (!cfg.doBremRecovery || cfg.writeBeforeBremRecovery) {
       // 1. create EG objects before brem recovery
       addEgObjsToPF(egstas, egobjs, egeleobjs, emcalo, track, ic, calo.hwFlags, calo.hwPt, itk);
-      continue;
     }
 
+    if(!cfg.doBremRecovery)
+      continue;
+      
     // check if the cluster has already been used in a brem reclustering
     if (emCalo2emCalo[ic] != -1)
       continue;
@@ -222,7 +225,7 @@ void PFTkEGAlgoEmulator::eg_algo(const std::vector<EmCaloObjEmu> &emcalo,
     }
 
     // 2. create EG objects with brem recovery
-    // FIXME: duplicating the object is suboptimal but this is done for keeping things as in TDR code...
+    // NOTE: duplicating the object is suboptimal but this is done for keeping things as in TDR code...
     addEgObjsToPF(egstas, egobjs, egeleobjs, emcalo, track, ic, calo.hwFlags + 1, ptBremReco, itk, components);
   }
 }
@@ -254,7 +257,8 @@ EGIsoObjEmu &PFTkEGAlgoEmulator::addEGIsoToPF(std::vector<EGIsoObjEmu> &egobjs,
   egiso.hwEta = calo.hwEta;
   egiso.hwPhi = calo.hwPhi;
   egiso.hwQual = hwQual;
-  egiso.hwIso = 0;  // FIXME: add other iso variables
+  egiso.hwIso = 0;
+  egiso.EGIsoVarsEmu::clear();
   egiso.srcCluster = calo.src;
   egobjs.push_back(egiso);
   return egobjs.back();
@@ -278,7 +282,8 @@ EGIsoEleObjEmu &PFTkEGAlgoEmulator::addEGIsoEleToPF(std::vector<EGIsoEleObjEmu> 
   egiso.hwDPhi = abs(track.hwVtxPhi() - egiso.hwPhi);
   egiso.hwZ0 = track.hwZ0;
   egiso.hwCharge = track.hwCharge;
-  egiso.hwIso = 0;  // FIXME: add other iso variables
+  egiso.hwIso = 0;
+  egiso.EGIsoVarsEmu::clear();
   egiso.srcCluster = calo.src;
   egiso.srcTrack = track.src;
   egobjs.push_back(egiso);
@@ -330,7 +335,7 @@ void PFTkEGAlgoEmulator::runIso(const PFInputRegion &in,
 
 void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoObjEmu> &egobjs,
                                            const std::vector<TkObjEmu> &objects,
-                                           const pftkegalgo_config::IsoParameters &params,
+                                           const PFTkEGAlgoEmuConfig::IsoParameters &params,
                                            const float z0) const {
   for (int ic = 0, nc = egobjs.size(); ic < nc; ++ic) {
     auto &egphoton = egobjs[ic];
@@ -344,7 +349,7 @@ void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoObjEmu> &egobjs,
 
 void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoEleObjEmu> &egobjs,
                                            const std::vector<TkObjEmu> &objects,
-                                           const pftkegalgo_config::IsoParameters &params,
+                                           const PFTkEGAlgoEmuConfig::IsoParameters &params,
                                            const float z0) const {
   for (int ic = 0, nc = egobjs.size(); ic < nc; ++ic) {
     auto &egele = egobjs[ic];
@@ -358,7 +363,7 @@ void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoEleObjEmu> &egobjs,
 void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoObjEmu> &egobjs,
                                            const std::vector<PFChargedObjEmu> &charged,
                                            const std::vector<PFNeutralObjEmu> &neutrals,
-                                           const pftkegalgo_config::IsoParameters &params,
+                                           const PFTkEGAlgoEmuConfig::IsoParameters &params,
                                            const float z0) const {
   for (int ic = 0, nc = egobjs.size(); ic < nc; ++ic) {
     auto &egphoton = egobjs[ic];
@@ -374,7 +379,7 @@ void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoObjEmu> &egobjs,
 void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoEleObjEmu> &egobjs,
                                            const std::vector<PFChargedObjEmu> &charged,
                                            const std::vector<PFNeutralObjEmu> &neutrals,
-                                           const pftkegalgo_config::IsoParameters &params,
+                                           const PFTkEGAlgoEmuConfig::IsoParameters &params,
                                            const float z0) const {
   for (int ic = 0, nc = egobjs.size(); ic < nc; ++ic) {
     auto &egele = egobjs[ic];

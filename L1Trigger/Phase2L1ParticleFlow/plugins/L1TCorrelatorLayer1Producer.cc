@@ -189,7 +189,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
     throw cms::Exception("Configuration", "Unsupported puAlgo");
 
   l1tkegalgo_ = std::make_unique<l1ct::PFTkEGAlgoEmulator>(
-      l1ct::pftkegalgo_config(iConfig.getParameter<edm::ParameterSet>("tkEgAlgoParameters")));
+      l1ct::PFTkEGAlgoEmuConfig(iConfig.getParameter<edm::ParameterSet>("tkEgAlgoParameters")));
 
   if (l1tkegalgo_->writeEgSta())
     produces<BXVector<l1t::EGamma>>("L1Eg");
