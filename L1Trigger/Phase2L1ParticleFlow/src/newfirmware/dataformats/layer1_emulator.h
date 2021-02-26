@@ -156,7 +156,10 @@ namespace l1ct {
     iso_t hwIsoVar(const IsoType type) const { return hwIsoVars[type]; }
     
     void clear() {
-      hwIsoVars[4]={};
+      hwIsoVars[0]=0;
+      hwIsoVars[1]=0;
+      hwIsoVars[2]=0;
+      hwIsoVars[3]=0;
     }
   };
 
