@@ -53,14 +53,14 @@ void ME0RecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
       es.get<IdealGeometryRecord>().get(pDD);
       es.get<IdealGeometryRecord>().get(pMNDC);
       const cms::DDCompactView& cpv = *pDD;
-      // me0pd.build(&cpv, *pMNDC, *rig);
-   } else {
+      me0pd.build(&cpv, *pMNDC, *rig);
+    } else {
       edm::LogVerbatim("ME0RecoIdealDBLoader") << "(0) ME0RecoIdealDBLoader - DDD ";
-    edm::ESTransientHandle<DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    es.get<IdealGeometryRecord>().get(pMNDC);
-    const DDCompactView& cpv = *pDD;
-    me0pd.build(&cpv, *pMNDC, *rig);
+      edm::ESTransientHandle<DDCompactView> pDD;
+      es.get<IdealGeometryRecord>().get(pDD);
+      es.get<IdealGeometryRecord>().get(pMNDC);
+      const DDCompactView& cpv = *pDD;
+      me0pd.build(&cpv, *pMNDC, *rig);
     }
     mydbservice->createNewIOV<RecoIdealGeometry>(
         rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "ME0RecoGeometryRcd");
