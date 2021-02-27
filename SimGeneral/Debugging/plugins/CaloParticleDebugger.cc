@@ -181,35 +181,41 @@ void CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSet
   int idx = 0;
 
   std::map<int, int> trackid_to_track_index;
-  std::cout << "Printing SimTracks information" << std::endl;
+  std::cout << "\n\n**Printing SimTracks information **" << std::endl;
   std::cout << "IDX\tTrackId\tPDGID\tMOMENTUM(x,y,z,E)\tVertexIdx\tGenPartIdx" << std::endl;
   for (auto i : sorted_tracks_idx) {
     auto const& t = tracks[i];
     std::cout << idx << "\t" << t.trackId() << "\t" << t << std::endl;
+    std::cout << "Crossed  Boundary: " << t.crossedBoundary()
+              << "  Position Boundary: " << t.getPositionAtBoundary()
+              << "  Momentum Boundary: " << t.getMomentumAtBoundary()
+              << "  Vtx:               " << t.vertIndex()
+              << "  Momemtum Origin:   " << t.momentum()
+              << std::endl;
     trackid_to_track_index[t.trackId()] = idx;
     idx++;
   }
 
-  std::cout << "Printing GenParticles information" << std::endl;
+  std::cout << "\n\n**Printing GenParticles information **" << std::endl;
   std::cout << "IDX\tPDGID\tMOMENTUM(x,y,z)\tVertex(x,y,z)" << std::endl;
   for (auto i : sorted_genParticles_idx) {
     auto const& gp = genParticles[i];
     std::cout << i << "\t" << gp.pdgId() << "\t" << gp.momentum() << "\t" << gp.vertex() << std::endl;
   }
 
-  std::cout << "Printing SimVertex information" << std::endl;
+  std::cout << "\n\n**Printing SimVertex information **" << std::endl;
   std::cout << "IDX\tPOSITION(x,y,z)\tPARENT_INDEX\tVERTEX_ID" << std::endl;
   for (auto i : sorted_vertices_idx) {
     auto const& v = vertices[i];
     std::cout << i << "\t" << v << std::endl;
   }
-  std::cout << "Printing TrackingParticles information" << std::endl;
+  std::cout << "\n\n**Printing TrackingParticles information **" << std::endl;
   for (auto i : sorted_tp_idx) {
     auto const& tp = trackingpart[i];
     std::cout << i << "\t" << tp << std::endl;
   }
 
-  std::cout << "Printing CaloParticles information" << std::endl;
+  std::cout << "\n\n**Printing CaloParticles information **" << std::endl;
   idx = 0;
   for (auto i : sorted_cp_idx) {
     auto const& cp = calopart[i];
@@ -219,7 +225,7 @@ void CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSet
               << std::endl;  // << cp << std::endl;
     double total_sim_energy = 0.;
     double total_cp_energy = 0.;
-    std::cout << "--> Overall simclusters's size: " << cp.simClusters().size() << std::endl;
+    std::cout << "--> Overall simclusters in CP: " << cp.simClusters().size() << std::endl;
     // All the next mess just to print the simClusters ordered
     auto const& simcs = cp.simClusters();
     std::vector<int> sorted_sc_idx(simcs.size());
@@ -242,12 +248,16 @@ void CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   idx = 0;
-  std::cout << "Printing SimClusters information" << std::endl;
+  std::cout << "\n\n**Printing SimClusters information **" << std::endl;
   for (auto i : sorted_simcl_idx) {
     auto const& simcl = simclusters[i];
     std::cout << "\n\n"
               << idx++ << " |Eta|: " << std::abs(simcl.momentum().eta()) << "\tType: " << simcl.pdgId()
               << "\tEnergy: " << simcl.energy() << "\tKey: " << i << std::endl;  // << simcl << std::endl;
+    auto const & simtrack = simcl.g4Tracks()[0];
+    std::cout << "  Crossed  Boundary: " << simtrack.crossedBoundary()
+              << "  Position Boundary: " << simtrack.getPositionAtBoundary()
+              << "  Momentum Boundary: " << simtrack.getMomentumAtBoundary() << std::endl;
     double total_sim_energy = 0.;
     std::cout << "--> Overall simclusters's size: " << simcl.numberOfRecHits() << std::endl;
     for (auto const& cl : simcl.hits_and_fractions()) {
