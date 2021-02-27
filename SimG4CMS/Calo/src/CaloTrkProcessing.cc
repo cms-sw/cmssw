@@ -279,6 +279,7 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
           trkInfo->setIDonCaloSurface(
               id, ical, inside, theTrack->GetDefinition()->GetPDGEncoding(), theTrack->GetMomentum().mag());
           trkInfo->setCaloIDChecked(true);
+          trkInfo->setCrossedBoundary(theTrack);
           lastTrackID_ = id;
           if (theTrack->GetKineticEnergy() / CLHEP::MeV > eMin_)
             trkInfo->putInHistory();
