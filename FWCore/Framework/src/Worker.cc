@@ -14,7 +14,6 @@
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
-#include "FWCore/Framework/src/esTaskArenas.h"
 #include "tbb/global_control.h"
 
 namespace edm {
@@ -274,7 +273,7 @@ namespace edm {
       auto taskGroup = iTask.group();
       taskGroup->run([this, task = std::move(iTask), iTrans, &iImpl, iToken]() {
         std::exception_ptr exceptPtr{};
-        esTaskArena().execute([this, iTrans, &iImpl, iToken, &exceptPtr]() {
+        iImpl.taskArena()->execute([this, iTrans, &iImpl, iToken, &exceptPtr]() {
           exceptPtr = syncWait([&](WaitingTaskHolder&& iHolder) {
             auto const& recs = esRecordsToGetFrom(iTrans);
             auto const& items = esItemsToGetFrom(iTrans);
@@ -306,7 +305,7 @@ namespace edm {
           });
 
       WaitingTaskHolder tempH(*group, task);
-      esTaskArena().execute([&]() {
+      iImpl.taskArena()->execute([&]() {
         for (size_t i = 0; i != items.size(); ++i) {
           if (recs[i] != ESRecordIndex{}) {
             auto rec = iImpl.findImpl(recs[i]);

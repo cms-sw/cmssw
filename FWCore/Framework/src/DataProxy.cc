@@ -20,13 +20,12 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-
-#include "FWCore/Framework/src/esTaskArenas.h"
 
 namespace edm {
   namespace eventsetup {
@@ -106,7 +105,7 @@ namespace edm {
       if (!cacheIsValid()) {
         auto token = ServiceRegistry::instance().presentToken();
         std::exception_ptr exceptPtr{};
-        edm::esTaskArena().execute([this, &exceptPtr, &iRecord, &iKey, iEventSetupImpl, token, iParent]() {
+        iEventSetupImpl->taskArena()->execute([this, &exceptPtr, &iRecord, &iKey, iEventSetupImpl, token, iParent]() {
           exceptPtr = syncWait([&, this](WaitingTaskHolder&& holder) {
             prefetchAsync(std::move(holder), iRecord, iKey, iEventSetupImpl, token, iParent);
           });

@@ -151,7 +151,8 @@ namespace {
 }
 
 void testEventsetup::constructTest() {
-  eventsetup::EventSetupProvider provider(&activityRegistry);
+  tbb::task_arena arena(1);
+  eventsetup::EventSetupProvider provider(&activityRegistry, &arena);
   const Timestamp time(1);
   const IOVSyncValue timestamp(time);
   bool newEventSetupImpl = false;
@@ -167,7 +168,8 @@ void testEventsetup::constructTest() {
 // at the lowest level.
 
 void testEventsetup::getTest() {
-  EventSetupImpl eventSetupImpl;
+  tbb::task_arena arena(1);
+  EventSetupImpl eventSetupImpl(&arena);
   std::vector<eventsetup::EventSetupRecordKey> keys;
   EventSetupRecordKey key = EventSetupRecordKey::makeKey<DummyRecord>();
   keys.push_back(key);
@@ -181,7 +183,8 @@ void testEventsetup::getTest() {
 }
 
 void testEventsetup::tryToGetTest() {
-  EventSetupImpl eventSetupImpl;
+  tbb::task_arena arena(1);
+  EventSetupImpl eventSetupImpl(&arena);
   std::vector<eventsetup::EventSetupRecordKey> keys;
   EventSetupRecordKey key = EventSetupRecordKey::makeKey<DummyRecord>();
   keys.push_back(key);

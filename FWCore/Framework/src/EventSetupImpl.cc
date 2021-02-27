@@ -23,7 +23,7 @@
 
 namespace edm {
 
-  EventSetupImpl::EventSetupImpl() {}
+  EventSetupImpl::EventSetupImpl(tbb::task_arena* iArena) : taskArena_{iArena} {}
 
   EventSetupImpl::~EventSetupImpl() {}
 
