@@ -1,3 +1,6 @@
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include <vector>
 
@@ -277,44 +280,63 @@ namespace DeDxTools {
     t1->Delete();
   }
 
-  void buildDiscrimMap(edm::Run const& run,
-                       const edm::EventSetup& iSetup,
-                       std::string Reccord,
-                       std::string ProbabilityMode,
-                       TH3F*& Prob_ChargePath) {
-    edm::ESHandle<PhysicsTools::Calibration::HistogramD3D> deDxMapHandle;
-    if (strcmp(Reccord.c_str(), "SiStripDeDxMip_3D_Rcd") == 0) {
-      iSetup.get<SiStripDeDxMip_3D_Rcd>().get(deDxMapHandle);
-    } else if (strcmp(Reccord.c_str(), "SiStripDeDxPion_3D_Rcd") == 0) {
-      iSetup.get<SiStripDeDxPion_3D_Rcd>().get(deDxMapHandle);
-    } else if (strcmp(Reccord.c_str(), "SiStripDeDxKaon_3D_Rcd") == 0) {
-      iSetup.get<SiStripDeDxKaon_3D_Rcd>().get(deDxMapHandle);
-    } else if (strcmp(Reccord.c_str(), "SiStripDeDxProton_3D_Rcd") == 0) {
-      iSetup.get<SiStripDeDxProton_3D_Rcd>().get(deDxMapHandle);
-    } else if (strcmp(Reccord.c_str(), "SiStripDeDxElectron_3D_Rcd") == 0) {
-      iSetup.get<SiStripDeDxElectron_3D_Rcd>().get(deDxMapHandle);
-    } else {
-      throw cms::Exception("WrongReccord for dEdx") << "The reccord : " << Reccord << "is unknown\n";
+  ESGetTokenH3DDVariant esConsumes(std::string const& Reccord, edm::ConsumesCollector& iCC) {
+    if (Reccord == "SiStripDeDxMip_3D_Rcd") {
+      return iCC.esConsumes<H3DD, SiStripDeDxMip_3D_Rcd, edm::Transition::BeginRun>();
     }
+    if (Reccord == "SiStripDeDxPion_3D_Rcd") {
+      return iCC.esConsumes<H3DD, SiStripDeDxPion_3D_Rcd, edm::Transition::BeginRun>();
+    }
+    if (Reccord == "SiStripDeDxKaon_3D_Rcd") {
+      return iCC.esConsumes<H3DD, SiStripDeDxKaon_3D_Rcd, edm::Transition::BeginRun>();
+    }
+    if (Reccord == "SiStripDeDxProton_3D_Rcd") {
+      return iCC.esConsumes<H3DD, SiStripDeDxProton_3D_Rcd, edm::Transition::BeginRun>();
+    }
+    if (Reccord == "SiStripDeDxElectron_3D_Rcd") {
+      return iCC.esConsumes<H3DD, SiStripDeDxElectron_3D_Rcd, edm::Transition::BeginRun>();
+    }
+    throw cms::Exception("WrongReccord for dEdx") << "The reccord : " << Reccord << "is unknown\n";
+  }
 
-    float xmin = deDxMapHandle->rangeX().min;
-    float xmax = deDxMapHandle->rangeX().max;
-    float ymin = deDxMapHandle->rangeY().min;
-    float ymax = deDxMapHandle->rangeY().max;
-    float zmin = deDxMapHandle->rangeZ().min;
-    float zmax = deDxMapHandle->rangeZ().max;
+  PhysicsTools::Calibration::HistogramD3D const& getHistogramD3D(edm::EventSetup const& iES,
+                                                                 ESGetTokenH3DDVariant const& iToken) {
+    switch (iToken.index()) {
+      case 0:
+        return iES.getData(std::get<0>(iToken));
+      case 1:
+        return iES.getData(std::get<1>(iToken));
+      case 2:
+        return iES.getData(std::get<2>(iToken));
+      case 3:
+        return iES.getData(std::get<3>(iToken));
+      case 4:
+        return iES.getData(std::get<4>(iToken));
+    }
+    throw cms::Exception("HistogramD3DTokenUnset");
+  }
+
+  void buildDiscrimMap(PhysicsTools::Calibration::HistogramD3D const& deDxMap,
+                       std::string const& ProbabilityMode,
+                       TH3F*& Prob_ChargePath) {
+    float xmin = deDxMap.rangeX().min;
+    float xmax = deDxMap.rangeX().max;
+    float ymin = deDxMap.rangeY().min;
+    float ymax = deDxMap.rangeY().max;
+    float zmin = deDxMap.rangeZ().min;
+    float zmax = deDxMap.rangeZ().max;
 
     if (Prob_ChargePath)
       delete Prob_ChargePath;
     Prob_ChargePath = new TH3F("Prob_ChargePath",
                                "Prob_ChargePath",
-                               deDxMapHandle->numberOfBinsX(),
+                               deDxMap.numberOfBinsX(),
                                xmin,
                                xmax,
-                               deDxMapHandle->numberOfBinsY(),
+                               deDxMap.numberOfBinsY(),
                                ymin,
                                ymax,
-                               deDxMapHandle->numberOfBinsZ(),
+                               deDxMap.numberOfBinsZ(),
                                zmin,
                                zmax);
 
@@ -323,12 +345,12 @@ namespace DeDxTools {
         for (int j = 0; j <= Prob_ChargePath->GetYaxis()->GetNbins() + 1; j++) {
           float Ni = 0;
           for (int k = 0; k <= Prob_ChargePath->GetZaxis()->GetNbins() + 1; k++) {
-            Ni += deDxMapHandle->binContent(i, j, k);
+            Ni += deDxMap.binContent(i, j, k);
           }
           for (int k = 0; k <= Prob_ChargePath->GetZaxis()->GetNbins() + 1; k++) {
             float tmp = 0;
             for (int l = 0; l <= k; l++) {
-              tmp += deDxMapHandle->binContent(i, j, l);
+              tmp += deDxMap.binContent(i, j, l);
             }
             if (Ni > 0) {
               Prob_ChargePath->SetBinContent(i, j, k, tmp / Ni);
@@ -343,10 +365,10 @@ namespace DeDxTools {
         for (int j = 0; j <= Prob_ChargePath->GetYaxis()->GetNbins() + 1; j++) {
           float Ni = 0;
           for (int k = 0; k <= Prob_ChargePath->GetZaxis()->GetNbins() + 1; k++) {
-            Ni += deDxMapHandle->binContent(i, j, k);
+            Ni += deDxMap.binContent(i, j, k);
           }
           for (int k = 0; k <= Prob_ChargePath->GetZaxis()->GetNbins() + 1; k++) {
-            float tmp = deDxMapHandle->binContent(i, j, k);
+            float tmp = deDxMap.binContent(i, j, k);
             if (Ni > 0) {
               Prob_ChargePath->SetBinContent(i, j, k, tmp / Ni);
             } else {
