@@ -98,7 +98,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   auto gemROMap = runCache(iEvent.getRun().index());
 
   std::vector<std::unique_ptr<AMC13Event>> amc13Events;
-  amc13Events.reserve(FEDNumbering::MAXME0FEDID - FEDNumbering::MINGEMFEDID + 1);
+  amc13Events.reserve(FEDNumbering::MAXGEMFEDID - FEDNumbering::MINGEMFEDID + 1);
 
   int LV1_id = iEvent.id().event();
   uint8_t BX_id(iEvent.bunchCrossing());
@@ -123,7 +123,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     }
   }
 
-  for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXME0FEDID; ++fedId) {
+  for (unsigned int fedId = FEDNumbering::MINGEMFEDID; fedId <= FEDNumbering::MAXGEMFEDID; ++fedId) {
     uint32_t amc13EvtLength = 0;
     std::unique_ptr<AMC13Event> amc13Event = std::make_unique<AMC13Event>();
 

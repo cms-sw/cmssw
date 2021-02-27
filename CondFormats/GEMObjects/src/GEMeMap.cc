@@ -74,7 +74,7 @@ void GEMeMap::convert(GEMROMapping& romap) {
 
 void GEMeMap::convertDummy(GEMROMapping& romap) {
   // 12 bits for vfat, 5 bits for geb, 8 bit long GLIB serial number
-  int fedId = FEDNumbering::MINGEMFEDID;
+  unsigned int fedId = 0;
 
   for (int st = GEMDetId::minStationId0; st <= GEMDetId::maxStationId; ++st) {
     for (int re = -1; re <= 1; re = re + 2) {
@@ -84,22 +84,16 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
       int maxLayerId = GEMDetId::maxLayerId;
       if (st == 0) {
         maxVFat = maxVFatGE0_;
-        fedId = FEDNumbering::MINME0FEDID;
-        if (re == 1)
-          fedId = FEDNumbering::MINME0FEDID + 1;
+        fedId = (re==1? FEDNumbering::MINGEMFEDID+7 : FEDNumbering::MINGEMFEDID+6);
         maxLayerId = GEMDetId::maxLayerId0;
       }
-      if (st == 1) {
+      else if (st == 1) {
         maxVFat = maxVFatGE11_;
-        fedId = FEDNumbering::MINGEMFEDID;
-        if (re == 1)
-          fedId = FEDNumbering::MINGEMFEDID + 1;
+        fedId = (re==1? FEDNumbering::MINGEMFEDID+1 : FEDNumbering::MINGEMFEDID);
       }
-      if (st == 2) {
+      else if (st == 2) {
         maxVFat = maxVFatGE21_;
-        fedId = FEDNumbering::MINGEMFEDID + 2;
-        if (re == 1)
-          fedId = FEDNumbering::MINGEMFEDID + 3;
+        fedId = (re==1? FEDNumbering::MINGEMFEDID+3 : FEDNumbering::MINGEMFEDID+2);
       }
 
       for (int ch = 1; ch <= GEMDetId::maxChamberId; ++ch) {
@@ -135,16 +129,18 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
             }
           }
 
-          // 1 geb per chamber
-          gebId++;
           // 5 bits for gebId
           if (st > 0 && gebId == maxGEB1_) {
             gebId = 0;
             amcNum = amcNum + 2;  // only odd amc No. is used for GE11
           }
-          if (st == 0 && gebId == maxGEBs_) {
+          else if (st == 0 && gebId == maxGEBs_) {
             gebId = 0;
             amcNum++;
+          }
+          else {
+            // 1 geb per chamber                    
+            gebId++;
           }
         }
       }
