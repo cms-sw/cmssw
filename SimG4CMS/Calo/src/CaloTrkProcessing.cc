@@ -162,7 +162,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
                                   << detectors_[i].fromDetL[k] << " at level " << detectors_[i].fromLevels[k];
   }
 
-  doFineCalo_ = !(fineDetectors_.empty());
+  doFineCalo_ = doFineCalo_ && !(fineDetectors_.empty());
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << fineDetectors_.size() << " special calorimetric volumes";
   for (unsigned int i = 0; i < detectors_.size(); i++)
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Calorimeter volume " << i << " " << detectors_[i].name << " LV "
