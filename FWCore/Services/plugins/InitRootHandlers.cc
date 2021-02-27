@@ -847,6 +847,8 @@ namespace edm {
           iter = TIter(gROOT->GetListOfFiles());
         }
       }
+      //dissengage from TBB to avoid possible at exit problems
+      threadTracker_.observe(false);
     }
 
     void InitRootHandlers::willBeUsingThreads() {
