@@ -34,7 +34,7 @@
 
 <bin file="testRooFitFunction.cpp" name="testRooFitFunction">
   <use name="PhysicsTools/Utilities"/>
-  <use name="roofit"/>
+  <use name="roofitcore"/>
 </bin>
 
 <bin file="testIntegralTiming.cpp" name="testIntegralTiming">
