@@ -124,36 +124,28 @@ MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig)
 
   // if decayRadiusMin size smaller than particleID , fill up further with defaults
   if (particleID_.size() > decayRadiusMin.size()) {
-    std::vector<double> decayRadiusmin2;
-    for (unsigned int i = 0; i < particleID_.size(); i++) {
-      decayRadiusmin2.push_back(-10.);
+    for (unsigned int i = decayRadiusMin.size(); i < particleID_.size(); i++) {
+      decayRadiusMin.push_back(-10.);
     }
-    decayRadiusMin = decayRadiusmin2;
   }
   // if decayRadiusMax size smaller than particleID , fill up further with defaults
   if (particleID_.size() > decayRadiusMax.size()) {
-    std::vector<double> decayRadiusmax2;
-    for (unsigned int i = 0; i < particleID_.size(); i++) {
-      decayRadiusmax2.push_back(1.e5);
+    for (unsigned int i = decayRadiusMax.size(); i < particleID_.size(); i++) {
+      decayRadiusMax.push_back(1.e5);
     }
-    decayRadiusMax = decayRadiusmax2;
   }
 
   // if decayZMin size smaller than particleID , fill up further with defaults
   if (particleID_.size() > decayZMin.size()) {
-    std::vector<double> decayZmin2;
-    for (unsigned int i = 0; i < particleID_.size(); i++) {
-      decayZmin2.push_back(-1.e5);
+    for (unsigned int i = decayZMin.size(); i < particleID_.size(); i++) {
+      decayZMin.push_back(-1.e5);
     }
-    decayZMin = decayZmin2;
   }
   // if decayZMax size smaller than particleID , fill up further with defaults
   if (particleID_.size() > decayZMax.size()) {
-    std::vector<double> decayZmax2;
-    for (unsigned int i = 0; i < particleID_.size(); i++) {
-      decayZmax2.push_back(1.e5);
+    for (unsigned int i = decayZMax.size(); i < particleID_.size(); i++) {
+      decayZMax.push_back(1.e5);
     }
-    decayZMax = decayZmax2;
   }
 }
 
