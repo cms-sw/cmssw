@@ -7,7 +7,6 @@ RPCDcsInfoClient::RPCDcsInfoClient(const edm::ParameterSet& ps) {
   dqmprovinfofolder_ = ps.getUntrackedParameter<std::string>("dqmProvInfoFolder", "Info/EventInfo");
 
   DCS.clear();
-  DCS.resize(10);  // start with 10 LS, resize later
 }
 
 RPCDcsInfoClient::~RPCDcsInfoClient() {}
@@ -19,34 +18,30 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
   ibooker.cd();
   ibooker.setCurrentFolder(dcsinfofolder_);
 
-  unsigned int nlsmax = DCS.size();
   MonitorElement* reportSummaryMap_ = igetter.get(dqmprovinfofolder_ + "/reportSummaryMap");
-  MonitorElement* lumiNumber_ = igetter.get(eventinfofolder_ + "/iLumiSection");
 
   if (!reportSummaryMap_)
     return;
 
   if (TH2F* h2 = reportSummaryMap_->getTH2F()) {
-    nlsmax = lumiNumber_->getIntValue();
     int hvStatus = 0;
     const char* label_name = "RPC";
     unsigned int rpc_num = 0;
-    if (nlsmax > DCS.size())
-      DCS.resize(nlsmax);
+    const int nlsmax = h2->GetXaxis()->GetNbins();
 
     for (int ybin = 0; ybin < h2->GetNbinsY(); ++ybin) {
       if (strcmp(h2->GetYaxis()->GetBinLabel(ybin + 1), label_name) == 0)
         rpc_num = ybin + 1;
     }
 
-    for (unsigned int nlumi = 0; nlumi < nlsmax; ++nlumi) {
+    for (int nlumi = 0; nlumi < nlsmax; ++nlumi) {
       int rpc_dcsbit = h2->GetBinContent(nlumi + 1, rpc_num);
       if (rpc_dcsbit != -1) {
         hvStatus = 1;  // set to 1 because HV was on (!)
       } else {
         hvStatus = 0;  // set to 0 because HV was off (!)
       }
-      DCS[nlumi] = hvStatus;
+      DCS.push_back(hvStatus);
     }
   }
 
@@ -56,6 +51,7 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
   rpcHVStatus->setAxisTitle("Luminosity Section", 1);
   rpcHVStatus->setBinLabel(1, "", 2);
 
+  const unsigned int nlsmax = DCS.size();
   int lsCounter = 0;
   // fill
   for (unsigned int i = 0; i < nlsmax; i++) {
