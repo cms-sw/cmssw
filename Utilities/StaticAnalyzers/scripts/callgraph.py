@@ -43,7 +43,7 @@ print()
 callstacks=set()
 for tfunc in sorted(toplevelfuncs):
         for epfunc in sorted(epfuncs):
-		if nx.has_path(G,tfunc,epfunc) : 
+		if tfunc in G and epfunc in G and nx.has_path(G,tfunc,epfunc) : 
 			path = nx.shortest_path(G,tfunc,epfunc)
 			cs=""
                         previous=str("")
