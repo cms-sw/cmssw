@@ -71,7 +71,7 @@ if GEOMETRY == "D49":
   #inputMC=getCMSdata(dataName)
 
   # Or read specified .root file:
-  inputMC = ["/store/relval/CMSSW_11_2_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/FDFA00CE-FA93-0142-B187-99CBD4A43944.root"] 
+  inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v3_2026D49PU200-v1/00000/001edbad-174e-46af-932a-6ce8e04aee1c.root"] 
 
 else:
   print "this is not a valid geometry!!!"    
