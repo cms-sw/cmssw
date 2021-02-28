@@ -4,7 +4,6 @@
 <use name="root"/>
 <use name="rootmath"/>
 <use name="rootcore"/>
-<use name="roofit"/>
 <use name="hepmc"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/Candidate"/>
