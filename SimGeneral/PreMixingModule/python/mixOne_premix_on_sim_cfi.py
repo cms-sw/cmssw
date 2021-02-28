@@ -302,7 +302,6 @@ phase2_hfnose.toModify(mixData,
     )
 )
 
-
 # Muon
 phase2_muon.toModify(mixData,
     workers = dict(
@@ -313,4 +312,12 @@ phase2_muon.toModify(mixData,
             collectionDM = cms.string("g4SimHitsMuonME0Hits"),
         ),
     )
+)
+
+# Disable GE0 (as introduced in #31309)
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify(mixData,
+    workers = dict(
+        me0 = None,
+    ),
 )
