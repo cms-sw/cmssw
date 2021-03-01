@@ -13,16 +13,16 @@ class TotemT2Digi {
 public:
   explicit TotemT2Digi() = default;
 
-  void setLeadingEdge(unsigned int le) { lead_edge_ = le; }
-  unsigned int leadingEdge() const { return lead_edge_; }
-  void setTrailingEdge(unsigned int te) { trail_edge_ = te; }
-  unsigned int trailingEdge() const { return trail_edge_; }
+  void setLeadingEdge(unsigned short le) { lead_edge_ = le; }
+  unsigned short leadingEdge() const { return lead_edge_; }
+  void setTrailingEdge(unsigned short te) { trail_edge_ = te; }
+  unsigned short trailingEdge() const { return trail_edge_; }
 
 private:
   /// Leading edge time
-  unsigned int lead_edge_;
+  unsigned short lead_edge_;
   /// Trailing edge time
-  unsigned int trail_edge_;
+  unsigned short trail_edge_;
 };
 
 bool operator<(const TotemT2Digi& lhs, const TotemT2Digi& rhs) {
