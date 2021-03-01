@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalPulseShapesGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interface_EcalPulseShapesGPU_h
+#ifndef CondFormats_EcalObjects_interface_EcalPulseShapesGPU_h
+#define CondFormats_EcalObjects_interface_EcalPulseShapesGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
 
@@ -37,4 +37,4 @@ private:
 #endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalPulseShapesGPU_h
+#endif  // CondFormats_EcalObjects_interface_EcalPulseShapesGPU_h
