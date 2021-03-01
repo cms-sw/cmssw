@@ -8,8 +8,8 @@ namespace l1ct {
 
   struct EGObj {
     pt_t hwPt;
-    eta_t hwEta;  // at calo face
-    phi_t hwPhi;
+    glbeta_t hwEta;  // at calo face
+    glbphi_t hwPhi;
     quality_t hwQual;
 
     int intPt() const { return Scales::intPt(hwPt); }
@@ -57,7 +57,7 @@ namespace l1ct {
       hwIso = 0;
     }
 
-    static const int BITWIDTH = pt_t::width + eta_t::width + phi_t::width + quality_t::width + iso_t::width;
+    static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + quality_t::width + iso_t::width;
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
