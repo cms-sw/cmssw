@@ -320,8 +320,6 @@ double DAClusterizerInZ_vect::update(
                                                     vertex_t& vertices,
                                                     const unsigned int kmin,
                                                     const unsigned int kmax) {
-    //auto tmp_trk_tkwt = tracks.tkwt[track_num];
-    //auto o_trk_sum_Z = 1. / tracks.sum_Z[track_num];
     auto o_trk_sum_Z = tracks.tkwt[track_num] / tracks.sum_Z[track_num];
     auto o_trk_dz2 = tracks.dz2[track_num];
     auto tmp_trk_z = tracks.zpca[track_num];
@@ -330,8 +328,6 @@ double DAClusterizerInZ_vect::update(
     if (updateTc) {
 #pragma GCC ivdep
       for (unsigned int k = kmin; k < kmax; ++k) {
-        //vertices.se[k] += vertices.exp[k] * (tmp_trk_tkwt * o_trk_sum_Z);
-        //auto w = vertices.rho[k] * vertices.exp[k] * (tmp_trk_tkwt * o_trk_sum_Z * o_trk_dz2);
         vertices.se[k] += vertices.exp[k] * o_trk_sum_Z;
         auto w = vertices.rho[k] * vertices.exp[k] * (o_trk_sum_Z * o_trk_dz2);
         vertices.sw[k] += w;
@@ -342,8 +338,6 @@ double DAClusterizerInZ_vect::update(
       // same loop but without updating sWE
 #pragma GCC ivdep
       for (unsigned int k = kmin; k < kmax; ++k) {
-        //vertices.se[k] += vertices.exp[k] * (tmp_trk_tkwt * o_trk_sum_Z);
-        //auto w = vertices.rho[k] * vertices.exp[k] * (tmp_trk_tkwt * o_trk_sum_Z * o_trk_dz2);
         vertices.se[k] += vertices.exp[k] * o_trk_sum_Z;
         auto w = vertices.rho[k] * vertices.exp[k] * (o_trk_sum_Z * o_trk_dz2);
         vertices.sw[k] += w;
