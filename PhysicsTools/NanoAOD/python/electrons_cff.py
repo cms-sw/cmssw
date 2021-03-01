@@ -203,7 +203,7 @@ calibratedPatElectrons94X = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibra
     produceCalibratedObjs = False,
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"),
 )
-for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016:
+for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016:
     modifier.toModify(calibratedPatElectrons94X, src = "slimmedElectronsUpdated")
 
 calibratedPatElectrons102X = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
@@ -314,11 +314,21 @@ run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userFloats,
     ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons80XLegacy","ecalTrkEnergyErrPostCorr"),
     ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons80XLegacy","ecalTrkEnergyPreCorr"),
     ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons80XLegacy","ecalTrkEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatElectrons80XLegacy","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatElectrons80XLegacy","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatElectrons80XLegacy","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatElectrons80XLegacy","energySigmaDown"),
+
 )
 run2_nanoAOD_94XMiniAODv1.toModify(slimmedElectronsWithUserData.userFloats,
     ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyErrPostCorr"),
     ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
     ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatElectrons94X","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatElectrons94X","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatElectrons94X","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatElectrons94X","energySigmaDown"),
+
 )
 
 
@@ -330,12 +340,22 @@ run2_nanoAOD_94XMiniAODv2.toModify(slimmedElectronsWithUserData.userFloats,
     ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyErrPostCorr"),
     ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
     ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatElectrons94X","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatElectrons94X","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatElectrons94X","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatElectrons94X","energySigmaDown"),
+
 )
 
 run2_nanoAOD_102Xv1.toModify(slimmedElectronsWithUserData.userFloats,
     ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyErrPostCorr"),
     ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyPreCorr"),
     ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatElectrons102X","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatElectrons102X","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatElectrons102X","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatElectrons102X","energySigmaDown"),
+
 )
 
 run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userIntFromBools,
