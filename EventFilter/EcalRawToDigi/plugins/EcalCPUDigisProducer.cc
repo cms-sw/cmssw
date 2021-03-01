@@ -2,12 +2,12 @@
 
 #include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
+#include "CondFormats/EcalObjects/interface/ElectronicsMappingGPU.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
