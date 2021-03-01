@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalPulseCovariancesGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interface_EcalPulseCovariancesGPU_h
+#ifndef CondFormats_EcalObjects_interface_EcalPulseCovariancesGPU_h
+#define CondFormats_EcalObjects_interface_EcalPulseCovariancesGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
 
@@ -37,4 +37,4 @@ private:
 #endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalPulseCovariancesGPU_h
+#endif  // CondFormats_EcalObjects_interface_EcalPulseCovariancesGPU_h
