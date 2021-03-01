@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalLaserAPDPNRatiosGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interface_EcalLaserAPDPNRatiosGPU_h
+#ifndef CondFormats_EcalObjects_interface_EcalLaserAPDPNRatiosGPU_h
+#define CondFormats_EcalObjects_interface_EcalLaserAPDPNRatiosGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 
@@ -50,4 +50,4 @@ private:
 #endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalLaserAPDPNRatiosGPU_h
+#endif  // CondFormats_EcalObjects_interface_EcalLaserAPDPNRatiosGPU_h
