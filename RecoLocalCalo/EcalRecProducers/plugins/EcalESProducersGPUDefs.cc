@@ -25,9 +25,9 @@
 #include "CondFormats/EcalObjects/interface/EcalRechitChannelStatusGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalSamplesCorrelationGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrectionsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstantsGPU.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HeterogeneousCore/CUDACore/interface/ConvertingESProducerT.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
 
 using EcalPedestalsGPUESProducer = ConvertingESProducerT<EcalPedestalsRcd, EcalPedestalsGPU, EcalPedestals>;
 

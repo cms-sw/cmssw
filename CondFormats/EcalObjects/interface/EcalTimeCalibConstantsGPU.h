@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalTimeCalibConstantsGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interface_EcalTimeCalibConstantsGPU_h
+#ifndef CondFormats_EcalObjects_interface_EcalTimeCalibConstantsGPU_h
+#define CondFormats_EcalObjects_interface_EcalTimeCalibConstantsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 
@@ -40,4 +40,4 @@ private:
 #endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalTimeCalibConstantsGPU_h
+#endif  // CondFormats_EcalObjects_interface_EcalTimeCalibConstantsGPU_h

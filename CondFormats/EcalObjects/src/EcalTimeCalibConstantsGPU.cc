@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstantsGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
