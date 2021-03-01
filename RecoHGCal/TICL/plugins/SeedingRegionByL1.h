@@ -37,7 +37,7 @@ namespace ticl {
     std::vector<double> endcapScalings_;  // pT scaling factors for endcap
     int quality_;                         // hwQual
 
-    double TkEmOfflineEt(double Et) const;
+    double tkEmOfflineEt(double et) const;
   };
 }  // namespace ticl
 #endif
