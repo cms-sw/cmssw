@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+# The line below always has to be included to make VarParsing work
+from FWCore.ParameterSet.VarParsing import VarParsing
+options = VarParsing ('analysis')
+options.parseArguments()
+
 process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -8,10 +13,11 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 
-input_filename='step2SingleElectronPt15Eta1p7_2p7_SimTracksters.root'
+input_filename = 'default.root' if len(options.inputFiles) == 0 else options.inputFiles[0]
+#input_filename='step2SingleElectronPt15Eta1p7_2p7_SimTracksters.root'
 #input_filename='step2FineCaloSingleElectronPt15Eta1p7_2p7_SimTracksters.root'
 #input_filename='step2SingleElectronPt15Eta1p7_2p7_CBWEAndSimTracksters.root'
 #input_filename='step2FineCaloSingleElectronPt15Eta1p7_2p7_CBWEAndSimTracksters.root'
