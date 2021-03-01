@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
