@@ -826,7 +826,8 @@ namespace hcal {
       // map views
       Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> inputAmplitudesView{inputAmplitudes + gch * NSAMPLES};
       Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> noiseTermsView{noiseTerms + gch * NSAMPLES};
-      Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> noiseElectronicView{electronicNoiseTerms + gch * NSAMPLES};
+      Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> noiseElectronicView{electronicNoiseTerms +
+                                                                                   gch * NSAMPLES};
       Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixMView{pulseMatricesM +
                                                                                               gch * NSAMPLES * NPULSES};
       Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixPView{pulseMatricesP +
@@ -867,11 +868,13 @@ namespace hcal {
         calo::multifit::MapSymM<float, NSAMPLES> covarianceMatrix{covarianceMatrixStorage};
         CMS_UNROLL_LOOP
         for (int counter = 0; counter < calo::multifit::MapSymM<float, NSAMPLES>::total; counter++)
-          covarianceMatrixStorage[counter] = (noisecorr != 0.f) ? 0.f: averagePedestalWidth2;
+          covarianceMatrixStorage[counter] = (noisecorr != 0.f) ? 0.f : averagePedestalWidth2;
         CMS_UNROLL_LOOP
         for (unsigned int counter = 0; counter < calo::multifit::MapSymM<float, NSAMPLES>::stride; counter++) {
           covarianceMatrix(counter, counter) += noiseTermsView.coeffRef(counter);
-          if(counter!=0) covarianceMatrix(counter, counter-1) += noisecorr * __ldg(&noiseElectronicView.coeffRef(counter-1)) * __ldg(&noiseElectronicView.coeffRef(counter));
+          if (counter != 0)
+            covarianceMatrix(counter, counter - 1) += noisecorr * __ldg(&noiseElectronicView.coeffRef(counter - 1)) *
+                                                      __ldg(&noiseElectronicView.coeffRef(counter));
         }
 
         // update covariance matrix
