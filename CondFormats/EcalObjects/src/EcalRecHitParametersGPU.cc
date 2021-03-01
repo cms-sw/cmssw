@@ -3,7 +3,7 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitChannelStatusGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalRechitChannelStatusGPU.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 EcalRecHitParametersGPU::EcalRecHitParametersGPU(edm::ParameterSet const& ps) {
