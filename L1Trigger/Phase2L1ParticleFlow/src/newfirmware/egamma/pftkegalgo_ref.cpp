@@ -236,6 +236,7 @@ EGObjEmu &PFTkEGAlgoEmulator::addEGStaToPF(std::vector<EGObjEmu> &egobjs,
                                            const pt_t ptCorr,
                                            const std::vector<unsigned int> &components) const {
   EGObjEmu egsta;
+  egsta.clear();
   egsta.hwPt = ptCorr;
   egsta.hwEta = calo.hwEta;
   egsta.hwPhi = calo.hwPhi;
@@ -253,12 +254,11 @@ EGIsoObjEmu &PFTkEGAlgoEmulator::addEGIsoToPF(std::vector<EGIsoObjEmu> &egobjs,
               << calo.hwPhi << std::endl;
 
   EGIsoObjEmu egiso;
+  egiso.clear();
   egiso.hwPt = ptCorr;
   egiso.hwEta = calo.hwEta;
   egiso.hwPhi = calo.hwPhi;
   egiso.hwQual = hwQual;
-  egiso.hwIso = 0;
-  egiso.EGIsoVarsEmu::clear();
   egiso.srcCluster = calo.src;
   egobjs.push_back(egiso);
   return egobjs.back();
@@ -274,6 +274,7 @@ EGIsoEleObjEmu &PFTkEGAlgoEmulator::addEGIsoEleToPF(std::vector<EGIsoEleObjEmu> 
               << " phi " << calo.hwPhi << std::endl;
 
   EGIsoEleObjEmu egiso;
+  egiso.clear();
   egiso.hwPt = ptCorr;
   egiso.hwEta = calo.hwEta;
   egiso.hwPhi = calo.hwPhi;
@@ -282,8 +283,6 @@ EGIsoEleObjEmu &PFTkEGAlgoEmulator::addEGIsoEleToPF(std::vector<EGIsoEleObjEmu> 
   egiso.hwDPhi = abs(track.hwVtxPhi() - egiso.hwPhi);
   egiso.hwZ0 = track.hwZ0;
   egiso.hwCharge = track.hwCharge;
-  egiso.hwIso = 0;
-  egiso.EGIsoVarsEmu::clear();
   egiso.srcCluster = calo.src;
   egiso.srcTrack = track.src;
   egobjs.push_back(egiso);
