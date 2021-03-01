@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalTimeBiasCorrectionsGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interface_EcalTimeBiasCorrectionsGPU_h
+#ifndef CondFormats_EcalObjects_interface_EcalTimeBiasCorrectionsGPU_h
+#define CondFormats_EcalObjects_interface_EcalTimeBiasCorrectionsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 
@@ -46,4 +46,4 @@ private:
 #endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalTimeBiasCorrectionsGPU_h
+#endif  // CondFormats_EcalObjects_interface_EcalTimeBiasCorrectionsGPU_h
