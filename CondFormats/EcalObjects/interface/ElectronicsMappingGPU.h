@@ -1,5 +1,5 @@
-#ifndef EventFilter_EcalRawToDigi_interface_ElectronicsMappingGPU_h
-#define EventFilter_EcalRawToDigi_interface_ElectronicsMappingGPU_h
+#ifndef CondFormats_EcalObjects_interface_ElectronicsMappingGPU_h
+#define CondFormats_EcalObjects_interface_ElectronicsMappingGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
 
@@ -44,4 +44,4 @@ namespace ecal {
   }  // namespace raw
 }  // namespace ecal
 
-#endif  // EventFilter_EcalRawToDigi_interface_ElectronicsMappingGPU_h
+#endif  // CondFormats_EcalObjects_interface_ElectronicsMappingGPU_h

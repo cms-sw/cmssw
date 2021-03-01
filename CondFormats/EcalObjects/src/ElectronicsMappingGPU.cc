@@ -1,4 +1,4 @@
-#include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
+#include "CondFormats/EcalObjects/interface/ElectronicsMappingGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"

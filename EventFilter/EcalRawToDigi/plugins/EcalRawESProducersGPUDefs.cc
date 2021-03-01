@@ -1,5 +1,5 @@
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
-#include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
+#include "CondFormats/EcalObjects/interface/ElectronicsMappingGPU.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HeterogeneousCore/CUDACore/interface/ConvertingESProducerT.h"
 
