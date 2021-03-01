@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalLinearCorrectionsGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interface_EcalLinearCorrectionsGPU_h
+#ifndef CondFormats_EcalObjects_interface_EcalLinearCorrectionsGPU_h
+#define CondFormats_EcalObjects_interface_EcalLinearCorrectionsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 
@@ -50,4 +50,4 @@ private:
 #endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalLinearCorrectionsGPU_h
+#endif  // CondFormats_EcalObjects_interface_EcalLinearCorrectionsGPU_h
