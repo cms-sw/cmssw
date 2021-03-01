@@ -616,8 +616,9 @@ public:
 
 // converts HE QIE digies to HB data format
 
-QIE11DataFrame convertHB(QIE11DataFrame qiehe, int tdc1, int tdc2, int tdcmax) {
+QIE11DataFrame convertHB(QIE11DataFrame qiehe, std::vector<int> tdc1, std::vector<int> tdc2, int tdcmax) {
   QIE11DataFrame qiehb = qiehe;
+  HcalDetId did = HcalDetId(qiehb.detid());
   int adc, tdc;
   bool soi;
   int is = 0;
@@ -633,11 +634,12 @@ QIE11DataFrame convertHB(QIE11DataFrame qiehe, int tdc1, int tdc2, int tdcmax) {
     tdc = qiehe[is].tdc();
     soi = qiehe[is].soi();
 
-    if (tdc >= 0 && tdc <= tdc1)
+    if (tdc >= 0 && tdc <= tdc1.at(abs(did.ieta() - 1) * 4 + (did.depth() - 1)))
       tdc = 0;
-    else if (tdc > tdc1 && tdc <= tdc2)
+    else if (tdc > tdc1.at(abs(did.ieta() - 1) * 4 + (did.depth() - 1)) &&
+             tdc <= tdc2.at(abs(did.ieta() - 1) * 4 + (did.depth() - 1)))
       tdc = 1;
-    else if (tdc > tdc2 && tdc <= tdcmax)
+    else if (tdc > tdc2.at(abs(did.ieta() - 1) * 4 + (did.depth() - 1)) && tdc <= tdcmax)
       tdc = 2;
     else
       tdc = 3;
