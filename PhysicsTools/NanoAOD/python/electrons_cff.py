@@ -612,8 +612,8 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     genparticles     = cms.InputTag("finalGenParticles"), 
 )
 
-##modifier for ULcampaigns
-for modifier in run2_nanoAOD_106Xv1,run2_nanoAOD_106Xv2:
+##Adding the 4 most important scale & smearing corrections to electron table 
+for modifier in run2_nanoAOD_106Xv1,run2_nanoAOD_106Xv2,run2_egamma_2016,run2_egamma_2017,run2_egamma_2018,run2_miniAOD_80XLegacy, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
     modifier.toModify(electronTable.variables,
         energyScaleUp=Var("userFloat('energyScaleUp')", float,  doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
         energyScaleDown=Var("userFloat('energyScaleDown')", float,  doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
