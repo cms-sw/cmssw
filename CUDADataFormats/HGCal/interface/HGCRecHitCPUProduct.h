@@ -20,7 +20,6 @@ public:
     size_tot_ = std::accumulate(sizes.begin(), sizes.end(), 0);
     pad_ = ((nhits - 1) / 32 + 1) * 32;  //align to warp boundary (assumption: warpSize = 32)
     mem_ = cms::cuda::make_host_unique<std::byte[]>(pad_ * size_tot_, stream);
-    //mem_ = std::make_unique<std::byte[]>(pad_ * size_tot_);
   }
   ~HGCRecHitCPUProduct() = default;
 
@@ -42,7 +41,6 @@ public:
     soa.pad_       = pad_;
     return soa;
   }
-
   ConstHGCRecHitSoA get() const {
     ConstHGCRecHitSoA soa;
     soa.energy_    = reinterpret_cast<float const*>(mem_.get());
@@ -58,7 +56,7 @@ public:
   uint32_t nBytes() const { return size_tot_; }
 
 private:
-  cms::cuda::host::unique_ptr<std::byte[]> mem_; //tell ROOT to ignore this for the dictionary generation
+  cms::cuda::host::unique_ptr<std::byte[]> mem_;
   uint32_t pad_;
   uint32_t nhits_;
   uint32_t size_tot_;
