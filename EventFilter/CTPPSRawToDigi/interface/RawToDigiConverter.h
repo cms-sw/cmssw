@@ -52,11 +52,11 @@ public:
            edm::DetSetVector<TotemVFATStatus> &status);
 
   /// Creates Totem T2 digi
-  void run(const VFATFrameCollection& coll,
-           const TotemDAQMapping& mapping,
-           const TotemAnalysisMask& mask,
-           edm::DetSetVector<TotemT2Digi>& digi,
-           edm::DetSetVector<TotemVFATStatus>& status);
+  void run(const VFATFrameCollection &coll,
+           const TotemDAQMapping &mapping,
+           const TotemAnalysisMask &mask,
+           edm::DetSetVector<TotemT2Digi> &digi,
+           edm::DetSetVector<TotemVFATStatus> &status);
 
   /// Print error summaries.
   void printSummaries() const;

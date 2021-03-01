@@ -12,6 +12,7 @@
 class TotemT2Digi {
 public:
   explicit TotemT2Digi() = default;
+  TotemT2Digi(unsigned char geo, unsigned char id, unsigned char marker, unsigned short le, unsigned short te);
 
   void setLeadingEdge(unsigned short le) { lead_edge_ = le; }
   unsigned short leadingEdge() const { return lead_edge_; }
@@ -19,22 +20,18 @@ public:
   unsigned short trailingEdge() const { return trail_edge_; }
 
 private:
+  /// Geo ID
+  unsigned char geo_id_;
+  /// Channel ID
+  unsigned char channel_id_;
+  /// Channel marker
+  unsigned char marker_;
   /// Leading edge time
   unsigned short lead_edge_;
   /// Trailing edge time
   unsigned short trail_edge_;
 };
 
-bool operator<(const TotemT2Digi& lhs, const TotemT2Digi& rhs) {
-  if (lhs.leadingEdge() < rhs.leadingEdge())
-    return true;
-  if (lhs.leadingEdge() > rhs.leadingEdge())
-    return false;
-  if (lhs.trailingEdge() < rhs.trailingEdge())
-    return true;
-  if (lhs.trailingEdge() > rhs.trailingEdge())
-    return false;
-  return false;
-}
+bool operator<(const TotemT2Digi& lhs, const TotemT2Digi& rhs);
 
 #endif
