@@ -26,11 +26,11 @@
 #include "CondFormats/EcalObjects/interface/EcalPulseShapesGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalRechitADCToGeVConstantGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalRechitChannelStatusGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelationGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSamplesCorrelationGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeBiasCorrectionsGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
 
