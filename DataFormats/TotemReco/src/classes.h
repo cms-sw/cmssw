@@ -3,5 +3,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 #include "DataFormats/TotemReco/interface/TotemT2Digi.h"
+#include "DataFormats/TotemReco/interface/TotemT2RecHit.h"
 
 #include <vector>
