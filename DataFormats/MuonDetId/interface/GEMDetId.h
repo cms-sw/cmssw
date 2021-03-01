@@ -108,7 +108,8 @@ public:
 
     id_ |= ((regionInBits & RegionMask) << RegionStartBit | (ringInBits & RingMask) << RingStartBit |
             (stationInBits & StationMask) << StationStartBit | (layerInBits & LayerMask) << LayerStartBit |
-            (chamberInBits & ChamberMask) << ChamberStartBit | (ietaInBits & EtaPartitionMask) << EtaPartitionStartBit | kGEMIdFormat);
+            (chamberInBits & ChamberMask) << ChamberStartBit | (ietaInBits & EtaPartitionMask) << EtaPartitionStartBit |
+            kGEMIdFormat);
   }
 
   /** Assignment from a generic cell id */
@@ -191,7 +192,7 @@ public:
   constexpr int roll() const {
     return (static_cast<int>((id_ >> EtaPartitionStartBit) & EtaPartitionMask));  // value 0 is used as wild card
   }
-  
+
   /** Return the corresponding EtaPartition id (same as roll) */
   constexpr int ieta() const {
     return (static_cast<int>((id_ >> EtaPartitionStartBit) & EtaPartitionMask));  // value 0 is used as wild card
@@ -228,8 +229,8 @@ public:
                ((MuonSubdetId::GEM & DetId::kSubdetMask) << DetId::kSubdetOffset) |
                ((regionInBits & RegionMask) << RegionStartBit) | ((ringInBits & RingMask) << RingStartBit) |
                ((stationInBits & StationMask) << StationStartBit) | ((layerInBits & LayerMask) << LayerStartBit) |
-               ((chamberInBits & ChamberMask) << ChamberStartBit) | ((ietaInBits & EtaPartitionMask) << EtaPartitionStartBit) |
-               kGEMIdFormat);
+               ((chamberInBits & ChamberMask) << ChamberStartBit) |
+               ((ietaInBits & EtaPartitionMask) << EtaPartitionStartBit) | kGEMIdFormat);
     }
     return rawid;
   }
