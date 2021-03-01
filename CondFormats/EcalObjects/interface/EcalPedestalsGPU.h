@@ -2,6 +2,8 @@
 #define CondFormats_EcalObjects_interface_EcalPedestalsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,9 +13,12 @@
 class EcalPedestalsGPU {
 public:
   struct Product {
-    ~Product();
-    float *mean_x12 = nullptr, *mean_x6 = nullptr, *mean_x1 = nullptr;
-    float *rms_x12 = nullptr, *rms_x6 = nullptr, *rms_x1 = nullptr;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> mean_x12;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> mean_x6;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> mean_x1;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> rms_x12;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> rms_x6;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> rms_x1;
   };
 
 #ifndef __CUDACC__

@@ -2,6 +2,8 @@
 #define CondFormats_EcalObjects_interface_ElectronicsMappingGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -14,8 +16,7 @@ namespace ecal {
     class ElectronicsMappingGPU {
     public:
       struct Product {
-        ~Product();
-        uint32_t* eid2did;
+        edm::propagate_const_array<cms::cuda::device::unique_ptr<uint32_t[]>> eid2did;
       };
 
 #ifndef __CUDACC__

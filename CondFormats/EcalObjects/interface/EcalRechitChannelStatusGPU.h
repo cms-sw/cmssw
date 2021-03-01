@@ -2,6 +2,8 @@
 #define CondFormats_EcalObjects_interface_EcalRechitChannelStatusGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,8 +13,7 @@
 class EcalRechitChannelStatusGPU {
 public:
   struct Product {
-    ~Product();
-    uint16_t* status = nullptr;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<uint16_t[]>> status;
   };
 
 #ifndef __CUDACC__

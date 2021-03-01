@@ -4,6 +4,7 @@
 <use name="DataFormats/EcalDigi"/>
 <use name="DataFormats/Math"/>
 <use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="boost"/>
 <use name="boost_serialization"/>
 <use name="rootmath"/>

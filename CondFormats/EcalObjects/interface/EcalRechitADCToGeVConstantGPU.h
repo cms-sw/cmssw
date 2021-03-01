@@ -2,6 +2,8 @@
 #define CondFormats_EcalObjects_interface_EcalRechitADCToGeVConstantGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,8 +13,7 @@
 class EcalRechitADCToGeVConstantGPU {
 public:
   struct Product {
-    ~Product();
-    float* adc2gev = nullptr;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> adc2gev;
   };
 
 #ifndef __CUDACC__

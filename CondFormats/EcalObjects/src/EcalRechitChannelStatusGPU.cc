@@ -1,7 +1,7 @@
 #include "CondFormats/EcalObjects/interface/EcalRechitChannelStatusGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 EcalRechitChannelStatusGPU::EcalRechitChannelStatusGPU(EcalChannelStatus const& values) : status_(values.size()) {
   // fill in eb
@@ -18,22 +18,13 @@ EcalRechitChannelStatusGPU::EcalRechitChannelStatusGPU(EcalChannelStatus const& 
   }
 }
 
-EcalRechitChannelStatusGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(status));
-}
-
 EcalRechitChannelStatusGPU::Product const& EcalRechitChannelStatusGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalRechitChannelStatusGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.status, this->status_.size() * sizeof(uint16_t)));
+        // allocate
+        product.status = cms::cuda::make_device_unique<uint16_t[]>(status_.size(), cudaStream);
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.status,
-                                  this->status_.data(),
-                                  this->status_.size() * sizeof(uint16_t),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.status, status_, cudaStream);
       });
 
   return product;

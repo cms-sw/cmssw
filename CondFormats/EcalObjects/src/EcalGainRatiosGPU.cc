@@ -1,7 +1,7 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatiosGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 EcalGainRatiosGPU::EcalGainRatiosGPU(EcalGainRatios const& values)
     : gain12Over6_(values.size()), gain6Over1_(values.size()) {
@@ -21,29 +21,15 @@ EcalGainRatiosGPU::EcalGainRatiosGPU(EcalGainRatios const& values)
   }
 }
 
-EcalGainRatiosGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(gain12Over6));
-  cudaCheck(cudaFree(gain6Over1));
-}
-
 EcalGainRatiosGPU::Product const& EcalGainRatiosGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalGainRatiosGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.gain12Over6, this->gain12Over6_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.gain6Over1, this->gain6Over1_.size() * sizeof(float)));
+        // allocate
+        product.gain12Over6 = cms::cuda::make_device_unique<float[]>(gain12Over6_.size(), cudaStream);
+        product.gain6Over1 = cms::cuda::make_device_unique<float[]>(gain6Over1_.size(), cudaStream);
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.gain12Over6,
-                                  this->gain12Over6_.data(),
-                                  this->gain12Over6_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.gain6Over1,
-                                  this->gain6Over1_.data(),
-                                  this->gain6Over1_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.gain12Over6, gain12Over6_, cudaStream);
+        cms::cuda::copyAsync(product.gain6Over1, gain6Over1_, cudaStream);
       });
 
   return product;

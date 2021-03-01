@@ -2,6 +2,8 @@
 #define CondFormats_EcalObjects_interface_EcalLinearCorrectionsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,13 +13,12 @@
 class EcalLinearCorrectionsGPU {
 public:
   struct Product {
-    ~Product();
-    float *p1 = nullptr;
-    float *p2 = nullptr;
-    float *p3 = nullptr;
-    edm::TimeValue_t *t1 = nullptr;
-    edm::TimeValue_t *t2 = nullptr;
-    edm::TimeValue_t *t3 = nullptr;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> p1;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> p2;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> p3;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<edm::TimeValue_t[]>> t1;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<edm::TimeValue_t[]>> t2;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<edm::TimeValue_t[]>> t3;
   };
 
 #ifndef __CUDACC__

@@ -1,7 +1,7 @@
 #include "CondFormats/EcalObjects/interface/EcalLinearCorrectionsGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 EcalLinearCorrectionsGPU::EcalLinearCorrectionsGPU(EcalLinearCorrections const& values)
     : p1_(values.getValueMap().size()),
@@ -34,48 +34,23 @@ EcalLinearCorrectionsGPU::EcalLinearCorrectionsGPU(EcalLinearCorrections const& 
   }
 }
 
-EcalLinearCorrectionsGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(p1));
-  cudaCheck(cudaFree(p2));
-  cudaCheck(cudaFree(p3));
-  cudaCheck(cudaFree(t1));
-  cudaCheck(cudaFree(t2));
-  cudaCheck(cudaFree(t3));
-}
-
 EcalLinearCorrectionsGPU::Product const& EcalLinearCorrectionsGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalLinearCorrectionsGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.p1, this->p1_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.p2, this->p2_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.p3, this->p3_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.t1, this->t1_.size() * sizeof(edm::TimeValue_t)));
-        cudaCheck(cudaMalloc((void**)&product.t2, this->t2_.size() * sizeof(edm::TimeValue_t)));
-        cudaCheck(cudaMalloc((void**)&product.t3, this->t3_.size() * sizeof(edm::TimeValue_t)));
+        // allocate
+        product.p1 = cms::cuda::make_device_unique<float[]>(p1_.size(), cudaStream);
+        product.p2 = cms::cuda::make_device_unique<float[]>(p2_.size(), cudaStream);
+        product.p3 = cms::cuda::make_device_unique<float[]>(p3_.size(), cudaStream);
+        product.t1 = cms::cuda::make_device_unique<edm::TimeValue_t[]>(t1_.size(), cudaStream);
+        product.t2 = cms::cuda::make_device_unique<edm::TimeValue_t[]>(t2_.size(), cudaStream);
+        product.t3 = cms::cuda::make_device_unique<edm::TimeValue_t[]>(t3_.size(), cudaStream);
         // transfer
-        cudaCheck(cudaMemcpyAsync(
-            product.p1, this->p1_.data(), this->p1_.size() * sizeof(float), cudaMemcpyHostToDevice, cudaStream));
-        cudaCheck(cudaMemcpyAsync(
-            product.p2, this->p2_.data(), this->p2_.size() * sizeof(float), cudaMemcpyHostToDevice, cudaStream));
-        cudaCheck(cudaMemcpyAsync(
-            product.p3, this->p3_.data(), this->p3_.size() * sizeof(float), cudaMemcpyHostToDevice, cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.t1,
-                                  this->t1_.data(),
-                                  this->t1_.size() * sizeof(edm::TimeValue_t),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.t2,
-                                  this->t2_.data(),
-                                  this->t2_.size() * sizeof(edm::TimeValue_t),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.t3,
-                                  this->t3_.data(),
-                                  this->t3_.size() * sizeof(edm::TimeValue_t),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.p1, p1_, cudaStream);
+        cms::cuda::copyAsync(product.p2, p2_, cudaStream);
+        cms::cuda::copyAsync(product.p3, p3_, cudaStream);
+        cms::cuda::copyAsync(product.t1, t1_, cudaStream);
+        cms::cuda::copyAsync(product.t2, t2_, cudaStream);
+        cms::cuda::copyAsync(product.t3, t3_, cudaStream);
       });
 
   return product;

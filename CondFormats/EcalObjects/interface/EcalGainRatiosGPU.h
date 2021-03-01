@@ -2,6 +2,8 @@
 #define CondFormats_EcalObjects_interface_EcalGainRatiosGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,8 +13,8 @@
 class EcalGainRatiosGPU {
 public:
   struct Product {
-    ~Product();
-    float *gain12Over6 = nullptr, *gain6Over1 = nullptr;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> gain12Over6;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> gain6Over1;
   };
 
 #ifndef __CUDACC__
