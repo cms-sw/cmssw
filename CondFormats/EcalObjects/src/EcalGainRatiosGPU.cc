@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalGainRatiosGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatiosGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
