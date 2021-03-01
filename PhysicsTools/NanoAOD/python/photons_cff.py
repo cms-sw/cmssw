@@ -190,22 +190,42 @@ run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyErrPostCorr"),
     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyPreCorr"),
     ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons80XLegacy","ecalEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatPhotons80XLegacy","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatPhotons80XLegacy","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatPhotons80XLegacy","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatPhotons80XLegacy","energySigmaDown"),
+
 )
 run2_nanoAOD_94XMiniAODv1.toModify(slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyErrPostCorr"),
     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPreCorr"),
     ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatPhotons94Xv1","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatPhotons94Xv1","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatPhotons94Xv1","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatPhotons94Xv1","energySigmaDown"),
+
 )
 run2_nanoAOD_94XMiniAODv2.toModify(slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons94Xv2","ecalEnergyErrPostCorr"),
     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons94Xv2","ecalEnergyPreCorr"),
     ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons94Xv2","ecalEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatPhotons94Xv2","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatPhotons94Xv2","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatPhotons94Xv2","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatPhotons94Xv2","energySigmaDown"),
+
 )
 
 run2_nanoAOD_102Xv1.toModify(slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotons102Xv1","ecalEnergyErrPostCorr"),
     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotons102Xv1","ecalEnergyPreCorr"),
     ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotons102Xv1","ecalEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatPhotons102Xv1","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatPhotons102Xv1","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatPhotons102Xv1","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatPhotons102Xv1","energySigmaDown"),
+
 )
 
 finalPhotons = cms.EDFilter("PATPhotonRefSelector",
