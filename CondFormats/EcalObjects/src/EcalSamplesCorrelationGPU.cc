@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSamplesCorrelationGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelationGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"

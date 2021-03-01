@@ -23,9 +23,9 @@
 #include "CondFormats/EcalObjects/interface/EcalPulseShapesGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalRechitADCToGeVConstantGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalRechitChannelStatusGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelationGPU.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HeterogeneousCore/CUDACore/interface/ConvertingESProducerT.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSamplesCorrelationGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeBiasCorrectionsGPU.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
 
