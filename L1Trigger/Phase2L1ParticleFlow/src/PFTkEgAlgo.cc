@@ -159,7 +159,7 @@ void PFTkEGAlgo::addEgObjsToPF(
   }
 }
 
-void PFTkEGAlgo::link_emCalo2emCalo(Region &r, std::vector<int> &emCalo2emCalo) const {
+void PFTkEGAlgo::link_emCalo2emCalo(const Region &r, std::vector<int> &emCalo2emCalo) const {
   // NOTE: we assume the input to be sorted!!!
   for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
     auto &calo = r.emcalo[ic];
@@ -185,7 +185,7 @@ void PFTkEGAlgo::link_emCalo2emCalo(Region &r, std::vector<int> &emCalo2emCalo) 
   }
 }
 
-void PFTkEGAlgo::link_emCalo2tk(Region &r, std::vector<int> &emCalo2tk) const {
+void PFTkEGAlgo::link_emCalo2tk(const Region &r, std::vector<int> &emCalo2tk) const {
   for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
     auto &calo = r.emcalo[ic];
 

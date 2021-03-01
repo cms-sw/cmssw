@@ -52,8 +52,8 @@ namespace l1tpf_impl {
     IsoParameters pfIsoParametersTkEle_;
 
     void initRegion(Region &r) const;
-    void link_emCalo2emCalo(Region &r, std::vector<int> &emCalo2emCalo) const;
-    void link_emCalo2tk(Region &r, std::vector<int> &emCalo2tk) const;
+    void link_emCalo2emCalo(const Region &r, std::vector<int> &emCalo2emCalo) const;
+    void link_emCalo2tk(const Region &r, std::vector<int> &emCalo2tk) const;
 
     template <typename T>
     void compute_isolation_tkEm(
