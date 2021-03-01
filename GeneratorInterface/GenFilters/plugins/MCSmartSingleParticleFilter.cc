@@ -111,77 +111,59 @@ MCSmartSingleParticleFilter::MCSmartSingleParticleFilter(const edm::ParameterSet
 
   // if pMin size smaller than particleID , fill up further with defaults
   if (particleID.size() > pMin.size()) {
-    vector<double> defpmin2;
-    for (unsigned int i = 0; i < particleID.size(); i++) {
-      defpmin2.push_back(0.);
+    for (unsigned int i = pMin.size(); i < particleID.size(); i++) {
+      pMin.push_back(0.);
     }
-    pMin = defpmin2;
   }
   // if ptMin size smaller than particleID , fill up further with defaults
   if (particleID.size() > ptMin.size()) {
-    vector<double> defptmin2;
-    for (unsigned int i = 0; i < particleID.size(); i++) {
-      defptmin2.push_back(0.);
+    for (unsigned int i = ptMin.size(); i < particleID.size(); i++) {
+      ptMin.push_back(0.);
     }
-    ptMin = defptmin2;
   }
   // if etaMin size smaller than particleID , fill up further with defaults
   if (particleID.size() > etaMin.size()) {
-    vector<double> defetamin2;
-    for (unsigned int i = 0; i < particleID.size(); i++) {
-      defetamin2.push_back(-10.);
+    for (unsigned int i = etaMin.size(); i < particleID.size(); i++) {
+      etaMin.push_back(-10.);
     }
-    etaMin = defetamin2;
   }
   // if etaMax size smaller than particleID , fill up further with defaults
   if (particleID.size() > etaMax.size()) {
-    vector<double> defetamax2;
-    for (unsigned int i = 0; i < particleID.size(); i++) {
-      defetamax2.push_back(10.);
+    for (unsigned int i = etaMax.size(); i < particleID.size(); i++) {
+      etaMax.push_back(10.);
     }
-    etaMax = defetamax2;
   }
   // if status size smaller than particleID , fill up further with defaults
   if (particleID.size() > status.size()) {
-    vector<int> defstat2;
-    for (unsigned int i = 0; i < particleID.size(); i++) {
-      defstat2.push_back(0);
+    for (unsigned int i = status.size(); i < particleID.size(); i++) {
+      status.push_back(0);
     }
-    status = defstat2;
   }
 
   // if decayRadiusMin size smaller than particleID , fill up further with defaults
   if (particleID.size() > decayRadiusMin.size()) {
-    vector<double> decayRadiusmin2;
-    for (unsigned int i = 0; i < particleID.size(); i++) {
-      decayRadiusmin2.push_back(-10.);
+    for (unsigned int i = decayRadiusMin.size(); i < particleID.size(); i++) {
+      decayRadiusMin.push_back(-10.);
     }
-    decayRadiusMin = decayRadiusmin2;
   }
   // if decayRadiusMax size smaller than particleID , fill up further with defaults
   if (particleID.size() > decayRadiusMax.size()) {
-    vector<double> decayRadiusmax2;
-    for (unsigned int i = 0; i < particleID.size(); i++) {
-      decayRadiusmax2.push_back(1.e5);
+    for (unsigned int i = decayRadiusMax.size(); i < particleID.size(); i++) {
+      decayRadiusMax.push_back(1.e5);
     }
-    decayRadiusMax = decayRadiusmax2;
   }
 
   // if decayZMin size smaller than particleID , fill up further with defaults
   if (particleID.size() > decayZMin.size()) {
-    vector<double> decayZmin2;
-    for (unsigned int i = 0; i < particleID.size(); i++) {
-      decayZmin2.push_back(-1.e5);
+    for (unsigned int i = decayZMin.size(); i < particleID.size(); i++) {
+      decayZMin.push_back(-1.e5);
     }
-    decayZMin = decayZmin2;
   }
   // if decayZMax size smaller than particleID , fill up further with defaults
   if (particleID.size() > decayZMax.size()) {
-    vector<double> decayZmax2;
-    for (unsigned int i = 0; i < particleID.size(); i++) {
-      decayZmax2.push_back(1.e5);
+    for (unsigned int i = decayZMax.size(); i < particleID.size(); i++) {
+      decayZMax.push_back(1.e5);
     }
-    decayZMax = decayZmax2;
   }
 
   // check if beta is smaller than 1
