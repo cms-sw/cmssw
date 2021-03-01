@@ -1,5 +1,4 @@
 <use name="boost"/>
-<use name="cuda"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/EcalDigi"/>
@@ -9,8 +8,6 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/EcalMapping"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="Utilities/StorageFactory"/>
 <export>
   <lib name="1"/>
