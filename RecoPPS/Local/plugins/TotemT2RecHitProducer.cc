@@ -41,21 +41,23 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<edm::DetSetVector<TotemT2Digi> > digiToken_;
-
-  /// Label to timing calibration tag
-  edm::ESInputTag timingCalibrationTag_;
+  edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> timingCalibrationToken_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
   /// A watcher to detect timing calibration changes.
   edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 
-  bool applyCalib_;
+  const bool applyCalib_;
   TotemT2RecHitProducerAlgorithm algo_;
 };
 
 TotemT2RecHitProducer::TotemT2RecHitProducer(const edm::ParameterSet& iConfig)
     : digiToken_(consumes<edm::DetSetVector<TotemT2Digi> >(iConfig.getParameter<edm::InputTag>("digiTag"))),
-      timingCalibrationTag_(iConfig.getParameter<std::string>("timingCalibrationTag")),
+      geometryToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
       applyCalib_(iConfig.getParameter<bool>("applyCalibration")),
       algo_(iConfig) {
+  if (applyCalib_)
+    timingCalibrationToken_ = esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>(
+        edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")));
   produces<edm::DetSetVector<TotemT2RecHit> >();
 }
 
@@ -68,13 +70,11 @@ void TotemT2RecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   if (!digis->empty()) {
     if (applyCalib_ && calibWatcher_.check(iSetup)) {
-      edm::ESHandle<PPSTimingCalibration> hTimingCalib;
-      iSetup.get<PPSTimingCalibrationRcd>().get(timingCalibrationTag_, hTimingCalib);
+      edm::ESHandle<PPSTimingCalibration> hTimingCalib = iSetup.getHandle(timingCalibrationToken_);
       algo_.setCalibration(*hTimingCalib);
     }
     // get the geometry
-    edm::ESHandle<CTPPSGeometry> geometry;
-    iSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
+    edm::ESHandle<CTPPSGeometry> geometry = iSetup.getHandle(geometryToken_);
 
     // produce the rechits collection
     algo_.build(*geometry, *digis, *pOut);
