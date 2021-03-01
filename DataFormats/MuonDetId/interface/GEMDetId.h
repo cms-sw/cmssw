@@ -32,6 +32,8 @@ public:
   static constexpr int32_t maxLayerId = 2;  // GE1/GE2 has 2 layers
   static constexpr int32_t minEtaPartitionId = 0;
   static constexpr int32_t maxEtaPartitionId = 16;
+  static constexpr int32_t minRollId = minEtaPartitionId;
+  static constexpr int32_t maxRollId = maxEtaPartitionId;
 
 private:
   static constexpr uint32_t RegionNumBits = 2;
