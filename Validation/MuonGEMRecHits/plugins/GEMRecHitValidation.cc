@@ -82,19 +82,17 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       Int_t ieta = roll->id().ieta();
       ME2IdsKey key{station_id, ieta};
 
-      me_residual_x_[key] =
-          booker.book1D(Form("residual_x_GE%d1_R%d", station_id, ieta),
-                        Form("Residual in X : GE%d1 iEta %d; Residual in X [cm]", station_id, ieta),
-                        60,
-                        -2,
-                        2);
+      me_residual_x_[key] = booker.book1D(Form("residual_x_GE%d1_R%d", station_id, ieta),
+                                          Form("Residual in X : GE%d1 iEta %d; Residual in X [cm]", station_id, ieta),
+                                          60,
+                                          -2,
+                                          2);
 
-      me_residual_y_[key] =
-          booker.book1D(Form("residual_y_GE%d1_iEta%d", station_id, ieta),
-                        Form("Residual in Y : GE%d1 iEta %d; Residual in Y [cm]", station_id, ieta),
-                        60,
-                        -15,
-                        15);
+      me_residual_y_[key] = booker.book1D(Form("residual_y_GE%d1_iEta%d", station_id, ieta),
+                                          Form("Residual in Y : GE%d1 iEta %d; Residual in Y [cm]", station_id, ieta),
+                                          60,
+                                          -15,
+                                          15);
 
       me_residual_rphi_[key] = booker.book1D(
           Form("residual_rphi_GE%d1_iEta%d", station_id, ieta),
