@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalLaserAlphasGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interface_EcalLaserAlphasGPU_h
+#ifndef CondFormats_EcalObjects_interface_EcalLaserAlphasGPU_h
+#define CondFormats_EcalObjects_interface_EcalLaserAlphasGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 
@@ -40,4 +40,4 @@ private:
 #endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalLaserAlphasGPU_h
+#endif  // CondFormats_EcalObjects_interface_EcalLaserAlphasGPU_h
