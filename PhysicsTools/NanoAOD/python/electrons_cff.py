@@ -258,12 +258,20 @@ run2_egamma_2017.toModify(slimmedElectronsWithUserData.userFloats,
     ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsUL17","ecalTrkEnergyErrPostCorr"),
     ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsUL17","ecalTrkEnergyPreCorr"),
     ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectronsUL17","ecalTrkEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatElectronsUL17","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatElectronsUL17","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatElectronsUL17","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatElectronsUL17","energySigmaDown"),
 )
 
 run2_egamma_2018.toModify(slimmedElectronsWithUserData.userFloats,
     ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsUL18","ecalTrkEnergyErrPostCorr"),
     ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsUL18","ecalTrkEnergyPreCorr"),
     ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectronsUL18","ecalTrkEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatElectronsUL18","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatElectronsUL18","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatElectronsUL18","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatElectronsUL18","energySigmaDown"),
 )
 
 run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userFloats,
@@ -330,6 +338,7 @@ run2_nanoAOD_94X2016.toModify(slimmedElectronsWithUserData.userIntFromBools,
     cutbasedID_Fall17_V2_tight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-tight"),
     
 )
+
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify(slimmedElectronsWithUserData.userInts,
                       VIDNestedWPBitmapSpring15 = cms.InputTag("bitmapVIDForEleSpring15"),
@@ -550,6 +559,15 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 electrons or photons"),
     genparticles     = cms.InputTag("finalGenParticles"), 
 )
+
+##modifier for ULcampaigns
+for modifier in run2_nanoAOD_106Xv1,run2_nanoAOD_106Xv2:
+    modifier.toModify(electronTable.variables,
+        energyScaleUp=Var("userFloat('energyScaleUp')", float,  doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
+        energyScaleDown=Var("userFloat('energyScaleDown')", float,  doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
+        energySigmaUp=Var("userFloat('energySigmaUp')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+        energySigmaDown=Var("userFloat('energySigmaDown')", float,  doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+    )
 
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)

@@ -140,12 +140,20 @@ run2_egamma_2017.toModify(slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotonsUL17","ecalEnergyErrPostCorr"),
     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotonsUL17","ecalEnergyPreCorr"),
     ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotonsUL17","ecalEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatPhotonsUL17","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatPhotonsUL17","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatPhotonsUL17","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatPhotonsUL17","energySigmaDown"),
 )
 
 run2_egamma_2018.toModify(slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotonsUL18","ecalEnergyErrPostCorr"),
     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotonsUL18","ecalEnergyPreCorr"),
     ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotonsUL18","ecalEnergyPostCorr"),
+    energyScaleUp               = cms.InputTag("calibratedPatPhotonsUL18","energyScaleUp"),
+    energyScaleDown             = cms.InputTag("calibratedPatPhotonsUL18","energyScaleDown"),
+    energySigmaUp               = cms.InputTag("calibratedPatPhotonsUL18","energySigmaUp"),
+    energySigmaDown             = cms.InputTag("calibratedPatPhotonsUL18","energySigmaDown"),
 )
 
 run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
@@ -299,6 +307,16 @@ for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94
     modifier.toModify(slimmedPhotonsWithUserData, src = "slimmedPhotonsTo106X")
     modifier.toModify(seedGainPho, src = "slimmedPhotonsTo106X")
 
+
+##modifier for ULcampaigns
+for modifier in run2_nanoAOD_106Xv1,run2_nanoAOD_106Xv2:
+    modifier.toModify(photonTable.variables,
+        energyScaleUp=Var("userFloat('energyScaleUp')", float, doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
+        energyScaleDown=Var("userFloat('energyScaleDown')", float, doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
+        energySigmaUp=Var("userFloat('energySigmaUp')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+        energySigmaDown=Var("userFloat('energySigmaDown')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+
+)
 
 photonSequence = cms.Sequence(
         bitmapVIDForPho + \
