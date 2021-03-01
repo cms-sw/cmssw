@@ -34,7 +34,7 @@ void ticl::SeedingRegionByL1::makeRegions(const edm::Event &ev,
 
   for (size_t indx = 0; indx < (*l1TrkEms).size(); indx++) {
     const auto &l1TrkEm = (*l1TrkEms)[indx];
-    double offlinePt = this->TkEmOfflineEt(l1TrkEm.pt());
+    double offlinePt = this->tkEmOfflineEt(l1TrkEm.pt());
     if ((offlinePt < minPt_) || (std::abs(l1TrkEm.eta()) < minAbsEta_) || (std::abs(l1TrkEm.eta()) > maxAbsEta_) ||
         (l1TrkEm.EGRef()->hwQual() != quality_)) {
       continue;
@@ -53,8 +53,8 @@ void ticl::SeedingRegionByL1::makeRegions(const edm::Event &ev,
   });
 }
 
-double ticl::SeedingRegionByL1::TkEmOfflineEt(double Et) const {
-  return (endcapScalings_.at(0) + Et * endcapScalings_.at(1) + Et * Et * endcapScalings_.at(2));
+double ticl::SeedingRegionByL1::tkEmOfflineEt(double et) const {
+  return (endcapScalings_.at(0) + et * endcapScalings_.at(1) + et * et * endcapScalings_.at(2));
 }
 
 void ticl::SeedingRegionByL1::fillPSetDescription(edm::ParameterSetDescription &desc) {
