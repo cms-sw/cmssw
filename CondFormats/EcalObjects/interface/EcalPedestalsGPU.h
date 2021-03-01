@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalPedestalsGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interface_EcalPedestalsGPU_h
+#ifndef CondFormats_EcalObjects_interface_EcalPedestalsGPU_h
+#define CondFormats_EcalObjects_interface_EcalPedestalsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 
@@ -44,4 +44,4 @@ private:
 #endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalPedestalsGPU_h
+#endif  // CondFormats_EcalObjects_interface_EcalPedestalsGPU_h
