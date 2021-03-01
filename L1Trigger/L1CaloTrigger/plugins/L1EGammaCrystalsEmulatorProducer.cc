@@ -1177,12 +1177,13 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
+  bool is_iso = true;
   if (pt < slideIsoPtThreshold) {
     if (!((a0_80 - a1_80 * pt) > iso))
-      return false;
+      is_iso = false;
   } else {
     if (iso > a0)
-      return false;
+      is_iso = false;
   }
   if (pt > plateau_ss)
     is_iso = true;
