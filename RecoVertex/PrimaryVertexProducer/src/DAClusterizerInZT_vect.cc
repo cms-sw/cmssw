@@ -462,8 +462,8 @@ double DAClusterizerInZT_vect::update(
 
   // loop over tracks
   for (auto itrack = 0U; itrack < nt; ++itrack) {
-    unsigned int kmin = gtracks.kmin[itrack];
-    unsigned int kmax = gtracks.kmax[itrack];
+    const unsigned int kmin = gtracks.kmin[itrack];
+    const unsigned int kmax = gtracks.kmax[itrack];
 
 #ifdef DEBUG
     assert((kmin < kmax) && (kmax <= nv));
