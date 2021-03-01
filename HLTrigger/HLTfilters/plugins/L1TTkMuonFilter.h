@@ -39,6 +39,8 @@ private:
   int min_N_;                            // min number of candidates above pT cut
   double min_Eta_;                       // min eta cut
   double max_Eta_;                       // max eta cut
+  bool applyQuality_;                    // apply quaility cuts
+  bool doDupRemoval_;                    // do dup removal
   edm::ParameterSet scalings_;           // all scalings. An indirection level allows extra flexibility
   std::vector<double> barrelScalings_;   // barrel scalings
   std::vector<double> overlapScalings_;  // overlap scalings
