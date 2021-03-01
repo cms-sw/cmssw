@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalRechitChannelStatusGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interface_EcalRechitChannelStatusGPU_h
+#ifndef CondFormats_EcalObjects_interface_EcalRechitChannelStatusGPU_h
+#define CondFormats_EcalObjects_interface_EcalRechitChannelStatusGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
@@ -39,4 +39,4 @@ private:
 #endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalRechitChannelStatusGPU_h
+#endif  // CondFormats_EcalObjects_interface_EcalRechitChannelStatusGPU_h

@@ -16,6 +16,7 @@
 #include "CondFormats/EcalObjects/interface/EcalLinearCorrectionsGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalRecHitParametersGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalRechitADCToGeVConstantGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalRechitChannelStatusGPU.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -27,7 +28,6 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitChannelStatusGPU.h"
 
 #include "EcalRecHitBuilderKernels.h"
 
