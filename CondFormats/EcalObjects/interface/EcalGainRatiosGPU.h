@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecAlgos_interface_EcalGainRatiosGPU_h
-#define RecoLocalCalo_EcalRecAlgos_interface_EcalGainRatiosGPU_h
+#ifndef CondFormats_EcalObjects_interface_EcalGainRatiosGPU_h
+#define CondFormats_EcalObjects_interface_EcalGainRatiosGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 
@@ -40,4 +40,4 @@ private:
 #endif  // __CUDACC__
 };
 
-#endif  // RecoLocalCalo_EcalRecAlgos_interface_EcalGainRatiosGPU_h
+#endif  // CondFormats_EcalObjects_interface_EcalGainRatiosGPU_h
