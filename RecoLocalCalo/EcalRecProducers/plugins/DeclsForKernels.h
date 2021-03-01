@@ -29,10 +29,10 @@
 #include "CondFormats/EcalObjects/interface/EcalSamplesCorrelationGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrectionsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstantsGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
 
 #include "EigenMatrixTypes_gpu.h"
 

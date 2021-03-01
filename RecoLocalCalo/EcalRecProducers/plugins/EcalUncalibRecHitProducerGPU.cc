@@ -15,6 +15,7 @@
 #include "CondFormats/EcalObjects/interface/EcalPulseShapesGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalSamplesCorrelationGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrectionsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstantsGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -25,7 +26,6 @@
 #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
 
 #include "Common.h"
 #include "DeclsForKernels.h"
