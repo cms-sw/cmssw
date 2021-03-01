@@ -6,7 +6,6 @@
  *
  ****************************************************************************/
 
-
 #include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -38,9 +37,7 @@ TotemT2DetId::TotemT2DetId(uint32_t arm, uint32_t plane, uint32_t channel)
 
 //----------------------------------------------------------------------------------------------------
 
-void
-TotemT2DetId::planeName(std::string& name, NameFlag flag) const
-{
+void TotemT2DetId::planeName(std::string& name, NameFlag flag) const {
   switch (flag) {
     case nShort:
       name = "";
@@ -59,9 +56,7 @@ TotemT2DetId::planeName(std::string& name, NameFlag flag) const
 
 //----------------------------------------------------------------------------------------------------
 
-void
-TotemT2DetId::channelName(std::string& name, NameFlag flag) const
-{
+void TotemT2DetId::channelName(std::string& name, NameFlag flag) const {
   switch (flag) {
     case nShort:
       name = "";

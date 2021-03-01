@@ -40,8 +40,8 @@ public:
     MAXTotemRPVerticalFEDID = 585,
     MINTotemRPTimingVerticalFEDID = 586,
     MAXTotemRPTimingVerticalFEDID = 587,
-    MINTotemT2FEDID = 999999, //FIXME
-    MAXTotemT2FEDID = 999999+1, //FIXME
+    MINTotemT2FEDID = 999999,      //FIXME
+    MAXTotemT2FEDID = 999999 + 1,  //FIXME
     MINECALFEDID = 600,
     MAXECALFEDID = 670,
     MINCASTORFEDID = 690,

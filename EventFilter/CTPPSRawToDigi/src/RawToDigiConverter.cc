@@ -12,10 +12,12 @@
 #include "EventFilter/CTPPSRawToDigi/interface/CounterChecker.h"
 #include "EventFilter/CTPPSRawToDigi/interface/DiamondVFATFrame.h"
 #include "EventFilter/CTPPSRawToDigi/interface/TotemSampicFrame.h"
+#include "EventFilter/CTPPSRawToDigi/interface/TotemT2VFATFrame.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
 
 using namespace std;
 using namespace edm;
@@ -377,12 +379,41 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
   }
 }
 
-void RawToDigiConverter::run(const VFATFrameCollection& coll,
-                             const TotemDAQMapping& mapping,
-                             const TotemAnalysisMask& mask,
-                             edm::DetSetVector<TotemT2Digi>& digi,
-                             edm::DetSetVector<TotemVFATStatus>& status) {
-  //FIXME placeholder
+void RawToDigiConverter::run(const VFATFrameCollection &coll,
+                             const TotemDAQMapping &mapping,
+                             const TotemAnalysisMask &mask,
+                             edm::DetSetVector<TotemT2Digi> &digi,
+                             edm::DetSetVector<TotemVFATStatus> &status) {
+  // structure merging vfat frame data with the mapping
+  map<TotemFramePosition, Record> records;
+
+  // common processing - frame validation
+  runCommon(coll, mapping, records);
+
+  // second loop over data
+  for (auto &p : records) {
+    Record &record = p.second;
+
+    // calculate ids
+    TotemT2DetId detId(record.info->symbolicID.symbolicID);
+
+    if (record.status.isOK()) {
+      // update Event Counter in status
+      record.status.setEC(record.frame->getEC() & 0xFF);
+
+      // create the digi
+      DetSet<TotemT2Digi> &digiDetSet = digi.find_or_insert(detId);
+      digiDetSet.emplace_back(totem::nt2::vfat::geoId(*record.frame),
+                              totem::nt2::vfat::channelId(*record.frame),
+                              totem::nt2::vfat::channelMarker(*record.frame),
+                              totem::nt2::vfat::leadingEdgeTime(*record.frame),
+                              totem::nt2::vfat::trailingEdgeTime(*record.frame));
+    }
+
+    // save status
+    DetSet<TotemVFATStatus> &statusDetSet = status.find_or_insert(detId);
+    statusDetSet.push_back(record.status);
+  }
 }
 
 void RawToDigiConverter::printSummaries() const {
