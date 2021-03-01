@@ -1,7 +1,7 @@
 #include "CondFormats/EcalObjects/interface/ElectronicsMappingGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 
@@ -29,23 +29,13 @@ namespace ecal {
       }
     }
 
-    ElectronicsMappingGPU::Product::~Product() {
-      // deallocation
-      cudaCheck(cudaFree(eid2did));
-    }
-
     ElectronicsMappingGPU::Product const& ElectronicsMappingGPU::getProduct(cudaStream_t cudaStream) const {
       auto const& product = product_.dataForCurrentDeviceAsync(
           cudaStream, [this](ElectronicsMappingGPU::Product& product, cudaStream_t cudaStream) {
-            // malloc
-            cudaCheck(cudaMalloc((void**)&product.eid2did, this->eid2did_.size() * sizeof(uint32_t)));
-
+            // allocate
+            product.eid2did = cms::cuda::make_device_unique<uint32_t[]>(eid2did_.size(), cudaStream);
             // transfer
-            cudaCheck(cudaMemcpyAsync(product.eid2did,
-                                      this->eid2did_.data(),
-                                      this->eid2did_.size() * sizeof(uint32_t),
-                                      cudaMemcpyHostToDevice,
-                                      cudaStream));
+            cms::cuda::copyAsync(product.eid2did, eid2did_, cudaStream);
           });
 
       return product;

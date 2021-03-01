@@ -1,7 +1,7 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestalsGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 EcalPedestalsGPU::EcalPedestalsGPU(EcalPedestals const& pedestals)
     : mean_x12_(pedestals.size()),
@@ -34,58 +34,23 @@ EcalPedestalsGPU::EcalPedestalsGPU(EcalPedestals const& pedestals)
   }
 }
 
-EcalPedestalsGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(mean_x12));
-  cudaCheck(cudaFree(rms_x12));
-  cudaCheck(cudaFree(mean_x6));
-  cudaCheck(cudaFree(rms_x6));
-  cudaCheck(cudaFree(mean_x1));
-  cudaCheck(cudaFree(rms_x1));
-}
-
 EcalPedestalsGPU::Product const& EcalPedestalsGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalPedestalsGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.mean_x12, this->mean_x12_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.rms_x12, this->mean_x12_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.mean_x6, this->mean_x12_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.rms_x6, this->mean_x12_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.mean_x1, this->mean_x12_.size() * sizeof(float)));
-        cudaCheck(cudaMalloc((void**)&product.rms_x1, this->mean_x12_.size() * sizeof(float)));
-
+        // allocate
+        product.mean_x12 = cms::cuda::make_device_unique<float[]>(mean_x12_.size(), cudaStream);
+        product.mean_x6 = cms::cuda::make_device_unique<float[]>(mean_x6_.size(), cudaStream);
+        product.mean_x1 = cms::cuda::make_device_unique<float[]>(mean_x1_.size(), cudaStream);
+        product.rms_x12 = cms::cuda::make_device_unique<float[]>(rms_x12_.size(), cudaStream);
+        product.rms_x6 = cms::cuda::make_device_unique<float[]>(rms_x6_.size(), cudaStream);
+        product.rms_x1 = cms::cuda::make_device_unique<float[]>(rms_x1_.size(), cudaStream);
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.mean_x12,
-                                  this->mean_x12_.data(),
-                                  this->mean_x12_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.rms_x12,
-                                  this->rms_x12_.data(),
-                                  this->rms_x12_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.mean_x6,
-                                  this->mean_x6_.data(),
-                                  this->mean_x6_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.rms_x6,
-                                  this->rms_x6_.data(),
-                                  this->rms_x6_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.mean_x1,
-                                  this->mean_x1_.data(),
-                                  this->mean_x1_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.rms_x1,
-                                  this->rms_x1_.data(),
-                                  this->rms_x1_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.mean_x12, mean_x12_, cudaStream);
+        cms::cuda::copyAsync(product.mean_x6, mean_x6_, cudaStream);
+        cms::cuda::copyAsync(product.mean_x1, mean_x1_, cudaStream);
+        cms::cuda::copyAsync(product.rms_x12, rms_x12_, cudaStream);
+        cms::cuda::copyAsync(product.rms_x6, rms_x6_, cudaStream);
+        cms::cuda::copyAsync(product.rms_x1, rms_x1_, cudaStream);
       });
 
   return product;
