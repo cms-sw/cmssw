@@ -43,11 +43,11 @@ void TotemT2DetId::planeName(std::string& name, NameFlag flag) const {
       name = "";
       break;
     case nFull:
-      rpName(name, flag);
+      armName(name, flag);
       name += "_";
       break;
     case nPath:
-      rpName(name, flag);
+      armName(name, flag);
       name += "/plane ";
       break;
   }
