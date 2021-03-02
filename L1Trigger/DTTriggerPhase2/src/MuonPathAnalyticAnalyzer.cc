@@ -97,7 +97,7 @@ constexpr int MuonPathAnalyticAnalyzer::LAYER_ARRANGEMENTS_[NUM_LAYERS][NUM_CELL
 void MuonPathAnalyticAnalyzer::analyze(MuonPathPtr &inMPath, std::vector<metaPrimitive> &metaPrimitives) {
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "DTp2:analyze \t\t\t\t starts";
-
+  std::cout << "I swear I'm running this shit" << std::endl;
   // LOCATE MPATH
   int selected_Id = 0;
   if (inMPath->primitive(0)->tdcTimeStamp() != -1)
@@ -286,7 +286,8 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   if (ChId.station() == 3 or ChId.station() == 4) {
 	z1 = z1 + Z_SHIFT_MB4;
 	z3 = z3 + Z_SHIFT_MB4;
-  } else if (MuonPathSLId.superLayer() == 1)
+  }
+  if (MuonPathSLId.superLayer() == 1)
 	z = z1;
   else if (MuonPathSLId.superLayer() == 3)
 	z = z3;

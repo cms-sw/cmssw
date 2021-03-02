@@ -45,6 +45,10 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                activateBuffer  = cms.bool(False),
                                                superCelltimewidth = cms.double(400), # in nanoseconds
                                                superCellspacewidth = cms.int32(20), # in number of cells: IT MUST BE AN EVEN NUMBER
+                                               print_prims = cms.untracked.bool(False),
+                                               file_to_print = cms.untracked.string("debug.txt"),
+                                               print_digis = cms.untracked.bool(False),
+                                               digi_file_to_print = cms.untracked.string("digis_debug.txt"),
                                                )
 
 dtTriggerPhase2PrimitiveDigis.HoughGrouping      = HoughGrouping

@@ -27,7 +27,8 @@
 #include "L1Trigger/DTTriggerPhase2/interface/HoughGrouping.h"
 #include "L1Trigger/DTTriggerPhase2/interface/PseudoBayesGrouping.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzer.h"
-#include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerPerSL.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyticAnalyzer.h"
+//#include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerPerSL.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerInChamber.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAssociator.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
@@ -114,6 +115,10 @@ private:
   double dT0_correlate_TP_;
   bool do_correlation_;
   int scenario_;
+  bool print_prims_;
+  std::string file_to_print_;
+  bool print_digis_;
+  std::string digi_file_to_print_;
 
   // shift
   edm::FileInPath shift_filename_;
@@ -164,7 +169,21 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
 
   debug_ = pset.getUntrackedParameter<bool>("debug");
   dump_ = pset.getUntrackedParameter<bool>("dump");
-
+  
+  //shift
+  int rawId;
+  shift_filename_ = pset.getParameter<edm::FileInPath>("shift_filename");
+  std::ifstream ifin3(shift_filename_.fullPath());
+  double shift;
+  if (ifin3.fail()) {
+    throw cms::Exception("Missing Input File")
+        << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << shift_filename_.fullPath();
+  }
+  while (ifin3.good()) {
+    ifin3 >> rawId >> shift;
+    shiftinfo_[rawId] = shift;
+  }
+  
   do_correlation_ = pset.getParameter<bool>("do_correlation");
   scenario_ = pset.getParameter<int>("scenario");
 
@@ -175,6 +194,11 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
 
   // Choosing grouping scheme:
   algo_ = pset.getParameter<int>("algo");
+  
+  print_prims_ = pset.getUntrackedParameter<bool>("print_prims", true);
+  file_to_print_ = pset.getUntrackedParameter<std::string>("file_to_print", "debug.txt");
+  print_digis_ = pset.getUntrackedParameter<bool>("print_digis", true);
+  digi_file_to_print_ = pset.getUntrackedParameter<std::string>("digi_file_to_print", "digis.txt");
 
   edm::ConsumesCollector consumesColl(consumesCollector());
 
@@ -191,7 +215,8 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   if (algo_ == Standard) {
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "DTp2:constructor: JM analyzer";
-    mpathanalyzer_ = std::make_unique<MuonPathAnalyzerPerSL>(pset, consumesColl);
+    mpathanalyzer_ = std::make_unique<MuonPathAnalyticAnalyzer>(pset, consumesColl);
+    // mpathanalyzer_ = std::make_unique<MuonPathAnalyzerPerSL>(pset, consumesColl);
   } else {
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "DTp2:constructor: Full chamber analyzer";
@@ -293,7 +318,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       std::queue<std::pair<DTLayerId, DTDigi>> timequeue;
 
       for (const auto& elem : tmpvec)
-        timequeue.emplace(elem);
+        timequeue.emplace(std::move(elem));
       tmpvec.clear();
 
       // Distribute the digis from the queue into supercells
@@ -489,6 +514,50 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 
   /// STORING RESULTs
   vector<L1Phase2MuDTPhDigi> outP2Ph;
+
+  if (print_digis_) {
+    std::ofstream f;
+    f.open(digi_file_to_print_,std::fstream::app);
+    for (DTDigiCollection::DigiRangeIterator dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){ 
+      const DTLayerId& thisLayerId = (*dtLayerId_It).first;
+      const DTChamberId chId = thisLayerId.chamberId();
+      DTWireId wireId1(chId,1,2,1);
+      DTWireId wireId3(chId,3,2,1);
+      Int_t superLayer = thisLayerId.superlayerId().superLayer();
+      if (superLayer == 2) continue;
+      Int_t layer = thisLayerId.layer();
+      float shift = shiftinfo_[wireId3.rawId()] - shiftinfo_[wireId1.rawId()];
+      for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;digiIt!=((*dtLayerId_It).second).second; ++digiIt) {
+        Int_t wire     = (*digiIt).wire() - 1;
+        Int_t digiTIME = (*digiIt).time();
+        f << chId.wheel() << " " << chId.sector() << " " << chId.station() << " " << shift << " "
+          << superLayer-1 << " " << layer-1 << " " << wire << " " << digiTIME << endl;
+      }
+    }
+    f << -1 << endl;
+    f.close();
+  }
+
+  if (print_prims_){ 
+    std::ofstream f;
+    f.open(file_to_print_,std::fstream::app);
+    for (auto metaPrimitiveIt = correlatedMetaPrimitives.begin(); metaPrimitiveIt != correlatedMetaPrimitives.end(); ++metaPrimitiveIt){
+
+      DTChamberId chId((metaPrimitiveIt)->rawId);
+      DTWireId wireId1(chId,1,2,1);
+      DTWireId wireId3(chId,3,2,1);
+
+      int sl=0;
+      if((*metaPrimitiveIt).quality < 6 || (*metaPrimitiveIt).quality == 7){
+        if(inner((*metaPrimitiveIt))) sl=1;
+        else sl=3;
+      }
+      f << std::fixed << std::setprecision(8) << (*metaPrimitiveIt).quality << " " << (*metaPrimitiveIt).x << " " << (*metaPrimitiveIt).tanPhi << " " << (int) (*metaPrimitiveIt).t0 << " " << (*metaPrimitiveIt).phi << " " << (*metaPrimitiveIt).phiB << " "<< (*metaPrimitiveIt).chi2  << " "  << shiftinfo_[wireId1.rawId()] <<" " <<  wireId1.wheel() << " " << wireId1.sector() << " " << wireId1.station() << " " << sl << " " << (*metaPrimitiveIt).wi1<< " " << (*metaPrimitiveIt).wi2<< " " << (*metaPrimitiveIt).wi3<< " " << (*metaPrimitiveIt).wi4<< " " << (*metaPrimitiveIt).wi5<< " " << (*metaPrimitiveIt).wi6<< " " << (*metaPrimitiveIt).wi7<< " " << (*metaPrimitiveIt).wi8<< " " << (*metaPrimitiveIt).tdc1<< " " << (*metaPrimitiveIt).tdc2<< " " << (*metaPrimitiveIt).tdc3<< " " << (*metaPrimitiveIt).tdc4<< " " << (*metaPrimitiveIt).tdc5<< " " << (*metaPrimitiveIt).tdc6<< " " << (*metaPrimitiveIt).tdc7<< " " << (*metaPrimitiveIt).tdc8<< " " << (*metaPrimitiveIt).lat1<< " " << (*metaPrimitiveIt).lat2<< " " << (*metaPrimitiveIt).lat3<< " " << (*metaPrimitiveIt).lat4<< " " << (*metaPrimitiveIt).lat5<< " " << (*metaPrimitiveIt).lat6<< " " << (*metaPrimitiveIt).lat7<< " " << (*metaPrimitiveIt).lat8  << endl;
+    }
+    f << -1 << endl;
+    f.close(); 
+  }
+
 
   // Assigning index value
   assignIndex(correlatedMetaPrimitives);
