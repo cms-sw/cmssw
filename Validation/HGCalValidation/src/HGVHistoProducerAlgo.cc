@@ -2234,8 +2234,6 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(
     const hgcal::RecoToSimCollectionWithMultiClusters& cpsInMClusterMap,
     const hgcal::SimToRecoCollectionWithMultiClusters& cPOnMLayerMap) const {
   auto nMultiClusters = multiClusters.size();
-  //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
-  auto nCaloParticles = cPIndices.size();
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInMultiCluster>> detIdToMultiClusterId_Map;
   std::vector<int> tracksters_fakemerge(nMultiClusters, 0);
@@ -2284,22 +2282,6 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(
     }
   }  // end of loop through multiClusters
 
-  std::unordered_map<int, std::vector<float>> score3d;
-  std::unordered_map<int, std::vector<float>> mclsharedenergy;
-  std::unordered_map<int, std::vector<float>> mclsharedenergyfrac;
-
-  for (unsigned int i = 0; i < nCaloParticles; ++i) {
-    auto cpIndex = cPIndices[i];
-    score3d[cpIndex].resize(nMultiClusters);
-    mclsharedenergy[cpIndex].resize(nMultiClusters);
-    mclsharedenergyfrac[cpIndex].resize(nMultiClusters);
-    for (unsigned int j = 0; j < nMultiClusters; ++j) {
-      score3d[cpIndex][j] = FLT_MAX;
-      mclsharedenergy[cpIndex][j] = 0.f;
-      mclsharedenergyfrac[cpIndex][j] = 0.f;
-    }
-  }
-
   // Here we do fill the plots to compute the different metrics linked to
   // gen-level, namely efficiency an duplicate. In this loop we should restrict
   // only to the selected caloParaticles.
@@ -2336,30 +2318,32 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(
       continue;
     const auto& mlcs = mlcsIt->val;
     for (const auto& mlcPair : mlcs) {
-      auto score3d = mlcPair.second.second / invCPEnergyWeight;
-      auto mclsharedenergyfrac = mlcPair.second.first / CPenergy;
+      auto mclId = mlcPair.first.index();
+      auto score = mlcPair.second.second / invCPEnergyWeight;
+      auto shEnergy = mlcPair.second.first;
+      auto shEnergyFrac = mlcPair.second.first / CPenergy;
 
-      LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t MCL id: \t" << mlcPair.first << "\t score \t"  //
-                                 << score3d << "\t"
-                                 << "invCPEnergyWeight \t" << invCPEnergyWeight << "\t"
-                                 << "shared energy:\t" << mlcPair.second.first << "\t"
-                                 << "shared energy fraction:\t" << mclsharedenergyfrac << "\n";
+      LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t MCL id: \t" << mclId
+                                 << "\t score \t" << score
+                                 << "\tinvCPEnergyWeight \t" << invCPEnergyWeight
+                                 << "\tshared energy:\t" << shEnergy
+                                 << "\tshared energy fraction:\t" << shEnergyFrac << "\n";
 
-      histograms.h_score_caloparticle2multicl[count]->Fill(score3d);
+      histograms.h_score_caloparticle2multicl[count]->Fill(score);
 
-      histograms.h_sharedenergy_caloparticle2multicl[count]->Fill(mclsharedenergyfrac);
-      histograms.h_energy_vs_score_caloparticle2multicl[count]->Fill(score3d, mclsharedenergyfrac);
+      histograms.h_sharedenergy_caloparticle2multicl[count]->Fill(shEnergyFrac);
+      histograms.h_energy_vs_score_caloparticle2multicl[count]->Fill(score, shEnergyFrac);
     }  //end of loop through multiClusters
 
-    auto is_assoc = [&](const auto& v) -> bool { return v < ScoreCutCPtoMCLDup_; };
+    auto is_assoc = [&](const auto& v) -> bool { return v.second.second / invCPEnergyWeight < ScoreCutCPtoMCLDup_; };
 
-    auto assocDup = std::count_if(std::begin(score3d[cpId]), std::end(score3d[cpId]), is_assoc);
+    auto assocDup = std::count_if(std::begin(mlcs), std::end(mlcs), is_assoc);
 
     if (assocDup > 0) {
       histograms.h_num_caloparticle_eta[count]->Fill(cP[cpId].g4Tracks()[0].momentum().eta());
       histograms.h_num_caloparticle_phi[count]->Fill(cP[cpId].g4Tracks()[0].momentum().phi());
-      auto best = std::min_element(std::begin(score3d[cpId]), std::end(score3d[cpId]));
-      auto bestmclId = std::distance(std::begin(score3d[cpId]), best);
+      auto best = std::min_element(std::begin(mlcs), std::end(mlcs), [](const auto& obj1, const auto& obj2) { return obj1.second.second < obj2.second.second; });
+      auto bestmclId = std::distance(std::begin(mlcs), best);
 
       histograms.h_sharedenergy_caloparticle2multicl_vs_eta[count]->Fill(cP[cpId].g4Tracks()[0].momentum().eta(),
                                                                          multiClusters[bestmclId].energy() / CPenergy);
@@ -2367,10 +2351,10 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(
                                                                          multiClusters[bestmclId].energy() / CPenergy);
     }
     if (assocDup >= 2) {
-      auto match = std::find_if(std::begin(score3d[cpId]), std::end(score3d[cpId]), is_assoc);
-      while (match != score3d[cpId].end()) {
-        tracksters_duplicate[std::distance(std::begin(score3d[cpId]), match)] = 1;
-        match = std::find_if(std::next(match), std::end(score3d[cpId]), is_assoc);
+      auto match = std::find_if(std::begin(mlcs), std::end(mlcs), is_assoc);
+      while (match != mlcs.end()) {
+        tracksters_duplicate[std::distance(std::begin(mlcs), match)] = 1;
+        match = std::find_if(std::next(match), std::end(mlcs), is_assoc);
       }
     }
     histograms.h_denom_caloparticle_eta[count]->Fill(cP[cpId].g4Tracks()[0].momentum().eta());
