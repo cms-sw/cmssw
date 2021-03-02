@@ -11,8 +11,6 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include <vector>
 
-#include <ext/hash_map>
-
 class SiStripBadModuleByHandBuilder : public ConditionDBWriter<SiStripBadStrip> {
 public:
   explicit SiStripBadModuleByHandBuilder(const edm::ParameterSet&);

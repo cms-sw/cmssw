@@ -11,8 +11,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <vector>
 
-#include <ext/hash_map>
-
 class SiStripBadFiberBuilder : public ConditionDBWriter<SiStripBadStrip> {
 public:
   explicit SiStripBadFiberBuilder(const edm::ParameterSet&);

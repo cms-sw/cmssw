@@ -25,9 +25,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include <boost/algorithm/string.hpp>
-#include <ext/hash_map>
-
 // user include files
 
 //
