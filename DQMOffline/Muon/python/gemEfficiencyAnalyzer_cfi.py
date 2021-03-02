@@ -44,12 +44,12 @@ from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
 phase2_GEM.toModify(
     gemEfficiencyAnalyzerTightGlb,
     etaNbins=cms.untracked.int32(15),
-    etaHigh=cms.untracked.double(3.0))
+    etaUp=cms.untracked.double(3.0))
 
 phase2_GEM.toModify(
     gemEfficiencyAnalyzerSta,
     etaNbins=cms.untracked.int32(15),
-    etaHigh=cms.untracked.double(3.0))
+    etaUp=cms.untracked.double(3.0))
 
 gemEfficiencyAnalyzerTightGlbSeq = cms.Sequence(
     cms.ignore(gemOfflineDQMTightGlbMuons) *
