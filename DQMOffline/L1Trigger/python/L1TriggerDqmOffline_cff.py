@@ -159,7 +159,8 @@ l1TriggerEmulatorOffline = cms.Sequence(
 # DQM Offline Step 1 sequence
 l1TriggerDqmOffline = cms.Sequence(
                                 l1TriggerOffline
-                                * l1tRate_Offline
+                                #* l1tRate_Offline #Disabled for the moment as agreed on 
+                                # https://github.com/cms-sw/cmssw/issues/25090#issuecomment-789016559
                                 * l1tSync_Offline
                                 * l1TriggerEmulatorOffline
                                 )
