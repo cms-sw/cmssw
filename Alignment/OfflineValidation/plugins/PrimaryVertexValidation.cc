@@ -3746,6 +3746,7 @@ void PrimaryVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& d
       psd1.add<double>("coolingFactor", 0.6);
       psd1.add<double>("vertexSize", 0.006);
       psd1.add<double>("uniquetrkweight", 0.8);
+      psd1.add<double>("uniquetrkminp", 0.0);
       psd1.add<double>("zrange", 4.0);
       psd1.add<double>("tmerge", 0.01);           // 4D only
       psd1.add<double>("dtCutOff", 4.);           // 4D only
