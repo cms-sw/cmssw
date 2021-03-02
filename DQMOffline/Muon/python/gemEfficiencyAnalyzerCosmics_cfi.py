@@ -20,8 +20,8 @@ gemEfficiencyAnalyzerCosmicsOneLeg = _gemEfficiencyAnalyzerCosmicsDefault.clone(
 from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
 phase2_GEM.toModify(gemEfficiencyAnalyzerCosmics,
     etaNbins=cms.untracked.int32(15),
-    etaHigh=cms.untracked.double(3.0))
+    etaUp=cms.untracked.double(3.0))
 
 phase2_GEM.toModify(gemEfficiencyAnalyzerCosmicsOneLeg,
     etaNbins=cms.untracked.int32(15),
-    etaHigh=cms.untracked.double(3.0))
+    etaUp=cms.untracked.double(3.0))
