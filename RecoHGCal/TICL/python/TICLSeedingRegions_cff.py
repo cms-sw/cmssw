@@ -5,13 +5,13 @@ from RecoHGCal.TICL.ticlSeedingRegionProducer_cfi import ticlSeedingRegionProduc
 # SEEDING REGION
 
 ticlSeedingGlobal = _ticlSeedingRegionProducer.clone(
-  algoId = 2
+  seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(type=cms.string("SeedingRegionGlobal"))
 )
 
 ticlSeedingTrk = _ticlSeedingRegionProducer.clone(
-  algoId = 1
+  seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(type=cms.string("SeedingRegionByTracks"))
 )
 
 ticlSeedingGlobalHFNose = _ticlSeedingRegionProducer.clone(
-  algoId = 2
+  seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(type=cms.string("SeedingRegionGlobal"))
 )
