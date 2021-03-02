@@ -97,7 +97,6 @@ constexpr int MuonPathAnalyticAnalyzer::LAYER_ARRANGEMENTS_[NUM_LAYERS][NUM_CELL
 void MuonPathAnalyticAnalyzer::analyze(MuonPathPtr &inMPath, std::vector<metaPrimitive> &metaPrimitives) {
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "DTp2:analyze \t\t\t\t starts";
-  std::cout << "I swear I'm running this shit" << std::endl;
   // LOCATE MPATH
   int selected_Id = 0;
   if (inMPath->primitive(0)->tdcTimeStamp() != -1)
@@ -260,8 +259,8 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
     chi2_mm2_p += res * res * 4;
   }
   
-  int quality = 4;
-  if (!is_four_hit) quality = 2;
+  int quality = 3;
+  if (!is_four_hit) quality = 1;
   
   // Obtain coordinate values in floating point
   double pos_f, slope_f, chi2_f;
