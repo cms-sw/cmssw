@@ -1,14 +1,18 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("L1DTTrigPhase2Prod")
+process = cms.Process("L1DTTrigPhase2Prod", eras.Phase2C9)
 
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-process.GlobalTag.globaltag = "80X_dataRun2_2016SeptRepro_v7"
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag.globaltag = "80X_dataRun2_2016SeptRepro_v7"
 
 process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
@@ -16,7 +20,7 @@ process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 #process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring('file:/eos/cms/store/user/folguera/P2L1TUpgrade/digis_segments_Run2016BSingleMuonRAW-RECO_camilo.root'))
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:/eos/cms/store/user/folguera/P2L1TUpgrade/digis_segments_Run2016BSingleMuonRAW-RECO_camilo.root'))
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.dtTriggerPhase2PrimitiveDigis.dump = True
 process.dtTriggerPhase2PrimitiveDigis.debug = False
 process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
@@ -25,14 +29,14 @@ process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 process.dtTriggerPhase2PrimitiveDigis.scenario = 1
 process.CalibratedDigis.scenario = 1
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger = cms.Service("MessageLogger",
-        destinations = cms.untracked.vstring("detailedInfo"),
-        detailedInfo = cms.untracked.PSet(threshold = cms.untracked.string("INFO"),
-        categories = cms.untracked.vstring("DTTrigPhase2Prod"),
-        extension = cms.untracked.string(".txt")),
-        debugModules = cms.untracked.vstring("dtTriggerPhase2PrimitiveDigis"),
-)
+#process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#process.MessageLogger = cms.Service("MessageLogger",
+#        destinations = cms.untracked.vstring("detailedInfo"),
+#        detailedInfo = cms.untracked.PSet(threshold = cms.untracked.string("INFO"),
+#        categories = cms.untracked.vstring("DTTrigPhase2Prod"),
+#        extension = cms.untracked.string(".txt")),
+#        debugModules = cms.untracked.vstring("dtTriggerPhase2PrimitiveDigis"),
+#)
 
 ####################### SliceTest specials ##############################
 #Chi2 -> Changing a lot lately

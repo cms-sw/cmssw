@@ -359,7 +359,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             int lat = -1;
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
-              // const DTSuperLayerId &dtSLId(dtLId);
+              // creating a new DTSuperLayerId object to compare with the required SL id
               const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), 3);
               if (dtSLId.rawId() != sl3Id.rawId())
                 continue;
@@ -375,8 +375,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
               double x_inSL3 = SL1metaPrimitive->x - SL1metaPrimitive->tanPhi * (23.5 + l_shift);
               for (auto digiIt = (dtLayerId_It.second).first; digiIt != (dtLayerId_It.second).second; ++digiIt) {
                 DTWireId wireId(dtLId, (*digiIt).wire());
-                int x_wire = shiftinfo_[wireId.rawId()] + ((*digiIt).time() - SL1metaPrimitive->t0) * 0.00543;
-                int x_wire_left = shiftinfo_[wireId.rawId()] - ((*digiIt).time() - SL1metaPrimitive->t0) * 0.00543;
+                int x_wire = shiftinfo_[wireId.rawId()] + ((*digiIt).time() - SL1metaPrimitive->t0) * DRIFT_SPEED / 10;
+                int x_wire_left = shiftinfo_[wireId.rawId()] - ((*digiIt).time() - SL1metaPrimitive->t0) * DRIFT_SPEED / 10;
                 lat = 1;
                 if (std::abs(x_inSL3 - x_wire) > std::abs(x_inSL3 - x_wire_left)) {
                   x_wire = x_wire_left;  //choose the closest laterality
@@ -564,7 +564,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
-              // const DTSuperLayerId &dtSLId(dtLId);
+              // creating a new DTSuperLayerId object to compare with the required SL id
               const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), 1);
               if (dtSLId.rawId() != sl1Id.rawId())
                 continue;
