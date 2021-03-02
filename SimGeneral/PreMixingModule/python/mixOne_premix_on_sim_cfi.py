@@ -207,6 +207,7 @@ from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 phase2_common.toModify(mixData, input = dict(producers = [])) # we use digis directly, no need for raw2digi producers
 
 # Tracker
@@ -303,7 +304,7 @@ phase2_hfnose.toModify(mixData,
 )
 
 # Muon
-phase2_muon.toModify(mixData,
+(phase2_muon & ~phase2_GE0).toModify(mixData,
     workers = dict(
         me0 = cms.PSet(
             workerType = cms.string("PreMixingCrossingFramePSimHitWorker"),
@@ -314,10 +315,3 @@ phase2_muon.toModify(mixData,
     )
 )
 
-# Disable GE0 (as introduced in #31309)
-from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
-phase2_GE0.toModify(mixData,
-    workers = dict(
-        me0 = None,
-    ),
-)
