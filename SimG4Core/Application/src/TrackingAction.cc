@@ -106,7 +106,7 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
     TrackInformation* trkInfo = (TrackInformation*)aTrack->GetUserInformation();
     if (extractor_(aTrack).storeTrack() || currentTrack_->saved() || trkInfo->crossedBoundary()) {
       if (trkInfo->crossedBoundary()) {
-          currentTrack_->setCrossedBoundaryPosMom(id, trkInfo->getPositionAtBoundary(), trkInfo->getMomentumAtBoundary());
+        currentTrack_->setCrossedBoundaryPosMom(id, trkInfo->getPositionAtBoundary(), trkInfo->getMomentumAtBoundary());
       }
       currentTrack_->save();
 
