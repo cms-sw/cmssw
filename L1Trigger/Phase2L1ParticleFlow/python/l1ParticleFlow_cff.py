@@ -313,12 +313,55 @@ l1pfCandidates = cms.EDProducer("L1TPFCandMultiMerger",
     labelsToMerge = cms.vstring("Calo", "TK", "TKVtx", "PF", "Puppi"),
 )
 
+l1tCorrelatorEG = cms.EDProducer(
+    "L1TEGMultiMerger",
+    tkElectrons=cms.VPSet(
+        cms.PSet(
+            instance=cms.string("L1TkEleEE"),
+            pfProducers=cms.VInputTag(
+                cms.InputTag("l1pfProducerHGCal", 'L1TkEle')
+            )
+        ),
+        cms.PSet(
+            instance=cms.string("L1TkEleEB"),
+            pfProducers=cms.VInputTag(
+                cms.InputTag("l1pfProducerBarrel", 'L1TkEle')
+            )
+        )
+    ),
+    tkEms=cms.VPSet(
+        cms.PSet(
+            instance=cms.string("L1TkEmEE"),
+            pfProducers=cms.VInputTag(
+                cms.InputTag("l1pfProducerHGCal", 'L1TkEm'),
+                cms.InputTag("l1pfProducerHGCalNoTK", 'L1TkEm')
+            )
+        ),
+        cms.PSet(
+            instance=cms.string("L1TkEmEB"),
+            pfProducers=cms.VInputTag(
+                cms.InputTag("l1pfProducerBarrel", 'L1TkEm')
+            )
+        )
+    ),
+    tkEgs=cms.VPSet(
+        cms.PSet(
+            instance=cms.string("L1EgEE"),
+            pfProducers=cms.VInputTag(
+                cms.InputTag("l1pfProducerHGCal", 'L1Eg'),
+                cms.InputTag("l1pfProducerHGCalNoTK", 'L1Eg')
+            )
+        )    
+    )
+)
+
 l1ParticleFlow_proper = cms.Sequence(
     l1ParticleFlow_calo +
     l1ParticleFlow_pf_barrel +
     l1ParticleFlow_pf_hgcal +
     l1ParticleFlow_pf_hf +
-    l1pfCandidates
+    l1pfCandidates +
+    l1tCorrelatorEG
 )
 
 l1ParticleFlow = cms.Sequence(l1ParticleFlow_proper)
@@ -328,5 +371,6 @@ l1ParticleFlowTask = cms.Task(
     l1ParticleFlow_pf_barrel_Task,
     l1ParticleFlow_pf_hgcal_Task,
     l1ParticleFlow_pf_hf_Task,
-    cms.Task(l1pfCandidates)
+    cms.Task(l1pfCandidates),
+    cms.Task(l1tCorrelatorEG),
 )

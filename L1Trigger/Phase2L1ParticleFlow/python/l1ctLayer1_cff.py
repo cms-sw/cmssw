@@ -304,3 +304,45 @@ l1ctLayer1 = cms.EDProducer("L1TPFCandMultiMerger",
     ),
     labelsToMerge = cms.vstring("PF", "Puppi"),
 )
+
+l1ctLayer1EG = cms.EDProducer(
+    "L1TEGMultiMerger",
+    tkElectrons=cms.VPSet(
+        cms.PSet(
+            instance=cms.string("L1TkEleEE"),
+            pfProducers=cms.VInputTag(
+                cms.InputTag("l1ctLayer1HGCal", 'L1TkEle')
+            )
+        ),
+        cms.PSet(
+            instance=cms.string("L1TkEleEB"),
+            pfProducers=cms.VInputTag(
+                cms.InputTag("l1ctLayer1Barrel", 'L1TkEle')
+            )
+        )
+    ),
+    tkEms=cms.VPSet(
+        cms.PSet(
+            instance=cms.string("L1TkEmEE"),
+            pfProducers=cms.VInputTag(
+                cms.InputTag("l1ctLayer1HGCal", 'L1TkEm'),
+                cms.InputTag("l1ctLayer1HGCalNoTK", 'L1TkEm')
+            )
+        ),
+        cms.PSet(
+            instance=cms.string("L1TkEmEB"),
+            pfProducers=cms.VInputTag(
+                cms.InputTag("l1ctLayer1Barrel", 'L1TkEm')
+            )
+        )
+    ),
+    tkEgs=cms.VPSet(
+        cms.PSet(
+            instance=cms.string("L1EgEE"),
+            pfProducers=cms.VInputTag(
+                cms.InputTag("l1ctLayer1HGCal", 'L1Eg'),
+                cms.InputTag("l1ctLayer1HGCalNoTK", 'L1Eg')
+            )
+        )    
+    )
+)
