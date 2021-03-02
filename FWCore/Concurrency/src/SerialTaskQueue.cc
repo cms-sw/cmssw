@@ -12,6 +12,8 @@
 //
 
 // system include files
+#define TBB_PREVIEW_RESUMABLE_TASKS 1
+#include "tbb/task.h"
 
 // user include files
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
@@ -29,14 +31,11 @@ SerialTaskQueue::~SerialTaskQueue() {
   bool isTaskChosen = m_taskChosen;
   if ((not isEmpty and not isPaused()) or isTaskChosen) {
     tbb::task_group g;
-    std::atomic<bool> done = false;
-    push(g, [&done]() {
-      done = true;
-      return;
-    });
-    do {
-      g.wait();
-    } while (not done.load());
+    g.run([&g, this]() {
+      tbb::task::suspend(
+          [&g, this](tbb::task::suspend_point tag) { push(g, [tag]() { tbb::task::resume(tag); }); });  //suspend
+    });                                                                                                 //group run
+    g.wait();
   }
 }
 
