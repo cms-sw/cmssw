@@ -1,6 +1,6 @@
 /*!
   \file SiPixel2DTemplateDBObject_PayloadInspector
-  \Payload Inspector Plugin for SiPixelTemplateDBObject
+  \Payload Inspector Plugin for SiPixel2DTemplateDBObject
   \author M. Musich
   \version $Revision: 1.0 $
   \date $Date: 2020/04/16 18:00:00 $

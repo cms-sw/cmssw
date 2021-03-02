@@ -63,6 +63,9 @@ namespace {
         : PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV>("SiPixelFEDChannelContainer scenarios count"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
+      // for inputs
+      PlotBase::addInputParam("Scenarios");
+
       // hardcoded connection to the MC cabling tag, though luck
       m_condDbCabling = "frontier://FrontierProd/CMS_CONDITIONS";
       m_CablingTagName = "SiPixelFedCablingMap_phase1_v7";
@@ -72,6 +75,26 @@ namespace {
     }
 
     bool fill() override {
+      std::vector<std::string> the_scenarios = {};
+
+      auto paramValues = PlotBase::inputParamValues();
+      auto ip = paramValues.find("Scenarios");
+      if (ip != paramValues.end()) {
+        auto input = boost::lexical_cast<std::string>(ip->second);
+        typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+        boost::char_separator<char> sep{","};
+        tokenizer tok{input, sep};
+        for (const auto& t : tok) {
+          the_scenarios.push_back(t);
+        }
+      } else {
+        edm::LogWarning("SiPixelFEDChannelContainerTest")
+            << "\n WARNING!!!! \n The needed parameter Scenarios has not been passed. Will use all the scenarios in "
+               "the file!"
+            << "\n Buckle your seatbelts... this might take a while... \n\n";
+        the_scenarios.push_back("all");
+      }
+
       static const int n_layers = 4;
       int nlad_list[n_layers] = {6, 14, 22, 32};
       int divide_roc = 1;
@@ -112,7 +135,7 @@ namespace {
       const auto MAX_VAL = cond::timeTypeSpecs[cond::runnumber].endValue;
 
       // get the list of payloads for the Cabling Map
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > m_cabling_iovs;
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> m_cabling_iovs;
       condDbSession.readIov(m_CablingTagName).selectRange(MIN_VAL, MAX_VAL, m_cabling_iovs);
 
       std::vector<unsigned int> listOfCablingIOVs;
@@ -151,13 +174,19 @@ namespace {
       for (const auto& scenario : scenarioMap) {
         std::string scenName = scenario.first;
 
+        if (std::find_if(the_scenarios.begin(), the_scenarios.end(), compareKeys(scenName)) != the_scenarios.end()) {
+          edm::LogPrint("SiPixelFEDChannelContainerTest") << "Found Scenario: " << scenName << " ==> dumping it\n";
+        } else {
+          continue;
+        }
+
         //if (strcmp(scenName.c_str(),"320824_103") != 0) continue;
 
         const auto& theDetSetBadPixelFedChannels = payload->getDetSetBadPixelFedChannels(scenName);
         for (const auto& disabledChannels : *theDetSetBadPixelFedChannels) {
           const auto t_detid = disabledChannels.detId();
           int subid = DetId(t_detid).subdetId();
-          // std::cout << fmt::sprintf("DetId : %i \n", t_detid) << std::endl;
+          LogDebug("SiPixelFEDChannelContainerTest") << fmt::sprintf("DetId : %i \n", t_detid) << std::endl;
 
           std::bitset<16> badRocsFromFEDChannels;
 
@@ -168,7 +197,7 @@ namespace {
                                               ch.roc_first,
                                               ch.roc_last);
 
-            //std::cout << toOut_ << std::endl;
+            LogDebug("SiPixelFEDChannelContainerTest") << toOut_ << std::endl;
             const std::vector<sipixelobjects::CablingPathToDetUnit>& path =
                 theCablingMap->pathToDetUnit(disabledChannels.detId());
             for (unsigned int i_roc = ch.roc_first; i_roc <= ch.roc_last; ++i_roc) {
@@ -181,40 +210,43 @@ namespace {
 
                   pIndexConverter.transformToROC(global.col, global.row, chipIndex, colROC, rowROC);
 
-                  //std::cout<<" => i_roc:" << i_roc << "  " << global.col << "-" << global.row << " | => " << chipIndex << " : (" << colROC << "," << rowROC << ")" << std::endl;
+                  LogDebug("SiPixelFEDChannelContainerTest")
+                      << " => i_roc:" << i_roc << "  " << global.col << "-" << global.row << " | => " << chipIndex
+                      << " : (" << colROC << "," << rowROC << ")" << std::endl;
 
                   badRocsFromFEDChannels[chipIndex] = true;
                 }
               }
             }
-
-            //std::cout << badRocsFromFEDChannels << std::endl;
-
-            if (subid == PixelSubdetector::PixelBarrel) {
-              auto layer = m_trackerTopo.pxbLayer(DetId(t_detid));
-              auto s_ladder = SiPixelPI::signed_ladder(DetId(t_detid), m_trackerTopo, true);
-              auto s_module = SiPixelPI::signed_module(DetId(t_detid), m_trackerTopo, true);
-
-              bool isFlipped = SiPixelPI::isBPixOuterLadder(DetId(t_detid), m_trackerTopo, false);
-              if ((layer > 1 && s_module < 0))
-                isFlipped = !isFlipped;
-
-              auto ladder = m_trackerTopo.pxbLadder(DetId(t_detid));
-              auto module = m_trackerTopo.pxbModule(DetId(t_detid));
-              //COUT << "layer:" << layer << " ladder:" << ladder << " module:" << module << " signed ladder: " << s_ladder
-              //   << " signed module: " << s_module << std::endl;
-
-              auto rocsToMask =
-                  SiPixelPI::maskedBarrelRocsToBins(layer, s_ladder, s_module, badRocsFromFEDChannels, isFlipped);
-              for (const auto& bin : rocsToMask) {
-                double x = h_bpix_occ[layer - 1]->GetXaxis()->GetBinCenter(std::get<0>(bin));
-                double y = h_bpix_occ[layer - 1]->GetYaxis()->GetBinCenter(std::get<1>(bin));
-                h_bpix_occ[layer - 1]->Fill(x, y, 1);
-              }
-            }
           }
-        }
-      }
+
+          LogDebug("SiPixelFEDChannelContainerTest") << badRocsFromFEDChannels << std::endl;
+
+          if (subid == PixelSubdetector::PixelBarrel) {
+            auto layer = m_trackerTopo.pxbLayer(DetId(t_detid));
+            auto s_ladder = SiPixelPI::signed_ladder(DetId(t_detid), m_trackerTopo, true);
+            auto s_module = SiPixelPI::signed_module(DetId(t_detid), m_trackerTopo, true);
+
+            bool isFlipped = SiPixelPI::isBPixOuterLadder(DetId(t_detid), m_trackerTopo, false);
+            if ((layer > 1 && s_module < 0))
+              isFlipped = !isFlipped;
+
+            auto ladder = m_trackerTopo.pxbLadder(DetId(t_detid));
+            auto module = m_trackerTopo.pxbModule(DetId(t_detid));
+            LogDebug("SiPixelFEDChannelContainerTest")
+                << "layer:" << layer << " ladder:" << ladder << " module:" << module << " signed ladder: " << s_ladder
+                << " signed module: " << s_module << std::endl;
+
+            auto rocsToMask =
+                SiPixelPI::maskedBarrelRocsToBins(layer, s_ladder, s_module, badRocsFromFEDChannels, isFlipped);
+            for (const auto& bin : rocsToMask) {
+              double x = h_bpix_occ[layer - 1]->GetXaxis()->GetBinCenter(std::get<0>(bin));
+              double y = h_bpix_occ[layer - 1]->GetYaxis()->GetBinCenter(std::get<1>(bin));
+              h_bpix_occ[layer - 1]->Fill(x, y, 1);
+            }
+          }  // if it's barrel
+        }    // loop on the channels
+      }      // loop on the scenarios
 
       gStyle->SetOptStat(0);
       //=========================
@@ -263,6 +295,14 @@ namespace {
       auto const it = std::upper_bound(vec.begin(), vec.end(), value);
       return vec.at(it - vec.begin() - 1);
     }
+
+    // auxilliary check
+    struct compareKeys {
+      std::string key;
+      compareKeys(std::string const& i) : key(i) {}
+
+      bool operator()(std::string const& i) { return (key == i); }
+    };
 
   private:
     TrackerTopology m_trackerTopo;
