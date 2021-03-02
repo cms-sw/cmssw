@@ -295,7 +295,7 @@ hpsPFTauDiscriminationByMVA6ElectronRejection = recoTauDiscriminantCutMultiplexe
 )
 
 # Define the HPS selection discriminator used in cleaning
-hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
+hpsSelectionDiscriminator.PFTauProducer = "combinatoricRecoTaus"
 #----------------------------------------------------------------------------
 # CV: disable 3Prong1Pi0 decay mode
 hpsSelectionDiscriminator.decayModes = cms.VPSet(
