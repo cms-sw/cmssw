@@ -62,6 +62,10 @@ class MCMultiParticleFilter : public edm::EDFilter {
   std::vector<double> ptMin_;      // minimum Pt of particles
   std::vector<double> etaMax_;     // maximum fabs(eta) of particles
   std::vector<int> status_;        // status of particles
+  std::vector<double> decayRadiusMin;
+  std::vector<double> decayRadiusMax;
+  std::vector<double> decayZMin;
+  std::vector<double> decayZMax;
   int totalEvents_;                // counters
   int passedEvents_;
 };
