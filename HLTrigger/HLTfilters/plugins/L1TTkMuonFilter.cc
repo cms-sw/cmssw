@@ -28,18 +28,6 @@
 //
 
 namespace {
-  bool passMuQual(const l1t::TkMuon& muon) {
-    if (muon.muonDetector() == 3) {
-      int quality = muon.quality();
-      if (quality == 11 || quality == 13 || quality == 14 || quality == 15) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return true;
-    }
-  }
   bool isDupMuon(const l1t::TkMuonRef& muon, const std::vector<l1t::TkMuonRef>& existing) {
     for (const auto& exist : existing) {
       //it is our understanding that there is an exact eta phi match
@@ -55,17 +43,18 @@ namespace {
 L1TTkMuonFilter::L1TTkMuonFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       l1TkMuonTag_(iConfig.getParameter<edm::InputTag>("inputTag")),
-      tkMuonToken_(consumes<TkMuonCollection>(l1TkMuonTag_)) {
+      tkMuonToken_(consumes<TkMuonCollection>(l1TkMuonTag_)),
+      qualityCut_(iConfig.getParameter<edm::ParameterSet>("qualities")) {
   min_Pt_ = iConfig.getParameter<double>("MinPt");
   min_N_ = iConfig.getParameter<int>("MinN");
   min_Eta_ = iConfig.getParameter<double>("MinEta");
   max_Eta_ = iConfig.getParameter<double>("MaxEta");
   applyQuality_ = iConfig.getParameter<bool>("applyQuality");
-  doDupRemoval_ = iConfig.getParameter<bool>("doDupRemoval");
+  applyDuplicateRemoval_ = iConfig.getParameter<bool>("applyDuplicateRemoval");
   scalings_ = iConfig.getParameter<edm::ParameterSet>("Scalings");
-  barrelScalings_ = scalings_.getParameter<std::vector<double> >("barrel");
-  overlapScalings_ = scalings_.getParameter<std::vector<double> >("overlap");
-  endcapScalings_ = scalings_.getParameter<std::vector<double> >("endcap");
+  barrelScalings_ = scalings_.getParameter<std::vector<double>>("barrel");
+  overlapScalings_ = scalings_.getParameter<std::vector<double>>("overlap");
+  endcapScalings_ = scalings_.getParameter<std::vector<double>>("endcap");
 }
 
 L1TTkMuonFilter::~L1TTkMuonFilter() = default;
@@ -83,12 +72,13 @@ void L1TTkMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<int>("MinN", 1);
   desc.add<edm::InputTag>("inputTag", edm::InputTag("L1TkMuons"));
   desc.add<bool>("applyQuality", true);
-  desc.add<bool>("doDupRemoval", true);
+  desc.add<bool>("applyDuplicateRemoval", true);
+  desc.add<edm::ParameterSetDescription>("qualities", MuonQualityCut::makePSetDescription());
 
   edm::ParameterSetDescription descScalings;
-  descScalings.add<std::vector<double> >("barrel", {0.0, 1.0, 0.0});
-  descScalings.add<std::vector<double> >("overlap", {0.0, 1.0, 0.0});
-  descScalings.add<std::vector<double> >("endcap", {0.0, 1.0, 0.0});
+  descScalings.add<std::vector<double>>("barrel", {0.0, 1.0, 0.0});
+  descScalings.add<std::vector<double>>("overlap", {0.0, 1.0, 0.0});
+  descScalings.add<std::vector<double>>("endcap", {0.0, 1.0, 0.0});
   desc.add<edm::ParameterSetDescription>("Scalings", descScalings);
 
   descriptions.add("L1TTkMuonFilter", desc);
@@ -126,10 +116,10 @@ bool L1TTkMuonFilter::hltFilter(edm::Event& iEvent,
   TkMuonCollection::const_iterator itkMuon;
   for (itkMuon = atrkmuons; itkMuon != otrkmuons; itkMuon++) {
     double offlinePt = this->TkMuonOfflineEt(itkMuon->pt(), itkMuon->eta());
-    bool passesQual = !applyQuality_ || passMuQual(*itkMuon);
+    bool passesQual = !applyQuality_ || qualityCut_(*itkMuon);
     if (passesQual && offlinePt >= min_Pt_ && itkMuon->eta() <= max_Eta_ && itkMuon->eta() >= min_Eta_) {
       l1t::TkMuonRef ref(l1t::TkMuonRef(tkMuons, distance(atrkmuons, itkMuon)));
-      if (!doDupRemoval_ || !isDupMuon(ref, passingMuons)) {
+      if (!applyDuplicateRemoval_ || !isDupMuon(ref, passingMuons)) {
         passingMuons.push_back(ref);
       }
     }
@@ -141,6 +131,45 @@ bool L1TTkMuonFilter::hltFilter(edm::Event& iEvent,
   // return with final filter decision
   const bool accept(static_cast<int>(passingMuons.size()) >= min_N_);
   return accept;
+}
+
+L1TTkMuonFilter::MuonQualityCut::MuonQualityCut(const edm::ParameterSet& iConfig) {
+  auto detQualities = iConfig.getParameter<std::vector<edm::ParameterSet>>("values");
+  for (const auto& detQuality : detQualities) {
+    auto dets = detQuality.getParameter<std::vector<int>>("detectors");
+    auto qualities = detQuality.getParameter<std::vector<int>>("qualities");
+    std::sort(qualities.begin(), qualities.end());
+    for (const auto& det : dets) {
+      allowedQualities_.insert({det, std::move(qualities)});
+    }
+  }
+}
+
+bool L1TTkMuonFilter::MuonQualityCut::operator()(const l1t::TkMuon& muon) const {
+  const auto& qualities = allowedQualities_.find(muon.muonDetector());
+  if (qualities != allowedQualities_.end()) {
+    return std::binary_search(qualities->second.begin(), qualities->second.end(), muon.quality());
+  } else {
+    return true;  //if qualities for that detector is not specified, we return true
+  }
+}
+
+void L1TTkMuonFilter::MuonQualityCut::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  edm::ParameterSetDescription detQualDesc;
+  detQualDesc.add<std::vector<int>>("detectors", {3});
+  detQualDesc.add<std::vector<int>>("qualities", {11, 13, 14, 15});
+  std::vector<edm::ParameterSet> detQualDefaults;
+  edm::ParameterSet detQualDefault;
+  detQualDefault.addParameter<std::vector<int>>("detectors", {3});
+  detQualDefault.addParameter<std::vector<int>>("qualities", {11, 13, 14, 15});
+  detQualDefaults.push_back(detQualDefault);
+  desc.addVPSet("values", detQualDesc, detQualDefaults);
+}
+
+edm::ParameterSetDescription L1TTkMuonFilter::MuonQualityCut::makePSetDescription() {
+  edm::ParameterSetDescription desc;
+  fillPSetDescription(desc);
+  return desc;
 }
 
 double L1TTkMuonFilter::TkMuonOfflineEt(double Et, double Eta) const {

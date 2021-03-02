@@ -31,6 +31,17 @@ public:
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
 private:
+  class MuonQualityCut {
+  public:
+    MuonQualityCut(const edm::ParameterSet&);
+    bool operator()(const l1t::TkMuon&) const;
+    static void fillPSetDescription(edm::ParameterSetDescription& desc);
+    static edm::ParameterSetDescription makePSetDescription();
+
+  private:
+    std::unordered_map<int, std::vector<int>> allowedQualities_;
+  };
+
   edm::InputTag l1TkMuonTag_;  //input tag for L1 Tk Muon product
   typedef std::vector<l1t::TkMuon> TkMuonCollection;
   edm::EDGetTokenT<TkMuonCollection> tkMuonToken_;  // token identifying product containing L1 TkMuons
@@ -40,11 +51,13 @@ private:
   double min_Eta_;                       // min eta cut
   double max_Eta_;                       // max eta cut
   bool applyQuality_;                    // apply quaility cuts
-  bool doDupRemoval_;                    // do dup removal
+  bool applyDuplicateRemoval_;           // apply duplicate removal
   edm::ParameterSet scalings_;           // all scalings. An indirection level allows extra flexibility
   std::vector<double> barrelScalings_;   // barrel scalings
   std::vector<double> overlapScalings_;  // overlap scalings
   std::vector<double> endcapScalings_;   // endcap scalings
+
+  MuonQualityCut qualityCut_;
 
   double TkMuonOfflineEt(double Et, double Eta) const;
 };
