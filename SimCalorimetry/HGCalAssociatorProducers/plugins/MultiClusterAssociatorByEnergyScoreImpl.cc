@@ -27,8 +27,11 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
   std::vector<size_t> cPIndices;
   //Consider CaloParticles coming from the hard scatterer
   //excluding the PU contribution and save the indices.
-  removeCPFromPU(caloParticles, cPIndices);
+  removeCPFromPU(caloParticles, cPIndices, false);
   auto nCaloParticles = cPIndices.size();
+
+  std::vector<size_t> cPSelectedIndices;
+  removeCPFromPU(caloParticles, cPSelectedIndices, true);
 
   //cPOnLayer[caloparticle][layer]
   //This defines a "caloParticle on layer" concept. It is only filled in case
@@ -405,7 +408,7 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
   }  // End of loop over MultiClusters
 
   // Compute the CaloParticle-To-MultiCluster score
-  for (const auto& cpId : cPIndices) {
+  for (const auto& cpId : cPSelectedIndices) {
     for (unsigned int layerId = 0; layerId < layers_ * 2; ++layerId) {
       unsigned int CPNumberOfHits = cPOnLayer[cpId][layerId].hits_and_fractions.size();
       if (CPNumberOfHits == 0)
@@ -468,10 +471,10 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
           }
           mcPair.second.second += (mcFraction - cpFraction) * (mcFraction - cpFraction) * hitEnergyWeight;
 #ifdef EDM_ML_DEBUG
-          LogDebug("HGCalValidator") << "multiClusterId:\t" << multiClusterId << "\t"
-                                     << "mcfraction,cpfraction:\t" << mcFraction << ", " << cpFraction << "\t"
-                                     << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
-                                     << "currect score numerator:\t" << mcPair.second.second << "\n";
+          LogDebug("HGCalValidator") << "multiClusterId:\t" << multiClusterId
+                                     << "\tmcfraction,cpfraction:\t" << mcFraction << ", " << cpFraction
+                                     << "\thitEnergyWeight:\t" << hitEnergyWeight
+                                     << "\tcurrent score numerator:\t" << mcPair.second.second << "\n";
 #endif
         }  // End of loop over MultiClusters linked to hits of this CaloParticle
       }    // End of loop over hits of CaloParticle on a Layer
