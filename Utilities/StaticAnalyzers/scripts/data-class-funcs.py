@@ -150,7 +150,7 @@ print()
 
 for badclass in sorted(badclasses):
 	for dataclass in sorted(dataclasses):
-		if  tfunc in H and dataclassfunc in H and H.has_node(badclass) and H.has_node(dataclass):
+		if H.has_node(badclass) and H.has_node(dataclass):
 			if nx.has_path(H,dataclass, badclass) :
 				print("Event setup data class '"+dataclass+"' contains or inherits from flagged class '"+badclass+"'.")
 				flaggedclasses.add(dataclass)
@@ -160,7 +160,7 @@ print()
 
 for dataclassfunc in sorted(dataclassfuncs):
 	for tfunc in sorted(toplevelfuncs):
-		if tfunc in G and dataclassfunc in G and nx.has_path(G,tfunc,dataclassfunc):
+		if G.has_node(tfunc) and G.has_node(dataclassfunc) and nx.has_path(G,tfunc,dataclassfunc):
 			m = getfunc.match(dataclassfunc)
 			n = handle.match(m.group(1))
 			if n : o = n.group(3)
