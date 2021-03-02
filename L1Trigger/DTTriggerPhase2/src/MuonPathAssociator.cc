@@ -249,15 +249,15 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             useFitSL3[sl3] = true;
 
             int quality = 0;
-            if (SL3metaPrimitive->quality <= 2 and SL1metaPrimitive->quality <= 2)
+            if (SL3metaPrimitive->quality == 1 and SL1metaPrimitive->quality == 1)
               quality = 6;
 
-            if ((SL3metaPrimitive->quality >= 3 && SL1metaPrimitive->quality <= 2) or
-                (SL1metaPrimitive->quality >= 3 && SL3metaPrimitive->quality <= 2))
-              quality = 8;
+            if ((SL3metaPrimitive->quality == 3 && SL1metaPrimitive->quality == 1) or
+                (SL1metaPrimitive->quality == 3 && SL3metaPrimitive->quality == 1))
+              quality = 7;
 
-            if (SL3metaPrimitive->quality >= 3 && SL1metaPrimitive->quality >= 3)
-              quality = 9;
+            if (SL3metaPrimitive->quality == 3 && SL1metaPrimitive->quality == 3)
+              quality = 8;
 
             double z = 0;
             if (ChId.station() >= 3)
@@ -357,10 +357,10 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             int best_lat = -1;
             int next_lat = -1;
             int lat = -1;
-
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
-              const DTSuperLayerId &dtSLId(dtLId);
+              // const DTSuperLayerId &dtSLId(dtLId);
+              const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), 3);
               if (dtSLId.rawId() != sl3Id.rawId())
                 continue;
               double l_shift = 0;
@@ -405,9 +405,9 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
               }
             }
             if (matched_digis >= 2 and best_layer != -1 and next_layer != -1) {
-              int new_quality = 7;
-              if (SL1metaPrimitive->quality <= 2)
-                new_quality = 5;
+              int new_quality = 4;
+              if (SL1metaPrimitive->quality == 1)
+                new_quality = 2;
 
               int wi1 = -1;
               int tdc1 = -1;
@@ -564,7 +564,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
-              const DTSuperLayerId &dtSLId(dtLId);
+              // const DTSuperLayerId &dtSLId(dtLId);
+              const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), 1);
               if (dtSLId.rawId() != sl1Id.rawId())
                 continue;
               double l_shift = 0;
@@ -609,9 +610,9 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
               }
             }
             if (matched_digis >= 2 and best_layer != -1 and next_layer != -1) {
-              int new_quality = 7;
+              int new_quality = 4;
               if (SL3metaPrimitive->quality <= 2)
-                new_quality = 5;
+                new_quality = 2;
 
               int wi1 = -1;
               int tdc1 = -1;
