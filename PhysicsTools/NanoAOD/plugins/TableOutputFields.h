@@ -1,3 +1,8 @@
+#ifndef PhysicsTools_NanoAOD_TableOutputFields_h
+#define PhysicsTools_NanoAOD_TableOutputFields_h
+
+#include "RNTupleFieldPtr.h"
+
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
@@ -34,30 +39,6 @@ void print_table(const nanoaod::FlatTable& table) {
   }
   std::cout << "  }\n}\n";
 }
-
-template <typename T>
-class RNTupleFieldPtr {
-public:
-  explicit RNTupleFieldPtr(const std::string& name, RNTupleModel& model)
-      : m_name(name)
-  {
-    m_field = model.MakeField<T>(m_name);
-  }
-  void fillEntry(const nanoaod::FlatTable table, std::size_t i) {
-    int col_idx = table.columnIndex(m_name);
-    if (col_idx == -1) {
-      // todo rntuple naming?
-      throw cms::Exception("LogicError", "Missing column in input for " + table.name() + "_" + m_name);
-    }
-    *m_field = table.columnData<T>(col_idx)[i];
-  }
-  const std::string& getFieldName() const {
-    return m_name;
-  }
-private:
-  std::string m_name;
-  std::shared_ptr<T> m_field;
-};
 
 class TableOutputFields {
 public:
@@ -101,17 +82,26 @@ public:
     }
   }
   void fillEntry(const nanoaod::FlatTable& table, std::size_t i) {
+    auto column_index = [&](const std::string& field_name) -> int {
+      int col_idx = table.columnIndex(field_name);
+      if (col_idx == -1) {
+        // todo rntuple naming?
+        throw cms::Exception("LogicError", "Missing column in input for "
+          + table.name() + "_" + field_name);
+      }
+      return col_idx;
+    };
     for (auto& field: m_floatFields) {
-      field.fillEntry(table, i);
+      field.fill(table.columnData<float>(column_index(field.getFieldName()))[i]);
     }
     for (auto& field: m_intFields) {
-      field.fillEntry(table, i);
+      field.fill(table.columnData<int>(column_index(field.getFieldName()))[i]);
     }
     for (auto& field: m_uint8Fields) {
-      field.fillEntry(table, i);
+      field.fill(table.columnData<std::uint8_t>(column_index(field.getFieldName()))[i]);
     }
     for (auto& field: m_boolFields) {
-      field.fillEntry(table, i);
+      field.fill(table.columnData<bool>(column_index(field.getFieldName()))[i]);
     }
   }
   const edm::EDGetToken& getToken() const {
@@ -264,3 +254,5 @@ class TableCollections {
     std::vector<TableCollection> m_collections;
     std::vector<TableOutputFields> m_topLevelFields;
 };
+
+#endif
