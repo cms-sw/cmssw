@@ -7,7 +7,6 @@
 
 EDM_REGISTER_VALIDATED_PLUGINFACTORY(SeedingRegionAlgoFactory, "SeedingRegionAlgoFactory");
 
-DEFINE_EDM_VALIDATED_PLUGIN(SeedingRegionAlgoFactory,ticl::SeedingRegionByTracks,"SeedingRegionByTracks");
-DEFINE_EDM_VALIDATED_PLUGIN(SeedingRegionAlgoFactory,ticl::SeedingRegionGlobal,"SeedingRegionGlobal");
-DEFINE_EDM_VALIDATED_PLUGIN(SeedingRegionAlgoFactory,ticl::SeedingRegionByL1,"SeedingRegionByL1");
- 
+DEFINE_EDM_VALIDATED_PLUGIN(SeedingRegionAlgoFactory, ticl::SeedingRegionByTracks, "SeedingRegionByTracks");
+DEFINE_EDM_VALIDATED_PLUGIN(SeedingRegionAlgoFactory, ticl::SeedingRegionGlobal, "SeedingRegionGlobal");
+DEFINE_EDM_VALIDATED_PLUGIN(SeedingRegionAlgoFactory, ticl::SeedingRegionByL1, "SeedingRegionByL1");
