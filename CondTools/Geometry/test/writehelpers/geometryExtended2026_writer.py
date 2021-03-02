@@ -7,8 +7,10 @@ process.load('CondCore.CondDB.CondDB_cfi')
 # This will read all the little XML files and from
 # that fill the DDCompactView. The modules that fill
 # the reco part of the database need the DDCompactView.
-process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
 process.load('Geometry.CaloEventSetup.CaloGeometry2026DBWriter_cfi')
 process.load('CondTools.Geometry.HcalParametersWriter_cff')
 
@@ -25,7 +27,7 @@ process.source = cms.Source("EmptyIOVSource",
 # XML files, but there is no way to directly build the
 # DDCompactView from this.
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./geD17SingleBigFile.xml"),
+                                           XMLFileName = cms.untracked.string("./geD49SingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
@@ -40,13 +42,15 @@ process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder",
                                             EcalP = cms.untracked.bool(False),
                                             HGCal = cms.untracked.bool(False))
 
-process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader")
+process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
-process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader")
+process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
-process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader")
+process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
 process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader")
+
+process.GEMGeometryWriter = cms.EDAnalyzer("ME0RecoIdealDBLoader")
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
@@ -76,4 +80,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerParametersWriter+process.CaloGeometryWriter+process.HcalParametersWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter+process.GEMGeometryWriter)
+process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerParametersWriter+process.CaloGeometryWriter+process.HcalParametersWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter+process.GEMGeometryWriter)+process.ME0GeometryWriter)
