@@ -5,6 +5,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "SeedingRegionAlgoBase.h"
 
-using SeedingRegionAlgoFactory = edmplugin::PluginFactory<ticl::SeedingRegionAlgoBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>;
+using SeedingRegionAlgoFactory =
+    edmplugin::PluginFactory<ticl::SeedingRegionAlgoBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>;
 
 #endif
