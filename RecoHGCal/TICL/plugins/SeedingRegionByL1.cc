@@ -59,12 +59,12 @@ double ticl::SeedingRegionByL1::tkEmOfflineEt(double et) const {
 
 void ticl::SeedingRegionByL1::fillPSetDescription(edm::ParameterSetDescription &desc) {
   desc.add<edm::InputTag>("l1TkEmColl", edm::InputTag("L1TkPhotonsHGC", "EG"));
-  desc.add<int>("algo_verbosity", 0);
   desc.add<double>("minPt", 10);
   desc.add<double>("minAbsEta", 1.479);
   desc.add<double>("maxAbsEta", 4.0);
   desc.add<std::vector<double>>("endcapScalings", {3.17445, 1.13219, 0.0});
   desc.add<int>("quality", 5);
+  SeedingRegionAlgoBase::fillPSetDescription(desc);
 }
 
 edm::ParameterSetDescription ticl::SeedingRegionByL1::makePSetDescription() {
