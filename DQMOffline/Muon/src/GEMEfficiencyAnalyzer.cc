@@ -580,9 +580,9 @@ std::pair<TrajectoryStateOnSurface, DetId> GEMEfficiencyAnalyzer::getStartingSta
     } else {
       starting_id = inner_id;
       if (is_insideout)
-        starting_state = std::move(transient_track.outermostMeasurementState());
+        starting_state = transient_track.outermostMeasurementState();
       else
-        starting_state = std::move(transient_track.innermostMeasurementState());
+        starting_state = transient_track.innermostMeasurementState();
     }
   }
 
@@ -619,7 +619,7 @@ std::pair<TrajectoryStateOnSurface, DetId> GEMEfficiencyAnalyzer::findStartingSt
 
   TrajectoryStateOnSurface starting_state;
   if (found) {
-    starting_state = std::move(transient_track.stateOnSurface(starting_point));
+    starting_state = transient_track.stateOnSurface(starting_point);
   }
   return std::make_pair(starting_state, starting_id);
 }
