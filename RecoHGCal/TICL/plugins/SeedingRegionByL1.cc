@@ -66,9 +66,3 @@ void ticl::SeedingRegionByL1::fillPSetDescription(edm::ParameterSetDescription &
   desc.add<int>("quality", 5);
   SeedingRegionAlgoBase::fillPSetDescription(desc);
 }
-
-edm::ParameterSetDescription ticl::SeedingRegionByL1::makePSetDescription() {
-  edm::ParameterSetDescription desc;
-  fillPSetDescription(desc);
-  return desc;
-}
