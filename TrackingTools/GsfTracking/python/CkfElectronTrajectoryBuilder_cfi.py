@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
+#import copy
 from RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi import *
-CkfElectronTrajectoryBuilder = copy.deepcopy(CkfTrajectoryBuilder)
-CkfElectronTrajectoryBuilder.propagatorAlong = 'fwdElectronPropagator'
-CkfElectronTrajectoryBuilder.propagatorOpposite = 'bwdElectronPropagator'
-CkfElectronTrajectoryBuilder.estimator = 'electronChi2'
-
+CkfElectronTrajectoryBuilder = CkfTrajectoryBuilder.clone(
+    propagatorAlong = 'fwdElectronPropagator',
+    propagatorOpposite = 'bwdElectronPropagator',
+    estimator = 'electronChi2'
+)
