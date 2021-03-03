@@ -636,12 +636,12 @@ QIE11DataFrame convertHB(QIE11DataFrame qiehe, std::vector<int> tdc1, std::vecto
     tdc = qiehe[is].tdc();
     soi = qiehe[is].soi();
 
-    if (tdc >= 0 && tdc <= tdc1.at(abs(did.ieta() - 1) * maxHBdepth + (did.depth() - 1)))
+    if (tdc >= 0 && tdc <= tdc1.at((abs(did.ieta()) - 1) * maxHBdepth + (did.depth() - 1)))
       tdc = 0;
-    else if (tdc > tdc1.at(abs(did.ieta() - 1) * maxHBdepth + (did.depth() - 1)) &&
-             tdc <= tdc2.at(abs(did.ieta() - 1) * maxHBdepth + (did.depth() - 1)))
+    else if (tdc > tdc1.at((abs(did.ieta()) - 1) * maxHBdepth + (did.depth() - 1)) &&
+             tdc <= tdc2.at((abs(did.ieta()) - 1) * maxHBdepth + (did.depth() - 1)))
       tdc = 1;
-    else if (tdc > tdc2.at(abs(did.ieta() - 1) * maxHBdepth + (did.depth() - 1)) && tdc <= tdcmax)
+    else if (tdc > tdc2.at((abs(did.ieta()) - 1) * maxHBdepth + (did.depth() - 1)) && tdc <= tdcmax)
       tdc = 2;
     else
       tdc = 3;
