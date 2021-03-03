@@ -18,19 +18,12 @@ def resetGpuOffload():
     HeterogeneousCore.CUDACore.SwitchProducerCUDA._switch_cuda()
 
 
-# check if CUDA is enabled, using the same mechanism as the SwitchProducerCUDA
-def cudaIsEnabled():
-    import HeterogeneousCore.CUDACore.SwitchProducerCUDA
-    return HeterogeneousCore.CUDACore.SwitchProducerCUDA._switch_cuda()[0]
-
-
 # customisation for running the Patatrack reconstruction, common parts
 def customiseCommon(process):
 
     # Services
 
     process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
-    process.CUDAService.enabled = cudaIsEnabled()
 
     process.load("HeterogeneousCore.CUDAServices.NVProfilerService_cfi")
 
