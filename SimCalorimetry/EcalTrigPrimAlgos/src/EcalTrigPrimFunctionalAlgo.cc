@@ -80,8 +80,8 @@ void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup &setup) {
   theMapping_ = ecalmapping.product();
 
   // create main sub algos
-  estrip_ = new EcalFenixStrip(setup, theMapping_, debug_, famos_, maxNrSamples_, nbMaxXtals_);
-  etcp_ = new EcalFenixTcp(setup, tcpFormat_, debug_, famos_, binOfMaximum_, maxNrSamples_, nbMaxStrips_);
+  estrip_ = std::make_unique<EcalFenixStrip>(theMapping_, debug_, famos_, maxNrSamples_, nbMaxXtals_);
+  etcp_ = std::make_unique<EcalFenixTcp>(tcpFormat_, debug_, famos_, binOfMaximum_, maxNrSamples_, nbMaxStrips_);
 
   // initialise data structures
   initStructures(towerMapEB_);
@@ -93,26 +93,21 @@ void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup &setup) {
 }
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::~EcalTrigPrimFunctionalAlgo() {
-  delete estrip_;
-  delete etcp_;
-}
+EcalTrigPrimFunctionalAlgo::~EcalTrigPrimFunctionalAlgo() {}
 //----------------------------------------------------------------------
-void EcalTrigPrimFunctionalAlgo::run(const edm::EventSetup &setup,
-                                     EBDigiCollection const *col,
+void EcalTrigPrimFunctionalAlgo::run(EBDigiCollection const *col,
                                      EcalTrigPrimDigiCollection &result,
                                      EcalTrigPrimDigiCollection &resultTcp) {
   run_part1_EB(col);
-  run_part2(setup, col, towerMapEB_, result, resultTcp);
+  run_part2(col, towerMapEB_, result, resultTcp);
 }
 
 //----------------------------------------------------------------------
-void EcalTrigPrimFunctionalAlgo::run(const edm::EventSetup &setup,
-                                     EEDigiCollection const *col,
+void EcalTrigPrimFunctionalAlgo::run(EEDigiCollection const *col,
                                      EcalTrigPrimDigiCollection &result,
                                      EcalTrigPrimDigiCollection &resultTcp) {
   run_part1_EE(col);
-  run_part2(setup, col, towerMapEE_, result, resultTcp);
+  run_part2(col, towerMapEE_, result, resultTcp);
 }
 //----------------------------------------------------------------------
 int EcalTrigPrimFunctionalAlgo::findStripNr(const EBDetId &id) {

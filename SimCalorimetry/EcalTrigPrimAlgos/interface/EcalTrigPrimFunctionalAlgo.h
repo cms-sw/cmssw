@@ -51,19 +51,12 @@ public:
 
   virtual ~EcalTrigPrimFunctionalAlgo();
 
-  void run(const edm::EventSetup &,
-           const EBDigiCollection *col,
-           EcalTrigPrimDigiCollection &result,
-           EcalTrigPrimDigiCollection &resultTcp);
-  void run(const edm::EventSetup &,
-           const EEDigiCollection *col,
-           EcalTrigPrimDigiCollection &result,
-           EcalTrigPrimDigiCollection &resultTcp);
+  void run(const EBDigiCollection *col, EcalTrigPrimDigiCollection &result, EcalTrigPrimDigiCollection &resultTcp);
+  void run(const EEDigiCollection *col, EcalTrigPrimDigiCollection &result, EcalTrigPrimDigiCollection &resultTcp);
   void run_part1_EB(EBDigiCollection const *col);
   void run_part1_EE(EEDigiCollection const *col);
   template <class Coll>
-  void run_part2(const edm::EventSetup &,
-                 Coll const *col,
+  void run_part2(Coll const *col,
                  std::vector<std::vector<std::pair<int, std::vector<typename Coll::Digi>>>> &towerMap,
                  EcalTrigPrimDigiCollection &result,
                  EcalTrigPrimDigiCollection &resultTcp);
@@ -122,8 +115,8 @@ private:
     return ind;
   }
 
-  EcalFenixStrip *estrip_;
-  EcalFenixTcp *etcp_;
+  std::unique_ptr<EcalFenixStrip> estrip_;
+  std::unique_ptr<EcalFenixTcp> etcp_;
 
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
   const CaloSubdetectorGeometry *theEndcapGeometry;
@@ -165,7 +158,6 @@ private:
 
 template <class Coll>
 void EcalTrigPrimFunctionalAlgo::run_part2(
-    const edm::EventSetup &setup,
     Coll const *col,
     std::vector<std::vector<std::pair<int, std::vector<typename Coll::Digi>>>> &towerMap,
     EcalTrigPrimDigiCollection &result,
@@ -194,14 +186,14 @@ void EcalTrigPrimFunctionalAlgo::run_part2(
                                                             // size; nr of crystals/strip
 
       if ((towerMap[index])[i].first > 0) {
-        estrip_->process(setup, df, (towerMap[index])[i].first, striptp_[nstr++]);
+        estrip_->process(df, (towerMap[index])[i].first, striptp_[nstr++]);
       }
     }  // loop over strips in one tower
 
     bool isInInnerRings = false;
     if (thisTower.subDet() == EcalEndcap && (thisTower.ietaAbs() == 27 || thisTower.ietaAbs() == 28))
       isInInnerRings = true;
-    etcp_->process(setup, dummy, striptp_, nstr, towtp_, towtp2_, isInInnerRings, thisTower);
+    etcp_->process(dummy, striptp_, nstr, towtp_, towtp2_, isInInnerRings, thisTower);
 
     // prepare TP-s
     // special treatment for 2 inner endcap rings
