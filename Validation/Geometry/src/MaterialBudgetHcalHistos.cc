@@ -541,8 +541,7 @@ std::vector<std::string> MaterialBudgetHcalHistos::getNames(DDFilteredView& fv) 
 
 std::vector<std::string> MaterialBudgetHcalHistos::getNames(cms::DDFilteredView& fv) {
   std::vector<std::string> tmp;
-  const std::vector<std::string> notIn = {
-      "CALO", "HCal", "MBBTL", "MBBTR", "MBBTC", "MBAT", "MBBT_R1M", "MBBT_R1P", "VCAL", "HVQF"};
+  const std::vector<std::string> notIn = {"CALO", "HCal", "MBBTL", "MBBTR", "MBBTC", "MBAT", "MBBT_R1M", "MBBT_R1P", "MBBT_R1MX", "MBBT_R1PX", "VCAL", "HVQF"};
   while (fv.firstChild()) {
     const std::string n{fv.name().data(), fv.name().size()};
     if (std::find(notIn.begin(), notIn.end(), n) == notIn.end()) {
