@@ -1,9 +1,0 @@
-<export>
-</export>
-<library name="ElectroWeakAnalysisSkimming_plugins" file="*.cc">
-  <use name="FWCore/Framework"/>
-  <use name="CommonTools/UtilAlgos"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="DataFormats/PatCandidates"/>
-  <use name="root"/>
-</library>

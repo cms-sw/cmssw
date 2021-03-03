@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include "DataFormats/Common/interface/ErrorSummaryEntry.h"
 #include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -83,7 +83,18 @@ namespace edm {
       //puts a default constructed product in the event
       iEvent.emplace(token_);
     } else {
-      iEvent.emplace(token_, LoggedErrorsSummary(index));
+      auto mlSummary = LoggedErrorsSummary(index);
+      std::vector<edm::ErrorSummaryEntry> summary;
+      summary.reserve(mlSummary.size());
+      for (auto& entry : mlSummary) {
+        edm::ErrorSummaryEntry e;
+        e.category = std::move(entry.category);
+        e.module = std::move(entry.module);
+        e.severity = edm::ELseverityLevel(entry.severity.getLevel());
+        e.count = entry.count;
+        summary.emplace_back(std::move(e));
+      }
+      iEvent.emplace(token_, summary);
     }
   }
 

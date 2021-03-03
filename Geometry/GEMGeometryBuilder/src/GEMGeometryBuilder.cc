@@ -27,16 +27,13 @@
 
 #include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 
-#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
-
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <algorithm>
 #include <iostream>
 #include <string>
 
-using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 //#define EDM_ML_DEBUG
 
@@ -165,10 +162,10 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDe
   bool ge0Station = detId.station() == GEMDetId::minStationId0;
   std::vector<double> dpar = ge0Station ? solid.parameters() : solid.solidA().parameters();
 
-  double dy = geant_units::operators::convertMmToCm(dpar[0]);   //length is along local Y
-  double dz = geant_units::operators::convertMmToCm(dpar[3]);   // thickness is long local Z
-  double dx1 = geant_units::operators::convertMmToCm(dpar[4]);  // bottom width is along local X
-  double dx2 = geant_units::operators::convertMmToCm(dpar[8]);  // top width is along local X
+  double dy = convertMmToCm(dpar[0]);   //length is along local Y
+  double dz = convertMmToCm(dpar[3]);   // thickness is long local Z
+  double dx1 = convertMmToCm(dpar[4]);  // bottom width is along local X
+  double dx2 = convertMmToCm(dpar[8]);  // top width is along local X
 
   if (!ge0Station) {
     const int nch = 2;
@@ -176,9 +173,9 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDe
 
     dpar = solid.solidB().parameters();
 
-    dz += geant_units::operators::convertMmToCm(dpar[3]);  // chamber thickness
-    dz *= nch;                                             // 2 chambers in superchamber
-    dz += chgap;                                           // gap between chambers
+    dz += convertMmToCm(dpar[3]);  // chamber thickness
+    dz *= nch;                     // 2 chambers in superchamber
+    dz += chgap;                   // gap between chambers
   }
 
   bool isOdd = detId.chamber() % 2;
@@ -199,14 +196,14 @@ GEMChamber* GEMGeometryBuilder::buildChamber(DDFilteredView& fv, GEMDetId detId)
   bool ge0Station = detId.station() == GEMDetId::minStationId0;
   std::vector<double> dpar = ge0Station ? solid.parameters() : solid.solidA().parameters();
 
-  double dy = geant_units::operators::convertMmToCm(dpar[0]);   //length is along local Y
-  double dz = geant_units::operators::convertMmToCm(dpar[3]);   // thickness is long local Z
-  double dx1 = geant_units::operators::convertMmToCm(dpar[4]);  // bottom width is along local X
-  double dx2 = geant_units::operators::convertMmToCm(dpar[8]);  // top width is along local X
+  double dy = convertMmToCm(dpar[0]);   //length is along local Y
+  double dz = convertMmToCm(dpar[3]);   // thickness is long local Z
+  double dx1 = convertMmToCm(dpar[4]);  // bottom width is along local X
+  double dx2 = convertMmToCm(dpar[8]);  // top width is along local X
 
   if (!ge0Station) {
     dpar = solid.solidB().parameters();
-    dz += geant_units::operators::convertMmToCm(dpar[3]);  // chamber thickness
+    dz += convertMmToCm(dpar[3]);  // chamber thickness
   }
 
   bool isOdd = ge0Station ? false : detId.chamber() % 2;
@@ -247,10 +244,10 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(DDFilteredView& fv, GEMDe
   // EtaPartition specific parameter (size)
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
 
-  double be = geant_units::operators::convertMmToCm(dpar[4]);  // half bottom edge
-  double te = geant_units::operators::convertMmToCm(dpar[8]);  // half top edge
-  double ap = geant_units::operators::convertMmToCm(dpar[0]);  // half apothem
-  double ti = 0.4;                                             // half thickness
+  double be = convertMmToCm(dpar[4]);  // half bottom edge
+  double te = convertMmToCm(dpar[8]);  // half top edge
+  double ap = convertMmToCm(dpar[0]);  // half apothem
+  double ti = 0.4;                     // half thickness
 
   std::vector<float> pars;
   pars.emplace_back(be);
@@ -277,7 +274,7 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const DDFiltere
                                                                  bool isOddChamber) const {
   // extract the position
   const DDTranslation& trans(fv.translation());
-  const Surface::PositionType posResult(float(trans.x() / cm), float(trans.y() / cm), float(trans.z() / cm));
+  const Surface::PositionType posResult(convertMmToCm(trans.x()), convertMmToCm(trans.y()), convertMmToCm(trans.z()));
 
   // now the rotation
   const DDRotationMatrix& rotation = fv.rotation();
@@ -389,19 +386,19 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(cms::DDFilteredView& fv, 
   auto solidA = solid.solidA();
   std::vector<double> dpar = solidA.dimensions();
 
-  double dy = dpar[3];   //length is along local Y
-  double dz = dpar[2];   // thickness is long local Z
-  double dx1 = dpar[0];  // bottom width is along local X
-  double dx2 = dpar[1];  // top width is along loc
+  double dy = k_ScaleFromDD4Hep * dpar[3];   //length is along local Y
+  double dz = k_ScaleFromDD4Hep * dpar[2];   // thickness is long local Z
+  double dx1 = k_ScaleFromDD4Hep * dpar[0];  // bottom width is along local X
+  double dx2 = k_ScaleFromDD4Hep * dpar[1];  // top width is along loc
 
   auto solidB = solid.solidB();
   dpar = solidB.dimensions();
   const int nch = 2;
   const double chgap = 2.105;
 
-  dz += dpar[2];  // chamber thickness
-  dz *= nch;      // 2 chambers in superchamber
-  dz += chgap;    // gap between chambers
+  dz += (k_ScaleFromDD4Hep * dpar[2]);  // chamber thickness
+  dz *= nch;                            // 2 chambers in superchamber
+  dz += chgap;                          // gap between chambers
 
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
@@ -415,15 +412,15 @@ GEMChamber* GEMGeometryBuilder::buildChamber(cms::DDFilteredView& fv, GEMDetId d
   auto solidA = solid.solidA();
   std::vector<double> dpar = solidA.dimensions();
 
-  double dy = dpar[3];   //length is along local Y
-  double dz = dpar[2];   // thickness is long local Z
-  double dx1 = dpar[0];  // bottom width is along local X
-  double dx2 = dpar[1];  // top width is along local X
+  double dy = k_ScaleFromDD4Hep * dpar[3];   //length is along local Y
+  double dz = k_ScaleFromDD4Hep * dpar[2];   // thickness is long local Z
+  double dx1 = k_ScaleFromDD4Hep * dpar[0];  // bottom width is along local X
+  double dx2 = k_ScaleFromDD4Hep * dpar[1];  // top width is along local X
 
   auto solidB = solid.solidB();
   dpar = solidB.dimensions();
 
-  dz += dpar[2];  // chamber thickness
+  dz += (k_ScaleFromDD4Hep * dpar[2]);  // chamber thickness
 
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dx1, dx2, dy, dz), isOdd));
@@ -444,11 +441,19 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, 
 
   double ti = 0.4;  // half thickness
 
-  const std::vector<float> pars{
-      float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads), float(dPhi)};
+  const std::vector<float> pars{float(k_ScaleFromDD4Hep * dpar[0]),
+                                float(k_ScaleFromDD4Hep * dpar[1]),
+                                float(k_ScaleFromDD4Hep * dpar[3]),
+                                float(nStrips),
+                                float(nPads),
+                                float(dPhi)};
 
   bool isOdd = detId.chamber() % 2;
-  RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(dpar[0], dpar[1], dpar[3], ti), isOdd));
+  RCPBoundPlane surf(
+      boundPlane(fv,
+                 new TrapezoidalPlaneBounds(
+                     k_ScaleFromDD4Hep * dpar[0], k_ScaleFromDD4Hep * dpar[1], k_ScaleFromDD4Hep * dpar[3], ti),
+                 isOdd));
 
   std::string_view name = fv.name();
 
@@ -463,7 +468,8 @@ GEMGeometryBuilder::RCPBoundPlane GEMGeometryBuilder::boundPlane(const cms::DDFi
                                                                  bool isOddChamber) const {
   // extract the position
   const Double_t* tran = fv.trans();
-  Surface::PositionType posResult(tran[0], tran[1], tran[2]);
+  Surface::PositionType posResult(
+      k_ScaleFromDD4Hep * tran[0], k_ScaleFromDD4Hep * tran[1], k_ScaleFromDD4Hep * tran[2]);
 
   // now the rotation
   DDRotationMatrix rota;

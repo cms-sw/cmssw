@@ -17,8 +17,17 @@ process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('detailedInfo', 
-        'cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    files = cms.untracked.PSet(
+        detailedInfo = cms.untracked.PSet(
+
+        )
+    )
 )
 
 process.source = cms.Source("EmptySource")

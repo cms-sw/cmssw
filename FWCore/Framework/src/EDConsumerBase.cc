@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Likely.h"
@@ -467,41 +468,55 @@ namespace {
   }
 }  // namespace
 
-void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
-                                                     ProductRegistry const& preg,
-                                                     std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-                                                     std::string const& processName) const {
-  ProductResolverIndexHelper const& iHelper = *preg.productLookup(InEvent);
-
+void EDConsumerBase::modulesWhoseProductsAreConsumed(
+    std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modulesAll,
+    std::vector<ModuleProcessName>& modulesInPreviousProcesses,
+    ProductRegistry const& preg,
+    std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+    std::string const& processName) const {
   std::set<std::string> alreadyFound;
+
+  auto modulesInPreviousProcessesEmplace = [&modulesInPreviousProcesses](std::string_view module,
+                                                                         std::string_view process) {
+    auto it = std::lower_bound(
+        modulesInPreviousProcesses.begin(), modulesInPreviousProcesses.end(), ModuleProcessName(module, process));
+    modulesInPreviousProcesses.emplace(it, module, process);
+  };
 
   auto itKind = m_tokenInfo.begin<kKind>();
   auto itLabels = m_tokenInfo.begin<kLabels>();
   for (auto itInfo = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); itInfo != itEnd;
        ++itInfo, ++itKind, ++itLabels) {
-    if (itInfo->m_branchType == InEvent and (not itInfo->m_index.skipCurrentProcess())) {
-      const unsigned int labelStart = itLabels->m_startOfModuleLabel;
-      const char* const consumedModuleLabel = &(m_tokenLabels[labelStart]);
-      const char* const consumedProductInstance = consumedModuleLabel + itLabels->m_deltaToProductInstance;
-      const char* const consumedProcessName = consumedModuleLabel + itLabels->m_deltaToProcessName;
+    ProductResolverIndexHelper const& helper = *preg.productLookup(itInfo->m_branchType);
+    std::vector<ModuleDescription const*>& modules = *modulesAll[itInfo->m_branchType];
 
+    const unsigned int labelStart = itLabels->m_startOfModuleLabel;
+    const char* const consumedModuleLabel = &(m_tokenLabels[labelStart]);
+    const char* const consumedProductInstance = consumedModuleLabel + itLabels->m_deltaToProductInstance;
+    const char* const consumedProcessName = consumedModuleLabel + itLabels->m_deltaToProcessName;
+
+    if (not itInfo->m_index.skipCurrentProcess()) {
       if (*consumedModuleLabel != '\0') {    // not a consumesMany
         if (*consumedProcessName != '\0') {  // process name is specified in consumes call
-          if (processName == consumedProcessName &&
-              iHelper.index(
+          if (helper.index(
                   *itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance, consumedProcessName) !=
-                  ProductResolverIndexInvalid) {
-            insertFoundModuleLabel(*itKind,
-                                   itInfo->m_type,
-                                   consumedModuleLabel,
-                                   consumedProductInstance,
-                                   modules,
-                                   alreadyFound,
-                                   labelsToDesc,
-                                   preg);
+              ProductResolverIndexInvalid) {
+            if (processName == consumedProcessName) {
+              insertFoundModuleLabel(*itKind,
+                                     itInfo->m_type,
+                                     consumedModuleLabel,
+                                     consumedProductInstance,
+                                     modules,
+                                     alreadyFound,
+                                     labelsToDesc,
+                                     preg);
+            } else {
+              // Product explicitly from different process than the current process, so must refer to an earlier process (unless it ends up "not found")
+              modulesInPreviousProcessesEmplace(consumedModuleLabel, consumedProcessName);
+            }
           }
         } else {  // process name was empty
-          auto matches = iHelper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
+          auto matches = helper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
           for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
             if (processName == matches.processName(j)) {
               insertFoundModuleLabel(*itKind,
@@ -512,12 +527,16 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
                                      alreadyFound,
                                      labelsToDesc,
                                      preg);
+            } else {
+              // Product did not match to current process, so must refer to an earlier process (unless it ends up "not found")
+              // Recall that empty process name means "in the latest process" that can change event-by-event
+              modulesInPreviousProcessesEmplace(consumedModuleLabel, matches.processName(j));
             }
           }
         }
         // consumesMany case
       } else if (itInfo->m_index.productResolverIndex() == ProductResolverIndexInvalid) {
-        auto matches = iHelper.relatedIndexes(*itKind, itInfo->m_type);
+        auto matches = helper.relatedIndexes(*itKind, itInfo->m_type);
         for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
           if (processName == matches.processName(j)) {
             insertFoundModuleLabel(*itKind,
@@ -528,7 +547,20 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
                                    alreadyFound,
                                    labelsToDesc,
                                    preg);
+          } else {
+            modulesInPreviousProcessesEmplace(matches.moduleLabel(j), matches.processName(j));
           }
+        }
+      }
+    } else {
+      // The skipCurrentProcess means the same as empty process name,
+      // except the current process is skipped. Therefore need to do
+      // the same matching as above. There is no consumesMany branch
+      // in this case.
+      auto matches = helper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
+      for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
+        if (processName != matches.processName(j)) {
+          modulesInPreviousProcessesEmplace(matches.moduleLabel(j), matches.processName(j));
         }
       }
     }

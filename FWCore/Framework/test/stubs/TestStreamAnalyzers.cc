@@ -177,6 +177,11 @@ namespace edmtest {
         trans_ = p.getParameter<int>("transitions");
         cvalue_ = p.getParameter<int>("cachevalue");
         m_count = 0;
+        // just to create a data dependence
+        auto const& tag = p.getParameter<edm::InputTag>("moduleLabel");
+        if (not tag.label().empty()) {
+          consumes<unsigned int, edm::InLumi>(tag);
+        }
       }
 
       void analyze(edm::Event const&, edm::EventSetup const&) override {

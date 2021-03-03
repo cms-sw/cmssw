@@ -10,7 +10,7 @@ process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
 process.load('SimG4CMS.Calo.ecalSimHitDump_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HitStudy')
+    process.MessageLogger.HitStudy=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),

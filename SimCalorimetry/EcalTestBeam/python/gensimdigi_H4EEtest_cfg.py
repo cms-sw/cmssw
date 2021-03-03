@@ -168,28 +168,10 @@ process.outpath = cms.EndPath(process.output)
 
 # modify the default behavior of the MessageLogger
     
-process.MessageLogger.destinations=cms.untracked.vstring('cout'
-                                                         ,'cerr'
-                                                         ,'G4msg'
-                                                         )
-process.MessageLogger.categories=cms.untracked.vstring('FwkJob'
-                                                       ,'FwkReport'
-                                                       ,'FwkSummary'
-                                                       ,'Root_NoDictionary'
-                                                       ,'TimeReport'
-                                                       ,'TimeModule'
-                                                       ,'TimeEvent'
-                                                       ,'MemoryCheck'
-                                                       ,'PhysicsList'
-                                                       ,'G4cout'
-                                                       ,'G4cerr'
-                                                       ,'BeamProfileVtxGenerator'
-                                                       )
-
 process.MessageLogger.debugModules = cms.untracked.vstring('g4SimHits','generatorSmeared')
 
 #Configuring the G4msg.log output
-process.MessageLogger.G4msg =  cms.untracked.PSet(
+process.MessageLogger.files = dict(G4msg =  cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(True)
     #First eliminate unneeded output
     ,threshold = cms.untracked.string('INFO')
@@ -213,6 +195,7 @@ process.MessageLogger.G4msg =  cms.untracked.PSet(
     ,G4cerr = cms.untracked.PSet(limit = cms.untracked.int32(99999))
     ,BeamProfileVtxGenerator = cms.untracked.PSet(limit = cms.untracked.int32(-1))
     )
+)
 
 #Add these 3 lines to put back the summary for timing information at the end of the logfile
 #(needed for TimeReport report)
@@ -221,7 +204,7 @@ process.options = cms.untracked.PSet(
 )
 
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
-#process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+#process.MessageLogger.cout.enable = cms.untracked.bool(True)
 #process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 #process.MessageLogger.debugModules = cms.untracked.vstring('*')
 

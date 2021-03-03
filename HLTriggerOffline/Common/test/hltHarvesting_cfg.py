@@ -33,7 +33,6 @@ process.options = cms.untracked.PSet(
 # Other statements
 
 #Adding DQMFileSaver to the message logger configuration
-process.MessageLogger.categories.append('DQMFileSaver')
 process.MessageLogger.cout.DQMFileSaver = cms.untracked.PSet(
        limit = cms.untracked.int32(1000000)
        )

@@ -45,4 +45,12 @@ edm-global-class.py >edm-global-classes.txt.unsorted
 sort -u edm-global-classes.txt.unsorted | grep -e"^EDM global class " | sort -u >edm-global-classes.txt
 sort -u edm-global-classes.txt.unsorted | grep -v -e"^EDM global class " >edm-global-classes.txt.extra
 
+if [ ! -f ./callgraph.py ]
+   then
+   cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/callgraph.py .
+   cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/modules_in_ib.txt .
+fi
+touch eventsetuprecord-get-all.txt eventsetuprecord-get.txt
+./callgraph.py 2>&1 > eventsetuprecord-get-all.txt
+grep -f modules_in_ib.txt eventsetuprecord-get-all.txt | awk '{print $0"\n"}' > eventsetuprecord-get.txt
 

@@ -4,10 +4,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixSignalPoint.h"
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixEnergyDepositUnit.h"
+#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
 
 class RPixLinearChargeCollectionDrifter {
 public:
-  RPixLinearChargeCollectionDrifter(const edm::ParameterSet &params, uint32_t det_id);
+  RPixLinearChargeCollectionDrifter(const edm::ParameterSet &params, uint32_t det_id, const PPSPixelTopology &ppt);
   std::vector<RPixSignalPoint> Drift(const std::vector<RPixEnergyDepositUnit> &energy_deposition);
 
 private:

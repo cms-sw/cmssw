@@ -61,7 +61,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -1172,9 +1171,9 @@ private:
             const ProjectedSiStripRecHit2D *pH = static_cast<const ProjectedSiStripRecHit2D *>(&hit);
             return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
           } else {
-            edm::LogError("UnkownType") << "@SUB=GeneralPurposeTrackAnalyzer::isHit2D"
-                                        << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
-                                        << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
+            edm::LogError("UnknownType") << "@SUB=GeneralPurposeTrackAnalyzer::isHit2D"
+                                         << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
+                                         << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
             return false;
           }
         }

@@ -276,6 +276,7 @@ namespace {
     EcalChannelStatusEBDiff()
         : cond::payloadInspector::PlotImage<EcalChannelStatus>("ECAL Barrel channel status difference") {
       setSingleIov(false);
+      setTwoTags(true);
     }
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
       TH2F *ebmap = new TH2F("ebmap", "", MAX_IPHI, 0, MAX_IPHI, 2 * MAX_IETA, -MAX_IETA, MAX_IETA);
@@ -393,6 +394,7 @@ namespace {
     EcalChannelStatusEEDiff()
         : cond::payloadInspector::PlotImage<EcalChannelStatus>("ECAL Endcaps channel status difference") {
       setSingleIov(true);
+      setTwoTags(true);
     }
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
       TH2F *eemap = new TH2F("eemap", "", 2 * IX_MAX, 0, 2 * IX_MAX, IY_MAX, 0, IY_MAX);

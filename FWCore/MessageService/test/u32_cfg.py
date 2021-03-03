@@ -14,13 +14,12 @@ process.load("FWCore.MessageService.test.Services_cff")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.destinations.append('errors')
-process.MessageLogger.errors = cms.untracked.PSet(
-    threshold = cms.untracked.string('ERROR'),
+process.MessageLogger.files.errors = dict(
+    threshold = 'ERROR',
     default = cms.untracked.PSet(
         limit = cms.untracked.int32(3)
     ),
-    noTimeStamps = cms.untracked.bool(True)
+    noTimeStamps = True
 )
 
 process.maxEvents = cms.untracked.PSet(

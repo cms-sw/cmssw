@@ -25,7 +25,7 @@ hiDetachedQuadStepClusters = cms.EDProducer("HITrackClusterRemover",
 # Using 4 layers layerlist
 hiDetachedQuadStepSeedLayers = hiPixelLayerQuadruplets.clone(
     BPix = dict(skipClusters = cms.InputTag('hiDetachedQuadStepClusters')),
-    FPix = dict(skipClusters = cms.InputTag('hiDetachedQuadStepClusters')),
+    FPix = dict(skipClusters = cms.InputTag('hiDetachedQuadStepClusters'))
 )
 # SEEDS
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
@@ -165,7 +165,7 @@ hiDetachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProd
 # Final selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiDetachedQuadStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src ='hiDetachedQuadStepTracks',
+    src = 'hiDetachedQuadStepTracks',
     useAnyMVA = True, 
     GBRForestLabel = 'HIMVASelectorIter10',#FIXME MVA for new iteration
     GBRForestVars = ['chi2perdofperlayer', 'nhits', 'nlayers', 'eta'],

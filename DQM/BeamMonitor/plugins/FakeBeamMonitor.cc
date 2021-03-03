@@ -513,7 +513,7 @@ void FakeBeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const
   DBloggerReturn_ = 0;
   if (onlineDbService_.isAvailable()) {
     onlineDbService_->logger().start();
-    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::beginLuminosityBlock";
+    onlineDbService_->logger().logInfo() << "FakeBeamMonitor::beginLuminosityBlock - LS: " << lumiSeg.luminosityBlock();
   }
 
   int nthlumi = lumiSeg.luminosityBlock();
@@ -1416,16 +1416,16 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
                                          << creationTime << " [epoch in microseconds]";
     try {
       onlineDbService_->writeForNextLumisection(BSOnline, recordName_);
+      onlineDbService_->logger().logInfo()
+          << "FakeBeamMonitor::FitAndFill - [PayloadCreation] writeForNextLumisection executed correctly";
     } catch (const std::exception& e) {
       onlineDbService_->logger().logError() << "FakeBeamMonitor - Error writing record: " << recordName_
                                             << " for Run: " << frun << " - Lumi: " << fitLS.second;
       onlineDbService_->logger().logError() << "Error is: " << e.what();
       onlineDbService_->logger().logError() << "RESULTS OF DEFAULT FIT WAS:";
       onlineDbService_->logger().logError() << "\n" << bs;
-      DBloggerReturn_ = -1;
+      DBloggerReturn_ = 2;
     }
-    onlineDbService_->logger().logInfo()
-        << "FakeBeamMonitor::FitAndFill - [PayloadCreation] writeForNextLumisection executed correctly";
   }
   edm::LogInfo("FakeBeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline payload created \n" << std::endl;
 

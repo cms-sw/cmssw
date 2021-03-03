@@ -1,6 +1,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 #include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 
 #include "grpc_client.h"
@@ -20,18 +23,23 @@ namespace nic = ni::client;
 //based on https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/examples/simple_grpc_async_infer_client.cc
 //and https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/perf_client/perf_client.cc
 
-TritonClient::TritonClient(const edm::ParameterSet& params)
-    : SonicClient(params),
+TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& debugName)
+    : SonicClient(params, debugName, "TritonClient"),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
       options_(params.getParameter<std::string>("modelName")) {
-  clientName_ = "TritonClient";
-  //will get overwritten later, just used in constructor
-  fullDebugName_ = clientName_;
+  //get appropriate server for this model
+  edm::Service<TritonService> ts;
+  const auto& [url, isFallbackCPU] =
+      ts->serverAddress(options_.model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
+  if (verbose_)
+    edm::LogInfo(fullDebugName_) << "Using server: " << url;
+  //enforce sync mode for fallback CPU server to avoid contention
+  //todo: could enforce async mode otherwise (unless mode was specified by user?)
+  if (isFallbackCPU)
+    setMode(SonicMode::Sync);
 
   //connect to the server
   //TODO: add SSL options
-  std::string url(params.getUntrackedParameter<std::string>("address") + ":" +
-                  std::to_string(params.getUntrackedParameter<unsigned>("port")));
   triton_utils::throwIfError(nic::InferenceServerGrpcClient::Create(&client_, url, false),
                              "TritonClient(): unable to create inference context");
 
@@ -127,8 +135,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params)
     throw cms::Exception("MissingOutput")
         << "Some requested outputs were not available on the server: " << triton_utils::printColl(s_outputs);
 
-  //check requested batch size and propagate to inputs and outputs
-  setBatchSize(params.getUntrackedParameter<unsigned>("batchSize"));
+  //propagate batch size to inputs and outputs
+  setBatchSize(1);
 
   //print model info
   std::stringstream model_msg;
@@ -327,9 +335,11 @@ TritonClient::ServerSideStats TritonClient::summarizeServerStats(const inference
 inference::ModelStatistics TritonClient::getServerSideStatus() const {
   if (verbose_) {
     inference::ModelStatisticsResponse resp;
-    triton_utils::warnIfError(client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
-                              "getServerSideStatus(): unable to get model statistics");
-    return *(resp.model_stats().begin());
+    bool success = triton_utils::warnIfError(
+        client_->ModelInferenceStatistics(&resp, options_.model_name_, options_.model_version_),
+        "getServerSideStatus(): unable to get model statistics");
+    if (success)
+      return *(resp.model_stats().begin());
   }
   return inference::ModelStatistics{};
 }
@@ -340,10 +350,9 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   fillBasePSetDescription(descClient);
   descClient.add<std::string>("modelName");
   descClient.add<std::string>("modelVersion", "");
+  descClient.add<edm::FileInPath>("modelConfigPath");
   //server parameters should not affect the physics results
-  descClient.addUntracked<unsigned>("batchSize");
-  descClient.addUntracked<std::string>("address");
-  descClient.addUntracked<unsigned>("port");
+  descClient.addUntracked<std::string>("preferredServer", "");
   descClient.addUntracked<unsigned>("timeout");
   descClient.addUntracked<bool>("verbose", false);
   descClient.addUntracked<std::vector<std::string>>("outputs", {});

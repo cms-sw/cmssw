@@ -1,11 +1,7 @@
 <use name="Geometry/HGCalGeometry"/>
-<use name="Geometry/HcalTowerAlgo"/>
-<use name="Geometry/CaloTopology"/>
 <use name="L1Trigger/L1THGCal"/>
 <use name="Geometry/Records"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="DataFormats/L1Trigger"/>
-<use name="SimDataFormats/CaloTest"/>
 <library name="testL1TriggerL1THGCal" file="HGCalTriggerGeomTester.cc,HGCalTriggerGeomTesterV9.cc,HGCalTriggerGeomTesterV9Imp2.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

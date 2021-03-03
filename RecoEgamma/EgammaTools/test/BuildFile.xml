@@ -2,6 +2,6 @@
   <use name="FWCore/Framework"/>
   <use name="CondCore/DBOutputService"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="CondFormats/EgammaObjects"/>
+  <use name="CondFormats/GBRForest"/>
   <flags EDM_PLUGIN="1"/>
 </library>

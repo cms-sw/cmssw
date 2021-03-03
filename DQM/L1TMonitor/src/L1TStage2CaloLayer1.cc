@@ -346,12 +346,38 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
 void L1TStage2CaloLayer1::updateMismatch(
     const edm::Event& e,
     int mismatchType,
-    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& streamMismatches) const {
-  std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> mismatchToInsert = {
-      e.getRun().id(), e.getLuminosityBlock().id(), e.id(), mismatchType};
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>>>& streamMismatches)
+    const {
+  //check if this combination of Run/Lumi/Event already exists in the stream mismatch list
+  //if it does, update that entry, otherwise insert a new one with this particular combination.
+  for (auto mismatchIterator = streamMismatches.begin(); mismatchIterator != streamMismatches.end();
+       ++mismatchIterator) {
+    if (e.getRun().id() == std::get<0>(*mismatchIterator) &&
+        e.getLuminosityBlock().id() == std::get<1>(*mismatchIterator) && e.id() == std::get<2>(*mismatchIterator)) {
+      //the run, lumi and event exist. Check if this kind of mismatch has been reported before
+      std::vector<int>& mismatchTypeVector = std::get<3>(*mismatchIterator);
+      for (auto mismatchTypeIterator = mismatchTypeVector.begin(); mismatchTypeIterator != mismatchTypeVector.end();
+           ++mismatchTypeIterator) {
+        if (mismatchType == *mismatchTypeIterator) {
+          //this has already been reported
+          return;
+        }
+      }
+      //A mismatch exists, but it is not a type that has been previously reported.
+      //Insert it into the vector of types of mismatches reported
+      mismatchTypeVector.push_back(mismatchType);
+      return;
+    }
+  }
+
+  //The run/lumi/event does not exist in the list, construct an entry
+  std::vector<int> newMismatchTypeVector;
+  newMismatchTypeVector.push_back(mismatchType);
+  std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>> mismatchToInsert = {
+      e.getRun().id(), e.getLuminosityBlock().id(), e.id(), newMismatchTypeVector};
   streamMismatches.push_back(mismatchToInsert);
-  //This 20 is potentially a non-obvious constant "magic number"
-  //this matches the mismatch detail histogram, but should be upgraded to not use the constant in this manner.
+
+  //maintain the mismatch vector size at 20.
   if (streamMismatches.size() > 20)
     streamMismatches.erase(streamMismatches.begin());
 }
@@ -607,8 +633,8 @@ void L1TStage2CaloLayer1::globalEndLuminosityBlockSummary(
 // based on Run, Lumisection, and event number
 //false otherwise
 bool L1TStage2CaloLayer1::isLaterMismatch(
-    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>& candidateMismatch,
-    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>& comparisonMismatch) const {
+    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>>& candidateMismatch,
+    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>>& comparisonMismatch) const {
   //check the run. If the run ID of the candidate mismatch is less than the run ID of the comparison mismatch, it is earlier,
   if (std::get<0>(candidateMismatch) < std::get<0>(comparisonMismatch))
     return false;
@@ -637,8 +663,8 @@ bool L1TStage2CaloLayer1::isLaterMismatch(
 //will find an interger we add to the iterator to get the proper location to find the insertion location
 //will return -1 if the mismatch should not be inserted into the list
 int L1TStage2CaloLayer1::findIndex(
-    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int> candidateMismatch,
-    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> comparisonList,
+    std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>> candidateMismatch,
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>>> comparisonList,
     int lowerIndexToSearch,
     int upperIndexToSearch) const {
   //Start by getting the spot in the the vector to start searching
@@ -697,8 +723,9 @@ int L1TStage2CaloLayer1::findIndex(
 
 //will shuffle the candidate mismatch list into the comparison mismatch list.
 void L1TStage2CaloLayer1::mergeMismatchVectors(
-    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& candidateMismatchList,
-    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>>& comparisonMismatchList) const {
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>>>& candidateMismatchList,
+    std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, std::vector<int>>>& comparisonMismatchList)
+    const {
   //okay now we loop over our candidate mismatches
   for (auto candidateIterator = candidateMismatchList.begin(); candidateIterator != candidateMismatchList.end();
        ++candidateIterator) {
@@ -748,7 +775,17 @@ void L1TStage2CaloLayer1::globalEndRunSummary(
                            std::to_string(std::get<1>(*mismatchIterator).luminosityBlock()) + ":" +
                            std::to_string(std::get<2>(*mismatchIterator).event());
     theRunCache->last20Mismatches_->setBinLabel(ibin, binLabel, 2);
-    theRunCache->last20Mismatches_->setBinContent(std::get<3>(*mismatchIterator) + 1, ibin, 1);
+    //Get the vector of mismatches for this particular event and iterate through it.
+    //Set the bin content to 1 for each type of mismatch seen
+    std::vector<int> mismatchTypeVector = std::get<3>(*mismatchIterator);
+    for (auto mismatchTypeIterator = mismatchTypeVector.begin(); mismatchTypeIterator != mismatchTypeVector.end();
+         ++mismatchTypeIterator) {
+      theRunCache->last20Mismatches_->setBinContent(*mismatchTypeIterator + 1, ibin, 1);
+    }
     ++ibin;
+  }
+  //remove the remaining empty string labels to prevent overlap
+  for (int emptyBinIndex = ibin; emptyBinIndex <= 20; ++emptyBinIndex) {
+    theRunCache->last20Mismatches_->setBinLabel(emptyBinIndex, std::to_string(emptyBinIndex), 2);
   }
 }

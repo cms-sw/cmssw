@@ -66,11 +66,13 @@ private:
 
   bool bookedStatus_;
   int nSubSystem_;
-  std::string qualityLabel_;
 
-  edm::ESHandle<SiStripQuality> siStripQuality_;
-  edm::ESHandle<TrackerTopology> tTopo_;
-  edm::ESHandle<SiStripFedCabling> fedCabling_;
+  const SiStripQuality* siStripQuality_;
+  const TrackerTopology* tTopo_;
+  const SiStripFedCabling* fedCabling_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
   bool addBadCompFromFedErr_;
   float fedErrCutoff_;
 };

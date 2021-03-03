@@ -43,6 +43,7 @@
 
 using namespace edm;
 using namespace edm::service;
+using namespace edm::messagelogger;
 
 namespace {
   constexpr std::array<char const*, 12> s_globalTransitionNames = {{"@beginJob",
@@ -227,6 +228,9 @@ namespace edm {
       iRegistry.watchPreSourceConstruction(this, &MessageLogger::preSourceConstruction);
       iRegistry.watchPostSourceConstruction(this, &MessageLogger::postSourceConstruction);
       // change log 3
+
+      iRegistry.watchPreModuleDestruction(this, &MessageLogger::preModuleDestruction);
+      iRegistry.watchPostModuleDestruction(this, &MessageLogger::postModuleDestruction);
 
       iRegistry.watchPreModuleEvent(this, &MessageLogger::preModuleEvent);
       iRegistry.watchPostModuleEvent(this, &MessageLogger::postModuleEvent);
@@ -494,10 +498,15 @@ namespace edm {
       }
       establishModule(desc, "@ctor");  // ChangeLog 16
     }
-    void MessageLogger::postModuleConstruction(
-        const ModuleDescription&
-            iDescription) {  //it is now guaranteed that this will be called even if the module throws
+    //it is now guaranteed that this will be called even if the module throws
+    void MessageLogger::postModuleConstruction(const ModuleDescription& iDescription) {
       unEstablishModule(iDescription, "AfterModConstruction");
+    }
+
+    void MessageLogger::preModuleDestruction(const ModuleDescription& desc) { establishModule(desc, "@dtor"); }
+    //it is guaranteed that this will be called even if the module throws
+    void MessageLogger::postModuleDestruction(const ModuleDescription& iDescription) {
+      unEstablishModule(iDescription, "AfterModDestruction");
     }
 
     void MessageLogger::preModuleBeginJob(const ModuleDescription& desc) {

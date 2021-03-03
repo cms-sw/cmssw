@@ -124,19 +124,11 @@ process.maxEvents = cms.untracked.PSet(
 ### that can be activated independently
 ################################################################
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-## process.MessageLogger.categories.append("RPCGeometry")
-process.MessageLogger.categories.append("RPCDigiProducer")
-## process.MessageLogger.categories.append("RPCSimSetup")
-## process.MessageLogger.categories.append("RPCSimSetupClsLoopDetails")
-## process.MessageLogger.categories.append("RPCSimSetupNoiseLoopDetails")
-## process.MessageLogger.categories.append("RPCSimSetupChecks")
-process.MessageLogger.categories.append("RPCSynchronizer")
-process.MessageLogger.categories.append("RPCDigitizer")
-process.MessageLogger.categories.append("RPCSimAsymmetricCls")
-## process.MessageLogger.categories.append("RPCSimAverageNoiseEffCls")
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.junk = dict()
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     threshold = cms.untracked.string("DEBUG"),
     default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),

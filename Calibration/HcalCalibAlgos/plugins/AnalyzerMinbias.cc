@@ -42,24 +42,18 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 namespace HcalMinbias {}
 

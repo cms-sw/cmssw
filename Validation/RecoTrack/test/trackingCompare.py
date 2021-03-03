@@ -75,6 +75,7 @@ limitSubFolders = {
     "tpEtaGreater2p7": limit,  # Efficiency for TrackingParticles with |eta| > 2.7 (phase 2)
     "allTPEffic":      ignore, # Efficiency with all TrackingParticles
     "bhadron":         limit,  # Efficiency with B-hadron TrackingParticles
+    "displaced":       limit,  # Efficiency for TrackingParticles with no tip or lip cuts
     "fromPV":          limit,  # Tracks from PV, signal TrackingParticles for efficiency and fakes
     "fromPVAllTP":     limit,  # Tracks from PV, all TrackingParticles for fakes
     "building":        ignore, # Built tracks (as opposed to selected tracks in above)

@@ -3,11 +3,14 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CALIB")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring(''),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('cout')
+    debugModules = cms.untracked.vstring('')
 )
 
 process.source = cms.Source("EmptyIOVSource",

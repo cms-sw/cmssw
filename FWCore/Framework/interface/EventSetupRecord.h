@@ -97,11 +97,13 @@ namespace edm {
                    unsigned int transitionID,
                    ESProxyIndex const* getTokenIndices,
                    EventSetupImpl const* iEventSetupImpl,
+                   ESParentContext const* iContext,
                    bool requireTokens) {
         impl_ = iImpl;
         transitionID_ = transitionID;
         getTokenIndices_ = getTokenIndices;
         eventSetupImpl_ = iEventSetupImpl;
+        context_ = iContext;
         requireTokens_ = requireTokens;
       }
 
@@ -118,7 +120,8 @@ namespace edm {
         typename HolderT::value_type const* value = nullptr;
         ComponentDescription const* desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-        impl_->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory, eventSetupImpl_);
+        impl_->getImplementation(
+            value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory, *context_, eventSetupImpl_);
 
         if (value) {
           iHolder = HolderT(value, desc);
@@ -143,7 +146,7 @@ namespace edm {
         ComponentDescription const* desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
         impl_->getImplementation(
-            value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory, eventSetupImpl_);
+            value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory, *context_, eventSetupImpl_);
 
         if (value) {
           validate(desc, iTag);
@@ -235,9 +238,11 @@ namespace edm {
         return H<T>(value, desc);
       }
 
-      EventSetupImpl const& eventSetup() const { return *eventSetupImpl_; }
+      EventSetupImpl const& eventSetup() const noexcept { return *eventSetupImpl_; }
 
-      ESProxyIndex const* getTokenIndices() const { return getTokenIndices_; }
+      ESProxyIndex const* getTokenIndices() const noexcept { return getTokenIndices_; }
+
+      ESParentContext const* esParentContext() const noexcept { return context_; }
 
       void validate(ComponentDescription const*, ESInputTag const&) const;
 
@@ -283,6 +288,7 @@ namespace edm {
       EventSetupRecordImpl const* impl_ = nullptr;
       EventSetupImpl const* eventSetupImpl_ = nullptr;
       ESProxyIndex const* getTokenIndices_ = nullptr;
+      ESParentContext const* context_ = nullptr;
       unsigned int transitionID_ = std::numeric_limits<unsigned int>::max();
       bool requireTokens_ = false;
     };
@@ -293,8 +299,9 @@ namespace edm {
                               unsigned int iTransitionID,
                               ESProxyIndex const* getTokenIndices,
                               EventSetupImpl const* eventSetupImpl,
+                              ESParentContext const* context,
                               bool requireTokens = false) {
-        setImpl(iImpl, iTransitionID, getTokenIndices, eventSetupImpl, requireTokens);
+        setImpl(iImpl, iTransitionID, getTokenIndices, eventSetupImpl, context, requireTokens);
       }
 
       EventSetupRecordKey key() const final { return impl()->key(); }

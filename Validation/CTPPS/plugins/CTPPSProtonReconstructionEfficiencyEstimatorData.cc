@@ -46,14 +46,12 @@ private:
   void endJob() override;
 
   edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
-
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
+  edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticsESToken_;
 
   bool pixelDiscardBXShiftedTracks_;
 
   double localAngleXMin_, localAngleXMax_, localAngleYMin_, localAngleYMax_;
-
-  std::string opticsLabel_;
 
   unsigned int n_prep_events_;
 
@@ -218,6 +216,8 @@ CTPPSProtonReconstructionEfficiencyEstimatorData::CTPPSProtonReconstructionEffic
       tokenRecoProtonsMultiRP_(
           consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
 
+      opticsESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("opticsLabel")))),
+
       pixelDiscardBXShiftedTracks_(iConfig.getParameter<bool>("pixelDiscardBXShiftedTracks")),
 
       localAngleXMin_(iConfig.getParameter<double>("localAngleXMin")),
@@ -225,7 +225,6 @@ CTPPSProtonReconstructionEfficiencyEstimatorData::CTPPSProtonReconstructionEffic
       localAngleYMin_(iConfig.getParameter<double>("localAngleYMin")),
       localAngleYMax_(iConfig.getParameter<double>("localAngleYMax")),
 
-      opticsLabel_(iConfig.getParameter<std::string>("opticsLabel")),
       n_prep_events_(iConfig.getParameter<unsigned int>("n_prep_events")),
       n_exp_prot_max_(iConfig.getParameter<unsigned int>("n_exp_prot_max")),
       n_sigmas_(iConfig.getParameter<std::vector<double>>("n_sigmas")),
@@ -290,13 +289,12 @@ void CTPPSProtonReconstructionEfficiencyEstimatorData::analyze(const edm::Event 
   std::ostringstream os;
 
   // get conditions
-  edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
-  iSetup.get<CTPPSInterpolatedOpticsRcd>().get(opticsLabel_, hOpticalFunctions);
+  const auto &opticalFunctions = iSetup.getData(opticsESToken_);
 
   // check optics change
   if (opticsWatcher_.check(iSetup)) {
-    data_[0].UpdateOptics(*hOpticalFunctions);
-    data_[1].UpdateOptics(*hOpticalFunctions);
+    data_[0].UpdateOptics(opticalFunctions);
+    data_[1].UpdateOptics(opticalFunctions);
   }
 
   // get input

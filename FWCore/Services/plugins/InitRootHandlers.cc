@@ -21,6 +21,7 @@
 #include "tbb/concurrent_unordered_set.h"
 #include "tbb/task.h"
 #include "tbb/task_scheduler_observer.h"
+#include "tbb/global_control.h"
 #include <memory>
 
 #include <thread>
@@ -124,6 +125,7 @@ namespace edm {
       bool resetErrHandler_;
       bool loadAllDictionaries_;
       bool autoLibraryLoader_;
+      bool interactiveDebug_;
       std::shared_ptr<const void> sigBusHandler_;
       std::shared_ptr<const void> sigSegvHandler_;
       std::shared_ptr<const void> sigIllHandler_;
@@ -154,7 +156,8 @@ namespace {
             }) != substrs.end());
   }
 
-  constexpr std::array<const char* const, 8> in_message{
+  //Contents of a message which should be reported as an INFO not a ERROR
+  constexpr std::array<const char* const, 9> in_message{
       {"no dictionary for class",
        "already in TClassTable",
        "matrix not positive definite",
@@ -162,18 +165,21 @@ namespace {
        "Problems declaring payload",
        "Announced number of args different from the real number of argument passed",  // Always printed if gDebug>0 - regardless of whether warning message is real.
        "nbins is <=0 - set to nbins = 1",
-       "nbinsy is <=0 - set to nbinsy = 1"}};
+       "nbinsy is <=0 - set to nbinsy = 1",
+       "tbb::global_control is limiting"}};
 
-  constexpr std::array<const char* const, 6> in_location{{"Fit",
+  //Location generating messages which should be reported as an INFO not a ERROR
+  constexpr std::array<const char* const, 7> in_location{{"Fit",
                                                           "TDecompChol::Solve",
                                                           "THistPainter::PaintInit",
                                                           "TUnixSystem::SetDisplay",
                                                           "TGClient::GetFontByName",
-                                                          "Inverter::Dinv"}};
+                                                          "Inverter::Dinv",
+                                                          "RTaskArenaWrapper"}};
 
-  constexpr std::array<const char* const, 3> in_message_print{{"number of iterations was insufficient",
-                                                               "bad integrand behavior",
-                                                               "integral is divergent, or slowly convergent"}};
+  constexpr std::array<const char* const, 3> in_message_print_error{{"number of iterations was insufficient",
+                                                                     "bad integrand behavior",
+                                                                     "integral is divergent, or slowly convergent"}};
 
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
     bool die = false;
@@ -257,7 +263,7 @@ namespace {
     // These are a special case because we do not want them to
     // be fatal, but we do want an error to print.
     bool alreadyPrinted = false;
-    if (find_if_string(el_message, in_message_print)) {
+    if (find_if_string(el_message, in_message_print_error)) {
       el_severity = edm::RootHandlers::SeverityLevel::kInfo;
       edm::LogError("Root_Error") << el_location << el_message;
       alreadyPrinted = true;
@@ -750,7 +756,8 @@ namespace edm {
           unloadSigHandler_(pset.getUntrackedParameter<bool>("UnloadRootSigHandler")),
           resetErrHandler_(pset.getUntrackedParameter<bool>("ResetRootErrHandler")),
           loadAllDictionaries_(pset.getUntrackedParameter<bool>("LoadAllDictionaries")),
-          autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool>("AutoLibraryLoader")) {
+          autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool>("AutoLibraryLoader")),
+          interactiveDebug_(pset.getUntrackedParameter<bool>("InteractiveDebug")) {
       stackTracePause_ = pset.getUntrackedParameter<int>("StackTracePauseTime");
 
       if (unloadSigHandler_) {
@@ -824,7 +831,9 @@ namespace edm {
       // Enable Root implicit multi-threading
       bool imt = pset.getUntrackedParameter<bool>("EnableIMT");
       if (imt && not ROOT::IsImplicitMTEnabled()) {
-        ROOT::EnableImplicitMT();
+        //cmsRun uses global_control to set the number of allowed threads to use
+        // we need to tell ROOT the same value in order to avoid unnecessary warnings
+        ROOT::EnableImplicitMT(tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism));
       }
     }
 
@@ -870,6 +879,10 @@ namespace edm {
           ->setComment(
               "If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which "
               "attempts to do a clean shutdown.");
+      desc.addUntracked<bool>("InteractiveDebug", false)
+          ->setComment(
+              "If True, leave gdb attached to cmsRun after a crash; "
+              "if False, attach gdb, print a stack trace, and quit gdb");
       desc.addUntracked<int>("DebugLevel", 0)->setComment("Sets ROOT's gDebug value.");
       desc.addUntracked<int>("StackTracePauseTime", 300)
           ->setComment("Seconds to pause other threads during stack trace.");
@@ -889,16 +902,18 @@ namespace edm {
         //In that case, we are already all setup
         return;
       }
-      if (snprintf(pidString_,
-                   pidStringLength_ - 1,
-                   "date; gdb -quiet -p %d 2>&1 <<EOF |\n"
-                   "set width 0\n"
-                   "set height 0\n"
-                   "set pagination no\n"
-                   "thread apply all bt\n"
-                   "EOF\n"
-                   "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'",
-                   getpid()) >= pidStringLength_) {
+      std::string gdbcmd{"date; gdb -quiet -p %d"};
+      if (!interactiveDebug_) {
+        gdbcmd +=
+            " 2>&1 <<EOF |\n"
+            "set width 0\n"
+            "set height 0\n"
+            "set pagination no\n"
+            "thread apply all bt\n"
+            "EOF\n"
+            "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'";
+      }
+      if (snprintf(pidString_, pidStringLength_ - 1, gdbcmd.c_str(), getpid()) >= pidStringLength_) {
         std::ostringstream sstr;
         sstr << "Unable to pre-allocate stacktrace handler information";
         edm::Exception except(edm::errors::OtherCMS, sstr.str());

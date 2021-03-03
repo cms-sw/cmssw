@@ -23,7 +23,6 @@
 // user include files
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"

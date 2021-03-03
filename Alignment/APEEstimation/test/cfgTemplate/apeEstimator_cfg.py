@@ -50,13 +50,13 @@ from CondCore.CondDB.CondDB_cfi import *
 ## Message Logger
 ##
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.categories.append('SectorBuilder')
-process.MessageLogger.categories.append('ResidualErrorBinning')
-process.MessageLogger.categories.append('HitSelector')
-process.MessageLogger.categories.append('CalculateAPE')
-process.MessageLogger.categories.append('ApeEstimator')
-process.MessageLogger.categories.append('TrackRefitter')
-process.MessageLogger.categories.append('AlignmentTrackSelector')
+process.MessageLogger.SectorBuilder=dict()
+process.MessageLogger.ResidualErrorBinning=dict()
+process.MessageLogger.HitSelector=dict()
+process.MessageLogger.CalculateAPE=dict()
+process.MessageLogger.ApeEstimator=dict()
+process.MessageLogger.TrackRefitter=dict()
+process.MessageLogger.AlignmentTrackSelector=dict()
 process.MessageLogger.cerr.threshold = 'WARNING'
 process.MessageLogger.cerr.INFO.limit = 0
 process.MessageLogger.cerr.default.limit = -1

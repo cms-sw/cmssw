@@ -79,6 +79,9 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
 
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+
   std::vector<TH1D*> h_eta_, h_eta0_, h_eta1_, h_rat0_, h_rat1_;
   TH1D *h_Dxy_, *h_Dz_, *h_Chi2_, *h_DpOverP_;
   TH1D *h_Layer_, *h_OutHit_, *h_InMiss_, *h_OutMiss_;
@@ -150,6 +153,9 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
                                    << "\nThreshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
                                    << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
                                    << hitEthrEEHi_;
+
+  tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
 
 void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -159,14 +165,10 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
                                    << iEvent.bunchCrossing();
 #endif
   //Get magnetic field
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField* bField = bFieldH.product();
+  const MagneticField* bField = &iSetup.getData(tok_bFieldH_);
 
   // get handles to calogeometry
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
 
   bool okC(true);
   //Get track collection

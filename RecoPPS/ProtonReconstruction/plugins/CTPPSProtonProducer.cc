@@ -411,8 +411,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
                 continue;
 
               // interpolation from tracking RPs
-              const double z_ti =
-                  -hGeometry->rpTranslation(tr_ti.rpId()).z();  // the minus sign fixes a bug in the diamond geometry
+              const double z_ti = hGeometry->rpTranslation(tr_ti.rpId()).z();
               const double f_i = (z_ti - z_j) / (z_i - z_j), f_j = (z_i - z_ti) / (z_i - z_j);
               const double x_inter = f_i * tr_i.x() + f_j * tr_j.x();
               const double x_inter_unc_sq =
@@ -499,7 +498,7 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
         // save single-RP results (un-indexed)
         for (const auto &p : singleRPResultsIndexed)
-          pOutSingleRP->emplace_back(std::move(p.second));
+          pOutSingleRP->emplace_back(p.second);
       }
 
       // dump log

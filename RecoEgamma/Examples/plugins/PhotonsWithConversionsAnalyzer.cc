@@ -1,47 +1,101 @@
-#include <iostream>
-//
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-//
-#include "RecoEgamma/Examples/plugins/PhotonsWithConversionsAnalyzer.h"
-#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
-#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
-#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
-//
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-//
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-//
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-//
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
+#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-//
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-//
+
+#include <iostream>
+#include <map>
+#include <vector>
+
+class PhotonsWithConversionsAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  //
+  explicit PhotonsWithConversionsAnalyzer(const edm::ParameterSet&);
+  ~PhotonsWithConversionsAnalyzer() override;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
+
+private:
+  float etaTransformation(float a, float b);
+
+  //
+  PhotonMCTruthFinder* thePhotonMCTruthFinder_;
+
+  std::string fOutputFileName_;
+  TFile* fOutputFile_;
+
+  int nEvt_;
+  int nMCPho_;
+  int nMatched_;
+
+  std::string HepMCLabel;
+  std::string SimTkLabel;
+  std::string SimVtxLabel;
+  std::string SimHitLabel;
+
+  std::string photonCollectionProducer_;
+  std::string photonCollection_;
+
+  TH1F* h_ErecoEMC_;
+  TH1F* h_deltaPhi_;
+  TH1F* h_deltaEta_;
+
+  //// All MC photons
+  TH1F* h_MCphoE_;
+  TH1F* h_MCphoPhi_;
+  TH1F* h_MCphoEta_;
+
+  //// visible MC Converted photons
+  TH1F* h_MCConvE_;
+  TH1F* h_MCConvPt_;
+  TH1F* h_MCConvEta_;
+
+  // SC from reco photons
+  TH1F* h_scE_;
+  TH1F* h_scEt_;
+  TH1F* h_scEta_;
+  TH1F* h_scPhi_;
+  //
+  TH1F* h_phoE_;
+  TH1F* h_phoEta_;
+  TH1F* h_phoPhi_;
+  //
+  // All tracks from reco photons
+  TH2F* h2_tk_nHitsVsR_;
+  //
+  TH2F* h2_tk_inPtVsR_;
+};
 
 using namespace std;
 

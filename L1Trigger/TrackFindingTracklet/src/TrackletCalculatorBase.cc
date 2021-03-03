@@ -403,8 +403,8 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
   ITC->r2.set_fval(r2 - settings_.rmean(layerdisk2_));
   ITC->z1.set_fval(z1);
   ITC->z2.set_fval(z2);
-  double sphi1 = angle0to2pi::make0To2pi(phi1 - phioffset_);
-  double sphi2 = angle0to2pi::make0To2pi(phi2 - phioffset_);
+  double sphi1 = angle0to2pi::make0To2pi(phi1 - phimin_);
+  double sphi2 = angle0to2pi::make0To2pi(phi2 - phimin_);
 
   ITC->phi1.set_fval(sphi1);
   ITC->phi2.set_fval(sphi2);
@@ -560,8 +560,9 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
   izproj[2] = ITC->zL_2_final.ival();
   izproj[3] = ITC->zL_3_final.ival();
 
-  if (!goodTrackPars(ITC->rinv_final.local_passes(), ITC->z0_final.local_passes()))
+  if (!goodTrackPars(ITC->rinv_final.local_passes(), ITC->z0_final.local_passes())) {
     return false;
+  }
 
   if (!inSector(iphi0, irinv, phi0approx, rinvapprox))
     return false;
@@ -600,7 +601,8 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
                        phiprojapprox[i],
                        zprojapprox[i],
                        ITC->der_phiL_final.fval(),
-                       ITC->der_zL_final.fval());
+                       ITC->der_zL_final.fval(),
+                       !(iSeed_ == 1 || iSeed_ == 2));
   }
 
   iphiprojdisk[0] = ITC->phiD_0_final.ival();
@@ -835,8 +837,8 @@ bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
   int signt = t > 0 ? 1 : -1;
   ITC->z1.set_fval(z1 - signt * settings_.zmean(layerdisk1_ - N_LAYER));
   ITC->z2.set_fval(z2 - signt * settings_.zmean(layerdisk2_ - N_LAYER));
-  double sphi1 = angle0to2pi::make0To2pi(phi1 - phioffset_);
-  double sphi2 = angle0to2pi::make0To2pi(phi2 - phioffset_);
+  double sphi1 = angle0to2pi::make0To2pi(phi1 - phimin_);
+  double sphi2 = angle0to2pi::make0To2pi(phi2 - phimin_);
   ITC->phi1.set_fval(sphi1);
   ITC->phi2.set_fval(sphi2);
 
@@ -1001,7 +1003,8 @@ bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
                        phiprojapprox[i],
                        zprojapprox[i],
                        ITC->der_phiL_final.fval(),
-                       ITC->der_zL_final.fval());
+                       ITC->der_zL_final.fval(),
+                       true);
   }
 
   iphiprojdisk[0] = ITC->phiD_0_final.ival();
@@ -1191,8 +1194,8 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
   int signt = t > 0 ? 1 : -1;
   ITC->z1.set_fval(z2);
   ITC->z2.set_fval(z1 - signt * settings_.zmean(layerdisk2_ - N_LAYER));
-  double sphi1 = angle0to2pi::make0To2pi(phi1 - phioffset_);
-  double sphi2 = angle0to2pi::make0To2pi(phi2 - phioffset_);
+  double sphi1 = angle0to2pi::make0To2pi(phi1 - phimin_);
+  double sphi2 = angle0to2pi::make0To2pi(phi2 - phimin_);
   ITC->phi1.set_fval(sphi2);
   ITC->phi2.set_fval(sphi1);
 
@@ -1374,7 +1377,8 @@ bool TrackletCalculatorBase::overlapSeeding(const Stub* innerFPGAStub,
                        phiprojapprox[i],
                        zprojapprox[i],
                        ITC->der_phiL_final.fval(),
-                       ITC->der_zL_final.fval());
+                       ITC->der_zL_final.fval(),
+                       true);
   }
 
   for (int i = 0; i < 4; ++i) {

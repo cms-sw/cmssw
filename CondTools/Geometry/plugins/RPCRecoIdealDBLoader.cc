@@ -14,15 +14,25 @@
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryParsFromDD.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class RPCRecoIdealDBLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  RPCRecoIdealDBLoader(const edm::ParameterSet&) {}
+  RPCRecoIdealDBLoader(const edm::ParameterSet&);
 
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+
+private:
+  bool fromDD4Hep_;
 };
+
+RPCRecoIdealDBLoader::RPCRecoIdealDBLoader(const edm::ParameterSet& iC) {
+  fromDD4Hep_ = iC.getUntrackedParameter<bool>("fromDD4Hep", false);
+}
 
 void RPCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
   RecoIdealGeometry* rig = new RecoIdealGeometry;
@@ -32,16 +42,22 @@ void RPCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
     return;
   }
 
-  edm::ESTransientHandle<DDCompactView> pDD;
   edm::ESHandle<MuonGeometryConstants> pMNDC;
-  es.get<IdealGeometryRecord>().get(pDD);
-  es.get<IdealGeometryRecord>().get(pMNDC);
-
-  const DDCompactView& cpv = *pDD;
   RPCGeometryParsFromDD rpcpd;
 
-  rpcpd.build(&cpv, *pMNDC, *rig);
-
+  if (fromDD4Hep_) {
+    edm::ESTransientHandle<cms::DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+    es.get<IdealGeometryRecord>().get(pMNDC);
+    const cms::DDCompactView& cpv = *pDD;
+    rpcpd.build(&cpv, *pMNDC, *rig);
+  } else {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+    es.get<IdealGeometryRecord>().get(pMNDC);
+    const DDCompactView& cpv = *pDD;
+    rpcpd.build(&cpv, *pMNDC, *rig);
+  }
   if (mydbservice->isNewTagRequest("RPCRecoGeometryRcd")) {
     mydbservice->createNewIOV<RecoIdealGeometry>(
         rig, mydbservice->beginOfTime(), mydbservice->endOfTime(), "RPCRecoGeometryRcd");

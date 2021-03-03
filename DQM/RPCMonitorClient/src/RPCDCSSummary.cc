@@ -126,7 +126,7 @@ void RPCDCSSummary::myBooker(DQMStore::IBooker& ibooker) {
     limit = 2;
 
   for (int i = -1 * limit; i <= limit; i++) {  //loop on wheels and disks
-    if (i > -3 && i < 3) {                     //wheels
+    if (i > -3 && i < kNWheels - 2) {          //wheels
       std::stringstream streams;
       streams << "RPC_Wheel" << i;
       dcsWheelFractions[i + 2] = ibooker.bookFloat(streams.str());
@@ -140,8 +140,10 @@ void RPCDCSSummary::myBooker(DQMStore::IBooker& ibooker) {
     if (i > 0)
       offset--;  //used to skip case equale to zero
     std::stringstream streams;
-    streams << "RPC_Disk" << i;
-    dcsDiskFractions[i + 2] = ibooker.bookFloat(streams.str());
-    dcsDiskFractions[i + 2]->Fill(defaultValue_);
+    if (i > -3 && i < kNDisks - 2) {
+      streams << "RPC_Disk" << i;
+      dcsDiskFractions[i + 2] = ibooker.bookFloat(streams.str());
+      dcsDiskFractions[i + 2]->Fill(defaultValue_);
+    }
   }
 }

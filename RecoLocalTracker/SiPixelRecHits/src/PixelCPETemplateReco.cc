@@ -94,10 +94,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const& conf,
 //-----------------------------------------------------------------------------
 //  Clean up.
 //-----------------------------------------------------------------------------
-PixelCPETemplateReco::~PixelCPETemplateReco() {
-  for (auto x : thePixelTemp_)
-    x.destroy();
-}
+PixelCPETemplateReco::~PixelCPETemplateReco() {}
 
 std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPETemplateReco::createClusterParam(const SiPixelCluster& cl) const {
   return std::make_unique<ClusterParamTemplate>(cl);

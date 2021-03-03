@@ -1,4 +1,4 @@
-# /dev/CMSSW_11_2_0/GRun
+# /dev/CMSSW_11_3_0/GRun
 
 import FWCore.ParameterSet.Config as cms
 
@@ -983,24 +983,7 @@ streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.hltResults = cms.In
 streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.l1tResults = cms.InputTag('')
 streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.throw      = cms.bool(False)
 streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.triggerConditions = cms.vstring(
-    'DST_CaloJet40_BTagScouting_v15', 
-    'DST_CaloJet40_CaloBTagScouting_v14', 
-    'DST_CaloJet40_CaloScouting_PFScouting_v15', 
-    'DST_DoubleMu1_noVtx_CaloScouting_v2', 
-    'DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v6', 
-    'DST_DoubleMu3_noVtx_CaloScouting_v6', 
-    'DST_DoubleMu3_noVtx_Mass10_PFScouting_v3', 
-    'DST_HT250_CaloBTagScouting_v10', 
-    'DST_HT250_CaloScouting_v10', 
-    'DST_HT410_BTagScouting_v16', 
-    'DST_HT410_PFScouting_v16', 
-    'DST_L1DoubleMu_BTagScouting_v16', 
-    'DST_L1DoubleMu_CaloScouting_PFScouting_v15', 
-    'DST_L1HTT_BTagScouting_v15', 
-    'DST_L1HTT_CaloBTagScouting_v14', 
-    'DST_L1HTT_CaloScouting_PFScouting_v15', 
-    'DST_ZeroBias_BTagScouting_v15', 
-    'DST_ZeroBias_CaloScouting_PFScouting_v14', 
+    'DST_Run3_PFScoutingPixelTracking_v16', 
     'HLT_Ele115_CaloIdVT_GsfTrkIdT_v14', 
     'HLT_Ele35_WPTight_Gsf_v9', 
     'HLT_IsoMu27_v16', 

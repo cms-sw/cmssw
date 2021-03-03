@@ -73,6 +73,9 @@ namespace edm {
       void preModuleConstruction(ModuleDescription const&);
       void postModuleConstruction(ModuleDescription const&);
 
+      void preModuleDestruction(ModuleDescription const&);
+      void postModuleDestruction(ModuleDescription const&);
+
       void preSourceConstruction(ModuleDescription const&);
       void postSourceConstruction(ModuleDescription const&);
 
@@ -168,7 +171,7 @@ namespace edm {
       unsigned int runInfoBegin_ = 0;
 
       std::set<std::string> debugEnabledModules_;
-      std::map<std::string, ELseverityLevel> suppression_levels_;
+      std::map<std::string, messagelogger::ELseverityLevel> suppression_levels_;
       bool debugEnabled_;
       CMS_THREAD_SAFE static bool anyDebugEnabled_;
       CMS_THREAD_SAFE static bool everyDebugEnabled_;

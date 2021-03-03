@@ -140,7 +140,7 @@ void HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 
     std::string moduleName = "";
     if (genEvtInfoProduct.isValid()) {
-      const edm::Provenance& prov = iEvent.getProvenance(genEvtInfoProduct.id());
+      const edm::StableProvenance& prov = iEvent.getStableProvenance(genEvtInfoProduct.id());
       moduleName = edm::moduleName(prov, iEvent.processHistory());
     }
 

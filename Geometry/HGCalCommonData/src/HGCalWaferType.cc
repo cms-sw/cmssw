@@ -1,6 +1,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalProperty.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 //#define EDM_ML_DEBUG
@@ -103,9 +104,11 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
   return type;
 }
 
-int HGCalWaferType::getType(int index, const std::vector<int>& indices, const std::vector<int>& types) {
+int HGCalWaferType::getType(int index, const std::vector<int>& indices, const std::vector<int>& properties) {
   auto itr = std::find(std::begin(indices), std::end(indices), index);
-  int type = (itr == std::end(indices)) ? -1 : types[static_cast<unsigned int>(itr - std::begin(indices))];
+  int type = (itr == std::end(indices))
+                 ? -1
+                 : HGCalProperty::waferThick(properties[static_cast<unsigned int>(itr - std::begin(indices))]);
   return type;
 }
 

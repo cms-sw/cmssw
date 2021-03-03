@@ -94,8 +94,10 @@ namespace edm {
 
     constexpr Value_t value() const noexcept { return index_; }
 
+    static constexpr Value_t invalidValue() { return std::numeric_limits<Value_t>::max(); }
+
   private:
-    Value_t index_ = std::numeric_limits<int>::max();
+    Value_t index_ = std::numeric_limits<Value_t>::max();
   };
   inline std::ostream& operator<<(std::ostream& iOS, ESRecordIndex const& iIndex) {
     iOS << iIndex.value();

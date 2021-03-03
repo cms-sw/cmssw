@@ -245,11 +245,11 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
     theClusterParam.qBin_ = 0;
   }
 
-  int Q_f_X;  //!< Q of the first  pixel  in X
-  int Q_l_X;  //!< Q of the last   pixel  in X
-  int Q_f_Y;  //!< Q of the first  pixel  in Y
-  int Q_l_Y;  //!< Q of the last   pixel  in Y
-  collect_edge_charges(theClusterParam, Q_f_X, Q_l_X, Q_f_Y, Q_l_Y);
+  int q_f_X;  //!< Q of the first  pixel  in X
+  int q_l_X;  //!< Q of the last   pixel  in X
+  int q_f_Y;  //!< Q of the first  pixel  in Y
+  int q_l_Y;  //!< Q of the last   pixel  in Y
+  collect_edge_charges(theClusterParam, q_f_X, q_l_X, q_f_Y, q_l_Y);
 
   //--- Find the inner widths along X and Y in one shot.  We
   //--- compute the upper right corner of the inner pixels
@@ -306,8 +306,8 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
 
   float xPos = SiPixelUtils::generic_position_formula(
       theClusterParam.theCluster->sizeX(),
-      Q_f_X,
-      Q_l_X,
+      q_f_X,
+      q_l_X,
       local_URcorn_LLpix.x(),
       local_LLcorn_URpix.x(),
       chargeWidthX,  // lorentz shift in cm
@@ -330,8 +330,8 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
 
   float yPos = SiPixelUtils::generic_position_formula(
       theClusterParam.theCluster->sizeY(),
-      Q_f_Y,
-      Q_l_Y,
+      q_f_Y,
+      q_l_Y,
       local_URcorn_LLpix.y(),
       local_LLcorn_URpix.y(),
       chargeWidthY,  // lorentz shift in cm
@@ -398,16 +398,16 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
 //!  and the inner cluster charge, projected in x and y.
 //-----------------------------------------------------------------------------
 void PixelCPEGeneric::collect_edge_charges(ClusterParam& theClusterParamBase,  //!< input, the cluster
-                                           int& Q_f_X,                         //!< output, Q first  in X
-                                           int& Q_l_X,                         //!< output, Q last   in X
-                                           int& Q_f_Y,                         //!< output, Q first  in Y
-                                           int& Q_l_Y                          //!< output, Q last   in Y
+                                           int& q_f_X,                         //!< output, Q first  in X
+                                           int& q_l_X,                         //!< output, Q last   in X
+                                           int& q_f_Y,                         //!< output, Q first  in Y
+                                           int& q_l_Y                          //!< output, Q last   in Y
 ) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   // Initialize return variables.
-  Q_f_X = Q_l_X = 0.0;
-  Q_f_Y = Q_l_Y = 0.0;
+  q_f_X = q_l_X = 0.0;
+  q_f_Y = q_l_Y = 0.0;
 
   // Obtain boundaries in index units
   int xmin = theClusterParam.theCluster->minPixelRow();
@@ -427,15 +427,15 @@ void PixelCPEGeneric::collect_edge_charges(ClusterParam& theClusterParamBase,  /
     //
     // X projection
     if (pixel.x == xmin)
-      Q_f_X += pix_adc;
+      q_f_X += pix_adc;
     if (pixel.x == xmax)
-      Q_l_X += pix_adc;
+      q_l_X += pix_adc;
     //
     // Y projection
     if (pixel.y == ymin)
-      Q_f_Y += pix_adc;
+      q_f_Y += pix_adc;
     if (pixel.y == ymax)
-      Q_l_Y += pix_adc;
+      q_l_Y += pix_adc;
   }
 
   return;
@@ -494,42 +494,40 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
   bool useTempErrors =
       UseErrorsFromTemplates_ && (!NoTemplateErrorsWhenNoTrkAngles_ || theClusterParam.with_track_angle);
 
-  if
-    LIKELY(useTempErrors) {
-      //
-      // Use template errors
+  if LIKELY (useTempErrors) {
+    //
+    // Use template errors
 
-      if (!edgex) {  // Only use this for non-edge clusters
-        if (sizex == 1) {
-          if (!bigInX) {
-            xerr = theClusterParam.sx1;
-          } else {
-            xerr = theClusterParam.sx2;
-          }
+    if (!edgex) {  // Only use this for non-edge clusters
+      if (sizex == 1) {
+        if (!bigInX) {
+          xerr = theClusterParam.sx1;
         } else {
-          xerr = theClusterParam.sigmax;
+          xerr = theClusterParam.sx2;
         }
-      }
-
-      if (!edgey) {  // Only use for non-edge clusters
-        if (sizey == 1) {
-          if (!bigInY) {
-            yerr = theClusterParam.sy1;
-          } else {
-            yerr = theClusterParam.sy2;
-          }
-        } else {
-          yerr = theClusterParam.sigmay;
-        }
-      }
-
-      if (localPrint) {
-        cout << " in if " << edgex << " " << edgey << " " << sizex << " " << sizey << endl;
-        cout << " errors  " << xerr << " " << yerr << " " << theClusterParam.sx1 << " " << theClusterParam.sx2 << " "
-             << theClusterParam.sigmax << endl;  //dk
+      } else {
+        xerr = theClusterParam.sigmax;
       }
     }
-  else {  // simple errors
+
+    if (!edgey) {  // Only use for non-edge clusters
+      if (sizey == 1) {
+        if (!bigInY) {
+          yerr = theClusterParam.sy1;
+        } else {
+          yerr = theClusterParam.sy2;
+        }
+      } else {
+        yerr = theClusterParam.sigmay;
+      }
+    }
+
+    if (localPrint) {
+      cout << " in if " << edgex << " " << edgey << " " << sizex << " " << sizey << endl;
+      cout << " errors  " << xerr << " " << yerr << " " << theClusterParam.sx1 << " " << theClusterParam.sx2 << " "
+           << theClusterParam.sigmax << endl;  //dk
+    }
+  } else {  // simple errors
 
     // This are the simple errors, hardcoded in the code
     //cout << "Track angles are not known " << endl;

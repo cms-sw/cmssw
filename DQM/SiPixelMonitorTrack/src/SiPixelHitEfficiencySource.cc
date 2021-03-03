@@ -17,53 +17,34 @@
 #include <utility>
 #include <vector>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-//#include "RecoLocalTracker/SiPixelRecHits/plugins/PixelCPEGenericESProducer.h"
-
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelHitEfficiencySource.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 using namespace std;
 using namespace edm;
@@ -91,6 +72,17 @@ SiPixelHitEfficiencySource::SiPixelHitEfficiencySource(const edm::ParameterSet &
   clusterCollectionToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(std::string("siPixelClusters"));
 
   measurementTrackerEventToken_ = consumes<MeasurementTrackerEvent>(std::string("MeasurementTrackerEvent"));
+
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  measurementTrackerToken_ = esConsumes<MeasurementTracker, CkfComponentsRecord>();
+  chi2MeasurementEstimatorBaseToken_ =
+      esConsumes<Chi2MeasurementEstimatorBase, TrackingComponentsRecord>(edm::ESInputTag("", "Chi2"));
+  propagatorToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", "PropagatorWithMaterial"));
+  pixelClusterParameterEstimatorToken_ =
+      esConsumes<PixelClusterParameterEstimator, TkPixelCPERecord>(edm::ESInputTag("", "PixelCPEGeneric"));
+  trackerTopoTokenBeginRun_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+  trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
 
   firstRun = true;
 
@@ -162,8 +154,7 @@ void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run &r, edm::EventSetup 
     firstRun = false;
   }
 
-  edm::ESHandle<TrackerGeometry> TG;
-  iSetup.get<TrackerDigiGeometryRecord>().get(TG);
+  edm::ESHandle<TrackerGeometry> TG = iSetup.getHandle(trackerGeomTokenBeginRun_);
   if (debug_)
     LogVerbatim("PixelDQM") << "TrackerGeometry " << &(*TG) << " size is " << TG->dets().size() << endl;
 
@@ -192,48 +183,52 @@ void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker &iBooker,
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms
   // per det
   SiPixelFolderOrganizer theSiPixelFolder(false);
+
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
   for (std::map<uint32_t, SiPixelHitEfficiencyModule *>::iterator pxd = theSiPixelStructure.begin();
        pxd != theSiPixelStructure.end();
        pxd++) {
     if (modOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 0, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 0, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 0, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Folder Creation Failed! ";
     }
     if (ladOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 1, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 1, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 1, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource ladder Folder Creation Failed! ";
     }
     if (layOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 2, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 2, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 2, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource layer Folder Creation Failed! ";
     }
     if (phiOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 3, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 3, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 3, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource phi Folder Creation Failed! ";
     }
     if (bladeOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 4, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 4, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 4, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Blade Folder Creation Failed! ";
     }
     if (diskOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 5, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 5, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 5, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Disk Folder Creation Failed! ";
     }
     if (ringOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*pxd).first, 6, isUpgrade))
-        (*pxd).second->book(pSet_, iSetup, iBooker, 6, isUpgrade);
+        (*pxd).second->book(pSet_, pTT, iBooker, 6, isUpgrade);
       else
         throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Ring Folder Creation Failed! ";
     }
@@ -286,8 +281,7 @@ void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker &iBooker,
 }
 
 void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   edm::Handle<reco::VertexCollection> vertexCollectionHandle;
@@ -352,16 +346,12 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
   float maxlxmatch_ = 0.2;
   float maxlymatch_ = 0.2;
   bool keepOriginalMissingHit_ = true;
-  ESHandle<MeasurementTracker> measurementTrackerHandle;
+  edm::ESHandle<MeasurementTracker> measurementTrackerHandle = iSetup.getHandle(measurementTrackerToken_);
 
-  iSetup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
-
-  edm::ESHandle<Chi2MeasurementEstimatorBase> est;
-  iSetup.get<TrackingComponentsRecord>().get("Chi2", est);
+  edm::ESHandle<Chi2MeasurementEstimatorBase> est = iSetup.getHandle(chi2MeasurementEstimatorBaseToken_);
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEventHandle;
   iEvent.getByToken(measurementTrackerEventToken_, measurementTrackerEventHandle);
-  edm::ESHandle<Propagator> prop;
-  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", prop);
+  edm::ESHandle<Propagator> prop = iSetup.getHandle(propagatorToken_);
   Propagator *thePropagator = prop.product()->clone();
   // determines direction of the propagator => inward
   if (extrapolateFrom_ >= extrapolateTo_) {
@@ -737,12 +727,11 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
           float dx_cl[2];
           float dy_cl[2];
           dx_cl[0] = dx_cl[1] = dy_cl[0] = dy_cl[1] = -9999.;
-          ESHandle<PixelClusterParameterEstimator> cpEstimator;
-          iSetup.get<TkPixelCPERecord>().get("PixelCPEGeneric", cpEstimator);
+          edm::ESHandle<PixelClusterParameterEstimator> cpEstimator =
+              iSetup.getHandle(pixelClusterParameterEstimatorToken_);
           if (cpEstimator.isValid()) {
             const PixelClusterParameterEstimator &cpe(*cpEstimator);
-            edm::ESHandle<TrackerGeometry> tracker;
-            iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+            edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
             if (tracker.isValid()) {
               const TrackerGeometry *tkgeom = &(*tracker);
               edm::Handle<edmNew::DetSetVector<SiPixelCluster>> clusterCollectionHandle;

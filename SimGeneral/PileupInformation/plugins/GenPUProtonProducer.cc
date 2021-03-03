@@ -17,6 +17,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <string>

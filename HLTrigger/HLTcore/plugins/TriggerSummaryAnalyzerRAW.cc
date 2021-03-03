@@ -157,6 +157,35 @@ void TriggerSummaryAnalyzerRAW::analyze(edm::StreamID, const edm::Event& iEvent,
       if (nL1TEtSum > 0)
         LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TEtSum: " << nL1TEtSum;
 
+      /* Phase-2 */
+      const unsigned int nL1TTkMuon(handle->l1ttkmuonSlice(iFO).second - handle->l1ttkmuonSlice(iFO).first);
+      if (nL1TTkMuon > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TTkMuon: " << nL1TTkMuon;
+
+      const unsigned int nL1TTkEle(handle->l1ttkeleSlice(iFO).second - handle->l1ttkeleSlice(iFO).first);
+      if (nL1TTkEle > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TTkEle: " << nL1TTkEle;
+
+      const unsigned int nL1TTkEm(handle->l1ttkemSlice(iFO).second - handle->l1ttkemSlice(iFO).first);
+      if (nL1TTkEm > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TTkEm: " << nL1TTkEm;
+
+      const unsigned int nL1TPFJet(handle->l1tpfjetSlice(iFO).second - handle->l1tpfjetSlice(iFO).first);
+      if (nL1TPFJet > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TPFJet: " << nL1TPFJet;
+
+      const unsigned int nL1TPFTau(handle->l1tpftauSlice(iFO).second - handle->l1tpftauSlice(iFO).first);
+      if (nL1TPFTau > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TPFTau: " << nL1TPFTau;
+
+      const unsigned int nL1THPSPFTau(handle->l1thpspftauSlice(iFO).second - handle->l1thpspftauSlice(iFO).first);
+      if (nL1THPSPFTau > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1THPSPFTau: " << nL1THPSPFTau;
+
+      const unsigned int nL1TPFTrack(handle->l1tpftrackSlice(iFO).second - handle->l1tpftrackSlice(iFO).first);
+      if (nL1TPFTrack > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TPFTrack: " << nL1TPFTrack;
+
       LogVerbatim("TriggerSummaryAnalyzerRAW") << endl;
     }
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "Elements in linearised collections of Refs: " << endl;
@@ -181,6 +210,15 @@ void TriggerSummaryAnalyzerRAW::analyze(edm::StreamID, const edm::Event& iEvent,
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TJet:     " << handle->l1tjetSize() << endl;
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTau:     " << handle->l1ttauSize() << endl;
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEtSum:   " << handle->l1tetsumSize() << endl;
+    /* Phase-2 */
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkMuon:    " << handle->l1ttkmuonSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkEle:     " << handle->l1ttkeleSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkEm:      " << handle->l1ttkemSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TPFJet:     " << handle->l1tpfjetSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TPFTau:     " << handle->l1tpftauSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1THPSPFTau:  " << handle->l1thpspftauSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TPFTrack:   " << handle->l1tpftrackSize() << endl;
+
   } else {
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "Handle invalid! Check InputTag provided." << endl;
   }

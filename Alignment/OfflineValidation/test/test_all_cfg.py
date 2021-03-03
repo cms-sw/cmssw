@@ -44,11 +44,12 @@ else:
 # Messages
 ###################################################################
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("PrimaryVertexValidation")  
-process.MessageLogger.categories.append("SplitVertexResolution")
-process.MessageLogger.categories.append("FilterOutLowPt")  
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.PrimaryVertexValidation=dict()  
+process.MessageLogger.SplitVertexResolution=dict()
+process.MessageLogger.FilterOutLowPt=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
@@ -56,9 +57,9 @@ process.MessageLogger.cout = cms.untracked.PSet(
                                    ),                                                      
     PrimaryVertexValidation = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     SplitVertexResolution   = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
-    FilterOutLowPt          = cms.untracked.PSet( limit = cms.untracked.int32(-1))
+    FilterOutLowPt          = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    enableStatistics = cms.untracked.bool(True)
     )
-process.MessageLogger.statistics.append('cout') 
 
 ####################################################################
 # Produce the Transient Track Record in the event

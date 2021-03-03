@@ -14,6 +14,7 @@ namespace trklet {
                    int projfinerz,
                    unsigned int projfinephi,
                    unsigned int iphi,
+                   bool usesecond,
                    bool isPSseed);
 
     ProjectionTemp();
@@ -26,6 +27,7 @@ namespace trklet {
     int projfinerz() const { return projfinerz_; }
     unsigned int projfinephi() const { return projfinephi_; }
     unsigned int iphi() const { return iphi_; }
+    bool usesecond() const { return usesecond_; }
     bool isPSseed() const { return isPSseed_; }
 
   private:
@@ -35,6 +37,7 @@ namespace trklet {
     unsigned int projfinerz_;
     unsigned int projfinephi_;
     unsigned int iphi_;
+    bool usesecond_;
     bool isPSseed_;
   };
 };  // namespace trklet

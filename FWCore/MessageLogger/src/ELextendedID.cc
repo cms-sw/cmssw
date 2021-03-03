@@ -45,7 +45,7 @@ namespace edm {
 
   void ELextendedID::clear() {
     id = "";
-    severity = ELunspecified;
+    severity = messagelogger::ELunspecified;
     module = "";
     subroutine = "";
 

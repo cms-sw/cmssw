@@ -107,7 +107,7 @@ hbheprereco = cms.EDProducer(
 )
 
 # Disable the "triangle peak fit" and the corresponding HBHETriangleNoise flag
-hbheprereco.pulseShapeParametersQIE8.TrianglePeakTS = cms.uint32(10000)
+hbheprereco.pulseShapeParametersQIE8.TrianglePeakTS = 10000
 
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 run2_HE_2017.toModify(hbheprereco, saveEffectivePedestal = True)

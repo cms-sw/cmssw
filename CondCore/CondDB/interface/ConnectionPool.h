@@ -63,15 +63,15 @@ namespace cond {
     private:
       std::string m_authPath = std::string("");
       int m_authSys = 0;
+      std::string m_authenticationService = std::string("");
       coral::MsgLevel m_messageLevel = coral::Error;
-      std::unique_ptr<CoralMsgReporter> m_msgReporter;
+      CoralMsgReporter* m_msgReporter = nullptr;
       bool m_loggingEnabled = false;
       //The frontier security option is turned on for all sessions
       //usig this wrapper of the CORAL connection setup for configuring the server access
       std::string m_frontierSecurity = std::string("");
       // this one has to be moved!
       cond::CoralServiceManager* m_pluginManager = nullptr;
-      std::map<std::string, int> m_dbTypes;
     };
   }  // namespace persistency
 }  // namespace cond

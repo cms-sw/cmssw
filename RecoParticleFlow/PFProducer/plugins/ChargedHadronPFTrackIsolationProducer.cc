@@ -59,14 +59,17 @@ void ChargedHadronPFTrackIsolationProducer::produce(edm::StreamID, edm::Event& e
         ((c.rawEcalEnergy() + c.rawHcalEnergy()) > minRawCaloEnergy_)) {
       const reco::PFCandidate::ElementsInBlocks& theElements = c.elementsInBlocks();
       if (theElements.empty())
-        continue;
-      const reco::PFBlockRef blockRef = theElements[0].first;
-      const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
-      // Find the tracks in the block
-      for (auto const& ele : elements) {
-        reco::PFBlockElement::Type type = ele.type();
-        if (type == reco::PFBlockElement::TRACK)
-          nTracks++;
+        nTracks = 1;  // the PFBlockElements is empty for pfTICL charged candidates
+      // because they don't go through PFBlocks machanism. We consider each charged candidate to be well isolated for now.
+      else {
+        const reco::PFBlockRef blockRef = theElements[0].first;
+        const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
+        // Find the tracks in the block
+        for (auto const& ele : elements) {
+          reco::PFBlockElement::Type type = ele.type();
+          if (type == reco::PFBlockElement::TRACK)
+            nTracks++;
+        }
       }
     }
     values.push_back((nTracks == 1));
