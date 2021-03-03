@@ -449,14 +449,14 @@ namespace edm {
       // one thread in the job. Having stream == 0 use spawn
       // avoids starting up another thread when there is only one stream.
       iHolder.group()->run([task]() {
+        TaskSentry s{task};
         task->execute();
-        delete task;
       });
     } else {
       tbb::task_arena arena{tbb::task_arena::attach()};
       arena.enqueue([task]() {
+        TaskSentry s{task};
         task->execute();
-        delete task;
       });
     }
   }
