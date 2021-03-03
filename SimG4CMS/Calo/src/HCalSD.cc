@@ -986,7 +986,8 @@ double HCalSD::layerWeight(int det, const G4ThreeVector& pos, int depth, int lay
 void HCalSD::plotProfile(const G4Step* aStep, const G4ThreeVector& global, double edep, double time, int id) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   static const unsigned int names = 10;
-  static const G4String modName[names] = {"HEModule", "HVQF", "HBModule", "MBAT", "MBBT", "MBBTC", "MBBT_R1P", "MBBT_R1M", "MBBT_R1PX", "MBBT_R1MX"};
+  static const G4String modName[names] = {
+      "HEModule", "HVQF", "HBModule", "MBAT", "MBBT", "MBBTC", "MBBT_R1P", "MBBT_R1M", "MBBT_R1PX", "MBBT_R1MX"};
   G4ThreeVector local;
   bool found = false;
   double depth = -2000;
