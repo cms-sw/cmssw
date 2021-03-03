@@ -21,6 +21,7 @@
 #include "tbb/concurrent_unordered_set.h"
 #include "tbb/task.h"
 #include "tbb/task_scheduler_observer.h"
+#include "tbb/global_control.h"
 #include <memory>
 
 #include <thread>
@@ -830,7 +831,9 @@ namespace edm {
       // Enable Root implicit multi-threading
       bool imt = pset.getUntrackedParameter<bool>("EnableIMT");
       if (imt && not ROOT::IsImplicitMTEnabled()) {
-        ROOT::EnableImplicitMT();
+        //cmsRun uses global_control to set the number of allowed threads to use
+        // we need to tell ROOT the same value in order to avoid unnecessary warnings
+        ROOT::EnableImplicitMT(tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism));
       }
     }
 
