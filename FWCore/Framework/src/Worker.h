@@ -453,7 +453,6 @@ namespace edm {
         }
 
         m_worker->runModuleAfterAsyncPrefetch<T>(excptr, m_transitionInfo, m_streamID, m_parentContext, m_context);
-        return;
       }
 
     private:
@@ -478,7 +477,7 @@ namespace edm {
                   ServiceToken const&,
                   ParentContext const&,
                   WaitingTaskWithArenaHolder) {}
-      void execute() final { return; }
+      void execute() final {}
     };
 
     template <typename DUMMY>
@@ -533,7 +532,6 @@ namespace edm {
         }
 
         m_worker->runAcquireAfterAsyncPrefetch(excptr, m_eventTransitionInfo, m_parentContext, std::move(m_holder));
-        return;
       }
 
     private:
@@ -961,18 +959,15 @@ namespace edm {
           DestroyTask(edm::WaitingTask* iTask) : m_task(iTask) {}
 
           ~DestroyTask() {
-            auto p = m_task.load();
+            auto p = m_task.exchange(nullptr);
             if (p) {
-              delete p;
+              TaskSentry s{p};
             }
           }
 
-          edm::WaitingTask* release() {
-            auto t = m_task.load();
-            m_task.store(nullptr);
-            return t;
-          }
+          edm::WaitingTask* release() { return m_task.exchange(nullptr); }
 
+        private:
           std::atomic<edm::WaitingTask*> m_task;
         };
         auto* group = task.group();

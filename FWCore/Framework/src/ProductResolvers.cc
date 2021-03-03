@@ -294,8 +294,8 @@ namespace edm {
         //Have to create a new task
         auto t = make_functor_task(workToDo);
         waitTask.group()->run([t]() {
+          TaskSentry s{t};
           t->execute();
-          delete t;
         });
       }
     }
@@ -987,7 +987,6 @@ namespace edm {
                 index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_, group_);
           }
         }
-        return;
       }
 
     private:

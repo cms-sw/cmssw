@@ -39,8 +39,8 @@ namespace {
     //NOTE, need the functor since group can not run a 'mutable' lambda
     auto t = edm::make_functor_task(iFunc);
     iGroup.run([t]() {
+      edm::TaskSentry s(t);
       t->execute();
-      delete t;
     });
   }
 }  // namespace
