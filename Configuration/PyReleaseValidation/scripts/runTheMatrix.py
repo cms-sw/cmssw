@@ -303,6 +303,22 @@ if __name__ == '__main__':
                       default=None,
                       action='store')
 
+    parser.add_option('--gpuClass',
+                      help='to specify GPU class',
+                      default='')
+    parser.add_option('--gpuDriverVersion',
+                      help='to specify GPU driver version',
+                      default='')
+    parser.add_option('--gpuRuntime',
+                      help='to specify GPU runtime',
+                      default='')
+    parser.add_option('--gpuMemory',
+                      help='to specify GPU memory',
+                      default='')
+    parser.add_option('--gpuRuntimeVersion',
+                      help='to specify GPU runtime version',
+                      default='')
+
     opt,args = parser.parse_args()
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.IBEos:

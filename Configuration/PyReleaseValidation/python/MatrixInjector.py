@@ -64,6 +64,12 @@ class MatrixInjector(object):
         self.batchTime = str(int(time.time()))
         if(opt.batchName):
             self.batchName = '__'+opt.batchName+'-'+self.batchTime
+        #GPU tuff
+        self.gpuClass = opt.gpuClass
+        self.gpuDriverVersion = opt.gpuDriverVersion
+        self.gpuRuntime = opt.gpuRuntime
+        self.gpuMemory = opt.gpuMemory
+        self.gpuRuntimeVersion = opt.gpuRuntimeVersion
 
         # WMagent url
         if not self.wmagent:
@@ -132,6 +138,11 @@ class MatrixInjector(object):
             "Memory" : 3000,
             "SizePerEvent" : 1234,
             "TimePerEvent" : 10,
+            "GPUClass": None,
+            "GPUDriverVersion": None, 
+            "GPURuntime": None, 
+            "GPUMemory": None, 
+            "GPURuntimeVersion": None,
             "PrepID": os.getenv('CMSSW_VERSION')
             }
 
@@ -321,6 +332,16 @@ class MatrixInjector(object):
         for (n,dir) in directories.items():
             chainDict=copy.deepcopy(self.defaultChain)
             print("inspecting",dir)
+            if self.gpuClass:
+                chainDict['GPUClass'] = self.gpuClass
+            if self.gpuDriverVersion:
+                chainDict['GPUDriverVersion'] =self.gpuDriverVersion
+            if self.gpuRuntime:
+                chainDict['GPURuntime'] =self.gpuRuntime
+            if self.gpuMemory:
+                chainDict['GPUMemory'] =self.gpuMemory
+            if self.gpuRuntimeVersion:
+                chainDict['GPURuntimeVersion'] =self.gpuRuntimeVersion
             nextHasDSInput=None
             for (x,s) in mReader.workFlowSteps.items():
                 #x has the format (num, prefix)
