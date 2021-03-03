@@ -50,6 +50,7 @@ if [ ! -f ./callgraph.py ]
    cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/callgraph.py .
    cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/modules_in_ib.txt .
 fi
+touch eventsetuprecord-get-all.txt eventsetuprecord-get.txt
 ./callgraph.py 2>&1 > eventsetuprecord-get-all.txt
 grep -f modules_in_ib.txt eventsetuprecord-get-all.txt | awk '{print $0"\n"}' > eventsetuprecord-get.txt
 
