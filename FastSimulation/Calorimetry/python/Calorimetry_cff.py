@@ -262,7 +262,7 @@ FamosCalorimetryBlock = cms.PSet(
             timeShiftHF = cms.vdouble(50.7, 52.5, 52.9, 53.9, 54.5, 55.1, 55.1, 55.7, 55.9, 56.1, 56.1, 56.1, 56.5),
             ),
         HFShower           = cms.PSet(
-            ProbMax          = cms.double(0.5),
+            ProbMax          = cms.double(1.0),
             CFibre           = cms.double(0.5),
             OnlyLong          = cms.bool(True)
             ),
@@ -300,3 +300,5 @@ FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
 
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify(FamosCalorimetryBlock.Calorimetry.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root' )
+
+run2_common.toModify(FamosCalorimetryBlock.Calorimetry.HFShower, ProbMax = 0.5 )
