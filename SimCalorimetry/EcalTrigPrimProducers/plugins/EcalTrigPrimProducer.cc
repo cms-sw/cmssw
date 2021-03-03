@@ -42,6 +42,7 @@
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
@@ -57,6 +58,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
+
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "EcalTrigPrimProducer.h"
 
@@ -126,8 +130,24 @@ void EcalTrigPrimProducer::beginRun(edm::Run const &run, edm::EventSetup const &
   // ProcessHistory is guaranteed to be constant for an entire Run
   binOfMaximum_ = findBinOfMaximum(fillBinOfMaximumFromHistory_, binOfMaximum_, run.processHistory());
 
-  algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(setup, binOfMaximum_, tcpFormat_, barrelOnly_, debug_, famos_);
-
+  edm::ESHandle<EcalElectronicsMapping> ecalmapping;
+  setup.get<EcalMappingRcd>().get(ecalmapping);
+  if (barrelOnly_) {
+    algo_ =
+        std::make_unique<EcalTrigPrimFunctionalAlgo>(ecalmapping.product(), binOfMaximum_, tcpFormat_, debug_, famos_);
+  } else {
+    edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
+    setup.get<EcalEndcapGeometryRecord>().get("EcalEndcap", theEndcapGeometry_handle);
+    edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap;
+    setup.get<IdealGeometryRecord>().get(eTTmap);
+    algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(eTTmap.product(),
+                                                         theEndcapGeometry_handle.product(),
+                                                         ecalmapping.product(),
+                                                         binOfMaximum_,
+                                                         tcpFormat_,
+                                                         debug_,
+                                                         famos_);
+  }
   // get a first version of the records
   cacheID_ = this->getRecords(setup);
 }

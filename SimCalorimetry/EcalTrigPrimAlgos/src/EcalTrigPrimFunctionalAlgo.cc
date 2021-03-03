@@ -48,11 +48,19 @@ const unsigned int EcalTrigPrimFunctionalAlgo::maxNrTPs_ = 2448;  // FIXME??
 
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(
-    const edm::EventSetup &setup, int binofmax, bool tcpFormat, bool barrelOnly, bool debug, bool famos)
-    : binOfMaximum_(binofmax),
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const EcalTrigTowerConstituentsMap *eTTmap,
+                                                       const CaloSubdetectorGeometry *endcapGeometry,
+                                                       const EcalElectronicsMapping *theMapping,
+                                                       int binofmax,
+                                                       bool tcpFormat,
+                                                       bool debug,
+                                                       bool famos)
+    : eTTmap_(eTTmap),
+      theEndcapGeometry_(endcapGeometry),
+      theMapping_(theMapping),
+      binOfMaximum_(binofmax),
       tcpFormat_(tcpFormat),
-      barrelOnly_(barrelOnly),
+      barrelOnly_(true),
       debug_(debug),
       famos_(famos)
 
@@ -61,24 +69,28 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(
     maxNrSamples_ = 1;  // get from input??
   else
     maxNrSamples_ = 10;
-  this->init(setup);
+  this->init();
+}
+
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(
+    const EcalElectronicsMapping *theMapping, int binofmax, bool tcpFormat, bool debug, bool famos)
+    : theMapping_(theMapping),
+      binOfMaximum_(binofmax),
+      tcpFormat_(tcpFormat),
+      barrelOnly_(true),
+      debug_(debug),
+      famos_(famos)
+
+{
+  if (famos_)
+    maxNrSamples_ = 1;  // get from input??
+  else
+    maxNrSamples_ = 10;
+  this->init();
 }
 
 //----------------------------------------------------------------------
-void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup &setup) {
-  if (!barrelOnly_) {
-    edm::ESHandle<CaloGeometry> theGeometry;
-    edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
-    setup.get<CaloGeometryRecord>().get(theGeometry);
-    setup.get<EcalEndcapGeometryRecord>().get("EcalEndcap", theEndcapGeometry_handle);
-    theEndcapGeometry = &(*theEndcapGeometry_handle);
-    setup.get<IdealGeometryRecord>().get(eTTmap_);
-  }
-  // endcap mapping
-  edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-  setup.get<EcalMappingRcd>().get(ecalmapping);
-  theMapping_ = ecalmapping.product();
-
+void EcalTrigPrimFunctionalAlgo::init() {
   // create main sub algos
   estrip_ = std::make_unique<EcalFenixStrip>(theMapping_, debug_, famos_, maxNrSamples_, nbMaxXtals_);
   etcp_ = std::make_unique<EcalFenixTcp>(tcpFormat_, debug_, famos_, binOfMaximum_, maxNrSamples_, nbMaxStrips_);

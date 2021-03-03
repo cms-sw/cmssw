@@ -27,8 +27,6 @@
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <map>
@@ -46,8 +44,18 @@ class EcalElectronicsMapping;
 
 class EcalTrigPrimFunctionalAlgo {
 public:
+  //Not barrelOnly
+  EcalTrigPrimFunctionalAlgo(const EcalTrigTowerConstituentsMap *eTTmap,
+                             const CaloSubdetectorGeometry *endcapGeometry,
+                             const EcalElectronicsMapping *theMapping,
+                             int binofmax,
+                             bool tcpFormat,
+                             bool debug,
+                             bool famos);
+
+  //barrel only
   explicit EcalTrigPrimFunctionalAlgo(
-      const edm::EventSetup &setup, int binofmax, bool tcpFormat, bool barrelOnly, bool debug, bool famos);
+      const EcalElectronicsMapping *theMapping, int binofmax, bool tcpFormat, bool debug, bool famos);
 
   virtual ~EcalTrigPrimFunctionalAlgo();
 
@@ -95,7 +103,7 @@ public:
   }
 
 private:
-  void init(const edm::EventSetup &);
+  void init();
   template <class T>
   void initStructures(std::vector<std::vector<std::pair<int, std::vector<T>>>> &towMap);
   template <class T>
@@ -118,8 +126,8 @@ private:
   std::unique_ptr<EcalFenixStrip> estrip_;
   std::unique_ptr<EcalFenixTcp> etcp_;
 
-  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
-  const CaloSubdetectorGeometry *theEndcapGeometry;
+  const EcalTrigTowerConstituentsMap *eTTmap_ = nullptr;
+  const CaloSubdetectorGeometry *theEndcapGeometry_ = nullptr;
   const EcalElectronicsMapping *theMapping_;
 
   float threshold;
