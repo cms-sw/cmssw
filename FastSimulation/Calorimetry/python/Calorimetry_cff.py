@@ -262,7 +262,7 @@ FamosCalorimetryBlock = cms.PSet(
             timeShiftHF = cms.vdouble(50.7, 52.5, 52.9, 53.9, 54.5, 55.1, 55.1, 55.7, 55.9, 56.1, 56.1, 56.1, 56.5),
             ),
         HFShower           = cms.PSet(
-            ProbMax          = cms.double(1.0),
+            ProbMax          = cms.double(0.5),
             CFibre           = cms.double(0.5),
             OnlyLong          = cms.bool(True)
             ),
