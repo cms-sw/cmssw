@@ -89,6 +89,34 @@ private:
   edm::EDGetTokenT<EBDigiCollection> tokenEB_;
   edm::EDGetTokenT<EEDigiCollection> tokenEE_;
 
+  const edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> tokenEcalMapping_;
+  //these are only used if we also handle the endcap
+  edm::ESGetToken<CaloSubdetectorGeometry, EcalEndcapGeometryRecord> tokenEndcapGeom_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> tokenETTMap_;
+
+  // for EcalFenixStrip...
+  // get parameter records for xtals
+  edm::ESGetToken<EcalTPGLinearizationConst, EcalTPGLinearizationConstRcd> tokenEcalTPGLinearization_;
+  edm::ESGetToken<EcalTPGPedestals, EcalTPGPedestalsRcd> tokenEcalTPGPedestals_;
+  edm::ESGetToken<EcalTPGCrystalStatus, EcalTPGCrystalStatusRcd> tokenEcalTPGCrystalStatus_;
+
+  // for strips
+  edm::ESGetToken<EcalTPGSlidingWindow, EcalTPGSlidingWindowRcd> tokenEcalTPGSlidingWindow_;
+  edm::ESGetToken<EcalTPGWeightIdMap, EcalTPGWeightIdMapRcd> tokenEcalTPGWEightIdMap_;
+  edm::ESGetToken<EcalTPGWeightGroup, EcalTPGWeightGroupRcd> tokenEcalTPGWEightGroup_;
+  edm::ESGetToken<EcalTPGFineGrainStripEE, EcalTPGFineGrainStripEERcd> tokenEcalTPGFineGrainStripEE_;
+  edm::ESGetToken<EcalTPGStripStatus, EcalTPGStripStatusRcd> tokenEcalTPGStripStatus_;
+
+  // .. and for EcalFenixTcp
+  // get parameter records for towers
+  edm::ESGetToken<EcalTPGFineGrainEBGroup, EcalTPGFineGrainEBGroupRcd> tokenEcalTPGFineGrainEBGroup_;
+  edm::ESGetToken<EcalTPGLutGroup, EcalTPGLutGroupRcd> tokenEcalTPGLutGroup_;
+  edm::ESGetToken<EcalTPGLutIdMap, EcalTPGLutIdMapRcd> tokenEcalTPGLutIdMap_;
+  edm::ESGetToken<EcalTPGFineGrainEBIdMap, EcalTPGFineGrainEBIdMapRcd> tokenEcalTPGFineGrainEBIdMap_;
+  edm::ESGetToken<EcalTPGFineGrainTowerEE, EcalTPGFineGrainTowerEERcd> tokenEcalTPGFineGrainTowerEE_;
+  edm::ESGetToken<EcalTPGTowerStatus, EcalTPGTowerStatusRcd> tokenEcalTPGTowerStatus_;
+  edm::ESGetToken<EcalTPGSpike, EcalTPGSpikeRcd> tokenEcalTPGSpike_;
+
   int binOfMaximum_;
   bool fillBinOfMaximumFromHistory_;
 
@@ -106,13 +134,33 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet &iConfig)
           edm::InputTag(iConfig.getParameter<std::string>("Label"), iConfig.getParameter<std::string>("InstanceEB")))),
       tokenEE_(consumes<EEDigiCollection>(
           edm::InputTag(iConfig.getParameter<std::string>("Label"), iConfig.getParameter<std::string>("InstanceEE")))),
+      tokenEcalMapping_(esConsumes<edm::Transition::BeginRun>()),
+      tokenEcalTPGLinearization_(esConsumes()),
+      tokenEcalTPGPedestals_(esConsumes()),
+      tokenEcalTPGCrystalStatus_(esConsumes()),
+      tokenEcalTPGSlidingWindow_(esConsumes()),
+      tokenEcalTPGWEightIdMap_(esConsumes()),
+      tokenEcalTPGWEightGroup_(esConsumes()),
+      tokenEcalTPGFineGrainStripEE_(esConsumes()),
+      tokenEcalTPGStripStatus_(esConsumes()),
+      tokenEcalTPGFineGrainEBGroup_(esConsumes()),
+      tokenEcalTPGLutGroup_(esConsumes()),
+      tokenEcalTPGLutIdMap_(esConsumes()),
+      tokenEcalTPGFineGrainEBIdMap_(esConsumes()),
+      tokenEcalTPGFineGrainTowerEE_(esConsumes()),
+      tokenEcalTPGTowerStatus_(esConsumes()),
+      tokenEcalTPGSpike_(esConsumes()),
       binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")),
       fillBinOfMaximumFromHistory_(-1 == binOfMaximum_),
-      cacheID_(0){
+      cacheID_(0) {
   // register your products
   produces<EcalTrigPrimDigiCollection>();
   if (tcpFormat_)
     produces<EcalTrigPrimDigiCollection>("formatTCP");
+  if (not barrelOnly_) {
+    tokenEndcapGeom_ = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "EcalEndcap"));
+    tokenETTMap_ = esConsumes<edm::Transition::BeginRun>();
+  }
 }
 
 static int findBinOfMaximum(bool iFillFromHistory, int iPSetValue, edm::ProcessHistory const &iHistory) {
@@ -160,61 +208,37 @@ void EcalTrigPrimProducer::beginRun(edm::Run const &run, edm::EventSetup const &
   // ProcessHistory is guaranteed to be constant for an entire Run
   binOfMaximum_ = findBinOfMaximum(fillBinOfMaximumFromHistory_, binOfMaximum_, run.processHistory());
 
-  edm::ESHandle<EcalElectronicsMapping> ecalmapping;
-  setup.get<EcalMappingRcd>().get(ecalmapping);
+  auto const &ecalmapping = setup.getData(tokenEcalMapping_);
   if (barrelOnly_) {
-    algo_ =
-        std::make_unique<EcalTrigPrimFunctionalAlgo>(ecalmapping.product(), binOfMaximum_, tcpFormat_, debug_, famos_);
+    algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(&ecalmapping, binOfMaximum_, tcpFormat_, debug_, famos_);
   } else {
-    edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
-    setup.get<EcalEndcapGeometryRecord>().get("EcalEndcap", theEndcapGeometry_handle);
-    edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap;
-    setup.get<IdealGeometryRecord>().get(eTTmap);
-    algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(eTTmap.product(),
-                                                         theEndcapGeometry_handle.product(),
-                                                         ecalmapping.product(),
-                                                         binOfMaximum_,
-                                                         tcpFormat_,
-                                                         debug_,
-                                                         famos_);
+    auto const &endcapGeometry = setup.getData(tokenEndcapGeom_);
+    auto const &eTTmap = setup.getData(tokenETTMap_);
+    algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(
+        &eTTmap, &endcapGeometry, &ecalmapping, binOfMaximum_, tcpFormat_, debug_, famos_);
   }
-  // get a first version of the records
-  cacheID_ = this->getRecords(setup);
 }
 
-void EcalTrigPrimProducer::endRun(edm::Run const &run, edm::EventSetup const &setup) { algo_.reset(); }
+void EcalTrigPrimProducer::endRun(edm::Run const &run, edm::EventSetup const &setup) {
+  algo_.reset();
+  cacheID_ = 0;
+}
 
 unsigned long long EcalTrigPrimProducer::getRecords(edm::EventSetup const &setup) {
   // get Eventsetup records
 
   // for EcalFenixStrip...
   // get parameter records for xtals
-  edm::ESHandle<EcalTPGLinearizationConst> theEcalTPGLinearization_handle;
-  setup.get<EcalTPGLinearizationConstRcd>().get(theEcalTPGLinearization_handle);
-  const EcalTPGLinearizationConst *ecaltpLin = theEcalTPGLinearization_handle.product();
-  edm::ESHandle<EcalTPGPedestals> theEcalTPGPedestals_handle;
-  setup.get<EcalTPGPedestalsRcd>().get(theEcalTPGPedestals_handle);
-  const EcalTPGPedestals *ecaltpPed = theEcalTPGPedestals_handle.product();
-  edm::ESHandle<EcalTPGCrystalStatus> theEcalTPGCrystalStatus_handle;
-  setup.get<EcalTPGCrystalStatusRcd>().get(theEcalTPGCrystalStatus_handle);
-  const EcalTPGCrystalStatus *ecaltpgBadX = theEcalTPGCrystalStatus_handle.product();
+  const EcalTPGLinearizationConst *ecaltpLin = &setup.getData(tokenEcalTPGLinearization_);
+  const EcalTPGPedestals *ecaltpPed = &setup.getData(tokenEcalTPGPedestals_);
+  const EcalTPGCrystalStatus *ecaltpgBadX = &setup.getData(tokenEcalTPGCrystalStatus_);
 
   // for strips
-  edm::ESHandle<EcalTPGSlidingWindow> theEcalTPGSlidingWindow_handle;
-  setup.get<EcalTPGSlidingWindowRcd>().get(theEcalTPGSlidingWindow_handle);
-  const EcalTPGSlidingWindow *ecaltpgSlidW = theEcalTPGSlidingWindow_handle.product();
-  edm::ESHandle<EcalTPGWeightIdMap> theEcalTPGWEightIdMap_handle;
-  setup.get<EcalTPGWeightIdMapRcd>().get(theEcalTPGWEightIdMap_handle);
-  const EcalTPGWeightIdMap *ecaltpgWeightMap = theEcalTPGWEightIdMap_handle.product();
-  edm::ESHandle<EcalTPGWeightGroup> theEcalTPGWEightGroup_handle;
-  setup.get<EcalTPGWeightGroupRcd>().get(theEcalTPGWEightGroup_handle);
-  const EcalTPGWeightGroup *ecaltpgWeightGroup = theEcalTPGWEightGroup_handle.product();
-  edm::ESHandle<EcalTPGFineGrainStripEE> theEcalTPGFineGrainStripEE_handle;
-  setup.get<EcalTPGFineGrainStripEERcd>().get(theEcalTPGFineGrainStripEE_handle);
-  const EcalTPGFineGrainStripEE *ecaltpgFgStripEE = theEcalTPGFineGrainStripEE_handle.product();
-  edm::ESHandle<EcalTPGStripStatus> theEcalTPGStripStatus_handle;
-  setup.get<EcalTPGStripStatusRcd>().get(theEcalTPGStripStatus_handle);
-  const EcalTPGStripStatus *ecaltpgStripStatus = theEcalTPGStripStatus_handle.product();
+  const EcalTPGSlidingWindow *ecaltpgSlidW = &setup.getData(tokenEcalTPGSlidingWindow_);
+  const EcalTPGWeightIdMap *ecaltpgWeightMap = &setup.getData(tokenEcalTPGWEightIdMap_);
+  const EcalTPGWeightGroup *ecaltpgWeightGroup = &setup.getData(tokenEcalTPGWEightGroup_);
+  const EcalTPGFineGrainStripEE *ecaltpgFgStripEE = &setup.getData(tokenEcalTPGFineGrainStripEE_);
+  const EcalTPGStripStatus *ecaltpgStripStatus = &setup.getData(tokenEcalTPGStripStatus_);
 
   algo_->setPointers(ecaltpLin,
                      ecaltpPed,
@@ -227,33 +251,13 @@ unsigned long long EcalTrigPrimProducer::getRecords(edm::EventSetup const &setup
 
   // .. and for EcalFenixTcp
   // get parameter records for towers
-  edm::ESHandle<EcalTPGFineGrainEBGroup> theEcalTPGFineGrainEBGroup_handle;
-  setup.get<EcalTPGFineGrainEBGroupRcd>().get(theEcalTPGFineGrainEBGroup_handle);
-  const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup = theEcalTPGFineGrainEBGroup_handle.product();
-
-  edm::ESHandle<EcalTPGLutGroup> theEcalTPGLutGroup_handle;
-  setup.get<EcalTPGLutGroupRcd>().get(theEcalTPGLutGroup_handle);
-  const EcalTPGLutGroup *ecaltpgLutGroup = theEcalTPGLutGroup_handle.product();
-
-  edm::ESHandle<EcalTPGLutIdMap> theEcalTPGLutIdMap_handle;
-  setup.get<EcalTPGLutIdMapRcd>().get(theEcalTPGLutIdMap_handle);
-  const EcalTPGLutIdMap *ecaltpgLut = theEcalTPGLutIdMap_handle.product();
-
-  edm::ESHandle<EcalTPGFineGrainEBIdMap> theEcalTPGFineGrainEBIdMap_handle;
-  setup.get<EcalTPGFineGrainEBIdMapRcd>().get(theEcalTPGFineGrainEBIdMap_handle);
-  const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB = theEcalTPGFineGrainEBIdMap_handle.product();
-
-  edm::ESHandle<EcalTPGFineGrainTowerEE> theEcalTPGFineGrainTowerEE_handle;
-  setup.get<EcalTPGFineGrainTowerEERcd>().get(theEcalTPGFineGrainTowerEE_handle);
-  const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE = theEcalTPGFineGrainTowerEE_handle.product();
-
-  edm::ESHandle<EcalTPGTowerStatus> theEcalTPGTowerStatus_handle;
-  setup.get<EcalTPGTowerStatusRcd>().get(theEcalTPGTowerStatus_handle);
-  const EcalTPGTowerStatus *ecaltpgBadTT = theEcalTPGTowerStatus_handle.product();
-
-  edm::ESHandle<EcalTPGSpike> theEcalTPGSpike_handle;
-  setup.get<EcalTPGSpikeRcd>().get(theEcalTPGSpike_handle);
-  const EcalTPGSpike *ecaltpgSpike = theEcalTPGSpike_handle.product();
+  const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup = &setup.getData(tokenEcalTPGFineGrainEBGroup_);
+  const EcalTPGLutGroup *ecaltpgLutGroup = &setup.getData(tokenEcalTPGLutGroup_);
+  const EcalTPGLutIdMap *ecaltpgLut = &setup.getData(tokenEcalTPGLutIdMap_);
+  const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB = &setup.getData(tokenEcalTPGFineGrainEBIdMap_);
+  const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE = &setup.getData(tokenEcalTPGFineGrainTowerEE_);
+  const EcalTPGTowerStatus *ecaltpgBadTT = &setup.getData(tokenEcalTPGTowerStatus_);
+  const EcalTPGSpike *ecaltpgSpike = &setup.getData(tokenEcalTPGSpike_);
 
   algo_->setPointers2(ecaltpgFgEBGroup,
                       ecaltpgLutGroup,
