@@ -30,6 +30,7 @@ using ROOT::Experimental::RNTupleWriter;
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "PhysicsTools/NanoAOD/plugins/TableOutputFields.h"
+#include "PhysicsTools/NanoAOD/plugins/TriggerOutputFields.h"
 
 class NanoAODRNTupleOutputModule : public edm::one::OutputModule<> {
 public:
@@ -54,6 +55,7 @@ private:
 
   std::unique_ptr<RNTupleWriter> m_ntuple;
   TableCollections m_tables;
+  std::vector<TriggerOutputFields> m_triggers;
 
   class CommonEventFields {
   public:
@@ -120,9 +122,19 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
       const auto& token = keep.second;
       iEvent.getByToken(token, handle);
       m_tables.add(token, *handle);
+    } else if (keep.first->className() == "edm::TriggerResults") {
+      m_triggers.emplace_back(TriggerOutputFields(keep.first->processName(), keep.second));
+    } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&
+               keep.first->productInstanceName() == "genModel") {
+      // m_evstrings.emplace_back(keep.first, keep.second, true);
+    } else {
+      throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className());
     }
   }
   m_tables.createFields(iEvent, *model);
+  for (auto& trigger: m_triggers) {
+    trigger.createFields(iEvent, *model);
+  }
   m_tables.print();
   m_ntuple = RNTupleWriter::Recreate(std::move(model), "Events", m_fileName);
 }
@@ -137,6 +149,9 @@ void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
 
   m_commonFields.fill(iEvent.id());
   m_tables.fill(iEvent);
+  for (auto& trigger: m_triggers) {
+    trigger.fill(iEvent);
+  }
   m_ntuple->Fill();
 }
 
