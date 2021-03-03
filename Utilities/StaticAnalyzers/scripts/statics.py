@@ -40,7 +40,7 @@ fileinput.close()
 
 for tfunc in sorted(toplevelfuncs):
 	for static in sorted(statics):
-		if nx.has_path(G,tfunc,static): 
+		if G.has_node(tfunc) and G.has_node(static) and nx.has_path(G,tfunc,static): 
 			path = nx.shortest_path(G,tfunc,static)
 
 			print("Non-const static variable \'"+re.sub(farg,"()",static)+"' is accessed in call stack '", end=' ')
