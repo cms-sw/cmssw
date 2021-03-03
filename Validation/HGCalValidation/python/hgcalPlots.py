@@ -1989,14 +1989,6 @@ lc_general_clusterlevel = [
   _SelectedCaloParticles
 ]
 
-"""
-lc_general_cellevel = [
-  # calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
-  # (one entry per rechit, in the appropriate histo)
-  _cellsenedens_thick
-]
-"""
-
 lc_clusterlevel_zminus = [
   # number of layer clusters per layer (one entry per event in each histo)
   _totclusternum_layer_EE_zminus,
@@ -2281,7 +2273,6 @@ def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_colle
   regions_LCtoCP_association = ["Z-minus: LC_CP association", "Z-plus: LC_CP association"]
   
   plots_lc_general_clusterlevel  = lc_general_clusterlevel
-  #plots_lc_general_cellevel      = lc_general_cellevel
   plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus 
   plots_lc_cellevel_zminus       = lc_cellevel_zminus 
   plots_lc_clusterlevel_zplus    = lc_clusterlevel_zplus
