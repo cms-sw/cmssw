@@ -214,7 +214,7 @@ l1TriggerMuonDqmOfflineClient = cms.Sequence()
 #l1TriggerOnline.remove(l1tMonitorOnline)
 #
 l1tMonitorStage1Online.remove(bxTiming)
-l1tMonitorStage10Online.remove(l1tGt) #Following https://github.com/cms-sw/cmssw/issues/25090#issuecomment-789201888
+l1tMonitorStage1Online.remove(l1tGt) #Following https://github.com/cms-sw/cmssw/issues/25090#issuecomment-789201888
 #l1tMonitorOnline.remove(l1tDttf)
 #l1tMonitorOnline.remove(l1tCsctf)
 #l1tMonitorOnline.remove(l1tRpctf)
