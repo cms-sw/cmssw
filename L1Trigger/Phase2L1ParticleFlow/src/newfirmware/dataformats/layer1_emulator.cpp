@@ -105,8 +105,8 @@ float l1ct::PFRegionEmu::localPhi(float globalPhi) const { return reco::deltaPhi
 bool l1ct::PFRegionEmu::read(std::fstream& from) { return readObj<PFRegion>(from, *this); }
 bool l1ct::PFRegionEmu::write(std::fstream& to) const { return writeObj<PFRegion>(*this, to); }
 
-bool l1ct::PVObjEmu::read(std::fstream& from) { return readAP(from, hwZ0); }
-bool l1ct::PVObjEmu::write(std::fstream& to) const { return writeAP(hwZ0, to); }
+bool l1ct::PVObjEmu::read(std::fstream& from) { return readObj<PVObj>(from, *this); }
+bool l1ct::PVObjEmu::write(std::fstream& to) const { return writeObj<PVObj>(*this, to); }
 
 bool l1ct::RegionizerDecodedInputs::read(std::fstream& from) {
   uint32_t number;
