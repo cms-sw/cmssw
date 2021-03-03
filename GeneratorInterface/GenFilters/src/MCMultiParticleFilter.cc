@@ -20,15 +20,35 @@ MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig) :
   std::vector<int> defstat(1, 0);
   std::vector<int> defmother;
   defmother.push_back(0);
-  motherID_ = iConfig.getUntrackedParameter< std::vector<int> >("MotherID", defstat);
+  motherID_ = iConfig.getUntrackedParameter< std::vector<int> >("MotherID", defmother);
+    
+  std::vector<double> defDecayRadiusmin;
+  defDecayRadiusmin.push_back(-1.);
+  decayRadiusMin = iConfig.getUntrackedParameter<std::vector<double> >("MinDecayRadius", defDecayRadiusmin);
+
+  std::vector<double> defDecayRadiusmax;
+  defDecayRadiusmax.push_back(1.e5);
+  decayRadiusMax = iConfig.getUntrackedParameter<std::vector<double> >("MaxDecayRadius", defDecayRadiusmax);
+
+  std::vector<double> defDecayZmin;
+  defDecayZmin.push_back(-1.e5);
+  decayZMin = iConfig.getUntrackedParameter<std::vector<double> >("MinDecayZ", defDecayZmin);
+
+  std::vector<double> defDecayZmax;
+  defDecayZmax.push_back(1.e5);
+  decayZMax = iConfig.getUntrackedParameter<std::vector<double> >("MaxDecayZ", defDecayZmax);
 
   // check for same size
   if ( (ptMin_.size() > 1 &&  particleID_.size() != ptMin_.size()) 
        ||  (etaMax_.size() > 1 && particleID_.size() != etaMax_.size()) 
        ||  (status_.size() > 1 && particleID_.size() != status_.size()) 
        ||  (motherID_.size() > 1 && particleID_.size() != motherID_.size())
+       ||  (decayRadiusMin.size() > 1 && particleID_.size() != decayRadiusMin.size())
+       ||  (decayRadiusMax.size() > 1 && particleID_.size() != decayRadiusMax.size())
+       ||  (decayZMin.size() > 1 && particleID_.size() != decayZMin.size())
+       ||  (decayZMax.size() > 1 && particleID_.size() != decayZMax.size())
        ) {
-    edm::LogWarning("MCMultiParticleFilter") << "WARNING: MCMultiParticleFilter: size of PtMin, EtaMax, motherID, and/or Status does not match ParticleID size!" << std::endl;   
+    edm::LogWarning("MCMultiParticleFilter") << "WARNING: MCMultiParticleFilter: size of PtMin, EtaMax, motherID, decayRadiusMin, decayRadiusMax, decayZMin, decayZMax and/or Status does not match ParticleID size!" << std::endl;
   }
   
   // Fill arrays with defaults if necessary
@@ -40,6 +60,32 @@ MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig) :
     status_.push_back(defstat[0]);
   while (motherID_.size() < particleID_.size())
     motherID_.push_back(defmother[0]);
+    
+  // if decayRadiusMin size smaller than particleID , fill up further with defaults
+  if (particleID_.size() > decayRadiusMin.size()) {
+    for (unsigned int i = decayRadiusMin.size(); i < particleID_.size(); i++) {
+      decayRadiusMin.push_back(-10.);
+    }
+  }
+  // if decayRadiusMax size smaller than particleID , fill up further with defaults
+  if (particleID_.size() > decayRadiusMax.size()) {
+    for (unsigned int i = decayRadiusMax.size(); i < particleID_.size(); i++) {
+      decayRadiusMax.push_back(1.e5);
+    }
+  }
+
+  // if decayZMin size smaller than particleID , fill up further with defaults
+  if (particleID_.size() > decayZMin.size()) {
+    for (unsigned int i = decayZMin.size(); i < particleID_.size(); i++) {
+      decayZMin.push_back(-1.e5);
+    }
+  }
+  // if decayZMax size smaller than particleID , fill up further with defaults
+  if (particleID_.size() > decayZMax.size()) {
+    for (unsigned int i = decayZMax.size(); i < particleID_.size(); i++) {
+      decayZMax.push_back(1.e5);
+    }
+  }
 }
 
 MCMultiParticleFilter::~MCMultiParticleFilter()
@@ -70,6 +116,23 @@ bool MCMultiParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 	  (*p)->momentum().perp() > ptMin_[i] &&
 	  fabs((*p)->momentum().eta()) < etaMax_[i] &&
 	  (status_[i] == 0 || (*p)->status() == status_[i])) {
+    if (!((*p)->production_vertex()))
+      continue;
+
+    double decx = (*p)->production_vertex()->position().x();
+    double decy = (*p)->production_vertex()->position().y();
+    double decrad = sqrt(decx * decx + decy * decy);
+    if (decrad < decayRadiusMin[i])
+      continue;
+    if (decrad > decayRadiusMax[i])
+      continue;
+
+    double decz = (*p)->production_vertex()->position().z();
+    if (decz < decayZMin[i])
+      continue;
+    if (decz > decayZMax[i])
+      continue;
+          
 	if(motherID_[i] == 0 ){ // do not check for mother ID if not sepcified
 	  nFound++;
 	  break; // only match a given particle once!
