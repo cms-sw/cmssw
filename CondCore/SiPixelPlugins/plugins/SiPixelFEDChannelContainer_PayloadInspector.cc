@@ -95,13 +95,14 @@ namespace {
         the_scenarios.push_back("all");
       }
 
-      static const int n_layers = 4;
       int nlad_list[n_layers] = {6, 14, 22, 32};
       int divide_roc = 1;
 
       // ---------------------    BOOK HISTOGRAMS
       std::array<TH2D*, n_layers> h_bpix_occ;
+      std::array<TH2D*, n_rings> h_fpix_occ;
 
+      // barrel
       for (unsigned int lay = 1; lay <= 4; lay++) {
         int nlad = nlad_list[lay - 1];
 
@@ -115,6 +116,16 @@ namespace {
                                        (nlad * 4 + 2) * divide_roc,
                                        -nlad - 0.5,
                                        nlad + 0.5);
+      }
+
+      // endcaps
+      for (unsigned int ring = 1; ring <= n_rings; ring++) {
+        int n = ring == 1 ? 92 : 140;
+        float y = ring == 1 ? 11.5 : 17.5;
+        std::string name = "occ_ring_" + std::to_string(ring);
+        std::string title = "; Disk # ; Blade/Panel #";
+
+        h_fpix_occ[ring - 1] = new TH2D(name.c_str(), title.c_str(), 56 * divide_roc, -3.5, 3.5, n * divide_roc, -y, y);
       }
 
       auto tag = PlotBase::getTag<0>();
@@ -166,16 +177,13 @@ namespace {
       std::shared_ptr<SiPixelFEDChannelContainer> payload = fetchPayload(std::get<1>(iov));
       const auto& scenarioMap = payload->getScenarioMap();
 
-      const int numColumns = 416;
-      const int numRows = 160;
-
       auto pIndexConverter = PixelIndices(numColumns, numRows);
 
       for (const auto& scenario : scenarioMap) {
         std::string scenName = scenario.first;
 
         if (std::find_if(the_scenarios.begin(), the_scenarios.end(), compareKeys(scenName)) != the_scenarios.end()) {
-          edm::LogPrint("SiPixelFEDChannelContainerTest") << "Found Scenario: " << scenName << " ==> dumping it\n";
+          edm::LogPrint("SiPixelFEDChannelContainerTest") << "\t Found Scenario: " << scenName << " ==> dumping it";
         } else {
           continue;
         }
@@ -222,17 +230,19 @@ namespace {
 
           LogDebug("SiPixelFEDChannelContainerTest") << badRocsFromFEDChannels << std::endl;
 
-          if (subid == PixelSubdetector::PixelBarrel) {
-            auto layer = m_trackerTopo.pxbLayer(DetId(t_detid));
-            auto s_ladder = SiPixelPI::signed_ladder(DetId(t_detid), m_trackerTopo, true);
-            auto s_module = SiPixelPI::signed_module(DetId(t_detid), m_trackerTopo, true);
+          auto myDetId = DetId(t_detid);
 
-            bool isFlipped = SiPixelPI::isBPixOuterLadder(DetId(t_detid), m_trackerTopo, false);
+          if (subid == PixelSubdetector::PixelBarrel) {
+            auto layer = m_trackerTopo.pxbLayer(myDetId);
+            auto s_ladder = SiPixelPI::signed_ladder(myDetId, m_trackerTopo, true);
+            auto s_module = SiPixelPI::signed_module(myDetId, m_trackerTopo, true);
+
+            bool isFlipped = SiPixelPI::isBPixOuterLadder(myDetId, m_trackerTopo, false);
             if ((layer > 1 && s_module < 0))
               isFlipped = !isFlipped;
 
-            auto ladder = m_trackerTopo.pxbLadder(DetId(t_detid));
-            auto module = m_trackerTopo.pxbModule(DetId(t_detid));
+            auto ladder = m_trackerTopo.pxbLadder(myDetId);
+            auto module = m_trackerTopo.pxbModule(myDetId);
             LogDebug("SiPixelFEDChannelContainerTest")
                 << "layer:" << layer << " ladder:" << ladder << " module:" << module << " signed ladder: " << s_ladder
                 << " signed module: " << s_module << std::endl;
@@ -245,25 +255,56 @@ namespace {
               h_bpix_occ[layer - 1]->Fill(x, y, 1);
             }
           }  // if it's barrel
+          else if (subid == PixelSubdetector::PixelEndcap) {
+            auto ring = SiPixelPI::ring(myDetId, m_trackerTopo, true);
+            auto s_blade = SiPixelPI::signed_blade(myDetId, m_trackerTopo, true);
+            auto s_disk = SiPixelPI::signed_disk(myDetId, m_trackerTopo, true);
+            auto s_blade_panel = SiPixelPI::signed_blade_panel(myDetId, m_trackerTopo, true);
+            auto panel = m_trackerTopo.pxfPanel(t_detid);
+
+            //bool isFlipped = (s_disk > 0) ? (std::abs(s_blade)%2==0) : (std::abs(s_blade)%2==1);
+            bool isFlipped = (s_disk > 0) ? (panel == 1) : (panel == 2);
+
+            LogDebug("SiPixelFEDChannelContainerTest")
+                << "ring:" << ring << " blade: " << s_blade << " panel: " << panel
+                << " signed blade/panel: " << s_blade_panel << " disk: " << s_disk << std::endl;
+
+            auto rocsToMask =
+                SiPixelPI::maskedForwardRocsToBins(ring, s_blade, panel, s_disk, badRocsFromFEDChannels, isFlipped);
+            for (const auto& bin : rocsToMask) {
+              double x = h_fpix_occ[ring - 1]->GetXaxis()->GetBinCenter(std::get<0>(bin));
+              double y = h_fpix_occ[ring - 1]->GetYaxis()->GetBinCenter(std::get<1>(bin));
+              h_fpix_occ[ring - 1]->SetBinContent(x, y, 1);
+            }
+          }  // if it's endcap
         }    // loop on the channels
       }      // loop on the scenarios
 
       gStyle->SetOptStat(0);
       //=========================
-      TCanvas canvas("Summary", "Summary", 1200, 1200);
-      canvas.Divide(2, 2);
+      TCanvas canvas("Summary", "Summary", 1200, 1600);
+      canvas.Divide(2, 3);
       canvas.SetBottomMargin(0.11);
       canvas.SetLeftMargin(0.13);
       canvas.SetRightMargin(0.05);
       canvas.Modified();
 
-      for (unsigned int lay = 1; lay <= 4; lay++) {
+      // dress the plots
+      for (unsigned int lay = 1; lay <= n_layers; lay++) {
         SiPixelPI::dress_occup_plot(canvas, h_bpix_occ[lay - 1], lay, 0, 1);
+      }
+
+      canvas.Update();
+      canvas.Modified();
+      canvas.cd();
+
+      for (unsigned int ring = 1; ring <= n_rings; ring++) {
+        SiPixelPI::dress_occup_plot(canvas, h_fpix_occ[ring - 1], 0, n_layers + ring, 1);
       }
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
-      for (unsigned int lay = 1; lay <= 4; lay++) {
+      for (unsigned int lay = 1; lay <= n_layers; lay++) {
         canvas.cd(lay);
         auto ltx = TLatex();
         ltx.SetTextFont(62);
@@ -277,9 +318,24 @@ namespace {
                              : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
+      for (unsigned int ring = 1; ring <= n_rings; ring++) {
+        canvas.cd(n_layers + ring);
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextColor(kBlue);
+        ltx.SetTextSize(0.050);
+        ltx.SetTextAlign(11);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                         1 - gPad->GetTopMargin() + 0.01,
+                         unpacked.first == 0
+                             ? ("IOV:" + std::to_string(unpacked.second)).c_str()
+                             : (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
+      }
+
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
+      // close the DB session
       condDbSession.transaction().commit();
 
       return true;
@@ -305,6 +361,12 @@ namespace {
     };
 
   private:
+    // tough luck, we can only do phase-1...
+    static constexpr int numColumns = 416;
+    static constexpr int numRows = 160;
+    static constexpr int n_rings = 2;
+    static constexpr int n_layers = 4;
+
     TrackerTopology m_trackerTopo;
     edm::ParameterSet m_connectionPset;
     cond::persistency::ConnectionPool m_connectionPool;
