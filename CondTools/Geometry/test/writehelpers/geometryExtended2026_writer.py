@@ -50,7 +50,7 @@ process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",fromDD4Hep = c
 
 process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader")
 
-process.GEMGeometryWriter = cms.EDAnalyzer("ME0RecoIdealDBLoader")
+process.ME0GeometryWriter = cms.EDAnalyzer("ME0RecoIdealDBLoader")
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
@@ -80,4 +80,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerParametersWriter+process.CaloGeometryWriter+process.HcalParametersWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter+process.GEMGeometryWriter)+process.ME0GeometryWriter)
+process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerParametersWriter+process.CaloGeometryWriter+process.HcalParametersWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter+process.GEMGeometryWriter+process.ME0GeometryWriter)
