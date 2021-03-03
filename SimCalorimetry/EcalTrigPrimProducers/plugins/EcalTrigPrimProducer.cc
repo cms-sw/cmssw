@@ -18,8 +18,10 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -62,11 +64,38 @@
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "EcalTrigPrimProducer.h"
-
 #include <memory>
 
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
+
+class EcalTrigPrimProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EcalTrigPrimProducer(const edm::ParameterSet &conf);
+
+  ~EcalTrigPrimProducer() override;
+
+  void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
+  void produce(edm::Event &e, const edm::EventSetup &c) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+private:
+  std::unique_ptr<EcalTrigPrimFunctionalAlgo> algo_;
+  bool barrelOnly_;
+  bool tcpFormat_;
+  bool debug_;
+  bool famos_;
+  edm::EDGetTokenT<EBDigiCollection> tokenEB_;
+  edm::EDGetTokenT<EEDigiCollection> tokenEE_;
+
+  int binOfMaximum_;
+  bool fillBinOfMaximumFromHistory_;
+
+  // method to get EventSetupRecords
+  unsigned long long getRecords(edm::EventSetup const &setup);
+  unsigned long long cacheID_;
+};
 
 EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet &iConfig)
     : barrelOnly_(iConfig.getParameter<bool>("BarrelOnly")),
@@ -78,7 +107,8 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet &iConfig)
       tokenEE_(consumes<EEDigiCollection>(
           edm::InputTag(iConfig.getParameter<std::string>("Label"), iConfig.getParameter<std::string>("InstanceEE")))),
       binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")),
-      fillBinOfMaximumFromHistory_(-1 == binOfMaximum_) {
+      fillBinOfMaximumFromHistory_(-1 == binOfMaximum_),
+      cacheID_(0){
   // register your products
   produces<EcalTrigPrimDigiCollection>();
   if (tcpFormat_)
@@ -347,3 +377,5 @@ void EcalTrigPrimProducer::fillDescriptions(edm::ConfigurationDescriptions &desc
   desc.add<int>("binOfMaximum", -1)->setComment(kComment);
   descriptions.addDefault(desc);
 }
+
+DEFINE_FWK_MODULE(EcalTrigPrimProducer);
