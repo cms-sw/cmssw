@@ -7,10 +7,10 @@
 //
 /** \class edm::eventsetup::SynchronousEventSetupsController
 
- Description: Manages a group of EventSetups which can share components
+ Description: Manages a group of EventSetups which can share components.
 
  Usage:
-    <usage>
+    Useful for unit testing parts of the EventSetup system
 
 */
 //
@@ -34,6 +34,8 @@ namespace edm {
 
       SynchronousEventSetupsController(SynchronousEventSetupsController const&) = delete;
       SynchronousEventSetupsController const& operator=(SynchronousEventSetupsController const&) = delete;
+      SynchronousEventSetupsController(SynchronousEventSetupsController&&) = delete;
+      SynchronousEventSetupsController const& operator=(SynchronousEventSetupsController&&) = delete;
 
       std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&,
                                                        ActivityRegistry*,
