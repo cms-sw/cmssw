@@ -151,8 +151,7 @@ namespace l1ct {
     }
   };
 
-  struct PVObjEmu {
-    z0_t hwZ0;
+  struct PVObjEmu : public PVObj {
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
   };
@@ -238,7 +237,7 @@ namespace l1ct {
   };
 
   struct Event {
-    static const int VERSION = 4;
+    static const int VERSION = 5;
     uint32_t run, lumi;
     uint64_t event;
     RegionizerDecodedInputs decoded;
@@ -252,6 +251,14 @@ namespace l1ct {
     bool write(std::fstream &to) const;
     void clear();
     void init(uint32_t run, uint32_t lumi, uint64_t event);
+    inline l1ct::PVObjEmu pv(unsigned int ipv = 0) const {
+      l1ct::PVObjEmu ret;
+      if (ipv < pvs.size())
+        ret = pvs[ipv];
+      else
+        ret.clear();
+      return ret;
+    }
   };
 
   template <typename T1, typename T2>

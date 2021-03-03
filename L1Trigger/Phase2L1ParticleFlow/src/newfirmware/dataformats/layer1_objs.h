@@ -205,16 +205,16 @@ namespace l1ct {
 
   struct MuObj {
     pt_t hwPt;
-    eta_t hwEta;      // relative to the region center, at calo
-    phi_t hwPhi;      // relative to the region center, at calo
+    glbeta_t hwEta;   // relative to the region center, at calo
+    glbphi_t hwPhi;   // relative to the region center, at calo
     tkdeta_t hwDEta;  //  vtx - calo
     tkdphi_t hwDPhi;  // |vtx - calo| (sign is derived by the charge)
     bool hwCharge;    // 1 = positive, 0 = negative
     z0_t hwZ0;
     dxy_t hwDxy;
     ap_uint<3> hwQuality;
-    phi_t hwVtxPhi() const { return hwCharge ? hwPhi + hwDPhi : hwPhi - hwDPhi; }
-    eta_t hwVtxEta() const { return hwEta + hwDEta; }
+    glbphi_t hwVtxPhi() const { return hwCharge ? hwPhi + hwDPhi : hwPhi - hwDPhi; }
+    glbeta_t hwVtxEta() const { return hwEta + hwDEta; }
 
     inline bool operator==(const MuObj &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwDEta == other.hwDEta &&
@@ -251,8 +251,8 @@ namespace l1ct {
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
     float floatDxy() const { return Scales::floatDxy(hwDxy); }
 
-    static const int BITWIDTH = pt_t::width + eta_t::width + phi_t::width + tkdeta_t::width + tkdphi_t::width + 1 +
-                                z0_t::width + dxy_t::width + ap_uint<3>::width;
+    static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + tkdeta_t::width + tkdphi_t::width +
+                                1 + z0_t::width + dxy_t::width + ap_uint<3>::width;
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -283,6 +283,31 @@ namespace l1ct {
     }
   };
   inline void clear(MuObj &c) { c.clear(); }
+
+  struct PVObj {
+    z0_t hwZ0;
+
+    inline bool operator==(const PVObj &other) const { return hwZ0 == other.hwZ0; }
+
+    inline void clear() { hwZ0 = 0; }
+
+    float floatZ0() const { return Scales::floatZ0(hwZ0); }
+
+    static const int BITWIDTH = z0_t::width;
+    inline ap_uint<BITWIDTH> pack() const {
+      ap_uint<BITWIDTH> ret;
+      unsigned int start = 0;
+      _pack_into_bits(ret, start, hwZ0);
+      return ret;
+    }
+    inline static PVObj unpack(const ap_uint<BITWIDTH> &src) {
+      PVObj ret;
+      unsigned int start = 0;
+      _unpack_from_bits(src, start, ret.hwZ0);
+      return ret;
+    }
+  };
+  inline void clear(PVObj &c) { c.clear(); }
 
 }  // namespace l1ct
 
