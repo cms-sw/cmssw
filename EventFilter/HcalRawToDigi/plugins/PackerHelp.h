@@ -628,6 +628,10 @@ QIE11DataFrame convertHB(QIE11DataFrame qiehe, std::vector<int> tdc1, std::vecto
   //  maximum HB depth
   static const int maxHBdepth = 4;
 
+  int entry = (abs(did.ieta()) - 1) * maxHBdepth + did.depth() - 1;
+  int first = tdc1.at(entry);
+  int second = tdc2.at(entry);
+
   //  iterator over samples
   for (edm::DataFrame::const_iterator it = qiehe.begin(); it != qiehe.end(); ++it) {
     if (it == qiehe.begin())
@@ -636,12 +640,11 @@ QIE11DataFrame convertHB(QIE11DataFrame qiehe, std::vector<int> tdc1, std::vecto
     tdc = qiehe[is].tdc();
     soi = qiehe[is].soi();
 
-    if (tdc >= 0 && tdc <= tdc1.at((abs(did.ieta()) - 1) * maxHBdepth + (did.depth() - 1)))
+    if (tdc >= 0 && tdc <= first)
       tdc = 0;
-    else if (tdc > tdc1.at((abs(did.ieta()) - 1) * maxHBdepth + (did.depth() - 1)) &&
-             tdc <= tdc2.at((abs(did.ieta()) - 1) * maxHBdepth + (did.depth() - 1)))
+    else if (tdc > first && tdc <= second)
       tdc = 1;
-    else if (tdc > tdc2.at((abs(did.ieta()) - 1) * maxHBdepth + (did.depth() - 1)) && tdc <= tdcmax)
+    else if (tdc > second && tdc <= tdcmax)
       tdc = 2;
     else
       tdc = 3;
