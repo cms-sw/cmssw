@@ -56,16 +56,12 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 // Book histograms
 //
 void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
-                                const edm::EventSetup &iSetup,
+                                const TrackerTopology *pTT,
                                 DQMStore::IBooker &iBooker,
                                 int type,
                                 bool twoD,
                                 bool reducedSet,
                                 bool isUpgrade) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  pTT = tTopoHandle.product();
-
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
@@ -539,6 +535,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
 // Fill histograms
 //
 int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster> &input,
+                               const TrackerTopology *pTT,
                                const TrackerGeometry *tracker,
                                int *barrelClusterTotal,
                                int *fpixPClusterTotal,

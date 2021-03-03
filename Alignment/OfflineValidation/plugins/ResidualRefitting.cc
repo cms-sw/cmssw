@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +37,7 @@ ResidualRefitting::ResidualRefitting(const edm::ParameterSet& cfg)
     : magFieldToken_(esConsumes()),
       topoToken_(esConsumes()),
       trackingGeometryToken_(esConsumes()),
-      propagatorToken_(esConsumes(edm::ESInputTag(cfg.getParameter<std::string>("propagator")))),
+      propagatorToken_(esConsumes(edm::ESInputTag("", cfg.getParameter<std::string>("propagator")))),
       outputFileName_(cfg.getUntrackedParameter<std::string>("histoutputFile")),
       muons_(cfg.getParameter<edm::InputTag>("muons")),
       muonsRemake_(cfg.getParameter<edm::InputTag>("muonsRemake")),  //This Feels Misalignment

@@ -22,10 +22,9 @@ Implementation:
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -82,6 +81,12 @@ void PixelVertexCollectionTrimmer::produce(edm::Event& iEvent, const edm::EventS
 
   edm::Handle<reco::VertexCollection> vtxs;
   iEvent.getByToken(vtxToken_, vtxs);
+
+  if (vtxs->empty()) {
+    edm::LogWarning("Input") << "Input collection of vertices is empty. Output collection will be empty.";
+    iEvent.put(std::move(vtxs_trim));
+    return;
+  }
 
   double sumpt2;
   //double sumpt2previous = -99. ;

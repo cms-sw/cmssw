@@ -2,7 +2,6 @@
 #define GsfElectronCore_h
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"

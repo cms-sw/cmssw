@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEBase_H
-#define RecoLocalTracker_SiPixelRecHits_PixelCPEBase_H 1
+#ifndef RecoLocalTracker_SiPixelRecHits_interface_PixelCPEBase_h
+#define RecoLocalTracker_SiPixelRecHits_interface_PixelCPEBase_h 1
 
 //-----------------------------------------------------------------------------
 // \class        PixelCPEBase
@@ -11,43 +11,32 @@
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 //-----------------------------------------------------------------------------
 
+#ifdef EDM_ML_DEBUG
+#include <atomic>
+#endif
+#include <unordered_map>
 #include <utility>
 #include <vector>
-#include "TMath.h"
 
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
+#include <TMath.h>
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
-
-//--- For the configuration:
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
-#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-
-// new errors
-#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
-// old errors
-//#include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-
-#include <unordered_map>
-
-#include <iostream>
-#ifdef EDM_ML_DEBUG
-#include <atomic>
-#endif
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 
 class RectangularPixelTopology;
 class MagneticField;
@@ -78,11 +67,12 @@ public:
   };
 
   struct ClusterParam {
+    ClusterParam() {}
     ClusterParam(const SiPixelCluster& cl) : theCluster(&cl) {}
 
     virtual ~ClusterParam() = default;
 
-    const SiPixelCluster* theCluster;
+    const SiPixelCluster* theCluster = nullptr;
 
     //--- Cluster-level quantities (filled in computeAnglesFrom....)
     float cotalpha;
@@ -143,7 +133,7 @@ public:
   inline ReturnType getParameters(const SiPixelCluster& cl, const GeomDetUnit& det) const override {
 #ifdef EDM_ML_DEBUG
     nRecHitsTotal_++;
-    //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
+    LogDebug("PixelCPEBase") << " in PixelCPEBase:localParameters(all) - " << nRecHitsTotal_;
 #endif
 
     DetParam const& theDetParam = detParam(det);
@@ -157,7 +147,7 @@ public:
     SiPixelRecHitQuality::QualWordType rqw = rawQualityWord(*theClusterParam);
     auto tuple = std::make_tuple(lp, le, rqw);
 
-    //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
+    LogDebug("PixelCPEBase") << " in PixelCPEBase:localParameters(all) - " << lp.x() << " " << lp.y();
     return tuple;
   }
 
@@ -169,7 +159,7 @@ public:
                                   const LocalTrajectoryParameters& ltp) const override {
 #ifdef EDM_ML_DEBUG
     nRecHitsTotal_++;
-    //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
+    LogDebug("PixelCPEBase") << " in PixelCPEBase:localParameters(on track) - " << nRecHitsTotal_;
 #endif
 
     DetParam const& theDetParam = detParam(det);
@@ -183,7 +173,7 @@ public:
     SiPixelRecHitQuality::QualWordType rqw = rawQualityWord(*theClusterParam);
     auto tuple = std::make_tuple(lp, le, rqw);
 
-    //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
+    LogDebug("PixelCPEBase") << " in PixelCPEBase:localParameters(on track) - " << lp.x() << " " << lp.y();
     return tuple;
   }
 
@@ -291,4 +281,4 @@ protected:
   DetParams m_DetParams = DetParams(1440);
 };
 
-#endif
+#endif  // RecoLocalTracker_SiPixelRecHits_interface_PixelCPEBase_h

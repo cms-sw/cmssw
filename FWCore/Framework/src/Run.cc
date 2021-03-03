@@ -26,8 +26,10 @@ namespace edm {
 
   RunPrincipal const& Run::runPrincipal() const { return dynamic_cast<RunPrincipal const&>(provRecorder_.principal()); }
 
-  Provenance Run::getProvenance(BranchID const& bid) const {
-    return runPrincipal().getProvenance(bid, moduleCallingContext_);
+  Provenance const& Run::getProvenance(BranchID const& bid) const { return runPrincipal().getProvenance(bid); }
+
+  StableProvenance const& Run::getStableProvenance(BranchID const& bid) const {
+    return runPrincipal().getStableProvenance(bid);
   }
 
   void Run::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {

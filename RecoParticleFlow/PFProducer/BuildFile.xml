@@ -1,4 +1,4 @@
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
 <use name="CommonTools/MVAUtils"/>
 <use name="DataFormats/CaloRecHit"/>
 <use name="DataFormats/Common"/>

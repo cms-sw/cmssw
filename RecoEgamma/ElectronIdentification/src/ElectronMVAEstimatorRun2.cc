@@ -1,5 +1,6 @@
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf)
     : AnyMVAEstimatorRun2Base(conf),

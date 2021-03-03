@@ -1,4 +1,4 @@
-<library name="RecoParticleFlowPFProducerSimPlugins" file="SimPFProducer.cc,TauHadronDecayFilter.cc,PFSimParticleProducer.cc,EcalBarrelClusterFastTimer.cc,,SealModuleSim.cc">
+<library name="RecoParticleFlowPFProducerSimPlugins" file="*.cc">
   <use name="DataFormats/EcalDetId"/>
   <use name="TrackingTools/MaterialEffects"/>
   <use name="DataFormats/EcalRecHit"/>
@@ -26,34 +26,18 @@
   <use name="TrackingTools/PatternTools"/>
   <use name="TrackingTools/Records"/>
   <use name="TrackingTools/TrajectoryState"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library name="RecoParticleFlowPFTrackingSimPlugins" file="ConvBremSeedProducer.cc, modulesSim.cc">
-  <use name="DataFormats/GeometrySurface"/>
   <use name="DataFormats/GsfTrackReco"/>
-  <use name="DataFormats/ParticleFlowReco"/>
   <use name="DataFormats/TrackingRecHit"/>
   <use name="DataFormats/TrajectorySeed"/>
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/MessageLogger"/>
   <use name="FastSimulation/ParticlePropagator"/>
   <use name="FastSimulation/TrackerSetup"/>
   <use name="FastSimulation/TrajectoryManager"/>
-  <use name="Geometry/Records"/>
-  <use name="Geometry/TrackerGeometryBuilder"/>
-  <use name="MagneticField/Engine"/>
-  <use name="MagneticField/Records"/>
   <use name="RecoParticleFlow/PFTracking"/>
   <use name="RecoTracker/Record"/>
   <use name="RecoTracker/TkDetLayers"/>
   <use name="RecoTracker/TkSeedGenerator"/>
   <use name="RecoTracker/TransientTrackingRecHit"/>
   <use name="TrackingTools/DetLayers"/>
-  <use name="TrackingTools/GeomPropagators"/>
   <use name="TrackingTools/KalmanUpdators"/>
-  <use name="TrackingTools/MaterialEffects"/>
-  <use name="TrackingTools/Records"/>
-  <use name="TrackingTools/TrajectoryState"/>
   <flags EDM_PLUGIN="1"/>
 </library>

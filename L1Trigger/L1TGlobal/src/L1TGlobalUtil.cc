@@ -109,7 +109,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool is
   }
 
   if (!m_readPrescalesFromFile) {
-    auto vetosRcd = evSetup.get<L1TGlobalPrescalesVetosRcd>();
+    auto vetosRcd = evSetup.get<L1TGlobalPrescalesVetosFractRcd>();
     unsigned long long l1GtPfAlgoCacheID = vetosRcd.cacheIdentifier();
 
     if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
@@ -122,13 +122,13 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool is
       m_numberOfPreScaleColumns = 0;
       m_numberPhysTriggers = 0;
 
-      const L1TGlobalPrescalesVetos* es = nullptr;
+      const L1TGlobalPrescalesVetosFract* es = nullptr;
       if (isRun) {
-        es = &vetosRcd.get(m_L1TGlobalPrescalesVetosRunToken);
+        es = &vetosRcd.get(m_L1TGlobalPrescalesVetosFractRunToken);
       } else {
-        es = &vetosRcd.get(m_L1TGlobalPrescalesVetosEventToken);
+        es = &vetosRcd.get(m_L1TGlobalPrescalesVetosFractEventToken);
       }
-      m_l1GtPrescalesVetoes = PrescalesVetosHelper::readFromEventSetup(es);
+      m_l1GtPrescalesVetoes = PrescalesVetosFractHelper::readFromEventSetup(es);
 
       m_prescaleFactorsAlgoTrig = &(m_l1GtPrescalesVetoes->prescaleTable());
       m_numberOfPreScaleColumns = m_prescaleFactorsAlgoTrig->size();
@@ -163,7 +163,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool is
     m_PreScaleColumn = 0;
   }
   //std::cout << "Using prescale column: " << m_PreScaleColumn << std::endl;
-  const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
+  const std::vector<double>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
 
   for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin();
        itAlgo != m_algorithmMap->end();
@@ -240,7 +240,7 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent,
           m_PreScaleColumn = 0;
         }
       }
-      const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
+      const std::vector<double>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
 
       // Grab the final OR from the AlgBlk,
       m_finalOR = algBlk->getFinalOR();
@@ -285,7 +285,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
   inputPrescaleFile.open(m_preScaleFileName);
 
   std::vector<std::vector<int> > vec;
-  std::vector<std::vector<int> > prescale_vec;
+  std::vector<std::vector<double> > prescale_vec;
 
   if (inputPrescaleFile) {
     std::string prefix1("#");
@@ -339,7 +339,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     if (NumPrescaleSets > 0) {
       // Fill default prescale set
       for (int iSet = 0; iSet < NumPrescaleSets; iSet++) {
-        prescale_vec.push_back(std::vector<int>());
+        prescale_vec.push_back(std::vector<double>());
         for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
           int inputDefaultPrescale = 1;
           prescale_vec[iSet].push_back(inputDefaultPrescale);
@@ -380,7 +380,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     m_PreScaleColumn = 0;
 
     for (int col = 0; col < 1; col++) {
-      prescale_vec.push_back(std::vector<int>());
+      prescale_vec.push_back(std::vector<double>());
       for (unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit) {
         int inputDefaultPrescale = 0;
         prescale_vec[col].push_back(inputDefaultPrescale);
@@ -399,14 +399,15 @@ void l1t::L1TGlobalUtil::eventSetupConsumes(edm::ConsumesCollector& iC, UseEvent
   if (useEventSetupIn == UseEventSetupIn::Run || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
     m_L1TUtmTriggerMenuRunToken = iC.esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd, edm::Transition::BeginRun>();
     if (!m_readPrescalesFromFile) {
-      m_L1TGlobalPrescalesVetosRunToken =
-          iC.esConsumes<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd, edm::Transition::BeginRun>();
+      m_L1TGlobalPrescalesVetosFractRunToken =
+          iC.esConsumes<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd, edm::Transition::BeginRun>();
     }
   }
   if (useEventSetupIn == UseEventSetupIn::Event || useEventSetupIn == UseEventSetupIn::RunAndEvent) {
     m_L1TUtmTriggerMenuEventToken = iC.esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
     if (!m_readPrescalesFromFile) {
-      m_L1TGlobalPrescalesVetosEventToken = iC.esConsumes<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd>();
+      m_L1TGlobalPrescalesVetosFractEventToken =
+          iC.esConsumes<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd>();
     }
   }
 }
@@ -505,7 +506,7 @@ const bool l1t::L1TGlobalUtil::getFinalDecisionByBit(int& bit, bool& decision) c
 
   return false;  //couldn't get the information requested.
 }
-const bool l1t::L1TGlobalUtil::getPrescaleByBit(int& bit, int& prescale) const {
+const bool l1t::L1TGlobalUtil::getPrescaleByBit(int& bit, double& prescale) const {
   // Need some check that this is a valid bit
   if ((m_prescales[bit]).first != "NULL") {
     prescale = (m_prescales[bit]).second;
@@ -553,7 +554,7 @@ const bool l1t::L1TGlobalUtil::getFinalDecisionByName(const std::string& algName
 
   return false;  //trigger name was not the menu.
 }
-const bool l1t::L1TGlobalUtil::getPrescaleByName(const std::string& algName, int& prescale) const {
+const bool l1t::L1TGlobalUtil::getPrescaleByName(const std::string& algName, double& prescale) const {
   int bit = -1;
   if (getAlgBitFromName(algName, bit)) {
     prescale = (m_prescales[bit]).second;

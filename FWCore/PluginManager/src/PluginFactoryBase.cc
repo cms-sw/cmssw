@@ -75,6 +75,10 @@ namespace edmplugin {
             << "'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh " << lib
             << "'";
       }
+      //The item in the container can still be under construction so wait until the m_ptr has been set since that is done last
+      auto const& value = itFound->second.front();
+      while (value.m_ptr.load(std::memory_order_acquire) == nullptr) {
+      }
     } else {
       //The item in the container can still be under construction so wait until the m_ptr has been set since that is done last
       auto const& value = itFound->second.front();

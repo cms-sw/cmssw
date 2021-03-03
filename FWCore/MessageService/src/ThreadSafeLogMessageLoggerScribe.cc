@@ -33,6 +33,7 @@
 #include <csignal>
 
 using std::cerr;
+using namespace edm::messagelogger;
 
 namespace edm {
   namespace service {
@@ -349,6 +350,14 @@ namespace edm {
         if (getAparameter<bool>(dest_pset, "enableStatistics", false)) {
           configure_statistics_dest(job_pset, defaults, categories, dest_pset, name, actual_filename);
         }
+      }
+      if (cout_dest.getUntrackedParameter<bool>("enable") and
+          getAparameter<bool>(cout_dest, "enableStatistics", true)) {
+        configure_statistics_dest(job_pset, defaults, categories, cout_dest, "cout", "cout");
+      }
+      if (cerr_dest.getUntrackedParameter<bool>("enable") and
+          getAparameter<bool>(cerr_dest, "enableStatistics", true)) {
+        configure_statistics_dest(job_pset, defaults, categories, cerr_dest, "cerr", "cerr");
       }
     }
 

@@ -14,13 +14,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 #include <sstream>
+#include <memory>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace cond {
 
   namespace persistency {
 
-    class ConnectionPool;
+    class MsgDispatcher;
 
     template <typename EdmLogger>
     class EchoedLogStream {
@@ -93,7 +94,10 @@ namespace cond {
       virtual ~Logger();
 
       //
-      void setDbDestination(const std::string& connectionString, ConnectionPool& connectionPool);
+      void subscribeCoralMessages(const std::weak_ptr<MsgDispatcher>& dispatcher);
+
+      //
+      void setDbDestination(const std::string& connectionString);
 
       //
       void start();
@@ -124,12 +128,12 @@ namespace cond {
     private:
       std::string m_jobName;
       std::string m_connectionString;
-      ConnectionPool* m_sharedConnectionPool;
       bool m_started;
       boost::posix_time::ptime m_startTime;
       boost::posix_time::ptime m_endTime;
       int m_retCode;
       std::stringstream m_log;
+      std::weak_ptr<MsgDispatcher> m_dispatcher;
     };
 
   }  // namespace persistency

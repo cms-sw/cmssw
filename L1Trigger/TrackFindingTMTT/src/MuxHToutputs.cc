@@ -54,7 +54,7 @@ namespace tmtt {
   //=== to output all the tracks within the time-multiplexed period.
   //=== This function replaces the 2D track collection in the r-phi HT with the subset surviving the TM cut.
 
-  void MuxHToutputs::exec(matrix<unique_ptr<HTrphi>>& mHtRphis) const {
+  void MuxHToutputs::exec(Array2D<unique_ptr<HTrphi>>& mHtRphis) const {
     // As this loops over sectors in order of increasing sector number, this MUX algorithm always transmits tracks
     // from the lowest sector numbers on each link first. So the highest sector numbers are more likely to be
     // truncated by the TM period. The algorithm assumes that two or more m-bin ranges from the same sector will never

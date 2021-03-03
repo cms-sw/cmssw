@@ -10,7 +10,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigiCollection.h"
-#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelSimTopology.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -21,6 +20,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
+#include "CondFormats/DataRecord/interface/PPSPixelTopologyRcd.h"
 
 #include <iostream>
 #include <string>
@@ -67,8 +68,8 @@ private:
   int verbosity_;
   edm::EDGetTokenT<edm::PSimHitContainer> psim_token;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDigi>> pixel_token;
+  edm::ESGetToken<PPSPixelTopology, PPSPixelTopologyRcd> pixelTopologyToken_;
 
-  CTPPSPixelSimTopology theRPixDetTopology_;
   unsigned int found_corresponding_digi_count_;
   unsigned int cumulative_cluster_size_[3];
 };
@@ -78,8 +79,7 @@ PPSPixelDigiAnalyzer::PPSPixelDigiAnalyzer(const ParameterSet &pset)
       hOneHitperEvent(nullptr),
       hOneHitperEvent2(nullptr),
       hOneHitperEventCenter(nullptr),
-      hOneHitperEvent2Center(nullptr),
-      theRPixDetTopology_() {
+      hOneHitperEvent2Center(nullptr) {
   label_ = pset.getUntrackedParameter<string>("label");
   verbosity_ = pset.getParameter<int>("Verbosity");
   edm::Service<TFileService> file;
@@ -99,6 +99,7 @@ PPSPixelDigiAnalyzer::PPSPixelDigiAnalyzer(const ParameterSet &pset)
 
   psim_token = consumes<PSimHitContainer>(edm::InputTag("g4SimHits", "CTPPSPixelHits"));
   pixel_token = consumes<edm::DetSetVector<CTPPSPixelDigi>>(edm::InputTag(label_, ""));  //label=RPixDetDigitizer???
+  pixelTopologyToken_ = esConsumes<PPSPixelTopology, PPSPixelTopologyRcd>();
 }
 
 PPSPixelDigiAnalyzer::~PPSPixelDigiAnalyzer() {}
@@ -126,6 +127,8 @@ void PPSPixelDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSe
   edm::Handle<edm::DetSetVector<CTPPSPixelDigi>> CTPPSPixelDigis;
   event.getByToken(pixel_token, CTPPSPixelDigis);
 
+  edm::ESHandle<PPSPixelTopology> thePixelTopology = eventSetup.getHandle(pixelTopologyToken_);
+
   if (verbosity_ > 0)
     edm::LogInfo("PPSPixelDigiAnalyzer") << "\n=================== RPDA Starting SimHit access"
                                          << "  ===================";
@@ -140,12 +143,12 @@ void PPSPixelDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSe
   double myX = 0;
   double myY = 0;
 
-  theRPixDetTopology_.pixelRange(SELECTED_PIXEL_ROW,
-                                 SELECTED_PIXEL_COLUMN,
-                                 selected_pixel_lower_x,
-                                 selected_pixel_upper_x,
-                                 selected_pixel_lower_y,
-                                 selected_pixel_upper_y);
+  thePixelTopology->pixelRange(SELECTED_PIXEL_ROW,
+                               SELECTED_PIXEL_COLUMN,
+                               selected_pixel_lower_x,
+                               selected_pixel_upper_x,
+                               selected_pixel_lower_y,
+                               selected_pixel_upper_y);
 
   double hit_inside_selected_pixel[2];
   bool found_hit_inside_selected_pixel = false;
@@ -229,7 +232,7 @@ void PPSPixelDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSe
         double uy;
         unsigned int rr = di->row();
         unsigned int cc = di->column();
-        theRPixDetTopology_.pixelRange(rr, cc, lx, ux, ly, uy);
+        thePixelTopology->pixelRange(rr, cc, lx, ux, ly, uy);
 
         edm::LogInfo("PPSPixelDigiAnalyzer")
             << " pixel boundaries x low up, y low up " << lx << " " << ux << " " << ly << " " << uy;

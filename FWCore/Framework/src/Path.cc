@@ -215,7 +215,7 @@ namespace edm {
     pathStatusInserterWorker_ = pathStatusInserterWorker;
   }
 
-  void Path::processOneOccurrenceAsync(WaitingTask* iTask,
+  void Path::processOneOccurrenceAsync(WaitingTaskHolder iTask,
                                        EventTransitionInfo const& iInfo,
                                        ServiceToken const& iToken,
                                        StreamID const& iStreamID,
@@ -266,12 +266,14 @@ namespace edm {
       CMS_SA_ALLOW try {
         std::ostringstream ost;
         ost << iEP.id();
+        ModuleDescription const* desc = worker.getWorker()->description();
+        assert(desc != nullptr);
         shouldContinue = handleWorkerFailure(*pEx,
                                              iModuleIndex,
                                              /*isEvent*/ true,
                                              /*isBegin*/ true,
                                              InEvent,
-                                             worker.getWorker()->description(),
+                                             *desc,
                                              ost.str());
         //If we didn't rethrow, then we effectively skipped
         worker.skipWorker(iEP);
@@ -360,7 +362,7 @@ namespace edm {
             this->workerFinished(iException, lastModuleIndex, info, token, iID, iContext);
           });
       workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-          nextTask, iInfo, iToken, iID, iContext);
+          WaitingTaskHolder(nextTask), iInfo, iToken, iID, iContext);
     }
   }
 

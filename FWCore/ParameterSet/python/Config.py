@@ -227,6 +227,7 @@ class Process(object):
                               forceEventSetupCacheClearOnNewRun = untracked.bool(False),
                               throwIfIllegalParameter = untracked.bool(True),
                               printDependencies = untracked.bool(False),
+                              deleteNonConsumedUnscheduledModules = untracked.bool(True),
                               sizeOfStackForThreadsInKB = optional.untracked.uint32,
                               Rethrow = untracked.vstring(),
                               SkipEvent = untracked.vstring(),
@@ -1034,7 +1035,10 @@ class Process(object):
                 sub = options.targetDirectory + '/' + sub
             files[sub + '/__init__.py'] = ''
 
-        for (name, (subfolder, code)) in six.iteritems(parts):
+        # case insensitive sort by subfolder and module name
+        parts = sorted(parts.items(), key = lambda nsc: (nsc[1][0].lower() if nsc[1][0] else '', nsc[0].lower()))
+
+        for (name, (subfolder, code)) in parts:
             filename = name + '_cfi'
             if options.useSubdirectories and subfolder:
                 filename = subfolder + '/' + filename
@@ -1045,7 +1049,7 @@ class Process(object):
 
         if self.schedule_() is not None:
             options.isCfg = True
-            result += 'process.schedule = ' + self.schedule.dumpPython(options)
+            result += '\nprocess.schedule = ' + self.schedule.dumpPython(options)
 
         imports = specialImportRegistry.getSpecialImports()
         if len(imports) > 0:
@@ -2010,6 +2014,7 @@ process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring(),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
+    deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
     emptyRunLumiMode = cms.obsolete.untracked.string,
     eventSetup = cms.untracked.PSet(
         forceNumberOfConcurrentIOVs = cms.untracked.PSet(

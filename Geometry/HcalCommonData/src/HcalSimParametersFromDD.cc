@@ -117,18 +117,19 @@ bool HcalSimParametersFromDD::build(const cms::DDCompactView& cpv, HcalSimulatio
     php.hfLevels_ = fv.get<std::vector<int> >("hf", "Levels");
 
     // Attenuation length
-    static const double cminv2mminv = 0.1;
     php.attenuationLength_ = fv.get<std::vector<double> >("hf", "attl");
-    std::for_each(php.attenuationLength_.begin(), php.attenuationLength_.end(), [](double& n) { n *= cminv2mminv; });
+    std::for_each(
+        php.attenuationLength_.begin(), php.attenuationLength_.end(), [](double& n) { n *= k_ScaleFromDD4HepInv; });
 
     // Limits on Lambda
     php.lambdaLimits_ = fv.get<std::vector<int> >("hf", "lambLim");
 
     // Fibre Lengths
     php.longFiberLength_ = fv.get<std::vector<double> >("hf", "LongFL");
-    std::for_each(php.longFiberLength_.begin(), php.longFiberLength_.end(), [](double& n) { n = convertCmToMm(n); });
+    std::for_each(php.longFiberLength_.begin(), php.longFiberLength_.end(), [](double& n) { n *= k_ScaleFromDD4Hep; });
     php.shortFiberLength_ = fv.get<std::vector<double> >("hf", "ShortFL");
-    std::for_each(php.shortFiberLength_.begin(), php.shortFiberLength_.end(), [](double& n) { n = convertCmToMm(n); });
+    std::for_each(
+        php.shortFiberLength_.begin(), php.shortFiberLength_.end(), [](double& n) { n *= k_ScaleFromDD4Hep; });
 
     //Parameters for the PMT
     std::vector<double> neta = fv.get<std::vector<double> >("hfpmt", "indexPMTR");

@@ -69,6 +69,7 @@ private:
   float pTMax_;       // in GeV, saturation / truncation value
   int highPtTracks_;  // saturate or truncate
 
+  int nVtx_;         // the number of vertices to return
   int nStubsmin_;    // minimum number of stubs
   int nStubsPSmin_;  // minimum number of stubs in PS modules
 
@@ -116,6 +117,7 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
   pTMax_ = (float)iConfig.getParameter<double>("PTMAX");
   highPtTracks_ = iConfig.getParameter<int>("HighPtTracks");
 
+  nVtx_ = iConfig.getParameter<int>("nVtx");
   nStubsmin_ = iConfig.getParameter<int>("nStubsmin");
   nStubsPSmin_ = iConfig.getParameter<int>("nStubsPSmin");
   nBinning_ = iConfig.getParameter<int>("nBinning");
@@ -309,6 +311,7 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
 
   float zvtx_sliding = -999;
   float sigma_max = -999;
+  int imax = -999;
   int nb = htmp.GetNbinsX();
   for (int i = 2; i <= nb - 1; i++) {
     float a0 = htmp.GetBinContent(i - 1);
@@ -317,6 +320,7 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
     float sigma = a0 + a1 + a2;
     if (sigma > sigma_max) {
       sigma_max = sigma;
+      imax = i;
       float z0 = htmp.GetBinCenter(i - 1);
       float z1 = htmp.GetBinCenter(i);
       float z2 = htmp.GetBinCenter(i + 1);
@@ -324,25 +328,30 @@ void L1TkFastVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
     }
   }
 
-  zvtx_sliding = -999;
-  sigma_max = -999;
-  for (int i = 2; i <= nb - 1; i++) {
-    float a0 = htmp_weight.GetBinContent(i - 1);
-    float a1 = htmp_weight.GetBinContent(i);
-    float a2 = htmp_weight.GetBinContent(i + 1);
-    float sigma = a0 + a1 + a2;
-    if (sigma > sigma_max) {
-      sigma_max = sigma;
-      float z0 = htmp_weight.GetBinCenter(i - 1);
-      float z1 = htmp_weight.GetBinCenter(i);
-      float z2 = htmp_weight.GetBinCenter(i + 1);
-      zvtx_sliding = (a0 * z0 + a1 * z1 + a2 * z2) / sigma;
+  std::vector<int> found;
+  found.reserve(nVtx_);
+  for (int ivtx = 0; ivtx < nVtx_; ivtx++) {
+    zvtx_sliding = -999;
+    sigma_max = -999;
+    imax = -999;
+    for (int i = 2; i <= nb - 1; i++) {
+      float a0 = htmp_weight.GetBinContent(i - 1);
+      float a1 = htmp_weight.GetBinContent(i);
+      float a2 = htmp_weight.GetBinContent(i + 1);
+      float sigma = a0 + a1 + a2;
+      if ((sigma > sigma_max) && (find(found.begin(), found.end(), i) == found.end())) {
+        sigma_max = sigma;
+        imax = i;
+        float z0 = htmp_weight.GetBinCenter(i - 1);
+        float z1 = htmp_weight.GetBinCenter(i);
+        float z2 = htmp_weight.GetBinCenter(i + 1);
+        zvtx_sliding = (a0 * z0 + a1 * z1 + a2 * z2) / sigma;
+      }
     }
+    found.push_back(imax);
+    TkPrimaryVertex vtx4(zvtx_sliding, sigma_max);
+    result->push_back(vtx4);
   }
-
-  TkPrimaryVertex vtx4(zvtx_sliding, sigma_max);
-
-  result->push_back(vtx4);
 
   iEvent.put(std::move(result));
 }

@@ -40,6 +40,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 //
 // class declaration
@@ -59,6 +61,7 @@ private:
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedsToken;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
   std::string tTRHBuilderName;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geoToken_;
 };
 
 //
@@ -72,7 +75,8 @@ private:
 //
 // constructors and destructor
 //
-TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig) {
+TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig)
+    : geoToken_(esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>()) {
   //register your products
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -127,14 +131,21 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
   iSetup.get<TrackerTopologyRcd>().get(httopo);
   const TrackerTopology& ttopo = *httopo;
 
+  const GlobalTrackingGeometry* const geometry_ = &iSetup.getData(geoToken_);
+
   // create tracks from seeds
   int nfailed = 0;
   for (size_t iSeed = 0; iSeed < seeds.size(); ++iSeed) {
     auto const& seed = seeds[iSeed];
     // try to create a track
-    TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().end() - 1));
-    TrajectoryStateOnSurface state =
-        trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), theMF.product());
+    TrajectoryStateOnSurface state;
+    if (seed.nHits() == 0) {  //this is for deepCore seeds only
+      const Surface* deepCore_sruface = &geometry_->idToDet(seed.startingState().detId())->specificSurface();
+      state = trajectoryStateTransform::transientState(seed.startingState(), deepCore_sruface, theMF.product());
+    } else {
+      TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().end() - 1));
+      state = trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), theMF.product());
+    }
     TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed =
         tscblBuilder(*state.freeState(), *beamSpot);  //as in TrackProducerAlgorithm
     if (tsAtClosestApproachSeed.isValid()) {

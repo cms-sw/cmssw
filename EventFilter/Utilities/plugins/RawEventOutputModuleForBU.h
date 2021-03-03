@@ -1,25 +1,26 @@
-#ifndef IOPool_Streamer_RawEventOutputModuleForBU_h
-#define IOPool_Streamer_RawEventOutputModuleForBU_h
-
-#include "FWCore/Framework/interface/EventForOutput.h"
-#include "FWCore/Framework/interface/one/OutputModule.h"
-#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
-#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
-#include "IOPool/Streamer/interface/FRDEventMessage.h"
-#include "EventFilter/Utilities/plugins/EvFBuildingThrottle.h"
-#include "FWCore/Utilities/interface/Adler32Calculator.h"
-#include "EventFilter/Utilities/interface/crc32c.h"
+#ifndef IOPool_Streamer_interface_RawEventOutputModuleForBU_h
+#define IOPool_Streamer_interface_RawEventOutputModuleForBU_h
 
 #include <memory>
 #include <vector>
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/crc32c.h"
+#include "EventFilter/Utilities/plugins/EvFBuildingThrottle.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
 
 template <class Consumer>
 class RawEventOutputModuleForBU : public edm::one::OutputModule<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
@@ -35,6 +36,8 @@ public:
   explicit RawEventOutputModuleForBU(edm::ParameterSet const& ps);
   ~RawEventOutputModuleForBU() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void write(edm::EventForOutput const& e) override;
   void beginRun(edm::RunForOutput const&) override;
@@ -46,18 +49,16 @@ private:
   void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   std::unique_ptr<Consumer> templateConsumer_;
-  std::string label_;
-  std::string instance_;
-  edm::EDGetTokenT<FEDRawDataCollection> token_;
-  unsigned int numEventsPerFile_;
-  unsigned int frdVersion_;
-  unsigned long long totsize;
-  unsigned long long writtensize;
-  unsigned long long writtenSizeLast;
-  unsigned int totevents;
-  unsigned int index_;
+  const edm::EDGetTokenT<FEDRawDataCollection> token_;
+  const unsigned int numEventsPerFile_;
+  const unsigned int frdVersion_;
+  unsigned long long totsize = 0LL;
+  unsigned long long writtensize = 0LL;
+  unsigned long long writtenSizeLast = 0LL;
+  unsigned int totevents = 0;
+  unsigned int index_ = 0;
   timeval startOfLastLumi;
-  bool firstLumi_;
+  bool firstLumi_ = true;
 };
 
 template <class Consumer>
@@ -65,17 +66,9 @@ RawEventOutputModuleForBU<Consumer>::RawEventOutputModuleForBU(edm::ParameterSet
     : edm::one::OutputModuleBase::OutputModuleBase(ps),
       edm::one::OutputModule<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks>(ps),
       templateConsumer_(new Consumer(ps)),
-      label_(ps.getUntrackedParameter<std::string>("ProductLabel", "source")),
-      instance_(ps.getUntrackedParameter<std::string>("ProductInstance", "")),
-      token_(consumes<FEDRawDataCollection>(edm::InputTag(label_, instance_))),
-      numEventsPerFile_(ps.getUntrackedParameter<unsigned int>("numEventsPerFile", 100)),
-      frdVersion_(ps.getUntrackedParameter<unsigned int>("frdVersion", 6)),
-      totsize(0LL),
-      writtensize(0LL),
-      writtenSizeLast(0LL),
-      totevents(0),
-      index_(0),
-      firstLumi_(true) {}
+      token_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("source"))),
+      numEventsPerFile_(ps.getParameter<unsigned int>("numEventsPerFile")),
+      frdVersion_(ps.getParameter<unsigned int>("frdVersion")) {}
 
 template <class Consumer>
 RawEventOutputModuleForBU<Consumer>::~RawEventOutputModuleForBU() {}
@@ -206,9 +199,22 @@ void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBl
   totsize = 0LL;
   firstLumi_ = false;
 }
+
 template <class Consumer>
 void RawEventOutputModuleForBU<Consumer>::endLuminosityBlock(edm::LuminosityBlockForOutput const& ls) {
   //  templateConsumer_->touchlock(ls.id().luminosityBlock(),basedir);
   templateConsumer_->endOfLS(ls.id().luminosityBlock());
 }
-#endif
+
+template <class Consumer>
+void RawEventOutputModuleForBU<Consumer>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("source", edm::InputTag("rawDataCollector"));
+  desc.add<unsigned int>("numEventsPerFile", 100);
+  desc.add<unsigned int>("frdVersion", 6);
+  Consumer::extendDescription(desc);
+
+  descriptions.addWithDefaultLabel(desc);
+}
+
+#endif  // IOPool_Streamer_interface_RawEventOutputModuleForBU_h

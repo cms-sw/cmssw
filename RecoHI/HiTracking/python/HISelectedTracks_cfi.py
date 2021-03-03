@@ -47,6 +47,7 @@ trackingPhase1.toModify(hiInitialStepSelector,
             preFilterName = 'hiInitialStepTight',
             useMVA = False,
             minMVA = -0.77
+
         ),
     ) #end of vpset
 )
@@ -57,12 +58,12 @@ trackingPhase1.toModify(hiInitialStepSelector,
 from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiSelectedTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = ['hiGlobalPrimTracks'],
-    hasSelector = [1],
+    TrackProducers     = ['hiGlobalPrimTracks'],
+    hasSelector        = [1],
     selectedTrackQuals = ["hiInitialStepSelector:hiInitialStep"],
-    copyExtras = True,
-    copyMVA = True,
-    makeReKeyedSeeds = cms.untracked.bool(False)
+    copyExtras         = True,
+    copyMVA            = True,
+    makeReKeyedSeeds   = cms.untracked.bool(False)
 )
 
 #complete sequence

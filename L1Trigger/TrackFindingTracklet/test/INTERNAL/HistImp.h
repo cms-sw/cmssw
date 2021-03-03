@@ -16,7 +16,7 @@ namespace trklet {
   public:
     HistImp();
 
-    ~HistImp() = default;
+    ~HistImp() override = default;
 
     void open() override;
     void close() override;

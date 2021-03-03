@@ -9,11 +9,17 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-
 process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load("Geometry.CSCGeometryBuilder.cscGeometry_cfi")
+
+process.MessageLogger = cms.Service("MessageLogger",
+                                destinations = cms.untracked.vstring('myLog'),
+                                myLog = cms.untracked.PSet(
+                                threshold = cms.untracked.string('INFO'),
+                                )
+                            )
 
 process.CSCGeometryESModule.applyAlignment = False
 
@@ -25,7 +31,7 @@ process.CSCGeometryESModule.applyAlignment = False
 #
 process.valid = cms.EDAnalyzer("CSCGeometryValidate",
                                infileName = cms.untracked.string('cmsRecoGeom-2021.root'),
-                               outfileName = cms.untracked.string('validateCSCGeometry.root'),
+                               outfileName = cms.untracked.string('validateCSCGeometryDD4HEP.root'),
                                tolerance = cms.untracked.int32(7)
                                )
 

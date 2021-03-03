@@ -712,17 +712,6 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 void ValidIsoTrkCalib::beginJob() {
   // if(!ReadCalibFactors(calibFactorsFileName_.c_str() )) {cout<<"Cant read file with cailib coefficients!! ---"<<endl;}
 
-  // try{
-  //   edm::ESHandle <HcalRespCorrs> recalibCorrs;
-  //   iSetup.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
-  //   respRecalib = recalibCorrs.product();
-  //
-  //   edm::LogInfo("CalibConstants")<<"  Loaded:  OK ";
-  //
-  // }catch(const cms::Exception & e) {
-  //   edm::LogWarning("CalibConstants")<<"   Not Found!! ";
-  // }
-
   //  rootFile = new TFile(outputFileName_.c_str(),"RECREATE");
 
   //@@@@@@@@@@@@@

@@ -9,7 +9,7 @@ process.load("DQM.BeamMonitor.BeamSpotProblemMonitor_cff")
 ####---Massage logger Services----####
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['BeamSpotProblemMonitor']
-process.MessageLogger.categories = ['BeamSpotProblemMonitor']
+process.MessageLogger.BeamSpotProblemMonitor = dict()
 process.MessageLogger.cerr.threshold = "INFO"
 
 

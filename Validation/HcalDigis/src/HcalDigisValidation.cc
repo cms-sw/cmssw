@@ -72,23 +72,20 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
   msm_ = new std::map<std::string, MonitorElement*>();
 
   if (!outputFile_.empty())
-    edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    edm::LogVerbatim("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
   else
-    edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will NOT be saved";
+    edm::LogVerbatim("OutputInfo") << " Hcal Digi Task histograms will NOT be saved";
 }
 
 HcalDigisValidation::~HcalDigisValidation() { delete msm_; }
 
 void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup& es) {
-  const auto& pHRNDC = es.getData(tok_HRNDC_);
-  hcons = &pHRNDC;
+  hcons_ = &es.getData(tok_HRNDC_);
 
-  htopology = new HcalTopology(hcons);
-
-  maxDepth_[1] = hcons->getMaxDepth(0);  // HB
-  maxDepth_[2] = hcons->getMaxDepth(1);  // HE
-  maxDepth_[3] = hcons->getMaxDepth(3);  // HO
-  maxDepth_[4] = hcons->getMaxDepth(2);  // HF
+  maxDepth_[1] = hcons_->getMaxDepth(0);  // HB
+  maxDepth_[2] = hcons_->getMaxDepth(1);  // HE
+  maxDepth_[3] = hcons_->getMaxDepth(3);  // HO
+  maxDepth_[4] = hcons_->getMaxDepth(2);  // HF
   maxDepth_[0] = (maxDepth_[1] > maxDepth_[2] ? maxDepth_[1] : maxDepth_[2]);
   maxDepth_[0] = (maxDepth_[0] > maxDepth_[3] ? maxDepth_[0] : maxDepth_[3]);
   maxDepth_[0] = (maxDepth_[0] > maxDepth_[4] ? maxDepth_[0] : maxDepth_[4]);  // any of HB/HE/HO/HF
@@ -414,12 +411,12 @@ void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string bsubd
 }  //book
 
 void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  conditions = &iSetup.getData(tok_Cond_);
+  conditions_ = &iSetup.getData(tok_Cond_);
 
   //TP Code
   const auto& decoder = &iSetup.getData(tok_Decoder_);
   const auto& tp_geometry = &iSetup.getData(tok_TPGeom_);
-  htopo = &iSetup.getData(tok_Topo_);
+  htopo_ = &iSetup.getData(tok_Topo_);
 
   //Get all handles
   edm::Handle<HcalTrigPrimDigiCollection> emulTPs;
@@ -659,13 +656,13 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
 
       for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
            ++simhits) {
-        unsigned int id_ = simhits->id();
+        unsigned int id = simhits->id();
         int sub, ieta, iphi;
         HcalDetId hid;
         if (testNumber_)
-          hid = HcalHitRelabeller::relabel(id_, hcons);
+          hid = HcalHitRelabeller::relabel(id, hcons_);
         else
-          hid = HcalDetId(id_);
+          hid = HcalDetId(id);
         sub = hid.subdet();
         ieta = hid.ieta();
         iphi = hid.iphi();
@@ -717,10 +714,10 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
          (nevent4 == 1 && isubdet == 4)) &&
         noise_ == 1 && sub == isubdet) {
       HcalGenericDetId hcalGenDetId(digiItr->id());
-      const HcalPedestal* pedestal = conditions->getPedestal(hcalGenDetId);
-      const HcalGain* gain = conditions->getGain(hcalGenDetId);
-      const HcalGainWidth* gainWidth = conditions->getGainWidth(hcalGenDetId);
-      const HcalPedestalWidth* pedWidth = conditions->getPedestalWidth(hcalGenDetId);
+      const HcalPedestal* pedestal = conditions_->getPedestal(hcalGenDetId);
+      const HcalGain* gain = conditions_->getGain(hcalGenDetId);
+      const HcalGainWidth* gainWidth = conditions_->getGainWidth(hcalGenDetId);
+      const HcalPedestalWidth* pedWidth = conditions_->getPedestalWidth(hcalGenDetId);
 
       for (int i = 0; i < 4; i++) {
         fill1D("HcalDigiTask_gain_capId" + str(i) + "_Depth" + str(depth) + "_" + subdet_, gain->getValue(i));
@@ -744,10 +741,10 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
     // No-noise case, only single  subdet selected  ===========================
 
     if (sub == isubdet && noise_ == 0) {
-      HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
+      HcalCalibrations calibrations = conditions_->getHcalCalibrations(cell);
 
-      const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
-      const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
+      const HcalQIECoder* channelCoder = conditions_->getHcalCoder(cell);
+      const HcalQIEShape* shape = conditions_->getHcalShape(channelCoder);
       HcalCoderDb coder(*channelCoder, *shape);
       coder.adc2fC(*digiItr, tool);
 
@@ -851,13 +848,13 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
       const edm::PCaloHitContainer* simhitResult = hcalHits.product();
       for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
            ++simhits) {
-        unsigned int id_ = simhits->id();
+        unsigned int id = simhits->id();
         int sub, depth, ieta, iphi;
         HcalDetId hid;
         if (testNumber_)
-          hid = HcalHitRelabeller::relabel(id_, hcons);
+          hid = HcalHitRelabeller::relabel(id, hcons_);
         else
-          hid = HcalDetId(id_);
+          hid = HcalDetId(id);
         sub = hid.subdet();
         depth = hid.depth();
         ieta = hid.ieta();
@@ -975,13 +972,13 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
 
       for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
            ++simhits) {
-        unsigned int id_ = simhits->id();
+        unsigned int id = simhits->id();
         int sub, ieta, iphi;
         HcalDetId hid;
         if (testNumber_)
-          hid = HcalHitRelabeller::relabel(id_, hcons);
+          hid = HcalHitRelabeller::relabel(id, hcons_);
         else
-          hid = HcalDetId(id_);
+          hid = HcalDetId(id);
         sub = hid.subdet();
         ieta = hid.ieta();
         iphi = hid.iphi();
@@ -1040,10 +1037,10 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
          (nevent4 == 1 && isubdet == 4)) &&
         noise_ == 1 && sub == isubdet) {
       HcalGenericDetId hcalGenDetId(digiItr->id());
-      const HcalPedestal* pedestal = conditions->getPedestal(hcalGenDetId);
-      const HcalGain* gain = conditions->getGain(hcalGenDetId);
-      const HcalGainWidth* gainWidth = conditions->getGainWidth(hcalGenDetId);
-      const HcalPedestalWidth* pedWidth = conditions->getPedestalWidth(hcalGenDetId);
+      const HcalPedestal* pedestal = conditions_->getPedestal(hcalGenDetId);
+      const HcalGain* gain = conditions_->getGain(hcalGenDetId);
+      const HcalGainWidth* gainWidth = conditions_->getGainWidth(hcalGenDetId);
+      const HcalPedestalWidth* pedWidth = conditions_->getPedestalWidth(hcalGenDetId);
 
       for (int i = 0; i < 4; i++) {
         fill1D("HcalDigiTask_gain_capId" + str(i) + "_Depth" + str(depth) + "_" + subdet_, gain->getValue(i));
@@ -1060,7 +1057,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
              pedWidth->getWidth(0));
 
     }  // end of event #1
-    //std::cout << "==== End of event noise block in cell cycle"  << std::endl;
+    //edm::LogVerbatim("OutputInfo") << "==== End of event noise block in cell cycle";
 
     if (sub == isubdet)
       Ndig++;  // subdet number of digi
@@ -1068,10 +1065,10 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
     // No-noise case, only single  subdet selected  ===========================
 
     if (sub == isubdet && noise_ == 0) {
-      HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
+      HcalCalibrations calibrations = conditions_->getHcalCalibrations(cell);
 
-      const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
-      const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
+      const HcalQIECoder* channelCoder = conditions_->getHcalCoder(cell);
+      const HcalQIEShape* shape = conditions_->getHcalShape(channelCoder);
       HcalCoderDb coder(*channelCoder, *shape);
       coder.adc2fC(dataFrame, tool);
 
@@ -1226,13 +1223,13 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
       const edm::PCaloHitContainer* simhitResult = hcalHits.product();
       for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
            ++simhits) {
-        unsigned int id_ = simhits->id();
+        unsigned int id = simhits->id();
         int sub, depth, ieta, iphi;
         HcalDetId hid;
         if (testNumber_)
-          hid = HcalHitRelabeller::relabel(id_, hcons);
+          hid = HcalHitRelabeller::relabel(id, hcons_);
         else
-          hid = HcalDetId(id_);
+          hid = HcalDetId(id);
         sub = hid.subdet();
         depth = hid.depth();
         ieta = hid.ieta();

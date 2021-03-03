@@ -83,11 +83,20 @@ public:
         return true;
       if (xMin(0) > other.xMin(0))
         return false;
-      if (xMin(1) < other.xMin(1))
-        return true;
-      if (xMin(1) > other.xMin(1))
-        return false;
-      return (xMin(2) < other.xMin(2));
+      auto const sz = mMin.size();
+      auto const otherSz = other.mMin.size();
+      if (sz > 1 and otherSz > 1) {
+        if (xMin(1) < other.xMin(1))
+          return true;
+        if (xMin(1) > other.xMin(1))
+          return false;
+        if (sz > 2 and otherSz > 2) {
+          return (xMin(2) < other.xMin(2));
+        }
+      }
+      //xMins were equal up until one of them
+      // ran out of values
+      return sz < otherSz;
     }
 
   private:

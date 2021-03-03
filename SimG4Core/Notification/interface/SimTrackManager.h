@@ -25,8 +25,8 @@
 // user include files
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackContainer.h"
-
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 
@@ -101,13 +101,37 @@ public:
     }
     return flag;
   }
+  TrackWithHistory* getTrackByID(unsigned int trackID, bool strict = false) const {
+    bool trackFound = false;
+    TrackWithHistory* track;
+    if (m_trksForThisEvent == nullptr) {
+      throw cms::Exception("Unknown", "SimTrackManager") << "m_trksForThisEvent is a nullptr, cannot get any track!";
+    }
+    for (unsigned int itr = 0; itr < (*m_trksForThisEvent).size(); ++itr) {
+      if ((*m_trksForThisEvent)[itr]->trackID() == trackID) {
+        track = (*m_trksForThisEvent)[itr];
+        trackFound = true;
+        break;
+      }
+    }
+    if (!trackFound) {
+      if (strict) {
+        throw cms::Exception("Unknown", "SimTrackManager")
+            << "Attempted to get track " << trackID << " from SimTrackManager, but it's not in m_trksForThisEvent ("
+            << (*m_trksForThisEvent).size() << " tracks in m_trksForThisEvent)"
+            << "\n";
+      }
+      return nullptr;
+    }
+    return track;
+  }
   void setLHCTransportLink(const edm::LHCTransportLinkContainer* thisLHCTlink) { theLHCTlink = thisLHCTlink; }
 
-private:
   // stop default
   SimTrackManager(const SimTrackManager&) = delete;
   const SimTrackManager& operator=(const SimTrackManager&) = delete;
 
+private:
   void saveTrackAndItsBranch(TrackWithHistory*);
   int getOrCreateVertex(TrackWithHistory*, int, G4SimEvent* simEvent);
   void cleanVertexMap();

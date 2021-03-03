@@ -35,7 +35,7 @@ cceParamThick_ttu800 = [6e+14,   -5.95259e-16, 0.183929]      #300
 # scaling the ddfz curve to match Timo's 800V measuremetn at 3.5E15
 cceParamFine_epi800 = [3.5e+15, -1.4285714e-17, 0.263812]     #120
 #  line+log tdr 600V EPI
-cceParamFine_epi600  = [3.5e+15, -3.428571e-17, 0.263812]     #120 - scaling the ddfz curve to match Timo's 600V measurement at 3.5E15 
+cceParamFine_epi600  = [3.5e+15, -3.428571e-17, 0.263812]     #120 - scaling the ddfz curve to match Timo's 600V measurement at 3.5E15
 cceParamThin_epi600  = [1.5e+15, -3.09878e-16, 0.211207]      #200
 cceParamThick_epi600 = [6e+14,   -7.96539e-16, 0.251751]      #300
 
@@ -73,6 +73,7 @@ HGCAL_noises = cms.PSet(
 # ECAL
 hgceeDigitizer = cms.PSet(
     accumulatorType   = cms.string("HGCDigiProducer"),
+    digitizer         = cms.string("HGCEEDigitizer"),
     hitCollection     = cms.string("HGCHitsEE"),
     digiCollection    = cms.string("HGCDigisEE"),
     NoiseGeneration_Method = cms.bool(True),
@@ -80,7 +81,6 @@ hgceeDigitizer = cms.PSet(
     bxTime            = cms.double(25),
     eVPerEleHolePair = cms.double(eV_per_eh_pair),
     tofDelay          = cms.double(5),
-    geometryType      = cms.uint32(1),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),
@@ -103,13 +103,13 @@ hgceeDigitizer = cms.PSet(
 # HCAL front
 hgchefrontDigitizer = cms.PSet(
     accumulatorType   = cms.string("HGCDigiProducer"),
+    digitizer         = cms.string("HGCHEfrontDigitizer"),
     hitCollection  = cms.string("HGCHitsHEfront"),
     digiCollection = cms.string("HGCDigisHEfront"),
     NoiseGeneration_Method = cms.bool(True),
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
     tofDelay          = cms.double(5),
-    geometryType      = cms.uint32(1),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),
@@ -132,13 +132,13 @@ hgchefrontDigitizer = cms.PSet(
 # HCAL back
 hgchebackDigitizer = cms.PSet(
     accumulatorType   = cms.string("HGCDigiProducer"),
+    digitizer         = cms.string("HGCHEbackDigitizer"),
     hitCollection = cms.string("HGCHitsHEback"),
     digiCollection = cms.string("HGCDigisHEback"),
     NoiseGeneration_Method = cms.bool(True),
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
     tofDelay          = cms.double(1),
-    geometryType      = cms.uint32(1),
     digitizationType  = cms.uint32(1),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),
@@ -176,6 +176,7 @@ hgchebackDigitizer = cms.PSet(
 # HFNose
 hfnoseDigitizer = cms.PSet(
     accumulatorType   = cms.string("HGCDigiProducer"),
+    digitizer         = cms.string("HFNoseDigitizer"),
     hitCollection     = cms.string("HFNoseHits"),
     digiCollection    = cms.string("HFNoseDigis"),
     NoiseGeneration_Method = cms.bool(True),
@@ -183,7 +184,6 @@ hfnoseDigitizer = cms.PSet(
     bxTime            = cms.double(25),
     eVPerEleHolePair = cms.double(eV_per_eh_pair),
     tofDelay          = cms.double(5),
-    geometryType      = cms.uint32(1),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),

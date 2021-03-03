@@ -52,18 +52,14 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.destinations.extend(cms.vstring("detids"))
-process.MessageLogger.categories.extend(cms.vstring("GeometricDetBuilding","DuplicateHitFinder","BuildingTrackerDetId",
-                                                    "SubDetectorGeometricDetType","BuildingGeomDetUnits","LookingForFirstStrip",
-                                                    "BuildingSubDetTypeMap","SubDetTypeMapContent","NumberOfLayers","IsThereTest"))
-process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
+process.MessageLogger.cout.enable = True
 process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
 #process.MessageLogger.cout.threshold = cms.untracked.string("WARNING")
 #process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     )
-process.MessageLogger.detids = cms.untracked.PSet(
+process.MessageLogger.files =dict(detids = cms.untracked.PSet( 
     default = cms.untracked.PSet(
         limit = cms.untracked.int32(0)
         ),
@@ -95,7 +91,8 @@ process.MessageLogger.detids = cms.untracked.PSet(
         limit = cms.untracked.int32(100000000)
         ),
     threshold = cms.untracked.string("DEBUG")
-    )    
+    )
+)    
 process.MessageLogger.cout.DuplicateHitFinder = cms.untracked.PSet(
     limit = cms.untracked.int32(100000000)
     )
@@ -106,7 +103,6 @@ process.MessageLogger.cout.FwkReport = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(10000)
     )
 
-process.MessageLogger.cerr.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cerr.threshold = cms.untracked.string("WARNING")
 process.MessageLogger.cerr.default = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)

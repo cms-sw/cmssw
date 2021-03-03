@@ -9,7 +9,7 @@
  *
  * \author: Vasile Mihai Ghete   - HEPHY Vienna
  *          Vladimir Rekovic - extend for indexing
- *
+ *          Rick Cavanaugh - include displaced muons
  *
  */
 
@@ -381,6 +381,33 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
                         << "\n\t hwPhiAtVtx = 0x " << cand.hwPhiAtVtx() << "\n\t hwCharge   = 0x " << cand.hwCharge()
                         << "\n\t hwQual     = 0x " << cand.hwQual() << "\n\t hwIso      = 0x " << cand.hwIso()
                         << std::dec << std::endl;
+
+  if (objPar.unconstrainedPtHigh > 0)  // Check if unconstrained pT cut-window is valid
+  {
+    if (!checkUnconstrainedPt(objPar.unconstrainedPtLow,
+                              objPar.unconstrainedPtHigh,
+                              cand.hwPtUnconstrained(),
+                              m_gtMuonTemplate->condGEq())) {
+      LogDebug("L1TGlobal") << "\t\t Muon Failed unconstrainedPt checkThreshold; iCondition = " << iCondition
+                            << std::endl;
+      return false;
+    }
+  }
+
+  if (objPar.impactParameterLUT != 0)  // Check if impact parameter LUT is valid.  0xF is default; 0x0 is invalid
+  {
+    // check impact parameter ( bit check ) with impact parameter LUT
+    // sanity check on candidate impact parameter
+    if (cand.hwDXY() > 3) {
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate has out of range hwDXY = " << cand.hwDXY() << std::endl;
+      return false;
+    }
+    bool passImpactParameterLUT = ((objPar.impactParameterLUT >> cand.hwDXY()) & 1);
+    if (!passImpactParameterLUT) {
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed impact parameter requirement" << std::endl;
+      return false;
+    }
+  }
 
   if (!checkThreshold(objPar.ptLowThreshold, objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq())) {
     LogDebug("L1TGlobal") << "\t\t Muon Failed checkThreshold " << std::endl;

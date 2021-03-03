@@ -7,6 +7,10 @@ Different versions of various subdetectors can be combined. The available versio
 Tracker:
 * T3: 2021 baseline after separating tracker specific material
 * T4: as T3, but with zero material
+* T5: as T3, but with tracker material budget reduced by 5%
+* T6: as T3, but with tracker material budget reduced by 10%
+* T7: as T3, but with tracker material budget increased by 5%
+* T8: as T3, but with tracker material budget increased by 10%
 
 Calorimeters:
 * C1: 2021 baseline
@@ -16,15 +20,21 @@ Muon system:
 
 PPS:
 * P2: 2021 baseline (after using its own material files for pixel)
+* P3: 2021 baseline (same as P2 but removing common materials)
 
 The script also handles the common and forward elements of the geometry:
 * O3: 2021 baseline
 * O4: as O3, but with zero material
+* O5: as O3, but with trackermaterial removed (they are in T5, T6, T7, T8)
 * F1: 2021 baseline
 
 Several detector combinations have been generated:
-* 2021 = T3+C1+M1+P2+O3+F1
-* 2021ZeroMaterial = T4+C1+M1+P2+O4+F1
+* 2021 = T3+C1+M1+P3+O3+F1
+* 2021ZeroMaterial = T4+C1+M1+P3+O4+F1
+* 2021FlatMinus05Percent = T5+C1+M1+P3+O5+F1
+* 2021FlatMinus10Percent = T6+C1+M1+P3+O5+F1
+* 2021FlatPlus05Percent = T7+C1+M1+P3+O5+F1
+* 2021FlatPlus10Percent = T8+C1+M1+P3+O5+F1
 
 # Phase 2 Geometries
 
@@ -38,6 +48,7 @@ Tracker:
 (TFPX: Changed sensors spacing within all double-disks + Increased distance between Disks 6 and 7 + TBPX portcards between Disks 6 and 7.)
 * T22: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 50x50 pixel aspect ratio everywhere.
 * T23: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 3D sensors in TBPX L1 + TBPX L2 + TFPX R1.
+* T24: Phase2 tilted tracker. Tracker detector description itself is identical to T21 (OT800 IT615). Change of paradigm, entire description reworked to be compatible with DD4hep library.
 
 Calorimeters:
 * C9: HGCal (v11 post TDR HGCal Geometry w/ corner centering for HE part) + Phase2 HCAL and EB + Tracker cables
@@ -84,7 +95,11 @@ Several detector combinations have been generated:
 * D70 = T21+C13+M7+I11+O6+F6
 * D71 = T21+C14+M7+I11+O7+F6
 * D72 = T21+C11+M6+I12+O5+F4
-* D73 = T21+C11+M6+I13+O5+F4
 * D74 = T21+C14+M9+I11+O7+F6
+* D75 = T21+C14+M7+I13+O7+F6
+* D76 = T21+C14+M9+I13+O7+F6
+* D77 = T24+C14+M9+I13+O7+F6
+* D78 = T22+C14+M9+I13+O7+F6
+* D79 = T23+C14+M9+I13+O7+F6
 
 D49 is the HLT TDR baseline.

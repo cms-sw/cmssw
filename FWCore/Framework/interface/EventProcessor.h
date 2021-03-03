@@ -199,6 +199,7 @@ namespace edm {
     edm::LuminosityBlockNumber_t nextLuminosityBlockID();
 
     void readFile();
+    bool fileBlockValid() { return fb_.get() != nullptr; }
     void closeInputFile(bool cleaningUpAfterException);
     void openOutputFiles();
     void closeOutputFiles();
@@ -364,6 +365,7 @@ namespace edm {
     ExcludedDataMap eventSetupDataToExcludeFromPrefetching_;
 
     bool printDependencies_ = false;
+    bool deleteNonConsumedUnscheduledModules_ = true;
   };  // class EventProcessor
 
   //--------------------------------------------------------------------

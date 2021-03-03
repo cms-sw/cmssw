@@ -20,7 +20,8 @@ void LayerProjection::init(Settings const& settings,
                            double phiprojapprox,
                            double zprojapprox,
                            double phiprojderapprox,
-                           double zprojderapprox) {
+                           double zprojderapprox,
+                           bool isPSseed) {
   assert(projlayer > 0);
   assert(projlayer <= N_LAYER);
 
@@ -62,12 +63,17 @@ void LayerProjection::init(Settings const& settings,
   ////This determines the central bin:
   ////int zbin=4+(zproj.value()>>(zproj.nbits()-3));
   ////But we need some range (particularly for L5L6 seed projecting to L1-L3):
+  int offset = 4;
+  if (isPSseed) {
+    offset = 1;
+  }
   unsigned int zbin1 = (1 << (settings.MEBinsBits() - 1)) +
-                       (((fpgazproj_.value() >> (fpgazproj_.nbits() - settings.MEBinsBits() - 2)) - 2) >> 2);
+                       (((fpgazproj_.value() >> (fpgazproj_.nbits() - settings.MEBinsBits() - 3)) - offset) >> 3);
   unsigned int zbin2 = (1 << (settings.MEBinsBits() - 1)) +
-                       (((fpgazproj_.value() >> (fpgazproj_.nbits() - settings.MEBinsBits() - 2)) + 2) >> 2);
-  if (zbin1 >= settings.MEBins())
+                       (((fpgazproj_.value() >> (fpgazproj_.nbits() - settings.MEBinsBits() - 3)) + offset) >> 3);
+  if (zbin1 >= settings.MEBins()) {
     zbin1 = 0;  //note that zbin1 is unsigned
+  }
   if (zbin2 >= settings.MEBins())
     zbin2 = settings.MEBins() - 1;
   assert(zbin1 <= zbin2);
@@ -83,7 +89,7 @@ void LayerProjection::init(Settings const& settings,
                (fpgazproj_.value() >> (fpgazproj_.nbits() - (settings.MEBinsBits() + 3)))) -
               (zbin1 << 3);
 
-  fpgafinezvm_.set(finez, 4, true, __LINE__, __FILE__);  // fine z postions starting at zbin1
+  fpgafinezvm_.set(finez, 4, true, __LINE__, __FILE__);  // fine z postions starting at zbin1 //FIXME using 3 bits
 
   phiproj_ = phiproj;
   zproj_ = zproj;

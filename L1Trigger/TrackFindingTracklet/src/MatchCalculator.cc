@@ -13,6 +13,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include <filesystem>
+
 using namespace std;
 using namespace trklet;
 
@@ -57,8 +59,18 @@ MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals*
   }
 
   if (iSector_ == 0 && layerdisk_ < N_LAYER && settings_.writeTable()) {
-    ofstream outphicut;
-    outphicut.open(getName() + "_phicut.tab");
+    if (not std::filesystem::exists(settings_.tablePath())) {
+      int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
+      if (fail)
+        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
+                                       << settings_.tablePath();
+    }
+
+    const string filephicut = settings_.tablePath() + getName() + "_phicut.tab";
+    ofstream outphicut(filephicut);
+    if (outphicut.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << filephicut;
+
     outphicut << "{" << endl;
     for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
       if (seedindex != 0)
@@ -68,8 +80,11 @@ MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals*
     outphicut << endl << "};" << endl;
     outphicut.close();
 
-    ofstream outzcut;
-    outzcut.open(getName() + "_zcut.tab");
+    const string filezcut = settings_.tablePath() + getName() + "_zcut.tab";
+    ofstream outzcut(filezcut);
+    if (outzcut.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << filezcut;
+
     outzcut << "{" << endl;
     for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
       if (seedindex != 0)
@@ -81,47 +96,64 @@ MatchCalculator::MatchCalculator(string name, Settings const& settings, Globals*
   }
 
   if (iSector_ == 0 && layerdisk_ >= N_LAYER && settings_.writeTable()) {
-    ofstream outphicut;
-    outphicut.open(getName() + "_PSphicut.tab");
-    outphicut << "{" << endl;
-    for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
-      if (seedindex != 0)
-        outphicut << "," << endl;
-      outphicut << rphicutPS_[seedindex];
+    if (not std::filesystem::exists(settings_.tablePath())) {
+      int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
+      if (fail)
+        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
+                                       << settings_.tablePath();
     }
-    outphicut << endl << "};" << endl;
-    outphicut.close();
 
-    outphicut.open(getName() + "_2Sphicut.tab");
-    outphicut << "{" << endl;
+    const string filePSphicut = settings_.tablePath() + getName() + "_PSphicut.tab";
+    ofstream outPSphicut(filePSphicut);
+    if (outPSphicut.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << filePSphicut;
+    outPSphicut << "{" << endl;
     for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
       if (seedindex != 0)
-        outphicut << "," << endl;
-      outphicut << rphicut2S_[seedindex];
+        outPSphicut << "," << endl;
+      outPSphicut << rphicutPS_[seedindex];
     }
-    outphicut << endl << "};" << endl;
-    outphicut.close();
+    outPSphicut << endl << "};" << endl;
+    outPSphicut.close();
 
-    ofstream outzcut;
-    outzcut.open(getName() + "_PSrcut.tab");
-    outzcut << "{" << endl;
+    const string file2Sphicut = settings_.tablePath() + getName() + "_2Sphicut.tab";
+    ofstream out2Sphicut(file2Sphicut);
+    if (out2Sphicut.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << file2Sphicut;
+    out2Sphicut << "{" << endl;
     for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
       if (seedindex != 0)
-        outzcut << "," << endl;
-      outzcut << rcutPS_[seedindex];
+        out2Sphicut << "," << endl;
+      out2Sphicut << rphicut2S_[seedindex];
     }
-    outzcut << endl << "};" << endl;
-    outzcut.close();
+    out2Sphicut << endl << "};" << endl;
+    out2Sphicut.close();
 
-    outzcut.open(getName() + "_2Srcut.tab");
-    outzcut << "{" << endl;
+    const string filePSrcut = settings_.tablePath() + getName() + "_PSrcut.tab";
+    ofstream outPSrcut(filePSrcut);
+    if (outPSrcut.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << filePSrcut;
+    outPSrcut << "{" << endl;
     for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
       if (seedindex != 0)
-        outzcut << "," << endl;
-      outzcut << rcut2S_[seedindex];
+        outPSrcut << "," << endl;
+      outPSrcut << rcutPS_[seedindex];
     }
-    outzcut << endl << "};" << endl;
-    outzcut.close();
+    outPSrcut << endl << "};" << endl;
+    outPSrcut.close();
+
+    const string file2Srcut = settings_.tablePath() + getName() + "_2Srcut.tab";
+    ofstream out2Srcut(file2Srcut);
+    if (out2Srcut.fail())
+      throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << file2Srcut;
+    out2Srcut << "{" << endl;
+    for (unsigned int seedindex = 0; seedindex < N_SEED; seedindex++) {
+      if (seedindex != 0)
+        out2Srcut << "," << endl;
+      out2Srcut << rcut2S_[seedindex];
+    }
+    out2Srcut << endl << "};" << endl;
+    out2Srcut.close();
   }
 
   for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
@@ -268,23 +300,23 @@ void MatchCalculator::execute() {
         edm::LogProblem("Tracklet") << "WARNING dphi and/or dphiapprox too large : " << dphi << " " << dphiapprox
                                     << endl;
       }
-      assert(std::abs(dphi) < 0.2);
-      assert(std::abs(dphiapprox) < 0.2);
 
-      if (settings_.writeMonitorData("Residuals")) {
-        double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
+      bool imatch = false;
+      if (std::abs(dphi) < 0.2 && std::abs(dphiapprox) < 0.2) {  //Changed the Asserts into if statements
+        if (settings_.writeMonitorData("Residuals")) {
+          double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
 
-        globals_->ofstream("layerresiduals.txt")
-            << layerdisk_ + 1 << " " << seedindex << " " << pt << " "
-            << ideltaphi * settings_.kphi1() * settings_.rmean(layerdisk_) << " "
-            << dphiapprox * settings_.rmean(layerdisk_) << " "
-            << phimatchcut_[seedindex] * settings_.kphi1() * settings_.rmean(layerdisk_) << "   "
-            << ideltaz * fact_ * settings_.kz() << " " << dz << " " << zmatchcut_[seedindex] * settings_.kz() << endl;
+          globals_->ofstream("layerresiduals.txt")
+              << layerdisk_ + 1 << " " << seedindex << " " << pt << " "
+              << ideltaphi * settings_.kphi1() * settings_.rmean(layerdisk_) << " "
+              << dphiapprox * settings_.rmean(layerdisk_) << " "
+              << phimatchcut_[seedindex] * settings_.kphi1() * settings_.rmean(layerdisk_) << "   "
+              << ideltaz * fact_ * settings_.kz() << " " << dz << " " << zmatchcut_[seedindex] * settings_.kz() << endl;
+        }
+
+        imatch = (std::abs(ideltaphi) <= (int)phimatchcut_[seedindex]) &&
+                 (std::abs(ideltaz * fact_) <= (int)zmatchcut_[seedindex]);
       }
-
-      bool imatch = (std::abs(ideltaphi) <= (int)phimatchcut_[seedindex]) &&
-                    (std::abs(ideltaz * fact_) <= (int)zmatchcut_[seedindex]);
-
       if (settings_.debugTracklet()) {
         edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
                                      << phimatchcut_[seedindex] << " ideltaz*fact cut " << ideltaz * fact_ << " "
@@ -428,19 +460,26 @@ void MatchCalculator::execute() {
       double drphicut = idrphicut * settings_.kphi() * settings_.kr();
       double drcut = idrcut * settings_.krprojshiftdisk();
 
-      if (settings_.writeMonitorData("Residuals")) {
-        double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
+      bool match, imatch;
+      if (std::abs(dphi) < 0.25 && std::abs(dphiapprox) < 0.25) {  //Changed the Asserts into if statements
+        if (settings_.writeMonitorData("Residuals")) {
+          double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
 
-        globals_->ofstream("diskresiduals.txt")
-            << disk << " " << stub->isPSmodule() << " " << tracklet->layer() << " " << abs(tracklet->disk()) << " "
-            << pt << " " << ideltaphi * settings_.kphi() * stub->r() << " " << drphiapprox << " " << drphicut << " "
-            << ideltar * settings_.krprojshiftdisk() << " " << deltar << " " << drcut << " " << endl;
+          globals_->ofstream("diskresiduals.txt")
+              << disk << " " << stub->isPSmodule() << " " << tracklet->layer() << " " << abs(tracklet->disk()) << " "
+              << pt << " " << ideltaphi * settings_.kphi() * stub->r() << " " << drphiapprox << " " << drphicut << " "
+              << ideltar * settings_.krprojshiftdisk() << " " << deltar << " " << drcut << " " << endl;
+        }
+
+        match = (std::abs(drphi) < drphicut) && (std::abs(deltar) < drcut);
+
+        imatch = (std::abs(ideltaphi * irstub) < idrphicut) && (std::abs(ideltar) < idrcut);
+      } else {
+        edm::LogProblem("Tracklet") << "WARNING dphi and/or dphiapprox too large : " << dphi << " " << dphiapprox
+                                    << "dphi " << dphi << " Seed / ISeed " << tracklet->getISeed() << endl;
+        match = false;
+        imatch = false;
       }
-
-      bool match = (std::abs(drphi) < drphicut) && (std::abs(deltar) < drcut);
-
-      bool imatch = (std::abs(ideltaphi * irstub) < idrphicut) && (std::abs(ideltar) < idrcut);
-
       if (settings_.debugTracklet()) {
         edm::LogVerbatim("Tracklet") << "imatch match disk: " << imatch << " " << match << " " << std::abs(ideltaphi)
                                      << " " << drphicut / (settings_.kphi() * stub->r()) << " " << std::abs(ideltar)
@@ -453,12 +492,6 @@ void MatchCalculator::execute() {
         if (settings_.debugTracklet()) {
           edm::LogVerbatim("Tracklet") << "MatchCalculator found match in disk " << getName();
         }
-
-        if (std::abs(dphi) >= 0.25) {
-          edm::LogVerbatim("Tracklet") << "dphi " << dphi << " Seed / ISeed " << tracklet->getISeed();
-        }
-        assert(std::abs(dphi) < 0.25);
-        assert(std::abs(dphiapprox) < 0.25);
 
         tracklet->addMatchDisk(disk,
                                ideltaphi,
@@ -501,7 +534,7 @@ std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > MatchCalculator:
   int bestIndex = -1;
   do {
     int bestSector = 100;
-    int bestTCID = (1 << 16);
+    int bestTCID = -1;
     bestIndex = -1;
     for (unsigned int i = 0; i < candmatch.size(); i++) {
       if (indexArray[i] >= candmatch[i]->nMatches()) {
@@ -523,7 +556,7 @@ std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > MatchCalculator:
         bestIndex = i;
       }
       if (dSector == bestSector) {
-        if (TCID < bestTCID) {
+        if (TCID < bestTCID || bestTCID < 0) {
           bestTCID = TCID;
           bestIndex = i;
         }

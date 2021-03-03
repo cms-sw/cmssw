@@ -36,23 +36,19 @@ void SiPixelTemplateDBObjectUploader::beginJob() {}
 
 void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::EventSetup& es) {
   //--- Make the POOL-ORA object to store the database object
-  SiPixelTemplateDBObject* obj = new SiPixelTemplateDBObject;
-
-  // Local variables
-  const char* tempfile;
-  int m;
+  SiPixelTemplateDBObject obj;
 
   // Set the number of templates to be passed to the dbobject
-  obj->setNumOfTempl(theTemplateCalibrations.size());
+  obj.setNumOfTempl(theTemplateCalibrations.size());
 
   // Set the version of the template dbobject - this is an external parameter
-  obj->setVersion(theVersion);
+  obj.setVersion(theVersion);
 
   // Open the template file(s)
-  for (m = 0; m < obj->numOfTempl(); ++m) {
+  for (int m = 0; m < obj.numOfTempl(); ++m) {
     edm::FileInPath file(theTemplateCalibrations[m].c_str());
-    tempfile = (file.fullPath()).c_str();
-    std::ifstream in_file(tempfile, std::ios::in);
+    auto tempfile = (file.fullPath());
+    std::ifstream in_file(tempfile.c_str(), std::ios::in);
     if (in_file.is_open()) {
       edm::LogInfo("Template Info") << "Opened Template File: " << file.fullPath().c_str();
 
@@ -77,8 +73,8 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
         temp.c[1] = title_char[j + 1];
         temp.c[2] = title_char[j + 2];
         temp.c[3] = title_char[j + 3];
-        obj->push_back(temp.f);
-        obj->setMaxIndex(obj->maxIndex() + 1);
+        obj.push_back(temp.f);
+        obj.setMaxIndex(obj.maxIndex() + 1);
       }
 
       // Check if the magnetic field is the same as in the header of the input files
@@ -96,8 +92,8 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       // Fill the dbobject
       in_file >> tempstore;
       while (!in_file.eof()) {
-        obj->setMaxIndex(obj->maxIndex() + 1);
-        obj->push_back(tempstore);
+        obj.setMaxIndex(obj.maxIndex() + 1);
+        obj.push_back(tempstore);
         in_file >> tempstore;
       }
 
@@ -182,7 +178,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
             thisID = (short)theBarrelTemplateIds[iter];
         }
 
-        if (thisID == 10000 || (!(*obj).putTemplateID(detid.rawId(), thisID)))
+        if (thisID == 10000 || (!obj.putTemplateID(detid.rawId(), thisID)))
           std::cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
         // ----- debug:
         std::cout << "This is a barrel element with: layer " << layer << ", ladder " << ladder << " and module "
@@ -235,7 +231,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
             thisID = (short)theEndcapTemplateIds[iter];
         }
 
-        if (thisID == 10000 || (!(*obj).putTemplateID(detid.rawId(), thisID)))
+        if (thisID == 10000 || (!obj.putTemplateID(detid.rawId(), thisID)))
           std::cout << " Could not fill endcap det unit" << side << ", disk " << disk << ", blade " << blade
                     << ", and panel " << panel << ".\n";
         // ----- debug:
@@ -249,7 +245,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       //Print out the assignment of this detID
       short mapnum;
       std::cout << "checking map:\n";
-      mapnum = (*obj).getTemplateID(detid.rawId());
+      mapnum = obj.getTemplateID(detid.rawId());
       std::cout << "The DetID: " << detid.rawId() << " is mapped to the template: " << mapnum << ".\n\n";
     }
   }
@@ -259,9 +255,9 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
   if (!poolDbService.isAvailable())  // Die if not available
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   if (poolDbService->isNewTagRequest("SiPixelTemplateDBObjectRcd"))
-    poolDbService->writeOne(obj, poolDbService->beginOfTime(), "SiPixelTemplateDBObjectRcd");
+    poolDbService->writeOne(&obj, poolDbService->beginOfTime(), "SiPixelTemplateDBObjectRcd");
   else
-    poolDbService->writeOne(obj, poolDbService->currentTime(), "SiPixelTemplateDBObjectRcd");
+    poolDbService->writeOne(&obj, poolDbService->currentTime(), "SiPixelTemplateDBObjectRcd");
 }
 
 void SiPixelTemplateDBObjectUploader::endJob() {}

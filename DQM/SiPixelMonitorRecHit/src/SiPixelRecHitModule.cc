@@ -17,19 +17,7 @@
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
 // Constructors
 //
 SiPixelRecHitModule::SiPixelRecHitModule() : id_(0) {}
@@ -45,15 +33,11 @@ SiPixelRecHitModule::~SiPixelRecHitModule() {}
 //
 void SiPixelRecHitModule::book(const edm::ParameterSet &iConfig,
                                DQMStore::IBooker &iBooker,
-                               const edm::EventSetup &iSetup,
+                               const TrackerTopology *pTT,
                                int type,
                                bool twoD,
                                bool reducedSet,
                                bool isUpgrade) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *pTT = tTopoHandle.product();
-
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;

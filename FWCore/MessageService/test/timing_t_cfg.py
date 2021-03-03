@@ -17,23 +17,24 @@ process.Timing = cms.Service("Timing",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    # produce file u16_job_report.mmxml
-    u16_job_report = cms.untracked.PSet(
-        extension = cms.untracked.string('mmxml')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
+    debugModules = cms.untracked.vstring('*'),
     default = cms.untracked.PSet(
         FwkTest = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
-    timing_t = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR'),
-        noTimeStamps = cms.untracked.bool(True)
+    files = cms.untracked.PSet(
+        timing_t = cms.untracked.PSet(
+            noTimeStamps = cms.untracked.bool(True),
+            threshold = cms.untracked.string('ERROR')
+        )
     ),
-    debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkTest'),
-    destinations = cms.untracked.vstring('timing_t')
+    u16_job_report = cms.untracked.PSet(
+        extension = cms.untracked.string('mmxml')
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

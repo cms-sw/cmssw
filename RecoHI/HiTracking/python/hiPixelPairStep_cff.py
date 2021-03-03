@@ -49,25 +49,25 @@ trackingPhase1.toModify(hiPixelPairSeedLayers,
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
 hiPixelPairSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone(
-    RegionFactoryPSet = dict(
-	RegionPSet = dict(
-	    VertexCollection ="hiSelectedPixelVertex",
-	    ptMin = 1.0,
-	    originRadius = 0.005,
-	    nSigmaZ = 4.0,
-	    # sigmaZVertex is only used when usedFixedError is True -Matt
-	    sigmaZVertex = 4.0,
-	    useFixedError = False
-	),
+    RegionFactoryPSet = dict( 
+        RegionPSet = dict(
+    	    VertexCollection = "hiSelectedPixelVertex",
+    	    ptMin = 1.0,
+    	    originRadius = 0.005,
+    	    nSigmaZ = 4.0,
+    	    # sigmaZVertex is only used when usedFixedError is True -Matt
+    	    sigmaZVertex = 4.0,
+    	    useFixedError = False
+        )
     ),
     OrderedHitsFactoryPSet = dict(
-	SeedingLayers = 'hiPixelPairSeedLayers',
-	maxElement = 5000000
+      	SeedingLayers = 'hiPixelPairSeedLayers',
+        maxElement = 5000000
     ),
     ClusterCheckPSet = dict(
-	MaxNumberOfPixelClusters = 5000000,
-	MaxNumberOfCosmicClusters = 50000000,
-        cut = ''
+        MaxNumberOfPixelClusters = 5000000,
+        MaxNumberOfCosmicClusters = 50000000,
+        cut = ""
     ),
     SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
@@ -137,12 +137,12 @@ hiPixelPairChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.C
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-        MeasurementTrackerName = '',
-        trajectoryFilter = dict(refToPSet_ = 'hiPixelPairTrajectoryFilter'),
-        maxCand = 3,
-        estimator = 'hiPixelPairChi2Est',
-        maxDPhiForLooperReconstruction = cms.double(2.0),
-        maxPtForLooperReconstruction = cms.double(0.7) 
+    MeasurementTrackerName = '',
+    trajectoryFilter = dict(refToPSet_ = 'hiPixelPairTrajectoryFilter'),
+    maxCand = 3,
+    estimator = 'hiPixelPairChi2Est',
+    maxDPhiForLooperReconstruction = cms.double(2.0),
+    maxPtForLooperReconstruction = cms.double(0.7)
 )
 
 # MAKING OF TRACK CANDIDATES
@@ -167,10 +167,13 @@ hiPixelPairGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackP
     Fitter = 'FlexibleKFFittingSmoother'
 )
 
+
+
+
 # Final selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src ='hiPixelPairGlobalPrimTracks',
+    src = 'hiPixelPairGlobalPrimTracks',
     useAnyMVA = True,
     GBRForestLabel = 'HIMVASelectorIter6',
     GBRForestVars = ['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta'],

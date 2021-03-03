@@ -13,6 +13,7 @@
 <test name="testDownhill" command="testTheano.sh testDownhill.py"/>
 <test name="testTheano" command="testTheano.sh testTheano.py"/>
 <test name="testhep_ml" command="testTheano.sh testhep_ml.py"/>
+<test name="testCorrectionlib" command="test_correctionlib.py"/>
 
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
   <use name="rootpymva"/>
@@ -153,7 +154,8 @@
 <test name="import-lxml" command="python -c 'import lxml'"/>
 <test name="import-bs4" command="python -c 'import bs4'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
-<test name="run-ipython" command="python2 $(shell which ipython) -h"/>
-<test name="run-ipython3" command="python3 $(shell which ipython3) -h"/>
-<test name="run-pylint" command="python2 $(shell which pylint) -h"/>
-<test name="run-pylint3" command="python3 $(shell which pylint3) -h"/>
+<test name="run-ipython" command="ipython -h"/>
+<test name="run-ipython2" command="ipython2 -h"/>
+<test name="run-ipython3" command="ipython3 -h"/>
+<test name="run-pylint" command="pylint -h"/>
+<test name="run-pylint3" command="pylint3 -h"/>

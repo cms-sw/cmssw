@@ -790,7 +790,7 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore::IGetter &iGett
 void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
                                                DQMStore::IGetter &iGetter,
                                                bool init,
-                                               edm::ESHandle<SiPixelFedCablingMap> theCablingMap,
+                                               const SiPixelFedCablingMap *theCablingMap,
                                                int nFEDs,
                                                bool Tier0Flag,
                                                int lumisec) {
@@ -916,7 +916,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
             modCounter_++;
             detId = getDetId(me);
             for (int fedid = 0; fedid != 40; ++fedid) {
-              SiPixelFrameConverter converter(theCablingMap.product(), fedid);
+              SiPixelFrameConverter converter(theCablingMap, fedid);
               uint32_t newDetId = detId;
               if (converter.hasDetUnit(newDetId)) {
                 fedId = fedid;

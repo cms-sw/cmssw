@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # PPS Digitization
 from SimPPS.PPSPixelDigiProducer.RPixDetDigitizer_cfi import *
 from SimPPS.RPDigiProducer.RPSiDetDigitizer_cfi import *
+from CalibPPS.ESProducers.ppsTopology_cff import *
 RPixDetDigitizerTask=cms.Task(RPixDetDigitizer)
 RPSiDetDigitizerTask=cms.Task(RPSiDetDigitizer)
 

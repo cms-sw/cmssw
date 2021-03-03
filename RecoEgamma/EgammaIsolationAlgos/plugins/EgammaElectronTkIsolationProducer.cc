@@ -6,62 +6,65 @@
 //=============================================================================
 //*****************************************************************************
 
-// Framework
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/Candidate/interface/CandAssociation.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaElectronTkIsolationProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
 
-EgammaElectronTkIsolationProducer::EgammaElectronTkIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
-  // use configuration file to setup input/output collection names
-  electronProducer_ = conf_.getParameter<edm::InputTag>("electronProducer");
+class EgammaElectronTkIsolationProducer : public edm::global::EDProducer<> {
+public:
+  explicit EgammaElectronTkIsolationProducer(const edm::ParameterSet&);
 
-  trackProducer_ = conf_.getParameter<edm::InputTag>("trackProducer");
-  beamspotProducer_ = conf_.getParameter<edm::InputTag>("BeamspotProducer");
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  ptMin_ = conf_.getParameter<double>("ptMin");
-  intRadiusBarrel_ = conf_.getParameter<double>("intRadiusBarrel");
-  intRadiusEndcap_ = conf_.getParameter<double>("intRadiusEndcap");
-  stripBarrel_ = conf_.getParameter<double>("stripBarrel");
-  stripEndcap_ = conf_.getParameter<double>("stripEndcap");
-  extRadius_ = conf_.getParameter<double>("extRadius");
-  maxVtxDist_ = conf_.getParameter<double>("maxVtxDist");
-  drb_ = conf_.getParameter<double>("maxVtxDistXY");
+private:
+  const edm::EDGetTokenT<reco::GsfElectronCollection> electronProducer_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamspotProducer_;
 
-  //register your products
+  const double ptMin_;
+  const double intRadiusBarrel_;
+  const double intRadiusEndcap_;
+  const double stripBarrel_;
+  const double stripEndcap_;
+  const double extRadius_;
+  const double maxVtxDist_;
+  const double drb_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EgammaElectronTkIsolationProducer);
+
+EgammaElectronTkIsolationProducer::EgammaElectronTkIsolationProducer(const edm::ParameterSet& config)
+    : electronProducer_{consumes(config.getParameter<edm::InputTag>("electronProducer"))},
+      trackProducer_{consumes(config.getParameter<edm::InputTag>("trackProducer"))},
+      beamspotProducer_{consumes(config.getParameter<edm::InputTag>("BeamspotProducer"))},
+
+      ptMin_{config.getParameter<double>("ptMin")},
+      intRadiusBarrel_{config.getParameter<double>("intRadiusBarrel")},
+      intRadiusEndcap_{config.getParameter<double>("intRadiusEndcap")},
+      stripBarrel_{config.getParameter<double>("stripBarrel")},
+      stripEndcap_{config.getParameter<double>("stripEndcap")},
+      extRadius_{config.getParameter<double>("extRadius")},
+      maxVtxDist_{config.getParameter<double>("maxVtxDist")},
+      drb_{config.getParameter<double>("maxVtxDistXY")}
+
+{
   produces<edm::ValueMap<double>>();
 }
 
-EgammaElectronTkIsolationProducer::~EgammaElectronTkIsolationProducer() {}
-
-void EgammaElectronTkIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaElectronTkIsolationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   // Get the  filtered objects
-  edm::Handle<reco::GsfElectronCollection> electronHandle;
-  iEvent.getByLabel(electronProducer_, electronHandle);
-
-  //get the tracks
-  edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel(trackProducer_, tracks);
-  const reco::TrackCollection* trackCollection = tracks.product();
+  auto electronHandle = iEvent.getHandle(electronProducer_);
 
   //prepare product
   auto isoMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler filler(*isoMap);
   std::vector<double> retV(electronHandle->size(), 0);
-
-  edm::Handle<reco::BeamSpot> beamSpotH;
-  iEvent.getByLabel(beamspotProducer_, beamSpotH);
-  reco::TrackBase::Point beamspot = beamSpotH->position();
 
   ElectronTkIsolation myTkIsolation(extRadius_,
                                     intRadiusBarrel_,
@@ -71,8 +74,8 @@ void EgammaElectronTkIsolationProducer::produce(edm::Event& iEvent, const edm::E
                                     ptMin_,
                                     maxVtxDist_,
                                     drb_,
-                                    trackCollection,
-                                    beamspot);
+                                    &iEvent.get(trackProducer_),
+                                    iEvent.get(beamspotProducer_).position());
 
   for (unsigned int i = 0; i < electronHandle->size(); ++i) {
     double isoValue = myTkIsolation.getPtTracks(&(electronHandle->at(i)));

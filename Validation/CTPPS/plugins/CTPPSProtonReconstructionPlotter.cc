@@ -44,6 +44,7 @@ private:
   edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsSingleRP_;
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryESToken_;
 
   unsigned int rpId_45_N_, rpId_45_F_;
   unsigned int rpId_56_N_, rpId_56_F_;
@@ -486,6 +487,7 @@ CTPPSProtonReconstructionPlotter::CTPPSProtonReconstructionPlotter(const edm::Pa
           consumes<reco::ForwardProtonCollection>(ps.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
       tokenRecoProtonsMultiRP_(
           consumes<reco::ForwardProtonCollection>(ps.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
+      geometryESToken_(esConsumes()),
 
       rpId_45_N_(ps.getParameter<unsigned int>("rpId_45_N")),
       rpId_45_F_(ps.getParameter<unsigned int>("rpId_45_F")),
@@ -558,8 +560,7 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
     throw cms::Exception("CTPPSProtonReconstructionPlotter") << "Number of non empty events reached maximum.";
 
   // get conditions
-  edm::ESHandle<CTPPSGeometry> hGeometry;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(hGeometry);
+  const auto &geometry = iSetup.getData(geometryESToken_);
 
   // track plots
   const CTPPSLocalTrackLite *tr_L_N = nullptr;
@@ -675,7 +676,7 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
 
       double x_tr = -1., x_ti = -1.;
       double de_x = 0., de_x_unc = 0.;
-      CalculateTimingTrackingDistance(proton, tr, *hGeometry, x_tr, x_ti, de_x, de_x_unc);
+      CalculateTimingTrackingDistance(proton, tr, geometry, x_tr, x_ti, de_x, de_x_unc);
 
       const double rd = (de_x_unc > 0.) ? de_x / de_x_unc : -1E10;
       const auto &ac = association_cuts_[armId];

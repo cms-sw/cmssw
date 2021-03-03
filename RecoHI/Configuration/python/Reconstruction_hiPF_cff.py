@@ -20,6 +20,7 @@ gedPhotons.primaryVertexProducer = "hiSelectedVertex"
 gedPhotons.isolationSumsCalculatorSet.trackProducer = "hiGeneralTracks"
 photonIDValueMaps.vertices = "hiSelectedVertex"
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
+
 photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer = "gedPhotonsTmp")
 
 #These are set for consistency w/ HiElectronSequence, but these cuts need to be studied
@@ -62,7 +63,8 @@ particleFlowBlock.elementImporters = cms.VPSet(
               DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
                                                        1.0,1.0),
               NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3),
-              muonMaxDPtOPt = cms.double(1)
+              muonMaxDPtOPt = cms.double(1),
+              vetoEndcap = cms.bool(False)
               ),
     # to properly set SC based links you need to run ECAL importer
     # after you've imported all SCs to the block
@@ -89,6 +91,7 @@ pfPileUpIso.Enable = False
 pfNoPileUp.enable = False
 pfPileUp.Enable = False
 particleFlow.Muons = "muons:hiMuons1stStep2muonsMap"
+
 
 # local reco must run before electrons (RecoHI/HiEgammaAlgos), due to PF integration
 hiParticleFlowLocalRecoTask = cms.Task(particleFlowClusterTask)
