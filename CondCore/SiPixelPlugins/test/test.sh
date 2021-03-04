@@ -20,13 +20,24 @@ getPayloadData.py \
 
 mv *.png $W_DIR/results/SiPixelTemplate2DHeader.png
 
- getPayloadData.py \
-     --plugin pluginSiPixelFEDChannelContainer_PayloadInspector \
-     --plot plot_SiPixelFEDChannelContainerTest \
-     --tag SiPixelStatusScenarios_UltraLegacy2018_v0_mc \
-     --time_type Run --iovs '{"start_iov": "1", "end_iov" : "1"}' \
-     --db Prod \
-     --input_params '{"Scenarios":"320824_103,316758_983,320934_254"}' \
-     --test ;
+getPayloadData.py \
+    --plugin pluginSiPixelFEDChannelContainer_PayloadInspector \
+    --plot plot_SiPixelFEDChannelContainerTest \
+    --tag SiPixelStatusScenarios_UltraLegacy2018_v0_mc \
+    --time_type Run --iovs '{"start_iov": "1", "end_iov" : "1"}' \
+    --db Prod \
+    --input_params '{"Scenarios":"320824_103,316758_983,320934_254"}' \
+    --test ;
 
 mv *.png $W_DIR/results/SiPixelFEDChannelContainer.png
+
+
+getPayloadData.py \
+    --plugin pluginSiPixelFEDChannelContainer_PayloadInspector \
+    --plot plot_SiPixelFEDChannelContainerScenarios \
+    --tag SiPixelStatusScenarios_UltraLegacy2018_v0_mc \
+    --time_type Run --iovs '{"start_iov": "1", "end_iov" : "1"}' \
+    --db Prod \
+    --test ;
+
+mv *.png $W_DIR/results/SiPixelFEDChannelScenarios.png
