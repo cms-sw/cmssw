@@ -275,11 +275,13 @@ namespace {
             for (const auto& bin : rocsToMask) {
               double x = h_fpix_occ[ring - 1]->GetXaxis()->GetBinCenter(std::get<0>(bin));
               double y = h_fpix_occ[ring - 1]->GetYaxis()->GetBinCenter(std::get<1>(bin));
-              h_fpix_occ[ring - 1]->SetBinContent(x, y, 1);
-            }
-          }  // if it's endcap
-        }    // loop on the channels
-      }      // loop on the scenarios
+              h_fpix_occ[ring - 1]->Fill(x, y, 1);
+            }  // if it's endcap
+          } else {
+            throw cms::Exception("LogicError") << "Unknown Pixel SubDet ID " << std::endl;
+          }
+        }  // loop on the channels
+      }    // loop on the scenarios
 
       gStyle->SetOptStat(0);
       //=========================
@@ -414,7 +416,7 @@ namespace {
       for (const auto& scenario : scenarios) {
         scenarioIndex++;
         int badRocCount = 0;
-	LogDebug("SiPixelFEDChannelContainerScenarios") << scenario << std::endl;
+        LogDebug("SiPixelFEDChannelContainerScenarios") << scenario << std::endl;
         auto badChannelCollection = payload->getDetSetBadPixelFedChannels(scenario);
         for (const auto& disabledChannels : *badChannelCollection) {
           for (const auto& ch : disabledChannels) {
@@ -426,8 +428,8 @@ namespace {
         h1->SetBinContent(scenarioIndex, badRocCount);
       }  // loop on scenarios
 
-      TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // Y offset
-      TGaxis::SetExponentOffset(-0.03, -0.10, "x"); // Y and Y offset for X axis
+      TGaxis::SetExponentOffset(-0.1, 0.01, "y");    // Y offset
+      TGaxis::SetExponentOffset(-0.03, -0.10, "x");  // Y and Y offset for X axis
 
       h1->SetTitle("");
       h1->GetYaxis()->SetRangeUser(0., h1->GetMaximum() * 1.30);
@@ -443,19 +445,20 @@ namespace {
       TLegend legend = TLegend(0.30, 0.88, 0.95, 0.94);
       //legend.SetHeader(("#splitline{Payload hash: #bf{" + (std::get<1>(iov)) + "}}{Total Scenarios:"+std::to_string(scenarioIndex)+"}").c_str(),"C");  // option "C" allows to center the header
 
-      legend.SetHeader(fmt::sprintf("Payload hash: #bf{%s}",std::get<1>(iov)).c_str(),"C");
-      legend.AddEntry(h1.get(),fmt::sprintf("total scenarios: #bf{%s}",std::to_string(scenarioIndex)).c_str(), "F");
+      legend.SetHeader(fmt::sprintf("Payload hash: #bf{%s}", std::get<1>(iov)).c_str(), "C");
+      legend.AddEntry(h1.get(), fmt::sprintf("total scenarios: #bf{%s}", std::to_string(scenarioIndex)).c_str(), "F");
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
       //ltx.SetTextColor(kBlue);
-      ltx.SetTextSize(0.040);
       //ltx.SetTextAlign(11);
-      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-                       1 - gPad->GetTopMargin() + 0.01,
-                       fmt::sprintf("#color[4]{%s} IOV: #color[4]{%s}",tagname,std::to_string(std::get<0>(iov))).c_str());
+      ltx.SetTextSize(0.040);
+      ltx.DrawLatexNDC(
+          gPad->GetLeftMargin(),
+          1 - gPad->GetTopMargin() + 0.01,
+          fmt::sprintf("#color[4]{%s} IOV: #color[4]{%s}", tagname, std::to_string(std::get<0>(iov))).c_str());
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
