@@ -985,7 +985,9 @@ double HCalSD::layerWeight(int det, const G4ThreeVector& pos, int depth, int lay
 
 void HCalSD::plotProfile(const G4Step* aStep, const G4ThreeVector& global, double edep, double time, int id) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  static const G4String modName[8] = {"HEModule", "HVQF", "HBModule", "MBAT", "MBBT", "MBBTC", "MBBT_R1P", "MBBT_R1M"};
+  static const unsigned int names = 10;
+  static const G4String modName[names] = {
+      "HEModule", "HVQF", "HBModule", "MBAT", "MBBT", "MBBTC", "MBBT_R1P", "MBBT_R1M", "MBBT_R1PX", "MBBT_R1MX"};
   G4ThreeVector local;
   bool found = false;
   double depth = -2000;
@@ -995,7 +997,7 @@ void HCalSD::plotProfile(const G4Step* aStep, const G4ThreeVector& global, doubl
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalSim") << "plotProfile Depth " << n << " Name " << name;
 #endif
-    for (unsigned int ii = 0; ii < 8; ++ii) {
+    for (unsigned int ii = 0; ii < names; ++ii) {
       if (name == modName[ii]) {
         found = true;
         int dn = touch->GetHistoryDepth() - n;
