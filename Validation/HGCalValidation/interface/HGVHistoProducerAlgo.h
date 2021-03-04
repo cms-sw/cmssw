@@ -213,14 +213,12 @@ public:
                                        std::vector<int> thicknesses);
 
   void bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibook,
-                         Histograms& histograms,
-                         unsigned int layers,
-                         std::vector<int> thicknesses,
-                         std::string pathtomatbudfile);
+                                      Histograms& histograms,
+                                      unsigned int layers,
+                                      std::vector<int> thicknesses,
+                                      std::string pathtomatbudfile);
 
-  void bookClusterHistos_LCtoCP_association(DQMStore::IBooker& ibook,
-                                            Histograms& histograms,
-                                            unsigned int layers);
+  void bookClusterHistos_LCtoCP_association(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
 
   void bookClusterHistos_CellLevel(DQMStore::IBooker& ibook,
                                    Histograms& histograms,

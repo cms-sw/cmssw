@@ -158,16 +158,13 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
                                                        cummatbudinxo_.fullPath());
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/LCtoCP_association");
-    histoProducerAlgo_->bookClusterHistos_LCtoCP_association(ibook, 
-                                                             histograms.histoProducerAlgo, 
-                                                             totallayers_to_monitor_);
-                                                             
+    histoProducerAlgo_->bookClusterHistos_LCtoCP_association(
+        ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
+
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/CellLevel");
-    histoProducerAlgo_->bookClusterHistos_CellLevel(ibook, 
-                                                    histograms.histoProducerAlgo, 
-                                                    totallayers_to_monitor_, 
-                                                    thicknesses_to_monitor_);
+    histoProducerAlgo_->bookClusterHistos_CellLevel(
+        ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
   }
 
   //Booking histograms for multiclusters
