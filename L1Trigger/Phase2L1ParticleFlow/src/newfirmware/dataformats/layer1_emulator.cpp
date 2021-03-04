@@ -204,8 +204,7 @@ void l1ct::PFInputRegion::clear() {
 
 bool l1ct::OutputRegion::read(std::fstream& from) {
   return readMany(from, pfcharged) && readMany(from, pfneutral) && readMany(from, pfphoton) && readMany(from, pfmuon) &&
-             readMany(from, puppi),
-         readMany(from, egphoton), readMany(from, egelectron);
+         readMany(from, puppi) && readMany(from, egphoton) && readMany(from, egelectron);
 }
 bool l1ct::OutputRegion::write(std::fstream& to) const {
   return writeMany(pfcharged, to) && writeMany(pfneutral, to) && writeMany(pfphoton, to) && writeMany(pfmuon, to) &&
