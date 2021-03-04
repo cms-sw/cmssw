@@ -187,7 +187,7 @@ namespace l1ct {
     inline eta_t makeEta(float eta) { return round(eta / ETAPHI_LSB); }
     inline glbeta_t makeGlbEta(float eta) { return round(eta / ETAPHI_LSB); }
     inline glbphi_t makeGlbPhi(float phi) { return round(phi / ETAPHI_LSB); }
-    inline iso_t makeIso(float iso) { return iso_t(0.25 * round(iso * 4)); } 
+    inline iso_t makeIso(float iso) { return iso_t(0.25 * round(iso * 4)); }
 
     inline int makeDR2FromFloatDR(float dr) { return ceil(dr * dr / ETAPHI_LSB / ETAPHI_LSB); }
 
