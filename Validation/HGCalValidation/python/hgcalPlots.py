@@ -1984,9 +1984,7 @@ lc_general_clusterlevel = [
   _longdepthbarycentre,
   # calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
   # (one entry per rechit, in the appropriate histo)
-  _cellsenedens_thick,
-  # SelectedCaloParticles plots
-  _SelectedCaloParticles
+  _cellsenedens_thick
 ]
 
 lc_clusterlevel_zminus = [
@@ -1997,23 +1995,7 @@ lc_clusterlevel_zminus = [
   # Looking at the fraction of true energy that has been clustered; by layer and overall
   _energyclustered_perlayer_EE_zminus,
   _energyclustered_perlayer_FH_zminus,
-  _energyclustered_perlayer_BH_zminus,
-  # Efficiency Plots
-  _efficiencies_zminus,
-  _efficiencies_zminus_eta,
-  _efficiencies_zminus_phi,
-  # Duplicate Plots
-  _duplicates_zminus,
-  _duplicates_zminus_eta,
-  _duplicates_zminus_phi,
-  # Fake Rate Plots
-  _fakes_zminus,
-  _fakes_zminus_eta,
-  _fakes_zminus_phi,
-  # Merge Rate Plots
-  _merges_zminus,
-  _merges_zminus_eta,
-  _merges_zminus_phi
+  _energyclustered_perlayer_BH_zminus
 ]
 
 lc_cellevel_zminus = [
@@ -2038,6 +2020,22 @@ lc_cellevel_zminus = [
 ]
 
 lc_cp_association_zminus = [
+  # Efficiency Plots
+  _efficiencies_zminus,
+  _efficiencies_zminus_eta,
+  _efficiencies_zminus_phi,
+  # Duplicate Plots
+  _duplicates_zminus,
+  _duplicates_zminus_eta,
+  _duplicates_zminus_phi,
+  # Fake Rate Plots
+  _fakes_zminus,
+  _fakes_zminus_eta,
+  _fakes_zminus_phi,
+  # Merge Rate Plots
+  _merges_zminus,
+  _merges_zminus_eta,
+  _merges_zminus_phi,
   # Score of CaloParticles wrt Layer Clusters
   _score_caloparticle_to_layerclusters_zminus,
   # Score of LayerClusters wrt CaloParticles
@@ -2140,23 +2138,7 @@ lc_clusterlevel_zplus = [
   # Looking at the fraction of true energy that has been clustered; by layer and overall
   _energyclustered_perlayer_EE_zplus,
   _energyclustered_perlayer_FH_zplus,
-  _energyclustered_perlayer_BH_zplus,
-  # Efficiency Plots
-  _efficiencies_zplus,
-  _efficiencies_zplus_eta,
-  _efficiencies_zplus_phi,
-  # Duplicate Plots
-  _duplicates_zplus,
-  _duplicates_zplus_eta,
-  _duplicates_zplus_phi,
-  # Fake Rate Plots
-  _fakes_zplus,
-  _fakes_zplus_eta,
-  _fakes_zplus_phi,
-  # Merge Rate Plots
-  _merges_zplus,
-  _merges_zplus_eta,
-  _merges_zplus_phi  
+  _energyclustered_perlayer_BH_zplus
 ]
 
 lc_cellevel_zplus = [
@@ -2178,6 +2160,22 @@ lc_cellevel_zplus = [
 ]
 
 lc_cp_association_zplus = [
+  # Efficiency Plots
+  _efficiencies_zplus,
+  _efficiencies_zplus_eta,
+  _efficiencies_zplus_phi,
+  # Duplicate Plots
+  _duplicates_zplus,
+  _duplicates_zplus_eta,
+  _duplicates_zplus_phi,
+  # Fake Rate Plots
+  _fakes_zplus,
+  _fakes_zplus_eta,
+  _fakes_zplus_phi,
+  # Merge Rate Plots
+  _merges_zplus,
+  _merges_zplus_eta,
+  _merges_zplus_phi,  
   # Score of CaloParticles wrt Layer Clusters
   _score_caloparticle_to_layerclusters_zplus,
   # Score of LayerClusters wrt CaloParticles
@@ -2281,12 +2279,12 @@ def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_colle
   plots_lc_cp_association_zplus  = lc_cp_association_zplus
 
   if extended :
-    plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus + lc_zminus_extended
-    plots_lc_clusterlevel_zplus    = lc_clusterlevel_zplus + lc_zplus_extended
+    #plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus 
+    #plots_lc_clusterlevel_zplus    = lc_clusterlevel_zplus 
     plots_lc_cellevel_zminus       = lc_cellevel_zminus + lc_zminus_extended
     plots_lc_cellevel_zplus        = lc_cellevel_zplus + lc_zplus_extended
-    plots_lc_cp_association_zminus = lc_cp_association_zminus + lc_zminus_extended
-    plots_lc_cp_association_zplus  = lc_cp_association_zplus + lc_zplus_extended
+    #plots_lc_cp_association_zminus = lc_cp_association_zminus 
+    #plots_lc_cp_association_zplus  = lc_cp_association_zplus 
 
   setPlots_ClusterLevel       = [plots_lc_general_clusterlevel, plots_lc_clusterlevel_zminus, plots_lc_clusterlevel_zplus]
   setPlots_CellLevel          = [plots_lc_cellevel_zminus, plots_lc_cellevel_zplus]
