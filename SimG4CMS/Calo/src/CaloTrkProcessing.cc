@@ -162,7 +162,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
                                   << detectors_[i].fromDetL[k] << " at level " << detectors_[i].fromLevels[k];
   }
 
-  doFineCalo_ = !(fineDetectors_.empty());
+  doFineCalo_ = doFineCalo_ && !(fineDetectors_.empty());
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << fineDetectors_.size() << " special calorimetric volumes";
   for (unsigned int i = 0; i < detectors_.size(); i++)
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Calorimeter volume " << i << " " << detectors_[i].name << " LV "
@@ -279,6 +279,7 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
           trkInfo->setIDonCaloSurface(
               id, ical, inside, theTrack->GetDefinition()->GetPDGEncoding(), theTrack->GetMomentum().mag());
           trkInfo->setCaloIDChecked(true);
+          trkInfo->setCrossedBoundary(theTrack);
           lastTrackID_ = id;
           if (theTrack->GetKineticEnergy() / CLHEP::MeV > eMin_)
             trkInfo->putInHistory();
