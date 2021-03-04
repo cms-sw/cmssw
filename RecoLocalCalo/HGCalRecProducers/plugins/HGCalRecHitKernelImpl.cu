@@ -5,7 +5,8 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "HGCalRecHitKernelImpl.cuh"
 
-__device__ float get_weight_from_layer(const int32_t& layer, const double (&weights)[HGChefUncalibRecHitConstantData::hef_weights]) {
+__device__ float get_weight_from_layer(const int32_t& layer,
+                                       const double (&weights)[HGChefUncalibRecHitConstantData::hef_weights]) {
   return (float)weights[layer];
 }
 
@@ -48,11 +49,8 @@ __device__ void make_rechit_silicon(unsigned tid,
   //which is *not* conditional, and thus potentially faster; compare to HGCalRecHitWorkerSimple.cc
 }
 
-__device__ void make_rechit_scintillator(unsigned tid,
-                                         HGCRecHitSoA dst_soa,
-                                         HGCUncalibRecHitSoA src_soa,
-                                         const float& weight,
-                                         const float& sigmaNoiseGeV) {
+__device__ void make_rechit_scintillator(
+    unsigned tid, HGCRecHitSoA dst_soa, HGCUncalibRecHitSoA src_soa, const float& weight, const float& sigmaNoiseGeV) {
   dst_soa.id_[tid] = src_soa.id_[tid];
   dst_soa.energy_[tid] = src_soa.amplitude_[tid] * weight * 0.001f;
   dst_soa.time_[tid] = src_soa.jitter_[tid];
@@ -67,7 +65,8 @@ __device__ void make_rechit_scintillator(unsigned tid,
   dst_soa.timeError_[tid] = -1;
 }
 
-__device__ float get_thickness_correction(const int& type, const double (&rcorr)[HGChefUncalibRecHitConstantData::hef_rcorr]) {
+__device__ float get_thickness_correction(const int& type,
+                                          const double (&rcorr)[HGChefUncalibRecHitConstantData::hef_rcorr]) {
   return __fdividef(1.f, (float)rcorr[type]);
 }
 
@@ -79,7 +78,8 @@ __device__ float get_cce_correction(const int& type, const double (&cce)[HGChefU
   return (float)cce[type];
 }
 
-__device__ float get_fCPerMIP(const int& type, const double (&fCPerMIP)[HGChefUncalibRecHitConstantData::hef_fCPerMIP]) {
+__device__ float get_fCPerMIP(const int& type,
+                              const double (&fCPerMIP)[HGChefUncalibRecHitConstantData::hef_fCPerMIP]) {
   return (float)fCPerMIP[type];
 }
 

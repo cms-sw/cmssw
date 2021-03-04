@@ -47,8 +47,7 @@ private:
   std::unique_ptr<hgcal::RecHitTools> tools_;
 
   //data processing
-  void convert_collection_data_to_soa_(const uint32_t &,
-                                       const HGChefUncalibratedRecHitCollection &);
+  void convert_collection_data_to_soa_(const uint32_t &, const HGChefUncalibratedRecHitCollection &);
   void convert_constant_data_(KernelConstantData<HGChefUncalibRecHitConstantData> *);
 
   HGCRecHitGPUProduct prod_;
@@ -58,7 +57,7 @@ private:
   KernelConstantData<HGChefUncalibRecHitConstantData> *kcdata_;
 };
 
-HEFRecHitGPU::HEFRecHitGPU(const edm::ParameterSet& ps)
+HEFRecHitGPU::HEFRecHitGPU(const edm::ParameterSet &ps)
     : uncalibRecHitCPUToken_{consumes<HGCUncalibratedRecHitCollection>(
           ps.getParameter<edm::InputTag>("HGCHEFUncalibRecHitsTok"))},
       recHitGPUToken_{produces<cms::cuda::Product<HGCRecHitGPUProduct>>()} {
@@ -78,22 +77,20 @@ HEFRecHitGPU::HEFRecHitGPU(const edm::ParameterSet& ps)
 
   kcdata_ = new KernelConstantData<HGChefUncalibRecHitConstantData>(cdata_, vdata_);
   convert_constant_data_(kcdata_);
-  
+
   tools_ = std::make_unique<hgcal::RecHitTools>();
 }
 
-HEFRecHitGPU::~HEFRecHitGPU() {
-  delete kcdata_;
-}
+HEFRecHitGPU::~HEFRecHitGPU() { delete kcdata_; }
 
-std::string HEFRecHitGPU::assert_error_message_(std::string var, const size_t& s1, const size_t& s2) {
+std::string HEFRecHitGPU::assert_error_message_(std::string var, const size_t &s1, const size_t &s2) {
   std::string str1 = "The '";
   std::string str2 = "' array must be at least of size ";
   std::string str3 = " to hold the configuration data, but is of size ";
   return str1 + var + str2 + std::to_string(s1) + str3 + std::to_string(s2);
 }
 
-void HEFRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
+void HEFRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData &vd) {
   if (vdata_.fCPerMIP_.size() > HGChefUncalibRecHitConstantData::hef_fCPerMIP)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "fCPerMIP", HGChefUncalibRecHitConstantData::hef_fCPerMIP, vdata_.fCPerMIP_.size());
@@ -111,29 +108,29 @@ void HEFRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
         "weights", HGChefUncalibRecHitConstantData::hef_weights, vdata_.weights_.size());
 }
 
-void HEFRecHitGPU::beginRun(edm::Run const&, edm::EventSetup const& setup) {}
+void HEFRecHitGPU::beginRun(edm::Run const &, edm::EventSetup const &setup) {}
 
-void HEFRecHitGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
+void HEFRecHitGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
   cms::cuda::ScopedContextProduce ctx{event.streamID()};
 
-  const auto& hits = event.get(uncalibRecHitCPUToken_);
+  const auto &hits = event.get(uncalibRecHitCPUToken_);
   unsigned int nhits(hits.size());
   rechits_ = std::make_unique<HGCRecHitCollection>();
 
   if (nhits == 0)
     cms::cuda::LogError("HEFRecHitGPU") << "WARNING: no input hits!";
 
-  prod_      = HGCRecHitGPUProduct(nhits, ctx.stream());
+  prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
   d_uncalib_ = HGCUncalibRecHitDevice(nhits, ctx.stream());
   h_uncalib_ = HGCUncalibRecHitHost<HGChefUncalibratedRecHitCollection>(nhits, hits, ctx.stream());
 
   KernelManagerHGCalRecHit km(h_uncalib_.get(), d_uncalib_.get(), prod_.get());
   km.run_kernels(kcdata_, ctx.stream());
-  
+
   ctx.emplace(event, recHitGPUToken_, std::move(prod_));
 }
 
-void HEFRecHitGPU::convert_constant_data_(KernelConstantData<HGChefUncalibRecHitConstantData>* kcdata) {
+void HEFRecHitGPU::convert_constant_data_(KernelConstantData<HGChefUncalibRecHitConstantData> *kcdata) {
   for (size_t i = 0; i < kcdata->vdata_.fCPerMIP_.size(); ++i)
     kcdata->data_.fCPerMIP_[i] = kcdata->vdata_.fCPerMIP_[i];
   for (size_t i = 0; i < kcdata->vdata_.cce_.size(); ++i)

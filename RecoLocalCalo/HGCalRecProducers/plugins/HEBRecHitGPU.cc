@@ -47,8 +47,7 @@ private:
   std::unique_ptr<hgcal::RecHitTools> tools_;
 
   //data processing
-  void convert_collection_data_to_soa_(const uint32_t &,
-                                       const HGChebUncalibratedRecHitCollection &);
+  void convert_collection_data_to_soa_(const uint32_t &, const HGChebUncalibratedRecHitCollection &);
   void convert_constant_data_(KernelConstantData<HGChebUncalibRecHitConstantData> *);
 
   HGCRecHitGPUProduct prod_;
@@ -58,7 +57,7 @@ private:
   KernelConstantData<HGChebUncalibRecHitConstantData> *kcdata_;
 };
 
-HEBRecHitGPU::HEBRecHitGPU(const edm::ParameterSet& ps)
+HEBRecHitGPU::HEBRecHitGPU(const edm::ParameterSet &ps)
     : uncalibRecHitCPUToken_{consumes<HGCUncalibratedRecHitCollection>(
           ps.getParameter<edm::InputTag>("HGCHEBUncalibRecHitsTok"))},
       recHitGPUToken_{produces<cms::cuda::Product<HGCRecHitGPUProduct>>()} {
@@ -75,28 +74,26 @@ HEBRecHitGPU::HEBRecHitGPU(const edm::ParameterSet& ps)
   tools_ = std::make_unique<hgcal::RecHitTools>();
 }
 
-HEBRecHitGPU::~HEBRecHitGPU() {
-  delete kcdata_;
-}
+HEBRecHitGPU::~HEBRecHitGPU() { delete kcdata_; }
 
-std::string HEBRecHitGPU::assert_error_message_(std::string var, const size_t& s) {
+std::string HEBRecHitGPU::assert_error_message_(std::string var, const size_t &s) {
   std::string str1 = "The '";
   std::string str2 = "' array must be at least of size ";
   std::string str3 = " to hold the configuration data.";
   return str1 + var + str2 + std::to_string(s) + str3;
 }
 
-void HEBRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
+void HEBRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData &vd) {
   if (vdata_.weights_.size() > HGChebUncalibRecHitConstantData::heb_weights)
     edm::LogError("MaxSizeExceeded") << this->assert_error_message_("weights", vdata_.fCPerMIP_.size());
 }
 
-void HEBRecHitGPU::beginRun(edm::Run const&, edm::EventSetup const& setup) {}
+void HEBRecHitGPU::beginRun(edm::Run const &, edm::EventSetup const &setup) {}
 
-void HEBRecHitGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
+void HEBRecHitGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
   cms::cuda::ScopedContextProduce ctx{event.streamID()};
 
-  const auto& hits = event.get(uncalibRecHitCPUToken_);
+  const auto &hits = event.get(uncalibRecHitCPUToken_);
   unsigned int nhits(hits.size());
   rechits_ = std::make_unique<HGCRecHitCollection>();
 
@@ -109,11 +106,11 @@ void HEBRecHitGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
 
   KernelManagerHGCalRecHit km(h_uncalib_.get(), d_uncalib_.get(), prod_.get());
   km.run_kernels(kcdata_, ctx.stream());
-  
+
   ctx.emplace(event, recHitGPUToken_, std::move(prod_));
 }
 
-void HEBRecHitGPU::convert_constant_data_(KernelConstantData<HGChebUncalibRecHitConstantData>* kcdata) {
+void HEBRecHitGPU::convert_constant_data_(KernelConstantData<HGChebUncalibRecHitConstantData> *kcdata) {
   for (size_t i = 0; i < kcdata->vdata_.weights_.size(); ++i)
     kcdata->data_.weights_[i] = kcdata->vdata_.weights_[i];
 }

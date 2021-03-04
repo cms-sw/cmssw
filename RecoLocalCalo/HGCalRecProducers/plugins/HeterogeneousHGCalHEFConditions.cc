@@ -175,7 +175,7 @@ HeterogeneousHGCalHEFConditionsWrapper::getHeterogeneousConditionsESProductAsync
             reinterpret_cast<int32_t*>(select_pointer_d_(&(data.host->params), j) + (this->sizes_params_[j] / sdouble));
       else
         throw cms::Exception("HeterogeneousHGCalHEFConditionsWrapper")
-	  << "compare this functions' logic with hgcal_conditions::parameters::typesHEF";
+            << "compare this functions' logic with hgcal_conditions::parameters::typesHEF";
     }
 
     // Allocate the payload object on the device memory.

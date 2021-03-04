@@ -150,7 +150,7 @@ HeterogeneousHGCalHEBConditionsWrapper::getHeterogeneousConditionsESProductAsync
             reinterpret_cast<int32_t*>(select_pointer_d(&(data.host->params), j) + this->sizes_[j]);
       else
         throw cms::Exception("HeterogeneousHGCalHEBConditionsWrapper")
-	  << "compare this functions' logic with hgcal_conditions::parameters::typesHEB";
+            << "compare this functions' logic with hgcal_conditions::parameters::typesHEB";
     }
 
     // ... and then the payload object

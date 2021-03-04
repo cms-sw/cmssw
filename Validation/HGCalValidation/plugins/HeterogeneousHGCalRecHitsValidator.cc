@@ -43,7 +43,7 @@ void HeterogeneousHGCalRecHitsValidator::analyze(const edm::Event &event, const 
     const auto &gpuhits = event.get(tokens_[idet][1]);
 
     size_t nhits = cpuhits.size();
-    std::cout << nhits << ", " <<  gpuhits.size() << std::endl;
+    std::cout << nhits << ", " << gpuhits.size() << std::endl;
     assert(nhits == gpuhits.size());
     //float sum_cpu = 0.f, sum_gpu = 0.f, sum_son_cpu = 0.f, sum_son_gpu = 0.f;
     for (unsigned i(0); i < nhits; i++) {

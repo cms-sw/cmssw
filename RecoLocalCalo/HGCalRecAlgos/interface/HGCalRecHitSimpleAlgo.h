@@ -51,7 +51,7 @@ public:
 
     //    float clockToNsConstant = 25;
     float energy = (hfnose ? (uncalibRH.amplitude() * weightsNose_[layer] * 0.001f)
-		           : (uncalibRH.amplitude() * weights_[layer] * 0.001f));
+                           : (uncalibRH.amplitude() * weights_[layer] * 0.001f));
     float time = uncalibRH.jitter();
 
     //if(time<0) time   = 0; // fast-track digi conversion
