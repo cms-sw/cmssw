@@ -52,6 +52,7 @@ namespace l1t {
     void setPFIsolPV(float pfIsolPV) { pfIsolPV_ = pfIsolPV; }
     void setPuppiIsol(float puppiIsol) { puppiIsol_ = puppiIsol; }
     void setPuppiIsolPV(float puppiIsolPV) { puppiIsolPV_ = puppiIsolPV; }
+    void setEGRef(const edm::Ref<EGammaBxCollection>& egRef) { egRef_ = egRef; }
 
   private:
     edm::Ref<EGammaBxCollection> egRef_;
