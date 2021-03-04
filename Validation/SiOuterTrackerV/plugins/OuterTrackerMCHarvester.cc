@@ -9,7 +9,6 @@ OuterTrackerMCHarvester::~OuterTrackerMCHarvester() {}
 void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   using namespace edm;
 
-
   float eta_bins[] = {0.0, 0.7, 1.0, 1.2, 1.6, 2.0, 2.4};
   int eta_binnum = 6;
 
@@ -275,7 +274,7 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt1->SetMinimum(0.0);
       resPt1->SetStats(false);
 
-      std::vector<TH1F*> vResPt1 = {resPt1a,resPt2a,resPt3a,resPt4a,resPt5a,resPt6a};
+      std::vector<TH1F *> vResPt1 = {resPt1a, resPt2a, resPt3a, resPt4a, resPt5a, resPt6a};
       for (int i = 0; i < 6; i++) {
         resPt1->SetBinContent(i + 1, vResPt1[i]->GetStdDev());
         resPt1->SetBinError(i + 1, vResPt1[i]->GetStdDevError());
@@ -307,7 +306,7 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt2->SetMinimum(0.0);
       resPt2->SetStats(false);
 
-      std::vector<TH1F*> vResPt2 = {resPt1b,resPt2b,resPt3b,resPt4b,resPt5b,resPt6b};
+      std::vector<TH1F *> vResPt2 = {resPt1b, resPt2b, resPt3b, resPt4b, resPt5b, resPt6b};
       for (int i = 0; i < 6; i++) {
         resPt2->SetBinContent(i + 1, vResPt2[i]->GetStdDev());
         resPt2->SetBinError(i + 1, vResPt2[i]->GetStdDevError());
@@ -339,7 +338,7 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt3->SetMinimum(0.0);
       resPt3->SetStats(false);
 
-      std::vector<TH1F*> vResPt3 = {resPt1c,resPt2c,resPt3c,resPt4c,resPt5c,resPt6c};
+      std::vector<TH1F *> vResPt3 = {resPt1c, resPt2c, resPt3c, resPt4c, resPt5c, resPt6c};
       for (int i = 0; i < 6; i++) {
         resPt3->SetBinContent(i + 1, vResPt3[i]->GetStdDev());
         resPt3->SetBinError(i + 1, vResPt3[i]->GetStdDevError());
@@ -370,7 +369,7 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resEta->SetMinimum(0.0);
       resEta->SetStats(false);
 
-      std::vector<TH1F*> vResEta = {resEta1,resEta2,resEta3,resEta4,resEta5,resEta6};
+      std::vector<TH1F *> vResEta = {resEta1, resEta2, resEta3, resEta4, resEta5, resEta6};
       for (int i = 0; i < 6; i++) {
         resEta->SetBinContent(i + 1, vResEta[i]->GetStdDev());
         resEta->SetBinError(i + 1, vResEta[i]->GetStdDevError());
@@ -401,7 +400,7 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPhi->SetMinimum(0.0);
       resPhi->SetStats(false);
 
-      std::vector<TH1F*> vResPhi = {resPhi1,resPhi2,resPhi3,resPhi4,resPhi5,resPhi6};
+      std::vector<TH1F *> vResPhi = {resPhi1, resPhi2, resPhi3, resPhi4, resPhi5, resPhi6};
       for (int i = 0; i < 6; i++) {
         resPhi->SetBinContent(i + 1, vResPhi[i]->GetStdDev());
         resPhi->SetBinError(i + 1, vResPhi[i]->GetStdDevError());
@@ -432,7 +431,7 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resVtxZ->SetMinimum(0.0);
       resVtxZ->SetStats(false);
 
-      std::vector<TH1F*> vResVtxZ = {resVtxZ_1,resVtxZ_2,resVtxZ_3,resVtxZ_4,resVtxZ_5,resVtxZ_6};
+      std::vector<TH1F *> vResVtxZ = {resVtxZ_1, resVtxZ_2, resVtxZ_3, resVtxZ_4, resVtxZ_5, resVtxZ_6};
       for (int i = 0; i < 6; i++) {
         resVtxZ->SetBinContent(i + 1, vResVtxZ[i]->GetStdDev());
         resVtxZ->SetBinError(i + 1, vResVtxZ[i]->GetStdDevError());
@@ -463,7 +462,7 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resd0->SetMinimum(0.0);
       resd0->SetStats(false);
 
-      std::vector<TH1F*> vResD0 = {resd0_1,resd0_2,resd0_3,resd0_4,resd0_5,resd0_6};
+      std::vector<TH1F *> vResD0 = {resd0_1, resd0_2, resd0_3, resd0_4, resd0_5, resd0_6};
       for (int i = 0; i < 6; i++) {
         resd0->SetBinContent(i + 1, vResD0[i]->GetStdDev());
         resd0->SetBinError(i + 1, vResD0[i]->GetStdDevError());
