@@ -591,11 +591,11 @@ void HGVHistoProducerAlgo::bookSimClusterAssociationHistos(DQMStore::IBooker& ib
   histograms.h_sharedenergy_simcluster2layercl_vs_phi_perlayer.push_back(
       std::move(sharedenergy_simcluster2layercl_vs_phi_perlayer));
 }
-void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
-                                             Histograms& histograms,
-                                             unsigned int layers,
-                                             std::vector<int> thicknesses,
-                                             std::string pathtomatbudfile) {
+void HGVHistoProducerAlgo::bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibook,
+                                                          Histograms& histograms,
+                                                          unsigned int layers,
+                                                          std::vector<int> thicknesses,
+                                                          std::string pathtomatbudfile) {
   //---------------------------------------------------------------------------------------------------------------------------
   histograms.h_cluster_eta.push_back(
       ibook.book1D("num_reco_cluster_eta", "N of reco clusters vs eta", nintEta_, minEta_, maxEta_));
@@ -674,6 +674,37 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
                      nintEneClperlay_,
                      minEneClperlay_,
                      maxEneClperlay_);
+  }
+
+  //---------------------------------------------------------------------------------------------------------------------------
+  for (std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
+    auto istr = std::to_string(*it);
+    histograms.h_clusternum_perthick[(*it)] = ibook.book1D("totclusternum_thick_" + istr,
+                                                           "total number of layer clusters for thickness " + istr,
+                                                           nintTotNClsperthick_,
+                                                           minTotNClsperthick_,
+                                                           maxTotNClsperthick_);
+  }
+  //---------------------------------------------------------------------------------------------------------------------------
+}
+
+void HGVHistoProducerAlgo::bookClusterHistos_LCtoCP_association(DQMStore::IBooker& ibook,
+                                                                Histograms& histograms,
+                                                                unsigned int layers) {
+  //----------------------------------------------------------------------------------------------------------------------------
+  for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
+    auto istr1 = std::to_string(ilayer);
+    while (istr1.size() < 2) {
+      istr1.insert(0, "0");
+    }
+    //We will make a mapping to the regural layer naming plus z- or z+ for convenience
+    std::string istr2 = "";
+    //First with the -z endcap
+    if (ilayer < layers) {
+      istr2 = std::to_string(ilayer + 1) + " in z-";
+    } else {  //Then for the +z
+      istr2 = std::to_string(ilayer - (layers - 1)) + " in z+";
+    }
     histograms.h_score_layercl2caloparticle_perlayer[ilayer] =
         ibook.book1D("Score_layercl2caloparticle_perlayer" + istr1,
                      "Score of Layer Cluster per CaloParticle for layer " + istr2,
@@ -820,6 +851,28 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
                      nintPhi_,
                      minPhi_,
                      maxPhi_);
+  }
+  //---------------------------------------------------------------------------------------------------------------------------
+}
+
+void HGVHistoProducerAlgo::bookClusterHistos_CellLevel(DQMStore::IBooker& ibook,
+                                                       Histograms& histograms,
+                                                       unsigned int layers,
+                                                       std::vector<int> thicknesses) {
+  //----------------------------------------------------------------------------------------------------------------------------
+  for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
+    auto istr1 = std::to_string(ilayer);
+    while (istr1.size() < 2) {
+      istr1.insert(0, "0");
+    }
+    //We will make a mapping to the regural layer naming plus z- or z+ for convenience
+    std::string istr2 = "";
+    //First with the -z endcap
+    if (ilayer < layers) {
+      istr2 = std::to_string(ilayer + 1) + " in z-";
+    } else {  //Then for the +z
+      istr2 = std::to_string(ilayer - (layers - 1)) + " in z+";
+    }
     histograms.h_cellAssociation_perlayer[ilayer] =
         ibook.book1D("cellAssociation_perlayer" + istr1, "Cell Association for layer " + istr2, 5, -4., 1.);
     histograms.h_cellAssociation_perlayer[ilayer]->setBinLabel(2, "TN(purity)");
@@ -827,24 +880,16 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
     histograms.h_cellAssociation_perlayer[ilayer]->setBinLabel(4, "FP(fake)");
     histograms.h_cellAssociation_perlayer[ilayer]->setBinLabel(5, "TP(eff.)");
   }
-
-  //---------------------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------------------------------------------------------
   for (std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
     auto istr = std::to_string(*it);
-    histograms.h_clusternum_perthick[(*it)] = ibook.book1D("totclusternum_thick_" + istr,
-                                                           "total number of layer clusters for thickness " + istr,
-                                                           nintTotNClsperthick_,
-                                                           minTotNClsperthick_,
-                                                           maxTotNClsperthick_);
-    //---
     histograms.h_cellsenedens_perthick[(*it)] = ibook.book1D("cellsenedens_thick_" + istr,
                                                              "energy density of cluster cells for thickness " + istr,
                                                              nintCellsEneDensperthick_,
                                                              minCellsEneDensperthick_,
                                                              maxCellsEneDensperthick_);
   }
-
-  //---------------------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------------------------------------------------------
   //Not all combination exists but we should keep them all for cross checking reason.
   for (std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
     for (unsigned ilayer = 0; ilayer < 2 * layers; ++ilayer) {
@@ -915,8 +960,8 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
           maxClEneperthickperlayer_);
     }
   }
-  //---------------------------------------------------------------------------------------------------------------------------
 }
+//----------------------------------------------------------------------------------------------------------------------------
 
 void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::IBooker& ibook,
                                                   Histograms& histograms,
