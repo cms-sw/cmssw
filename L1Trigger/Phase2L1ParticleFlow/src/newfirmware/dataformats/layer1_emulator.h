@@ -154,13 +154,13 @@ namespace l1ct {
       hwIsoVars[0] = 0;
       hwIsoVars[1] = 0;
       hwIsoVars[2] = 0;
-      hwIsoVars[3] = 0;      
+      hwIsoVars[3] = 0;
     }
 
     enum IsoType { TkIso = 0, PfIso = 1, TkIsoPV = 2, PfIsoPV = 3 };
 
     float floatIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type]); }
-    float floatRelIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type])/floatPt(); }
+    float floatRelIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type]) / floatPt(); }
     float hwIsoVar(IsoType type) const { return hwIsoVars[type]; }
     void setHwIso(IsoType type, iso_t value) { hwIsoVars[type] = value; }
 
@@ -181,7 +181,7 @@ namespace l1ct {
       sta_idx = -1;
       clearIsoVars();
     }
-    
+
     void clearIsoVars() {
       hwIsoVars[0] = 0;
       hwIsoVars[1] = 0;
@@ -190,10 +190,9 @@ namespace l1ct {
     enum IsoType { TkIso = 0, PfIso = 1 };
 
     float floatIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type]); }
-    float floatRelIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type])/floatPt(); }
+    float floatRelIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type]) / floatPt(); }
     float hwIsoVar(IsoType type) const { return hwIsoVars[type]; }
     void setHwIso(IsoType type, iso_t value) { hwIsoVars[type] = value; }
-
 
     iso_t hwIsoVars[2];
   };
@@ -285,7 +284,7 @@ namespace l1ct {
   };
 
   struct Event {
-    static const int VERSION = 5;
+    static const int VERSION = 6;
     uint32_t run, lumi;
     uint64_t event;
     RegionizerDecodedInputs decoded;
