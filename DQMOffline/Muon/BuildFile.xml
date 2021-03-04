@@ -15,4 +15,5 @@
 <use name="CondFormats/DataRecord"/>
 <use name="EventFilter/CSCRawToDigi"/>
 <use name="CommonTools/TriggerUtils"/>
+<use name="Validation/MuonHits"/>
 <flags EDM_PLUGIN="1"/>
