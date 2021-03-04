@@ -128,7 +128,7 @@ std::vector<size_t> HeterogeneousHGCalHEFCellPositionsConditions::calculate_memo
 }
 
 HeterogeneousHGCalHEFCellPositionsConditions::~HeterogeneousHGCalHEFCellPositionsConditions() {
-  //cudaCheck(cudaFreeHost(this->posmap_.x));
+  cudaCheck(cudaFreeHost(this->posmap_.x));
 }
 
 //I could use template specializations
@@ -288,7 +288,6 @@ HeterogeneousHGCalHEFCellPositionsConditions::getHeterogeneousConditionsESProduc
   });  //gpuData_.dataForCurrentDeviceAsync
 
   // Returns the payload object on the memory of the current device
-  std::cout << "before returning" << std::endl;
   return data.device;
 }
 
