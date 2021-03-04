@@ -182,7 +182,8 @@ namespace {
       for (const auto& scenario : scenarioMap) {
         std::string scenName = scenario.first;
 
-        if (std::find_if(the_scenarios.begin(), the_scenarios.end(), compareKeys(scenName)) != the_scenarios.end()) {
+        if (std::find_if(the_scenarios.begin(), the_scenarios.end(), compareKeys(scenName)) != the_scenarios.end() ||
+            the_scenarios[0] == "all") {
           edm::LogPrint("SiPixelFEDChannelContainerTest") << "\t Found Scenario: " << scenName << " ==> dumping it";
         } else {
           continue;
@@ -373,7 +374,101 @@ namespace {
     std::string m_CablingTagName;
     std::string m_condDbCabling;
   };
+
+  /************************************************
+  1d histogram of SiPixelFEDChannelContainer of 1 IOV
+  *************************************************/
+
+  class SiPixelFEDChannelContainerScenarios : public PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV> {
+  public:
+    SiPixelFEDChannelContainerScenarios()
+        : PlotImage<SiPixelFEDChannelContainer, SINGLE_IOV>("SiPixelFEDChannelContainer scenarios count") {}
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto tagname = tag.name;
+      auto iov = tag.iovs.front();
+
+      TGaxis::SetMaxDigits(3);
+
+      std::shared_ptr<SiPixelFEDChannelContainer> payload = fetchPayload(std::get<1>(iov));
+      std::vector<std::string> scenarios = payload->getScenarioList();
+      sort(scenarios.begin(), scenarios.end());
+
+      TCanvas canvas("Canv", "Canv", 1200, 1000);
+      canvas.cd();
+      canvas.SetGrid();
+      auto h1 = std::make_unique<TH1F>("Count",
+                                       "SiPixelFEDChannelContainer Bad Roc count;Scenario index;n. of bad ROCs",
+                                       scenarios.size(),
+                                       1,
+                                       scenarios.size());
+      h1->SetStats(false);
+
+      canvas.SetTopMargin(0.06);
+      canvas.SetBottomMargin(0.12);
+      canvas.SetLeftMargin(0.12);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      int scenarioIndex = 0;
+      for (const auto& scenario : scenarios) {
+        scenarioIndex++;
+        int badRocCount = 0;
+	LogDebug("SiPixelFEDChannelContainerScenarios") << scenario << std::endl;
+        auto badChannelCollection = payload->getDetSetBadPixelFedChannels(scenario);
+        for (const auto& disabledChannels : *badChannelCollection) {
+          for (const auto& ch : disabledChannels) {
+            int local_bad_rocs = ch.roc_last - ch.roc_first;
+            badRocCount += local_bad_rocs;
+          }  // loop on the channels
+        }    // loop on the DetSetVector
+
+        h1->SetBinContent(scenarioIndex, badRocCount);
+      }  // loop on scenarios
+
+      TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // Y offset
+      TGaxis::SetExponentOffset(-0.03, -0.10, "x"); // Y and Y offset for X axis
+
+      h1->SetTitle("");
+      h1->GetYaxis()->SetRangeUser(0., h1->GetMaximum() * 1.30);
+      h1->SetFillColor(kRed);
+      h1->SetMarkerStyle(20);
+      h1->SetMarkerSize(1);
+      h1->Draw("bar2");
+
+      SiPixelPI::makeNicePlotStyle(h1.get());
+
+      canvas.Update();
+
+      TLegend legend = TLegend(0.30, 0.88, 0.95, 0.94);
+      //legend.SetHeader(("#splitline{Payload hash: #bf{" + (std::get<1>(iov)) + "}}{Total Scenarios:"+std::to_string(scenarioIndex)+"}").c_str(),"C");  // option "C" allows to center the header
+
+      legend.SetHeader(fmt::sprintf("Payload hash: #bf{%s}",std::get<1>(iov)).c_str(),"C");
+      legend.AddEntry(h1.get(),fmt::sprintf("total scenarios: #bf{%s}",std::to_string(scenarioIndex)).c_str(), "F");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      //ltx.SetTextColor(kBlue);
+      ltx.SetTextSize(0.040);
+      //ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       fmt::sprintf("#color[4]{%s} IOV: #color[4]{%s}",tagname,std::to_string(std::get<0>(iov))).c_str());
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+
+    }  // fill
+  };
+
 }  // namespace
 
 // Register the classes as boost python plugin
-PAYLOAD_INSPECTOR_MODULE(SiPixelFEDChannelContainer) { PAYLOAD_INSPECTOR_CLASS(SiPixelFEDChannelContainerTest); }
+PAYLOAD_INSPECTOR_MODULE(SiPixelFEDChannelContainer) {
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFEDChannelContainerTest);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelFEDChannelContainerScenarios);
+}
