@@ -16,7 +16,7 @@ def make_basic_layout_function(everything_tree_dict, base_path):
     def layout_function(source_path, new_relative_path, description):
         target_path = base_path + new_relative_path
         simple_details = [{"path":source_path, "description": description}]
-        everything_tree_dict[target_path] = DQMItem(layout=[simple_details])
+        everything_tree_dict[target_path] = [simple_details]
     return layout_function
 
 # Create the actual layout function
@@ -45,4 +45,4 @@ info_layout("Info/ProvInfo/Globaltag",
             "5 - Global Tag used",
             "Global Tag (GT) used in the online DQM cluster.")
 
-apply_dqm_items_to_new_back_end(dqmitems)
+apply_dqm_items_to_new_back_end(dqmitems, __file__)

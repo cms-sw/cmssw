@@ -14,8 +14,7 @@ rateSummarylayout(
                  )
 
 def hlt_secondaryObjMonFolder(i, path, name):
-  i["HLT/Layouts/secondaryObjectMonitor/%s" % name] = \
-    DQMItem(layout=[[path]])
+  i["HLT/Layouts/secondaryObjectMonitor/%s" % name] = [[path]]
 hlt_secondaryObjMonFolder(dqmitems,"HLT/Tracking/iter2Merged/GeneralProperties/TrackEta_ImpactPoint_GenTk", "TrackEta_ImpactPoint_GenTk")
 hlt_secondaryObjMonFolder(dqmitems,"HLT/ObjectMonitor/Backup/bJet_phi", "bJet_phi")
 hlt_secondaryObjMonFolder(dqmitems,"HLT/ObjectMonitor/Backup/Photon_eta","Photon_eta")
@@ -47,8 +46,7 @@ hlt_secondaryObjMonFolder(dqmitems,"HLT/SiStrip/MechanicalView/TEC/MINUS/Summary
 hlt_secondaryObjMonFolder(dqmitems,"HLT/SiStrip/MechanicalView/TEC/PLUS/Summary_ClusterStoNCorr_OnTrack__TEC__PLUS","Summary_ClusterStoNCorr_OnTrack__TEC__PLUS")
 
 def hlt_evInfo_single(i, dir, name):
-  i["HLT/Layouts/00-FourVector-Summary/%s" % name] = \
-    DQMItem(layout=[["HLT/%s/%s" % (dir, name)]])
+  i["HLT/Layouts/00-FourVector-Summary/%s" % name] = [["HLT/%s/%s" % (dir, name)]]
 
 # list of summary GT histograms (dqmitems, dirPath , histoName)
 hlt_evInfo_single(dqmitems, "FourVectorHLT", "HLT1Electron_etaphi")

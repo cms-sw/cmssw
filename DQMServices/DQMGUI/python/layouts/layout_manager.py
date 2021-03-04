@@ -18,7 +18,6 @@ class LayoutManager:
     else:
       return cls.__offline_layouts
 
-
   @classmethod
   def add_layout(cls, layout_object):
     keys = list(layout_object.keys())

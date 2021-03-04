@@ -1,6 +1,8 @@
 from .adapt_to_new_backend import *
 dqmitems={}
 
+def hcallayout(i, p, *rows): i['Hcal/Layouts/' + p] = rows
+
 
 hcallayout(dqmitems, 'EtEmul/TP/TTSubdet/HBHE', [{'path':'Hcal/TPTask/EtEmul/TTSubdet/HBHE', 'description':"""Et Emulator Distributions.  <a href='https://twiki.cern.ch/twiki/bin/view/CMS/HcalDQMRun2TaskDescription#TP_Task_Description'>Details...</a>"""}])
 

@@ -4,7 +4,7 @@ dqmitems={}
 def dtlayout(i, p, *rows): i["DT/Layouts/" + p] = rows
 
 dtlayout(dqmitems, "00-Summary/00-DataIntegritySummary",
-  [{ 'path': "DT/00-DataIntegrity/DataIntegritySummary", 'description': "<a href=https://twiki.cern.ch/twiki/bin/view/CMS/DTDQMPlots>Description and Instructions</a>" }])
+  [{ 'path': "DT/00-DataIntegrithdjfhjdhy/DataIntegritySummary", 'description': "<a href=https://twiki.cern.ch/twiki/bin/view/CMS/DTDQMPlots>Description and Instructions</a>" }])
 
 dtlayout(dqmitems, "00-Summary/00-ROChannelSummary",
   [{ 'path': "DT/00-ROChannels/ROChannelSummary", 'description': "<a href=https://twiki.cern.ch/twiki/bin/view/CMS/DTDQMPlots>Description and Instructions</a>" }])
@@ -118,8 +118,7 @@ for wheel in range(-2, 3):
         histoname6 = "DT/03-LocalTrigger-TM/Wheel" + str(wheel) + "/Sector" + str(sector) + "/Station2/Segment/TM_PhiResidualOut_W" + str(wheel) + "_Sec" +  str(sector) + "_St2"
         histoname7 = "DT/03-LocalTrigger-TM/Wheel" + str(wheel) + "/Sector" + str(sector) + "/Station3/Segment/TM_PhiResidualOut_W" + str(wheel) + "_Sec" +  str(sector) + "_St3"
         histoname8 = "DT/03-LocalTrigger-TM/Wheel" + str(wheel) + "/Sector" + str(sector) + "/Station4/Segment/TM_PhiResidualOut_W" + str(wheel) + "_Sec" +  str(sector) + "_St4"
-	dtlayout(dqmitems, name,[{ 'path': histoname5},{ 'path': histoname6}],
-		 [{ 'path': histoname7},{ 'path': histoname8}])
+        dtlayout(dqmitems, name,[{ 'path': histoname5},{ 'path': histoname6}],[{ 'path': histoname7},{ 'path': histoname8}])
 
 #### TRIGGER DIR LUTs ###########################################################################
 for wheel in range(-2, 3):
@@ -129,15 +128,13 @@ for wheel in range(-2, 3):
         histoname2 = "DT/03-LocalTrigger-TM/Wheel" + str(wheel) + "/Sector" + str(sector) + "/Station2/Segment/TM_PhibResidualIn_W" + str(wheel) + "_Sec" +  str(sector) + "_St2"
         histoname3 = "DT/03-LocalTrigger-TM/Wheel" + str(wheel) + "/Sector" + str(sector) + "/Station3/Segment/TM_PhibResidualIn_W" + str(wheel) + "_Sec" +  str(sector) + "_St3"
         histoname4 = "DT/03-LocalTrigger-TM/Wheel" + str(wheel) + "/Sector" + str(sector) + "/Station4/Segment/TM_PhibResidualIn_W" + str(wheel) + "_Sec" +  str(sector) + "_St4"
-        dtlayout(dqmitems, name,[{ 'path': histoname1},{ 'path': histoname2}],
-                  [{ 'path': histoname3},{ 'path': histoname4}])
+        dtlayout(dqmitems, name,[{ 'path': histoname1},{ 'path': histoname2}], [{ 'path': histoname3},{ 'path': histoname4}])
         name = "08-TriggerDirLUTs/Wheel" + str(wheel) + "/Sec" + str(sector) + " Out"
         histoname5 = "DT/03-LocalTrigger-TM/Wheel" + str(wheel) + "/Sector" + str(sector) + "/Station1/Segment/TM_PhibResidualOut_W" + str(wheel) + "_Sec" +  str(sector) + "_St1"
         histoname6 = "DT/03-LocalTrigger-TM/Wheel" + str(wheel) + "/Sector" + str(sector) + "/Station2/Segment/TM_PhibResidualOut_W" + str(wheel) + "_Sec" +  str(sector) + "_St2"
         histoname7 = "DT/03-LocalTrigger-TM/Wheel" + str(wheel) + "/Sector" + str(sector) + "/Station3/Segment/TM_PhibResidualOut_W" + str(wheel) + "_Sec" +  str(sector) + "_St3"
         histoname8 = "DT/03-LocalTrigger-TM/Wheel" + str(wheel) + "/Sector" + str(sector) + "/Station4/Segment/TM_PhibResidualOut_W" + str(wheel) + "_Sec" +  str(sector) + "_St4"
-        dtlayout(dqmitems, name,[{ 'path': histoname5},{ 'path': histoname6}],
-                  [{ 'path': histoname7},{ 'path': histoname8}])
+        dtlayout(dqmitems, name,[{ 'path': histoname5},{ 'path': histoname6}], [{ 'path': histoname7},{ 'path': histoname8}])
 
 
 #### HITS RESIDUALS ###########################################################################
@@ -177,4 +174,4 @@ for wheel in range(-2, 3):
 #
 #
 
-apply_dqm_items_to_new_back_end(dqmitems)
+apply_dqm_items_to_new_back_end(dqmitems, __file__)

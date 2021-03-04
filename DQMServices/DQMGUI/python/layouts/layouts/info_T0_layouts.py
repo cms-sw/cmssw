@@ -16,7 +16,7 @@ def make_basic_layout_function(everything_tree_dict, base_path):
     def layout_function(source_path, new_relative_path, description):
         target_path = base_path + new_relative_path
         simple_details = [{"path":source_path, "description": description}]
-        everything_tree_dict[target_path] = DQMItem(layout=[simple_details])
+        everything_tree_dict[target_path] = [simple_details]
     return layout_function
 
 # Create the actual layout function
@@ -49,4 +49,4 @@ info_layout("Info/CMSSWInfo/globalTag_Harvesting",
             "6 - Global Tag used for harvesting",
             "Global Tag (GT) used for the <i>harvesting</i> step, i.e. when the statistics for all the lumisections are combined into the final plots.")
 
-apply_dqm_items_to_new_back_end(dqmitems)
+apply_dqm_items_to_new_back_end(dqmitems, __file__)

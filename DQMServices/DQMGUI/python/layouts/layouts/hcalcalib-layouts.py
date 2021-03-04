@@ -1,7 +1,7 @@
 from .adapt_to_new_backend import *
 dqmitems={}
 
-
+def hcalcaliblayout(i, p, *rows): i['HcalCalib/Layouts/' + p] = rows
 
 hcalcaliblayout(dqmitems, 'BadQualityvsLS/RAW', [{'path':'HcalCalib/RawTask/BadQualityvsLS/BadQualityvsLS', 'description':"""Distribution of Bad Channels vs Lumi Section <a href='https://twiki.cern.ch/twiki/bin/view/CMS/HcalDQMRun2TaskDescription#Raw_Task_Description'>Details...</a>"""}])
 
@@ -1154,4 +1154,4 @@ for laser_position in ["HBHEHPD", "HBPMega", "HBMMega", "HEPMega", "HEMMega", "H
 		]
 	)
 
-apply_dqm_items_to_new_back_end(dqmitems)
+apply_dqm_items_to_new_back_end(dqmitems, __file__)
