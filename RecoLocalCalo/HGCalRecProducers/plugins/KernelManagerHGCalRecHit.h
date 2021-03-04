@@ -22,9 +22,9 @@ class KernelConstantData {
 public:
   KernelConstantData(T& data, HGCConstantVectorData& vdata) : data_(data), vdata_(vdata) {
     static_assert(std::is_same<T, HGCeeUncalibRecHitConstantData>::value or
-		  std::is_same<T, HGChefUncalibRecHitConstantData>::value or
-		  std::is_same<T, HGChebUncalibRecHitConstantData>::value,
-		  "The KernelConstantData class does not support this type.");
+                      std::is_same<T, HGChefUncalibRecHitConstantData>::value or
+                      std::is_same<T, HGChebUncalibRecHitConstantData>::value,
+                  "The KernelConstantData class does not support this type.");
   }
   T data_;
   HGCConstantVectorData vdata_;

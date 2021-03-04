@@ -40,4 +40,4 @@ public:
 
 typedef std::vector<ValidHit> ValidHitCollection;
 
-#endif //Validation_HGCalBValidation_ValidHit_h
+#endif  //Validation_HGCalBValidation_ValidHit_h

@@ -24,7 +24,7 @@ public:
   double cce_[ee_cce];            //charge collection efficiency, one value per sensor thickness
   double noise_fC_[ee_noise_fC];  //noise, one value per sensor thickness
   double rcorr_[ee_rcorr];        //thickness correction
-  double weights_[ee_weights];  //energy weights to recover rechit energy deposited in the absorber
+  double weights_[ee_weights];    //energy weights to recover rechit energy deposited in the absorber
 
   double keV2DIGI_;     //energy to femto coloumb conversion: 1000 eV/3.62 (eV per e) / 6.24150934e3 (e per fC)
   double uncalib2GeV_;  //sets the ADC; obtained by dividing 1e-6 by hgcEE_keV2DIGI_
@@ -41,12 +41,12 @@ public:
   static constexpr size_t hef_noise_fC = 3;  //number of elements pointed by hgcEE_noise_fC_
   static constexpr size_t hef_rcorr = 3;     //number of elements pointed by rcorr_
   static constexpr size_t hef_weights = 51;  //number of elements pointed by weights_
-  
+
   double fCPerMIP_[hef_fCPerMIP];  //femto coloumb to MIP conversion; one value per sensor thickness
   double cce_[hef_cce];            //charge collection efficiency, one value per sensor thickness
   double noise_fC_[hef_noise_fC];  //noise, one value per sensor thickness
   double rcorr_[hef_rcorr];        //thickness correction
-  double weights_[hef_weights];  //energy weights to recover rechit energy deposited in the absorber
+  double weights_[hef_weights];    //energy weights to recover rechit energy deposited in the absorber
 
   double keV2DIGI_;      //energy to femto coloumb conversion: 1000 eV/3.62 (eV per e) / 6.24150934e3 (e per fC)
   double uncalib2GeV_;   //sets the ADC; obtained by dividing 1e-6 by hgcHEF_keV2DIGI_
@@ -60,7 +60,7 @@ public:
 class HGChebUncalibRecHitConstantData {
 public:
   static constexpr size_t heb_weights = 51;  //number of elements pointed by weights_
-  
+
   double weights_[heb_weights];  //energy weights to recover rechit energy deposited in the absorber
 
   double keV2DIGI_;       //energy to femto coloumb conversion: 1000 eV/3.62 (eV per e) / 6.24150934e3 (e per fC)

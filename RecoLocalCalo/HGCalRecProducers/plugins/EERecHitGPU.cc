@@ -46,8 +46,7 @@ private:
   std::unique_ptr<hgcal::RecHitTools> tools_;
 
   //data processing
-  void convert_collection_data_to_soa_(const uint32_t &,
-                                       const HGCeeUncalibratedRecHitCollection &);
+  void convert_collection_data_to_soa_(const uint32_t &, const HGCeeUncalibratedRecHitCollection &);
   void convert_constant_data_(KernelConstantData<HGCeeUncalibRecHitConstantData> *);
 
   HGCRecHitGPUProduct prod_;
@@ -57,10 +56,10 @@ private:
   KernelConstantData<HGCeeUncalibRecHitConstantData> *kcdata_;
 };
 
-EERecHitGPU::EERecHitGPU(const edm::ParameterSet& ps):
-  uncalibRecHitCPUToken_{consumes<HGCUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("HGCEEUncalibRecHitsTok"))},
-  recHitGPUToken_{produces<cms::cuda::Product<HGCRecHitGPUProduct>>()}
-{
+EERecHitGPU::EERecHitGPU(const edm::ParameterSet &ps)
+    : uncalibRecHitCPUToken_{consumes<HGCUncalibratedRecHitCollection>(
+          ps.getParameter<edm::InputTag>("HGCEEUncalibRecHitsTok"))},
+      recHitGPUToken_{produces<cms::cuda::Product<HGCRecHitGPUProduct>>()} {
   cdata_.keV2DIGI_ = ps.getParameter<double>("HGCEE_keV2DIGI");
   cdata_.xmin_ = ps.getParameter<double>("minValSiPar");  //float
   cdata_.xmax_ = ps.getParameter<double>("maxValSiPar");  //float
@@ -76,22 +75,20 @@ EERecHitGPU::EERecHitGPU(const edm::ParameterSet& ps):
 
   kcdata_ = new KernelConstantData<HGCeeUncalibRecHitConstantData>(cdata_, vdata_);
   convert_constant_data_(kcdata_);
-  
+
   tools_ = std::make_unique<hgcal::RecHitTools>();
 }
 
-EERecHitGPU::~EERecHitGPU() {
-  delete kcdata_;
-}
+EERecHitGPU::~EERecHitGPU() { delete kcdata_; }
 
-std::string EERecHitGPU::assert_error_message_(std::string var, const size_t& s1, const size_t& s2) {
+std::string EERecHitGPU::assert_error_message_(std::string var, const size_t &s1, const size_t &s2) {
   std::string str1 = "The '";
   std::string str2 = "' array must be at least of size ";
   std::string str3 = " to hold the configuration data, but is of size ";
   return str1 + var + str2 + std::to_string(s1) + str3 + std::to_string(s2);
 }
 
-void EERecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
+void EERecHitGPU::assert_sizes_constants_(const HGCConstantVectorData &vd) {
   if (vdata_.fCPerMIP_.size() < HGCeeUncalibRecHitConstantData::ee_fCPerMIP)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "fCPerMIP", HGCeeUncalibRecHitConstantData::ee_fCPerMIP, vdata_.fCPerMIP_.size());
@@ -109,29 +106,29 @@ void EERecHitGPU::assert_sizes_constants_(const HGCConstantVectorData& vd) {
         "weights", HGCeeUncalibRecHitConstantData::ee_weights, vdata_.weights_.size());
 }
 
-void EERecHitGPU::beginRun(edm::Run const&, edm::EventSetup const& setup) {}
+void EERecHitGPU::beginRun(edm::Run const &, edm::EventSetup const &setup) {}
 
-void EERecHitGPU::produce(edm::Event& event, const edm::EventSetup& setup) {
+void EERecHitGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
   cms::cuda::ScopedContextProduce ctx{event.streamID()};
 
-  const auto& hits = event.get(uncalibRecHitCPUToken_);
+  const auto &hits = event.get(uncalibRecHitCPUToken_);
   const unsigned nhits(hits.size());
   rechits_ = std::make_unique<HGCRecHitCollection>();
 
   if (nhits == 0)
     cms::cuda::LogError("EERecHitGPU") << "WARNING: no input hits!";
 
-  prod_      = HGCRecHitGPUProduct(nhits, ctx.stream());
+  prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
   d_uncalib_ = HGCUncalibRecHitDevice(nhits, ctx.stream());
   h_uncalib_ = HGCUncalibRecHitHost<HGCeeUncalibratedRecHitCollection>(nhits, hits, ctx.stream());
 
   KernelManagerHGCalRecHit km(h_uncalib_.get(), d_uncalib_.get(), prod_.get());
   km.run_kernels(kcdata_, ctx.stream());
-  
+
   ctx.emplace(event, recHitGPUToken_, std::move(prod_));
 }
 
-void EERecHitGPU::convert_constant_data_(KernelConstantData<HGCeeUncalibRecHitConstantData>* kcdata) {
+void EERecHitGPU::convert_constant_data_(KernelConstantData<HGCeeUncalibRecHitConstantData> *kcdata) {
   for (size_t i = 0; i < kcdata->vdata_.fCPerMIP_.size(); ++i)
     kcdata->data_.fCPerMIP_[i] = kcdata->vdata_.fCPerMIP_[i];
   for (size_t i = 0; i < kcdata->vdata_.cce_.size(); ++i)

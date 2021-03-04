@@ -4,7 +4,7 @@
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 #pragma link C++ class ValidHit + ;
-#pragma link C++ class vector <ValidHit> + ;
+#pragma link C++ class vector < ValidHit> + ;
 #endif /* __CINT__ */
 
 #include "Validation/HGCalValidation/interface/ValidHit.h"

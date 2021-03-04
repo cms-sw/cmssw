@@ -67,9 +67,7 @@ void HEBRecHitGPUtoSoA::acquire(edm::Event const& event,
   km.transfer_soa_to_host(ctx.stream());
 }
 
-void HEBRecHitGPUtoSoA::produce(edm::Event& event, const edm::EventSetup& setup) {
-  event.put(std::move(prodPtr_));
-}
+void HEBRecHitGPUtoSoA::produce(edm::Event& event, const edm::EventSetup& setup) { event.put(std::move(prodPtr_)); }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HEBRecHitGPUtoSoA);

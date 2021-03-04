@@ -85,21 +85,22 @@ namespace hgcal_conditions {
     enum class HeterogeneousHGCalHEFParametersType { Double, Int32_t };
     enum class HeterogeneousHGCalHEBParametersType { Double, Int32_t };
 
-    const std::array<HeterogeneousHGCalEEParametersType, 5> typesEE = {{ HeterogeneousHGCalEEParametersType::Double,
-									 HeterogeneousHGCalEEParametersType::Double,
-									 HeterogeneousHGCalEEParametersType::Double,
-									 HeterogeneousHGCalEEParametersType::Double,
-									 HeterogeneousHGCalEEParametersType::Int32_t }};
+    const std::array<HeterogeneousHGCalEEParametersType, 5> typesEE = {{HeterogeneousHGCalEEParametersType::Double,
+                                                                        HeterogeneousHGCalEEParametersType::Double,
+                                                                        HeterogeneousHGCalEEParametersType::Double,
+                                                                        HeterogeneousHGCalEEParametersType::Double,
+                                                                        HeterogeneousHGCalEEParametersType::Int32_t}};
 
-    const std::array<HeterogeneousHGCalHEFParametersType, 5> typesHEF = {{ HeterogeneousHGCalHEFParametersType::Double,
-									   HeterogeneousHGCalHEFParametersType::Double,
-									   HeterogeneousHGCalHEFParametersType::Double,
-									   HeterogeneousHGCalHEFParametersType::Double,
-									   HeterogeneousHGCalHEFParametersType::Int32_t }};
+    const std::array<HeterogeneousHGCalHEFParametersType, 5> typesHEF = {
+        {HeterogeneousHGCalHEFParametersType::Double,
+         HeterogeneousHGCalHEFParametersType::Double,
+         HeterogeneousHGCalHEFParametersType::Double,
+         HeterogeneousHGCalHEFParametersType::Double,
+         HeterogeneousHGCalHEFParametersType::Int32_t}};
 
-    const std::array<HeterogeneousHGCalHEBParametersType, 2> typesHEB = {{ HeterogeneousHGCalHEBParametersType::Double,
-									   HeterogeneousHGCalHEBParametersType::Int32_t }};
-									 
+    const std::array<HeterogeneousHGCalHEBParametersType, 2> typesHEB = {
+        {HeterogeneousHGCalHEBParametersType::Double, HeterogeneousHGCalHEBParametersType::Int32_t}};
+
     class HeterogeneousHGCalEEParameters {
     public:
       //indexed by cell number
@@ -141,7 +142,7 @@ namespace hgcal_conditions {
                                                                 HeterogeneousHGCalPositionsType::Uint32_t};
 
     struct HGCalPositionsMapping {
-      std::vector<float> zLayer;               //z position per layer
+      std::vector<float> zLayer;                    //z position per layer
       std::vector<std::int32_t> nCellsLayer;        //#cells per layer
       std::vector<std::int32_t> nCellsWaferUChunk;  //#cells per U wafer (each in turn including all V wafers)
       std::vector<std::int32_t> nCellsHexagon;      //#cells per V wafer

@@ -3,56 +3,58 @@
 namespace {
   double*& select_pointer_d(cp::HeterogeneousHGCalEEParameters* cpuObject, const unsigned& item) {
     switch (item) {
-    case 0:
-      return cpuObject->cellFineX_;
-    case 1:
-      return cpuObject->cellFineY_;
-    case 2:
-      return cpuObject->cellCoarseX_;
-    case 3:
-      return cpuObject->cellCoarseY_;
-    default:
-      throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_d(heterogeneous): no item.";
-      return cpuObject->cellCoarseY_;
+      case 0:
+        return cpuObject->cellFineX_;
+      case 1:
+        return cpuObject->cellFineY_;
+      case 2:
+        return cpuObject->cellCoarseX_;
+      case 3:
+        return cpuObject->cellCoarseY_;
+      default:
+        throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_d(heterogeneous): no item.";
+        return cpuObject->cellCoarseY_;
     }
   }
 
   const std::vector<double>& select_pointer_d(const HGCalParameters* cpuObject, const unsigned& item) {
     switch (item) {
-    case 0:
-      return cpuObject->cellFineX_;
-    case 1:
-      return cpuObject->cellFineY_;
-    case 2:
-      return cpuObject->cellCoarseX_;
-    case 3:
-      return cpuObject->cellCoarseY_;
-    default:
-      throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_d(non-heterogeneous): no item.";
-      return cpuObject->cellCoarseY_;
+      case 0:
+        return cpuObject->cellFineX_;
+      case 1:
+        return cpuObject->cellFineY_;
+      case 2:
+        return cpuObject->cellCoarseX_;
+      case 3:
+        return cpuObject->cellCoarseY_;
+      default:
+        throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper")
+            << "select_pointer_d(non-heterogeneous): no item.";
+        return cpuObject->cellCoarseY_;
     }
   }
 
   int32_t*& select_pointer_i(cp::HeterogeneousHGCalEEParameters* cpuObject, const unsigned& item) {
     switch (item) {
-    case 4:
-      return cpuObject->waferTypeL_;
-    default:
-      throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_i(heterogeneous): no item.";
-      return cpuObject->waferTypeL_;
+      case 4:
+        return cpuObject->waferTypeL_;
+      default:
+        throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_i(heterogeneous): no item.";
+        return cpuObject->waferTypeL_;
     }
   }
 
   const std::vector<int32_t>& select_pointer_i(const HGCalParameters* cpuObject, const unsigned& item) {
     switch (item) {
-    case 4:
-      return cpuObject->waferTypeL_;
-    default:
-      throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "select_pointer_i(non-heterogeneous): no item.";
-      return cpuObject->waferTypeL_;
+      case 4:
+        return cpuObject->waferTypeL_;
+      default:
+        throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper")
+            << "select_pointer_i(non-heterogeneous): no item.";
+        return cpuObject->waferTypeL_;
     }
-  } 
-}
+  }
+}  // namespace
 
 HeterogeneousHGCalEEConditionsWrapper::HeterogeneousHGCalEEConditionsWrapper(const HGCalParameters* cpuHGCalParameters) {
   calculate_memory_bytes(cpuHGCalParameters);
@@ -66,9 +68,9 @@ HeterogeneousHGCalEEConditionsWrapper::HeterogeneousHGCalEEConditionsWrapper(con
   for (unsigned i(1); i < cumsum_sizes.size(); ++i)  //start at second element (the first is zero)
   {
     unsigned typesEEsize(0);
-    if (cp::typesEE[i-1] == cp::HeterogeneousHGCalEEParametersType::Double)
+    if (cp::typesEE[i - 1] == cp::HeterogeneousHGCalEEParametersType::Double)
       typesEEsize = sizeof(double);
-    else if (cp::typesEE[i-1] == cp::HeterogeneousHGCalEEParametersType::Int32_t)
+    else if (cp::typesEE[i - 1] == cp::HeterogeneousHGCalEEParametersType::Int32_t)
       typesEEsize = sizeof(int32_t);
     else
       throw cms::Exception("HeterogeneousHGCalEEConditionsWrapper") << "Wrong HeterogeneousHGCalParameters type";
@@ -78,7 +80,7 @@ HeterogeneousHGCalEEConditionsWrapper::HeterogeneousHGCalEEConditionsWrapper(con
   for (unsigned j(0); j < this->sizes_.size(); ++j) {
     //setting the pointers
     if (j != 0) {
-      const unsigned jm1(j-1);
+      const unsigned jm1(j - 1);
       if (cp::typesEE[jm1] == cp::HeterogeneousHGCalEEParametersType::Double and
           cp::typesEE[j] == cp::HeterogeneousHGCalEEParametersType::Double)
         ::select_pointer_d(&this->params_, j) = ::select_pointer_d(&this->params_, jm1) + this->sizes_[jm1];
@@ -90,7 +92,7 @@ HeterogeneousHGCalEEConditionsWrapper::HeterogeneousHGCalEEConditionsWrapper(con
 
     //copying the pointers' content
     for (unsigned i(cumsum_sizes[j]); i < cumsum_sizes[j + 1]; ++i) {
-      unsigned index(i-cumsum_sizes[j]);
+      unsigned index(i - cumsum_sizes[j]);
       if (cp::typesEE[j] == cp::HeterogeneousHGCalEEParametersType::Double) {
         ::select_pointer_d(&this->params_, j)[index] = ::select_pointer_d(cpuHGCalParameters, j)[index];
       } else if (cp::typesEE[j] == cp::HeterogeneousHGCalEEParametersType::Int32_t)
@@ -104,7 +106,7 @@ HeterogeneousHGCalEEConditionsWrapper::HeterogeneousHGCalEEConditionsWrapper(con
 void HeterogeneousHGCalEEConditionsWrapper::calculate_memory_bytes(const HGCalParameters* cpuHGCalParameters) {
   size_t npointers = hgcal_conditions::parameters::typesEE.size();
   std::vector<size_t> sizes(npointers);
-  for (unsigned i(0); i<npointers; ++i) {
+  for (unsigned i(0); i < npointers; ++i) {
     if (cp::typesEE[i] == cp::HeterogeneousHGCalEEParametersType::Double)
       sizes[i] = ::select_pointer_d(cpuHGCalParameters, i).size();
     else
@@ -112,7 +114,7 @@ void HeterogeneousHGCalEEConditionsWrapper::calculate_memory_bytes(const HGCalPa
   }
 
   std::vector<size_t> sizes_units(npointers);
-  for (unsigned i(0); i<npointers; ++i) {
+  for (unsigned i(0); i < npointers; ++i) {
     if (cp::typesEE[i] == cp::HeterogeneousHGCalEEParametersType::Double)
       sizes_units[i] = sizeof(double);
     else if (cp::typesEE[i] == cp::HeterogeneousHGCalEEParametersType::Int32_t)
@@ -130,7 +132,6 @@ HeterogeneousHGCalEEConditionsWrapper::~HeterogeneousHGCalEEConditionsWrapper() 
 
 //I could use template specializations
 //try to use std::variant in the future to avoid similar functions with different return values
-
 
 hgcal_conditions::HeterogeneousEEConditionsESProduct const*
 HeterogeneousHGCalEEConditionsWrapper::getHeterogeneousConditionsESProductAsync(cudaStream_t stream) const {
@@ -152,7 +153,7 @@ HeterogeneousHGCalEEConditionsWrapper::getHeterogeneousConditionsESProductAsync(
     cudaCheck(cudaMemcpyAsync(
         data.host->params.cellFineX_, this->params_.cellFineX_, chunk_, cudaMemcpyHostToDevice, stream));
 
-    for (unsigned j(0); j<this->sizes_.size()-1; ++j) {
+    for (unsigned j(0); j < this->sizes_.size() - 1; ++j) {
       if (cp::typesEE[j] == cp::HeterogeneousHGCalEEParametersType::Double and
           cp::typesEE[j + 1] == cp::HeterogeneousHGCalEEParametersType::Double)
         ::select_pointer_d(&(data.host->params), j + 1) = ::select_pointer_d(&(data.host->params), j) + this->sizes_[j];

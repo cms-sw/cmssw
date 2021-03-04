@@ -49,8 +49,9 @@ private:
 };
 
 EERecHitGPUtoSoA::EERecHitGPUtoSoA(const edm::ParameterSet& ps)
-  : recHitGPUToken_{consumes<cms::cuda::Product<HGCRecHitGPUProduct>>(ps.getParameter<edm::InputTag>("EERecHitGPUTok"))},
-    recHitCPUSoAToken_(produces<HGCRecHitCPUProduct>()) {}
+    : recHitGPUToken_{consumes<cms::cuda::Product<HGCRecHitGPUProduct>>(
+          ps.getParameter<edm::InputTag>("EERecHitGPUTok"))},
+      recHitCPUSoAToken_(produces<HGCRecHitCPUProduct>()) {}
 
 EERecHitGPUtoSoA::~EERecHitGPUtoSoA() {}
 
@@ -67,9 +68,7 @@ void EERecHitGPUtoSoA::acquire(edm::Event const& event,
   km.transfer_soa_to_host(ctx.stream());
 }
 
-void EERecHitGPUtoSoA::produce(edm::Event& event, const edm::EventSetup& setup) {
-  event.put(std::move(prodPtr_));
-}
+void EERecHitGPUtoSoA::produce(edm::Event& event, const edm::EventSetup& setup) { event.put(std::move(prodPtr_)); }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(EERecHitGPUtoSoA);

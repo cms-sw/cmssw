@@ -51,8 +51,7 @@ private:
 HEFRecHitGPUtoSoA::HEFRecHitGPUtoSoA(const edm::ParameterSet& ps)
     : recHitGPUToken_{consumes<cms::cuda::Product<HGCRecHitGPUProduct>>(
           ps.getParameter<edm::InputTag>("HEFRecHitGPUTok"))},
-      recHitCPUSoAToken_(produces<HGCRecHitCPUProduct>()) {
-}
+      recHitCPUSoAToken_(produces<HGCRecHitCPUProduct>()) {}
 
 HEFRecHitGPUtoSoA::~HEFRecHitGPUtoSoA() {}
 
@@ -68,9 +67,7 @@ void HEFRecHitGPUtoSoA::acquire(edm::Event const& event,
   km.transfer_soa_to_host(ctx.stream());
 }
 
-void HEFRecHitGPUtoSoA::produce(edm::Event& event, const edm::EventSetup& setup) {
-  event.put(std::move(prodPtr_));
-}
+void HEFRecHitGPUtoSoA::produce(edm::Event& event, const edm::EventSetup& setup) { event.put(std::move(prodPtr_)); }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HEFRecHitGPUtoSoA);

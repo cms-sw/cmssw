@@ -47,8 +47,8 @@ void HeterogeneousHGCalHEFCellPositionsFiller::set_conditions_() {
       sumCellsWaferUChunk = 0;
 
       for (int iwaferV = posmap_->waferMin; iwaferV < posmap_->waferMax; ++iwaferV) {
-	//0: fine; 1: coarseThin; 2: coarseThick (as defined in DataFormats/ForwardDetId/interface/HGCSiliconDetId.h)
-        int type_ = ddd_->waferType(ilayer, iwaferU, iwaferV);  
+        //0: fine; 1: coarseThin; 2: coarseThick (as defined in DataFormats/ForwardDetId/interface/HGCSiliconDetId.h)
+        int type_ = ddd_->waferType(ilayer, iwaferU, iwaferV);
 
         int nCellsHexSide = ddd_->numberCellsHexagon(ilayer, iwaferU, iwaferV, false);
         int nCellsHexTotal = ddd_->numberCellsHexagon(ilayer, iwaferU, iwaferV, true);

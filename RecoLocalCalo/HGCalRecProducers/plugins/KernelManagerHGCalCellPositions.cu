@@ -4,10 +4,10 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/KernelManagerHGCalCellPositions.h"
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCellPositionsKernelImpl.cuh"
 
-namespace { //kernel parameters
+namespace {  //kernel parameters
   dim3 nb_celpos_;
   constexpr dim3 nt_celpos_(256);
-}
+}  // namespace
 
 KernelManagerHGCalCellPositions::KernelManagerHGCalCellPositions(const size_t& nelems) {
   ::nb_celpos_ = (nelems + ::nt_celpos_.x - 1) / ::nt_celpos_.x;
