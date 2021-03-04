@@ -23,6 +23,7 @@ TrackingAction::TrackingAction(EventAction* e, const edm::ParameterSet& p, CMSSt
       g4Track_(nullptr),
       checkTrack_(p.getUntrackedParameter<bool>("CheckTrack", false)),
       doFineCalo_(p.getParameter<bool>("DoFineCalo")),
+      saveCaloBoundaryInformation_(p.getParameter<bool>("SaveCaloBoundaryInformation")),
       eMinFine_(p.getParameter<double>("EminFineTrack") * CLHEP::MeV) {}
 
 TrackingAction::~TrackingAction() {}
@@ -103,7 +104,12 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
       }
     }
 
-    if (extractor_(aTrack).storeTrack() || currentTrack_->saved()) {
+    TrackInformation* trkInfo = (TrackInformation*)aTrack->GetUserInformation();
+    if (extractor_(aTrack).storeTrack() || currentTrack_->saved() ||
+        (saveCaloBoundaryInformation_ && trkInfo->crossedBoundary())) {
+      if (trkInfo->crossedBoundary()) {
+        currentTrack_->setCrossedBoundaryPosMom(id, trkInfo->getPositionAtBoundary(), trkInfo->getMomentumAtBoundary());
+      }
       currentTrack_->save();
 
       eventAction_->addTkCaloStateInfo(id, p);
