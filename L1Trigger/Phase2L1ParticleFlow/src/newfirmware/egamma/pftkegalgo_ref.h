@@ -53,8 +53,8 @@ namespace l1ct {
     IsoParameters pfIsoParams_tkEm;
     bool doTkIso;
     bool doPfIso;
-    EGIsoVarsEmu::IsoType hwIsoTypeTkEle;
-    EGIsoVarsEmu::IsoType hwIsoTypeTkEm;
+    EGIsoEleObjEmu::IsoType hwIsoTypeTkEle;
+    EGIsoObjEmu::IsoType hwIsoTypeTkEm;
 
     PFTkEGAlgoEmuConfig(const edm::ParameterSet &iConfig);
     PFTkEGAlgoEmuConfig(unsigned int nTrack,
@@ -79,8 +79,8 @@ namespace l1ct {
                         const IsoParameters &pfIsoParams_tkEm = {1., 0.6, 0.07, 0.3},
                         bool doTkIso = true,
                         bool doPfIso = true,
-                        EGIsoVarsEmu::IsoType hwIsoTypeTkEle = EGIsoVarsEmu::IsoType::TkIso,
-                        EGIsoVarsEmu::IsoType hwIsoTypeTkEm = EGIsoVarsEmu::IsoType::TkIsoPV)
+                        EGIsoEleObjEmu::IsoType hwIsoTypeTkEle = EGIsoEleObjEmu::IsoType::TkIso,
+                        EGIsoObjEmu::IsoType hwIsoTypeTkEm = EGIsoObjEmu::IsoType::TkIsoPV)
 
         : nTRACK(nTrack),
           nEMCALO(nEmCalo),

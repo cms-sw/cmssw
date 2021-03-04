@@ -37,7 +37,8 @@ namespace l1ct {
   typedef ap_uint<10> em2calo_dr_t;
   typedef ap_uint<13> tk2calo_dq_t;
   typedef ap_uint<4> egquality_t;
-  typedef ap_uint<8> iso_t;
+  // FIXME: adjust range 10-11bits -> 1/4 - 1/2TeV is probably more than enough for all reasonable use cases
+  typedef ap_ufixed<11, 9, AP_TRN, AP_SAT> iso_t;
 
   struct ParticleID {
     ap_uint<3> bits;
@@ -146,7 +147,6 @@ namespace l1ct {
     constexpr float Z0_LSB = 0.05;
     constexpr float DXY_LSB = 0.05;
     constexpr float PUPPIW_LSB = 1.0 / 256;
-    constexpr float ISO_LSB = 1.0 / 100;
     inline float floatPt(pt_t pt) { return pt.to_float(); }
     inline float floatPt(dpt_t pt) { return pt.to_float(); }
     inline float floatPt(pt2_t pt2) { return pt2.to_float(); }
@@ -161,7 +161,7 @@ namespace l1ct {
     inline float floatZ0(z0_t z0) { return z0.to_float() * Z0_LSB; }
     inline float floatDxy(dxy_t dxy) { return dxy.to_float() * DXY_LSB; }
     inline float floatPuppiW(puppiWgt_t puppiw) { return puppiw.to_float() * PUPPIW_LSB; }
-    inline float floatIso(iso_t reliso) { return reliso.to_float() * ISO_LSB; }
+    inline float floatIso(iso_t iso) { return iso.to_float(); }
 
     inline pt_t makePt(int pt) { return ap_ufixed<16, 14>(pt) >> 2; }
     inline dpt_t makeDPt(int dpt) { return ap_fixed<18, 16>(dpt) >> 2; }
@@ -187,10 +187,7 @@ namespace l1ct {
     inline eta_t makeEta(float eta) { return round(eta / ETAPHI_LSB); }
     inline glbeta_t makeGlbEta(float eta) { return round(eta / ETAPHI_LSB); }
     inline glbphi_t makeGlbPhi(float phi) { return round(phi / ETAPHI_LSB); }
-    inline float maxIso() { return ((1 << iso_t::width) - 1) * ISO_LSB; }
-    inline iso_t makeIso(float reliso) {
-      return reliso > maxIso() ? round(maxIso() / ISO_LSB) : round(reliso / ISO_LSB);
-    }
+    inline iso_t makeIso(float iso) { return iso_t(0.25 * round(iso * 4)); } 
 
     inline int makeDR2FromFloatDR(float dr) { return ceil(dr * dr / ETAPHI_LSB / ETAPHI_LSB); }
 

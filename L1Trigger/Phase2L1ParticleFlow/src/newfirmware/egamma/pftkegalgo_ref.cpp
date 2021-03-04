@@ -34,8 +34,8 @@ l1ct::PFTkEGAlgoEmuConfig::PFTkEGAlgoEmuConfig(const edm::ParameterSet &pset)
       pfIsoParams_tkEm(pset.getParameter<edm::ParameterSet>("pfIsoParametersTkEm")),
       doTkIso(pset.getParameter<bool>("doTkIso")),
       doPfIso(pset.getParameter<bool>("doPfIso")),
-      hwIsoTypeTkEle(static_cast<EGIsoVarsEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEle"))),
-      hwIsoTypeTkEm(static_cast<EGIsoVarsEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEm"))) {}
+      hwIsoTypeTkEle(static_cast<EGIsoEleObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEle"))),
+      hwIsoTypeTkEm(static_cast<EGIsoObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEm"))) {}
 
 l1ct::PFTkEGAlgoEmuConfig::IsoParameters::IsoParameters(const edm::ParameterSet &pset)
     : tkQualityPtMin(pset.getParameter<double>("tkQualityPtMin")),
@@ -341,8 +341,8 @@ void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoObjEmu> &egobjs,
     float sumPt = 0.;
     float sumPtPV = 0.;
     compute_sumPt(sumPt, sumPtPV, objects, egphoton, params, z0);
-    egphoton.setHwIsoVar(EGIsoVarsEmu::IsoType::TkIso, Scales::makeIso(sumPt / egphoton.floatPt()));
-    egphoton.setHwIsoVar(EGIsoVarsEmu::IsoType::TkIsoPV, Scales::makeIso(sumPtPV / egphoton.floatPt()));
+    egphoton.setHwIso(EGIsoObjEmu::IsoType::TkIso, Scales::makeIso(sumPt));
+    egphoton.setHwIso(EGIsoObjEmu::IsoType::TkIsoPV, Scales::makeIso(sumPtPV));
   }
 }
 
@@ -355,7 +355,7 @@ void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoEleObjEmu> &egobjs,
     float sumPt = 0.;
     float sumPtPV = 0.;
     compute_sumPt(sumPt, sumPtPV, objects, egele, params, z0);
-    egele.setHwIsoVar(EGIsoVarsEmu::IsoType::TkIso, Scales::makeIso(sumPtPV / egele.floatPt()));
+    egele.setHwIso(EGIsoEleObjEmu::IsoType::TkIso, Scales::makeIso(sumPtPV));
   }
 }
 
@@ -370,8 +370,8 @@ void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoObjEmu> &egobjs,
     float sumPtPV = 0.;
     compute_sumPt(sumPt, sumPtPV, charged, egphoton, params, z0);
     compute_sumPt(sumPt, sumPtPV, neutrals, egphoton, params, z0);
-    egphoton.setHwIsoVar(EGIsoVarsEmu::IsoType::PfIso, Scales::makeIso(sumPt / egphoton.floatPt()));
-    egphoton.setHwIsoVar(EGIsoVarsEmu::IsoType::PfIsoPV, Scales::makeIso(sumPtPV / egphoton.floatPt()));
+    egphoton.setHwIso(EGIsoObjEmu::IsoType::PfIso, Scales::makeIso(sumPt));
+    egphoton.setHwIso(EGIsoObjEmu::IsoType::PfIsoPV, Scales::makeIso(sumPtPV));
   }
 }
 
@@ -386,6 +386,6 @@ void PFTkEGAlgoEmulator::compute_isolation(std::vector<EGIsoEleObjEmu> &egobjs,
     float sumPtPV = 0.;
     compute_sumPt(sumPt, sumPtPV, charged, egele, params, z0);
     compute_sumPt(sumPt, sumPtPV, neutrals, egele, params, z0);
-    egele.setHwIsoVar(EGIsoVarsEmu::IsoType::PfIso, Scales::makeIso(sumPtPV / egele.floatPt()));
+    egele.setHwIso(EGIsoEleObjEmu::IsoType::PfIso, Scales::makeIso(sumPtPV));
   }
 }
