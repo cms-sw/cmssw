@@ -377,7 +377,7 @@ namespace edm {
       if (locateFile(pathPrefix, relativePath_)) {
         // Convert relative path to canonical form, and save it.
         relativePath_ = std::filesystem::weakly_canonical(std::filesystem::path(relativePath_)).string();
-							  //std::filesystem::path(relativePath_).normalize().string();
+        //std::filesystem::path(relativePath_).normalize().string();
 
         // Save the absolute path.
         canonicalFilename_ = std::filesystem::absolute(pathPrefix / relativePath_).string();
@@ -389,7 +389,9 @@ namespace edm {
 
         // From the current path element, find the branch path (basically the path minus the
         // last directory, e.g. /src or /share):
-        for (std::filesystem::path br = pathPrefix.parent_path(); !std::filesystem::weakly_canonical(br).string().empty(); br = br.parent_path()) {
+        for (std::filesystem::path br = pathPrefix.parent_path();
+             !std::filesystem::weakly_canonical(br).string().empty();
+             br = br.parent_path()) {
           if (!localTop_.empty()) {
             // Create a path object for our local path LOCALTOP:
             std::filesystem::path local_(localTop_);
