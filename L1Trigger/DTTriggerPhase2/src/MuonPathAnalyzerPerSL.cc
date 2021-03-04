@@ -38,6 +38,21 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet &pset, edm::Cons
     shiftinfo_[rawId] = shift;
   }
 
+  //shift theta                                                                                                                                                                                                                                  
+
+  shift_theta_filename_ = pset.getParameter<edm::FileInPath>("shift_theta_filename");
+  std::ifstream ifin4(shift_theta_filename_.fullPath());
+  if (ifin4.fail()) {
+      throw cms::Exception("Missing Input File")
+	  << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << shift_theta_filename_.fullPath();
+  }
+
+  while (ifin4.good()) {
+      ifin4 >> rawId >> shift;
+      shiftthetainfo_[rawId] = shift;
+  }
+
+
   chosen_sl_ = pset.getUntrackedParameter<int>("trigger_with_sl");
 
   if (chosen_sl_ != 1 && chosen_sl_ != 3 && chosen_sl_ != 4) {
@@ -306,6 +321,14 @@ void MuonPathAnalyzerPerSL::analyze(MuonPathPtr &inMPath, std::vector<metaPrimit
           double phiB = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi;
           double chi2 = mpAux->chiSquare() * 0.01;  //in cmssw we need cm, 1 cm^2 = 100 mm^2
 
+
+	  //thetaTP
+          if (MuonPathSLId.superLayer() == 2){
+              double jm_y = (double)mpAux->horizPos() / 10. -shiftthetainfo_[wireId.rawId()];
+              phi=jm_y;//_cmssw_global.z();//we stick to local coordinates.
+	      phiB=jm_tanPhi; //no corrections are applied just the slope... to check if there is an effect on the chamber global direction
+          }
+	  
           if (debug_)
             LogDebug("MuonPathAnalyzerPerSL")
                 << "DTp2:analyze \t\t\t\t\t\t\t\t  pushing back metaPrimitive at x=" << jm_x << " tanPhi:" << jm_tanPhi

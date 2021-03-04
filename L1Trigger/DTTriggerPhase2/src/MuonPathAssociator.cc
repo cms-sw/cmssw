@@ -889,6 +889,36 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
       }
     }
   }
+
+  //eta TP we do not correlate with other superlayer in the same chamber so we forward them all                                                                                                                                                
+  std::vector<metaPrimitive> SL2metaPrimitives;
+
+  for (int wh = -2; wh <= 2; wh++) {
+      for (int st = 1; st <= 4; st++) {
+          for (int se = 1; se <= 14; se++) {
+              if (se >= 13 && st != 4)
+                  continue;
+
+              DTChamberId ChId(wh, st, se);
+              DTSuperLayerId sl2Id(wh, st, se, 2);
+	      
+              //filterSL2 etaTP                                                                                                                                                                                                                
+              for (auto metaprimitiveIt = inMPaths.begin(); metaprimitiveIt != inMPaths.end(); ++metaprimitiveIt)
+                  if (metaprimitiveIt->rawId == sl2Id.rawId()){
+                      SL2metaPrimitives.push_back(*metaprimitiveIt);
+                      //std::cout<<"pushing back eta metaprimitive: ";                                                                                                                                                                         
+                      printmPC(*metaprimitiveIt);
+                      outMPaths.push_back(*metaprimitiveIt);
+                  }
+          }
+      }
+  }
+  
+  LogDebug("MuonPathAssociator") <<"\t etaTP: added "<<SL2metaPrimitives.size()<<"to outMPaths"<<std::endl;
+
+  SL2metaPrimitives.clear();
+  SL2metaPrimitives.erase(SL2metaPrimitives.begin(), SL2metaPrimitives.end());
+  
 }
 
 void MuonPathAssociator::removeSharingFits(vector<metaPrimitive> &chamberMPaths, vector<metaPrimitive> &allMPaths) {

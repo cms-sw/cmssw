@@ -48,6 +48,10 @@ public:
   edm::FileInPath shift_filename_;
   std::map<int, float> shiftinfo_;
 
+  //shift theta
+  edm::FileInPath shift_theta_filename_;
+  std::map<int, float> shiftthetainfo_;
+
   int chosen_sl_;
 
 private:

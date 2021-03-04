@@ -2,22 +2,27 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("L1DTTrigPhase2Prod")
 
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-process.GlobalTag.globaltag = "80X_dataRun2_2016SeptRepro_v7"
+
+
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+
 
 process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 
 #process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring('file:/eos/cms/store/user/folguera/P2L1TUpgrade/digis_segments_Run2016BSingleMuonRAW-RECO_camilo.root'))
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:/eos/cms/store/user/folguera/P2L1TUpgrade/digis_segments_Run2016BSingleMuonRAW-RECO_camilo.root'))
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
-process.dtTriggerPhase2PrimitiveDigis.dump = True
+                            fileNames = cms.untracked.vstring('file:/tmp/carrillo/digis_segments_Run2016BSingleMuonRAW-RECO.root'))
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
+process.dtTriggerPhase2PrimitiveDigis.dump = False
 process.dtTriggerPhase2PrimitiveDigis.debug = False
 process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 
@@ -61,7 +66,7 @@ process.dtTriggerPhase2PrimitiveDigis.tanPhiTh = cms.untracked.double(1.)
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring('keep *'),
-                               fileName = cms.untracked.string('DTTriggerPhase2Primitives.root')
+                               fileName = cms.untracked.string('/tmp/carrillo/DTTriggerPhase2Primitives.root')
 )
 
 process.p = cms.Path(process.CalibratedDigis*process.dtTriggerPhase2PrimitiveDigis)
