@@ -14,7 +14,7 @@ echo ">>> Cleaning compile cache"
 theano-cache clear  || ERR=1
 
 if [ "$1" != "" ] ; then
-  python ${CMSSW_BASE}/src/PhysicsTools/PythonAnalysis/test/$1  || ERR=1
+  ${CMSSW_BASE}/src/PhysicsTools/PythonAnalysis/test/$1  || ERR=1
 fi
 
 echo ">>> Cleaning compile cache"
