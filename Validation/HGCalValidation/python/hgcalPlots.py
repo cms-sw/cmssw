@@ -1970,10 +1970,7 @@ _PhotonsFromMultiCl_Closest_EoverCPenergy = PlotGroup("PhotonsFromMultiCl", [
 hgcalLayerClustersPlotter = Plotter()
 layerClustersLabel = 'Layer Clusters'
 
-lc_general = [
-  # calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
-  # (one entry per rechit, in the appropriate histo)
-  _cellsenedens_thick,
+lc_general_clusterlevel = [
   # number of layer clusters per event in a) 120um, b) 200um, c) 300um, d) scint
   # (one entry per event in each of the four histos)
   _totclusternum_thick,
@@ -1985,14 +1982,23 @@ lc_general = [
   _energyclustered,
   _mixedhitsclusters,
   _longdepthbarycentre,
-  # SelectedCaloParticles plots
-  _SelectedCaloParticles,
+  # calculated "energy density" for cells in a) 120um, b) 200um, c) 300um, d) scint
+  # (one entry per rechit, in the appropriate histo)
+  _cellsenedens_thick
 ]
-lc_zminus = [
+
+lc_clusterlevel_zminus = [
   # number of layer clusters per layer (one entry per event in each histo)
   _totclusternum_layer_EE_zminus,
   _totclusternum_layer_FH_zminus,
   _totclusternum_layer_BH_zminus,
+  # Looking at the fraction of true energy that has been clustered; by layer and overall
+  _energyclustered_perlayer_EE_zminus,
+  _energyclustered_perlayer_FH_zminus,
+  _energyclustered_perlayer_BH_zminus
+]
+
+lc_cellevel_zminus = [
   # For each layer cluster:
   # number of cells in layer cluster, by layer - separate histos in each layer for 120um Si, 200/300um Si, Scint
   # NB: not all combinations exist; e.g. no 120um Si in layers with scint.
@@ -2009,20 +2015,11 @@ lc_zminus = [
   _cellsnum_perthick_perlayer_scint_EE_zminus,
   _cellsnum_perthick_perlayer_scint_FH_zminus,
   _cellsnum_perthick_perlayer_scint_BH_zminus,
-  # Looking at the fraction of true energy that has been clustered; by layer and overall
-  _energyclustered_perlayer_EE_zminus,
-  _energyclustered_perlayer_FH_zminus,
-  _energyclustered_perlayer_BH_zminus,
-  # Score of CaloParticles wrt Layer Clusters
-  _score_caloparticle_to_layerclusters_zminus,
-  # Score of LayerClusters wrt CaloParticles
-  _score_layercluster_to_caloparticles_zminus,
-  # Shared Energy between CaloParticle and LayerClusters
-  _sharedEnergy_caloparticle_to_layercluster_zminus,
-  # Shared Energy between LayerClusters and CaloParticle
-  _sharedEnergy_layercluster_to_caloparticle_zminus,
   # Cell Association per Layer
-  _cell_association_table_zminus,
+  _cell_association_table_zminus
+]
+
+lc_cp_association_zminus = [
   # Efficiency Plots
   _efficiencies_zminus,
   _efficiencies_zminus_eta,
@@ -2039,11 +2036,20 @@ lc_zminus = [
   _merges_zminus,
   _merges_zminus_eta,
   _merges_zminus_phi,
+  # Score of CaloParticles wrt Layer Clusters
+  _score_caloparticle_to_layerclusters_zminus,
+  # Score of LayerClusters wrt CaloParticles
+  _score_layercluster_to_caloparticles_zminus,
+  # Shared Energy between CaloParticle and LayerClusters
+  _sharedEnergy_caloparticle_to_layercluster_zminus,
+  # Shared Energy between LayerClusters and CaloParticle
+  _sharedEnergy_layercluster_to_caloparticle_zminus,
   # Energy vs Score 2D plots CP to LC
   _energyscore_cp2lc_zminus,
   # Energy vs Score 2D plots LC to CP
   _energyscore_lc2cp_zminus
 ]
+
 lc_zminus_extended = [
   # For each layer cluster:
   # distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
@@ -2121,13 +2127,21 @@ lc_zminus_extended = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zminus,
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zminus,
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zminus,
-  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zminus
 ]
-lc_zplus = [
+
+lc_clusterlevel_zplus = [
   # number of layer clusters per layer (one entry per event in each histo)
   _totclusternum_layer_EE_zplus,
   _totclusternum_layer_FH_zplus,
   _totclusternum_layer_BH_zplus,
+  # Looking at the fraction of true energy that has been clustered; by layer and overall
+  _energyclustered_perlayer_EE_zplus,
+  _energyclustered_perlayer_FH_zplus,
+  _energyclustered_perlayer_BH_zplus
+]
+
+lc_cellevel_zplus = [
   # number of cells in layer cluster, by layer - separate histos in each layer for 120um Si, 200/300um Si, Scint
   _cellsnum_perthick_perlayer_120_EE_zplus,
   _cellsnum_perthick_perlayer_120_FH_zplus,
@@ -2141,20 +2155,11 @@ lc_zplus = [
   _cellsnum_perthick_perlayer_scint_EE_zplus,
   _cellsnum_perthick_perlayer_scint_FH_zplus,
   _cellsnum_perthick_perlayer_scint_BH_zplus,
-  # Looking at the fraction of true energy that has been clustered; by layer and overall
-  _energyclustered_perlayer_EE_zplus,
-  _energyclustered_perlayer_FH_zplus,
-  _energyclustered_perlayer_BH_zplus,
-  # Score of CaloParticles wrt Layer Clusters
-  _score_caloparticle_to_layerclusters_zplus,
-  # Score of LayerClusters wrt CaloParticles
-  _score_layercluster_to_caloparticles_zplus,
-  # Shared Energy between CaloParticle and LayerClusters
-  _sharedEnergy_caloparticle_to_layercluster_zplus,
-  # Shared Energy between LayerClusters and CaloParticle
-  _sharedEnergy_layercluster_to_caloparticle_zplus,
   # Cell Association per Layer
-  _cell_association_table_zplus,
+  _cell_association_table_zplus
+]
+
+lc_cp_association_zplus = [
   # Efficiency Plots
   _efficiencies_zplus,
   _efficiencies_zplus_eta,
@@ -2170,10 +2175,19 @@ lc_zplus = [
   # Merge Rate Plots
   _merges_zplus,
   _merges_zplus_eta,
-  _merges_zplus_phi,
+  _merges_zplus_phi,  
+  # Score of CaloParticles wrt Layer Clusters
+  _score_caloparticle_to_layerclusters_zplus,
+  # Score of LayerClusters wrt CaloParticles
+  _score_layercluster_to_caloparticles_zplus,
+  # Shared Energy between CaloParticle and LayerClusters
+  _sharedEnergy_caloparticle_to_layercluster_zplus,
+  # Shared Energy between LayerClusters and CaloParticle
+  _sharedEnergy_layercluster_to_caloparticle_zplus,
   _energyscore_cp2lc_zplus,
   _energyscore_lc2cp_zplus
 ]
+
 lc_zplus_extended = [
   # distance of cells from a) seed cell, b) max cell; and c), d): same with entries weighted by cell energy
   _distancetomaxcell_perthickperlayer_120_EE_zplus,
@@ -2247,22 +2261,51 @@ lc_zplus_extended = [
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_300_BH_zplus,
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_EE_zplus,
   _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_FH_zplus,
-  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus,
+  _distancebetseedandmaxcellvsclusterenergy_perthickperlayer_scint_BH_zplus
 ]
 
 def append_hgcalLayerClustersPlots(collection = "hgcalLayerClusters", name_collection = layerClustersLabel, extended = False):
   print('extended : ',extended)
-  regions = ["General", "zminus", "zplus"]
-  plots_lc_zminus  = lc_zminus
-  plots_lc_zplus   = lc_zplus 
-  plots_lc_general = lc_general
+  regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
+  regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
+  regions_LCtoCP_association = ["Z-minus: LC_CP association", "Z-plus: LC_CP association"]
+  
+  plots_lc_general_clusterlevel  = lc_general_clusterlevel
+  plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus 
+  plots_lc_cellevel_zminus       = lc_cellevel_zminus 
+  plots_lc_clusterlevel_zplus    = lc_clusterlevel_zplus
+  plots_lc_cellevel_zplus        = lc_cellevel_zplus
+  plots_lc_cp_association_zminus = lc_cp_association_zminus
+  plots_lc_cp_association_zplus  = lc_cp_association_zplus
+
   if extended :
-    plots_lc_zminus = lc_zminus + lc_zminus_extended
-    plots_lc_zplus = lc_zplus + lc_zplus_extended
-  setPlots = [plots_lc_general, plots_lc_zminus, plots_lc_zplus]
-  for reg, setPlot in zip(regions, setPlots):
+    #plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus 
+    #plots_lc_clusterlevel_zplus    = lc_clusterlevel_zplus 
+    plots_lc_cellevel_zminus       = lc_cellevel_zminus + lc_zminus_extended
+    plots_lc_cellevel_zplus        = lc_cellevel_zplus + lc_zplus_extended
+    #plots_lc_cp_association_zminus = lc_cp_association_zminus 
+    #plots_lc_cp_association_zplus  = lc_cp_association_zplus 
+
+  setPlots_ClusterLevel       = [plots_lc_general_clusterlevel, plots_lc_clusterlevel_zminus, plots_lc_clusterlevel_zplus]
+  setPlots_CellLevel          = [plots_lc_cellevel_zminus, plots_lc_cellevel_zplus]
+  setPlots_LCtoCP_association = [plots_lc_cp_association_zminus, plots_lc_cp_association_zplus]
+  for reg, setPlot in zip(regions_ClusterLevel, setPlots_ClusterLevel):
     hgcalLayerClustersPlotter.append(collection+"_"+reg, [
-                _hgcalFolders(collection)
+                _hgcalFolders(collection + "/ClusterLevel")
+                ], PlotFolder(
+                *setPlot,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
+  for reg, setPlot in zip(regions_CellLevel, setPlots_CellLevel):
+    hgcalLayerClustersPlotter.append(collection+"_"+reg, [
+                _hgcalFolders(collection + "/CellLevel")
+                ], PlotFolder(
+                *setPlot,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page=layerClustersLabel, section=reg))
+  for reg, setPlot in zip(regions_LCtoCP_association, setPlots_LCtoCP_association):
+    hgcalLayerClustersPlotter.append(collection+"_"+reg, [
+                _hgcalFolders(collection + "/LCtoCP_association")
                 ], PlotFolder(
                 *setPlot,
                 loopSubFolders=False,
