@@ -20,7 +20,8 @@ gedPhotons.primaryVertexProducer = "hiSelectedVertex"
 gedPhotons.isolationSumsCalculatorSet.trackProducer = "hiGeneralTracks"
 photonIDValueMaps.vertices = "hiSelectedVertex"
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
-photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer="gedPhotonsTmp")
+
+photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer = "gedPhotonsTmp")
 
 #These are set for consistency w/ HiElectronSequence, but these cuts need to be studied
 gedGsfElectronsTmp.preselection.maxHOverEBarrelCone = 0.25
