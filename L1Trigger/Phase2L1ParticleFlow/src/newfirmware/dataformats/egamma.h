@@ -6,48 +6,31 @@
 
 namespace l1ct {
 
-  struct EGObj {
+  struct EGIsoObj {
     pt_t hwPt;
     glbeta_t hwEta;  // at calo face
     glbphi_t hwPhi;
-    quality_t hwQual;
+    egquality_t hwQual;
+    iso_t hwIso;
 
     int intPt() const { return Scales::intPt(hwPt); }
     int intEta() const { return hwEta.to_int(); }
     int intPhi() const { return hwPhi.to_int(); }
     int intQual() const { return hwQual.to_int(); }
+    int intIso() const { return hwIso.to_int(); }
 
     float floatPt() const { return Scales::floatPt(hwPt); }
     float floatEta() const { return Scales::floatEta(hwEta); }
-    float floatPhi() const { return Scales::floatPhi(hwPhi); }
-
-    inline bool operator==(const EGObj &other) const {
-      return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwQual == other.hwQual;
-    }
-
-    inline bool operator>(const EGObj &other) const { return hwPt > other.hwPt; }
-    inline bool operator<(const EGObj &other) const { return hwPt < other.hwPt; }
-
-    inline void clear() {
-      hwPt = 0;
-      hwEta = 0;
-      hwPhi = 0;
-      hwQual = 0;
-    }
-  };
-
-  inline void clear(EGObj &c) { c.clear(); }
-
-  struct EGIsoObj : EGObj {
-    iso_t hwIso;
-
-    int intIso() const { return hwIso.to_int(); }
+    float floatPhi() const { return Scales::floatPhi(hwPhi); }    
     float floatIso() const { return Scales::floatIso(hwIso); }
 
     inline bool operator==(const EGIsoObj &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwQual == other.hwQual &&
              hwIso == other.hwIso;
     }
+
+    inline bool operator>(const EGIsoObj &other) const { return hwPt > other.hwPt; }
+    inline bool operator<(const EGIsoObj &other) const { return hwPt < other.hwPt; }
 
     inline void clear() {
       hwPt = 0;
@@ -57,7 +40,7 @@ namespace l1ct {
       hwIso = 0;
     }
 
-    static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + quality_t::width + iso_t::width;
+    static const int BITWIDTH = pt_t::width + glbeta_t::width + glbphi_t::width + egquality_t::width + iso_t::width;
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;

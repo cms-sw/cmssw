@@ -129,12 +129,11 @@ namespace l1ct {
     }
   };
 
-  struct EGObjEmu : EGObj {
-    // FIXME: really needed? can not set compoments of Egamma objects...
-    std::vector<const l1t::PFCluster *> components;
+  struct EGObjEmu : public EGIsoObj {
+    const l1t::PFCluster *srcCluster;
     void clear() {
-      EGObj::clear();
-      components.clear();
+      srcCluster = nullptr;
+      EGIsoObj::clear();
     }
   };
 
