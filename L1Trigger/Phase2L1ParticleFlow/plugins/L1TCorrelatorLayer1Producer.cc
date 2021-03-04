@@ -785,11 +785,11 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
 
       l1t::TkEm tkem(reco::Candidate::LorentzVector(mom),
                      ref_egsta,
-                     egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIso),
-                     egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIsoPV));
+                     egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIso),
+                     egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIsoPV));
       tkem.setHwQual(egiso.hwQual);
-      tkem.setPFIsol(egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::PfIso));
-      tkem.setPFIsolPV(egiso.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::PfIsoPV));
+      tkem.setPFIsol(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIso));
+      tkem.setPFIsolPV(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIsoPV));
       tkems->push_back(tkem);
     }
 
@@ -812,9 +812,9 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       l1t::TkElectron tkele(reco::Candidate::LorentzVector(mom),
                             ref_egsta,
                             edm::refToPtr(egele.srcTrack->track()),
-                            egele.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::TkIso));
+                            egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::TkIso));
       tkele.setHwQual(egele.hwQual);
-      tkele.setPFIsol(egele.floatIsoVar(l1ct::EGIsoVarsEmu::IsoType::PfIso));
+      tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
       tkeles->push_back(tkele);
     }
   }

@@ -137,25 +137,7 @@ namespace l1ct {
     }
   };
 
-  struct EGIsoVarsEmu {
-    iso_t hwIsoVars[4];
-
-    enum IsoType { TkIso = 0, PfIso = 1, TkIsoPV = 2, PfIsoPV = 3 };
-
-    int intIsoVar(const IsoType type) const { return hwIsoVars[type].to_int(); }
-    float floatIsoVar(const IsoType type) const { return Scales::floatIso(hwIsoVars[type]); }
-    void setHwIsoVar(const IsoType type, iso_t value) { hwIsoVars[type] = value; }
-    iso_t hwIsoVar(const IsoType type) const { return hwIsoVars[type]; }
-
-    void clear() {
-      hwIsoVars[0] = 0;
-      hwIsoVars[1] = 0;
-      hwIsoVars[2] = 0;
-      hwIsoVars[3] = 0;
-    }
-  };
-
-  struct EGIsoObjEmu : public EGIsoObj, public EGIsoVarsEmu {
+  struct EGIsoObjEmu : public EGIsoObj {
     const l1t::PFCluster *srcCluster;
     // we use an index to the standalone object needed to retrieve a Ref when putting
     int sta_idx;
@@ -165,11 +147,27 @@ namespace l1ct {
       EGIsoObj::clear();
       srcCluster = nullptr;
       sta_idx = -1;
-      EGIsoVarsEmu::clear();
+      clearIsoVars();
     }
+
+    void clearIsoVars() {
+      hwIsoVars[0] = 0;
+      hwIsoVars[1] = 0;
+      hwIsoVars[2] = 0;
+      hwIsoVars[3] = 0;      
+    }
+
+    enum IsoType { TkIso = 0, PfIso = 1, TkIsoPV = 2, PfIsoPV = 3 };
+
+    float floatIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type]); }
+    float floatRelIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type])/floatPt(); }
+    float hwIsoVar(IsoType type) const { return hwIsoVars[type]; }
+    void setHwIso(IsoType type, iso_t value) { hwIsoVars[type] = value; }
+
+    iso_t hwIsoVars[4];
   };
 
-  struct EGIsoEleObjEmu : public EGIsoEleObj, public EGIsoVarsEmu {
+  struct EGIsoEleObjEmu : public EGIsoEleObj {
     const l1t::PFCluster *srcCluster;
     const l1t::PFTrack *srcTrack;
     // we use an index to the standalone object needed to retrieve a Ref when putting
@@ -181,8 +179,23 @@ namespace l1ct {
       srcCluster = nullptr;
       srcTrack = nullptr;
       sta_idx = -1;
-      EGIsoVarsEmu::clear();
+      clearIsoVars();
     }
+    
+    void clearIsoVars() {
+      hwIsoVars[0] = 0;
+      hwIsoVars[1] = 0;
+    }
+
+    enum IsoType { TkIso = 0, PfIso = 1 };
+
+    float floatIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type]); }
+    float floatRelIso(IsoType type) const { return Scales::floatIso(hwIsoVars[type])/floatPt(); }
+    float hwIsoVar(IsoType type) const { return hwIsoVars[type]; }
+    void setHwIso(IsoType type, iso_t value) { hwIsoVars[type] = value; }
+
+
+    iso_t hwIsoVars[2];
   };
 
   struct PVObjEmu : public PVObj {
