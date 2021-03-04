@@ -21,7 +21,7 @@ namespace l1ct {
 
     float floatPt() const { return Scales::floatPt(hwPt); }
     float floatEta() const { return Scales::floatEta(hwEta); }
-    float floatPhi() const { return Scales::floatPhi(hwPhi); }    
+    float floatPhi() const { return Scales::floatPhi(hwPhi); }
     float floatIso() const { return Scales::floatIso(hwIso); }
 
     inline bool operator==(const EGIsoObj &other) const {
