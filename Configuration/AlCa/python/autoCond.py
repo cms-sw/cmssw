@@ -61,7 +61,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
     'phase1_2018_realistic'    :  '113X_upgrade2018_realistic_v4',
     # GlobalTag for MC production with realistic run-dependent (RD) conditions for full Phase1 2018 detector
-    'phase1_2018_realistic_rd' :  '113X_upgrade2018_realistic_RD_v2',
+    'phase1_2018_realistic_rd' :  '113X_upgrade2018_realistic_RD_v3',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
     'phase1_2018_realistic_hi' :  '113X_upgrade2018_realistic_HI_v4',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
