@@ -35,7 +35,7 @@
 </iftool>
 
 <test name="import-jinja2" command="python -c 'import jinja2'"/>
-<test name="import-keras" command="python -c 'import keras'"/>
+<test name="import-keras" command="python3 -c 'import keras'"/>
 <test name="import-markupsafe" command="python -c 'import markupsafe'"/>
 <test name="import-yaml" command="python -c 'import yaml'"/>
 <test name="import-pygments" command="python -c 'import pygments'"/>
@@ -133,7 +133,7 @@
 <test name="import-sqlalchemy" command="python -c 'import sqlalchemy'"/>
 <test name="import-sympy" command="python -c 'import sympy'"/>
 <test name="import-tables" command="python -c 'import tables'"/>
-<test name="import-tensorflow" command="python -c 'import tensorflow'"/>
+<test name="import-tensorflow" command="python3 -c 'import tensorflow'"/>
 <test name="import-terminado" command="python -c 'import terminado'"/>
 <test name="import-testpath" command="python -c 'import testpath'"/>
 <test name="import-theanets" command="python -c 'import theanets'"/>
