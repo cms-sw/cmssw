@@ -1,7 +1,6 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HeterogeneousHGCalHEFCellPositionsFiller.h"
 
 HeterogeneousHGCalHEFCellPositionsFiller::HeterogeneousHGCalHEFCellPositionsFiller(const edm::ParameterSet& ps) {
-  //setWhatProduced(this/*, dependsOn(&HeterogeneousHGCalHEFCellPositionsFiller::geometryCallback)*/).setConsumes(geometryToken_);
   geometryToken_ = setWhatProduced(this).consumesFrom<HGCalGeometry, IdealGeometryRecord>(
       edm::ESInputTag{"", "HGCalHESiliconSensitive"});
   posmap_ = new hgcal_conditions::positions::HGCalPositionsMapping();
@@ -27,7 +26,7 @@ void HeterogeneousHGCalHEFCellPositionsFiller::set_conditions_() {
   posmap_->nCellsWaferUChunk.reserve(upper_estimate_wafer_number_1D);
   posmap_->nCellsHexagon.reserve(upper_estimate_wafer_number_2D);
   posmap_->detid.reserve(upper_estimate_cell_number);
-  //set positons-related variables
+  //set position-related variables
   posmap_->waferSize = static_cast<float>(params_->waferSize_);
   posmap_->sensorSeparation = static_cast<float>(params_->sensorSeparation_);
   posmap_->firstLayer = ddd_->firstLayer();
@@ -48,10 +47,8 @@ void HeterogeneousHGCalHEFCellPositionsFiller::set_conditions_() {
       sumCellsWaferUChunk = 0;
 
       for (int iwaferV = posmap_->waferMin; iwaferV < posmap_->waferMax; ++iwaferV) {
-        int type_ = ddd_->waferType(
-            ilayer,
-            iwaferU,
-            iwaferV);  //0: fine; 1: coarseThin; 2: coarseThick (as defined in DataFormats/ForwardDetId/interface/HGCSiliconDetId.h)
+	//0: fine; 1: coarseThin; 2: coarseThick (as defined in DataFormats/ForwardDetId/interface/HGCSiliconDetId.h)
+        int type_ = ddd_->waferType(ilayer, iwaferU, iwaferV);  
 
         int nCellsHexSide = ddd_->numberCellsHexagon(ilayer, iwaferU, iwaferV, false);
         int nCellsHexTotal = ddd_->numberCellsHexagon(ilayer, iwaferU, iwaferV, true);
@@ -88,17 +85,7 @@ std::unique_ptr<HeterogeneousHGCalHEFCellPositionsConditions> HeterogeneousHGCal
   ddd_ = &(geom->topology().dddConstants());
   params_ = ddd_->getParameter();
 
-  //const cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(w), ctxState_};
-
   set_conditions_();
-
-  /*
-  HeterogeneousHGCalHEFCellPositionsConditions esproduct(posmap_);
-  d_conds = esproduct.getHeterogeneousConditionsESProductAsync( 0 ); //could use ctx.stream()?
-  */
-
-  //KernelManagerHGCalCellPositions kernel_manager( posmap_->detid.size() );
-  //kernel_manager.fill_positions(d_conds);
 
   std::unique_ptr<HeterogeneousHGCalHEFCellPositionsConditions> up =
       std::make_unique<HeterogeneousHGCalHEFCellPositionsConditions>(posmap_);
