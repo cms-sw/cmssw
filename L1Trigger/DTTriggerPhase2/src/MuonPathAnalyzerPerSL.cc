@@ -24,6 +24,7 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet &pset, edm::Cons
 
   setChiSquareThreshold(chi2Th_ * 100.);
 
+  
   //shift
   int rawId;
   shift_filename_ = pset.getParameter<edm::FileInPath>("shift_filename");
@@ -38,7 +39,7 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet &pset, edm::Cons
     shiftinfo_[rawId] = shift;
   }
 
-  //shift theta                                                                                                                                                                                                                                  
+  //shift theta
 
   shift_theta_filename_ = pset.getParameter<edm::FileInPath>("shift_theta_filename");
   std::ifstream ifin4(shift_theta_filename_.fullPath());
@@ -325,7 +326,7 @@ void MuonPathAnalyzerPerSL::analyze(MuonPathPtr &inMPath, std::vector<metaPrimit
 	  //thetaTP
           if (MuonPathSLId.superLayer() == 2){
               double jm_y = (double)mpAux->horizPos() / 10. -shiftthetainfo_[wireId.rawId()];
-              phi=jm_y;//_cmssw_global.z();//we stick to local coordinates.
+              phi=jm_y;//_cmssw_global.z();//we stick to local coordinates while comparing with segments new Algorithm
 	      phiB=jm_tanPhi; //no corrections are applied just the slope... to check if there is an effect on the chamber global direction
           }
 	  

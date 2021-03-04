@@ -614,18 +614,20 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     }else{
 	//thTP
 	    outP2Th.push_back(L1Phase2MuDTThDigi(
-						   (int)round(metaPrimitiveIt.t0 / 25.) - shift_back,  // ubx (m_bx) //bx en la orbita
-						   chId.wheel(),    // uwh (m_wheel)     // FIXME: It is not clear who provides this?
-						   sectorTP,        // usc (m_sector)    // FIXME: It is not clear who provides this?
-						   chId.station(),  // ust (m_station)
-						   metaPrimitiveIt.phi*1000000,    // uz (m_zGlobal) //not rounded for the moment
-						   metaPrimitiveIt.phiB*1000000,    // uk (m_kSlope) // I will not round it for the moment
-						   metaPrimitiveIt.quality,                           // uqua (m_qualityCode)
-						   metaPrimitiveIt.index,                             // uind (m_segmentIndex)
-						   (int)round(metaPrimitiveIt.t0) - shift_back * 25,  // ut0 (m_t0Segment)
-						   (int)round(metaPrimitiveIt.chi2 * 1000000),        // uchi2 (m_chi2Segment)
-						   metaPrimitiveIt.rpcFlag                            // urpc (m_rpcFlag)
-						   ));
+						 (int)round(metaPrimitiveIt.t0 / (float)LHC_CLK_FREQ) - shift_back, 
+						 chId.wheel(),                                               // uwh (m_wheel)     
+						 sectorTP,                                                   // usc (m_sector)    
+						 chId.station(),                                             // ust (m_station)
+						 metaPrimitiveIt.phi*1000000,                                // uz (m_zGlobal)
+						 metaPrimitiveIt.phiB*1000000,                               // uk (m_kSlope)
+						 metaPrimitiveIt.quality,                                    // uqua (m_qualityCode)
+						 metaPrimitiveIt.index,                                      // uind (m_segmentIndex)
+						 (int)round(metaPrimitiveIt.t0) - shift_back * LHC_CLK_FREQ, // ut0 (m_t0Segment)
+						 (int)round(metaPrimitiveIt.chi2 * CHI2RES_CONV),            // uchi2 (m_chi2Segment)
+						 metaPrimitiveIt.rpcFlag                                     // urpc (m_rpcFlag)
+						 ));
+	    
+	    std::cout<<"etadebug: writing a etaTP with localz=phi="<< metaPrimitiveIt.phi<<" k=phiB="<<metaPrimitiveIt.phiB<<std::endl;
 	    
     }
   }

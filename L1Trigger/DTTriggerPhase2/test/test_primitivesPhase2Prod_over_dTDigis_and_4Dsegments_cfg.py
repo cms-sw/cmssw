@@ -21,7 +21,7 @@ process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:/tmp/carrillo/digis_segments_Run2016BSingleMuonRAW-RECO.root'))
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.dtTriggerPhase2PrimitiveDigis.dump = False
 process.dtTriggerPhase2PrimitiveDigis.debug = False
 process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
@@ -61,7 +61,7 @@ process.dtTriggerPhase2PrimitiveDigis.dBX_correlate_TP = 1
 process.dtTriggerPhase2PrimitiveDigis.allow_confirmation = True
 
 #TanPsi stuff
-process.dtTriggerPhase2PrimitiveDigis.tanPhiTh = cms.untracked.double(1.)
+process.dtTriggerPhase2PrimitiveDigis.tanPhiTh = cms.untracked.double(1.4) #temporary for eta
 
 
 process.out = cms.OutputModule("PoolOutputModule",

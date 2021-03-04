@@ -7,7 +7,7 @@ from L1Trigger.DTTriggerPhase2.PseudoBayesGrouping_cfi            import PseudoB
 dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                digiTag = cms.InputTag("CalibratedDigis"),
                                                trigger_with_sl = cms.untracked.int32(4),
-                                               tanPhiTh = cms.untracked.double(1.4), #1.4 needed for the moment for theta projection, later to be factorized
+                                               tanPhiTh = cms.untracked.double(1.), 
                                                chi2Th = cms.untracked.double(0.01), #in cm^2
                                                chi2corTh = cms.untracked.double(0.1), #in cm^2
                                                do_correlation = cms.bool(True),
