@@ -65,6 +65,15 @@ void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
   });
 }
 
+void SeedingRegionByTracks::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.add<std::string>("cutTk",
+                        "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
+                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
+  desc.add<std::string>("propagator", "PropagatorWithMaterial");
+  SeedingRegionAlgoBase::fillPSetDescription(desc);
+}
+
 void SeedingRegionByTracks::buildFirstLayers() {
   float zVal = hgcons_->waferZ(1, true);
   std::pair<double, double> rMinMax = hgcons_->rangeR(zVal, true);
