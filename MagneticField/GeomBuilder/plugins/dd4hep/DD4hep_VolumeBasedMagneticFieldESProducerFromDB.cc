@@ -150,7 +150,8 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
   std::unique_ptr<MagneticField> paramField =
       ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);
 
-  edm::LogInfo("MagneticField") << "Version: " << conf->version << " geometryVersion: " << conf->geometryVersion
+  edm::LogInfo("MagneticField") << "(DD4hep) Version: " << conf->version
+                                << " geometryVersion: " << conf->geometryVersion
                                 << " slaveFieldVersion: " << conf->slaveFieldVersion;
 
   if (conf->version == "parametrizedMagneticField") {
@@ -182,7 +183,7 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
       "<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" density=\"1e-13*mg/cm3\" "
       "symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
 
-  auto ddet = make_unique<cms::DDDetector>("", sblob, true);
+  auto ddet = make_unique<cms::DDDetector>("cmsMagneticField:MAGF", sblob, true);
 
   builder.build(ddet.get());
 
