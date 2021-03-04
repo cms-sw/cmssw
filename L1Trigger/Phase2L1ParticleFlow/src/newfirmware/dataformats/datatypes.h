@@ -36,7 +36,7 @@ namespace l1ct {
   typedef ap_uint<14> tk2calo_dr_t;
   typedef ap_uint<10> em2calo_dr_t;
   typedef ap_uint<13> tk2calo_dq_t;
-  typedef ap_uint<4> quality_t;
+  typedef ap_uint<4> egquality_t;
   typedef ap_uint<8> iso_t;
 
   struct ParticleID {
