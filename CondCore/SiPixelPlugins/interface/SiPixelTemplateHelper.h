@@ -98,8 +98,8 @@ namespace templateHelper {
           y_line.push_back(y - (pitch / 2.));
         }
 
-        const char* c_title = fmt::sprintf("%s titles", (isTemplate_ ? "Template" : "GenError")).c_str();
-        TCanvas canvas(c_title, c_title, 2000, std::max(y_x1.size(), y_x2.size()) * 40);
+        const auto& c_title = fmt::sprintf("%s titles", (isTemplate_ ? "Template" : "GenError"));
+        TCanvas canvas(c_title.c_str(), c_title.c_str(), 2000, std::max(y_x1.size(), y_x2.size()) * 40);
         TLatex l;
         // Draw the columns titles
         l.SetTextAlign(12);
