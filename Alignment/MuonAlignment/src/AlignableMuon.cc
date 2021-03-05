@@ -295,7 +295,6 @@ void AlignableMuon::buildGEMEndcap(const GEMGeometry* pGEM, bool update) {
       int iri = 1;
       int iChamber{0};
       auto vc = pGEM->superChambers();
-      sort(vc.begin(), vc.end(), [](const GEMSuperChamber* a, const GEMSuperChamber* b) { return a->id() < b->id(); });
       for (const auto& det : vc) {
         GEMDetId gemId = det->id();
         int ec = gemId.region();
@@ -601,6 +600,7 @@ Alignments* AlignableMuon::gemAlignments(void) {
   Alignments* tmpAlignments = new Alignments();
   std::copy(gemEndCap1->m_align.begin(), gemEndCap1->m_align.end(), back_inserter(tmpAlignments->m_align));
   std::copy(gemEndCap2->m_align.begin(), gemEndCap2->m_align.end(), back_inserter(tmpAlignments->m_align));
+  std::sort(tmpAlignments->m_align.begin(), tmpAlignments->m_align.end());
 
   return tmpAlignments;
 }
@@ -617,6 +617,7 @@ AlignmentErrorsExtended* AlignableMuon::gemAlignmentErrorsExtended(void) {
   std::copy(gemEndCap2Errors->m_alignError.begin(),
             gemEndCap2Errors->m_alignError.end(),
             back_inserter(tmpAlignmentErrorsExtended->m_alignError));
+  std::sort(tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end());
 
   return tmpAlignmentErrorsExtended;
 }

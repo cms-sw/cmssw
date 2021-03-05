@@ -110,13 +110,13 @@ void MuonMisalignedProducer::analyze(const edm::Event& event, const edm::EventSe
   gem_AlignmentErrorsExtended = theAlignableMuon->gemAlignmentErrorsExtended();
 
   // Misalign the EventSetup geometry
-  GeometryAligner aligner;
+  /* GeometryAligner aligner;
   aligner.applyAlignments<DTGeometry>(&(*theDTGeometry), dt_Alignments, dt_AlignmentErrorsExtended, AlignTransform());
   aligner.applyAlignments<CSCGeometry>(
       &(*theCSCGeometry), csc_Alignments, csc_AlignmentErrorsExtended, AlignTransform());
   aligner.applyAlignments<GEMGeometry>(
       &(*theGEMGeometry), gem_Alignments, gem_AlignmentErrorsExtended, AlignTransform());
-
+  */
   // Write alignments to DB
   if (theSaveToDB)
     this->saveToDB();
