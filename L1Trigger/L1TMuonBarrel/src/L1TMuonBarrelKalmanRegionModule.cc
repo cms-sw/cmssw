@@ -108,7 +108,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
   // All pretracks must have trackL and trackH like firmware
   // Swap trackH and trackL for seeds 2/3 to mimic firmware
   if (pretracks2.size() < 2){
-    if (pretracks2.size() == 0){ // if no tracks, set trackH and trackL to null
+    if (pretracks2.empty()){ // if no tracks, set trackH and trackL to null
       pretracks2.push_back(nullTrack);
       pretracks2.push_back(nullTrack);
     }
@@ -122,7 +122,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
   std::swap(pretracks2[0], pretracks2[1]);
 
   if (pretracks3.size() < 2){
-    if (pretracks3.size() == 0){
+    if (pretracks3.empty()){
       pretracks3.push_back(nullTrack);
       pretracks3.push_back(nullTrack);
     }
@@ -136,7 +136,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
   std::swap(pretracks3[0], pretracks3[1]);
 
   if (pretracks4.size() < 2){
-    if (pretracks4.size() == 0){
+    if (pretracks4.empty()){
       pretracks4.push_back(nullTrack);
       pretracks4.push_back(nullTrack);
     }
