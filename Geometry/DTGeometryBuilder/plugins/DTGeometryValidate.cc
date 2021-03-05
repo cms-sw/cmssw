@@ -117,7 +117,7 @@ void DTGeometryValidate::validateDTChamberGeometry() {
 
   //my-code                                                                                                                                                        
 
-  double step=0.01;
+  double step=0.001; //v4 was produced with a step of 0.01
 
   double xcoordinate=0.;
   double pointX=0;

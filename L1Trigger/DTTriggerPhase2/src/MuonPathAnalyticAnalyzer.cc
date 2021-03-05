@@ -329,7 +329,6 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   //thetaTP using exactly the same algorithm overloading metaPrimitives fields to forward information.
 
   if (MuonPathSLId.superLayer() == 2){
-
       //std::cout<<"executing thetaTP inside MuonPathAnalyticAnalyzer"<<std::endl;
       double jm_y = pos_f -shiftthetainfo_[wireId.rawId()];
       phi=jm_y;//_cmssw_global.z();//we stick to local coordinates while comparing with segments new Algorithm
