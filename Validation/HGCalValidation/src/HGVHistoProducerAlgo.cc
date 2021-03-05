@@ -1258,11 +1258,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     for (auto const& sc : caloparticle.simClusters()) {
       //std::cout << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and " << sc->energy() << " energy. " << std::endl;
       simHits += sc->hits_and_fractions().size();
-<<<<<<< HEAD
-
-=======
       energy += sc->energy();
->>>>>>> Adding CaloPart en hits sum
       for (auto const& h_and_f : sc->hits_and_fractions()) {
         const auto hitDetId = h_and_f.first;
         int layerId =
@@ -1275,7 +1271,6 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
           layerId_matched_min = layerId;
           layerId_matched_max = layerId;
           simHits_matched++;
-<<<<<<< HEAD
 
           const HGCRecHit* hit = itcheck->second;
           energy += hit->energy() * h_and_f.second;
@@ -1295,19 +1290,6 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
           simHits_matched++;
         } else {
           //std::cout << "   matched to RecHit NOT found !" << std::endl;
-=======
-          const HGCRecHit* hit = itcheck->second;
-          //std::cout << "   layer = "<< layerId << " energy = " << hit->energy() << std::endl;
-          histograms.h_caloparticle_nHits_matched_energy.at(pdgid)->Fill(hit->energy()*h_and_f.second); 
-          histograms.h_caloparticle_nHits_matched_energy_layer.at(pdgid)->Fill(layerId, hit->energy()*h_and_f.second); 
-          if (totenergy_layer.find(layerId) != totenergy_layer.end()){
-              totenergy_layer[layerId] = totenergy_layer.at(layerId) + hit->energy();
-          } else {
-              totenergy_layer.emplace(layerId, hit->energy());
-          }
-          if (caloparticle.simClusters().size() == 1 )
-            histograms.h_caloparticle_nHits_matched_energy_layer_1SimCl.at(pdgid)->Fill(layerId, hit->energy()*h_and_f.second); 
->>>>>>> Adding CaloPart en hits sum
         }
 
         minLayerId = std::min(minLayerId, layerId);
@@ -1327,7 +1309,6 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
 
     histograms.h_caloparticle_nHitsInSimClusters.at(pdgid)->Fill((float)simHits);
     histograms.h_caloparticle_nHitsInSimClusters_matchedtoRecHit.at(pdgid)->Fill((float)simHits_matched);
-<<<<<<< HEAD
     histograms.h_caloparticle_selfenergy.at(pdgid)->Fill((float)energy);
     histograms.h_caloparticle_energyDifference.at(pdgid)->Fill((float)1. - energy / caloparticle.energy());
 
@@ -1470,18 +1451,6 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simcluster_histos(const Hi
     if (histograms.h_simclusternum_perthick.count(*it)) {
       histograms.h_simclusternum_perthick.at(*it)->Fill(tnscpthplus[std::to_string(*it)]);
       histograms.h_simclusternum_perthick.at(*it)->Fill(tnscpthminus[std::to_string(*it)]);
-=======
-
-    auto i = totenergy_layer.begin();
-    double sum_energy = 0.0;
-    while( i != totenergy_layer.end() ){
-       //std::cout << "x = " << i->first << " y = " << i->second << std::endl;
-       sum_energy += i->second;
-       //std::cout << "       y (sum)  = " << sum_energy  << std::endl;
-       //std::cout << "       y (100%) = " << sum_energy / caloparticle.energy() * 100.  << std::endl;
-       histograms.h_caloparticle_sum_energy_layer.at(pdgid)->Fill(i->first, sum_energy / caloparticle.energy() * 100. );
-       i++;
->>>>>>> Adding CaloPart en hits sum
     }
   }
   //Mixed thickness clusters
