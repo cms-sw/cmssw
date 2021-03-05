@@ -44,8 +44,7 @@ void L1TdeCSCTPG::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&, co
       for (unsigned iVar = 0; iVar < alctVars_.size(); iVar++) {
         const std::string key("alct_" + alctVars_[iVar] + "_" + dataEmul_[iData]);
         const std::string histName(key + "_" + chambers_[iType]);
-        const std::string histTitle(chambers_[iType] + " ALCT " + alctVars_[iVar] + " (" +
-                                    dataEmul_[iData] + ") ");
+        const std::string histTitle(chambers_[iType] + " ALCT " + alctVars_[iVar] + " (" + dataEmul_[iData] + ") ");
         chamberHistos[iType][key] =
             iBooker.book1D(histName, histTitle, alctNBin_[iVar], alctMinBin_[iVar], alctMaxBin_[iVar]);
       }
@@ -54,8 +53,7 @@ void L1TdeCSCTPG::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&, co
       for (unsigned iVar = 0; iVar < clctVars_.size(); iVar++) {
         const std::string key("clct_" + clctVars_[iVar] + "_" + dataEmul_[iData]);
         const std::string histName(key + "_" + chambers_[iType]);
-        const std::string histTitle(chambers_[iType] + " CLCT " + clctVars_[iVar] + " (" +
-                                    dataEmul_[iData] + ") ");
+        const std::string histTitle(chambers_[iType] + " CLCT " + clctVars_[iVar] + " (" + dataEmul_[iData] + ") ");
         chamberHistos[iType][key] =
             iBooker.book1D(histName, histTitle, clctNBin_[iVar], clctMinBin_[iVar], clctMaxBin_[iVar]);
       }
@@ -64,8 +62,7 @@ void L1TdeCSCTPG::bookHistograms(DQMStore::IBooker& iBooker, const edm::Run&, co
       for (unsigned iVar = 0; iVar < lctVars_.size(); iVar++) {
         const std::string key("lct_" + lctVars_[iVar] + "_" + dataEmul_[iData]);
         const std::string histName(key + "_" + chambers_[iType]);
-        const std::string histTitle(chambers_[iType] + " LCT " + lctVars_[iVar] + " (" +
-                                    dataEmul_[iData] + ") ");
+        const std::string histTitle(chambers_[iType] + " LCT " + lctVars_[iVar] + " (" + dataEmul_[iData] + ") ");
         chamberHistos[iType][key] =
             iBooker.book1D(histName, histTitle, lctNBin_[iVar], lctMinBin_[iVar], lctMaxBin_[iVar]);
       }

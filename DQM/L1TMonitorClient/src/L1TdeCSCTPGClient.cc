@@ -10,31 +10,30 @@
 using namespace edm;
 using namespace std;
 
-L1TdeCSCTPGClient::L1TdeCSCTPGClient(const edm::ParameterSet &ps) :
-  monitorDir_(ps.getParameter<string>("monitorDir")),
-  chambers_(ps.getParameter<std::vector<std::string>>("chambers")),
-  // variables
-  alctVars_(ps.getParameter<std::vector<std::string>>("alctVars")),
-  clctVars_(ps.getParameter<std::vector<std::string>>("lctVars")),
-  lctVars_(ps.getParameter<std::vector<std::string>>("lctVars")),
-  // binning
-  alctNBin_(ps.getParameter<std::vector<unsigned>>("alctNBin")),
-  clctNBin_(ps.getParameter<std::vector<unsigned>>("lctNBin")),
-  lctNBin_(ps.getParameter<std::vector<unsigned>>("lctNBin")),
-  alctMinBin_(ps.getParameter<std::vector<double>>("alctMinBin")),
-  clctMinBin_(ps.getParameter<std::vector<double>>("lctMinBin")),
-  lctMinBin_(ps.getParameter<std::vector<double>>("lctMinBin")),
-  alctMaxBin_(ps.getParameter<std::vector<double>>("alctMaxBin")),
-  clctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")),
-  lctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")) {
-}
+L1TdeCSCTPGClient::L1TdeCSCTPGClient(const edm::ParameterSet &ps)
+    : monitorDir_(ps.getParameter<string>("monitorDir")),
+      chambers_(ps.getParameter<std::vector<std::string>>("chambers")),
+      // variables
+      alctVars_(ps.getParameter<std::vector<std::string>>("alctVars")),
+      clctVars_(ps.getParameter<std::vector<std::string>>("lctVars")),
+      lctVars_(ps.getParameter<std::vector<std::string>>("lctVars")),
+      // binning
+      alctNBin_(ps.getParameter<std::vector<unsigned>>("alctNBin")),
+      clctNBin_(ps.getParameter<std::vector<unsigned>>("lctNBin")),
+      lctNBin_(ps.getParameter<std::vector<unsigned>>("lctNBin")),
+      alctMinBin_(ps.getParameter<std::vector<double>>("alctMinBin")),
+      clctMinBin_(ps.getParameter<std::vector<double>>("lctMinBin")),
+      lctMinBin_(ps.getParameter<std::vector<double>>("lctMinBin")),
+      alctMaxBin_(ps.getParameter<std::vector<double>>("alctMaxBin")),
+      clctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")),
+      lctMaxBin_(ps.getParameter<std::vector<double>>("lctMaxBin")) {}
 
 L1TdeCSCTPGClient::~L1TdeCSCTPGClient() {}
 
 void L1TdeCSCTPGClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,
-                                            DQMStore::IGetter &igetter,
-                                            const edm::LuminosityBlock &lumiSeg,
-                                            const edm::EventSetup &c) {
+                                              DQMStore::IGetter &igetter,
+                                              const edm::LuminosityBlock &lumiSeg,
+                                              const edm::EventSetup &c) {
   book(ibooker);
   processHistograms(igetter);
 }
@@ -102,7 +101,7 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
       dataMon = igetter.get(monitorDir_ + "/" + histName);
       emulMon = igetter.get(monitorDir_ + "/" + histName);
 
-      TH1F* hDiff = chamberHistos[iType][key]->getTH1F();
+      TH1F *hDiff = chamberHistos[iType][key]->getTH1F();
 
       if (dataMon && emulMon) {
         TH1F *dataHist = dataMon->getTH1F();
@@ -119,7 +118,7 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
       dataMon = igetter.get(monitorDir_ + "/" + histName);
       emulMon = igetter.get(monitorDir_ + "/" + histName);
 
-      TH1F* hDiff = chamberHistos[iType][key]->getTH1F();
+      TH1F *hDiff = chamberHistos[iType][key]->getTH1F();
 
       if (dataMon && emulMon) {
         TH1F *dataHist = dataMon->getTH1F();
@@ -136,7 +135,7 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
       dataMon = igetter.get(monitorDir_ + "/" + histName);
       emulMon = igetter.get(monitorDir_ + "/" + histName);
 
-      TH1F* hDiff = chamberHistos[iType][key]->getTH1F();
+      TH1F *hDiff = chamberHistos[iType][key]->getTH1F();
 
       if (dataMon && emulMon) {
         TH1F *dataHist = dataMon->getTH1F();
