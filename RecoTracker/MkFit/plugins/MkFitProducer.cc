@@ -5,6 +5,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Common/interface/ContainerMask.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterfwd.h"
+
 #include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitSeedWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitOutputWrapper.h"
@@ -38,6 +43,8 @@ private:
 
   const edm::EDGetTokenT<MkFitHitWrapper> hitToken_;
   const edm::EDGetTokenT<MkFitSeedWrapper> seedToken_;
+  edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > > pixelMaskToken_;
+  edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripMaskToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
   std::function<double(mkfit::Event&, mkfit::MkBuilder&)> buildFunction_;
@@ -58,6 +65,12 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
       backwardFitInCMSSW_{iConfig.getParameter<bool>("backwardFitInCMSSW")},
       removeDuplicates_{iConfig.getParameter<bool>("removeDuplicates")},
       mkFitSilent_{iConfig.getUntrackedParameter<bool>("mkFitSilent")} {
+  const auto clustersToSkip = iConfig.getParameter<edm::InputTag>("clustersToSkip");
+  if (not clustersToSkip.label().empty()) {
+    pixelMaskToken_ = consumes(clustersToSkip);
+    stripMaskToken_ = consumes(clustersToSkip);
+  }
+
   const auto build = iConfig.getParameter<std::string>("buildingRoutine");
   if (build == "bestHit") {
     //buildFunction_ = mkfit::runBuildingTestPlexBestHit;
@@ -82,6 +95,7 @@ void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& description
 
   desc.add("hits", edm::InputTag("mkFitHits"));
   desc.add("seeds", edm::InputTag("mkFitSeedConverter"));
+  desc.add("clustersToSkip", edm::InputTag());
   desc.add<std::string>("buildingRoutine", "cloneEngine")
       ->setComment("Valid values are: 'bestHit', 'standard', 'cloneEngine'");
   desc.add<int>("iterationNumber", 0)->setComment("Iteration number (default: 0)");
@@ -111,6 +125,23 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
   // converters
   const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
 
+  const std::vector<bool>* pixelMaskPtr = nullptr;
+  const std::vector<bool>* stripMaskPtr = nullptr;
+  std::vector<bool> pixelMask;
+  std::vector<bool> stripMask;
+  if (not pixelMaskToken_.isUninitialized()) {
+    const auto& pixelContainerMask = iEvent.get(pixelMaskToken_);
+    pixelMask.resize(pixelContainerMask.size(), false);
+    pixelContainerMask.copyMaskTo(pixelMask);
+    pixelMaskPtr = &pixelMask;
+
+    const auto& stripContainerMask = iEvent.get(stripMaskToken_);
+    stripMask.resize(stripContainerMask.size(), false);
+    stripContainerMask.copyMaskTo(stripMask);
+    stripMaskPtr = &stripMask;
+  }
+  // TODO: add strip cluster charge cut
+
   // Initialize the number of layers, has to be done exactly once in
   // the whole program.
   // TODO: the mechanism needs to be improved...
@@ -126,6 +157,7 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
     mkfit::run_OneIteration(mkFitGeom.trackerInfo(),
                             mkFitGeom.iterationsInfo()[iterationNumber_],
                             hits.eventOfHits(),
+                            {pixelMaskPtr, stripMaskPtr},
                             streamCache(iID)->get(),
                             seeds_mutable,
                             tracks,
