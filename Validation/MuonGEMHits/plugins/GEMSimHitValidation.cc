@@ -205,7 +205,7 @@ void GEMSimHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     Int_t station_id = gemid.station();
     Int_t layer_id = gemid.layer();
     Int_t chamber_id = gemid.chamber();
-    Int_t roll_id = gemid.roll();
+    Int_t ieta = gemid.ieta();
     Int_t num_layers = gemid.nlayers();
 
     ME2IdsKey key2{region_id, station_id};
@@ -247,13 +247,13 @@ void GEMSimHitValidation::analyze(const edm::Event& event, const edm::EventSetup
       me_detail_eloss_[key3]->Fill(energy_loss);
 
       me_detail_occ_zr_[region_id]->Fill(simhit_g_abs_z, simhit_g_r);
-      me_detail_occ_det_[key2]->Fill(bin_x, roll_id);
+      me_detail_occ_det_[key2]->Fill(bin_x, ieta);
       me_detail_occ_xy_[key3]->Fill(simhit_g_x, simhit_g_y);
 
       if (is_muon_simhit) {
         me_detail_tof_mu_[key3]->Fill(tof);
         me_detail_eloss_mu_[key3]->Fill(energy_loss);
-        me_detail_occ_det_mu_[key2]->Fill(bin_x, roll_id);
+        me_detail_occ_det_mu_[key2]->Fill(bin_x, ieta);
       }
 
     }  // detail_plot
