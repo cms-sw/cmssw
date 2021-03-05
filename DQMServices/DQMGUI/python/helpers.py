@@ -3,6 +3,7 @@ import sys
 import time
 import logging
 import contextvars
+import json
 from collections import namedtuple
 from inspect import getframeinfo, stack
 from concurrent.futures import ProcessPoolExecutor
@@ -211,3 +212,38 @@ def getNotOlderThanFromUrl(function):
 
         return function(*args, **kwargs, notOlderThan=notOlderThan)
     return wrap_function
+
+#CHANGED!
+def JSONSerializeTuple(named_tuple):
+    orderedDict = named_tuple._asdict()
+    dictionary = dict(orderedDict)
+    keys = dictionary.keys()
+    if 'draw' in keys:
+        json_acceptable_string = dictionary['draw'].replace("'", "\"")
+        dictionary['draw'] = json.loads(json_acceptable_string)
+    if 'overlays' in keys:
+        json_acceptable_string = dictionary['overlays'].replace("'", "\"")
+        dictionary['overlays'] = json.loads(json_acceptable_string)
+    return dictionary
+
+def formRootObj(layout, qteststatuses, segment):
+    all_keys = layout._fields
+    values = []
+    keys=[]
+    for key in all_keys:
+        if key != 'source' and key != 'name' and key != 'destination' and key != 'file_path':
+            #we don't need to send these attributes to the client
+            values.append(str(getattr(layout, key)))
+            keys.append(key)
+    ##adding main attributes
+    keys.append('name')
+    values.append(segment) 
+    keys.append('path') 
+    values.append(layout.source) 
+    keys.append('layout') 
+    values.append(layout.name)
+    keys.append('qteststatuses') 
+    values.append(qteststatuses)
+    Root_obj = namedtuple('RootObj', keys)
+    root_obj = Root_obj._make(values)
+    return root_obj

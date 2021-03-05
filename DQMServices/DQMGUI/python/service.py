@@ -5,12 +5,12 @@ This service provides the logic of the API endpoints. It relies on other service
 import re
 import json
 import struct
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from .async_lru_timed import alru_cache_timed
 
 from .storage import GUIDataStore
-from .helpers import get_api_error, binary_search, binary_search_qtests, logged
+from .helpers import get_api_error, binary_search, binary_search_qtests, logged, formRootObj
 from .rendering import GUIRenderer
 from .importing.importing import GUIImportManager
 from .data_types import Sample, RootDir, RootObj, RootDirContent, RenderingInfo, FileFormat, SampleFull
@@ -102,6 +102,7 @@ class GUIService:
         # Layouts will be filtered against the search regex on their destination name.
         # Non existant sources will still be attempted to be displayed resulting in 
         # 'ME not found' string to be rendered.
+        #CHANGED!
         for layout in cls.layouts_manager.get_layouts(dataset):
             # Check if ME name starts with requested path
             if layout.destination[:len(path)] == path:
@@ -114,7 +115,9 @@ class GUIService:
 
                 if is_file:
                     qteststatuses = tuple(me_infos[x].qteststatus for x in binary_search_qtests(me_names, bytes(layout.source, 'utf-8')))
-                    objs.add(RootObj(name=segment, path=layout.source, layout=layout.name, qteststatuses=qteststatuses))
+                    #CHANGED!
+                    root_obj=formRootObj(layout, qteststatuses, segment)
+                    objs.add(root_obj)
                 else:
                     dirs[segment] += 1
 

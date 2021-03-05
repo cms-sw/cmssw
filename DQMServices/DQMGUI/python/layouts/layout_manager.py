@@ -13,11 +13,12 @@ class LayoutManager:
 
   @classmethod
   def get_layouts(cls, dataset):
-    if dataset == '/Global/Online/ALL':
-      return cls.__online_layouts
-    else:
-      return cls.__offline_layouts
-
+     if dataset == '/Global/Online/ALL':
+       return cls.__online_layouts
+     else:
+       return cls.__offline_layouts
+    #return cls.__layouts
+    
   @classmethod
   def add_layout(cls, layout_object):
     keys = list(layout_object.keys())
@@ -35,7 +36,7 @@ class LayoutManager:
     elif layout_object['destination'].split('/')[0] == 'Summary':
         cls.__offline_layouts.append(layout)
         cls.__online_layouts.append(layout)
-    cls.__layouts.append(layout)
+    #cls.__layouts.append(layout)
 
 
   @classmethod

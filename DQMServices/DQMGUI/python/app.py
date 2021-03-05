@@ -16,7 +16,7 @@ If a new version of the API needs to be provided, new /v2/ methods can be provid
 and configured here.
 """
 
-from .helpers import get_absolute_path
+from .helpers import get_absolute_path, JSONSerializeTuple
 
 # Add local python packages dir (if it exists) to python path.
 import sys, os
@@ -160,12 +160,8 @@ async def archive_v1(request, notOlderThan):
         return web.HTTPNotFound()
     result = {'data': []}
     result['data'].extend({'subdir': name, 'me_count': me_count} for name, me_count in data.dirs)
-    result['data'].extend({
-        'name': name,
-        'path': path,
-        'layout': layout,
-        'qtstatuses': [x for x in qteststatuses]
-        } for (name, path, layout, qteststatuses) in data.objs)
+    #CHANGED!
+    result['data'].extend(JSONSerializeTuple(item) for item in data.objs)
 
     return web.json_response(result)
 
