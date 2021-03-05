@@ -56,14 +56,14 @@ namespace gen {
       if (ps.exists("evtgenUserFileEmbedded")) {
         std::vector<std::string> user_decay_lines =
             ps.getParameter<std::vector<std::string> >("evtgenUserFileEmbedded");
-	char tempslhaname[] = "pythia8evtgenXXXXXX";
-	int fd = mkstemp(tempslhaname);
+        char tempslhaname[] = "pythia8evtgenXXXXXX";
+        int fd = mkstemp(tempslhaname);
 
         for (unsigned int i = 0; i < user_decay_lines.size(); i++) {
           user_decay_lines.at(i) += "\n";
-	  write(fd,user_decay_lines.at(i).c_str(),user_decay_lines.at(i).size());
+          write(fd, user_decay_lines.at(i).c_str(), user_decay_lines.at(i).size());
         }
-	close(fd);
+        close(fd);
         evtgenUserFiles.push_back(std::string(tempslhaname));
       }
     }
