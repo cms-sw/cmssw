@@ -389,7 +389,6 @@ void Pythia6Service::setSLHAFromHeader(const std::vector<std::string>& lines) {
   write(fd, f_info.str().c_str(), f_info.str().size());
   close(fd);
 
-
   if (blocks.count("SMINPUTS"))
     pydat1_.paru[102 - 1] =
         0.5 - std::sqrt(0.25 - pydat1_.paru[0] * M_SQRT1_2 * pydat1_.paru[103 - 1] / pydat1_.paru[105 - 1] /
