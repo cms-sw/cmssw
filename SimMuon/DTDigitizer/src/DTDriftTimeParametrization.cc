@@ -23,7 +23,7 @@
 #else
 #include "SimMuon/DTDigitizer/src/DTDriftTimeParametrization.h"
 #endif
-#include "DataFormats/MuonData/src/DTDriftTimeParameters.icc"
+#include "DataFormats/DTRecHit/interface/DTDriftTimeParameters.icc"
 
 DTDriftTimeParametrization::DTDriftTimeParametrization() {}
 
