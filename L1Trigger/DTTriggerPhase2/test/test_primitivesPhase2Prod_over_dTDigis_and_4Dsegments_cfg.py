@@ -9,7 +9,7 @@ process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 
-process.DTGeometryESModule.applyAlignment = False
+#process.DTGeometryESModule.applyAlignment = False
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_ideal', '')
@@ -23,10 +23,10 @@ process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:/tmp/carrillo/digis_segments_Run2016BSingleMuonRAW-RECO.root'))
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
 process.dtTriggerPhase2PrimitiveDigis.dump = False
 process.dtTriggerPhase2PrimitiveDigis.debug = False
-process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
+#process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 
 #scenario
 process.dtTriggerPhase2PrimitiveDigis.scenario = 1
