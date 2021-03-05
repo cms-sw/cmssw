@@ -53,7 +53,6 @@ L1TMuonBarrelKalmanLUTs::L1TMuonBarrelKalmanLUTs(const std::string& filename) {
   lut2LL_[1 * 64 + 4] = (TH1*)lutFile_->Get("gain2_4_1_LL");
   lut2LL_[1 * 64 + 2] = (TH1*)lutFile_->Get("gain2_2_1_LL");
 
-
   coarseEta_[3] = (TH1*)lutFile_->Get("coarseEta_3");
   coarseEta_[5] = (TH1*)lutFile_->Get("coarseEta_5");
   coarseEta_[6] = (TH1*)lutFile_->Get("coarseEta_6");
@@ -87,12 +86,12 @@ std::vector<float> L1TMuonBarrelKalmanLUTs::trackGain2(uint step, uint bitmask, 
 
   //  printf("Track gain %d %d %d\n",step,bitmask,K);
   const TH1* h;
-  if (qual1 < 4){
+  if (qual1 < 4) {
     if (qual2 < 4)
       h = lut2LL_[64 * step + bitmask];
     else
       h = lut2LH_[64 * step + bitmask];
-  }else{
+  } else {
     if (qual2 < 4)
       h = lut2HL_[64 * step + bitmask];
     else
