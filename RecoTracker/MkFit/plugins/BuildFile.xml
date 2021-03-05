@@ -1,4 +1,7 @@
 <library file="*.cc" name="RecoTrackerMkFitPlugins">
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/SiStripCluster"/>
+  <use name="DataFormats/SiPixelCluster"/>
   <use name="DataFormats/TrackCandidate"/>
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/TrackerCommon"/>
