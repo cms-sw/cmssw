@@ -254,9 +254,9 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanSectorProcessor::cleanNeighbor(const L
     }
     if (keep)
       out.push_back(track1);
-    else{
+    else {
       L1MuKBMTrack temp = track1;
-      temp.setPtEtaPhi(0,0,0);
+      temp.setPtEtaPhi(0, 0, 0);
       temp.setRank(0);
       out.push_back(temp);
     }
@@ -299,9 +299,9 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanSectorProcessor::cleanNeighbors(const 
 
     if (keep)
       out.push_back(track1);
-    else{
+    else {
       L1MuKBMTrack temp = track1;
-      temp.setPtEtaPhi(0,0,0);
+      temp.setPtEtaPhi(0, 0, 0);
       temp.setRank(0);
       out.push_back(temp);
     }

@@ -77,13 +77,13 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
   if (seeds.size() > 1) {
     std::sort(seeds.begin(), seeds.end(), sorter);
   }
-  
+
   for (const auto& seed : seeds) {
     std::pair<bool, L1MuKBMTrack> trackInfo = trackMaker->chain(seed, stubs);
     //printf("Kalman Track %d valid=%d tag=%d rank=%d charge=%d pt=%f eta=%f phi=%f curvature=%d curvature STA =%d stubs=%d chi2=%d pts=%f %f pattern=%d\n",seed->stNum(),trackInfo.first, trackInfo.second.stubs()[0]->tag(),trackInfo.second.rank(),trackInfo.second.charge(),trackInfo.second.pt(),trackInfo.second.eta(),trackInfo.second.phi(),trackInfo.second.curvatureAtVertex(),trackInfo.second.curvatureAtMuon(),int(trackInfo.second.stubs().size()),trackInfo.second.approxChi2(),trackInfo.second.pt(),trackInfo.second.ptUnconstrained(),trackInfo.second.hitPattern());
 
-    L1MuKBMTrack nullTrack(seed, seed->phi(), 8*seed->phiB());
-    nullTrack.setPtEtaPhi(0,0,0);
+    L1MuKBMTrack nullTrack(seed, seed->phi(), 8 * seed->phiB());
+    nullTrack.setPtEtaPhi(0, 0, 0);
     nullTrack.setRank(0);
     if (trackInfo.first) {
       if (seed->stNum() == 2)
@@ -92,59 +92,55 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
         pretracks3.push_back(trackInfo.second);
       if (seed->stNum() == 4)
         pretracks4.push_back(trackInfo.second);
-    }
-    else{
+    } else {
       if (seed->stNum() == 2)
-	pretracks2.push_back(nullTrack);
+        pretracks2.push_back(nullTrack);
       if (seed->stNum() == 3)
-	pretracks3.push_back(nullTrack);
+        pretracks3.push_back(nullTrack);
       if (seed->stNum() == 4)
-	pretracks4.push_back(nullTrack);
-    }    
+        pretracks4.push_back(nullTrack);
+    }
   }
   L1MuKBMTrack nullTrack;
-  nullTrack.setPtEtaPhi(0,0,0);
+  nullTrack.setPtEtaPhi(0, 0, 0);
   nullTrack.setRank(0);
   // All pretracks must have trackL and trackH like firmware
   // Swap trackH and trackL for seeds 2/3 to mimic firmware
-  if (pretracks2.size() < 2){
-    if (pretracks2.empty()){ // if no tracks, set trackH and trackL to null
+  if (pretracks2.size() < 2) {
+    if (pretracks2.empty()) {  // if no tracks, set trackH and trackL to null
       pretracks2.push_back(nullTrack);
       pretracks2.push_back(nullTrack);
-    }
-    else{                        // otherwise add nulltrack for trackH or trackL
-      if (pretracks2[0].stubs()[0]->tag()==0)
-	pretracks2.push_back(nullTrack);
+    } else {  // otherwise add nulltrack for trackH or trackL
+      if (pretracks2[0].stubs()[0]->tag() == 0)
+        pretracks2.push_back(nullTrack);
       else
-	pretracks2.insert(pretracks2.begin(), nullTrack);
+        pretracks2.insert(pretracks2.begin(), nullTrack);
     }
   }
   std::swap(pretracks2[0], pretracks2[1]);
 
-  if (pretracks3.size() < 2){
-    if (pretracks3.empty()){
+  if (pretracks3.size() < 2) {
+    if (pretracks3.empty()) {
       pretracks3.push_back(nullTrack);
       pretracks3.push_back(nullTrack);
-    }
-    else{
-      if (pretracks3[0].stubs()[0]->tag()==0)
-	pretracks3.push_back(nullTrack);
+    } else {
+      if (pretracks3[0].stubs()[0]->tag() == 0)
+        pretracks3.push_back(nullTrack);
       else
-	pretracks3.insert(pretracks3.begin(), nullTrack);
+        pretracks3.insert(pretracks3.begin(), nullTrack);
     }
   }
   std::swap(pretracks3[0], pretracks3[1]);
 
-  if (pretracks4.size() < 2){
-    if (pretracks4.empty()){
+  if (pretracks4.size() < 2) {
+    if (pretracks4.empty()) {
       pretracks4.push_back(nullTrack);
       pretracks4.push_back(nullTrack);
-    }
-    else{
-      if (pretracks4[0].stubs()[0]->tag()==0)
-	pretracks4.push_back(nullTrack);
+    } else {
+      if (pretracks4[0].stubs()[0]->tag() == 0)
+        pretracks4.push_back(nullTrack);
       else
-	pretracks4.insert(pretracks4.begin(), nullTrack);
+        pretracks4.insert(pretracks4.begin(), nullTrack);
     }
   }
 
@@ -196,14 +192,14 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::selfClean(const L1MuKBMT
       if (tracks[i].overlapTrack(tracks[j])) {
         if (tracks[i].rank() < tracks[j].rank()) {
           //keep = false;
-	  temp.setPtEtaPhi(0,0,0);
-	  temp.setRank(0);
+          temp.setPtEtaPhi(0, 0, 0);
+          temp.setRank(0);
         } else if (tracks[i].rank() == tracks[j].rank()) {  //if same rank prefer seed that is high
-          if (!tracks[j].stubs()[0]->tag()){
+          if (!tracks[j].stubs()[0]->tag()) {
             //keep = false;
-	    temp.setPtEtaPhi(0,0,0);
-	    temp.setRank(0);
-	  }
+            temp.setPtEtaPhi(0, 0, 0);
+            temp.setRank(0);
+          }
         }
       }
     }
@@ -226,8 +222,8 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::cleanHigher(const L1MuKB
       if (tracks1[i].overlapTrack(tracks2[j])) {
         if (tracks1[i].rank() <= tracks2[j].rank()) {
           //keep = false;
-	  temp.setPtEtaPhi(0,0,0);
-	  temp.setRank(0);
+          temp.setPtEtaPhi(0, 0, 0);
+          temp.setRank(0);
         }
       }
     }
@@ -249,9 +245,9 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::cleanLower(const L1MuKBM
     for (uint j = 0; j < tracks2.size(); ++j) {
       if (tracks1[i].overlapTrack(tracks2[j])) {
         if (tracks1[i].rank() < tracks2[j].rank()) {
-	  //keep = false;
-	   temp.setPtEtaPhi(0,0,0);
-	   temp.setRank(0);
+          //keep = false;
+          temp.setPtEtaPhi(0, 0, 0);
+          temp.setRank(0);
         }
       }
     }
@@ -266,8 +262,8 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::cleanLower(const L1MuKBM
 L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::sort4(const L1MuKBMTrackCollection& in) {
   L1MuKBMTrackCollection out;
   //partial sort like in firmwarE (bitonic)
-  
-  if (in.size() <=2)
+
+  if (in.size() <= 2)
     return in;
   else if (in.size() == 3) {
     //Step 1
@@ -299,7 +295,6 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::sort4(const L1MuKBMTrack
     out.push_back(s3_2);
 
   } else {
-  
     //Step 1
     L1MuKBMTrack s2_1;
     L1MuKBMTrack s2_2;
@@ -344,7 +339,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::sort4(const L1MuKBMTrack
 
     out.push_back(s3_1);
     out.push_back(s3_2);
-  }    
+  }
   return out;
 }
 
@@ -363,10 +358,10 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::cleanRegion(const L1MuKB
     step1.insert(step1.end(), cleaned23.begin(), cleaned23.end());
   if (!cleaned32.empty())
     step1.insert(step1.end(), cleaned32.begin(), cleaned32.end());
-  
+
   //take the best 2
   L1MuKBMTrackCollection sorted23 = sort4(step1);
-  
+
   //Now clean the tracks 4 between them
   L1MuKBMTrackCollection cleaned4 = selfClean(tracks4);
 
@@ -378,7 +373,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::cleanRegion(const L1MuKB
 
   //Now merge all of those
   L1MuKBMTrackCollection step2;
-  
+
   if (!cleanedSorted4.empty())
     step2.insert(step2.end(), cleanedSorted4.begin(), cleanedSorted4.end());
   if (!cleanedSorted23.empty())
@@ -404,6 +399,4 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::cleanRegion(const L1MuKB
     printf("   rank=%d charge=%d pt=%f eta=%f phi=%f curvature=%d curvature STA =%d stubs=%d chi2=%d pts=%f %f pattern=%d\n",track1.rank(),track1.charge(),track1.pt(),track1.eta(),track1.phi(),track1.curvatureAtVertex(),track1.curvatureAtMuon(),int(track1.stubs().size()),track1.approxChi2(),track1.pt(),track1.ptUnconstrained(),track1.hitPattern());
   */
   return out;
-  
-  
 }
