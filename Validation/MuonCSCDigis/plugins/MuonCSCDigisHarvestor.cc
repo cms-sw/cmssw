@@ -40,9 +40,9 @@ void MuonCSCDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGett
     std::string e2 = "CLCTEtaEff_" + cn;
     std::string e3 = "LCTEtaEff_" + cn;
 
-    bookEff1D(booker, getter, n1, d1, eff_folder, e1, e1 + ";True Muon |#eta|; ALCT Efficiency");
-    bookEff1D(booker, getter, n2, d2, eff_folder, e2, e2 + ";True Muon |#eta|; CLCT Efficiency");
-    bookEff1D(booker, getter, n3, d3, eff_folder, e3, e3 + ";True Muon |#eta|; LCT Efficiency");
+    bookEff1D(booker, getter, n1, d1, eff_folder, e1, cn + " ALCT Efficiency;True Muon |#eta|;Efficiency");
+    bookEff1D(booker, getter, n2, d2, eff_folder, e2, cn + " CLCT Efficiency;True Muon |#eta|;Efficiency");
+    bookEff1D(booker, getter, n3, d3, eff_folder, e3, cn + " LCT Efficiency;True Muon |#eta|;Efficiency");
   }
 }
 
