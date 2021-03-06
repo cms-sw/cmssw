@@ -49,11 +49,22 @@ void CSCStripDigiValidation::analyze(const edm::Event &e, const edm::EventSetup 
   for (auto j = strips->begin(); j != strips->end(); j++) {
     auto digiItr = (*j).second.first;
     auto last = (*j).second.second;
+    int detId = (*j).first.rawId();
+
+    const CSCLayer *layer = findLayer(detId);
+    int chamberType = layer->chamber()->specs()->chamberType();
     int nDigis = last - digiItr;
     nDigisPerEvent += nDigis;
     theNDigisPerLayerPlot->Fill(nDigis);
 
     double maxAmplitude = 0.;
+
+    if (doSim_) {
+      const edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
+      if (nDigis == 1 && simHits.size() == 1) {
+        plotResolution(simHits[0], digiItr->getStrip(), layer, chamberType);
+      }
+    }
 
     for (; digiItr != last; ++digiItr) {
       // average up the pedestals
