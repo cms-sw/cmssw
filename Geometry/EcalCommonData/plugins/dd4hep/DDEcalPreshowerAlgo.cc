@@ -13,7 +13,7 @@ using namespace cms;
 using namespace dd4hep;
 using namespace angle_units::operators;
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 namespace {
 
@@ -600,10 +600,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               ladd_subtr_no++;
               if (j > 1)
                 ladd_upper = 1;
+              ladd_side = i;
             }
           }
         }
-
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeomX") << "Side " << ladd_side << ":" << ladd_upper << ":" << ladd_subtr_no << ":"
+                                    << ladd_not_plain << " Index " << M << ":" << es.typesL5.size();
+#endif
         const string& ddname("esalgo:" + es.ladPfx[0] + es.typesL5[M]);
         ladder_length = es.micromodule_length + 4 * es.waf_active + 0.1 * dd4hep::mm;
 
@@ -733,10 +737,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               ladd_subtr_no++;
               if (j > 1)
                 ladd_upper = 1;
+              ladd_side = i;
             }
           }
         }
-
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeomX") << "Side " << ladd_side << ":" << ladd_upper << ":" << ladd_subtr_no << ":"
+                                    << ladd_not_plain << " Index " << M << ":" << es.typesL5.size();
+#endif
         const string& ddname("esalgo:" + es.ladPfx[0] + es.typesL4[d]);
         ladder_length = es.micromodule_length + 3 * es.waf_active + 0.1 * dd4hep::mm;
 
