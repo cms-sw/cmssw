@@ -26,7 +26,7 @@ void MuonCSCDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGett
   std::string eff_folder = "MuonCSCDigisV/CSCDigiTask/Stub/Efficiency/";
   std::string occ_folder = "MuonCSCDigisV/CSCDigiTask/Stub/Occupancy/";
 
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 1; i <= 10; ++i) {
     const std::string cn(CSCDetId::chamberName(i));
     std::string d1 = occ_folder + "ALCTEtaDenom_" + cn;
     std::string d2 = occ_folder + "CLCTEtaDenom_" + cn;
