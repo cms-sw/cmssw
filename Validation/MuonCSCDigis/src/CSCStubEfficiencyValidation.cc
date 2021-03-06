@@ -98,7 +98,7 @@ void CSCStubEfficiencyValidation::analyze(const edm::Event& e, const edm::EventS
   }
 
   // Skip events with no selected simtracks
-  if (sim_track_selected.size() == 0)
+  if (sim_track_selected.empty())
     return;
 
   // Loop through good tracks, use corresponding vetrex to match stubs, then fill hists of chambers where the stub appears.
