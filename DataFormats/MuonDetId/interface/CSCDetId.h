@@ -98,8 +98,8 @@ public:
   /**
     * Geometric channel no. from geometric strip no. - identical except for ME1a ganged strips
     *
-    * Note that 'Geometric' means increasing number corresponds to increasing local x coordinate. 
-    * \warning There is no attempt here to handle cabling or readout questions. 
+    * Note that 'Geometric' means increasing number corresponds to increasing local x coordinate.
+    * \warning There is no attempt here to handle cabling or readout questions.
     * If you need that look at CondFormats/CSCObjects/CSCChannelTranslator.
     */
   int channel(int istrip) {
@@ -114,7 +114,7 @@ public:
   // static methods
   // Used when we need information about subdetector labels.
 
-  /** 
+  /**
    * Returns the unique integer 'rawId' which labels each CSC layer.
    *
    * The arguments are the integer labels for, respectively,  <br>
@@ -191,7 +191,7 @@ public:
     * Sectors are 60 degree slices of a station, covering both rings. <br>
     * For Station 1, there are subsectors of 30 degrees: 9 10-degree
     * chambers (3 each from ME1/1, ME1/2, ME1/3.) <br>
-    * 
+    *
     * The first sector starts at phi = 15 degrees so it matches Barrel Muon sectors.
     * We count from one not zero.
     *
@@ -201,9 +201,9 @@ public:
   /**
     * Return trigger-level CSC id  within a sector for an Endcap Muon chamber.
     *
-    * This id is an index within a sector such that the 3 inner ring chambers 
-    * (20 degrees each) are 1, 2, 3 (increasing counterclockwise) and the 6 outer ring 
-    * chambers (10 degrees each) are 4, 5, 6, 7, 8, 9 (again increasing counter-clockwise.) 
+    * This id is an index within a sector such that the 3 inner ring chambers
+    * (20 degrees each) are 1, 2, 3 (increasing counterclockwise) and the 6 outer ring
+    * chambers (10 degrees each) are 4, 5, 6, 7, 8, 9 (again increasing counter-clockwise.)
     *
     * This method knows which chambers are part of which sector and returns
     * the chamber label/index/identifier accordingly.
@@ -232,6 +232,7 @@ public:
     * ME$sign$station/$ring/$chamber. Example: ME+1/1/9
     */
   static std::string chamberName(int endcap, int station, int ring, int chamber);
+  static std::string chamberName(int iChamberType);
   std::string chamberName() const;
 
 private:
