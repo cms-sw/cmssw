@@ -32,7 +32,7 @@ void CSCStripDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
   if (doSim_) {
     for (int i = 1; i <= 10; ++i) {
       const std::string t1("CSCStripPosResolution_" + CSCDetId::chamberName(i));
-      theResolutionPlots[i-1] = iBooker.book1D(t1, t1 + ";Strip X Position Resolution; Entries", 100, -5, 5);
+      theResolutionPlots[i - 1] = iBooker.book1D(t1, t1 + ";Strip X Position Resolution; Entries", 100, -5, 5);
     }
   }
 }

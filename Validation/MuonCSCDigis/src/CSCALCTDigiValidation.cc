@@ -21,8 +21,8 @@ void CSCALCTDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
   for (int i = 1; i <= 10; ++i) {
     const std::string t1("CSCALCTDigiTime_" + CSCDetId::chamberName(i));
     const std::string t2("CSCALCTDigisPerChamber_" + CSCDetId::chamberName(i));
-    theTimeBinPlots[i-1] = iBooker.book1D(t1, t1 + ";Wire Time Bin; Entries", 16, 0, 16);
-    theNDigisPerChamberPlots[i-1] = iBooker.book1D(t2, t2 + ";Number of ALCTs per chamber;Entries", 4, 0, 4);
+    theTimeBinPlots[i - 1] = iBooker.book1D(t1, t1 + ";Wire Time Bin; Entries", 16, 0, 16);
+    theNDigisPerChamberPlots[i - 1] = iBooker.book1D(t2, t2 + ";Number of ALCTs per chamber;Entries", 4, 0, 4);
   }
 }
 

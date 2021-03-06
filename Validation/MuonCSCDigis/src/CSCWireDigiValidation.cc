@@ -21,9 +21,9 @@ void CSCWireDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
     const std::string t1("CSCWireDigiTime_" + CSCDetId::chamberName(i));
     const std::string t2("CSCWireDigisPerLayer_" + CSCDetId::chamberName(i));
     const std::string t3("CSCWireDigiResolution_" + CSCDetId::chamberName(i));
-    theTimeBinPlots[i-1] = iBooker.book1D(t1, t1 + ";Wire Time Bin; Entries", 16, 0, 16);
-    theNDigisPerLayerPlots[i-1] = iBooker.book1D(t2, t2 + ";Number of Wire Digis; Entries", 100, 0, 20);
-    theResolutionPlots[i-1] = iBooker.book1D(t3, t3 + ";Wire Y Position Resolution; Entries", 100, -10, 10);
+    theTimeBinPlots[i - 1] = iBooker.book1D(t1, t1 + ";Wire Time Bin; Entries", 16, 0, 16);
+    theNDigisPerLayerPlots[i - 1] = iBooker.book1D(t2, t2 + ";Number of Wire Digis; Entries", 100, 0, 20);
+    theResolutionPlots[i - 1] = iBooker.book1D(t3, t3 + ";Wire Y Position Resolution; Entries", 100, -10, 10);
   }
 }
 

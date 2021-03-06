@@ -25,10 +25,10 @@ void CSCComparatorDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
     const std::string t2("CSCComparatorDigisPerLayer_" + CSCDetId::chamberName(i));
     const std::string t3("CSCComparatorStripAmplitude_" + CSCDetId::chamberName(i));
     const std::string t4("CSCComparator3StripAmplitude_" + CSCDetId::chamberName(i));
-    theTimeBinPlots[i-1] = iBooker.book1D(t1, t1 + ";Comparator Time Bin; Entries", 16, 0, 16);
-    theNDigisPerLayerPlots[i-1] = iBooker.book1D(t2, t2 + ";Number of Comparator Digis; Entries", 100, 0, 20);
-    theStripDigiPlots[i-1] = iBooker.book1D(t3, t3 + ";Comparator Amplitude; Entries", 100, 0, 1000);
-    the3StripPlots[i-1] = iBooker.book1D(t4, t4 + ";Comparator-triplet Amplitude; Entries", 100, 0, 1000);
+    theTimeBinPlots[i - 1] = iBooker.book1D(t1, t1 + ";Comparator Time Bin; Entries", 16, 0, 16);
+    theNDigisPerLayerPlots[i - 1] = iBooker.book1D(t2, t2 + ";Number of Comparator Digis; Entries", 100, 0, 20);
+    theStripDigiPlots[i - 1] = iBooker.book1D(t3, t3 + ";Comparator Amplitude; Entries", 100, 0, 1000);
+    the3StripPlots[i - 1] = iBooker.book1D(t4, t4 + ";Comparator-triplet Amplitude; Entries", 100, 0, 1000);
   }
 }
 
