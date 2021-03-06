@@ -25,7 +25,7 @@ public:
   ~CSCStubEfficiencyValidation() override;
 
   void bookHistograms(DQMStore::IBooker &);
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   // access to the matcher
   std::shared_ptr<CSCStubMatcher> cscStubMatcher() { return cscStubMatcher_; }
