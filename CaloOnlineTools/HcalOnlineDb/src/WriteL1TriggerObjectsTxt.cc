@@ -50,8 +50,8 @@ private:
 };
 
 WriteL1TriggerObjectsTxt::WriteL1TriggerObjectsTxt(const edm::ParameterSet& iConfig)
-  : tagName_(iConfig.getParameter<std::string>("TagName")),
-    tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()) {}
+    : tagName_(iConfig.getParameter<std::string>("TagName")),
+      tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()) {}
 
 WriteL1TriggerObjectsTxt::~WriteL1TriggerObjectsTxt() {}
 
