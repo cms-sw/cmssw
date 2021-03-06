@@ -36,7 +36,7 @@ CSCStubEfficiencyValidation::~CSCStubEfficiencyValidation() {}
 void CSCStubEfficiencyValidation::bookHistograms(DQMStore::IBooker& iBooker) {
   iBooker.setCurrentFolder("MuonCSCDigisV/CSCDigiTask/Stub/Occupancy/");
 
-  for (int i = 1; i <= 11; ++i) {
+  for (int i = 1; i <= 10; ++i) {
     int j = i-1;
     const std::string cn(CSCDetId::chamberName(i));
 
