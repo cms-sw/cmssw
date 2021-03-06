@@ -569,7 +569,10 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
           }
         }
       }
-
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("SFGeomX") << "Side " << ladd_side << ":" << ladd_upper << ":" << ladd_subtr_no << ":"
+                                  << ladd_not_plain << " Index " << M << ":" << types_l5_.size();
+#endif
       DDName ddname(getLadPrefix(0) + types_l5_[M], "esalgo");
       ladder_length = micromodule_length + 4 * waf_active + 0.1 * mm;
 
@@ -712,7 +715,10 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
           }
         }
       }
-
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("SFGeomX") << "Side " << ladd_side << ":" << ladd_upper << ":" << ladd_subtr_no << ":"
+                                  << ladd_not_plain << " Index " << M << ":" << types_l5_.size();
+#endif
       DDName ddname(getLadPrefix(0) + types_l4_[d], "esalgo");
       ladder_length = micromodule_length + 3 * waf_active + 0.1 * mm;
 
