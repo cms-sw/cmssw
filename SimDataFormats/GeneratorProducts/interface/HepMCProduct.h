@@ -15,7 +15,7 @@ namespace HepMC {
   class FourVector;
   class GenParticle;
   class GenVertex;
-}
+}  // namespace HepMC
 
 namespace edm {
   class HepMCProduct {
