@@ -8,6 +8,11 @@
 <use name="DataFormats/HcalRecHit"/>
 <use name="clhep"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
+<use name="DataFormats/EcalRecHit"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/Math"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <export>
   <lib name="1"/>
 </export>
