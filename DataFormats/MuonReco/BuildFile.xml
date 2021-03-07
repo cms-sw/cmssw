@@ -5,6 +5,10 @@
 <use name="DataFormats/CSCRecHit"/>
 <use name="DataFormats/GEMRecHit"/>
 <use name="DataFormats/VertexReco"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/MuonDetId"/>
 <use name="rootmath"/>
 <export>
   <lib name="1"/>
