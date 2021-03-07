@@ -22,9 +22,9 @@ void SeedingRegionByHF::initialize(const edm::EventSetup &es) { geometry_ = &es.
 void SeedingRegionByHF::makeRegions(const edm::Event &ev,
                                     const edm::EventSetup &es,
                                     std::vector<TICLSeedingRegion> &result) {
-  auto recHitHandle = ev.getHandle(HFhits_token_);
+  const auto &recHits = ev.get(HFhits_token_);
 
-  for (const auto &erh : *recHitHandle) {
+  for (const auto &erh : recHits) {
     const HcalDetId &detid = (HcalDetId)erh.detid();
     if (erh.energy() < minEt_)
       continue;
@@ -42,11 +42,8 @@ void SeedingRegionByHF::makeRegions(const edm::Event &ev,
 
     auto phi = globalPosition.phi();
     double theta = 2 * atan(exp(eta));
-    double px = erh.energy() * sin(theta) * cos(phi);
-    double py = erh.energy() * sin(theta) * sin(phi);
-    double pz = erh.energy() * cos(theta);
-
-    result.emplace_back(globalPosition, GlobalVector(px, py, pz), iSide, idx, hfSeedId);
+    result.emplace_back(
+        globalPosition, GlobalVector(GlobalVector::Polar(theta, phi, erh.energy())), iSide, idx, hfSeedId);
   }
 
   // sorting seeding region by descending momentum
@@ -61,10 +58,6 @@ void SeedingRegionByHF::fillPSetDescription(edm::ParameterSetDescription &desc) 
   desc.add<double>("minAbsEta", 3.0);
   desc.add<double>("maxAbsEta", 4.0);
   desc.add<double>("minEt", 5);
+  SeedingRegionAlgoBase::fillPSetDescription(desc);
 }
 
-edm::ParameterSetDescription SeedingRegionByHF::makePSetDescription() {
-  edm::ParameterSetDescription desc;
-  fillPSetDescription(desc);
-  return desc;
-}
