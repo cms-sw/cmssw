@@ -74,6 +74,7 @@ void SeedingRegionByTracks::fillPSetDescription(edm::ParameterSetDescription &de
                         "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
+  desc.add<std::string>("detector", "HGCAL");
   SeedingRegionAlgoBase::fillPSetDescription(desc);
 }
 

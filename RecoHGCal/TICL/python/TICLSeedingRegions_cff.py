@@ -17,11 +17,11 @@ ticlSeedingGlobalHFNose = _ticlSeedingRegionProducer.clone(
 )
 
 ticlSeedingTrkHFNose = _ticlSeedingRegionProducer.clone(
-    seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(type="SeedingRegionByTracks"),
-#    type = dict (
-#        detector = "HFNose",
-#        cutTk = cms.string('3. < abs(eta) < 4. && pt > 1. && quality("highPurity") && hitPattern().numberOfLostHits("MISSING_OUTER_HITS") < 5'),
-#    )
+    seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(
+        type="SeedingRegionByTracks",
+        cutTk = cms.string('3. < abs(eta) < 4. && pt > 1. && quality("highPurity") && hitPattern().numberOfLostHits("MISSING_OUTER_HITS") < 5'),
+        detector = cms.string("HFNose")
+    )
 )
 
 ticlSeedingByHFHFNose = _ticlSeedingRegionProducer.clone(
