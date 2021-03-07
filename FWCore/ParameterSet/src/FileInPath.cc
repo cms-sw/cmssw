@@ -376,7 +376,7 @@ namespace edm {
       // something goofy.
       if (locateFile(pathPrefix, relativePath_)) {
         // Convert relative path to canonical form, and save it.
-        relativePath_ = std::filesystem::weakly_canonical(std::filesystem::path(relativePath_)).string();
+        relativePath_ = std::filesystem::path(relativePath_).lexically_normal().string();
         //std::filesystem::path(relativePath_).normalize().string();
 
         // Save the absolute path.
