@@ -48,6 +48,7 @@ public:
     EcalIntercalibConstants const &ecalIntercalibConstants;
     EcalADCToGeVConstant const &ecalADCToGeV;
     EcalLaserDbService const &ecalLaserDbService;
+    EcalPFRecHitThresholds const& rhthresholds;
   };
 
   class ESGetTokens {
@@ -57,14 +58,16 @@ public:
           caloTopologyToken_{cc.esConsumes()},
           ecalIntercalibConstantsToken_{cc.esConsumes()},
           ecalADCToGeVConstantToken_{cc.esConsumes()},
-          ecalLaserDbServiceToken_{cc.esConsumes()} {}
+	  ecalLaserDbServiceToken_{cc.esConsumes()},
+          ecalPFRechitThresholdsToken_{cc.esConsumes()} {}
 
     ESData get(edm::EventSetup const &eventSetup) const {
       return {.caloGeometry = eventSetup.getData(caloGeometryToken_),
               .caloTopology = eventSetup.getData(caloTopologyToken_),
               .ecalIntercalibConstants = eventSetup.getData(ecalIntercalibConstantsToken_),
               .ecalADCToGeV = eventSetup.getData(ecalADCToGeVConstantToken_),
-              .ecalLaserDbService = eventSetup.getData(ecalLaserDbServiceToken_)};
+	      .ecalLaserDbService = eventSetup.getData(ecalLaserDbServiceToken_),
+              .rhthresholds = eventSetup.getData(ecalPFRechitThresholdsToken_)  };
     }
 
   private:
@@ -73,6 +76,8 @@ public:
     edm::ESGetToken<EcalIntercalibConstants, EcalIntercalibConstantsRcd> ecalIntercalibConstantsToken_;
     edm::ESGetToken<EcalADCToGeVConstant, EcalADCToGeVConstantRcd> ecalADCToGeVConstantToken_;
     edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> ecalLaserDbServiceToken_;
+    edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
+    
   };
 
   EcalClusterLazyToolsBase(const edm::Event &ev,
@@ -115,6 +120,8 @@ protected:
 
   const CaloGeometry *geometry_;
   const CaloTopology *topology_;
+  const EcalPFRecHitThresholds *thresholds_;
+
   const EcalRecHitCollection *ebRecHits_;
   const EcalRecHitCollection *eeRecHits_;
   const EcalRecHitCollection *esRecHits_;
@@ -279,9 +286,11 @@ public:
   // egamma, but so far covIPhiIPhi hasnt been studied extensively so there
   // could be a bug in the covIPhiIEta or covIPhiIPhi calculations. I dont
   // think there is but as it hasnt been heavily used, there might be one
-  std::vector<float> localCovariances(const reco::BasicCluster &cluster, float w0 = 4.7) const {
-    return ClusterTools::localCovariances(cluster, getEcalRecHitCollection(cluster), topology_, w0);
+  //  std::vector<float> localCovariances(const reco::BasicCluster &cluster, const EcalPFRecHitThresholds thrs, float w0 = 4.7, float multEB=0.0, float multEE=0.0) const {
+  std::vector<float> localCovariances(const reco::BasicCluster &cluster, float w0 = 4.7, float multEB=0.0, float multEE=0.0) const {
+    return ClusterTools::localCovariances(cluster, getEcalRecHitCollection(cluster), topology_, w0, thresholds_, multEB, multEE);
   }
+
   std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster, float w0 = 4.7) const {
     return ClusterTools::scLocalCovariances(cluster, getEcalRecHitCollection(cluster), topology_, w0);
   }

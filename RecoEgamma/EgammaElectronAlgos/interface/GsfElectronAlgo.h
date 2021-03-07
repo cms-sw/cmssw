@@ -46,6 +46,8 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ConversionFinder.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 
 class GsfElectronAlgo {
 public:
@@ -218,7 +220,7 @@ private:
                       double magneticFieldInTesla,
                       const HeavyObjectCache*,
                       egamma::conv::TrackTableView ctfTable,
-                      egamma::conv::TrackTableView gsfTable);
+                      egamma::conv::TrackTableView gsfTable, EcalPFRecHitThresholds const& thresholds);
 
   void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&) const;
 
@@ -227,7 +229,7 @@ private:
                                                       ElectronHcalHelper const& hcalHelper,
                                                       EventData const& eventData,
                                                       CaloTopology const& topology,
-                                                      CaloGeometry const& geometry) const;
+                                                      CaloGeometry const& geometry, EcalPFRecHitThresholds const& thresholds) const;
   reco::GsfElectron::SaturationInfo calculateSaturationInfo(const reco::SuperClusterRef&,
                                                             EventData const& eventData) const;
 
@@ -247,6 +249,7 @@ private:
   const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
   const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSeveretyLevelAlgoToken_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_; 
 
   // additional configuration and helpers
   ElectronHcalHelper hcalHelper_;
