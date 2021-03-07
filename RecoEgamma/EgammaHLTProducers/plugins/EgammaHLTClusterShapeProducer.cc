@@ -40,6 +40,7 @@ private:
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEBToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEEToken_;
   const EcalClusterLazyTools::ESGetTokens ecalClusterLazyToolsESGetTokens_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_; 
   const bool EtaOrIeta_;
 };
 
@@ -48,10 +49,12 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
       ecalRechitEBToken_(consumes(config.getParameter<edm::InputTag>("ecalRechitEB"))),
       ecalRechitEEToken_(consumes(config.getParameter<edm::InputTag>("ecalRechitEE"))),
       ecalClusterLazyToolsESGetTokens_{consumesCollector()},
+      ecalPFRechitThresholdsToken_{esConsumes()},
       EtaOrIeta_(config.getParameter<bool>("isIeta")) {
   //register your products
   produces<reco::RecoEcalCandidateIsolationMap>();
   produces<reco::RecoEcalCandidateIsolationMap>("sigmaIEtaIEta5x5");
+  produces<reco::RecoEcalCandidateIsolationMap>("sigmaIEtaIEta5x5NoiseCleaned");
 }
 
 EgammaHLTClusterShapeProducer::~EgammaHLTClusterShapeProducer() {}
@@ -73,12 +76,14 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
   iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);
 
   auto const& ecalClusterLazyToolsESData = ecalClusterLazyToolsESGetTokens_.get(iSetup);
+  auto const& thresholds = iSetup.getData(ecalPFRechitThresholdsToken_);
 
   EcalClusterLazyTools lazyTools(iEvent, ecalClusterLazyToolsESData, ecalRechitEBToken_, ecalRechitEEToken_);
   noZS::EcalClusterLazyTools lazyTools5x5(iEvent, ecalClusterLazyToolsESData, ecalRechitEBToken_, ecalRechitEEToken_);
 
   reco::RecoEcalCandidateIsolationMap clshMap(recoecalcandHandle);
   reco::RecoEcalCandidateIsolationMap clsh5x5Map(recoecalcandHandle);
+  reco::RecoEcalCandidateIsolationMap clsh5x5NoiseCleanedMap(recoecalcandHandle);
 
   for (unsigned int iRecoEcalCand = 0; iRecoEcalCand < recoecalcandHandle->size(); iRecoEcalCand++) {
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);
@@ -102,12 +107,15 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
     }
 
     double sigmaee5x5 = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()))[0]);
+    double sigmaee5x5NoiseCleaned = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()), 4.7, &thresholds, 1.0, 1.25)[0]);
     clshMap.insert(recoecalcandref, sigmaee);
     clsh5x5Map.insert(recoecalcandref, sigmaee5x5);
+    clsh5x5NoiseCleanedMap.insert(recoecalcandref, sigmaee5x5NoiseCleaned);
   }
 
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clshMap));
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5Map), "sigmaIEtaIEta5x5");
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5NoiseCleanedMap), "sigmaIEtaIEta5x5NoiseCleaned");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
