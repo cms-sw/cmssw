@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
-#include "FWCore/Framework/src/EventSetupsController.h"
+#include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/test/print_eventsetup_record_dependencies.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -588,7 +588,7 @@ void testdependentrecord::testInvalidIOVFirstEventID() {
 void testdependentrecord::timeAndRunTest() {
   edm::ParameterSet pset = createDummyPset();
   {
-    EventSetupsController controller;
+    SynchronousEventSetupsController controller;
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
     std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
@@ -644,7 +644,7 @@ void testdependentrecord::timeAndRunTest() {
   {
     //check that going all the way through EventSetup works properly
     // using two records with open ended IOVs
-    EventSetupsController controller;
+    SynchronousEventSetupsController controller;
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
     std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
@@ -713,7 +713,7 @@ void testdependentrecord::dependentSetproviderTest() {
 }
 
 void testdependentrecord::getTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -757,14 +757,15 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
-          auto waitTask = edm::make_empty_waiting_task();
-          waitTask->set_ref_count(2);
+          edm::FinalWaitingTask waitTask;
+          tbb::task_group group;
           rec->prefetchAsync(
-              edm::WaitingTaskHolder(waitTask.get()), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
-          waitTask->decrement_ref_count();
-          waitTask->wait_for_all();
-          if (waitTask->exceptionPtr()) {
-            std::rethrow_exception(*waitTask->exceptionPtr());
+              edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
+          do {
+            group.wait();
+          } while (not waitTask.done());
+          if (waitTask.exceptionPtr()) {
+            std::rethrow_exception(*waitTask.exceptionPtr());
           }
         }
       }
@@ -784,14 +785,15 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
-          auto waitTask = edm::make_empty_waiting_task();
-          waitTask->set_ref_count(2);
+          edm::FinalWaitingTask waitTask;
+          tbb::task_group group;
           rec->prefetchAsync(
-              edm::WaitingTaskHolder(waitTask.get()), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
-          waitTask->decrement_ref_count();
-          waitTask->wait_for_all();
-          if (waitTask->exceptionPtr()) {
-            std::rethrow_exception(*waitTask->exceptionPtr());
+              edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
+          do {
+            group.wait();
+          } while (not waitTask.done());
+          if (waitTask.exceptionPtr()) {
+            std::rethrow_exception(*waitTask.exceptionPtr());
           }
         }
       }
@@ -808,7 +810,7 @@ void testdependentrecord::getDataWithESGetTokenTest() {
   DummyData kGood{1};
   DummyData kBad{0};
 
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -963,7 +965,7 @@ void testdependentrecord::getHandleWithESGetTokenTest() {
   DummyData kGood{1};
   DummyData kBad{0};
 
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -1135,7 +1137,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
   DummyData kGood{1};
   DummyData kBad{0};
 
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -1303,7 +1305,7 @@ void testdependentrecord::getTransientHandleWithESGetTokenTest() {
 }
 
 void testdependentrecord::oneOfTwoRecordTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -1338,7 +1340,7 @@ void testdependentrecord::oneOfTwoRecordTest() {
 }
 
 void testdependentrecord::resetTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
@@ -1483,7 +1485,7 @@ void testdependentrecord::invalidRecordTest() {
 }
 
 void testdependentrecord::extendIOVTest() {
-  EventSetupsController controller;
+  SynchronousEventSetupsController controller;
   edm::ParameterSet pset = createDummyPset();
   EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 

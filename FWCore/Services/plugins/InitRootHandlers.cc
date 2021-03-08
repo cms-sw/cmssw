@@ -76,7 +76,9 @@ namespace edm {
       public:
         typedef tbb::concurrent_unordered_set<pthread_t> Container_type;
 
-        ThreadTracker() : tbb::task_scheduler_observer() { observe(true); }
+        ThreadTracker() : tbb::task_scheduler_observer(true) { observe(true); }
+        ~ThreadTracker() override = default;
+
         void on_scheduler_entry(bool) override {
           // ensure thread local has been allocated; not necessary on Linux with
           // the current cmsRun linkage, but could be an issue if the platform
@@ -86,6 +88,7 @@ namespace edm {
           edm::CurrentModuleOnThread::getCurrentModuleOnThread();
           threadIDs_.insert(pthread_self());
         }
+        void on_scheduler_exit(bool) override {}
         const Container_type& IDs() { return threadIDs_; }
 
       private:
@@ -97,7 +100,13 @@ namespace edm {
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void stacktraceFromThread();
-      static const ThreadTracker::Container_type& threadIDs() { return threadTracker_.IDs(); }
+      static const ThreadTracker::Container_type& threadIDs() {
+        static const ThreadTracker::Container_type empty;
+        if (threadTracker_) {
+          return threadTracker_->IDs();
+        }
+        return empty;
+      }
       static int stackTracePause() { return stackTracePause_; }
 
       static std::vector<std::array<char, moduleBufferSize>> moduleListBuffers_;
@@ -118,7 +127,7 @@ namespace edm {
       static int parentToChild_[2];
       static int childToParent_[2];
       static std::unique_ptr<std::thread> helperThread_;
-      static ThreadTracker threadTracker_;
+      static std::unique_ptr<ThreadTracker> threadTracker_;
       static int stackTracePause_;
 
       bool unloadSigHandler_;
@@ -746,10 +755,10 @@ namespace edm {
     int InitRootHandlers::parentToChild_[2] = {-1, -1};
     int InitRootHandlers::childToParent_[2] = {-1, -1};
     std::unique_ptr<std::thread> InitRootHandlers::helperThread_;
+    std::unique_ptr<InitRootHandlers::ThreadTracker> InitRootHandlers::threadTracker_;
     int InitRootHandlers::stackTracePause_ = 300;
     std::vector<std::array<char, moduleBufferSize>> InitRootHandlers::moduleListBuffers_;
     std::atomic<std::size_t> InitRootHandlers::nextModule_(0), InitRootHandlers::doneModules_(0);
-    InitRootHandlers::ThreadTracker InitRootHandlers::threadTracker_;
 
     InitRootHandlers::InitRootHandlers(ParameterSet const& pset, ActivityRegistry& iReg)
         : RootHandlers(),
@@ -759,6 +768,10 @@ namespace edm {
           autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool>("AutoLibraryLoader")),
           interactiveDebug_(pset.getUntrackedParameter<bool>("InteractiveDebug")) {
       stackTracePause_ = pset.getUntrackedParameter<int>("StackTracePauseTime");
+
+      if (not threadTracker_) {
+        threadTracker_ = std::make_unique<ThreadTracker>();
+      }
 
       if (unloadSigHandler_) {
         // Deactivate all the Root signal handlers and restore the system defaults
@@ -850,6 +863,8 @@ namespace edm {
           iter = TIter(gROOT->GetListOfFiles());
         }
       }
+      //disengage from TBB to avoid possible at exit problems
+      threadTracker_.reset();
     }
 
     void InitRootHandlers::willBeUsingThreads() {

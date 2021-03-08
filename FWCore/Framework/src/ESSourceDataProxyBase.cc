@@ -32,7 +32,7 @@ void edm::eventsetup::ESSourceDataProxyBase::prefetchAsyncImpl(edm::WaitingTaskH
   auto doPrefetch = m_prefetching.compare_exchange_strong(expected, true);
   m_waitingList.add(iTask);
   if (doPrefetch) {
-    m_queue->push([this, iKey, &iRecord, iParent]() {
+    m_queue->push(*iTask.group(), [this, iKey, &iRecord, iParent]() {
       try {
         {
           std::lock_guard<std::mutex> guard(*m_mutex);
