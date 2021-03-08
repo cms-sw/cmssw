@@ -1,6 +1,4 @@
 // Original Author: Riccardo Manzoni
-#include <memory>
-
 #include <vector>
 #include <memory>
 #include <numeric>
