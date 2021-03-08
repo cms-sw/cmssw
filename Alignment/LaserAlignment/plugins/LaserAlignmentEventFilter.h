@@ -1,6 +1,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/global/EDFilter.h"
-
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 class SiStripFedCabling;
@@ -12,6 +12,9 @@ public:
 
 private:
   bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const override;
+
+  // ES token
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> cablingToken_;
 
   // FED RAW data input collection
   const edm::EDGetTokenT<FEDRawDataCollection> FED_collection_token;
