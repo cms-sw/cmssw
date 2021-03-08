@@ -2,6 +2,8 @@
 #define CondFormats_EcalObjects_interface_EcalSamplesCorrelationGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,9 +13,12 @@
 class EcalSamplesCorrelationGPU {
 public:
   struct Product {
-    ~Product();
-    double *EBG12SamplesCorrelation = nullptr, *EBG6SamplesCorrelation = nullptr, *EBG1SamplesCorrelation = nullptr;
-    double *EEG12SamplesCorrelation = nullptr, *EEG6SamplesCorrelation = nullptr, *EEG1SamplesCorrelation = nullptr;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<double[]>> EBG12SamplesCorrelation;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<double[]>> EBG6SamplesCorrelation;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<double[]>> EBG1SamplesCorrelation;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<double[]>> EEG12SamplesCorrelation;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<double[]>> EEG6SamplesCorrelation;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<double[]>> EEG1SamplesCorrelation;
   };
 
 #ifndef __CUDACC__
@@ -30,12 +35,12 @@ public:
   static std::string name() { return std::string{"ecalSamplesCorrelationGPU"}; }
 
 private:
-  std::vector<double> const& EBG12SamplesCorrelation_;
-  std::vector<double> const& EBG6SamplesCorrelation_;
-  std::vector<double> const& EBG1SamplesCorrelation_;
-  std::vector<double> const& EEG12SamplesCorrelation_;
-  std::vector<double> const& EEG6SamplesCorrelation_;
-  std::vector<double> const& EEG1SamplesCorrelation_;
+  std::vector<double, cms::cuda::HostAllocator<double>> EBG12SamplesCorrelation_;
+  std::vector<double, cms::cuda::HostAllocator<double>> EBG6SamplesCorrelation_;
+  std::vector<double, cms::cuda::HostAllocator<double>> EBG1SamplesCorrelation_;
+  std::vector<double, cms::cuda::HostAllocator<double>> EEG12SamplesCorrelation_;
+  std::vector<double, cms::cuda::HostAllocator<double>> EEG6SamplesCorrelation_;
+  std::vector<double, cms::cuda::HostAllocator<double>> EEG1SamplesCorrelation_;
 
   cms::cuda::ESProduct<Product> product_;
 #endif  // __CUDACC__
