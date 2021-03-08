@@ -16,6 +16,7 @@ ticlSeedingGlobalHFNose = _ticlSeedingRegionProducer.clone(
   seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(type="SeedingRegionGlobal")
 )
 
+# fixme: empty seed, need to work on propagator
 ticlSeedingTrkHFNose = _ticlSeedingRegionProducer.clone(
     seedingPSet = _ticlSeedingRegionProducer.seedingPSet.clone(
         type="SeedingRegionByTracks",
