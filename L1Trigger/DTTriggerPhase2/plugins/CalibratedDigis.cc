@@ -132,7 +132,7 @@ void CalibratedDigis::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         if (scenario == MC)  //FIX MC
           newTime = digiTime + bxspacing * timeshift;
         else if (scenario == SLICE_TEST)  //FIX SliceTest
-          newTime = digiTime;
+          newTime = digiTime + bxspacing * timeshift;
         else
           newTime = digiTime - theSync->offset(wireId) + bxspacing * iEvent.eventAuxiliary().bunchCrossing() +
                     float(timeOffset_);

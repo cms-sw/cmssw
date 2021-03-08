@@ -500,7 +500,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   else if (scenario_ == DATA)  //scope for data
     shift_back = 0;
   else if (scenario_ == SLICE_TEST)  //scope for slice test
-    shift_back = 0;
+    shift_back = 400;
 
   // RPC integration
   if (useRPC_) {
@@ -552,7 +552,11 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
         if(inner((*metaPrimitiveIt))) sl=1;
         else sl=3;
       }
-      f << std::fixed << std::setprecision(8) << (*metaPrimitiveIt).quality << " " << (*metaPrimitiveIt).x << " " << (*metaPrimitiveIt).tanPhi << " " << (int) (*metaPrimitiveIt).t0 << " " << (*metaPrimitiveIt).phi << " " << (*metaPrimitiveIt).phiB << " "<< (*metaPrimitiveIt).chi2  << " "  << shiftinfo_[wireId1.rawId()] <<" " <<  wireId1.wheel() << " " << wireId1.sector() << " " << wireId1.station() << " " << sl << " " << (*metaPrimitiveIt).wi1<< " " << (*metaPrimitiveIt).wi2<< " " << (*metaPrimitiveIt).wi3<< " " << (*metaPrimitiveIt).wi4<< " " << (*metaPrimitiveIt).wi5<< " " << (*metaPrimitiveIt).wi6<< " " << (*metaPrimitiveIt).wi7<< " " << (*metaPrimitiveIt).wi8<< " " << (*metaPrimitiveIt).tdc1<< " " << (*metaPrimitiveIt).tdc2<< " " << (*metaPrimitiveIt).tdc3<< " " << (*metaPrimitiveIt).tdc4<< " " << (*metaPrimitiveIt).tdc5<< " " << (*metaPrimitiveIt).tdc6<< " " << (*metaPrimitiveIt).tdc7<< " " << (*metaPrimitiveIt).tdc8<< " " << (*metaPrimitiveIt).lat1<< " " << (*metaPrimitiveIt).lat2<< " " << (*metaPrimitiveIt).lat3<< " " << (*metaPrimitiveIt).lat4<< " " << (*metaPrimitiveIt).lat5<< " " << (*metaPrimitiveIt).lat6<< " " << (*metaPrimitiveIt).lat7<< " " << (*metaPrimitiveIt).lat8  << endl;
+      f << std::fixed << std::setprecision(8) << (*metaPrimitiveIt).quality << " " << (*metaPrimitiveIt).x << " " << (*metaPrimitiveIt).tanPhi << " " << (int) (*metaPrimitiveIt).t0 << " " << (*metaPrimitiveIt).phi << " " << (*metaPrimitiveIt).phiB << " "
+      << (*metaPrimitiveIt).chi2  << " "  << shiftinfo_[wireId1.rawId()] << " "<<  wireId1.wheel() << " " << wireId1.sector() << " " << wireId1.station() << " " << sl << " " 
+      << (*metaPrimitiveIt).wi1  << " " << (*metaPrimitiveIt).wi2  << " " << (*metaPrimitiveIt).wi3  << " " << (*metaPrimitiveIt).wi4  << " " << (*metaPrimitiveIt).wi5  << " " << (*metaPrimitiveIt).wi6  << " " << (*metaPrimitiveIt).wi7  << " " << (*metaPrimitiveIt).wi8  << " "
+      << (*metaPrimitiveIt).tdc1 << " " << (*metaPrimitiveIt).tdc2 << " " << (*metaPrimitiveIt).tdc3 << " " << (*metaPrimitiveIt).tdc4 << " " << (*metaPrimitiveIt).tdc5 << " " << (*metaPrimitiveIt).tdc6 << " " << (*metaPrimitiveIt).tdc7 << " " << (*metaPrimitiveIt).tdc8 << " "
+      << (*metaPrimitiveIt).lat1 << " " << (*metaPrimitiveIt).lat2 << " " << (*metaPrimitiveIt).lat3 << " " << (*metaPrimitiveIt).lat4 << " " << (*metaPrimitiveIt).lat5 << " " << (*metaPrimitiveIt).lat6 << " " << (*metaPrimitiveIt).lat7 << " " << (*metaPrimitiveIt).lat8 << endl;
     }
     f << -1 << endl;
     f.close(); 
