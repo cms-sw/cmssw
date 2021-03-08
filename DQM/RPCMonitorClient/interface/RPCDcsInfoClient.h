@@ -8,18 +8,16 @@
 class RPCDcsInfoClient : public DQMEDHarvester {
 public:
   RPCDcsInfoClient(const edm::ParameterSet &ps);
-  ~RPCDcsInfoClient() override;
+  ~RPCDcsInfoClient() override = default;
 
 protected:
-  void beginJob() override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 private:
-  std::string dcsinfofolder_;
-  std::string eventinfofolder_;
-  std::string dqmprovinfofolder_;
+  const std::string dcsinfofolder_;
+  const std::string eventinfofolder_;
+  const std::string dqmprovinfofolder_;
 
-  std::vector<int> DCS;
 };
 
 #endif
