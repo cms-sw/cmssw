@@ -4,6 +4,8 @@
 namespace edmtest {
 
   void sampleStandAlone() {
+    LogDebug("cat_A");  //test stand alone declaration
+    LogDebug("cat_A").log([](auto&& iLog) { iLog << " LogDebug.log was called"; });
     LogDebug("cat_A") << "LogDebug    was used to send cat_A";
     LogDebug("cat_B") << "LogDebug    was used to send cat_B";
     LogTrace("cat_A") << "LogTrace    was used to send cat_A";
