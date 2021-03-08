@@ -60,4 +60,3 @@ void SeedingRegionByHF::fillPSetDescription(edm::ParameterSetDescription &desc) 
   desc.add<double>("minEt", 5);
   SeedingRegionAlgoBase::fillPSetDescription(desc);
 }
-
