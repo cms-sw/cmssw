@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -68,6 +67,7 @@
 #include <thread>
 #include <sstream>
 #include <vector>
+#include "tbb/task_arena.h"
 
 static std::once_flag applyOnce;
 thread_local bool RunManagerMTWorker::dumpMF = false;
@@ -196,8 +196,10 @@ void RunManagerMTWorker::resetTLS() {
   if (active_tlsdata != 0 and not tls_shutdown_timeout) {
     ++n_tls_shutdown_task;
     //need to run tasks on each thread which has set the tls
-    auto task = edm::make_functor_task(tbb::task::allocate_root(), []() { resetTLS(); });
-    tbb::task::enqueue(*task);
+    {
+      tbb::task_arena arena(tbb::task_arena::attach{});
+      arena.enqueue([]() { RunManagerMTWorker::resetTLS(); });
+    }
     timespec s;
     s.tv_sec = 0;
     s.tv_nsec = 10000;

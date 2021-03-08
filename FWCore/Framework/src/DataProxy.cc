@@ -14,17 +14,19 @@
 #include <mutex>
 
 // user include files
+#include "FWCore/Concurrency/interface/include_first_syncWait.h"
+
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
-#include "FWCore/Framework/src/esTaskArenas.h"
 namespace edm {
   namespace eventsetup {
 
@@ -101,19 +103,17 @@ namespace edm {
                                EventSetupImpl const* iEventSetupImpl,
                                ESParentContext const& iParent) const {
       if (!cacheIsValid()) {
-        auto waitTask = edm::make_empty_waiting_task();
-        waitTask->set_ref_count(2);
-        auto waitTaskPtr = waitTask.get();
         auto token = ServiceRegistry::instance().presentToken();
-        edm::esTaskArena().execute([this, waitTaskPtr, &iRecord, &iKey, iEventSetupImpl, token, iParent]() {
-          prefetchAsync(WaitingTaskHolder(waitTaskPtr), iRecord, iKey, iEventSetupImpl, token, iParent);
-          waitTaskPtr->decrement_ref_count();
-          waitTaskPtr->wait_for_all();
+        std::exception_ptr exceptPtr{};
+        iEventSetupImpl->taskArena()->execute([this, &exceptPtr, &iRecord, &iKey, iEventSetupImpl, token, iParent]() {
+          exceptPtr = syncWait([&, this](WaitingTaskHolder&& holder) {
+            prefetchAsync(std::move(holder), iRecord, iKey, iEventSetupImpl, token, iParent);
+          });
         });
         cache_ = getAfterPrefetchImpl();
         cacheIsValid_.store(true, std::memory_order_release);
-        if (waitTask->exceptionPtr()) {
-          std::rethrow_exception(*waitTask->exceptionPtr());
+        if (exceptPtr) {
+          std::rethrow_exception(exceptPtr);
         }
       }
       return getAfterPrefetch(iRecord, iKey, iTransiently);
