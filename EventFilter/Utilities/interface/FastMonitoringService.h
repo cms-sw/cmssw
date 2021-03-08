@@ -261,7 +261,7 @@ namespace evf {
     //global state
 
     //per stream
-    //std::vector<ContainableAtomic<const void*>> ministate_;
+    //std::vector<ContainableAtomic<const std::string*>> ministate_;
     //std::vector<ContainableAtomic<const void*>> microstate_;
     //std::vector<ContainableAtomic<const void*>> threadMicrostate_;
 
@@ -281,7 +281,6 @@ namespace evf {
     //to disable this behavior, set #ATOMIC_LEVEL 0 or 1 in DataPoint.h
     std::vector<std::atomic<bool>*> streamCounterUpdating_;
 
-    std::vector<unsigned long> firstEventId_;
     std::vector<std::atomic<bool>*> collectedPathList_;
     std::vector<bool> pathNamesReady_;
 
@@ -296,7 +295,6 @@ namespace evf {
     std::string pathLegendFile_;
     std::string pathLegendFileJson_;
     std::string inputLegendFileJson_;
-    bool pathLegendWritten_ = false;
     unsigned int nOutputModules_ = 0;
 
     std::atomic<bool> monInit_;
