@@ -35,17 +35,22 @@ EcalSamplesCorrelationGPU::EcalSamplesCorrelationGPU(EcalSamplesCorrelation cons
   }
 }
 
-
 EcalSamplesCorrelationGPU::Product const& EcalSamplesCorrelationGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalSamplesCorrelationGPU::Product& product, cudaStream_t cudaStream) {
         // allocate
-        product.EBG12SamplesCorrelation = cms::cuda::make_device_unique<double[]>(EBG12SamplesCorrelation_.size(), cudaStream);
-        product.EBG6SamplesCorrelation = cms::cuda::make_device_unique<double[]>(EBG6SamplesCorrelation_.size(), cudaStream);
-        product.EBG1SamplesCorrelation = cms::cuda::make_device_unique<double[]>(EBG1SamplesCorrelation_.size(), cudaStream);
-        product.EEG12SamplesCorrelation = cms::cuda::make_device_unique<double[]>(EEG12SamplesCorrelation_.size(), cudaStream);
-        product.EEG6SamplesCorrelation = cms::cuda::make_device_unique<double[]>(EEG6SamplesCorrelation_.size(), cudaStream);
-        product.EEG1SamplesCorrelation = cms::cuda::make_device_unique<double[]>(EEG1SamplesCorrelation_.size(), cudaStream);
+        product.EBG12SamplesCorrelation =
+            cms::cuda::make_device_unique<double[]>(EBG12SamplesCorrelation_.size(), cudaStream);
+        product.EBG6SamplesCorrelation =
+            cms::cuda::make_device_unique<double[]>(EBG6SamplesCorrelation_.size(), cudaStream);
+        product.EBG1SamplesCorrelation =
+            cms::cuda::make_device_unique<double[]>(EBG1SamplesCorrelation_.size(), cudaStream);
+        product.EEG12SamplesCorrelation =
+            cms::cuda::make_device_unique<double[]>(EEG12SamplesCorrelation_.size(), cudaStream);
+        product.EEG6SamplesCorrelation =
+            cms::cuda::make_device_unique<double[]>(EEG6SamplesCorrelation_.size(), cudaStream);
+        product.EEG1SamplesCorrelation =
+            cms::cuda::make_device_unique<double[]>(EEG1SamplesCorrelation_.size(), cudaStream);
         // transfer
         cms::cuda::copyAsync(product.EBG12SamplesCorrelation, EBG12SamplesCorrelation_, cudaStream);
         cms::cuda::copyAsync(product.EBG6SamplesCorrelation, EBG6SamplesCorrelation_, cudaStream);

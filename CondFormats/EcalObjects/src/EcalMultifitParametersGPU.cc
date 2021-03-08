@@ -24,8 +24,10 @@ EcalMultifitParametersGPU::Product const& EcalMultifitParametersGPU::getProduct(
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalMultifitParametersGPU::Product& product, cudaStream_t cudaStream) {
         // allocate
-        product.amplitudeFitParametersEB = cms::cuda::make_device_unique<double[]>(amplitudeFitParametersEB_.size(), cudaStream);
-        product.amplitudeFitParametersEE = cms::cuda::make_device_unique<double[]>(amplitudeFitParametersEE_.size(), cudaStream);
+        product.amplitudeFitParametersEB =
+            cms::cuda::make_device_unique<double[]>(amplitudeFitParametersEB_.size(), cudaStream);
+        product.amplitudeFitParametersEE =
+            cms::cuda::make_device_unique<double[]>(amplitudeFitParametersEE_.size(), cudaStream);
         product.timeFitParametersEB = cms::cuda::make_device_unique<double[]>(timeFitParametersEB_.size(), cudaStream);
         product.timeFitParametersEE = cms::cuda::make_device_unique<double[]>(timeFitParametersEE_.size(), cudaStream);
         // transfer

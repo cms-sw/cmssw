@@ -34,9 +34,11 @@ EcalTimeBiasCorrectionsGPU::Product const& EcalTimeBiasCorrectionsGPU::getProduc
         product.EETimeCorrAmplitudeBinsSize = this->EETimeCorrAmplitudeBins_.size();
 
         // allocate
-        product.EBTimeCorrAmplitudeBins = cms::cuda::make_device_unique<float[]>(EBTimeCorrAmplitudeBins_.size(), cudaStream);
+        product.EBTimeCorrAmplitudeBins =
+            cms::cuda::make_device_unique<float[]>(EBTimeCorrAmplitudeBins_.size(), cudaStream);
         product.EBTimeCorrShiftBins = cms::cuda::make_device_unique<float[]>(EBTimeCorrShiftBins_.size(), cudaStream);
-        product.EETimeCorrAmplitudeBins = cms::cuda::make_device_unique<float[]>(EETimeCorrAmplitudeBins_.size(), cudaStream);
+        product.EETimeCorrAmplitudeBins =
+            cms::cuda::make_device_unique<float[]>(EETimeCorrAmplitudeBins_.size(), cudaStream);
         product.EETimeCorrShiftBins = cms::cuda::make_device_unique<float[]>(EETimeCorrShiftBins_.size(), cudaStream);
         // transfer
         cms::cuda::copyAsync(product.EBTimeCorrAmplitudeBins, EBTimeCorrAmplitudeBins_, cudaStream);
