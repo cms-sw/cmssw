@@ -69,21 +69,18 @@ namespace edm {
         taskList_.add(iTask);
 
         if (doPrefetch) {
-          tbb::task::spawn(*edm::make_waiting_task(
-              tbb::task::allocate_root(),
-              [this, &iRecord, iKey, iEventSetupImpl, iToken, iParent](std::exception_ptr const*) {
-                try {
-                  RecordT rec;
-                  rec.setImpl(
-                      &iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, &iParent, true);
-                  ServiceRegistry::Operate operate(iToken);
-                  this->make(rec, iKey);
-                } catch (...) {
-                  this->taskList_.doneWaiting(std::current_exception());
-                  return;
-                }
-                this->taskList_.doneWaiting(std::exception_ptr{});
-              }));
+          iTask.group()->run([this, &iRecord, iKey, iEventSetupImpl, iToken, iParent]() {
+            try {
+              RecordT rec;
+              rec.setImpl(&iRecord, std::numeric_limits<unsigned int>::max(), nullptr, iEventSetupImpl, &iParent, true);
+              ServiceRegistry::Operate operate(iToken);
+              this->make(rec, iKey);
+            } catch (...) {
+              this->taskList_.doneWaiting(std::current_exception());
+              return;
+            }
+            this->taskList_.doneWaiting(std::exception_ptr{});
+          });
         }
       }
 

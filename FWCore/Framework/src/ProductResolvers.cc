@@ -289,11 +289,14 @@ namespace edm {
         }
       }
       if (queue) {
-        queue->push(workToDo);
+        queue->push(*waitTask.group(), workToDo);
       } else {
         //Have to create a new task
-        auto t = make_functor_task(tbb::task::allocate_root(), workToDo);
-        tbb::task::spawn(*t);
+        auto t = make_functor_task(workToDo);
+        waitTask.group()->run([t]() {
+          TaskSentry s{t};
+          t->execute();
+        });
       }
     }
   }
@@ -346,14 +349,14 @@ namespace edm {
         // if the module does not put this data product or the
         // module has an exception while running
 
-        auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
+        auto waiting = make_waiting_task([this](std::exception_ptr const* iException) {
           if (nullptr != iException) {
             m_waitingTasks.doneWaiting(*iException);
           } else {
             m_waitingTasks.doneWaiting(std::exception_ptr());
           }
         });
-        worker_->callWhenDoneAsync(WaitingTaskHolder(waiting));
+        worker_->callWhenDoneAsync(WaitingTaskHolder(*waitTask.group(), waiting));
       }
     }
   }
@@ -421,7 +424,7 @@ namespace edm {
     if (prefetchRequested) {
       //Have to create a new task which will make sure the state for UnscheduledProductResolver
       // is properly set after the module has run
-      auto t = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iPtr) {
+      auto t = make_waiting_task([this](std::exception_ptr const* iPtr) {
         //The exception is being rethrown because resolveProductImpl sets the ProductResolver to a failed
         // state for the case where an exception occurs during the call to the function.
         // Caught exception is propagated via WaitingTaskList
@@ -441,7 +444,12 @@ namespace edm {
       ParentContext parentContext(mcc);
       EventTransitionInfo const& info = aux_->eventTransitionInfo();
       worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
-          WaitingTaskHolder(t), info, token, info.principal().streamID(), parentContext, mcc->getStreamContext());
+          WaitingTaskHolder(*waitTask.group(), t),
+          info,
+          token,
+          info.principal().streamID(),
+          parentContext,
+          mcc->getStreamContext());
     }
   }
 
@@ -698,7 +706,7 @@ namespace edm {
       // the waitingTasks() list will be released from waiting even
       // if the module does not put this data product or the
       // module has an exception while running
-      auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
+      auto waiting = make_waiting_task([this](std::exception_ptr const* iException) {
         if (nullptr != iException) {
           waitingTasks().doneWaiting(*iException);
         } else {
@@ -706,7 +714,7 @@ namespace edm {
           waitingTasks().doneWaiting(std::exception_ptr());
         }
       });
-      worker()->callWhenDoneAsync(WaitingTaskHolder(waiting));
+      worker()->callWhenDoneAsync(WaitingTaskHolder(*waitTask.group(), waiting));
     }
   }
 
@@ -768,7 +776,7 @@ namespace edm {
       // the waitingTasks() list will be released from waiting even
       // if the module does not put this data product or the
       // module has an exception while running
-      auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
+      auto waiting = make_waiting_task([this](std::exception_ptr const* iException) {
         if (nullptr != iException) {
           waitingTasks().doneWaiting(*iException);
         } else {
@@ -776,7 +784,8 @@ namespace edm {
           waitingTasks().doneWaiting(std::exception_ptr());
         }
       });
-      realProduct().prefetchAsync(WaitingTaskHolder(waiting), principal, skipCurrentProcess, token, sra, mcc);
+      realProduct().prefetchAsync(
+          WaitingTaskHolder(*waitTask.group(), waiting), principal, skipCurrentProcess, token, sra, mcc);
     }
   }
 
@@ -924,14 +933,14 @@ namespace edm {
 
       if (prefetchRequested) {
         //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, false, sra, mcc, token);
+        tryPrefetchResolverAsync(0, principal, false, sra, mcc, token, waitTask.group());
       }
     } else {
       skippingWaitingTasks_.add(waitTask);
       bool expected = false;
       if (skippingPrefetchRequested_.compare_exchange_strong(expected, true)) {
         //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, true, sra, mcc, token);
+        tryPrefetchResolverAsync(0, principal, true, sra, mcc, token, waitTask.group());
       }
     }
   }
@@ -957,26 +966,27 @@ namespace edm {
                                  SharedResourcesAcquirer* iSRA,
                                  ModuleCallingContext const* iMCC,
                                  bool iSkipCurrentProcess,
-                                 ServiceToken iToken)
+                                 ServiceToken iToken,
+                                 tbb::task_group* iGroup)
           : resolver_(iResolver),
             principal_(iPrincipal),
             sra_(iSRA),
             mcc_(iMCC),
+            group_(iGroup),
             serviceToken_(iToken),
             index_(iResolverIndex),
             skipCurrentProcess_(iSkipCurrentProcess) {}
 
-      tbb::task* execute() override {
+      void execute() final {
         auto exceptPtr = exceptionPtr();
         if (exceptPtr) {
           resolver_->prefetchFailed(index_, *principal_, skipCurrentProcess_, *exceptPtr);
         } else {
           if (not resolver_->dataValidFromResolver(index_, *principal_, skipCurrentProcess_)) {
             resolver_->tryPrefetchResolverAsync(
-                index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_);
+                index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_, group_);
           }
         }
-        return nullptr;
       }
 
     private:
@@ -984,6 +994,7 @@ namespace edm {
       Principal const* principal_;
       SharedResourcesAcquirer* sra_;
       ModuleCallingContext const* mcc_;
+      tbb::task_group* group_;
       ServiceToken serviceToken_;
       unsigned int index_;
       bool skipCurrentProcess_;
@@ -1019,7 +1030,8 @@ namespace edm {
                                                           bool skipCurrentProcess,
                                                           SharedResourcesAcquirer* sra,
                                                           ModuleCallingContext const* mcc,
-                                                          ServiceToken token) const {
+                                                          ServiceToken token,
+                                                          tbb::task_group* group) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto index = iProcessingIndex;
 
@@ -1038,9 +1050,8 @@ namespace edm {
       if (matchingHolders_[k] != ProductResolverIndexInvalid) {
         //make new task
 
-        auto task = new (tbb::task::allocate_root())
-            TryNextResolverWaitingTask(this, index, &principal, sra, mcc, skipCurrentProcess, token);
-        WaitingTaskHolder hTask(task);
+        auto task = new TryNextResolverWaitingTask(this, index, &principal, sra, mcc, skipCurrentProcess, token, group);
+        WaitingTaskHolder hTask(*group, task);
         ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
 
         //Make sure the Services are available on this thread
