@@ -101,7 +101,8 @@ struct SiPixelTemplateHeader2D {  //!< template header structure
 
 struct SiPixelTemplateStore2D {  //!< template storage structure
   SiPixelTemplateHeader2D head;
-  std::vector<std::vector<SiPixelTemplateEntry2D>> entry;  //!< use 2d entry to store BPix and FPix entries [dynamically allocated]
+  std::vector<std::vector<SiPixelTemplateEntry2D>>
+      entry;  //!< use 2d entry to store BPix and FPix entries [dynamically allocated]
 };
 
 // ******************************************************************************************
