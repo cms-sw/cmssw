@@ -2,6 +2,8 @@
 #define CondFormats_EcalObjects_interface_EcalTimeBiasCorrectionsGPU_h
 
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -11,9 +13,10 @@
 class EcalTimeBiasCorrectionsGPU {
 public:
   struct Product {
-    ~Product();
-    float *EBTimeCorrAmplitudeBins, *EBTimeCorrShiftBins;
-    float *EETimeCorrAmplitudeBins, *EETimeCorrShiftBins;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> EBTimeCorrAmplitudeBins;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> EBTimeCorrShiftBins;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> EETimeCorrAmplitudeBins;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> EETimeCorrShiftBins;
     int EBTimeCorrAmplitudeBinsSize, EETimeCorrAmplitudeBinsSize;
   };
 
@@ -32,14 +35,11 @@ public:
   static std::string name() { return std::string{"ecalTimeBiasCorrectionsGPU"}; }
 #endif  // __CUDACC__
 
-  std::vector<float> const& EBTimeCorrAmplitudeBins() const { return EBTimeCorrAmplitudeBins_; }
-  std::vector<float> const& EETimeCorrAmplitudeBins() const { return EETimeCorrAmplitudeBins_; }
-
 private:
-  std::vector<float> const& EBTimeCorrAmplitudeBins_;
-  std::vector<float> const& EBTimeCorrShiftBins_;
-  std::vector<float> const& EETimeCorrAmplitudeBins_;
-  std::vector<float> const& EETimeCorrShiftBins_;
+  std::vector<float, cms::cuda::HostAllocator<float>> EBTimeCorrAmplitudeBins_;
+  std::vector<float, cms::cuda::HostAllocator<float>> EBTimeCorrShiftBins_;
+  std::vector<float, cms::cuda::HostAllocator<float>> EETimeCorrAmplitudeBins_;
+  std::vector<float, cms::cuda::HostAllocator<float>> EETimeCorrShiftBins_;
 
 #ifndef __CUDACC__
   cms::cuda::ESProduct<Product> product_;

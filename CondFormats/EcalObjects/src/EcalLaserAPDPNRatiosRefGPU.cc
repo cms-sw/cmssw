@@ -1,37 +1,22 @@
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRefGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
-EcalLaserAPDPNRatiosRefGPU::EcalLaserAPDPNRatiosRefGPU(EcalLaserAPDPNRatiosRef const& values)
-    : valuesEB_{values.barrelItems()}, valuesEE_{values.endcapItems()} {}
-
-EcalLaserAPDPNRatiosRefGPU::Product::~Product() {
-  // deallocation
-  cudaCheck(cudaFree(values));
+EcalLaserAPDPNRatiosRefGPU::EcalLaserAPDPNRatiosRefGPU(EcalLaserAPDPNRatiosRef const& values) {
+  values_.reserve(values.size());
+  std::copy(values.begin(), values.end(), values_.begin());
+  offset_ = values.barrelItems().size();
 }
+
 
 EcalLaserAPDPNRatiosRefGPU::Product const& EcalLaserAPDPNRatiosRefGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalLaserAPDPNRatiosRefGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(
-            cudaMalloc((void**)&product.values, (this->valuesEB_.size() + this->valuesEE_.size()) * sizeof(float)));
-
-        // offset in floats, not bytes
-        auto const offset = this->valuesEB_.size();
-
+        // allocate
+        product.values = cms::cuda::make_device_unique<float[]>(values_.size(), cudaStream);
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.values,
-                                  this->valuesEB_.data(),
-                                  this->valuesEB_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.values + offset,
-                                  this->valuesEE_.data(),
-                                  this->valuesEE_.size() * sizeof(float),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.values, values_, cudaStream);
       });
 
   return product;
