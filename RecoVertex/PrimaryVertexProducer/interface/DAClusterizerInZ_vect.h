@@ -11,6 +11,7 @@
 
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 #include "DataFormats/Math/interface/Error.h"
@@ -19,6 +20,8 @@
 
 class DAClusterizerInZ_vect final : public TrackClusterizerInZ {
 public:
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
+
   // internal data structure for tracks
   struct track_t {
     std::vector<double> zpca_vec;                  // z-coordinate at point of closest approach to the beamline
