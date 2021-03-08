@@ -1,7 +1,7 @@
 #include "CondFormats/EcalObjects/interface/EcalRecHitParametersGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "CondFormats/EcalObjects/interface/EcalRechitChannelStatusGPU.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -34,47 +34,19 @@ EcalRecHitParametersGPU::EcalRecHitParametersGPU(edm::ParameterSet const& ps) {
   }
 }
 
-EcalRecHitParametersGPU::Product::~Product() {
-  cudaCheck(cudaFree(ChannelStatusToBeExcluded));
-  cudaCheck(cudaFree(expanded_v_DB_reco_flags));
-  cudaCheck(cudaFree(expanded_Sizes_v_DB_reco_flags));
-  cudaCheck(cudaFree(expanded_flagbit_v_DB_reco_flags));
-}
-
 EcalRecHitParametersGPU::Product const& EcalRecHitParametersGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalRecHitParametersGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.ChannelStatusToBeExcluded,
-                             this->ChannelStatusToBeExcluded_.size() * sizeof(int)));
-        cudaCheck(cudaMalloc((void**)&product.expanded_v_DB_reco_flags,
-                             this->expanded_v_DB_reco_flags_.size() * sizeof(int)));
-        cudaCheck(cudaMalloc((void**)&product.expanded_Sizes_v_DB_reco_flags,
-                             this->expanded_Sizes_v_DB_reco_flags_.size() * sizeof(uint32_t)));
-        cudaCheck(cudaMalloc((void**)&product.expanded_flagbit_v_DB_reco_flags,
-                             this->expanded_flagbit_v_DB_reco_flags_.size() * sizeof(uint32_t)));
-
+        // allocate
+        product.ChannelStatusToBeExcluded = cms::cuda::make_device_unique<int[]>(ChannelStatusToBeExcluded_.size(), cudaStream);
+        product.expanded_v_DB_reco_flags = cms::cuda::make_device_unique<int[]>(expanded_v_DB_reco_flags_.size(), cudaStream);
+        product.expanded_Sizes_v_DB_reco_flags = cms::cuda::make_device_unique<uint32_t[]>(expanded_Sizes_v_DB_reco_flags_.size(), cudaStream);
+        product.expanded_flagbit_v_DB_reco_flags = cms::cuda::make_device_unique<uint32_t[]>(expanded_flagbit_v_DB_reco_flags_.size(), cudaStream);
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.ChannelStatusToBeExcluded,
-                                  this->ChannelStatusToBeExcluded_.data(),
-                                  this->ChannelStatusToBeExcluded_.size() * sizeof(int),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.expanded_v_DB_reco_flags,
-                                  this->expanded_v_DB_reco_flags_.data(),
-                                  this->expanded_v_DB_reco_flags_.size() * sizeof(int),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.expanded_Sizes_v_DB_reco_flags,
-                                  this->expanded_Sizes_v_DB_reco_flags_.data(),
-                                  this->expanded_Sizes_v_DB_reco_flags_.size() * sizeof(uint32_t),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.expanded_flagbit_v_DB_reco_flags,
-                                  this->expanded_flagbit_v_DB_reco_flags_.data(),
-                                  this->expanded_flagbit_v_DB_reco_flags_.size() * sizeof(uint32_t),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.ChannelStatusToBeExcluded, ChannelStatusToBeExcluded_, cudaStream);
+        cms::cuda::copyAsync(product.expanded_v_DB_reco_flags, expanded_v_DB_reco_flags_, cudaStream);
+        cms::cuda::copyAsync(product.expanded_Sizes_v_DB_reco_flags, expanded_Sizes_v_DB_reco_flags_, cudaStream);
+        cms::cuda::copyAsync(product.expanded_flagbit_v_DB_reco_flags, expanded_flagbit_v_DB_reco_flags_, cudaStream);
       });
   return product;
 }

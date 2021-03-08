@@ -4,6 +4,8 @@
 #include <array>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -13,9 +15,10 @@
 class EcalRecHitParametersGPU {
 public:
   struct Product {
-    ~Product();
-    int *ChannelStatusToBeExcluded, *expanded_v_DB_reco_flags;
-    uint32_t *expanded_Sizes_v_DB_reco_flags, *expanded_flagbit_v_DB_reco_flags;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<int[]>> ChannelStatusToBeExcluded;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<int[]>> expanded_v_DB_reco_flags;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<uint32_t[]>> expanded_Sizes_v_DB_reco_flags;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<uint32_t[]>> expanded_flagbit_v_DB_reco_flags;
   };
 
 #ifndef __CUDACC__
