@@ -4,6 +4,8 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 l1tdeCSCTPGClient = DQMEDHarvester(
     "L1TdeCSCTPGClient",
     monitorDir = cms.string('L1TEMU/L1TdeCSCTPG'),
+    chambers = cms.vstring("ME11a", "ME11b", "ME12", "ME13", "ME21", "ME22",
+                           "ME31", "ME32", "ME41", "ME42"),
     alctVars = cms.vstring("quality", "wiregroup", "bx"),
     clctVars = cms.vstring("quality", "halfstrip", "bx",
                            "pattern", "bend", "quartstrip","eightstrip"),
