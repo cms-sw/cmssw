@@ -75,7 +75,7 @@ for plot in _sv_plots_nom:
         _sv_plots_106Xv1.append(plot)
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
 from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_devel
-(run2_nanoAOD_106Xv1 and ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.SV, plots = _sv_plots_106Xv1 )
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.SV, plots = _sv_plots_106Xv1 )
 
 
 ## MC
