@@ -15,11 +15,10 @@ namespace evf {
   constexpr int nSpecialModules = 10;
   constexpr int nReservedPaths = 1;
 
-
   namespace FastMonState {
     enum Macrostate;
   }
-
+        
   class FastMonitoringService;
 
   template <typename T>
@@ -27,7 +26,7 @@ namespace evf {
     ContainableAtomic() : m_value{} {}
     ContainableAtomic(T iValue) : m_value(iValue) {}
     ContainableAtomic(ContainableAtomic<T> const& iOther) : m_value(iOther.m_value.load()) {}
-    ContainableAtomic<T>& operator=(const void* iValue) {
+    ContainableAtomic<T>& operator=(T iValue) {
       m_value.store(iValue, std::memory_order_relaxed);
       return *this;
     }
@@ -47,9 +46,31 @@ namespace evf {
         delete[] dummiesForReserved_;
     }
     //trick: only encode state when sending it over (i.e. every sec)
-    int encode(const void* add) {
+    int encode(const void* add) const {
       std::unordered_map<const void*, int>::const_iterator it = quickReference_.find(add);
       return (it != quickReference_.end()) ? (*it).second : 0;
+    }
+
+    //this allows to init path list in beginJob, but strings used later are not in the same memory
+    //position. Therefore path address lookup will be updated when snapshot (encode) is called
+    //with this we can remove ugly path legend update in preEventPath, but will still need a check
+    //that any event has been processed (any path will do)
+    int encodeString(const std::string * add) {
+      std::unordered_map<const void*, int>::const_iterator it = quickReference_.find((void*)add);
+      if (it == quickReference_.end()) {
+        //try to match by string content (encode only used
+        auto it = quickReferencePreinit_.find(*add);
+        if (it == quickReferencePreinit_.end())
+          return 0;
+        else {
+          //overwrite pointer in decoder and add to reference
+          decoder_[(*it).second]=(void*)add;
+          quickReference_[(void*)add]=(*it).second;
+          quickReferencePreinit_.erase(it);
+          return encode((void*)add);
+        }
+      }
+      return (*it).second;
     }
 
     const void* decode(unsigned int index) { return decoder_[index]; }
@@ -76,8 +97,16 @@ namespace evf {
       current_++;
     }
 
+    void updatePreinit(std::string const& add) {
+      //	  translation_[*name]=current_;
+      quickReferencePreinit_[add] = current_;
+      decoder_.push_back((void*)&add);
+      current_++;
+    }
+
     unsigned int vecsize() { return decoder_.size(); }
     std::unordered_map<const void*, int> quickReference_;
+    std::unordered_map<std::string, int> quickReferencePreinit_;
     std::vector<const void*> decoder_;
     unsigned int reserved_;
     int current_;
@@ -107,7 +136,6 @@ namespace evf {
       jsoncollector::IntJ fastPathProcessedJ_;
       std::vector<unsigned int> threadMicrostateEncoded_;
       std::vector<unsigned int> inputState_;
-      std::vector<ContainableAtomic<unsigned int>> eventCountForPathInit_;
 
       //tracking luminosity of a stream
       std::vector<unsigned int> streamLumi_;
@@ -122,7 +150,7 @@ namespace evf {
       std::atomic<FastMonState::Macrostate> macrostate_;
 
       //per stream
-      std::vector<ContainableAtomic<const void*>> ministate_;
+      std::vector<ContainableAtomic<const std::string*>> ministate_;
       std::vector<ContainableAtomic<const void*>> microstate_;
       std::vector<ContainableAtomic<const void*>> threadMicrostate_;
 
