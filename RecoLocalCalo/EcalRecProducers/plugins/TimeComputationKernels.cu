@@ -4,12 +4,12 @@
 #include <cuda.h>
 
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
-#include "Common.h"
 #include "TimeComputationKernels.h"
 #include "KernelHelpers.h"
 
@@ -693,8 +693,8 @@ namespace ecal {
       if (!use_sample(sample_mask, sample))
         return;
 
-      const auto gainIdPrev = ecal::mgpa::gainId(digis[inputGtx - 1]);
-      const auto gainIdNext = ecal::mgpa::gainId(digis[inputGtx]);
+      const auto gainIdPrev = ecalMGPA::gainId(digis[inputGtx - 1]);
+      const auto gainIdNext = ecalMGPA::gainId(digis[inputGtx]);
       if (gainIdPrev >= 1 && gainIdPrev <= 3 && gainIdNext >= 1 && gainIdNext <= 3 && gainIdPrev < gainIdNext) {
         sample_values[gtx - 1] = 0;
         sample_value_errors[gtx - 1] = 1e+9;
@@ -849,10 +849,10 @@ namespace ecal {
       ScalarType* shrSampleValueErrors = shrSampleValues + blockDim.x;
 
       // 0 and 1 sample values
-      const auto adc0 = ecal::mgpa::adc(digis[input_ch_start]);
-      const auto gainId0 = ecal::mgpa::gainId(digis[input_ch_start]);
-      const auto adc1 = ecal::mgpa::adc(digis[input_ch_start + 1]);
-      const auto gainId1 = ecal::mgpa::gainId(digis[input_ch_start + 1]);
+      const auto adc0 = ecalMGPA::adc(digis[input_ch_start]);
+      const auto gainId0 = ecalMGPA::gainId(digis[input_ch_start]);
+      const auto adc1 = ecalMGPA::adc(digis[input_ch_start + 1]);
+      const auto gainId1 = ecalMGPA::gainId(digis[input_ch_start + 1]);
       const auto did = DetId{dids[inputCh]};
       const auto isBarrel = did.subdetId() == EcalBarrel;
       const auto sample_mask = did.subdetId() == EcalBarrel ? sample_maskEB : sample_maskEE;
@@ -875,8 +875,8 @@ namespace ecal {
       }
 
       // ped subtracted and gain-renormalized samples.
-      const auto gainId = ecal::mgpa::gainId(digis[inputTx]);
-      const auto adc = ecal::mgpa::adc(digis[inputTx]);
+      const auto gainId = ecalMGPA::gainId(digis[inputTx]);
+      const auto adc = ecalMGPA::adc(digis[inputTx]);
 
       bool bad = false;
       SampleVector::Scalar sample_value, sample_value_error;
@@ -1112,7 +1112,7 @@ namespace ecal {
         auto threshM = outOfTimeThreshG12m;
         if (amplitude > 3000.) {
           for (int isample = 0; isample < nsamples; isample++) {
-            int gainid = ecal::mgpa::gainId(digis[nsamples * inputGtx + isample]);
+            int gainid = ecalMGPA::gainId(digis[nsamples * inputGtx + isample]);
             if (gainid != 1) {
               threshP = outOfTimeThreshG61p;
               threshM = outOfTimeThreshG61m;
