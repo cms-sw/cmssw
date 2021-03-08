@@ -3,14 +3,15 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GeometryWriter")
 
 process.load('CondCore.CondDB.CondDB_cfi')
-
-# This will read all the little XML files and from
-# that fill the DDCompactView. The modules that fill
-# the reco part of the database need the DDCompactView.
+#
+# FIXME: the command "./createExtended2026Payloads.sh 113YV12" (i.e 113YV12 is a tag just for test) creates a problem related to:  
+# 1) Tracker if Configuration.Geometry.GeometryExtended2026D49_cff is used (Scenario2026D49 has to be set in DD4hep_GeometrySimPhase2_cff)  
+# 2) GEM if Configuration.Geometry.GeometryExtended2026D77_cff is used (Scenario2026D77 has to be set inDD4hep_GeometrySimPhase2_cff)  
+#
 process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
-process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
+process.load('Configuration.StandardSequences.DD4hep_GeometrySimPhase2_cff')
 process.load('Geometry.CaloEventSetup.CaloGeometry2026DBWriter_cfi')
 process.load('CondTools.Geometry.HcalParametersWriter_cff')
 
@@ -21,11 +22,6 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
-# This reads the big XML file and the only way to fill the
-# nonreco part of the database is to read this file.  It
-# somewhat duplicates the information read from the little
-# XML files, but there is no way to directly build the
-# DDCompactView from this.
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
                                            XMLFileName = cms.untracked.string("./geD49SingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
