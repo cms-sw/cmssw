@@ -67,9 +67,15 @@ run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.Flag, plots = _Flag_plots_80x)
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
 
 
+## no-change policy in run2_nanoAOD_106Xv1 (nanoAOD-v8)
+_sv_plots_nom = copy.deepcopy(nanoDQM.vplots.SV.plots)
+_sv_plots_106Xv1 = cms.VPSet()
+for plot in _sv_plots_nom:
+    if (plot.name.value() != "charge"):
+        _sv_plots_106Xv1.append(plot)
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
 from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_devel
-(run2_nanoAOD_106Xv1 and ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.SV , charge = None)
+(run2_nanoAOD_106Xv1 and ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.SV, plots = _sv_plots_106Xv1 )
 
 
 ## MC

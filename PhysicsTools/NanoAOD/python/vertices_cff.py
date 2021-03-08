@@ -37,8 +37,6 @@ svCandidateTable =  cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 ## do not add SV_charge in nanoAODv8
-from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
-from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_devel
 (run2_nanoAOD_106Xv1 and ~run2_nanoAOD_devel).toModify(vertexTable , storeCharge = False)
 
 
