@@ -38,10 +38,14 @@ EcalRecHitParametersGPU::Product const& EcalRecHitParametersGPU::getProduct(cuda
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalRecHitParametersGPU::Product& product, cudaStream_t cudaStream) {
         // allocate
-        product.ChannelStatusToBeExcluded = cms::cuda::make_device_unique<int[]>(ChannelStatusToBeExcluded_.size(), cudaStream);
-        product.expanded_v_DB_reco_flags = cms::cuda::make_device_unique<int[]>(expanded_v_DB_reco_flags_.size(), cudaStream);
-        product.expanded_Sizes_v_DB_reco_flags = cms::cuda::make_device_unique<uint32_t[]>(expanded_Sizes_v_DB_reco_flags_.size(), cudaStream);
-        product.expanded_flagbit_v_DB_reco_flags = cms::cuda::make_device_unique<uint32_t[]>(expanded_flagbit_v_DB_reco_flags_.size(), cudaStream);
+        product.ChannelStatusToBeExcluded =
+            cms::cuda::make_device_unique<int[]>(ChannelStatusToBeExcluded_.size(), cudaStream);
+        product.expanded_v_DB_reco_flags =
+            cms::cuda::make_device_unique<int[]>(expanded_v_DB_reco_flags_.size(), cudaStream);
+        product.expanded_Sizes_v_DB_reco_flags =
+            cms::cuda::make_device_unique<uint32_t[]>(expanded_Sizes_v_DB_reco_flags_.size(), cudaStream);
+        product.expanded_flagbit_v_DB_reco_flags =
+            cms::cuda::make_device_unique<uint32_t[]>(expanded_flagbit_v_DB_reco_flags_.size(), cudaStream);
         // transfer
         cms::cuda::copyAsync(product.ChannelStatusToBeExcluded, ChannelStatusToBeExcluded_, cudaStream);
         cms::cuda::copyAsync(product.expanded_v_DB_reco_flags, expanded_v_DB_reco_flags_, cudaStream);

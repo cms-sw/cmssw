@@ -9,7 +9,6 @@ EcalTimeCalibConstantsGPU::EcalTimeCalibConstantsGPU(EcalTimeCalibConstants cons
   offset_ = values.barrelItems().size();
 }
 
-
 EcalTimeCalibConstantsGPU::Product const& EcalTimeCalibConstantsGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalTimeCalibConstantsGPU::Product& product, cudaStream_t cudaStream) {

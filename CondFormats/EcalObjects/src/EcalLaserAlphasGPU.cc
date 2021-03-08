@@ -9,7 +9,6 @@ EcalLaserAlphasGPU::EcalLaserAlphasGPU(EcalLaserAlphas const& values) {
   offset_ = values.barrelItems().size();
 }
 
-
 EcalLaserAlphasGPU::Product const& EcalLaserAlphasGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalLaserAlphasGPU::Product& product, cudaStream_t cudaStream) {

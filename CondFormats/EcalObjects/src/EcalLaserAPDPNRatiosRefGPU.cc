@@ -9,7 +9,6 @@ EcalLaserAPDPNRatiosRefGPU::EcalLaserAPDPNRatiosRefGPU(EcalLaserAPDPNRatiosRef c
   offset_ = values.barrelItems().size();
 }
 
-
 EcalLaserAPDPNRatiosRefGPU::Product const& EcalLaserAPDPNRatiosRefGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalLaserAPDPNRatiosRefGPU::Product& product, cudaStream_t cudaStream) {
