@@ -152,6 +152,7 @@ namespace evf {
       //per stream
       std::vector<ContainableAtomic<const std::string*>> ministate_;
       std::vector<ContainableAtomic<const void*>> microstate_;
+      std::vector<ContainableAtomic<unsigned char>> microstateAcqFlag_;
       std::vector<ContainableAtomic<const void*>> threadMicrostate_;
 
       FastMonEncoding encModule_;
