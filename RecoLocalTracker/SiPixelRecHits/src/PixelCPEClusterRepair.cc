@@ -155,10 +155,7 @@ void PixelCPEClusterRepair::fill2DTemplIDs() {
 //-----------------------------------------------------------------------------
 //  Clean up.
 //-----------------------------------------------------------------------------
-PixelCPEClusterRepair::~PixelCPEClusterRepair() {
-  for (auto x : thePixelTemp2D_)
-    x.destroy();
-}
+PixelCPEClusterRepair::~PixelCPEClusterRepair() {}
 
 std::unique_ptr<PixelCPEBase::ClusterParam> PixelCPEClusterRepair::createClusterParam(const SiPixelCluster& cl) const {
   return std::make_unique<ClusterParamTemplate>(cl);
