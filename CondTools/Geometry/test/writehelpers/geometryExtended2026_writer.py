@@ -5,8 +5,9 @@ process = cms.Process("GeometryWriter")
 process.load('CondCore.CondDB.CondDB_cfi')
 #
 # FIXME: the command "./createExtended2026Payloads.sh 113YV12" (i.e 113YV12 is a tag just for test) creates a problem related to:  
-# 1) Tracker if Configuration.Geometry.GeometryExtended2026D49_cff is used (Scenario2026D49 has to be set in DD4hep_GeometrySimPhase2_cff)  
-# 2) GEM if Configuration.Geometry.GeometryExtended2026D77_cff is used (Scenario2026D77 has to be set inDD4hep_GeometrySimPhase2_cff)  
+# 1) Tracker, if Configuration.Geometry.GeometryExtended2026D49_cff is used (Scenario2026D49 has to be set in DD4hep_GeometrySimPhase2_cff)  
+# 2) GEM, if Configuration.Geometry.GeometryExtended2026D77_cff is used (Scenario2026D77 has to be set in DD4hep_GeometrySimPhase2_cff)  
+# Please add the right Scenario (D49 or D77 or ..) also in geometryExtended2026_xmlwriter.py and in splitExtended2026Database.sh 
 #
 process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
