@@ -194,6 +194,8 @@ namespace evf {
     void postEvent(edm::StreamContext const&);
     void preSourceEvent(edm::StreamID);
     void postSourceEvent(edm::StreamID);
+    void preModuleEventAcquire(edm::StreamContext const&, edm::ModuleCallingContext const&);
+    void postModuleEventAcquire(edm::StreamContext const&, edm::ModuleCallingContext const&);
     void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
     void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
     void preStreamEarlyTermination(edm::StreamContext const&, edm::TerminationOrigin);
@@ -225,11 +227,6 @@ namespace evf {
   private:
     void doSnapshot(const unsigned int ls, const bool isGlobalEOL);
 
-    //void doStreamEOLSnapshot(const unsigned int ls, const unsigned int streamID) {
-      //pick up only event count here
-    //  fmt_->jsonMonitor_->snapStreamAtomic(ls, streamID);
-    //}
-
     void snapshotRunner();
 
     //the actual monitoring thread is held by a separate class object for ease of maintenance
@@ -257,13 +254,6 @@ namespace evf {
     unsigned int lastGlobalLumi_;
     std::atomic<bool> isInitTransition_;
     unsigned int lumiFromSource_;
-
-    //global state
-
-    //per stream
-    //std::vector<ContainableAtomic<const std::string*>> ministate_;
-    //std::vector<ContainableAtomic<const void*>> microstate_;
-    //std::vector<ContainableAtomic<const void*>> threadMicrostate_;
 
     //variables measuring source statistics (global)
     //unordered_map is not used because of very few elements stored concurrently
