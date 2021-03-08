@@ -76,13 +76,13 @@ void PixelVertexCollectionTrimmer::produce(edm::Event& iEvent, const edm::EventS
     std::iota(sortIdxs.begin(), sortIdxs.end(), 0);
     std::sort(sortIdxs.begin(), sortIdxs.end(), [&](size_t const i1, size_t const i2) { return foms[i1] > foms[i2]; });
 
-    auto const min_fom = std::max(foms.at(sortIdxs.at(0)) * fractionSumPt2_, minSumPt2_);
+    auto const minFOM_fromFrac = foms.at(sortIdxs.at(0)) * fractionSumPt2_;
 
     vtxs_trim->reserve(maxVtx_ < vtxs.size() ? maxVtx_ : vtxs.size());
     for (auto const idx : sortIdxs) {
       if (vtxs_trim->size() >= maxVtx_)
         break;
-      if (foms.at(idx) >= min_fom)
+      if (foms.at(idx) >= minFOM_fromFrac and foms.at(idx) > minSumPt2_)
         vtxs_trim->emplace_back(vtxs.at(idx));
     }
 
