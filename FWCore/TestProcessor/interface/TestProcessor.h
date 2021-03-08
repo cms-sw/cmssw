@@ -24,6 +24,7 @@
 #include <memory>
 #include "tbb/global_control.h"
 #include "tbb/task_arena.h"
+#include "tbb/task_group.h"
 
 // user include files
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
@@ -324,6 +325,7 @@ This simulates a problem happening early in the job which causes processing not 
 
       // ---------- member data --------------------------------
       tbb::global_control globalControl_;
+      tbb::task_group taskGroup_;
       tbb::task_arena arena_;
       std::string labelOfTestModule_;
       std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.

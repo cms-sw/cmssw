@@ -96,11 +96,13 @@ private:
 
   template <typename Traits, typename Info>
   void doWork(edm::Worker* iBase, Info const& info, edm::StreamID id, edm::ParentContext const& iContext) {
-    auto task = edm::make_empty_waiting_task();
-    task->increment_ref_count();
-    iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(task.get()), info, edm::ServiceToken(), id, iContext, nullptr);
-    task->wait_for_all();
-    if (auto e = task->exceptionPtr()) {
+    edm::FinalWaitingTask task;
+    tbb::task_group group;
+    iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, edm::ServiceToken(), id, iContext, nullptr);
+    do {
+      group.wait();
+    } while (not task.done());
+    if (auto e = task.exceptionPtr()) {
       std::rethrow_exception(*e);
     }
   }
@@ -216,12 +218,14 @@ testLimitedOutputModule::testLimitedOutputModule()
     edm::ParentContext parentContext;
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-    auto t = edm::make_empty_waiting_task();
-    t->increment_ref_count();
-    iComm->writeLumiAsync(edm::WaitingTaskHolder(t.get()), *m_lbp, nullptr, &activityRegistry);
-    t->wait_for_all();
-    if (t->exceptionPtr() != nullptr) {
-      std::rethrow_exception(*t->exceptionPtr());
+    edm::FinalWaitingTask task;
+    tbb::task_group group;
+    iComm->writeLumiAsync(edm::WaitingTaskHolder(group, &task), *m_lbp, nullptr, &activityRegistry);
+    do {
+      group.wait();
+    } while (not task.done());
+    if (task.exceptionPtr() != nullptr) {
+      std::rethrow_exception(*task.exceptionPtr());
     }
   };
 
@@ -230,12 +234,14 @@ testLimitedOutputModule::testLimitedOutputModule()
     edm::ParentContext parentContext;
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-    auto t = edm::make_empty_waiting_task();
-    t->increment_ref_count();
-    iComm->writeRunAsync(edm::WaitingTaskHolder(t.get()), *m_rp, nullptr, &activityRegistry, nullptr);
-    t->wait_for_all();
-    if (t->exceptionPtr() != nullptr) {
-      std::rethrow_exception(*t->exceptionPtr());
+    edm::FinalWaitingTask task;
+    tbb::task_group group;
+    iComm->writeRunAsync(edm::WaitingTaskHolder(group, &task), *m_rp, nullptr, &activityRegistry, nullptr);
+    do {
+      group.wait();
+    } while (not task.done());
+    if (task.exceptionPtr() != nullptr) {
+      std::rethrow_exception(*task.exceptionPtr());
     }
   };
 
