@@ -1,7 +1,7 @@
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalMultifitParametersGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalMultifitParametersGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 EcalMultifitParametersGPU::EcalMultifitParametersGPU(edm::ParameterSet const& ps) {
   auto const& amplitudeFitParametersEB = ps.getParameter<std::vector<double>>("EBamplitudeFitParameters");
@@ -20,45 +20,19 @@ EcalMultifitParametersGPU::EcalMultifitParametersGPU(edm::ParameterSet const& ps
   std::copy(timeFitParametersEE.begin(), timeFitParametersEE.end(), timeFitParametersEE_.begin());
 }
 
-EcalMultifitParametersGPU::Product::~Product() {
-  cudaCheck(cudaFree(amplitudeFitParametersEB));
-  cudaCheck(cudaFree(amplitudeFitParametersEE));
-  cudaCheck(cudaFree(timeFitParametersEB));
-  cudaCheck(cudaFree(timeFitParametersEE));
-}
-
 EcalMultifitParametersGPU::Product const& EcalMultifitParametersGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](EcalMultifitParametersGPU::Product& product, cudaStream_t cudaStream) {
-        // malloc
-        cudaCheck(cudaMalloc((void**)&product.amplitudeFitParametersEB,
-                             this->amplitudeFitParametersEB_.size() * sizeof(double)));
-        cudaCheck(cudaMalloc((void**)&product.amplitudeFitParametersEE,
-                             this->amplitudeFitParametersEE_.size() * sizeof(double)));
-        cudaCheck(cudaMalloc((void**)&product.timeFitParametersEB, this->timeFitParametersEB_.size() * sizeof(double)));
-        cudaCheck(cudaMalloc((void**)&product.timeFitParametersEE, this->timeFitParametersEE_.size() * sizeof(double)));
-
+        // allocate
+        product.amplitudeFitParametersEB = cms::cuda::make_device_unique<double[]>(amplitudeFitParametersEB_.size(), cudaStream);
+        product.amplitudeFitParametersEE = cms::cuda::make_device_unique<double[]>(amplitudeFitParametersEE_.size(), cudaStream);
+        product.timeFitParametersEB = cms::cuda::make_device_unique<double[]>(timeFitParametersEB_.size(), cudaStream);
+        product.timeFitParametersEE = cms::cuda::make_device_unique<double[]>(timeFitParametersEE_.size(), cudaStream);
         // transfer
-        cudaCheck(cudaMemcpyAsync(product.amplitudeFitParametersEB,
-                                  this->amplitudeFitParametersEB_.data(),
-                                  this->amplitudeFitParametersEB_.size() * sizeof(double),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.amplitudeFitParametersEE,
-                                  this->amplitudeFitParametersEE_.data(),
-                                  this->amplitudeFitParametersEE_.size() * sizeof(double),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.timeFitParametersEB,
-                                  this->timeFitParametersEB_.data(),
-                                  this->timeFitParametersEB_.size() * sizeof(double),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.timeFitParametersEE,
-                                  this->timeFitParametersEE_.data(),
-                                  this->timeFitParametersEE_.size() * sizeof(double),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cms::cuda::copyAsync(product.amplitudeFitParametersEB, amplitudeFitParametersEB_, cudaStream);
+        cms::cuda::copyAsync(product.amplitudeFitParametersEE, amplitudeFitParametersEE_, cudaStream);
+        cms::cuda::copyAsync(product.timeFitParametersEB, timeFitParametersEB_, cudaStream);
+        cms::cuda::copyAsync(product.timeFitParametersEE, timeFitParametersEE_, cudaStream);
       });
   return product;
 }

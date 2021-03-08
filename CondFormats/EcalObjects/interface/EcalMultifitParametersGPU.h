@@ -4,6 +4,8 @@
 #include <array>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/propagate_const_array.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -13,8 +15,10 @@
 class EcalMultifitParametersGPU {
 public:
   struct Product {
-    ~Product();
-    double *amplitudeFitParametersEB, *amplitudeFitParametersEE, *timeFitParametersEB, *timeFitParametersEE;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<double[]>> amplitudeFitParametersEB;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<double[]>> amplitudeFitParametersEE;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<double[]>> timeFitParametersEB;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<double[]>> timeFitParametersEE;
   };
 
 #ifndef __CUDACC__

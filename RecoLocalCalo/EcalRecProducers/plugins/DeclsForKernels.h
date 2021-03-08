@@ -67,11 +67,11 @@ namespace ecal {
     struct ConfigurationParameters {
       using type = double;
       // device ptrs
-      type *amplitudeFitParametersEB = nullptr, *amplitudeFitParametersEE = nullptr;
+      const type *amplitudeFitParametersEB = nullptr, *amplitudeFitParametersEE = nullptr;
 
       uint32_t timeFitParametersSizeEB, timeFitParametersSizeEE;
       // device ptrs
-      type *timeFitParametersEB = nullptr, *timeFitParametersEE = nullptr;
+      const type *timeFitParametersEB = nullptr, *timeFitParametersEE = nullptr;
 
       type timeFitLimitsFirstEB, timeFitLimitsFirstEE;
       type timeFitLimitsSecondEB, timeFitLimitsSecondEE;
@@ -250,7 +250,7 @@ namespace ecal {
     // parameters that are read in the configuration file for rechit producer
     struct ConfigurationParameters {
       // device ptrs
-      int* ChannelStatusToBeExcluded = nullptr;
+      const int* ChannelStatusToBeExcluded = nullptr;
       uint32_t ChannelStatusToBeExcludedSize;
 
       bool killDeadChannels;
@@ -267,9 +267,9 @@ namespace ecal {
       float EBLaserMAX;
       float EELaserMAX;
 
-      int* expanded_v_DB_reco_flags;
-      uint32_t* expanded_Sizes_v_DB_reco_flags;
-      uint32_t* expanded_flagbit_v_DB_reco_flags;
+      const int* expanded_v_DB_reco_flags;
+      const uint32_t* expanded_Sizes_v_DB_reco_flags;
+      const uint32_t* expanded_flagbit_v_DB_reco_flags;
       uint32_t expanded_v_DB_reco_flagsSize;
 
       uint32_t flagmask;

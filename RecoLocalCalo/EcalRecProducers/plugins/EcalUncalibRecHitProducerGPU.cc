@@ -229,10 +229,10 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
   auto const& multifitParameters = multifitParametersData.getProduct(ctx.stream());
 
   // assign ptrs/values: this is done not to change how things look downstream
-  configParameters_.amplitudeFitParametersEB = multifitParameters.amplitudeFitParametersEB;
-  configParameters_.amplitudeFitParametersEE = multifitParameters.amplitudeFitParametersEE;
-  configParameters_.timeFitParametersEB = multifitParameters.timeFitParametersEB;
-  configParameters_.timeFitParametersEE = multifitParameters.timeFitParametersEE;
+  configParameters_.amplitudeFitParametersEB = multifitParameters.amplitudeFitParametersEB.get();
+  configParameters_.amplitudeFitParametersEE = multifitParameters.amplitudeFitParametersEE.get();
+  configParameters_.timeFitParametersEB = multifitParameters.timeFitParametersEB.get();
+  configParameters_.timeFitParametersEE = multifitParameters.timeFitParametersEE.get();
   configParameters_.timeFitParametersSizeEB = multifitParametersData.getValues()[2].get().size();
   configParameters_.timeFitParametersSizeEE = multifitParametersData.getValues()[3].get().size();
 
