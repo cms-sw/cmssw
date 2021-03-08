@@ -15,7 +15,6 @@
 
 #include "AmplitudeComputationCommonKernels.h"
 #include "AmplitudeComputationKernels.h"
-#include "Common.h"
 #include "EcalUncalibRecHitMultiFitAlgoGPU.h"
 #include "TimeComputationKernels.h"
 

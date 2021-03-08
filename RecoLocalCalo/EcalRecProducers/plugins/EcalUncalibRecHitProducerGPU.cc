@@ -27,7 +27,6 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
-#include "Common.h"
 #include "DeclsForKernels.h"
 #include "EcalUncalibRecHitMultiFitAlgoGPU.h"
 
