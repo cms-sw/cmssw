@@ -11,7 +11,6 @@
 #include <algorithm>
 
 // user include files
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -23,6 +22,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
@@ -187,7 +187,8 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       std::cout << " Seeding Track:" << std::endl;
       std::cout << "   p: " << track.p() << " pt: " << track.pt()
                 << " charge: " << track.charge() << " eta: " << track.eta()
-                << " outerEta: " << track.outerEta() << " phi: " << track.phi() << " outerPhi: " << track.outerPhi()
+                << " outerEta: " << track.outerEta() << " phi: " << track.phi() 
+                << " outerPhi: " << track.outerPhi()
                 << std::endl;
     }
     bestCaloParticleMatches(trackster);
@@ -195,9 +196,10 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       std::cout << " Best CaloParticles Matches:" << std::endl;;
       for (auto const& i : bestCPMatches) {
         auto const & cp = caloParticles[i.first];
-        std::cout << "   " << i.first << "(" << i.second << "):" << cp.pdgId() << "|"
-                  << cp.simClusters().size() << "|"
-                  << cp.energy() << "|" << cp.pt() << "  " << std::endl;
+        std::cout << "   " << i.first << "(" << i.second << "):" << cp.pdgId() 
+                  << " simCl size:" << cp.simClusters().size()
+                  << " energy:" << cp.energy() << " pt:" << cp.pt() 
+                  << " momentum:" << cp.momentum() << std::endl;
       }
       std::cout << std::endl;
     }
