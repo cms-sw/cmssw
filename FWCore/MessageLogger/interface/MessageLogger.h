@@ -141,6 +141,10 @@ namespace edm {
     explicit LogDebug_(std::string_view id, std::string_view file, int line);
     //Needed for the LogDebug macro
     LogDebug_(Log<level::Debug, false> const& iOther) : Log<level::Debug, false>(nullptr, iOther) {}
+    LogDebug_(LogDebug_ const&) = delete;
+    LogDebug_(LogDebug_&&) = default;
+    LogDebug_& operator=(LogDebug_ const&) = delete;
+    LogDebug_& operator=(LogDebug_&&) = default;
 
   private:
     std::string_view stripLeadingDirectoryTree(std::string_view file) const;
@@ -152,6 +156,10 @@ namespace edm {
     explicit LogTrace_(std::string_view id) : Log<level::Debug, true>(id) {}
     //Needed for the LogTrace macro
     LogTrace_(Log<level::Debug, true> const& iOther) : Log<level::Debug, true>(nullptr, iOther) {}
+    LogTrace_(LogTrace_ const&) = delete;
+    LogTrace_(LogTrace_&&) = default;
+    LogTrace_& operator=(LogTrace_ const&) = delete;
+    LogTrace_& operator=(LogTrace_&&) = default;
   };
 
   namespace impl {
@@ -161,6 +169,8 @@ namespace edm {
       //Need an operator with lower precendence than operator<<
       LogDebug_ operator|(Log<level::Debug, false>& iOther) { return LogDebug_(iOther); }
       LogTrace_ operator|(Log<level::Debug, true>& iOther) { return LogTrace_(iOther); }
+      LogDebug_ operator|(Log<level::Debug, false>&& iOther) { return LogDebug_(iOther); }
+      LogTrace_ operator|(Log<level::Debug, true>&& iOther) { return LogTrace_(iOther); }
     };
   }  // namespace impl
 
