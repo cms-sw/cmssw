@@ -48,6 +48,7 @@ private:
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
   std::function<double(mkfit::Event&, mkfit::MkBuilder&)> buildFunction_;
+  const float minGoodStripCharge_;
   const int iterationNumber_;  // TODO: temporary solution
   const bool seedCleaning_;
   bool backwardFitInCMSSW_;
@@ -60,6 +61,8 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
       seedToken_{consumes<MkFitSeedWrapper>(iConfig.getParameter<edm::InputTag>("seeds"))},
       mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
       putToken_{produces<MkFitOutputWrapper>()},
+      minGoodStripCharge_{static_cast<float>(
+          iConfig.getParameter<edm::ParameterSet>("minGoodStripCharge").getParameter<double>("value"))},
       iterationNumber_{iConfig.getParameter<int>("iterationNumber")},
       seedCleaning_{iConfig.getParameter<bool>("seedCleaning")},
       backwardFitInCMSSW_{iConfig.getParameter<bool>("backwardFitInCMSSW")},
@@ -105,7 +108,11 @@ void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& description
       ->setComment("Do backward fit (to innermost hit) in CMSSW (true) or mkFit (false)");
   desc.addUntracked("mkFitSilent", true)->setComment("Allows to enables printouts from mkFit with 'False'");
 
-  descriptions.add("mkFitProducer", desc);
+  edm::ParameterSetDescription descCCC;
+  descCCC.add<double>("value");
+  desc.add("minGoodStripCharge", descCCC);
+
+  descriptions.add("mkFitProducerDefault", desc);
 }
 
 std::unique_ptr<mkfit::MkBuilderWrapper> MkFitProducer::beginStream(edm::StreamID iID) const {
@@ -126,21 +133,27 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
   const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
 
   const std::vector<bool>* pixelMaskPtr = nullptr;
-  const std::vector<bool>* stripMaskPtr = nullptr;
   std::vector<bool> pixelMask;
-  std::vector<bool> stripMask;
+  std::vector<bool> stripMask(hits.outerHits().size(), false);
   if (not pixelMaskToken_.isUninitialized()) {
     const auto& pixelContainerMask = iEvent.get(pixelMaskToken_);
     pixelMask.resize(pixelContainerMask.size(), false);
+    if UNLIKELY (pixelContainerMask.refProd().id() != hits.pixelClustersID()) {
+      throw cms::Exception("LogicError") << "MkFitHitWrapper has pixel cluster ID " << hits.pixelClustersID()
+                                         << " but pixel cluster mask has " << pixelContainerMask.refProd().id();
+    }
     pixelContainerMask.copyMaskTo(pixelMask);
     pixelMaskPtr = &pixelMask;
 
     const auto& stripContainerMask = iEvent.get(stripMaskToken_);
-    stripMask.resize(stripContainerMask.size(), false);
+    if UNLIKELY (stripContainerMask.refProd().id() != hits.outerClustersID()) {
+      throw cms::Exception("LogicError") << "MkFitHitWrapper has strip cluster ID " << hits.outerClustersID()
+                                         << " but strip cluster mask has " << stripContainerMask.refProd().id();
+    }
     stripContainerMask.copyMaskTo(stripMask);
-    stripMaskPtr = &stripMask;
+  } else {
+    hits.stripClusterChargeCut(minGoodStripCharge_, stripMask);
   }
-  // TODO: add strip cluster charge cut
 
   // Initialize the number of layers, has to be done exactly once in
   // the whole program.
@@ -157,7 +170,7 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
     mkfit::run_OneIteration(mkFitGeom.trackerInfo(),
                             mkFitGeom.iterationsInfo()[iterationNumber_],
                             hits.eventOfHits(),
-                            {pixelMaskPtr, stripMaskPtr},
+                            {pixelMaskPtr, &stripMask},
                             streamCache(iID)->get(),
                             seeds_mutable,
                             tracks,
