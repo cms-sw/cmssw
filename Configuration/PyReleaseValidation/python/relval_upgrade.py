@@ -42,12 +42,11 @@ for year in upgradeKeys:
                     if (specialType != 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
-                        if (specialType == 'ProdLike' or specialType == 'TestOldDigiProdLike') and 'RecoGlobal' in step:
-                            stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','MiniAOD'),specialWF.suffix))
-                        elif specialType == 'ProdLike' and 'Reco' in step:
-                            stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('Reco','MiniAOD'),specialWF.suffix))
+                        if 'ProdLike' in specialType:
+                            if 'Reco' in step: # handles both Reco and RecoGlobal
+                                stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','MiniAOD').replace('Reco','MiniAOD'),specialWF.suffix))
                         # similar hacks for premixing
-                        elif 'PMX' in specialType:
+                        if 'PMX' in specialType:
                             if 'GenSim' in step:
                                 s = step.replace('GenSim','Premix')+'PU' # later processing requires to have PU here
                                 if step in specialWF.PU:
