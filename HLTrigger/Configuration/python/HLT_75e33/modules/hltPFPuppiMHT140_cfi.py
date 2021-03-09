@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hltPFPuppiMHT120 = cms.EDFilter("HLTMhtFilter",
+hltPFPuppiMHT140 = cms.EDFilter("HLTMhtFilter",
     mhtLabels = cms.VInputTag("hltPFPuppiMHT"),
-    minMht = cms.vdouble(120.0),
+    minMht = cms.vdouble(140.0),
     saveTags = cms.bool(True)
 )
