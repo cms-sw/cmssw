@@ -965,6 +965,54 @@ upgradeWFs['PMXS1S2PR'] = UpgradeWorkflowAdjustPU(
     offset = 0.999,
 )
 
+class UpgradeWorkflowPremixProdLike(UpgradeWorkflowPremix,UpgradeWorkflow_ProdLike):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # copy steps, then apply specializations
+        UpgradeWorkflowPremix.setup_(self, step, stepName, stepDict, k, properties)
+        UpgradeWorkflow_ProdLike.setup_(self, step, stepName, stepDict, k, properties)
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # use both conditions
+        return UpgradeWorkflowPremix.condition(self, fragment, stepList, key, hasHarvest) and UpgradeWorkflow_ProdLike.condition(self, fragment, stepList, key, hasHarvest)
+# premix stage2
+upgradeWFs['PMXS2ProdLike'] = UpgradeWorkflowPremixProdLike(
+    steps = [],
+    PU = [
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
+        'Nano',
+        'HARVEST',
+        'HARVESTGlobal',
+        'MiniAOD',
+        'ALCA',
+    ],
+    suffix = '_PMXS2ProdLike',
+    offset = 0.9821,
+)
+# premix combined stage1+stage2
+upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
+    steps = [],
+    PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
+        'Nano',
+        'HARVEST',
+        'HARVESTGlobal',
+        'MiniAOD',
+        'ALCA',
+    ],
+    suffix = '_PMXS1S2ProdLike',
+    offset = 0.9921,
+)
+
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
