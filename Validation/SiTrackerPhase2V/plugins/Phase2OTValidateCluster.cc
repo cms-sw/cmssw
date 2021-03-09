@@ -351,17 +351,17 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Pixel");
-    psd0.add<std::string>("title", "#Delta X " + mptag + ";Cluster resolution X dimension");
+    psd0.add<std::string>("title", "#Delta X " + mptag + ";Cluster resolution X coordinate");
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<double>("xmax", 2.0);
+    psd0.add<double>("xmin", -2.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_X_Pixel", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Pixel");
-    psd0.add<std::string>("title", "#Delta Y " + mptag + ";Cluster resolution Y dimension");
+    psd0.add<std::string>("title", "#Delta Y " + mptag + ";Cluster resolution Y coordinate");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
@@ -371,17 +371,17 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Pixel_Primary");
-    psd0.add<std::string>("title", "#Delta X " + mptag + ";cluster resolution X dimension");
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<std::string>("title", "#Delta X " + mptag + ";cluster resolution X coordinate");
+    psd0.add<double>("xmin", -2.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
+    psd0.add<double>("xmax", 2.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_X_Pixel_Primary", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Pixel_Primary");
-    psd0.add<std::string>("title", "#Delta Y " + mptag + ";cluster resolution Y dimension");
+    psd0.add<std::string>("title", "#Delta Y " + mptag + ";cluster resolution Y coordinate");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
@@ -393,17 +393,17 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Strip");
-    psd0.add<std::string>("title", "#Delta X " + striptag + ";Cluster resolution X dimension");
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<std::string>("title", "#Delta X " + striptag + ";Cluster resolution X coordinate");
+    psd0.add<double>("xmin", -2.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
+    psd0.add<double>("xmax", 2.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_X_Strip", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Strip");
-    psd0.add<std::string>("title", "#Delta Y " + striptag + ";Cluster resolution Y dimension");
+    psd0.add<std::string>("title", "#Delta Y " + striptag + ";Cluster resolution Y coordinate");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
@@ -413,17 +413,17 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Strip_Primary");
-    psd0.add<std::string>("title", "#Delta X " + striptag + ";Cluster resolution X dimension");
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<std::string>("title", "#Delta X " + striptag + ";Cluster resolution X coordinate");
+    psd0.add<double>("xmin", -2.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
+    psd0.add<double>("xmax", 2.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_X_Strip_Primary", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Strip_Primary");
-    psd0.add<std::string>("title", "#Delta Y " + striptag + ";Cluster resolution Y dimension");
+    psd0.add<std::string>("title", "#Delta Y " + striptag + ";Cluster resolution Y coordinate");
     psd0.add<double>("xmin", -5.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 5.0);
