@@ -1,6 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 defaultMuonHistoParameters = cms.PSet(
+
+    minNTracks = cms.int32(0), 
+    maxNTracks = cms.int32(100),  
+    nintNTracks = cms.int32(100),  
+    #
+    minFTracks = cms.int32(0),                                                                                                      
+    maxFTracks = cms.int32(20),                                                                                                    
+    nintFTracks = cms.int32(20),    
+    #
     useFabsEta = cms.bool(False),
     minEta = cms.double(-2.5),
     maxEta = cms.double(2.5),
@@ -108,8 +117,8 @@ trkMuonHistoParameters.do_MUOhitsPlots = False
 gemMuonHistoParameters =  trkMuonHistoParameters.clone()
 gemMuonHistoParameters.usetracker = True
 gemMuonHistoParameters.usemuon = False
-gemMuonHistoParameters.minEta = -2.4
-gemMuonHistoParameters.maxEta = +2.4
+gemMuonHistoParameters.minEta = -2.8
+gemMuonHistoParameters.maxEta = +2.8
 gemMuonHistoParameters.nintEta = 48
 #gemMuonHistoParameters.nintNHit = 41   # this is the tracker default
 #gemMuonHistoParameters.maxNHit = 40.5
@@ -356,3 +365,14 @@ glbCosmic1LegMuonHistoParameters.maxLayers = 30.5
 #
 glbCosmic1LegMuonHistoParameters.nintPixels = 11
 glbCosmic1LegMuonHistoParameters.maxPixels = 10.5
+
+
+## Customize ranges for phase 2 samples 
+
+trkMuonHistoParameters_phase2 = trkMuonHistoParameters.clone()
+trkMuonHistoParameters_phase2.minPU = 150
+trkMuonHistoParameters_phase2.maxPU = 250
+trkMuonHistoParameters_phase2.maxNTracks = 300 
+trkMuonHistoParameters_phase2.nintNTracks = 50
+trkMuonHistoParameters_phase2.maxFTracks = 100                                                                                      
+trkMuonHistoParameters_phase2.nintFTracks = 50
