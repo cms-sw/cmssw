@@ -101,7 +101,7 @@ L1UpgradeTfMuonTreeProducer::L1UpgradeTfMuonTreeProducer(const edm::ParameterSet
   bmtfMuonToken_ =
       consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtfMuonToken"));
   bmtf2MuonToken_ =
-     consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtf2MuonToken"));
+      consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("bmtf2MuonToken"));
   omtfMuonToken_ =
       consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("omtfMuonToken"));
   emtfMuonToken_ =
@@ -146,7 +146,7 @@ void L1UpgradeTfMuonTreeProducer::analyze(const edm::Event& iEvent, const edm::E
   } else {
     iEvent.getByToken(fedToken_, feds_);
     // Get fw version
-    unsigned algoFwVersion { getAlgoFwVersion() };
+    unsigned algoFwVersion{getAlgoFwVersion()};
     if (algoFwVersion < 2499805536) {  //95000160(hex)
       // Legacy was triggering (and therefore in the main collection)
       legacybmtfMuonToken = bmtfMuonToken_;
@@ -224,28 +224,28 @@ void L1UpgradeTfMuonTreeProducer::beginJob(void) {}
 // ------------ method called once each job just after ending the event loop  ------------
 void L1UpgradeTfMuonTreeProducer::endJob() {}
 
-unsigned L1UpgradeTfMuonTreeProducer::getAlgoFwVersion()
-{
+unsigned L1UpgradeTfMuonTreeProducer::getAlgoFwVersion() {
   int nonEmptyFed = 0;
   if (feds_->FEDData(1376).size() > 0)
     nonEmptyFed = 1376;
   else if (feds_->FEDData(1377).size() > 0)
     nonEmptyFed = 1377;
   else {
-    edm::LogError("L1UpgradeTfMuonTreeProducer") << "Both BMTF feds (1376, 1377) seem empty, will lead to unexpected results in tree from data.";
+    edm::LogError("L1UpgradeTfMuonTreeProducer")
+        << "Both BMTF feds (1376, 1377) seem empty, will lead to unexpected results in tree from data.";
     return 0;
   }
 
-  const FEDRawData &l1tRcd = feds_->FEDData(nonEmptyFed);
+  const FEDRawData& l1tRcd = feds_->FEDData(nonEmptyFed);
   edm::LogInfo("L1UpgradeTfMuonTreeProducer") << "L1T Rcd taken from the FEDData.";
   edm::LogInfo("L1UpgradeTfMuonTreeProducer") << "l1tRcd.size=" << l1tRcd.size() << "   for fed:" << nonEmptyFed;
 
-  const unsigned char *data = l1tRcd.data();
+  const unsigned char* data = l1tRcd.data();
   FEDHeader header(data);
 
   amc13::Packet packet;
-  if (!packet.parse((const uint64_t *)data,
-                    (const uint64_t *)(data + 8),
+  if (!packet.parse((const uint64_t*)data,
+                    (const uint64_t*)(data + 8),
                     (l1tRcd.size()) / 8,
                     header.lvl1ID(),
                     header.bxID(),
@@ -257,8 +257,8 @@ unsigned L1UpgradeTfMuonTreeProducer::getAlgoFwVersion()
 
   if (!packet.payload().empty()) {
     auto payload64 = (packet.payload().at(0)).data();
-    const uint32_t *start = (const uint32_t *)payload64.get();
-    const uint32_t *end = start + (packet.payload().at(0).size() * 2);
+    const uint32_t* start = (const uint32_t*)payload64.get();
+    const uint32_t* end = start + (packet.payload().at(0).size() * 2);
 
     l1t::MP7Payload payload(start, end, false);
     return payload.getAlgorithmFWVersion();
