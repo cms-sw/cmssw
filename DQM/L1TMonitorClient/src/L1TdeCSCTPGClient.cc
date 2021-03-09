@@ -95,13 +95,14 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
   for (unsigned iType = 0; iType < chambers_.size(); iType++) {
     // alct variable
     for (unsigned iVar = 0; iVar < alctVars_.size(); iVar++) {
-      const std::string key("alct_" + alctVars_[iVar] + "_data");
-      const std::string histName(key + "_" + chambers_[iType]);
+      const std::string key("alct_" + alctVars_[iVar]);
+      const std::string histData(key + "_data_" + chambers_[iType]);
+      const std::string histEmul(key + "_emul_" + chambers_[iType]);
 
-      dataMon = igetter.get(monitorDir_ + "/" + histName);
-      emulMon = igetter.get(monitorDir_ + "/" + histName);
+      dataMon = igetter.get(monitorDir_ + "/" + histData);
+      emulMon = igetter.get(monitorDir_ + "/" + histEmul);
 
-      TH1F *hDiff = chamberHistos[iType][key]->getTH1F();
+      TH1F *hDiff = chamberHistos[iType][key + "_diff"]->getTH1F();
 
       if (dataMon && emulMon) {
         TH1F *dataHist = dataMon->getTH1F();
@@ -112,13 +113,14 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
 
     // clct variable
     for (unsigned iVar = 0; iVar < clctVars_.size(); iVar++) {
-      const std::string key("clct_" + clctVars_[iVar] + "_data");
-      const std::string histName(key + "_" + chambers_[iType]);
+      const std::string key("clct_" + clctVars_[iVar]);
+      const std::string histData(key + "_data_" + chambers_[iType]);
+      const std::string histEmul(key + "_emul_" + chambers_[iType]);
 
-      dataMon = igetter.get(monitorDir_ + "/" + histName);
-      emulMon = igetter.get(monitorDir_ + "/" + histName);
+      dataMon = igetter.get(monitorDir_ + "/" + histData);
+      emulMon = igetter.get(monitorDir_ + "/" + histEmul);
 
-      TH1F *hDiff = chamberHistos[iType][key]->getTH1F();
+      TH1F *hDiff = chamberHistos[iType][key + "_diff"]->getTH1F();
 
       if (dataMon && emulMon) {
         TH1F *dataHist = dataMon->getTH1F();
@@ -129,13 +131,14 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
 
     // lct variable
     for (unsigned iVar = 0; iVar < lctVars_.size(); iVar++) {
-      const std::string key("lct_" + lctVars_[iVar] + "_data");
-      const std::string histName(key + "_" + chambers_[iType]);
+      const std::string key("lct_" + lctVars_[iVar]);
+      const std::string histData(key + "_data_" + chambers_[iType]);
+      const std::string histEmul(key + "_emul_" + chambers_[iType]);
 
-      dataMon = igetter.get(monitorDir_ + "/" + histName);
-      emulMon = igetter.get(monitorDir_ + "/" + histName);
+      dataMon = igetter.get(monitorDir_ + "/" + histData);
+      emulMon = igetter.get(monitorDir_ + "/" + histEmul);
 
-      TH1F *hDiff = chamberHistos[iType][key]->getTH1F();
+      TH1F *hDiff = chamberHistos[iType][key + "_diff"]->getTH1F();
 
       if (dataMon && emulMon) {
         TH1F *dataHist = dataMon->getTH1F();
