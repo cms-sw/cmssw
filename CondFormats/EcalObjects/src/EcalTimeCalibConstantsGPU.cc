@@ -5,7 +5,9 @@
 
 EcalTimeCalibConstantsGPU::EcalTimeCalibConstantsGPU(EcalTimeCalibConstants const& values) {
   values_.reserve(values.size());
-  std::copy(values.begin(), values.end(), values_.begin());
+  for (size_t i = 0; i < values.size(); ++i) {
+    values_.emplace_back(values[i]);
+  }
   offset_ = values.barrelItems().size();
 }
 
