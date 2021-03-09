@@ -1802,7 +1802,7 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalcablealgo.xml',
             'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
             'Geometry/HcalCommonData/data/hcalendcap/PhaseI/hcalendcapalgo.xml',
-            'Geometry/HcalCommonData/data/hcalouteralgo.xml',
+            'Geometry/HcalCommonData/data/hcalouteralgo/v1/hcalouteralgo.xml',
             'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
             'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
             'Geometry/HcalCommonData/data/hcalSimNumbering/2021/v1/hcalSimNumbering.xml', 
@@ -1814,7 +1814,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hf.xml',
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',            
+            'Geometry/HcalSimData/data/CaloUtil/2021/v1/CaloUtil.xml',
         ],
         4 : [
             'Geometry/HcalSimData/data/HcalProdCuts/2021/v2/HcalProdCuts.xml',
