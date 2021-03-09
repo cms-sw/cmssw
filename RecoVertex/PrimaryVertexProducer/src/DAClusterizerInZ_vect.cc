@@ -1171,7 +1171,6 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t& y, const tra
 void DAClusterizerInZ_vect::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.addUntracked<double>("zdumpcenter", 0.);
   desc.addUntracked<double>("zdumpwidth", 20.);
-  desc.addUntracked<bool>("use_vdt", false);  // obsolete, appears in HLT configs
   desc.add<double>("d0CutOff", 3.0);
   desc.add<double>("Tmin", 2.0);
   desc.add<double>("delta_lowT", 0.001);
