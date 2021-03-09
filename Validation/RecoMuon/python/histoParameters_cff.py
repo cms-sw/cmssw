@@ -199,6 +199,17 @@ glbMuonHistoParameters.nintNHit = 81
 glbMuonHistoParameters.maxNHit = 80.5
 glbMuonHistoParameters.do_TRKhitsPlots = True
 glbMuonHistoParameters.do_MUOhitsPlots = True
+
+#####################################################################################                                             
+# Reco Muon tracks                                                                                                                
+recoMuonHistoParameters =  defaultMuonHistoParameters.clone()                                                                     
+recoMuonHistoParameters.usetracker = True                                                                                         
+recoMuonHistoParameters.usemuon = True                                                                                            
+recoMuonHistoParameters.nintNHit = 81                                                                                             
+recoMuonHistoParameters.maxNHit = 80.5                                                                                            
+recoMuonHistoParameters.do_TRKhitsPlots = True                                                                                    
+recoMuonHistoParameters.do_MUOhitsPlots = True         
+
 #####################################################################################
 # Displaced TRK tracks
 displacedTrkMuonHistoParameters = trkMuonHistoParameters.clone()
@@ -372,64 +383,44 @@ glbCosmic1LegMuonHistoParameters.maxPixels = 10.5
 trkMuonHistoParameters_phase2 = trkMuonHistoParameters.clone()
 trkMuonHistoParameters_phase2.minPU = 150
 trkMuonHistoParameters_phase2.maxPU = 250
-trkMuonHistoParameters_phase2.maxNTracks = 300 
-trkMuonHistoParameters_phase2.nintNTracks = 50
-trkMuonHistoParameters_phase2.maxFTracks = 100                                                                                 
-trkMuonHistoParameters_phase2.nintFTracks = 50
 
 # GEMmuon tracks                                                                                                                 
 gemMuonHistoParameters_phase2 = gemMuonHistoParameters.clone()       
 gemMuonHistoParameters_phase2.minPU = 150
 gemMuonHistoParameters_phase2.maxPU = 250
-gemMuonHistoParameters_phase2.maxNTracks = 300
-gemMuonHistoParameters_phase2.nintNTracks = 50
-gemMuonHistoParameters_phase2.maxFTracks = 100
+gemMuonHistoParameters_phase2.maxNTracks = 150
+gemMuonHistoParameters_phase2.nintNTracks = 100
+gemMuonHistoParameters_phase2.maxFTracks = 50
 gemMuonHistoParameters_phase2.nintFTracks = 50
-
-# ME0muon tracks                                                                                                                  
-me0MuonHistoParameters_phase2 = me0MuonHistoParameters.clone()
-me0MuonHistoParameters_phase2.minPU = 150
-me0MuonHistoParameters_phase2.maxPU = 250
-me0MuonHistoParameters_phase2.maxNTracks = 300
-me0MuonHistoParameters_phase2.nintNTracks = 50
-me0MuonHistoParameters_phase2.maxFTracks = 100
-me0MuonHistoParameters_phase2.nintFTracks = 50
 
 # STA tracks                                                                                                                      
 staMuonHistoParameters_phase2 = staMuonHistoParameters.clone()
 staMuonHistoParameters_phase2.minPU = 150
 staMuonHistoParameters_phase2.maxPU = 250
-staMuonHistoParameters_phase2.maxNTracks = 300
-staMuonHistoParameters_phase2.nintNTracks = 50
-staMuonHistoParameters_phase2.maxFTracks = 100
-staMuonHistoParameters_phase2.nintFTracks = 50
 
 # STA seeds (here hits are counting DT,CSC segments rather than individual hit layers)                                            
 staSeedMuonHistoParameters_phase2 = staSeedMuonHistoParameters.clone()
 staSeedMuonHistoParameters_phase2.minPU = 150
 staSeedMuonHistoParameters_phase2.maxPU = 250
-staSeedMuonHistoParameters_phase2.maxNTracks = 300
-staSeedMuonHistoParameters_phase2.nintNTracks = 50
-staSeedMuonHistoParameters_phase2.maxFTracks = 100
-staSeedMuonHistoParameters_phase2.nintFTracks = 50
 
 # STA Upd tracks                                                                                                                  
 staUpdMuonHistoParameters_phase2 = staUpdMuonHistoParameters.clone()
 staUpdMuonHistoParameters_phase2.minPU = 150 
 staUpdMuonHistoParameters_phase2.maxPU = 250
-staUpdMuonHistoParameters_phase2.maxNTracks = 300
-staUpdMuonHistoParameters_phase2.nintNTracks = 50
-staUpdMuonHistoParameters_phase2.maxFTracks = 100
-staUpdMuonHistoParameters_phase2.nintFTracks = 50
 
 # GLB tracks                                                                                                                      
 glbMuonHistoParameters_phase2 = glbMuonHistoParameters.clone()
 glbMuonHistoParameters_phase2.minPU = 150
 glbMuonHistoParameters_phase2.maxPU = 250
-glbMuonHistoParameters_phase2.maxNTracks = 300
-glbMuonHistoParameters_phase2.nintNTracks = 50
-glbMuonHistoParameters_phase2.maxFTracks = 100
-glbMuonHistoParameters_phase2.nintFTracks = 50
+
+#RecoMuon tracks
+recoMuonHistoParameters_phase2 = recoMuonHistoParameters.clone()
+recoMuonHistoParameters_phase2.minPU = 150
+recoMuonHistoParameters_phase2.maxPU = 250
+recoMuonHistoParameters_phase2.maxNTracks = 150 
+recoMuonHistoParameters_phase2.nintNTracks = 100
+recoMuonHistoParameters_phase2.maxFTracks = 50
+recoMuonHistoParameters_phase2.nintFTracks = 50
 
 # Displaced TRK tracks  
 displacedTrkMuonHistoParameters_phase2 = displacedTrkMuonHistoParameters.clone()
