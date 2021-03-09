@@ -46,7 +46,7 @@ private:
   void beginJob() override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {};
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override{};
   void endJob() override;
 
   const edm::InputTag trackstersMerge_;
@@ -131,54 +131,54 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     std::vector<int> sorted_edges_idx(trackster.edges().size());
     iota(begin(sorted_edges_idx), end(sorted_edges_idx), 0);
     sort(begin(sorted_edges_idx), end(sorted_edges_idx), [&](int i, int j) {
-        int layers = rhtools_.lastLayer();
-        auto const & ed_i = trackster.edges()[i];
-        auto const & ed_j = trackster.edges()[j];
-        auto const & cl_i_in = layerClusters[ed_i[0]].hitsAndFractions()[0].first;
-        auto const & cl_i_out = layerClusters[ed_i[1]].hitsAndFractions()[0].first;
-        auto const & cl_j_in = layerClusters[ed_j[0]].hitsAndFractions()[0].first;
-        auto const & cl_j_out = layerClusters[ed_j[1]].hitsAndFractions()[0].first;
-        auto const layer_i_in = rhtools_.getLayerWithOffset(cl_i_in) + layers * ((rhtools_.zside(cl_i_in) + 1) >> 1) - 1;
-        auto const layer_i_out = rhtools_.getLayerWithOffset(cl_i_out) + layers * ((rhtools_.zside(cl_i_out) + 1) >> 1) - 1;
-        auto const layer_j_in = rhtools_.getLayerWithOffset(cl_j_in) + layers * ((rhtools_.zside(cl_j_in) + 1) >> 1) - 1;
-        auto const layer_j_out = rhtools_.getLayerWithOffset(cl_j_out) + layers * ((rhtools_.zside(cl_j_out) + 1) >> 1) - 1;
-        if (layer_i_in != layer_j_in)
-          return layer_i_in < layer_j_in;
-        else
-          return layer_i_out < layer_j_out;
+      int layers = rhtools_.lastLayer();
+      auto const& ed_i = trackster.edges()[i];
+      auto const& ed_j = trackster.edges()[j];
+      auto const& cl_i_in = layerClusters[ed_i[0]].hitsAndFractions()[0].first;
+      auto const& cl_i_out = layerClusters[ed_i[1]].hitsAndFractions()[0].first;
+      auto const& cl_j_in = layerClusters[ed_j[0]].hitsAndFractions()[0].first;
+      auto const& cl_j_out = layerClusters[ed_j[1]].hitsAndFractions()[0].first;
+      auto const layer_i_in = rhtools_.getLayerWithOffset(cl_i_in) + layers * ((rhtools_.zside(cl_i_in) + 1) >> 1) - 1;
+      auto const layer_i_out =
+          rhtools_.getLayerWithOffset(cl_i_out) + layers * ((rhtools_.zside(cl_i_out) + 1) >> 1) - 1;
+      auto const layer_j_in = rhtools_.getLayerWithOffset(cl_j_in) + layers * ((rhtools_.zside(cl_j_in) + 1) >> 1) - 1;
+      auto const layer_j_out =
+          rhtools_.getLayerWithOffset(cl_j_out) + layers * ((rhtools_.zside(cl_j_out) + 1) >> 1) - 1;
+      if (layer_i_in != layer_j_in)
+        return layer_i_in < layer_j_in;
+      else
+        return layer_i_out < layer_j_out;
     });
 
     for (auto p_idx : sorted_probs_idx) {
-      prob_id_str << "(" << particle_kind[p_idx] << "):" << std::fixed << std::setprecision(4) << probs[p_idx] << " "; 
+      prob_id_str << "(" << particle_kind[p_idx] << "):" << std::fixed << std::setprecision(4) << probs[p_idx] << " ";
     }
-    LogVerbatim("TICLDebugger")
-              << "\nTrksIdx: " << t << "\n bary: " << trackster.barycenter()
-              << " baryEta: " << trackster.barycenter().eta() << " baryPhi: " << trackster.barycenter().phi()
-              << "\n raw_energy: " << trackster.raw_energy() << " raw_em_energy: " << trackster.raw_em_energy()
-              << "\n raw_pt: " << trackster.raw_pt() << " raw_em_pt: " << trackster.raw_em_pt()
-              << "\n seedIdx: " << trackster.seedIndex() << "\n Probs: " << prob_id_str.str();
+    LogVerbatim("TICLDebugger") << "\nTrksIdx: " << t << "\n bary: " << trackster.barycenter()
+                                << " baryEta: " << trackster.barycenter().eta()
+                                << " baryPhi: " << trackster.barycenter().phi()
+                                << "\n raw_energy: " << trackster.raw_energy()
+                                << " raw_em_energy: " << trackster.raw_em_energy()
+                                << "\n raw_pt: " << trackster.raw_pt() << " raw_em_pt: " << trackster.raw_em_pt()
+                                << "\n seedIdx: " << trackster.seedIndex() << "\n Probs: " << prob_id_str.str();
     prob_id_str.str("");
     prob_id_str.clear();
     LogVerbatim("TICLDebugger") << "\n time: " << trackster.time() << "+/-" << trackster.timeError() << std::endl
-              << " vertices: " << trackster.vertices().size() << " average usage: "
-              << std::accumulate(
-                     std::begin(trackster.vertex_multiplicity()), std::end(trackster.vertex_multiplicity()), 0.) /
-                     trackster.vertex_multiplicity().size()
-              << std::endl;
+                                << " vertices: " << trackster.vertices().size() << " average usage: "
+                                << std::accumulate(std::begin(trackster.vertex_multiplicity()),
+                                                   std::end(trackster.vertex_multiplicity()),
+                                                   0.) /
+                                       trackster.vertex_multiplicity().size()
+                                << std::endl;
     LogVerbatim("TICLDebugger") << " link connections: " << trackster.edges().size() << std::endl;
-    auto dumpLayerCluster = [&layerClusters](hgcal::RecHitTools const & rhtools, int cluster_idx) {
-      auto const & cluster = layerClusters[cluster_idx];
+    auto dumpLayerCluster = [&layerClusters](hgcal::RecHitTools const& rhtools, int cluster_idx) {
+      auto const& cluster = layerClusters[cluster_idx];
       const auto firstHitDetId = cluster.hitsAndFractions()[0].first;
       int layers = rhtools.lastLayer();
       int lcLayerId =
-        rhtools.getLayerWithOffset(firstHitDetId) + layers * ((rhtools.zside(firstHitDetId) + 1) >> 1) - 1;
+          rhtools.getLayerWithOffset(firstHitDetId) + layers * ((rhtools.zside(firstHitDetId) + 1) >> 1) - 1;
 
-      LogVerbatim("TICLDebugger") << "Idx: " << cluster_idx
-        << "("
-        << lcLayerId << ", "
-        << cluster.hitsAndFractions().size() << ", "
-        << cluster.position()
-        << ") ";
+      LogVerbatim("TICLDebugger") << "Idx: " << cluster_idx << "(" << lcLayerId << ", "
+                                  << cluster.hitsAndFractions().size() << ", " << cluster.position() << ") ";
     };
     for (auto link : sorted_edges_idx) {
       LogVerbatim("TICLDebugger") << "(" << trackster.edges()[link][0] << ", " << trackster.edges()[link][1] << ")  ";
@@ -189,21 +189,19 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     if (trackster.seedID().id() != 0) {
       auto const& track = tracks[trackster.seedIndex()];
       LogVerbatim("TICLDebugger") << " Seeding Track:" << std::endl;
-      LogVerbatim("TICLDebugger") << "   p: " << track.p() << " pt: " << track.pt()
-                << " charge: " << track.charge() << " eta: " << track.eta()
-                << " outerEta: " << track.outerEta() << " phi: " << track.phi() 
-                << " outerPhi: " << track.outerPhi()
-                << std::endl;
+      LogVerbatim("TICLDebugger") << "   p: " << track.p() << " pt: " << track.pt() << " charge: " << track.charge()
+                                  << " eta: " << track.eta() << " outerEta: " << track.outerEta()
+                                  << " phi: " << track.phi() << " outerPhi: " << track.outerPhi() << std::endl;
     }
     bestCaloParticleMatches(trackster);
     if (!bestCPMatches.empty()) {
-      LogVerbatim("TICLDebugger") << " Best CaloParticles Matches:" << std::endl;;
+      LogVerbatim("TICLDebugger") << " Best CaloParticles Matches:" << std::endl;
+      ;
       for (auto const& i : bestCPMatches) {
-        auto const & cp = caloParticles[i.first];
-        LogVerbatim("TICLDebugger") << "   " << i.first << "(" << i.second << "):" << cp.pdgId() 
-                  << " simCl size:" << cp.simClusters().size()
-                  << " energy:" << cp.energy() << " pt:" << cp.pt() 
-                  << " momentum:" << cp.momentum() << std::endl;
+        auto const& cp = caloParticles[i.first];
+        LogVerbatim("TICLDebugger") << "   " << i.first << "(" << i.second << "):" << cp.pdgId()
+                                    << " simCl size:" << cp.simClusters().size() << " energy:" << cp.energy()
+                                    << " pt:" << cp.pt() << " momentum:" << cp.momentum() << std::endl;
       }
       LogVerbatim("TICLDebugger") << std::endl;
     }
@@ -211,7 +209,9 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 void TiclDebugger::beginRun(edm::Run const&, edm::EventSetup const& es) {
-    edm::ESHandle<CaloGeometry> geom; es.get<CaloGeometryRecord>().get(geom); rhtools_.setGeometry(*geom);
+  edm::ESHandle<CaloGeometry> geom;
+  es.get<CaloGeometryRecord>().get(geom);
+  rhtools_.setGeometry(*geom);
 }
 
 void TiclDebugger::beginJob() {}
