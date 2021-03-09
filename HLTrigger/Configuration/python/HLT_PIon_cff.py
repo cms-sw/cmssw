@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_3_0/PIon --type PIon
 
-# /dev/CMSSW_11_3_0/PIon/V9 (CMSSW_11_3_0_pre2)
+# /dev/CMSSW_11_3_0/PIon/V11 (CMSSW_11_3_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_3_0/PIon/V9')
+  tableName = cms.string('/dev/CMSSW_11_3_0/PIon/V11')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -5549,7 +5549,7 @@ fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.
 fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_Physics_v7, fragment.HLT_Random_v3, fragment.HLT_ZeroBias_v6, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))
 
 
-# dummyfy hltGetConditions in cff's
+# dummify hltGetConditions in cff's
 if 'hltGetConditions' in fragment.__dict__ and 'HLTriggerFirstPath' in fragment.__dict__ :
     fragment.hltDummyConditions = cms.EDFilter( "HLTBool",
         result = cms.bool( True )
