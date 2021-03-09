@@ -203,6 +203,17 @@ pfMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2
 recomuMuonTrackVMuonAssoc_phase2 = recomuMuonTrackVMuonAssoc.clone()                                                              
 recomuMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2       
 
+tunepMuonTrackVMuonAssoc_phase2 = tunepMuonTrackVMuonAssoc.clone()
+tunepMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2      
+
+displacedStaMuonTrackVMuonAssoc_phase2 = displacedStaMuonTrackVMuonAssoc.clone()
+displacedStaMuonTrackVMuonAssoc_phase2.muonHistoParameters = displacedStaMuonHistoParameters_phase2   
+
+displacedGlbMuonTrackVMuonAssoc_phase2 = displacedGlbMuonTrackVMuonAssoc.clone()
+displacedGlbMuonTrackVMuonAssoc_phase2.muonHistoParameters = displacedGlbMuonHistoParameters_phase2               
+
+displacedTrackVMuonAssoc_phase2 = displacedTrackVMuonAssoc.clone()
+displacedTrackVMuonAssoc_phase2.muonHistoParameters = displacedTrkMuonHistoParameters_phase2   
 
 ##################################################################################
 # Muon validation sequences using MuonTrackValidator
@@ -250,12 +261,12 @@ recoMuonValidation_reduced_seq = cms.Sequence(
     probeTracks_seq + tpToTkMuonAssociation + trkProbeTrackVMuonAssoc_phase2
     +tpToStaUpdMuonAssociation + staUpdMuonTrackVMuonAssoc_phase2
     +tpToGlbMuonAssociation + glbMuonTrackVMuonAssoc_phase2
-    +tunepMuonTracks_seq + tpToTunePMuonAssociation + tunepMuonTrackVMuonAssoc
+    +tunepMuonTracks_seq + tpToTunePMuonAssociation + tunepMuonTrackVMuonAssoc_phase2
     +pfMuonTracks_seq + tpToPFMuonAssociation + pfMuonTrackVMuonAssoc_phase2
     +recoMuonTracks_seq + tpTorecoMuonMuonAssociation + recomuMuonTrackVMuonAssoc_phase2
-    +tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc
-    +tpToDisplacedTrkMuonAssociation + displacedTrackVMuonAssoc
-    +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc
+    +tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc_phase2
+    +tpToDisplacedTrkMuonAssociation + displacedTrackVMuonAssoc_phase2
+    +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc_phase2
 )
 
 gemMuonValidation = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonMuonAssociation + gemMuonTrackVMuonAssoc)
