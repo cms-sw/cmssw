@@ -9,7 +9,7 @@ baseclass = re.compile(r"edm::(one::|stream::|global::)?(ED(Producer|Filter|Anal
 farg = re.compile(r"\(.*?\)")
 tmpl = re.compile(r'<.*?>')
 toplevelfuncs = set()
-epfunc = re.compile(r"edm::eventsetup::EventSetupRecord::get<.*>\(.*\)")
+epfuncre = re.compile(r"edm::eventsetup::EventSetupRecord::get<.*>\(.*\)")
 skipfunc = re.compile(r"TGraph::IsA\(.*\)")
 epfuncs=set()
 
@@ -34,7 +34,7 @@ for line in f :
 	if fields[2] == ' calls function ' :
 		if not skipfunc.search(line) : 
 			G.add_edge(fields[1],fields[3],kind=fields[2])
-			if epfunc.search(fields[3])  :
+			if epfuncre.search(fields[3])  :
                             epfuncs.add(fields[3])
 	if fields[2] == ' overrides function ' :
 		if baseclass.search(fields[3]) :
@@ -44,7 +44,7 @@ for line in f :
 		else :
 			if not skipfunc.search(line) : 
 				G.add_edge(fields[3],fields[1],kind=' calls override function ')
-				if epfunc.search(fields[1]) : epfuncs.add(fields[1])
+				if epfuncre.search(fields[1]) : epfuncs.add(fields[1])
 f.close()
 
     
@@ -56,9 +56,10 @@ for tfunc in toplevelfuncs:
         for epfunc in epfuncs:
 		if G.has_node(tfunc) and G.has_node(epfunc) and nx.has_path(G,tfunc,epfunc) : 
 			path = nx.shortest_path(G,tfunc,epfunc)
-			cs=""
+			cs=str("")
                         previous=str("")
 			for p in path :
+                            if epfuncre.search(p): break
                             stripped=re.sub(farg,"()",p)
                             if previous != stripped:
                                 cs+=stripped+"; "
@@ -72,8 +73,7 @@ print()
 for key in sorted(module2package.keys()):
    print("%s\n" % key)
    for value in sorted(module2package[key]):
-      print("%s :\n" % value)
       vre=re.compile(value)
       for cs in sorted(callstacks):
            if vre.search(cs):
-               print("%s\n" % cs)
+               print("%s : %s \n" % (value,cs))
