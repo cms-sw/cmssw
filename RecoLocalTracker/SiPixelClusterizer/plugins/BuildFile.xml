@@ -9,7 +9,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="HeterogeneousCore/CUDACore"/>
-<use name="RecoLocalTracker/SiPixelClusterizer"/>
 <use name="RecoTracker/Record"/>
 <library file="*.cc *.cu" name="RecoLocalTrackerSiPixelClusterizerPlugins">
   <flags EDM_PLUGIN="1"/>
