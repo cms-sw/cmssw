@@ -230,7 +230,7 @@
     <Include ref='Geometry/HcalCommonData/data/hcalcablealgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalbarrelalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalendcap/PhaseI/hcalendcapalgo.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalouteralgo.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalouteralgo/v1/hcalouteralgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalforwardalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/2021/v1/hcalSimNumbering.xml'/>
@@ -359,7 +359,7 @@
     <Include ref='Geometry/HcalSimData/data/hf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hfpmt.xml'/>
     <Include ref='Geometry/HcalSimData/data/hffibrebundle.xml'/>
-    <Include ref='Geometry/HcalSimData/data/CaloUtil.xml'/>
+    <Include ref='Geometry/HcalSimData/data/CaloUtil/2021/v1/CaloUtil.xml'/>
     <Include ref='Geometry/MuonSimData/data/v2/muonSens.xml'/>
     <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml'/>
     <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml'/>
