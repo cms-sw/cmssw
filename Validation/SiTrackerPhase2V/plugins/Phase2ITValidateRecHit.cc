@@ -310,20 +310,20 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X");
-    psd0.add<std::string>("title", "Delta_X;RecHit resolution X dimension");
-    psd0.add<double>("xmin", -0.2);
+    psd0.add<std::string>("title", "Delta_X;RecHit resolution X coordinate");
+    psd0.add<double>("xmin", -0.1);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.2);
+    psd0.add<double>("xmax", 0.1);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("DeltaX", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y");
-    psd0.add<std::string>("title", "Delta_Y;RecHit resolution Y dimension;");
-    psd0.add<double>("xmin", -0.2);
+    psd0.add<std::string>("title", "Delta_Y;RecHit resolution Y coordinate;");
+    psd0.add<double>("xmin", -0.1);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.2);
+    psd0.add<double>("xmax", 0.1);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("DeltaY", psd0);
   }
