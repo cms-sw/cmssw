@@ -230,12 +230,38 @@ recoMuonValidation_reduced_seq = cms.Sequence(
 gemMuonValidation = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonMuonAssociation + gemMuonTrackVMuonAssoc)
 me0MuonValidation = cms.Sequence(extractMe0MuonsTracks_seq + tpToME0MuonMuonAssociation + me0MuonTrackVMuonAssoc)
 
+
+##########################################################################
+### Customization for Phase II samples 
+
+trkMuonTrackVTrackAssoc_phase2 = trkMuonTrackVTrackAssoc.clone()
+trkMuonTrackVTrackAssoc_phase2.muonHistoParameters = trkMuonHistoParameters_phase2                                                
+       
+muonValidation_phase2_seq = cms.Sequence(                                                                                          
+    probeTracks_seq + tpToTkMuonAssociation + trkProbeTrackVMuonAssoc                                                               
+    +trackAssociatorByHits + tpToTkmuTrackAssociation + trkMuonTrackVTrackAssoc_phase2                                             
+    +seedsOfSTAmuons_seq + tpToStaSeedAssociation + staSeedTrackVMuonAssoc                                          
+    +tpToStaMuonAssociation + staMuonTrackVMuonAssoc                                                                                
+    +tpToStaUpdMuonAssociation + staUpdMuonTrackVMuonAssoc                                                                          
+    +tpToGlbMuonAssociation + glbMuonTrackVMuonAssoc                                                                                
+    +pfMuonTracks_seq + tpToPFMuonAssociation + pfMuonTrackVMuonAssoc                                                               
+    +recoMuonTracks_seq + tpTorecoMuonMuonAssociation + recomuMuonTrackVMuonAssoc                                                   
+)                                                                                                                                   
+                  
+
 ##########################################################################
 # The full offline muon validation sequence
 #
 recoMuonValidation = cms.Sequence(
     muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationDisplaced_seq + muonValidationRMV_seq
     )
+
+##########################################################################                                                          
+### Customization for Phase II samples    
+
+recoMuonValidation_phase2 = cms.Sequence(                                                                                          
+    muonValidation_phase2_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationDisplaced_seq + muonValidationRMV_seq   
+)    
 
 # no displaced muons in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
@@ -253,7 +279,7 @@ _run3_muonValidation = recoMuonValidation.copy()              #For full validati
 _run3_muonValidation += gemMuonValidation
 
 #_phase2_muonValidation = recoMuonValidation.copy()              #For full validation 
-_phase2_muonValidation = recoMuonValidation_reduced_seq.copy()
+_phase2_muonValidation = recoMuonValidation_phase2.copy()
 _phase2_muonValidation += gemMuonValidation
 _phase2_muonValidation += me0MuonValidation
 
@@ -267,3 +293,4 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( recoMuonValidation, _phase2_muonValidation )
 from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 phase2_GE0.toReplaceWith( recoMuonValidation, _phase2_ge0_muonValidation )
+
