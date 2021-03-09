@@ -20,5 +20,22 @@ process.source = cms.Source("PoolSource",
 process.load("RecoHGCal.TICL.ticlDebugger_cfi")
 process.load("SimGeneral.Debugging.caloParticleDebugger_cfi")
 
+# MessageLogger customizations
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.cout.enable = False
+label = 'TICLDebugger'
+messageLogger = dict()
+main_key = '%sMessageLogger'%(label)
+messageLogger[main_key] = dict(
+        filename = '%s.log' % (label),
+        threshold = 'INFO',
+        default = dict(limit=0)
+        )
+messageLogger[main_key][label] = dict(limit=-1)
+# First create defaults
+setattr(process.MessageLogger.files, label, dict())
+# Then modify them
+setattr(process.MessageLogger.files, label, messageLogger[main_key])
+
 process.p = cms.Path(process.ticlDebugger+process.caloParticleDebugger)
 

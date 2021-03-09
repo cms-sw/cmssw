@@ -118,6 +118,8 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
   };
 
+  std::stringstream prob_id_str;
+
   for (auto const& t : sorted_tracksters_idx) {
     auto const& trackster = tracksters[t];
     auto const& probs = trackster.id_probabilities();
@@ -146,21 +148,24 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
           return layer_i_out < layer_j_out;
     });
 
-    std::cout << "\nTrksIdx: " << t << "\n bary: " << trackster.barycenter()
+    for (auto p_idx : sorted_probs_idx) {
+      prob_id_str << "(" << particle_kind[p_idx] << "):" << std::fixed << std::setprecision(4) << probs[p_idx] << " "; 
+    }
+    LogVerbatim("TICLDebugger")
+              << "\nTrksIdx: " << t << "\n bary: " << trackster.barycenter()
               << " baryEta: " << trackster.barycenter().eta() << " baryPhi: " << trackster.barycenter().phi()
               << "\n raw_energy: " << trackster.raw_energy() << " raw_em_energy: " << trackster.raw_em_energy()
               << "\n raw_pt: " << trackster.raw_pt() << " raw_em_pt: " << trackster.raw_em_pt()
-              << "\n seedIdx: " << trackster.seedIndex() << "\n Probs: ";
-    for (auto p_idx : sorted_probs_idx) {
-      std::cout << "(" << particle_kind[p_idx] << "):" << probs[p_idx] << " ";
-    }
-    std::cout << "\n time: " << trackster.time() << "+/-" << trackster.timeError() << std::endl
+              << "\n seedIdx: " << trackster.seedIndex() << "\n Probs: " << prob_id_str.str();
+    prob_id_str.str("");
+    prob_id_str.clear();
+    LogVerbatim("TICLDebugger") << "\n time: " << trackster.time() << "+/-" << trackster.timeError() << std::endl
               << " vertices: " << trackster.vertices().size() << " average usage: "
               << std::accumulate(
                      std::begin(trackster.vertex_multiplicity()), std::end(trackster.vertex_multiplicity()), 0.) /
                      trackster.vertex_multiplicity().size()
               << std::endl;
-    std::cout << " link connections: " << trackster.edges().size() << std::endl;
+    LogVerbatim("TICLDebugger") << " link connections: " << trackster.edges().size() << std::endl;
     auto dumpLayerCluster = [&layerClusters](hgcal::RecHitTools const & rhtools, int cluster_idx) {
       auto const & cluster = layerClusters[cluster_idx];
       const auto firstHitDetId = cluster.hitsAndFractions()[0].first;
@@ -168,24 +173,23 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       int lcLayerId =
         rhtools.getLayerWithOffset(firstHitDetId) + layers * ((rhtools.zside(firstHitDetId) + 1) >> 1) - 1;
 
-      std::cout << "Idx: " << cluster_idx
+      LogVerbatim("TICLDebugger") << "Idx: " << cluster_idx
         << "("
         << lcLayerId << ", "
-        << cluster.energy() << ", "
         << cluster.hitsAndFractions().size() << ", "
         << cluster.position()
         << ") ";
     };
     for (auto link : sorted_edges_idx) {
-      std::cout << "(" << trackster.edges()[link][0] << ", " << trackster.edges()[link][1] << ")  ";
+      LogVerbatim("TICLDebugger") << "(" << trackster.edges()[link][0] << ", " << trackster.edges()[link][1] << ")  ";
       dumpLayerCluster(rhtools_, trackster.edges()[link][0]);
       dumpLayerCluster(rhtools_, trackster.edges()[link][1]);
-      std::cout << std::endl;
+      LogVerbatim("TICLDebugger") << std::endl;
     }
     if (trackster.seedID().id() != 0) {
       auto const& track = tracks[trackster.seedIndex()];
-      std::cout << " Seeding Track:" << std::endl;
-      std::cout << "   p: " << track.p() << " pt: " << track.pt()
+      LogVerbatim("TICLDebugger") << " Seeding Track:" << std::endl;
+      LogVerbatim("TICLDebugger") << "   p: " << track.p() << " pt: " << track.pt()
                 << " charge: " << track.charge() << " eta: " << track.eta()
                 << " outerEta: " << track.outerEta() << " phi: " << track.phi() 
                 << " outerPhi: " << track.outerPhi()
@@ -193,15 +197,15 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
     bestCaloParticleMatches(trackster);
     if (!bestCPMatches.empty()) {
-      std::cout << " Best CaloParticles Matches:" << std::endl;;
+      LogVerbatim("TICLDebugger") << " Best CaloParticles Matches:" << std::endl;;
       for (auto const& i : bestCPMatches) {
         auto const & cp = caloParticles[i.first];
-        std::cout << "   " << i.first << "(" << i.second << "):" << cp.pdgId() 
+        LogVerbatim("TICLDebugger") << "   " << i.first << "(" << i.second << "):" << cp.pdgId() 
                   << " simCl size:" << cp.simClusters().size()
                   << " energy:" << cp.energy() << " pt:" << cp.pt() 
                   << " momentum:" << cp.momentum() << std::endl;
       }
-      std::cout << std::endl;
+      LogVerbatim("TICLDebugger") << std::endl;
     }
   }
 }
