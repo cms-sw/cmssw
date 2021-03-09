@@ -262,7 +262,7 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 300000.0);
-    psd0.add<int>("NxBins", 50);
+    psd0.add<int>("NxBins", 150);
     desc.add<edm::ParameterSetDescription>("GlobalNClusters", psd0);
   }
   {
@@ -325,8 +325,8 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<std::string>("title", "NumberOfClutsers;Number of Clusters;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 15000.0);
-    psd0.add<int>("NxBins", 50);
+    psd0.add<double>("xmax", 20000.0);
+    psd0.add<int>("NxBins", 150);
     desc.add<edm::ParameterSetDescription>("NClustersLayer", psd0);
   }
   {
