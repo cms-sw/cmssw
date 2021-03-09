@@ -49,7 +49,7 @@ private:
 
   // first key is the chamber number
   // second key is the variable
-  std::map<uint32_t, std::map<std::string, MonitorElement *> > chamberHistos;
+  std::map<uint32_t, std::map<std::string, MonitorElement *> > chamberHistos_;
 };
 
 #endif

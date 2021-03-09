@@ -85,42 +85,44 @@ l1tsClient.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM")
 
 # L1T monitor client sequence (system clients and quality tests)
 l1TriggerClients = cms.Sequence(
-                        l1tGctClient +
-                        l1tDttfClient +
-                        l1tCsctfClient +
-                        l1tRpctfClient +
-                        l1tGmtClient +
-                        l1tOccupancyClient +
-                        l1tTestsSummary +
-                        l1tEventInfoClient
-                        )
+    l1tGctClient +
+    l1tDttfClient +
+    l1tdeCSCTPGClient +
+    l1tCsctfClient +
+    l1tRpctfClient +
+    l1tGmtClient +
+    l1tOccupancyClient +
+    l1tTestsSummary +
+    l1tEventInfoClient
+)
 
 l1TriggerStage1Clients = cms.Sequence(
-                        l1tStage1Layer2Client +
-                        l1tDttfClient +
-                        l1tCsctfClient +
-                        l1tRpctfClient +
-                        l1tGmtClient +
-                        l1tOccupancyClient +
-                        l1tTestsSummary +
-                        l1tEventInfoClient
-                        )
+    l1tStage1Layer2Client +
+    l1tDttfClient +
+    l1tdeCSCTPGClient +
+    l1tCsctfClient +
+    l1tRpctfClient +
+    l1tGmtClient +
+    l1tOccupancyClient +
+    l1tTestsSummary +
+    l1tEventInfoClient
+)
 
 
 l1tMonitorClient = cms.Sequence(
-                        l1TriggerQualityTests +
-                        l1TriggerClients
-                        )
+    l1TriggerQualityTests +
+    l1TriggerClients
+)
 
 l1tMonitorStage1Client = cms.Sequence(
-                        l1TriggerQualityTests +
-                        l1TriggerStage1Clients
-                        )
+    l1TriggerQualityTests +
+    l1TriggerStage1Clients
+)
 
 
 # sequence for L1 Trigger DQM client modules on EndPath
 # FIXME clarify why needed on EndPath
 
 l1tMonitorClientEndPathSeq = cms.Sequence(
-                                l1tsClient
-                                )
+    l1tsClient
+)

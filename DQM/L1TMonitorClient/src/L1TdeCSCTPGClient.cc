@@ -54,11 +54,11 @@ void L1TdeCSCTPGClient::book(DQMStore::IBooker &iBooker) {
       const std::string key("alct_" + alctVars_[iVar] + "_diff");
       const std::string histName(key + "_" + chambers_[iType]);
       const std::string histTitle(chambers_[iType] + " ALCT " + alctVars_[iVar] + " (Emul - Data)");
-      if (chamberHistos[iType][key] == nullptr)
-        chamberHistos[iType][key] =
-            iBooker.book1D(histName, histTitle, alctNBin_[iType], alctMinBin_[iType], alctMaxBin_[iType]);
+      if (chamberHistos_[iType][key] == nullptr)
+        chamberHistos_[iType][key] =
+            iBooker.book1D(histName, histTitle, alctNBin_[iVar], alctMinBin_[iVar], alctMaxBin_[iVar]);
       else
-        chamberHistos[iType][key]->Reset();
+        chamberHistos_[iType][key]->Reset();
     }
 
     // clct variable
@@ -66,11 +66,11 @@ void L1TdeCSCTPGClient::book(DQMStore::IBooker &iBooker) {
       const std::string key("clct_" + clctVars_[iVar] + "_diff");
       const std::string histName(key + "_" + chambers_[iType]);
       const std::string histTitle(chambers_[iType] + " CLCT " + clctVars_[iVar] + " (Emul - Data)");
-      if (chamberHistos[iType][key] == nullptr)
-        chamberHistos[iType][key] =
-            iBooker.book1D(histName, histTitle, clctNBin_[iType], clctMinBin_[iType], clctMaxBin_[iType]);
+      if (chamberHistos_[iType][key] == nullptr)
+        chamberHistos_[iType][key] =
+            iBooker.book1D(histName, histTitle, clctNBin_[iVar], clctMinBin_[iVar], clctMaxBin_[iVar]);
       else
-        chamberHistos[iType][key]->Reset();
+        chamberHistos_[iType][key]->Reset();
     }
 
     // lct variable
@@ -78,11 +78,11 @@ void L1TdeCSCTPGClient::book(DQMStore::IBooker &iBooker) {
       const std::string key("lct_" + lctVars_[iVar] + "_diff");
       const std::string histName(key + "_" + chambers_[iType]);
       const std::string histTitle(chambers_[iType] + " LCT " + lctVars_[iVar] + " (Emul - Data)");
-      if (chamberHistos[iType][key] == nullptr)
-        chamberHistos[iType][key] =
-            iBooker.book1D(histName, histTitle, lctNBin_[iType], lctMinBin_[iType], lctMaxBin_[iType]);
+      if (chamberHistos_[iType][key] == nullptr)
+        chamberHistos_[iType][key] =
+            iBooker.book1D(histName, histTitle, lctNBin_[iVar], lctMinBin_[iVar], lctMaxBin_[iVar]);
       else
-        chamberHistos[iType][key]->Reset();
+        chamberHistos_[iType][key]->Reset();
     }
   }
 }
@@ -102,7 +102,7 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
       dataMon = igetter.get(monitorDir_ + "/" + histData);
       emulMon = igetter.get(monitorDir_ + "/" + histEmul);
 
-      TH1F *hDiff = chamberHistos[iType][key + "_diff"]->getTH1F();
+      TH1F *hDiff = chamberHistos_[iType][key + "_diff"]->getTH1F();
 
       if (dataMon && emulMon) {
         TH1F *dataHist = dataMon->getTH1F();
@@ -120,7 +120,7 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
       dataMon = igetter.get(monitorDir_ + "/" + histData);
       emulMon = igetter.get(monitorDir_ + "/" + histEmul);
 
-      TH1F *hDiff = chamberHistos[iType][key + "_diff"]->getTH1F();
+      TH1F *hDiff = chamberHistos_[iType][key + "_diff"]->getTH1F();
 
       if (dataMon && emulMon) {
         TH1F *dataHist = dataMon->getTH1F();
@@ -138,7 +138,7 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
       dataMon = igetter.get(monitorDir_ + "/" + histData);
       emulMon = igetter.get(monitorDir_ + "/" + histEmul);
 
-      TH1F *hDiff = chamberHistos[iType][key + "_diff"]->getTH1F();
+      TH1F *hDiff = chamberHistos_[iType][key + "_diff"]->getTH1F();
 
       if (dataMon && emulMon) {
         TH1F *dataHist = dataMon->getTH1F();
