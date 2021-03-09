@@ -87,7 +87,6 @@ l1tsClient.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM")
 l1TriggerClients = cms.Sequence(
                         l1tGctClient +
                         l1tDttfClient +
-                        l1tdeCSCTPGClient +
                         l1tCsctfClient +
                         l1tRpctfClient +
                         l1tGmtClient +
@@ -99,7 +98,6 @@ l1TriggerClients = cms.Sequence(
 l1TriggerStage1Clients = cms.Sequence(
                         l1tStage1Layer2Client +
                         l1tDttfClient +
-                        l1tdeCSCTPGClient +
                         l1tCsctfClient +
                         l1tRpctfClient +
                         l1tGmtClient +
