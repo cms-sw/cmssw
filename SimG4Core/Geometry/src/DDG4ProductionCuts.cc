@@ -112,7 +112,10 @@ void DDG4ProductionCuts::dd4hepInitialize() {
   dd4hep::SpecParRefs specs;
   specPars_->filter(specs, keywordRegion_);
 
+  // LOOP ON ALL LOGICAL VOLUMES
   for (auto const& it : *dd4hepMap_) {
+    bool foundMatch = false;  // Same behavior as in DDD: when matching SpecPar is found, stop search!
+    // SEARCH ON ALL SPECPARS
     for (auto const& fit : specs) {
       for (auto const& pit : fit.second->paths) {
         const std::string_view selection = dd4hep::dd::noNamespace(dd4hep::dd::realTopName(pit));
@@ -121,10 +124,15 @@ void DDG4ProductionCuts::dd4hepInitialize() {
                 ? dd4hep::dd::compareEqual(name, selection)
                 : std::regex_match(name.begin(), name.end(), std::regex(selection.begin(), selection.end()))) {
           dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit.second));
+          foundMatch = true;
+          break;
         }
       }
-    }
-  }
+      if (foundMatch)
+        break;
+    }  // Search on all SpecPars
+  }    // Loop on all logical volumes
+
   // sort all root volumes - to get the same sequence at every run of the application.
   sort(begin(dd4hepVec_), end(dd4hepVec_), &sortByName);
 
