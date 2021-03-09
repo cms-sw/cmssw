@@ -85,7 +85,7 @@ void PixelVertexCollectionTrimmer::produce(edm::Event& iEvent, const edm::EventS
     }
 
     if (vtxs_trim->empty())
-      edm::LogWarning("Output") << "Output collection is empty.";
+      edm::LogInfo("Output") << "Output collection is empty.";
   }
 
   iEvent.put(std::move(vtxs_trim));
