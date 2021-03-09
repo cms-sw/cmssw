@@ -409,22 +409,6 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
 	  return false;
 	}
     }
-  }
-
-  if (objPar.impactParameterLUT != 0)  // Check if impact parameter LUT is valid.  0xF is default; 0x0 is invalid
-  {
-    // check impact parameter ( bit check ) with impact parameter LUT
-    // sanity check on candidate impact parameter
-    if (cand.hwDXY() > 3) {
-      LogDebug("L1TGlobal") << "\t\t l1t::Candidate has out of range hwDXY = " << cand.hwDXY() << std::endl;
-      return false;
-    }
-    bool passImpactParameterLUT = ((objPar.impactParameterLUT >> cand.hwDXY()) & 1);
-    if (!passImpactParameterLUT) {
-      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed impact parameter requirement" << std::endl;
-      return false;
-    }
-  }
 
   if (!checkThreshold(objPar.ptLowThreshold, objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq())) {
     LogDebug("L1TGlobal") << "\t\t Muon Failed checkThreshold " << std::endl;
@@ -491,7 +475,7 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
   }
 
   // A number of values is required to trigger (at least one).
-  // "Don’t care" means that all values are allowed.
+  // "Don't care" means that all values are allowed.
   // Qual = 000 means then NO MUON (GTL module)
 
   // if (cand.hwQual() == 0) {
