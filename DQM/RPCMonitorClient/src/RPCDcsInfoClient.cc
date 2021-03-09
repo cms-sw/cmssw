@@ -1,72 +1,67 @@
 #include "DQM/RPCMonitorClient/interface/RPCDcsInfoClient.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-RPCDcsInfoClient::RPCDcsInfoClient(const edm::ParameterSet& ps) {
-  dcsinfofolder_ = ps.getUntrackedParameter<std::string>("dcsInfoFolder", "RPC/DCSInfo");
-  eventinfofolder_ = ps.getUntrackedParameter<std::string>("eventInfoFolder", "RPC/EventInfo");
-  dqmprovinfofolder_ = ps.getUntrackedParameter<std::string>("dqmProvInfoFolder", "Info/EventInfo");
-
-  DCS.clear();
-  DCS.resize(10);  // start with 10 LS, resize later
+RPCDcsInfoClient::RPCDcsInfoClient(const edm::ParameterSet& ps):
+  dcsinfofolder_(ps.getUntrackedParameter<std::string>("dcsInfoFolder", "RPC/DCSInfo")),
+  eventinfofolder_(ps.getUntrackedParameter<std::string>("eventInfoFolder", "RPC/EventInfo")),
+  dqmprovinfofolder_(ps.getUntrackedParameter<std::string>("dqmProvInfoFolder", "Info/EventInfo"))
+{
 }
-
-RPCDcsInfoClient::~RPCDcsInfoClient() {}
-
-void RPCDcsInfoClient::beginJob() {}
 
 void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   // book
   ibooker.cd();
   ibooker.setCurrentFolder(dcsinfofolder_);
 
-  unsigned int nlsmax = DCS.size();
-  MonitorElement* reportSummaryMap_ = igetter.get(dqmprovinfofolder_ + "/reportSummaryMap");
-  MonitorElement* lumiNumber_ = igetter.get(eventinfofolder_ + "/iLumiSection");
+  MonitorElement* reportSummaryMap = igetter.get(dqmprovinfofolder_ + "/reportSummaryMap");
+  MonitorElement* eventInfoLumi = igetter.get(eventinfofolder_+"/iLumiSection");
 
-  if (!reportSummaryMap_)
+  if (!reportSummaryMap)
     return;
 
-  if (TH2F* h2 = reportSummaryMap_->getTH2F()) {
-    nlsmax = lumiNumber_->getIntValue();
-    int hvStatus = 0;
-    const char* label_name = "RPC";
-    unsigned int rpc_num = 0;
-    if (nlsmax > DCS.size())
-      DCS.resize(nlsmax);
+  TH2F* h2 = reportSummaryMap->getTH2F();
+  if ( !h2 ) return;
+  const int maxLS = reportSummaryMap->getNbinsX();
 
-    for (int ybin = 0; ybin < h2->GetNbinsY(); ++ybin) {
-      if (strcmp(h2->GetYaxis()->GetBinLabel(ybin + 1), label_name) == 0)
-        rpc_num = ybin + 1;
-    }
-
-    for (unsigned int nlumi = 0; nlumi < nlsmax; ++nlumi) {
-      int rpc_dcsbit = h2->GetBinContent(nlumi + 1, rpc_num);
-      if (rpc_dcsbit != -1) {
-        hvStatus = 1;  // set to 1 because HV was on (!)
-      } else {
-        hvStatus = 0;  // set to 0 because HV was off (!)
-      }
-      DCS[nlumi] = hvStatus;
+  int nLS = eventInfoLumi->getIntValue();
+  if ( nLS <= 0 or nLS > maxLS ) {
+    // If the nLS from the event info is not valid, we take the value from the
+    // reportSummaryMap. The histogram is initialized with -1 value then filled
+    // with non-negative value for valid LSs.
+    // Note that we start from the first bin, since many runs have small nLS.
+    for ( nLS=1; nLS<=maxLS; ++nLS ) {
+      const double dcsBit = h2->GetBinContent(nLS, 1);
+      if ( dcsBit == -1 ) break;
     }
   }
-
-  std::string meName = dcsinfofolder_ + "/rpcHVStatus";
-  unsigned int dcssize = DCS.size();
-  MonitorElement* rpcHVStatus = ibooker.book2D("rpcHVStatus", "RPC HV Status", dcssize, 1., dcssize + 1, 1, 0.5, 1.5);
+  
+  MonitorElement* rpcHVStatus = ibooker.book2D("rpcHVStatus", "RPC HV Status", nLS, 1., nLS+1, 1, 0.5, 1.5);
   rpcHVStatus->setAxisTitle("Luminosity Section", 1);
   rpcHVStatus->setBinLabel(1, "", 2);
 
-  int lsCounter = 0;
-  // fill
-  for (unsigned int i = 0; i < nlsmax; i++) {
-    rpcHVStatus->setBinContent(i + 1, 1, DCS[i]);
-    lsCounter += DCS[i];
+  // Find bin number of RPC from the EventInfo's reportSummaryMap
+  int binRPC = 0;
+  for ( int i=1, nbinsY=reportSummaryMap->getNbinsY(); i<=nbinsY; ++i ) {
+    const std::string binLabel = h2->GetYaxis()->GetBinLabel(i);
+    if ( binLabel == "RPC" ) {
+      binRPC = i;
+      break;
+    }
+  }
+  if ( binRPC == 0 ) return;
+
+  // Take bin contents from the reportSummaryMap and fill into the RPC DCSInfo
+  int nLSRPC = 0;
+  for ( int i=1; i<=nLS; ++i ) {
+    const double dcsBit = h2->GetBinContent(i, binRPC);
+    const int hvStatus = (dcsBit != -1) ? 1 : 0;
+    if ( hvStatus != 0 ) {
+      ++nLSRPC;
+      rpcHVStatus->setBinContent(i, 1, hvStatus);
+    }
   }
 
-  meName = dcsinfofolder_ + "/rpcHV";
   MonitorElement* rpcHV = ibooker.bookInt("rpcHV");
+  rpcHV->Fill(nLSRPC);
 
-  rpcHV->Fill(lsCounter);
-
-  return;
 }
