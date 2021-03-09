@@ -38,7 +38,6 @@
 
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
-
 class HcalHaloAlgo {
 public:
   //constructor
