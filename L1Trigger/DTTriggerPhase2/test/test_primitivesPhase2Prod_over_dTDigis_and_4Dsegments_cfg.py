@@ -20,7 +20,7 @@ process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring('file
 
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 #process.dtTriggerPhase2PrimitiveDigis.dump = False
 #process.dtTriggerPhase2PrimitiveDigis.debug = False
 #process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)

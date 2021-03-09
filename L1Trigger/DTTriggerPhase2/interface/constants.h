@@ -206,6 +206,8 @@ namespace cmsdt {
   constexpr float PHIBRES_CONV = 2048. / 1.4;
   constexpr int CHI2RES_CONV = 1000000;
   constexpr int TDCTIME_REDUCED_SIZE = 10;
+  constexpr float ZRES_CONV = 65536. / 1500;
+  constexpr float KRES_CONV = 65536. / 2;
 
   constexpr int DIVISION_HELPER1 = 43691;
   constexpr int DIVISION_HELPER2 = 65536;

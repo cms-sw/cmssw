@@ -618,16 +618,14 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 						 chId.wheel(),                                               // uwh (m_wheel)     
 						 sectorTP,                                                   // usc (m_sector)    
 						 chId.station(),                                             // ust (m_station)
-						 metaPrimitiveIt.phi*1000000,                                // uz (m_zGlobal)
-						 metaPrimitiveIt.phiB*1000000,                               // uk (m_kSlope)
+						 (int)round(metaPrimitiveIt.phi * ZRES_CONV),                  // uz (m_zGlobal)
+						 (int)round(metaPrimitiveIt.phiB * KRES_CONV),                 // uk (m_kSlope)
 						 metaPrimitiveIt.quality,                                    // uqua (m_qualityCode)
 						 metaPrimitiveIt.index,                                      // uind (m_segmentIndex)
 						 (int)round(metaPrimitiveIt.t0) - shift_back * LHC_CLK_FREQ, // ut0 (m_t0Segment)
 						 (int)round(metaPrimitiveIt.chi2 * CHI2RES_CONV),            // uchi2 (m_chi2Segment)
 						 metaPrimitiveIt.rpcFlag                                     // urpc (m_rpcFlag)
 						 ));
-	    
-	    std::cout<<"etadebug: writing a etaTP with localz=phi="<< metaPrimitiveIt.phi<<" k=phiB="<<metaPrimitiveIt.phiB<<std::endl;
 	    
     }
   }

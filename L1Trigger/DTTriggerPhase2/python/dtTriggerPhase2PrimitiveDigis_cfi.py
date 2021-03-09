@@ -23,11 +23,11 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                minx_match_2digis = cms.untracked.double(1.),
                                                scenario = cms.int32(0), #0 for mc, 1 for data, 2 for slice test
                                                filter_cousins = cms.untracked.bool(True),
-
+                                               
                                                ttrig_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_ttrig.txt'),
                                                z_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_z.txt'),
                                                shift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_x.txt'),
-                                               shift_theta_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_y.txt'),
+                                               shift_theta_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/theta_shift.txt'),
                                                algo = cms.int32(0), # 0 = STD gr., 2 = Hough transform, 1 = PseudoBayes Approach
 
                                                minHits4Fit = cms.untracked.int32(4),
