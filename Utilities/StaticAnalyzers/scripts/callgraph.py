@@ -70,10 +70,10 @@ print("Callstacks for top level functions calling EventSetupRecord::get<>() sort
 print()
 
 for key in sorted(module2package.keys()):
-   print("package directory %s\n" % key)
+   print("%s\n" % key)
    for value in sorted(module2package[key]):
-      print("\tproducer name %s\n" % value)
+      print("%s :\n" % value)
       vre=re.compile(value)
       for cs in sorted(callstacks):
            if vre.search(cs):
-               print("\t\tcall stack %s\n" % cs)
+               print("%s\n" % cs)
