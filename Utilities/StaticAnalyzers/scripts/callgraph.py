@@ -73,7 +73,8 @@ print()
 for key in sorted(module2package.keys()):
    print("%s\n" % key)
    for value in sorted(module2package[key]):
-      vre=re.compile(value)
-      for cs in sorted(callstacks):
+       print("\t%s\n" % value)
+       vre=re.compile(value)
+       for cs in sorted(callstacks):
            if vre.search(cs):
-               print("%s : %s \n" % (value,cs))
+               print("\t\t%s\n" % cs)
