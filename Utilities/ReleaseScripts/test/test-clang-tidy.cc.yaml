@@ -11,6 +11,7 @@ Diagnostics:
           Offset:          69
           Length:          1
           ReplacementText: nullptr
+    Level:           Warning
   - DiagnosticName:  modernize-use-nullptr
     DiagnosticMessage:
       Message:         use nullptr
@@ -21,6 +22,7 @@ Diagnostics:
           Offset:          206
           Length:          1
           ReplacementText: nullptr
+    Level:           Warning
   - DiagnosticName:  modernize-use-nullptr
     DiagnosticMessage:
       Message:         use nullptr
@@ -31,6 +33,7 @@ Diagnostics:
           Offset:          235
           Length:          1
           ReplacementText: nullptr
+    Level:           Warning
   - DiagnosticName:  modernize-use-override
     DiagnosticMessage:
       Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
@@ -45,6 +48,7 @@ Diagnostics:
           Offset:          399
           Length:          0
           ReplacementText: ' override'
+    Level:           Warning
   - DiagnosticName:  modernize-use-override
     DiagnosticMessage:
       Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
@@ -59,4 +63,5 @@ Diagnostics:
           Offset:          427
           Length:          0
           ReplacementText: ' override'
+    Level:           Warning
 ...

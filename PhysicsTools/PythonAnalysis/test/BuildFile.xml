@@ -25,7 +25,7 @@
   <test name="testNumba" command="testNumba.py"/>
 </iftool>
 <iftool name="py2-llvmlite">
-  <test name="testLLVMLite" command="python -c 'import llvmlite'"/>
+  <test name="testLLVMLite" command="python3 -c 'import llvmlite'"/>
 </iftool>
 <iftool name="py2-numpy">
   <test name="testNumPy" command="python -c 'import numpy'"/>
