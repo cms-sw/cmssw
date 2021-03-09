@@ -215,6 +215,10 @@ displacedGlbMuonTrackVMuonAssoc_phase2.muonHistoParameters = displacedGlbMuonHis
 displacedTrackVMuonAssoc_phase2 = displacedTrackVMuonAssoc.clone()
 displacedTrackVMuonAssoc_phase2.muonHistoParameters = displacedTrkMuonHistoParameters_phase2   
 
+gemMuonTrackVMuonAssoc_phase2 = gemMuonTrackVMuonAssoc.clone()
+gemMuonTrackVMuonAssoc_phase2.muonHistoParameters = gemMuonHistoParameters_phase2 
+
+
 ##################################################################################
 # Muon validation sequences using MuonTrackValidator
 #
@@ -272,7 +276,7 @@ recoMuonValidation_reduced_seq = cms.Sequence(
 gemMuonValidation = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonMuonAssociation + gemMuonTrackVMuonAssoc)
 me0MuonValidation = cms.Sequence(extractMe0MuonsTracks_seq + tpToME0MuonMuonAssociation + me0MuonTrackVMuonAssoc)
 
-
+gemMuonValidation_phase2 = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonMuonAssociation + gemMuonTrackVMuonAssoc_phase2) 
 
 ##########################################################################
 # The full offline muon validation sequence
@@ -298,12 +302,12 @@ _run3_muonValidation += gemMuonValidation
 
 #_phase2_muonValidation = recoMuonValidation.copy()              #For full validation 
 _phase2_muonValidation = recoMuonValidation_reduced_seq.copy()
-_phase2_muonValidation += gemMuonValidation
+_phase2_muonValidation += gemMuonValidation_phase2
 _phase2_muonValidation += me0MuonValidation
 
 #_phase2_ge0_muonValidation = recoMuonValidation.copy()          #For full validation
 _phase2_ge0_muonValidation = recoMuonValidation_reduced_seq.copy()
-_phase2_ge0_muonValidation += gemMuonValidation
+_phase2_ge0_muonValidation += gemMuonValidation_phase2
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( recoMuonValidation, _run3_muonValidation )
