@@ -6,4 +6,8 @@ cscRecHitValidation = DQMEDAnalyzer(
     'CSCRecHitValidation',
     cscRecHitPSet,
     doSim = cms.bool(True),
-    simHitsTag = cms.InputTag("mix","g4SimHitsMuonCSCHits"))
+    simHitsTag = cms.InputTag("mix","g4SimHitsMuonCSCHits")
+)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(cscRecHitValidation, simHitsTag = "mix:MuonSimHitsMuonCSCHits")
