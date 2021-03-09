@@ -1,11 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+from Validation.CSCRecHits.cscRecHitPSet import *
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-cscRecHitValidation = DQMEDAnalyzer('CSCRecHitValidation',
-    simHitsTag = cms.InputTag("mix","g4SimHitsMuonCSCHits"),
-    outputFile = cms.string('CSCRecHitValidation.root'),
-    recHitLabel = cms.InputTag("csc2DRecHits"),
-    segmentLabel = cms.InputTag("cscSegments")
-)
-
-
+cscRecHitValidation = DQMEDAnalyzer(
+    'CSCRecHitValidation',
+    cscRecHitPSet,
+    doSim = cms.bool(True),
+    simHitsTag = cms.InputTag("mix","g4SimHitsMuonCSCHits"))
