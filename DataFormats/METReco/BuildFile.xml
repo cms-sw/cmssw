@@ -14,7 +14,6 @@
 <use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/TrackReco"/>
-<use name="DataFormats/VertexReco"/>
 <use name="root"/>
 <export>
   <lib name="1"/>
