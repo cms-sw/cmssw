@@ -14,7 +14,7 @@ namespace reco {
   /// \brief Track Element.
   ///
   /// this class contains a reference to a PFRecTrack
-  class PFBlockElementTrack : public PFBlockElement {
+  class PFBlockElementTrack final : public PFBlockElement {
   public:
     PFBlockElementTrack() {}
 
@@ -50,12 +50,12 @@ namespace reco {
 
     /// check if the track is secondary
     bool isSecondary() const override {
-      return trackType(T_FROM_DISP) || trackType(T_FROM_GAMMACONV) || trackType(T_FROM_V0);
+      return trackType(T_FROM_DISP) | trackType(T_FROM_GAMMACONV) | trackType(T_FROM_V0);
     }
 
     bool isPrimary() const override { return trackType(T_TO_DISP); }
 
-    bool isLinkedToDisplacedVertex() const override { return isSecondary() || isPrimary(); }
+    bool isLinkedToDisplacedVertex() const override { return isSecondary() | isPrimary(); }
 
     /// \return the displaced vertex associated
     const PFDisplacedTrackerVertexRef& displacedVertexRef(TrackType trType) const override {
