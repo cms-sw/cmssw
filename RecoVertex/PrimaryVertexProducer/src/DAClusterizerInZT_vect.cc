@@ -1,4 +1,5 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZT_vect.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ_vect.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
@@ -1558,23 +1559,7 @@ void DAClusterizerInZT_vect::dump(const double beta, const vertex_t& y, const tr
 }
 
 void DAClusterizerInZT_vect::fillPSetDescription(edm::ParameterSetDescription& desc) {
-  desc.addUntracked<double>("zdumpcenter", 0.);
-  desc.addUntracked<double>("zdumpwidth", 20.);
-  desc.addUntracked<bool>("use_vdt", false);  // obsolete, appears in HLT configs
-  desc.add<double>("d0CutOff", 3.0);
-  desc.add<double>("Tmin", 2.0);
-  desc.add<double>("delta_lowT", 0.001);
-  desc.add<double>("zmerge", 0.01);
-  desc.add<double>("dzCutOff", 3.0);
-  desc.add<double>("Tpurge", 2.0);
-  desc.add<int>("convergence_mode", 0);
-  desc.add<double>("delta_highT", 0.01);
-  desc.add<double>("Tstop", 0.5);
-  desc.add<double>("coolingFactor", 0.6);
-  desc.add<double>("vertexSize", 0.006);
-  desc.add<double>("uniquetrkweight", 0.8);
-  desc.add<double>("uniquetrkminp", 0.0);
-  desc.add<double>("zrange", 4.0);
+  DAClusterizerInZ_vect::fillPSetDescription(desc);
   desc.add<double>("tmerge", 0.01);           // 4D only
   desc.add<double>("dtCutOff", 4.);           // 4D only
   desc.add<double>("t0Max", 1.0);             // 4D only
