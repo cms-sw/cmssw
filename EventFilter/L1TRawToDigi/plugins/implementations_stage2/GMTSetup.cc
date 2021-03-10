@@ -44,7 +44,7 @@ namespace l1t {
         auto gmt_in_packer = static_pointer_cast<l1t::stage2::RegionalMuonGMTPacker>(
             PackerFactory::get()->make("stage2::RegionalMuonGMTPacker"));
         if (fw >= 0x6000000) {
-          gmt_in_packer->setKalmanAlgoTrue();
+          gmt_in_packer->setIsRun3();
         }
         auto gmt_out_packer =
             static_pointer_cast<l1t::stage2::GMTMuonPacker>(PackerFactory::get()->make("stage2::GMTMuonPacker"));
