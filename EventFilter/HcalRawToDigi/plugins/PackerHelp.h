@@ -616,7 +616,10 @@ public:
 
 // converts HE QIE digies to HB data format
 
-QIE11DataFrame convertHB(QIE11DataFrame qiehe, std::vector<int> tdc1, std::vector<int> tdc2, int tdcmax) {
+QIE11DataFrame convertHB(QIE11DataFrame qiehe,
+                         std::vector<int> const& tdc1,
+                         std::vector<int> const& tdc2,
+                         const int tdcmax) {
   QIE11DataFrame qiehb = qiehe;
   HcalDetId did = HcalDetId(qiehb.detid());
   int adc, tdc;
@@ -628,9 +631,9 @@ QIE11DataFrame convertHB(QIE11DataFrame qiehe, std::vector<int> tdc1, std::vecto
   //  maximum HB depth
   static const int maxHBdepth = 4;
 
-  int entry = (abs(did.ieta()) - 1) * maxHBdepth + did.depth() - 1;
-  int first = tdc1.at(entry);
-  int second = tdc2.at(entry);
+  const int entry = (abs(did.ieta()) - 1) * maxHBdepth + did.depth() - 1;
+  const int first = tdc1.at(entry);
+  const int second = tdc2.at(entry);
 
   //  iterator over samples
   for (edm::DataFrame::const_iterator it = qiehe.begin(); it != qiehe.end(); ++it) {
