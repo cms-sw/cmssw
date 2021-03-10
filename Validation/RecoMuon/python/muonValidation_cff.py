@@ -201,7 +201,7 @@ pfMuonTrackVMuonAssoc_phase2 = pfMuonTrackVMuonAssoc.clone()
 pfMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2                                                  
 
 recomuMuonTrackVMuonAssoc_phase2 = recomuMuonTrackVMuonAssoc.clone()                                                              
-recomuMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2       
+recomuMuonTrackVMuonAssoc_phase2.muonHistoParameters = recoMuonHistoParameters_phase2      
 
 tunepMuonTrackVMuonAssoc_phase2 = tunepMuonTrackVMuonAssoc.clone()
 tunepMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2      
