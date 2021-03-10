@@ -13,6 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVClusterComparer.h"
 
 class PixelVertexCollectionTrimmer : public edm::stream::EDProducer<> {
@@ -37,21 +38,19 @@ PixelVertexCollectionTrimmer::PixelVertexCollectionTrimmer(const edm::ParameterS
       maxVtx_(iConfig.getParameter<uint>("maxVtx")),
       fractionSumPt2_(iConfig.getParameter<double>("fractionSumPt2")),
       minSumPt2_(iConfig.getParameter<double>("minSumPt2")) {
-  if (fractionSumPt2_ < 0)
-    edm::LogWarning("Configuration") << "value of \"fractionSumPt2\" is negative.";
-  else if (fractionSumPt2_ > 1)
-    edm::LogWarning("Configuration") << "value of \"fractionSumPt2\" is larger than 1.";
+  if (fractionSumPt2_ > 1)
+    throw cms::Exception("PixelVertexConfiguration") << "value of \"fractionSumPt2\" is larger than 1.";
 
-  auto const PVcomparerPSet = iConfig.getParameter<edm::ParameterSet>("PVcomparer");
-  auto const track_pt_min = PVcomparerPSet.getParameter<double>("track_pt_min");
-  auto const track_pt_max = PVcomparerPSet.getParameter<double>("track_pt_max");
-  auto const track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
-  auto const track_prob_min = PVcomparerPSet.getParameter<double>("track_prob_min");
+  auto const& pvComparerPSet = iConfig.getParameterSet("PVcomparer");
+  auto const track_pt_min = pvComparerPSet.getParameter<double>("track_pt_min");
+  auto const track_pt_max = pvComparerPSet.getParameter<double>("track_pt_max");
+  auto const track_chi2_max = pvComparerPSet.getParameter<double>("track_chi2_max");
+  auto const track_prob_min = pvComparerPSet.getParameter<double>("track_prob_min");
 
   if (track_pt_min >= track_pt_max)
-    edm::LogWarning("Configuration") << "PVcomparer.track_pt_min (" << track_pt_min << ") >= PVcomparer.track_pt_max ("
-                                     << track_pt_max << ") : PVClusterComparer will use pT=" << track_pt_max
-                                     << " for all selected tracks.";
+    throw cms::Exception("PixelVertexConfiguration")
+        << "PVcomparer.track_pt_min (" << track_pt_min << ") >= PVcomparer.track_pt_max (" << track_pt_max
+        << ") : PVClusterComparer will use pT=" << track_pt_max << " for all selected tracks.";
 
   pvComparer_ = std::make_unique<PVClusterComparer>(track_pt_min, track_pt_max, track_chi2_max, track_prob_min);
 
@@ -64,28 +63,28 @@ void PixelVertexCollectionTrimmer::produce(edm::Event& iEvent, const edm::EventS
   auto const& vtxs = iEvent.get(vtxToken_);
 
   if (vtxs.empty())
-    edm::LogWarning("Input") << "Input collection of vertices is empty. Output collection will be empty.";
+    edm::LogWarning("PixelVertexInput") << "Input collection of vertices is empty. Output collection will be empty.";
   else {
     std::vector<double> foms(vtxs.size());
     for (size_t idx = 0; idx < vtxs.size(); ++idx)
-      foms.at(idx) = pvComparer_->pTSquaredSum(vtxs.at(idx));
+      foms[idx] = pvComparer_->pTSquaredSum(vtxs[idx]);
 
     std::vector<size_t> sortIdxs(vtxs.size());
     std::iota(sortIdxs.begin(), sortIdxs.end(), 0);
     std::sort(sortIdxs.begin(), sortIdxs.end(), [&](size_t const i1, size_t const i2) { return foms[i1] > foms[i2]; });
 
-    auto const minFOM_fromFrac = foms.at(sortIdxs.at(0)) * fractionSumPt2_;
+    auto const minFOM_fromFrac = foms[sortIdxs.front()] * fractionSumPt2_;
 
-    vtxs_trim->reserve(maxVtx_ < vtxs.size() ? maxVtx_ : vtxs.size());
+    vtxs_trim->reserve(std::min((size_t)maxVtx_, vtxs.size()));
     for (auto const idx : sortIdxs) {
       if (vtxs_trim->size() >= maxVtx_)
         break;
-      if (foms.at(idx) >= minFOM_fromFrac and foms.at(idx) > minSumPt2_)
-        vtxs_trim->emplace_back(vtxs.at(idx));
+      if (foms[idx] >= minFOM_fromFrac and foms[idx] > minSumPt2_)
+        vtxs_trim->emplace_back(vtxs[idx]);
     }
 
     if (vtxs_trim->empty())
-      edm::LogInfo("Output") << "Output collection is empty.";
+      edm::LogInfo("PixelVertexOutput") << "Output collection is empty.";
   }
 
   iEvent.put(std::move(vtxs_trim));
