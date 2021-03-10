@@ -2,6 +2,7 @@
 from __future__ import print_function
 import re
 from collections import defaultdict
+import yaml
 
 topfunc = re.compile(r"::(accumulate|acquire|startingNewLoop|duringLoop|endOfLoop|beginOfJob|endOfJob|produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream|streamBeginRun|streamBeginLuminosityBlock|streamEndRun|streamEndLuminosityBlock|globalBeginRun|globalEndRun|globalBeginLuminosityBlock|globalEndLuminosityBlock|endRun|endLuminosityBlock)\(")
 
@@ -16,18 +17,23 @@ epfuncs=set()
 import networkx as nx
 G=nx.DiGraph()
 
-g = open('module_to_package.txt')
+#g = open('module_to_package.txt')
+#module2package=dict()
+#for line in g:
+#    fields = line.strip().split(';')
+#    if len(fields) <2:
+#        continue
+#    module2package.setdefault(fields[1], []).append(fields[0])
+#
+#i = open('module_to_package.yaml', 'w')
+#yaml.dump(module2package, i)
+#i.close()
 
-module2package=defaultdict(list)
-for line in g:
-    fields = line.strip().split(';')
-    if len(fields) <2:
-        continue
-    module2package[fields[1]].append(fields[0])
+h = open('module_to_package.yaml', 'r')
+module2package=yaml.load(h, Loader=yaml.FullLoader)
 
-f = open('function-calls-db.txt')
-
-for line in f :
+with open('function-calls-db.txt') as f:
+   for line in f :
 	fields = line.split("'")
         if len(fields) < 3:
             continue
@@ -45,11 +51,8 @@ for line in f :
 			if not skipfunc.search(line) : 
 				G.add_edge(fields[3],fields[1],kind=' calls override function ')
 				if epfuncre.search(fields[1]) : epfuncs.add(fields[1])
-f.close()
 
     
-
-#for epfunc in sorted(epfuncs): print(epfunc)
 
 callstacks=set()
 for tfunc in toplevelfuncs:
@@ -70,6 +73,7 @@ for tfunc in toplevelfuncs:
 print("Callstacks for top level functions calling EventSetupRecord::get<>() sorted by package directory and producer name")
 print()
 
+report=dict()
 for key in sorted(module2package.keys()):
    print("%s\n" % key)
    for value in sorted(module2package[key]):
@@ -78,3 +82,6 @@ for key in sorted(module2package.keys()):
        for cs in sorted(callstacks):
            if vre.search(cs):
                print("\t\t%s\n" % cs)
+               report.setdefault(key, {}).setdefault(value, []).append(cs)
+r=open('eventsetuprecord-get.yaml', 'w')
+yaml.dump(report,r)
