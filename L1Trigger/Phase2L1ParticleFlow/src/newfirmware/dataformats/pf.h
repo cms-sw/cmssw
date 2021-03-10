@@ -183,7 +183,8 @@ namespace l1ct {
     }
 
     inline glbeta_t hwGlbEta(eta_t hwEta) const { return hwEtaCenter + hwEta; }
-    inline glbphi_t hwGlbPhi(phi_t hwPhi) const {
+    inline glbeta_t hwGlbEta(glbeta_t hwEta) const { return hwEtaCenter + hwEta; }
+    inline glbphi_t hwGlbPhi(glbphi_t hwPhi) const {
       ap_int<glbphi_t::width + 1> ret = hwPhiCenter + hwPhi;
       if (ret > Scales::INTPHI_PI)
         return ret - Scales::INTPHI_TWOPI;
@@ -204,6 +205,8 @@ namespace l1ct {
 
     inline float floatGlbEta(eta_t hwEta) const { return Scales::floatEta(hwGlbEta(hwEta)); }
     inline float floatGlbPhi(phi_t hwPhi) const { return Scales::floatPhi(hwGlbPhi(hwPhi)); }
+    inline float floatGlbEta(glbeta_t hwEta) const { return Scales::floatEta(hwGlbEta(hwEta)); }
+    inline float floatGlbPhi(glbphi_t hwPhi) const { return Scales::floatPhi(hwGlbPhi(hwPhi)); }
 
     template <typename T>
     inline float floatGlbEtaOf(const T &t) const {

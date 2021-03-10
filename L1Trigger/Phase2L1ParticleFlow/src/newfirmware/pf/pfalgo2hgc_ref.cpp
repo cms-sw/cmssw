@@ -50,11 +50,12 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion& in, OutputRegion& out) c
   unsigned int nMU = std::min<unsigned>(nMU_, in.muon.size());
 
   if (debug_) {
-    printf("FW\nFW  \t region eta [ %+5.2f , %+5.2f ], phi [ %+5.2f , %+5.2f ]\n",
+    printf("FW\nFW  \t region eta [ %+5.2f , %+5.2f ], phi [ %+5.2f , %+5.2f ]   packed %s\n",
            in.region.floatEtaMinExtra(),
            in.region.floatEtaMaxExtra(),
            in.region.floatPhiCenter() - in.region.floatPhiHalfWidthExtra(),
-           in.region.floatPhiCenter() + in.region.floatPhiHalfWidthExtra());
+           in.region.floatPhiCenter() + in.region.floatPhiHalfWidthExtra(),
+           in.region.pack().to_string(16).c_str());
 
     printf("FW  \t N(track) %3lu   N(calo) %3lu   N(mu) %3lu\n", in.track.size(), in.hadcalo.size(), in.muon.size());
 
@@ -63,7 +64,7 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion& in, OutputRegion& out) c
         continue;
       printf(
           "FW  \t track %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  vtx eta %+5.2f   "
-          "vtx phi %+5.2f   charge %+2d  quality %d\n",
+          "vtx phi %+5.2f   charge %+2d  quality %d  packed %s\n",
           i,
           in.track[i].floatPt(),
           in.track[i].intPt(),
@@ -74,14 +75,15 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion& in, OutputRegion& out) c
           in.track[i].floatVtxEta(),
           in.track[i].floatVtxPhi(),
           in.track[i].intCharge(),
-          int(in.track[i].hwQuality));
+          int(in.track[i].hwQuality),
+          in.track[i].pack().to_string(16).c_str());
     }
     for (unsigned int i = 0; i < nCALO; ++i) {
       if (in.hadcalo[i].hwPt == 0)
         continue;
       printf(
           "FW  \t calo  %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  calo emPt %8.2f [ "
-          "%6d ]   isEM %d \n",
+          "%6d ]   isEM %d  packed %s \n",
           i,
           in.hadcalo[i].floatPt(),
           in.hadcalo[i].intPt(),
@@ -91,20 +93,24 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion& in, OutputRegion& out) c
           in.hadcalo[i].intPhi(),
           in.hadcalo[i].floatEmPt(),
           in.hadcalo[i].intEmPt(),
-          int(in.hadcalo[i].hwIsEM));
+          int(in.hadcalo[i].hwIsEM),
+          in.hadcalo[i].pack().to_string(16).c_str());
     }
     for (unsigned int i = 0; i < nMU; ++i) {
       if (in.muon[i].hwPt == 0)
         continue;
-      printf("FW  \t muon  %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  charge %+2d  \n",
-             i,
-             in.muon[i].floatPt(),
-             in.muon[i].intPt(),
-             in.muon[i].floatEta(),
-             in.muon[i].intEta(),
-             in.muon[i].floatPhi(),
-             in.muon[i].intPhi(),
-             in.muon[i].intCharge());
+      printf(
+          "FW  \t muon  %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  charge %+2d   "
+          "packed %s \n",
+          i,
+          in.muon[i].floatPt(),
+          in.muon[i].intPt(),
+          in.muon[i].floatEta(),
+          in.muon[i].intEta(),
+          in.muon[i].floatPhi(),
+          in.muon[i].intPhi(),
+          in.muon[i].intCharge(),
+          in.muon[i].pack().to_string(16).c_str());
     }
   }
 
@@ -151,9 +157,10 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion& in, OutputRegion& out) c
       int ibest = best_match_with_pt_ref(dR2MAX_TK_CALO_, in.hadcalo, in.track[it], tkCaloPtErr);
       if (ibest != -1) {
         if (debug_)
-          printf("FW  \t track  %3d pt %8.2f matched to calo %3d pt %8.2f\n",
+          printf("FW  \t track  %3d pt %8.2f caloPtErr %6.2f matched to calo %3d pt %8.2f\n",
                  it,
                  in.track[it].floatPt(),
+                 Scales::floatPt(tkCaloPtErr),
                  ibest,
                  in.hadcalo[ibest].floatPt());
         track_good[it] = true;
@@ -229,28 +236,32 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion& in, OutputRegion& out) c
     for (unsigned int i = 0; i < nTRACK; ++i) {
       if (out.pfcharged[i].hwPt == 0)
         continue;
-      printf("FW  \t outch %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  pid %d\n",
-             i,
-             out.pfcharged[i].floatPt(),
-             out.pfcharged[i].intPt(),
-             out.pfcharged[i].floatEta(),
-             out.pfcharged[i].intEta(),
-             out.pfcharged[i].floatPhi(),
-             out.pfcharged[i].intPhi(),
-             out.pfcharged[i].intId());
+      printf(
+          "FW  \t outch %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  pid %d  packed %s\n",
+          i,
+          out.pfcharged[i].floatPt(),
+          out.pfcharged[i].intPt(),
+          out.pfcharged[i].floatEta(),
+          out.pfcharged[i].intEta(),
+          out.pfcharged[i].floatPhi(),
+          out.pfcharged[i].intPhi(),
+          out.pfcharged[i].intId(),
+          out.pfcharged[i].pack().to_string(16).c_str());
     }
     for (unsigned int i = 0; i < nSELCALO; ++i) {
       if (out.pfneutral[i].hwPt == 0)
         continue;
-      printf("FW  \t outne %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  pid %d\n",
-             i,
-             out.pfneutral[i].floatPt(),
-             out.pfneutral[i].intPt(),
-             out.pfneutral[i].floatEta(),
-             out.pfneutral[i].intEta(),
-             out.pfneutral[i].floatPhi(),
-             out.pfneutral[i].intPhi(),
-             out.pfneutral[i].intId());
+      printf(
+          "FW  \t outne %3d: pt %8.2f [ %8d ]  calo eta %+5.2f [ %+5d ]  calo phi %+5.2f [ %+5d ]  pid %d  packed %s\n",
+          i,
+          out.pfneutral[i].floatPt(),
+          out.pfneutral[i].intPt(),
+          out.pfneutral[i].floatEta(),
+          out.pfneutral[i].intEta(),
+          out.pfneutral[i].floatPhi(),
+          out.pfneutral[i].intPhi(),
+          out.pfneutral[i].intId(),
+          out.pfneutral[i].pack().to_string(16).c_str());
     }
   }
 }
