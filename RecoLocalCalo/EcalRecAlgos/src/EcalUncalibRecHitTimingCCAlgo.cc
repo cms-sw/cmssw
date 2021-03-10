@@ -83,11 +83,9 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
     distStop = computeCC(pedSubSamples, fullpulse, tStop);
 
     if (distStart > distStop) {
-      tStart = tStart;
       tStop = tM;
     } else {
       tStart = tM;
-      tStop = tStop;
     }
     tM = (tStart + tStop) / 2;
 
