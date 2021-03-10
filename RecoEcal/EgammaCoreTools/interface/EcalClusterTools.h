@@ -1076,7 +1076,7 @@ std::vector<float> EcalClusterToolsT<noZS>::localCovariances(const reco::BasicCl
       float energy = recHitEnergy(detId, recHits) * frac;
 
       if ( (thresholds==nullptr) && (mult!=0.0) ) {
-	throw cms::Exception("EmptyPFRechHitThresColl") << " If EcalPFRecHitThresholds==nulptr, then multEB and multEE should be 0 as well."; 
+	throw cms::Exception("EmptyPFRechHitThresColl") << "In EcalClusterTools::localCovariances, if EcalPFRecHitThresholds==nulptr, then multEB and multEE should be 0 as well."; 
       }
       float rhThres = 0.0; 
       if (thresholds!=nullptr) {
