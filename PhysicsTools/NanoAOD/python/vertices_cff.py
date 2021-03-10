@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
-
+from  PhysicsTools.NanoAOD.nano_eras_cff import *
 
 
 ##################### User floats producers, selectors ##########################
@@ -14,6 +14,7 @@ vertexTable = cms.EDProducer("VertexTableProducer",
     svCut = cms.string(""),
     dlenMin = cms.double(0),
     dlenSigMin = cms.double(3),
+    storeCharge = cms.bool(True),
     pvName = cms.string("PV"),
     svName = cms.string("SV"),
     svDoc  = cms.string("secondary vertices from IVF algorithm"),
@@ -34,6 +35,12 @@ svCandidateTable =  cms.EDProducer("SimpleCandidateFlatTableProducer",
         ntracks = Var("numberOfDaughters()", "uint8", doc = "number of tracks"),
     ),
 )
+
+## do not add SV_charge in nanoAODv8
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(vertexTable , storeCharge = False)
+
+
+
 svCandidateTable.variables.pt.precision=10
 svCandidateTable.variables.phi.precision=12
 
