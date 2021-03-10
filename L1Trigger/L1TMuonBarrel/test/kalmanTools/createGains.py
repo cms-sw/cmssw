@@ -71,7 +71,7 @@ for track in [3,5,6,7,9,10,11,12,13,14,15]:
 
 
 for p in [3,5,6,7,9,10,11,12,13,14,15]:
-    events=Events(['/uscmst1b_scratch/lpc1/3DayLifetime/tclam/singleMu0_{}_offline.root'.format(p)]) # Run KBMTF with only 1 pattern at a time to increase statistics
+    events=Events(['singleMu0_{}.root'.format(p)]) # Run KBMTF with only 1 pattern at a time to increase statistics
     counter=-1
     for event in events:
         counter=counter+1
