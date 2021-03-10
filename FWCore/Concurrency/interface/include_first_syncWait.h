@@ -7,7 +7,6 @@
 //
 //  Created by Chris Jones on 2/24/21.
 //
-#define TBB_PREVIEW_RESUMABLE_TASKS 1
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "tbb/task_group.h"
 #include "tbb/task.h"
