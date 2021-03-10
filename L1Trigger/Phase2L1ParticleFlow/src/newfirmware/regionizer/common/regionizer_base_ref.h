@@ -11,8 +11,8 @@ namespace l1ct {
 
   class RegionizerEmulator {
   public:
-    RegionizerEmulator(bool useAlsoVtxCoords=true) : useAlsoVtxCoords_(useAlsoVtxCoords), debug_(false) {}
-    RegionizerEmulator(const edm::ParameterSet& iConfig) ;
+    RegionizerEmulator(bool useAlsoVtxCoords = true) : useAlsoVtxCoords_(useAlsoVtxCoords), debug_(false) {}
+    RegionizerEmulator(const edm::ParameterSet& iConfig);
 
     virtual ~RegionizerEmulator();
 
