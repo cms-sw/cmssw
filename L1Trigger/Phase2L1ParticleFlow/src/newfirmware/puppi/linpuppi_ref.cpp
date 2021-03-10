@@ -21,7 +21,7 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(unsigned int nTrack,
                                          unsigned int nOut,
                                          unsigned int dR2Min,
                                          unsigned int dR2Max,
-                                         unsigned int ptMax,
+                                         unsigned int iptMax,
                                          unsigned int dzCut,
                                          glbeta_t etaCut,
                                          double ptSlopeNe_0,
@@ -49,7 +49,7 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(unsigned int nTrack,
       nOut_(nOut),
       dR2Min_(dR2Min),
       dR2Max_(dR2Max),
-      ptMax_(ptMax),
+      iptMax_(iptMax),
       dzCut_(dzCut),
       absEtaBins_(1, etaCut),
       ptSlopeNe_(2),
@@ -92,7 +92,7 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(const edm::ParameterSet &iConfig)
       nOut_(iConfig.getParameter<uint32_t>("nOut")),
       dR2Min_(l1ct::Scales::makeDR2FromFloatDR(iConfig.getParameter<double>("drMin"))),
       dR2Max_(l1ct::Scales::makeDR2FromFloatDR(iConfig.getParameter<double>("dr"))),
-      ptMax_(l1ct::Scales::makePtFromFloat(iConfig.getParameter<double>("ptMax"))),
+      iptMax_(l1ct::Scales::intPt(l1ct::Scales::makePtFromFloat(iConfig.getParameter<double>("ptMax")))),
       dzCut_(l1ct::Scales::makeZ0(iConfig.getParameter<double>("dZ"))),
       absEtaBins_(
           edm::vector_transform(iConfig.getParameter<std::vector<double>>("absEtaCuts"), l1ct::Scales::makeGlbEta)),
@@ -306,7 +306,7 @@ void l1ct::LinPuppiEmulator::fwdlinpuppi_ref(const PFRegionEmu &region,
                                              std::vector<PuppiObjEmu> &outallne /*[nIn]*/,
                                              std::vector<PuppiObjEmu> &outselne /*[nOut]*/) const {
   const unsigned int nIn = std::min<unsigned int>(nIn_, caloin.size());
-  const int PTMAX2 = (ptMax_ * ptMax_);
+  const int PTMAX2 = (iptMax_ * iptMax_);
 
   const int sum_bitShift = LINPUPPI_sum_bitShift;
 
@@ -360,7 +360,7 @@ void l1ct::LinPuppiEmulator::linpuppi_ref(const PFRegionEmu &region,
                                           std::vector<PuppiObjEmu> &outselne /*[nOut]*/) const {
   const unsigned int nIn = std::min<unsigned>(nIn_, pfallne.size());
   const unsigned int nTrack = std::min<unsigned int>(nTrack_, track.size());
-  const int PTMAX2 = (ptMax_ * ptMax_);
+  const int PTMAX2 = (iptMax_ * iptMax_);
 
   const int sum_bitShift = LINPUPPI_sum_bitShift;
 
@@ -449,7 +449,7 @@ void l1ct::LinPuppiEmulator::fwdlinpuppi_flt(const PFRegionEmu &region,
                                              std::vector<PuppiObjEmu> &outallne /*[nIn]*/,
                                              std::vector<PuppiObjEmu> &outselne /*[nOut]*/) const {
   const unsigned int nIn = std::min<unsigned int>(nIn_, caloin.size());
-  const float f_ptMax = Scales::floatPt(Scales::makePt(ptMax_));
+  const float f_ptMax = Scales::floatPt(Scales::makePt(iptMax_));
 
   outallne_nocut.resize(nIn);
   outallne.resize(nIn);
@@ -490,7 +490,7 @@ void l1ct::LinPuppiEmulator::linpuppi_flt(const PFRegionEmu &region,
                                           std::vector<PuppiObjEmu> &outselne /*[nOut]*/) const {
   const unsigned int nIn = std::min<unsigned>(nIn_, pfallne.size());
   const unsigned int nTrack = std::min<unsigned int>(nTrack_, track.size());
-  const float f_ptMax = Scales::floatPt(Scales::makePt(ptMax_));
+  const float f_ptMax = Scales::floatPt(Scales::makePt(iptMax_));
 
   outallne_nocut.resize(nIn);
   outallne.resize(nIn);

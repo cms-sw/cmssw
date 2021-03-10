@@ -18,7 +18,7 @@ namespace l1ct {
                      unsigned int nOut,
                      unsigned int dR2Min,
                      unsigned int dR2Max,
-                     unsigned int ptMax,
+                     unsigned int iptMax,
                      unsigned int dzCut,
                      double ptSlopeNe,
                      double ptSlopePh,
@@ -35,7 +35,7 @@ namespace l1ct {
           nOut_(nOut),
           dR2Min_(dR2Min),
           dR2Max_(dR2Max),
-          ptMax_(ptMax),
+          iptMax_(iptMax),
           dzCut_(dzCut),
           absEtaBins_(),
           ptSlopeNe_(1, ptSlopeNe),
@@ -55,7 +55,7 @@ namespace l1ct {
                      unsigned int nOut,
                      unsigned int dR2Min,
                      unsigned int dR2Max,
-                     unsigned int ptMax,
+                     unsigned int iptMax,
                      unsigned int dzCut,
                      glbeta_t etaCut,
                      double ptSlopeNe_0,
@@ -84,7 +84,7 @@ namespace l1ct {
                      unsigned int nOut,
                      unsigned int dR2Min,
                      unsigned int dR2Max,
-                     unsigned int ptMax,
+                     unsigned int iptMax,
                      unsigned int dzCut,
                      const std::vector<glbeta_t> &absEtaBins,
                      const std::vector<double> &ptSlopeNe,
@@ -102,7 +102,7 @@ namespace l1ct {
           nOut_(nOut),
           dR2Min_(dR2Min),
           dR2Max_(dR2Max),
-          ptMax_(ptMax),
+          iptMax_(iptMax),
           dzCut_(dzCut),
           absEtaBins_(absEtaBins),
           ptSlopeNe_(ptSlopeNe),
@@ -174,7 +174,7 @@ namespace l1ct {
   protected:
     unsigned int nTrack_, nIn_,
         nOut_;  // nIn_, nOut refer to the calorimeter clusters or neutral PF candidates as input and as output (after sorting)
-    unsigned int dR2Min_, dR2Max_, ptMax_, dzCut_;
+    unsigned int dR2Min_, dR2Max_, iptMax_, dzCut_;
     std::vector<glbeta_t> absEtaBins_;
     std::vector<double> ptSlopeNe_, ptSlopePh_, ptZeroNe_, ptZeroPh_;
     std::vector<double> alphaSlope_, alphaZero_, alphaCrop_;
