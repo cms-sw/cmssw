@@ -20,7 +20,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/dataformats/layer1_emulator.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/regionizer/regionizer_base_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/regionizer/common/regionizer_base_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/regionizer/multififo/multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo2hgc_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo3_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo_dummy_ref.h"
@@ -167,7 +168,9 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
 
   const std::string &regalgo = iConfig.getParameter<std::string>("regionizerAlgo");
   if (regalgo == "Ideal") {
-    regionizer_ = std::make_unique<l1ct::RegionizerEmulator>();
+    regionizer_ = std::make_unique<l1ct::RegionizerEmulator>(iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
+  } else if (regalgo == "Multififo") {
+    regionizer_ = std::make_unique<l1ct::MultififoRegionizerEmulator>(iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
   } else
     throw cms::Exception("Configuration", "Unsupported regionizerAlgo");
 

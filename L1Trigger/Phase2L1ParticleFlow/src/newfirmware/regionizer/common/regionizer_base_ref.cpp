@@ -4,6 +4,15 @@
 #include <cstdio>
 #include <algorithm>
 
+#ifdef CMSSW_GIT_HASH
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+l1ct::RegionizerEmulator::RegionizerEmulator(const edm::ParameterSet& iConfig) :
+    useAlsoVtxCoords_(iConfig.getParameter<bool>("useAlsoVtxCoords")),
+    debug_(iConfig.getUntrackedParameter<bool>("debug", false))
+{
+}
+#endif
+
 l1ct::RegionizerEmulator::~RegionizerEmulator() {}
 
 void l1ct::RegionizerEmulator::run(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out) {

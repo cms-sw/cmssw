@@ -1,0 +1,282 @@
+template<typename T>
+void l1ct::multififo_regionizer::RegionBuffer<T>::initFifos(unsigned int nfifos) 
+{
+    assert(nfifos_ == 0);
+    nfifos_ = nfifos;
+    fifos_.resize(nfifos);
+    if (nfifos > 2) {
+        staging_area_.resize(nfifos/2);
+        queue_.resize(nfifos/2);
+        if (nfifos >= 4) {
+            staging_area2_.resize(nfifos/4);
+            queue2_.resize(nfifos/4);
+        }
+    }
+    if (!(nfifos == 1 || nfifos == 2 || nfifos == 4 || nfifos == 6 || nfifos == 8)) {
+        std::cerr << "Error, created regionizer for nfifos == " << nfifos << ", not supported." << std::endl;
+    }
+    assert(nfifos == 1 || nfifos == 2 || nfifos == 4 || nfifos == 6 || nfifos == 8);
+}
+
+
+template<typename T>
+void l1ct::multififo_regionizer::RegionBuffer<T>::flush() {
+    for (auto & f : fifos_) f.clear(); 
+    for (auto & t : staging_area_) t.clear();
+    for (auto & t : queue_) t.clear();
+    for (auto & t : staging_area2_) t.clear();
+    for (auto & t : queue2_) t.clear();
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::RegionBuffer<T>::maybe_push(int fifo, const T & t, const l1ct::PFRegionEmu & sector) {
+    if (t.hwPt == 0) return;
+    int local_eta = sector.hwGlbEtaOf(t).to_int() - region_.hwEtaCenter.to_int();
+    int local_phi = sector.hwGlbPhiOf(t).to_int() - region_.hwPhiCenter.to_int();
+    if      (local_phi >   l1ct::Scales::INTPHI_PI) local_phi -= l1ct::Scales::INTPHI_TWOPI;
+    else if (local_phi <= -l1ct::Scales::INTPHI_PI) local_phi += l1ct::Scales::INTPHI_TWOPI;
+    if (region_.isInside(local_eta, local_phi)) {
+        fifos_[fifo].push_front(t);
+        fifos_[fifo].front().hwEta = local_eta;
+        fifos_[fifo].front().hwPhi = local_phi;
+    }
+}
+
+template<typename T>
+T l1ct::multififo_regionizer::RegionBuffer<T>::pop() {
+    if      (nfifos_ <= 2) return pop_next_trivial_();
+    else if (nfifos_ == 4) return pop_next_8to1_(); // this works also for 4 to 1
+    else if (nfifos_ == 6) return pop_next_6to1_();
+    else if (nfifos_ == 8) return pop_next_8to1_();
+    assert(false); 
+}
+
+
+template<typename T>
+T l1ct::multififo_regionizer::RegionBuffer<T>::pop_next_trivial_() {
+    T ret; ret.clear();
+    for (unsigned int j = 0; j < nfifos_; ++j) {
+        if (!fifos_[j].empty()) {
+            pop_back(fifos_[j], ret);
+            break;
+        }
+    }
+    return ret;
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::RegionBuffer<T>::stage_to_queue_() {
+    // shift data from each pair of fifos to the staging area
+    for (unsigned int j = 0; j < nfifos_/2; ++j) {
+        if (staging_area_[j].hwPt != 0) continue;
+        for (unsigned int i = 2*j; i <= 2*j+1; ++i) {
+            if (!fifos_[i].empty()) {
+                pop_back(fifos_[i], staging_area_[j]);
+                break;
+            }
+        }
+    }
+    // then from staging area to queue
+    for (unsigned int j = 0; j < nfifos_/2; ++j) {
+        if (staging_area_[j].hwPt != 0 && queue_[j].hwPt == 0) {
+            shift(staging_area_[j], queue_[j]);
+        }
+    }    
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::RegionBuffer<T>::pop_queue_(std::vector<T> & queue, T & ret) {
+    for (T & t : queue) {
+        if (t.hwPt != 0) {
+            ret = t;
+            t.clear();
+            break;
+        }
+    }
+}
+
+template<typename T>
+T l1ct::multififo_regionizer::RegionBuffer<T>::pop_next_6to1_() {
+    T ret; ret.clear();
+    // shift data from each pair of fifos to the staging area, and then to queue
+    stage_to_queue_();
+    // finally merge the queues
+    pop_queue_(queue_, ret);
+    return ret;
+}
+
+
+template<typename T>
+T l1ct::multififo_regionizer::RegionBuffer<T>::pop_next_8to1_() {
+    T ret; ret.clear();
+    // shift data from each pair of fifos to the staging area, and then to queue
+    stage_to_queue_();
+    // then from queue to staging2
+    for (unsigned int j = 0; j < nfifos_/4; ++j) {
+        if (staging_area2_[j].hwPt != 0) continue;
+        for (unsigned int i = 2*j; i <= 2*j+1; ++i) {
+            if (queue_[i].hwPt != 0) {
+                shift(queue_[i], staging_area2_[j]);
+                break;
+            }
+        }
+    }
+    // then from staging2 to queue2
+    for (unsigned int j = 0; j < nfifos_/4; ++j) {
+        if (staging_area2_[j].hwPt != 0 && queue2_[j].hwPt == 0) {
+            shift(staging_area2_[j], queue2_[j]);
+        }
+    }
+    // and finally out
+    pop_queue_(queue2_, ret);
+    return ret;
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::RegionBuilder<T>::push(const T & in) {
+    unsigned int i = 0, nsort = sortbuffer_.size(); 
+    T work = in;
+    while (i < nsort && in.hwPt <= sortbuffer_[i].hwPt) i++;
+    while (i < nsort) { std::swap(work, sortbuffer_[i]); i++; } 
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::RegionBuilder<T>::pop(RegionMux<T> & out) { 
+    out.push(iregion_, sortbuffer_); 
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::RegionMux<T>::push(unsigned int region, std::vector<T> & in) {
+    assert(nregions_ > 0);
+    assert(region < nregions_);
+    assert(in.size() == nsort_);
+    for (unsigned int i = 0, n= in.size(); i < n; ++i) {
+        shift(in[i], buffer_[region*nsort_+i]);
+    }
+}
+ 
+
+template<typename T>
+bool l1ct::multififo_regionizer::RegionMux<T>::stream(bool newevt, std::vector<T> & out) {
+    assert(out.size() == nout_);
+    if (newevt) { iter_ = 0; ireg_ = 0; }
+    if (ireg_ < nregions_) {
+        if (!streaming_) {
+            for (unsigned int i = 0; i < nout_; ++i) {
+                out[i] = buffer_[ireg_*nsort_+i];
+            }
+        } else {
+            for (unsigned int i = 0, j = 0; i < nout_; ++i, j += outii_) {
+                if (j < nsort_) {
+                    out[i] = buffer_[ireg_*nsort_ + j];
+                } else {
+                    out[i].clear();
+                }
+            }
+            for (unsigned int i = 1; i < nsort_; ++i) {
+                shift(buffer_[ireg_*nsort_ + i], buffer_[ireg_*nsort_ + i-1]);
+            }
+        }
+        if (++iter_ == outii_) {
+            ireg_++; iter_ = 0;
+        }
+        return true;
+    } else {
+        for (unsigned int i = 0; i < nout_; ++i) {
+            out[i].clear();
+        }
+        return false;
+    }
+}
+
+template<typename T>
+l1ct::multififo_regionizer::Regionizer<T>::Regionizer(unsigned int nsorted, unsigned int nout, bool streaming, unsigned int outii) :
+    nsectors_(0), nregions_(0), nsorted_(nsorted), nout_(nout), outii_(outii), streaming_(streaming), nevt_(0) 
+{
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::Regionizer<T>::initSectors(const std::vector<DetectorSector<T>> & sectors) {
+    assert(nsectors_ == 0);
+    nsectors_ = sectors.size();
+    sectors_.resize(nsectors_);
+    for (unsigned int i = 0; i < nsectors_; ++i) {
+        sectors_[i] = sectors[i].region;
+    }
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::Regionizer<T>::initSectors(const DetectorSector<T> & sector) {
+    assert(nsectors_ == 0);
+    nsectors_ = 1;
+    sectors_.resize(1, sector.region);
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::Regionizer<T>::initRegions(const std::vector<PFInputRegion> & regions) {
+    assert(nregions_ == 0);
+    unsigned int nregions = regions.size();
+    nregions_ = nregions;
+    // buffers and builders
+    buffers_.resize(nregions);
+    builders_.resize(nregions);
+    for (unsigned int i = 0; i < nregions; ++i) {
+        buffers_[i].initRegion(regions[i].region);
+        builders_[i] = RegionBuilder<T>(i, nsorted_);
+    }
+    // bigmux
+    bigmux_ = RegionMux<T>(nregions, nsorted_, nout_, streaming_, outii_);
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::Regionizer<T>::initRouting(const std::vector<Route> routes) {
+    assert(nregions_ > 0 && routes_.empty());
+    routes_ = routes;
+    std::vector<unsigned int> nfifos(nregions_, 0);
+    for (const auto & r : routes) {
+        assert(r.region < nregions_);
+        nfifos[r.region] = std::max<unsigned int>(nfifos[r.region], r.fifo+1);
+    }
+    for (unsigned int i = 0; i < nregions_; ++i) {
+        buffers_[i].initFifos(nfifos[i]);
+    }
+}
+
+template<typename T>
+bool l1ct::multififo_regionizer::Regionizer<T>::step(bool newEvent, const std::vector<T> & links, std::vector<T> & out, bool mux) {
+    if (newEvent) { flush(); nevt_++; }
+    unsigned int nlinks_sector = links.size()/nsectors_;
+    for (const auto & r : routes_) {
+        unsigned int index = nlinks_sector * r.sector + r.link;
+        buffers_[r.region].maybe_push(r.fifo, links[index], sectors_[r.sector]);
+    }
+    if (mux) {
+        out.resize(nout_);
+        for (unsigned int i = 0; i < nregions_; ++i) {
+            if (newEvent) builders_[i].pop(bigmux_);
+            builders_[i].push(buffers_[i].pop());
+        }
+        return bigmux_.stream(newEvent && (nevt_ > 1), out);
+    } else {
+        out.resize(nregions_);
+        for (unsigned int i = 0; i < nregions_; ++i) {
+            out[i] = buffers_[i].pop();
+        }
+        return true;
+    }
+}
+
+template<typename T>
+void l1ct::multififo_regionizer::Regionizer<T>::destream(int iclock, const std::vector<T> & streams, std::vector<T> & out) {
+    assert(streaming_ && outii_ > 0);
+    assert(streams.size() == nout_);
+    int local_clk = iclock % outii_;
+    if (local_clk == 0) {
+        out.resize(nsorted_);
+        for (auto & o : out) o.clear();
+    }
+    for (unsigned int i = 0, j = local_clk; j < nsorted_; ++i, j += outii_) {
+        out[j] = streams[i];
+    }
+}
+
