@@ -87,7 +87,7 @@ namespace l1t {
       auto gmt_in_unp = static_pointer_cast<l1t::stage2::RegionalMuonGMTUnpacker>(
           UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker"));
       if (fw >= 0x6000000) {
-        gmt_in_unp->setKalmanAlgoTrue();
+        gmt_in_unp->setIsRun3();
       }
 
       for (int iLink = 72; iLink < 144; iLink += 2) {
