@@ -84,14 +84,14 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
       int maxLayerId = GEMDetId::maxLayerId;
       if (st == 0) {
         maxVFat = maxVFatGE0_;
-        fedId = (re == 1 ? FEDNumbering::MINGEMFEDID + 7 : FEDNumbering::MINGEMFEDID + 6);
+        fedId = (re == 1 ? FEDNumbering::MINGE0FEDID + 1 : FEDNumbering::MINGE0FEDID);
         maxLayerId = GEMDetId::maxLayerId0;
       } else if (st == 1) {
         maxVFat = maxVFatGE11_;
         fedId = (re == 1 ? FEDNumbering::MINGEMFEDID + 1 : FEDNumbering::MINGEMFEDID);
       } else if (st == 2) {
         maxVFat = maxVFatGE21_;
-        fedId = (re == 1 ? FEDNumbering::MINGEMFEDID + 3 : FEDNumbering::MINGEMFEDID + 2);
+        fedId = (re == 1 ? FEDNumbering::MINGE21FEDID + 1 : FEDNumbering::MINGE21FEDID);
       }
 
       for (int ch = 1; ch <= GEMDetId::maxChamberId; ++ch) {
@@ -130,7 +130,7 @@ void GEMeMap::convertDummy(GEMROMapping& romap) {
           // 5 bits for gebId
           if (st > 0 && gebId == maxGEB1_) {
             gebId = 0;
-            amcNum = amcNum + 2;  // only odd amc No. is used for GE11
+            amcNum += 2;  // only odd amc No. is used for GE11
           } else if (st == 0 && gebId == maxGEBs_) {
             gebId = 0;
             amcNum++;
