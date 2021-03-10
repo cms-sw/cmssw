@@ -322,8 +322,6 @@ phase2samples_noPU.extend(phase2samples_noPU_extend)
 phase2samples_noPU.extend(phase2samples_noPU_extend_more)
 #phase2samples_noPU.extend(phase2samples_noPU_oldnaming)
 
-phase2samples_noPU = phase2samples_noPU_extend_more
-
 #phase2samples_noPU = [
 #    Sample("RelValCloseByPGun_CE_E_Front_300um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
 #    Sample("RelValCloseByPGun_CE_E_Front_200um", scenario="2026D49", appendGlobalTag=appendglobaltag )
