@@ -17,7 +17,6 @@ private:
   const std::string dcsinfofolder_;
   const std::string eventinfofolder_;
   const std::string dqmprovinfofolder_;
-
 };
 
 #endif
