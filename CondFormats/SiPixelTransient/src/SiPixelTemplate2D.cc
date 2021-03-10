@@ -167,8 +167,8 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector<SiPixelTemplateStore2D
     // next, layout the 2-d structure needed to store template
 
     theCurrentTemp.entry.resize(theCurrentTemp.head.NTyx);
-    for (int iy = 0; iy < theCurrentTemp.head.NTyx; ++iy)
-      theCurrentTemp.entry[iy].resize(theCurrentTemp.head.NTxx);
+    for (auto& item : theCurrentTemp.entry)
+      item.resize(theCurrentTemp.head.NTxx);
 
     // Read in the file info
 
@@ -403,8 +403,8 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject,
     // next, layout the 2-d structure needed to store template
 
     theCurrentTemp.entry.resize(theCurrentTemp.head.NTyx);
-    for (int iy = 0; iy < theCurrentTemp.head.NTyx; ++iy)
-      theCurrentTemp.entry[iy].resize(theCurrentTemp.head.NTxx);
+    for (auto& item : theCurrentTemp.entry)
+      item.resize(theCurrentTemp.head.NTxx);
 
     // Read in the file info
 
