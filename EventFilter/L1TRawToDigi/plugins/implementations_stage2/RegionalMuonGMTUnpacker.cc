@@ -102,7 +102,7 @@ namespace l1t {
             RegionalMuonCand mu;
 
             RegionalMuonRawDigiTranslator::fillRegionalMuonCand(
-                mu, raw_data_00_31, raw_data_32_63, processor, trackFinder, isKalman_);
+                mu, raw_data_00_31, raw_data_32_63, processor, trackFinder, isRun3_);
 
             LogDebug("L1T") << "Mu" << nWord / 2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT "
                             << mu.hwPt() << " qual " << mu.hwQual() << " sign " << mu.hwSign() << " sign valid "
