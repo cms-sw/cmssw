@@ -24,9 +24,6 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.ME0GeometryWriter = cms.EDAnalyzer("ME0RecoIdealDBLoader")
 
-#process.ME0GeometryWriter = cms.EDAnalyzer("ME0RecoIdealDBLoader",
-#                                           fromDD4Hep = cms.untracked.bool(False))
-
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
