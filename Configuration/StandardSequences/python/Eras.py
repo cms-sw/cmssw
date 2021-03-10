@@ -42,13 +42,16 @@ class Eras (object):
                  'Phase2C9_dd4hep',
                  'Phase2C10_dd4hep',
                  'Phase2C11_dd4hep',
-                 'Phase2C11_etlV4',
+                 'Phase2C11I13',
                  'Phase2C11T22',
                  'Phase2C11T23',
                  'Phase2C12_dd4hep',
                  'Phase2C11M9',
                  'Phase2C11T22M9',
-                 'Phase2C11T23M9'
+                 'Phase2C11T23M9',
+                 'Phase2C11I13M9',
+                 'Phase2C11I13T22M9',
+                 'Phase2C11I13T23M9'
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
@@ -63,7 +66,7 @@ class Eras (object):
                            'phase2_common', 'phase2_tracker',
                            'phase2_muon', 'phase2_GEM', 'phase2_GE0',
                            'phase2_hgcal', 'phase2_timing', 'phase2_hfnose', 'phase2_hgcalV10', 'phase2_hgcalV11', 'phase2_hgcalV12',
-                           'phase2_timing_layer', 'phase2_hcal', 'phase2_ecal','phase2_ecal_devel',
+                           'phase2_timing_layer', 'phase2_etlV4', 'phase2_hcal', 'phase2_ecal','phase2_ecal_devel',
                            'phase2_trigger',
                            'phase2_squarePixels', 'phase2_3DPixels',
                            'trackingLowPU', 'trackingPhase1', 'ctpps_2016', 'ctpps_2017', 'ctpps_2018', 'ctpps_2021', 'trackingPhase2PU140','highBetaStar_2018',
