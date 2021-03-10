@@ -7,6 +7,7 @@
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 
 #include <type_traits>
@@ -31,18 +32,18 @@ namespace templateHelper {
   using namespace cond::payloadInspector;
 
   //************************************************
-  // Display of Template Titles
+  // Display of Template/GenError Titles
   // *************************************************/
   template <class PayloadType, class StoreType, class TransientType>
   class SiPixelTitles_Display : public PlotImage<PayloadType, SINGLE_IOV> {
   public:
-    SiPixelTitles_Display() : PlotImage<PayloadType, SINGLE_IOV>("Table of Template titles") {
-      if constexpr (std::is_same_v<PayloadType, SiPixelTemplateDBObject>) {
-        isTemplate_ = true;
-        label_ = "SiPixelTemplateDBObject_PayloadInspector";
-      } else {
+    SiPixelTitles_Display() : PlotImage<PayloadType, SINGLE_IOV>("Table of SiPixelTemplate/GenError titles") {
+      if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
         isTemplate_ = false;
         label_ = "SiPixelGenErrorDBObject_PayloadInspector";
+      } else {
+        isTemplate_ = true;
+        label_ = "SiPixelTemplateDBObject_PayloadInspector";
       }
     }
 
@@ -57,7 +58,9 @@ namespace templateHelper {
 
       if (payload.get()) {
         if (!TransientType::pushfile(*payload, thePixelTemp_)) {
-          throw cms::Exception(label_) << "\nERROR: Templates not filled correctly. Check the conditions. Using "
+          throw cms::Exception(label_) << "\nERROR:" << (isTemplate_ ? "Templates" : "GenErrors")
+                                       << " not filled correctly."
+                                       << " Check the conditions. Using "
                                        << (isTemplate_ ? "SiPixelTemplateDBObject" : "SiPixelGenErrorDBObject")
                                        << " version " << payload->version() << "\n\n";
         }
@@ -95,7 +98,8 @@ namespace templateHelper {
           y_line.push_back(y - (pitch / 2.));
         }
 
-        TCanvas canvas("Template Titles", "Template Titles", 2000, std::max(y_x1.size(), y_x2.size()) * 40);
+        const auto& c_title = fmt::sprintf("%s titles", (isTemplate_ ? "Template" : "GenError"));
+        TCanvas canvas(c_title.c_str(), c_title.c_str(), 2000, std::max(y_x1.size(), y_x2.size()) * 40);
         TLatex l;
         // Draw the columns titles
         l.SetTextAlign(12);
@@ -144,13 +148,13 @@ namespace templateHelper {
   template <class PayloadType, class StoreType, class TransientType>
   class SiPixelHeaderTable : public PlotImage<PayloadType, SINGLE_IOV> {
   public:
-    SiPixelHeaderTable() : PlotImage<PayloadType, SINGLE_IOV>("SiPixelGenErrorDBObject Header summary") {
-      if constexpr (std::is_same_v<PayloadType, SiPixelTemplateDBObject>) {
-        isTemplate_ = true;
-        label_ = "SiPixelTemplateDBObject_PayloadInspector";
-      } else {
+    SiPixelHeaderTable() : PlotImage<PayloadType, SINGLE_IOV>("SiPixel CPE Header summary") {
+      if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
         isTemplate_ = false;
         label_ = "SiPixelGenErrorDBObject_PayloadInspector";
+      } else {
+        isTemplate_ = true;
+        label_ = "SiPixelTemplateDBObject_PayloadInspector";
       }
     }
 
@@ -166,7 +170,9 @@ namespace templateHelper {
 
       if (payload.get()) {
         if (!TransientType::pushfile(*payload, thePixelTemp_)) {
-          throw cms::Exception(label_) << "\nERROR: GenErrors not filled correctly. Check the conditions. Using "
+          throw cms::Exception(label_) << "\nERROR:" << (isTemplate_ ? "Templates" : "GenErrors")
+                                       << " not filled correctly."
+                                       << " Check the conditions. Using "
                                        << (isTemplate_ ? "SiPixelTemplateDBObject" : "SiPixelGenErrorDBObject")
                                        << payload->version() << "\n\n";
         }
@@ -298,13 +304,13 @@ namespace templateHelper {
   template <class PayloadType, SiPixelPI::DetType myType>
   class SiPixelIDs : public PlotImage<PayloadType, SINGLE_IOV> {
   public:
-    SiPixelIDs() : PlotImage<PayloadType, SINGLE_IOV>("SiPixelMap of ID Values") {
-      if constexpr (std::is_same_v<PayloadType, SiPixelTemplateDBObject>) {
-        isTemplate_ = true;
-        label_ = "SiPixelTemplateDBObject_PayloadInspector";
-      } else {
+    SiPixelIDs() : PlotImage<PayloadType, SINGLE_IOV>("SiPixelMap of Template / GenError ID Values") {
+      if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
         isTemplate_ = false;
         label_ = "SiPixelGenErrorDBObject_PayloadInspector";
+      } else {
+        isTemplate_ = true;
+        label_ = "SiPixelTemplateDBObject_PayloadInspector";
       }
     }
 
@@ -333,10 +339,10 @@ namespace templateHelper {
         }
 
         std::map<unsigned int, short> templMap;
-        if constexpr (std::is_same_v<PayloadType, SiPixelTemplateDBObject>) {
-          templMap = payload->getTemplateIDs();
-        } else {
+        if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
           templMap = payload->getGenErrorIDs();
+        } else {
+          templMap = payload->getTemplateIDs();
         }
 
         if (templMap.size() == SiPixelPI::phase0size || templMap.size() > SiPixelPI::phase1size) {
@@ -365,7 +371,8 @@ namespace templateHelper {
 	*/
 
         for (auto const& entry : templMap) {
-          COUT << "DetID: " << entry.first << " generror ID: " << entry.second << std::endl;
+          COUT << "DetID: " << entry.first << fmt::sprintf("%s ID ", (isTemplate_ ? "Template" : "GenError"))
+               << entry.second << std::endl;
           auto detid = DetId(entry.first);
           if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == SiPixelPI::t_barrel)) {
             theMaps.fillBarrelBin(barrelName_, entry.first, entry.second);
