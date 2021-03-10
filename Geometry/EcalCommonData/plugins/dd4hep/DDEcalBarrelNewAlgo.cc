@@ -3,6 +3,7 @@
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 #include "Math/AxisAngle.h"
@@ -449,6 +450,9 @@ namespace {
   }
 
   Solid mytrap(const std::string& nam, const EcalTrapezoidParameters& t) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << nam << " Trap " << convertRadToDeg(t.theta()) << ":" << convertRadToDeg(t.phi()) << ":" << cms::convert2mm(t.h1()) << ":" << cms::convert2mm(t.bl1()) << ":" << cms::convert2mm(t.tl1()) << ":" << convertRadToDeg(t.alp1()) << ":" << cms::convert2mm(t.h2()) << ":" << cms::convert2mm(t.bl2()) << ":" << cms::convert2mm(t.tl2()) << ":" << convertRadToDeg(t.alp2());
+#endif
     return Trap(
         nam, t.dz(), t.theta(), t.phi(), t.h1(), t.bl1(), t.tl1(), t.alp1(), t.h2(), t.bl2(), t.tl2(), t.alp2());
   }
@@ -897,37 +901,55 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     const unsigned int copyOne(1);
     const unsigned int copyTwo(2);
     // Barrel parent volume----------------------------------------------------------
-    Solid barSolid = Polycone(bar.phiLo, (bar.phiHi - bar.phiLo), bar.vecRMin, bar.vecRMax, bar.vecZPts);
+    Solid barSolid = Polycone(bar.name, bar.phiLo, (bar.phiHi - bar.phiLo), bar.vecRMin, bar.vecRMax, bar.vecZPts);
+#ifdef EDM_ML_DEBUG
+    ROOT::Math::XYZVector vv;
+    edm::LogVerbatim("EBGeom") << bar.name << " PolyCone from " << convertRadToDeg(bar.phiLo) << " to " << convertRadToDeg(bar.phiHi) << " with " << bar.vecZPts.size() << " points";
+    for (unsigned int k = 0; k < bar.vecZPts.size(); ++k)
+      edm::LogVerbatim("EBGeom") << "[" << k << "] " << cms::convert2mm(bar.vecZPts[k]) << ":" << cms::convert2mm(bar.vecRMin[k]) << ":" << cms::convert2mm(bar.vecRMax[k]);
+#endif
     Position tran(bar.vecTran[0], bar.vecTran[1], bar.vecTran[2]);
     Rotation3D rotation = myrot(ns,
                                 bar.name + "Rot",
                                 Rota(Vec3(bar.vecRota3[0], bar.vecRota3[1], bar.vecRota3[2]), bar.vecRota3[3]) *
-                                    Rota(Vec3(bar.vecRota2[0], bar.vecRota2[1], bar.vecRota2[2]), bar.vecRota2[3]) *
-                                    Rota(Vec3(bar.vecRota[0], bar.vecRota[1], bar.vecRota[2]), bar.vecRota[3]));
+				Rota(Vec3(bar.vecRota2[0], bar.vecRota2[1], bar.vecRota2[2]), bar.vecRota2[3]) *
+				Rota(Vec3(bar.vecRota[0], bar.vecRota[1], bar.vecRota[2]), bar.vecRota[3]));
     Volume barVolume = Volume(bar.name, barSolid, ns.material(bar.mat));
     parentVolume.placeVolume(barVolume, copyOne, Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << barVolume.name() << ":" << copyOne << " positioned in " << parentVolume.name();
+    edm::LogVerbatim("EBGeomX") << barVolume.name() << ":" << copyOne << " positioned in " << parentVolume.name() << " at (" << cms::convert2mm(tran.x()) << "," << cms::convert2mm(tran.y()) << "," << cms::convert2mm(tran.z()) << ") with rotation";
 #endif
     // End Barrel parent volume----------------------------------------------------------
 
     // Supermodule parent------------------------------------------------------------
 
     const string spmcut1ddname((0 != spm.cutShow) ? spm.name : (spm.name + "CUT1"));
-    Solid ddspm = Polycone(spm.lowPhi, spm.delPhi, spm.vecRMin, spm.vecRMax, spm.vecZPts);
+    Solid ddspm = Polycone(spmcut1ddname, spm.lowPhi, spm.delPhi, spm.vecRMin, spm.vecRMax, spm.vecZPts);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << spmcut1ddname << " PolyCone from " << convertRadToDeg(spm.lowPhi) << " to " << convertRadToDeg(spm.lowPhi + spm.delPhi) << " with " << spm.vecZPts.size() << " points";
+    for (unsigned int k = 0; k < spm.vecZPts.size(); ++k)
+      edm::LogVerbatim("EBGeom") << "[" << k << "] " << cms::convert2mm(spm.vecZPts[k]) << ":" << cms::convert2mm(spm.vecRMin[k]) << ":" << cms::convert2mm(spm.vecRMax[k]);
+#endif
 
     const unsigned int indx(0.5 * spm.vecRMax.size());
 
     // Deal with the cut boxes first
     array<double, 3> cutBoxParms{{1.05 * (spm.vecRMax[indx] - spm.vecRMin[indx]) * 0.5,
                                   0.5 * spm.cutThick,
-                                  fabs(spm.vecZPts.back() - spm.vecZPts.front()) * 0.5 + 1.0 * dd4hep::mm}};
+	                          fabs(spm.vecZPts.back() - spm.vecZPts.front()) * 0.5 + 1.0 * dd4hep::mm}};
     Solid spmCutBox = Box(spm.cutName, cutBoxParms[0], cutBoxParms[1], cutBoxParms[2]);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << spm.cutName << " Box " << cms::convert2mm(cutBoxParms[0]) << ":" << cms::convert2mm(cutBoxParms[1]) << ":" << cms::convert2mm(cutBoxParms[2]);
+
+#endif
     Volume spmCutLog = Volume(spm.cutName, spmCutBox, ns.material(spm.mat));
 
     // Supermodule side platess
     array<double, 3> sideParms{{0.5 * spm.sideHigh, 0.5 * spm.sideThick, 0.5 * fabs(spm.vecZPts[1] - spm.vecZPts[0])}};
-    Solid sideSolid = Box(sideParms[0], sideParms[1], sideParms[2]);
+    Solid sideSolid = Box(spm.sideName, sideParms[0], sideParms[1], sideParms[2]);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << spm.sideName << " Box " << cms::convert2mm(sideParms[0]) << ":" << cms::convert2mm(sideParms[1]) << ":" << cms::convert2mm(sideParms[2]);
+#endif
     Volume sideLog = Volume(spm.sideName, sideSolid, ns.material(spm.sideMat));
 
     Solid temp1;
@@ -950,9 +972,17 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       if (1 == icopy) {
         alltrot1 = alltrot;
         temp1 = SubtractionSolid(spm.name + "_T1", ddspm, spmCutBox, alltrot);
+#ifdef EDM_ML_DEBUG
+	alltrot.GetTranslation(vv);
+	edm::LogVerbatim("EBGeom") << (spm.name + "_T1") << " Subtraction " << ddspm.name() << ":" << spmCutBox.name() << " at (" << cms::convert2mm(vv.x()) << "," << cms::convert2mm(vv.y()) << "," << cms::convert2mm(vv.z()) << ")";
+#endif
       } else {
         alltrot2 = alltrot;
         temp2 = SubtractionSolid(spm.name, temp1, spmCutBox, alltrot);
+#ifdef EDM_ML_DEBUG
+	alltrot.GetTranslation(vv);
+	edm::LogVerbatim("EBGeom") << spm.name << " Subtraction " << temp1.name() << ":" << spmCutBox.name() << " at (" << cms::convert2mm(vv.x()) << "," << cms::convert2mm(vv.y()) << "," << cms::convert2mm(vv.z()) << ")";
+#endif
       }
       const Tl3D trSide(tvec[0],
                         tvec[1] + (1 == icopy ? 1. : -1.) * (cutBoxParms[1] + sideParms[1]) +
@@ -971,20 +1001,22 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     if (0 != spm.cutShow) {
       spmLog.placeVolume(spmCutLog, 1, alltrot1);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << spmCutLog.name() << ":1 positioned in " << spmLog.name();
+      alltrot1.GetTranslation(vv);
+      edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at (" << cms::convert2mm(vv.x()) << "," << cms::convert2mm(vv.y()) << "," << cms::convert2mm(vv.z()) << ") with rotation";
 #endif
       spmLog.placeVolume(spmCutLog, 1, alltrot2);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << spmCutLog.name() << ":1 positioned in " << spmLog.name();
+      alltrot2.GetTranslation(vv);
+      edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at (" << cms::convert2mm(vv.x()) << "," << cms::convert2mm(vv.y()) << "," << cms::convert2mm(vv.z()) << ") with rotation";
 #endif
     }
     spmLog.placeVolume(sideLog, 1, Transform3D(ns.rotation(spm.sideName + std::to_string(1)), sideddtra1));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << sideLog.name() << ":1 positioned in " << spmLog.name();
+    edm::LogVerbatim("EBGeomX") << sideLog.name() << ":1 positioned in " << spmLog.name() << " at (" << cms::convert2mm(sideddtra1.x()) << "," << cms::convert2mm(sideddtra1.y()) << "," << cms::convert2mm(sideddtra1.z()) << ") with rotation";
 #endif
     spmLog.placeVolume(sideLog, 2, Transform3D(ns.rotation(spm.sideName + std::to_string(2)), sideddtra2));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << sideLog.name() << ":2 positioned in " << spmLog.name();
+    edm::LogVerbatim("EBGeomX") << sideLog.name() << ":2 positioned in " << spmLog.name() << " at (" << cms::convert2mm(sideddtra2.x()) << "," << cms::convert2mm(sideddtra2.y()) << "," << cms::convert2mm(sideddtra2.z()) << ") with rotation";
 #endif
 
     const double dphi(360._deg / (1. * spm.nPerHalf));
@@ -1017,7 +1049,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         Position myTran(both.getTranslation().x(), both.getTranslation().y(), both.getTranslation().z());
         barVolume.placeVolume(spmLog, iphi + 1, Transform3D(rota, myTran));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << spmLog.name() << ":" << (iphi + 1) << " positioned in " << barVolume.name();
+        edm::LogVerbatim("EBGeomX") << spmLog.name() << ":" << (iphi + 1) << " positioned in " << barVolume.name() << " at (" << cms::convert2mm(myTran.x()) << "," << cms::convert2mm(myTran.y()) << "," << cms::convert2mm(myTran.z()) << ") with rotation";
 #endif
       }
     }
@@ -1036,10 +1068,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                           ilyLengthHalf,             // dz
                           ily.phiLow,                // startPhi
                           ily.phiLow + ily.delPhi);  // startPhi + deltaPhi
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << ily.name << " Tubs " << cms::convert2mm(ilyLengthHalf) << ":" << cms::convert2mm(ilyRMin) << ":" << cms::convert2mm(ilyRMin + ilyThick) << ":" << convertRadToDeg(ily.phiLow) << ":" << convertRadToDeg(ily.delPhi);
+#endif
     Volume ilyLog = Volume(ily.name, ilySolid, ns.material(spm.mat));
     spmLog.placeVolume(ilyLog, copyOne, Position(0, 0, ilyLengthHalf));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << ilyLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
+    edm::LogVerbatim("EBGeomX") << ilyLog.name() << ":" << copyOne << " positioned in " << spmLog.name() << " at (0,0," << cms::convert2mm(ilyLengthHalf) << ") with no rotation";
 #endif
     Volume ilyPipeLog[200];
     if (0 != ily.pipeHere) {
@@ -1052,6 +1087,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                   ily.vecIlyPipeLengthHalf[iPipeType],  // dz
                                   0_deg,                                // startPhi
                                   360_deg);                             // startPhi + deltaPhi
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << pName << " Tubs " << cms::convert2mm(ily.vecIlyPipeLengthHalf[iPipeType]) << ":0:" << cms::convert2mm(ily.pipeODHalf) << ":0:360";
+#endif
         ilyPipeLog[iPipeType] = Volume(pName, ilyPipeSolid, ns.material(ily.pipeMat));
 
         string pWaName(ily.pipeName + "Wa_" + std::to_string(iPipeType + 1));
@@ -1061,39 +1099,56 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                     ily.vecIlyPipeLengthHalf[iPipeType],  // dz
                                     0_deg,                                // startPhi
                                     360_deg);                             // startPhi + deltaPhi
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << pWaName << " Tubs " << cms::convert2mm(ily.vecIlyPipeLengthHalf[iPipeType]) << ":0:" << cms::convert2mm(0.5 * ily.pipeID) << ":0:360";
+#endif
         Volume ilyPipeWaLog = Volume(pWaName, ilyPipeWaSolid, ns.material(backPipe.waterMat));
         ilyPipeLog[iPipeType].placeVolume(ilyPipeWaLog, copyOne);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << ilyPipeWaLog.name() << ":" << copyOne << " positioned in "
-                                     << ilyPipeLog[iPipeType].name();
+        edm::LogVerbatim("EBGeomX") << ilyPipeWaLog.name() << ":" << copyOne << " positioned in " << ilyPipeLog[iPipeType].name() << " at (0,0,0) with no rotation";
 #endif
       }
     }
 
-    Solid ilyPTMSolid = Box(ily.pTMHeightHalf, ily.pTMWidthHalf, ily.pTMLengthHalf);
+    Solid ilyPTMSolid = Box(ily.pTMName, ily.pTMHeightHalf, ily.pTMWidthHalf, ily.pTMLengthHalf);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << ily.pTMName << " Box " << cms::convert2mm(ily.pTMHeightHalf) << ":" << cms::convert2mm(ily.pTMWidthHalf) << ":" << cms::convert2mm(ily.pTMLengthHalf);
+#endif
     Volume ilyPTMLog = Volume(ily.pTMName, ilyPTMSolid, ns.material(ily.pTMMat));
 
-    Solid ilyFanOutSolid = Box(ily.fanOutHeightHalf, ily.fanOutWidthHalf, ily.fanOutLengthHalf);
+    Solid ilyFanOutSolid = Box(ily.fanOutName, ily.fanOutHeightHalf, ily.fanOutWidthHalf, ily.fanOutLengthHalf);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << ily.fanOutName << " Box " << cms::convert2mm(ily.fanOutHeightHalf) << ":" << cms::convert2mm(ily.fanOutWidthHalf) << ":" << cms::convert2mm(ily.fanOutLengthHalf);
+#endif
     Volume ilyFanOutLog = Volume(ily.fanOutName, ilyFanOutSolid, ns.material(ily.fanOutMat));
 
-    Solid ilyFEMSolid = Box(ily.fEMHeightHalf, ily.fEMWidthHalf, ily.fEMLengthHalf);
+    Solid ilyFEMSolid = Box(ily.fEMName, ily.fEMHeightHalf, ily.fEMWidthHalf, ily.fEMLengthHalf);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << ily.fEMName << " Box " << cms::convert2mm(ily.fEMHeightHalf) << ":" << cms::convert2mm(ily.fEMWidthHalf) << ":" << cms::convert2mm(ily.fEMLengthHalf);
+#endif
     Volume ilyFEMLog = Volume(ily.fEMName, ilyFEMSolid, ns.material(ily.fEMMat));
 
-    Solid ilyDiffSolid = Box(ily.fanOutHeightHalf, ily.fanOutWidthHalf, ily.diffLengthHalf);
+    Solid ilyDiffSolid = Box(ily.diffName, ily.fanOutHeightHalf, ily.fanOutWidthHalf, ily.diffLengthHalf);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << ily.diffName << " Box " << cms::convert2mm(ily.fanOutHeightHalf) << ":" << cms::convert2mm(ily.fanOutWidthHalf) << ":" << cms::convert2mm(ily.diffLengthHalf);
+#endif
     Volume ilyDiffLog = Volume(ily.diffName, ilyDiffSolid, ns.material(ily.diffMat));
 
-    Solid ilyBndlSolid = Box(ily.fanOutHeightHalf, ily.fanOutWidthHalf, ily.bndlLengthHalf);
+    Solid ilyBndlSolid = Box(ily.bndlName, ily.fanOutHeightHalf, ily.fanOutWidthHalf, ily.bndlLengthHalf);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << ily.bndlName << " Box " << cms::convert2mm(ily.fanOutHeightHalf) << ":" << cms::convert2mm(ily.fanOutWidthHalf) << ":" << cms::convert2mm(ily.bndlLengthHalf);
+#endif
     Volume ilyBndlLog = Volume(ily.bndlName, ilyBndlSolid, ns.material(ily.bndlMat));
 
     ilyFanOutLog.placeVolume(
         ilyDiffLog, copyOne, Position(0, 0, -ily.fanOutLengthHalf + ily.diffLengthHalf + ily.diffOff));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << ilyDiffLog.name() << ":" << copyOne << " positioned in " << ilyFanOutLog.name();
+    edm::LogVerbatim("EBGeomX") << ilyDiffLog.name() << ":" << copyOne << " positioned in " << ilyFanOutLog.name() << " at (0,0," << cms::convert2mm(-ily.fanOutLengthHalf + ily.diffLengthHalf + ily.diffOff) << ") with no rotation";
 #endif
     ilyFanOutLog.placeVolume(
         ilyBndlLog, copyOne, Position(0, 0, -ily.fanOutLengthHalf + ily.bndlLengthHalf + ily.bndlOff));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << ilyBndlLog.name() << ":" << copyOne << " positioned in " << ilyFanOutLog.name();
+    edm::LogVerbatim("EBGeomX") << ilyBndlLog.name() << ":" << copyOne << " positioned in " << ilyFanOutLog.name() << " at (0,0," << cms::convert2mm(-ily.fanOutLengthHalf + ily.bndlLengthHalf + ily.bndlOff) << ") with no rotation";
 #endif
 
     Volume xilyLog;
@@ -1101,11 +1156,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       const double ilyRMax(ilyRMin + ily.vecIlyThick[iily]);
       string xilyName(ily.name + std::to_string(iily));
       Solid xilySolid = Tube(xilyName, ilyRMin, ilyRMax, ilyLengthHalf, ily.phiLow, ily.phiLow + ily.delPhi);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << xilyName << " Tubs " << cms::convert2mm(ilyLengthHalf) << ":" << cms::convert2mm(ilyRMin) << ":" << cms::convert2mm(ilyRMax) << ":" << convertRadToDeg(ily.phiLow) << ":" << convertRadToDeg(ily.delPhi);
+#endif
       xilyLog = ns.addVolume(Volume(xilyName, xilySolid, ns.material(ily.vecIlyMat[iily])));
       if (0 != ily.here) {
         ilyLog.placeVolume(xilyLog, copyOne);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << xilyLog.name() << ":" << copyOne << " positioned in " << ilyLog.name();
+        edm::LogVerbatim("EBGeomX") << xilyLog.name() << ":" << copyOne << " positioned in " << ilyLog.name() << " at (0,0,0) with no rotation";
 #endif
         unsigned int copyNum[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -1123,7 +1181,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                   ptmCopy,
                   Transform3D(RotationZ(phi), Position(xx, yy, ily.vecIlyPTMZ[ilyPTM] - ilyLengthHalf)));
 #ifdef EDM_ML_DEBUG
-              edm::LogVerbatim("EcalGeom") << ilyPTMLog.name() << ":" << ptmCopy << " positioned in " << xilyLog.name();
+              edm::LogVerbatim("EBGeomX") << ilyPTMLog.name() << ":" << ptmCopy << " positioned in " << xilyLog.name() << " at (" << cms::convert2mm(xx) << "," << cms::convert2mm(yy) << "," << cms::convert2mm(ily.vecIlyPTMZ[ilyPTM] - ilyLengthHalf) << ") with rotation";
 #endif
             }
           }
@@ -1140,8 +1198,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                   Transform3D(RotationZ(phi) * RotationY(180_deg),
                                               Position(xx, yy, ily.vecIlyFanOutZ[ilyFO] - ilyLengthHalf)));
 #ifdef EDM_ML_DEBUG
-              edm::LogVerbatim("EcalGeom")
-                  << ilyFanOutLog.name() << ":" << fanOutCopy << " positioned in " << xilyLog.name();
+              edm::LogVerbatim("EBGeomX") << ilyFanOutLog.name() << ":" << fanOutCopy << " positioned in " << xilyLog.name() << " at (" << cms::convert2mm(xx) << "," << cms::convert2mm(yy) << "," << cms::convert2mm(ily.vecIlyFanOutZ[ilyFO] - ilyLengthHalf) << ") with rotation";
 #endif
             }
             unsigned int femCopy(0);
@@ -1156,7 +1213,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                   femCopy,
                   Transform3D(RotationZ(phi), Position(xx, yy, ily.vecIlyFEMZ[ilyFEM] - ilyLengthHalf)));
 #ifdef EDM_ML_DEBUG
-              edm::LogVerbatim("EcalGeom") << ilyFEMLog.name() << ":" << femCopy << " positioned in " << xilyLog.name();
+              edm::LogVerbatim("EBGeomX") << ilyFEMLog.name() << ":" << femCopy << " positioned in " << xilyLog.name() << " at (" << cms::convert2mm(xx) << "," << cms::convert2mm(yy) << "," << cms::convert2mm(ily.vecIlyFEMZ[ilyFEM] - ilyLengthHalf) << ") with rotation";
 #endif
             }
           }
@@ -1174,8 +1231,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               if (9 > type) {
                 xilyLog.placeVolume(ilyPipeLog[type], copyNum[type], Position(xx, yy, zz));
 #ifdef EDM_ML_DEBUG
-                edm::LogVerbatim("EcalGeom")
-                    << ilyPipeLog[type].name() << ":" << copyNum[type] << " positioned in " << xilyLog.name();
+                edm::LogVerbatim("EBGeomX") << ilyPipeLog[type].name() << ":" << copyNum[type] << " positioned in " << xilyLog.name() << " at (" << cms::convert2mm(xx) << "," << cms::convert2mm(yy) << "," << cms::convert2mm(zz) << ") with no rotation";
 #endif
               } else {
                 xilyLog.placeVolume(
@@ -1184,8 +1240,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                     Transform3D(Rotation3D(ROOT::Math::AxisAngle(ROOT::Math::AxisAngle::XYZVector(xx, yy, 0), 90_deg)),
                                 Position(xx, yy, zz)));
 #ifdef EDM_ML_DEBUG
-                edm::LogVerbatim("EcalGeom")
-                    << ilyPipeLog[type].name() << ":" << copyNum[type] << " positioned in " << xilyLog.name();
+                edm::LogVerbatim("EBGeomX") << ilyPipeLog[type].name() << ":" << copyNum[type] << " positioned in " << xilyLog.name() << " at (" << cms::convert2mm(xx) << "," << cms::convert2mm(yy) << "," << cms::convert2mm(zz) << ") with rotation";
 #endif
               }
             }
@@ -1207,10 +1262,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     cri.emplace_back(spm.vecRMin[2]);
     cro.emplace_back(spm.vecRMin[2] + 10 * dd4hep::mm);
     Solid clyrSolid = Polycone(clyrName, -9.5_deg, 19_deg, cri, cro, czz);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << clyrName << " PolyCone from -9.5 to 9.5 with " << czz.size() << " points";
+    for (unsigned int k = 0; k < czz.size(); ++k)
+      edm::LogVerbatim("EBGeom") << "[" << k << "] " << cms::convert2mm(czz[k]) << ":" << cms::convert2mm(cri[k]) << ":" << cms::convert2mm(cro[k]);
+#endif
     Volume clyrLog = Volume(clyrName, clyrSolid, ns.material(ily.vecIlyMat[4]));
     spmLog.placeVolume(clyrLog, copyOne);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << clyrLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
+    edm::LogVerbatim("EBGeomX") << clyrLog.name() << ":" << copyOne << " positioned in " << spmLog.name() << " at (0,0,0) with no rotation";
 #endif
     // Begin Alveolar Wedge parent ------------------------------------------------------
     //----------------
@@ -1279,6 +1339,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     const string hawCutName(alvWedge.hawRName + "CUTBOX");
     array<double, 3> hawBoxParms{{0.5 * b_hawR + hawBoxClr, 0.5 * alvWedge.hawRCutY, 0.5 * alvWedge.hawRCutZ}};
     Solid hawCutBox = Box(hawCutName, hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << hawCutName << " Box " << cms::convert2mm(hawBoxParms[0]) << ":" << cms::convert2mm(hawBoxParms[1]) << ":" << cms::convert2mm(hawBoxParms[2]);
+#endif
 
     const Pt3D b1(hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
     const Pt3D b2(-hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
@@ -1300,12 +1363,18 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                    Position(hawCutForm.getTranslation().x(),
                                                             hawCutForm.getTranslation().y(),
                                                             hawCutForm.getTranslation().z())));
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << alvWedge.hawRName << " Subtraction " << hawRSolid1.name() << ":" << hawCutBox.name() << " at (" << cms::convert2mm(hawCutForm.getTranslation().x()) << "," << cms::convert2mm(hawCutForm.getTranslation().y()) << "," << cms::convert2mm(hawCutForm.getTranslation().z()) << ")";
+#endif
     Volume hawRLog = Volume(alvWedge.hawRName, hawRSolid, ns.material(spm.mat));
 
     // FAW cut box to cut off back end of wedge
     const string fawCutName(alvWedge.fawName + "CUTBOX");
     const array<double, 3> fawBoxParms{{2 * hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]}};
     Solid fawCutBox = Box(fawCutName, fawBoxParms[0], fawBoxParms[1], fawBoxParms[2]);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << fawCutName << " Box " << cms::convert2mm(fawBoxParms[0]) << ":" << cms::convert2mm(fawBoxParms[1]) << ":" << cms::convert2mm(fawBoxParms[2]);
+#endif
 
     const Pt3D bb1(fawBoxParms[0], fawBoxParms[1], fawBoxParms[2]);
     const Pt3D bb2(-fawBoxParms[0], fawBoxParms[1], fawBoxParms[2]);
@@ -1324,6 +1393,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                   Position(fawCutForm.getTranslation().x(),
                                                            fawCutForm.getTranslation().y(),
                                                            fawCutForm.getTranslation().z())));
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << alvWedge.fawName << " Subtraction " << fawSolid1.name() << ":" << fawCutBox.name() << " at (" << cms::convert2mm(fawCutForm.getTranslation().x()) << "," << cms::convert2mm(fawCutForm.getTranslation().y()) << "," << cms::convert2mm(fawCutForm.getTranslation().z()) << ")";
+#endif
     Volume fawLog = Volume(alvWedge.fawName, fawSolid, ns.material(spm.mat));
 
     const Tf3D hawRform(vHAW[3],
@@ -1340,7 +1412,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             myrot(ns, alvWedge.hawRName + "R", hawRform.getRotation()),
             Position(hawRform.getTranslation().x(), hawRform.getTranslation().y(), hawRform.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << hawRLog.name() << ":" << copyOne << " positioned in " << fawLog.name();
+    edm::LogVerbatim("EBGeomX") << hawRLog.name() << ":" << copyOne << " positioned in " << fawLog.name() << " at (" << cms::convert2mm(hawRform.getTranslation().x()) << "," << cms::convert2mm(hawRform.getTranslation().y()) << "," << cms::convert2mm(hawRform.getTranslation().z()) << ") with rotation";
 #endif
 
     // FIXME: extrusion when using placeVolume,
@@ -1352,7 +1424,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             Rotation3D(1., 0., 0., 0., 1., 0., 0., 0., -1.) * RotationY(-M_PI),  // rotate about Y after refl thru Z
             Position(-hawRform.getTranslation().x(), -hawRform.getTranslation().y(), -hawRform.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalGeom") << hawRLog.name() << ":" << copyTwo << " positioned in " << fawLog.name();
+    edm::LogVerbatim("EBGeomX") << hawRLog.name() << ":" << copyTwo << " positioned in " << fawLog.name() << " at (" << cms::convert2mm(-hawRform.getTranslation().x()) << "," << cms::convert2mm(-hawRform.getTranslation().y()) << "," << cms::convert2mm(-hawRform.getTranslation().z()) << ") with rotation";
 #endif
     for (unsigned int iPhi(1); iPhi <= alvWedge.nFawPerSupm; ++iPhi) {
       const double rPhi(alvWedge.fawPhiOff + (iPhi - 0.5) * alvWedge.fawDelPhi);
@@ -1368,7 +1440,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                 myrot(ns, alvWedge.fawName + "_Rot" + std::to_string(iPhi), fawform.getRotation()),
                 Position(fawform.getTranslation().x(), fawform.getTranslation().y(), fawform.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << fawLog.name() << ":" << iPhi << " positioned in " << spmLog.name();
+        edm::LogVerbatim("EBGeomX") << fawLog.name() << ":" << iPhi << " positioned in " << spmLog.name() << " at (" << cms::convert2mm(fawform.getTranslation().x()) << "," << cms::convert2mm(fawform.getTranslation().y()) << "," << cms::convert2mm(fawform.getTranslation().z()) << ") with rotation";
 #endif
       }
     }
@@ -1410,7 +1482,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               myrot(ns, grid.name + "R", gridForm.getRotation()),
               Position(gridForm.getTranslation().x(), gridForm.getTranslation().y(), gridForm.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << gridLog.name() << ":" << copyOne << " positioned in " << hawRLog.name();
+      edm::LogVerbatim("EcalGeom") << gridLog.name() << ":" << copyOne << " positioned in " << hawRLog.name() << " at (" << cms::convert2mm(gridForm.getTranslation().x()) << "," << cms::convert2mm(gridForm.getTranslation().y()) << "," << cms::convert2mm(gridForm.getTranslation().z()) << ") with no rotation";
 #endif
     }
     // End Grid + Tablet insertion
@@ -1477,41 +1549,65 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       //++++++++++++++++++++++++++++++++++  APD ++++++++++++++++++++++++++++++++++
       const unsigned int copyCap(1);
       const string capDDName(cap.name + sType);
-      Solid capSolid = Box(cap.xSizeHalf, cap.ySizeHalf, cap.thickHalf);
+      Solid capSolid = Box(capDDName, cap.xSizeHalf, cap.ySizeHalf, cap.thickHalf);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("EBGeom") << capDDName << " Box " << cms::convert2mm(cap.xSizeHalf) << ":" << cms::convert2mm(cap.ySizeHalf) << ":" << cms::convert2mm(cap.thickHalf);
+#endif
       Volume capLog = Volume(capDDName, capSolid, ns.material(cap.mat));
 
       const string sglDDName(apd.sglName + sType);
-      Solid sglSolid = Box(cap.xSizeHalf, cap.ySizeHalf, apd.sglThick / 2.);
+      Solid sglSolid = Box(sglDDName, cap.xSizeHalf, cap.ySizeHalf, apd.sglThick / 2.);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << sglDDName << " Box " << cms::convert2mm(cap.xSizeHalf) << ":" << cms::convert2mm(cap.ySizeHalf) << ":" << cms::convert2mm(apd.sglThick / 2.);
+#endif
       Volume sglLog = Volume(sglDDName, sglSolid, ns.material(apd.sglMat));
       const unsigned int copySGL(1);
 
       const string cerDDName(cer.name + sType);
-      Solid cerSolid = Box(cer.xSizeHalf, cer.ySizeHalf, cer.thickHalf);
+      Solid cerSolid = Box(cerDDName, cer.xSizeHalf, cer.ySizeHalf, cer.thickHalf);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << cerDDName << " Box " << cms::convert2mm(cer.xSizeHalf) << ":" << cms::convert2mm(cer.ySizeHalf) << ":" << cms::convert2mm(cer.thickHalf);
+#endif
       Volume cerLog = Volume(cerDDName, cerSolid, ns.material(cer.mat));
       unsigned int copyCER(0);
 
       const string bsiDDName(bSi.name + sType);
-      Solid bsiSolid = Box(bSi.xSizeHalf, bSi.ySizeHalf, bSi.thickHalf);
+      Solid bsiSolid = Box(bsiDDName, bSi.xSizeHalf, bSi.ySizeHalf, bSi.thickHalf);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << bsiDDName << " Box " << cms::convert2mm(bSi.xSizeHalf) << ":" << cms::convert2mm(bSi.ySizeHalf) << ":" << cms::convert2mm(bSi.thickHalf);
+#endif
       Volume bsiLog = Volume(bsiDDName, bsiSolid, ns.material(bSi.mat));
       const unsigned int copyBSi(1);
 
       const string atjDDName(apd.atjName + sType);
       Solid atjSolid = Box(atjDDName, 0.5 * apd.side, 0.5 * apd.side, apd.atjThickHalf);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << atjDDName << " Box " << cms::convert2mm(0.5 * apd.side) << ":" << cms::convert2mm(0.5 * apd.side) << ":" << cms::convert2mm(apd.atjThickHalf);
+#endif
       Volume atjLog = Volume(atjDDName, atjSolid, ns.material(apd.atjMat));
       const unsigned int copyATJ(1);
 
       const string aglDDName(apd.aglName + sType);
-      Solid aglSolid = Box(bSi.xSizeHalf, bSi.ySizeHalf, 0.5 * apd.aglThick);
+      Solid aglSolid = Box(aglDDName, bSi.xSizeHalf, bSi.ySizeHalf, 0.5 * apd.aglThick);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << aglDDName << " Box " << cms::convert2mm(bSi.xSizeHalf) << ":" << cms::convert2mm(bSi.ySizeHalf) << ":" << cms::convert2mm(0.5 * apd.aglThick);
+#endif
       Volume aglLog = Volume(aglDDName, aglSolid, ns.material(apd.aglMat));
       const unsigned int copyAGL(1);
 
       const string andDDName(apd.andName + sType);
-      Solid andSolid = Box(0.5 * apd.side, 0.5 * apd.side, 0.5 * apd.andThick);
+      Solid andSolid = Box(andDDName, 0.5 * apd.side, 0.5 * apd.side, 0.5 * apd.andThick);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << andDDName << " Box " << cms::convert2mm(0.5 * apd.side) << ":" << cms::convert2mm(0.5 * apd.side) << ":" << cms::convert2mm(0.5 * apd.andThick);
+#endif
       Volume andLog = Volume(andDDName, andSolid, ns.material(apd.andMat));
       const unsigned int copyAND(1);
 
       const string apdDDName(apd.name + sType);
       Solid apdSolid = Box(apdDDName, 0.5 * apd.side, 0.5 * apd.side, 0.5 * apd.thick);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << apdDDName << " Box " << cms::convert2mm(0.5 * apd.side) << ":" << cms::convert2mm(0.5 * apd.side) << ":" << cms::convert2mm(0.5 * apd.thick);
+#endif
       Volume apdLog = Volume(apdDDName, apdSolid, ns.material(apd.mat));
       const unsigned int copyAPD(1);
 
@@ -1585,35 +1681,35 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       const Vec3 cryToClr(0., 0., 0.5 * (rClr - fClr));
       clrLog.placeVolume(cryLog, copyOne, Position(0, 0, 0.5 * (rClr - fClr)));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << cryLog.name() << ":" << copyOne << " positioned in " << clrLog.name();
+      edm::LogVerbatim("EBGeomX") << cryLog.name() << ":" << copyOne << " positioned in " << clrLog.name() << " at (0,0," << cms::convert2mm(0.5 * (rClr - fClr)) << ") with no rotation";
 #endif
       if (0 != cap.here) {
         bsiLog.placeVolume(aglLog, copyAGL, Position(0, 0, -0.5 * apd.aglThick + bSi.thickHalf));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << aglLog.name() << ":" << copyAGL << " positioned in " << bsiLog.name();
+        edm::LogVerbatim("EBGeomX") << aglLog.name() << ":" << copyAGL << " positioned in " << bsiLog.name() << " at (0,0," << cms::convert2mm(-0.5 * apd.aglThick + bSi.thickHalf) << ") with no rotation";
 #endif
         bsiLog.placeVolume(andLog, copyAND, Position(0, 0, -0.5 * apd.andThick - apd.aglThick + bSi.thickHalf));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << andLog.name() << ":" << copyAND << " positioned in " << bsiLog.name();
+        edm::LogVerbatim("EBGeomX") << andLog.name() << ":" << copyAND << " positioned in " << bsiLog.name() << " at (0,0," << cms::convert2mm(- apd.aglThick + bSi.thickHalf) << ") with no rotation";
 #endif
         bsiLog.placeVolume(
             apdLog, copyAPD, Position(0, 0, -0.5 * apd.thick - apd.andThick - apd.aglThick + bSi.thickHalf));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << apdLog.name() << ":" << copyAPD << " positioned in " << bsiLog.name();
+        edm::LogVerbatim("EBGeomX") << apdLog.name() << ":" << copyAPD << " positioned in " << bsiLog.name() << " at (0,0," << cms::convert2mm(-0.5 * apd.thick - apd.andThick - apd.aglThick + bSi.thickHalf) << ") with no rotation";
 #endif
         bsiLog.placeVolume(atjLog,
                            copyATJ,
                            Position(0, 0, -apd.atjThickHalf - apd.thick - apd.andThick - apd.aglThick + bSi.thickHalf));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << atjLog.name() << ":" << copyATJ << " positioned in " << bsiLog.name();
+        edm::LogVerbatim("EBGeomX") << atjLog.name() << ":" << copyATJ << " positioned in " << bsiLog.name() << " at (0,0," << cms::convert2mm(apd.atjThickHalf - apd.thick - apd.andThick - apd.aglThick + bSi.thickHalf) << ") with no rotation";
 #endif
         cerLog.placeVolume(bsiLog, copyBSi, Position(0, 0, -bSi.thickHalf + cer.thickHalf));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << bsiLog.name() << ":" << copyBSi << " positioned in " << cerLog.name();
+        edm::LogVerbatim("EBGeomX") << bsiLog.name() << ":" << copyBSi << " positioned in " << cerLog.name() << " at (0,0," << cms::convert2mm(-bSi.thickHalf + cer.thickHalf) << ") with no rotation";
 #endif
         capLog.placeVolume(sglLog, copySGL, Position(0, 0, -0.5 * apd.sglThick + cap.thickHalf));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << sglLog.name() << ":" << copySGL << " positioned in " << capLog.name();
+        edm::LogVerbatim("EBGeomX") << sglLog.name() << ":" << copySGL << " positioned in " << capLog.name() << " at (0,0," << cms::convert2mm(-0.5 * apd.sglThick + cap.thickHalf) << ") with no rotation";
 #endif
 
         for (unsigned int ijkl(0); ijkl != 2; ++ijkl) {
@@ -1623,19 +1719,19 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                       trapCry.h1() - apd.z,
                                       -apd.sglThick - cer.thickHalf + cap.thickHalf));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << cerLog.name() << ":" << copyCER << " positioned in " << capLog.name();
+          edm::LogVerbatim("EBGeomX") << cerLog.name() << ":" << copyCER << " positioned in " << capLog.name() << " at (" << cms::convert2mm(trapCry.bl1() - (0 == ijkl ? apd.x1 : apd.x2)) << "," << cms::convert2mm(trapCry.h1() - apd.z) << "," << cms::convert2mm(-apd.sglThick - cer.thickHalf + cap.thickHalf) << ") with no rotation";
 #endif
         }
         clrLog.placeVolume(capLog, copyCap, Position(0, 0, -trapCry.dz() - cap.thickHalf + 0.5 * (rClr - fClr)));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << capLog.name() << ":" << copyCap << " positioned in " << clrLog.name();
+        edm::LogVerbatim("EBGeomX") << capLog.name() << ":" << copyCap << " positioned in " << clrLog.name() << " at (0,0," << cms::convert2mm(-trapCry.dz() - cap.thickHalf + 0.5 * (rClr - fClr)) << ") with no rotation";
 #endif
       }
 
       const Vec3 clrToWrap(0, 0, 0.5 * (rWrap - fWrap));
       wrapLog.placeVolume(clrLog, copyOne, Position(0, 0, 0.5 * (rWrap - fWrap)));  //SAME as cryToWrap
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << clrLog.name() << ":" << copyOne << " positioned in " << wrapLog.name();
+      edm::LogVerbatim("EBGeomX") << clrLog.name() << ":" << copyOne << " positioned in " << wrapLog.name() << " at (0,0," << cms::convert2mm(0.5 * (rWrap - fWrap)) << ") with no rotation";
 #endif
 
       // Now for placement of clr within wall
@@ -1646,7 +1742,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           copyOne,
           Position(Vec3((cryType > 9 ? 0 : 0.005 * dd4hep::mm), 0, 0) + wrapToWall1));  //SAME as wrapToWall
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << wrapLog.name() << ":" << copyOne << " positioned in " << wallLog.name();
+      edm::LogVerbatim("EBGeomX") << wrapLog.name() << ":" << copyOne << " positioned in " << wallLog.name() << " at (" << cms::convert2mm(wrapToWall.x()) << "," << cms::convert2mm(wrapToWall.y()) << "," << cms::convert2mm(wrapToWall.z()) << ") with no rotation";
 #endif
 
       const EcalTrap::VertexList vWall(trapWall.vertexList());
@@ -1696,7 +1792,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
         webClrLog.placeVolume(webPlLog, copyOne);  // place plate inside clearance volume
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << webPlLog.name() << ":" << copyOne << " positioned in " << webClrName;
+        edm::LogVerbatim("EBGeomX") << webPlLog.name() << ":" << copyOne << " positioned in " << webClrName << " at (0,0,0) with no rotation";
 #endif
         const EcalTrap::VertexList vWeb(trapWebClr.vertexList());
 
@@ -1711,8 +1807,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         const Pt3D wedge2(wedge3 + Pt3D(0, trapWebClr.h() * cos(theta), -trapWebClr.h() * sin(theta)));
         const Pt3D wedge1(wedge3 + Pt3D(trapWebClr.a(), 0, 0));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeomX") << "trap1=" << vWeb[0] << ", trap2=" << vWeb[2] << ", trap3=" << vWeb[3];
-        edm::LogVerbatim("EcalGeomX") << "wedge1=" << wedge1 << ", wedge2=" << wedge2 << ", wedge3=" << wedge3;
+        edm::LogVerbatim("EcalGeom") << "trap1=" << vWeb[0] << ", trap2=" << vWeb[2] << ", trap3=" << vWeb[3];
+        edm::LogVerbatim("EcalGeom") << "wedge1=" << wedge1 << ", wedge2=" << wedge2 << ", wedge3=" << wedge3;
 #endif
         const Tf3D tForm(vWeb[0], vWeb[2], vWeb[3], wedge1, wedge2, wedge3);
 
@@ -1724,7 +1820,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                   myrot(ns, webClrName + std::to_string(iWeb), tForm.getRotation()),
                   Position(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << webClrLog.name() << ":" << copyOne << " positioned in " << hawRLog.name();
+          edm::LogVerbatim("EBGeomX") << webClrLog.name() << ":" << copyOne << " positioned in " << hawRLog.name() << " at (" << cms::convert2mm(tForm.getTranslation().x()) << "," << cms::convert2mm(tForm.getTranslation().y()) << "," << cms::convert2mm(tForm.getTranslation().z()) << ") with rotation";
 #endif
         }
         zee += alv.vecGapAlvEta[0];
@@ -1732,9 +1828,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       for (unsigned int etaAlv(1); etaAlv <= alv.nCryPerAlvEta; ++etaAlv) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeomX") << "theta=" << convertRadToDeg(theta) << ", sidePrime=" << sidePrime
-                                      << ", frontPrime=" << frontPrime << ",  zeta=" << zeta << ", delta=" << delta
-                                      << ",  zee=" << zee;
+        edm::LogVerbatim("EcalGeom") << "theta=" << convertRadToDeg(theta) << ", sidePrime=" << sidePrime << ", frontPrime=" << frontPrime << ",  zeta=" << zeta << ", delta=" << delta << ",  zee=" << zee;
 #endif
 
         zee += 0.075 * dd4hep::mm + (side * cos(zeta) + trapWall.h() - sidePrime) / sin(theta);
@@ -1761,7 +1855,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             Transform3D(myrot(ns, wallDDName + "_" + std::to_string(etaAlv), tForm.getRotation()),
                         Position(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << wallLog.name() << ":" << etaAlv << " positioned in " << hawRLog.name();
+        edm::LogVerbatim("EBGeomX") << wallLog.name() << ":" << etaAlv << " positioned in " << hawRLog.name() << " at (" << cms::convert2mm(tForm.getTranslation().x()) << "," << cms::convert2mm(tForm.getTranslation().y()) << "," << cms::convert2mm(tForm.getTranslation().z()) << ") with rotation";
 #endif
         theta -= delta;
         side = sidePrime;
@@ -1807,7 +1901,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
         webClrLog.placeVolume(webPlLog, copyOne);  // place plate inside clearance volume
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << webPlLog.name() << ":" << copyOne << " positioned in " << webClrName;
+        edm::LogVerbatim("EBGeomX") << webPlLog.name() << ":" << copyOne << " positioned in " << webClrName << " at (0,0,0) with no rotation";
 #endif
         const EcalTrap::VertexList vWeb(trapWebClr.vertexList());
 
@@ -1822,8 +1916,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         const Pt3D wedge2(wedge3 + Pt3D(0, trapWebClr.h() * cos(theta), -trapWebClr.h() * sin(theta)));
         const Pt3D wedge1(wedge3 + Pt3D(trapWebClr.a(), 0, 0));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeomX") << "trap1=" << vWeb[0] << ", trap2=" << vWeb[2] << ", trap3=" << vWeb[3];
-        edm::LogVerbatim("EcalGeomX") << "wedge1=" << wedge1 << ", wedge2=" << wedge2 << ", wedge3=" << wedge3;
+        edm::LogVerbatim("EcalGeom") << "trap1=" << vWeb[0] << ", trap2=" << vWeb[2] << ", trap3=" << vWeb[3];
+        edm::LogVerbatim("EcalGeom") << "wedge1=" << wedge1 << ", wedge2=" << wedge2 << ", wedge3=" << wedge3;
 #endif
         const Tf3D tForm(vWeb[0], vWeb[2], vWeb[3], wedge1, wedge2, wedge3);
 
@@ -1835,7 +1929,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                   myrot(ns, webClrName + std::to_string(iWeb), tForm.getRotation()),
                   Position(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << webClrLog.name() << ":" << copyOne << " positioned in " << hawRLog.name();
+          edm::LogVerbatim("EBGeomX") << webClrLog.name() << ":" << copyOne << " positioned in " << hawRLog.name() << " at (" << cms::convert2mm(tForm.getTranslation().x()) << "," << cms::convert2mm(tForm.getTranslation().y()) << "," << cms::convert2mm(tForm.getTranslation().z()) << ") with rotation";
 #endif
         }
 
@@ -1868,28 +1962,33 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       const double realBPthick(back.plateThick + back.plate2Thick);
       array<double, 3> backPlateParms{{0.5 * back.plateWidth, 0.5 * realBPthick, 0.5 * back.plateLength}};
-      Solid backPlateSolid = Box(backPlateParms[0], backPlateParms[1], backPlateParms[2]);
+      Solid backPlateSolid = Box(back.plateName, backPlateParms[0], backPlateParms[1], backPlateParms[2]);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << back.plateName << " Box " << cms::convert2mm(backPlateParms[0]) << ":" << cms::convert2mm(backPlateParms[1]) << ":" << cms::convert2mm(backPlateParms[2]);
+#endif
       Volume backPlateLog = Volume(back.plateName, backPlateSolid, ns.material(back.plateMat));
 
       const Position backPlateTra(
           0.5 * back.sideHeight + backPlateParms[1], 0, backPlateParms[2] - 0.5 * back.sideLength);
 
-      Solid backPlate2Solid = Box(0.5 * back.plateWidth, 0.5 * back.plate2Thick, 0.5 * back.plateLength);
+      Solid backPlate2Solid = Box(back.plate2Name, 0.5 * back.plateWidth, 0.5 * back.plate2Thick, 0.5 * back.plateLength);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << back.plate2Name << " Box " << cms::convert2mm(0.5 * back.plateWidth) << ":" << cms::convert2mm(0.5 * back.plate2Thick) << ":" << cms::convert2mm(0.5 * back.plateLength);
+#endif
       Volume backPlate2Log = Volume(back.plate2Name, backPlate2Solid, ns.material(back.plate2Mat));
 
       const Position backPlate2Tra(0, -backPlateParms[1] + back.plate2Thick / 2., 0);
       if (0 != back.plateHere) {
         backPlateLog.placeVolume(backPlate2Log, copyOne, Transform3D(backPlate2Tra));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backPlate2Log.name() << ":" << copyOne << " positioned in "
-                                     << backPlateLog.name();
+        edm::LogVerbatim("EBGeomX") << backPlate2Log.name() << ":" << copyOne << " positioned in " << backPlateLog.name() << " at (" << cms::convert2mm(backPlate2Tra.x()) << "," << cms::convert2mm(backPlate2Tra.y()) << "," << cms::convert2mm(backPlate2Tra.z()) << ") with no rotation";
 #endif
         spmLog.placeVolume(
             backPlateLog,
             copyOne,
             Transform3D(myrot(ns, back.plateName + "Rot5", CLHEP::HepRotationZ(270_deg)), outtra + backPlateTra));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backPlateLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
+        edm::LogVerbatim("EBGeomX") << backPlateLog.name() << ":" << copyOne << " positioned in " << spmLog.name() << " at (" << cms::convert2mm((outtra + backPlateTra).x()) << "," << cms::convert2mm((outtra + backPlateTra).y()) << "," << cms::convert2mm((outtra + backPlateTra).z()) << ") with rotation";
 #endif
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1926,7 +2025,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             Transform3D(myrot(ns, back.sideName + "Rot8", CLHEP::HepRotationX(180_deg) * CLHEP::HepRotationZ(90_deg)),
                         outtra + backSideTra1));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backSideLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
+        edm::LogVerbatim("EBGeomX") << backSideLog.name() << ":" << copyOne << " positioned in " << spmLog.name() << " at (" << cms::convert2mm((outtra + backSideTra1).x()) << "," << cms::convert2mm((outtra + backSideTra1).y()) << "," << cms::convert2mm((outtra + backSideTra1).z()) << ") with rotation";
 #endif
         const Position backSideTra2(0, -back.plateWidth / 2 + back.sideYOff2, 1 * dd4hep::mm);
         spmLog.placeVolume(
@@ -1934,7 +2033,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             copyTwo,
             Transform3D(myrot(ns, back.sideName + "Rot9", CLHEP::HepRotationZ(90_deg)), outtra + backSideTra2));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backSideLog.name() << ":" << copyTwo << " positioned in " << spmLog.name();
+        edm::LogVerbatim("EBGeomX") << backSideLog.name() << ":" << copyTwo << " positioned in " << spmLog.name() << " at (" << cms::convert2mm((outtra + backSideTra2).x()) << "," << cms::convert2mm((outtra + backSideTra2).y()) << "," << cms::convert2mm((outtra + backSideTra2).z()) << ") with rotation";
 #endif
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1955,14 +2054,20 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       const double manifCut(2 * dd4hep::mm);
 
       Solid mBManifSolid = Tube(0, mbManif.outDiam / 2, backCoolWidth / 2. - manifCut, 0_deg, 360_deg);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << mbManif.name << " Tubs " << cms::convert2mm(backCoolWidth / 2. - manifCut) << ":0:" << cms::convert2mm(mbManif.outDiam / 2) << ":0:360";
+#endif
       Volume mBManifLog = Volume(mbManif.name, mBManifSolid, ns.material(mbManif.mat));
 
       const string mBManifWaName(mbManif.name + "Wa");
       Solid mBManifWaSolid = Tube(0, mbManif.innDiam / 2, backCoolWidth / 2. - manifCut, 0_deg, 360_deg);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << mBManifWaName << " Tubs " << cms::convert2mm(backCoolWidth / 2. - manifCut) << ":0:" << cms::convert2mm(mbManif.innDiam / 2) << ":0:360";
+#endif
       Volume mBManifWaLog(mBManifWaName, mBManifWaSolid, ns.material(backPipe.waterMat));
       mBManifLog.placeVolume(mBManifWaLog, copyOne);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << mBManifWaLog.name() << ":" << copyOne << " positioned in " << mBManifLog.name();
+      edm::LogVerbatim("EBGeomX") << mBManifWaLog.name() << ":" << copyOne << " positioned in " << mBManifLog.name() << " at (0,0,0) with no rotation";
 #endif
 
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1979,7 +2084,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       const double deltaY(-5 * dd4hep::mm);
 
-      Solid grEdgeSlotSolid = Box(grille.edgeSlotHeight / 2., grille.edgeSlotWidth / 2., grille.thick / 2.);
+      Solid grEdgeSlotSolid = Box(grille.edgeSlotName, grille.edgeSlotHeight / 2., grille.edgeSlotWidth / 2., grille.thick / 2.);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << grille.edgeSlotName << " Box " << cms::convert2mm(grille.edgeSlotHeight / 2.) << ":" << cms::convert2mm(grille.edgeSlotWidth / 2.) << ":" << cms::convert2mm(grille.thick / 2.);
+#endif
       Volume grEdgeSlotLog = Volume(grille.edgeSlotName, grEdgeSlotSolid, ns.material(grille.edgeSlotMat));
 
       unsigned int edgeSlotCopy(0);
@@ -1990,6 +2098,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       for (unsigned int iGr(0); iGr != grille.vecHeight.size(); ++iGr) {
         string gName(grille.name + std::to_string(iGr));
         Solid grilleSolid = Box(gName, grille.vecHeight[iGr] / 2., backCoolWidth / 2., grille.thick / 2.);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << gName << " Box " << cms::convert2mm(grille.vecHeight[iGr] / 2.) << ":" << cms::convert2mm(backCoolWidth / 2.) << ":" << cms::convert2mm(grille.thick / 2.);
+#endif
         Volume grilleLog = Volume(gName, grilleSolid, ns.material(grille.mat));
 
         const Position grilleTra(-realBPthick / 2 - grille.vecHeight[iGr] / 2,
@@ -2002,6 +2113,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             string mName(grille.midSlotName + std::to_string(iGr / 2));
             Solid grMidSlotSolid =
                 Box(mName, grille.vecMidSlotHeight[(iGr - 1) / 2] / 2., grille.midSlotWidth / 2., grille.thick / 2.);
+#ifdef EDM_ML_DEBUG
+	    edm::LogVerbatim("EBGeom") << mName << " Box " << cms::convert2mm(grille.vecMidSlotHeight[(iGr - 1) / 2] / 2.) << ":" << cms::convert2mm(grille.midSlotWidth / 2.) << ":" << cms::convert2mm(grille.thick / 2.);
+#endif
             grMidSlotLog[(iGr - 1) / 2] = Volume(mName, grMidSlotSolid, ns.material(grille.midSlotMat));
           }
           grilleLog.placeVolume(
@@ -2010,8 +2124,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               Transform3D(Position(
                   grille.vecHeight[iGr] / 2. - grille.vecMidSlotHeight[(iGr - 1) / 2] / 2., +grille.midSlotXOff, 0)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grMidSlotLog[(iGr - 1) / 2].name() << ":" << midSlotCopy << " positioned in "
-                                       << grilleLog.name();
+          edm::LogVerbatim("EBGeomX") << grMidSlotLog[(iGr - 1) / 2].name() << ":" << midSlotCopy << " positioned in " << grilleLog.name() << " at (" << cms::convert2mm(grille.vecHeight[iGr] / 2. - grille.vecMidSlotHeight[(iGr - 1) / 2] / 2.) << "," << cms::convert2mm(grille.midSlotXOff) << ",0) with no rotation";
 #endif
           grilleLog.placeVolume(
               grMidSlotLog[(iGr - 1) / 2],
@@ -2019,8 +2132,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               Transform3D(Position(
                   grille.vecHeight[iGr] / 2. - grille.vecMidSlotHeight[(iGr - 1) / 2] / 2., -grille.midSlotXOff, 0)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grMidSlotLog[(iGr - 1) / 2].name() << ":" << midSlotCopy << " positioned in "
-                                       << grilleLog.name();
+          edm::LogVerbatim("EBGeomX") << grMidSlotLog[(iGr - 1) / 2].name() << ":" << midSlotCopy << " positioned in " << grilleLog.name() << " at (" << cms::convert2mm(grille.vecHeight[iGr] / 2. - grille.vecMidSlotHeight[(iGr - 1) / 2] / 2.) << "," << cms::convert2mm(-grille.midSlotXOff) << ",0) with no rotation";
 #endif
         }
 
@@ -2031,8 +2143,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                      backCoolWidth / 2 - grille.edgeSlotWidth / 2.,
                                                      0)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grEdgeSlotLog.name() << ":" << edgeSlotCopy << " positioned in "
-                                       << grilleLog.name();
+          edm::LogVerbatim("EBGeomX") << grEdgeSlotLog.name() << ":" << edgeSlotCopy << " positioned in " << grilleLog.name() << " at (" << cms::convert2mm(grille.vecHeight[iGr] / 2. - grille.edgeSlotHeight / 2.) << "," << cms::convert2mm(backCoolWidth / 2 - grille.edgeSlotWidth / 2.) << ",0) with no rotation";
 #endif
           grilleLog.placeVolume(grEdgeSlotLog,
                                 ++edgeSlotCopy,
@@ -2040,14 +2151,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                      -backCoolWidth / 2 + grille.edgeSlotWidth / 2.,
                                                      0)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grEdgeSlotLog.name() << ":" << edgeSlotCopy << " positioned in "
-                                       << grilleLog.name();
+          edm::LogVerbatim("EBGeomX") << grEdgeSlotLog.name() << ":" << edgeSlotCopy << " positioned in " << grilleLog.name() << " at (" << cms::convert2mm(grille.vecHeight[iGr] / 2. - grille.edgeSlotHeight / 2.) << "," << cms::convert2mm(-backCoolWidth / 2 + grille.edgeSlotWidth / 2.) << ",0) with no rotation";
 #endif
         }
         if (0 != grille.here) {
           spmLog.placeVolume(grilleLog, iGr, Transform3D(gTra));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << grilleLog.name() << ":" << iGr << " positioned in " << spmLog.name();
+          edm::LogVerbatim("EBGeomX") << grilleLog.name() << ":" << iGr << " positioned in " << spmLog.name() << " at (" << cms::convert2mm(gTra.x()) << "," << cms::convert2mm(gTra.y()) << "," << cms::convert2mm(gTra.z()) << ") with no rotation";
 #endif
         }
 
@@ -2059,7 +2169,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                          manifCut,
                                                          grille.thick / 2. + 3 * mbManif.outDiam / 2.)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << mBManifLog.name() << ":" << iGr << " positioned in " << spmLog.name();
+          edm::LogVerbatim("EBGeomX") << mBManifLog.name() << ":" << iGr << " positioned in " << spmLog.name() << " at (" << cms::convert2mm(gTra.x() + mbManif.outDiam / 2. - grille.vecHeight[iGr] / 2.) << "," << cms::convert2mm(gTra.y() - manifCut) << "," << cms::convert2mm(gTra.z() - grille.thick / 2. - 3 * mbManif.outDiam / 2.) << ") with rotation";
 #endif
           spmLog.placeVolume(mBManifLog,
                              iGr - 1,
@@ -2068,7 +2178,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                          manifCut,
                                                          grille.thick / 2 + 3 * mbManif.outDiam / 2.)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << mBManifLog.name() << ":" << (iGr - 1) << " positioned in " << spmLog.name();
+          edm::LogVerbatim("EBGeomX") << mBManifLog.name() << ":" << (iGr - 1) << " positioned in " << spmLog.name() << " at (" << cms::convert2mm(gTra.x() + 3 * mbManif.outDiam / 2. - grille.vecHeight[iGr] / 2.) << "," << cms::convert2mm(gTra.y() - manifCut) << "," << cms::convert2mm(gTra.z()- grille.thick / 2 - 3 * mbManif.outDiam / 2.) << ") with rotation";
 #endif
         }
       }
@@ -2085,25 +2195,32 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      Solid backCoolBarSolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.barThick / 2.);
+      Solid backCoolBarSolid = Box(backCool.barName, backCool.barHeight / 2., backCool.barWidth / 2., backCool.barThick / 2.);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << backCool.barName << " Box " << cms::convert2mm(backCool.barHeight / 2.) << ":" << cms::convert2mm(backCool.barWidth / 2.) << ":" << cms::convert2mm(backCool.barThick / 2.);
+#endif
       Volume backCoolBarLog = Volume(backCool.barName, backCoolBarSolid, ns.material(backCool.barMat));
 
-      Solid backCoolBarSSSolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.barSSThick / 2.);
+      Solid backCoolBarSSSolid = Box(backCool.barSSName, backCool.barHeight / 2., backCool.barWidth / 2., backCool.barSSThick / 2.);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << backCool.barSSName << " Box " << cms::convert2mm(backCool.barHeight / 2.) << ":" << cms::convert2mm(backCool.barWidth / 2.) << ":" << cms::convert2mm(backCool.barSSThick / 2.);
+#endif
       Volume backCoolBarSSLog = Volume(backCool.barSSName, backCoolBarSSSolid, ns.material(backCool.barSSMat));
       const Position backCoolBarSSTra(0, 0, 0);
       backCoolBarLog.placeVolume(backCoolBarSSLog, copyOne, Transform3D(backCoolBarSSTra));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << backCoolBarSSLog.name() << ":" << copyOne << " positioned in "
-                                   << backCoolBarLog.name();
+      edm::LogVerbatim("EBGeomX") << backCoolBarSSLog.name() << ":" << copyOne << " positioned in " << backCoolBarLog.name() << " at (" << cms::convert2mm(backCoolBarSSTra.x()) << "," << cms::convert2mm(backCoolBarSSTra.y()) << "," << cms::convert2mm(backCoolBarSSTra.z()) << ") with no rotation";
 #endif
 
-      Solid backCoolBarWaSolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.barWaThick / 2.);
+      Solid backCoolBarWaSolid = Box(backCool.barWaName, backCool.barHeight / 2., backCool.barWidth / 2., backCool.barWaThick / 2.);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << backCool.barWaName << " Box " << cms::convert2mm(backCool.barHeight / 2.) << ":" << cms::convert2mm(backCool.barWidth / 2.) << ":" << cms::convert2mm(backCool.barWaThick / 2.);
+#endif
       Volume backCoolBarWaLog = Volume(backCool.barWaName, backCoolBarWaSolid, ns.material(backCool.barWaMat));
       const Position backCoolBarWaTra(0, 0, 0);
       backCoolBarSSLog.placeVolume(backCoolBarWaLog, copyOne, Transform3D(backCoolBarWaTra));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << backCoolBarWaLog.name() << ":" << copyOne << " positioned in "
-                                   << backCoolBarSSLog.name();
+      edm::LogVerbatim("EBGeomX") << backCoolBarWaLog.name() << ":" << copyOne << " positioned in " << backCoolBarSSLog.name() << " at (" << cms::convert2mm(backCoolBarWaTra.x()) << "," << cms::convert2mm(backCoolBarWaTra.y()) << "," << cms::convert2mm(backCoolBarWaTra.z()) << ") with no rotation";
 #endif
 
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2122,20 +2239,24 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       for (unsigned int iLyr(0); iLyr != backCool.vecBackVFELyrThick.size(); ++iLyr) {
         thickVFE += backCool.vecBackVFELyrThick[iLyr];
       }
-      Solid backVFESolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., thickVFE / 2.);
+      Solid backVFESolid = Box((myns + backCool.backVFEName), backCool.barHeight / 2., backCool.barWidth / 2., thickVFE / 2.);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << (myns + backCool.backVFEName) << " Box " << cms::convert2mm(backCool.barHeight / 2.) << ":" << cms::convert2mm(backCool.barWidth / 2.) << ":" << cms::convert2mm(thickVFE / 2.);
+#endif
       Volume backVFELog =
           ns.addVolume(Volume(myns + backCool.backVFEName, backVFESolid, ns.material(backCool.backVFEMat)));
       Position offTra(0, 0, -thickVFE / 2);
       for (unsigned int iLyr(0); iLyr != backCool.vecBackVFELyrThick.size(); ++iLyr) {
-        Solid backVFELyrSolid =
-            Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.vecBackVFELyrThick[iLyr] / 2.);
+        Solid backVFELyrSolid = Box(backCool.vecBackVFELyrName[iLyr], backCool.barHeight / 2., backCool.barWidth / 2., backCool.vecBackVFELyrThick[iLyr] / 2.);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << backCool.vecBackVFELyrName[iLyr] << " Box " << cms::convert2mm(backCool.barHeight / 2.) << ":" << cms::convert2mm(backCool.barWidth / 2.) << ":" << cms::convert2mm(backCool.vecBackVFELyrThick[iLyr] / 2.);
+#endif
         Volume backVFELyrLog =
             Volume(backCool.vecBackVFELyrName[iLyr], backVFELyrSolid, ns.material(backCool.vecBackVFELyrMat[iLyr]));
         const Position backVFELyrTra(0, 0, backCool.vecBackVFELyrThick[iLyr] / 2);
         backVFELog.placeVolume(backVFELyrLog, copyOne, Transform3D(backVFELyrTra + offTra));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backVFELyrLog.name() << ":" << copyOne << " positioned in "
-                                     << backVFELog.name();
+        edm::LogVerbatim("EBGeomX") << backVFELyrLog.name() << ":" << copyOne << " positioned in " << backVFELog.name() << " at (" << cms::convert2mm((backVFELyrTra + offTra).x()) << "," << cms::convert2mm((backVFELyrTra + offTra).y()) << "," << cms::convert2mm((backVFELyrTra + offTra).z()) << ") with no rotation";
 #endif
         offTra += 2 * backVFELyrTra;
       }
@@ -2154,20 +2275,21 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       const double halfZCoolVFE(thickVFE + backCool.barThick / 2.);
       Solid backCoolVFESolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., halfZCoolVFE);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << backCool.vFEName << " Box " << cms::convert2mm(backCool.barHeight / 2.) << ":" << cms::convert2mm(backCool.barWidth / 2.) << ":" << cms::convert2mm(halfZCoolVFE);
+#endif
       Volume backCoolVFELog = ns.addVolume(Volume(backCool.vFEName, backCoolVFESolid, ns.material(backCool.vFEMat)));
       if (0 != backCool.barHere) {
         backCoolVFELog.placeVolume(backCoolBarLog, copyOne, Transform3D());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backCoolBarLog.name() << ":" << copyOne << " positioned in "
-                                     << backCoolVFELog.name();
+        edm::LogVerbatim("EBGeomX") << backCoolBarLog.name() << ":" << copyOne << " positioned in " << backCoolVFELog.name() << " at (0,0,0) with no rotation";
 #endif
       }
       if (0 != backCool.vFEHere) {
         backCoolVFELog.placeVolume(
             backVFELog, copyOne, Transform3D(Position(0, 0, backCool.barThick / 2. + thickVFE / 2.)));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backVFELog.name() << ":" << copyOne << " positioned in "
-                                     << backCoolVFELog.name();
+        edm::LogVerbatim("EGeomX") << backVFELog.name() << ":" << copyOne << " positioned in " << backCoolVFELog.name() << " at (0,0," << cms::convert2mm(backCool.barThick / 2. + thickVFE / 2.) << ") with no rotation";
 #endif
       }
       backCoolVFELog.placeVolume(backVFELog,
@@ -2175,7 +2297,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                  Transform3D(myrot(ns, backCool.vFEName + "Flip", CLHEP::HepRotationX(180_deg)),
                                              Position(0, 0, -backCool.barThick / 2. - thickVFE / 2.)));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << backVFELog.name() << ":" << copyTwo << " positioned in " << backCoolVFELog.name();
+      edm::LogVerbatim("EBGeomX") << backVFELog.name() << ":" << copyTwo << " positioned in " << backCoolVFELog.name() << " at (0,0," << cms::convert2mm(-backCool.barThick / 2. - thickVFE / 2.) << ") with rotation";
 #endif
 
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2210,7 +2332,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         }
 
         const double halfZBCool((pipeLength - 2 * mbManif.outDiam - grille.zSpace) / 2);
-        Solid backCoolSolid = Box(backCoolHeight / 2., backCoolWidth / 2., halfZBCool);
+        Solid backCoolSolid = Box(backCool.vecName[iMod], backCoolHeight / 2., backCoolWidth / 2., halfZBCool);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << backCool.vecName[iMod] << " Box " << cms::convert2mm(backCoolHeight / 2.) << ":" << cms::convert2mm(backCoolWidth / 2.) << ":" << cms::convert2mm(halfZBCool);
+#endif
         Volume backCoolLog = Volume(backCool.vecName[iMod], backCoolSolid, ns.material(spm.mat));
 
         const Position bCoolTra(
@@ -2220,7 +2345,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         if (0 != backCool.here) {
           spmLog.placeVolume(backCoolLog, iMod + 1, outtra + backPlateTra + bCoolTra);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backCoolLog.name() << ":" << (iMod + 1) << " positioned in " << spmLog.name();
+          edm::LogVerbatim("EBGeomX") << backCoolLog.name() << ":" << (iMod + 1) << " positioned in " << spmLog.name() << " at (" << cms::convert2mm((outtra + backPlateTra + bCoolTra).x()) << "," << cms::convert2mm((outtra + backPlateTra + bCoolTra).y()) << "," << cms::convert2mm((outtra + backPlateTra + bCoolTra).z()) << ") with no rotation";
 #endif
         }
 
@@ -2229,7 +2354,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         const double halfZTank(halfZBCool - 5 * dd4hep::cm);
 
         string bTankName(backCoolTank.name + std::to_string(iMod + 1));
-        Solid backCoolTankSolid = Box(backCoolTankHeight / 2., backCoolTank.width / 2., halfZTank);
+        Solid backCoolTankSolid = Box(bTankName, backCoolTankHeight / 2., backCoolTank.width / 2., halfZTank);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << bTankName << " Box " << cms::convert2mm(backCoolTankHeight / 2.) << ":" << cms::convert2mm(backCoolTank.width / 2.) << ":" << cms::convert2mm(halfZTank);
+#endif
         Volume backCoolTankLog = Volume(bTankName, backCoolTankSolid, ns.material(backCoolTank.mat));
         if (0 != backCoolTank.here) {
           backCoolLog.placeVolume(backCoolTankLog,
@@ -2239,24 +2367,26 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                        backCool.barWidth / 2. + backCoolTank.width / 2.,
                                                        0)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backCoolTankLog.name() << ":" << copyOne << " positioned in "
-                                       << backCoolLog.name();
+          edm::LogVerbatim("EBGeomX") << backCoolTankLog.name() << ":" << copyOne << " positioned in " << backCoolLog.name() << " at (" << cms::convert2mm(-backCoolHeight / 2 + backCoolTankHeight / 2. + bottomThick) << "," << cms::convert2mm(backCool.barWidth / 2. + backCoolTank.width / 2.) << ",0) with no rotation";
 #endif
         }
 
         string bTankWaName(backCoolTank.waName + std::to_string(iMod + 1));
-        Solid backCoolTankWaSolid = Box(backCoolTankHeight / 2. - backCoolTank.thick / 2.,
-                                        backCoolTank.waWidth / 2.,
-                                        halfZTank - backCoolTank.thick / 2.);
+        Solid backCoolTankWaSolid = Box(bTankWaName, backCoolTankHeight / 2. - backCoolTank.thick / 2., backCoolTank.waWidth / 2., halfZTank - backCoolTank.thick / 2.);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << bTankWaName << " Box " << cms::convert2mm(backCoolTankHeight / 2. - backCoolTank.thick / 2.) << ":" << cms::convert2mm(backCoolTank.waWidth / 2.) << ":" << cms::convert2mm(halfZTank - backCoolTank.thick / 2.);
+#endif
         Volume backCoolTankWaLog = Volume(bTankWaName, backCoolTankWaSolid, ns.material(backCoolTank.waMat));
         backCoolTankLog.placeVolume(backCoolTankWaLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, 0)));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << backCoolTankWaLog.name() << ":" << copyOne << " positioned in "
-                                     << backCoolTankLog.name();
+        edm::LogVerbatim("EBGeomX") << backCoolTankWaLog.name() << ":" << copyOne << " positioned in " << backCoolTankLog.name() << " at (0,0,0) with no rotation";
 #endif
 
         string bBracketName(backCoolTank.backBracketName + std::to_string(iMod + 1));
-        Solid backBracketSolid = Box(backCoolTank.backBracketHeight / 2., backCoolTank.width / 2., halfZTank);
+        Solid backBracketSolid = Box(bBracketName, backCoolTank.backBracketHeight / 2., backCoolTank.width / 2., halfZTank);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << bBracketName << " Box " << cms::convert2mm(backCoolTank.backBracketHeight / 2.) << ":" << cms::convert2mm(backCoolTank.width / 2.) << ":" << cms::convert2mm(halfZTank);
+#endif
         Volume backBracketLog = Volume(bBracketName, backBracketSolid, ns.material(backCoolTank.backBracketMat));
         if (0 != backCoolTank.here) {
           backCoolLog.placeVolume(backBracketLog,
@@ -2267,16 +2397,17 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                        -backCool.barWidth / 2. - backCoolTank.width / 2.,
                                                        0)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backBracketLog.name() << ":" << copyOne << " positioned in "
-                                       << backCoolLog.name();
+          edm::LogVerbatim("EBGeomX") << backBracketLog.name() << ":" << copyOne << " positioned in " << backCoolLog.name() << " at (" << cms::convert2mm(backCool.barHeight - backCoolHeight / 2. -backCoolTank.backBracketHeight / 2. + bottomThick) << "," << cms::convert2mm(-backCool.barWidth / 2. - backCoolTank.width / 2.) << ",0) with no rotation";
 #endif
         }
         //===
 
         Position bSumTra(backCool.barHeight - backCoolHeight / 2. + bottomThick, 0, 0);
         for (unsigned int j(0); j != nMisc; ++j) {  // loop over miscellaneous layers
-          Solid bSolid =
-              Box(backMisc.vecThick[iMod * nMisc + j] / 2, backCool.barWidth / 2. + backCoolTank.width, halfZBCool);
+          Solid bSolid = Box(backMisc.vecName[iMod * nMisc + j], backMisc.vecThick[iMod * nMisc + j] / 2, backCool.barWidth / 2. + backCoolTank.width, halfZBCool);
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("EBGeom") << backMisc.vecName[iMod * nMisc + j] << " Box " << cms::convert2mm(backMisc.vecThick[iMod * nMisc + j] / 2) << ":" << cms::convert2mm(backCool.barWidth / 2. + backCoolTank.width) << ":" << cms::convert2mm(halfZBCool);
+#endif
 
           Volume bLog =
               Volume(backMisc.vecName[iMod * nMisc + j], bSolid, ns.material(backMisc.vecMat[iMod * nMisc + j]));
@@ -2286,7 +2417,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           if (0 != backMisc.here) {
             backCoolLog.placeVolume(bLog, copyOne, Transform3D(Rotation3D(), bSumTra + bTra));
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("EcalGeom") << bLog.name() << ":" << copyOne << " positioned in " << backCoolLog.name();
+            edm::LogVerbatim("EBGeomX") << bLog.name() << ":" << copyOne << " positioned in " << backCoolLog.name() << " at (" << cms::convert2mm((bSumTra + bTra).x()) << "," << cms::convert2mm((bSumTra + bTra).y()) << "," << cms::convert2mm((bSumTra + bTra).z()) << ") with no rotation";
 #endif
           }
 
@@ -2300,13 +2431,16 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           for (unsigned int j(0); j != mbLyr.vecMBLyrThick.size(); ++j)  // loop over MB layers
           {
             Solid mSolid = Box(mbLyr.vecMBLyrThick[j] / 2, bHalfWidth, halfZBCool);
+#ifdef EDM_ML_DEBUG
+	    edm::LogVerbatim("EBGeom") << (mbLyr.vecMBLyrName[j] + "_" + std::to_string(iMod + 1)) << " Box " << cms::convert2mm(mbLyr.vecMBLyrThick[j] / 2) << ":" << cms::convert2mm(bHalfWidth) << ":" << cms::convert2mm(halfZBCool);
+#endif
             Volume mLog = Volume(
                 mbLyr.vecMBLyrName[j] + "_" + std::to_string(iMod + 1), mSolid, ns.material(mbLyr.vecMBLyrMat[j]));
 
             mTra += Position(mbLyr.vecMBLyrThick[j] / 2.0, 0, 0);
             backCoolLog.placeVolume(mLog, copyOne, Transform3D(Rotation3D(), mTra));
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("EcalGeom") << mLog.name() << ":" << copyOne << " positioned in " << backCoolLog.name();
+            edm::LogVerbatim("EBGeomX") << mLog.name() << ":" << copyOne << " positioned in " << backCoolLog.name() << " at (" << cms::convert2mm(mTra.x()) << "," << cms::convert2mm(mTra.y()) << "," << cms::convert2mm(mTra.z()) << ") with no rotation";
 #endif
             mTra += Position(mbLyr.vecMBLyrThick[j] / 2.0, 0, 0);
           }
@@ -2316,14 +2450,20 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           const string mBName(mbCoolTube.name + "_" + std::to_string(iMod + 1));
 
           Solid mBCoolTubeSolid = Tube(0, mbCoolTube.outDiam / 2, halfZBCool, 0_deg, 360_deg);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << mBName << " Tubs " << cms::convert2mm(halfZBCool) << ":0:" << cms::convert2mm(mbCoolTube.outDiam / 2) << ":0:360";
+#endif
           Volume mBLog = Volume(mBName, mBCoolTubeSolid, ns.material(mbCoolTube.mat));
 
           const string mBWaName(mbCoolTube.name + "Wa_" + std::to_string(iMod + 1));
           Solid mBCoolTubeWaSolid = Tube(mBWaName, 0, mbCoolTube.innDiam / 2, halfZBCool, 0_deg, 360_deg);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << mBWaName << " Tubs " << cms::convert2mm(halfZBCool) << ":0:" << cms::convert2mm(mbCoolTube.innDiam / 2) << ":0:360";
+#endif
           Volume mBWaLog = Volume(mBWaName, mBCoolTubeWaSolid, ns.material(backPipe.waterMat));
           mBLog.placeVolume(mBWaLog, copyOne);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << mBWaLog.name() << ":" << copyOne << " positioned in " << mBLog.name();
+          edm::LogVerbatim("EBGeomX") << mBWaLog.name() << ":" << copyOne << " positioned in " << mBLog.name() << " at (0,0,0) with no rotation";
 #endif
 
           for (unsigned int j(0); j != dryAirTube.mbCoolTubeNum; ++j)  // loop over all MB cooling circuits
@@ -2335,8 +2475,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                          -bHalfWidth + (j + 1) * bHalfWidth / 5,
                                                          0)));
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("EcalGeom") << mBLog.name() << ":" << (2 * j + 1) << " positioned in "
-                                         << backCoolLog.name();
+            edm::LogVerbatim("EBGeomX") << mBLog.name() << ":" << (2 * j + 1) << " positioned in " << backCoolLog.name() << " at (" << cms::convert2mm(-backCoolHeight / 2.0 + mbCoolTube.outDiam / 2.) << "," << cms::convert2mm(-bHalfWidth + (j + 1) * bHalfWidth / 5) << ",0) with no rotation";
 #endif
           }
         }
@@ -2353,6 +2492,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           Solid backPipeSolid = Tube(bPipeName, 0, backPipe.vecDiam[iMod] / 2, pipeLength / 2, 0_deg, 360_deg);
           Solid backInnerSolid =
               Tube(bInnerName, 0, backPipe.vecDiam[iMod] / 2 - backPipe.vecThick[iMod], pipeLength / 2, 0_deg, 360_deg);
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("EBGeom") << bPipeName << " Tubs " << cms::convert2mm(pipeLength / 2) << ":0:" << cms::convert2mm(backPipe.vecDiam[iMod] / 2) << ":0:360";
+	  edm::LogVerbatim("EBGeom") << bInnerName << " Tubs " << cms::convert2mm(pipeLength / 2) << ":0:" << cms::convert2mm(backPipe.vecDiam[iMod] / 2 - backPipe.vecThick[iMod]) << ":0:360";
+#endif
 
           Volume backPipeLog = Volume(bPipeName, backPipeSolid, ns.material(backPipe.mat));
           Volume backInnerLog = Volume(bInnerName, backInnerSolid, ns.material(backPipe.waterMat));
@@ -2363,20 +2506,19 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           spmLog.placeVolume(backPipeLog, copyOne, Transform3D(Rotation3D(), bPipeTra1));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backPipeLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
+          edm::LogVerbatim("EBGeomX") << backPipeLog.name() << ":" << copyOne << " positioned in " << spmLog.name() << " at (" << cms::convert2mm(bPipeTra1.x()) << "," << cms::convert2mm(bPipeTra1.y()) << "," << cms::convert2mm(bPipeTra1.z()) << ") with no rotation";
 #endif
           const Position bPipeTra2(
               bPipeTra1.x(), back.yOff - back.plateWidth / 2 + back.sideWidth + backPipe.vecDiam[iMod], bPipeTra1.z());
 
           spmLog.placeVolume(backPipeLog, copyTwo, Transform3D(Rotation3D(), bPipeTra2));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backPipeLog.name() << ":" << copyTwo << " positioned in " << spmLog.name();
+          edm::LogVerbatim("EBGeomX") << backPipeLog.name() << ":" << copyTwo << " positioned in " << spmLog.name() << " at (" << cms::convert2mm(bPipeTra2.x()) << "," << cms::convert2mm(bPipeTra2.y()) << "," << cms::convert2mm(bPipeTra2.z()) << ") with no rotation";
 #endif
 
           backPipeLog.placeVolume(backInnerLog, copyOne, Transform3D(Rotation3D(), Position()));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << backInnerLog.name() << ":" << copyOne << " positioned in "
-                                       << backPipeLog.name();
+          edm::LogVerbatim("EBGeomX") << backInnerLog.name() << ":" << copyOne << " positioned in " << backPipeLog.name() << " at (0,0,0) with no rotation";
 #endif
         }
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2392,6 +2534,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           Solid dryAirTubeSolid =
               Tube(dryAirTubName, dryAirTube.innDiam / 2, dryAirTube.outDiam / 2, pipeLength / 2, 0_deg, 360_deg);
+#ifdef EDM_ML_DEBUG
+	  edm::LogVerbatim("EBGeom") << dryAirTubName << " Tubs " << cms::convert2mm(pipeLength / 2) << ":" << cms::convert2mm(dryAirTube.innDiam / 2)<< ":" << cms::convert2mm(dryAirTube.outDiam / 2) << ":0:360";
+#endif
           Volume dryAirTubeLog = Volume((myns + dryAirTubName), dryAirTubeSolid, ns.material(dryAirTube.mat));
 
           const Position dryAirTubeTra1(back.xOff + back.sideHeight - 0.7 * dryAirTube.outDiam - backPipe.vecDiam[iMod],
@@ -2400,7 +2545,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           spmLog.placeVolume(dryAirTubeLog, copyOne, Transform3D(Rotation3D(), dryAirTubeTra1));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << dryAirTubeLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
+          edm::LogVerbatim("EBGeomX") << dryAirTubeLog.name() << ":" << copyOne << " positioned in " << spmLog.name() << " at (" << cms::convert2mm(dryAirTubeTra1.x()) << "," << cms::convert2mm(dryAirTubeTra1.y()) << "," << cms::convert2mm(dryAirTubeTra1.z()) << ") with no rotation";
 #endif
 
           const Position dryAirTubeTra2(dryAirTubeTra1.x(),
@@ -2409,7 +2554,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           spmLog.placeVolume(dryAirTubeLog, copyTwo, Transform3D(Rotation3D(), dryAirTubeTra2));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << dryAirTubeLog.name() << ":" << copyTwo << " positioned in " << spmLog.name();
+          edm::LogVerbatim("EBGeomX") << dryAirTubeLog.name() << ":" << copyTwo << " positioned in " << spmLog.name() << " at (" << cms::convert2mm(dryAirTubeTra2.x()) << "," << cms::convert2mm(dryAirTubeTra2.y()) << "," << cms::convert2mm(dryAirTubeTra2.z()) << ") with no rotation";
 #endif
         }
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2427,8 +2572,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           for (unsigned int iBar(0); iBar != nMax; ++iBar) {
             backCoolLog.placeVolume(backCoolVFELog, iCVFECopy++, cTra);
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("EcalGeom") << backCoolVFELog.name() << ":" << iCVFECopy << " positioned in "
-                                         << backCoolLog.name();
+            edm::LogVerbatim("EBGeomX") << backCoolVFELog.name() << ":" << iCVFECopy << " positioned in " << backCoolLog.name() << " at (" << cms::convert2mm(cTra.x()) << "," << cms::convert2mm(cTra.y()) << "," << cms::convert2mm(cTra.z()) << ") with no rotation";
 #endif
             cTra += Position(0, 0, backMisc.backCBStdSep);
           }
@@ -2463,13 +2607,16 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       array<double, 3> patchParms{
           {patchHeight / 2., backCool.barWidth / 2., (spm.vecZPts.back() - grille.vecZOff.back() - grille.thick) / 2}};
       Solid patchSolid = Box(patchParms[0], patchParms[1], patchParms[2]);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("EBGeom") << patchPanel.name << " Box " << cms::convert2mm(patchParms[0]) << ":" << cms::convert2mm(patchParms[1]) << ":" << cms::convert2mm(patchParms[2]);
+#endif
       Volume patchLog = Volume(patchPanel.name, patchSolid, ns.material(spm.mat));
 
       const Position patchTra(back.xOff + 4 * dd4hep::mm, 0, grille.vecZOff.back() + grille.thick + patchParms[2]);
       if (0 != patchPanel.here) {
         spmLog.placeVolume(patchLog, copyOne, patchTra);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << patchLog.name() << ":" << copyOne << " positioned in " << spmLog.name();
+        edm::LogVerbatim("EBGeomX") << patchLog.name() << ":" << copyOne << " positioned in " << spmLog.name() << " at (" << cms::convert2mm(patchTra.x()) << "," << cms::convert2mm(patchTra.y()) << "," << cms::convert2mm(patchTra.z()) << ") with no rotation";
 #endif
       }
 
@@ -2477,12 +2624,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       for (unsigned int j(0); j != patchPanel.vecNames.size(); ++j) {
         Solid pSolid = Box(patchPanel.vecThick[j] / 2., patchParms[1], patchParms[2]);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << patchPanel.vecNames[j] << " Box " << cms::convert2mm(patchPanel.vecThick[j] / 2.) << ":" << cms::convert2mm(patchParms[1]) << ":" << cms::convert2mm(patchParms[2]);
+#endif
         Volume pLog = Volume(patchPanel.vecNames[j], pSolid, ns.material(patchPanel.vecMat[j]));
 
         pTra += Position(patchPanel.vecThick[j] / 2, 0, 0);
         patchLog.placeVolume(pLog, copyOne, pTra);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << pLog.name() << ":" << copyOne << " positioned in " << patchLog.name();
+        edm::LogVerbatim("EBGeomX") << pLog.name() << ":" << copyOne << " positioned in " << patchLog.name() << " at (" << cms::convert2mm(pTra.x()) << "," << cms::convert2mm(pTra.y()) << "," << cms::convert2mm(pTra.z()) << ") with no rotation";
 #endif
 
         pTra += Position(patchPanel.vecThick[j] / 2, 0, 0);
@@ -2503,23 +2653,35 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         // Make hierarchy of rods, envelopes, blocks, shims, and cutouts
 
         Solid rodSolid = Box(pincer.rodName, pincer.envWidthHalf, pincer.envHeightHalf, ilyLengthHalf);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << pincer.rodName << " Box " << cms::convert2mm(pincer.envWidthHalf) << ":" << cms::convert2mm(pincer.envHeightHalf) << ":" << cms::convert2mm(ilyLengthHalf);
+#endif
         Volume rodLog = Volume(pincer.rodName, rodSolid, ns.material(pincer.rodMat));
 
         array<double, 3> envParms{{pincer.envWidthHalf, pincer.envHeightHalf, pincer.envLengthHalf}};
         Solid envSolid = Box(pincer.envName, envParms[0], envParms[1], envParms[2]);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << pincer.envName << " Box " << cms::convert2mm(envParms[0]) << ":" << cms::convert2mm(envParms[1]) << ":" << cms::convert2mm(envParms[2]);
+#endif
         Volume envLog = Volume(pincer.envName, envSolid, ns.material(pincer.envMat));
 
         array<double, 3> blkParms{{pincer.envWidthHalf, pincer.envHeightHalf, pincer.blkLengthHalf}};
         Solid blkSolid = Box(pincer.blkName, blkParms[0], blkParms[1], blkParms[2]);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << pincer.blkName << " Box " << cms::convert2mm(blkParms[0]) << ":" << cms::convert2mm(blkParms[1]) << ":" << cms::convert2mm(blkParms[2]);
+#endif
         Volume blkLog = Volume(pincer.blkName, blkSolid, ns.material(pincer.blkMat));
 
         envLog.placeVolume(blkLog, copyOne, Position(0, 0, pincer.envLengthHalf - pincer.blkLengthHalf));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << blkLog.name() << ":" << copyOne << " positioned in " << envLog.name();
+        edm::LogVerbatim("EBGeomX") << blkLog.name() << ":" << copyOne << " positioned in " << envLog.name() << " at (0,0," << cms::convert2mm(pincer.envLengthHalf - pincer.blkLengthHalf) << ") with no rotation";
 #endif
 
         array<double, 3> cutParms{{pincer.cutWidth / 2., pincer.cutHeight / 2., pincer.blkLengthHalf}};
         Solid cutSolid = Box(pincer.cutName, cutParms[0], cutParms[1], cutParms[2]);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << pincer.cutName << " Box " << cms::convert2mm(cutParms[0]) << ":" << cms::convert2mm(cutParms[1]) << ":" << cms::convert2mm(cutParms[2]);
+#endif
         Volume cutLog = Volume(pincer.cutName, cutSolid, ns.material(pincer.cutMat));
         blkLog.placeVolume(
             cutLog,
@@ -2527,33 +2689,39 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             Position(
                 +blkParms[0] - cutParms[0] - pincer.shim1Width + pincer.shim2Width, -blkParms[1] + cutParms[1], 0));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << cutLog.name() << ":" << copyOne << " positioned in " << blkLog.name();
+        edm::LogVerbatim("EBGeomX") << cutLog.name() << ":" << copyOne << " positioned in " << blkLog.name() << " at (" << cms::convert2mm(+blkParms[0] - cutParms[0] - pincer.shim1Width + pincer.shim2Width) << "," << cms::convert2mm(-blkParms[1] + cutParms[1]) << ",0) with no rotation";
 #endif
         array<double, 3> shim2Parms{{pincer.shim2Width / 2., pincer.shimHeight / 2., pincer.blkLengthHalf}};
         Solid shim2Solid = Box(pincer.shim2Name, shim2Parms[0], shim2Parms[1], shim2Parms[2]);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << pincer.shim2Name << " Box " << cms::convert2mm(shim2Parms[0]) << ":" << cms::convert2mm(shim2Parms[1]) << ":" << cms::convert2mm(shim2Parms[2]);
+#endif
         Volume shim2Log = Volume(pincer.shim2Name, shim2Solid, ns.material(pincer.shimMat));
         cutLog.placeVolume(shim2Log, copyOne, Position(+cutParms[0] - shim2Parms[0], -cutParms[1] + shim2Parms[1], 0));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << shim2Log.name() << ":" << copyOne << " positioned in " << cutLog.name();
+        edm::LogVerbatim("EBGeomX") << shim2Log.name() << ":" << copyOne << " positioned in " << cutLog.name() << " at (" << cms::convert2mm(cutParms[0] - shim2Parms[0]) << "," << cms::convert2mm(-cutParms[1] + shim2Parms[1]) << ",0) with no rotation";
 #endif
 
         array<double, 3> shim1Parms{
             {pincer.shim1Width / 2., pincer.shimHeight / 2., pincer.envLengthHalf - pincer.blkLengthHalf}};
         Solid shim1Solid = Box(pincer.shim1Name, shim1Parms[0], shim1Parms[1], shim1Parms[2]);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("EBGeom") << pincer.shim1Name << " Box " << cms::convert2mm(shim1Parms[0]) << ":" << cms::convert2mm(shim1Parms[1]) << ":" << cms::convert2mm(shim1Parms[2]);
+#endif
         Volume shim1Log = Volume(pincer.shim1Name, shim1Solid, ns.material(pincer.shimMat));
         envLog.placeVolume(
             shim1Log,
             copyOne,
             Position(+envParms[0] - shim1Parms[0], -envParms[1] + shim1Parms[1], -envParms[2] + shim1Parms[2]));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EcalGeom") << shim1Log.name() << ":" << copyOne << " positioned in " << envLog.name();
+        edm::LogVerbatim("EBGeomX") << shim1Log.name() << ":" << copyOne << " positioned in " << envLog.name() << " at (" << cms::convert2mm(envParms[0] - shim1Parms[0]) << "," << cms::convert2mm(envParms[1] + shim1Parms[1]) << "," << cms::convert2mm(-envParms[2] + shim1Parms[2]) << ") with no rotation";
 #endif
 
         for (unsigned int iEnv(0); iEnv != pincer.vecEnvZOff.size(); ++iEnv) {
           rodLog.placeVolume(
               envLog, 1 + iEnv, Position(0, 0, -ilyLengthHalf + pincer.vecEnvZOff[iEnv] - pincer.envLengthHalf));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << envLog.name() << ":" << (1 + iEnv) << " positioned in " << rodLog.name();
+          edm::LogVerbatim("EBGeomX") << envLog.name() << ":" << (1 + iEnv) << " positioned in " << rodLog.name() << " at (0,0," << cms::convert2mm(-ilyLengthHalf + pincer.vecEnvZOff[iEnv] - pincer.envLengthHalf) << ") with no rotation";
 #endif
         }
 
@@ -2570,7 +2738,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                                 CLHEP::HepRotationZ(90_deg + pincer.vecRodAzimuth[iRod])),
                                           rodTra));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalGeom") << rodLog.name() << ":" << (1 + iRod) << " positioned in " << xilyLog.name();
+          edm::LogVerbatim("EBGeomX") << rodLog.name() << ":" << (1 + iRod) << " positioned in " << xilyLog.name() << " at (" << cms::convert2mm(rodTra.x()) << "," << cms::convert2mm(rodTra.y()) << "," << cms::convert2mm(rodTra.z()) << ") with rotation";
 #endif
         }
       }
