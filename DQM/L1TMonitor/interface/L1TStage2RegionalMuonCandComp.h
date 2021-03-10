@@ -74,7 +74,7 @@ private:
   bool ignoreBadTrkAddr;
   std::vector<int> ignoreBin;
   bool verbose;
-  bool isBmtf;
+  bool hasDisplacementInfo;
 
   MonitorElement* summary;
   MonitorElement* errorSummaryNum;
