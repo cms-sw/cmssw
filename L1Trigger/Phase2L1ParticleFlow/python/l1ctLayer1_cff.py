@@ -16,6 +16,9 @@ l1ctLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     regionizerAlgo = cms.string("Ideal"),
     pfAlgo = cms.string("PFAlgo3"),
     puAlgo = cms.string("LinearizedPuppi"),
+    regionizerAlgoParameters = cms.PSet(
+        useAlsoVtxCoords = cms.bool(True),
+    ),
     pfAlgoParameters = cms.PSet(
         nTrack = cms.uint32(50), # very large numbers for first test
         nCalo = cms.uint32(50), # very large numbers for first test
@@ -102,6 +105,9 @@ l1ctLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
     regionizerAlgo = cms.string("Ideal"),
     pfAlgo = cms.string("PFAlgo2HGC"),
     puAlgo = cms.string("LinearizedPuppi"),
+    regionizerAlgoParameters = cms.PSet(
+        useAlsoVtxCoords = cms.bool(True),
+    ),
     pfAlgoParameters = cms.PSet(
         nTrack = cms.uint32(50), # very large numbers for first test
         nCalo = cms.uint32(50), # very large numbers for first test
@@ -176,6 +182,9 @@ l1ctLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     regionizerAlgo = cms.string("Ideal"),
     pfAlgo = cms.string("PFAlgoDummy"),
     puAlgo = cms.string("LinearizedPuppi"),
+    regionizerAlgoParameters = cms.PSet(
+        useAlsoVtxCoords = cms.bool(True),
+    ),
     pfAlgoParameters = cms.PSet(
         nCalo = cms.uint32(50), # very large numbers for first test
         nMu = cms.uint32(5), # very large numbers for first test
@@ -238,6 +247,9 @@ l1ctLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
     regionizerAlgo = cms.string("Ideal"),
     pfAlgo = cms.string("PFAlgoDummy"),
     puAlgo = cms.string("LinearizedPuppi"),
+    regionizerAlgoParameters = cms.PSet(
+        useAlsoVtxCoords = cms.bool(True),
+    ),
     pfAlgoParameters = cms.PSet(
         nCalo = cms.uint32(50), # very large numbers for first test
         nMu = cms.uint32(5), # very large numbers for first test
