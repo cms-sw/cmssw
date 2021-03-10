@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_3_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_11_3_0/HIon/V9 (CMSSW_11_3_0_pre2)
+# /dev/CMSSW_11_3_0/HIon/V11 (CMSSW_11_3_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_3_0/HIon/V9')
+  tableName = cms.string('/dev/CMSSW_11_3_0/HIon/V11')
 )
 
 process.transferSystem = cms.PSet( 
@@ -12682,6 +12682,7 @@ process.hltParticleFlowPPOnAA = cms.EDProducer( "PFProducer",
     calibHF_eta_step = cms.vdouble( 0.0, 2.9, 3.0, 3.2, 4.2, 4.4, 4.6, 4.8, 5.2, 5.4 ),
     goodTrackDeadHcal_layers = cms.uint32( 4 ),
     goodPixelTrackDeadHcal_dxy = cms.double( 0.02 ),
+    vetoEndcap = cms.bool( False ),
     usePFNuclearInteractions = cms.bool( False ),
     GedElectronValueMap = cms.InputTag( "gedGsfElectronsTmp" ),
     goodPixelTrackDeadHcal_chi2n = cms.double( 2.0 ),
@@ -34444,7 +34445,6 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True ),
     numberOfThreads = cms.untracked.uint32( 4 ),
     numberOfStreams = cms.untracked.uint32( 0 ),
-    sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 )
 
 # override the GlobalTag, connection string and pfnPrefix
@@ -34453,11 +34453,12 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run3_hlt_HIon')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.TriggerSummaryProducerAOD=cms.untracked.PSet()
-    process.MessageLogger.L1GtTrigReport=cms.untracked.PSet()
-    process.MessageLogger.L1TGlobalSummary=cms.untracked.PSet()
-    process.MessageLogger.HLTrigReport=cms.untracked.PSet()
-    process.MessageLogger.FastReport=cms.untracked.PSet()
+    process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport = cms.untracked.PSet()
+    process.MessageLogger.FastReport = cms.untracked.PSet()
+    process.MessageLogger.ThroughputService = cms.untracked.PSet()
 
 # load the DQMStore and DQMRootOutputModule
 process.load( "DQMServices.Core.DQMStore_cfi" )
