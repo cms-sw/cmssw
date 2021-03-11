@@ -60,7 +60,6 @@ public:
 
   void generate_luts();
   lut_group get_luts(uint32_t chid) {return luts[chid];}
-
  
 private:
   edm::FileInPath global_coords_filename_;

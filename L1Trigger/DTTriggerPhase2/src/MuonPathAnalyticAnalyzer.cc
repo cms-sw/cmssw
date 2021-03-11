@@ -68,7 +68,8 @@ void MuonPathAnalyticAnalyzer::initialise(const edm::EventSetup &iEventSetup) {
 void MuonPathAnalyticAnalyzer::run(edm::Event &iEvent,
                                 const edm::EventSetup &iEventSetup,
                                 MuonPathPtrs &muonpaths,
-                                std::vector<metaPrimitive> &metaPrimitives) {
+                                std::vector<metaPrimitive> &metaPrimitives, 
+                                GlobalLutObtainer &globallutobtainer) {
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyticAnalyzer: run";
 
@@ -270,8 +271,6 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   slope_f = - (double(slope) / std::pow(2, INCREASED_RES_SLOPE));
   chi2_f = double(chi2_mm2_p) / (16. * 64. * 100.);
   
-
-  
   // Impose the thresholds
   if (std::abs(slope_f) > tanPhiTh_) return;
   if (chi2_f > (chiSquareThreshold_)) return;
@@ -290,6 +289,7 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
 	z = z1;
   else if (MuonPathSLId.superLayer() == 3)
 	z = z3;
+
   GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(pos_f, 0., z));
   int thisec = MuonPathSLId.sector();
   if (thisec == 13)

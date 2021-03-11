@@ -43,18 +43,18 @@ GlobalLutObtainer::~GlobalLutObtainer() {}
 void GlobalLutObtainer::generate_luts() {
   for (auto &global_constant: global_constants){
     
-    int sgn; 
+    int sgn = 1; 
     DTChamberId ChId(global_constant.chid);
     // typical hasPosRF function
     if (ChId.wheel() > 0 || (ChId.wheel() == 0 && ChId.sector() % 4 > 1)) {
-      sgn = 1;
-    } else sgn = -1;
+      sgn = -1;
+    }
     
     auto phi1 = calc_atan_lut(12, 6, (1. / 16) / (global_constant.sl1.perp * 10),
-      global_constant.sl1.x_phi0/global_constant.sl1.perp, 1./std::pow(2, 17), 10, 3, 12, 20, sgn);
+      global_constant.sl1.x_phi0/global_constant.sl1.perp, 1. / std::pow(2, 17), 10, 3, 12, 20, sgn);
       
     auto phi3 = calc_atan_lut(12, 6, (1. / 16) / (global_constant.sl3.perp * 10),
-      global_constant.sl3.x_phi0/global_constant.sl3.perp, 1./std::pow(2, 17), 10, 3, 12, 20, sgn);
+      global_constant.sl3.x_phi0/global_constant.sl3.perp, 1. / std::pow(2, 17), 10, 3, 12, 20, sgn);
 
     double max_x_phi0 = global_constant.sl1.x_phi0;
     if (global_constant.sl3.x_phi0 > max_x_phi0) {
@@ -65,9 +65,9 @@ void GlobalLutObtainer::generate_luts() {
       max_x_phi0 / ((global_constant.sl1.perp + global_constant.sl3.perp)/2), 1. / std::pow(2, 17), 10, 3, 12, 20, sgn);
 
 
-    auto phib = calc_atan_lut(9, 6, 1./4096, 0., 4./pow(2, 13), 10, 3, 10, 16, sgn);
+    auto phib = calc_atan_lut(9, 6, 1./4096, 0., 4. / std::pow(2, 13), 10, 3, 10, 16, sgn);
     
-    luts[global_constant.chid] = {phi1, phi3, phic, phib};
+    luts[global_constant.chid] = {phic, phi1, phi3, phib};
   }
 }
 
@@ -96,7 +96,7 @@ std::map <int, lut_value> GlobalLutObtainer::calc_atan_lut(int msb_num, int lsb_
   
   std::map <int, lut_value> lut;
   
-  for (int x_msb = - std::pow(2, msb_num - 1); x_msb < std::pow(2, msb_num - 1); x_msb++) {
+  for (long int x_msb = - (long int) std::pow(2, msb_num - 1); x_msb < (long int) std::pow(2, msb_num - 1); x_msb++) {
     int x1 = ((x_msb    ) << lsb_num);
     int x2 = ((x_msb + 1) << lsb_num) - 1;
 
@@ -155,12 +155,16 @@ std::map <int, lut_value> GlobalLutObtainer::calc_atan_lut(int msb_num, int lsb_
     a_int = as.at(1);
     b_int = bs.at(1);
 
-    // convert a, b to two's complement
-    auto a_signed = a_int % (long int) (pow(2, a_size));
-    auto b_signed = b_int % (long int) (pow(2, b_size));
+    // // convert a, b to two's complement
+    // auto a_signed = a_int % (long int) (pow(2, a_size));
+    // auto b_signed = b_int % (long int) (pow(2, b_size));
 
     // convert x_msb to two's complement signed
-    lut[(int) (x_msb % (long int) (pow(2, msb_num)))] = {a_signed, b_signed};
+    int index = x_msb;
+    if (index < 0) {
+      index = std::pow(2, msb_num) + index;
+    }
+    lut[index] = {a_int, b_int};
   }
   return lut;      
 }

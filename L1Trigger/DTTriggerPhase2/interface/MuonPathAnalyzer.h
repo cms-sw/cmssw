@@ -19,6 +19,7 @@
 
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
+#include "L1Trigger/DTTriggerPhase2/interface/GlobalLutObtainer.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -46,6 +47,11 @@ public:
                    const edm::EventSetup& iEventSetup,
                    MuonPathPtrs& inMpath,
                    std::vector<cmsdt::metaPrimitive>& metaPrimitives) = 0;
+  virtual void run(edm::Event& iEvent,
+                   const edm::EventSetup& iEventSetup,
+                   MuonPathPtrs& inMpath,
+                   std::vector<cmsdt::metaPrimitive>& metaPrimitives,
+                   std::unique_ptr<GlobalLutObtainer> &globallutobtainer) = 0;
   virtual void run(edm::Event& iEvent,
                    const edm::EventSetup& iEventSetup,
                    MuonPathPtrs& inMpath,

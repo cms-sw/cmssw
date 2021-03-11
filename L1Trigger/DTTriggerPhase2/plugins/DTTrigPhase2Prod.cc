@@ -28,7 +28,6 @@
 #include "L1Trigger/DTTriggerPhase2/interface/PseudoBayesGrouping.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzer.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyticAnalyzer.h"
-//#include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerPerSL.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerInChamber.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAssociator.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
@@ -227,15 +226,6 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   
   globallutobtainer_ = std::make_unique<GlobalLutObtainer>(pset);
   globallutobtainer_->generate_luts();
-  
-  DTChamberId ch(1, 1, 1);
-  auto luts = globallutobtainer_->get_luts(ch.rawId());
-  int count = 0;
-  for (auto & elem: luts.phi1){
-    cout << elem.first << " " << elem.second.a << " " << elem.second.b << endl;
-    count++;
-    if (count == 10) {break;}
-  }
 
   // Getting buffer option
   activateBuffer_ = pset.getParameter<bool>("activateBuffer");
@@ -399,7 +389,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   if (algo_ == Standard) {
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "Fitting 1SL ";
-    mpathanalyzer_->run(iEvent, iEventSetup, filteredmuonpaths, metaPrimitives);
+    mpathanalyzer_->run(iEvent, iEventSetup, filteredmuonpaths, metaPrimitives, globallutobtainer_);
   } else {
     // implementation for advanced (2SL) grouping, no filter required..
     if (debug_)
