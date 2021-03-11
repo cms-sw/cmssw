@@ -47,8 +47,6 @@ class Eras (object):
                  'Phase2C11T23',
                  'Phase2C12_dd4hep',
                  'Phase2C11M9',
-                 'Phase2C11T22M9',
-                 'Phase2C11T23M9',
                  'Phase2C11I13M9',
                  'Phase2C11I13T22M9',
                  'Phase2C11I13T23M9'
