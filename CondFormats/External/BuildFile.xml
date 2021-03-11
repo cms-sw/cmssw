@@ -4,5 +4,7 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="DataFormats/Provenance"/>
+<use name="DataFormats/HLTReco"/>
+<use name="DataFormats/SiPixelDetId"/>
 <use name="clhep"/>
 <use name="rootmath"/>

@@ -1,5 +1,7 @@
 <use name="DataFormats/DetId"/>
 <use name="CondFormats/Serialization"/>
+<use name="CondFormats/External"/>
+<use name="FWCore/Utilities"/>
 <use name="boost_serialization"/>
 <export>
   <lib name="1"/>

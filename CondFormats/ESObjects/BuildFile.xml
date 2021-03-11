@@ -3,6 +3,7 @@
 <use name="DataFormats/Math"/>
 <use name="boost"/>
 <use name="CondFormats/Serialization"/>
+<use name="CondFormats/External"/>
 <use name="boost_serialization"/>
 <use name="rootmath"/>
 <export>

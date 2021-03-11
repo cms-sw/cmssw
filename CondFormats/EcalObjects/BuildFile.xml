@@ -3,6 +3,10 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/EcalDigi"/>
 <use name="DataFormats/Math"/>
+<use name="CondFormats/External"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
 <use name="boost"/>
 <use name="boost_serialization"/>
 <use name="rootmath"/>

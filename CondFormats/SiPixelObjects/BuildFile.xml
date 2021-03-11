@@ -17,6 +17,9 @@
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/Records"/>
+<use name="CUDADataFormats/SiPixelCluster"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
 <export>
   <lib name="1"/>
 </export>
