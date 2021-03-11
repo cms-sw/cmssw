@@ -419,7 +419,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "RecHit_X_error_Vs_eta");
-    psd0.add<std::string>("title", "RecHit_X_error_Vs_eta;#eta;x error [microns]");
+    psd0.add<std::string>("title", "RecHit_X_error_Vs_eta;#eta;x error [#mum]");
     psd0.add<bool>("switch", true);
     psd0.add<int>("NxBins", 82);
     psd0.add<double>("xmax", 4.1);
@@ -431,7 +431,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "RecHit_Y_error_Vs_eta");
-    psd0.add<std::string>("title", "RecHit_Y_error_Vs_eta;#eta;y error [microns]");
+    psd0.add<std::string>("title", "RecHit_Y_error_Vs_eta;#eta;y error [#mum]");
     psd0.add<bool>("switch", true);
     psd0.add<int>("NxBins", 82);
     psd0.add<double>("xmax", 4.1);
