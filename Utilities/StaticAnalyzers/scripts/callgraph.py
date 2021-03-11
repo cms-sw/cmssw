@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 from __future__ import print_function
 import re
-from collections import defaultdict
 import yaml
 
 topfunc = re.compile(r"::(accumulate|acquire|startingNewLoop|duringLoop|endOfLoop|beginOfJob|endOfJob|produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream|streamBeginRun|streamBeginLuminosityBlock|streamEndRun|streamEndLuminosityBlock|globalBeginRun|globalEndRun|globalBeginLuminosityBlock|globalEndLuminosityBlock|endRun|endLuminosityBlock)\(")
@@ -70,18 +69,13 @@ for tfunc in toplevelfuncs:
                         callstacks.add(cs)
                         break
 
-print("Callstacks for top level functions calling EventSetupRecord::get<>() sorted by package directory and producer name")
-print()
 
 report=dict()
 for key in sorted(module2package.keys()):
-   print("%s\n" % key)
    for value in sorted(module2package[key]):
-       print("\t%s\n" % value)
        vre=re.compile(value)
        for cs in sorted(callstacks):
            if vre.search(cs):
-               print("\t\t%s\n" % cs)
                report.setdefault(key, {}).setdefault(value, []).append(cs)
 r=open('eventsetuprecord-get.yaml', 'w')
 yaml.dump(report,r)
