@@ -244,24 +244,25 @@ struct HGCalMixLayer {
 
         if (layerSense_[ly] < 1) {
           std::vector<double> pgonZ, pgonRin, pgonRout;
-	  double rmax = (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1;
-	  HGCalGeomTools::radius(zz - hthick,
-				 zz + hthick,
-				 zFrontB_,
-				 rMinFront_,
-				 slopeB_,
-				 zFrontT_,
-				 rMaxFront_,
-				 slopeT_,
-				 -layerSense_[ly],
-				 pgonZ,
-				 pgonRin,
-				 pgonRout);
-	  for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
-	    pgonZ[isec] -= zz;
-	    if (layerSense_[ly] == 0 || absorbMode_ == 0)
+          double rmax =
+              (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1;
+          HGCalGeomTools::radius(zz - hthick,
+                                 zz + hthick,
+                                 zFrontB_,
+                                 rMinFront_,
+                                 slopeB_,
+                                 zFrontT_,
+                                 rMaxFront_,
+                                 slopeT_,
+                                 -layerSense_[ly],
+                                 pgonZ,
+                                 pgonRin,
+                                 pgonRout);
+          for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
+            pgonZ[isec] -= zz;
+            if (layerSense_[ly] == 0 || absorbMode_ == 0)
               pgonRout[isec] = rmax;
-	    else
+            else
               pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol1;
           }
 
