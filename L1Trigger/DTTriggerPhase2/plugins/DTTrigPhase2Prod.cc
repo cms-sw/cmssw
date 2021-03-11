@@ -34,6 +34,7 @@
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPQualityEnhancerFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPRedundantFilter.h"
+#include "L1Trigger/DTTriggerPhase2/interface/GlobalLutObtainer.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
@@ -135,6 +136,7 @@ private:
   std::unique_ptr<MPFilter> mpathqualityenhancer_;
   std::unique_ptr<MPFilter> mpathredundantfilter_;
   std::unique_ptr<MuonPathAssociator> mpathassociator_;
+  std::unique_ptr<GlobalLutObtainer> globallutobtainer_;
 
   // Buffering
   bool activateBuffer_;
@@ -222,6 +224,18 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
       LogDebug("DTTrigPhase2Prod") << "DTp2:constructor: Full chamber analyzer";
     mpathanalyzer_ = std::make_unique<MuonPathAnalyzerInChamber>(pset, consumesColl);
   }
+  
+  globallutobtainer_ = std::make_unique<GlobalLutObtainer>(pset);
+  globallutobtainer_->generate_luts();
+  
+  DTChamberId ch(1, 1, 1);
+  auto luts = globallutobtainer_->get_luts(ch.rawId());
+  int count = 0;
+  for (auto & elem: luts.phi1){
+    cout << elem.first << " " << elem.second.a << " " << elem.second.b << endl;
+    count++;
+    if (count == 10) {break;}
+  }
 
   // Getting buffer option
   activateBuffer_ = pset.getParameter<bool>("activateBuffer");
@@ -253,6 +267,9 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   mpathredundantfilter_->initialise(iEventSetup);  // Filter object initialisation
   mpathassociator_->initialise(iEventSetup);       // Associator object initialisation
 
+  //edm::ESHandle<DTGeometry> geom;
+  //iEventSetup.get<MuonGeometryRecord>().get("idealForDigi", geom);
+  //dtGeo_ = &(*geom);
   const MuonGeometryRecord& geom = iEventSetup.get<MuonGeometryRecord>();
   dtGeo_ = &geom.get(dtGeomH);
 }
