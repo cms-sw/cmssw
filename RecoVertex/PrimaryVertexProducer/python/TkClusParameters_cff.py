@@ -37,7 +37,6 @@ highBetaStar_2018.toModify(DA_vectParameters,
 DA2D_vectParameters = cms.PSet(
     algorithm   = cms.string("DA2D_vect"),
     TkDAClusParameters = cms.PSet(
-        verbose = cms.untracked.bool(False),
         coolingFactor = cms.double(0.6),  # moderate annealing speed
         zrange = cms.double(4.),          # consider only clusters within 4 sigma*sqrt(T) of a track
         delta_highT = cms.double(1.e-2),  # convergence requirement at high T
