@@ -1,8 +1,8 @@
 <use name="CondFormats/Common"/>
 <use name="CondFormats/Serialization"/>
+<use name="DataFormats/Common"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="FWCore/Utilities"/>
-<use name="DataFormats/Common"/>
 <use name="boost_serialization"/>
 <use name="roothistmatrix"/>
 <export>

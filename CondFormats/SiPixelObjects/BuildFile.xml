@@ -1,25 +1,25 @@
-<use name="DataFormats/DetId"/>
-<use name="DataFormats/SiPixelDetId"/>
 <use name="CalibFormats/SiPixelObjects"/>
-<use name="FWCore/Utilities"/>
-<use name="DataFormats/FEDRawData"/>
-<use name="CondFormats/Serialization"/>
 <use name="CondFormats/DataRecord"/>
-<use name="CondFormats/SiStripObjects"/>
-<use name="root"/>
-<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="CondFormats/External"/>
+<use name="CondFormats/Serialization"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="CUDADataFormats/SiPixelCluster"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/TrackerCommon"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/Records"/>
-<use name="CUDADataFormats/SiPixelCluster"/>
-<use name="DataFormats/TrackerCommon"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
+<use name="root"/>
 <export>
   <lib name="1"/>
 </export>
