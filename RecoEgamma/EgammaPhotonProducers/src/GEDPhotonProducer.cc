@@ -79,7 +79,8 @@ private:
                             CaloTowerCollection const* hcalTowers,
                             const reco::VertexCollection& pvVertices,
                             reco::PhotonCollection& outputCollection,
-                            int& iSC, EcalPFRecHitThresholds const& thresholds);
+                            int& iSC,
+                            EcalPFRecHitThresholds const& thresholds);
 
   void fillPhotonCollection(edm::Event& evt,
                             edm::EventSetup const& es,
@@ -444,7 +445,8 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
                          //vtx,
                          vertexCollection,
                          *outputPhotonCollection_p,
-                         iSC, thresholds);
+                         iSC,
+                         thresholds);
 
   iSC = 0;
   if (validPhotonHandle && recoStep_.isFinal())
@@ -505,7 +507,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
                                              CaloTowerCollection const* hcalTowers,
                                              const reco::VertexCollection& vertexCollection,
                                              reco::PhotonCollection& outputPhotonCollection,
-                                             int& iSC, EcalPFRecHitThresholds const& thresholds) {
+                                             int& iSC,
+                                             EcalPFRecHitThresholds const& thresholds) {
   const EcalRecHitCollection* hits = nullptr;
   std::vector<double> preselCutValues;
   std::vector<int> flags_, severitiesexcl_;
@@ -608,12 +611,13 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     std::vector<float> full5x5_cov =
         (hits != nullptr ? noZS::EcalClusterTools::covariances(*(scRef->seed()), hits, topology, caloGeom_)
                          : std::vector<float>({0.f, 0.f, 0.f}));
-    // for full5x5 local covariances, do noise-cleaning 
-    // by passing per crystal PF recHit thresholds and mult values. 
-    // mult values for EB and EE were obtained by dedicated studies.     
+    // for full5x5 local covariances, do noise-cleaning
+    // by passing per crystal PF recHit thresholds and mult values.
+    // mult values for EB and EE were obtained by dedicated studies.
     std::vector<float> full5x5_locCov =
-      (hits != nullptr ? noZS::EcalClusterTools::localCovariances(*(scRef->seed()), hits, topology, 4.7, &thresholds, 1.0, 1.25)
-                         : std::vector<float>({0.f, 0.f, 0.f}));
+        (hits != nullptr
+             ? noZS::EcalClusterTools::localCovariances(*(scRef->seed()), hits, topology, 4.7, &thresholds, 1.0, 1.25)
+             : std::vector<float>({0.f, 0.f, 0.f}));
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);
     float full5x5_sigmaIetaIeta = sqrt(full5x5_locCov[0]);

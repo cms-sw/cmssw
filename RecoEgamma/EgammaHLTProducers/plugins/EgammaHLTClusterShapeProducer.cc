@@ -40,7 +40,7 @@ private:
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEBToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEEToken_;
   const EcalClusterLazyTools::ESGetTokens ecalClusterLazyToolsESGetTokens_;
-  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_; 
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
   const bool EtaOrIeta_;
 };
 
@@ -107,7 +107,8 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
     }
 
     double sigmaee5x5 = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()))[0]);
-    double sigmaee5x5NoiseCleaned = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()), 4.7, &thresholds, 1.0, 1.25)[0]);
+    double sigmaee5x5NoiseCleaned =
+        sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()), 4.7, &thresholds, 1.0, 1.25)[0]);
     clshMap.insert(recoecalcandref, sigmaee);
     clsh5x5Map.insert(recoecalcandref, sigmaee5x5);
     clsh5x5NoiseCleanedMap.insert(recoecalcandref, sigmaee5x5NoiseCleaned);
@@ -115,7 +116,8 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
 
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clshMap));
   iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5Map), "sigmaIEtaIEta5x5");
-  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5NoiseCleanedMap), "sigmaIEtaIEta5x5NoiseCleaned");
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5NoiseCleanedMap),
+             "sigmaIEtaIEta5x5NoiseCleaned");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

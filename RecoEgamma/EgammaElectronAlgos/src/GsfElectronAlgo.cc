@@ -292,7 +292,8 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
                                                                      ElectronHcalHelper const& hcalHelper,
                                                                      EventData const& eventData,
                                                                      CaloTopology const& topology,
-                                                                     CaloGeometry const& geometry, EcalPFRecHitThresholds const& thresholds) const {
+                                                                     CaloGeometry const& geometry,
+                                                                     EcalPFRecHitThresholds const& thresholds) const {
   using ClusterTools = EcalClusterToolsT<full5x5>;
   reco::GsfElectron::ShowerShape showerShape;
 
@@ -318,7 +319,9 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
 
   // do noise-cleaning for full5x5, by passing per crystal PF recHit thresholds and mult values
   // mult values for EB and EE were obtained by dedicated studies
-  std::vector<float> localCovariances = full5x5 ? ClusterTools::localCovariances(seedCluster, recHits, &topology, 4.7, &thresholds, 1.0, 1.25) : ClusterTools::localCovariances(seedCluster, recHits, &topology);
+  std::vector<float> localCovariances =
+      full5x5 ? ClusterTools::localCovariances(seedCluster, recHits, &topology, 4.7, &thresholds, 1.0, 1.25)
+              : ClusterTools::localCovariances(seedCluster, recHits, &topology);
 
   showerShape.sigmaEtaEta = sqrt(covariances[0]);
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]);
@@ -586,7 +589,8 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
                    magneticFieldInTesla,
                    hoc,
                    ctfTrackTable.value(),
-                   gsfTrackTable.value(), thresholds);
+                   gsfTrackTable.value(),
+                   thresholds);
 
   }  // loop over tracks
   return electrons;
@@ -719,7 +723,8 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
                                      double magneticFieldInTesla,
                                      const GsfElectronAlgo::HeavyObjectCache* hoc,
                                      egamma::conv::TrackTableView ctfTable,
-                                     egamma::conv::TrackTableView gsfTable, EcalPFRecHitThresholds const& thresholds) {
+                                     egamma::conv::TrackTableView gsfTable,
+                                     EcalPFRecHitThresholds const& thresholds) {
   // charge ID
   int eleCharge;
   GsfElectron::ChargeInfo eleChargeInfo;
@@ -848,9 +853,10 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   reco::GsfElectron::ShowerShape showerShape;
   reco::GsfElectron::ShowerShape full5x5_showerShape;
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
-    showerShape = calculateShowerShape<false>(electronData.superClusterRef, hcalHelper_, eventData, topology, geometry, thresholds);
-    full5x5_showerShape =
-       calculateShowerShape<true>(electronData.superClusterRef, hcalHelper_, eventData, topology, geometry, thresholds);
+    showerShape = calculateShowerShape<false>(
+        electronData.superClusterRef, hcalHelper_, eventData, topology, geometry, thresholds);
+    full5x5_showerShape = calculateShowerShape<true>(
+        electronData.superClusterRef, hcalHelper_, eventData, topology, geometry, thresholds);
   }
 
   //====================================================
