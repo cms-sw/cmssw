@@ -169,48 +169,43 @@ for modifier in run2_egamma_2016,run2_egamma_2017,run2_egamma_2018, run2_miniAOD
 
 import RecoEgamma.EgammaTools.calibratedEgammas_cff
 
-calibratedPatElectronsUL16preVFP = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
+calibratedPatElectronsNano = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
     produceCalibratedObjs = False,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain"),
+    src = "slimmedElectronsUpdated"
 )
-(run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(calibratedPatElectronsUL16preVFP, src = "slimmedElectronsUpdated")
 
-calibratedPatElectronsUL16postVFP = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
-    produceCalibratedObjs = False,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain"),
-)
-(run2_egamma_2016 & ~tracker_apv_vfp30_2016).toModify(calibratedPatElectronsUL16postVFP, src = "slimmedElectronsUpdated")
+(run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(calibratedPatElectronsNano,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain")
+) 
 
-calibratedPatElectronsUL17 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
-    produceCalibratedObjs = False,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_24Feb2020_runEtaR9Gain_v2"),
+(run2_egamma_2016 & ~tracker_apv_vfp30_2016).toModify(calibratedPatElectronsNano,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain")
 )
-run2_egamma_2017.toModify(calibratedPatElectronsUL17, src = "slimmedElectronsUpdated")
+
+run2_egamma_2017.toModify(calibratedPatElectronsNano,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_24Feb2020_runEtaR9Gain_v2")
+)
 
 calibratedPatElectronsUL18 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
     produceCalibratedObjs = False,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_29Sep2020_RunFineEtaR9Gain"),
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_29Sep2020_RunFineEtaR9Gain")
 )
-run2_egamma_2018.toModify(calibratedPatElectronsUL18, src = "slimmedElectronsUpdated")
+run2_egamma_2018.toModify(calibratedPatElectronsNano,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_29Sep2020_RunFineEtaR9Gain")
+)
 
-calibratedPatElectrons80XLegacy = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
-    produceCalibratedObjs = False,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc"),
+run2_miniAOD_80XLegacy.toModify(calibratedPatElectronsNano,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc")
 )
-run2_miniAOD_80XLegacy.toModify(calibratedPatElectrons80XLegacy, src = "slimmedElectronsUpdated")
 
-calibratedPatElectrons94X = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
-    produceCalibratedObjs = False,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"),
-)
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016:
-    modifier.toModify(calibratedPatElectrons94X, src = "slimmedElectronsUpdated")
+    modifier.toModify(calibratedPatElectronsNano, 
+        correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc")
+    )
 
-calibratedPatElectrons102X = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
-    produceCalibratedObjs = False,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_Step2Closure_CoarseEtaR9Gain_v2"),
+run2_nanoAOD_102Xv1.toModify(calibratedPatElectronsNano,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_Step2Closure_CoarseEtaR9Gain_v2")
 )
-run2_nanoAOD_102Xv1.toModify(calibratedPatElectrons102X, src = "slimmedElectronsUpdated")
 
 slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     src = cms.InputTag("slimmedElectrons"),
@@ -265,97 +260,19 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
 )
 for modifier in run2_egamma_2016,run2_egamma_2017,run2_egamma_2018, run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
     modifier.toModify(slimmedElectronsWithUserData, src = "slimmedElectronsUpdated")
-
-(run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsUL16preVFP","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsUL16preVFP","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectronsUL16preVFP","ecalTrkEnergyPostCorr"),
-    energyScaleUp               = cms.InputTag("calibratedPatElectronsUL16preVFP","energyScaleUp"),
-    energyScaleDown             = cms.InputTag("calibratedPatElectronsUL16preVFP","energyScaleDown"),
-    energySigmaUp               = cms.InputTag("calibratedPatElectronsUL16preVFP","energySigmaUp"),
-    energySigmaDown             = cms.InputTag("calibratedPatElectronsUL16preVFP","energySigmaDown"),
-)
-
-(run2_egamma_2016 & ~tracker_apv_vfp30_2016).toModify(slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsUL16postVFP","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsUL16postVFP","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectronsUL16postVFP","ecalTrkEnergyPostCorr"),
-    energyScaleUp               = cms.InputTag("calibratedPatElectronsUL16postVFP","energyScaleUp"),
-    energyScaleDown             = cms.InputTag("calibratedPatElectronsUL16postVFP","energyScaleDown"),
-    energySigmaUp               = cms.InputTag("calibratedPatElectronsUL16postVFP","energySigmaUp"),
-    energySigmaDown             = cms.InputTag("calibratedPatElectronsUL16postVFP","energySigmaDown"),
-)
-
-run2_egamma_2017.toModify(slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsUL17","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsUL17","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectronsUL17","ecalTrkEnergyPostCorr"),
-    energyScaleUp               = cms.InputTag("calibratedPatElectronsUL17","energyScaleUp"),
-    energyScaleDown             = cms.InputTag("calibratedPatElectronsUL17","energyScaleDown"),
-    energySigmaUp               = cms.InputTag("calibratedPatElectronsUL17","energySigmaUp"),
-    energySigmaDown             = cms.InputTag("calibratedPatElectronsUL17","energySigmaDown"),
-)
-
-run2_egamma_2018.toModify(slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsUL18","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsUL18","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectronsUL18","ecalTrkEnergyPostCorr"),
-    energyScaleUp               = cms.InputTag("calibratedPatElectronsUL18","energyScaleUp"),
-    energyScaleDown             = cms.InputTag("calibratedPatElectronsUL18","energyScaleDown"),
-    energySigmaUp               = cms.InputTag("calibratedPatElectronsUL18","energySigmaUp"),
-    energySigmaDown             = cms.InputTag("calibratedPatElectronsUL18","energySigmaDown"),
-)
+    modifier.toModify(slimmedElectronsWithUserData.userFloats,
+                      ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyErrPostCorr"),
+                      ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyPreCorr"),
+                      ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyPostCorr"),
+                      energyScaleUp               = cms.InputTag("calibratedPatElectronsNano","energyScaleUp"),
+                      energyScaleDown             = cms.InputTag("calibratedPatElectronsNano","energyScaleDown"),
+                      energySigmaUp               = cms.InputTag("calibratedPatElectronsNano","energySigmaUp"),
+                      energySigmaDown             = cms.InputTag("calibratedPatElectronsNano","energySigmaDown"),
+    )
 
 run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userFloats,
     mvaSpring16GP = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
     mvaSpring16HZZ = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
-)
-run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons80XLegacy","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons80XLegacy","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons80XLegacy","ecalTrkEnergyPostCorr"),
-    energyScaleUp               = cms.InputTag("calibratedPatElectrons80XLegacy","energyScaleUp"),
-    energyScaleDown             = cms.InputTag("calibratedPatElectrons80XLegacy","energyScaleDown"),
-    energySigmaUp               = cms.InputTag("calibratedPatElectrons80XLegacy","energySigmaUp"),
-    energySigmaDown             = cms.InputTag("calibratedPatElectrons80XLegacy","energySigmaDown"),
-
-)
-run2_nanoAOD_94XMiniAODv1.toModify(slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
-    energyScaleUp               = cms.InputTag("calibratedPatElectrons94X","energyScaleUp"),
-    energyScaleDown             = cms.InputTag("calibratedPatElectrons94X","energyScaleDown"),
-    energySigmaUp               = cms.InputTag("calibratedPatElectrons94X","energySigmaUp"),
-    energySigmaDown             = cms.InputTag("calibratedPatElectrons94X","energySigmaDown"),
-
-)
-
-
-#the94X miniAOD V2 had a bug in the scale and smearing for electrons in the E/p comb
-#therefore we redo it but but we need use a new name for the userFloat as we cant override existing userfloats
-#for technical reasons
-
-run2_nanoAOD_94XMiniAODv2.toModify(slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons94X","ecalTrkEnergyPostCorr"),
-    energyScaleUp               = cms.InputTag("calibratedPatElectrons94X","energyScaleUp"),
-    energyScaleDown             = cms.InputTag("calibratedPatElectrons94X","energyScaleDown"),
-    energySigmaUp               = cms.InputTag("calibratedPatElectrons94X","energySigmaUp"),
-    energySigmaDown             = cms.InputTag("calibratedPatElectrons94X","energySigmaDown"),
-
-)
-
-run2_nanoAOD_102Xv1.toModify(slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectrons102X","ecalTrkEnergyPostCorr"),
-    energyScaleUp               = cms.InputTag("calibratedPatElectrons102X","energyScaleUp"),
-    energyScaleDown             = cms.InputTag("calibratedPatElectrons102X","energyScaleDown"),
-    energySigmaUp               = cms.InputTag("calibratedPatElectrons102X","energySigmaUp"),
-    energySigmaDown             = cms.InputTag("calibratedPatElectrons102X","energySigmaDown"),
-
 )
 
 run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userIntFromBools,
@@ -633,27 +550,27 @@ _withTo106XAndUpdate_sequence = cms.Sequence(_updateTo106X_sequence + slimmedEle
 _withULAndUpdate_sequence = cms.Sequence(slimmedElectronsUpdated + electronSequence.copy())
 
 _withUL16preVFPAndUpdateScale_sequence = _withULAndUpdate_sequence.copy()
-_withUL16preVFPAndUpdateScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsUL16preVFP + slimmedElectronsWithUserData)
+_withUL16preVFPAndUpdateScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsNano + slimmedElectronsWithUserData)
 (run2_egamma_2016 & tracker_apv_vfp30_2016).toReplaceWith(electronSequence, _withUL16preVFPAndUpdateScale_sequence)
 
 _withUL16postVFPAndUpdateScale_sequence = _withULAndUpdate_sequence.copy()
-_withUL16postVFPAndUpdateScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsUL16postVFP + slimmedElectronsWithUserData)
+_withUL16postVFPAndUpdateScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsNano + slimmedElectronsWithUserData)
 (run2_egamma_2016 & ~tracker_apv_vfp30_2016).toReplaceWith(electronSequence, _withUL16postVFPAndUpdateScale_sequence)
 
 _withUL17AndUpdateScale_sequence = _withULAndUpdate_sequence.copy()
-_withUL17AndUpdateScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsUL17 + slimmedElectronsWithUserData)
+_withUL17AndUpdateScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsNano + slimmedElectronsWithUserData)
 run2_egamma_2017.toReplaceWith(electronSequence, _withUL17AndUpdateScale_sequence)
 
 _withUL18AndUpdateScale_sequence = _withULAndUpdate_sequence.copy()
-_withUL18AndUpdateScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsUL18 + slimmedElectronsWithUserData)
+_withUL18AndUpdateScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsNano + slimmedElectronsWithUserData)
 run2_egamma_2018.toReplaceWith(electronSequence, _withUL18AndUpdateScale_sequence)
 
 _withTo106XAndUpdateAnd80XLegacyScale_sequence = _withTo106XAndUpdate_sequence.copy()
-_withTo106XAndUpdateAnd80XLegacyScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons80XLegacy + bitmapVIDForEleSpring15 +bitmapVIDForEleSum16 + slimmedElectronsWithUserData)
+_withTo106XAndUpdateAnd80XLegacyScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsNano + bitmapVIDForEleSpring15 +bitmapVIDForEleSum16 + slimmedElectronsWithUserData)
 run2_miniAOD_80XLegacy.toReplaceWith(electronSequence, _withTo106XAndUpdateAnd80XLegacyScale_sequence)
 
 _withTo106XAndUpdateAnd94XScale_sequence = _withTo106XAndUpdate_sequence.copy()
-_withTo106XAndUpdateAnd94XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons94X + slimmedElectronsWithUserData)
+_withTo106XAndUpdateAnd94XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsNano + slimmedElectronsWithUserData)
 run2_nanoAOD_94XMiniAODv1.toReplaceWith(electronSequence, _withTo106XAndUpdateAnd94XScale_sequence)
 run2_nanoAOD_94XMiniAODv2.toReplaceWith(electronSequence, _withTo106XAndUpdateAnd94XScale_sequence)
 
@@ -662,7 +579,7 @@ _withTo106XAndUpdateAnd_bitmapVIDForEleSpring15AndSum16_sequence.replace(slimmed
 run2_nanoAOD_94X2016.toReplaceWith(electronSequence, _withTo106XAndUpdateAnd_bitmapVIDForEleSpring15AndSum16_sequence)
 
 _withTo106XAndUpdateAnd102XScale_sequence = _withTo106XAndUpdate_sequence.copy()
-_withTo106XAndUpdateAnd102XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons102X + slimmedElectronsWithUserData)
+_withTo106XAndUpdateAnd102XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectronsNano + slimmedElectronsWithUserData)
 run2_nanoAOD_102Xv1.toReplaceWith(electronSequence, _withTo106XAndUpdateAnd102XScale_sequence)
 
 _withUpdate_sequence = electronSequence.copy()
