@@ -281,8 +281,13 @@ public:
   // egamma, but so far covIPhiIPhi hasnt been studied extensively so there
   // could be a bug in the covIPhiIEta or covIPhiIPhi calculations. I dont
   // think there is but as it hasnt been heavily used, there might be one
-  std::vector<float> localCovariances(const reco::BasicCluster &cluster, float w0 = 4.7, const EcalPFRecHitThresholds *rhthresholds=nullptr, float multEB=0.0, float multEE=0.0) const {
-    return ClusterTools::localCovariances(cluster, getEcalRecHitCollection(cluster), topology_, w0, rhthresholds, multEB, multEE);
+  std::vector<float> localCovariances(const reco::BasicCluster &cluster,
+                                      float w0 = 4.7,
+                                      const EcalPFRecHitThresholds *rhthresholds = nullptr,
+                                      float multEB = 0.0,
+                                      float multEE = 0.0) const {
+    return ClusterTools::localCovariances(
+        cluster, getEcalRecHitCollection(cluster), topology_, w0, rhthresholds, multEB, multEE);
   }
   std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster, float w0 = 4.7) const {
     return ClusterTools::scLocalCovariances(cluster, getEcalRecHitCollection(cluster), topology_, w0);
