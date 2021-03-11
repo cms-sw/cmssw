@@ -53,6 +53,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ_vect.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
@@ -3710,18 +3711,8 @@ void PrimaryVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
 
   // track filtering
-
   edm::ParameterSetDescription psd0;
-  psd0.add<double>("maxNormalizedChi2", 5.0);
-  psd0.add<double>("minPt", 0.0);
-  psd0.add<std::string>("algorithm", "filter");
-  psd0.add<double>("maxEta", 5.0);
-  psd0.add<double>("maxD0Significance", 5.0);
-  psd0.add<double>("maxD0Error", 1.0);
-  psd0.add<double>("maxDzError", 1.0);
-  psd0.add<std::string>("trackQuality", "any");
-  psd0.add<int>("minPixelLayersWithHits", 2);
-  psd0.add<int>("minSiliconLayersWithHits", 5);
+  TrackFilterForPVFinding::fillPSetDescription(psd0);
   psd0.add<int>("numTracksThreshold", 0);  // HI only
   desc.add<edm::ParameterSetDescription>("TkFilterParameters", psd0);
 
@@ -3730,31 +3721,11 @@ void PrimaryVertexValidation::fillDescriptions(edm::ConfigurationDescriptions& d
     edm::ParameterSetDescription psd0;
     {
       edm::ParameterSetDescription psd1;
-      psd1.addUntracked<bool>("verbose", false);
-      psd1.addUntracked<double>("zdumpcenter", 0.);
-      psd1.addUntracked<double>("zdumpwidth", 20.);
-      psd1.addUntracked<bool>("use_vdt", false);  // obsolete, appears in HLT configs
-      psd1.add<double>("d0CutOff", 3.0);
-      psd1.add<double>("Tmin", 2.0);
-      psd1.add<double>("delta_lowT", 0.001);
-      psd1.add<double>("zmerge", 0.01);
-      psd1.add<double>("dzCutOff", 3.0);
-      psd1.add<double>("Tpurge", 2.0);
-      psd1.add<int>("convergence_mode", 0);
-      psd1.add<double>("delta_highT", 0.01);
-      psd1.add<double>("Tstop", 0.5);
-      psd1.add<double>("coolingFactor", 0.6);
-      psd1.add<double>("vertexSize", 0.006);
-      psd1.add<double>("uniquetrkweight", 0.8);
-      psd1.add<double>("uniquetrkminp", 0.0);
-      psd1.add<double>("zrange", 4.0);
-      psd1.add<double>("tmerge", 0.01);           // 4D only
-      psd1.add<double>("dtCutOff", 4.);           // 4D only
-      psd1.add<double>("t0Max", 1.0);             // 4D only
-      psd1.add<double>("vertexSizeTime", 0.008);  // 4D only
+      DAClusterizerInZ_vect::fillPSetDescription(psd1);
       psd0.add<edm::ParameterSetDescription>("TkDAClusParameters", psd1);
+
       edm::ParameterSetDescription psd2;
-      psd2.add<double>("zSeparation", 1.0);
+      GapClusterizerInZ::fillPSetDescription(psd2);
       psd0.add<edm::ParameterSetDescription>("TkGapClusParameters", psd2);
     }
     psd0.add<std::string>("algorithm", "DA_vect");

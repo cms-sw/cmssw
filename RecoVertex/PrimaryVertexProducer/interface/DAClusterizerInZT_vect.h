@@ -12,6 +12,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include <vector>
 #include "DataFormats/Math/interface/Error.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
@@ -257,6 +258,8 @@ public:
   };
 
   DAClusterizerInZT_vect(const edm::ParameterSet &conf);
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
   std::vector<std::vector<reco::TransientTrack> > clusterize(
       const std::vector<reco::TransientTrack> &tracks) const override;
