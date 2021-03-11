@@ -24,4 +24,9 @@ run3_GEM.toModify(cscDigiValidation, useGEMs = True)
 
 ## do not run GEMs in fastsim sequences
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(cscDigiValidation, simHitsTag = "mix:MuonSimHitsMuonCSCHits")
+fastSim.toModify(cscDigiValidation,
+                 simHitsTag = "mix:MuonSimHitsMuonCSCHits",
+                 simTrack = dict(inputTag = "fastSimProducer"),
+                 simVertex = dict(inputTag = "fastSimProducer"),
+                 cscSimHit = dict(inputTag = "MuonSimHits:MuonCSCHits")
+)
