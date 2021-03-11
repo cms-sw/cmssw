@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "tbb/task_arena.h"
 
 namespace {
   template <typename T, typename U>
@@ -21,8 +22,13 @@ namespace {
       return;
 
     auto token = edm::ServiceRegistry::instance().presentToken();
-    std::exception_ptr exceptPtr = edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
-      manager.processOneOccurrenceAsync<T, U>(std::move(iHolder), info, token, streamID, topContext, context);
+    //we need the arena to guarantee that the syncWait will return to this thread
+    // and not cause this callstack to possibly be moved to a new thread
+    tbb::task_arena localArena{tbb::this_task_arena::max_concurrency()};
+    std::exception_ptr exceptPtr = localArena.execute([&]() {
+      return edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
+        manager.processOneOccurrenceAsync<T, U>(std::move(iHolder), info, token, streamID, topContext, context);
+      });
     });
 
     if (exceptPtr) {
