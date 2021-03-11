@@ -8,7 +8,8 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm::ConsumesCollector &iC)
+MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm::ConsumesCollector &iC,   
+  std::shared_ptr<GlobalCoordsObtainer> & globalcoordsobtainer)
     : MuonPathAnalyzer(pset, iC),
       bxTolerance_(30),
       minQuality_(LOWQGHOST),
@@ -47,6 +48,7 @@ MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm
   }
 
   dtGeomH = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  globalcoordsobtainer_ = globalcoordsobtainer;
 }
 
 MuonPathAnalyticAnalyzer::~MuonPathAnalyticAnalyzer() {
@@ -68,8 +70,7 @@ void MuonPathAnalyticAnalyzer::initialise(const edm::EventSetup &iEventSetup) {
 void MuonPathAnalyticAnalyzer::run(edm::Event &iEvent,
                                 const edm::EventSetup &iEventSetup,
                                 MuonPathPtrs &muonpaths,
-                                std::vector<metaPrimitive> &metaPrimitives, 
-                                GlobalLutObtainer &globallutobtainer) {
+                                std::vector<metaPrimitive> &metaPrimitives) {
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyticAnalyzer: run";
 
@@ -299,6 +300,8 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   double phi = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
   double psi = atan(slope_f);
   double phiB = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi;
+  
+  auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), MuonPathSLId.superLayer(), pos, slope);
 
   // get the lateralities (in reverse order) in order to fill the metaprimitive
   std::vector <int> lateralities = getLateralityCombination(latcomb);
@@ -311,8 +314,8 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
                         double(bx_time),
                         pos_f,
                         slope_f,
-                        phi,
-                        phiB,
+                        global_coords[0],
+                        global_coords[1],
                         chi2_f,
                         quality,
                         wires[0],

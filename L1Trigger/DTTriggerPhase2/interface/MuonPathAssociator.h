@@ -15,6 +15,7 @@
 
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
+#include "L1Trigger/DTTriggerPhase2/interface/GlobalCoordsObtainer.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -34,7 +35,8 @@
 class MuonPathAssociator {
 public:
   // Constructors and destructor
-  MuonPathAssociator(const edm::ParameterSet &pset, edm::ConsumesCollector &iC);
+  MuonPathAssociator(const edm::ParameterSet &pset, edm::ConsumesCollector &iC,
+    std::shared_ptr<GlobalCoordsObtainer> & globalcoordsobtainer);
   ~MuonPathAssociator();
 
   // Main methods
@@ -87,6 +89,9 @@ private:
   //shift
   edm::FileInPath shift_filename_;
   std::map<int, float> shiftinfo_;
+  
+  // global coordinates
+  std::shared_ptr<GlobalCoordsObtainer> globalcoordsobtainer_;
 };
 
 #endif

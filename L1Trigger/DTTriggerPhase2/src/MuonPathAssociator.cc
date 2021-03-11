@@ -10,7 +10,8 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCollector &iC) {
+MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCollector &iC,
+    std::shared_ptr<GlobalCoordsObtainer> & globalcoordsobtainer) {
   // Obtention of parameters
   debug_ = pset.getUntrackedParameter<bool>("debug");
   clean_chi2_correlation_ = pset.getUntrackedParameter<bool>("clean_chi2_correlation");
@@ -43,6 +44,7 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCo
   }
 
   dtGeomH_ = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  globalcoordsobtainer_ = globalcoordsobtainer;
 }
 
 MuonPathAssociator::~MuonPathAssociator() {
@@ -156,14 +158,16 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             long int PosSL1 = (int)round(10 * SL1metaPrimitive->x / (10 * x_precision_));
             long int PosSL3 = (int)round(10 * SL3metaPrimitive->x / (10 * x_precision_));
             double NewSlope = -999.;
+            long int pos = (PosSL3 + PosSL1) / 2;
+            long int tanpsi = -1;
             if (use_LSB_) {
               long int newConstant = (int)(139.5 * 4);
               long int difPos_mm_x4 = PosSL3 - PosSL1;
               long int tanPsi_x4096_x128 = (difPos_mm_x4)*newConstant;
-              long int tanPsi_x4096 = tanPsi_x4096_x128 / ((long int)pow(2, 5 + numberOfBits));
-              if (tanPsi_x4096 < 0 && tanPsi_x4096_x128 % ((long int)pow(2, 5 + numberOfBits)) != 0)
-                tanPsi_x4096--;
-              NewSlope = -tanPsi_x4096 * tanPsi_precision_;
+              tanpsi = tanPsi_x4096_x128 / ((long int)pow(2, 5 + numberOfBits));
+              if (tanpsi < 0 && tanPsi_x4096_x128 % ((long int)pow(2, 5 + numberOfBits)) != 0)
+                tanpsi--;
+              NewSlope = -tanpsi * tanPsi_precision_;
             }
             double MeanT0 = (SL1metaPrimitive->t0 + SL3metaPrimitive->t0) / 2;
             double MeanPos = (PosSL3 + PosSL1) / (2. / (x_precision_));
@@ -175,6 +179,13 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             DTSuperLayerId SLId3(SL3metaPrimitive->rawId);
             DTWireId wireId1(SLId1, 2, 1);
             DTWireId wireId3(SLId3, 2, 1);
+            
+            int shift_sl1 = int(round(shiftinfo_[wireId1.rawId()] / x_precision_));
+            int shift_sl3 = int(round(shiftinfo_[wireId3.rawId()] / x_precision_));
+            
+            if (shift_sl1 < shift_sl3) {
+              pos -= shift_sl1;
+            } else pos -= shift_sl3;
 
             int wi[8], tdc[8], lat[8];
             wi[0] = SL1metaPrimitive->wi1;
@@ -272,14 +283,17 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             double phi = jm_x_cmssw_global.phi() - 0.5235988 * (thisec - 1);
             double psi = atan(NewSlope);
             double phiB = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi : -psi - phi;
+            
+            auto global_coords = globalcoordsobtainer_->get_global_coordinates(
+              ChId.rawId(), 0, pos, tanpsi);
 
             if (!clean_chi2_correlation_)
               outMPaths.emplace_back(ChId.rawId(),
                                      MeanT0,
                                      MeanPos,
                                      NewSlope,
-                                     phi,
-                                     phiB,
+                                     global_coords[0],
+                                     global_coords[1],
                                      newChi2,
                                      quality,
                                      SL1metaPrimitive->wi1,
@@ -311,8 +325,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                                                  MeanT0,
                                                  MeanPos,
                                                  NewSlope,
-                                                 phi,
-                                                 phiB,
+                                                 global_coords[0],
+                                                 global_coords[1],
                                                  newChi2,
                                                  quality,
                                                  SL1metaPrimitive->wi1,

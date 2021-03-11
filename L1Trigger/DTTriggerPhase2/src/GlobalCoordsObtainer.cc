@@ -1,17 +1,18 @@
-#include "L1Trigger/DTTriggerPhase2/interface/GlobalLutObtainer.h"
+#include "L1Trigger/DTTriggerPhase2/interface/GlobalCoordsObtainer.h"
 
 using namespace edm;
+using namespace cmsdt;
 
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-GlobalLutObtainer::GlobalLutObtainer(const ParameterSet& pset) {
+GlobalCoordsObtainer::GlobalCoordsObtainer(const ParameterSet& pset) {
   global_coords_filename_ = pset.getParameter<edm::FileInPath>("global_coords_filename");
   std::ifstream ifin3(global_coords_filename_.fullPath());
   
   if (ifin3.fail()) {
    throw cms::Exception("Missing Input File")
-        << "GlobalLutObtainer::GlobalLutObtainer() -  Cannot find " << global_coords_filename_.fullPath();
+        << "GlobalCoordsObtainer::GlobalCoordsObtainer() -  Cannot find " << global_coords_filename_.fullPath();
   }
 
   int wh, st, se, sl;
@@ -38,9 +39,9 @@ GlobalLutObtainer::GlobalLutObtainer(const ParameterSet& pset) {
   }
 }
 
-GlobalLutObtainer::~GlobalLutObtainer() {}
+GlobalCoordsObtainer::~GlobalCoordsObtainer() {}
 
-void GlobalLutObtainer::generate_luts() {
+void GlobalCoordsObtainer::generate_luts() {
   for (auto &global_constant: global_constants){
     
     int sgn = 1; 
@@ -71,7 +72,7 @@ void GlobalLutObtainer::generate_luts() {
   }
 }
 
-std::map <int, lut_value> GlobalLutObtainer::calc_atan_lut(int msb_num, int lsb_num, double in_res, double abscissa_0,
+std::map <int, lut_value> GlobalCoordsObtainer::calc_atan_lut(int msb_num, int lsb_num, double in_res, double abscissa_0,
     double out_res, int a_extra_bits, int b_extra_bits, int a_size, int b_size, int sgn) {
   
   // Calculates the coefficients needed to calculate the arc-tan function in fw
@@ -160,11 +161,79 @@ std::map <int, lut_value> GlobalLutObtainer::calc_atan_lut(int msb_num, int lsb_
     // auto b_signed = b_int % (long int) (pow(2, b_size));
 
     // convert x_msb to two's complement signed
-    int index = x_msb;
-    if (index < 0) {
-      index = std::pow(2, msb_num) + index;
-    }
+    int index = to_two_comp(x_msb, msb_num);
     lut[index] = {a_int, b_int};
   }
   return lut;      
+}
+
+
+std::vector<double> GlobalCoordsObtainer::get_global_coordinates(uint32_t chid, int sl, int x, int tanpsi){
+  // Depending on the type of primitive (SL1, SL3 or correlated), choose the
+  // appropriate input data (x, tanpsi) from the input primitive data structure
+  // and the corresponding phi-lut from the 3 available options
+  auto phi_lut = luts[chid].phic;
+  if (sl == 1) {
+    phi_lut = luts[chid].phi1;
+  } else if (sl == 3) {
+    phi_lut = luts[chid].phi3;
+  }
+
+  auto phib_lut = luts[chid].phib;
+
+  // x and slope are given in two's complement in fw
+  x = to_two_comp(x, X_SIZE);
+  tanpsi = to_two_comp(tanpsi, TANPSI_SIZE);
+
+  // Slice x and tanpsi
+  // Both x and tanpsi are represented in vhdl as signed, this means their values
+  // are stored as two's complement.
+
+  // The MSB part is going to be used to index the luts and obtain a and b parameters
+  // Converting the upper part of the signed to an integer (with sign). 
+
+  int x_msb = x >> (X_SIZE-PHI_LUT_ADDR_WIDTH);
+  x_msb = from_two_comp(x_msb, PHI_LUT_ADDR_WIDTH);
+
+  int tanpsi_msb = tanpsi >> (TANPSI_SIZE-PHIB_LUT_ADDR_WIDTH);
+  tanpsi_msb = from_two_comp(tanpsi_msb, PHIB_LUT_ADDR_WIDTH);
+
+  x_msb = x >> (X_SIZE-PHI_LUT_ADDR_WIDTH);
+  x_msb = from_two_comp(x_msb, PHI_LUT_ADDR_WIDTH);
+
+  tanpsi_msb = tanpsi >> (TANPSI_SIZE-PHIB_LUT_ADDR_WIDTH);
+  tanpsi_msb = from_two_comp(tanpsi_msb, PHIB_LUT_ADDR_WIDTH);
+  
+  // The LSB part can be sliced right away because it must yield a positive integer
+  int x_lsb = x & (int) (std::pow(2, (X_SIZE - PHI_LUT_ADDR_WIDTH)) - 1);
+  int tanpsi_lsb = tanpsi & (int) (std::pow(2, (TANPSI_SIZE - PHIB_LUT_ADDR_WIDTH)) - 1);
+
+  // Index the luts wiht the MSB parts already calculated
+  auto phi_lut_q = phi_lut[to_two_comp(x_msb, PHI_LUT_ADDR_WIDTH)];
+  auto phib_lut_q = phib_lut[to_two_comp(tanpsi_msb, PHIB_LUT_ADDR_WIDTH)];
+  
+  // Separate this data into the coefficients a and b
+  auto phi_lut_a = phi_lut_q.a;
+  auto phi_lut_b = phi_lut_q.b;
+  auto phib_lut_a = phib_lut_q.a;
+  auto phib_lut_b = phib_lut_q.b;
+  
+  // Do the linear piece-wise operations
+  // At this point all variables that can be negative have already been converted
+  // so will yield negative values when necessary
+  int phi_uncut = (phi_lut_b << PHI_B_SHL_BITS) + x_lsb * phi_lut_a;
+  int psi_uncut = (phib_lut_b << PHIB_B_SHL_BITS) + tanpsi_lsb * phib_lut_a;
+
+  // Trim phi to its final size
+  int phi = (phi_uncut >> PHI_MULT_SHR_BITS);
+  
+  // Calculate phi_bending from the uncut version of phi and psi, and the trim it to size
+  int phib_uncut = psi_uncut - (phi_uncut >> (PHI_PHIB_RES_DIFF_BITS + PHI_MULT_SHR_BITS - PHIB_MULT_SHR_BITS));
+  int phib = (phib_uncut >> PHIB_MULT_SHR_BITS);
+  
+  double phi_f = (double) phi / pow(2, PHI_SIZE);
+  double phib_f = (double) phib / pow(2, PHIB_SIZE);
+  
+  return std::vector({phi_f, phib_f});
+  
 }

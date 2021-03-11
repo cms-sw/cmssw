@@ -1,5 +1,5 @@
-#ifndef L1Trigger_DTTriggerPhase2_GlobalLutObtainer_h
-#define L1Trigger_DTTriggerPhase2_GlobalLutObtainer_h
+#ifndef L1Trigger_DTTriggerPhase2_GlobalCoordsObtainer_h
+#define L1Trigger_DTTriggerPhase2_GlobalCoordsObtainer_h
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
@@ -53,20 +53,31 @@ struct global_constant {
 // Class declarations
 // ===============================================================================
 
-class GlobalLutObtainer {
+class GlobalCoordsObtainer {
 public:
-  GlobalLutObtainer(const edm::ParameterSet& pset);
-  ~GlobalLutObtainer();
+  GlobalCoordsObtainer(const edm::ParameterSet& pset);
+  ~GlobalCoordsObtainer();
 
-  void generate_luts();
-  lut_group get_luts(uint32_t chid) {return luts[chid];}
+  void generate_luts();  
+  std::vector<double> get_global_coordinates(uint32_t, int, int, int);
+
  
 private:
+  std::map<int, lut_value> calc_atan_lut(int, int, double, double, double, int, int, int, int, int);
+  // utilities to go to and from 2 complement
+  int to_two_comp(int val, int size) {
+    if (val >= 0) return val;
+    return std::pow(2, size) + val;
+  }
+  
+  int from_two_comp(int val, int size) {
+    return val - ((2 * val) & (1 << size));
+  }
+  
+  // attributes
   edm::FileInPath global_coords_filename_;
   std::vector<global_constant> global_constants;
   std::map<uint32_t, lut_group> luts;
-
-  std::map<int, lut_value> calc_atan_lut(int, int, double, double, double, int, int, int, int, int);
 };
 
 #endif

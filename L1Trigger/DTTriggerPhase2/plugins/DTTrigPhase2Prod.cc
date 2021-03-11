@@ -28,12 +28,13 @@
 #include "L1Trigger/DTTriggerPhase2/interface/PseudoBayesGrouping.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzer.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyticAnalyzer.h"
+//#include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerPerSL.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerInChamber.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAssociator.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPQualityEnhancerFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPRedundantFilter.h"
-#include "L1Trigger/DTTriggerPhase2/interface/GlobalLutObtainer.h"
+#include "L1Trigger/DTTriggerPhase2/interface/GlobalCoordsObtainer.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
@@ -135,7 +136,7 @@ private:
   std::unique_ptr<MPFilter> mpathqualityenhancer_;
   std::unique_ptr<MPFilter> mpathredundantfilter_;
   std::unique_ptr<MuonPathAssociator> mpathassociator_;
-  std::unique_ptr<GlobalLutObtainer> globallutobtainer_;
+  std::shared_ptr<GlobalCoordsObtainer> globalcoordsobtainer_;
 
   // Buffering
   bool activateBuffer_;
@@ -202,6 +203,8 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   digi_file_to_print_ = pset.getUntrackedParameter<std::string>("digi_file_to_print", "digis.txt");
 
   edm::ConsumesCollector consumesColl(consumesCollector());
+  globalcoordsobtainer_ = std::make_shared<GlobalCoordsObtainer>(pset);
+  globalcoordsobtainer_->generate_luts();
 
   if (algo_ == PseudoBayes) {
     grouping_obj_ =
@@ -216,16 +219,14 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   if (algo_ == Standard) {
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "DTp2:constructor: JM analyzer";
-    mpathanalyzer_ = std::make_unique<MuonPathAnalyticAnalyzer>(pset, consumesColl);
-    // mpathanalyzer_ = std::make_unique<MuonPathAnalyzerPerSL>(pset, consumesColl);
+    mpathanalyzer_ = std::make_unique<MuonPathAnalyticAnalyzer>(pset, consumesColl, globalcoordsobtainer_);
   } else {
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "DTp2:constructor: Full chamber analyzer";
     mpathanalyzer_ = std::make_unique<MuonPathAnalyzerInChamber>(pset, consumesColl);
   }
   
-  globallutobtainer_ = std::make_unique<GlobalLutObtainer>(pset);
-  globallutobtainer_->generate_luts();
+
 
   // Getting buffer option
   activateBuffer_ = pset.getParameter<bool>("activateBuffer");
@@ -234,7 +235,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
 
   mpathqualityenhancer_ = std::make_unique<MPQualityEnhancerFilter>(pset);
   mpathredundantfilter_ = std::make_unique<MPRedundantFilter>(pset);
-  mpathassociator_ = std::make_unique<MuonPathAssociator>(pset, consumesColl);
+  mpathassociator_ = std::make_unique<MuonPathAssociator>(pset, consumesColl, globalcoordsobtainer_);
   rpc_integrator_ = std::make_unique<RPCIntegrator>(pset, consumesColl);
 
   dtGeomH = esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
@@ -389,7 +390,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   if (algo_ == Standard) {
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "Fitting 1SL ";
-    mpathanalyzer_->run(iEvent, iEventSetup, filteredmuonpaths, metaPrimitives, globallutobtainer_);
+    mpathanalyzer_->run(iEvent, iEventSetup, filteredmuonpaths, metaPrimitives);
   } else {
     // implementation for advanced (2SL) grouping, no filter required..
     if (debug_)
