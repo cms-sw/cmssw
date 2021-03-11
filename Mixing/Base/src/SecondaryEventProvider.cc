@@ -17,9 +17,12 @@ namespace {
                             bool cleaningUpAfterException = false) {
     manager.resetAll();
 
+    if (manager.allWorkers().empty())
+      return;
+
+    auto token = edm::ServiceRegistry::instance().presentToken();
     std::exception_ptr exceptPtr = edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
-      manager.processOneOccurrenceAsync<T, U>(
-          std::move(iHolder), info, edm::ServiceRegistry::instance().presentToken(), streamID, topContext, context);
+      manager.processOneOccurrenceAsync<T, U>(std::move(iHolder), info, token, streamID, topContext, context);
     });
 
     if (exceptPtr) {
