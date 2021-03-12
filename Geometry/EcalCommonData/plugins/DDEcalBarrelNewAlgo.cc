@@ -1924,8 +1924,9 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                                 : myrot(ilyPipeLog[type].name().name() + "_rot" + std::to_string(copyNum[type]),
                                         Rota(Vec3(xx, yy, 0), 90 * deg))));
 #ifdef EDM_ML_DEBUG
+	      std::string rrr = (9 > type) ? " with no rotation" : " with rotation";
               edm::LogVerbatim("EBGeomX") << ilyPipeLog[type].name() << ":" << copyNum[type] << " positioned in "
-                                          << xilyLog.name() << " at" << DDTranslation(xx, yy, zz) << " with rotation";
+                                          << xilyLog.name() << " at" << DDTranslation(xx, yy, zz) << rrr;
 #endif
             }
           }
