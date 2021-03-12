@@ -11,6 +11,7 @@
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
 #include "G4LogicalVolume.hh"
+#include "G4LogicalVolumeStore.hh"
 
 #include <algorithm>
 
