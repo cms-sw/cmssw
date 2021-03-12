@@ -12,7 +12,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
                                                     const FullSampleVector& fullpulse,
                                                     EcalUncalibratedRecHit& uncalibRecHit,
                                                     float& errOnTime) {
-  const unsigned int nsample = EcalDataFrame::MAXSAMPLES;
+  constexpr unsigned int nsample = EcalDataFrame::MAXSAMPLES;
 
   double maxamplitude = -std::numeric_limits<double>::max();
 
