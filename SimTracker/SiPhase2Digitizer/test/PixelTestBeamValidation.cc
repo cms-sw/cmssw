@@ -20,6 +20,7 @@
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
 // system
 #include <algorithm>
@@ -721,8 +722,12 @@ std::set<std::pair<int, int>> PixelTestBeamValidation::get_illuminated_pixels_(c
   const double max_x = std::max(ps.entryPoint().x(), ps.exitPoint().x());
   const double max_y = std::max(ps.entryPoint().y(), ps.exitPoint().y());
   // Get the position in readout units for each point
-  const auto min_pos = tkDetUnit->specificTopology().measurementPosition(LocalPoint(min_x, min_y));
-  const auto max_pos = tkDetUnit->specificTopology().measurementPosition(LocalPoint(max_x, max_y));
+  const auto min_pos_pre = tkDetUnit->specificTopology().measurementPosition(LocalPoint(min_x, min_y));
+  const auto max_pos_pre = tkDetUnit->specificTopology().measurementPosition(LocalPoint(max_x, max_y));
+  // Adding a unit at each side in order to include charge migration
+  const MeasurementPoint min_pos(std::max(0.0,min_pos_pre.x()-1.0),std::max(0.0,min_pos_pre.y()-1.0));
+  const MeasurementPoint max_pos(std::min(max_pos_pre.x()+1.0,tkDetUnit->specificTopology().nrows()-1.0),
+          std::min(max_pos_pre.y()+1.0,tkDetUnit->specificTopology().ncolumns()-1.0)); 
   // Count how many cells has passed. Use the most conservative rounding:
   // round for maximums and int (floor) for minimums
   //const int ncells_x = std::round(max_pos.x())-std::floor(min_pos.x());
