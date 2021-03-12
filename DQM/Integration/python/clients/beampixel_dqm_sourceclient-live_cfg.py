@@ -90,12 +90,12 @@ from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import 
 process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 process.pixelTracksTrackingRegions.RegionPSet.originRadius     = cms.double(0.4)
 process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = cms.double(15.)
 process.pixelTracksTrackingRegions.RegionPSet.originXPos       = cms.double(0.08)
 process.pixelTracksTrackingRegions.RegionPSet.originYPos       = cms.double(-0.03)
 process.pixelTracksTrackingRegions.RegionPSet.originZPos       = cms.double(0.)
+process.pixelVertices.PtMin = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
 
 #----------------------------
@@ -122,7 +122,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.muonDTDigis.inputLabel           = cms.InputTag("rawDataCollector")
     process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataCollector")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataCollector")
+    process.siPixelDigis.cpu.InputLabel      = cms.InputTag("rawDataCollector")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataCollector")
 
     
@@ -175,7 +175,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel           = cms.InputTag("rawDataRepacker")
     process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel      = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
 
 

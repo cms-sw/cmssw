@@ -1,0 +1,7 @@
+<bin name="makeHcalRecHitGpuValidationPlots" file="makeHcalRecHitGpuValidationPlots.cpp">
+    <use name="root"/>
+    <use name="rootgraphics"/>
+    <use name="DataFormats/Common"/>
+    <use name="DataFormats/HcalDetId"/>
+    <use name="CUDADataFormats/HcalRecHitSoA"/>
+</bin>

@@ -1,0 +1,7 @@
+<bin name="makeEcalRaw2DigiGpuValidationPlots" file="makeEcalRaw2DigiGpuValidationPlots.cpp">
+    <use name="root"/>
+    <use name="rootgraphics"/>
+    <use name="DataFormats/Common"/>
+    <use name="DataFormats/EcalDigi"/>
+    <use name="DataFormats/EcalDetId"/>
+</bin>

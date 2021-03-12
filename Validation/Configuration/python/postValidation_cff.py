@@ -115,8 +115,13 @@ postValidationOuterTracker = cms.Sequence( OuterTracker_harvestingV )
 
 _phase1_postValidation = postValidation.copy()
 _phase1_postValidation += siPixelPhase1OfflineDQM_harvestingV
+
+_phase1_postValidation_trackingOnly = postValidation_trackingOnly.copy()
+_phase1_postValidation_trackingOnly += siPixelPhase1OfflineDQM_harvestingV
+
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toReplaceWith( postValidation, _phase1_postValidation )
+phase1Pixel.toReplaceWith( postValidation_trackingOnly, _phase1_postValidation_trackingOnly)
 
 _run3_postValidation = postValidation.copy()
 _run3_postValidation += MuonGEMHitsPostProcessors

@@ -1,10 +1,15 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/MessageLogger"/>
+<use name="cuda"/>
+<use name="CalibTracker/Records"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/SiPixelObjects"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/SiPixelDigi"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="MagneticField/VolumeBasedEngine"/>
+<use name="RecoTracker/Record"/>
 <export>
   <lib name="1"/>
 </export>

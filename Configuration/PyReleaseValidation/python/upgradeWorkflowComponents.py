@@ -373,7 +373,26 @@ upgradeWFs['PatatrackPixelOnlyCPU'].step3 = {
     '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
-    '--procModifiers': 'pixelNtupleFit'
+    '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksSoAonCPU'
+}
+
+upgradeWFs['PatatrackPixelOnlyTripletsCPU'] = UpgradeWorkflowPatatrack_PixelOnlyCPU(
+    steps = [
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_PixelOnlyTripletsCPU',
+    offset = 0.505,
+)
+
+upgradeWFs['PatatrackPixelOnlyTripletsCPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+    '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksSoAonCPU,RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksForTriplets'
 }
 
 class UpgradeWorkflowPatatrack_PixelOnlyGPU(UpgradeWorkflowPatatrack):
@@ -405,6 +424,26 @@ upgradeWFs['PatatrackPixelOnlyGPU'].step3 = {
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
     '--procModifiers': 'gpu'
+}
+
+upgradeWFs['PatatrackPixelOnlyTripletsGPU'] = UpgradeWorkflowPatatrack_PixelOnlyGPU(
+    steps = [
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_PixelOnlyTripletsGPU',
+    offset = 0.506,
+)
+
+upgradeWFs['PatatrackPixelOnlyTripletsGPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+    '--procModifiers': 'gpu',
+    '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksForTriplets'
 }
 
 class UpgradeWorkflowPatatrack_ECALOnlyCPU(UpgradeWorkflowPatatrack):

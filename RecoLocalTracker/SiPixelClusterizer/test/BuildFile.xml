@@ -16,6 +16,7 @@
 <use name="TrackingTools/TrackFitters"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TransientTrack"/>
+
 <library file="ReadPixClusters.cc" name="ReadPixClusters">
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -31,3 +32,26 @@
 <library file="Triplet.cc" name="Triplet">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<bin file="gpuClustering_t.cu" name="gpuClustering_t">
+  <use name="cuda"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="gpuClustering_t.cu" name="gpuClustering_debug">
+  <use name="cuda"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+  <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+</bin>
+
+<bin file="cpuClustering_t.cpp" name="cpuClustering_t">
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<bin file="cpuClustering_t.cpp" name="cpuClustering_debug">
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+</bin>
