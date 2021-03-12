@@ -39,7 +39,7 @@ public:
 
 private:
   FullSampleVector interpolatePulse(const FullSampleVector& fullpulse, const float t = 0);
-  float computeCC(const std::vector<double>& samples, const FullSampleVector& sigmalTemplate, const float& t);
+  float computeCC(const std::vector<double>& samples, const FullSampleVector& sigmalTemplate, const float t) const;
 };
 
 #endif
