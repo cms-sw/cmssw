@@ -465,7 +465,7 @@ void PrintGeomInfoAction::dumpInFile() {
       std::vector<std::string> touches;
       getTouch(theTopPV_, 0, 1, touches);
       std::sort(touches.begin(), touches.end());
-      for (auto touch : touches)
+      for (const auto& touch : touches)
 	fout << touch << "\n";
       fout.close();
     }
