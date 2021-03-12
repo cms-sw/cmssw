@@ -923,7 +923,7 @@ class TauIDEmbedder(object):
                 getattr(self.process,"rerunDiscriminationByIsolationMVADBnewDMwLTPhase2"+self.postfix)
             )
             getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(self.rerunIsolationMVADBnewDMwLTPhase2Task)
-            tmpSeq = cms.Seqence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + cms.Sequence(self.rerunIsolationMVADBnewDMwLTPhase2Task))
+            tmpSeq = cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + cms.Sequence(self.rerunIsolationMVADBnewDMwLTPhase2Task))
             setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
 
             tauIDSources.byIsolationMVADBnewDMwLTPhase2raw = tauIDMVAinputs("rerunDiscriminationByIsolationMVADBnewDMwLTPhase2"+self.postfix, "raw")
