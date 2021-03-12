@@ -39,7 +39,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
       gainratio = aGain->gain12Over6();
     }
 
-    amplitude = ((double)(sample.adc()) - pedestal) * gainratio;
+    amplitude = (static_cast<double>(sample.adc()) - pedestal) * gainratio;
 
     if (gainId == 0) {
       //saturation
