@@ -148,11 +148,9 @@ namespace evf {
       inWaitChunk_newFileWaitChunk,
       inCOUNT
     };
-  }//namespace FastMonStates
-
+  }  // namespace FastMonState
 
   class FastMonitoringService : public MicroStateService {
-
   public:
     // the names of the states - some of them are never reached in an online app
     static const edm::ModuleDescription reservedMicroStateNames[FastMonState::mCOUNT];

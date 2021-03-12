@@ -250,7 +250,8 @@ bool FastMonitor::outputFullJSONs(std::string const& pathstem, std::string const
     for (unsigned int j = 0; j < jsonDpIndex_.size(); j++) {
       dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot, lumi, true, i);
     }
-    if (!output) continue;
+    if (!output)
+      continue;
     //get extension
     std::stringstream tidext;
     tidext << "_tid" << i;
@@ -272,7 +273,8 @@ bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi, boo
   for (unsigned int j = 0; j < jsonDpIndex_.size(); j++) {
     dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot, lumi, j == 0, -1);
   }
-  if (!output) return false;
+  if (!output)
+    return false;
 
   Json::StyledWriter writer;
   std::string&& result = writer.write(serializeRoot);
