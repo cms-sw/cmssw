@@ -29,7 +29,6 @@ public:
   EcalUncalibRecHitTimingCCAlgo(const float startTime = -5,
                                 const float stopTime = 5,
                                 const float targetTimePrecision = 0.001);
-  ~EcalUncalibRecHitTimingCCAlgo(){};
   double computeTimeCC(const EcalDataFrame& dataFrame,
                        const std::vector<double>& amplitudes,
                        const EcalPedestals::Item* aped,
