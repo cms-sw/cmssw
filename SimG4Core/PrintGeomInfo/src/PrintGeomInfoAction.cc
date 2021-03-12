@@ -71,10 +71,9 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
          << "\n                                                        "
          << " Touchable " << dumpTouch_ << " for names (0-" << nchar_ << ") = " << name_
          << "\n                                                        "
-         << " Sensitive " << dumpSense_ << " Files " << fileMat_ << ":" << fileSolid_ << ":"
-         << fileLV_ << ":" << filePV_ << ":" << fileTouch_ 
-         << "\n                                                        "
-	 << "for " << names_.size() << " names:";
+         << " Sensitive " << dumpSense_ << " Files " << fileMat_ << ":" << fileSolid_ << ":" << fileLV_ << ":"
+         << filePV_ << ":" << fileTouch_ << "\n                                                        "
+         << "for " << names_.size() << " names:";
   for (unsigned int i = 0; i < names_.size(); i++)
     G4cout << " " << names_[i];
   G4cout << G4endl;
