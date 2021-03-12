@@ -62,12 +62,10 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
     int firstsamplet = std::max(0, bxp3);
     int offset = 7 - bxp3;
 
-    std::vector<double> pulse(nsample);
     for (unsigned int isample = firstsamplet; isample < nsample; ++isample) {
-      pulse.at(isample) = fullpulse(isample + offset);
-      pedSubSamples.at(isample) =
-          std::max(0., pedSubSamples.at(isample) - amplitudes[ipulse] * pulse.at(isample) / pulsenorm);
-    }
+      auto const pulse = fullpulse(isample + offset);
+      pedSubSamples[isample] =
+          std::max(0., pedSubSamples[isample] - amplit * pulse / pulsenorm);
   }
 
   float tStart = startTime_ + GLOBAL_TIME_SHIFT;
