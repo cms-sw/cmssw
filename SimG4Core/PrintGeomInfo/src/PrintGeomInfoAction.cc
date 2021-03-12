@@ -465,14 +465,17 @@ void PrintGeomInfoAction::dumpInFile() {
       std::vector<std::string> touches;
       getTouch(theTopPV_, 0, 1, touches);
       std::sort(touches.begin(), touches.end());
-      for (const auto& touch : touches)
-	fout << touch << "\n";
+      for (const auto &touch : touches)
+        fout << touch << "\n";
       fout.close();
     }
   }
 }
 
-void PrintGeomInfoAction::getTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, unsigned int copym, std::vector<std::string> &touches) {
+void PrintGeomInfoAction::getTouch(G4VPhysicalVolume *pv,
+                                   unsigned int leafDepth,
+                                   unsigned int copym,
+                                   std::vector<std::string> &touches) {
   if (leafDepth == 0)
     fHistory_.SetFirstEntry(pv);
   else
