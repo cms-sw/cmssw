@@ -196,15 +196,18 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
       }
       std::sort(clusterSimTrackIds.begin(), clusterSimTrackIds.end());
       const PSimHit* closestSimHit = nullptr;
-      float minx = 10000.;
+      float mind = 10000.;
       // Get the SimHit
       for (const auto& psimhitCont : simHits) {
         for (const auto& simhitIt : *psimhitCont) {
           if (rawid == simhitIt.detUnitId()) {
             auto it = std::lower_bound(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt.trackId());
             if (it != clusterSimTrackIds.end() && *it == simhitIt.trackId()) {
-              if (!closestSimHit || fabs(simhitIt.localPosition().x() - localPosCluster.x()) < minx) {
-                minx = abs(simhitIt.localPosition().x() - localPosCluster.x());
+              float dx = simhitIt.localPosition().x() - localPosCluster.x();
+              float dy = simhitIt.localPosition().y() - localPosCluster.y();
+              float dist = std::sqrt(dx * dx + dy * dy);
+              if (!closestSimHit || dist < mind) {
+                mind = dist;
                 closestSimHit = &simhitIt;
               }
             }
@@ -219,8 +222,8 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
       if (simTrackIt == simTracks.end())
         continue;
       Local3DPoint localPosSimHit(closestSimHit->localPosition());
-      const double deltaX = localPosCluster.x() - localPosSimHit.x();
-      const double deltaY = localPosCluster.y() - localPosSimHit.y();
+      const double deltaX = phase2tkutil::cmtomicron * (localPosCluster.x() - localPosSimHit.x());
+      const double deltaY = phase2tkutil::cmtomicron * (localPosCluster.y() - localPosSimHit.y());
 
       auto layerMEIt = layerMEs_.find(folderkey);
       if (layerMEIt == layerMEs_.end())
@@ -312,40 +315,40 @@ void Phase2ITValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Pixel");
-    psd0.add<std::string>("title", "#Delta X;Cluster resolution X dimension");
+    psd0.add<std::string>("title", "#Delta X;Cluster resolution X coordinate [#mum]");
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<double>("xmax", 250.);
+    psd0.add<double>("xmin", -250.);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_X_Pixel", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Pixel");
-    psd0.add<std::string>("title", "#Delta Y ;Cluster resolution Y dimension");
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<std::string>("title", "#Delta Y ;Cluster resolution Y coordinate [#mum]");
+    psd0.add<double>("xmin", -250.);
+    psd0.add<double>("xmax", 250.);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Pixel", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Pixel_Primary");
-    psd0.add<std::string>("title", "#Delta X ;cluster resolution X dimension");
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<std::string>("title", "#Delta X ;cluster resolution X coordinate [#mum]");
+    psd0.add<double>("xmin", -250.);
+    psd0.add<double>("xmax", 250.);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_X_Pixel_Primary", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_Pixel_Primary");
-    psd0.add<std::string>("title", "#Delta Y ;cluster resolution Y dimension");
-    psd0.add<double>("xmin", -5.0);
+    psd0.add<std::string>("title", "#Delta Y ;cluster resolution Y coordinate [#mum]");
+    psd0.add<double>("xmin", -250.);
+    psd0.add<double>("xmax", 250.);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 5.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Pixel_Primary", psd0);
   }
