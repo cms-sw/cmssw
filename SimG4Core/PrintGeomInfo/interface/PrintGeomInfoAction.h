@@ -42,7 +42,7 @@ private:
   void dumpSolid(G4VSolid* sol, unsigned int leafDepth, std::ostream& out = std::cout);
   void dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth, std::ostream& out = std::cout);
   void dumpInFile();
-  void getTouch(G4VPhysicalVolume *pv, unsigned int leafDepth, unsigned int copym, std::vector<std::string> &touches);
+  void getTouch(G4VPhysicalVolume* pv, unsigned int leafDepth, unsigned int copym, std::vector<std::string>& touches);
   std::string spacesFromLeafDepth(unsigned int leafDepth);
   G4VPhysicalVolume* getTopPV();
   G4LogicalVolume* getTopLV();
