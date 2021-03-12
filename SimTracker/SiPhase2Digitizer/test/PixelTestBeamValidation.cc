@@ -40,6 +40,7 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
     : config_(iConfig),
       geomType_(iConfig.getParameter<std::string>("GeometryType")),
       //phiValues(iConfig.getParameter<std::vector<double> >("PhiAngles")),
+      thresholdInElectrons_(iConfig.getParameter<double>("ThresholdInElectrons")),
       electronsPerADC_(iConfig.getParameter<double>("ElectronsPerADC")),
       tracksEntryAngleX_(
           iConfig.getUntrackedParameter<std::vector<double>>("TracksEntryAngleX", std::vector<double>())),
@@ -50,6 +51,9 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
           consumes<edm::DetSetVector<PixelDigiSimLink>>(iConfig.getParameter<edm::InputTag>("PixelDigiSimSource"))),
       simTrackToken_(consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("SimTrackSource"))) {
   LogDebug("PixelTestBeamValidation") << ">>> Construct PixelTestBeamValidation ";
+
+  // The value to be used for ToT == 0 in electrons
+  electronsAtToT0_ = 0.5 * ( thresholdInElectrons_ + electronsPerADC_ );
 
   const std::vector<edm::InputTag> psimhit_v(config_.getParameter<std::vector<edm::InputTag>>("PSimHitSource"));
 
@@ -265,11 +269,13 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
         vME_digi_RZMap_->Fill(digi_global_pos.z(), std::hypot(digi_global_pos.x(), digi_global_pos.y()));
         // Create the MC-cluster
         cluster_tot += current_digi.adc();
-        // Add 0.5 to allow ToT = 0 (valid value)
-        cluster_tot_elec += (current_digi.adc() + 0.5) * electronsPerADC_;
+        // Assign the middle value between the threshold and the ElectronPerADC parameter
+        // to the first bin in order to allow ToT = 0 (valid value)
+        const double pixel_charge_elec = (bool(current_digi.adc()) ? (current_digi.adc() * electronsPerADC_) : electronsAtToT0_);
+        cluster_tot_elec += pixel_charge_elec;
         // Use the center of the pixel
-        cluster_position.first += current_digi.adc() * (current_digi.row() + 0.5);
-        cluster_position.second += current_digi.adc() * (current_digi.column() + 0.5);
+        cluster_position.first += pixel_charge_elec * (current_digi.row() + 0.5);
+        cluster_position.second += pixel_charge_elec * (current_digi.column() + 0.5);
         // Size
         cluster_size_xy.first.insert(current_digi.row());
         cluster_size_xy.second.insert(current_digi.column());
@@ -282,8 +288,8 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
       vME_clsize1Dy_[me_unit]->Fill(cluster_size_xy.second.size());
 
       // mean weighted
-      cluster_position.first /= double(cluster_tot);
-      cluster_position.second /= double(cluster_tot);
+      cluster_position.first /= cluster_tot_elec;
+      cluster_position.second /= cluster_tot_elec;
 
       // -- XXX Be careful, secondaries with already used the digis
       //        are going the be lost (then lost on efficiency)

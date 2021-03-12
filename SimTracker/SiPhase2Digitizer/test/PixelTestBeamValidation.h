@@ -168,9 +168,11 @@ private:
   // Geometry to use
   std::string geomType_;
 
-  // The conversion between ToT to electrons (Be carefull, this should
+  // The threshold and the conversion between ToT to electrons (Be carefull, this should
   // be using the same value used in the digitization module)
+  double thresholdInElectrons_;
   double electronsPerADC_;
+  double electronsAtToT0_;
   // The tracks entry angle to accept (if any)
   std::vector<double> tracksEntryAngleX_;
   std::vector<double> tracksEntryAngleY_;
