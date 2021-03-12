@@ -1275,7 +1275,7 @@ namespace evf {
           std::ifstream ij(jsonDestPath);
           ss << ij.rdbuf();
         } catch (std::filesystem::filesystem_error const& ex) {
-          edm::LogError("EvFDaqDirector") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+          edm::LogError("EvFDaqDirector") << "grabNextJsonFile - FILESYSTEM ERROR CAUGHT -: " << ex.what();
           return -1;
         }
         result = reader.parse(ss.str(), deserializeRoot);
