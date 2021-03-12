@@ -16,7 +16,6 @@
 #include <cassert>
 #include <sys/types.h>
 #include <unistd.h>
-#include <boost/filesystem/fstream.hpp>
 
 using namespace jsoncollector;
 
