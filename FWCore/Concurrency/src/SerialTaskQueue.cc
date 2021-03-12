@@ -12,7 +12,6 @@
 //
 
 // system include files
-#define TBB_PREVIEW_RESUMABLE_TASKS 1
 #include "tbb/task.h"
 
 // user include files
