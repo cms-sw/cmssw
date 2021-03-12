@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 # options.parseArguments()
 updatedTauName = "slimmedTausNewID"
 minimalOutput = True
-eventsToProcess = 1
+eventsToProcess = 100
 nThreads = 1
 
 process = cms.Process('TauID')
@@ -30,16 +30,25 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProc
 
 # Add new TauIDs
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
+toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
+           # "deepTau2017v1",
+           "deepTau2017v2p1",
+           # "DPFTau_2016_v0",
+           # "DPFTau_2016_v1",
+           "againstEle2018",
+           ]
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                     updatedTauName = updatedTauName,
-                    toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
-                               # "deepTau2017v1",
-                               "deepTau2017v2p1",
-                               # "DPFTau_2016_v0",
-                               # "DPFTau_2016_v1",
-                               "againstEle2018",
-                               ])
+                    toKeep = toKeep)
 tauIdEmbedder.runTauID()
+#Another tau collection with updated tauIDs
+postfix = "Ver2"
+tauIdEmbedder2 = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
+                    originalTauName = "slimmedTaus", #one can run on top of other collection than default "slimmedTaus"
+                    updatedTauName = updatedTauName+postfix,
+                    postfix = postfix, # defaut "", specify non-trivial postfix if tool is run more than one time
+                    toKeep = toKeep)
+tauIdEmbedder2.runTauID()
 
 # Output definition
 process.out = cms.OutputModule("PoolOutputModule",
@@ -55,11 +64,14 @@ if not minimalOutput:
      process.out.outputCommands = MINIAODSIMEventContent.outputCommands
      process.out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
 process.out.outputCommands.append("keep *_"+updatedTauName+"_*_*")
+process.out.outputCommands.append("keep *_"+updatedTauName+postfix+"_*_*")
 
 # Path and EndPath definitions
 process.p = cms.Path(
     process.rerunMvaIsolationSequence *
     getattr(process,updatedTauName)
+    * getattr(process,"rerunMvaIsolationSequence"+postfix) *
+    getattr(process,updatedTauName+postfix)
 )
 process.endjob = cms.EndPath(process.endOfProcess)
 process.outpath = cms.EndPath(process.out)
