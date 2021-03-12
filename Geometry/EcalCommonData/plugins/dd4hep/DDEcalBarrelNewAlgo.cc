@@ -907,7 +907,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     // Barrel parent volume----------------------------------------------------------
     Solid barSolid = Polycone(bar.name, bar.phiLo, (bar.phiHi - bar.phiLo), bar.vecRMin, bar.vecRMax, bar.vecZPts);
 #ifdef EDM_ML_DEBUG
-    ROOT::Math::XYZVector vv;
     edm::LogVerbatim("EBGeom") << bar.name << " PolyCone from " << convertRadToDeg(bar.phiLo) << " to "
                                << convertRadToDeg(bar.phiHi) << " with " << bar.vecZPts.size() << " points";
     for (unsigned int k = 0; k < bar.vecZPts.size(); ++k)
@@ -986,19 +985,19 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         alltrot1 = alltrot;
         temp1 = SubtractionSolid(spm.name + "_T1", ddspm, spmCutBox, alltrot);
 #ifdef EDM_ML_DEBUG
-        alltrot.GetTranslation(vv);
         edm::LogVerbatim("EBGeom") << (spm.name + "_T1") << " Subtraction " << ddspm.name() << ":" << spmCutBox.name()
-                                   << " at (" << cms::convert2mm(vv.x()) << "," << cms::convert2mm(vv.y()) << ","
-                                   << cms::convert2mm(vv.z()) << ")";
+                                   << " at (" << cms::convert2mm(alltrot.Translation().Vect().x()) << ","
+                                   << cms::convert2mm(alltrot.Translation().Vect().y()) << ","
+                                   << cms::convert2mm(alltrot.Translation().Vect().z()) << ")";
 #endif
       } else {
         alltrot2 = alltrot;
         temp2 = SubtractionSolid(spm.name, temp1, spmCutBox, alltrot);
 #ifdef EDM_ML_DEBUG
-        alltrot.GetTranslation(vv);
         edm::LogVerbatim("EBGeom") << spm.name << " Subtraction " << temp1.name() << ":" << spmCutBox.name() << " at ("
-                                   << cms::convert2mm(vv.x()) << "," << cms::convert2mm(vv.y()) << ","
-                                   << cms::convert2mm(vv.z()) << ")";
+                                   << cms::convert2mm(alltrot.Translation().Vect().x()) << ","
+                                   << cms::convert2mm(alltrot.Translation().Vect().y()) << ","
+                                   << cms::convert2mm(alltrot.Translation().Vect().z()) << ")";
 #endif
       }
       const Tl3D trSide(tvec[0],
@@ -1018,17 +1017,17 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     if (0 != spm.cutShow) {
       spmLog.placeVolume(spmCutLog, 1, alltrot1);
 #ifdef EDM_ML_DEBUG
-      alltrot1.GetTranslation(vv);
       edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at ("
-                                  << cms::convert2mm(vv.x()) << "," << cms::convert2mm(vv.y()) << ","
-                                  << cms::convert2mm(vv.z()) << ") with rotation";
+                                  << cms::convert2mm(alltrot1.Translation().Vect().x()) << ","
+                                  << cms::convert2mm(alltrot1.Translation().Vect().y()) << ","
+                                  << cms::convert2mm(alltrot1.Translation().Vect().z()) << ") with rotation";
 #endif
       spmLog.placeVolume(spmCutLog, 1, alltrot2);
 #ifdef EDM_ML_DEBUG
-      alltrot2.GetTranslation(vv);
       edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at ("
-                                  << cms::convert2mm(vv.x()) << "," << cms::convert2mm(vv.y()) << ","
-                                  << cms::convert2mm(vv.z()) << ") with rotation";
+                                  << cms::convert2mm(alltrot2.Translation().Vect().x()) << ","
+                                  << cms::convert2mm(alltrot2.Translation().Vect().y()) << ","
+                                  << cms::convert2mm(alltrot2.Translation().Vect().z()) << ") with rotation";
 #endif
     }
     spmLog.placeVolume(sideLog, 1, Transform3D(ns.rotation(spm.sideName + std::to_string(1)), sideddtra1));
