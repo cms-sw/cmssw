@@ -46,7 +46,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
       amplitude = (4095. - pedestal) * gainratio;
     }
 
-    pedSubSamples.at(iSample) = amplitude;
+    pedSubSamples[iSample] = amplitude;
 
     if (amplitude > maxamplitude) {
       maxamplitude = amplitude;
