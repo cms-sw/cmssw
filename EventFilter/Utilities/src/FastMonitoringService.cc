@@ -24,7 +24,6 @@
 #include <iomanip>
 #include <sys/time.h>
 
-
 using namespace jsoncollector;
 
 constexpr double throughputFactor() { return (1000000) / double(1024 * 1024); }
@@ -35,7 +34,7 @@ namespace evf {
       edm::ModuleDescription("Dummy", "Invalid"),
       edm::ModuleDescription("Dummy", "Idle"),
       edm::ModuleDescription("Dummy", "FwkOvhSrc"),
-      edm::ModuleDescription("Dummy", "FwkOvhMod"),//set post produce, analyze or filter
+      edm::ModuleDescription("Dummy", "FwkOvhMod"),  //set post produce, analyze or filter
       edm::ModuleDescription("Dummy", "FwkEoL"),
       edm::ModuleDescription("Dummy", "Input"),
       edm::ModuleDescription("Dummy", "DQM"),
@@ -43,18 +42,17 @@ namespace evf {
       edm::ModuleDescription("Dummy", "EoL"),
       edm::ModuleDescription("Dummy", "GlobalEoL")};
 
-
   const std::string FastMonitoringService::macroStateNames[FastMonState::MCOUNT] = {"Init",
-                                                                                            "JobReady",
-                                                                                            "RunGiven",
-                                                                                            "Running",
-                                                                                            "Stopping",
-                                                                                            "Done",
-                                                                                            "JobEnded",
-                                                                                            "Error",
-                                                                                            "ErrorEnded",
-                                                                                            "End",
-                                                                                            "Invalid"};
+                                                                                    "JobReady",
+                                                                                    "RunGiven",
+                                                                                    "Running",
+                                                                                    "Stopping",
+                                                                                    "Done",
+                                                                                    "JobEnded",
+                                                                                    "Error",
+                                                                                    "ErrorEnded",
+                                                                                    "End",
+                                                                                    "Invalid"};
 
   const std::string FastMonitoringService::inputStateNames[FastMonState::inCOUNT] = {
       "Ignore",
@@ -216,8 +214,8 @@ namespace evf {
           Json::Value((static_cast<const edm::ModuleDescription*>(fmt_->m_data.encModule_.decode(i)))->moduleLabel()));
     //duplicate modules adding a list for acquire states (not all modules actually have it)
     for (int i = 0; i < fmt_->m_data.encModule_.current_; i++)
-      legendaVector.append(
-          Json::Value((static_cast<const edm::ModuleDescription*>(fmt_->m_data.encModule_.decode(i)))->moduleLabel()+"__ACQ"));
+      legendaVector.append(Json::Value(
+          (static_cast<const edm::ModuleDescription*>(fmt_->m_data.encModule_.decode(i)))->moduleLabel() + "__ACQ"));
     Json::Value valReserved(nReservedModules);
     Json::Value valSpecial(nSpecialModules);
     Json::Value valOutputModules(nOutputModules_);
@@ -250,7 +248,8 @@ namespace evf {
       nThreads_ = 1;
   }
 
-  void FastMonitoringService::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsInfo, edm::ProcessContext const& pc) {
+  void FastMonitoringService::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsInfo,
+                                          edm::ProcessContext const& pc) {
     // FIND RUN DIRECTORY
     // The run dir should be set via the configuration of EvFDaqDirector
 
@@ -337,7 +336,6 @@ namespace evf {
       for (auto& endPath : pathsInfo.endPaths()) {
         fmt_->m_data.encPath_[i].updatePreinit(endPath);
       }
-
     }
     //for (unsigned int i=0;i<nThreads_;i++)
     //  threadMicrostate_.push_back(&reservedMicroStateNames[mInvalid]);
@@ -456,7 +454,7 @@ namespace evf {
     //update number of entries in module histogram
     std::lock_guard<std::mutex> lock(fmt_->monlock_);
     //double the size to add post-acquire states
-    fmt_->m_data.microstateBins_ = fmt_->m_data.encModule_.vecsize()*2;
+    fmt_->m_data.microstateBins_ = fmt_->m_data.encModule_.vecsize() * 2;
   }
 
   void FastMonitoringService::postEndJob() {
@@ -542,7 +540,7 @@ namespace evf {
     //full global and stream merge&output for this lumi
 
     // create file name for slow monitoring file
-    bool output = sleepTime_ > 0; 
+    bool output = sleepTime_ > 0;
     if (filePerFwkStream_) {
       std::stringstream slowFileNameStem;
       slowFileNameStem << slowName_ << "_ls" << std::setfill('0') << std::setw(4) << lumi << "_pid" << std::setfill('0')
@@ -632,11 +630,13 @@ namespace evf {
     fmt_->m_data.microstate_[sid.value()] = &reservedMicroStateNames[FastMonState::mFwkOvhSrc];
   }
 
-  void FastMonitoringService::preModuleEventAcquire(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  void FastMonitoringService::preModuleEventAcquire(edm::StreamContext const& sc,
+                                                    edm::ModuleCallingContext const& mcc) {
     fmt_->m_data.microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
   }
 
-  void FastMonitoringService::postModuleEventAcquire(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+  void FastMonitoringService::postModuleEventAcquire(edm::StreamContext const& sc,
+                                                     edm::ModuleCallingContext const& mcc) {
     //fmt_->m_data.microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
     fmt_->m_data.microstateAcqFlag_[sc.streamID().value()] = 1;
   }
@@ -758,7 +758,6 @@ namespace evf {
   void FastMonitoringService::snapshotRunner() {
     monInit_.exchange(true, std::memory_order_acquire);
     while (!fmt_->m_stoprequest) {
-
       std::vector<std::vector<unsigned int>> lastEnc;
       {
         std::lock_guard<std::mutex> lock(fmt_->monlock_);
@@ -767,7 +766,7 @@ namespace evf {
 
         lastEnc.emplace_back(fmt_->m_data.ministateEncoded_);
         lastEnc.emplace_back(fmt_->m_data.microstateEncoded_);
- 
+
         if (fastMonIntervals_ && (snapCounter_ % fastMonIntervals_) == 0) {
           if (filePerFwkStream_) {
             std::vector<std::string> CSVv;
@@ -793,30 +792,33 @@ namespace evf {
       std::stringstream accum;
       std::function<void(std::vector<unsigned int>)> f = [&](std::vector<unsigned int> p) {
         for (unsigned int i = 0; i < nStreams_; i++) {
-          if (i==0)  accum << "[" << p[i] << ",";
-          else if (i<=nStreams_-1) accum << p[i] << ",";
-          else accum << p[i] << "]";
+          if (i == 0)
+            accum << "[" << p[i] << ",";
+          else if (i <= nStreams_ - 1)
+            accum << p[i] << ",";
+          else
+            accum << p[i] << "]";
         }
       };
 
       accum << "Current states: Ms=" << fmt_->m_data.fastMacrostateJ_.value() << " ms=";
       f(lastEnc[0]);
-      accum <<  " us=";
+      accum << " us=";
       f(lastEnc[1]);
-      accum <<  " is=" << inputStateNames[inputState_] << " iss=" << inputStateNames[inputSupervisorState_];
+      accum << " is=" << inputStateNames[inputState_] << " iss=" << inputStateNames[inputSupervisorState_];
       edm::LogInfo("FastMonitoringService") << accum.str();
 
       ::sleep(sleepTime_);
     }
   }
 
-
   void FastMonitoringService::doSnapshot(const unsigned int ls, const bool isGlobalEOL) {
     // update macrostate
     fmt_->m_data.fastMacrostateJ_ = fmt_->m_data.macrostate_;
 
     std::vector<const void*> microstateCopy(fmt_->m_data.microstate_.begin(), fmt_->m_data.microstate_.end());
-    std::vector<unsigned char> microstateAcqCopy(fmt_->m_data.microstateAcqFlag_.begin(), fmt_->m_data.microstateAcqFlag_.end());
+    std::vector<unsigned char> microstateAcqCopy(fmt_->m_data.microstateAcqFlag_.begin(),
+                                                 fmt_->m_data.microstateAcqFlag_.end());
 
     if (!isInitTransition_) {
       auto itd = avgLeadTime_.find(ls);
@@ -844,7 +846,8 @@ namespace evf {
     for (unsigned int i = 0; i < nStreams_; i++) {
       fmt_->m_data.ministateEncoded_[i] = fmt_->m_data.encPath_[i].encodeString(fmt_->m_data.ministate_[i]);
       if (microstateAcqCopy[i])
-        fmt_->m_data.microstateEncoded_[i] = fmt_->m_data.microstateBins_ + fmt_->m_data.encModule_.encode(microstateCopy[i]);
+        fmt_->m_data.microstateEncoded_[i] =
+            fmt_->m_data.microstateBins_ + fmt_->m_data.encModule_.encode(microstateCopy[i]);
       else
         fmt_->m_data.microstateEncoded_[i] = fmt_->m_data.encModule_.encode(microstateCopy[i]);
     }
@@ -987,6 +990,5 @@ namespace evf {
   MicroStateService::MicroStateService(const edm::ParameterSet& iPS, edm::ActivityRegistry& reg) {}
 
   MicroStateService::~MicroStateService() {}
-
 
 }  //end namespace evf

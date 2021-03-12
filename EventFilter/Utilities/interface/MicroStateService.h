@@ -8,7 +8,6 @@
 //#include "DataFormats/Provenance/interface/ModuleDescription.h"
 //#include "DataFormats/Provenance/interface/ParameterSetID.h"
 
-
 namespace evf {
 
   class MicroStateService {

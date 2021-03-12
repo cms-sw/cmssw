@@ -2,9 +2,11 @@
 #define EVF_FASTMONITORINGTHREAD
 
 #include "EventFilter/Utilities/interface/FastMonitor.h"
-#include "EventFilter/Utilities/interface/FastMonitoringService.h" //state enums?
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"  //state enums?
 
 #include <iostream>
+#include <memory>
+
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -18,7 +20,7 @@ namespace evf {
   namespace FastMonState {
     enum Macrostate;
   }
-        
+
   class FastMonitoringService;
 
   template <typename T>
@@ -37,8 +39,8 @@ namespace evf {
 
   struct FastMonEncoding {
     FastMonEncoding(unsigned int res) : reserved_(res), current_(reserved_), currentReserved_(0) {
-    if (reserved_)
-      dummiesForReserved_ = new edm::ModuleDescription[reserved_];
+      if (reserved_)
+        dummiesForReserved_ = new edm::ModuleDescription[reserved_];
       //	  completeReservedWithDummies();
     }
     ~FastMonEncoding() {
@@ -55,7 +57,7 @@ namespace evf {
     //position. Therefore path address lookup will be updated when snapshot (encode) is called
     //with this we can remove ugly path legend update in preEventPath, but will still need a check
     //that any event has been processed (any path will do)
-    int encodeString(const std::string * add) {
+    int encodeString(const std::string* add) {
       std::unordered_map<const void*, int>::const_iterator it = quickReference_.find((void*)add);
       if (it == quickReference_.end()) {
         //try to match by string content (encode only used
@@ -64,8 +66,8 @@ namespace evf {
           return 0;
         else {
           //overwrite pointer in decoder and add to reference
-          decoder_[(*it).second]=(void*)add;
-          quickReference_[(void*)add]=(*it).second;
+          decoder_[(*it).second] = (void*)add;
+          quickReference_[(void*)add] = (*it).second;
           quickReferencePreinit_.erase(it);
           return encode((void*)add);
         }
@@ -116,7 +118,6 @@ namespace evf {
 
   class FastMonitoringThread {
   public:
- 
     struct MonitorData {
       //fastpath global monitorables
       jsoncollector::IntJ fastMacrostateJ_;
@@ -160,9 +161,7 @@ namespace evf {
 
       //unsigned int prescaleindex_; // ditto
 
-      MonitorData()
-      : encModule_(nReservedModules)
-      {
+      MonitorData() : encModule_(nReservedModules) {
         fastMacrostateJ_ = FastMonState::sInit;
         fastThroughputJ_ = 0;
         fastAvgLeadTimeJ_ = 0;
@@ -230,7 +229,7 @@ namespace evf {
 
     void resetFastMonitor(std::string const& microStateDefPath, std::string const& fastMicroStateDefPath) {
       std::string defGroup = "data";
-      jsonMonitor_.reset(new jsoncollector::FastMonitor(microStateDefPath, defGroup, false));
+      jsonMonitor_ = std::make_unique<jsoncollector::FastMonitor>(microStateDefPath, defGroup, false);
       if (!fastMicroStateDefPath.empty())
         jsonMonitor_->addFastPathDefinition(fastMicroStateDefPath, defGroup, false);
     }
@@ -247,9 +246,7 @@ namespace evf {
       }
     }
 
-    ~FastMonitoringThread() {
-      stop();
-    }
+    ~FastMonitoringThread() { stop(); }
 
   private:
     std::atomic<bool> m_stoprequest;
