@@ -173,7 +173,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     const double sigma = 0.4_um;
     // Get the amount of charge on the neighbor pixel: note the
     // transformation to a Normal
-    float migrated_e = current_carriers * 0.5 * (1.0 - std::erf(distance_edge / sigma));
+    float migrated_e = current_carriers * 0.5 * (1.0 - std::erf(distance_edge / (sigma*std::sqrt(2.0))));
 
     LogDebug("(super-)charge diffusion") << "step-" << i << ", Current carriers Ne= " << current_carriers << ","
                                          << "r=(" << pos_moving[0] * 1.0_um_inv << ", " << pos_moving[1] * 1.0_um_inv
