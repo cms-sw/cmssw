@@ -625,7 +625,7 @@ QIE11DataFrame convertHB(QIE11DataFrame qiehe,
   int adc, tdc;
   bool soi;
   int is = 0;
-
+  int capid = qiehe[0].capid();
   //  flavor for HB digies is hardcoded here
   static const int hbflavor = 3;
   //  maximum HB depth
@@ -658,7 +658,6 @@ QIE11DataFrame convertHB(QIE11DataFrame qiehe,
 
   // puting flavor is safe here because flavor is stored in the same bits for all flavors
   qiehb.setFlavor(hbflavor);
-  int capid = qiehe[0].capid();
   qiehb.setCapid0(capid);
 
   return qiehb;
