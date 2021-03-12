@@ -117,6 +117,7 @@ Dy = cms.PSet(
 
 dqmcell = DQMEDAnalyzer('PixelTestBeamValidation',
     # WARNING: be sure it is the same value used with the Pixel3DDigitizer
+    ThresholdInElectrons = cms.double(1000.0),
     ElectronsPerADC   = cms.double(1600.0),
     TracksEntryAngleX = cms.untracked.vdouble(-np.radians(2.0),np.radians(2.0)),
     TracksEntryAngleY = cms.untracked.vdouble(-np.radians(2.0),np.radians(2.0)),
