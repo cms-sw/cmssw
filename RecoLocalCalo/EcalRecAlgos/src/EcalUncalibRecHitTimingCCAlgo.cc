@@ -58,9 +58,9 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   for (auto const& amplit : amplitudes) {
     ipulse++;
     // The following 3 lines are copied from EcalRecAlgos/interface/EcalUncalibRecHitTimeWeightsAlgo.h
-    int bx = ipulse - 5;
-    int firstsamplet = std::max(0, bx + 3);
-    int offset = 7 - 3 - bx;
+    int bxp3 = ipulse - 2;
+    int firstsamplet = std::max(0, bxp3);
+    int offset = 7 - bxp3;
 
     std::vector<double> pulse(nsample);
     for (unsigned int isample = firstsamplet; isample < nsample; ++isample) {
