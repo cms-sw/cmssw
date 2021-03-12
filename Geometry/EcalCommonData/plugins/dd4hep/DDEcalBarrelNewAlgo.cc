@@ -985,13 +985,19 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         alltrot1 = alltrot;
         temp1 = SubtractionSolid(spm.name + "_T1", ddspm, spmCutBox, alltrot);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeom") << (spm.name + "_T1") << " Subtraction " << ddspm.name() << ":" << spmCutBox.name() << " at (" << cms::convert2mm(alltrot.Translation().Vect().x()) << "," << cms::convert2mm(alltrot.Translation().Vect().y()) << "," << cms::convert2mm(alltrot.Translation().Vect().z()) << ")";
+        edm::LogVerbatim("EBGeom") << (spm.name + "_T1") << " Subtraction " << ddspm.name() << ":" << spmCutBox.name()
+                                   << " at (" << cms::convert2mm(alltrot.Translation().Vect().x()) << ","
+                                   << cms::convert2mm(alltrot.Translation().Vect().y()) << ","
+                                   << cms::convert2mm(alltrot.Translation().Vect().z()) << ")";
 #endif
       } else {
         alltrot2 = alltrot;
         temp2 = SubtractionSolid(spm.name, temp1, spmCutBox, alltrot);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeom") << spm.name << " Subtraction " << temp1.name() << ":" << spmCutBox.name() << " at (" << cms::convert2mm(alltrot.Translation().Vect().x()) << "," << cms::convert2mm(alltrot.Translation().Vect().y()) << "," << cms::convert2mm(alltrot.Translation().Vect().z()) << ")";
+        edm::LogVerbatim("EBGeom") << spm.name << " Subtraction " << temp1.name() << ":" << spmCutBox.name() << " at ("
+                                   << cms::convert2mm(alltrot.Translation().Vect().x()) << ","
+                                   << cms::convert2mm(alltrot.Translation().Vect().y()) << ","
+                                   << cms::convert2mm(alltrot.Translation().Vect().z()) << ")";
 #endif
       }
       const Tl3D trSide(tvec[0],
@@ -1012,12 +1018,16 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       spmLog.placeVolume(spmCutLog, 1, alltrot1);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at ("
-                                  << cms::convert2mm(alltrot1.Translation().Vect().x()) << "," << cms::convert2mm(alltrot1.Translation().Vect().y()) << ","
+                                  << cms::convert2mm(alltrot1.Translation().Vect().x()) << ","
+                                  << cms::convert2mm(alltrot1.Translation().Vect().y()) << ","
                                   << cms::convert2mm(alltrot1.Translation().Vect().z()) << ") with rotation";
 #endif
       spmLog.placeVolume(spmCutLog, 1, alltrot2);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at (" << cms::convert2mm(alltrot2.Translation().Vect().x()) << "," << cms::convert2mm(alltrot2.Translation().Vect().y()) << "," << cms::convert2mm(alltrot2.Translation().Vect().z()) << ") with rotation";
+      edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at ("
+                                  << cms::convert2mm(alltrot2.Translation().Vect().x()) << ","
+                                  << cms::convert2mm(alltrot2.Translation().Vect().y()) << ","
+                                  << cms::convert2mm(alltrot2.Translation().Vect().z()) << ") with rotation";
 #endif
     }
     spmLog.placeVolume(sideLog, 1, Transform3D(ns.rotation(spm.sideName + std::to_string(1)), sideddtra1));
