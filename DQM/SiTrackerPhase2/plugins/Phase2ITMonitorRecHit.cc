@@ -270,8 +270,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<std::string>("title", "NumberRecHits;Number of RecHits;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.0);
-    psd0.add<int>("NxBins", 50);
+    psd0.add<double>("xmax", 250000.0);
+    psd0.add<int>("NxBins", 250);
     desc.add<edm::ParameterSetDescription>("GlobalNumberRecHits", psd0);
   }
   {
@@ -333,8 +333,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<std::string>("title", "NumberRecHits;Number of RecHits;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.0);
-    psd0.add<int>("NxBins", 50);
+    psd0.add<double>("xmax", 150000.0);
+    psd0.add<int>("NxBins", 150);
     desc.add<edm::ParameterSetDescription>("LocalNumberRecHits", psd0);
   }
   {
@@ -392,8 +392,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<std::string>("title", "Cluster_SizeY;cluster size y;");
     psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 20.5);
-    psd0.add<int>("NxBins", 21);
+    psd0.add<double>("xmax", 25.5);
+    psd0.add<int>("NxBins", 26);
     desc.add<edm::ParameterSetDescription>("LocalClusterSizeY", psd0);
   }
   {
@@ -419,7 +419,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "RecHit_X_error_Vs_eta");
-    psd0.add<std::string>("title", "RecHit_X_error_Vs_eta;#eta;x error #times 10^{6}");
+    psd0.add<std::string>("title", "RecHit_X_error_Vs_eta;#eta;x error [#mum]");
     psd0.add<bool>("switch", true);
     psd0.add<int>("NxBins", 82);
     psd0.add<double>("xmax", 4.1);
@@ -431,7 +431,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "RecHit_Y_error_Vs_eta");
-    psd0.add<std::string>("title", "RecHit_Y_error_Vs_eta;#eta;y error #times 10^{6}");
+    psd0.add<std::string>("title", "RecHit_Y_error_Vs_eta;#eta;y error [#mum]");
     psd0.add<bool>("switch", true);
     psd0.add<int>("NxBins", 82);
     psd0.add<double>("xmax", 4.1);
