@@ -145,6 +145,7 @@ private:
   std::map<int, MonitorElement *> vME_track_dydzAngle_;
   std::map<int, MonitorElement *> vME_dx1D_;
   std::map<int, MonitorElement *> vME_dy1D_;
+  std::map<int, MonitorElement *> vME_dxy2D_;
   std::map<int, MonitorElement *> vME_digi_charge1D_;
   std::map<int, MonitorElement *> vME_digi_chargeElec1D_;
   std::map<int, MonitorElement *> vME_sim_cluster_charge_;
