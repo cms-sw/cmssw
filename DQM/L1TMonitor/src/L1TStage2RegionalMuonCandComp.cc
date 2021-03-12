@@ -13,8 +13,12 @@ L1TStage2RegionalMuonCandComp::L1TStage2RegionalMuonCandComp(const edm::Paramete
       ignoreBin(ps.getUntrackedParameter<std::vector<int>>("ignoreBin")),
       verbose(ps.getUntrackedParameter<bool>("verbose")),
       hasDisplacementInfo(ps.getUntrackedParameter<bool>("hasDisplacementInfo")) {
+  if (hasDisplacementInfo) {
+    numErrBins_ += 2;
+    numSummaryBins_ += 2;
+  }
   // First include all bins
-  for (unsigned int i = 1; i <= RPT2; i++) {
+  for (int i = 1; i <= numErrBins_; i++) {
     incBin[i] = true;
   }
   // Then check the list of bins to ignore
@@ -53,16 +57,14 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker,
     trkAddrIgnoreText = " (Bad track addresses ignored)";
   }
 
-  int nbins = 17;
-  if (hasDisplacementInfo) {
-    nbins += 2;
-  }
-
   // Subsystem Monitoring and Muon Output
   ibooker.setCurrentFolder(monitorDir);
 
-  summary = ibooker.book1D(
-      "summary", (summaryTitle + trkAddrIgnoreText).c_str(), nbins, 1, nbins + 1);  // range to match bin numbering
+  summary = ibooker.book1D("summary",
+                           (summaryTitle + trkAddrIgnoreText).c_str(),
+                           numSummaryBins_,
+                           1,
+                           numSummaryBins_ + 1);  // range to match bin numbering
   summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
   summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
   summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
@@ -85,16 +87,11 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker,
     summary->setBinLabel(PT2BAD, "P_{T} unconstrained mismatch", 1);
   }
 
-  int nbinsNum = 14;
-  if (hasDisplacementInfo) {
-    nbinsNum += 2;
-  }
-
   errorSummaryNum = ibooker.book1D("errorSummaryNum",
                                    (summaryTitle + trkAddrIgnoreText).c_str(),
-                                   nbinsNum,
+                                   numErrBins_,
                                    1,
-                                   nbinsNum + 1);  // range to match bin numbering
+                                   numErrBins_ + 1);  // range to match bin numbering
   errorSummaryNum->setBinLabel(RBXRANGE, "BX range mismatch", 1);
   errorSummaryNum->setBinLabel(RNMUON, "muon collection size mismatch", 1);
   errorSummaryNum->setBinLabel(RMUON, "mismatching muons", 1);
@@ -125,8 +122,8 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker,
   // This needs to come after the calls to setBinLabel.
   errorSummaryNum->getTH1F()->GetXaxis()->SetCanExtend(false);
 
-  errorSummaryDen =
-      ibooker.book1D("errorSummaryDen", "denominators", nbinsNum, 1, nbinsNum + 1);  // range to match bin numbering
+  errorSummaryDen = ibooker.book1D(
+      "errorSummaryDen", "denominators", numErrBins_, 1, numErrBins_ + 1);  // range to match bin numbering
   errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
   errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
   for (int i = RMUON; i <= errorSummaryDen->getNbinsX(); ++i) {
@@ -377,16 +374,7 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
 
     muonIt1 = muonBxColl1->begin(iBx);
     muonIt2 = muonBxColl2->begin(iBx);
-    //std::cout << "Analysing muons from BX " << iBx << std::endl;
     while (muonIt1 != muonBxColl1->end(iBx) && muonIt2 != muonBxColl2->end(iBx)) {
-      //std::cout << "Coll 1 muon: hwPt=" << muonIt1->hwPt() << ", hwEta=" << muonIt1->hwEta() << ", hwPhi=" << muonIt1->hwPhi()
-      //          << ", hwSign=" << muonIt1->hwSign() << ", hwSignValid=" << muonIt1->hwSignValid()
-      //          << ", hwQual=" << muonIt1->hwQual() << ", link=" << muonIt1->link() << ", processor=" << muonIt1->processor()
-      //          << ", trackFinderType=" << muonIt1->trackFinderType() << std::endl;
-      //std::cout << "Coll 2 muon: hwPt=" << muonIt2->hwPt() << ", hwEta=" << muonIt2->hwEta() << ", hwPhi=" << muonIt2->hwPhi()
-      //          << ", hwSign=" << muonIt2->hwSign() << ", hwSignValid=" << muonIt2->hwSignValid()
-      //          << ", hwQual=" << muonIt2->hwQual() << ", link=" << muonIt2->link() << ", processor=" << muonIt2->processor()
-      //          << ", trackFinderType=" << muonIt2->trackFinderType() << std::endl;
       summary->Fill(MUONALL);
       for (int i = RMUON; i <= errorSummaryDen->getNbinsX(); ++i) {
         errorSummaryDen->Fill(i);
