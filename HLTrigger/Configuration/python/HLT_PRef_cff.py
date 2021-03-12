@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_2_0/PRef --type PRef
 
-# /dev/CMSSW_11_2_0/PRef/V19 (CMSSW_11_2_0)
+# /dev/CMSSW_11_2_0/PRef/V20 (CMSSW_11_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_2_0/PRef/V19')
+  tableName = cms.string('/dev/CMSSW_11_2_0/PRef/V20')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -3730,16 +3730,6 @@ fragment.HcalTimeSlewEP = cms.ESSource( "HcalTimeSlewEP",
     ),
     appendToDataLabel = cms.string( "HBHE" )
 )
-fragment.ecalMustacheSCParamsSource = cms.ESSource( "EmptyESSource",
-    iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "EcalMustacheSCParametersRcd" ),
-    firstValid = cms.vuint32( 1 )
-)
-fragment.ecalSCDynamicDPhiParamsSource = cms.ESSource( "EmptyESSource",
-    iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "EcalSCDynamicDPhiParametersRcd" ),
-    firstValid = cms.vuint32( 1 )
-)
 fragment.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     recordName = cms.string( "JetTagComputerRecord" ),
@@ -3965,62 +3955,6 @@ fragment.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeBadChambers = cms.bool( False ),
   includeME0 = cms.bool( False ),
   includeGEM = cms.bool( False )
-)
-fragment.ecalMustacheSCParametersESProducer = cms.ESProducer( "EcalMustacheSCParametersESProducer",
-  sqrtLogClustETuning = cms.double( 1.1 ),
-  appendToDataLabel = cms.string( "" ),
-  parabolaParameterSets = cms.VPSet( 
-    cms.PSet(  pLow = cms.vdouble( -0.0268843, 0.147742, -0.0191235 ),
-      w0Up = cms.vdouble( -0.00681785, -0.00239516 ),
-      w1Low = cms.vdouble( 6.99995E-4, -0.00554331 ),
-      w0Low = cms.vdouble( -0.00681785, -0.00239516 ),
-      etaMin = cms.double( 0.0 ),
-      log10EMin = cms.double( -3.0 ),
-      w1Up = cms.vdouble( 6.99995E-4, -0.00554331 ),
-      pUp = cms.vdouble( -0.107537, 0.590969, -0.076494 )
-    )
-  )
-)
-fragment.ecalSCDynamicDPhiParametersESProducer = cms.ESProducer( "EcalSCDynamicDPhiParametersESProducer",
-  dynamicDPhiParameterSets = cms.VPSet( 
-    cms.PSet(  cutoff = cms.double( 0.3 ),
-      eMin = cms.double( 0.0 ),
-      etaMin = cms.double( 2.0 ),
-      saturation = cms.double( 0.12 ),
-      scale = cms.double( 1.22321 ),
-      width = cms.double( 0.345852 ),
-      xoffset = cms.double( -0.260256 ),
-      yoffset = cms.double( 0.0928887 )
-    ),
-    cms.PSet(  cutoff = cms.double( 0.45 ),
-      eMin = cms.double( 0.0 ),
-      etaMin = cms.double( 1.75 ),
-      saturation = cms.double( 0.12 ),
-      scale = cms.double( 1.60429 ),
-      width = cms.double( 0.458106 ),
-      xoffset = cms.double( -0.642352 ),
-      yoffset = cms.double( 0.05643 )
-    ),
-    cms.PSet(  cutoff = cms.double( 0.55 ),
-      eMin = cms.double( 0.0 ),
-      etaMin = cms.double( 1.479 ),
-      saturation = cms.double( 0.14 ),
-      scale = cms.double( 0.975707 ),
-      width = cms.double( 0.431729 ),
-      xoffset = cms.double( -0.18149 ),
-      yoffset = cms.double( 0.0497038 )
-    ),
-    cms.PSet(  cutoff = cms.double( 0.6 ),
-      eMin = cms.double( 0.0 ),
-      etaMin = cms.double( 0.0 ),
-      saturation = cms.double( 0.14 ),
-      scale = cms.double( 0.946048 ),
-      width = cms.double( 0.432767 ),
-      xoffset = cms.double( -0.101172 ),
-      yoffset = cms.double( 0.0280506 )
-    )
-  ),
-  appendToDataLabel = cms.string( "" )
 )
 fragment.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   dbstatusMask = cms.PSet( 
@@ -5812,7 +5746,7 @@ fragment.hltHbhereco = cms.EDProducer( "HBHEPhase1Reconstructor",
       ts4Thresh = cms.double( 0.0 ),
       meanTime = cms.double( 0.0 ),
       nnlsThresh = cms.double( 1.0E-11 ),
-      nMaxItersMin = cms.int32( 500 ),
+      nMaxItersMin = cms.int32( 50 ),
       timeSigmaSiPM = cms.double( 2.5 ),
       applyTimeSlew = cms.bool( True ),
       timeSlewParsType = cms.int32( 3 ),
@@ -11045,7 +10979,7 @@ fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.
 fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_ZeroBias_Beamspot_v4, fragment.HLT_Physics_v7, fragment.DST_Physics_v7, fragment.HLT_Random_v3, fragment.HLT_ZeroBias_v6, fragment.HLT_HIL1UnpairedBunchBptxMinusForPPRef_v2, fragment.HLT_HIL1UnpairedBunchBptxPlusForPPRef_v2, fragment.HLT_HIL1NotBptxORForPPRef_v2, fragment.HLT_HIHT80_Beamspot_ppRef5TeV_v3, fragment.HLT_HIZeroBias_part0_v6, fragment.HLT_HIZeroBias_part1_v6, fragment.HLT_HIZeroBias_part2_v6, fragment.HLT_HIZeroBias_part3_v6, fragment.HLT_HIZeroBias_part4_v6, fragment.HLT_HIZeroBias_part5_v6, fragment.HLT_HIZeroBias_part6_v6, fragment.HLT_HIZeroBias_part7_v6, fragment.HLT_HIZeroBias_part8_v6, fragment.HLT_HIZeroBias_part9_v6, fragment.HLT_HIZeroBias_part10_v6, fragment.HLT_HIZeroBias_part11_v6, fragment.AlCa_HIEcalPi0EBonly_v1, fragment.AlCa_HIEcalPi0EEonly_v1, fragment.AlCa_HIEcalEtaEBonly_v1, fragment.AlCa_HIEcalEtaEEonly_v1, fragment.HLT_EcalCalibration_v4, fragment.HLT_HcalCalibration_v5, fragment.AlCa_EcalPhiSym_v9, fragment.HLT_ZeroBias_FirstCollisionAfterAbortGap_v5, fragment.AlCa_HIRPCMuonNormalisation_v1, fragment.AlCa_LumiPixelsCounts_Random_v1, fragment.AlCa_LumiPixelsCounts_ZeroBias_v1, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))
 
 
-# dummyfy hltGetConditions in cff's
+# dummify hltGetConditions in cff's
 if 'hltGetConditions' in fragment.__dict__ and 'HLTriggerFirstPath' in fragment.__dict__ :
     fragment.hltDummyConditions = cms.EDFilter( "HLTBool",
         result = cms.bool( True )
