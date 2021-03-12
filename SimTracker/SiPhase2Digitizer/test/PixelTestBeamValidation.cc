@@ -302,6 +302,7 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
         vME_charge_elec1D_[me_unit]->Fill(cluster_tot_elec);
         vME_dx1D_[me_unit]->Fill(dx_um);
         vME_dy1D_[me_unit]->Fill(dy_um);
+        vME_dxy2D_[me_unit]->Fill(dx_um, dy_um);
         // The track energy loss corresponding to that cluster
         vME_sim_cluster_charge_[me_unit]->Fill(psh->energyLoss() * 1.0_inv_keV, cluster_tot_elec);
       }
@@ -430,7 +431,9 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
       vME_dx1D_[me_unit] = setupH1D_(
           ibooker, "Dx1D", "MC-truth DIGI cluster residuals X;x_{PSimHit}-x^{cluster}_{digi} [#mum];N_{digi clusters}");
       vME_dy1D_[me_unit] = setupH1D_(
-          ibooker, "Dy1D", "MC-truth DIGI cluster residual Ys;y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
+          ibooker, "Dy1D", "MC-truth DIGI cluster residual Y;y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
+      vME_dxy2D_[me_unit] = setupH2D_(
+          ibooker, "Dxy2D", "MC-truth DIGI cluster residuals;x_{PSimHit}-x^{cluster}_{digi} [#mum];y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
       vME_digi_charge1D_[me_unit] = setupH1D_(ibooker, "DigiCharge1D", "Digi charge;digi charge [ToT];N_{digi}");
       vME_sim_cluster_charge_[me_unit] =
           setupH2D_(ibooker,
