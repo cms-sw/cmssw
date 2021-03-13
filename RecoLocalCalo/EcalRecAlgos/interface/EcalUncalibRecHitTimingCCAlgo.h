@@ -16,9 +16,9 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 class EcalUncalibRecHitTimingCCAlgo {
-  float startTime_;
-  float stopTime_;
-  float targetTimePrecision_;
+  const float startTime_;
+  const float stopTime_;
+  const float targetTimePrecision_;
 
   static constexpr int TIME_WHEN_NOT_CONVERGING = 100;
   static constexpr int MAX_NUM_OF_ITERATIONS = 30;
