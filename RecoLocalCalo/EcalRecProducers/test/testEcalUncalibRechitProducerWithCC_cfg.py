@@ -10,6 +10,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
 
 
 
@@ -42,21 +43,6 @@ process.load("RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi")
 # load both cpu plugins
 process.load("RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi")
 
-# for validation of gpu multifit products
-process.load("RecoLocalCalo.EcalRecProducers.ecalCPUUncalibRecHitProducer_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalPedestalsGPUESProducer_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalGainRatiosGPUESProducer_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalPulseShapesGPUESProducer_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalPulseCovariancesGPUESProducer_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalSamplesCorrelationGPUESProducer_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalTimeBiasCorrectionsGPUESProducer_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalTimeCalibConstantsGPUESProducer_cfi")
-
-
-process.load("RecoLocalCalo.EcalRecProducers.ecalMultifitParametersGPUESProducer_cfi")
-
-
-
 ##
 ## force HLT configuration for ecalMultiFitUncalibRecHit
 ##
@@ -71,15 +57,6 @@ process.ecalMultiFitUncalibRecHit.algoPSet = cms.PSet(
       
 ##    
     
-    
-    
-process.load('Configuration.StandardSequences.Reconstruction_cff')
-process.ecalRecHit
-
-    
-
-
-
 process.ecalDigis = process.ecalEBunpacker.clone()
 process.ecalDigis.InputLabel = cms.InputTag('rawDataCollector')
 
