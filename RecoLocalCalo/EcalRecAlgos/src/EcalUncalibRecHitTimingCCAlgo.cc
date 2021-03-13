@@ -146,7 +146,7 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
 
 float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<double>& samples,
                                                const FullSampleVector& sigmalTemplate,
-                                               const float& t) {
+                                               const float time) {
   int exclude = 1;
   double powerSamples = 0.;
   for (int i = exclude; i < int(samples.size() - exclude); ++i)
