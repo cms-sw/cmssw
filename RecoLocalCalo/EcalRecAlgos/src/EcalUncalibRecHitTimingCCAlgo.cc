@@ -109,8 +109,7 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
   int shift = t / ecalPh1::Samp_Period;
   if (t < 0)
     shift -= 1;
-  float timeShift = t - ecalPh1::Samp_Period * shift;
-  float tt = timeShift / ecalPh1::Samp_Period;
+  float tt = t / ecalPh1::Samp_Period - shift;
 
   FullSampleVector interpPulse;
   // 2nd poly with avg
