@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -38,6 +37,7 @@ public:
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
   bool doOuterTracker_, doPixel_;
   bool mergeOld_;
   typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelMaskContainer;
@@ -61,7 +61,8 @@ using namespace std;
 using namespace edm;
 
 SeedClusterRemoverPhase2::SeedClusterRemoverPhase2(const ParameterSet &iConfig)
-    : doOuterTracker_(iConfig.existsAs<bool>("doOuterTracker") ? iConfig.getParameter<bool>("doOuterTracker") : true),
+    : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      doOuterTracker_(iConfig.existsAs<bool>("doOuterTracker") ? iConfig.getParameter<bool>("doOuterTracker") : true),
       doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
       mergeOld_(iConfig.exists("oldClusterRemovalInfo")) {
   produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
@@ -163,8 +164,7 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
 void SeedClusterRemoverPhase2::produce(Event &iEvent, const EventSetup &iSetup) {
   ProductID pixelOldProdID, stripOldProdID;
 
-  edm::ESHandle<TrackerGeometry> tgh;
-  iSetup.get<TrackerDigiGeometryRecord>().get("", tgh);  //is it correct to use "" ?
+  const auto &tgh = &iSetup.getData(tTrackerGeom_);
 
   Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
   if (doPixel_) {
@@ -211,7 +211,7 @@ void SeedClusterRemoverPhase2::produce(Event &iEvent, const EventSetup &iSetup) 
     for (auto const &hit : seed.recHits()) {
       if (!hit.isValid())
         continue;
-      process(&hit, 0., tgh.product());
+      process(&hit, 0., tgh);
     }
   }
 
