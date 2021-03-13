@@ -482,9 +482,9 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
       } else if (timealgo_ == crossCorrelationMethod) {
         uncalibRecHit.setJitterError(0.);
 
-        std::vector<double> amplitudes;
+        std::vector<double> amplitudes(activeBX.size());
         for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
-          amplitudes.push_back(uncalibRecHit.outOfTimeAmplitude(ibx));
+          amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
 
         float jitterError = 0.;
         float jitter = computeCC_.computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError);
