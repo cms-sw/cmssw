@@ -114,9 +114,12 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
   FullSampleVector interpPulse;
   // 2nd poly with avg
   unsigned int numberOfSamples = fullpulse.size();
+  auto facM1orP2 = 0.25 * tt * (tt - 1);
+  auto fac = (0.25 * (tt - 2) - 0.5 * (tt + 1)) * (tt - 1);
+  auto facP1 = (0.25 * (tt + 1) - 0.5 * (tt - 2)) * tt;
   for (unsigned int i = 1; i < numberOfSamples - 2; ++i) {
-    float a = 0.25 * tt * (tt - 1) * fullpulse[i - 1] + (0.25 * (tt - 2) - 0.5 * (tt + 1)) * (tt - 1) * fullpulse[i] +
-              (0.25 * (tt + 1) - 0.5 * (tt - 2)) * tt * fullpulse[i + 1] + 0.25 * (tt - 1) * tt * fullpulse[i + 2];
+    float a = facM1orP2 * fullpulse[i - 1] + fac * fullpulse[i] +
+              facP1 * fullpulse[i + 1] + facM1orP2 * fullpulse[i + 2];
     if (a > 0)
       interpPulse[i] = a;
     else
