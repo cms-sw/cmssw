@@ -92,10 +92,6 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   tM -= GLOBAL_TIME_SHIFT;
 
   if (counter < MIN_NUM_OF_ITERATIONS || counter > MAX_NUM_OF_ITERATIONS - 1) {
-    if (counter > MAX_NUM_OF_ITERATIONS / 2)
-      //Produce a log if minimization took too long
-      edm::LogInfo("EcalUncalibRecHitTimingCCAlgo::computeTimeCC")
-          << "Minimization Counter too high: " << counter << std::endl;
     tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period;
     //Negative error means that there was a problem with the CC
     errOnTime = -targetTimePrecision_ / ecalPh1::Samp_Period;
