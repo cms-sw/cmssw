@@ -11,6 +11,7 @@
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
 #include "G4LogicalVolume.hh"
+#include "G4LogicalVolumeStore.hh"
 
 #include <algorithm>
 
@@ -140,9 +141,26 @@ void DDG4ProductionCuts::dd4hepInitialize() {
   for (auto const& it : dd4hepVec_) {
     auto regName = it.second->strValue(keywordRegion_);
     G4Region* region = G4RegionStore::GetInstance()->FindOrCreateRegion({regName.data(), regName.size()});
+
     region->AddRootLogicalVolume(it.first);
-    edm::LogVerbatim("Geometry") << it.first->GetName() << ": " << it.second->strValue(keywordRegion_);
+    edm::LogVerbatim("Geometry") << it.first->GetName() << ": " << regName;
     edm::LogVerbatim("Geometry") << " MakeRegions: added " << it.first->GetName() << " to region " << region->GetName();
+
+    // Also treat reflected volumes
+    const G4String& nonReflectedG4Name = it.first->GetName();
+    const G4String& reflectedG4Name = nonReflectedG4Name + "_refl";
+    const G4LogicalVolumeStore* const allG4LogicalVolumes = G4LogicalVolumeStore::GetInstance();
+    const auto reflectedG4LogicalVolumeIt = std::find_if(
+        allG4LogicalVolumes->begin(), allG4LogicalVolumes->end(), [&](const G4LogicalVolume* const aG4LogicalVolume) {
+          return (aG4LogicalVolume->GetName() == reflectedG4Name);
+        });
+    // If G4 Logical volume has a reflected volume, add it to the region as well.
+    if (reflectedG4LogicalVolumeIt != allG4LogicalVolumes->end()) {
+      region->AddRootLogicalVolume(*reflectedG4LogicalVolumeIt);
+      edm::LogVerbatim("Geometry") << " MakeRegions: added " << (*reflectedG4LogicalVolumeIt)->GetName()
+                                   << " to region " << region->GetName();
+    }
+
     edm::LogVerbatim("Geometry").log([&](auto& log) {
       for (auto const& sit : it.second->spars) {
         log << sit.first << " =  " << sit.second[0] << "\n";
