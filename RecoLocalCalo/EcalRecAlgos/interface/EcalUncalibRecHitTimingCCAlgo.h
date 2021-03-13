@@ -16,30 +16,28 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 class EcalUncalibRecHitTimingCCAlgo {
-  public:
-    EcalUncalibRecHitTimingCCAlgo(const float startTime,
-                                  const float stopTime,
-                                  const float targetTimePrecision);
-    double computeTimeCC(const EcalDataFrame& dataFrame,
-                        const std::vector<double>& amplitudes,
-                        const EcalPedestals::Item* aped,
-                        const EcalMGPAGainRatio* aGain,
-                        const FullSampleVector& fullpulse,
-                        EcalUncalibratedRecHit& uncalibRecHit,
-                        float errOnTime) const;
+public:
+  EcalUncalibRecHitTimingCCAlgo(const float startTime, const float stopTime, const float targetTimePrecision);
+  double computeTimeCC(const EcalDataFrame& dataFrame,
+                       const std::vector<double>& amplitudes,
+                       const EcalPedestals::Item* aped,
+                       const EcalMGPAGainRatio* aGain,
+                       const FullSampleVector& fullpulse,
+                       EcalUncalibratedRecHit& uncalibRecHit,
+                       float errOnTime) const;
 
-  private:
-    float startTime_;
-    float stopTime_;
-    float targetTimePrecision_;
+private:
+  float startTime_;
+  float stopTime_;
+  float targetTimePrecision_;
 
-    static constexpr int TIME_WHEN_NOT_CONVERGING = 100;
-    static constexpr int MAX_NUM_OF_ITERATIONS = 30;
-    static constexpr int MIN_NUM_OF_ITERATIONS = 2;
-    static constexpr float GLOBAL_TIME_SHIFT = 100;
+  static constexpr int TIME_WHEN_NOT_CONVERGING = 100;
+  static constexpr int MAX_NUM_OF_ITERATIONS = 30;
+  static constexpr int MIN_NUM_OF_ITERATIONS = 2;
+  static constexpr float GLOBAL_TIME_SHIFT = 100;
 
-    FullSampleVector interpolatePulse(const FullSampleVector& fullpulse, const float t = 0) const;
-    float computeCC(const std::vector<float>& samples, const FullSampleVector& sigmalTemplate, const float t) const;
+  FullSampleVector interpolatePulse(const FullSampleVector& fullpulse, const float t = 0) const;
+  float computeCC(const std::vector<float>& samples, const FullSampleVector& sigmalTemplate, const float t) const;
 };
 
 #endif

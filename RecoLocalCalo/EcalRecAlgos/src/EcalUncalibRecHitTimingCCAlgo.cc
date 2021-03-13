@@ -62,8 +62,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
 
     for (unsigned int isample = firstsamplet; isample < nsample; ++isample) {
       auto const pulse = fullpulse(isample + offset);
-      pedSubSamples[isample] =
-          std::max(0., pedSubSamples[isample] - amplit * pulse / pulsenorm);
+      pedSubSamples[isample] = std::max(0., pedSubSamples[isample] - amplit * pulse / pulsenorm);
     }
   }
 
@@ -100,7 +99,8 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   return -tM / ecalPh1::Samp_Period;
 }
 
-FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampleVector& fullpulse, const float time) const {
+FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampleVector& fullpulse,
+                                                                 const float time) const {
   // t is in ns
   int shift = time / ecalPh1::Samp_Period;
   if (time < 0)
@@ -114,17 +114,15 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
   auto fac = (0.25 * (tt - 2) - 0.5 * (tt + 1)) * (tt - 1);
   auto facP1 = (0.25 * (tt + 1) - 0.5 * (tt - 2)) * tt;
   for (unsigned int i = 1; i < numberOfSamples - 2; ++i) {
-    float a = facM1orP2 * fullpulse[i - 1] + fac * fullpulse[i] +
-              facP1 * fullpulse[i + 1] + facM1orP2 * fullpulse[i + 2];
+    float a =
+        facM1orP2 * fullpulse[i - 1] + fac * fullpulse[i] + facP1 * fullpulse[i + 1] + facM1orP2 * fullpulse[i + 2];
     if (a > 0)
       interpPulse[i] = a;
     else
       interpPulse[i] = 0;
   }
-  interpPulse[0] = facM1orP2 * fullpulse[0] +
-                   facP1 * fullpulse[1] + facM1orP2 * fullpulse[2];
-  interpPulse[numberOfSamples - 2] = facM1orP2 * fullpulse[numberOfSamples - 3] +
-                                     fac * fullpulse[numberOfSamples - 2] +
+  interpPulse[0] = facM1orP2 * fullpulse[0] + facP1 * fullpulse[1] + facM1orP2 * fullpulse[2];
+  interpPulse[numberOfSamples - 2] = facM1orP2 * fullpulse[numberOfSamples - 3] + fac * fullpulse[numberOfSamples - 2] +
                                      facP1 * fullpulse[numberOfSamples - 1];
   interpPulse[numberOfSamples - 1] = 2 * facM1orP2 * fullpulse[numberOfSamples - 2] -
                                      4 * facM1orP2 * fullpulse[numberOfSamples - 1] +
@@ -153,7 +151,7 @@ float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<float>& samples
     powerTemplate += std::pow(interpolated[i], 2);
     cc += interpolated[i] * samples[i];
   }
-  
+
   float denominator = std::sqrt(powerTemplate * powerSamples);
   return cc / denominator;
 }
