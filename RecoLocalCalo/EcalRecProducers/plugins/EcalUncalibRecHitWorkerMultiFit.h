@@ -166,7 +166,7 @@ private:
   double chi2ThreshEE_;
 
   //Timing Cross Correlation Algo
-  EcalUncalibRecHitTimingCCAlgo computeCC_;
+  std::unique_ptr<EcalUncalibRecHitTimingCCAlgo> computeCC_;
 };
 
 #endif

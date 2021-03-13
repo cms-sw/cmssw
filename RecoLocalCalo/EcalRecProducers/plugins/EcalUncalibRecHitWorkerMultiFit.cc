@@ -70,7 +70,7 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     double startTime = ps.getParameter<double>("crossCorrelationStartTime");
     double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
     double targetTimePrecision = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
-    computeCC_ = EcalUncalibRecHitTimingCCAlgo(startTime, stopTime, targetTimePrecision);
+    computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime, targetTimePrecision);
   } else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
@@ -487,7 +487,7 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
           amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
 
         float jitterError = 0.;
-        float jitter = computeCC_.computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError);
+        float jitter = computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError);
 
         uncalibRecHit.setJitter(jitter);
         uncalibRecHit.setJitterError(jitterError);

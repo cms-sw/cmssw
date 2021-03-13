@@ -17,9 +17,9 @@
 
 class EcalUncalibRecHitTimingCCAlgo {
   public:
-    EcalUncalibRecHitTimingCCAlgo(const float startTime = -5,
-                                  const float stopTime = 5,
-                                  const float targetTimePrecision = 0.001);
+    EcalUncalibRecHitTimingCCAlgo(const float startTime,
+                                  const float stopTime,
+                                  const float targetTimePrecision);
     double computeTimeCC(const EcalDataFrame& dataFrame,
                         const std::vector<double>& amplitudes,
                         const EcalPedestals::Item* aped,
@@ -29,9 +29,9 @@ class EcalUncalibRecHitTimingCCAlgo {
                         float errOnTime) const;
 
   private:
-    const float startTime_;
-    const float stopTime_;
-    const float targetTimePrecision_;
+    float startTime_;
+    float stopTime_;
+    float targetTimePrecision_;
 
     static constexpr int TIME_WHEN_NOT_CONVERGING = 100;
     static constexpr int MAX_NUM_OF_ITERATIONS = 30;
