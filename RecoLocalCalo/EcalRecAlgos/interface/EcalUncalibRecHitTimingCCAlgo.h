@@ -39,7 +39,7 @@ class EcalUncalibRecHitTimingCCAlgo {
     static constexpr float GLOBAL_TIME_SHIFT = 100;
 
     FullSampleVector interpolatePulse(const FullSampleVector& fullpulse, const float t = 0) const;
-    float computeCC(const std::vector<double>& samples, const FullSampleVector& sigmalTemplate, const float t) const;
+    float computeCC(const std::vector<float>& samples, const FullSampleVector& sigmalTemplate, const float t) const;
 };
 
 #endif

@@ -15,14 +15,13 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   constexpr unsigned int nsample = EcalDataFrame::MAXSAMPLES;
 
   double maxamplitude = -std::numeric_limits<double>::max();
+  float pulsenorm = 0.;
 
-  double pulsenorm = 0.;
-
-  std::vector<double> pedSubSamples(nsample);
+  std::vector<float> pedSubSamples(nsample);
   for (unsigned int iSample = 0; iSample < nsample; iSample++) {
     const EcalMGPASample& sample = dataFrame.sample(iSample);
 
-    double amplitude = 0.;
+    float amplitude = 0.;
     int gainId = sample.gainId();
 
     double pedestal = 0.;
@@ -39,7 +38,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
       gainratio = aGain->gain12Over6();
     }
 
-    amplitude = (static_cast<double>(sample.adc()) - pedestal) * gainratio;
+    amplitude = (static_cast<float>(sample.adc()) - pedestal) * gainratio;
 
     if (gainId == 0) {
       //saturation
@@ -145,13 +144,13 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
   return interpPulseShifted;
 }
 
-float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<double>& samples,
+float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<float>& samples,
                                                const FullSampleVector& sigmalTemplate,
                                                const float time) const {
   constexpr int exclude = 1;
-  double powerSamples = 0.;
-  double powerTemplate = 0.;
-  double cc = 0.;
+  float powerSamples = 0.;
+  float powerTemplate = 0.;
+  float cc = 0.;
   auto interpolated = interpolatePulse(sigmalTemplate, time);
   for (int i = exclude; i < int(samples.size() - exclude); ++i) {
     powerSamples += std::pow(samples[i], 2);
@@ -159,6 +158,6 @@ float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<double>& sample
     cc += interpolated[i] * samples[i];
   }
   
-  double denominator = std::sqrt(powerTemplate * powerSamples);
+  float denominator = std::sqrt(powerTemplate * powerSamples);
   return cc / denominator;
 }
