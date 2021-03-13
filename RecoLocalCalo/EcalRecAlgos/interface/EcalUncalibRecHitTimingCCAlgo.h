@@ -35,7 +35,7 @@ public:
                        const EcalMGPAGainRatio* aGain,
                        const FullSampleVector& fullpulse,
                        EcalUncalibratedRecHit& uncalibRecHit,
-                       float& errOnTime);
+                       float& errOnTime) const;
 
 private:
   FullSampleVector interpolatePulse(const FullSampleVector& fullpulse, const float t = 0) const;
