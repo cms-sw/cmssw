@@ -104,7 +104,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   return -tM / ecalPh1::Samp_Period;
 }
 
-FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampleVector& fullpulse, const float t) {
+FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampleVector& fullpulse, const float time) {
   // t is in ns
   int shift = t / ecalPh1::Samp_Period;
   if (t < 0)
