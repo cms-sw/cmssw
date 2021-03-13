@@ -11,7 +11,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
                                                     const EcalMGPAGainRatio* aGain,
                                                     const FullSampleVector& fullpulse,
                                                     EcalUncalibratedRecHit& uncalibRecHit,
-                                                    float& errOnTime) {
+                                                    float errOnTime) const {
   constexpr unsigned int nsample = EcalDataFrame::MAXSAMPLES;
 
   double maxamplitude = -std::numeric_limits<double>::max();
@@ -57,7 +57,6 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   int ipulse = -1;
   for (auto const& amplit : amplitudes) {
     ipulse++;
-    // The following 3 lines are copied from EcalRecAlgos/interface/EcalUncalibRecHitTimeWeightsAlgo.h
     int bxp3 = ipulse - 2;
     int firstsamplet = std::max(0, bxp3);
     int offset = 7 - bxp3;
@@ -105,7 +104,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   return -tM / ecalPh1::Samp_Period;
 }
 
-FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampleVector& fullpulse, const float time) {
+FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampleVector& fullpulse, const float time) const {
   // t is in ns
   int shift = t / ecalPh1::Samp_Period;
   if (t < 0)
@@ -147,7 +146,7 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
 
 float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<double>& samples,
                                                const FullSampleVector& sigmalTemplate,
-                                               const float time) {
+                                               const float time) const {
   constexpr int exclude = 1;
   double powerSamples = 0.;
   for (int i = exclude; i < int(samples.size() - exclude); ++i)
