@@ -65,6 +65,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
       auto const pulse = fullpulse(isample + offset);
       pedSubSamples[isample] =
           std::max(0., pedSubSamples[isample] - amplit * pulse / pulsenorm);
+    }
   }
 
   // Start of time computation
@@ -106,10 +107,10 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
 
 FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampleVector& fullpulse, const float time) const {
   // t is in ns
-  int shift = t / ecalPh1::Samp_Period;
-  if (t < 0)
+  int shift = time / ecalPh1::Samp_Period;
+  if (time < 0)
     shift -= 1;
-  float tt = t / ecalPh1::Samp_Period - shift;
+  float tt = time / ecalPh1::Samp_Period - shift;
 
   FullSampleVector interpPulse;
   // 2nd poly with avg
@@ -149,19 +150,15 @@ float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<double>& sample
                                                const float time) const {
   constexpr int exclude = 1;
   double powerSamples = 0.;
-  for (int i = exclude; i < int(samples.size() - exclude); ++i)
-    powerSamples += std::pow(samples[i], 2);
-
-  auto interpolated = interpolatePulse(sigmalTemplate, t);
   double powerTemplate = 0.;
-  for (int i = exclude; i < int(interpolated.size() - exclude); ++i)
-    powerTemplate += std::pow(interpolated[i], 2);
-
-  double denominator = std::sqrt(powerTemplate * powerSamples);
-
   double cc = 0.;
+  auto interpolated = interpolatePulse(sigmalTemplate, time);
   for (int i = exclude; i < int(samples.size() - exclude); ++i) {
+    powerSamples += std::pow(samples[i], 2);
+    powerTemplate += std::pow(interpolated[i], 2);
     cc += interpolated[i] * samples[i];
   }
+  
+  double denominator = std::sqrt(powerTemplate * powerSamples);
   return cc / denominator;
 }
