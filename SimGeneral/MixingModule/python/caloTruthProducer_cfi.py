@@ -40,7 +40,7 @@ phase2_hfnose.toModify(
     caloParticles,
     simHitCollections = dict(
         hgc = caloParticles.simHitCollections.hgc + [cms.InputTag('g4SimHits','HFNoseHits')],
-        hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits'))
+#        hcal = cms.VInputTag(cms.InputTag('g4SimHits','HcalHits'))
     )
 )
 
