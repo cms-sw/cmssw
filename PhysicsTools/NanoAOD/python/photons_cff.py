@@ -108,8 +108,9 @@ run2_nanoAOD_94XMiniAODv2.toModify(calibratedPatPhotonsNano,
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc")
 )
 
+
 run2_miniAOD_80XLegacy.toModify(calibratedPatPhotonsNano,
-    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc"),
+                                correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc")
 )
 
 slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
@@ -140,18 +141,18 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForPho"),
         VIDNestedWPBitmap_Spring16V2p2 = cms.InputTag("bitmapVIDForPhoSpring16V2p2"),
         seedGain = cms.InputTag("seedGainPho"),
-    ),
+    )
 )
 
-for modifier in run2_egamma_2016,run2_egamma_2017,run2_egamma_2018,run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
+for modifier in run2_egamma_2016, run2_egamma_2017, run2_egamma_2018, run2_miniAOD_80XLegacy, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
     modifier.toModify(slimmedPhotonsWithUserData.userFloats,
                       ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotonsNano","ecalEnergyErrPostCorr"),
                       ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotonsNano","ecalEnergyPreCorr"),
                       ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotonsNano","ecalEnergyPostCorr"),
-                      energyScaleUp            = cms.InputTag("calibratedPatPhotonsNano","energyScaleUp"),
-                      energyScaleDown          = cms.InputTag("calibratedPatPhotonsNano","energyScaleDown"),
-                      energySigmaUp            = cms.InputTag("calibratedPatPhotonsNano","energySigmaUp"),
-                      energySigmaDown          = cms.InputTag("calibratedPatPhotonsNano","energySigmaDown"),
+                      energyScaleUpNew            = cms.InputTag("calibratedPatPhotonsNano","energyScaleUp"),
+                      energyScaleDownNew          = cms.InputTag("calibratedPatPhotonsNano","energyScaleDown"),
+                      energySigmaUpNew            = cms.InputTag("calibratedPatPhotonsNano","energySigmaUp"),
+                      energySigmaDownNew          = cms.InputTag("calibratedPatPhotonsNano","energySigmaDown"),
                   )
 
 finalPhotons = cms.EDFilter("PATPhotonRefSelector",
@@ -224,6 +225,13 @@ for modifier in run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016:
         pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalEnergyErrPostCorr')",float,doc="energy error of the cluster from regression",precision=6),
         eCorr = Var("userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
+        energyScaleUp=Var("userFloat('energyScaleUp')", float,  doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
+        energyScaleDown=Var("userFloat('energyScaleDown')", float,  doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
+        energySigmaUp=Var("userFloat('energySigmaUp')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+        energySigmaDown=Var("userFloat('energySigmaDown')", float,  doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+                      
+
+                      
     )
 
 #these eras need to make the energy correction, hence the "New"
@@ -284,10 +292,10 @@ for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94
 ##adding 4 most imp scale & smearing variables to table
 for modifier in run2_nanoAOD_106Xv1,run2_nanoAOD_106Xv2,run2_egamma_2016,run2_egamma_2017,run2_egamma_2018,run2_miniAOD_80XLegacy, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
     modifier.toModify(photonTable.variables,
-        energyScaleUp=Var("userFloat('energyScaleUp')", float, doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
-        energyScaleDown=Var("userFloat('energyScaleDown')", float, doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
-        energySigmaUp=Var("userFloat('energySigmaUp')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
-        energySigmaDown=Var("userFloat('energySigmaDown')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+        energyScaleUp=Var("userFloat('energyScaleUpNew')", float, doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
+        energyScaleDown=Var("userFloat('energyScaleDownNew')", float, doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
+        energySigmaUp=Var("userFloat('energySigmaUpNew')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+        energySigmaDown=Var("userFloat('energySigmaDownNew')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
 
 )
 
