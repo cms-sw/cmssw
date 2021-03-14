@@ -1490,7 +1490,7 @@ public:
       std::cout << "\n" << std::endl;
     }
     // Printing the summary of affected triggers with affected-event counts
-    if (!quiet) {
+    if (!quiet and old_config) {
       bool summaryHeaderPrinted = false;
       for (size_t p = 0; p < old_config->size(); ++p) {
         if (differences.at(p).total() < 1)
@@ -1560,7 +1560,7 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
       safer if files are run for the first time, but can cause a substantial delay\n\
 \n\
   -d|--debug\n\
-      display messages about missing events and collectiions\n\
+      display messages about missing events and collections\n\
 \n\
   -q|--quiet\n\
       don't display summary printout with the list of affected trigger paths\n\
