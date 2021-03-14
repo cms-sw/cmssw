@@ -8,7 +8,7 @@ using namespace ticl;
 
 SeedingRegionByHF::SeedingRegionByHF(const edm::ParameterSet &conf, edm::ConsumesCollector &sumes)
     : SeedingRegionAlgoBase(conf, sumes),
-      HFhits_token_(sumes.consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("hits"))),
+      hfhits_token_(sumes.consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("hits"))),
       minAbsEta_(conf.getParameter<double>("minAbsEta")),
       maxAbsEta_(conf.getParameter<double>("maxAbsEta")),
       minEt_(conf.getParameter<double>("minEt")) {
@@ -22,7 +22,7 @@ void SeedingRegionByHF::initialize(const edm::EventSetup &es) { geometry_ = &es.
 void SeedingRegionByHF::makeRegions(const edm::Event &ev,
                                     const edm::EventSetup &es,
                                     std::vector<TICLSeedingRegion> &result) {
-  const auto &recHits = ev.get(HFhits_token_);
+  const auto &recHits = ev.get(hfhits_token_);
 
   for (const auto &erh : recHits) {
     const HcalDetId &detid = (HcalDetId)erh.detid();

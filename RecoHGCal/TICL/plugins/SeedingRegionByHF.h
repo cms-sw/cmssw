@@ -39,7 +39,7 @@ namespace ticl {
   private:
     void buildFirstLayers();
 
-    edm::EDGetTokenT<HFRecHitCollection> HFhits_token_;
+    edm::EDGetTokenT<HFRecHitCollection> hfhits_token_;
 
     int algoVerbosity_ = 0;
 
