@@ -8,6 +8,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
+#include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
 
 #include <iostream>
 #include <cstdio>
