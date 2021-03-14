@@ -109,7 +109,7 @@ void HGCalGeometry::newCell(
       if (typm.first >= 0) {
         hid.setType(typm.first);
         hid.setSiPM(typm.second);
-	idc = static_cast<DetId>(hid);
+        idc = static_cast<DetId>(hid);
       }
       m_validIds.emplace_back(idc);
 #ifdef EDM_ML_DEBUG

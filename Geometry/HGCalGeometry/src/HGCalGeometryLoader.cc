@@ -93,12 +93,12 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
            md <= topology.dddConstants().getParameter()->lastModule_[indx];
            ++md) {
         for (int iphi = 1; iphi <= nphi; ++iphi) {
-	  HGCScintillatorDetId id(type, layer, zside * ring, iphi);
-	  std::pair<int, int> typm = topology.dddConstants().tileType(layer, ring, 0);
-	  if (typm.first >= 0) {
-	    id.setType(typm.first);
-	    id.setSiPM(typm.second);
-	  }
+          HGCScintillatorDetId id(type, layer, zside * ring, iphi);
+          std::pair<int, int> typm = topology.dddConstants().tileType(layer, ring, 0);
+          if (typm.first >= 0) {
+            id.setType(typm.first);
+            id.setSiPM(typm.second);
+          }
           DetId detId = static_cast<DetId>(id);
           const auto& w = topology.dddConstants().locateCellTrap(layer, ring, iphi, true);
           double xx = (zside > 0) ? w.first : -w.first;
