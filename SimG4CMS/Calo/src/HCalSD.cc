@@ -369,7 +369,11 @@ bool HCalSD::getFromLibrary(const G4Step* aStep) {
   bool kill(false);
   isHF = isItHF(aStep);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalSim") << "GetFromLibrary: isHF " << isHF << " darken " << (m_HFDarkening != nullptr) << " useParam " << useParam << " useShowerLibrary " << useShowerLibrary << " Muon? " << G4TrackToParticleID::isMuon(track) << " electron? " << G4TrackToParticleID::isGammaElectronPositron(track) << " Stable Hadron? " << G4TrackToParticleID::isStableHadronIon(track);
+  edm::LogVerbatim("HcalSim") << "GetFromLibrary: isHF " << isHF << " darken " << (m_HFDarkening != nullptr)
+                              << " useParam " << useParam << " useShowerLibrary " << useShowerLibrary << " Muon? "
+                              << G4TrackToParticleID::isMuon(track) << " electron? "
+                              << G4TrackToParticleID::isGammaElectronPositron(track) << " Stable Hadron? "
+                              << G4TrackToParticleID::isStableHadronIon(track);
 #endif
   if (isHF) {
     if (m_HFDarkening) {

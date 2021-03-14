@@ -50,23 +50,23 @@ private:
   int nevt_;
 };
 
-HcalSimHitDump::HcalSimHitDump(const edm::ParameterSet& ps) : 
-  g4Label_(ps.getParameter<std::string>("ModuleLabel")),
-  hitLab_(ps.getParameter<std::string>("HCCollection")),
-  maxEvent_(ps.getParameter<int>("MaxEvent")),
-  testNumber_(ps.getParameter<bool>("TestNumber")),
-  nevt_(0) {
- 
+HcalSimHitDump::HcalSimHitDump(const edm::ParameterSet& ps)
+    : g4Label_(ps.getParameter<std::string>("ModuleLabel")),
+      hitLab_(ps.getParameter<std::string>("HCCollection")),
+      maxEvent_(ps.getParameter<int>("MaxEvent")),
+      testNumber_(ps.getParameter<bool>("TestNumber")),
+      nevt_(0) {
   // register for data access
   toks_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_));
 
-  edm::LogVerbatim("HitStudy") << "HcalSimHitDump::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent " << maxEvent_ << " TestNumbering " << testNumber_;
+  edm::LogVerbatim("HitStudy") << "HcalSimHitDump::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent "
+                               << maxEvent_ << " TestNumbering " << testNumber_;
 }
 
 void HcalSimHitDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("ModuleLabel", "g4SimHits");
-  desc.add<std::string>("HCCollection","HcalHits");
+  desc.add<std::string>("HCCollection", "HcalHits");
   desc.add<int>("MaxEvent", 10);
   desc.add<bool>("TestNumber", true);
   descriptions.add("hcalSimHitDump", desc);
@@ -92,7 +92,6 @@ void HcalSimHitDump::analyze(const edm::Event& e, const edm::EventSetup&) {
 }
 
 void HcalSimHitDump::analyzeHits(std::vector<PCaloHit>& hits) {
-
   //Now the dump
   for (unsigned int i = 0; i < hits.size(); i++) {
     double edep = hits[i].energy();
