@@ -636,7 +636,7 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& idx) const {
   DetId id;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeomX") << "Encode " << idx.det << ":" << idx.zSide << ":" << idx.iType << ":" << idx.iLay
-				 << ":" << idx.iSec1 << ":" << idx.iSec2 << ":" << idx.iCell1 << ":" << idx.iCell2;
+                                 << ":" << idx.iSec1 << ":" << idx.iSec2 << ":" << idx.iCell1 << ":" << idx.iCell2;
 #endif
   if (waferHexagon6()) {
     id =
