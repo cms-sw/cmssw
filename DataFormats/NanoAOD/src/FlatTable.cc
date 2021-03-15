@@ -25,6 +25,12 @@ void nanoaod::FlatTable::addExtension(const nanoaod::FlatTable& other) {
       case ColumnType::UInt8:
         addColumn<uint8_t>(other.columnName(i), other.columnData<uint8_t>(i), other.columnDoc(i));
         break;
+      case ColumnType::UInt32:
+        addColumn<uint32_t>(other.columnName(i), other.columnData<uint32_t>(i), other.columnDoc(i));
+        break;
+      case ColumnType::Double:
+        addColumn<double>(other.columnName(i), other.columnData<double>(i), other.columnDoc(i));
+        break;
       default:
         throw cms::Exception("LogicError", "Unsupported type");
     }
@@ -43,6 +49,10 @@ double nanoaod::FlatTable::getAnyValue(unsigned int row, unsigned int column) co
       return *(beginData<bool>(column) + row);
     case ColumnType::UInt8:
       return *(beginData<uint8_t>(column) + row);
+    case ColumnType::UInt32:
+      return *(beginData<uint32_t>(column) + row);
+    case ColumnType::Double:
+      return *(beginData<double>(column) + row);
   }
   throw cms::Exception("LogicError", "Unsupported type");
 }
