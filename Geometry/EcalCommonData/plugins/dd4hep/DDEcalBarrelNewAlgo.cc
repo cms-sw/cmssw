@@ -461,17 +461,6 @@ namespace {
         nam, t.dz(), t.theta(), t.phi(), t.h1(), t.bl1(), t.tl1(), t.alp1(), t.h2(), t.bl2(), t.tl2(), t.alp2());
   }
 
-  TGeoCombiTrans* createPlacement(const Rotation3D& iRot, const Position& iTrans) {
-    double elements[9];
-    iRot.GetComponents(elements);
-    TGeoRotation r;
-    r.SetMatrix(elements);
-
-    TGeoTranslation t(iTrans.x(), iTrans.y(), iTrans.z());
-
-    return new TGeoCombiTrans(t, r);
-  }
-
   string_view mynamespace(string_view input) {
     string_view v = input;
     auto trim_pos = v.find(':');
@@ -1453,7 +1442,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                           vFAW[2] + Pt3D(2 * hawBoxClr, -5 * dd4hep::mm, 0),
                           vFAW[1] + Pt3D(-2 * hawBoxClr, -5 * dd4hep::mm, 0),
                           Pt3D(vFAW[1].x() - 2 * hawBoxClr, vFAW[1].y() - trapFAW.h(), vFAW[1].z() - zDel));
-    // FIXME: EFAW extruded by: EFAW/EHAWR_2 ovlp=0.209316 cm
+
     Solid fawSolid = SubtractionSolid(fawSolid1,
                                       fawCutBox,
                                       Transform3D(myrot(ns, fawCutName + "R", fawCutForm.getRotation()),
@@ -1488,13 +1477,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 << cms::convert2mm(hawRform.getTranslation().z()) << ") with rotation";
 #endif
 
-    // FIXME: extrusion when using placeVolume,
-    // use TGeoCombiTrans instead
-    fawLog->AddNode(  //.placeVolume(
+    fawLog.placeVolume(
         hawRLog,
         copyTwo,
-        createPlacement(
-            Rotation3D(1., 0., 0., 0., 1., 0., 0., 0., -1.) * RotationY(-M_PI),  // rotate about Y after refl thru Z
+        Transform3D(
+            Rotation3D(1., 0., 0., 0., 1., 0., 0., 0., -1.) * RotationY(M_PI),  // rotate about Y after refl thru Z
             Position(-hawRform.getTranslation().x(), -hawRform.getTranslation().y(), -hawRform.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("EBGeomX") << hawRLog.name() << ":" << copyTwo << " positioned in " << fawLog.name() << " at ("
