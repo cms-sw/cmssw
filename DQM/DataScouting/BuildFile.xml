@@ -4,6 +4,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/Math"/>
 <use name="DQMServices/Core"/>
+<use name="DataFormats/JetReco"/>
 <export>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
