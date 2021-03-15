@@ -158,7 +158,13 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             long int PosSL1 = (int)round(10 * SL1metaPrimitive->x / (10 * x_precision_));
             long int PosSL3 = (int)round(10 * SL3metaPrimitive->x / (10 * x_precision_));
             double NewSlope = -999.;
+
             long int pos = (PosSL3 + PosSL1) / 2;
+            // FW always rounds down (e.g 29.5 -> 29, -29.5 -> -30). For negative numbers, we don't do the same.
+            // Let's fix it (this also happens for the slope)
+            if (((PosSL3 + PosSL1) % 2 != 0) && (pos < 0)) {
+              pos--;
+            }
             long int tanpsi = -1;
             if (use_LSB_) {
               long int newConstant = (int)(139.5 * 4);
@@ -182,7 +188,6 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             
             int shift_sl1 = int(round(shiftinfo_[wireId1.rawId()] / x_precision_));
             int shift_sl3 = int(round(shiftinfo_[wireId3.rawId()] / x_precision_));
-            
             if (shift_sl1 < shift_sl3) {
               pos -= shift_sl1;
             } else pos -= shift_sl3;
