@@ -146,7 +146,6 @@ namespace edm {
                                    EventSetupImpl const* iImpl,
                                    ESProxyIndex const* proxies,
                                    edm::ServiceToken const& token) const {
-        WaitingTaskHolder h(task);
         auto recs = producer_->getTokenRecordIndices(id_);
         auto n = producer_->numberOfTokenIndices(id_);
         for (size_t i = 0; i != n; ++i) {
