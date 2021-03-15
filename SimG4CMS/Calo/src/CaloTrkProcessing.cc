@@ -91,7 +91,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       G4LogicalVolume* lv = nullptr;
       G4String name(csp->caloNames_[i]);
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-	G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+        G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
         if (namx == name) {
           lv = (*lvcite);
           break;
@@ -116,7 +116,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
           lv = nullptr;
           name = static_cast<G4String>(csp->insideNames_[istart + k]);
           for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-	    G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+            G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
             if (namx == name) {
               lv = (*lvcite);
               break;
@@ -138,7 +138,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       G4LogicalVolume* lv = nullptr;
       G4String name = static_cast<G4String>(fineNames[useFines[i]]);
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-	G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+        G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
         if (namx == name) {
           lv = (*lvcite);
           break;
@@ -428,7 +428,8 @@ void CaloTrkProcessing::detectorLevel(const G4VTouchable* touch, int& level, int
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloSimX") << "CaloTrkProcessing::detectorLevel " << " with " << level << ":" << detLevels(touch) << " levels";
+  edm::LogVerbatim("CaloSimX") << "CaloTrkProcessing::detectorLevel "
+                               << " with " << level << ":" << detLevels(touch) << " levels";
   for (int ii = 0; ii < level; ii++)
     edm::LogVerbatim("CaloSimX") << "[" << ii << "] " << name[ii] << ":" << copyno[ii];
 #endif
