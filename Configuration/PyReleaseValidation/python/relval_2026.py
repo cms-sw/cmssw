@@ -37,6 +37,8 @@ numWFIB.extend([34834.999]) #2026D76 premixing combined stage1+stage2 (ttbar+PU5
 numWFIB.extend([35034.0]) #2026D77
 numWFIB.extend([35434.0]) #2026D78
 numWFIB.extend([35834.0]) #2026D79
+numWFIB.extend([36234.0]) #2026D80
+numWFIB.extend([36634.0]) #2026D81
 
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]
