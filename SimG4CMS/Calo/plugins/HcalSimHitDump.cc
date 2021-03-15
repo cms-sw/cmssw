@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,10 +29,11 @@
 #include <map>
 #include <string>
 
-class HcalSimHitDump : public edm::EDAnalyzer {
+class HcalSimHitDump : public edm::one::EDAnalyzer<> {
 public:
   HcalSimHitDump(const edm::ParameterSet& ps);
   ~HcalSimHitDump() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
   void beginJob() override {}
@@ -41,21 +43,33 @@ protected:
   void analyzeHits(std::vector<PCaloHit>&);
 
 private:
-  std::string g4Label_, hitLab_;
+  const std::string g4Label_, hitLab_;
+  const int maxEvent_;
+  const bool testNumber_;
   edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_;
-  int nevt_, maxEvent_;
+  int nevt_;
 };
 
-HcalSimHitDump::HcalSimHitDump(const edm::ParameterSet& ps) : nevt_(0) {
-  g4Label_ = ps.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits");
-  hitLab_ = ps.getUntrackedParameter<std::string>("HCCollection", "HcalHits");
-  maxEvent_ = ps.getUntrackedParameter<int>("MaxEvent", 10);
-
+HcalSimHitDump::HcalSimHitDump(const edm::ParameterSet& ps)
+    : g4Label_(ps.getParameter<std::string>("ModuleLabel")),
+      hitLab_(ps.getParameter<std::string>("HCCollection")),
+      maxEvent_(ps.getParameter<int>("MaxEvent")),
+      testNumber_(ps.getParameter<bool>("TestNumber")),
+      nevt_(0) {
   // register for data access
   toks_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_));
 
   edm::LogVerbatim("HitStudy") << "HcalSimHitDump::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent "
-                               << maxEvent_;
+                               << maxEvent_ << " TestNumbering " << testNumber_;
+}
+
+void HcalSimHitDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ModuleLabel", "g4SimHits");
+  desc.add<std::string>("HCCollection", "HcalHits");
+  desc.add<int>("MaxEvent", 10);
+  desc.add<bool>("TestNumber", true);
+  descriptions.add("hcalSimHitDump", desc);
 }
 
 void HcalSimHitDump::analyze(const edm::Event& e, const edm::EventSetup&) {
@@ -78,22 +92,12 @@ void HcalSimHitDump::analyze(const edm::Event& e, const edm::EventSetup&) {
 }
 
 void HcalSimHitDump::analyzeHits(std::vector<PCaloHit>& hits) {
-  bool testN(false);
-  for (unsigned int k = 1; k < hits.size(); ++k) {
-    int det = (((hits[k].id()) >> 28) & 0xF);
-    if (det != 4) {
-      testN = true;
-      break;
-    }
-  }
-  edm::LogVerbatim("HitStudy") << "Hit ID uses numbering scheme " << testN << " (0 normal; 1 test)";
-
   //Now the dump
   for (unsigned int i = 0; i < hits.size(); i++) {
     double edep = hits[i].energy();
     double time = hits[i].time();
     unsigned int id_ = hits[i].id();
-    if (testN) {
+    if (testNumber_) {
       int det, z, depth, eta, phi, lay;
       HcalTestNumbering::unpackHcalIndex(id_, det, z, depth, eta, phi, lay);
       std::string sub("HX");
