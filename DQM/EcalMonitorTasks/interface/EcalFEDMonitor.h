@@ -21,6 +21,8 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+
 #include <iostream>
 
 // Making the class templated temporarily, until HLT sequence can be fixed (is using EBHltTask and EEHltTask currently)
@@ -37,6 +39,10 @@ private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   enum MEs { kEBOccupancy, kEBFatal, kEBNonFatal, kEEOccupancy, kEEFatal, kEENonFatal, nMEs };
+
+  EcalElectronicsMapping const *electronicsMap;
+  void setElectronicsMap(edm::EventSetup const &);
+  EcalElectronicsMapping const *GetElectronicsMap();
 
   std::string folderName_;
 

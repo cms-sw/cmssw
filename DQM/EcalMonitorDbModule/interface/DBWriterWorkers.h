@@ -9,11 +9,13 @@
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
+#include "DQM/EcalCommon/interface/DQWorker.h"
+
 #include <map>
 
 namespace ecaldqm {
 
-  class DBWriterWorker {
+  class DBWriterWorker : public DQWorker {
   public:
     typedef dqm::legacy::DQMStore DQMStore;
     typedef dqm::legacy::MonitorElement MonitorElement;
