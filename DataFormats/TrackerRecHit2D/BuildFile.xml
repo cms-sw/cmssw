@@ -6,6 +6,16 @@
 <use name="DataFormats/Phase2TrackerCluster"/>
 <use name="FWCore/MessageLogger"/>
 <use name="Geometry/CommonDetUnit"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/SiStripCluster"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="FWCore/Utilities"/>
 <export>
   <lib name="1"/>
 </export>
