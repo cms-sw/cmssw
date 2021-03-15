@@ -1,6 +1,7 @@
 <use name="eigen"/>
 <use name="rootmath"/>
 <use name="DataFormats/Common"/>
+<use name="FWCore/Utilities"/>
 <export>
   <lib name="1"/>
 </export>
