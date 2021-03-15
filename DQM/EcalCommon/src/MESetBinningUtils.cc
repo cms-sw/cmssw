@@ -11,7 +11,12 @@
 
 namespace ecaldqm {
   namespace binning {
-    AxisSpecs getBinning(EcalElectronicsMapping const *electronicsMap, ObjectType _otype, BinningType _btype, bool _isMap, int _axis, unsigned _iME) {
+    AxisSpecs getBinning(EcalElectronicsMapping const *electronicsMap,
+                         ObjectType _otype,
+                         BinningType _btype,
+                         bool _isMap,
+                         int _axis,
+                         unsigned _iME) {
       if (_otype >= nObjType || _btype >= unsigned(nPresetBinnings))
         return AxisSpecs();  // you are on your own
 
@@ -55,7 +60,10 @@ namespace ecaldqm {
       }
     }
 
-    int findBin1D(EcalElectronicsMapping const *electronicsMap, ObjectType _otype, BinningType _btype, const DetId &_id) {
+    int findBin1D(EcalElectronicsMapping const *electronicsMap,
+                  ObjectType _otype,
+                  BinningType _btype,
+                  const DetId &_id) {
       switch (_otype) {
         case kSM:
         case kEBSM:
@@ -138,7 +146,10 @@ namespace ecaldqm {
       return 0;
     }
 
-    int findBin1D(EcalElectronicsMapping const *electronicsMap, ObjectType _otype, BinningType _btype, const EcalElectronicsId &_id) {
+    int findBin1D(EcalElectronicsMapping const *electronicsMap,
+                  ObjectType _otype,
+                  BinningType _btype,
+                  const EcalElectronicsId &_id) {
       switch (_otype) {
         case kSM:
         case kEBSM:
@@ -239,7 +250,10 @@ namespace ecaldqm {
       return 0;
     }
 
-    int findBin2D(EcalElectronicsMapping const *electronicsMap, ObjectType _otype, BinningType _btype, const DetId &_id) {
+    int findBin2D(EcalElectronicsMapping const *electronicsMap,
+                  ObjectType _otype,
+                  BinningType _btype,
+                  const DetId &_id) {
       if (_otype >= nObjType || _btype >= unsigned(nPresetBinnings))
         return 0;
 
@@ -264,7 +278,10 @@ namespace ecaldqm {
       }
     }
 
-    int findBin2D(EcalElectronicsMapping const *electronicsMap, ObjectType _otype, BinningType _btype, const EcalElectronicsId &_id) {
+    int findBin2D(EcalElectronicsMapping const *electronicsMap,
+                  ObjectType _otype,
+                  BinningType _btype,
+                  const EcalElectronicsId &_id) {
       if (_otype >= nObjType || _btype >= unsigned(nPresetBinnings))
         return 0;
 
@@ -347,14 +364,19 @@ namespace ecaldqm {
       }
     }
 
-    unsigned findPlotIndex(EcalElectronicsMapping const *electronicsMap, ObjectType _otype, const EcalElectronicsId &_id) {
+    unsigned findPlotIndex(EcalElectronicsMapping const *electronicsMap,
+                           ObjectType _otype,
+                           const EcalElectronicsId &_id) {
       if (getNObjects(_otype) == 1)
         return 0;
 
       return findPlotIndex(electronicsMap, _otype, _id.dccId());
     }
 
-    unsigned findPlotIndex(EcalElectronicsMapping const *electronicsMap, ObjectType _otype, int _dcctccid, BinningType _btype /* = kDCC*/) {
+    unsigned findPlotIndex(EcalElectronicsMapping const *electronicsMap,
+                           ObjectType _otype,
+                           int _dcctccid,
+                           BinningType _btype /* = kDCC*/) {
       if (getNObjects(_otype) == 1)
         return 0;
 
@@ -536,7 +558,8 @@ namespace ecaldqm {
       }
     }
 
-    bool isValidIdBin(EcalElectronicsMapping const *electronicsMap, ObjectType _otype, BinningType _btype, unsigned _iME, int _bin) {
+    bool isValidIdBin(
+        EcalElectronicsMapping const *electronicsMap, ObjectType _otype, BinningType _btype, unsigned _iME, int _bin) {
       if (_otype == kEEm || _otype == kEEp) {
         if (_btype == kCrystal || _btype == kTriggerTower)
           return EEDetId::validDetId(_bin % 102, _bin / 102, 1);
@@ -588,7 +611,9 @@ namespace ecaldqm {
       return true;
     }
 
-    std::string channelName(const EcalElectronicsMapping *electronicsMap, uint32_t _rawId, BinningType _btype /* = kDCC*/) {
+    std::string channelName(const EcalElectronicsMapping *electronicsMap,
+                            uint32_t _rawId,
+                            BinningType _btype /* = kDCC*/) {
       // assume the following IDs for respective binning types:
       // Crystal: EcalElectronicsId
       // TriggerTower: EcalTriggerElectronicsId (pstrip and channel ignored)

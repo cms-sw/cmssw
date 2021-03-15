@@ -163,8 +163,10 @@ namespace ecaldqm {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
       unsigned iDCC(dccId(ttid, GetElectronicsMap()) - 1);
       if (nTTFMismath[iDCC] > 0.8 * nTTs[iDCC] || nWithTTF4[iDCC] > TTF4MaskingAlarmThreshold_ * nTTs[iDCC]) {
-        meEmulQualitySummary.setBinContent(getEcalDQMSetupObjects(), ttid,
-                                           meEmulQualitySummary.maskMatches(ttid, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
+        meEmulQualitySummary.setBinContent(
+            getEcalDQMSetupObjects(),
+            ttid,
+            meEmulQualitySummary.maskMatches(ttid, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
       }
     }
 
@@ -203,8 +205,10 @@ namespace ecaldqm {
       }
       float threshold(meanFED < nRMS * rmsFED ? minEntries_ : meanFED - nRMS * rmsFED);
       if ((meanFED > 100. && Nentries[iDCC] < threshold) && statsCheckEnabled)
-        meEmulQualitySummary.setBinContent(getEcalDQMSetupObjects(), ttid,
-                                           meEmulQualitySummary.maskMatches(ttid, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
+        meEmulQualitySummary.setBinContent(
+            getEcalDQMSetupObjects(),
+            ttid,
+            meEmulQualitySummary.maskMatches(ttid, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
     }
 
   }  // producePlots()

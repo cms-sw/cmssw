@@ -225,14 +225,14 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
 }
 
 template <int SUBDET>
-void EcalFEDMonitorTemp<SUBDET>::setElectronicsMap(edm::EventSetup const &_es) {
-    edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
-    _es.get<EcalMappingRcd>().get(elecMapHandle);
-    electronicsMap = elecMapHandle.product();
+void EcalFEDMonitorTemp<SUBDET>::setElectronicsMap(edm::EventSetup const& _es) {
+  edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
+  _es.get<EcalMappingRcd>().get(elecMapHandle);
+  electronicsMap = elecMapHandle.product();
 }
 
 template <int SUBDET>
-EcalElectronicsMapping const * EcalFEDMonitorTemp<SUBDET>::GetElectronicsMap() {
+EcalElectronicsMapping const* EcalFEDMonitorTemp<SUBDET>::GetElectronicsMap() {
   if (!electronicsMap)
     throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
   return electronicsMap;

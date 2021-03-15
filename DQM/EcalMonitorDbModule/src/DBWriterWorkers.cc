@@ -138,7 +138,8 @@ namespace ecaldqm {
 
     MESet::const_iterator dEnd(digiME.end(GetElectronicsMap()));
     MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
-    for (MESet::const_iterator dItr(digiME.beginChannel(GetElectronicsMap())); dItr != dEnd; dItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::const_iterator dItr(digiME.beginChannel(GetElectronicsMap())); dItr != dEnd;
+         dItr.toNextChannel(GetElectronicsMap())) {
       DetId id(dItr->getId());
 
       int nDigis(dItr->getBinContent());
@@ -372,7 +373,8 @@ namespace ecaldqm {
       MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
       MESet::const_iterator oItr(GetElectronicsMap(), aopME);
       MESet::const_iterator tItr(GetElectronicsMap(), timeME);
-      for (MESet::const_iterator aItr(ampME.beginChannel(GetElectronicsMap())); aItr != aEnd; aItr.toNextChannel(GetElectronicsMap())) {
+      for (MESet::const_iterator aItr(ampME.beginChannel(GetElectronicsMap())); aItr != aEnd;
+           aItr.toNextChannel(GetElectronicsMap())) {
         float aEntries(aItr->getBinEntries());
         if (aEntries < 1.)
           continue;
@@ -628,7 +630,8 @@ namespace ecaldqm {
 
       MESet::const_iterator pEnd(pedestalME.end(GetElectronicsMap()));
       MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
-      for (MESet::const_iterator pItr(pedestalME.beginChannel(GetElectronicsMap())); pItr != pEnd; pItr.toNextChannel(GetElectronicsMap())) {
+      for (MESet::const_iterator pItr(pedestalME.beginChannel(GetElectronicsMap())); pItr != pEnd;
+           pItr.toNextChannel(GetElectronicsMap())) {
         float entries(pItr->getBinEntries());
         if (entries < 1.)
           continue;
@@ -760,7 +763,8 @@ namespace ecaldqm {
 
     MESet::const_iterator pEnd(pedestalME.end(GetElectronicsMap()));
     MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
-    for (MESet::const_iterator pItr(pedestalME.beginChannel(GetElectronicsMap())); pItr != pEnd; pItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::const_iterator pItr(pedestalME.beginChannel(GetElectronicsMap())); pItr != pEnd;
+         pItr.toNextChannel(GetElectronicsMap())) {
       float entries(pItr->getBinEntries());
       if (entries < 1.)
         continue;
@@ -859,7 +863,8 @@ namespace ecaldqm {
 
       MESet::const_iterator aEnd(amplitudeME.end(GetElectronicsMap()));
       MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
-      for (MESet::const_iterator aItr(amplitudeME.beginChannel(GetElectronicsMap())); aItr != aEnd; aItr.toNextChannel(GetElectronicsMap())) {
+      for (MESet::const_iterator aItr(amplitudeME.beginChannel(GetElectronicsMap())); aItr != aEnd;
+           aItr.toNextChannel(GetElectronicsMap())) {
         float entries(aItr->getBinEntries());
         if (entries < 1.)
           continue;
@@ -1044,7 +1049,8 @@ namespace ecaldqm {
 
     MESet::const_iterator tEnd(timingME.end(GetElectronicsMap()));
     MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
-    for (MESet::const_iterator tItr(timingME.beginChannel(GetElectronicsMap())); tItr != tEnd; tItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::const_iterator tItr(timingME.beginChannel(GetElectronicsMap())); tItr != tEnd;
+         tItr.toNextChannel(GetElectronicsMap())) {
       float entries(tItr->getBinEntries());
       if (entries < 1.)
         continue;
@@ -1143,7 +1149,8 @@ x      PNDiodeTask.Pedestal (i13, i14)
       MESet::const_iterator qItr(GetElectronicsMap(), qualityME);
       MESet::const_iterator oItr(GetElectronicsMap(), aopME);
       MESet::const_iterator tItr(GetElectronicsMap(), timeME);
-      for (MESet::const_iterator aItr(ampME.beginChannel(GetElectronicsMap())); aItr != aEnd; aItr.toNextChannel(GetElectronicsMap())) {
+      for (MESet::const_iterator aItr(ampME.beginChannel(GetElectronicsMap())); aItr != aEnd;
+           aItr.toNextChannel(GetElectronicsMap())) {
         float aEntries(aItr->getBinEntries());
         if (aEntries < 1.)
           continue;
@@ -1297,7 +1304,8 @@ x      PNDiodeTask.Pedestal (i13, i14)
 
     MESet::const_iterator oEnd(occupancyME.end(GetElectronicsMap()));
     MESet::const_iterator eItr(GetElectronicsMap(), energyME);
-    for (MESet::const_iterator oItr(occupancyME.beginChannel(GetElectronicsMap())); oItr != oEnd; oItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::const_iterator oItr(occupancyME.beginChannel(GetElectronicsMap())); oItr != oEnd;
+         oItr.toNextChannel(GetElectronicsMap())) {
       if (oItr->getME()->getTH1()->GetEntries() < 1000.)
         continue;
 

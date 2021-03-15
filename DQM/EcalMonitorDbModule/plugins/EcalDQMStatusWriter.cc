@@ -20,13 +20,13 @@ EcalDQMStatusWriter::EcalDQMStatusWriter(edm::ParameterSet const &_ps)
     throw cms::Exception("Invalid input for EcalDQMStatusWriter");
 }
 
-void EcalDQMStatusWriter::beginRun(edm::Run const&_run, edm::EventSetup const&_es) {
-    setElectronicsMap(_es);
+void EcalDQMStatusWriter::beginRun(edm::Run const &_run, edm::EventSetup const &_es) {
+  setElectronicsMap(_es);
 
-    ecaldqm::StatusManager statusManager;
+  ecaldqm::StatusManager statusManager;
 
-    statusManager.readFromStream(inputFile_, GetElectronicsMap());
-    statusManager.writeToObj(channelStatus_, towerStatus_);
+  statusManager.readFromStream(inputFile_, GetElectronicsMap());
+  statusManager.writeToObj(channelStatus_, towerStatus_);
 }
 
 void EcalDQMStatusWriter::analyze(edm::Event const &, edm::EventSetup const &_es) {
@@ -41,12 +41,12 @@ void EcalDQMStatusWriter::analyze(edm::Event const &, edm::EventSetup const &_es
 }
 
 void EcalDQMStatusWriter::setElectronicsMap(edm::EventSetup const &_es) {
-    edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
-    _es.get<EcalMappingRcd>().get(elecMapHandle);
-    electronicsMap = elecMapHandle.product();
+  edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
+  _es.get<EcalMappingRcd>().get(elecMapHandle);
+  electronicsMap = elecMapHandle.product();
 }
 
-EcalElectronicsMapping const * EcalDQMStatusWriter::GetElectronicsMap() {
+EcalElectronicsMapping const *EcalDQMStatusWriter::GetElectronicsMap() {
   if (!electronicsMap)
     throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
   return electronicsMap;

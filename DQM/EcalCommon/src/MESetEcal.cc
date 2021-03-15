@@ -277,7 +277,9 @@ namespace ecaldqm {
     active_ = true;
   }
 
-  bool MESetEcal::retrieve(EcalElectronicsMapping const *electronicsMap, DQMStore::IGetter &_igetter, std::string *_failedPath /* = 0*/) const {
+  bool MESetEcal::retrieve(EcalElectronicsMapping const *electronicsMap,
+                           DQMStore::IGetter &_igetter,
+                           std::string *_failedPath /* = 0*/) const {
     clear();
 
     std::vector<std::string> mePaths(generatePaths(electronicsMap));
@@ -307,7 +309,11 @@ namespace ecaldqm {
     return true;
   }
 
-  void MESetEcal::fill(EcalDQMSetupObjects const edso, DetId const &_id, double _x /* = 1.*/, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetEcal::fill(EcalDQMSetupObjects const edso,
+                       DetId const &_id,
+                       double _x /* = 1.*/,
+                       double _wy /* = 1.*/,
+                       double _w /* = 1.*/) {
     if (!active_)
       return;
 
@@ -317,7 +323,11 @@ namespace ecaldqm {
     fill_(iME, _x, _wy, _w);
   }
 
-  void MESetEcal::fill(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, double _x /* = 1.*/, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetEcal::fill(EcalDQMSetupObjects const edso,
+                       EcalElectronicsId const &_id,
+                       double _x /* = 1.*/,
+                       double _wy /* = 1.*/,
+                       double _w /* = 1.*/) {
     if (!active_)
       return;
 
@@ -327,7 +337,8 @@ namespace ecaldqm {
     fill_(iME, _x, _wy, _w);
   }
 
-  void MESetEcal::fill(EcalDQMSetupObjects const edso, int _dcctccid, double _x /* = 1.*/, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetEcal::fill(
+      EcalDQMSetupObjects const edso, int _dcctccid, double _x /* = 1.*/, double _wy /* = 1.*/, double _w /* = 1.*/) {
     if (!active_)
       return;
 
@@ -357,7 +368,10 @@ namespace ecaldqm {
     mes_[iME]->setBinContent(_bin, _content);
   }
 
-  void MESetEcal::setBinContent(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _bin, double _content) {
+  void MESetEcal::setBinContent(EcalDQMSetupObjects const edso,
+                                EcalElectronicsId const &_id,
+                                int _bin,
+                                double _content) {
     if (!active_)
       return;
 
@@ -419,7 +433,10 @@ namespace ecaldqm {
     mes_[iME]->setBinEntries(_bin, _entries);
   }
 
-  void MESetEcal::setBinEntries(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _bin, double _entries) {
+  void MESetEcal::setBinEntries(EcalDQMSetupObjects const edso,
+                                EcalElectronicsId const &_id,
+                                int _bin,
+                                double _entries) {
     if (!active_)
       return;
     if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
@@ -549,7 +566,10 @@ namespace ecaldqm {
     return mes_[iME]->getTH1()->FindBin(_x, _y);
   }
 
-  int MESetEcal::findBin(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, double _x, double _y /* = 0.*/) const {
+  int MESetEcal::findBin(EcalDQMSetupObjects const edso,
+                         EcalElectronicsId const &_id,
+                         double _x,
+                         double _y /* = 0.*/) const {
     if (!active_)
       return -1;
 

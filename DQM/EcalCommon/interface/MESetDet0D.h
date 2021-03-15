@@ -22,9 +22,15 @@ namespace ecaldqm {
     void fill(EcalDQMSetupObjects const, EcalElectronicsId const &, double, double = 0., double = 0.) override;
     void fill(EcalDQMSetupObjects const, int, double, double = 0., double = 0.) override;
 
-    void setBinContent(EcalDQMSetupObjects const edso, DetId const &_id, int, double _value) override { fill(edso, _id, _value); }
-    void setBinContent(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int, double _value) override { fill(edso, _id, _value); }
-    void setBinContent(EcalDQMSetupObjects const edso, int _dcctccid, int, double _value) override { fill(edso, _dcctccid, _value); }
+    void setBinContent(EcalDQMSetupObjects const edso, DetId const &_id, int, double _value) override {
+      fill(edso, _id, _value);
+    }
+    void setBinContent(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int, double _value) override {
+      fill(edso, _id, _value);
+    }
+    void setBinContent(EcalDQMSetupObjects const edso, int _dcctccid, int, double _value) override {
+      fill(edso, _dcctccid, _value);
+    }
 
     double getBinContent(EcalDQMSetupObjects const, DetId const &, int = 0) const override;
     double getBinContent(EcalDQMSetupObjects const, EcalElectronicsId const &, int = 0) const override;

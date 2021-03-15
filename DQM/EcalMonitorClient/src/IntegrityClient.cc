@@ -45,7 +45,8 @@ namespace ecaldqm {
     // Fill Channel Status Map MEs
     // Record is checked for updates at every endLumi and filled here
     MESet::iterator chSEnd(meChStatus.end(GetElectronicsMap()));
-    for (MESet::iterator chSItr(meChStatus.beginChannel(GetElectronicsMap())); chSItr != chSEnd; chSItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::iterator chSItr(meChStatus.beginChannel(GetElectronicsMap())); chSItr != chSEnd;
+         chSItr.toNextChannel(GetElectronicsMap())) {
       DetId id(chSItr->getId());
 
       EcalChannelStatusMap::const_iterator chIt(nullptr);
@@ -69,7 +70,8 @@ namespace ecaldqm {
 
     MESet::iterator qEnd(meQuality.end(GetElectronicsMap()));
     MESet::const_iterator occItr(GetElectronicsMap(), sOccupancy);
-    for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd; qItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd;
+         qItr.toNextChannel(GetElectronicsMap())) {
       occItr = qItr;
 
       DetId id(qItr->getId());
@@ -109,16 +111,21 @@ namespace ecaldqm {
     MESet const& sBXTCC(sources_.at("BXTCC"));
     std::vector<bool> hasMismatchDCC(nDCC, false);
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
-      if (sBXSRP.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50. || sBXTCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50.)  // "any" => 50
+      if (sBXSRP.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50. ||
+          sBXTCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50.)  // "any" => 50
         hasMismatchDCC[iDCC] = true;
     }
     // Analyze mismatch statistics
-    for (MESet::iterator qsItr(meQualitySummary.beginChannel(GetElectronicsMap())); qsItr != meQualitySummary.end(GetElectronicsMap());
+    for (MESet::iterator qsItr(meQualitySummary.beginChannel(GetElectronicsMap()));
+         qsItr != meQualitySummary.end(GetElectronicsMap());
          qsItr.toNextChannel(GetElectronicsMap())) {
       DetId id(qsItr->getId());
       unsigned iDCC(dccId(id, GetElectronicsMap()) - 1);
       if (hasMismatchDCC[iDCC])
-        meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
+        meQualitySummary.setBinContent(
+            getEcalDQMSetupObjects(),
+            id,
+            meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
     }
 
   }  // producePlots()

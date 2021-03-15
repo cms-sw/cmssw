@@ -160,7 +160,8 @@ namespace ecaldqm {
     bool isQuality(_threshold > 0.);
 
     MESet::iterator tEnd(_target.end(GetElectronicsMap()));
-    for (MESet::iterator tItr(_target.beginChannel(GetElectronicsMap())); tItr != tEnd; tItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::iterator tItr(_target.beginChannel(GetElectronicsMap())); tItr != tEnd;
+         tItr.toNextChannel(GetElectronicsMap())) {
       DetId towerId(tItr->getId());
 
       std::vector<DetId> cryIds;

@@ -48,7 +48,8 @@ namespace ecaldqm {
 
     MESet::const_iterator dEnd(sDigi.end(GetElectronicsMap()));
     MESet::const_iterator rItr(GetElectronicsMap(), sRecHitThr);
-    for (MESet::const_iterator dItr(sDigi.beginChannel(GetElectronicsMap())); dItr != dEnd; dItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::const_iterator dItr(sDigi.beginChannel(GetElectronicsMap())); dItr != dEnd;
+         dItr.toNextChannel(GetElectronicsMap())) {
       rItr = dItr;
 
       float entries(dItr->getBinContent());
@@ -82,7 +83,8 @@ namespace ecaldqm {
     std::vector<float> Nrhentries(nDCC, 0.);  // (filtered) rechits
 
     // second round to find hot towers
-    for (MESet::const_iterator dItr(sDigi.beginChannel(GetElectronicsMap())); dItr != dEnd; dItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::const_iterator dItr(sDigi.beginChannel(GetElectronicsMap())); dItr != dEnd;
+         dItr.toNextChannel(GetElectronicsMap())) {
       DetId id(dItr->getId());
 
       bool doMask(meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
@@ -172,7 +174,10 @@ namespace ecaldqm {
         if (quality == kMBad || quality == kBad)
           continue;
 
-        meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
+        meQualitySummary.setBinContent(
+            getEcalDQMSetupObjects(),
+            id,
+            meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
       }
     }
 
@@ -199,7 +204,8 @@ namespace ecaldqm {
     rmsFEDEE = sqrt(abs(rmsFEDEE - meanFEDEE * meanFEDEE));
     // Analyze FED statistics
     float meanFED(0.), rmsFED(0.), nRMS(5.);
-    for (MESet::iterator qsItr(meQualitySummary.beginChannel(GetElectronicsMap())); qsItr != meQualitySummary.end(GetElectronicsMap());
+    for (MESet::iterator qsItr(meQualitySummary.beginChannel(GetElectronicsMap()));
+         qsItr != meQualitySummary.end(GetElectronicsMap());
          qsItr.toNextChannel(GetElectronicsMap())) {
       DetId id(qsItr->getId());
       unsigned iDCC(dccId(id, GetElectronicsMap()) - 1);
@@ -212,7 +218,10 @@ namespace ecaldqm {
       }
       float threshold(meanFED < nRMS * rmsFED ? minHits_ : meanFED - nRMS * rmsFED);
       if (meanFED > 1000. && Nrhentries[iDCC] < threshold)
-        meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
+        meQualitySummary.setBinContent(
+            getEcalDQMSetupObjects(),
+            id,
+            meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
     }
 
   }  // producePlots()

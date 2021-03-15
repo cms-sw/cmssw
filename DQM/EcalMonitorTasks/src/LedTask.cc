@@ -186,7 +186,8 @@ namespace ecaldqm {
         static_cast<MESetMulti&>(meSignalRate).use(iME);
       }
 
-      meSignalRate.fill(getEcalDQMSetupObjects(), (index <= kEEmHigh ? index : index + nEBDCC) + 1, enable_[index] ? 1 : 0);
+      meSignalRate.fill(
+          getEcalDQMSetupObjects(), (index <= kEEmHigh ? index : index + nEBDCC) + 1, enable_[index] ? 1 : 0);
     }
 
     if (!enable && isemptyLS >= 0)

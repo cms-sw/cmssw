@@ -85,7 +85,8 @@ namespace ecaldqm {
     }
   }
 
-  void MESetProjection::fill(EcalDQMSetupObjects const edso, int _subdet, double _x /* = 1.*/, double _w /* = 1.*/, double) {
+  void MESetProjection::fill(
+      EcalDQMSetupObjects const edso, int _subdet, double _x /* = 1.*/, double _w /* = 1.*/, double) {
     if (!active_)
       return;
 

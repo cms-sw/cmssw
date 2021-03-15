@@ -101,7 +101,9 @@ namespace ecaldqm {
     active_ = true;
   }
 
-  bool MESetMulti::retrieve(EcalElectronicsMapping const *electronicsMap, DQMStore::IGetter &_igetter, std::string *_failedPath /* = 0*/) const {
+  bool MESetMulti::retrieve(EcalElectronicsMapping const *electronicsMap,
+                            DQMStore::IGetter &_igetter,
+                            std::string *_failedPath /* = 0*/) const {
     for (unsigned iS(0); iS < sets_.size(); ++iS)
       if (!sets_[iS]->retrieve(electronicsMap, _igetter, _failedPath))
         return false;
@@ -117,7 +119,10 @@ namespace ecaldqm {
     active_ = false;
   }
 
-  void MESetMulti::reset(EcalElectronicsMapping const *electronicsMap, double _content /* = 0*/, double _error /* = 0.*/, double _entries /* = 0.*/) {
+  void MESetMulti::reset(EcalElectronicsMapping const *electronicsMap,
+                         double _content /* = 0*/,
+                         double _error /* = 0.*/,
+                         double _entries /* = 0.*/) {
     for (unsigned iS(0); iS < sets_.size(); ++iS)
       sets_[iS]->reset(electronicsMap, _content, _error, _entries);
   }

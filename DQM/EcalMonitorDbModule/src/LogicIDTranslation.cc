@@ -18,7 +18,7 @@ namespace ecaldqm {
     }
   }
 
-  EcalLogicID crystalID(DetId const &_id, EcalElectronicsMapping const*electronicsMap) {
+  EcalLogicID crystalID(DetId const &_id, EcalElectronicsMapping const *electronicsMap) {
     unsigned iDCC(dccId(_id, electronicsMap) - 1);
     if (iDCC <= kEEmHigh || iDCC >= kEEpLow) {
       EEDetId eeid(_id);

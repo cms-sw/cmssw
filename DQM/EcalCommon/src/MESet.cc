@@ -95,7 +95,10 @@ namespace ecaldqm {
       mes_[iME]->setAxisTitle(_title, _axis);
   }
 
-  void MESet::reset(EcalElectronicsMapping const *electronicsMap, double _content /* = 0.*/, double _err /* = 0.*/, double _entries /* = 0.*/) {
+  void MESet::reset(EcalElectronicsMapping const *electronicsMap,
+                    double _content /* = 0.*/,
+                    double _err /* = 0.*/,
+                    double _entries /* = 0.*/) {
     if (!active_)
       return;
 
@@ -164,7 +167,10 @@ namespace ecaldqm {
     return path.Data();
   }
 
-  bool MESet::maskMatches(DetId const &_id, uint32_t _mask, StatusManager const *_statusManager, EcalTrigTowerConstituentsMap const *trigTowerMap) const {
+  bool MESet::maskMatches(DetId const &_id,
+                          uint32_t _mask,
+                          StatusManager const *_statusManager,
+                          EcalTrigTowerConstituentsMap const *trigTowerMap) const {
     if (!_statusManager)
       return false;
 
@@ -334,7 +340,10 @@ namespace ecaldqm {
     return *this;
   }
 
-  MESet::const_iterator::const_iterator(EcalElectronicsMapping const *electronicsMap, MESet const &_meSet, DetId const &_id) : bin_() {
+  MESet::const_iterator::const_iterator(EcalElectronicsMapping const *electronicsMap,
+                                        MESet const &_meSet,
+                                        DetId const &_id)
+      : bin_() {
     binning::ObjectType otype(_meSet.getObjType());
     unsigned iME(binning::findPlotIndex(electronicsMap, otype, _id));
     if (iME == unsigned(-1))

@@ -267,7 +267,7 @@ namespace ecaldqm {
       const EcalTrigTowerDetId ttid(ttItr->first);
       if (ttItr->second > 0)
         meTTMaskMapAll.setBinContent(getEcalDQMSetupObjects(), ttid, 1);  // TT is masked
-    }                                           // TTs
+    }                                                                     // TTs
 
     // Fill from Strip Status Rcd
     const EcalTPGStripStatus* StripStatus(StripStatusRcd.product());
@@ -279,7 +279,7 @@ namespace ecaldqm {
       const EcalTrigTowerDetId ttid(GetElectronicsMap()->getTrigTowerDetId(stid.tccId(), stid.ttId()));
       if (stItr->second > 0)
         meTTMaskMapAll.setBinContent(getEcalDQMSetupObjects(), ttid, 1);  // PseudoStrip is masked
-    }                                           // PseudoStrips
+    }                                                                     // PseudoStrips
 
   }  // TrigPrimTask::runOnRealTPs()
 
@@ -354,7 +354,8 @@ namespace ecaldqm {
               matchedIndex.push_back(0);  // no Et match found => no emul
 
             // Fill Real vs Emulated TP Et
-            meRealvEmulEt.fill(getEcalDQMSetupObjects(), ttid, realEt, (*tpItr)[2].compressedEt());  // iDigi=2:in-time BX
+            meRealvEmulEt.fill(
+                getEcalDQMSetupObjects(), ttid, realEt, (*tpItr)[2].compressedEt());  // iDigi=2:in-time BX
 
             // Fill matchedIndex ME
             for (std::vector<int>::iterator matchItr(matchedIndex.begin()); matchItr != matchedIndex.end();

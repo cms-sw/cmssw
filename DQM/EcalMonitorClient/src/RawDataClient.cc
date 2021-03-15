@@ -33,13 +33,14 @@ namespace ecaldqm {
 
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
       double entries(sEntries.getBinContent(getEcalDQMSetupObjects(), iDCC + 1));
-      if (entries > 1. &&
-          sL1ADCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > synchErrThresholdFactor_ * std::log(entries) / std::log(10.))
+      if (entries > 1. && sL1ADCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) >
+                              synchErrThresholdFactor_ * std::log(entries) / std::log(10.))
         dccStatus[iDCC] = 0;
     }
 
     MESet::iterator meEnd(meQualitySummary.end(GetElectronicsMap()));
-    for (MESet::iterator meItr(meQualitySummary.beginChannel(GetElectronicsMap())); meItr != meEnd; meItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::iterator meItr(meQualitySummary.beginChannel(GetElectronicsMap())); meItr != meEnd;
+         meItr.toNextChannel(GetElectronicsMap())) {
       DetId id(meItr->getId());
 
       bool doMask(meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));

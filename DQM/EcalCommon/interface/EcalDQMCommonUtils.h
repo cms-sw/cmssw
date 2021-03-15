@@ -143,7 +143,7 @@ namespace ecaldqm {
 
   std::vector<DetId> scConstituents(EcalScDetId const &);
 
-  EcalPnDiodeDetId pnForCrystal(DetId const &, char, EcalElectronicsMapping const*);
+  EcalPnDiodeDetId pnForCrystal(DetId const &, char, EcalElectronicsMapping const *);
 
   unsigned dccId(std::string const &);
   std::string smName(unsigned);

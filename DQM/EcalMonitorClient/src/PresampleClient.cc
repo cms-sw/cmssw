@@ -54,7 +54,8 @@ namespace ecaldqm {
     MESet::const_iterator pLSItr(GetElectronicsMap(), sPedestalByLS);
     double maxEB(0.), minEB(0.), maxEE(0.), minEE(0.);
     double rmsMaxEB(0.), rmsMaxEE(0.);
-    for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd; qItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd;
+         qItr.toNextChannel(GetElectronicsMap())) {
       pItr = qItr;
       pLSItr = qItr;
 

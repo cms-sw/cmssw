@@ -147,7 +147,10 @@ EcalCondDBReader::~EcalCondDBReader() {
   delete meSet_;
 }
 
-void EcalCondDBReader::dqmEndRun(DQMStore::IBooker &_ibooker, DQMStore::IGetter &, edm::Run const &, edm::EventSetup const &_es) {
+void EcalCondDBReader::dqmEndRun(DQMStore::IBooker &_ibooker,
+                                 DQMStore::IGetter &,
+                                 edm::Run const &,
+                                 edm::EventSetup const &_es) {
   setElectronicsMap(_es);
   meSet_->book(_ibooker, GetElectronicsMap());
 
@@ -157,12 +160,12 @@ void EcalCondDBReader::dqmEndRun(DQMStore::IBooker &_ibooker, DQMStore::IGetter 
 }
 
 void EcalCondDBReader::setElectronicsMap(edm::EventSetup const &_es) {
-    edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
-    _es.get<EcalMappingRcd>().get(elecMapHandle);
-    electronicsMap = elecMapHandle.product();
+  edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
+  _es.get<EcalMappingRcd>().get(elecMapHandle);
+  electronicsMap = elecMapHandle.product();
 }
 
-EcalElectronicsMapping const * EcalCondDBReader::GetElectronicsMap() {
+EcalElectronicsMapping const *EcalCondDBReader::GetElectronicsMap() {
   if (!electronicsMap)
     throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
   return electronicsMap;

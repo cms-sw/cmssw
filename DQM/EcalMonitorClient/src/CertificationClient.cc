@@ -21,7 +21,9 @@ namespace ecaldqm {
 
     double meanValue(0.);
     for (int iDCC(0); iDCC < nDCC; ++iDCC) {
-      double certValue(sDAQ.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) * sDCS.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) * sDQM.getBinContent(getEcalDQMSetupObjects(), iDCC + 1));
+      double certValue(sDAQ.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) *
+                       sDCS.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) *
+                       sDQM.getBinContent(getEcalDQMSetupObjects(), iDCC + 1));
 
       meCertificationContents.fill(getEcalDQMSetupObjects(), iDCC + 1, certValue);
       meCertificationMap.setBinContent(getEcalDQMSetupObjects(), iDCC + 1, certValue);
