@@ -29,14 +29,14 @@
 template <int SUBDET>
 class EcalFEDMonitorTemp : public DQMEDAnalyzer {
 public:
-  EcalFEDMonitorTemp(edm::ParameterSet const&);
+  EcalFEDMonitorTemp(edm::ParameterSet const &);
   ~EcalFEDMonitorTemp() override {}
 
 private:
-  void analyze(edm::Event const&, edm::EventSetup const&) override;
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
 
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   enum MEs { kEBOccupancy, kEBFatal, kEBNonFatal, kEEOccupancy, kEEFatal, kEENonFatal, nMEs };
 
@@ -56,7 +56,7 @@ private:
   edm::EDGetTokenT<EcalElectronicsIdCollection> towerIdErrorsToken_;
   edm::EDGetTokenT<EcalElectronicsIdCollection> blockSizeErrorsToken_;
 
-  std::vector<MonitorElement*> MEs_;
+  std::vector<MonitorElement *> MEs_;
 };
 
 #endif

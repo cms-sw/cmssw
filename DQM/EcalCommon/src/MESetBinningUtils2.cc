@@ -222,7 +222,8 @@ namespace ecaldqm {
       return specs;
     }
 
-    AxisSpecs getBinningSM_(BinningType _btype, bool _isMap, unsigned _iObj, int _axis, const EcalElectronicsMapping *electronicsMap) {
+    AxisSpecs getBinningSM_(
+        BinningType _btype, bool _isMap, unsigned _iObj, int _axis, const EcalElectronicsMapping *electronicsMap) {
       AxisSpecs specs;
 
       unsigned iSM(_iObj);
@@ -426,7 +427,10 @@ namespace ecaldqm {
       return specs;
     }
 
-    int findBinCrystal_(const EcalElectronicsMapping *electronicsMap, ObjectType _otype, const DetId &_id, int _iSM /* = -1*/) {
+    int findBinCrystal_(const EcalElectronicsMapping *electronicsMap,
+                        ObjectType _otype,
+                        const DetId &_id,
+                        int _iSM /* = -1*/) {
       int xbin(0), ybin(0);
       int nbinsX(0);
       int subdet(_id.subdetId());
@@ -596,7 +600,10 @@ namespace ecaldqm {
       return (nbinsX + 2) * ybin + xbin;
     }
 
-    int findBinSuperCrystal_(const EcalElectronicsMapping *electronicsMap, ObjectType _otype, const DetId &_id, int _iSM /* -1*/) {
+    int findBinSuperCrystal_(const EcalElectronicsMapping *electronicsMap,
+                             ObjectType _otype,
+                             const DetId &_id,
+                             int _iSM /* -1*/) {
       int xbin(0);
       int ybin(0);
       int nbinsX(0);
@@ -712,7 +719,9 @@ namespace ecaldqm {
       return (nbinsX + 2) * ybin + xbin;
     }
 
-    int findBinSuperCrystal_(const EcalElectronicsMapping *electronicsMap, ObjectType _otype, const EcalElectronicsId &_id) {
+    int findBinSuperCrystal_(const EcalElectronicsMapping *electronicsMap,
+                             ObjectType _otype,
+                             const EcalElectronicsId &_id) {
       int xbin(0);
       int ybin(0);
       int nbinsX(0);

@@ -42,7 +42,8 @@ namespace ecaldqm {
     MESet::iterator zs1RateItr(GetElectronicsMap(), meZS1);
 
     MESet::const_iterator cEnd(sFlagCounterMap.end(GetElectronicsMap()));
-    for (MESet::const_iterator cItr(sFlagCounterMap.beginChannel(GetElectronicsMap())); cItr != cEnd; cItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::const_iterator cItr(sFlagCounterMap.beginChannel(GetElectronicsMap())); cItr != cEnd;
+         cItr.toNextChannel(GetElectronicsMap())) {
       ruItr = cItr;
       frItr = cItr;
       zs1Itr = cItr;

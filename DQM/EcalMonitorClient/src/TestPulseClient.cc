@@ -144,7 +144,8 @@ namespace ecaldqm {
       MESet::iterator qEnd(meQuality.end(GetElectronicsMap()));
       MESet::iterator rItr(GetElectronicsMap(), meAmplitudeRMS);
       MESet::const_iterator aItr(GetElectronicsMap(), sAmplitude);
-      for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd; qItr.toNextChannel(GetElectronicsMap())) {
+      for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd;
+           qItr.toNextChannel(GetElectronicsMap())) {
         DetId id(qItr->getId());
 
         bool doMask(meQuality.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));

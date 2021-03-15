@@ -86,7 +86,8 @@ namespace ecaldqm {
       setAxisTitle("LumiSections");
   }
 
-  void MESetTrend::fill(EcalDQMSetupObjects const edso, DetId const &_id, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetTrend::fill(
+      EcalDQMSetupObjects const edso, DetId const &_id, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
     if (!active_)
       return;
 
@@ -97,7 +98,11 @@ namespace ecaldqm {
       fill_(iME, _t + 0.5, _wy, _w);
   }
 
-  void MESetTrend::fill(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetTrend::fill(EcalDQMSetupObjects const edso,
+                        EcalElectronicsId const &_id,
+                        double _t,
+                        double _wy /* = 1.*/,
+                        double _w /* = 1.*/) {
     if (!active_)
       return;
 
@@ -108,7 +113,8 @@ namespace ecaldqm {
       fill_(iME, _t + 0.5, _wy, _w);
   }
 
-  void MESetTrend::fill(EcalDQMSetupObjects const edso, int _dcctccid, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
+  void MESetTrend::fill(
+      EcalDQMSetupObjects const edso, int _dcctccid, double _t, double _wy /* = 1.*/, double _w /* = 1.*/) {
     if (!active_)
       return;
 
@@ -139,7 +145,10 @@ namespace ecaldqm {
     return mes_[iME]->getTH1()->FindBin(_t + 0.5, _y);
   }
 
-  int MESetTrend::findBin(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, double _t, double _y /* = 0.*/) const {
+  int MESetTrend::findBin(EcalDQMSetupObjects const edso,
+                          EcalElectronicsId const &_id,
+                          double _t,
+                          double _y /* = 0.*/) const {
     if (!active_)
       return -1;
 

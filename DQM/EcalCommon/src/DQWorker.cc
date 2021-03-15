@@ -16,7 +16,14 @@
 
 namespace ecaldqm {
   DQWorker::DQWorker()
-      : name_(""), MEs_(), booked_(false), timestamp_(), verbosity_(0), onlineMode_(false), willConvertToEDM_(true), edso_() {}
+      : name_(""),
+        MEs_(),
+        booked_(false),
+        timestamp_(),
+        verbosity_(0),
+        onlineMode_(false),
+        willConvertToEDM_(true),
+        edso_() {}
 
   DQWorker::~DQWorker() noexcept(false) {}
 
@@ -77,7 +84,7 @@ namespace ecaldqm {
   }
 
   void DQWorker::setSetupObjects(edm::EventSetup const &_es) {
-     edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
+    edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
     _es.get<EcalMappingRcd>().get(elecMapHandle);
     edso_.electronicsMap = elecMapHandle.product();
 
@@ -94,40 +101,40 @@ namespace ecaldqm {
     edso_.topology = topoHandle.product();
   }
 
-  EcalElectronicsMapping const * DQWorker::GetElectronicsMap() {
+  EcalElectronicsMapping const *DQWorker::GetElectronicsMap() {
     if (!edso_.electronicsMap)
       throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
     return edso_.electronicsMap;
   }
 
-  EcalTrigTowerConstituentsMap const * DQWorker::GetTrigTowerMap() {
+  EcalTrigTowerConstituentsMap const *DQWorker::GetTrigTowerMap() {
     if (!edso_.trigtowerMap)
       throw cms::Exception("InvalidCall") << "TrigTowerConstituentsMap not initialized";
     return edso_.trigtowerMap;
   }
 
-  CaloGeometry const * DQWorker::GetGeometry() {
+  CaloGeometry const *DQWorker::GetGeometry() {
     if (!edso_.geometry)
       throw cms::Exception("InvalidCall") << "CaloGeometry not initialized";
     return edso_.geometry;
   }
 
-  CaloTopology const * DQWorker::GetTopology() {
+  CaloTopology const *DQWorker::GetTopology() {
     if (!edso_.topology)
       throw cms::Exception("InvalidCall") << "CaloTopology not initialized";
     return edso_.topology;
   }
 
   EcalDQMSetupObjects const DQWorker::getEcalDQMSetupObjects() {
-      if (!edso_.electronicsMap)
-        throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
-      if (!edso_.trigtowerMap)
-        throw cms::Exception("InvalidCall") << "TrigTowerConstituentsMap not initialized";
-      if (!edso_.geometry)
-        throw cms::Exception("InvalidCall") << "CaloGeometry not initialized";
-      if (!edso_.topology)
-        throw cms::Exception("InvalidCall") << "CaloTopology not initialized";
-      return edso_;
+    if (!edso_.electronicsMap)
+      throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
+    if (!edso_.trigtowerMap)
+      throw cms::Exception("InvalidCall") << "TrigTowerConstituentsMap not initialized";
+    if (!edso_.geometry)
+      throw cms::Exception("InvalidCall") << "CaloGeometry not initialized";
+    if (!edso_.topology)
+      throw cms::Exception("InvalidCall") << "CaloTopology not initialized";
+    return edso_;
   }
 
   void DQWorker::print_(std::string const &_message, int _threshold /* = 0*/) const {

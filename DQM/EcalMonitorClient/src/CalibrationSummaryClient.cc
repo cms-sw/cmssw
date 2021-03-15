@@ -145,7 +145,8 @@ namespace ecaldqm {
     MESet const& sPNIntegrity(sources_.at("PNIntegrity"));
 
     MESet::iterator qEnd(meQualitySummary.end(GetElectronicsMap()));
-    for (MESet::iterator qItr(meQualitySummary.beginChannel(GetElectronicsMap())); qItr != qEnd; qItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::iterator qItr(meQualitySummary.beginChannel(GetElectronicsMap())); qItr != qEnd;
+         qItr.toNextChannel(GetElectronicsMap())) {
       DetId id(qItr->getId());
 
       int status(kGood);

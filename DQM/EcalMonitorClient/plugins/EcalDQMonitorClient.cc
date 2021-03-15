@@ -62,7 +62,9 @@ void EcalDQMonitorClient::fillDescriptions(edm::ConfigurationDescriptions& _desc
 }
 
 void EcalDQMonitorClient::beginRun(edm::Run const& _run, edm::EventSetup const& _es) {
-  executeOnWorkers_([&_es](ecaldqm::DQWorker* worker) { worker->setSetupObjects(_es); }, "ecaldqmGetSetupObjects", "Getting EventSetup Objects");
+  executeOnWorkers_([&_es](ecaldqm::DQWorker* worker) { worker->setSetupObjects(_es); },
+                    "ecaldqmGetSetupObjects",
+                    "Getting EventSetup Objects");
 
   if (_es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMChannelStatusRcd>()) &&
       _es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMTowerStatusRcd>())) {

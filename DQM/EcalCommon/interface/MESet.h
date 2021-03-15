@@ -28,10 +28,10 @@ namespace ecaldqm {
 */
 
   struct EcalDQMSetupObjects {
-      EcalElectronicsMapping const *electronicsMap;
-      EcalTrigTowerConstituentsMap const *trigtowerMap;
-      CaloGeometry const *geometry;
-      CaloTopology const *topology;
+    EcalElectronicsMapping const *electronicsMap;
+    EcalTrigTowerConstituentsMap const *trigtowerMap;
+    CaloGeometry const *geometry;
+    CaloTopology const *topology;
   };
 
   class StatusManager;
@@ -52,7 +52,9 @@ namespace ecaldqm {
     virtual MESet *clone(std::string const & = "") const;
 
     virtual void book(DQMStore::IBooker &, EcalElectronicsMapping const *) {}
-    virtual bool retrieve(EcalElectronicsMapping const *, DQMStore::IGetter &, std::string * = nullptr) const { return false; }
+    virtual bool retrieve(EcalElectronicsMapping const *, DQMStore::IGetter &, std::string * = nullptr) const {
+      return false;
+    }
     virtual void clear() const;
 
     virtual void fill(EcalDQMSetupObjects const, DetId const &, double = 1., double = 1., double = 1.) {}
@@ -256,7 +258,8 @@ namespace ecaldqm {
   */
     struct const_iterator {
       const_iterator() : bin_() {}
-      const_iterator(EcalElectronicsMapping const *, MESet const &_meSet, unsigned _iME = 0, int _iBin = 1) : bin_(_meSet, _iME, _iBin) {}
+      const_iterator(EcalElectronicsMapping const *, MESet const &_meSet, unsigned _iME = 0, int _iBin = 1)
+          : bin_(_meSet, _iME, _iBin) {}
       const_iterator(EcalElectronicsMapping const *, MESet const &, DetId const &);
       const_iterator(const_iterator const &_orig) : bin_(_orig.bin_) {}
       const_iterator &operator=(const_iterator const &_rhs) {
@@ -279,10 +282,12 @@ namespace ecaldqm {
 
     struct iterator : public const_iterator {
       iterator() : const_iterator(), bin_() {}
-      iterator(EcalElectronicsMapping const *electronicsMap, MESet &_meSet, unsigned _iME = 0, int _iBin = 1) : const_iterator(electronicsMap, _meSet, _iME, _iBin), bin_(_meSet) {
+      iterator(EcalElectronicsMapping const *electronicsMap, MESet &_meSet, unsigned _iME = 0, int _iBin = 1)
+          : const_iterator(electronicsMap, _meSet, _iME, _iBin), bin_(_meSet) {
         bin_.ConstBin::operator=(const_iterator::bin_);
       }
-      iterator(EcalElectronicsMapping const *electronicsMap, MESet &_meSet, DetId const &_id) : const_iterator(electronicsMap, _meSet, _id), bin_(_meSet) {
+      iterator(EcalElectronicsMapping const *electronicsMap, MESet &_meSet, DetId const &_id)
+          : const_iterator(electronicsMap, _meSet, _id), bin_(_meSet) {
         bin_.ConstBin::operator=(const_iterator::bin_);
       }
       iterator(iterator const &_orig) : const_iterator(_orig), bin_(_orig.bin_) {}
@@ -328,9 +333,13 @@ namespace ecaldqm {
       Bin bin_;
     };
 
-    virtual const_iterator begin(EcalElectronicsMapping const *electronicsMap) const { return const_iterator(electronicsMap, *this); }
+    virtual const_iterator begin(EcalElectronicsMapping const *electronicsMap) const {
+      return const_iterator(electronicsMap, *this);
+    }
 
-    virtual const_iterator end(EcalElectronicsMapping const *electronicsMap) const { return const_iterator(electronicsMap, *this, -1, -1); }
+    virtual const_iterator end(EcalElectronicsMapping const *electronicsMap) const {
+      return const_iterator(electronicsMap, *this, -1, -1);
+    }
 
     virtual const_iterator beginChannel(EcalElectronicsMapping const *electronicsMap) const {
       const_iterator itr(electronicsMap, *this, 0, 0);
@@ -339,7 +348,9 @@ namespace ecaldqm {
 
     virtual iterator begin(EcalElectronicsMapping const *electronicsMap) { return iterator(electronicsMap, *this); }
 
-    virtual iterator end(EcalElectronicsMapping const *electronicsMap) { return iterator(electronicsMap, *this, -1, -1); }
+    virtual iterator end(EcalElectronicsMapping const *electronicsMap) {
+      return iterator(electronicsMap, *this, -1, -1);
+    }
 
     virtual iterator beginChannel(EcalElectronicsMapping const *electronicsMap) {
       iterator itr(electronicsMap, *this, 0, 0);

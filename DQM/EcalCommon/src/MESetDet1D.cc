@@ -107,7 +107,8 @@ namespace ecaldqm {
     }
   }
 
-  void MESetDet1D::fill(EcalDQMSetupObjects const edso, DetId const &_id, double _wy /* = 1.*/, double _w /* = 1.*/, double) {
+  void MESetDet1D::fill(
+      EcalDQMSetupObjects const edso, DetId const &_id, double _wy /* = 1.*/, double _w /* = 1.*/, double) {
     if (!active_)
       return;
 
@@ -123,7 +124,8 @@ namespace ecaldqm {
       fill_(iME, xbin, _wy);
   }
 
-  void MESetDet1D::fill(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, double _wy /* = 1.*/, double _w /* = 1.*/, double) {
+  void MESetDet1D::fill(
+      EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, double _wy /* = 1.*/, double _w /* = 1.*/, double) {
     if (!active_)
       return;
 
@@ -139,7 +141,8 @@ namespace ecaldqm {
       fill_(iME, xbin, _wy);
   }
 
-  void MESetDet1D::fill(EcalDQMSetupObjects const edso, int _dcctccid, double _wy /* = 1.*/, double _w /* = 1.*/, double) {
+  void MESetDet1D::fill(
+      EcalDQMSetupObjects const edso, int _dcctccid, double _wy /* = 1.*/, double _w /* = 1.*/, double) {
     if (!active_)
       return;
 
@@ -231,7 +234,10 @@ namespace ecaldqm {
     me->setBinContent(xbin, _ybin, _content);
   }
 
-  void MESetDet1D::setBinContent(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _ybin, double _content) {
+  void MESetDet1D::setBinContent(EcalDQMSetupObjects const edso,
+                                 EcalElectronicsId const &_id,
+                                 int _ybin,
+                                 double _content) {
     if (!active_)
       return;
     if (kind_ != MonitorElement::Kind::TH2F && kind_ != MonitorElement::Kind::TPROFILE2D)
@@ -457,7 +463,10 @@ namespace ecaldqm {
     me->setBinEntries((nbinsX + 2) * _ybin + xbin, _entries);
   }
 
-  void MESetDet1D::setBinEntries(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _ybin, double _entries) {
+  void MESetDet1D::setBinEntries(EcalDQMSetupObjects const edso,
+                                 EcalElectronicsId const &_id,
+                                 int _ybin,
+                                 double _entries) {
     if (!active_)
       return;
     if (kind_ != MonitorElement::Kind::TPROFILE2D)
@@ -507,7 +516,9 @@ namespace ecaldqm {
     return me->getBinContent((nbinsX + 2) * _ybin + xbin);
   }
 
-  double MESetDet1D::getBinContent(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _ybin /* = 0*/) const {
+  double MESetDet1D::getBinContent(EcalDQMSetupObjects const edso,
+                                   EcalElectronicsId const &_id,
+                                   int _ybin /* = 0*/) const {
     if (!active_)
       return 0.;
 
@@ -555,7 +566,9 @@ namespace ecaldqm {
     return me->getBinError((nbinsX + 2) * _ybin + xbin);
   }
 
-  double MESetDet1D::getBinError(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _ybin /* = 0*/) const {
+  double MESetDet1D::getBinError(EcalDQMSetupObjects const edso,
+                                 EcalElectronicsId const &_id,
+                                 int _ybin /* = 0*/) const {
     if (!active_)
       return 0.;
 
@@ -605,7 +618,9 @@ namespace ecaldqm {
     return me->getBinEntries((nbinsX + 2) * _ybin + xbin);
   }
 
-  double MESetDet1D::getBinEntries(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, int _ybin /* = 0*/) const {
+  double MESetDet1D::getBinEntries(EcalDQMSetupObjects const edso,
+                                   EcalElectronicsId const &_id,
+                                   int _ybin /* = 0*/) const {
     if (!active_)
       return 0.;
     if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
@@ -731,7 +746,10 @@ namespace ecaldqm {
     return xbin + (nbinsX + 2) * me->getTH1()->GetYaxis()->FindBin(_y);
   }
 
-  void MESetDet1D::reset(EcalElectronicsMapping const *, double _content /* = 0.*/, double _err /* = 0.*/, double _entries /* = 0.*/) {
+  void MESetDet1D::reset(EcalElectronicsMapping const *,
+                         double _content /* = 0.*/,
+                         double _err /* = 0.*/,
+                         double _entries /* = 0.*/) {
     unsigned nME(binning::getNObjects(otype_));
 
     bool isProfile(kind_ == MonitorElement::Kind::TPROFILE || kind_ == MonitorElement::Kind::TPROFILE2D);

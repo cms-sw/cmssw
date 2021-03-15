@@ -182,7 +182,9 @@ namespace ecaldqm {
     active_ = true;
   }
 
-  bool MESetNonObject::retrieve(EcalElectronicsMapping const *electronicsMap, DQMStore::IGetter &_igetter, std::string *_failedPath /* = 0*/) const {
+  bool MESetNonObject::retrieve(EcalElectronicsMapping const *electronicsMap,
+                                DQMStore::IGetter &_igetter,
+                                std::string *_failedPath /* = 0*/) const {
     mes_.clear();
 
     MonitorElement *me(_igetter.get(path_));

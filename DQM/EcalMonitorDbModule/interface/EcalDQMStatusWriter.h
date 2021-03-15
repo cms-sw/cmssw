@@ -18,7 +18,7 @@ public:
 
 private:
   void analyze(edm::Event const &, edm::EventSetup const &) override;
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
   EcalDQMChannelStatus channelStatus_;
   EcalDQMTowerStatus towerStatus_;

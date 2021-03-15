@@ -65,7 +65,8 @@ namespace ecaldqm {
     float EBentries(0.), EEentries(0.);
     float EBmean(0.), EEmean(0.);
     float EBrms(0.), EErms(0.);
-    for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd; qItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd;
+         qItr.toNextChannel(GetElectronicsMap())) {
       tItr = qItr;
       rItr = qItr;
 
@@ -172,7 +173,8 @@ namespace ecaldqm {
 
     MESet::iterator qsEnd(meQualitySummary.end(GetElectronicsMap()));
 
-    for (MESet::iterator qsItr(meQualitySummary.beginChannel(GetElectronicsMap())); qsItr != qsEnd; qsItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::iterator qsItr(meQualitySummary.beginChannel(GetElectronicsMap())); qsItr != qsEnd;
+         qsItr.toNextChannel(GetElectronicsMap())) {
       DetId tId(qsItr->getId());
 
       std::vector<DetId> ids;

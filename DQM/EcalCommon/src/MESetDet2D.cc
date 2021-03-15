@@ -104,7 +104,8 @@ namespace ecaldqm {
     }
   }
 
-  void MESetDet2D::fill(EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, double _w /* = 1.*/, double, double) {
+  void MESetDet2D::fill(
+      EcalDQMSetupObjects const edso, EcalElectronicsId const &_id, double _w /* = 1.*/, double, double) {
     if (!active_)
       return;
 
@@ -492,7 +493,10 @@ namespace ecaldqm {
     return binning::findBin2D(edso.electronicsMap, obj, btype_, _id);
   }
 
-  void MESetDet2D::reset(EcalElectronicsMapping const *electronicsMap, double _content /* = 0.*/, double _err /* = 0.*/, double _entries /* = 0.*/) {
+  void MESetDet2D::reset(EcalElectronicsMapping const *electronicsMap,
+                         double _content /* = 0.*/,
+                         double _err /* = 0.*/,
+                         double _entries /* = 0.*/) {
     unsigned nME(binning::getNObjects(otype_));
 
     bool isProfile(kind_ == MonitorElement::Kind::TPROFILE2D);

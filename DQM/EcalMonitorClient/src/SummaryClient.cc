@@ -67,7 +67,8 @@ namespace ecaldqm {
     double rawDataByLumi[nDCC];
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
       integrityByLumi[iDCC] = sIntegrityByLumi.getBinContent(getEcalDQMSetupObjects(), iDCC + 1);
-      rawDataByLumi[iDCC] = sDesyncByLumi.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) + sFEByLumi.getBinContent(getEcalDQMSetupObjects(), iDCC + 1);
+      rawDataByLumi[iDCC] = sDesyncByLumi.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) +
+                            sFEByLumi.getBinContent(getEcalDQMSetupObjects(), iDCC + 1);
     }
 
     MESet& meQualitySummary(MEs_.at("QualitySummary"));
@@ -97,7 +98,8 @@ namespace ecaldqm {
     MESet const& sBXTCC(sources_.at("BXTCC"));
     std::vector<bool> hasMismatchDCC(nDCC, false);
     for (unsigned iDCC(0); iDCC < nDCC; ++iDCC) {
-      if (sBXSRP.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50. || sBXTCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50.)  // "any" = 50
+      if (sBXSRP.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50. ||
+          sBXTCC.getBinContent(getEcalDQMSetupObjects(), iDCC + 1) > 50.)  // "any" = 50
         hasMismatchDCC[iDCC] = true;
     }
 
@@ -105,7 +107,8 @@ namespace ecaldqm {
     uint32_t mask(1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR);
 
     MESet::iterator qEnd(meQualitySummary.end(GetElectronicsMap()));
-    for (MESet::iterator qItr(meQualitySummary.beginChannel(GetElectronicsMap())); qItr != qEnd; qItr.toNextChannel(GetElectronicsMap())) {
+    for (MESet::iterator qItr(meQualitySummary.beginChannel(GetElectronicsMap())); qItr != qEnd;
+         qItr.toNextChannel(GetElectronicsMap())) {
       DetId id(qItr->getId());
       unsigned iDCC(dccId(id, GetElectronicsMap()) - 1);
 
@@ -115,7 +118,8 @@ namespace ecaldqm {
       int presample(sPresample ? (int)sPresample->getBinContent(getEcalDQMSetupObjects(), id) : kUnknown);
       int hotcell(sHotCell ? (int)sHotCell->getBinContent(getEcalDQMSetupObjects(), id) : kUnknown);
       int timing(sTiming ? (int)sTiming->getBinContent(getEcalDQMSetupObjects(), id) : kUnknown);
-      int trigprim(sTriggerPrimitives ? (int)sTriggerPrimitives->getBinContent(getEcalDQMSetupObjects(), id) : kUnknown);
+      int trigprim(sTriggerPrimitives ? (int)sTriggerPrimitives->getBinContent(getEcalDQMSetupObjects(), id)
+                                      : kUnknown);
       int rawdata(sRawData.getBinContent(getEcalDQMSetupObjects(), id));
 
       double rawdataLS(sFEStatusErrMapByLumi.getBinContent(getEcalDQMSetupObjects(), id));  // Includes FE=Disabled

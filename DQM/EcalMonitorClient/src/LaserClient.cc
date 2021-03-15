@@ -118,7 +118,8 @@ namespace ecaldqm {
 
       int wl(wlItr->first - 1);
       bool enabled(wl < 0 ? false : sCalibStatus.getBinContent(getEcalDQMSetupObjects(), wl) > 0 ? true : false);
-      for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd; qItr.toNextChannel(GetElectronicsMap())) {
+      for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd;
+           qItr.toNextChannel(GetElectronicsMap())) {
         DetId id(qItr->getId());
 
         bool doMask(meQuality.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));

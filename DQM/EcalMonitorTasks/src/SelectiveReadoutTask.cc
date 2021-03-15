@@ -240,7 +240,8 @@ namespace ecaldqm {
       meHighIntPayload.fill(getEcalDQMSetupObjects(), EcalBarrel, nHighInt[0] * bytesPerCrystal / 1024. / nEBDCC);
       meLowIntPayload.fill(getEcalDQMSetupObjects(), EcalBarrel, nLowInt[0] * bytesPerCrystal / 1024. / nEBDCC);
     } else {
-      meHighIntPayload.fill(getEcalDQMSetupObjects(), -EcalEndcap, nHighInt[0] * bytesPerCrystal / 1024. / (nEEDCC / 2));
+      meHighIntPayload.fill(
+          getEcalDQMSetupObjects(), -EcalEndcap, nHighInt[0] * bytesPerCrystal / 1024. / (nEEDCC / 2));
       meHighIntPayload.fill(getEcalDQMSetupObjects(), EcalEndcap, nHighInt[1] * bytesPerCrystal / 1024. / (nEEDCC / 2));
       meLowIntPayload.fill(getEcalDQMSetupObjects(), -EcalEndcap, nLowInt[0] * bytesPerCrystal / 1024. / (nEEDCC / 2));
       meLowIntPayload.fill(getEcalDQMSetupObjects(), EcalEndcap, nLowInt[1] * bytesPerCrystal / 1024. / (nEEDCC / 2));
