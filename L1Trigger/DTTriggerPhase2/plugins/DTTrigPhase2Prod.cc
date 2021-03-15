@@ -28,7 +28,6 @@
 #include "L1Trigger/DTTriggerPhase2/interface/PseudoBayesGrouping.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzer.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyticAnalyzer.h"
-//#include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerPerSL.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerInChamber.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAssociator.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
@@ -181,7 +180,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   double shift;
   if (ifin3.fail()) {
     throw cms::Exception("Missing Input File")
-        << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << shift_filename_.fullPath();
+        << "DTTrigPhase2Prod::DTTrigPhase2Prod -  Cannot find " << shift_filename_.fullPath();
   }
   while (ifin3.good()) {
     ifin3 >> rawId >> shift;
@@ -220,7 +219,6 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "DTp2:constructor: JM analyzer";
     mpathanalyzer_ = std::make_unique<MuonPathAnalyticAnalyzer>(pset, consumesColl);
-    // mpathanalyzer_ = std::make_unique<MuonPathAnalyzerPerSL>(pset, consumesColl);
   } else {
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "DTp2:constructor: Full chamber analyzer";
