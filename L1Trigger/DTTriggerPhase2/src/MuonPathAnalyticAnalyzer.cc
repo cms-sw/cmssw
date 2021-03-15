@@ -27,7 +27,7 @@ MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm
   setChiSquareThreshold(chi2Th_);
   fillLAYOUT_VALID_TO_LATCOMB_CONSTS_ENCODER();
 
-  //shift
+  //shift phi
   int rawId;
   shift_filename_ = pset.getParameter<edm::FileInPath>("shift_filename");
   std::ifstream ifin3(shift_filename_.fullPath());
@@ -40,6 +40,21 @@ MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm
     ifin3 >> rawId >> shift;
     shiftinfo_[rawId] = shift;
   }
+
+  //shift theta
+
+  shift_theta_filename_ = pset.getParameter<edm::FileInPath>("shift_theta_filename");
+  std::ifstream ifin4(shift_theta_filename_.fullPath());
+  if (ifin4.fail()) {
+      throw cms::Exception("Missing Input File")
+	  << "MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL() -  Cannot find " << shift_theta_filename_.fullPath();
+  }
+
+  while (ifin4.good()) {
+      ifin4 >> rawId >> shift;
+      shiftthetainfo_[rawId] = shift;
+  }
+
 
   chosen_sl_ = pset.getUntrackedParameter<int>("trigger_with_sl");
 
@@ -310,11 +325,22 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
     phiB = global_coords[1];
   }
 
+
+  
+
   // get the lateralities (in reverse order) in order to fill the metaprimitive
   std::vector <int> lateralities = getLateralityCombination(latcomb);
   for (int lay = 0; lay < NUM_LAYERS; lay++) {
     if (valid[lay] == 0)
       lateralities[lay] = -1;
+  }
+
+  if (MuonPathSLId.superLayer() == 2){
+      DTLayerId SL2_layer2Id(MuonPathSLId,2);
+      double z_shift=shiftthetainfo_[SL2_layer2Id.rawId()];     
+      double jm_y = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? z_shift-pos_f : z_shift+pos_f;
+      phi=jm_y;
+      phiB=slope_f;//
   }
 
   metaPrimitives.emplace_back(metaPrimitive({MuonPathSLId.rawId(),

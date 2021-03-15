@@ -6,7 +6,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -55,6 +58,8 @@ private:
   float getDistance(const GlobalPoint&, const GlobalPoint&);
   float getDiff(const float, const float);
 
+  bool hasPosRF(const int, const int);
+
   void makeHistograms(const char*);
   void makeHistogram(const string&, vector<float>&);
 
@@ -82,8 +87,7 @@ private:
 
 DTGeometryValidate::DTGeometryValidate(const edm::ParameterSet& iConfig)
     : dtGeometryToken_{esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
-      infileName_(
-          iConfig.getUntrackedParameter<string>("infileName", "Geometry/DTGeometryBuilder/data/cmsRecoGeom-2021.root")),
+      infileName_(iConfig.getUntrackedParameter<string>("infileName", "Geometry/DTGeometryBuilder/data/cmsRecoGeom-2021.root")),
       outfileName_(iConfig.getUntrackedParameter<string>("outfileName", "validateDTGeometry.root")),
       tolerance_(iConfig.getUntrackedParameter<int>("tolerance", 6)) {
   edm::FileInPath fp(infileName_.c_str());
@@ -103,14 +107,241 @@ void DTGeometryValidate::analyze(const edm::Event& event, const edm::EventSetup&
     LogVerbatim("DTGeometry") << "Invalid DT geometry";
 }
 
+bool DTGeometryValidate::hasPosRF(int wh,int sec){
+    return  wh>0 || (wh==0 && sec%4>1);
+}
+
+
 void DTGeometryValidate::validateDTChamberGeometry() {
   clearData();
+
+  //my-code                                                                                                                                                        
+
+  double step=0.001; //v4 was produced with a step of 0.01
+
+  double xcoordinate=0.;
+  double pointX=0;
+
 
   for (auto const& it : dtGeometry_->chambers()) {
     DTChamberId chId = it->id();
     GlobalPoint gp = it->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
 
     const TGeoMatrix* matrix = fwGeometry_.getMatrix(chId.rawId());
+
+
+    double width=it->surface().bounds().width();
+
+
+    int thisec = chId.sector();                                                                                                                                                                                                           
+
+    if (thisec == 13)
+        thisec = 4;
+    if (thisec == 14)
+        thisec = 10;
+
+
+    DTLayerId SL1_layer2Id(chId,1,2);
+    const int lastChannel_sl1_la2 = dtGeometry_->layer(SL1_layer2Id)->specificTopology().lastChannel();
+    double localX_sl1_la2 = dtGeometry_->layer(SL1_layer2Id)->specificTopology().wirePosition(1);
+    double localX_LC_sl1_la2 = dtGeometry_->layer(SL1_layer2Id)->specificTopology().wirePosition(lastChannel_sl1_la2);
+    GlobalPoint gp_w1_sl1_la2 = dtGeometry_->layer(SL1_layer2Id)->surface().toGlobal(LocalPoint(localX_sl1_la2, 0.,-0.65)); //do we need to correct from the wire position to the sl position?                                             
+    GlobalPoint gp_wLC_sl1_la2 = dtGeometry_->layer(SL1_layer2Id)->surface().toGlobal(LocalPoint(localX_LC_sl1_la2, 0.,-0.65));
+
+    DTLayerId SL3_layer2Id(chId,3,2);
+    const int lastChannel_sl3_la2 = dtGeometry_->layer(SL1_layer2Id)->specificTopology().lastChannel();
+    double localX_sl3_la2 = dtGeometry_->layer(SL3_layer2Id)->specificTopology().wirePosition(1);
+    double localX_LC_sl3_la2 = dtGeometry_->layer(SL3_layer2Id)->specificTopology().wirePosition(lastChannel_sl3_la2);
+    GlobalPoint gp_w1_sl3_la2 = dtGeometry_->layer(SL3_layer2Id)->surface().toGlobal(LocalPoint(localX_sl3_la2, 0.,-0.65));
+    GlobalPoint gp_wLC_sl3_la2 = dtGeometry_->layer(SL3_layer2Id)->surface().toGlobal(LocalPoint(localX_LC_sl3_la2, 0.,-0.65)); //z=--0.65?                                                                                                
+
+    LocalPoint gp_w1_sl1_la2_inCH = it->surface().toLocal(gp_w1_sl1_la2);
+    LocalPoint gp_w1_sl3_la2_inCH = it->surface().toLocal(gp_w1_sl3_la2);
+
+    LocalPoint gp_wLC_sl1_la2_inCH = it->surface().toLocal(gp_wLC_sl1_la2);
+    LocalPoint gp_wLC_sl3_la2_inCH = it->surface().toLocal(gp_wLC_sl3_la2);
+
+    double delta=gp_w1_sl3_la2_inCH.x()-gp_w1_sl1_la2_inCH.x();
+    double deltaZ=gp_w1_sl3_la2_inCH.z()-gp_w1_sl1_la2_inCH.z();
+
+    DTWireId wire1_sl1_la2(SL1_layer2Id,1);
+    DTWireId wire1_sl3_la2(SL3_layer2Id,1);
+
+    std::cout<<"map \t chId:"<<chId<<" width:"<<width<<" "<<chId.rawId()<<" phi(0,0,0):"<<gp.phi()<<" secphi(0,0,0):"<<gp.phi()-0.5235988*(thisec-1)
+
+             <<" Delta_SL3_SL1_inCH:"<<delta
+
+             <<" DeltaZ_SL3-SL1_inCH:"<<deltaZ<<" = "<<gp_w1_sl3_la2_inCH.z()<<" - "<<gp_w1_sl1_la2_inCH.z()
+
+             <<" gp_w1_sl1_la2_inCH.x:"<<gp_w1_sl1_la2_inCH.x()
+             <<" gp_wLC_sl1_la2_inCH.x:"<<gp_wLC_sl1_la2_inCH.x()
+
+             <<" gp_w1_sl1_la2.phi:"<<gp_w1_sl1_la2.phi()
+             <<" gp_wLC_sl1_la2.phi:"<<gp_wLC_sl1_la2.phi()
+
+             <<" gp_w1_sl1_la2.phisec:"<<gp_w1_sl1_la2.phi()-0.5235988*(thisec-1)
+             <<" gp_wLC_sl1_la2.phisec:"<<gp_wLC_sl1_la2.phi()-0.5235988*(thisec-1)
+
+
+             <<" gp_w1_sl3_la2_inCH.x:"<<gp_w1_sl3_la2_inCH.x()
+             <<" gp_wLC_sl3_la2_inCH.x:"<<gp_wLC_sl3_la2_inCH.x()
+
+             <<" gp_w1_sl3_la2.phi:"<<gp_w1_sl3_la2.phi()
+             <<" gp_wLC_sl3_la2.phi:"<<gp_wLC_sl3_la2.phi()
+
+             <<" gp_w1_sl3_la2.phisec:"<<gp_w1_sl3_la2.phi()-0.5235988*(thisec-1)
+             <<" gp_wLC_sl3_la2.phisec:"<<gp_wLC_sl3_la2.phi()-0.5235988*(thisec-1)
+
+             <<" shift_info_cmssw_jm "<<wire1_sl1_la2.rawId()<<" "<<gp_w1_sl1_la2_inCH.x()
+             <<" shift_info_cmssw_jm "<<wire1_sl3_la2.rawId()<<" "<<gp_w1_sl3_la2_inCH.x()
+
+             <<std::endl;
+
+    //double left_limit=gp_w1_sl1_la2_inCH.x();//-2.1;                                                                                                                                                                                     
+    //if(delta<0)                                                                                                                                                                                                                          
+    //left_limit=gp_w1_sl3_la2_inCH.x()-2.1;                                                                                                                                                                                               
+
+    //double z = 0.;                                                                                                                                                                                                                       
+    //if (chId.station() >= 3)                                                                                                                                                                                                             
+    //z = -1.8;                                                                                                                                                                                                                            
+
+    double secphi=0;
+
+
+    double min_secphi=999.;
+    double min_pointX=999.;
+    bool found=false;
+
+    double distance_test=80.;
+
+    //loop over SL1 line:----------------------------------------------------                                                                                                                                                              
+
+    secphi=0;
+
+    DTSuperLayerId SL1Id(chId,1);
+
+    double widthSL1=dtGeometry_->layer(SL1_layer2Id)->surface().bounds().width();
+    double widthSL1_with_wires=fabs( dtGeometry_->layer(SL1_layer2Id)->specificTopology().wirePosition(1) - dtGeometry_->layer(SL1_layer2Id)->specificTopology().wirePosition(lastChannel_sl1_la2) );
+
+    double jm_point_layer_frame_sl1=dtGeometry_->layer(SL1_layer2Id)->specificTopology().wirePosition(1);
+
+    found=false;
+
+    min_secphi=999.;
+    min_pointX=999.;
+
+    for(pointX=-5.*widthSL1_with_wires;pointX<=5.*widthSL1_with_wires;pointX=pointX+step){
+        xcoordinate=jm_point_layer_frame_sl1+pointX;
+        GlobalPoint gp = dtGeometry_->layer(SL1_layer2Id)->surface().toGlobal(LocalPoint(xcoordinate,0.0, -0.65));
+        secphi = gp.phi()-0.5235988*(thisec-1);
+        if(fabs(secphi)<=fabs(min_secphi)){
+            min_secphi=secphi;
+            min_pointX=pointX;
+            found =true;
+        }
+    }
+
+    if(found==true){
+        double perp=(dtGeometry_->layer(SL1_layer2Id)->surface().toGlobal(LocalPoint(jm_point_layer_frame_sl1+min_pointX,0.,-0.65))).perp();
+	std::cout<<"phi_sector_0 "<<SL1Id.rawId()<<" "<<min_secphi
+                 <<" confirmation "<<(dtGeometry_->layer(SL1_layer2Id)->surface().toGlobal(LocalPoint(jm_point_layer_frame_sl1+min_pointX,0.0, -0.65))).phi()-0.5235988*(thisec-1)
+                 <<" slname "<<SL1Id
+                 <<" perp "<<perp
+                 <<" min_pointX "<<min_pointX
+                 <<std::endl;
+
+        //if(!hasPosRF(chId.wheel(),chId.sector())) min_pointX=min_pointX*(-1)+jm_point_layer_frame_sl1;                                                                                                                                   
+        //if(!hasPosRF(chId.wheel(),chId.sector())) jm_point_layer_frame_sl1=jm_point_layer_frame_sl1*(-1);                                                                                                                                
+
+
+        double geometry_position=((dtGeometry_->layer(SL1_layer2Id)->surface().toGlobal(LocalPoint(jm_point_layer_frame_sl1+distance_test,0.0, 0.0))).phi()-0.5235988*(thisec-1));
+
+        double angle_arctan=TMath::ATan((min_pointX-distance_test)/perp);
+        if(!hasPosRF(chId.wheel(),chId.sector())) angle_arctan*=-1;
+
+        double diff_wrt_phisec0=angle_arctan-geometry_position;
+
+        if(fabs(diff_wrt_phisec0)>0.02)std::cout<<"phisl0 warning diff_geo_cmssw= "<<diff_wrt_phisec0<<" "<<SL1Id<<" widthSL1:"<<widthSL1<<" widthSL1_with_wires:"<<widthSL1_with_wires<<std::endl;
+
+        //if(hasPosRF(chId.wheel(),chId.sector()))std::cout<<"test_arctan(X_10cm): "<<diff_wrt_phisec0 <<std::endl;                                                                                                                        
+	std::cout<<"test_arctan(X_10cm): "<<diff_wrt_phisec0 <<std::endl;
+
+    }else{
+	std::cout<<"phisl0 not found for "<<SL1Id
+                 <<"looping from "<<-5.*widthSL1_with_wires<<" to "<<5.*widthSL1_with_wires
+                 <<" or from phi="<<(dtGeometry_->layer(SL1_layer2Id)->surface().toGlobal(LocalPoint(jm_point_layer_frame_sl1-5.*widthSL1_with_wires,0.0, 0.0))).phi()-0.5235988*(thisec-1)
+		 <<" to phi="<<(dtGeometry_->layer(SL1_layer2Id)->surface().toGlobal(LocalPoint(jm_point_layer_frame_sl1+5.*widthSL1_with_wires,0.0, 0.0))).phi()-0.5235988*(thisec-1)
+                 <<std::endl;
+    }
+
+
+
+
+
+    //loop over SL3 line:-------------------------------------------------------------                                                                                                                                                     
+
+
+    secphi=0;
+
+    DTSuperLayerId SL3Id(chId,3);
+
+    double widthSL3=dtGeometry_->layer(SL3_layer2Id)->surface().bounds().width();
+    double widthSL3_with_wires=fabs( dtGeometry_->layer(SL3_layer2Id)->specificTopology().wirePosition(1) - dtGeometry_->layer(SL3_layer2Id)->specificTopology().wirePosition(lastChannel_sl3_la2) );
+
+    double jm_point_layer_frame_sl3=dtGeometry_->layer(SL3_layer2Id)->specificTopology().wirePosition(1);
+
+    found=false;
+
+    min_secphi=999.;
+    min_pointX=999.;
+
+    for(pointX=-5.*widthSL3_with_wires;pointX<=5.*widthSL3_with_wires;pointX=pointX+step){
+        xcoordinate=jm_point_layer_frame_sl3+pointX;
+        GlobalPoint gp = dtGeometry_->layer(SL3_layer2Id)->surface().toGlobal(LocalPoint(xcoordinate,0.0, -0.65));
+        secphi = gp.phi()-0.5235988*(thisec-1);
+        if(fabs(secphi)<=fabs(min_secphi)){
+            min_secphi=secphi;
+            min_pointX=pointX;
+            found =true;
+        }
+    }
+
+    if(found==true){
+        double perp=(dtGeometry_->layer(SL3_layer2Id)->surface().toGlobal(LocalPoint(jm_point_layer_frame_sl3+min_pointX,0.,-0.65))).perp();
+	std::cout<<"phi_sector_0 "<<SL3Id.rawId()<<" "<<min_secphi
+                 <<" confirmation "<<(dtGeometry_->layer(SL3_layer2Id)->surface().toGlobal(LocalPoint(jm_point_layer_frame_sl3+min_pointX,0.0, -0.65))).phi()-0.5235988*(thisec-1)
+                 <<" slname "<<SL3Id
+                 <<" perp "<<perp
+                 <<" min_pointX "<<min_pointX
+                 <<std::endl;
+
+        //if(!hasPosRF(chId.wheel(),chId.sector())){min_pointX=min_pointX*(-1)+jm_point_layer_frame_sl3;                                                                                                                                   
+        //if(!hasPosRF(chId.wheel(),chId.sector())) jm_point_layer_frame_sl3=jm_point_layer_frame_sl3*(-1);                                                                                                                                
+
+
+        double geometry_position=((dtGeometry_->layer(SL3_layer2Id)->surface().toGlobal(LocalPoint(jm_point_layer_frame_sl3+distance_test,0.0, 0.0))).phi()-0.5235988*(thisec-1));
+
+        double angle_arctan=TMath::ATan((min_pointX-distance_test)/perp);
+        if(!hasPosRF(chId.wheel(),chId.sector())) angle_arctan*=-1.;
+
+        double diff_wrt_phisec0=angle_arctan-geometry_position;
+
+        if(fabs(diff_wrt_phisec0)>0.02)std::cout<<"phisl0 warning diff_geo_cmssw= "<<diff_wrt_phisec0<<" "<<SL3Id<<" widthSL3:"<<widthSL3<<" widthSL3_with_wires:"<<widthSL3_with_wires<<std::endl;
+
+        //if(hasPosRF(chId.wheel(),chId.sector())) std::cout<<"test_arctan(X_10cm): "<<diff_wrt_phisec0 <<std::endl;                                                                                                                       
+	std::cout<<"test_arctan(X_10cm): "<<diff_wrt_phisec0 <<std::endl;
+
+
+    }else{
+	std::cout<<"phisl0 not found for "<<SL3Id
+                 <<"looping from "<<-5.*widthSL3_with_wires<<" to "<<5.*widthSL3_with_wires
+                 <<" or from phi="<<(dtGeometry_->layer(SL3_layer2Id)->surface().toGlobal(LocalPoint(jm_point_layer_frame_sl3-5.*widthSL3_with_wires,0.0, 0.0))).phi()-0.5235988*(thisec-1)
+		 <<" to phi="<<(dtGeometry_->layer(SL3_layer2Id)->surface().toGlobal(LocalPoint(jm_point_layer_frame_sl3+5.*widthSL3_with_wires,0.0, 0.0))).phi()-0.5235988*(thisec-1)
+                 <<std::endl;
+    }
+
+
+    //my-code//          
 
     if (!matrix) {
       LogVerbatim("DTGeometry") << "Failed to get matrix of DT chamber with detid: " << chId.rawId();
