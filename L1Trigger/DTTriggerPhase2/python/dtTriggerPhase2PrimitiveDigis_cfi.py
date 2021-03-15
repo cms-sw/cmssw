@@ -27,7 +27,8 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                ttrig_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_ttrig.txt'),
                                                z_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_z.txt'),
                                                shift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_x.txt'),
-                                               global_coords_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/datafiles/output.txt'),
+                                               global_coords_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/global_coord_perp_x_phi0.txt'),
+                                               cmssw_for_global = cms.untracked.bool(False),
                                                algo = cms.int32(0), # 0 = STD gr., 2 = Hough transform, 1 = PseudoBayes Approach
 
                                                minHits4Fit = cms.untracked.int32(4),

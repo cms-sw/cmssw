@@ -25,6 +25,7 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCo
   dTanPsi_correlate_TP_ = pset.getUntrackedParameter<double>("dTanPsi_correlate_TP");
   minx_match_2digis_ = pset.getUntrackedParameter<double>("minx_match_2digis");
   chi2corTh_ = pset.getUntrackedParameter<double>("chi2corTh");
+  cmssw_for_global_ = pset.getUntrackedParameter<bool>("cmssw_for_global");
 
   if (debug_)
     LogDebug("MuonPathAssociator") << "MuonPathAssociator: constructor";
@@ -275,30 +276,36 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             if (SL3metaPrimitive->quality == 3 && SL1metaPrimitive->quality == 3)
               quality = 8;
 
-            double z = 0;
-            if (ChId.station() >= 3)
-              z = -1.8;
-            GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(
-                LocalPoint(MeanPos, 0., z));  //Jm_x is already extrapolated to the middle of the SL
-            int thisec = ChId.sector();
-            if (se == 13)
-              thisec = 4;
-            if (se == 14)
-              thisec = 10;
-            double phi = jm_x_cmssw_global.phi() - 0.5235988 * (thisec - 1);
-            double psi = atan(NewSlope);
-            double phiB = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi : -psi - phi;
-            
-            auto global_coords = globalcoordsobtainer_->get_global_coordinates(
-              ChId.rawId(), 0, pos, tanpsi);
+            double phi = -999.;
+            double phiB = -999.;
+            if (cmssw_for_global_) {
+              double z = 0;
+              if (ChId.station() >= 3)
+                z = -1.8;
+              GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(
+                  LocalPoint(MeanPos, 0., z));  //Jm_x is already extrapolated to the middle of the SL
+              int thisec = ChId.sector();
+              if (se == 13)
+                thisec = 4;
+              if (se == 14)
+                thisec = 10;
+              phi = jm_x_cmssw_global.phi() - 0.5235988 * (thisec - 1);
+              double psi = atan(NewSlope);
+              phiB = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi : -psi - phi;
+            } else {
+              auto global_coords = globalcoordsobtainer_->get_global_coordinates(
+                ChId.rawId(), 0, pos, tanpsi);
+              phi = global_coords[0];
+              phiB = global_coords[1];
+            }
 
             if (!clean_chi2_correlation_)
               outMPaths.emplace_back(ChId.rawId(),
                                      MeanT0,
                                      MeanPos,
                                      NewSlope,
-                                     global_coords[0],
-                                     global_coords[1],
+                                     phi,
+                                     phiB,
                                      newChi2,
                                      quality,
                                      SL1metaPrimitive->wi1,
@@ -330,8 +337,8 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                                                  MeanT0,
                                                  MeanPos,
                                                  NewSlope,
-                                                 global_coords[0],
-                                                 global_coords[1],
+                                                 phi,
+                                                 phiB,
                                                  newChi2,
                                                  quality,
                                                  SL1metaPrimitive->wi1,

@@ -112,6 +112,7 @@ private:
   bool use_LSB_;
   double tanPsi_precision_;
   double x_precision_;
+  bool cmssw_for_global_;
   std::vector <CELL_VALID_LAYOUT_CONSTANTS> LAYOUT_VALID_TO_LATCOMB_CONSTS_ENCODER;
   
   // global coordinates

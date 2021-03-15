@@ -88,6 +88,7 @@ public:
   bool outer(const metaPrimitive& mp) const;
   bool inner(const metaPrimitive& mp) const;
   void printmP(const std::string& ss, const metaPrimitive& mP) const;
+  void printmPstr(const metaPrimitive& mP) const;
   void printmPC(const std::string& ss, const metaPrimitive& mP) const;
   bool hasPosRF(int wh, int sec) const;
 
@@ -119,6 +120,7 @@ private:
   bool print_prims_;
   std::string file_to_print_;
   bool print_digis_;
+  bool cmssw_for_global_;
   std::string digi_file_to_print_;
 
   // shift
@@ -201,10 +203,12 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   file_to_print_ = pset.getUntrackedParameter<std::string>("file_to_print", "debug.txt");
   print_digis_ = pset.getUntrackedParameter<bool>("print_digis", true);
   digi_file_to_print_ = pset.getUntrackedParameter<std::string>("digi_file_to_print", "digis.txt");
+  cmssw_for_global_ = pset.getUntrackedParameter<bool>("cmssw_for_global", true);
 
   edm::ConsumesCollector consumesColl(consumesCollector());
   globalcoordsobtainer_ = std::make_shared<GlobalCoordsObtainer>(pset);
-  globalcoordsobtainer_->generate_luts();
+  if (!cmssw_for_global_)
+    globalcoordsobtainer_->generate_luts();
 
   if (algo_ == PseudoBayes) {
     grouping_obj_ =

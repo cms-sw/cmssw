@@ -19,7 +19,8 @@ MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm
       tanPhiTh_(pset.getUntrackedParameter<double>("tanPhiTh")),
       use_LSB_(pset.getUntrackedParameter<bool>("use_LSB")),
       tanPsi_precision_(pset.getUntrackedParameter<double>("tanPsi_precision")),
-      x_precision_(pset.getUntrackedParameter<double>("x_precision")) {
+      x_precision_(pset.getUntrackedParameter<double>("x_precision")),
+      cmssw_for_global_(pset.getUntrackedParameter<bool>("cmssw_for_global")) {
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyzer: constructor";
 
@@ -279,29 +280,35 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   // Compute phi and phib
   // Implemented using cmssw geometry as of now, will implemented fw-like in the near future
   DTChamberId ChId(MuonPathSLId.wheel(), MuonPathSLId.station(), MuonPathSLId.sector());
-  double z = 0;
-  double z1 = Z_POS_SL;
-  double z3 = -1. * z1;
-  if (ChId.station() == 3 or ChId.station() == 4) {
-	z1 = z1 + Z_SHIFT_MB4;
-	z3 = z3 + Z_SHIFT_MB4;
-  }
-  if (MuonPathSLId.superLayer() == 1)
-	z = z1;
-  else if (MuonPathSLId.superLayer() == 3)
-	z = z3;
+  double phi = -999.;
+  double phiB = -999.;
+  if (cmssw_for_global_) {
+    double z = 0;
+    double z1 = Z_POS_SL;
+    double z3 = -1. * z1;
+    if (ChId.station() == 3 or ChId.station() == 4) {
+      z1 = z1 + Z_SHIFT_MB4;
+      z3 = z3 + Z_SHIFT_MB4;
+    }
+    if (MuonPathSLId.superLayer() == 1)
+      z = z1;
+    else if (MuonPathSLId.superLayer() == 3)
+      z = z3;
 
-  GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(pos_f, 0., z));
-  int thisec = MuonPathSLId.sector();
-  if (thisec == 13)
-	thisec = 4;
-  if (thisec == 14)
-	thisec = 10;
-  double phi = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
-  double psi = atan(slope_f);
-  double phiB = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi;
-  
-  auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), MuonPathSLId.superLayer(), pos, slope);
+    GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(LocalPoint(pos_f, 0., z));
+    int thisec = MuonPathSLId.sector();
+    if (thisec == 13)
+      thisec = 4;
+    if (thisec == 14)
+      thisec = 10;
+    phi = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
+    double psi = atan(slope_f);
+    phiB = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi;
+  } else {
+    auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), MuonPathSLId.superLayer(), pos, slope);
+    phi = global_coords[0];
+    phiB = global_coords[1];
+  }
 
   // get the lateralities (in reverse order) in order to fill the metaprimitive
   std::vector <int> lateralities = getLateralityCombination(latcomb);
@@ -314,8 +321,8 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
                         double(bx_time),
                         pos_f,
                         slope_f,
-                        global_coords[0],
-                        global_coords[1],
+                        phi,
+                        phiB,
                         chi2_f,
                         quality,
                         wires[0],

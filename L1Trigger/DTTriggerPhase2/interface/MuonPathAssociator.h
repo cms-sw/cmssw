@@ -85,6 +85,7 @@ private:
   bool use_LSB_;
   double tanPsi_precision_;
   double x_precision_;
+  bool cmssw_for_global_;
 
   //shift
   edm::FileInPath shift_filename_;

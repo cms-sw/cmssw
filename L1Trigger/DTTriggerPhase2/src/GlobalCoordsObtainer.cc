@@ -233,7 +233,7 @@ std::vector<double> GlobalCoordsObtainer::get_global_coordinates(uint32_t chid, 
   
   double phi_f = (double) phi / pow(2, PHI_SIZE);
   double phib_f = (double) phib / pow(2, PHIB_SIZE);
-  
+
   return std::vector({phi_f, phib_f});
   
 }

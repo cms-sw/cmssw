@@ -75,6 +75,7 @@ private:
   }
   
   // attributes
+  bool cmssw_for_global_;
   edm::FileInPath global_coords_filename_;
   std::vector<global_constant> global_constants;
   std::map<uint32_t, lut_group> luts;
