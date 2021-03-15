@@ -12,6 +12,11 @@
 
 #include "tbb/concurrent_unordered_map.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+
 namespace edm {
   class Run;
   class LuminosityBlock;
@@ -63,6 +68,14 @@ namespace ecaldqm {
     virtual void bookMEs(DQMStore::IBooker &);
     virtual void releaseMEs();
 
+    // old ecaldqmGetSetupObjects (old global vars)
+    void setSetupObjects(edm::EventSetup const &);
+    EcalElectronicsMapping const *GetElectronicsMap();
+    EcalTrigTowerConstituentsMap const *GetTrigTowerMap();
+    CaloGeometry const *GetGeometry();
+    CaloTopology const *GetTopology();
+    EcalDQMSetupObjects const getEcalDQMSetupObjects();
+
     void setTime(time_t _t) { timestamp_.now = _t; }
     void setRunNumber(edm::RunNumber_t _r) { timestamp_.iRun = _r; }
     void setLumiNumber(edm::LuminosityBlockNumber_t _l) { timestamp_.iLumi = _l; }
@@ -84,6 +97,9 @@ namespace ecaldqm {
     // common parameters
     bool onlineMode_;
     bool willConvertToEDM_;
+
+  private:
+    EcalDQMSetupObjects edso_;
   };
 
   typedef DQWorker *(*WorkerFactory)();
