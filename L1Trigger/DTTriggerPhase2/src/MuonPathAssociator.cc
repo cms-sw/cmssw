@@ -10,7 +10,8 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCollector &iC) {
+MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCollector &iC,
+    std::shared_ptr<GlobalCoordsObtainer> & globalcoordsobtainer) {
   // Obtention of parameters
   debug_ = pset.getUntrackedParameter<bool>("debug");
   clean_chi2_correlation_ = pset.getUntrackedParameter<bool>("clean_chi2_correlation");
@@ -24,6 +25,7 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCo
   dTanPsi_correlate_TP_ = pset.getUntrackedParameter<double>("dTanPsi_correlate_TP");
   minx_match_2digis_ = pset.getUntrackedParameter<double>("minx_match_2digis");
   chi2corTh_ = pset.getUntrackedParameter<double>("chi2corTh");
+  cmssw_for_global_ = pset.getUntrackedParameter<bool>("cmssw_for_global");
 
   if (debug_)
     LogDebug("MuonPathAssociator") << "MuonPathAssociator: constructor";
@@ -43,6 +45,7 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCo
   }
 
   dtGeomH_ = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  globalcoordsobtainer_ = globalcoordsobtainer;
 }
 
 MuonPathAssociator::~MuonPathAssociator() {
@@ -156,14 +159,22 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             long int PosSL1 = (int)round(10 * SL1metaPrimitive->x / (10 * x_precision_));
             long int PosSL3 = (int)round(10 * SL3metaPrimitive->x / (10 * x_precision_));
             double NewSlope = -999.;
+
+            long int pos = (PosSL3 + PosSL1) / 2;
+            // FW always rounds down (e.g 29.5 -> 29, -29.5 -> -30). For negative numbers, we don't do the same.
+            // Let's fix it (this also happens for the slope)
+            if (((PosSL3 + PosSL1) % 2 != 0) && (pos < 0)) {
+              pos--;
+            }
+            long int tanpsi = -1;
             if (use_LSB_) {
               long int newConstant = (int)(139.5 * 4);
               long int difPos_mm_x4 = PosSL3 - PosSL1;
               long int tanPsi_x4096_x128 = (difPos_mm_x4)*newConstant;
-              long int tanPsi_x4096 = tanPsi_x4096_x128 / ((long int)pow(2, 5 + numberOfBits));
-              if (tanPsi_x4096 < 0 && tanPsi_x4096_x128 % ((long int)pow(2, 5 + numberOfBits)) != 0)
-                tanPsi_x4096--;
-              NewSlope = -tanPsi_x4096 * tanPsi_precision_;
+              tanpsi = tanPsi_x4096_x128 / ((long int)pow(2, 5 + numberOfBits));
+              if (tanpsi < 0 && tanPsi_x4096_x128 % ((long int)pow(2, 5 + numberOfBits)) != 0)
+                tanpsi--;
+              NewSlope = -tanpsi * tanPsi_precision_;
             }
             double MeanT0 = (SL1metaPrimitive->t0 + SL3metaPrimitive->t0) / 2;
             double MeanPos = (PosSL3 + PosSL1) / (2. / (x_precision_));
@@ -175,6 +186,12 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             DTSuperLayerId SLId3(SL3metaPrimitive->rawId);
             DTWireId wireId1(SLId1, 2, 1);
             DTWireId wireId3(SLId3, 2, 1);
+            
+            int shift_sl1 = int(round(shiftinfo_[wireId1.rawId()] / x_precision_));
+            int shift_sl3 = int(round(shiftinfo_[wireId3.rawId()] / x_precision_));
+            if (shift_sl1 < shift_sl3) {
+              pos -= shift_sl1;
+            } else pos -= shift_sl3;
 
             int wi[8], tdc[8], lat[8];
             wi[0] = SL1metaPrimitive->wi1;
@@ -259,19 +276,28 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             if (SL3metaPrimitive->quality == 3 && SL1metaPrimitive->quality == 3)
               quality = 8;
 
-            double z = 0;
-            if (ChId.station() >= 3)
-              z = -1.8;
-            GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(
-                LocalPoint(MeanPos, 0., z));  //Jm_x is already extrapolated to the middle of the SL
-            int thisec = ChId.sector();
-            if (se == 13)
-              thisec = 4;
-            if (se == 14)
-              thisec = 10;
-            double phi = jm_x_cmssw_global.phi() - 0.5235988 * (thisec - 1);
-            double psi = atan(NewSlope);
-            double phiB = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi : -psi - phi;
+            double phi = -999.;
+            double phiB = -999.;
+            if (cmssw_for_global_) {
+              double z = 0;
+              if (ChId.station() >= 3)
+                z = -1.8;
+              GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(
+                  LocalPoint(MeanPos, 0., z));  //Jm_x is already extrapolated to the middle of the SL
+              int thisec = ChId.sector();
+              if (se == 13)
+                thisec = 4;
+              if (se == 14)
+                thisec = 10;
+              phi = jm_x_cmssw_global.phi() - 0.5235988 * (thisec - 1);
+              double psi = atan(NewSlope);
+              phiB = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi : -psi - phi;
+            } else {
+              auto global_coords = globalcoordsobtainer_->get_global_coordinates(
+                ChId.rawId(), 0, pos, tanpsi);
+              phi = global_coords[0];
+              phiB = global_coords[1];
+            }
 
             if (!clean_chi2_correlation_)
               outMPaths.emplace_back(ChId.rawId(),

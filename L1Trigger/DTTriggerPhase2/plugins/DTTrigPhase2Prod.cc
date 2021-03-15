@@ -34,6 +34,7 @@
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPQualityEnhancerFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPRedundantFilter.h"
+#include "L1Trigger/DTTriggerPhase2/interface/GlobalCoordsObtainer.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
@@ -87,6 +88,7 @@ public:
   bool outer(const metaPrimitive& mp) const;
   bool inner(const metaPrimitive& mp) const;
   void printmP(const std::string& ss, const metaPrimitive& mP) const;
+  void printmPstr(const metaPrimitive& mP) const;
   void printmPC(const std::string& ss, const metaPrimitive& mP) const;
   bool hasPosRF(int wh, int sec) const;
 
@@ -118,6 +120,7 @@ private:
   bool print_prims_;
   std::string file_to_print_;
   bool print_digis_;
+  bool cmssw_for_global_;
   std::string digi_file_to_print_;
 
   // shift
@@ -135,6 +138,7 @@ private:
   std::unique_ptr<MPFilter> mpathqualityenhancer_;
   std::unique_ptr<MPFilter> mpathredundantfilter_;
   std::unique_ptr<MuonPathAssociator> mpathassociator_;
+  std::shared_ptr<GlobalCoordsObtainer> globalcoordsobtainer_;
 
   // Buffering
   bool activateBuffer_;
@@ -199,8 +203,12 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   file_to_print_ = pset.getUntrackedParameter<std::string>("file_to_print", "debug.txt");
   print_digis_ = pset.getUntrackedParameter<bool>("print_digis", true);
   digi_file_to_print_ = pset.getUntrackedParameter<std::string>("digi_file_to_print", "digis.txt");
+  cmssw_for_global_ = pset.getUntrackedParameter<bool>("cmssw_for_global", true);
 
   edm::ConsumesCollector consumesColl(consumesCollector());
+  globalcoordsobtainer_ = std::make_shared<GlobalCoordsObtainer>(pset);
+  if (!cmssw_for_global_)
+    globalcoordsobtainer_->generate_luts();
 
   if (algo_ == PseudoBayes) {
     grouping_obj_ =
@@ -215,13 +223,14 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   if (algo_ == Standard) {
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "DTp2:constructor: JM analyzer";
-    mpathanalyzer_ = std::make_unique<MuonPathAnalyticAnalyzer>(pset, consumesColl);
-    // mpathanalyzer_ = std::make_unique<MuonPathAnalyzerPerSL>(pset, consumesColl);
+    mpathanalyzer_ = std::make_unique<MuonPathAnalyticAnalyzer>(pset, consumesColl, globalcoordsobtainer_);
   } else {
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "DTp2:constructor: Full chamber analyzer";
     mpathanalyzer_ = std::make_unique<MuonPathAnalyzerInChamber>(pset, consumesColl);
   }
+  
+
 
   // Getting buffer option
   activateBuffer_ = pset.getParameter<bool>("activateBuffer");
@@ -230,7 +239,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
 
   mpathqualityenhancer_ = std::make_unique<MPQualityEnhancerFilter>(pset);
   mpathredundantfilter_ = std::make_unique<MPRedundantFilter>(pset);
-  mpathassociator_ = std::make_unique<MuonPathAssociator>(pset, consumesColl);
+  mpathassociator_ = std::make_unique<MuonPathAssociator>(pset, consumesColl, globalcoordsobtainer_);
   rpc_integrator_ = std::make_unique<RPCIntegrator>(pset, consumesColl);
 
   dtGeomH = esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
@@ -253,6 +262,9 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   mpathredundantfilter_->initialise(iEventSetup);  // Filter object initialisation
   mpathassociator_->initialise(iEventSetup);       // Associator object initialisation
 
+  //edm::ESHandle<DTGeometry> geom;
+  //iEventSetup.get<MuonGeometryRecord>().get("idealForDigi", geom);
+  //dtGeo_ = &(*geom);
   const MuonGeometryRecord& geom = iEventSetup.get<MuonGeometryRecord>();
   dtGeo_ = &geom.get(dtGeomH);
 }
