@@ -4,6 +4,7 @@
 <use name="DataFormats/CaloRecHit"/>
 <use name="DataFormats/TrackCandidate"/>
 <use name="DataFormats/TrackingRecHit"/>
+<use name="DataFormats/CLHEP"/>
 <use name="clhepheader"/>
 <export>
   <lib name="1"/>
