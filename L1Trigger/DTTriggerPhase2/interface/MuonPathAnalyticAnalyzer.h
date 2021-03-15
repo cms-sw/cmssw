@@ -42,7 +42,8 @@ struct CELL_VALID_LAYOUT_CONSTANTS {
 class MuonPathAnalyticAnalyzer : public MuonPathAnalyzer {
 public:
   // Constructors and destructor
-  MuonPathAnalyticAnalyzer(const edm::ParameterSet &pset, edm::ConsumesCollector &iC);
+  MuonPathAnalyticAnalyzer(const edm::ParameterSet &pset, edm::ConsumesCollector &iC,
+    std::shared_ptr<GlobalCoordsObtainer> & globalcoordsobtainer);
   ~MuonPathAnalyticAnalyzer() override;
 
   // Main methods
@@ -115,7 +116,11 @@ private:
   bool use_LSB_;
   double tanPsi_precision_;
   double x_precision_;
+  bool cmssw_for_global_;
   std::vector <CELL_VALID_LAYOUT_CONSTANTS> LAYOUT_VALID_TO_LATCOMB_CONSTS_ENCODER;
+  
+  // global coordinates
+  std::shared_ptr<GlobalCoordsObtainer> globalcoordsobtainer_;
 
 };
 
