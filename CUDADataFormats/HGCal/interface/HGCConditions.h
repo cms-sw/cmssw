@@ -2,6 +2,9 @@
 #define CUDADataFormats_HGCal_HGCConditions_h
 
 #include <cstdint>
+#include <cstddef>
+#include <array>
+#include <vector>
 
 class HeterogeneousHGCSiliconDetId {
 public:
@@ -192,7 +195,7 @@ namespace hgcal_conditions {
 
   struct HeterogeneousHEFCellPositionsConditionsESProduct {
     positions::HeterogeneousHGCalPositionsMapping posmap;
-    size_t nelems_posmap;
+    std::size_t nelems_posmap;
   };
 
 }  // namespace hgcal_conditions
