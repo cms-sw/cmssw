@@ -93,28 +93,24 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
     const auto chid = detid.rawId();
     const PPSTimingCalibration::Key key{
         (int)detid.arm(), (int)detid.station(), (int)detid.plane(), (int)detid.channel()};
-    //std::cout << "1:" << detid << std::endl;
     hists.leadingTime[chid] = iGetter.get("t_" + ch_name);
     if (hists.leadingTime[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Failed to retrieve leading time monitor for channel (" << detid << ").";
       continue;
     }
-    //std::cout << "2:" << detid << std::endl;
     hists.toT[chid] = iGetter.get("tot_" + ch_name);
     if (hists.toT[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Failed to retrieve time over threshold monitor for channel (" << detid << ").";
       continue;
     }
-    //std::cout << "3:" << detid << std::endl;
     hists.leadingTimeVsToT[chid] = iGetter.get("tvstot_" + ch_name);
     if (hists.leadingTimeVsToT[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Failed to retrieve leading time vs. time over threshold monitor for channel (" << detid << ").";
       continue;
     }
-    //std::cout << "4:" << detid << std::endl;
     if (min_entries_ > 0 && hists.leadingTimeVsToT[chid]->getEntries() < min_entries_) {
       edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Not enough entries for channel (" << detid << "): " << hists.leadingTimeVsToT[chid]->getEntries() << " < "
@@ -127,13 +123,12 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
                           hists.toT[chid]->getMean(),
                           0.8,
                           hists.leadingTime[chid]->getMean() - hists.leadingTime[chid]->getRMS());
-    //std::cout << detid << ": " << hists.leadingTime[chid]->getMean() << std::endl;
     const auto& res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
     if ((bool)res) {
       calib_params[key] = {
           interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
-      calib_time[key] = std::make_pair(0.1, 0.);  //FIXME hardcoded resolution/offset placeholder
-      // do something with interp_.GetChiSquare()...
+      calib_time[key] = std::make_pair(0.1, 0.);  // hardcoded resolution/offset placeholder for the time being
+      // can possibly do something with interp_.GetChiSquare() in the near future
     } else
       edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Fit did not converge for channel (" << detid << ").";
