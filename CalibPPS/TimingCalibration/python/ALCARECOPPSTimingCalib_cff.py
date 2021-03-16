@@ -2,9 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import *
 from RecoPPS.Configuration.recoCTPPS_cff import *
-from CalibPPS.TimingCalibration.ppsTimingCalibrationPCLWorker_cfi import ppsTimingCalibrationPCLWorker
+from CalibPPS.TimingCalibration.ppsTrackFilter_cfi import ppsTrackFilter as _ppsTrackFilter
+from CalibPPS.TimingCalibration.ppsTimingCalibrationPCLWorker_cfi import ppsTimingCalibrationPCLWorker as _ppsTimingCalibrationPCLWorker
 
-ALCARECOPPSTimingCalib = ppsTimingCalibrationPCLWorker.clone()
+ALCARECOPPSTimingCalib = cms.Sequence(
+    _ppsTrackFilter,
+    _ppsTimingCalibrationPCLWorker
+)
 
 MEtoEDMConvertPPSTimingCalib = cms.EDProducer('MEtoEDMConverter',
     Name = cms.untracked.string('MEtoEDMConverter'),
