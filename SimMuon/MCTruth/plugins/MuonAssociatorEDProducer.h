@@ -1,7 +1,7 @@
 #ifndef MCTruth_MuonAssociatorEDProducer_h
 #define MCTruth_MuonAssociatorEDProducer_h
 
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
