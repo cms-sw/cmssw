@@ -14,8 +14,9 @@ pfJetsPtrs = cms.EDProducer("PFJetFwdPtrProducer",
 #pfJets.src = 'allPfJets'
 #pfJets.ptMin = 10
 
-pfJetSequence = cms.Sequence(
-#    allPfJets *
-    pfJets +
+pfJetTask = cms.Task(
+#    allPfJets ,
+    pfJets ,
     pfJetsPtrs 
     )
+pfJetSequence = cms.Sequence(pfJetTask)
