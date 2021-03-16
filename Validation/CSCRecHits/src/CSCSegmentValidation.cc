@@ -1,10 +1,12 @@
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "Validation/CSCRecHits/src/CSCSegmentValidation.h"
+#include "Validation/CSCRecHits/interface/CSCSegmentValidation.h"
 #include <algorithm>
 
-CSCSegmentValidation::CSCSegmentValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC)
-    : CSCBaseValidation(inputTag), theLayerHitsPerChamber(), theChamberSegmentMap(), theShowerThreshold(10) {
-  segments_Token_ = iC.consumes<CSCSegmentCollection>(inputTag);
+CSCSegmentValidation::CSCSegmentValidation(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC)
+    : CSCBaseValidation(ps), theLayerHitsPerChamber(), theChamberSegmentMap(), theShowerThreshold(10) {
+  const auto &pset = ps.getParameterSet("cscSegment");
+  inputTag_ = pset.getParameter<edm::InputTag>("inputTag");
+  segments_Token_ = iC.consumes<CSCSegmentCollection>(inputTag_);
 }
 
 CSCSegmentValidation::~CSCSegmentValidation() {}
@@ -26,25 +28,25 @@ void CSCSegmentValidation::bookHistograms(DQMStore::IBooker &iBooker) {
   theTypePlot6HitsNoShowerSeg = iBooker.book1D("CSCSegments6HitsNoShowerSeg", "", 100, 0, 10);
   theTypePlot6HitsShower = iBooker.book1D("CSCSegments6HitsShower", "", 100, 0, 10);
   theTypePlot6HitsShowerSeg = iBooker.book1D("CSCSegments6HitsShowerSeg", "", 100, 0, 10);
-  for (int i = 0; i < 10; ++i) {
-    char title1[200], title2[200], title3[200], title4[200], title5[200], title6[200], title7[200], title8[200];
-    sprintf(title1, "CSCSegmentRdPhiResolution%d", i + 1);
-    sprintf(title2, "CSCSegmentRdPhiPull%d", i + 1);
-    sprintf(title3, "CSCSegmentThetaResolution%d", i + 1);
-    sprintf(title4, "CSCSegmentThetaPull%d", i + 1);
-    sprintf(title5, "CSCSegmentdXdZResolution%d", i + 1);
-    sprintf(title6, "CSCSegmentdXdZPull%d", i + 1);
-    sprintf(title7, "CSCSegmentdYdZResolution%d", i + 1);
-    sprintf(title8, "CSCSegmentdYdZPull%d", i + 1);
 
-    theRdPhiResolutionPlots[i] = iBooker.book1D(title1, title1, 100, -0.4, 0.4);
-    theRdPhiPullPlots[i] = iBooker.book1D(title2, title2, 100, -5, 5);
-    theThetaResolutionPlots[i] = iBooker.book1D(title3, title3, 100, -1, 1);
-    theThetaPullPlots[i] = iBooker.book1D(title4, title4, 100, -5, 5);
-    thedXdZResolutionPlots[i] = iBooker.book1D(title5, title5, 100, -1, 1);
-    thedXdZPullPlots[i] = iBooker.book1D(title6, title6, 100, -5, 5);
-    thedYdZResolutionPlots[i] = iBooker.book1D(title7, title7, 100, -1, 1);
-    thedYdZPullPlots[i] = iBooker.book1D(title8, title8, 100, -5, 5);
+  for (int i = 1; i <= 10; ++i) {
+    const std::string cn(CSCDetId::chamberName(i));
+
+    const std::string t1("CSCSegmentRdPhiResolution_" + cn);
+    const std::string t2("CSCSegmentRdPhiPull_" + cn);
+    const std::string t3("CSCSegmentThetaResolution_" + cn);
+    const std::string t5("CSCSegmentdXdZResolution_" + cn);
+    const std::string t6("CSCSegmentdXdZPull_" + cn);
+    const std::string t7("CSCSegmentdYdZResolution_" + cn);
+    const std::string t8("CSCSegmentdYdZPull_" + cn);
+
+    theRdPhiResolutionPlots[i - 1] = iBooker.book1D(t1, t1, 100, -0.4, 0.4);
+    theRdPhiPullPlots[i - 1] = iBooker.book1D(t2, t2, 100, -5, 5);
+    theThetaResolutionPlots[i - 1] = iBooker.book1D(t3, t3, 100, -1, 1);
+    thedXdZResolutionPlots[i - 1] = iBooker.book1D(t5, t5, 100, -1, 1);
+    thedXdZPullPlots[i - 1] = iBooker.book1D(t6, t6, 100, -5, 5);
+    thedYdZResolutionPlots[i - 1] = iBooker.book1D(t7, t7, 100, -1, 1);
+    thedYdZPullPlots[i - 1] = iBooker.book1D(t8, t8, 100, -5, 5);
   }
 }
 
@@ -56,11 +58,10 @@ void CSCSegmentValidation::analyze(const edm::Event &e, const edm::EventSetup &e
 
   theChamberSegmentMap.clear();
   unsigned nPerEvent = 0;
-  for (CSCSegmentCollection::const_iterator segmentItr = cscRecHits->begin(); segmentItr != cscRecHits->end();
-       segmentItr++) {
+  for (auto segmentItr = cscRecHits->begin(); segmentItr != cscRecHits->end(); segmentItr++) {
     ++nPerEvent;
     int detId = segmentItr->geographicalId().rawId();
-    int chamberType = whatChamberType(detId);
+    int chamberType = segmentItr->cscDetId().iChamberType();
 
     theNRecHitsPlot->Fill(segmentItr->nRecHits());
     theNPerChamberTypePlot->Fill(chamberType);
@@ -82,14 +83,13 @@ void CSCSegmentValidation::analyze(const edm::Event &e, const edm::EventSetup &e
 
 void CSCSegmentValidation::fillEfficiencyPlots() {
   // now plot efficiency by looping over all chambers with hits
-  for (ChamberHitMap::const_iterator mapItr = theLayerHitsPerChamber.begin(), mapEnd = theLayerHitsPerChamber.end();
-       mapItr != mapEnd;
+  for (auto mapItr = theLayerHitsPerChamber.begin(), mapEnd = theLayerHitsPerChamber.end(); mapItr != mapEnd;
        ++mapItr) {
     int chamberId = mapItr->first;
     int nHitsInChamber = mapItr->second.size();
     bool isShower = (nHitsInChamber > theShowerThreshold);
     bool hasSeg = hasSegment(chamberId);
-    int chamberType = whatChamberType(chamberId);
+    int chamberType = CSCDetId(chamberId).iChamberType();
     // find how many layers were hit in this chamber
     std::vector<int> v = mapItr->second;
     std::sort(v.begin(), v.end());
@@ -145,11 +145,6 @@ bool CSCSegmentValidation::hasSegment(int chamberId) const {
   return (theChamberSegmentMap.find(chamberId) != theChamberSegmentMap.end());
 }
 
-int CSCSegmentValidation::whatChamberType(int detId) {
-  CSCDetId cscDetId(detId);
-  return CSCChamberSpecs::whatChamberType(cscDetId.station(), cscDetId.ring());
-}
-
 void CSCSegmentValidation::plotResolution(const PSimHit &simHit,
                                           const CSCSegment &segment,
                                           const CSCLayer *layer,
@@ -164,7 +159,6 @@ void CSCSegmentValidation::plotResolution(const PSimHit &simHit,
   double dtheta = segmentPos.theta() - simHitPos.theta();
 
   double sigmax = sqrt(segment.localPositionError().xx());
-  // double sigmay = sqrt(segment.localPositionError().yy());
 
   double ddxdz = segmentDir.x() / segmentDir.z() - simHitDir.x() / simHitDir.z();
   double ddydz = segmentDir.y() / segmentDir.z() - simHitDir.y() / simHitDir.z();
@@ -174,7 +168,6 @@ void CSCSegmentValidation::plotResolution(const PSimHit &simHit,
   theRdPhiResolutionPlots[chamberType - 1]->Fill(rdphi);
   theRdPhiPullPlots[chamberType - 1]->Fill(rdphi / sigmax);
   theThetaResolutionPlots[chamberType - 1]->Fill(dtheta);
-  // theThetaPullPlots[chamberType-1]->Fill( dy/sigmay );
 
   thedXdZResolutionPlots[chamberType - 1]->Fill(ddxdz);
   thedXdZPullPlots[chamberType - 1]->Fill(ddxdz / sigmadxdz);
@@ -185,9 +178,7 @@ void CSCSegmentValidation::plotResolution(const PSimHit &simHit,
 void CSCSegmentValidation::fillLayerHitsPerChamber() {
   theLayerHitsPerChamber.clear();
   std::vector<int> layersHit = theSimHitMap->detsWithHits();
-  for (std::vector<int>::const_iterator layerItr = layersHit.begin(), layersHitEnd = layersHit.end();
-       layerItr != layersHitEnd;
-       ++layerItr) {
+  for (auto layerItr = layersHit.begin(), layersHitEnd = layersHit.end(); layerItr != layersHitEnd; ++layerItr) {
     CSCDetId layerId(*layerItr);
     CSCDetId chamberId = layerId.chamberId();
     int nhits = theSimHitMap->hits(*layerItr).size();
@@ -198,19 +189,16 @@ void CSCSegmentValidation::fillLayerHitsPerChamber() {
   }
 }
 
-namespace CSCSegmentValidationUtils {
-  bool SimHitPabsLessThan(const PSimHit &p1, const PSimHit &p2) { return p1.pabs() < p2.pabs(); }
-}  // namespace CSCSegmentValidationUtils
-
 const PSimHit *CSCSegmentValidation::keyHit(int chamberId) const {
+  auto SimHitPabsLessThan = [](const PSimHit &p1, const PSimHit &p2) -> bool { return p1.pabs() < p2.pabs(); };
+
   const PSimHit *result = nullptr;
   int layerId = chamberId + 3;
-  const edm::PSimHitContainer &layerHits = theSimHitMap->hits(layerId);
+  const auto &layerHits = theSimHitMap->hits(layerId);
 
   if (!layerHits.empty()) {
     // pick the hit with maximum energy
-    edm::PSimHitContainer::const_iterator hitItr =
-        std::max_element(layerHits.begin(), layerHits.end(), CSCSegmentValidationUtils::SimHitPabsLessThan);
+    auto hitItr = std::max_element(layerHits.begin(), layerHits.end(), SimHitPabsLessThan);
     result = &(*hitItr);
   }
   return result;
