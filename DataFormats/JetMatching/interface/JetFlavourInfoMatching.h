@@ -1,5 +1,5 @@
-#ifndef SimDataFormats_JetMatching_JetFlavourInfoMatching_h
-#define SimDataFormats_JetMatching_JetFlavourInfoMatching_h
+#ifndef DataFormats_JetMatching_JetFlavourInfoMatching_h
+#define DataFormats_JetMatching_JetFlavourInfoMatching_h
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -33,4 +33,4 @@ namespace reco {
 
 }  // namespace reco
 
-#endif  // SimDataFormats_JetMatching_JetFlavourInfoMatching_h
+#endif  // DataFormats_JetMatching_JetFlavourInfoMatching_h

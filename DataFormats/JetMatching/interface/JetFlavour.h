@@ -1,5 +1,5 @@
-#ifndef SimDataFormats_JetMatching_JetFlavour_H
-#define SimDataFormats_JetMatching_JetFlavour_H
+#ifndef DataFormats_JetMatching_JetFlavour_H
+#define DataFormats_JetMatching_JetFlavour_H
 
 #include <vector>
 #include "DataFormats/Math/interface/Point3D.h"

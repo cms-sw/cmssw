@@ -1,5 +1,5 @@
-#ifndef SimDataFormats_JetMatching_JetFlavourInfo_H
-#define SimDataFormats_JetMatching_JetFlavourInfo_H
+#ifndef DataFormats_JetMatching_JetFlavourInfo_H
+#define DataFormats_JetMatching_JetFlavourInfo_H
 
 #include <vector>
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
