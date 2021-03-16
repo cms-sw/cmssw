@@ -35,7 +35,7 @@ namespace evf {
   namespace FastMonState {
     enum InputState : short;
   }
-}
+}  // namespace evf
 
 class FedRawDataInputSource : public edm::RawInputSource {
   friend struct InputFile;

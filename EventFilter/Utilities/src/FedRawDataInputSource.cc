@@ -561,7 +561,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
         //rewind to header start position
         currentFile_->rewindChunk(FRDHeaderVersionSize[detectedFRDversion_]);
         //copy event to a chunk start and move pointers
-        
+
         setMonState(inWaitChunk);
 
         chunkEnd = currentFile_->advance(dataPosition, FRDHeaderVersionSize[detectedFRDversion_] + msgSize);
@@ -1354,9 +1354,7 @@ inline void FedRawDataInputSource::setMonStateSup(evf::FastMonState::InputState 
 inline bool InputFile::advance(unsigned char*& dataPosition, const size_t size) {
   //wait for chunk
 
-
   while (!waitForChunk(currentChunk_)) {
-
     parent_->setMonState(inWaitChunk);
     usleep(100000);
     parent_->setMonState(inChunkReceived);

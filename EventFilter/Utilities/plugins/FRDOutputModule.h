@@ -13,7 +13,6 @@
 //#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 class FRDOutputModule : public edm::one::OutputModule<edm::one::WatchLuminosityBlocks> {
-
 public:
   explicit FRDOutputModule(edm::ParameterSet const& ps);
   ~FRDOutputModule() override;
@@ -48,9 +47,6 @@ private:
   uint64_t perFileSize_;
 
   bool fileWritten_ = false;
-
-
 };
 
 #endif  // IOPool_Streamer_interface_FRDOutputModule_h
-

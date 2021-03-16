@@ -29,22 +29,18 @@ FRDOutputModule::FRDOutputModule(edm::ParameterSet const& ps)
       frdVersion_(ps.getUntrackedParameter<unsigned int>("frdVersion")),
       frdFileVersion_(ps.getUntrackedParameter<unsigned int>("frdFileVersion")),
       filePrefix_(ps.getUntrackedParameter<std::string>("filePrefix")),
-      fileName_(ps.getUntrackedParameter<std::string>("fileName"))
-      {}
+      fileName_(ps.getUntrackedParameter<std::string>("fileName")) {}
 
 FRDOutputModule::~FRDOutputModule() {}
-
 
 void FRDOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("source", edm::InputTag("rawDataCollector"));
-  desc.addUntracked<unsigned int>("frdFileVersion", 1),
-  desc.addUntracked<unsigned int>("frdVersion", 6);
+  desc.addUntracked<unsigned int>("frdFileVersion", 1), desc.addUntracked<unsigned int>("frdVersion", 6);
   desc.addUntracked<std::string>("filePrefix", "");
   desc.addUntracked<std::string>("fileName", "");
   descriptions.addWithDefaultLabel(desc);
 }
-
 
 void FRDOutputModule::write(edm::EventForOutput const& e) {
   // serialize the FEDRawDataCollection into the format that we expect for
@@ -135,27 +131,26 @@ void FRDOutputModule::write(edm::EventForOutput const& e) {
 }
 
 void FRDOutputModule::beginLuminosityBlock(edm::LuminosityBlockForOutput const& lumiBlock) {
-
   int ls = lumiBlock.id().luminosityBlock();
 
   if (outfd_ != -1)
     finishFileWrite(ls);
 
   if (fileWritten_)
-    throw cms::Exception("RawEventFileWriterForBU", "beginLuminosityBlock") << "Multiple lumisections not supported in the same FRD file!";
-
+    throw cms::Exception("RawEventFileWriterForBU", "beginLuminosityBlock")
+        << "Multiple lumisections not supported in the same FRD file!";
 
   std::string fileName;
   if (fileName_.empty()) {
     std::stringstream ss;
-    ss << (filePrefix_.empty() ? "" : filePrefix_ + "_") << "run" <<  std::setfill('0') << std::setw(6) << lumiBlock.run() << "_ls" << std::setfill('0') << std::setw(4) << ls << "_index000000.raw";
+    ss << (filePrefix_.empty() ? "" : filePrefix_ + "_") << "run" << std::setfill('0') << std::setw(6)
+       << lumiBlock.run() << "_ls" << std::setfill('0') << std::setw(4) << ls << "_index000000.raw";
     fileName = ss.str();
-  }
-  else {
+  } else {
     //use exact filename (will be overwritten by last LS content if input contains multiple lumisections)
     fileName = fileName_;
   }
- 
+
   outfd_ = open(fileName.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IRWXO);
   ftruncate(outfd_, 0);
 
@@ -186,7 +181,6 @@ void FRDOutputModule::endLuminosityBlock(edm::LuminosityBlockForOutput const& lu
 }
 
 void FRDOutputModule::finishFileWrite(int ls) {
-
   if (outfd_ == -1)
     return;
 
@@ -200,8 +194,7 @@ void FRDOutputModule::finishFileWrite(int ls) {
   close(outfd_);
   outfd_ = -1;
   if (!fileName_.empty())
-      fileWritten_ = true;
+    fileWritten_ = true;
 
   edm::LogInfo("FRDOutputModule") << "closed RAW input file";
 }
-
