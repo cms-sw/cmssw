@@ -17,6 +17,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4SystemOfUnits.hh"
+#include "DD4hep/Filter.h"
 
 #include <sstream>
 //#define EDM_ML_DEBUG
@@ -28,6 +29,8 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
                                      const SimTrackManager*)
     : SensitiveCaloDetector(name, es, clg, p), lastTrackID_(-1) {
   //Initialise the parameter set
+  bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
+  int addlevel = dd4hep ? 1 : 0;
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CaloTrkProcessing");
   testBeam_ = m_p.getParameter<bool>("TestBeam");
   eMin_ = m_p.getParameter<double>("EminTrack") * CLHEP::MeV;
@@ -37,6 +40,8 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   std::vector<std::string> fineNames = m_p.getParameter<std::vector<std::string> >("FineCaloNames");
   std::vector<int> fineLevels = m_p.getParameter<std::vector<int> >("FineCaloLevels");
   std::vector<int> useFines = m_p.getParameter<std::vector<int> >("UseFineCalo");
+  for (auto& level : fineLevels)
+    level += addlevel;
 
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initialised with TestBeam = " << testBeam_ << " Emin = " << eMin_
                               << " Flags " << putHistory_ << " (History), " << doFineCalo_ << " (Special Calorimeter)";
@@ -60,7 +65,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->caloNames_[i];
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->levels_.size() << " entries for levels:";
     for (unsigned int i = 0; i < csp->levels_.size(); i++)
-      edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->levels_[i];
+      edm::LogVerbatim("CaloSim") << " (" << i << ") " << (csp->levels_[i] + addlevel);
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->neighbours_.size() << " entries for neighbours:";
     for (unsigned int i = 0; i < csp->neighbours_.size(); i++)
       edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->neighbours_[i];
@@ -69,7 +74,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->insideNames_[i];
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csp->insideLevel_.size() << " entries for insideLevel:";
     for (unsigned int i = 0; i < csp->insideLevel_.size(); i++)
-      edm::LogVerbatim("CaloSim") << " (" << i << ") " << csp->insideLevel_[i];
+      edm::LogVerbatim("CaloSim") << " (" << i << ") " << (csp->insideLevel_[i] + addlevel);
 #endif
 
     if (csp->caloNames_.size() < csp->neighbours_.size()) {
@@ -84,9 +89,10 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
     int istart = 0;
     for (unsigned int i = 0; i < csp->caloNames_.size(); i++) {
       G4LogicalVolume* lv = nullptr;
-      G4String name = static_cast<G4String>(csp->caloNames_[i]);
+      G4String name(csp->caloNames_[i]);
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-        if ((*lvcite)->GetName() == name) {
+        G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+        if (namx == name) {
           lv = (*lvcite);
           break;
         }
@@ -95,7 +101,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
         CaloTrkProcessing::Detector detector;
         detector.name = name;
         detector.lv = lv;
-        detector.level = csp->levels_[i];
+        detector.level = (csp->levels_[i] + addlevel);
         if (istart + csp->neighbours_[i] > static_cast<int>(csp->insideNames_.size())) {
           edm::LogError("CaloSim") << "CaloTrkProcessing: # of InsideNames bins " << csp->insideNames_.size()
                                    << " too few compaerd to " << istart + csp->neighbours_[i]
@@ -110,14 +116,15 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
           lv = nullptr;
           name = static_cast<G4String>(csp->insideNames_[istart + k]);
           for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-            if ((*lvcite)->GetName() == name) {
+            G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+            if (namx == name) {
               lv = (*lvcite);
               break;
             }
           }
           inside.push_back(name);
           insideLV.push_back(lv);
-          insideLevels.push_back(csp->insideLevel_[istart + k]);
+          insideLevels.push_back(csp->insideLevel_[istart + k] + addlevel);
         }
         detector.fromDets = inside;
         detector.fromDetL = insideLV;
@@ -131,7 +138,8 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       G4LogicalVolume* lv = nullptr;
       G4String name = static_cast<G4String>(fineNames[useFines[i]]);
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-        if ((*lvcite)->GetName() == name) {
+        G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+        if (namx == name) {
           lv = (*lvcite);
           break;
         }
@@ -419,4 +427,10 @@ void CaloTrkProcessing::detectorLevel(const G4VTouchable* touch, int& level, int
       copyno[ii] = touch->GetReplicaNumber(i);
     }
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloSimX") << "CaloTrkProcessing::detectorLevel "
+                               << " with " << level << ":" << detLevels(touch) << " levels";
+  for (int ii = 0; ii < level; ii++)
+    edm::LogVerbatim("CaloSimX") << "[" << ii << "] " << name[ii] << ":" << copyno[ii];
+#endif
 }
