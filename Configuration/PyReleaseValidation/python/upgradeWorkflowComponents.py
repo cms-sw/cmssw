@@ -1236,7 +1236,7 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D72',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11_etlV4',
+        'Era' : 'Phase2C11I13',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D74' : {
@@ -1250,21 +1250,21 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D75',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11',
+        'Era' : 'Phase2C11I13',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D76' : {
         'Geom' : 'Extended2026D76',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11M9',
+        'Era' : 'Phase2C11I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D77' : {
         'Geom' : 'Extended2026D77',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11M9',
+        'Era' : 'Phase2C11I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D78' : {
@@ -1272,7 +1272,7 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T22',
         'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
-        'Era' : 'Phase2C11T22M9', # customized for square pixels and Muon M9
+        'Era' : 'Phase2C11I13T22M9', # customized for square pixels and Muon M9
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D79' : {
@@ -1280,7 +1280,7 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T23',
         'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
-        'Era' : 'Phase2C11T23M9', # customizes for 3D Pixels and Muon M9
+        'Era' : 'Phase2C11I13T23M9', # customizes for 3D Pixels and Muon M9
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }
