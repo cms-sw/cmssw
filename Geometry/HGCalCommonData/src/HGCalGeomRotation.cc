@@ -125,7 +125,6 @@ unsigned HGCalGeomRotation::uvMappingTo60DegreeSector0(WaferCentring waferCentri
     edm::LogError("HGCalGeomRotation")
         << "HGCalGeomRotation: 60 degree sector defintion selected, but not WaferCentred centring. This is "
            "incompatible, assuming WaferCentred centring";
-    waferCentring = WaferCentring::WaferCentred;
   }
 
   if (moduleU > 0 && moduleV >= 0) {
