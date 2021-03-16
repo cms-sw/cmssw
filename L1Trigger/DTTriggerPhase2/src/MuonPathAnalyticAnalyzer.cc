@@ -339,8 +339,13 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
       DTLayerId SL2_layer2Id(MuonPathSLId,2);
       double z_shift=shiftthetainfo_[SL2_layer2Id.rawId()];     
       double jm_y = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? z_shift-pos_f : z_shift+pos_f;
+      if(cmssw_for_global_){
+	  double x_shift=dtGeo_->layer(SL2_layer2Id)->specificTopology().wirePosition(1);
+	  jm_y=(dtGeo_->layer(SL2_layer2Id)->toGlobal(LocalPoint(pos_f + x_shift ,0.,-0.65))).z();
+      }
+
       phi=jm_y;
-      phiB=slope_f;//
+      phiB=slope_f;
   }
 
   metaPrimitives.emplace_back(metaPrimitive({MuonPathSLId.rawId(),

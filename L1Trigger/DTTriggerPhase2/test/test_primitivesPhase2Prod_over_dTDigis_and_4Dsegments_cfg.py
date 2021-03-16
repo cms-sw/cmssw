@@ -18,29 +18,46 @@ process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring('file:/tmp/carrillo/digis_segments_Run2016BSingleMuonRAW-RECO.root'))
 
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.dtTriggerPhase2PrimitiveDigis.scenario = 1
+process.CalibratedDigis.scenario = 1
+
+#test tunning
+process.dtTriggerPhase2PrimitiveDigis.tanPhiTh = cms.untracked.double(1.4) #temporary for eta
+process.dtTriggerPhase2PrimitiveDigis.global_coords_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/run2_global_coord_perp_x_phi0.txt')#for run2 data
+process.dtTriggerPhase2PrimitiveDigis.cmssw_for_global = cms.untracked.bool(True) #forcing cmssw coordinates transformation
+
+process.out = cms.OutputModule("PoolOutputModule",
+                               outputCommands = cms.untracked.vstring('keep *'),
+                               fileName = cms.untracked.string('/tmp/carrillo/DTTriggerPhase2Primitives.root')
+)
+
+process.p = cms.Path(process.CalibratedDigis*process.dtTriggerPhase2PrimitiveDigis)
+process.this_is_the_end = cms.EndPath(process.out)
+
+
+####################################################################
+
+
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 #process.dtTriggerPhase2PrimitiveDigis.dump = False
 #process.dtTriggerPhase2PrimitiveDigis.debug = False
 #process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 
-#scenario
-process.dtTriggerPhase2PrimitiveDigis.scenario = 1
-process.CalibratedDigis.scenario = 1
-
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger = cms.Service("MessageLogger",
-        destinations = cms.untracked.vstring("detailedInfo"),
-        detailedInfo = cms.untracked.PSet(threshold = cms.untracked.string("INFO"),
-        categories = cms.untracked.vstring("DTTrigPhase2Prod"),
-        extension = cms.untracked.string(".txt")),
-        debugModules = cms.untracked.vstring("dtTriggerPhase2PrimitiveDigis"),
-)
-
+#process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#process.MessageLogger = cms.Service("MessageLogger",
+#        destinations = cms.untracked.vstring("detailedInfo"),
+#        detailedInfo = cms.untracked.PSet(threshold = cms.untracked.string("INFO"),
+#        categories = cms.untracked.vstring("DTTrigPhase2Prod"),
+#        extension = cms.untracked.string(".txt")),
+#        debugModules = cms.untracked.vstring("dtTriggerPhase2PrimitiveDigis"),
+#)
 ####################### SliceTest specials ##############################
+
 #Chi2 -> Changing a lot lately
-process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
+#process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 
 #LSB -> Position 0.025 cm instead of 0.004 cm
 #process.dtTriggerPhase2PrimitiveDigis.use_LSB = True
@@ -60,19 +77,3 @@ process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
 #process.dtTriggerPhase2PrimitiveDigis.allow_confirmation = True
 
 #TanPsi stuff
-process.dtTriggerPhase2PrimitiveDigis.tanPhiTh = cms.untracked.double(1.4) #temporary for eta
-
-
-process.out = cms.OutputModule("PoolOutputModule",
-                               outputCommands = cms.untracked.vstring('keep *'),
-                               fileName = cms.untracked.string('/tmp/carrillo/DTTriggerPhase2Primitives.root')
-)
-
-process.p = cms.Path(process.CalibratedDigis*process.dtTriggerPhase2PrimitiveDigis)
-process.this_is_the_end = cms.EndPath(process.out)
-
-
-
-
-
-
