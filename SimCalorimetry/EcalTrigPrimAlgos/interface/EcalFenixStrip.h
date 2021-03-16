@@ -8,8 +8,6 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFgvbEE.h>
 
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EEDataFrame.h>
@@ -30,12 +28,7 @@ class EcalTPGStripStatus;
 class EcalFenixStrip {
 public:
   // constructor, destructor
-  EcalFenixStrip(const edm::EventSetup &setup,
-                 const EcalElectronicsMapping *theMapping,
-                 bool debug,
-                 bool famos,
-                 int maxNrSamples,
-                 int nbMaxXtals);
+  EcalFenixStrip(const EcalElectronicsMapping *theMapping, bool debug, bool famos, int maxNrSamples, int nbMaxXtals);
   virtual ~EcalFenixStrip();
 
 private:
@@ -100,10 +93,8 @@ public:
 
   // main methods
   // process method is splitted in 2 parts:
-  //   the first one is templated, the same except input
+  //   the first one is overloaded, the same except input
   //   the second part is slightly different for barrel/endcap
-  template <class T>
-  void process(const edm::EventSetup &, std::vector<const T> &, int nrxtals, std::vector<int> &out);
   void process_part2_barrel(uint32_t stripid,
                             const EcalTPGSlidingWindow *ecaltpgSlidW,
                             const EcalTPGFineGrainStripEE *ecaltpgFgStripEE);
@@ -130,7 +121,7 @@ public:
 
   // ========================= implementations
   // ==============================================================
-  void process(const edm::EventSetup &setup, std::vector<EBDataFrame> &samples, int nrXtals, std::vector<int> &out) {
+  void process(std::vector<EBDataFrame> &samples, int nrXtals, std::vector<int> &out) {
     // now call processing
     if (samples.empty()) {
       std::cout << " Warning: 0 size vector found in EcalFenixStripProcess!!!!!" << std::endl;
@@ -155,7 +146,7 @@ public:
     out = format_out_;
   }
 
-  void process(const edm::EventSetup &setup, std::vector<EEDataFrame> &samples, int nrXtals, std::vector<int> &out) {
+  void process(std::vector<EEDataFrame> &samples, int nrXtals, std::vector<int> &out) {
     // now call processing
     if (samples.empty()) {
       std::cout << " Warning: 0 size vector found in EcalFenixStripProcess!!!!!" << std::endl;
