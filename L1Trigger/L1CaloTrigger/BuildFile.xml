@@ -1,5 +1,4 @@
 <use name="FWCore/ParameterSet"/>
-<use name="DataFormats/L1TCalorimeterPhase2"/>
 <use   name="clhep"/>
 
 <export> 
