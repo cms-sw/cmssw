@@ -2,6 +2,7 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/EcalAlgo"/>
+<use   name="DataFormats/L1TCalorimeterPhase2"/>
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/EcalDigi"/>
