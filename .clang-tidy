@@ -1,6 +1,8 @@
 ---
 Checks: -*,
   ,boost-use-to-string,
+  ,cms-handle,
+  ,cms-esrget,
   ,misc-string-compare,
   ,misc-uniqueptr-reset-release,
   ,modernize-deprecated-headers,
