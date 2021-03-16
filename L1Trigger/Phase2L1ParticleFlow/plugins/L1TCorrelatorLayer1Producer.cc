@@ -151,7 +151,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
       debugR_(iConfig.getUntrackedParameter<double>("debugR", -1)) {
   produces<l1t::PFCandidateCollection>("PF");
   produces<l1t::PFCandidateCollection>("Puppi");
-  produces<l1t::PFCandidateRegionalOutput>("Puppi");
+  produces<l1t::PFCandidateRegionalOutput>("PuppiRegional");
 
   produces<l1t::PFCandidateCollection>("EmCalo");
   produces<l1t::PFCandidateCollection>("Calo");
@@ -753,7 +753,7 @@ void L1TCorrelatorLayer1Producer::putPuppi(edm::Event &iEvent) const {
     reg->addRegion(nobj);
   }
   iEvent.put(std::move(coll), "Puppi");
-  iEvent.put(std::move(reg), "Puppi");
+  iEvent.put(std::move(reg), "PuppiRegional");
 }
 
 void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
