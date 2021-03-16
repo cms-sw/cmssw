@@ -6,6 +6,7 @@
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCluster.h"
 #include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
+#include "DataFormats/L1TParticleFlow/interface/RegionalOutput.h"
 
 namespace l1t {
 
@@ -45,11 +46,33 @@ namespace l1t {
     /// PUPPI weight (-1 if not available)
     float puppiWeight() const { return puppiWeight_; }
 
+    void setZ0(float z0) { setVertex(reco::Particle::Point(0, 0, z0)); }
+    void setDxy(float dxy) { dxy_ = dxy; }
+
+    float z0() const { return vz(); }
+    float dxy() const { return dxy_; }
+
+    int16_t hwZ0() const { return hwZ0_; }
+    int16_t hwDxy() const { return hwDxy_; }
+    uint16_t hwTkQuality() const { return hwTkQuality_; }
+    uint16_t hwPuppiWeight() const { return hwPuppiWeight_; }
+    uint64_t encodedPuppi64() const { return encodedPuppi64_; }
+
+    void setHwZ0(int16_t hwZ0) { hwZ0_ = hwZ0; }
+    void setHwDxy(int16_t hwDxy) { hwDxy_ = hwDxy; }
+    void setHwTkQuality(uint16_t hwTkQuality) { hwTkQuality_ = hwTkQuality; }
+    void setHwPuppiWeight(uint16_t hwPuppiWeight) { hwPuppiWeight_ = hwPuppiWeight; }
+    void setEncodedPuppi64(uint64_t encodedPuppi64) { encodedPuppi64_ = encodedPuppi64; }
+
   private:
     PFClusterRef clusterRef_;
     PFTrackRef trackRef_;
     MuonRef muonRef_;
-    float puppiWeight_;
+    float dxy_, puppiWeight_;
+
+    int16_t hwZ0_, hwDxy_;
+    uint16_t hwTkQuality_, hwPuppiWeight_;
+    uint64_t encodedPuppi64_;
 
     void setPdgIdFromParticleType(int charge, ParticleType kind);
   };
@@ -57,5 +80,6 @@ namespace l1t {
   typedef std::vector<l1t::PFCandidate> PFCandidateCollection;
   typedef edm::Ref<l1t::PFCandidateCollection> PFCandidateRef;
   typedef edm::RefVector<l1t::PFCandidateCollection> PFCandidateRefVector;
+  typedef l1t::RegionalOutput<l1t::PFCandidateCollection> PFCandidateRegionalOutput;
 }  // namespace l1t
 #endif
