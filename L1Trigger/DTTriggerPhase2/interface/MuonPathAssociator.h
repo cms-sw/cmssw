@@ -86,6 +86,7 @@ private:
   double tanPsi_precision_;
   double x_precision_;
   bool cmssw_for_global_;
+  std::string geometry_tag_;
 
   //shift
   edm::FileInPath shift_filename_;

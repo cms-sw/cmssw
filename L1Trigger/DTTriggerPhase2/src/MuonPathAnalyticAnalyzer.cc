@@ -20,7 +20,8 @@ MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm
       use_LSB_(pset.getUntrackedParameter<bool>("use_LSB")),
       tanPsi_precision_(pset.getUntrackedParameter<double>("tanPsi_precision")),
       x_precision_(pset.getUntrackedParameter<double>("x_precision")),
-      cmssw_for_global_(pset.getUntrackedParameter<bool>("cmssw_for_global")) {
+      cmssw_for_global_(pset.getUntrackedParameter<bool>("cmssw_for_global")),
+      geometry_tag_(pset.getUntrackedParameter<std::string>("geometry_tag")){
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyzer: constructor";
 
@@ -79,8 +80,9 @@ void MuonPathAnalyticAnalyzer::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyticAnalyzer::initialiase";
 
-  const MuonGeometryRecord &geom = iEventSetup.get<MuonGeometryRecord>();
-  dtGeo_ = &geom.get(dtGeomH);
+  edm::ESHandle<DTGeometry> geom;
+  iEventSetup.get<MuonGeometryRecord>().get(geometry_tag_, geom);
+  dtGeo_ = &(*geom);
 }
 
 void MuonPathAnalyticAnalyzer::run(edm::Event &iEvent,

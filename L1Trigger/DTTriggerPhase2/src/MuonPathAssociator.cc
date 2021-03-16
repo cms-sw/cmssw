@@ -26,6 +26,7 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCo
   minx_match_2digis_ = pset.getUntrackedParameter<double>("minx_match_2digis");
   chi2corTh_ = pset.getUntrackedParameter<double>("chi2corTh");
   cmssw_for_global_ = pset.getUntrackedParameter<bool>("cmssw_for_global");
+  geometry_tag_ = pset.getUntrackedParameter<std::string>("geometry_tag");
 
   if (debug_)
     LogDebug("MuonPathAssociator") << "MuonPathAssociator: constructor";
@@ -60,8 +61,9 @@ void MuonPathAssociator::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     LogDebug("MuonPathAssociator") << "MuonPathAssociator::initialiase";
 
-  const MuonGeometryRecord &geom = iEventSetup.get<MuonGeometryRecord>();
-  dtGeo_ = &geom.get(dtGeomH_);
+  edm::ESHandle<DTGeometry> geom;
+  iEventSetup.get<MuonGeometryRecord>().get(geometry_tag_, geom);
+  dtGeo_ = &(*geom);
 }
 
 void MuonPathAssociator::run(edm::Event &iEvent,

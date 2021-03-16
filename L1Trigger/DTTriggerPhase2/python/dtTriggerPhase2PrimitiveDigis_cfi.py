@@ -6,6 +6,7 @@ from L1Trigger.DTTriggerPhase2.PseudoBayesGrouping_cfi            import PseudoB
 
 dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                digiTag = cms.InputTag("CalibratedDigis"),
+                                               geometry_tag = cms.untracked.string(""),
                                                trigger_with_sl = cms.untracked.int32(4),
                                                tanPhiTh = cms.untracked.double(1.), 
                                                chi2Th = cms.untracked.double(0.01), #in cm^2
