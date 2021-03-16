@@ -19,6 +19,7 @@
 namespace l1ct {
 
   typedef ap_ufixed<14, 12, AP_TRN, AP_SAT> pt_t;
+  typedef ap_ufixed<10, 8, AP_TRN, AP_SAT> pt10_t;
   typedef ap_fixed<16, 14, AP_TRN, AP_SAT> dpt_t;
   typedef ap_ufixed<28, 24, AP_TRN, AP_SAT> pt2_t;
   typedef ap_int<10> eta_t;

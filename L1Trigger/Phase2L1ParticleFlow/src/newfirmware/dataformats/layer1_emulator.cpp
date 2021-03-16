@@ -51,12 +51,14 @@ bool l1ct::PFChargedObjEmu::read(std::fstream& from) {
   srcTrack = nullptr;    // not persistent
   srcCluster = nullptr;  // not persistent
   srcMu = nullptr;       // not persistent
+  srcCand = nullptr;     // not persistent
   return readObj<PFChargedObj>(from, *this);
 }
 bool l1ct::PFChargedObjEmu::write(std::fstream& to) const { return writeObj<PFChargedObj>(*this, to); }
 
 bool l1ct::PFNeutralObjEmu::read(std::fstream& from) {
   srcCluster = nullptr;  // not persistent
+  srcCand = nullptr;     // not persistent
   return readObj<PFNeutralObj>(from, *this);
 }
 bool l1ct::PFNeutralObjEmu::write(std::fstream& to) const { return writeObj<PFNeutralObj>(*this, to); }
@@ -65,6 +67,7 @@ bool l1ct::PuppiObjEmu::read(std::fstream& from) {
   srcTrack = nullptr;    // not persistent
   srcCluster = nullptr;  // not persistent
   srcMu = nullptr;       // not persistent
+  srcCand = nullptr;     // not persistent
   return readObj<PuppiObj>(from, *this);
 }
 bool l1ct::PuppiObjEmu::write(std::fstream& to) const { return writeObj<PuppiObj>(*this, to); }
