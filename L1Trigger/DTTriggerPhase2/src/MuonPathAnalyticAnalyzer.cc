@@ -297,7 +297,7 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   DTChamberId ChId(MuonPathSLId.wheel(), MuonPathSLId.station(), MuonPathSLId.sector());
   double phi = -999.;
   double phiB = -999.;
-  if (cmssw_for_global_) {
+  if (cmssw_for_global_ && MuonPathSLId.superLayer() != 2) {
     double z = 0;
     double z1 = Z_POS_SL;
     double z3 = -1. * z1;
@@ -319,10 +319,18 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
     phi = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
     double psi = atan(slope_f);
     phiB = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi;
-  } else {
+    
+  } else if (MuonPathSLId.superLayer() != 2) {
     auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), MuonPathSLId.superLayer(), pos, slope);
     phi = global_coords[0];
     phiB = global_coords[1];
+    
+  } else {
+    DTLayerId SL2_layer2Id(MuonPathSLId, 2);
+    double z_shift = shiftthetainfo_[SL2_layer2Id.rawId()];     
+    double jm_y = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? z_shift - pos_f : z_shift + pos_f;
+    phi = jm_y;
+    phiB = slope_f;//
   }
 
 
@@ -336,11 +344,7 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   }
 
   if (MuonPathSLId.superLayer() == 2){
-      DTLayerId SL2_layer2Id(MuonPathSLId,2);
-      double z_shift=shiftthetainfo_[SL2_layer2Id.rawId()];     
-      double jm_y = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? z_shift-pos_f : z_shift+pos_f;
-      phi=jm_y;
-      phiB=slope_f;//
+
   }
 
   metaPrimitives.emplace_back(metaPrimitive({MuonPathSLId.rawId(),
