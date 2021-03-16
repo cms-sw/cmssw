@@ -63,7 +63,7 @@ namespace l1t {
       unsigned int key() const { return idx_; }
 
     private:
-      RegionalOutput<T>* src_;
+      const RegionalOutput<T>* src_;
       unsigned int idx_;
     };
     typedef iterator const_iterator;
@@ -77,8 +77,8 @@ namespace l1t {
       const value_type& operator[](unsigned int idx) const { return src_->objAt(ibegin_ + idx); }
       const value_type& front() const { return src_->objAt(ibegin_); }
       const value_type& back() const { return src_->objAt(iend_ - 1); }
-      iterator begin() const { return iterator(src_, ibegin_); }
-      iterator end() const { return iterator(src_, iend_); }
+      iterator begin() const { return iterator(*src_, ibegin_); }
+      iterator end() const { return iterator(*src_, iend_); }
       unsigned int size() const { return iend_ - ibegin_; }
       bool empty() const { return (iend_ == ibegin_); }
       // interface to get EDM refs & related stuff
@@ -86,10 +86,10 @@ namespace l1t {
       edm::ProductID id() const { return src_->id(); }
 
     private:
-      RegionalOutput<T>* src_;
+      const RegionalOutput<T>* src_;
       unsigned int ibegin_, iend_;
       friend class RegionalOutput<T>;
-      Region(RegionalOutput<T>* src, unsigned int ibegin, unsigned int iend)
+      Region(const RegionalOutput<T>* src, unsigned int ibegin, unsigned int iend)
           : src_(src), ibegin_(ibegin), iend_(iend) {}
     };
 
@@ -117,10 +117,10 @@ namespace l1t {
     const_iterator begin() const { return const_iterator(this, 0); }
     const_iterator end() const { return const_iterator(this, values_.size()); }
 
-    Region region(unsigned int ireg) { return Region(this, ireg == 0 ? 0 : regions_[ireg - 1], regions_[ireg]); }
+    Region region(unsigned int ireg) const { return Region(this, ireg == 0 ? 0 : regions_[ireg - 1], regions_[ireg]); }
 
-    ref refAt(unsigned int idx) { return ref(refprod_, values_[idx]); }
-    const value_type& objAt(unsigned int idx) { return (*refprod_)[values_[idx]]; }
+    ref refAt(unsigned int idx) const { return ref(refprod_, values_[idx]); }
+    const value_type& objAt(unsigned int idx) const { return (*refprod_)[values_[idx]]; }
 
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)

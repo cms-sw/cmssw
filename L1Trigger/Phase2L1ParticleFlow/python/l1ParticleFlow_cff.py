@@ -311,6 +311,7 @@ l1pfCandidates = cms.EDProducer("L1TPFCandMultiMerger",
         cms.InputTag("l1pfProducerHF")
     ),
     labelsToMerge = cms.vstring("Calo", "TK", "TKVtx", "PF", "Puppi"),
+    regionalLabelsToMerge = cms.vstring(),
 )
 
 l1tCorrelatorEG = cms.EDProducer(
