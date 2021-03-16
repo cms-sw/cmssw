@@ -1548,10 +1548,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               myrot(ns, grid.name + "R", gridForm.getRotation()),
               Position(gridForm.getTranslation().x(), gridForm.getTranslation().y(), gridForm.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalGeom") << gridLog.name() << ":" << copyOne << " positioned in " << hawRLog.name() << " at ("
+      edm::LogVerbatim("EBGeomX") << gridLog.name() << ":" << copyOne << " positioned in " << hawRLog.name() << " at ("
                                    << cms::convert2mm(gridForm.getTranslation().x()) << ","
                                    << cms::convert2mm(gridForm.getTranslation().y()) << ","
-                                   << cms::convert2mm(gridForm.getTranslation().z()) << ") with no rotation";
+                                   << cms::convert2mm(gridForm.getTranslation().z()) << ") with rotation";
 #endif
     }
     // End Grid + Tablet insertion
@@ -1770,9 +1770,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
         bsiLog.placeVolume(andLog, copyAND, Position(0, 0, -0.5 * apd.andThick - apd.aglThick + bSi.thickHalf));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeomX") << andLog.name() << ":" << copyAND << " positioned in " << bsiLog.name()
-                                    << " at (0,0," << cms::convert2mm(-apd.aglThick + bSi.thickHalf)
-                                    << ") with no rotation";
+        edm::LogVerbatim("EBGeomX") << andLog.name() << ":" << copyAND << " positioned in " << bsiLog.name() << " at (0,0," << cms::convert2mm(-0.5 * apd.andThick - apd.aglThick + bSi.thickHalf) << ") with no rotation";
 #endif
         bsiLog.placeVolume(
             apdLog, copyAPD, Position(0, 0, -0.5 * apd.thick - apd.andThick - apd.aglThick + bSi.thickHalf));
@@ -1786,11 +1784,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                            copyATJ,
                            Position(0, 0, -apd.atjThickHalf - apd.thick - apd.andThick - apd.aglThick + bSi.thickHalf));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeomX") << atjLog.name() << ":" << copyATJ << " positioned in " << bsiLog.name()
-                                    << " at (0,0,"
-                                    << cms::convert2mm(apd.atjThickHalf - apd.thick - apd.andThick - apd.aglThick +
-                                                       bSi.thickHalf)
-                                    << ") with no rotation";
+        edm::LogVerbatim("EBGeomX") << atjLog.name() << ":" << copyATJ << " positioned in " << bsiLog.name() << " at (0,0," << cms::convert2mm(-apd.atjThickHalf - apd.thick - apd.andThick - apd.aglThick + bSi.thickHalf) << ") with no rotation";
 #endif
         cerLog.placeVolume(bsiLog, copyBSi, Position(0, 0, -bSi.thickHalf + cer.thickHalf));
 #ifdef EDM_ML_DEBUG
@@ -2489,7 +2483,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         backCoolVFELog.placeVolume(
             backVFELog, copyOne, Transform3D(Position(0, 0, backCool.barThick / 2. + thickVFE / 2.)));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EGeomX") << backVFELog.name() << ":" << copyOne << " positioned in " << backCoolVFELog.name()
+        edm::LogVerbatim("EBGeomX") << backVFELog.name() << ":" << copyOne << " positioned in " << backCoolVFELog.name()
                                    << " at (0,0," << cms::convert2mm(backCool.barThick / 2. + thickVFE / 2.)
                                    << ") with no rotation";
 #endif
@@ -3004,7 +2998,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("EBGeomX") << shim1Log.name() << ":" << copyOne << " positioned in " << envLog.name()
                                     << " at (" << cms::convert2mm(envParms[0] - shim1Parms[0]) << ","
-                                    << cms::convert2mm(envParms[1] + shim1Parms[1]) << ","
+                                    << cms::convert2mm(-envParms[1] + shim1Parms[1]) << ","
                                     << cms::convert2mm(-envParms[2] + shim1Parms[2]) << ") with no rotation";
 #endif
 

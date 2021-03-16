@@ -13,7 +13,7 @@ using namespace cms;
 using namespace dd4hep;
 using namespace angle_units::operators;
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 namespace {
 
