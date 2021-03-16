@@ -25,7 +25,6 @@ private:
     
     long unsigned int maxCands=128;
 
-
     // quantization controllers
     static constexpr uint PT_SIZE = 16;
     static constexpr uint PT2_SIZE = 2*PT_SIZE;
