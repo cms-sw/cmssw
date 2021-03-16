@@ -1,7 +1,7 @@
 #ifndef VertexAssociatorByTracks_h
 #define VertexAssociatorByTracks_h
 
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociatorBaseImpl.h"
 
 class TrackingParticleSelector;
