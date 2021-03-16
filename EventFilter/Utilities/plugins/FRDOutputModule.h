@@ -47,6 +47,8 @@ private:
   uint32_t perFileEventCount_;
   uint64_t perFileSize_;
 
+  bool fileWritten_ = false;
+
 
 };
 
