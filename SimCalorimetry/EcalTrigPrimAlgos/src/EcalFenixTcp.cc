@@ -11,13 +11,7 @@
 
 #include <vector>
 //----------------------------------------------------------------------------------------
-EcalFenixTcp::EcalFenixTcp(const edm::EventSetup &setup,
-                           bool tcpFormat,
-                           bool debug,
-                           bool famos,
-                           int binOfMax,
-                           int maxNrSamples,
-                           int nbMaxStrips)
+EcalFenixTcp::EcalFenixTcp(bool tcpFormat, bool debug, bool famos, int binOfMax, int maxNrSamples, int nbMaxStrips)
     : debug_(debug), nbMaxStrips_(nbMaxStrips) {
   bypasslin_.resize(nbMaxStrips_);
   for (int i = 0; i < nbMaxStrips_; i++)
@@ -51,8 +45,7 @@ EcalFenixTcp::~EcalFenixTcp() {
 }
 //-----------------------------------------------------------------------------------------
 
-void EcalFenixTcp::process(const edm::EventSetup &setup,
-                           std::vector<EBDataFrame> &bid,  // dummy argument for template call
+void EcalFenixTcp::process(std::vector<EBDataFrame> &bid,  // dummy argument for template call
                            std::vector<std::vector<int>> &tpframetow,
                            int nStr,
                            std::vector<EcalTriggerPrimitiveSample> &tptow,
@@ -77,8 +70,7 @@ void EcalFenixTcp::process(const edm::EventSetup &setup,
 }
 
 //-----------------------------------------------------------------------------------------
-void EcalFenixTcp::process(const edm::EventSetup &setup,
-                           std::vector<EEDataFrame> &bid,  // dummy argument for template call
+void EcalFenixTcp::process(std::vector<EEDataFrame> &bid,  // dummy argument for template call
                            std::vector<std::vector<int>> &tpframetow,
                            int nStr,
                            std::vector<EcalTriggerPrimitiveSample> &tptow,
