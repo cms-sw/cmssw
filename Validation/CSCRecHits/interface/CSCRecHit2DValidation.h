@@ -1,22 +1,20 @@
-#ifndef CSCRecHit2DValidation_h
-#define CSCRecHit2DValidation_h
+#ifndef Validation_CSCRecHits_CSCRecHit2DValidation_h
+#define Validation_CSCRecHits_CSCRecHit2DValidation_h
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
+#include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "Geometry/CSCGeometry/interface/CSCLayer.h"
-#include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
 
 class CSCRecHit2DValidation : public CSCBaseValidation {
 public:
-  CSCRecHit2DValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC);
+  CSCRecHit2DValidation(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC);
   ~CSCRecHit2DValidation() override;
   void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
   edm::EDGetTokenT<CSCRecHit2DCollection> rechits_Token_;
+  edm::InputTag inputTag_;
 
   void plotResolution(const PSimHit &simHit, const CSCRecHit2D &recHit, const CSCLayer *layer, int chamberType);
 
