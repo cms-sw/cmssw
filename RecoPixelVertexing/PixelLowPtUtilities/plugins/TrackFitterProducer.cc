@@ -30,12 +30,16 @@ public:
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-  std::string theTTRHBuilderName;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhToken_;
   edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
 };
 
 TrackFitterProducer::TrackFitterProducer(const edm::ParameterSet& iConfig)
-    : theTTRHBuilderName(iConfig.getParameter<std::string>("TTRHBuilder")) {
+    : geomToken_(esConsumes()),
+      magFieldToken_(esConsumes()),
+      ttrhToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("TTRHBuilder")))) {
   produces<PixelFitter>();
 }
 
@@ -48,16 +52,11 @@ void TrackFitterProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 void TrackFitterProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::ESHandle<TrackerGeometry> trackerESH;
-  iSetup.get<TrackerDigiGeometryRecord>().get(trackerESH);
+  const auto& tracker = &iSetup.getData(geomToken_);
+  const auto& field = &iSetup.getData(magFieldToken_);
+  const auto& ttrh = &iSetup.getData(ttrhToken_);
 
-  edm::ESHandle<MagneticField> fieldESH;
-  iSetup.get<IdealMagneticFieldRecord>().get(fieldESH);
-
-  edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
-  iSetup.get<TransientRecHitRecord>().get(theTTRHBuilderName, ttrhbESH);
-
-  auto impl = std::make_unique<TrackFitter>(trackerESH.product(), fieldESH.product(), ttrhbESH.product());
+  auto impl = std::make_unique<TrackFitter>(tracker, field, ttrh);
   auto prod = std::make_unique<PixelFitter>(std::move(impl));
   iEvent.put(std::move(prod));
 }
