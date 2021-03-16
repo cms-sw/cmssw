@@ -64,6 +64,7 @@ namespace l1ct {
     const l1t::PFCluster *srcCluster;
     const l1t::PFTrack *srcTrack;
     const l1t::Muon *srcMu;
+    const l1t::PFCandidate *srcCand;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -71,16 +72,19 @@ namespace l1ct {
       srcCluster = nullptr;
       srcTrack = nullptr;
       srcMu = nullptr;
+      srcCand = nullptr;
     }
   };
 
   struct PFNeutralObjEmu : public PFNeutralObj {
     const l1t::PFCluster *srcCluster;
+    const l1t::PFCandidate *srcCand;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
       PFNeutralObj::clear();
       srcCluster = nullptr;
+      srcCand = nullptr;
     }
   };
 
@@ -101,6 +105,7 @@ namespace l1ct {
     const l1t::PFCluster *srcCluster;
     const l1t::PFTrack *srcTrack;
     const l1t::Muon *srcMu;
+    const l1t::PFCandidate *srcCand;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -108,24 +113,28 @@ namespace l1ct {
       srcCluster = nullptr;
       srcTrack = nullptr;
       srcMu = nullptr;
+      srcCand = nullptr;
     }
     inline void fill(const PFRegionEmu &region, const PFChargedObjEmu &src) {
       PuppiObj::fill(region, src);
       srcCluster = src.srcCluster;
       srcTrack = src.srcTrack;
       srcMu = src.srcMu;
+      srcCand = src.srcCand;
     }
     inline void fill(const PFRegionEmu &region, const PFNeutralObjEmu &src, pt_t puppiPt, puppiWgt_t puppiWgt) {
       PuppiObj::fill(region, src, puppiPt, puppiWgt);
       srcCluster = src.srcCluster;
       srcTrack = nullptr;
       srcMu = nullptr;
+      srcCand = src.srcCand;
     }
     inline void fill(const PFRegionEmu &region, const HadCaloObjEmu &src, pt_t puppiPt, puppiWgt_t puppiWgt) {
       PuppiObj::fill(region, src, puppiPt, puppiWgt);
       srcCluster = src.src;
       srcTrack = nullptr;
       srcMu = nullptr;
+      srcCand = nullptr;
     }
   };
 
