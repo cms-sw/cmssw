@@ -11,7 +11,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
                                                     const EcalMGPAGainRatio* aGain,
                                                     const FullSampleVector& fullpulse,
                                                     EcalUncalibratedRecHit& uncalibRecHit,
-                                                    float errOnTime) const {
+                                                    float& errOnTime) const {
   constexpr unsigned int nsample = EcalDataFrame::MAXSAMPLES;
 
   double maxamplitude = -std::numeric_limits<double>::max();
@@ -89,6 +89,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   } while (tStop - tStart > targetTimePrecision_ && counter < MAX_NUM_OF_ITERATIONS);
 
   tM -= GLOBAL_TIME_SHIFT;
+  errOnTime = targetTimePrecision_;
 
   if (counter < MIN_NUM_OF_ITERATIONS || counter > MAX_NUM_OF_ITERATIONS - 1) {
     tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period;

@@ -480,8 +480,6 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         uncalibRecHit.setJitterError(0.);  // not computed with weights
 
       } else if (timealgo_ == crossCorrelationMethod) {
-        uncalibRecHit.setJitterError(0.);
-
         std::vector<double> amplitudes(activeBX.size());
         for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
           amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);

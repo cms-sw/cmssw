@@ -24,7 +24,7 @@ public:
                        const EcalMGPAGainRatio* aGain,
                        const FullSampleVector& fullpulse,
                        EcalUncalibratedRecHit& uncalibRecHit,
-                       float errOnTime) const;
+                       float& errOnTime) const;
 
 private:
   const float startTime_;
