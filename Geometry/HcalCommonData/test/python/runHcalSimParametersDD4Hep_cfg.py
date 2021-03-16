@@ -15,6 +15,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.hpa = cms.EDAnalyzer("CaloSimParametersAnalyzer")
+process.hpa = cms.EDAnalyzer("HcalSimParametersAnalyzer")
 
 process.p1 = cms.Path(process.hpa)
