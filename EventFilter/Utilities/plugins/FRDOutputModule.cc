@@ -26,10 +26,10 @@ FRDOutputModule::FRDOutputModule(edm::ParameterSet const& ps)
     : edm::one::OutputModuleBase::OutputModuleBase(ps),
       edm::one::OutputModule<edm::one::WatchLuminosityBlocks>(ps),
       token_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("source"))),
-      frdVersion_(ps.getParameter<unsigned int>("frdVersion")),
-      frdFileVersion_(ps.getParameter<unsigned int>("frdFileVersion")),
-      filePrefix_(ps.getParameter<std::string>("filePrefix")),
-      fileName_(ps.getParameter<std::string>("fileName"))
+      frdVersion_(ps.getUntrackedParameter<unsigned int>("frdVersion")),
+      frdFileVersion_(ps.getUntrackedParameter<unsigned int>("frdFileVersion")),
+      filePrefix_(ps.getUntrackedParameter<std::string>("filePrefix")),
+      fileName_(ps.getUntrackedParameter<std::string>("fileName"))
       {}
 
 FRDOutputModule::~FRDOutputModule() {}
@@ -38,11 +38,10 @@ FRDOutputModule::~FRDOutputModule() {}
 void FRDOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("source", edm::InputTag("rawDataCollector"));
-  desc.add<unsigned int>("numEventsPerFile", 100);
-  desc.add<unsigned int>("frdFileVersion",1),
-  desc.add<unsigned int>("frdVersion", 6);
-  desc.add<std::string>("filePrefix","rawdata");
-  desc.add<std::string>("fileName","");
+  desc.addUntracked<unsigned int>("frdFileVersion", 1),
+  desc.addUntracked<unsigned int>("frdVersion", 6);
+  desc.addUntracked<std::string>("filePrefix", "");
+  desc.addUntracked<std::string>("fileName", "");
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -142,10 +141,14 @@ void FRDOutputModule::beginLuminosityBlock(edm::LuminosityBlockForOutput const& 
   if (outfd_ != -1)
     finishFileWrite(ls);
 
+  if (fileWritten_)
+    throw cms::Exception("RawEventFileWriterForBU", "beginLuminosityBlock") << "Multiple lumisections not supported in the same FRD file!";
+
+
   std::string fileName;
   if (fileName_.empty()) {
     std::stringstream ss;
-    ss << filePrefix_ << "_ls" << std::setfill('0') << std::setw(4) << ls << ".raw";
+    ss << (filePrefix_.empty() ? "" : filePrefix_ + "_") << "run" <<  std::setfill('0') << std::setw(6) << lumiBlock.run() << "_ls" << std::setfill('0') << std::setw(4) << ls << "_index000000.raw";
     fileName = ss.str();
   }
   else {
@@ -196,6 +199,8 @@ void FRDOutputModule::finishFileWrite(int ls) {
 
   close(outfd_);
   outfd_ = -1;
+  if (!fileName_.empty())
+      fileWritten_ = true;
 
   edm::LogInfo("FRDOutputModule") << "closed RAW input file";
 }
