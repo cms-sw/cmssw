@@ -2,6 +2,8 @@
 #include "RecoLocalFastTime/FTLClusterizer/interface/BTLRecHitsErrorEstimatorIM.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CommonTools/Utils/interface/FormulaEvaluator.h"
+
 class BTLUncalibRecHitAlgo : public BTLUncalibratedRecHitAlgoBase {
 public:
   /// Constructor
@@ -11,7 +13,7 @@ public:
         adcSaturation_(conf.getParameter<double>("adcSaturation")),
         adcLSB_(adcSaturation_ / (1 << adcNBits_)),
         toaLSBToNS_(conf.getParameter<double>("toaLSB_ns")),
-        timeError_(conf.getParameter<double>("timeResolutionInNs")),
+        timeError_(conf.getParameter<std::string>("timeResolutionInNs")),
         timeCorr_p0_(conf.getParameter<double>("timeCorr_p0")),
         timeCorr_p1_(conf.getParameter<double>("timeCorr_p1")),
         timeCorr_p2_(conf.getParameter<double>("timeCorr_p2")),
@@ -32,7 +34,7 @@ private:
   const double adcSaturation_;
   const double adcLSB_;
   const double toaLSBToNS_;
-  const double timeError_;
+  const reco::FormulaEvaluator timeError_;
   const double timeCorr_p0_;
   const double timeCorr_p1_;
   const double timeCorr_p2_;
@@ -73,6 +75,11 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
     flag |= (0x1 << 1);
   }
 
+  // Calculate the error on the hit time using the provided parameterization
+  std::vector<double> emptyV;
+  std::vector<double> amplitudeV = {0.5 * (amplitude.first + amplitude.second)};
+  double timeError = timeError_.evaluate(amplitudeV, emptyV);
+
   // Calculate the position
   // Distance from center of bar to hit
   float position = 0.5f * (c_LYSO_ * (time.second - time.first));
@@ -86,7 +93,7 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
                                << std::endl;
 
   return FTLUncalibratedRecHit(
-      dataFrame.id(), dataFrame.row(), dataFrame.column(), amplitude, time, timeError_, position, positionError, flag);
+      dataFrame.id(), dataFrame.row(), dataFrame.column(), amplitude, time, timeError, position, positionError, flag);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
