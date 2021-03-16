@@ -142,7 +142,7 @@ namespace evf {
     EvFOutputModuleType::fillDescription(desc);
     desc.addUntracked<edm::InputTag>("psetMap", {"hltPSetMap"})
         ->setComment("Optionally allow the map of ParameterSets to be calculated externally.");
-    descriptions.addDefault(desc);
+    descriptions.add("evfOutputModule", desc);
   }
 
   void EvFOutputModule::beginRun(edm::RunForOutput const& run) {
