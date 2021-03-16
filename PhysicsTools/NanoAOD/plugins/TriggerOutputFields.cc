@@ -35,6 +35,12 @@ bool is_nanoaod_trigger(const std::string& name) {
 std::vector<std::string> TriggerOutputFields::getTriggerNames(
   const edm::TriggerResults& triggerResults)
 {
+  // Trigger names are either stored in the TriggerResults object (e.g. L1) or
+  // need to be looked up in the registry (e.g. HLT)
+  auto triggerNames = triggerResults.getTriggerNames();
+  if (!triggerNames.empty()) {
+    return triggerNames;
+  }
   edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
   edm::ParameterSet const* pset = psetRegistry->getMapped(triggerResults.parameterSetID());
   if (nullptr == pset || !pset->existsAs<std::vector<std::string>>("@trigger_paths", true)) {
