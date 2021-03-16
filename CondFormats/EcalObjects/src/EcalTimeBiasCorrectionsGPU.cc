@@ -4,24 +4,24 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 
 EcalTimeBiasCorrectionsGPU::EcalTimeBiasCorrectionsGPU(EcalTimeBiasCorrections const& values) {
-  EBTimeCorrAmplitudeBins_.reserve(values.EBTimeCorrAmplitudeBins.size());
-  for (const auto& EBTimeCorrAmplitudeBin : values.EBTimeCorrAmplitudeBins) {
-    EBTimeCorrAmplitudeBins_.emplace_back(EBTimeCorrAmplitudeBin);
+  ebTimeCorrAmplitudeBins_.reserve(values.EBTimeCorrAmplitudeBins.size());
+  for (const auto& ebTimeCorrAmplitudeBin : values.EBTimeCorrAmplitudeBins) {
+    ebTimeCorrAmplitudeBins_.emplace_back(ebTimeCorrAmplitudeBin);
   }
 
-  EBTimeCorrShiftBins_.reserve(values.EBTimeCorrAmplitudeBins.size());
-  for (const auto& EBTimeCorrShiftBin : values.EBTimeCorrShiftBins) {
-    EBTimeCorrShiftBins_.emplace_back(EBTimeCorrShiftBin);
+  ebTimeCorrShiftBins_.reserve(values.EBTimeCorrAmplitudeBins.size());
+  for (const auto& ebTimeCorrShiftBin : values.EBTimeCorrShiftBins) {
+    ebTimeCorrShiftBins_.emplace_back(ebTimeCorrShiftBin);
   }
 
-  EETimeCorrAmplitudeBins_.reserve(values.EETimeCorrAmplitudeBins.size());
-  for (const auto& EETimeCorrAmplitudeBin : values.EETimeCorrAmplitudeBins) {
-    EETimeCorrAmplitudeBins_.emplace_back(EETimeCorrAmplitudeBin);
+  eeTimeCorrAmplitudeBins_.reserve(values.EETimeCorrAmplitudeBins.size());
+  for (const auto& eeTimeCorrAmplitudeBin : values.EETimeCorrAmplitudeBins) {
+    eeTimeCorrAmplitudeBins_.emplace_back(eeTimeCorrAmplitudeBin);
   }
 
-  EETimeCorrShiftBins_.reserve(values.EETimeCorrAmplitudeBins.size());
-  for (const auto& EETimeCorrShiftBin : values.EETimeCorrShiftBins) {
-    EETimeCorrShiftBins_.emplace_back(EETimeCorrShiftBin);
+  eeTimeCorrShiftBins_.reserve(values.EETimeCorrAmplitudeBins.size());
+  for (const auto& eeTimeCorrShiftBin : values.EETimeCorrShiftBins) {
+    eeTimeCorrShiftBins_.emplace_back(eeTimeCorrShiftBin);
   }
 }
 
@@ -30,21 +30,21 @@ EcalTimeBiasCorrectionsGPU::Product const& EcalTimeBiasCorrectionsGPU::getProduc
       cudaStream, [this](EcalTimeBiasCorrectionsGPU::Product& product, cudaStream_t cudaStream) {
         // to get the size of vectors later on
         // should be removed and host conditions' objects used directly
-        product.EBTimeCorrAmplitudeBinsSize = this->EBTimeCorrAmplitudeBins_.size();
-        product.EETimeCorrAmplitudeBinsSize = this->EETimeCorrAmplitudeBins_.size();
+        product.ebTimeCorrAmplitudeBinsSize = this->ebTimeCorrAmplitudeBins_.size();
+        product.eeTimeCorrAmplitudeBinsSize = this->eeTimeCorrAmplitudeBins_.size();
 
         // allocate
-        product.EBTimeCorrAmplitudeBins =
-            cms::cuda::make_device_unique<float[]>(EBTimeCorrAmplitudeBins_.size(), cudaStream);
-        product.EBTimeCorrShiftBins = cms::cuda::make_device_unique<float[]>(EBTimeCorrShiftBins_.size(), cudaStream);
-        product.EETimeCorrAmplitudeBins =
-            cms::cuda::make_device_unique<float[]>(EETimeCorrAmplitudeBins_.size(), cudaStream);
-        product.EETimeCorrShiftBins = cms::cuda::make_device_unique<float[]>(EETimeCorrShiftBins_.size(), cudaStream);
+        product.ebTimeCorrAmplitudeBins =
+            cms::cuda::make_device_unique<float[]>(ebTimeCorrAmplitudeBins_.size(), cudaStream);
+        product.ebTimeCorrShiftBins = cms::cuda::make_device_unique<float[]>(ebTimeCorrShiftBins_.size(), cudaStream);
+        product.eeTimeCorrAmplitudeBins =
+            cms::cuda::make_device_unique<float[]>(eeTimeCorrAmplitudeBins_.size(), cudaStream);
+        product.eeTimeCorrShiftBins = cms::cuda::make_device_unique<float[]>(eeTimeCorrShiftBins_.size(), cudaStream);
         // transfer
-        cms::cuda::copyAsync(product.EBTimeCorrAmplitudeBins, EBTimeCorrAmplitudeBins_, cudaStream);
-        cms::cuda::copyAsync(product.EBTimeCorrShiftBins, EBTimeCorrShiftBins_, cudaStream);
-        cms::cuda::copyAsync(product.EETimeCorrAmplitudeBins, EETimeCorrAmplitudeBins_, cudaStream);
-        cms::cuda::copyAsync(product.EETimeCorrShiftBins, EETimeCorrShiftBins_, cudaStream);
+        cms::cuda::copyAsync(product.ebTimeCorrAmplitudeBins, ebTimeCorrAmplitudeBins_, cudaStream);
+        cms::cuda::copyAsync(product.ebTimeCorrShiftBins, ebTimeCorrShiftBins_, cudaStream);
+        cms::cuda::copyAsync(product.eeTimeCorrAmplitudeBins, eeTimeCorrAmplitudeBins_, cudaStream);
+        cms::cuda::copyAsync(product.eeTimeCorrShiftBins, eeTimeCorrShiftBins_, cudaStream);
       });
 
   return product;
