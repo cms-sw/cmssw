@@ -134,8 +134,7 @@ unsigned HGCalGeomRotation::uvMappingTo60DegreeSector0(WaferCentring waferCentri
     } else {
       sector = 1;
     }
-  }
-  else if (moduleU >= moduleV && moduleV < 0) {
+  } else if (moduleU >= moduleV && moduleV < 0) {
     if (moduleU >= 0) {
       sector = 5;
     } else {
