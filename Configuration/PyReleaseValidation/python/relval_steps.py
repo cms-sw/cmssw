@@ -710,7 +710,7 @@ steps['TTbar_13_reminiaod2016UL_postVFP_INPUT']={'INPUT':InputInfo(dataSet='/Rel
 # FIXME: replace with AODSIM (more appropriate)
 steps['TTbar_13_reminiaod2017UL_INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_10_6_4-PUpmx25ns_106X_mc2017_realistic_v6_rsb-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
 steps['TTbar_13_reminiaod2018UL_INPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar_13_pmx25ns/CMSSW_10_6_4-PUpmx25ns_106X_upgrade2018_realistic_v9-v1/AODSIM',label='rmaod',location='STD')}
-# INPUT command for reminiAOD wfs on PbPb relval inputs 
+# INPUT command for reminiAOD wfs on PbPb relval inputs
 steps['HydjetQ_reminiaodPbPb2018_INPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B12_5020GeV_2018_ppReco/CMSSW_10_3_3-PU_103X_upgrade2018_realistic_HI_v11-v1/GEN-SIM-RECO',label='rmaod',location='STD')}
 
 #input for a NANOAOD from MINIAOD workflow
@@ -2068,6 +2068,16 @@ steps['TIER0EXPSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:SiPixelCalZeroBi
                           '--eventcontent':'ALCARECO',
                           }
 
+steps['TIER0EXPPPSCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBasedSel,ENDJOB',
+                          '--process':'ALCARECO',
+                          '--scenario': 'pp',
+                          '--era':'Run2_2017',
+                          '--conditions':'auto:run2_data',
+                          '--data': '',
+                          '--datatier':'ALCARECO',
+                          '--eventcontent':'ALCARECO',
+                          }
+
 steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
                         '--scenario':'pp',
                         '--data':'',
@@ -2087,6 +2097,16 @@ steps['ALCASPLITSIPIXELCAL']={'-s':'ALCAOUTPUT:SiPixelCalZeroBias,ALCA:PromptCal
                         '--conditions':'auto:run2_data',
                         '--triggerResultsProcess':'RECO',
                         #'--filein':'file:step2.root'
+                        }
+
+steps['ALCASPLITPPSCAL']={'-s':'ALCAOUTPUT:PPSCalTrackBasedSel,ALCA:PPSTimingCalib',
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run2_2017',
+                        '--datatier':'ALCARECO',
+                        '--eventcontent':'ALCARECO',
+                        '--conditions':'auto:run2_data',
+                        '--triggerResultsProcess':'RECO',
                         }
 
 steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotHP']),
@@ -2120,6 +2140,13 @@ steps['ALCAHARVDSIPIXELCALRUN1']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibPro
                         '--scenario':'pp',
                         '--data':'',
                         '--filein':'file:PromptCalibProdSiPixel.root'}
+
+steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPS']),
+                        '--conditions':'auto:run3_data_express',
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run2_2017',
+                        '--filein':'file:PPSTimingCalib.root'}
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '-s':'RAW2DIGI,L1Reco,RECO,DQM',

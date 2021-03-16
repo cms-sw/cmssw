@@ -121,6 +121,7 @@ from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
 # PPS calibration
 ###############################################################
 # Timing calibration
+from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_cff import *
 
 ###############################################################
@@ -182,6 +183,8 @@ pathALCARECOSiPixelCalZeroBias = cms.Path(seqALCARECOSiPixelCalZeroBias)
 pathALCARECOLumiPixelsMinBias       = cms.Path(seqALCARECOLumiPixelsMinBias)
 pathALCARECOAlCaPCCZeroBiasFromRECO = cms.Path(seqALCARECOAlCaPCCZeroBiasFromRECO)
 pathALCARECOAlCaPCCRandomFromRECO   = cms.Path(seqALCARECOAlCaPCCRandomFromRECO)
+
+pathALCARECOPPSCalTrackBasedSel = cms.Path(seqALCARECOPPSCalTrackBasedSel)
 
 #### ECAL
 pathALCARECOEcalCalZElectron     = cms.Path(seqALCARECOEcalCalZElectron)
@@ -444,6 +447,15 @@ ALCARECOStreamAlCaPCCRandomFromRECO = cms.FilteredStream(
 	paths  = (pathALCARECOAlCaPCCRandomFromRECO),
 	content = OutALCARECOAlCaPCCRandomFromRECO.outputCommands,
 	selectEvents = OutALCARECOAlCaPCCRandomFromRECO.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamPPSCalTrackBasedSel = cms.FilteredStream(
+	responsible = 'Laurent Forthomme',
+	name = 'PPSCalTrackBasedSel',
+	paths  = (pathALCARECOPPSCalTrackBasedSel),
+	content = OutALCARECOPPSCalTrackBasedSel.outputCommands,
+	selectEvents = OutALCARECOPPSCalTrackBasedSel.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

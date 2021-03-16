@@ -137,6 +137,7 @@ from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_Output_cff import *
 ###############################################################
 # PPS calibration
 ###############################################################
+from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_Output_cff import *
 from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_Output_cff import *
 
 ###############################################################
