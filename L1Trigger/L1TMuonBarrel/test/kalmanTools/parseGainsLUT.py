@@ -66,7 +66,6 @@ def printLUT(h,f,name,N):
     arr=[]
     for i in range(1,h.GetNbinsX()+1):
         arr.append("{}".format(h.GetBinContent(i)))
-        #arr.append(str(h.GetBinContent(i)))
     st = "const "+typ+" "+name+"["+str(N)+"]={"+','.join(arr)+"};\n"
     f.write(st)
 
@@ -87,7 +86,6 @@ def printLUTV(h,f,name,N):
     arr=[]
     for i in range(1,h.GetNbinsX()+1):
         arr.append("{}".format(h.GetBinContent(i)))
-        #arr.append(str(h.GetBinContent(i)))
     st = "const "+typ+" "+name+"["+str(N)+"]={"+','.join(arr)+"};\n"
     f.write(st)
 
@@ -95,13 +93,6 @@ def printLUTV(h,f,name,N):
 
 fileio=open("gainLUTs.h","w")
 fileio.write('#include common.h\n')
-#fileio.write('typedef ap_ufixed<9,6> updateLUT0_t;\n')
-#fileio.write('typedef ap_ufixed<9,4> updateLUT4_t;\n')
-#fileio.write('typedef ap_fixed<9,4> updateLUT1_t;\n')
-#fileio.write('typedef ap_ufixed<9,8> updateLUT5_t;\n')
-#fileio.write('typedef ap_ufixed<9,2> updateLUTV0_t;\n')
-#fileio.write('typedef ap_ufixed<9,2> updateLUTV1_t;\n');
-
 
 f=ROOT.TFile("gains.root")
 
@@ -251,7 +242,6 @@ parse(fileio,f,fout,4,512,0,16,True,-1,True,2,False)
 
 parse2(fileio,f,fout,0,512,0,64,True,-1,False,1)    
 parse2(fileio,f,fout,1,512,-8,8,True,-1,True,1)    
-#parse2(fileio,f,fout,1,512,-8,8,True,-1,False,1)    
 parse2(fileio,f,fout,4,512,0,16,True,-1,True,1)    
 parse2(fileio,f,fout,5,512,0,1,True,-1,False,1)    
 

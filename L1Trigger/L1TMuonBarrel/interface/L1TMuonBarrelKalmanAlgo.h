@@ -126,27 +126,6 @@ private:
   static const int GAIN2_4INT = 4;
   static const int GAIN2_5 = 12;
   static const int GAIN2_5INT = 0;
-  /*
-  static const int GAIN_0 = 18;
-  static const int GAIN_0INT = 7;
-  static const int GAIN_1 = 18;
-  static const int GAIN_1INT = 4;
-  static const int GAIN_4 = 18;
-  static const int GAIN_4INT = 4;
-  static const int GAIN_5 = 18;
-  static const int GAIN_5INT = 0;
-
-  static const int GAIN2_0 = 18;
-  static const int GAIN2_0INT = 8;
-  static const int GAIN2_1 = 18;
-  static const int GAIN2_1INT = 4;
-  static const int GAIN2_4 = 18;
-  static const int GAIN2_4INT = 4;
-  static const int GAIN2_5 = 18;
-  static const int GAIN2_5INT = 0;
-  static const int GAIN_V0 = 18;
-  static const int GAIN_V0INT = 3;
-  */
   //STUFF NOT USED IN THE FIRMWARE BUT ONLY FOR DEBUGGING
   ///////////////////////////////////////////////////////
 
