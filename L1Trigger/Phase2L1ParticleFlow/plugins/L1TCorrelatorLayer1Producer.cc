@@ -104,7 +104,7 @@ private:
   std::unique_ptr<l1t::PFCandidateCollection> fetchEmCalo() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchTracks() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchPF() const;
-  std::unique_ptr<l1t::PFCandidateCollection> fetchPuppi() const;
+  void putPuppi(edm::Event &iEvent) const;
 
   void putEgObjects(edm::Event &iEvent,
                     const bool writeEgSta,
@@ -151,6 +151,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
       debugR_(iConfig.getUntrackedParameter<double>("debugR", -1)) {
   produces<l1t::PFCandidateCollection>("PF");
   produces<l1t::PFCandidateCollection>("Puppi");
+  produces<l1t::PFCandidateRegionalOutput>("Puppi");
 
   produces<l1t::PFCandidateCollection>("EmCalo");
   produces<l1t::PFCandidateCollection>("Calo");
@@ -355,7 +356,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   iEvent.put(fetchPF(), "PF");
 
   // and save puppi
-  iEvent.put(fetchPuppi(), "Puppi");
+  putPuppi(iEvent);
 
   // save the EG objects
   putEgObjects(iEvent, l1tkegalgo_->writeEgSta(), "L1Eg", "L1TkEm", "L1TkEle");
@@ -689,7 +690,11 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
       else if (p.hwId.isElectron())
         type = l1t::PFCandidate::Electron;
       ret->emplace_back(type, p.intCharge(), p4, 1, p.intPt(), p.intEta(), p.intPhi());
-      ret->back().setVertex(reco::Particle::Point(0, 0, p.floatZ0()));
+      ret->back().setZ0(p.floatZ0());
+      ret->back().setDxy(p.floatDxy());
+      ret->back().setHwZ0(p.hwZ0);
+      ret->back().setHwDxy(p.hwDxy);
+      ret->back().setHwTkQuality(p.hwTkQuality);
       setRefs_(ret->back(), p);
     }
     for (const auto &p : event_.out[ir].pfneutral) {
@@ -705,9 +710,13 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
   return ret;
 }
 
-std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPuppi() const {
-  auto ret = std::make_unique<l1t::PFCandidateCollection>();
+void L1TCorrelatorLayer1Producer::putPuppi(edm::Event &iEvent) const {
+  auto refprod = iEvent.getRefBeforePut<l1t::PFCandidateCollection>("Puppi");
+  auto coll = std::make_unique<l1t::PFCandidateCollection>();
+  auto reg = std::make_unique<l1t::PFCandidateRegionalOutput>(refprod);
+  std::vector<int> nobj;
   for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
+    nobj.clear();
     for (const auto &p : event_.out[ir].puppi) {
       if (p.hwPt == 0)
         continue;
@@ -728,13 +737,23 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPu
         mass = p.hwId.isPhoton() ? 0.0 : 0.5;
       }
       reco::Particle::PolarLorentzVector p4(p.floatPt(), p.floatEta(), p.floatPhi(), mass);
-      ret->emplace_back(type, p.intCharge(), p4, p.floatPuppiW(), p.intPt(), p.intEta(), p.intPhi());
+      coll->emplace_back(type, p.intCharge(), p4, p.floatPuppiW(), p.intPt(), p.intEta(), p.intPhi());
       if (p.hwId.charged()) {
-        ret->back().setVertex(reco::Particle::Point(0, 0, p.floatZ0()));
+        coll->back().setZ0(p.floatZ0());
+        coll->back().setDxy(p.floatDxy());
+        coll->back().setHwZ0(p.hwZ0());
+        coll->back().setHwDxy(p.hwDxy());
+        coll->back().setHwTkQuality(p.hwTkQuality());
+      } else {
+        coll->back().setHwPuppiWeight(p.hwPuppiW());
       }
+      coll->back().setEncodedPuppi64(p.pack().to_uint64());
+      nobj.push_back(coll->size() - 1);
     }
+    reg->addRegion(nobj);
   }
-  return ret;
+  iEvent.put(std::move(coll), "Puppi");
+  iEvent.put(std::move(reg), "Puppi");
 }
 
 void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,

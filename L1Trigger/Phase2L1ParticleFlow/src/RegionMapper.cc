@@ -212,8 +212,10 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetch(bool puppi, floa
       if (p.floatPt() > ptMin) {
         reco::Particle::PolarLorentzVector p4(
             p.floatPt(), r.globalEta(p.floatVtxEta()), r.globalPhi(p.floatVtxPhi()), 0.13f);
-        ret->emplace_back(l1t::PFCandidate::ParticleType(p.hwId), p.intCharge(), p4, p.floatPuppiW());
-        ret->back().setVertex(reco::Particle::Point(0, 0, p.floatDZ()));
+        ret->emplace_back(
+            l1t::PFCandidate::ParticleType(p.hwId), p.intCharge(), p4, p.floatPuppiW(), p.hwPt, p.hwEta, p.hwPhi);
+        ret->back().setZ0(p.floatDZ());
+        ret->back().setHwZ0(p.track.hwZ0);
         ret->back().setStatus(p.hwStatus);
         if (p.cluster.src) {
           auto match = clusterRefMap_.find(p.cluster.src);
@@ -255,7 +257,7 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchCalo(float ptMin,
         reco::Particle::PolarLorentzVector p4(p.floatPt(), r.globalEta(p.floatEta()), r.globalPhi(p.floatPhi()), 0.13f);
         l1t::PFCandidate::ParticleType kind =
             (p.isEM || emcalo) ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
-        ret->emplace_back(kind, 0, p4);
+        ret->emplace_back(kind, /*charge=*/0, p4, /*puppiW=*/1, p.hwPt, p.hwEta, p.hwPhi);
         if (p.src) {
           auto match = clusterRefMap_.find(p.src);
           if (match == clusterRefMap_.end()) {
@@ -294,8 +296,9 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchTracks(float ptMi
         reco::Particle::PolarLorentzVector p4(
             p.floatVtxPt(), r.globalEta(p.floatVtxEta()), r.globalPhi(p.floatVtxPhi()), 0.13f);
         l1t::PFCandidate::ParticleType kind = p.muonLink ? l1t::PFCandidate::Muon : l1t::PFCandidate::ChargedHadron;
-        ret->emplace_back(kind, p.intCharge(), p4);
-        ret->back().setVertex(reco::Particle::Point(0, 0, p.floatDZ()));
+        ret->emplace_back(kind, p.intCharge(), p4, /*puppiW=*/float(p.fromPV), p.hwPt, p.hwEta, p.hwPhi);
+        ret->back().setZ0(p.floatDZ());
+        ret->back().setHwZ0(p.hwZ0);
         if (p.src) {
           auto match = trackRefMap_.find(p.src);
           if (match == trackRefMap_.end()) {
