@@ -276,10 +276,10 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
     if (id_ == 21) {
       if (!isItHF(aStep->GetPostStepPoint()->GetTouchable())) {
         if ((abseta >= etaMinP_) && (abseta <= etaMaxP_))
-          edm::LogVerbatim("MaterialBudget")
-              << "MaterialBudgetHcalHistos: After HF in " << name << ":"
-              << static_cast<std::string>(dd4hep::dd::noNamespace(aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName()))
-	      << " calls fillHisto with " << id_;
+          edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: After HF in " << name << ":"
+                                             << static_cast<std::string>(dd4hep::dd::noNamespace(
+                                                    aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName()))
+                                             << " calls fillHisto with " << id_;
         fillHisto(idOld);
         ++id_;
         layer_ = 0;
@@ -600,7 +600,8 @@ bool MaterialBudgetHcalHistos::isItHF(const G4VTouchable* touch) {
   int levels = ((touch->GetHistoryDepth()) + 1);
   for (unsigned int it = 0; it < hfNames_.size(); it++) {
     if (levels >= hfLevels_[it]) {
-      std::string name = (static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(levels - hfLevels_[it])->GetName())));
+      std::string name =
+          (static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(levels - hfLevels_[it])->GetName())));
       if (name == hfNames_[it]) {
         return true;
       }
