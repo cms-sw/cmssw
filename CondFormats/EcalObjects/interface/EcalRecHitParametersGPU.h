@@ -15,7 +15,7 @@
 class EcalRecHitParametersGPU {
 public:
   struct Product {
-    edm::propagate_const_array<cms::cuda::device::unique_ptr<int[]>> ChannelStatusToBeExcluded;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<int[]>> channelStatusToBeExcluded;
     edm::propagate_const_array<cms::cuda::device::unique_ptr<int[]>> expanded_v_DB_reco_flags;
     edm::propagate_const_array<cms::cuda::device::unique_ptr<uint32_t[]>> expanded_Sizes_v_DB_reco_flags;
     edm::propagate_const_array<cms::cuda::device::unique_ptr<uint32_t[]>> expanded_flagbit_v_DB_reco_flags;
@@ -31,14 +31,14 @@ public:
   using intvec = std::reference_wrapper<std::vector<int, cms::cuda::HostAllocator<int>> const>;
   using uint32vec = std::reference_wrapper<std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> const>;
   std::tuple<intvec, intvec, uint32vec, uint32vec> getValues() const {
-    return {ChannelStatusToBeExcluded_,
+    return {channelStatusToBeExcluded_,
             expanded_v_DB_reco_flags_,
             expanded_Sizes_v_DB_reco_flags_,
             expanded_flagbit_v_DB_reco_flags_};
   }
 
 private:
-  std::vector<int, cms::cuda::HostAllocator<int>> ChannelStatusToBeExcluded_;
+  std::vector<int, cms::cuda::HostAllocator<int>> channelStatusToBeExcluded_;
   std::vector<int, cms::cuda::HostAllocator<int>> expanded_v_DB_reco_flags_;
   std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> expanded_Sizes_v_DB_reco_flags_,
       expanded_flagbit_v_DB_reco_flags_;

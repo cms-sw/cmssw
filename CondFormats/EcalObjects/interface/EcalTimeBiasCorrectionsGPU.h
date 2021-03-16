@@ -13,11 +13,11 @@
 class EcalTimeBiasCorrectionsGPU {
 public:
   struct Product {
-    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> EBTimeCorrAmplitudeBins;
-    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> EBTimeCorrShiftBins;
-    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> EETimeCorrAmplitudeBins;
-    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> EETimeCorrShiftBins;
-    int EBTimeCorrAmplitudeBinsSize, EETimeCorrAmplitudeBinsSize;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> ebTimeCorrAmplitudeBins;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> ebTimeCorrShiftBins;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> eeTimeCorrAmplitudeBins;
+    edm::propagate_const_array<cms::cuda::device::unique_ptr<float[]>> eeTimeCorrShiftBins;
+    int ebTimeCorrAmplitudeBinsSize, eeTimeCorrAmplitudeBinsSize;
   };
 
   // rearrange pedestals
@@ -36,10 +36,10 @@ public:
 #endif  // __CUDACC__
 
 private:
-  std::vector<float, cms::cuda::HostAllocator<float>> EBTimeCorrAmplitudeBins_;
-  std::vector<float, cms::cuda::HostAllocator<float>> EBTimeCorrShiftBins_;
-  std::vector<float, cms::cuda::HostAllocator<float>> EETimeCorrAmplitudeBins_;
-  std::vector<float, cms::cuda::HostAllocator<float>> EETimeCorrShiftBins_;
+  std::vector<float, cms::cuda::HostAllocator<float>> ebTimeCorrAmplitudeBins_;
+  std::vector<float, cms::cuda::HostAllocator<float>> ebTimeCorrShiftBins_;
+  std::vector<float, cms::cuda::HostAllocator<float>> eeTimeCorrAmplitudeBins_;
+  std::vector<float, cms::cuda::HostAllocator<float>> eeTimeCorrShiftBins_;
 
 #ifndef __CUDACC__
   cms::cuda::ESProduct<Product> product_;

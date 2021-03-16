@@ -198,7 +198,7 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   auto const& recHitParametersProduct = recHitParametersHandle_->getProduct(ctx.stream());
 
   // set config ptrs : this is done to avoid changing things downstream
-  configParameters_.ChannelStatusToBeExcluded = recHitParametersProduct.ChannelStatusToBeExcluded.get();
+  configParameters_.ChannelStatusToBeExcluded = recHitParametersProduct.channelStatusToBeExcluded.get();
   configParameters_.ChannelStatusToBeExcludedSize = std::get<0>(recHitParametersHandle_->getValues()).get().size();
   configParameters_.expanded_v_DB_reco_flags = recHitParametersProduct.expanded_v_DB_reco_flags.get();
   configParameters_.expanded_Sizes_v_DB_reco_flags = recHitParametersProduct.expanded_Sizes_v_DB_reco_flags.get();
