@@ -4,7 +4,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfo.h"
 #include <vector>
 
 namespace reco {

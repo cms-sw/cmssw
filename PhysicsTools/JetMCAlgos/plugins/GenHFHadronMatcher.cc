@@ -44,7 +44,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 
 //
 // class declaration
