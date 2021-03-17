@@ -20,7 +20,6 @@
 // user include files
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
-#include <iostream>
 
 // forward declarations
 namespace enroller_helper {
