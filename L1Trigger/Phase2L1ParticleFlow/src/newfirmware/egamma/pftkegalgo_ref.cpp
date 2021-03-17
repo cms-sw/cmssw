@@ -35,7 +35,8 @@ l1ct::PFTkEGAlgoEmuConfig::PFTkEGAlgoEmuConfig(const edm::ParameterSet &pset)
       doTkIso(pset.getParameter<bool>("doTkIso")),
       doPfIso(pset.getParameter<bool>("doPfIso")),
       hwIsoTypeTkEle(static_cast<EGIsoEleObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEle"))),
-      hwIsoTypeTkEm(static_cast<EGIsoObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEm"))) {}
+      hwIsoTypeTkEm(static_cast<EGIsoObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEm"))),
+      debug(pset.getUntrackedParameter<uint32_t>("debug", 0)) {}
 
 l1ct::PFTkEGAlgoEmuConfig::IsoParameters::IsoParameters(const edm::ParameterSet &pset)
     : tkQualityPtMin(pset.getParameter<double>("tkQualityPtMin")),
