@@ -267,7 +267,7 @@ def nanoAOD_activateVID(process):
         modifier.toModify(process.egmPhotonIDs, physicsObjectSrc = "slimmedPhotonsTo106X")
     return process
 
-def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addDeepDoubleXV2, addParticleNet, jecPayload):
+def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addDeepDoubleXV2, addParticleNet, addParticleNetMass, jecPayload):
     _btagDiscriminators=[]
     if addDeepBTag:
         print("Updating process to run DeepCSV btag to AK8 jets")
@@ -280,6 +280,9 @@ def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubl
         print("Updating process to run ParticleNet before it's included in MiniAOD")
         from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
         _btagDiscriminators += pfParticleNetJetTagsAll
+    if addParticleNetMass:
+        from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs
+        _btagDiscriminators += _pfParticleNetMassRegressionOutputs
     if addDeepDoubleX:
         print("Updating process to run DeepDoubleX on datasets before 104X")
         _btagDiscriminators += ['pfDeepDoubleBvLJetTags:probHbb', \
@@ -341,6 +344,7 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
         nanoAOD_addDeepDoubleXV2_switch = cms.untracked.bool(False),
         nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
+        nanoAOD_addParticleNetMass_switch = cms.untracked.bool(True),
         jecPayload = cms.untracked.string('AK8PFPuppi')
         )
     # deepAK8 should not run on 80X, that contains ak8PFJetsCHS jets
@@ -367,6 +371,7 @@ def nanoAOD_customizeCommon(process):
                                      addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
                                      addDeepDoubleXV2=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleXV2_switch,
                                      addParticleNet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNet_switch,
+                                     addParticleNetMass=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNetMass_switch,
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
     (run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(process, lambda p : nanoAOD_addTauIds(p))
     return process
