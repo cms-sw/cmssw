@@ -155,6 +155,18 @@ for modifier in run2_egamma_2016, run2_egamma_2017, run2_egamma_2018, run2_miniA
                       energySigmaDownNew          = cms.InputTag("calibratedPatPhotonsNano","energySigmaDown"),
                   )
 
+
+run2_nanoAOD_94X2016.toModify(slimmedPhotonsWithUserData.userFloats,
+                      ecalEnergyErrPostCorrNew = None,
+                      ecalEnergyPreCorrNew     = None,
+                      ecalEnergyPostCorrNew    = None,
+                      energyScaleUpNew            = None,
+                      energyScaleDownNew          = None,
+                      energySigmaUpNew            = None,
+                      energySigmaDownNew          = None
+                  )
+
+
 finalPhotons = cms.EDFilter("PATPhotonRefSelector",
     src = cms.InputTag("slimmedPhotonsWithUserData"),
     cut = cms.string("pt > 5 ")
@@ -219,20 +231,6 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 
-#these eras have the energy correction in the mini
-for modifier in run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016:
-    modifier.toModify(photonTable.variables,
-        pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
-        energyErr = Var("userFloat('ecalEnergyErrPostCorr')",float,doc="energy error of the cluster from regression",precision=6),
-        eCorr = Var("userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
-        energyScaleUp=Var("userFloat('energyScaleUp')", float,  doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
-        energyScaleDown=Var("userFloat('energyScaleDown')", float,  doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
-        energySigmaUp=Var("userFloat('energySigmaUp')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
-        energySigmaDown=Var("userFloat('energySigmaDown')", float,  doc="energy with the ecal energy smearing value shifted 1 sigma up"),
-                      
-
-                      
-    )
 
 #these eras need to make the energy correction, hence the "New"
 for modifier in run2_egamma_2016,run2_egamma_2017,run2_egamma_2018,run2_nanoAOD_94XMiniAODv1, run2_miniAOD_80XLegacy, run2_nanoAOD_102Xv1,run2_nanoAOD_94XMiniAODv2:
@@ -240,6 +238,15 @@ for modifier in run2_egamma_2016,run2_egamma_2017,run2_egamma_2018,run2_nanoAOD_
         pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
         eCorr = Var("userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')",float,doc="ratio of the calibrated energy/miniaod energy"),
+    )
+
+#these eras have the energy correction in the mini
+for modifier in run2_nanoAOD_94X2016,:
+    modifier.toModify(photonTable.variables,
+        pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
+        energyErr = Var("userFloat('ecalEnergyErrPostCorr')",float,doc="energy error of the cluster from regression",precision=6),
+        eCorr = Var("userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
+                      
     )
 
 # only add the Spring16 IDs for 2016 nano
@@ -299,6 +306,15 @@ for modifier in run2_nanoAOD_106Xv1,run2_nanoAOD_106Xv2,run2_egamma_2016,run2_eg
 
 )
 
+for modifier in run2_nanoAOD_94X2016,:
+    modifier.toModify(photonTable.variables,
+        energyScaleUp=Var("userFloat('energyScaleUp')", float,  doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
+        energyScaleDown=Var("userFloat('energyScaleDown')", float,  doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
+        energySigmaUp=Var("userFloat('energySigmaUp')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+        energySigmaDown=Var("userFloat('energySigmaDown')", float,  doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+                      
+)
+
 photonSequence = cms.Sequence(
         bitmapVIDForPho + \
         bitmapVIDForPhoSpring16V2p2 + \
@@ -313,6 +329,10 @@ photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
 
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolation
 from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
+
+_withUpdatePho_sequence = photonSequence.copy() ###copy first for non-ULs else it just takes the UL sequence
+
+
 ###UL to be done first
 _withUL16preVFPScale_sequence = photonSequence.copy()
 _withUL16preVFPScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsNano  + slimmedPhotonsWithUserData)
@@ -332,7 +352,6 @@ run2_egamma_2018.toReplaceWith(photonSequence, _withUL18Scale_sequence)
 
 
 _updatePhoTo106X_sequence =cms.Sequence(egmPhotonIsolation + photonIDValueMapProducer + slimmedPhotonsTo106X)
-_withUpdatePho_sequence = photonSequence.copy()
 _withUpdatePho_sequence.insert(0,_updatePhoTo106X_sequence)
 for modifier in run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1,run2_nanoAOD_94XMiniAODv1:
     modifier.toReplaceWith(photonSequence, _withUpdatePho_sequence)
