@@ -1,3 +1,6 @@
+#ifndef HLTrigger_JetMET_plugins_MultiplicityValueProducer_h
+#define HLTrigger_JetMET_plugins_MultiplicityValueProducer_h
+
 #include <string>
 #include <memory>
 
@@ -119,3 +122,5 @@ void MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::fillDesc
   desc.add<OUT_TYPE>("defaultValue")->setComment("default output value (used when input collection is unavailable)");
   descriptions.add(defaultModuleLabel<MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>>(), desc);
 }
+
+#endif  // HLTrigger_JetMET_plugins_MultiplicityValueProducer_h
