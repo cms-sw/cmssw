@@ -15,30 +15,25 @@ from RecoPPS.Configuration.recoCTPPS_cff import *
 
 # select events passing the filter on pixel tracks
 from HLTrigger.special.hltPPSPerPotTrackFilter_cfi import hltPPSPerPotTrackFilter as _filter
-#from ROOT import CTPPSPixelDetId
 hltPPSPerPotTrackFilter = _filter.clone(
     pixelFilter = cms.VPSet(
         cms.PSet( # sector 45, near pot
             detid = cms.uint32(2022703104),
-            #detid = cms.uint32(CTPPSPixelDetId(0, 2, 2).rawId()),
             minTracks = cms.int32(1),
             maxTracks = cms.int32(6),
         ),
         cms.PSet( # sector 45, far pot
             detid = cms.uint32(2023227392),
-            #detid = cms.uint32(CTPPSPixelDetId(0, 2, 3).rawId()),
             minTracks = cms.int32(1),
             maxTracks = cms.int32(6),
         ),
         cms.PSet( # sector 56, near pot
             detid = cms.uint32(2039480320),
-            #detid = cms.uint32(CTPPSPixelDetId(1, 2, 2).rawId()),
             minTracks = cms.int32(1),
             maxTracks = cms.int32(6),
         ),
         cms.PSet( # sector 56, far pot
             detid = cms.uint32(2040004608),
-            #detid = cms.uint32(CTPPSPixelDetId(1, 2, 3).rawId()),
             minTracks = cms.int32(1),
             maxTracks = cms.int32(6),
         ),
