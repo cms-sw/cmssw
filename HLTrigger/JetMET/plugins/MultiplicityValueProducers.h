@@ -3,7 +3,7 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -12,7 +12,7 @@
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <class INP_TYPE, class OUT_TYPE>
-class MultiplicityValueProducer : public edm::stream::EDProducer<> {
+class MultiplicityValueProducer : public edm::global::EDProducer<> {
 public:
   explicit MultiplicityValueProducer(edm::ParameterSet const&);
   ~MultiplicityValueProducer() override {}
@@ -20,7 +20,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 protected:
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
   edm::EDGetTokenT<edm::View<INP_TYPE>> const src_token_;
   StringCutObjectSelector<INP_TYPE, true> const strObjSelector_;
@@ -36,7 +36,7 @@ MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::MultiplicityValueProducer(edm::Pa
 }
 
 template <class INP_TYPE, class OUT_TYPE>
-void MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+void MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   auto const& objHandle(iEvent.getHandle(src_token_));
 
   if (objHandle.isValid()) {
@@ -75,7 +75,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 protected:
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
   edm::EDGetTokenT<INP_TYPE> const src_token_;
   OUT_TYPE const defaultValue_;
@@ -90,8 +90,9 @@ MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::MultiplicityV
 }
 
 template <class INP_TYPE, class OUT_TYPE>
-void MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::produce(edm::Event& iEvent,
-                                                                                edm::EventSetup const& iSetup) {
+void MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::produce(edm::StreamID,
+                                                                                edm::Event& iEvent,
+                                                                                edm::EventSetup const& iSetup) const {
   auto const& objHandle(iEvent.getHandle(src_token_));
 
   if (objHandle.isValid()) {
