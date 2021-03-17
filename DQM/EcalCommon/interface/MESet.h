@@ -27,6 +27,9 @@ namespace ecaldqm {
   Interface between ME bins and DetId
 */
 
+  // struct made to simplify passing multiple setup
+  // variables (see DQWorker.h for implementation)
+  // to MESet functions
   struct EcalDQMSetupObjects {
     EcalElectronicsMapping const *electronicsMap;
     EcalTrigTowerConstituentsMap const *trigtowerMap;
@@ -57,6 +60,17 @@ namespace ecaldqm {
     }
     virtual void clear() const;
 
+    // Overloaded functions deal with different ids or
+    // inputs to fill, setBinContent, etc and each determines
+    // the correct bin to fill based on what is passed.
+    //
+    // Note: not every fill, setBinContent, etc necessarily uses
+    // EcalDQMSetupObjects, but they are passed one anyway to
+    // avoid accidentally casting a DetId or a EcalElectronicsId
+    // to an int or a double and have it exercute the wrong function.
+    // This would be tricky to debug if this error is made, so it
+    // makes more sense for these functions to look consistent in
+    // terms of passing EcalDQMSetupObjects.
     virtual void fill(EcalDQMSetupObjects const, DetId const &, double = 1., double = 1., double = 1.) {}
     virtual void fill(EcalDQMSetupObjects const, EcalElectronicsId const &, double = 1., double = 1., double = 1.) {}
     virtual void fill(EcalDQMSetupObjects const, int, double = 1., double = 1., double = 1.) {}
