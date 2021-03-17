@@ -6,6 +6,7 @@ using namespace l1tpf_impl;
 #include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include <algorithm>
+#include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 
 namespace {
   template <typename T1, typename T2>
@@ -58,6 +59,16 @@ void PFTkEGAlgo::runTkEG(Region &r) const {
     std::cout << "[PFTkEGAlgo::runTkEG] START" << std::endl;
     std::cout << "   # emCalo: " << r.emcalo.size() << " # tk: " << r.track.size() << std::endl;
   }
+  if(debug_ > 0) {
+      for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
+        const auto &calo = r.emcalo[ic];
+        std::cout << "[OLD] IN calo[" << ic << "] pt: " << calo.floatPt() << " eta: " << r.globalEta(calo.floatEta()) << " phi: " << r.globalPhi(calo.floatPhi()) 
+        << " hwEta: " << calo.hwEta << " hwPhi: " << calo.hwPhi << " src pt: " << calo.src->pt() << " src eta: " << calo.src->eta() << " src phi: " << calo.src->phi()
+        <<  std::endl;
+      }
+    }
+
+  
   // NOTE: we run this step for all clusters (before matching) as it is done in the pre-PF EG algorithm
   std::vector<int> emCalo2emCalo(r.emcalo.size(), -1);
   if (doBremRecovery_)
@@ -200,16 +211,16 @@ void PFTkEGAlgo::link_emCalo2tk(const Region &r, std::vector<int> &emCalo2tk) co
     float dEtaMax = dEtaValues_[eta_index];
     float dPhiMax = dPhiValues_[eta_index];
 
-    if (debug_ > 0)
+    if (debug_ > 4)
       std::cout << "idx: " << eta_index << " deta: " << dEtaMax << " dphi: " << dPhiMax << std::endl;
 
     float dPtMin = 999;
-    if (debug_ > 0)
+    if (debug_ > 3)
       std::cout << "--- calo: pt: " << calo.floatPt() << " eta: " << calo.floatEta() << " phi: " << calo.floatPhi()
                 << std::endl;
     for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
       const auto &tk = r.track[itk];
-      if (debug_ > 0)
+      if (debug_ > 3)
         std::cout << "  - tk: pt: " << tk.floatPt() << " eta: " << tk.floatEta() << " phi: " << tk.floatPhi()
                   << std::endl;
 
@@ -219,7 +230,7 @@ void PFTkEGAlgo::link_emCalo2tk(const Region &r, std::vector<int> &emCalo2tk) co
       float d_phi = deltaPhi(tk.floatPhi(), calo.floatPhi());
       float d_eta = tk.floatEta() - calo.floatEta();  // We only use it squared
 
-      if (debug_ > 0)
+      if (debug_ > 3)
         std::cout << " deta: " << fabs(d_eta) << " dphi: " << d_phi
                   << " ell: " << ((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))
                   << std::endl;
@@ -227,11 +238,11 @@ void PFTkEGAlgo::link_emCalo2tk(const Region &r, std::vector<int> &emCalo2tk) co
       //           << " abs eta: " << fabs(calo.floatEta()) << std::endl;
 
       if ((((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))) < 1.) {
-        if (debug_ > 0)
+        if (debug_ > 3)
           std::cout << "    pass elliptic " << std::endl;
         // NOTE: for now we implement only best pt match. This is NOT what is done in the L1TkElectronTrackProducer
         if (fabs(tk.floatPt() - calo.floatPt()) < dPtMin) {
-          if (debug_ > 0)
+          if (debug_ > 3)
             std::cout << "     best pt match: " << fabs(tk.floatPt() - calo.floatPt()) << std::endl;
           emCalo2tk[ic] = itk;
           dPtMin = fabs(tk.floatPt() - calo.floatPt());
