@@ -78,14 +78,14 @@ HEBRecHitGPU::~HEBRecHitGPU() { delete kcdata_; }
 
 std::string HEBRecHitGPU::assert_error_message_(std::string var, const size_t &s) {
   std::string str1 = "The '";
-  std::string str2 = "' array must be at least of size ";
+  std::string str2 = "' array must be of size ";
   std::string str3 = " to hold the configuration data.";
   return str1 + var + str2 + std::to_string(s) + str3;
 }
 
 void HEBRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData &vd) {
-  if (vdata_.weights_.size() > HGChebUncalibRecHitConstantData::heb_weights)
-    edm::LogError("MaxSizeExceeded") << this->assert_error_message_("weights", vdata_.fCPerMIP_.size());
+  if (vdata_.weights_.size() != HGChebUncalibRecHitConstantData::heb_weights)
+    edm::LogError("WrongSize") << this->assert_error_message_("weights", vdata_.fCPerMIP_.size());
 }
 
 void HEBRecHitGPU::beginRun(edm::Run const &, edm::EventSetup const &setup) {}
@@ -98,7 +98,7 @@ void HEBRecHitGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
   rechits_ = std::make_unique<HGCRecHitCollection>();
 
   if (nhits == 0)
-    cms::cuda::LogError("HEBRecHitGPU") << "WARNING: no input hits!";
+    edm::LogError("HEBRecHitGPU") << "WARNING: no input hits!";
 
   prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
   d_uncalib_ = HGCUncalibRecHitDevice(nhits, ctx.stream());

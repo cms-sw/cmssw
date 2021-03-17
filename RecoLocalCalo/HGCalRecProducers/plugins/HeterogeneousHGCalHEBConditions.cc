@@ -83,7 +83,7 @@ double*& HeterogeneousHGCalHEBConditionsWrapper::select_pointer_d(cp::Heterogene
     case 0:
       return cpuObject->testD_;
     default:
-      edm::LogError("HeterogeneousHGCalHEBConditionsWrapper") << "select_pointer_d(heterogeneous): no item.";
+      throw cms::Exception("HeterogeneousHGCalHEBConditionsWrapper") << "select_pointer_d(heterogeneous): no item.";
       return cpuObject->testD_;
   }
 }
@@ -94,7 +94,7 @@ std::vector<double> HeterogeneousHGCalHEBConditionsWrapper::select_pointer_d(con
     case 0:
       return cpuObject->cellFineX_;
     default:
-      edm::LogError("HeterogeneousHGCalHEBConditionsWrapper") << "select_pointer_d(non-heterogeneous): no item.";
+      throw cms::Exception("HeterogeneousHGCalHEBConditionsWrapper") << "select_pointer_d(non-heterogeneous): no item.";
       return cpuObject->cellFineX_;
   }
 }
@@ -105,7 +105,7 @@ int32_t*& HeterogeneousHGCalHEBConditionsWrapper::select_pointer_i(cp::Heterogen
     case 1:
       return cpuObject->testI_;
     default:
-      edm::LogError("HeterogeneousHGCalHEBConditionsWrapper") << "select_pointer_i(heterogeneous): no item.";
+      throw cms::Exception("HeterogeneousHGCalHEBConditionsWrapper") << "select_pointer_i(heterogeneous): no item.";
       return cpuObject->testI_;
   }
 }
@@ -116,7 +116,7 @@ std::vector<int32_t> HeterogeneousHGCalHEBConditionsWrapper::select_pointer_i(co
     case 4:
       return cpuObject->waferTypeL_;
     default:
-      edm::LogError("HeterogeneousHGCalHEBConditionsWrapper") << "select_pointer_i(non-heterogeneous): no item.";
+      throw cms::Exception("HeterogeneousHGCalHEBConditionsWrapper") << "select_pointer_i(non-heterogeneous): no item.";
       return cpuObject->waferTypeL_;
   }
 }

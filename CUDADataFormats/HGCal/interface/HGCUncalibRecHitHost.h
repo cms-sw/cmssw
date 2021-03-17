@@ -13,12 +13,8 @@ class HGCUncalibRecHitHost {
 public:
   HGCUncalibRecHitHost() = default;
   explicit HGCUncalibRecHitHost(uint32_t nhits, const T &hits, const cudaStream_t &stream) : nhits_(nhits) {
-    constexpr std::array<int, memory::npointers::ntypes_hgcuncalibrechits_soa> sizes = {
-        {memory::npointers::float_hgcuncalibrechits_soa * sizeof(float),
-         memory::npointers::uint32_hgcuncalibrechits_soa * sizeof(uint32_t)}};
-
-    size_tot_ = std::accumulate(sizes.begin(), sizes.end(), 0);
-    pad_ = ((nhits - 1) / 32 + 1) * 32;  //align to warp boundary (assumption: warpSize = 32)
+    size_tot_ = std::accumulate(sizes_.begin(), sizes_.end(), 0);  //this might be done at compile time
+    pad_ = ((nhits - 1) / 32 + 1) * 32;                            //align to warp boundary (assumption: warpSize = 32)
     ptr_ = cms::cuda::make_host_unique<std::byte[]>(pad_ * size_tot_, stream);
 
     defineSoAMemoryLayout_();
@@ -71,9 +67,12 @@ public:
 private:
   cms::cuda::host::unique_ptr<std::byte[]> ptr_;
   HGCUncalibRecHitSoA soa_;
+  static constexpr std::array<int, memory::npointers::ntypes_hgcuncalibrechits_soa> sizes_ = {
+      {memory::npointers::float_hgcuncalibrechits_soa * sizeof(float),
+       memory::npointers::uint32_hgcuncalibrechits_soa * sizeof(uint32_t)}};
+  uint32_t size_tot_;
   uint32_t pad_;
   uint32_t nhits_;
-  uint32_t size_tot_;
 };
 
 #endif  //CUDADAtaFormats_HGCal_HGCUncalibRecHitHost_H
