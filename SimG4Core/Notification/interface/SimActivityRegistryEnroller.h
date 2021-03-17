@@ -30,15 +30,14 @@ namespace enroller_helper {
   };
 
   template <class T>
-    static void enroll(SimActivityRegistry& iReg, T* iT) {
-  }
+  static void enroll(SimActivityRegistry& iReg, T* iT) {}
 
-  template <class T, class F, class ...TVector>
-    static void enroll(SimActivityRegistry& iReg, T* iT) {
+  template <class T, class F, class... TVector>
+  static void enroll(SimActivityRegistry& iReg, T* iT) {
     //Try to enroll the object if it inherits from the class at the
     // start of TVector
-    Enrollment<F>::enroll(iReg,iT);
-    enroll<T,TVector...>(iReg,iT);
+    Enrollment<F>::enroll(iReg, iT);
+    enroll<T, TVector...>(iReg, iT);
   }
 
 }  // namespace enroller_helper
@@ -49,7 +48,17 @@ public:
 
   template <class T>
   static void enroll(SimActivityRegistry& iReg, T* iObj) {
-    enroller_helper::enroll<T, BeginOfJob, DDDWorld, BeginOfRun, BeginOfEvent, BeginOfTrack, BeginOfStep, G4Step, EndOfTrack, EndOfEvent, EndOfRun>(iReg, iObj);
+    enroller_helper::enroll<T,
+                            BeginOfJob,
+                            DDDWorld,
+                            BeginOfRun,
+                            BeginOfEvent,
+                            BeginOfTrack,
+                            BeginOfStep,
+                            G4Step,
+                            EndOfTrack,
+                            EndOfEvent,
+                            EndOfRun>(iReg, iObj);
   }
 
   // stop default
