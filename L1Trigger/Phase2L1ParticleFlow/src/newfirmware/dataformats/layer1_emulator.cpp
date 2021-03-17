@@ -93,7 +93,7 @@ l1ct::PFRegionEmu::PFRegionEmu(
   glbeta_t hwEtaMin = Scales::makeGlbEtaRoundEven(etamin);
   glbeta_t hwEtaMax = Scales::makeGlbEtaRoundEven(etamax);
 
-  hwEtaCenter = glbeta_t(0.5 * (hwEtaMin + hwEtaMax));
+  hwEtaCenter = glbeta_t((hwEtaMin + hwEtaMax) / 2);
   hwPhiCenter = Scales::makeGlbPhi(phicenter);
   hwEtaHalfWidth = hwEtaCenter - hwEtaMin;
   hwPhiHalfWidth = Scales::makeGlbPhi(0.5 * phiwidth);
