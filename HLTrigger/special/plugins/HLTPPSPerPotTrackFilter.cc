@@ -38,13 +38,8 @@ public:
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  edm::InputTag pixelLocalTrackInputTag_;  // Input tag identifying the pixel detector
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelLocalTrackToken_;
-
-  edm::InputTag stripLocalTrackInputTag_;  // Input tag identifying the strip detector
   edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack>> stripLocalTrackToken_;
-
-  edm::InputTag diamondLocalTrackInputTag_;  // Input tag identifying the diamond detector
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondLocalTrack>> diamondLocalTrackToken_;
 
   struct PerPotFilter {
@@ -54,6 +49,9 @@ private:
   std::unordered_map<uint32_t, PerPotFilter> pixel_filter_;
   std::unordered_map<uint32_t, PerPotFilter> strip_filter_;
   std::unordered_map<uint32_t, PerPotFilter> diam_filter_;
+
+  // Helper tool to count valid tracks
+  static constexpr auto valid_trks_ = [](const auto& trk) { return trk.isValid(); };
 };
 
 void HLTPPSPerPotTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -67,6 +65,7 @@ void HLTPPSPerPotTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& d
       ->setComment("input tag of the diamond local track collection");
 
   edm::ParameterSetDescription filterValid;
+  filterValid.add<unsigned int>("detid", 0)->setComment("station/pot raw DetId");
   filterValid.add<int>("minTracks", -1)->setComment("minimum number of tracks in pot");
   filterValid.add<int>("maxTracks", -1)->setComment("maximum number of tracks in pot");
 
@@ -100,27 +99,30 @@ void HLTPPSPerPotTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.add("hltPPSPerPotTrackFilter", desc);
 }
 
-HLTPPSPerPotTrackFilter::HLTPPSPerPotTrackFilter(const edm::ParameterSet& iConfig)
-    : pixelLocalTrackInputTag_(iConfig.getParameter<edm::InputTag>("pixelLocalTrackInputTag")),
-      stripLocalTrackInputTag_(iConfig.getParameter<edm::InputTag>("stripLocalTrackInputTag")),
-      diamondLocalTrackInputTag_(iConfig.getParameter<edm::InputTag>("diamondLocalTrackInputTag")) {
+HLTPPSPerPotTrackFilter::HLTPPSPerPotTrackFilter(const edm::ParameterSet& iConfig) {
+  // First define pixels (2017+) selection
   const auto pixelVPset = iConfig.getParameter<std::vector<edm::ParameterSet>>("pixelFilter");
   if (!pixelVPset.empty()) {
-    pixelLocalTrackToken_ = consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(pixelLocalTrackInputTag_);
+    pixelLocalTrackToken_ = consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(
+        iConfig.getParameter<edm::InputTag>("pixelLocalTrackInputTag"));
     for (const auto& pset : pixelVPset)
       pixel_filter_[pset.getParameter<unsigned int>("detid")] =
           PerPotFilter{pset.getParameter<int>("minTracks"), pset.getParameter<int>("maxTracks")};
   }
+  // Then define strips (2016-17) selection
   const auto stripVPset = iConfig.getParameter<std::vector<edm::ParameterSet>>("stripFilter");
   if (!stripVPset.empty()) {
-    stripLocalTrackToken_ = consumes<edm::DetSetVector<TotemRPLocalTrack>>(stripLocalTrackInputTag_);
+    stripLocalTrackToken_ =
+        consumes<edm::DetSetVector<TotemRPLocalTrack>>(iConfig.getParameter<edm::InputTag>("stripLocalTrackInputTag"));
     for (const auto& pset : stripVPset)
       strip_filter_[pset.getParameter<unsigned int>("detid")] =
           PerPotFilter{pset.getParameter<int>("minTracks"), pset.getParameter<int>("maxTracks")};
   }
+  // Finally define diamond (2016+) selection
   const auto diamVPset = iConfig.getParameter<std::vector<edm::ParameterSet>>("diamondFilter");
   if (!diamVPset.empty()) {
-    diamondLocalTrackToken_ = consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(diamondLocalTrackInputTag_);
+    diamondLocalTrackToken_ = consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(
+        iConfig.getParameter<edm::InputTag>("diamondLocalTrackInputTag"));
     for (const auto& pset : diamVPset)
       diam_filter_[pset.getParameter<unsigned int>("detid")] =
           PerPotFilter{pset.getParameter<int>("minTracks"), pset.getParameter<int>("maxTracks")};
@@ -128,10 +130,7 @@ HLTPPSPerPotTrackFilter::HLTPPSPerPotTrackFilter(const edm::ParameterSet& iConfi
 }
 
 bool HLTPPSPerPotTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  // Helper tool to count valid tracks
-  const auto valid_trks = [](const auto& trk) { return trk.isValid(); };
-
-  // First filter on pixels (2017+) selection
+  // First filter on pixels
   if (!pixel_filter_.empty()) {
     edm::Handle<edm::DetSetVector<CTPPSPixelLocalTrack>> pixelTracks;
     iEvent.getByToken(pixelLocalTrackToken_, pixelTracks);
@@ -141,7 +140,7 @@ bool HLTPPSPerPotTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const ed
         continue;
       const auto& fltr = pixel_filter_.at(rpv.id);
 
-      const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks);
+      const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks_);
       if (fltr.minTracks > 0 && ntrks < fltr.minTracks)
         return false;
       if (fltr.maxTracks > 0 && ntrks > fltr.maxTracks)
@@ -149,7 +148,7 @@ bool HLTPPSPerPotTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const ed
     }
   }
 
-  // Then filter on strips (2016-17) selection
+  // Then filter on strips
   if (!strip_filter_.empty()) {
     edm::Handle<edm::DetSetVector<TotemRPLocalTrack>> stripTracks;
     iEvent.getByToken(stripLocalTrackToken_, stripTracks);
@@ -159,7 +158,7 @@ bool HLTPPSPerPotTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const ed
         continue;
       const auto& fltr = strip_filter_.at(rpv.id);
 
-      const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks);
+      const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks_);
       if (fltr.minTracks > 0 && ntrks < fltr.minTracks)
         return false;
       if (fltr.maxTracks > 0 && ntrks > fltr.maxTracks)
@@ -167,7 +166,7 @@ bool HLTPPSPerPotTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const ed
     }
   }
 
-  // Finally filter on diamond (2016+) selection
+  // Finally filter on diamond
   if (!diam_filter_.empty()) {
     edm::Handle<edm::DetSetVector<CTPPSDiamondLocalTrack>> diamondTracks;
     iEvent.getByToken(diamondLocalTrackToken_, diamondTracks);
@@ -177,7 +176,7 @@ bool HLTPPSPerPotTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const ed
         continue;
       const auto& fltr = diam_filter_.at(rpv.id);
 
-      const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks);
+      const auto ntrks = std::count_if(rpv.begin(), rpv.end(), valid_trks_);
       if (fltr.minTracks > 0 && ntrks < fltr.minTracks)
         return false;
       if (fltr.maxTracks > 0 && ntrks > fltr.maxTracks)
