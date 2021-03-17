@@ -35,6 +35,8 @@ EcalDQMonitorClient::EcalDQMonitorClient(edm::ParameterSet const& _ps)
       },
       "initialization");
 
+  // This is no longer used since run 2
+  //
   //if (_ps.existsAs<edm::FileInPath>("PNMaskFile", false)) {
   //  std::ifstream maskFile(_ps.getUntrackedParameter<edm::FileInPath>("PNMaskFile").fullPath());
   //  if (maskFile.is_open())
