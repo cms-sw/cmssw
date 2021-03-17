@@ -1,4 +1,4 @@
-#include "MultiplicityValueProducers.h"
+#include "MultiplicityValueProducerFromNestedCollection.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
