@@ -7,6 +7,7 @@ using ROOT::Experimental::RNTupleModel;
 template <typename T>
 class RNTupleFieldPtr {
 public:
+  RNTupleFieldPtr() = default;
   explicit RNTupleFieldPtr(const std::string& name, RNTupleModel& model)
       : m_name(name)
   {

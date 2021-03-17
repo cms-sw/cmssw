@@ -15,8 +15,12 @@
 
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
+#include <ROOT/RNTupleOptions.hxx>
+#include <ROOT/RPageStorageFile.hxx>
 using ROOT::Experimental::RNTupleModel;
 using ROOT::Experimental::RNTupleWriter;
+using ROOT::Experimental::Detail::RPageSinkFile;
+using ROOT::Experimental::RNTupleWriteOptions;
 
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
@@ -28,7 +32,9 @@ using ROOT::Experimental::RNTupleWriter;
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
+#include "PhysicsTools/NanoAOD/plugins/NanoAODRNTuples.h"
 #include "PhysicsTools/NanoAOD/plugins/TableOutputFields.h"
 #include "PhysicsTools/NanoAOD/plugins/TriggerOutputFields.h"
 
@@ -51,8 +57,10 @@ private:
 
   std::string m_fileName;
   std::string m_logicalFileName;
+  edm::ProcessHistoryRegistry m_processHistoryRegistry;
   edm::JobReport::Token m_jrToken;
 
+  std::unique_ptr<TFile> m_file;
   std::unique_ptr<RNTupleWriter> m_ntuple;
   TableCollections m_tables;
   std::vector<TriggerOutputFields> m_triggers;
@@ -75,17 +83,26 @@ private:
     UInt_t m_luminosityBlock;
     std::uint64_t m_event;
   } m_commonFields;
+
+  LumiNTuple m_lumi;
 };
 
 NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& pset)
     : edm::one::OutputModuleBase::OutputModuleBase(pset),
       edm::one::OutputModule<>(pset),
       m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
-      m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")) {}
+      m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
+      m_processHistoryRegistry() {}
 
 NanoAODRNTupleOutputModule::~NanoAODRNTupleOutputModule() {}
 
-void NanoAODRNTupleOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& iLumi) {}
+void NanoAODRNTupleOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& iLumi) {
+  edm::Service<edm::JobReport> jr;
+  jr->reportLumiSection(m_jrToken, iLumi.id().run(), iLumi.id().value());
+  m_lumi.fill(iLumi.id());
+  m_processHistoryRegistry.registerProcessHistory(iLumi.processHistory());
+}
+
 void NanoAODRNTupleOutputModule::writeRun(edm::RunForOutput const& iRun) {}
 
 bool NanoAODRNTupleOutputModule::isFileOpen() const {
@@ -93,6 +110,8 @@ bool NanoAODRNTupleOutputModule::isFileOpen() const {
 }
 
 void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
+  m_file = std::make_unique<TFile>(m_fileName.c_str(), "RECREATE");
+  // todo check if m_file is valid?
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
   m_jrToken = jr->outputFileOpened(m_fileName,
@@ -106,6 +125,9 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
+
+  // initialize RNTuples with fixed fields: lumi
+  m_lumi.createFields(*m_file);
 }
 
 void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEvent) {
@@ -136,7 +158,10 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
     trigger.createFields(iEvent, *model);
   }
   m_tables.print();
-  m_ntuple = RNTupleWriter::Recreate(std::move(model), "Events", m_fileName);
+  // todo use Append
+  m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
+    std::make_unique<RPageSinkFile>("Events", *m_file, RNTupleWriteOptions())
+  );
 }
 
 void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
@@ -153,11 +178,36 @@ void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
     trigger.fill(iEvent);
   }
   m_ntuple->Fill();
+  m_processHistoryRegistry.registerProcessHistory(iEvent.processHistory());
 }
 
 void NanoAODRNTupleOutputModule::reallyCloseFile() {
   // write ntuple to disk by calling the RNTupleWriter destructor
+  m_lumi.write();
   m_ntuple.reset();
+  m_file->Write();
+  m_file->Close();
+
+  auto ntuple = ROOT::Experimental::RNTupleReader::Open("Events", m_fileName);
+  ntuple->PrintInfo();
+  ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
+
+  auto muons = ntuple->GetViewCollection("Muon");
+  auto muon_pt = muons.GetView<float>("pt");
+  auto num_entries = 0;
+  for (auto e: ntuple->GetEntryRange()) {
+    std::cout << "entry " << num_entries++ << ":\n";
+    auto num_muons = 0;
+    for (auto m: muons.GetCollectionRange(e)) {
+      std::cout << "pt: " << muon_pt(m) << "\n";
+      num_muons++;
+    }
+    std::cout << "... total " << num_muons << " muons\n";
+  }
+
+  auto lumi_ntuple = ROOT::Experimental::RNTupleReader::Open("LuminosityBlocks", m_fileName);
+  lumi_ntuple->PrintInfo();
+  lumi_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
 
   edm::Service<edm::JobReport> jr;
   jr->outputFileClosed(m_jrToken);
