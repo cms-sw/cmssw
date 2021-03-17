@@ -26,12 +26,20 @@ pfMassDecorrelatedParticleNetJetTags = boostedJetONNXJetTagsProducer.clone(
                   "probQCDb", "probQCDc", "probQCDothers"],
 )
 
+pfParticleNetMassRegressionJetTags = boostedJetONNXJetTagsProducer.clone(
+    src = 'pfParticleNetTagInfos',
+    preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MassRegression/V01/preprocess.json',
+    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/MassRegression/V01/particle-net.onnx',
+    flav_names = ["mass"],
+)
+
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import primaryVertexAssociation
 
 # This task is not used, useful only if we run it from RECO jets (RECO/AOD)
 pfParticleNetTask = cms.Task(puppi, primaryVertexAssociation, pfParticleNetTagInfos,
-                             pfParticleNetJetTags, pfMassDecorrelatedParticleNetJetTags, pfParticleNetDiscriminatorsJetTags)
+                             pfParticleNetJetTags, pfMassDecorrelatedParticleNetJetTags, pfParticleNetMassRegressionJetTags,
+                             pfParticleNetDiscriminatorsJetTags, pfMassDecorrelatedParticleNetDiscriminatorsJetTags)
 
 # declare all the discriminators
 # nominal: probs
@@ -46,6 +54,9 @@ _pfMassDecorrelatedParticleNetJetTagsProbs = ['pfMassDecorrelatedParticleNetJetT
 # mass-decorrelated: meta-taggers
 _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs = ['pfMassDecorrelatedParticleNetDiscriminatorsJetTags:' + disc.name.value()
                                    for disc in pfMassDecorrelatedParticleNetDiscriminatorsJetTags.discriminators]
+
+_pfParticleNetMassRegressionOutputs = ['pfParticleNetMassRegressionJetTags:' + flav_name
+                                       for flav_name in pfParticleNetMassRegressionJetTags.flav_names]
 
 _pfParticleNetJetTagsAll = _pfParticleNetJetTagsProbs + _pfParticleNetJetTagsMetaDiscrs + \
     _pfMassDecorrelatedParticleNetJetTagsProbs + _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs
