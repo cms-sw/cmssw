@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-class ConstHGCRecHitSoA { //const version of the HGCRecHit class (data in the event should be immutable)
+class ConstHGCRecHitSoA {  //const version of the HGCRecHit class (data in the event should be immutable)
 public:
   float const *energy_;       //calibrated energy of the rechit
   float const *time_;         //time jitter of the UncalibRecHit
