@@ -68,7 +68,7 @@ void MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::fillDescriptions(edm::Config
   desc.add<edm::InputTag>("src")->setComment("input collection");
   desc.add<std::string>("cut", "")->setComment("string for StringCutObjectSelector");
   desc.add<OUT_TYPE>("defaultValue")->setComment("default output value (used when input collection is unavailable)");
-  descriptions.add(defaultModuleLabel<MultiplicityValueProducer<INP_TYPE, OUT_TYPE>>(), desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #endif  // HLTrigger_JetMET_plugins_MultiplicityValueProducer_h

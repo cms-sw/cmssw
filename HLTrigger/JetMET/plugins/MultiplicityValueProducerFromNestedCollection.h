@@ -63,7 +63,7 @@ void MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::fillDesc
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src")->setComment("input collection");
   desc.add<OUT_TYPE>("defaultValue")->setComment("default output value (used when input collection is unavailable)");
-  descriptions.add(defaultModuleLabel<MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>>(), desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #endif  // HLTrigger_JetMET_plugins_MultiplicityValueProducerFromNestedCollection_h
