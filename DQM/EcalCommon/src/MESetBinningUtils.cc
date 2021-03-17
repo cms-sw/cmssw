@@ -385,8 +385,9 @@ namespace ecaldqm {
       switch (_otype) {
         case kSM:
           if (_btype == kPseudoStrip) {
-            iSM = iSM <= kEEmTCCHigh ? (iSM + 1) % 18 / 2
-                                     : iSM >= kEEpTCCLow ? (iSM + 1 - 72) % 18 / 2 + 45 : (iSM + 1) - kEEmTCCHigh;
+            iSM = iSM <= kEEmTCCHigh  ? (iSM + 1) % 18 / 2
+                  : iSM >= kEEpTCCLow ? (iSM + 1 - 72) % 18 / 2 + 45
+                                      : (iSM + 1) - kEEmTCCHigh;
             return iSM;
           } else
             return iSM;
