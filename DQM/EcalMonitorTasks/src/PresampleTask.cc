@@ -38,7 +38,7 @@ namespace ecaldqm {
       // 1 pt:10 LS in Trend plots
       mePedestalByLS = &MEs_.at("PedestalByLS");
       if (timestamp_.iLumi % 10 == 0)
-        mePedestalByLS->reset();
+        mePedestalByLS->reset(GetElectronicsMap());
     }
   }
 
@@ -74,8 +74,8 @@ namespace ecaldqm {
       }  // PulseMaxCheck
 
       for (int iSample(0); iSample < nSamples_; ++iSample) {
-        mePedestal.fill(id, double(dataFrame.sample(iSample).adc()));
-        mePedestalByLS->fill(id, double(dataFrame.sample(iSample).adc()));
+        mePedestal.fill(getEcalDQMSetupObjects(), id, double(dataFrame.sample(iSample).adc()));
+        mePedestalByLS->fill(getEcalDQMSetupObjects(), id, double(dataFrame.sample(iSample).adc()));
       }
 
     }  // _digis loop
