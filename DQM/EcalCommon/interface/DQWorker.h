@@ -69,6 +69,19 @@ namespace ecaldqm {
     virtual void releaseMEs();
 
     // old ecaldqmGetSetupObjects (old global vars)
+    // These are objects obtained from EventSetup and stored
+    // inside each module (which inherit from DQWorker).
+    // Before, EcalCommon functions could access these through
+    // global functions, but now we need to pass them from the
+    // modules to functions in EcalCommon, such as in
+    // EcalDQMCommonUtils, MESetBinningUtils, all MESets, etc.
+    //
+    // The global variables were removed as they were against
+    // CMSSW rules, and potentially led to undefined behavior
+    // (data race) at IOV boundaries. They also relied on a mutex
+    // which leads to poor multi-threading performance.
+    // Original issue here:
+    // https://github.com/cms-sw/cmssw/issues/28858
     void setSetupObjects(edm::EventSetup const &);
     EcalElectronicsMapping const *GetElectronicsMap();
     EcalTrigTowerConstituentsMap const *GetTrigTowerMap();
