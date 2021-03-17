@@ -12,7 +12,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <class INP_TYPE, class OUT_TYPE>
 class MultiplicityValueProducer : public edm::global::EDProducer<> {
