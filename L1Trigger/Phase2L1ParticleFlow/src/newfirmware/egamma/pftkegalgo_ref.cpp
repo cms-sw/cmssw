@@ -142,9 +142,6 @@ void PFTkEGAlgoEmulator::sel_emCalo(unsigned int nmax_sel,
 
   for (int ic = 0, nc = emcalo.size(); ic < nc; ++ic) {
     const auto &calo = emcalo[ic];
-    if (debug_ > 5)
-      std::cout << "[REF] IN calo[" << ic << "] pt: " << calo.hwPt << " eta: " << calo.hwEta << " phi: " << calo.hwPhi
-                << std::endl;
     if ((cfg.filterHwQuality && calo.hwFlags != cfg.caloHwQual) || (calo.floatPt() < cfg.emClusterPtMin))
       continue;
     emcalo_tmp.push_back(calo);
@@ -154,6 +151,16 @@ void PFTkEGAlgoEmulator::sel_emCalo(unsigned int nmax_sel,
 }
 
 void PFTkEGAlgoEmulator::run(const PFInputRegion &in, OutputRegion &out) const {
+
+  if (debug_ > 0) {
+    for (int ic = 0, nc = in.emcalo.size(); ic < nc; ++ic) {
+      const auto &calo = in.emcalo[ic];
+
+      std::cout << "[REF] IN calo[" << ic << "] pt: " << calo.hwPt << " eta: " << in.region.floatGlbEta(calo.hwEta) << " phi: " << in.region.floatGlbPhi(calo.hwPhi)
+      << std::endl;
+    }
+  }
+  
   // FIXME: this is not striclty speaking necessary but we have to avoid sorting differences
   // in the future we will do all the filtering upstream for the endcap
   std::vector<EmCaloObjEmu> emcalo_sel;
@@ -194,7 +201,7 @@ void PFTkEGAlgoEmulator::eg_algo(const std::vector<EmCaloObjEmu> &emcalo,
     if (cfg.filterHwQuality && calo.hwFlags != cfg.caloHwQual)
       continue;
 
-    if (debug_ > 1)
+    if (debug_ > 3)
       std::cout << "[REF] SEL emcalo with pt: " << calo.hwPt << " qual: " << calo.hwFlags << " eta: " << calo.hwEta
                 << " phi " << calo.hwPhi << std::endl;
 
@@ -249,7 +256,7 @@ EGIsoObjEmu &PFTkEGAlgoEmulator::addEGIsoToPF(std::vector<EGIsoObjEmu> &egobjs,
                                               const EmCaloObjEmu &calo,
                                               const int hwQual,
                                               const pt_t ptCorr) const {
-  if (debug_ > 1)
+  if (debug_ > 2)
     std::cout << "[REF] Add EGIsoObjEmu with pt: " << ptCorr << " qual: " << hwQual << " eta: " << calo.hwEta << " phi "
               << calo.hwPhi << std::endl;
 
@@ -269,7 +276,7 @@ EGIsoEleObjEmu &PFTkEGAlgoEmulator::addEGIsoEleToPF(std::vector<EGIsoEleObjEmu> 
                                                     const TkObjEmu &track,
                                                     const int hwQual,
                                                     const pt_t ptCorr) const {
-  if (debug_ > 1)
+  if (debug_ > 2)
     std::cout << "[REF] Add EGIsoEleObjEmu with pt: " << ptCorr << " qual: " << hwQual << " eta: " << calo.hwEta
               << " phi " << calo.hwPhi << std::endl;
 
