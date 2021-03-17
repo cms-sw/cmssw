@@ -85,25 +85,25 @@ HEFRecHitGPU::~HEFRecHitGPU() { delete kcdata_; }
 
 std::string HEFRecHitGPU::assert_error_message_(std::string var, const size_t &s1, const size_t &s2) {
   std::string str1 = "The '";
-  std::string str2 = "' array must be at least of size ";
+  std::string str2 = "' array must be of size ";
   std::string str3 = " to hold the configuration data, but is of size ";
   return str1 + var + str2 + std::to_string(s1) + str3 + std::to_string(s2);
 }
 
 void HEFRecHitGPU::assert_sizes_constants_(const HGCConstantVectorData &vd) {
-  if (vdata_.fCPerMIP_.size() > HGChefUncalibRecHitConstantData::hef_fCPerMIP)
+  if (vdata_.fCPerMIP_.size() != HGChefUncalibRecHitConstantData::hef_fCPerMIP)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "fCPerMIP", HGChefUncalibRecHitConstantData::hef_fCPerMIP, vdata_.fCPerMIP_.size());
-  else if (vdata_.cce_.size() > HGChefUncalibRecHitConstantData::hef_cce)
+  else if (vdata_.cce_.size() != HGChefUncalibRecHitConstantData::hef_cce)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "cce", HGChefUncalibRecHitConstantData::hef_cce, vdata_.cce_.size());
-  else if (vdata_.noise_fC_.size() > HGChefUncalibRecHitConstantData::hef_noise_fC)
+  else if (vdata_.noise_fC_.size() != HGChefUncalibRecHitConstantData::hef_noise_fC)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "noise_fC", HGChefUncalibRecHitConstantData::hef_noise_fC, vdata_.noise_fC_.size());
-  else if (vdata_.rcorr_.size() > HGChefUncalibRecHitConstantData::hef_rcorr)
+  else if (vdata_.rcorr_.size() != HGChefUncalibRecHitConstantData::hef_rcorr)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "rcorr", HGChefUncalibRecHitConstantData::hef_rcorr, vdata_.rcorr_.size());
-  else if (vdata_.weights_.size() > HGChefUncalibRecHitConstantData::hef_weights)
+  else if (vdata_.weights_.size() != HGChefUncalibRecHitConstantData::hef_weights)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "weights", HGChefUncalibRecHitConstantData::hef_weights, vdata_.weights_.size());
 }
@@ -118,7 +118,7 @@ void HEFRecHitGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
   rechits_ = std::make_unique<HGCRecHitCollection>();
 
   if (nhits == 0)
-    cms::cuda::LogError("HEFRecHitGPU") << "WARNING: no input hits!";
+    edm::LogError("HEFRecHitGPU") << "WARNING: no input hits!";
 
   prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
   d_uncalib_ = HGCUncalibRecHitDevice(nhits, ctx.stream());

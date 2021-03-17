@@ -83,25 +83,25 @@ EERecHitGPU::~EERecHitGPU() { delete kcdata_; }
 
 std::string EERecHitGPU::assert_error_message_(std::string var, const size_t &s1, const size_t &s2) {
   std::string str1 = "The '";
-  std::string str2 = "' array must be at least of size ";
+  std::string str2 = "' array must be of size ";
   std::string str3 = " to hold the configuration data, but is of size ";
   return str1 + var + str2 + std::to_string(s1) + str3 + std::to_string(s2);
 }
 
 void EERecHitGPU::assert_sizes_constants_(const HGCConstantVectorData &vd) {
-  if (vdata_.fCPerMIP_.size() < HGCeeUncalibRecHitConstantData::ee_fCPerMIP)
+  if (vdata_.fCPerMIP_.size() != HGCeeUncalibRecHitConstantData::ee_fCPerMIP)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "fCPerMIP", HGCeeUncalibRecHitConstantData::ee_fCPerMIP, vdata_.fCPerMIP_.size());
-  else if (vdata_.cce_.size() < HGCeeUncalibRecHitConstantData::ee_cce)
+  else if (vdata_.cce_.size() != HGCeeUncalibRecHitConstantData::ee_cce)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "cce", HGCeeUncalibRecHitConstantData::ee_cce, vdata_.cce_.size());
-  else if (vdata_.noise_fC_.size() < HGCeeUncalibRecHitConstantData::ee_noise_fC)
+  else if (vdata_.noise_fC_.size() != HGCeeUncalibRecHitConstantData::ee_noise_fC)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "noise_fC", HGCeeUncalibRecHitConstantData::ee_noise_fC, vdata_.noise_fC_.size());
-  else if (vdata_.rcorr_.size() < HGCeeUncalibRecHitConstantData::ee_rcorr)
+  else if (vdata_.rcorr_.size() != HGCeeUncalibRecHitConstantData::ee_rcorr)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "rcorr", HGCeeUncalibRecHitConstantData::ee_rcorr, vdata_.rcorr_.size());
-  else if (vdata_.weights_.size() < HGCeeUncalibRecHitConstantData::ee_weights)
+  else if (vdata_.weights_.size() != HGCeeUncalibRecHitConstantData::ee_weights)
     edm::LogError("WrongSize") << this->assert_error_message_(
         "weights", HGCeeUncalibRecHitConstantData::ee_weights, vdata_.weights_.size());
 }
@@ -116,7 +116,7 @@ void EERecHitGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
   rechits_ = std::make_unique<HGCRecHitCollection>();
 
   if (nhits == 0)
-    cms::cuda::LogError("EERecHitGPU") << "WARNING: no input hits!";
+    edm::LogError("EERecHitGPU") << "WARNING: no input hits!";
 
   prod_ = HGCRecHitGPUProduct(nhits, ctx.stream());
   d_uncalib_ = HGCUncalibRecHitDevice(nhits, ctx.stream());

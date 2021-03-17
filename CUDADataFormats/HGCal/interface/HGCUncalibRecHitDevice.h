@@ -28,6 +28,10 @@ public:
 private:
   cms::cuda::device::unique_ptr<std::byte[]> ptr_;
   HGCUncalibRecHitSoA soa_;
+  static constexpr std::array<int, memory::npointers::ntypes_hgcuncalibrechits_soa> sizes_ = {
+      {memory::npointers::float_hgcuncalibrechits_soa * sizeof(float),
+       memory::npointers::uint32_hgcuncalibrechits_soa * sizeof(uint32_t)}};
+
   uint32_t pad_;
   uint32_t nhits_;
   uint32_t size_tot_;
