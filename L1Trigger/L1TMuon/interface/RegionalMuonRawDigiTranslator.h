@@ -7,13 +7,13 @@ namespace l1t {
   class RegionalMuonRawDigiTranslator {
   public:
     static void fillRegionalMuonCand(
-        RegionalMuonCand& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int proc, tftype tf, bool isKalman);
-    static void fillRegionalMuonCand(RegionalMuonCand& mu, uint64_t dataword, int proc, tftype tf, bool isKalman);
+        RegionalMuonCand& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int proc, tftype tf, bool isRun3);
+    static void fillRegionalMuonCand(RegionalMuonCand& mu, uint64_t dataword, int proc, tftype tf, bool isRun3);
     static void generatePackedDataWords(const RegionalMuonCand& mu,
                                         uint32_t& raw_data_00_31,
                                         uint32_t& raw_data_32_63,
-                                        bool isKalman);
-    static uint64_t generate64bitDataWord(const RegionalMuonCand& mu, bool isKalman);
+                                        bool isRun3);
+    static uint64_t generate64bitDataWord(const RegionalMuonCand& mu, bool isRun3);
     static int generateRawTrkAddress(const RegionalMuonCand&, bool isKalman);
 
     static constexpr unsigned ptMask_ = 0x1FF;
@@ -31,9 +31,11 @@ namespace l1t {
     static constexpr unsigned signShift_ = 0;
     static constexpr unsigned signValidShift_ = 1;
     static constexpr unsigned dxyMask_ = 0x3;
-    static constexpr unsigned dxyShift_ = 2;
+    static constexpr unsigned bmtfDxyShift_ = 2;
+    static constexpr unsigned emtfDxyShift_ = 29;
     static constexpr unsigned ptUnconstrainedMask_ = 0xFF;
-    static constexpr unsigned ptUnconstrainedShift_ = 23;
+    static constexpr unsigned bmtfPtUnconstrainedShift_ = 23;
+    static constexpr unsigned emtfPtUnconstrainedShift_ = 20;
     static constexpr unsigned trackAddressMask_ = 0x1FFFFFFF;
     static constexpr unsigned trackAddressShift_ = 2;
     // relative shifts within track address
