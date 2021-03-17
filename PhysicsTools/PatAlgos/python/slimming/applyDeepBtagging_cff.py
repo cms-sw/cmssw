@@ -46,6 +46,7 @@ def applyDeepBtagging( process, postfix="" ) :
     from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
     from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs as pfHiggsInteractionNetTagsProbs
     from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs
 
     # update slimmed jets to include particle-based deep taggers (keep same name)
     # make clone for DeepTags-less slimmed AK8 jets, so output name is preserved
@@ -57,7 +58,7 @@ def applyDeepBtagging( process, postfix="" ) :
         'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc',
         'pfMassIndependentDeepDoubleCvBV2JetTags:probHbb',
         'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc',
-        ) + pfDeepBoostedJetTagsAll + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs
+        ) + pfDeepBoostedJetTagsAll + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs + _pfParticleNetMassRegressionOutputs
     )
     updateJetCollection(
        process,
