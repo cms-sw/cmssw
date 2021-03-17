@@ -25,8 +25,6 @@ autoCond = {
     'run2_mc_hi'        :   '113X_mcRun2_HeavyIon_v3',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '113X_mcRun2_pA_v3',
-    # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '113X_dataRun2_v4',
     # GlobalTag for Run2 data reprocessing
     'run2_data'         :   '113X_dataRun2_v4',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
@@ -37,8 +35,6 @@ autoCond = {
     'run2_data_promptlike_hi' : '113X_dataRun2_PromptLike_HI_v4',
     # GlobalTag for Run3 HLT: it points to the online GT
     'run3_hlt'          :   '112X_dataRun3_HLT_v2',
-    # GlobalTag with fixed snapshot time for Run1 HLT RelVals: customizations to run with fixed L1 Menu
-    'run1_hlt_relval'   :   '112X_dataRun2_HLT_relval_v5',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'   :   '112X_dataRun2_HLT_relval_v5',
     # GlobalTag for Run3 data relvals (express GT)
@@ -87,6 +83,12 @@ aliases = {
     'MAINGT' : 'FT_P_V42D|AN_V4',
     'BASEGT' : 'BASE1_V1|BASE2_V1'
 }
+
+### Run 1 data GTs ###
+    # GlobalTag with fixed snapshot time for Run1 HLT RelVals: customizations to run with fixed L1 Menu
+autoCond['run1_hlt_relval']  = autoCond['run2_hlt_relval']
+    # GlobalTag for Run1 data reprocessing
+autoCond['run1_data']        = autoCond['run2_data']
 
 # dedicated GlobalTags for HLT
 from Configuration.HLT.autoCondHLT import autoCondHLT
