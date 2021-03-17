@@ -20,7 +20,7 @@ namespace ecaldqm {
     typedef dqm::legacy::DQMStore DQMStore;
     typedef dqm::legacy::MonitorElement MonitorElement;
     DBWriterWorker(std::string const &, edm::ParameterSet const &);
-    virtual ~DBWriterWorker() {}
+    ~DBWriterWorker() override {}
 
     void retrieveSource(DQMStore::IGetter &);
     virtual bool run(EcalCondDBInterface *, MonRunIOV &) = 0;

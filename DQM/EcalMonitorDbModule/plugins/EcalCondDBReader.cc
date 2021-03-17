@@ -174,6 +174,6 @@ EcalElectronicsMapping const *EcalCondDBReader::GetElectronicsMap() {
 ecaldqm::EcalDQMSetupObjects const EcalCondDBReader::getEcalDQMSetupObjects() {
   if (!electronicsMap)
     throw cms::Exception("InvalidCall") << "Electronics Mapping not initialized";
-  ecaldqm::EcalDQMSetupObjects edso = {electronicsMap, 0, 0, 0};
+  ecaldqm::EcalDQMSetupObjects edso = {electronicsMap, nullptr, nullptr, nullptr};
   return edso;
 }
