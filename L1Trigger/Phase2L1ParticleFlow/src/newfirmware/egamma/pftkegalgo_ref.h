@@ -55,6 +55,7 @@ namespace l1ct {
     bool doPfIso;
     EGIsoEleObjEmu::IsoType hwIsoTypeTkEle;
     EGIsoObjEmu::IsoType hwIsoTypeTkEm;
+    int debug = 0;
 
     PFTkEGAlgoEmuConfig(const edm::ParameterSet &iConfig);
     PFTkEGAlgoEmuConfig(unsigned int nTrack,
@@ -110,7 +111,8 @@ namespace l1ct {
 
   class PFTkEGAlgoEmulator {
   public:
-    PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config) : cfg(config) {}
+    PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config) : cfg(config),
+                                                            debug_(cfg.debug) {}
 
     virtual ~PFTkEGAlgoEmulator() {}
 
@@ -303,7 +305,7 @@ namespace l1ct {
                            const float z0) const;
 
     PFTkEGAlgoEmuConfig cfg;
-    int debug_ = 0;
+    int debug_;
   };
 }  // namespace l1ct
 
