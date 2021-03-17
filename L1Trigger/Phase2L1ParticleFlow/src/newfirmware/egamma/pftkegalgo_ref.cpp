@@ -152,16 +152,15 @@ void PFTkEGAlgoEmulator::sel_emCalo(unsigned int nmax_sel,
 }
 
 void PFTkEGAlgoEmulator::run(const PFInputRegion &in, OutputRegion &out) const {
-
   if (debug_ > 0) {
     for (int ic = 0, nc = in.emcalo.size(); ic < nc; ++ic) {
       const auto &calo = in.emcalo[ic];
 
-      std::cout << "[REF] IN calo[" << ic << "] pt: " << calo.hwPt << " eta: " << in.region.floatGlbEta(calo.hwEta) << " phi: " << in.region.floatGlbPhi(calo.hwPhi)
-      << std::endl;
+      std::cout << "[REF] IN calo[" << ic << "] pt: " << calo.hwPt << " eta: " << in.region.floatGlbEta(calo.hwEta)
+                << " phi: " << in.region.floatGlbPhi(calo.hwPhi) << std::endl;
     }
   }
-  
+
   // FIXME: this is not striclty speaking necessary but we have to avoid sorting differences
   // in the future we will do all the filtering upstream for the endcap
   std::vector<EmCaloObjEmu> emcalo_sel;

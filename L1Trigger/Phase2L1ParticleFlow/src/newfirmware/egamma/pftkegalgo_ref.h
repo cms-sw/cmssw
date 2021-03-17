@@ -111,8 +111,7 @@ namespace l1ct {
 
   class PFTkEGAlgoEmulator {
   public:
-    PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config) : cfg(config),
-                                                            debug_(cfg.debug) {}
+    PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config) : cfg(config), debug_(cfg.debug) {}
 
     virtual ~PFTkEGAlgoEmulator() {}
 

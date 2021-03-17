@@ -59,16 +59,16 @@ void PFTkEGAlgo::runTkEG(Region &r) const {
     std::cout << "[PFTkEGAlgo::runTkEG] START" << std::endl;
     std::cout << "   # emCalo: " << r.emcalo.size() << " # tk: " << r.track.size() << std::endl;
   }
-  if(debug_ > 0) {
-      for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
-        const auto &calo = r.emcalo[ic];
-        std::cout << "[OLD] IN calo[" << ic << "] pt: " << calo.floatPt() << " eta: " << r.globalEta(calo.floatEta()) << " phi: " << r.globalPhi(calo.floatPhi()) 
-        << " hwEta: " << calo.hwEta << " hwPhi: " << calo.hwPhi << " src pt: " << calo.src->pt() << " src eta: " << calo.src->eta() << " src phi: " << calo.src->phi()
-        <<  std::endl;
-      }
+  if (debug_ > 0) {
+    for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
+      const auto &calo = r.emcalo[ic];
+      std::cout << "[OLD] IN calo[" << ic << "] pt: " << calo.floatPt() << " eta: " << r.globalEta(calo.floatEta())
+                << " phi: " << r.globalPhi(calo.floatPhi()) << " hwEta: " << calo.hwEta << " hwPhi: " << calo.hwPhi
+                << " src pt: " << calo.src->pt() << " src eta: " << calo.src->eta() << " src phi: " << calo.src->phi()
+                << std::endl;
     }
+  }
 
-  
   // NOTE: we run this step for all clusters (before matching) as it is done in the pre-PF EG algorithm
   std::vector<int> emCalo2emCalo(r.emcalo.size(), -1);
   if (doBremRecovery_)
