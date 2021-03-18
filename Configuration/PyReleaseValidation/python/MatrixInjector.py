@@ -71,7 +71,7 @@ class MatrixInjector(object):
         if not self.wmagent:
             if not opt.testbed :
                 self.wmagent = 'cmsweb.cern.ch'
-                self.DbsUrl = "https://"+self.wmagent+"/dbs/prod/global/DBSReader"
+                self.DbsUrl = "https://cmsweb-prod.cern.ch/dbs/prod/global/DBSReader"
             else :
                 self.wmagent = 'cmsweb-testbed.cern.ch'
                 self.DbsUrl = "https://"+self.wmagent+"/dbs/int/global/DBSReader"
