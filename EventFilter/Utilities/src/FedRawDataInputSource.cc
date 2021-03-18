@@ -14,7 +14,6 @@
 #include <chrono>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem/fstream.hpp>
 
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
