@@ -320,9 +320,15 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
 
   // do noise-cleaning for full5x5, by passing per crystal PF recHit thresholds and mult values
   // mult values for EB and EE were obtained by dedicated studies
-  std::vector<float> localCovariances =
-    full5x5 ? ClusterTools::localCovariances(seedCluster, recHits, &topology, EgammaLocalCovParamDefaults::kRelEnCut, &thresholds, EgammaLocalCovParamDefaults::kMultThresEB, EgammaLocalCovParamDefaults::kMultThresEE)
-              : ClusterTools::localCovariances(seedCluster, recHits, &topology);
+  std::vector<float> localCovariances = full5x5
+                                            ? ClusterTools::localCovariances(seedCluster,
+                                                                             recHits,
+                                                                             &topology,
+                                                                             EgammaLocalCovParamDefaults::kRelEnCut,
+                                                                             &thresholds,
+                                                                             EgammaLocalCovParamDefaults::kMultThresEB,
+                                                                             EgammaLocalCovParamDefaults::kMultThresEE)
+                                            : ClusterTools::localCovariances(seedCluster, recHits, &topology);
 
   showerShape.sigmaEtaEta = sqrt(covariances[0]);
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]);
