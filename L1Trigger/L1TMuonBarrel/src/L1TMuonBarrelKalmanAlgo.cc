@@ -363,8 +363,13 @@ void L1TMuonBarrelKalmanAlgo::propagate(L1MuKBMTrack& track) {
       ap_fixed<BITSPARAM + 1, 2>(-bPhi_[step - 1]) * ap_fixed<BITSPHIB, BITSPHIB>(phiB);
 
   if (verbose_) {
-    std::cout << "phi prop = " << K << "*" << ap_fixed<BITSPARAM + 1, 2>(aPhi_[step - 1]) << " = " << phi11 << ", "
-              << phiB << "* " << ap_fixed<BITSPARAM + 1, 2>(-bPhi_[step - 1]) << " =" << phi12 << std::endl;
+    printf("phi prop = %d * %f = %d, %d * %f = %d\n",
+           K,
+           ap_fixed<BITSPARAM + 1, 2>(aPhi_[step - 1]).to_float(),
+           phi11.to_int(),
+           phiB,
+           ap_fixed<BITSPARAM + 1, 2>(-bPhi_[step - 1]).to_float(),
+           phi12.to_int());
   }
   int phiNew = ap_fixed<BITSPHI, BITSPHI>(phi + phi11 + phi12);
 
@@ -374,8 +379,13 @@ void L1TMuonBarrelKalmanAlgo::propagate(L1MuKBMTrack& track) {
       ap_ufixed<BITSPARAM + 1, 1>(bPhiB_[step - 1]) * ap_fixed<BITSPHIB, BITSPHIB>(phiB);
   int phiBNew = ap_fixed<13, 13>(phiB11 + phiB12);
   if (verbose_) {
-    std::cout << "phiB prop = " << K << "* " << ap_fixed<BITSPARAM + 1, 2>(aPhiB_[step - 1]) << " = " << phiB11 << ", "
-              << phiB << "* " << ap_ufixed<BITSPARAM + 1, 1>(bPhiB_[step - 1]) << " =" << phiB12 << std::endl;
+    printf("phiB prop = %d * %f = %d, %d * %f = %d\n",
+           K,
+           ap_fixed<BITSPARAM + 1, 2>(aPhiB_[step - 1]).to_float(),
+           phiB11.to_int(),
+           phiB,
+           ap_ufixed<BITSPARAM + 1, 1>(bPhiB_[step - 1]).to_float(),
+           phiB12.to_int());
   }
 
   //Only for the propagation to vertex we use the LUT for better precision and the full function
@@ -390,8 +400,7 @@ void L1TMuonBarrelKalmanAlgo::propagate(L1MuKBMTrack& track) {
       DXY = dxyOffset;
     phiBNew = ap_fixed<BITSPHIB, BITSPHIB>(DXY - ap_fixed<BITSPHIB, BITSPHIB>(phiB));
     if (verbose_) {
-      std::cout << "Vertex phiB prop = " << DXY << " - " << ap_fixed<BITSPHIB, BITSPHIB>(phiB) << " = " << phiBNew
-                << std::endl;
+      printf("Vertex phiB prop = %d - %d = %d\n", DXY.to_int(), ap_fixed<BITSPHIB, BITSPHIB>(phiB).to_int(), phiBNew);
     }
   }
   ///////////////////////////////////////////////////////
@@ -508,10 +517,8 @@ bool L1TMuonBarrelKalmanAlgo::updateOffline(L1MuKBMTrack& track, const L1MuKBMTC
   track.setResidual(stub->stNum() - 1, fabs(phi - phiNew) + fabs(phiB - phiBNew) / 8);
 
   if (verbose_) {
-    std::cout << "residuals " << phi << "-" << trackPhi << "=" << residual[0] << " " << phiB << "-" << trackPhiB << "="
-              << residual[1] << std::endl;
-    std::cout << "Gains offline: " << Gain(0, 0) << " " << Gain(0, 1) << " " << Gain(2, 0) << " " << Gain(2, 1)
-              << std::endl;
+    printf("residual %d - %d = %d %d - %d = %d\n", phi, trackPhi, int(residual[0]), phiB, trackPhiB, int(residual[1]));
+    printf("Gains offline: %f %f %f %f\n", Gain(0, 0), Gain(0, 1), Gain(2, 0), Gain(2, 1));
     printf(" K = %d + %f * %f + %f * %f\n", trackK, Gain(0, 0), residual(0), Gain(0, 1), residual(1));
     printf(" phiB = %d + %f * %f + %f * %f\n", trackPhiB, Gain(2, 0), residual(0), Gain(2, 1), residual(1));
   }
@@ -530,7 +537,7 @@ bool L1TMuonBarrelKalmanAlgo::updateOffline(L1MuKBMTrack& track, const L1MuKBMTC
   c(2, 1) = covNew(2, 1);
   c(2, 2) = covNew(2, 2);
   if (verbose_) {
-    printf("Post Fit Covariance Matrix %f %f %f \n", cov(0, 0), cov(1, 1), cov(2, 2));
+    printf("Post Fit Covariance Matrix %f %f %f\n", cov(0, 0), cov(1, 1), cov(2, 2));
   }
 
   track.setCovariance(c);
@@ -550,7 +557,7 @@ bool L1TMuonBarrelKalmanAlgo::updateOffline1D(L1MuKBMTrack& track, const L1MuKBM
   double residual = phi - trackPhi;
 
   if (verbose_)
-    std::cout << "residuals " << phi << "-" << trackPhi << "=" << residual << std::endl;
+    printf("residuals %d - %d = %d\n", phi, trackPhi, int(residual));
 
   Matrix13 H;
   H(0, 0) = 0.0;
@@ -568,7 +575,7 @@ bool L1TMuonBarrelKalmanAlgo::updateOffline1D(L1MuKBMTrack& track, const L1MuKBM
 
   track.setKalmanGain(track.step(), fabs(trackK), Gain(0, 0), 0.0, Gain(1, 0), 0.0, Gain(2, 0), 0.0);
   if (verbose_)
-    std::cout << "Gains: " << Gain(0, 0) << " " << Gain(2, 0) << std::endl;
+    printf("Gains: %f %f\n", Gain(0, 0), Gain(2, 0));
 
   int KNew = wrapAround(trackK + int(Gain(0, 0) * residual), 8192);
   int phiNew = wrapAround(trackPhi + residual, 8192);
@@ -578,7 +585,7 @@ bool L1TMuonBarrelKalmanAlgo::updateOffline1D(L1MuKBMTrack& track, const L1MuKBM
   L1MuKBMTrack::CovarianceMatrix c;
 
   if (verbose_) {
-    std::cout << "phiUpdate: " << int(Gain(0, 0) * residual) << " " << int(Gain(2, 0) * residual) << std::endl;
+    printf("phiUpdate: %d %d\n", int(Gain(0, 0) * residual), int(Gain(2, 0) * residual));
   }
 
   c(0, 0) = covNew(0, 0);
@@ -608,16 +615,18 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,
   int phi = correctedPhi(stub, track.sector());
   int phiB = correctedPhiB(stub);
 
-  //if (stub->quality() < 4)
-  //phiB = trackPhiB;
-
   Vector2 residual;
   ap_fixed<BITSPHI + 1, BITSPHI + 1> residualPhi = phi - trackPhi;
   ap_fixed<BITSPHIB + 1, BITSPHIB + 1> residualPhiB = phiB - trackPhiB;
 
   if (verbose_)
-    std::cout << "residuals " << phi << "-" << trackPhi << "=" << residualPhi << " " << phiB << "-" << trackPhiB << "="
-              << residualPhiB << std::endl;
+    printf("residual %d - %d = %d %d - %d = %d\n",
+           phi,
+           trackPhi,
+           residualPhi.to_int(),
+           phiB,
+           trackPhiB,
+           residualPhiB.to_int());
 
   uint absK = fabs(trackK);
   if (absK > 4095)
@@ -634,14 +643,19 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,
     GAIN = lutService_->trackGain2(track.step(), track.hitPattern(), absK / 8, seedQual, stub->quality());
   }
   if (verbose_) {
-    std::cout << "Gains (fp): " << GAIN[0] << " " << GAIN[1] << " " << GAIN[2] << " " << GAIN[3] << std::endl;
+    printf("Gains (fp): %f %f %f %f\n", GAIN[0], GAIN[1], GAIN[2], GAIN[3]);
     if (!(mask == 3 || mask == 5 || mask == 9 || mask == 6 || mask == 10 || mask == 12))
-      std::cout << "Addr=" << absK / 4 << "   gain0=" << ap_ufixed<GAIN_0, GAIN_0INT>(GAIN[0]) << " gain4=-"
-                << ap_ufixed<GAIN_4, GAIN_4INT>(GAIN[2]) << std::endl;
+      printf("Addr=%d   gain0=%f gain4=-%f\n",
+             absK / 4,
+             ap_ufixed<GAIN_0, GAIN_0INT>(GAIN[0]).to_float(),
+             ap_ufixed<GAIN_4, GAIN_4INT>(GAIN[2]).to_float());
     else
-      std::cout << "Addr=" << absK / 4 << "   " << ap_fixed<GAIN2_0, GAIN2_0INT>(GAIN[0]) << " -"
-                << ap_ufixed<GAIN2_1, GAIN2_1INT>(GAIN[1]) << " " << ap_ufixed<GAIN2_4, GAIN2_4INT>(GAIN[2]) << " "
-                << ap_ufixed<GAIN2_5, GAIN2_5INT>(GAIN[3]) << std::endl;
+      printf("Addr=%d   %f -%f %f %f\n",
+             absK / 4,
+             ap_fixed<GAIN2_0, GAIN2_0INT>(GAIN[0]).to_float(),
+             ap_ufixed<GAIN2_1, GAIN2_1INT>(GAIN[1]).to_float(),
+             ap_ufixed<GAIN2_4, GAIN2_4INT>(GAIN[2]).to_float(),
+             ap_ufixed<GAIN2_5, GAIN2_5INT>(GAIN[3]).to_float());
   }
 
   track.setKalmanGain(track.step(), fabs(trackK), GAIN[0], GAIN[1], 1, 0, GAIN[2], GAIN[3]);
@@ -653,8 +667,6 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,
   } else {
     ap_fixed<BITSPHI + 7, BITSPHI + 7> k11 = ap_fixed<GAIN2_0, GAIN2_0INT>(GAIN[0]) * residualPhi;
     ap_fixed<BITSPHIB + 4, BITSPHIB + 4> k12 = ap_ufixed<GAIN2_1, GAIN2_1INT>(GAIN[1]) * residualPhiB;
-    //int k11 = ap_fixed<LUT0,LUT0INT>(GAIN[0])*residualPhi;
-    //int k12 = ap_fixed<LUT1,LUT1INT>(GAIN[1])*residualPhiB;
     KNew = ap_fixed<BITSPHI + 9, BITSPHI + 9>(ap_fixed<BITSCURV, BITSCURV>(trackK) + k11 - k12);
   }
   if (fabs(KNew) >= 8191)
@@ -666,11 +678,9 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,
   ap_fixed<BITSPHI + 5, BITSPHI + 5> pbdouble_0 = ap_ufixed<GAIN2_4, GAIN2_4INT>(GAIN[2]) * residualPhi;
   ap_fixed<BITSPHIB + 24, BITSPHIB + 4> pb_1 = ap_ufixed<GAIN2_5, GAIN2_5INT>(GAIN[3]) * residualPhiB;
   ap_fixed<BITSPHI + 9, BITSPHI + 5> pb_0 = ap_ufixed<GAIN_4, GAIN_4INT>(GAIN[2]) * residualPhi;
-  //int pb_1 = ap_ufixed<GAIN_5,GAIN_5INT>(GAIN[3])*residualPhiB;
-  //int pb_0 = ap_ufixed<GAIN_4,GAIN_4INT>(-GAIN[2])*residualPhi;
 
   if (verbose_) {
-    std::cout << "phiupdate: " << pb_0 << " " << pb_1 << " " << pbdouble_0 << std::endl;
+    printf("phiupdate %f %f %f\n", pb_0.to_float(), pb_1.to_float(), pbdouble_0.to_float());
   }
 
   int phiBNew;
@@ -755,8 +765,11 @@ void L1TMuonBarrelKalmanAlgo::vertexConstraintLUT(L1MuKBMTrack& track) {
   int KNew = ap_fixed<BITSCURV, BITSCURV>(k_0 + ap_fixed<BITSCURV, BITSCURV>(track.curvature()));
 
   if (verbose_) {
-    std::cout << "VERTEX GAIN(" << absK / 2 << ")= -" << ap_ufixed<GAIN_V0, GAIN_V0INT>(fabs(GAIN.first)) << " * "
-              << ap_fixed<BITSPHIB, BITSPHIB>(residual) << " = " << k_0 << std::endl;
+    printf("VERTEX GAIN(%d)= -%f * %d = %d\n",
+           absK / 2,
+           ap_ufixed<GAIN_V0, GAIN_V0INT>(fabs(GAIN.first)).to_float(),
+           ap_fixed<BITSPHIB, BITSPHIB>(residual).to_int(),
+           k_0.to_int());
   }
 
   int p_0 = fp_product(GAIN.second, int(residual), 7);
@@ -973,7 +986,7 @@ std::pair<bool, L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombi
           printf("------------------------------------------------------\n");
         }
         setFloatingPointValues(track, true);
-        //rset the coordinates at muon to include phi at station 2
+        //set the coordinates at muon to include phi at station 2
         track.setCoordinatesAtMuon(track.curvatureAtMuon(), phiAtStation2, track.phiBAtMuon());
         track.setRank(rank(track));
         if (verbose_)
@@ -1052,7 +1065,7 @@ void L1TMuonBarrelKalmanAlgo::estimateCompatibility(L1MuKBMTrack& track) {
   const L1MuKBMTCombinedStubRef& stub = track.stubs()[stubSel];
 
   if (verbose_) {
-    std::cout << "stubsel " << stubSel << " phi=" << stub->phi() << " phiB=" << stub->phiB() << std::endl;
+    printf("stubsel %d phi=%d phiB=%d\n", stubSel, stub->phi(), stub->phiB());
   }
 
   ap_ufixed<BITSCURV - 5, BITSCURV - 5> absK;
@@ -1076,11 +1089,13 @@ void L1TMuonBarrelKalmanAlgo::estimateCompatibility(L1MuKBMTrack& track) {
     int deltaMax = ap_ufixed<BITSCURV, BITSCURV>(err * trackCompCut_[i]);
     if (verbose_) {
       if (track.hitPattern() == trackCompPattern_[i]) {
-        std::cout << "delta = " << delta << " = abs(" << stub->phiB() << " - " << trackComp_[stub->stNum() - 1] << "*"
-                  << K << ")" << std::endl;
-        std::cout << "err = " << err << " = " << trackCompErr1_[stub->stNum() - 1] << " + "
-                  << trackCompErr2_[stub->stNum() - 1] << "*" << absK << std::endl;
-        std::cout << "deltaMax = " << deltaMax << " = " << err << "*" << trackCompCut_[i] << std::endl;
+        printf("delta = %d = abs(%d - %f*%d\n", delta.to_int(), stub->phiB(), trackComp_[stub->stNum() - 1], K);
+        printf("err = %d = %f + %f*%d\n",
+               err.to_int(),
+               trackCompErr1_[stub->stNum() - 1],
+               trackCompErr2_[stub->stNum() - 1],
+               absK.to_int());
+        printf("deltaMax = %d = %d*%d\n", deltaMax, err.to_int(), trackCompCut_[i]);
       }
     }
     if ((track.hitPattern() == trackCompPattern_[i]) && ((int)absK < trackCompCutCurv_[i]) &&
