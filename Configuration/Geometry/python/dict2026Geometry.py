@@ -362,8 +362,6 @@ trackerDict = {
         ],
         "era" : "phase2_tracker, phase2_squarePixels, trackingPhase2PU140",
     }
-
-
 }
 
 caloDict = {
