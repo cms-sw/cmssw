@@ -56,9 +56,13 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
   const auto& sampleLeft = dataFrame.sample(0);
   const auto& sampleRight = dataFrame.sample(1);
 
+  double nHits = 0.;
+
   if (sampleLeft.data() > 0) {
     amplitude.first = float(sampleLeft.data()) * adcLSB_;
     time.first = float(sampleLeft.toa()) * toaLSBToNS_;
+
+    nHits += 1.;
 
     // Correct the time of the left SiPM for the time-walk
     time.first -= timeCorr_p0_ * pow(amplitude.first, timeCorr_p1_) + timeCorr_p2_;
@@ -70,15 +74,19 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
     amplitude.second = sampleRight.data() * adcLSB_;
     time.second = sampleRight.toa() * toaLSBToNS_;
 
+    nHits += 1.;
+
     // Correct the time of the right SiPM for the time-walk
     time.second -= timeCorr_p0_ * pow(amplitude.second, timeCorr_p1_) + timeCorr_p2_;
     flag |= (0x1 << 1);
   }
 
-  // Calculate the error on the hit time using the provided parameterization
+  // --- Calculate the error on the hit time using the provided parameterization
+
+  std::vector<double> amplitudeV = {(amplitude.first + amplitude.second) / nHits};
   std::vector<double> emptyV;
-  std::vector<double> amplitudeV = {0.5 * (amplitude.first + amplitude.second)};
-  double timeError = timeError_.evaluate(amplitudeV, emptyV);
+
+  double timeError = (nHits > 0. ? timeError_.evaluate(amplitudeV, emptyV) : -1.);
 
   // Calculate the position
   // Distance from center of bar to hit
