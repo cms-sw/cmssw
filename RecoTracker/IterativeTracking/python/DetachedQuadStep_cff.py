@@ -186,6 +186,24 @@ trackingPhase2PU140.toModify(detachedQuadStepTrackCandidates,
     phase2clustersToSkip = cms.InputTag('detachedQuadStepClusters')
 )
 
+from Configuration.ProcessModifiers.trackingMkFitDetachedQuadStep_cff import trackingMkFitDetachedQuadStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+detachedQuadStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'detachedQuadStepSeeds',
+)
+detachedQuadStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'detachedQuadStepTrackCandidatesMkFitSeeds',
+    iterationNumber = 4,
+    clustersToSkip = 'detachedQuadStepClusters',
+)
+trackingMkFitDetachedQuadStep.toReplaceWith(detachedQuadStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'detachedQuadStepSeeds',
+    mkfitSeeds = 'detachedQuadStepTrackCandidatesMkFitSeeds',
+    tracks = 'detachedQuadStepTrackCandidatesMkFit',
+))
+
 #For FastSim phase1 tracking 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 _fastSim_detachedQuadStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -337,6 +355,11 @@ DetachedQuadStepTask = cms.Task(detachedQuadStepClusters,
                                 detachedQuadStepTracks,
                                 detachedQuadStep)
 DetachedQuadStep = cms.Sequence(DetachedQuadStepTask)
+
+_DetachedQuadStepTask_trackingMkFit = DetachedQuadStepTask.copy()
+_DetachedQuadStepTask_trackingMkFit.add(detachedQuadStepTrackCandidatesMkFitSeeds, detachedQuadStepTrackCandidatesMkFit)
+trackingMkFitDetachedQuadStep.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_trackingMkFit)
+
 _DetachedQuadStepTask_Phase2PU140 = DetachedQuadStepTask.copy()
 _DetachedQuadStepTask_Phase2PU140.replace(detachedQuadStep, cms.Task(detachedQuadStepSelector,detachedQuadStep))
 trackingPhase2PU140.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_Phase2PU140)

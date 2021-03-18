@@ -268,6 +268,25 @@ tobTecStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTra
     cleanTrajectoryAfterInOut   = True,
     TrajectoryCleaner = 'tobTecStepTrajectoryCleanerBySharedHits'
 )
+
+from Configuration.ProcessModifiers.trackingMkFitTobTecStep_cff import trackingMkFitTobTecStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+tobTecStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'tobTecStepSeeds',
+)
+tobTecStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'tobTecStepTrackCandidatesMkFitSeeds',
+    iterationNumber = 8,
+    clustersToSkip = 'tobTecStepClusters',
+)
+trackingMkFitTobTecStep.toReplaceWith(tobTecStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'tobTecStepSeeds',
+    mkfitSeeds = 'tobTecStepTrackCandidatesMkFitSeeds',
+    tracks = 'tobTecStepTrackCandidatesMkFit',
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(tobTecStepTrackCandidates,
                       FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -449,6 +468,9 @@ TobTecStepTask = cms.Task(tobTecStepClusters,
                           tobTecStep)
 TobTecStep = cms.Sequence(TobTecStepTask)
 
+_TobTecStepTask_trackingMkFit = TobTecStepTask.copy()
+_TobTecStepTask_trackingMkFit.add(tobTecStepTrackCandidatesMkFitSeeds, tobTecStepTrackCandidatesMkFit)
+trackingMkFitTobTecStep.toReplaceWith(TobTecStepTask, _TobTecStepTask_trackingMkFit)
 
 ### Following are specific for LowPU, they're collected here to
 ### not to interfere too much with the default configuration
