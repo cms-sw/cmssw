@@ -284,6 +284,25 @@ pixelLessStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelLessStepTrajectoryBuilder')),
     TrajectoryCleaner     = 'pixelLessStepTrajectoryCleanerBySharedHits'
 )
+
+from Configuration.ProcessModifiers.trackingMkFitPixelLessStep_cff import trackingMkFitPixelLessStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+pixelLessStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'pixelLessStepSeeds',
+)
+pixelLessStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'pixelLessStepTrackCandidatesMkFitSeeds',
+    iterationNumber = 7,
+    clustersToSkip = 'pixelLessStepClusters',
+)
+trackingMkFitPixelLessStep.toReplaceWith(pixelLessStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'pixelLessStepSeeds',
+    mkfitSeeds = 'pixelLessStepTrackCandidatesMkFitSeeds',
+    tracks = 'pixelLessStepTrackCandidatesMkFit',
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(pixelLessStepTrackCandidates,
                       FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -464,6 +483,10 @@ PixelLessStepTask = cms.Task(pixelLessStepClusters,
                              pixelLessStepClassifier1,pixelLessStepClassifier2,
                              pixelLessStep)
 PixelLessStep = cms.Sequence(PixelLessStepTask)
+
+_PixelLessStepTask_trackingMkFit = PixelLessStepTask.copy()
+_PixelLessStepTask_trackingMkFit.add(pixelLessStepTrackCandidatesMkFitSeeds, pixelLessStepTrackCandidatesMkFit)
+trackingMkFitPixelLessStep.toReplaceWith(PixelLessStepTask, _PixelLessStepTask_trackingMkFit)
 
 _PixelLessStepTask_LowPU = PixelLessStepTask.copyAndExclude([pixelLessStepHitTriplets, pixelLessStepClassifier1, pixelLessStepClassifier2])
 _PixelLessStepTask_LowPU.replace(pixelLessStep, pixelLessStepSelector)

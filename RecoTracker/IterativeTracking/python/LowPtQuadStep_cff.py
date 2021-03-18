@@ -176,6 +176,24 @@ trackingPhase2PU140.toModify(lowPtQuadStepTrackCandidates,
     phase2clustersToSkip = cms.InputTag('lowPtQuadStepClusters')
 )
 
+from Configuration.ProcessModifiers.trackingMkFitLowPtQuadStep_cff import trackingMkFitLowPtQuadStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+lowPtQuadStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'lowPtQuadStepSeeds',
+)
+lowPtQuadStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'lowPtQuadStepTrackCandidatesMkFitSeeds',
+    iterationNumber = 2,
+    clustersToSkip = 'lowPtQuadStepClusters',
+)
+trackingMkFitLowPtQuadStep.toReplaceWith(lowPtQuadStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'lowPtQuadStepSeeds',
+    mkfitSeeds = 'lowPtQuadStepTrackCandidatesMkFitSeeds',
+    tracks = 'lowPtQuadStepTrackCandidatesMkFit',
+))
+
 #For FastSim phase1 tracking
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 _fastSim_lowPtQuadStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -277,6 +295,10 @@ LowPtQuadStepTask = cms.Task(lowPtQuadStepClusters,
                              lowPtQuadStepTracks,
                              lowPtQuadStep)
 LowPtQuadStep = cms.Sequence(LowPtQuadStepTask)
+
+_LowPtQuadStepTask_trackingMkFit = LowPtQuadStepTask.copy()
+_LowPtQuadStepTask_trackingMkFit.add(lowPtQuadStepTrackCandidatesMkFitSeeds, lowPtQuadStepTrackCandidatesMkFit)
+trackingMkFitLowPtQuadStep.toReplaceWith(LowPtQuadStepTask, _LowPtQuadStepTask_trackingMkFit)
 
 _LowPtQuadStepTask_Phase2PU140 = LowPtQuadStepTask.copy()
 _LowPtQuadStepTask_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)

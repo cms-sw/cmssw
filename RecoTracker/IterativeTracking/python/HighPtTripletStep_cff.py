@@ -215,8 +215,7 @@ highPtTripletStepTrackCandidates = _CkfTrackCandidates_cfi.ckfTrackCandidates.cl
     useHitsSplitting = True
 )
 
-from Configuration.ProcessModifiers.trackingMkFit_cff import trackingMkFit
-from RecoTracker.MkFit.mkFitGeometryESProducer_cfi import mkFitGeometryESProducer
+from Configuration.ProcessModifiers.trackingMkFitHighPtTripletStep_cff import trackingMkFitHighPtTripletStep
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
@@ -228,7 +227,7 @@ highPtTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
     iterationNumber = 1,
     clustersToSkip = 'highPtTripletStepClusters',
 )
-trackingMkFit.toReplaceWith(highPtTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+trackingMkFitHighPtTripletStep.toReplaceWith(highPtTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
     seeds = 'highPtTripletStepSeeds',
     mkfitSeeds = 'highPtTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'highPtTripletStepTrackCandidatesMkFit',
@@ -354,7 +353,7 @@ HighPtTripletStep = cms.Sequence(HighPtTripletStepTask)
 
 _HighPtTripletStepTask_trackingMkFit = HighPtTripletStepTask.copy()
 _HighPtTripletStepTask_trackingMkFit.add(highPtTripletStepTrackCandidatesMkFitSeeds, highPtTripletStepTrackCandidatesMkFit)
-trackingMkFit.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_trackingMkFit)
+trackingMkFitHighPtTripletStep.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_trackingMkFit)
 
 _HighPtTripletStepTask_Phase2PU140 = HighPtTripletStepTask.copy()
 _HighPtTripletStepTask_Phase2PU140.replace(highPtTripletStep, highPtTripletStepSelector)

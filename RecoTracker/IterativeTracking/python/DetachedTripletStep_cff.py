@@ -214,6 +214,24 @@ detachedTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits
 detachedTripletStepTrackCandidates.TrajectoryCleaner = 'detachedTripletStepTrajectoryCleanerBySharedHits'
 trackingLowPU.toModify(detachedTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
 
+from Configuration.ProcessModifiers.trackingMkFitDetachedTripletStep_cff import trackingMkFitDetachedTripletStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+detachedTripletStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'detachedTripletStepSeeds',
+)
+detachedTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'detachedTripletStepTrackCandidatesMkFitSeeds',
+    iterationNumber = 5,
+    clustersToSkip = 'detachedTripletStepClusters',
+)
+trackingMkFitDetachedTripletStep.toReplaceWith(detachedTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'detachedTripletStepSeeds',
+    mkfitSeeds = 'detachedTripletStepTrackCandidatesMkFitSeeds',
+    tracks = 'detachedTripletStepTrackCandidatesMkFit',
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 _fastSim_detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     src = 'detachedTripletStepSeeds',
@@ -379,6 +397,11 @@ DetachedTripletStepTask = cms.Task(detachedTripletStepClusters,
                                    detachedTripletStepClassifier1,detachedTripletStepClassifier2,
                                    detachedTripletStep)
 DetachedTripletStep = cms.Sequence(DetachedTripletStepTask)
+
+_DetachedTripletStepTask_trackingMkFit = DetachedTripletStepTask.copy()
+_DetachedTripletStepTask_trackingMkFit.add(detachedTripletStepTrackCandidatesMkFitSeeds, detachedTripletStepTrackCandidatesMkFit)
+trackingMkFitDetachedTripletStep.toReplaceWith(DetachedTripletStepTask, _DetachedTripletStepTask_trackingMkFit)
+
 _DetachedTripletStepTask_LowPU = DetachedTripletStepTask.copyAndExclude([detachedTripletStepClassifier2])
 _DetachedTripletStepTask_LowPU.replace(detachedTripletStepClassifier1, detachedTripletStepSelector)
 trackingLowPU.toReplaceWith(DetachedTripletStepTask, _DetachedTripletStepTask_LowPU)

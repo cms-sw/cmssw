@@ -291,6 +291,25 @@ mixedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
     useHitsSplitting          = True,
     TrajectoryCleaner         = 'mixedTripletStepTrajectoryCleanerBySharedHits'
 )
+
+from Configuration.ProcessModifiers.trackingMkFitMixedTripletStep_cff import trackingMkFitMixedTripletStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+mixedTripletStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'mixedTripletStepSeeds',
+)
+mixedTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'mixedTripletStepTrackCandidatesMkFitSeeds',
+    iterationNumber = 6,
+    clustersToSkip = 'mixedTripletStepClusters',
+)
+trackingMkFitMixedTripletStep.toReplaceWith(mixedTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'mixedTripletStepSeeds',
+    mkfitSeeds = 'mixedTripletStepTrackCandidatesMkFitSeeds',
+    tracks = 'mixedTripletStepTrackCandidatesMkFit',
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(mixedTripletStepTrackCandidates,
                       FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -475,6 +494,11 @@ MixedTripletStepTask = cms.Task(chargeCut2069Clusters,mixedTripletStepClusters,
                                 mixedTripletStepClassifier1,mixedTripletStepClassifier2,
                                 mixedTripletStep)
 MixedTripletStep = cms.Sequence(MixedTripletStepTask)
+
+_MixedTripletStepTask_trackingMkFit = MixedTripletStepTask.copy()
+_MixedTripletStepTask_trackingMkFit.add(mixedTripletStepTrackCandidatesMkFitSeeds, mixedTripletStepTrackCandidatesMkFit)
+trackingMkFitMixedTripletStep.toReplaceWith(MixedTripletStepTask, _MixedTripletStepTask_trackingMkFit)
+
 _MixedTripletStepTask_LowPU = MixedTripletStepTask.copyAndExclude([chargeCut2069Clusters, mixedTripletStepClassifier1])
 _MixedTripletStepTask_LowPU.replace(mixedTripletStepClassifier2, mixedTripletStepSelector)
 trackingLowPU.toReplaceWith(MixedTripletStepTask, _MixedTripletStepTask_LowPU)

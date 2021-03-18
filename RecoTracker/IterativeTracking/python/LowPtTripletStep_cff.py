@@ -242,6 +242,24 @@ trackingPhase2PU140.toModify(lowPtTripletStepTrackCandidates,
     phase2clustersToSkip = cms.InputTag('lowPtTripletStepClusters')
 )
 
+from Configuration.ProcessModifiers.trackingMkFitLowPtTripletStep_cff import trackingMkFitLowPtTripletStep
+import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
+lowPtTripletStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+    seeds = 'lowPtTripletStepSeeds',
+)
+lowPtTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+    seeds = 'lowPtTripletStepTrackCandidatesMkFitSeeds',
+    iterationNumber = 3,
+    clustersToSkip = 'lowPtTripletStepClusters',
+)
+trackingMkFitLowPtTripletStep.toReplaceWith(lowPtTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+    seeds = 'lowPtTripletStepSeeds',
+    mkfitSeeds = 'lowPtTripletStepTrackCandidatesMkFitSeeds',
+    tracks = 'lowPtTripletStepTrackCandidatesMkFit',
+))
+
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(lowPtTripletStepTrackCandidates,
                       FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
@@ -378,6 +396,10 @@ LowPtTripletStepTask = cms.Task(lowPtTripletStepClusters,
                                 lowPtTripletStepTracks,
                                 lowPtTripletStep)
 LowPtTripletStep = cms.Sequence(LowPtTripletStepTask)
+
+_LowPtTripletStepTask_trackingMkFit = LowPtTripletStepTask.copy()
+_LowPtTripletStepTask_trackingMkFit.add(lowPtTripletStepTrackCandidatesMkFitSeeds, lowPtTripletStepTrackCandidatesMkFit)
+trackingMkFitLowPtTripletStep.toReplaceWith(LowPtTripletStepTask, _LowPtTripletStepTask_trackingMkFit)
 
 _LowPtTripletStepTask_LowPU_Phase2PU140 = LowPtTripletStepTask.copy()
 _LowPtTripletStepTask_LowPU_Phase2PU140.replace(lowPtTripletStep, lowPtTripletStepSelector)
