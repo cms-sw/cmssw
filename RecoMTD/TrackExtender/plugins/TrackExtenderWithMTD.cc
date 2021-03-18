@@ -995,17 +995,74 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     double thiterror = -1.;
     bool validmtd = false;
 
-    //need to better handle the cases with >1 hit in MTD
+    size_t ifirst(0), ihitcount(0), ietlcount(0);
     for (auto const& hit : trajWithMtd.measurements()) {
-      bool ismtd = hit.recHit()->geographicalId().det() == DetId::Forward &&
-                   ForwardSubdetector(hit.recHit()->geographicalId().subdetId()) == FastTime;
-      if (ismtd) {
-        const MTDTrackingRecHit* mtdhit = static_cast<const MTDTrackingRecHit*>(hit.recHit()->hit());
-        thit = mtdhit->time();
-        thiterror = mtdhit->timeError();
-        validmtd = true;
-        break;
+      if (hit.recHit()->geographicalId().det() == DetId::Forward &&
+          ForwardSubdetector(hit.recHit()->geographicalId().subdetId()) == FastTime) {
+        ihitcount++;
+        if (ihitcount == 1 && ifirst == 0) {
+          ifirst = ihitcount;
+        }
+        MTDDetId thisId = MTDDetId(hit.recHit()->geographicalId());
+        edm::LogWarning("TrackExtenderWithMTD") << "MTD hit #" << ihitcount << " sub/RR = " << thisId.mtdSubDetector()
+                                                << " " << thisId.mtdRR() << " First = " << ifirst;
+        if (MTDDetId(hit.recHit()->geographicalId()).mtdSubDetector() == 2) {
+          ietlcount++;
+        }
       }
+    }
+
+    if (ihitcount == 1) {
+      //if (ihitcount >= 1) {
+      auto ihit = trajWithMtd.measurements().cbegin() + ifirst - 1;
+      const MTDTrackingRecHit* mtdhit = static_cast<const MTDTrackingRecHit*>((*ihit).recHit()->hit());
+      thit = mtdhit->time();
+      thiterror = mtdhit->timeError();
+      validmtd = true;
+    } else if (ihitcount == 2 && ietlcount == 2) {
+      auto ihit1 = trajWithMtd.measurements().cbegin() + ifirst - 1;
+      const MTDTrackingRecHit* mtdhit1 = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
+      const MTDTrackingRecHit* mtdhit2 = static_cast<const MTDTrackingRecHit*>((*(ihit1 + 1)).recHit()->hit());
+      const auto& propresult =
+          thePropagator->propagateWithPath(ihit1->updatedState(), (ihit1 + 1)->updatedState().surface());
+      double etlpathlength = std::abs(propresult.second);
+      edm::LogWarning("TrackExtenderWithMTD")
+          << "Total path = " << pathlength << " ETL path = " << etlpathlength
+          << " hit1 z = " << mtdhit1->globalPosition().z() << " hit2 z = " << mtdhit2->globalPosition().z();
+      //
+      // The information of the two ETL hits is combined and attributed to the innermost hit
+      //
+      if (etlpathlength == 0.) {
+        validpropagation = false;
+      } else {
+        pathlength -= etlpathlength;
+        edm::LogWarning("TrackExtenderWithMTD") << "New total path = " << pathlength << " p = " << p.mag();
+        TrackTofPidInfo tofInfo =
+            computeTrackTofPidInfo(p.mag2(), etlpathlength, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true);
+        //
+        // Protect against incompatible times
+        //
+        if ((tofInfo.dt - mtdhit2->time()) * (tofInfo.dt - mtdhit2->time()) <
+            ((tofInfo.dt * tofInfo.dt) + (mtdhit2->timeError() * mtdhit2->timeError())) * etlTimeChi2Cut_) {
+          //
+          // Subtract the ETL time of flight from the outermost measurement, and combine it in a weighted average with the innermost
+          // the mass ambiguity related uncertainty on the time of flight is added as an additional uncertainty
+          //
+          thiterror = 1. / (tofInfo.dterror * tofInfo.dterror) + 1. / (mtdhit2->timeError() * mtdhit2->timeError());
+          thit = (tofInfo.dt / (tofInfo.dterror * tofInfo.dterror) +
+                  mtdhit2->time() / (mtdhit2->timeError() * mtdhit2->timeError())) /
+                 thiterror;
+          thiterror = 1. / std::sqrt(thiterror);
+          edm::LogWarning("TrackExtenderWithMTD")
+              << "ETL hits times/errors: " << mtdhit1->time() << " +/- " << mtdhit1->timeError() << " , "
+              << mtdhit2->time() << " +/- " << mtdhit2->timeError() << " extrapolated time1: " << tofInfo.dt << " +/- "
+              << tofInfo.dterror << " average = " << thit << " +/- " << thiterror;
+          validmtd = true;
+        }
+      }
+    } else {
+      edm::LogWarning("TrackExtenderWithMTD")
+          << "MTD hits #" << ihitcount << "ETL hits #" << ietlcount << " anomalous pattern, skipping...";
     }
 
     if (validmtd && validpropagation) {
