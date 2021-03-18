@@ -1012,15 +1012,13 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       }
     }
 
+    auto ihit1 = trajWithMtd.measurements().cbegin() + ifirst - 1;
     if (ihitcount == 1) {
-      //if (ihitcount >= 1) {
-      auto ihit = trajWithMtd.measurements().cbegin() + ifirst - 1;
-      const MTDTrackingRecHit* mtdhit = static_cast<const MTDTrackingRecHit*>((*ihit).recHit()->hit());
+      const MTDTrackingRecHit* mtdhit = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
       thit = mtdhit->time();
       thiterror = mtdhit->timeError();
       validmtd = true;
     } else if (ihitcount == 2 && ietlcount == 2) {
-      auto ihit1 = trajWithMtd.measurements().cbegin() + ifirst - 1;
       const MTDTrackingRecHit* mtdhit1 = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
       const MTDTrackingRecHit* mtdhit2 = static_cast<const MTDTrackingRecHit*>((*(ihit1 + 1)).recHit()->hit());
       const auto& propresult =
