@@ -17,6 +17,11 @@ MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm
       debug_(pset.getUntrackedParameter<bool>("debug")),
       chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
       tanPhiTh_(pset.getUntrackedParameter<double>("tanPhiTh")),
+      tanPhiThw2max_(pset.getUntrackedParameter<double>("tanPhiThw2max")),
+      tanPhiThw2min_(pset.getUntrackedParameter<double>("tanPhiThw2min")),
+      tanPhiThw1max_(pset.getUntrackedParameter<double>("tanPhiThw1max")),
+      tanPhiThw1min_(pset.getUntrackedParameter<double>("tanPhiThw1min")),
+      tanPhiThw0_(pset.getUntrackedParameter<double>("tanPhiThw0")),
       use_LSB_(pset.getUntrackedParameter<bool>("use_LSB")),
       tanPsi_precision_(pset.getUntrackedParameter<double>("tanPsi_precision")),
       x_precision_(pset.getUntrackedParameter<double>("x_precision")),
@@ -283,14 +288,18 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   // Obtain coordinate values in floating point
   double pos_f, slope_f, chi2_f;
   DTWireId wireId(MuonPathSLId, 2, 1);
-  pos_f = double(pos) + int(10 * shiftinfo_[wireId.rawId()] * std::pow(2, INCREASED_RES_POS)); // position in mm * precision in JM RF
+  pos_f = double(pos) + int( 10 * shiftinfo_[wireId.rawId()] * std::pow(2, INCREASED_RES_POS) ); // position in mm * precision in JM RF
   pos_f /=  (10 * pow(2, INCREASED_RES_POS)); // position in cm in JM RF 
   slope_f = - (double(slope) / std::pow(2, INCREASED_RES_SLOPE));
   chi2_f = double(chi2_mm2_p) / (16. * 64. * 100.);
   
-  // Impose the thresholds
-  if (std::abs(slope_f) > tanPhiTh_) return;
+
+   // Impose the thresholds
+  if (MuonPathSLId.superLayer() != 2)
+      if (std::abs(slope_f) > tanPhiTh_) return;
+  
   if (chi2_f > (chiSquareThreshold_)) return;
+  
 
   // Compute phi and phib
   // Implemented using cmssw geometry as of now, will implemented fw-like in the near future
@@ -336,14 +345,29 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   }
 
   if (MuonPathSLId.superLayer() == 2){
+      
+      // Impose the thresholds
+      if(std::abs(MuonPathSLId.wheel())==2)
+	  if (slope_f > tanPhiThw2max_ or slope_f < tanPhiThw2min_) return;
+
+      if(std::abs(MuonPathSLId.wheel())==1)
+	  if (slope_f > tanPhiThw1max_ or slope_f < tanPhiThw1min_) return;
+      
+      if(MuonPathSLId.wheel()==0)
+	  if (std::abs(slope_f) > tanPhiThw0_) return;
+
+
+
       DTLayerId SL2_layer2Id(MuonPathSLId,2);
       double z_shift=shiftthetainfo_[SL2_layer2Id.rawId()];     
       double jm_y = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? z_shift-pos_f : z_shift+pos_f;
       if(cmssw_for_global_){
-	  double x_shift=dtGeo_->layer(SL2_layer2Id)->specificTopology().wirePosition(1);
-	  jm_y=(dtGeo_->layer(SL2_layer2Id)->toGlobal(LocalPoint(pos_f + x_shift ,0.,-0.65))).z();
+	  LocalPoint wire1_in_layer(dtGeo_->layer(SL2_layer2Id)->specificTopology().wirePosition(1),0,-0.65);//slides without the 0.65
+	  GlobalPoint wire1_in_global=dtGeo_->layer(SL2_layer2Id)->toGlobal(wire1_in_layer);
+	  LocalPoint wire1_in_sl=dtGeo_->superLayer(MuonPathSLId)->toLocal(wire1_in_global);
+	  double x_shift=wire1_in_sl.x();
+	  jm_y=(dtGeo_->superLayer(MuonPathSLId)->toGlobal(LocalPoint(double(pos)/(10*pow(2,INCREASED_RES_POS))+x_shift ,0.,0))).z();
       }
-
       phi=jm_y;
       phiB=slope_f;
   }

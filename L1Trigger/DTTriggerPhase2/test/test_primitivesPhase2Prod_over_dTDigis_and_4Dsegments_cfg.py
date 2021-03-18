@@ -18,14 +18,16 @@ process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring('file:/tmp/carrillo/digis_segments_Run2016BSingleMuonRAW-RECO.root'))
 
+#test tunning
+#process.dtTriggerPhase2PrimitiveDigis.tanPhiTh = cms.untracked.double(1.4) #temporary for eta
+process.dtTriggerPhase2PrimitiveDigis.global_coords_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/run2_global_coord_perp_x_phi0.txt')#for run2 data
+process.dtTriggerPhase2PrimitiveDigis.cmssw_for_global = cms.untracked.bool(True) #forcing cmssw coordinates transformation
 
+#data scenario 1
 process.dtTriggerPhase2PrimitiveDigis.scenario = 1
 process.CalibratedDigis.scenario = 1
 
-#test tunning
-process.dtTriggerPhase2PrimitiveDigis.tanPhiTh = cms.untracked.double(1.4) #temporary for eta
-process.dtTriggerPhase2PrimitiveDigis.global_coords_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/run2_global_coord_perp_x_phi0.txt')#for run2 data
-process.dtTriggerPhase2PrimitiveDigis.cmssw_for_global = cms.untracked.bool(True) #forcing cmssw coordinates transformation
+
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring('keep *'),
@@ -39,7 +41,7 @@ process.this_is_the_end = cms.EndPath(process.out)
 ####################################################################
 
 
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+
 
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 #process.dtTriggerPhase2PrimitiveDigis.dump = False

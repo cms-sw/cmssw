@@ -112,6 +112,11 @@ private:
   double chi2Th_;
   double chi2corTh_;
   double tanPhiTh_;
+  double tanPhiThw2max_;
+  double tanPhiThw2min_;
+  double tanPhiThw1max_;
+  double tanPhiThw1min_;
+  double tanPhiThw0_;
   int cellLayout_[cmsdt::NUM_LAYERS];
   bool use_LSB_;
   double tanPsi_precision_;
