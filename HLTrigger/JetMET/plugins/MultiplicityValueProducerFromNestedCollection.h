@@ -60,8 +60,8 @@ template <class INP_TYPE, class OUT_TYPE>
 void MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src")->setComment("input collection");
-  desc.add<OUT_TYPE>("defaultValue")->setComment("default output value (used when input collection is unavailable)");
+  desc.add<edm::InputTag>("src", edm::InputTag(""))->setComment("input collection");
+  desc.add<OUT_TYPE>("defaultValue", 0)->setComment("default output value (used when input collection is unavailable)");
   descriptions.addWithDefaultLabel(desc);
 }
 
