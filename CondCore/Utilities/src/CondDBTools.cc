@@ -4,7 +4,6 @@
 //
 #include "CondCore/CondDB/src/DbCore.h"
 //
-#include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <boost/bind.hpp>
 #include <memory>
