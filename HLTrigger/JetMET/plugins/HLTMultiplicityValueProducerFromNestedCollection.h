@@ -1,5 +1,5 @@
-#ifndef HLTrigger_JetMET_plugins_MultiplicityValueProducerFromNestedCollection_h
-#define HLTrigger_JetMET_plugins_MultiplicityValueProducerFromNestedCollection_h
+#ifndef HLTrigger_JetMET_plugins_HLTMultiplicityValueProducerFromNestedCollection_h
+#define HLTrigger_JetMET_plugins_HLTMultiplicityValueProducerFromNestedCollection_h
 
 #include <memory>
 
@@ -12,10 +12,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 template <class INP_TYPE, class OUT_TYPE>
-class MultiplicityValueProducerFromNestedCollection : public edm::global::EDProducer<> {
+class HLTMultiplicityValueProducerFromNestedCollection : public edm::global::EDProducer<> {
 public:
-  explicit MultiplicityValueProducerFromNestedCollection(edm::ParameterSet const&);
-  ~MultiplicityValueProducerFromNestedCollection() override {}
+  explicit HLTMultiplicityValueProducerFromNestedCollection(edm::ParameterSet const&);
+  ~HLTMultiplicityValueProducerFromNestedCollection() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -27,7 +27,7 @@ protected:
 };
 
 template <class INP_TYPE, class OUT_TYPE>
-MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::MultiplicityValueProducerFromNestedCollection(
+HLTMultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::HLTMultiplicityValueProducerFromNestedCollection(
     edm::ParameterSet const& iConfig)
     : src_token_(consumes<INP_TYPE>(iConfig.getParameter<edm::InputTag>("src"))),
       defaultValue_(iConfig.getParameter<OUT_TYPE>("defaultValue")) {
@@ -35,9 +35,8 @@ MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::MultiplicityV
 }
 
 template <class INP_TYPE, class OUT_TYPE>
-void MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::produce(edm::StreamID,
-                                                                                edm::Event& iEvent,
-                                                                                edm::EventSetup const& iSetup) const {
+void HLTMultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::produce(
+    edm::StreamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
   auto const& objHandle(iEvent.getHandle(src_token_));
 
   if (objHandle.isValid()) {
@@ -57,7 +56,7 @@ void MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::produce(
 }
 
 template <class INP_TYPE, class OUT_TYPE>
-void MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::fillDescriptions(
+void HLTMultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag(""))->setComment("input collection");
@@ -65,4 +64,4 @@ void MultiplicityValueProducerFromNestedCollection<INP_TYPE, OUT_TYPE>::fillDesc
   descriptions.addWithDefaultLabel(desc);
 }
 
-#endif  // HLTrigger_JetMET_plugins_MultiplicityValueProducerFromNestedCollection_h
+#endif  // HLTrigger_JetMET_plugins_HLTMultiplicityValueProducerFromNestedCollection_h
