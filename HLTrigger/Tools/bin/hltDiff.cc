@@ -22,7 +22,6 @@
 #include <cmath>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
 
 #include <TFile.h>
 #include <TCanvas.h>
