@@ -616,9 +616,14 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     // by passing per crystal PF recHit thresholds and mult values.
     // mult values for EB and EE were obtained by dedicated studies.
     std::vector<float> full5x5_locCov =
-        (hits != nullptr
-	 ? noZS::EcalClusterTools::localCovariances(*(scRef->seed()), hits, topology, EgammaLocalCovParamDefaults::kRelEnCut, &thresholds, EgammaLocalCovParamDefaults::kMultThresEB, EgammaLocalCovParamDefaults::kMultThresEE)
-             : std::vector<float>({0.f, 0.f, 0.f}));
+        (hits != nullptr ? noZS::EcalClusterTools::localCovariances(*(scRef->seed()),
+                                                                    hits,
+                                                                    topology,
+                                                                    EgammaLocalCovParamDefaults::kRelEnCut,
+                                                                    &thresholds,
+                                                                    EgammaLocalCovParamDefaults::kMultThresEB,
+                                                                    EgammaLocalCovParamDefaults::kMultThresEE)
+                         : std::vector<float>({0.f, 0.f, 0.f}));
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);
     float full5x5_sigmaIetaIeta = sqrt(full5x5_locCov[0]);
