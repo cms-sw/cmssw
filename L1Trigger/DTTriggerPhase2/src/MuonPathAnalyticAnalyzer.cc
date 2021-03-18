@@ -11,9 +11,6 @@ using namespace cmsdt;
 MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm::ConsumesCollector &iC,   
   std::shared_ptr<GlobalCoordsObtainer> & globalcoordsobtainer)
     : MuonPathAnalyzer(pset, iC),
-      bxTolerance_(30),
-      minQuality_(LOWQGHOST),
-      chiSquareThreshold_(50),
       debug_(pset.getUntrackedParameter<bool>("debug")),
       chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
       tanPhiTh_(pset.getUntrackedParameter<double>("tanPhiTh")),
@@ -22,15 +19,11 @@ MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm
       tanPhiThw1max_(pset.getUntrackedParameter<double>("tanPhiThw1max")),
       tanPhiThw1min_(pset.getUntrackedParameter<double>("tanPhiThw1min")),
       tanPhiThw0_(pset.getUntrackedParameter<double>("tanPhiThw0")),
-      use_LSB_(pset.getUntrackedParameter<bool>("use_LSB")),
-      tanPsi_precision_(pset.getUntrackedParameter<double>("tanPsi_precision")),
-      x_precision_(pset.getUntrackedParameter<double>("x_precision")),
       cmssw_for_global_(pset.getUntrackedParameter<bool>("cmssw_for_global")),
       geometry_tag_(pset.getUntrackedParameter<std::string>("geometry_tag")){
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyzer: constructor";
 
-  setChiSquareThreshold(chi2Th_);
   fillLAYOUT_VALID_TO_LATCOMB_CONSTS_ENCODER();
 
   //shift phi
@@ -106,13 +99,6 @@ void MuonPathAnalyticAnalyzer::run(edm::Event &iEvent,
 void MuonPathAnalyticAnalyzer::finish() {
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyzer: finish";
-};
-
-constexpr int MuonPathAnalyticAnalyzer::LAYER_ARRANGEMENTS_[NUM_LAYERS][NUM_CELL_COMB] = {
-    {0, 1, 2},
-    {1, 2, 3},  // Consecutive groups
-    {0, 1, 3},
-    {0, 2, 3}  // Non-consecutive groups
 };
 
 //------------------------------------------------------------------
@@ -273,7 +259,7 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
     int drift_time = reduced_times[lay] - time;
     if (valid[lay] == 1 && (drift_time < 0 || drift_time > MAXDRIFT)) return;
 
-    int drift_dist = (( (drift_time * int(pow(2, 4)) + 9) * 445 ) >> 13);
+    int drift_dist = ((( (drift_time * INCREASED_RES_POS_POW) + DTDD_PREADD) * DTDD_MULT ) >> DTDD_SHIFTR_BITS);
     int xdist = xwire_mm[lay] * pow(2, 4) - (pos - coarse_pos) + lat_array[lay] * drift_dist;
     xdist -= (3 - 2 * (3 - lay)) * slope_xhh;
     int res = xdist;
@@ -284,24 +270,22 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
     chi2_mm2_p += res * res * 4;
   }
   
-  int quality = 3;
-  if (!is_four_hit) quality = 1;
+  int quality = HIGHQ;
+  if (!is_four_hit) quality = LOWQ;
   
   // Obtain coordinate values in floating point
   double pos_f, slope_f, chi2_f;
   DTWireId wireId(MuonPathSLId, 2, 1);
-  pos_f = double(pos) + int( 10 * shiftinfo_[wireId.rawId()] * std::pow(2, INCREASED_RES_POS) ); // position in mm * precision in JM RF
-  pos_f /=  (10 * pow(2, INCREASED_RES_POS)); // position in cm in JM RF 
-  slope_f = - (double(slope) / std::pow(2, INCREASED_RES_SLOPE));
+
+  pos_f = double(pos) + int(10 * shiftinfo_[wireId.rawId()] * INCREASED_RES_POS_POW); // position in mm * precision in JM RF
+  pos_f /=  (10. * INCREASED_RES_POS_POW); // position in cm w.r.t center of the chamber
+  slope_f = - (double(slope) / INCREASED_RES_SLOPE_POW);
   chi2_f = double(chi2_mm2_p) / (16. * 64. * 100.);
   
-
-   // Impose the thresholds
+  // Impose the thresholds
   if (MuonPathSLId.superLayer() != 2)
-      if (std::abs(slope_f) > tanPhiTh_) return;
-  
-  if (chi2_f > (chiSquareThreshold_)) return;
-  
+    if (std::abs(slope_f) > tanPhiTh_) return;
+  if (chi2_f > (chi2Th_)) return;
 
   // Compute phi and phib
   // Implemented using cmssw geometry as of now, will implemented fw-like in the near future

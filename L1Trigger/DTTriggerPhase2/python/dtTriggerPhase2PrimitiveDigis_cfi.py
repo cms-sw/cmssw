@@ -23,13 +23,10 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                dTanPsi_correlate_TP = cms.untracked.double(99999.),
                                                clean_chi2_correlation = cms.untracked.bool(True),
                                                allow_confirmation = cms.untracked.bool(True),
-                                               use_LSB = cms.untracked.bool(True),
-                                               tanPsi_precision = cms.untracked.double(1./4096.),
-                                               x_precision = cms.untracked.double(1./160.),
                                                minx_match_2digis = cms.untracked.double(1.),
                                                scenario = cms.int32(0), #0 for mc, 1 for data, 2 for slice test
                                                filter_cousins = cms.untracked.bool(True),
-                                               
+
                                                ttrig_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_ttrig.txt'),
                                                z_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_z.txt'),
                                                shift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_x.txt'),
@@ -47,7 +44,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                file_to_print = cms.untracked.string("debug.txt"),
                                                print_digis = cms.untracked.bool(False),
                                                digi_file_to_print = cms.untracked.string("digis_debug.txt"),
-                                               
+
                                                #RPC
                                                rpcRecHits = cms.InputTag("rpcRecHits"),
                                                useRPC = cms.bool(False),
@@ -58,8 +55,6 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                activateBuffer  = cms.bool(False),
                                                superCelltimewidth = cms.double(400), # in nanoseconds
                                                superCellspacewidth = cms.int32(20), # in number of cells: IT MUST BE AN EVEN NUMBER
-
-
                                                )
 
 dtTriggerPhase2PrimitiveDigis.HoughGrouping      = HoughGrouping

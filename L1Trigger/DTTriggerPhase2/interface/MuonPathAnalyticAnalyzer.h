@@ -60,16 +60,6 @@ public:
   void finish() override;
 
   // Other public methods
-  void setBXTolerance(int t) { bxTolerance_ = t; };
-  int bxTolerance(void) { return bxTolerance_; };
-
-  void setChiSquareThreshold(float ch2Thr) { chiSquareThreshold_ = ch2Thr; };
-
-  void setMinQuality(cmsdt::MP_QUALITY q) {
-    if (minQuality_ >= cmsdt::LOWQGHOST)
-      minQuality_ = q;
-  };
-  cmsdt::MP_QUALITY minQuality(void) { return minQuality_; };
 
   bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); };
 
@@ -99,18 +89,8 @@ private:
 
   // Private attributes
 
-  static const int LAYER_ARRANGEMENTS_[cmsdt::NUM_LAYERS][cmsdt::NUM_CELL_COMB];
-  cmsdt::LATERAL_CASES lateralities_[cmsdt::NUM_LATERALITIES][cmsdt::NUM_LAYERS];
-  cmsdt::LATQ_TYPE latQuality_[cmsdt::NUM_LATERALITIES];
-
-  int totalNumValLateralities_;
-
-  int bxTolerance_;
-  cmsdt::MP_QUALITY minQuality_;
-  float chiSquareThreshold_;
   bool debug_;
   double chi2Th_;
-  double chi2corTh_;
   double tanPhiTh_;
   double tanPhiThw2max_;
   double tanPhiThw2min_;
@@ -118,9 +98,6 @@ private:
   double tanPhiThw1min_;
   double tanPhiThw0_;
   int cellLayout_[cmsdt::NUM_LAYERS];
-  bool use_LSB_;
-  double tanPsi_precision_;
-  double x_precision_;
   bool cmssw_for_global_;
   std::string geometry_tag_;
   std::vector <CELL_VALID_LAYOUT_CONSTANTS> LAYOUT_VALID_TO_LATCOMB_CONSTS_ENCODER;
