@@ -1043,7 +1043,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
         // Protect against incompatible times
         //
         if ((tofInfo.dt - mtdhit2->time()) * (tofInfo.dt - mtdhit2->time()) <
-            ((tofInfo.dt * tofInfo.dt) + (mtdhit2->timeError() * mtdhit2->timeError())) * etlTimeChi2Cut_) {
+            ((tofInfo.dterror * tofInfo.dterror) + (mtdhit2->timeError() * mtdhit2->timeError())) * etlTimeChi2Cut_) {
           //
           // Subtract the ETL time of flight from the outermost measurement, and combine it in a weighted average with the innermost
           // the mass ambiguity related uncertainty on the time of flight is added as an additional uncertainty
