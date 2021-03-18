@@ -40,7 +40,7 @@ autoCond = {
     # GlobalTag for Run3 data relvals (express GT)
     'run3_data_express'        :   '112X_dataRun3_Express_v4',
     # GlobalTag for Run3 data relvals
-    'run3_data_promptlike'     :   '112X_dataRun3_Prompt_v4',
+    'run3_data_prompt'         :   '112X_dataRun3_Prompt_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'       :  '113X_mc2017_design_v4',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector

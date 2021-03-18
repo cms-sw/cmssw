@@ -22,7 +22,7 @@ options.parseArguments()
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data_promptlike', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data_prompt', '')
 #process.GlobalTag.DumpStat = cms.untracked.bool(True)  # optional if you want it to be verbose
 
 # import of standard configurations
