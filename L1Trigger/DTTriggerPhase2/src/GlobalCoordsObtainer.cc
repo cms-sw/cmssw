@@ -172,14 +172,14 @@ std::vector<double> GlobalCoordsObtainer::get_global_coordinates(uint32_t chid, 
   // Depending on the type of primitive (SL1, SL3 or correlated), choose the
   // appropriate input data (x, tanpsi) from the input primitive data structure
   // and the corresponding phi-lut from the 3 available options
-  auto phi_lut = luts[chid].phic;
+  auto phi_lut = &luts[chid].phic;
   if (sl == 1) {
-    phi_lut = luts[chid].phi1;
+    phi_lut = &luts[chid].phi1;
   } else if (sl == 3) {
-    phi_lut = luts[chid].phi3;
+    phi_lut = &luts[chid].phi3;
   }
 
-  auto phib_lut = luts[chid].phib;
+  auto phib_lut = &luts[chid].phib;
 
   // x and slope are given in two's complement in fw
   x = to_two_comp(x, X_SIZE);
@@ -192,16 +192,16 @@ std::vector<double> GlobalCoordsObtainer::get_global_coordinates(uint32_t chid, 
   // The MSB part is going to be used to index the luts and obtain a and b parameters
   // Converting the upper part of the signed to an integer (with sign). 
 
-  int x_msb = x >> (X_SIZE-PHI_LUT_ADDR_WIDTH);
+  int x_msb = x >> (X_SIZE - PHI_LUT_ADDR_WIDTH);
   x_msb = from_two_comp(x_msb, PHI_LUT_ADDR_WIDTH);
 
-  int tanpsi_msb = tanpsi >> (TANPSI_SIZE-PHIB_LUT_ADDR_WIDTH);
+  int tanpsi_msb = tanpsi >> (TANPSI_SIZE - PHIB_LUT_ADDR_WIDTH);
   tanpsi_msb = from_two_comp(tanpsi_msb, PHIB_LUT_ADDR_WIDTH);
 
-  x_msb = x >> (X_SIZE-PHI_LUT_ADDR_WIDTH);
+  x_msb = x >> (X_SIZE - PHI_LUT_ADDR_WIDTH);
   x_msb = from_two_comp(x_msb, PHI_LUT_ADDR_WIDTH);
 
-  tanpsi_msb = tanpsi >> (TANPSI_SIZE-PHIB_LUT_ADDR_WIDTH);
+  tanpsi_msb = tanpsi >> (TANPSI_SIZE - PHIB_LUT_ADDR_WIDTH);
   tanpsi_msb = from_two_comp(tanpsi_msb, PHIB_LUT_ADDR_WIDTH);
   
   // The LSB part can be sliced right away because it must yield a positive integer
@@ -209,8 +209,8 @@ std::vector<double> GlobalCoordsObtainer::get_global_coordinates(uint32_t chid, 
   int tanpsi_lsb = tanpsi & (int) (std::pow(2, (TANPSI_SIZE - PHIB_LUT_ADDR_WIDTH)) - 1);
 
   // Index the luts wiht the MSB parts already calculated
-  auto phi_lut_q = phi_lut[to_two_comp(x_msb, PHI_LUT_ADDR_WIDTH)];
-  auto phib_lut_q = phib_lut[to_two_comp(tanpsi_msb, PHIB_LUT_ADDR_WIDTH)];
+  auto phi_lut_q = phi_lut->at(to_two_comp(x_msb, PHI_LUT_ADDR_WIDTH));
+  auto phib_lut_q = phib_lut->at(to_two_comp(tanpsi_msb, PHIB_LUT_ADDR_WIDTH));
   
   // Separate this data into the coefficients a and b
   auto phi_lut_a = phi_lut_q.a;

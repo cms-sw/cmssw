@@ -122,8 +122,10 @@ private:
   bool print_prims_;
   std::string file_to_print_;
   bool print_digis_;
-  bool cmssw_for_global_;
   std::string digi_file_to_print_;
+  bool cmssw_for_global_;
+  std::string geometry_tag_;
+  
 
   // shift
   edm::FileInPath shift_filename_;
@@ -207,6 +209,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   print_digis_ = pset.getUntrackedParameter<bool>("print_digis", true);
   digi_file_to_print_ = pset.getUntrackedParameter<std::string>("digi_file_to_print", "digis.txt");
   cmssw_for_global_ = pset.getUntrackedParameter<bool>("cmssw_for_global", true);
+  geometry_tag_ = pset.getUntrackedParameter<std::string>("geometry_tag", "");
 
   edm::ConsumesCollector consumesColl(consumesCollector());
   globalcoordsobtainer_ = std::make_shared<GlobalCoordsObtainer>(pset);
@@ -265,11 +268,9 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   mpathredundantfilter_->initialise(iEventSetup);  // Filter object initialisation
   mpathassociator_->initialise(iEventSetup);       // Associator object initialisation
 
-  //edm::ESHandle<DTGeometry> geom;
-  //iEventSetup.get<MuonGeometryRecord>().get("idealForDigi", geom);
-  //dtGeo_ = &(*geom);
-  const MuonGeometryRecord& geom = iEventSetup.get<MuonGeometryRecord>();
-  dtGeo_ = &geom.get(dtGeomH);
+  edm::ESHandle<DTGeometry> geom;
+  iEventSetup.get<MuonGeometryRecord>().get(geometry_tag_, geom);
+  dtGeo_ = &(*geom);
 }
 
 void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {

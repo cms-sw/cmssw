@@ -25,7 +25,8 @@ MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset, edm
       use_LSB_(pset.getUntrackedParameter<bool>("use_LSB")),
       tanPsi_precision_(pset.getUntrackedParameter<double>("tanPsi_precision")),
       x_precision_(pset.getUntrackedParameter<double>("x_precision")),
-      cmssw_for_global_(pset.getUntrackedParameter<bool>("cmssw_for_global")) {
+      cmssw_for_global_(pset.getUntrackedParameter<bool>("cmssw_for_global")),
+      geometry_tag_(pset.getUntrackedParameter<std::string>("geometry_tag")){
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyzer: constructor";
 
@@ -84,8 +85,9 @@ void MuonPathAnalyticAnalyzer::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyticAnalyzer::initialiase";
 
-  const MuonGeometryRecord &geom = iEventSetup.get<MuonGeometryRecord>();
-  dtGeo_ = &geom.get(dtGeomH);
+  edm::ESHandle<DTGeometry> geom;
+  iEventSetup.get<MuonGeometryRecord>().get(geometry_tag_, geom);
+  dtGeo_ = &(*geom);
 }
 
 void MuonPathAnalyticAnalyzer::run(edm::Event &iEvent,
@@ -306,7 +308,7 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   DTChamberId ChId(MuonPathSLId.wheel(), MuonPathSLId.station(), MuonPathSLId.sector());
   double phi = -999.;
   double phiB = -999.;
-  if (cmssw_for_global_) {
+  if (cmssw_for_global_ && MuonPathSLId.superLayer() != 2) {
     double z = 0;
     double z1 = Z_POS_SL;
     double z3 = -1. * z1;
@@ -328,10 +330,18 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
     phi = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
     double psi = atan(slope_f);
     phiB = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? psi - phi : -psi - phi;
-  } else {
+    
+  } else if (MuonPathSLId.superLayer() != 2) {
     auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), MuonPathSLId.superLayer(), pos, slope);
     phi = global_coords[0];
     phiB = global_coords[1];
+    
+  } else {
+    DTLayerId SL2_layer2Id(MuonPathSLId, 2);
+    double z_shift = shiftthetainfo_[SL2_layer2Id.rawId()];     
+    double jm_y = hasPosRF(MuonPathSLId.wheel(), MuonPathSLId.sector()) ? z_shift - pos_f : z_shift + pos_f;
+    phi = jm_y;
+    phiB = slope_f;//
   }
 
 
@@ -345,17 +355,19 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
   }
 
   if (MuonPathSLId.superLayer() == 2){
-      
-      // Impose the thresholds
-      if(std::abs(MuonPathSLId.wheel())==2)
-	  if (slope_f > tanPhiThw2max_ or slope_f < tanPhiThw2min_) return;
+    
+  // Impose the thresholds
+    if(std::abs(MuonPathSLId.wheel())==2){
+	    if (slope_f > tanPhiThw2max_ or slope_f < tanPhiThw2min_) return;
+    }
 
-      if(std::abs(MuonPathSLId.wheel())==1)
-	  if (slope_f > tanPhiThw1max_ or slope_f < tanPhiThw1min_) return;
-      
-      if(MuonPathSLId.wheel()==0)
-	  if (std::abs(slope_f) > tanPhiThw0_) return;
-
+    if(std::abs(MuonPathSLId.wheel())==1){
+	     if (slope_f > tanPhiThw1max_ or slope_f < tanPhiThw1min_) return;
+    }
+    
+    if(MuonPathSLId.wheel()==0){
+	     if (std::abs(slope_f) > tanPhiThw0_) return;
+    }
 
 
       DTLayerId SL2_layer2Id(MuonPathSLId,2);
@@ -370,6 +382,9 @@ void MuonPathAnalyticAnalyzer::segment_fitter(DTSuperLayerId MuonPathSLId, int w
       }
       phi=jm_y;
       phiB=slope_f;
+
+
+
   }
 
   metaPrimitives.emplace_back(metaPrimitive({MuonPathSLId.rawId(),
