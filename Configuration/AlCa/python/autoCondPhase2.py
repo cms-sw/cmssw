@@ -61,14 +61,12 @@ allTags["SimLA"] = {
     'T26' : ( ','.join( [ 'SiPixelSimLorentzAngle_phase2_T25_v0_mc' ,SiPixelSimLARecord,connectionString, "", "2021-03-16 20:00:00.000"] ), ), #uH = 0.053/T (TBPX L2,L3,L4), uH=0.0/T (TBPX L1 TEPX+TFPX)
 }
 
-
 allTags["GenError"] = {
     'T15' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_IT_v6.1.5_25x100_v3_mc',SiPixelGenErrorRecord,connectionString, "", "2021-01-27 10:00:00"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
     'T21' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_IT_v6.1.5_25x100_v3_mc',SiPixelGenErrorRecord,connectionString, "", "2021-01-27 10:00:00"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
     'T22' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_IT_v6.1.5_50x50_v5_mc' ,SiPixelGenErrorRecord,connectionString, "", "2021-01-27 10:00:00"] ), ),  # cell is 50um (local-x) x 50um (local-y) , VBias=350V
     'T25' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_IT_v7.0.2_25x100_v1_mc' ,SiPixelGenErrorRecord,connectionString, "", "2021-03-17 20:00:00"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V, 3D pixels in TBPX L1
     'T26' : ( ','.join( [ 'SiPixelGenErrorDBObject_phase2_IT_v7.0.3_mixed_v1_mc' ,SiPixelGenErrorRecord,connectionString, "", "2021-03-17 20:00:00"] ), ),  # TBPX cells are 25um (local-x) x 100um (local-y), TFPX TEPX 50 um x 50 um , VBias=350V, 3D pixels in TBPX L1
-
 }
 
 allTags["Template"] = {
