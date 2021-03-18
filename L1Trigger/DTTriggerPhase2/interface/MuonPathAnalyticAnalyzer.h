@@ -92,6 +92,11 @@ private:
   bool debug_;
   double chi2Th_;
   double tanPhiTh_;
+  double tanPhiThw2max_;
+  double tanPhiThw2min_;
+  double tanPhiThw1max_;
+  double tanPhiThw1min_;
+  double tanPhiThw0_;
   int cellLayout_[cmsdt::NUM_LAYERS];
   bool cmssw_for_global_;
   std::string geometry_tag_;
