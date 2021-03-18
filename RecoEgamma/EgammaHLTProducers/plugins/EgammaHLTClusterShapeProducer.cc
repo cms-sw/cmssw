@@ -24,6 +24,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 
 class EgammaHLTClusterShapeProducer : public edm::global::EDProducer<> {
 public:
@@ -108,7 +109,7 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
 
     double sigmaee5x5 = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()))[0]);
     double sigmaee5x5NoiseCleaned =
-        sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()), 4.7, &thresholds, 1.0, 1.25)[0]);
+      sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()), EgammaLocalCovParamDefaults::kRelEnCut, &thresholds, EgammaLocalCovParamDefaults::kMultThresEB, EgammaLocalCovParamDefaults::kMultThresEE)[0]);
     clshMap.insert(recoecalcandref, sigmaee);
     clsh5x5Map.insert(recoecalcandref, sigmaee5x5);
     clsh5x5NoiseCleanedMap.insert(recoecalcandref, sigmaee5x5NoiseCleaned);

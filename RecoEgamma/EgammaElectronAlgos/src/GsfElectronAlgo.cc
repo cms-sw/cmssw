@@ -25,6 +25,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ecalClusterEnergyUncertaintyElectronSpecific.h"
 #include "CommonTools/Egamma/interface/ConversionTools.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 
 #include <Math/Point3D.h>
 #include <memory>
@@ -320,7 +321,7 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
   // do noise-cleaning for full5x5, by passing per crystal PF recHit thresholds and mult values
   // mult values for EB and EE were obtained by dedicated studies
   std::vector<float> localCovariances =
-      full5x5 ? ClusterTools::localCovariances(seedCluster, recHits, &topology, 4.7, &thresholds, 1.0, 1.25)
+    full5x5 ? ClusterTools::localCovariances(seedCluster, recHits, &topology, EgammaLocalCovParamDefaults::kRelEnCut, &thresholds, EgammaLocalCovParamDefaults::kMultThresEB, EgammaLocalCovParamDefaults::kMultThresEE)
               : ClusterTools::localCovariances(seedCluster, recHits, &topology);
 
   showerShape.sigmaEtaEta = sqrt(covariances[0]);

@@ -35,7 +35,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
-
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 #include <optional>
 
 class CaloTopology;
@@ -282,7 +282,7 @@ public:
   // could be a bug in the covIPhiIEta or covIPhiIPhi calculations. I dont
   // think there is but as it hasnt been heavily used, there might be one
   std::vector<float> localCovariances(const reco::BasicCluster &cluster,
-                                      float w0 = 4.7,
+                                      float w0 = EgammaLocalCovParamDefaults::kRelEnCut,
                                       const EcalPFRecHitThresholds *rhthresholds = nullptr,
                                       float multEB = 0.0,
                                       float multEE = 0.0) const {
