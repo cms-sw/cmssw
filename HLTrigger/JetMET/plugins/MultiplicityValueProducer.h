@@ -64,9 +64,9 @@ void MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::produce(edm::StreamID,
 template <class INP_TYPE, class OUT_TYPE>
 void MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src")->setComment("input collection");
+  desc.add<edm::InputTag>("src", edm::InputTag(""))->setComment("input collection");
   desc.add<std::string>("cut", "")->setComment("string for StringCutObjectSelector");
-  desc.add<OUT_TYPE>("defaultValue")->setComment("default output value (used when input collection is unavailable)");
+  desc.add<OUT_TYPE>("defaultValue", 0)->setComment("default output value (used when input collection is unavailable)");
   descriptions.addWithDefaultLabel(desc);
 }
 
