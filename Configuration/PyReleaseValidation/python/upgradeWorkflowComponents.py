@@ -969,6 +969,54 @@ upgradeWFs['PMXS1S2PR'] = UpgradeWorkflowAdjustPU(
     offset = 0.999,
 )
 
+class UpgradeWorkflowPremixProdLike(UpgradeWorkflowPremix,UpgradeWorkflow_ProdLike):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # copy steps, then apply specializations
+        UpgradeWorkflowPremix.setup_(self, step, stepName, stepDict, k, properties)
+        UpgradeWorkflow_ProdLike.setup_(self, step, stepName, stepDict, k, properties)
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # use both conditions
+        return UpgradeWorkflowPremix.condition(self, fragment, stepList, key, hasHarvest) and UpgradeWorkflow_ProdLike.condition(self, fragment, stepList, key, hasHarvest)
+# premix stage2
+upgradeWFs['PMXS2ProdLike'] = UpgradeWorkflowPremixProdLike(
+    steps = [],
+    PU = [
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
+        'Nano',
+        'HARVEST',
+        'HARVESTGlobal',
+        'MiniAOD',
+        'ALCA',
+    ],
+    suffix = '_PMXS2ProdLike',
+    offset = 0.9821,
+)
+# premix combined stage1+stage2
+upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
+    steps = [],
+    PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoGlobal',
+        'Nano',
+        'HARVEST',
+        'HARVESTGlobal',
+        'MiniAOD',
+        'ALCA',
+    ],
+    suffix = '_PMXS1S2ProdLike',
+    offset = 0.9921,
+)
+
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
@@ -978,8 +1026,7 @@ class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
             dd4hepGeom+=stepDict[step][k]['--geometry']
             stepDict[stepName][k] = merge([{'--geometry' : dd4hepGeom, '--procModifiers': 'dd4hep'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ((fragment=='TTbar_14TeV' or fragment=='ZMM_14' or fragment=='SingleMuPt10') and '2021' in key) \
-            or ((fragment=='TTbar_14TeV' or fragment=='ZMM_14' or fragment=='SingleMuPt10') and '2026' in key)
+        return '2021' in key or '2026' in key
 upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     steps = [
         'GenSim',
@@ -1193,7 +1240,7 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D72',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11_etlV4',
+        'Era' : 'Phase2C11I13',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D74' : {
@@ -1207,21 +1254,21 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D75',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11',
+        'Era' : 'Phase2C11I13',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D76' : {
         'Geom' : 'Extended2026D76',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11M9',
+        'Era' : 'Phase2C11I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D77' : {
         'Geom' : 'Extended2026D77',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11M9',
+        'Era' : 'Phase2C11I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D78' : {
@@ -1229,7 +1276,7 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T22',
         'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
-        'Era' : 'Phase2C11T22M9', # customized for square pixels and Muon M9
+        'Era' : 'Phase2C11I13T22M9', # customized for square pixels and Muon M9
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D79' : {
@@ -1237,7 +1284,7 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T23',
         'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
-        'Era' : 'Phase2C11T23M9', # customizes for 3D Pixels and Muon M9
+        'Era' : 'Phase2C11I13T23M9', # customizes for 3D Pixels and Muon M9
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D80' : {

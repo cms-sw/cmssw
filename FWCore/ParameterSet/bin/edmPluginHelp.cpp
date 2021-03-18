@@ -23,7 +23,6 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
-#include <boost/filesystem/path.hpp>
 #include <boost/program_options.hpp>
 
 #include <vector>

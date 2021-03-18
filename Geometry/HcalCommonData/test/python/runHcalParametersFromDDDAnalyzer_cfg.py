@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("HcalParametersTest")
+from Configuration.Eras.Era_Run3_cff import Run3
 
-process.load('Geometry.HcalCommonData.testPhase2GeometryFineXML_cfi')
-process.load('Geometry.HcalCommonData.hcalParameters_cff')
-process.load('Geometry.HcalCommonData.hcalSimulationParameters_cff')
+process = cms.Process("HcalParametersTest",Run3)
+
+process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.source = cms.Source("EmptySource")

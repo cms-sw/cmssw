@@ -104,6 +104,13 @@ void HGCalGeometry::newCell(
   } else if (m_topology.tileTrapezoid()) {
     DetId idc = m_topology.encode(id);
     if (m_topology.valid(idc)) {
+      HGCScintillatorDetId hid(idc);
+      std::pair<int, int> typm = m_topology.dddConstants().tileType(hid.layer(), hid.ring(), 0);
+      if (typm.first >= 0) {
+        hid.setType(typm.first);
+        hid.setSiPM(typm.second);
+        idc = static_cast<DetId>(hid);
+      }
       m_validIds.emplace_back(idc);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Valid Id [0] " << HGCScintillatorDetId(idc);

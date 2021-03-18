@@ -1930,42 +1930,44 @@ namespace edm {
 
         auto serviceToken = ServiceRegistry::instance().presentToken();
 
-        chain.push([holder = std::move(taskHolder),
-                    pWriteTo,
-                    iThis,
-                    transitionIndex,
-                    iContext,
-                    pre,
-                    post,
-                    serviceToken]() mutable {
-          if (nullptr == pWriteTo->load()) {
-            ServiceRegistry::Operate operate(serviceToken);
-            std::unique_ptr<const std::set<ProductProvenance>> prov;
-            try {
-              if (pre) {
-                pre->emit(*(iContext->getStreamContext()), *iContext);
-              }
-              prov = std::make_unique<const std::set<ProductProvenance>>(iThis->readProvenance(transitionIndex));
-              if (post) {
-                post->emit(*(iContext->getStreamContext()), *iContext);
-              }
+        chain.push(
+            *taskHolder.group(),
+            [holder = std::move(taskHolder),
+             pWriteTo,
+             iThis,
+             transitionIndex,
+             iContext,
+             pre,
+             post,
+             serviceToken]() mutable {
+              if (nullptr == pWriteTo->load()) {
+                ServiceRegistry::Operate operate(serviceToken);
+                std::unique_ptr<const std::set<ProductProvenance>> prov;
+                try {
+                  if (pre) {
+                    pre->emit(*(iContext->getStreamContext()), *iContext);
+                  }
+                  prov = std::make_unique<const std::set<ProductProvenance>>(iThis->readProvenance(transitionIndex));
+                  if (post) {
+                    post->emit(*(iContext->getStreamContext()), *iContext);
+                  }
 
-            } catch (...) {
-              if (post) {
-                post->emit(*(iContext->getStreamContext()), *iContext);
+                } catch (...) {
+                  if (post) {
+                    post->emit(*(iContext->getStreamContext()), *iContext);
+                  }
+
+                  holder.doneWaiting(std::current_exception());
+                  return;
+                }
+                const std::set<ProductProvenance>* expected = nullptr;
+
+                if (pWriteTo->compare_exchange_strong(expected, prov.get())) {
+                  prov.release();
+                }
               }
-
-              holder.doneWaiting(std::current_exception());
-              return;
-            }
-            const std::set<ProductProvenance>* expected = nullptr;
-
-            if (pWriteTo->compare_exchange_strong(expected, prov.get())) {
-              prov.release();
-            }
-          }
-          holder.doneWaiting(std::exception_ptr());
-        });
+              holder.doneWaiting(std::exception_ptr());
+            });
       }
     }
   }  // namespace

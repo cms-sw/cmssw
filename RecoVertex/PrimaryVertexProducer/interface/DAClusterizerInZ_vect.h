@@ -11,6 +11,7 @@
 
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 #include "DataFormats/Math/interface/Error.h"
@@ -19,6 +20,8 @@
 
 class DAClusterizerInZ_vect final : public TrackClusterizerInZ {
 public:
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
+
   // internal data structure for tracks
   struct track_t {
     std::vector<double> zpca_vec;                  // z-coordinate at point of closest approach to the beamline
@@ -28,6 +31,8 @@ public:
     std::vector<unsigned int> kmin;                // index of the first cluster within zrange
     std::vector<unsigned int> kmax;                // 1 + index of the last cluster within zrange
     std::vector<const reco::TransientTrack *> tt;  // a pointer to the Transient Track
+
+    double osumtkwt;  // 1. / (sum of all track weights)
 
     void addItemSorted(double new_zpca, double new_dz2, const reco::TransientTrack *new_tt, double new_tkwt) {
       // sort tracks with decreasing resolution (note that dz2 = 1/sigma^2)
@@ -206,6 +211,7 @@ private:
 
   double mintrkweight_;
   double uniquetrkweight_;
+  double uniquetrkminp_;
   double zmerge_;
   double betapurge_;
 

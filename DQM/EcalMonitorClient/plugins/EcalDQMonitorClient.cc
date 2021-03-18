@@ -35,11 +35,13 @@ EcalDQMonitorClient::EcalDQMonitorClient(edm::ParameterSet const& _ps)
       },
       "initialization");
 
-  if (_ps.existsAs<edm::FileInPath>("PNMaskFile", false)) {
-    std::ifstream maskFile(_ps.getUntrackedParameter<edm::FileInPath>("PNMaskFile").fullPath());
-    if (maskFile.is_open())
-      statusManager_.readFromStream(maskFile);
-  }
+  // This is no longer used since run 2
+  //
+  //if (_ps.existsAs<edm::FileInPath>("PNMaskFile", false)) {
+  //  std::ifstream maskFile(_ps.getUntrackedParameter<edm::FileInPath>("PNMaskFile").fullPath());
+  //  if (maskFile.is_open())
+  //    statusManager_.readFromStream(maskFile);
+  //}
 }
 
 EcalDQMonitorClient::~EcalDQMonitorClient() {}
@@ -62,7 +64,9 @@ void EcalDQMonitorClient::fillDescriptions(edm::ConfigurationDescriptions& _desc
 }
 
 void EcalDQMonitorClient::beginRun(edm::Run const& _run, edm::EventSetup const& _es) {
-  ecaldqmGetSetupObjects(_es);
+  executeOnWorkers_([&_es](ecaldqm::DQWorker* worker) { worker->setSetupObjects(_es); },
+                    "ecaldqmGetSetupObjects",
+                    "Getting EventSetup Objects");
 
   if (_es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMChannelStatusRcd>()) &&
       _es.find(edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMTowerStatusRcd>())) {

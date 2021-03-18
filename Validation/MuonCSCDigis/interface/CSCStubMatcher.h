@@ -124,6 +124,7 @@ private:
   std::set<unsigned int> selectDetIds(D&, int) const;
 
   bool addGhostLCTs_;
+  bool useGEMs_;
 
   int minNHitsChamber_;
   int minNHitsChamberALCT_;

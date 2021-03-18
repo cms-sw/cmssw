@@ -5,6 +5,8 @@
 using namespace std;
 
 CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesCollector&& iC) {
+  useGEMs_ = pSet.getParameter<bool>("useGEMs");
+
   const auto& cscCLCT = pSet.getParameter<edm::ParameterSet>("cscCLCT");
   minBXCLCT_ = cscCLCT.getParameter<int>("minBX");
   maxBXCLCT_ = cscCLCT.getParameter<int>("maxBX");
@@ -30,7 +32,8 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
   verboseMPLCT_ = cscMPLCT.getParameter<int>("verbose");
   minNHitsChamberMPLCT_ = cscMPLCT.getParameter<int>("minNHitsChamber");
 
-  gemDigiMatcher_.reset(new GEMDigiMatcher(pSet, std::move(iC)));
+  if (useGEMs_)
+    gemDigiMatcher_.reset(new GEMDigiMatcher(pSet, std::move(iC)));
   cscDigiMatcher_.reset(new CSCDigiMatcher(pSet, std::move(iC)));
 
   clctToken_ = iC.consumes<CSCCLCTDigiCollection>(cscCLCT.getParameter<edm::InputTag>("inputTag"));
@@ -42,7 +45,8 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
 }
 
 void CSCStubMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  gemDigiMatcher_->init(iEvent, iSetup);
+  if (useGEMs_)
+    gemDigiMatcher_->init(iEvent, iSetup);
   cscDigiMatcher_->init(iEvent, iSetup);
 
   iEvent.getByToken(clctToken_, clctsH_);
@@ -56,7 +60,8 @@ void CSCStubMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetu
 // do the matching
 void CSCStubMatcher::match(const SimTrack& t, const SimVertex& v) {
   // match simhits first
-  gemDigiMatcher_->match(t, v);
+  if (useGEMs_)
+    gemDigiMatcher_->match(t, v);
   cscDigiMatcher_->match(t, v);
 
   const CSCCLCTDigiCollection& clcts = *clctsH_.product();
@@ -329,27 +334,29 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
         }
       }
 
-      // fixME here: double check the timing of GEMPad
-      if (ch_id.ring() == 1 and (ch_id.station() == 1 or ch_id.station() == 2)) {
-        // Check if matched to an GEM pad L1
-        const GEMDetId gemDetIdL1(ch_id.zendcap(), 1, ch_id.station(), 1, ch_id.chamber(), 0);
-        for (const auto& p : gemDigiMatcher_->padsInChamber(gemDetIdL1.rawId())) {
-          if (p == lct.getGEM1()) {
-            lct_gem1_match = true;
-            if (verboseLCT_)
-              edm::LogInfo("CSCStubMatcher") << "\t...lct_gem1_match";
-            break;
+      if (useGEMs_) {
+        // fixME here: double check the timing of GEMPad
+        if (ch_id.ring() == 1 and (ch_id.station() == 1 or ch_id.station() == 2)) {
+          // Check if matched to an GEM pad L1
+          const GEMDetId gemDetIdL1(ch_id.zendcap(), 1, ch_id.station(), 1, ch_id.chamber(), 0);
+          for (const auto& p : gemDigiMatcher_->padsInChamber(gemDetIdL1.rawId())) {
+            if (p == lct.getGEM1()) {
+              lct_gem1_match = true;
+              if (verboseLCT_)
+                edm::LogInfo("CSCStubMatcher") << "\t...lct_gem1_match";
+              break;
+            }
           }
-        }
 
-        // Check if matched to an GEM pad L2
-        const GEMDetId gemDetIdL2(ch_id.zendcap(), 1, ch_id.station(), 2, ch_id.chamber(), 0);
-        for (const auto& p : gemDigiMatcher_->padsInChamber(gemDetIdL2.rawId())) {
-          if (p == lct.getGEM2()) {
-            lct_gem2_match = true;
-            if (verboseLCT_)
-              edm::LogInfo("CSCStubMatcher") << "\t...lct_gem2_match";
-            break;
+          // Check if matched to an GEM pad L2
+          const GEMDetId gemDetIdL2(ch_id.zendcap(), 1, ch_id.station(), 2, ch_id.chamber(), 0);
+          for (const auto& p : gemDigiMatcher_->padsInChamber(gemDetIdL2.rawId())) {
+            if (p == lct.getGEM2()) {
+              lct_gem2_match = true;
+              if (verboseLCT_)
+                edm::LogInfo("CSCStubMatcher") << "\t...lct_gem2_match";
+              break;
+            }
           }
         }
       }

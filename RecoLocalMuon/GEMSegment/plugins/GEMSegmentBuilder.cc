@@ -11,15 +11,19 @@
 
 GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullptr) {
   // Algo name
-  algoName = ps.getParameter<std::string>("algo_name");
+  segAlgoName = ps.getParameter<std::string>("algo_name");
+  ge0AlgoName = ps.getParameter<std::string>("ge0_name");
 
-  edm::LogVerbatim("GEMSegmentBuilder") << "GEMSegmentBuilder algorithm name: " << algoName;
+  edm::LogVerbatim("GEMSegmentBuilder") << "GEMSegmentBuilder algorithm : ge0 name : " << ge0AlgoName
+                                        << " name: " << segAlgoName;
 
   // SegAlgo parameter set
   segAlgoPSet = ps.getParameter<edm::ParameterSet>("algo_pset");
+  ge0AlgoPSet = ps.getParameter<edm::ParameterSet>("ge0_pset");
 
-  // Ask factory to build this algorithm, giving it appropriate ParameterSet
-  algo = GEMSegmentBuilderPluginFactory::get()->create(algoName, segAlgoPSet);
+  // Ask factory to build these algorithms, giving them the appropriate ParameterSets
+  segAlgo = GEMSegmentBuilderPluginFactory::get()->create(segAlgoName, segAlgoPSet);
+  ge0Algo = GEMSegmentBuilderPluginFactory::get()->create(ge0AlgoName, ge0AlgoPSet);
 }
 GEMSegmentBuilder::~GEMSegmentBuilder() {}
 
@@ -88,7 +92,11 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
 #endif
 
     // given the superchamber select the appropriate algo... and run it
-    std::vector<GEMSegment> segv = algo->run(ensemble, gemRecHits);
+    std::vector<GEMSegment> segv;
+    if (chamber->id().station() == 0)
+      segv = ge0Algo->run(ensemble, gemRecHits);
+    else
+      segv = segAlgo->run(ensemble, gemRecHits);
 #ifdef EDM_ML_DEBUG  // have lines below only compiled when in debug mode
     LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size();
 #endif

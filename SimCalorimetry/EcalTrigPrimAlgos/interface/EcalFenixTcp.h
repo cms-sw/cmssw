@@ -13,8 +13,6 @@
 #include <DataFormats/EcalDigi/interface/EEDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 
-#include "FWCore/Framework/interface/EventSetup.h"
-
 #include <iostream>
 #include <vector>
 
@@ -71,25 +69,17 @@ public:
   }
   // end temporary, for timing tests
 
-  EcalFenixTcp(const edm::EventSetup &setup,
-               bool tcpFormat,
-               bool debug,
-               bool famos,
-               int binOfMax,
-               int maxNrSamples,
-               int nbMaxStrips);
+  EcalFenixTcp(bool tcpFormat, bool debug, bool famos, int binOfMax, int maxNrSamples, int nbMaxStrips);
   virtual ~EcalFenixTcp();
 
-  void process(const edm::EventSetup &setup,
-               std::vector<EBDataFrame> &bid,  // dummy argument for template call
+  void process(std::vector<EBDataFrame> &bid,  // dummy argument for template call
                std::vector<std::vector<int>> &tpframetow,
                int nStr,
                std::vector<EcalTriggerPrimitiveSample> &tptow,
                std::vector<EcalTriggerPrimitiveSample> &tptow2,
                bool isInInnerRings,
                EcalTrigTowerDetId thisTower);
-  void process(const edm::EventSetup &setup,
-               std::vector<EEDataFrame> &bid,  // dummy argument for template call
+  void process(std::vector<EEDataFrame> &bid,  // dummy argument for template call
                std::vector<std::vector<int>> &tpframetow,
                int nStr,
                std::vector<EcalTriggerPrimitiveSample> &tptow,

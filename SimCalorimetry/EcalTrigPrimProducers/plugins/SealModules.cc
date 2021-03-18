@@ -4,10 +4,8 @@
 #include "EcalTPInputAnalyzer.h"
 #include "EcalTrigPrimAnalyzer.h"
 #include "EcalTrigPrimESProducer.h"
-#include "EcalTrigPrimProducer.h"
 #include "EcalTrigPrimSpikeESProducer.h"
 
-DEFINE_FWK_MODULE(EcalTrigPrimProducer);
 DEFINE_FWK_MODULE(EcalTPInputAnalyzer);
 DEFINE_FWK_MODULE(EcalTrigPrimAnalyzer);
 DEFINE_FWK_MODULE(EcalTPCondAnalyzer);

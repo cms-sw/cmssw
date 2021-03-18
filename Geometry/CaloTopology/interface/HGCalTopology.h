@@ -152,7 +152,7 @@ private:
   ForwardSubdetector subdet_;
   int sectors_, layers_, cells_, types_;
   int firstLay_, cellMax_, waferOff_, waferMax_;
-  int kHGhalf_, kHGeomHalf_;
+  int kHGhalf_, kHGeomHalf_, kHGhalfType_;
   unsigned int kSizeForDenseIndexing;
 };
 

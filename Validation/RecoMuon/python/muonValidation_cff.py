@@ -173,6 +173,52 @@ glbCosmic1LegMuonTrackVSelMuonAssoc.parametersDefiner = cms.string('CosmicParame
 glbCosmic1LegMuonTrackVSelMuonAssoc.muonTPSelector = cosmicMuonTPSet
 glbCosmic1LegMuonTrackVSelMuonAssoc.muonHistoParameters = glbCosmic1LegMuonHistoParameters
 
+
+
+##########################################################################                                                        
+### Customization for Phase II samples                                                                                           
+###
+
+trkMuonTrackVTrackAssoc_phase2 = trkMuonTrackVTrackAssoc.clone()                                                                  
+trkMuonTrackVTrackAssoc_phase2.muonHistoParameters = trkMuonHistoParameters_phase2                                                
+
+trkProbeTrackVMuonAssoc_phase2 = trkProbeTrackVMuonAssoc.clone()                                                                  
+trkProbeTrackVMuonAssoc_phase2.muonHistoParameters = trkMuonHistoParameters_phase2                                                
+
+staSeedTrackVMuonAssoc_phase2 = staSeedTrackVMuonAssoc.clone()                                                                    
+staSeedTrackVMuonAssoc_phase2.muonHistoParameters = staSeedMuonHistoParameters                                                    
+
+staMuonTrackVMuonAssoc_phase2 = staMuonTrackVMuonAssoc.clone()                                                                    
+staMuonTrackVMuonAssoc_phase2.muonHistoParameters = staMuonHistoParameters_phase2                                                 
+
+staUpdMuonTrackVMuonAssoc_phase2 = staUpdMuonTrackVMuonAssoc.clone()                                                              
+staUpdMuonTrackVMuonAssoc_phase2.muonHistoParameters = staUpdMuonHistoParameters_phase2                                          
+
+glbMuonTrackVMuonAssoc_phase2 = glbMuonTrackVMuonAssoc.clone()                                                                    
+glbMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2                                                 
+
+pfMuonTrackVMuonAssoc_phase2 = pfMuonTrackVMuonAssoc.clone()                                                                      
+pfMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2                                                  
+
+recomuMuonTrackVMuonAssoc_phase2 = recomuMuonTrackVMuonAssoc.clone()                                                              
+recomuMuonTrackVMuonAssoc_phase2.muonHistoParameters = recoMuonHistoParameters_phase2      
+
+tunepMuonTrackVMuonAssoc_phase2 = tunepMuonTrackVMuonAssoc.clone()
+tunepMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2      
+
+displacedStaMuonTrackVMuonAssoc_phase2 = displacedStaMuonTrackVMuonAssoc.clone()
+displacedStaMuonTrackVMuonAssoc_phase2.muonHistoParameters = displacedStaMuonHistoParameters_phase2   
+
+displacedGlbMuonTrackVMuonAssoc_phase2 = displacedGlbMuonTrackVMuonAssoc.clone()
+displacedGlbMuonTrackVMuonAssoc_phase2.muonHistoParameters = displacedGlbMuonHistoParameters_phase2               
+
+displacedTrackVMuonAssoc_phase2 = displacedTrackVMuonAssoc.clone()
+displacedTrackVMuonAssoc_phase2.muonHistoParameters = displacedTrkMuonHistoParameters_phase2   
+
+gemMuonTrackVMuonAssoc_phase2 = gemMuonTrackVMuonAssoc.clone()
+gemMuonTrackVMuonAssoc_phase2.muonHistoParameters = gemMuonHistoParameters_phase2 
+
+
 ##################################################################################
 # Muon validation sequences using MuonTrackValidator
 #
@@ -216,19 +262,21 @@ muonValidationCosmic_seq = cms.Sequence(
 )
 
 recoMuonValidation_reduced_seq = cms.Sequence(
-    probeTracks_seq + tpToTkMuonAssociation + trkProbeTrackVMuonAssoc
-    +tpToStaUpdMuonAssociation + staUpdMuonTrackVMuonAssoc
-    +tpToGlbMuonAssociation + glbMuonTrackVMuonAssoc
-    +tunepMuonTracks_seq + tpToTunePMuonAssociation + tunepMuonTrackVMuonAssoc
-    +pfMuonTracks_seq + tpToPFMuonAssociation + pfMuonTrackVMuonAssoc
-    +recoMuonTracks_seq + tpTorecoMuonMuonAssociation + recomuMuonTrackVMuonAssoc
-    +tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc
-    +tpToDisplacedTrkMuonAssociation + displacedTrackVMuonAssoc
-    +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc
+    probeTracks_seq + tpToTkMuonAssociation + trkProbeTrackVMuonAssoc_phase2
+    +tpToStaUpdMuonAssociation + staUpdMuonTrackVMuonAssoc_phase2
+    +tpToGlbMuonAssociation + glbMuonTrackVMuonAssoc_phase2
+    +tunepMuonTracks_seq + tpToTunePMuonAssociation + tunepMuonTrackVMuonAssoc_phase2
+    +pfMuonTracks_seq + tpToPFMuonAssociation + pfMuonTrackVMuonAssoc_phase2
+    +recoMuonTracks_seq + tpTorecoMuonMuonAssociation + recomuMuonTrackVMuonAssoc_phase2
+    +tpToDisplacedStaMuonAssociation + displacedStaMuonTrackVMuonAssoc_phase2
+    +tpToDisplacedTrkMuonAssociation + displacedTrackVMuonAssoc_phase2
+    +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc_phase2
 )
 
 gemMuonValidation = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonMuonAssociation + gemMuonTrackVMuonAssoc)
 me0MuonValidation = cms.Sequence(extractMe0MuonsTracks_seq + tpToME0MuonMuonAssociation + me0MuonTrackVMuonAssoc)
+
+gemMuonValidation_phase2 = cms.Sequence(extractGemMuonsTracks_seq + tpToGEMMuonMuonAssociation + gemMuonTrackVMuonAssoc_phase2) 
 
 ##########################################################################
 # The full offline muon validation sequence
@@ -254,12 +302,12 @@ _run3_muonValidation += gemMuonValidation
 
 #_phase2_muonValidation = recoMuonValidation.copy()              #For full validation 
 _phase2_muonValidation = recoMuonValidation_reduced_seq.copy()
-_phase2_muonValidation += gemMuonValidation
+_phase2_muonValidation += gemMuonValidation_phase2
 _phase2_muonValidation += me0MuonValidation
 
 #_phase2_ge0_muonValidation = recoMuonValidation.copy()          #For full validation
 _phase2_ge0_muonValidation = recoMuonValidation_reduced_seq.copy()
-_phase2_ge0_muonValidation += gemMuonValidation
+_phase2_ge0_muonValidation += gemMuonValidation_phase2
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( recoMuonValidation, _run3_muonValidation )
@@ -267,3 +315,4 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( recoMuonValidation, _phase2_muonValidation )
 from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 phase2_GE0.toReplaceWith( recoMuonValidation, _phase2_ge0_muonValidation )
+

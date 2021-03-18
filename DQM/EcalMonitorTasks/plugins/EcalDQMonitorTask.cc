@@ -99,7 +99,9 @@ void EcalDQMonitorTask::fillDescriptions(edm::ConfigurationDescriptions& _descs)
 }
 
 void EcalDQMonitorTask::bookHistograms(DQMStore::IBooker& _ibooker, edm::Run const&, edm::EventSetup const& _es) {
-  ecaldqmGetSetupObjects(_es);
+  executeOnWorkers_([&_es](ecaldqm::DQWorker* worker) { worker->setSetupObjects(_es); },
+                    "ecaldqmGetSetupObjects",
+                    "Getting EventSetup Objects");
 
   executeOnWorkers_([&_ibooker](ecaldqm::DQWorker* worker) { worker->bookMEs(_ibooker); }, "bookMEs", "Booking MEs");
 }

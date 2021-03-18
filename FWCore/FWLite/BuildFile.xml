@@ -2,6 +2,7 @@
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
+<use name="FWCore/Reflection"/>
 <use name="rootcore"/>
 <export>
   <lib name="1"/>
