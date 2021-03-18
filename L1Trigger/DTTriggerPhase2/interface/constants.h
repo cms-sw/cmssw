@@ -38,7 +38,8 @@
 */
 namespace cmsdt {
 
-  enum MP_QUALITY { NOPATH = 0, LOWQGHOST, LOWQ, HIGHQGHOST, HIGHQ, CLOWQ, LOWLOWQ, CHIGHQ, HIGHLOWQ, HIGHHIGHQ };
+  // enum MP_QUALITY { NOPATH = 0, LOWQGHOST, LOWQ, HIGHQGHOST, HIGHQ, CLOWQ, LOWLOWQ, CHIGHQ, HIGHLOWQ, HIGHHIGHQ };
+  enum MP_QUALITY { NOPATH = 0, LOWQ = 1, CLOWQ = 2, HIGHQ = 3, CHIGHQ = 4, LOWLOWQ = 6, HIGHLOWQ = 7, HIGHHIGHQ = 8 };
 
   // Tipos de lateralidad de traza de partícula al pasar por una celda
   enum LATERAL_CASES { LEFT = 0, RIGHT, NONE };
@@ -171,15 +172,27 @@ namespace cmsdt {
   /* Adimensional */
   constexpr int MAX_BX_IDX = 3564;
 
-  // En nanosegundos (tiempo de deriva en la celda)
+  // In ns (maximum drift time inside the cell)
   constexpr float MAXDRIFT = 387;
-  // En milímetros (dimensiones de la celda)
+  // In mm (cell dimmensions)
   constexpr int CELL_HEIGHT = 13;
   constexpr float CELL_SEMIHEIGHT = 6.5;
   constexpr int CELL_LENGTH = 42;
   constexpr int CELL_SEMILENGTH = 21;
-  // En milímetros / nanosegundo (velocidad de deriva)
+  // In mm / ns (velocidad de deriva)
   constexpr float DRIFT_SPEED = 0.0542;
+  // With 4 bits for the decimal part
+  constexpr int DRIFT_SPEED_X4 = 889; // 55.5 * 2 ** 4 
+
+  // distance between SLs, cm
+  constexpr float VERT_PHI1_PHI3 = 23.5;
+
+  // inverse of the distance between SLs, FW units
+  constexpr int VERT_PHI1_PHI3_INV = 558; 
+
+  // distance between center of the chamber and each SL in mm, 2 bit precision for the decimal part
+  constexpr int CH_CENTER_TO_MID_SL_X2 = 470; // 117.5 * 2 ** 2
+  
   /*
   This is the maximum value than internal time can take. This is because
   internal time is cyclical due to the limited size of the time counters and
@@ -208,14 +221,7 @@ namespace cmsdt {
   constexpr int TDCTIME_REDUCED_SIZE = 10;
   constexpr float ZRES_CONV = 65536. / 1500;
   constexpr float KRES_CONV = 65536. / 2;
-
-  constexpr int DIVISION_HELPER1 = 43691;
-  constexpr int DIVISION_HELPER2 = 65536;
-  constexpr int DIVISION_HELPER3 = 131072;
-  constexpr int DENOM_TYPE1 = 6;
-  constexpr int DENOM_TYPE2 = 4;
-  constexpr int DENOM_TYPE3 = 2;
-  constexpr int NBITS = 18;
+ 
   /*
  * Size of pre-mixer buffers for DTPrimitives
  *
@@ -248,10 +254,9 @@ namespace cmsdt {
   constexpr double X_POS_L3 = 0.65;
   constexpr double X_POS_L4 = 1.95;
 
-  constexpr int MEANTIME_2LAT = 16384;
-  constexpr int MEANTIME_3LAT = 10923;
-  constexpr int MEANTIME_4LAT = 8192;
-  
+  /*
+   * Analyzer precision constants
+   */
   constexpr int DIV_SHR_BITS_T0 = 16;
   constexpr int DIV_SHR_BITS_POS = 21;
   constexpr int DIV_SHR_BITS_SLOPE = 21;
@@ -261,6 +266,14 @@ namespace cmsdt {
   constexpr int INCREASED_RES_POS = 4;
   constexpr int INCREASED_RES_SLOPE = 12;
   constexpr int INCREASED_RES_SLOPE_XHH = 4;
+  
+  constexpr int INCREASED_RES_POS_POW = 16;
+  constexpr int INCREASED_RES_SLOPE_POW = 4096;
+
+  // Values to compute drift distances from drift times
+  constexpr int DTDD_PREADD = 9;
+  constexpr int DTDD_MULT = 445;
+  constexpr int DTDD_SHIFTR_BITS = 13;
   
   /*
    * Local to global coordinates transformation

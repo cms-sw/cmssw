@@ -14,7 +14,7 @@ MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset, e
       chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
       shift_filename_(pset.getParameter<edm::FileInPath>("shift_filename")),
       bxTolerance_(30),
-      minQuality_(LOWQGHOST),
+      minQuality_(LOWQ),
       chiSquareThreshold_(50),
       minHits4Fit_(pset.getUntrackedParameter<int>("minHits4Fit")) {
   // Obtention of parameters
