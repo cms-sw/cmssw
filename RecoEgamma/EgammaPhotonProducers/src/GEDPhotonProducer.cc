@@ -47,6 +47,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 
 class GEDPhotonProducer : public edm::stream::EDProducer<> {
 public:
@@ -616,7 +617,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     // mult values for EB and EE were obtained by dedicated studies.
     std::vector<float> full5x5_locCov =
         (hits != nullptr
-             ? noZS::EcalClusterTools::localCovariances(*(scRef->seed()), hits, topology, 4.7, &thresholds, 1.0, 1.25)
+	 ? noZS::EcalClusterTools::localCovariances(*(scRef->seed()), hits, topology, EgammaLocalCovParamDefaults::kRelEnCut, &thresholds, EgammaLocalCovParamDefaults::kMultThresEB, EgammaLocalCovParamDefaults::kMultThresEE)
              : std::vector<float>({0.f, 0.f, 0.f}));
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);

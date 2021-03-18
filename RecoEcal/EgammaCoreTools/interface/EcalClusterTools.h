@@ -57,6 +57,7 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 
 class DetId;
 class CaloTopology;
@@ -201,7 +202,7 @@ public:
   static std::vector<float> localCovariances(const reco::BasicCluster &cluster,
                                              const EcalRecHitCollection *recHits,
                                              const CaloTopology *topology,
-                                             float w0 = 4.7,
+                                             float w0 = EgammaLocalCovParamDefaults::kRelEnCut,
                                              const EcalPFRecHitThresholds *thresholds = nullptr,
                                              float multEB = 0.0,
                                              float multEE = 0.0);
