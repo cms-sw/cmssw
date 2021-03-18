@@ -325,7 +325,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
             'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
-        "era" : "phase2_tracker, trackingPhase2PU140",
+        "era" : "phase2_tracker, phase2_3DPixels, trackingPhase2PU140",
     },
     "T26" : {
         1 : [
