@@ -6,42 +6,12 @@
  */
 
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-
-#include <string>
 #include <TMath.h>
 
 void PhotonMIPHaloTagger::setup(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC) {
@@ -71,17 +41,10 @@ void PhotonMIPHaloTagger::MIPcalculate(const reco::Photon* pho,
   ismipHalo_ = false;  // halo?
 
   // Get EcalRecHits
-  bool validEcalRecHits = true;
-
   edm::Handle<EcalRecHitCollection> barrelHitHandle;
   e.getByToken(EBecalCollection_, barrelHitHandle);
 
-  if (!barrelHitHandle.isValid()) {
-    edm::LogError("MIPcalculate") << "Error! Can't get the barrel hits product ";
-    //<<EBecalCollection_.label(); (cant be bothered tracking the input tag just for this error message)
-    validEcalRecHits = false;
-  }
-
+  bool validEcalRecHits = barrelHitHandle.isValid();
   if (validEcalRecHits) {
     // GetMIPTrailFit
     mipFitResults_ = GetMipTrailFit(
@@ -95,7 +58,7 @@ void PhotonMIPHaloTagger::MIPcalculate(const reco::Photon* pho,
     mipId.mipNhitCone = nhitCone_;
     mipId.mipIsHalo = ismipHalo_;
   } else {
-    std::cout << "MIPCalculate::Ecal Collection is not there hence set some default values" << std::endl;
+    edm::LogError("MIPcalculate") << "Error! Can't get the barrel hits product, hence set some default values";
     mipId.mipChi2 = -999.;
     mipId.mipTotEnergy = -999.;
     mipId.mipSlope = -999.;

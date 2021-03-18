@@ -17,13 +17,12 @@
 #include "IOPool/Streamer/interface/FRDFileHeader.h"
 
 #include <iostream>
-//#include <istream>
+#include <fstream>
 #include <sstream>
 #include <sys/time.h>
 #include <unistd.h>
 #include <cstdio>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string.hpp>
 
 //using boost::asio::ip::tcp;
@@ -1276,7 +1275,7 @@ namespace evf {
           std::ifstream ij(jsonDestPath);
           ss << ij.rdbuf();
         } catch (std::filesystem::filesystem_error const& ex) {
-          edm::LogError("EvFDaqDirector") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+          edm::LogError("EvFDaqDirector") << "grabNextJsonFile - FILESYSTEM ERROR CAUGHT -: " << ex.what();
           return -1;
         }
         result = reader.parse(ss.str(), deserializeRoot);

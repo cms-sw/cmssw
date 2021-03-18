@@ -1,6 +1,6 @@
 /*!
-  \file SiPixelTemplateDBObject_PayloadInspector
-  \Payload Inspector Plugin for SiPixelTemplateDBObject
+  \file SiPixelGenErrorDBObject_PayloadInspector
+  \Payload Inspector Plugin for SiPixelGenError
   \author M. Musich
   \version $Revision: 1.0 $
   \date $Date: 2020/04/16 18:00:00 $

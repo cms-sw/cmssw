@@ -88,6 +88,13 @@ public:
     maxRPCHit = muonHistoParameters.getParameter<double>("maxRPCHit");
     nintRPCHit = muonHistoParameters.getParameter<int>("nintRPCHit");
     //
+
+    minNTracks = muonHistoParameters.getParameter<int>("minNTracks");
+    maxNTracks = muonHistoParameters.getParameter<int>("maxNTracks");
+    nintNTracks = muonHistoParameters.getParameter<int>("nintNTracks");
+    minFTracks = muonHistoParameters.getParameter<int>("minFTracks");
+    maxFTracks = muonHistoParameters.getParameter<int>("maxFTracks");
+    nintFTracks = muonHistoParameters.getParameter<int>("nintFTracks");
     minLayers = muonHistoParameters.getParameter<double>("minLayers");
     maxLayers = muonHistoParameters.getParameter<double>("maxLayers");
     nintLayers = muonHistoParameters.getParameter<int>("nintLayers");
@@ -213,6 +220,8 @@ protected:
 
   edm::ParameterSet muonHistoParameters;
 
+  int minNTracks, maxNTracks, nintNTracks;
+  int minFTracks, maxFTracks, nintFTracks;
   double minEta, maxEta;
   int nintEta;
   bool useFabsEta;

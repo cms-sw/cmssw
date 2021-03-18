@@ -6,13 +6,16 @@
  *  \author Joanna Weng, Filip Moortgat
  */
 
-#include <TMatrixD.h>
-
-#include <cstddef>
-#include <HepMC/GenEvent.h>
-#include <HepMC/SimpleVector.h>
-
 #include "DataFormats/Common/interface/Ref.h"
+#include <TMatrixD.h>
+#include <HepMC/GenEvent.h>
+#include <cstddef>
+
+namespace HepMC {
+  class FourVector;
+  class GenParticle;
+  class GenVertex;
+}  // namespace HepMC
 
 namespace edm {
   class HepMCProduct {

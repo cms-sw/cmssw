@@ -102,9 +102,9 @@ namespace ecaldqm {
     for (typename DigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
       DetId id(digiItr->id());
 
-      meOccupancy.fill(id);
+      meOccupancy.fill(getEcalDQMSetupObjects(), id);
 
-      int iDCC(dccId(id) - 1);
+      int iDCC(dccId(id, GetElectronicsMap()) - 1);
 
       if (!enable_[iDCC])
         continue;
@@ -118,7 +118,7 @@ namespace ecaldqm {
       }
 
       for (int iSample(0); iSample < 10; iSample++)
-        meShape.fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
+        meShape.fill(getEcalDQMSetupObjects(), id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
     }
   }
 
@@ -130,7 +130,7 @@ namespace ecaldqm {
     for (EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
       EcalPnDiodeDetId const& id(digiItr->id());
 
-      int iDCC(dccId(id) - 1);
+      int iDCC(dccId(id, GetElectronicsMap()) - 1);
 
       if (!enable_[iDCC])
         continue;
@@ -167,7 +167,7 @@ namespace ecaldqm {
 
       double amplitude(max - pedestal);
 
-      mePNAmplitude.fill(id, amplitude);
+      mePNAmplitude.fill(getEcalDQMSetupObjects(), id, amplitude);
     }
   }
 
@@ -179,7 +179,7 @@ namespace ecaldqm {
     for (EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr) {
       DetId id(uhitItr->id());
 
-      int iDCC(dccId(id) - 1);
+      int iDCC(dccId(id, GetElectronicsMap()) - 1);
 
       if (!enable_[iDCC])
         continue;
@@ -189,7 +189,7 @@ namespace ecaldqm {
         static_cast<MESetMulti&>(meAmplitude).use(iME);
       }
 
-      meAmplitude.fill(id, uhitItr->amplitude());
+      meAmplitude.fill(getEcalDQMSetupObjects(), id, uhitItr->amplitude());
     }
   }
 

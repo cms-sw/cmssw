@@ -46,7 +46,7 @@ namespace callbacktest {
 
   struct Queue {
     template <typename T>
-    void push(T&& iT) {
+    void push(tbb::task_group&, T&& iT) {
       iT();
     }
   };
@@ -109,11 +109,13 @@ namespace {
     edm::ActivityRegistry ar;
     edm::eventsetup::EventSetupRecordImpl rec(edm::eventsetup::EventSetupRecordKey::makeKey<callbacktest::Record>(),
                                               &ar);
-    auto waitTask = edm::make_empty_waiting_task();
-    waitTask->set_ref_count(1);
+    edm::FinalWaitingTask task;
+    tbb::task_group group;
     iCallback.prefetchAsync(
-        edm::WaitingTaskHolder(waitTask.get()), &rec, nullptr, edm::ServiceToken{}, edm::ESParentContext{});
-    waitTask->wait_for_all();
+        edm::WaitingTaskHolder(group, &task), &rec, nullptr, edm::ServiceToken{}, edm::ESParentContext{});
+    do {
+      group.wait();
+    } while (not task.done());
   }
 }  // namespace
 

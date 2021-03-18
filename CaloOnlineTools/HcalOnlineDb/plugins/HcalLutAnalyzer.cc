@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
@@ -70,6 +69,8 @@ private:
   double Ymax;
   double Pmin;
   double Pmax;
+
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
 };
 
 HcalLutAnalyzer::HcalLutAnalyzer(const edm::ParameterSet& iConfig) {
@@ -87,13 +88,14 @@ HcalLutAnalyzer::HcalLutAnalyzer(const edm::ParameterSet& iConfig) {
   Ymax = iConfig.getParameter<double>("Ymax");
   Pmin = iConfig.getParameter<double>("Pmin");
   Pmax = iConfig.getParameter<double>("Pmax");
+
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
 }
 
 void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   using namespace std;
 
-  edm::ESHandle<HcalTopology> topology;
-  iSetup.get<HcalRecNumberingRecord>().get(topology);
+  const HcalTopology* topology = &iSetup.getData(tok_htopo_);
 
   typedef std::vector<std::string> vstring;
   typedef std::map<unsigned long int, float> LUTINPUT;

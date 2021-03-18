@@ -95,22 +95,16 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
 
   // bin, convert to integers, and pack
 
-  unsigned int seg1, seg2, seg3;
-  seg1 = 0;
-  seg2 = 0;
-  seg3 = 0;
+  unsigned int seg1, seg2, seg3, seg4;
 
   //tanl
-
   itanl = digitize_Signed(rTanl, NTanlBits, 0, valLSBTanl);
 
   //z0
   iz0 = digitize_Signed(rZ0, NZ0Bits, 0, valLSBZ0);
 
   //chi2 has non-linear bins
-
   ichi2XY = 0;
-
   for (unsigned int ibin = 0; ibin < Nchi2; ++ibin) {
     ichi2XY = ibin;
     if (theChi2XY < chi2Bins[ibin])
@@ -118,9 +112,7 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
   }
 
   //chi2Z has non-linear bins
-
   ichi2Z = 0;
-
   for (unsigned int ibin = 0; ibin < Nchi2; ++ibin) {
     ichi2Z = ibin;
     if (theChi2Z < chi2ZBins[ibin])
@@ -138,7 +130,6 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
 
   //bend chi2 - non-linear bins
   iBendChi2 = 0;
-
   for (unsigned int ibin = 0; ibin < NBchi2; ++ibin) {
     iBendChi2 = ibin;
     if (theBendChi2 < Bchi2Bins[ibin])
@@ -171,11 +162,9 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
   //set bits
 
   TrackWord1 = seg1 + seg2 + seg3;
-  seg1 = 0;
-  seg2 = 0;
-  seg3 = 0;
 
   //second 32-bit word
+
   seg1 = (iphi << (nWordBits - (NPhiBits + 1)));           //20
   seg2 = (id0 << (nWordBits - (NPhiBits + ND0Bits + 2)));  //7
 
@@ -185,16 +174,13 @@ void TTTrack_TrackWord::setTrackWord(const GlobalVector& Momentum,
   //set bits
 
   TrackWord2 = seg1 + seg2 + seg3;
-  seg1 = 0;
-  seg2 = 0;
-  seg3 = 0;
 
   //third 32-bit word
 
   seg1 = (iRinv << (nWordBits - (NCurvBits + 1)));                            //17
   seg2 = (iBendChi2 << (nWordBits - (NCurvBits + NBChi2Bits + 1)));           //14
   seg3 = (ichi2Z << (nWordBits - (NCurvBits + NBChi2Bits + NChi2Bits + 1)));  //10
-  unsigned int seg4 = ispare;
+  seg4 = ispare;
 
   TrackWord3 = seg1 + seg2 + seg3 + seg4;
 }

@@ -6,6 +6,7 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>
+<use name="FWCore/MessageLogger"/>
 <use name="clhepheader"/>
 <export>
   <lib name="1"/>

@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_3_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_11_3_0/PRef/V9 (CMSSW_11_3_0_pre2)
+# /dev/CMSSW_11_3_0/PRef/V12 (CMSSW_11_3_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_3_0/PRef/V9')
+  tableName = cms.string('/dev/CMSSW_11_3_0/PRef/V12')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3757,16 +3757,6 @@ process.HcalTimeSlewEP = cms.ESSource( "HcalTimeSlewEP",
 process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
 )
-process.ecalMustacheSCParamsSource = cms.ESSource( "EmptyESSource",
-    iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "EcalMustacheSCParametersRcd" ),
-    firstValid = cms.vuint32( 1 )
-)
-process.ecalSCDynamicDPhiParamsSource = cms.ESSource( "EmptyESSource",
-    iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "EcalSCDynamicDPhiParametersRcd" ),
-    firstValid = cms.vuint32( 1 )
-)
 process.eegeom = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     recordName = cms.string( "EcalMappingRcd" ),
@@ -4129,62 +4119,6 @@ process.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeBadChambers = cms.bool( False ),
   includeME0 = cms.bool( False ),
   includeGEM = cms.bool( False )
-)
-process.ecalMustacheSCParametersESProducer = cms.ESProducer( "EcalMustacheSCParametersESProducer",
-  sqrtLogClustETuning = cms.double( 1.1 ),
-  appendToDataLabel = cms.string( "" ),
-  parabolaParameterSets = cms.VPSet( 
-    cms.PSet(  pLow = cms.vdouble( -0.0268843, 0.147742, -0.0191235 ),
-      w0Up = cms.vdouble( -0.00681785, -0.00239516 ),
-      w1Low = cms.vdouble( 6.99995E-4, -0.00554331 ),
-      w0Low = cms.vdouble( -0.00681785, -0.00239516 ),
-      etaMin = cms.double( 0.0 ),
-      log10EMin = cms.double( -3.0 ),
-      w1Up = cms.vdouble( 6.99995E-4, -0.00554331 ),
-      pUp = cms.vdouble( -0.107537, 0.590969, -0.076494 )
-    )
-  )
-)
-process.ecalSCDynamicDPhiParametersESProducer = cms.ESProducer( "EcalSCDynamicDPhiParametersESProducer",
-  dynamicDPhiParameterSets = cms.VPSet( 
-    cms.PSet(  cutoff = cms.double( 0.3 ),
-      eMin = cms.double( 0.0 ),
-      etaMin = cms.double( 2.0 ),
-      saturation = cms.double( 0.12 ),
-      scale = cms.double( 1.22321 ),
-      width = cms.double( 0.345852 ),
-      xoffset = cms.double( -0.260256 ),
-      yoffset = cms.double( 0.0928887 )
-    ),
-    cms.PSet(  cutoff = cms.double( 0.45 ),
-      eMin = cms.double( 0.0 ),
-      etaMin = cms.double( 1.75 ),
-      saturation = cms.double( 0.12 ),
-      scale = cms.double( 1.60429 ),
-      width = cms.double( 0.458106 ),
-      xoffset = cms.double( -0.642352 ),
-      yoffset = cms.double( 0.05643 )
-    ),
-    cms.PSet(  cutoff = cms.double( 0.55 ),
-      eMin = cms.double( 0.0 ),
-      etaMin = cms.double( 1.479 ),
-      saturation = cms.double( 0.14 ),
-      scale = cms.double( 0.975707 ),
-      width = cms.double( 0.431729 ),
-      xoffset = cms.double( -0.18149 ),
-      yoffset = cms.double( 0.0497038 )
-    ),
-    cms.PSet(  cutoff = cms.double( 0.6 ),
-      eMin = cms.double( 0.0 ),
-      etaMin = cms.double( 0.0 ),
-      saturation = cms.double( 0.14 ),
-      scale = cms.double( 0.946048 ),
-      width = cms.double( 0.432767 ),
-      xoffset = cms.double( -0.101172 ),
-      yoffset = cms.double( 0.0280506 )
-    )
-  ),
-  appendToDataLabel = cms.string( "" )
 )
 process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   dbstatusMask = cms.PSet( 
@@ -6066,7 +6000,7 @@ process.hltHbhereco = cms.EDProducer( "HBHEPhase1Reconstructor",
       ts4Thresh = cms.double( 0.0 ),
       meanTime = cms.double( 0.0 ),
       nnlsThresh = cms.double( 1.0E-11 ),
-      nMaxItersMin = cms.int32( 500 ),
+      nMaxItersMin = cms.int32( 50 ),
       timeSigmaSiPM = cms.double( 2.5 ),
       applyTimeSlew = cms.bool( True ),
       timeSlewParsType = cms.int32( 3 ),
@@ -11910,7 +11844,6 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True ),
     numberOfThreads = cms.untracked.uint32( 4 ),
     numberOfStreams = cms.untracked.uint32( 0 ),
-    sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 )
 
 # override the GlobalTag, connection string and pfnPrefix
@@ -11919,11 +11852,12 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run3_hlt_PRef')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.TriggerSummaryProducerAOD=cms.untracked.PSet()
-    process.MessageLogger.L1GtTrigReport=cms.untracked.PSet()
-    process.MessageLogger.L1TGlobalSummary=cms.untracked.PSet()
-    process.MessageLogger.HLTrigReport=cms.untracked.PSet()
-    process.MessageLogger.FastReport=cms.untracked.PSet()
+    process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport = cms.untracked.PSet()
+    process.MessageLogger.FastReport = cms.untracked.PSet()
+    process.MessageLogger.ThroughputService = cms.untracked.PSet()
 
 # add specific customizations
 _customInfo = {}

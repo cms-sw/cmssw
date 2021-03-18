@@ -3,12 +3,16 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GeometryWriter")
 
 process.load('CondCore.CondDB.CondDB_cfi')
-
-# This will read all the little XML files and from
-# that fill the DDCompactView. The modules that fill
-# the reco part of the database need the DDCompactView.
-process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
+#
+# FIXME: the command "./createExtended2026Payloads.sh 113YV12" (i.e 113YV12 is a tag just for test) creates a problem related to:  
+# 1) Tracker, if Configuration.Geometry.GeometryExtended2026D49_cff is used (Scenario2026D49 has to be set in DD4hep_GeometrySimPhase2_cff)  
+# 2) GEM, if Configuration.Geometry.GeometryExtended2026D77_cff is used (Scenario2026D77 has to be set in DD4hep_GeometrySimPhase2_cff)  
+# Please add the right Scenario (D49 or D77 or ..) also in geometryExtended2026_xmlwriter.py and in splitExtended2026Database.sh 
+#
+process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load('Configuration.StandardSequences.DD4hep_GeometrySimPhase2_cff')
 process.load('Geometry.CaloEventSetup.CaloGeometry2026DBWriter_cfi')
 process.load('CondTools.Geometry.HcalParametersWriter_cff')
 
@@ -19,18 +23,10 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
-# This reads the big XML file and the only way to fill the
-# nonreco part of the database is to read this file.  It
-# somewhat duplicates the information read from the little
-# XML files, but there is no way to directly build the
-# DDCompactView from this.
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./geD17SingleBigFile.xml"),
+                                           XMLFileName = cms.untracked.string("./geD49SingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
-process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-                                                      fromDDD = cms.bool( True )
-                                                     )
 
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder",fromDD4hep=cms.bool(False))
 process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder",fromDD4hep=cms.bool(False))
@@ -40,13 +36,15 @@ process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder",
                                             EcalP = cms.untracked.bool(False),
                                             HGCal = cms.untracked.bool(False))
 
-process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader")
+process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
-process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader")
+process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
-process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader")
+process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
 process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader")
+
+process.ME0GeometryWriter = cms.EDAnalyzer("ME0RecoIdealDBLoader")
 
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
@@ -76,4 +74,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerParametersWriter+process.CaloGeometryWriter+process.HcalParametersWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter+process.GEMGeometryWriter)
+process.p1 = cms.Path(process.XMLGeometryWriter+process.TrackerGeometryWriter+process.TrackerParametersWriter+process.CaloGeometryWriter+process.HcalParametersWriter+process.CSCGeometryWriter+process.DTGeometryWriter+process.RPCGeometryWriter+process.GEMGeometryWriter+process.ME0GeometryWriter)

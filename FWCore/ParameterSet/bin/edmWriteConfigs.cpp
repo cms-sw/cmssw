@@ -40,8 +40,6 @@
 #include "FWCore/PluginManager/interface/PluginFactoryManager.h"
 
 #include <boost/program_options.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
 
 #include <set>
 #include <string>

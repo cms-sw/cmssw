@@ -12,8 +12,11 @@ L1TStage2MuonComp::L1TStage2MuonComp(const edm::ParameterSet& ps)
       enable2DComp(
           ps.getUntrackedParameter<bool>("enable2DComp")),  // When true eta-phi comparison plots are also produced
       displacedQuantities_(ps.getUntrackedParameter<bool>("displacedQuantities")) {
+  if (displacedQuantities_) {
+    numErrBins_ += 2;
+  }
   // First include all bins
-  for (unsigned int i = 1; i <= RIDX; i++) {
+  for (int i = 1; i <= numErrBins_; i++) {
     incBin[i] = true;
   }
   // Then check the list of bins to ignore
@@ -74,9 +77,6 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
     summary->setBinLabel(DXYBAD, "dXY mismatch", 1);
   }
 
-  if (displacedQuantities_) {
-    numErrBins_ += 2;
-  }
   errorSummaryNum = ibooker.book1D(
       "errorSummaryNum", summaryTitle.c_str(), numErrBins_, 1, numErrBins_ + 1);  // range to match bin numbering
   errorSummaryNum->setBinLabel(RBXRANGE, "BX range mismatch", 1);
