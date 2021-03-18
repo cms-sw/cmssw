@@ -1,5 +1,5 @@
-#ifndef HLTrigger_JetMET_plugins_MultiplicityValueProducer_h
-#define HLTrigger_JetMET_plugins_MultiplicityValueProducer_h
+#ifndef HLTrigger_JetMET_plugins_HLTMultiplicityValueProducer_h
+#define HLTrigger_JetMET_plugins_HLTMultiplicityValueProducer_h
 
 #include <string>
 #include <memory>
@@ -14,10 +14,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 template <class INP_TYPE, class OUT_TYPE>
-class MultiplicityValueProducer : public edm::global::EDProducer<> {
+class HLTMultiplicityValueProducer : public edm::global::EDProducer<> {
 public:
-  explicit MultiplicityValueProducer(edm::ParameterSet const&);
-  ~MultiplicityValueProducer() override {}
+  explicit HLTMultiplicityValueProducer(edm::ParameterSet const&);
+  ~HLTMultiplicityValueProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -30,7 +30,7 @@ protected:
 };
 
 template <class INP_TYPE, class OUT_TYPE>
-MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::MultiplicityValueProducer(edm::ParameterSet const& iConfig)
+HLTMultiplicityValueProducer<INP_TYPE, OUT_TYPE>::HLTMultiplicityValueProducer(edm::ParameterSet const& iConfig)
     : src_token_(consumes<edm::View<INP_TYPE>>(iConfig.getParameter<edm::InputTag>("src"))),
       strObjSelector_(StringCutObjectSelector<INP_TYPE, true>(iConfig.getParameter<std::string>("cut"))),
       defaultValue_(iConfig.getParameter<OUT_TYPE>("defaultValue")) {
@@ -38,9 +38,9 @@ MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::MultiplicityValueProducer(edm::Pa
 }
 
 template <class INP_TYPE, class OUT_TYPE>
-void MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::produce(edm::StreamID,
-                                                            edm::Event& iEvent,
-                                                            edm::EventSetup const& iSetup) const {
+void HLTMultiplicityValueProducer<INP_TYPE, OUT_TYPE>::produce(edm::StreamID,
+                                                               edm::Event& iEvent,
+                                                               edm::EventSetup const& iSetup) const {
   auto const& objHandle(iEvent.getHandle(src_token_));
 
   if (objHandle.isValid()) {
@@ -62,7 +62,7 @@ void MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::produce(edm::StreamID,
 }
 
 template <class INP_TYPE, class OUT_TYPE>
-void MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTMultiplicityValueProducer<INP_TYPE, OUT_TYPE>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag(""))->setComment("input collection");
   desc.add<std::string>("cut", "")->setComment("string for StringCutObjectSelector");
@@ -70,4 +70,4 @@ void MultiplicityValueProducer<INP_TYPE, OUT_TYPE>::fillDescriptions(edm::Config
   descriptions.addWithDefaultLabel(desc);
 }
 
-#endif  // HLTrigger_JetMET_plugins_MultiplicityValueProducer_h
+#endif  // HLTrigger_JetMET_plugins_HLTMultiplicityValueProducer_h
