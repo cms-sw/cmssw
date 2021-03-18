@@ -40,10 +40,6 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                #debugging
                                                debug = cms.untracked.bool(False),
                                                dump  = cms.untracked.bool(False),
-                                               print_prims = cms.untracked.bool(False),
-                                               file_to_print = cms.untracked.string("debug.txt"),
-                                               print_digis = cms.untracked.bool(False),
-                                               digi_file_to_print = cms.untracked.string("digis_debug.txt"),
 
                                                #RPC
                                                rpcRecHits = cms.InputTag("rpcRecHits"),
