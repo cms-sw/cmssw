@@ -20,7 +20,7 @@ rowsbody = tables[2].find('tbody')
 rows=rowsbody.find_all('tr')
 for row in rows:
     cells=row.find_all('td')
-    key=str(cells[2])+str(cells[4])+str(cells[5])
+    key=str(cells[2])+str(cells[3])+str(cells[4])
     if key in seen.keys():
         seen[key]=seen[key]+1
         href = cells[6].find('a',href=True)
@@ -38,7 +38,7 @@ rowsbody = tables[2].find('tbody')
 rows=rowsbody.find_all('tr')
 for row in rows:
     cells=row.find_all('td')
-    key=str(cells[2])+str(cells[4])+str(cells[5])
+    key=str(cells[2])+str(cells[3])+str(cells[4])
     tag = soup.new_tag('td')
     tag.string='{}'.format(seen[key])
     tag['class']='Q'
