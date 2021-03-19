@@ -36,7 +36,7 @@ public:
 
   // print parameters to stream:
   void print(std::ostream&) const;
-  
+
   friend std::ostream& operator<<(std::ostream& out, const EcalTPGTPMode& params) {
     params.print(out);
     return out;

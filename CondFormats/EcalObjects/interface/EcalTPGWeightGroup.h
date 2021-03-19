@@ -5,7 +5,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
 
-
 class EcalTPGWeightGroup : public EcalTPGGroups {
 public:
   EcalTPGWeightGroup();
