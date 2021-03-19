@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPPS.Configuration.recoCTPPS_cff import *
+from RecoPPS.Configuration.recoCTPPS_cff import ctppsDiamondRecHits as _ctppsDiamondRecHits
 from CalibPPS.TimingCalibration.ppsTimingCalibrationPCLWorker_cfi import ppsTimingCalibrationPCLWorker
 
 MEtoEDMConvertPPSTimingCalib = cms.EDProducer('MEtoEDMConverter',
@@ -11,24 +11,19 @@ MEtoEDMConvertPPSTimingCalib = cms.EDProducer('MEtoEDMConverter',
     deleteAfterCopy = cms.untracked.bool(True),
 )
 
-# uncalibrated rechits/tracks
-ctppsDiamondRecHits.applyCalibration = False
-
 # calibrated rechits/tracks
-ctppsDiamondCalibRecHits = ctppsDiamondRecHits.clone(
-    applyCalibration = True
+ctppsDiamondUncalibRecHits = _ctppsDiamondRecHits.clone(
+    applyCalibration = False
 )
-ctppsDiamondCalibLocalTracks = ctppsDiamondLocalTracks.clone(
-    recHitsTag = cms.InputTag('ctppsDiamondCalibRecHits')
+recoDiamondUncalibLocalReconstructionTask = cms.Task(
+    ctppsDiamondUncalibRecHits,
 )
-recoDiamondCalibLocalReconstructionTask = cms.Task(
-    ctppsDiamondCalibRecHits,
-    ctppsDiamondCalibLocalTracks
-)
-recoDiamondCalib = cms.Sequence(recoDiamondCalibLocalReconstructionTask)
+# this sequence will be updated to include tracking based on the last
+# calibration values to extract per-channel timing precision estimation
+recoDiamond = cms.Sequence(recoDiamondUncalibLocalReconstructionTask)
 
 seqALCARECOPPSTimingCalib = cms.Sequence(
-    recoDiamondCalib *
+    recoDiamond *
     ppsTimingCalibrationPCLWorker *
     MEtoEDMConvertPPSTimingCalib
 )
