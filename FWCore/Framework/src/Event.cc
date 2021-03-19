@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -169,7 +170,7 @@ namespace edm {
       for (auto index : iShouldPut) {
         auto resolver = p.getProductResolverByIndex(index);
         if (not resolver->productResolved()) {
-          resolver->putProduct(std::unique_ptr<WrapperBase>());
+          dynamic_cast<ProductPutterBase const*>(resolver)->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
     }
