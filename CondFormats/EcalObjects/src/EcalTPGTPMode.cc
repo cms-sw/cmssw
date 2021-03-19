@@ -7,7 +7,7 @@ EcalTPGTPMode::EcalTPGTPMode() {}
 EcalTPGTPMode::~EcalTPGTPMode() {}
 
 void EcalTPGTPMode::print(std::ostream& out) const {
-  out << ">>> Trigger primitive mode:  " << std::endl ;
+  out << ">>> Trigger primitive mode:  " << std::endl;
   out << "    enable EE odd filter  " << EnableEEOddFilter << std::endl;
   out << "    enable EB odd filter  " << EnableEBOddFilter << std::endl;
   out << "    enable EE odd peak finder  " << EnableEEOddPeakFinder << std::endl;
