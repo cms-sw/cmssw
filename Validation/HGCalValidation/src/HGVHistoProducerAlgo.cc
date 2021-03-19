@@ -1256,7 +1256,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     std::map<int, double> totenergy_layer;
 
     for (auto const& sc : caloparticle.simClusters()) {
-      //std::cout << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and " << sc->energy() << " energy. " << std::endl;
+      LogDebug("HGCalValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and " << sc->energy() << " energy. " << std::endl;
       simHits += sc->hits_and_fractions().size();
       energy += sc->energy();
       for (auto const& h_and_f : sc->hits_and_fractions()) {
@@ -1289,7 +1289,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
           layerId_matched_max = layerId;
           simHits_matched++;
         } else {
-          //std::cout << "   matched to RecHit NOT found !" << std::endl;
+          LogDebug("HGCalValidator") << "   matched to RecHit NOT found !" << std::endl;
         }
 
         minLayerId = std::min(minLayerId, layerId);
@@ -1297,7 +1297,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
         minLayerId_matched = std::min(minLayerId_matched, layerId_matched_min);
         maxLayerId_matched = std::max(maxLayerId_matched, layerId_matched_max);
       }
-      //std::cout << std::endl;
+      LogDebug("HGCalValidator") << std::endl;
     }
     histograms.h_caloparticle_firstlayer.at(pdgid)->Fill(minLayerId);
     histograms.h_caloparticle_lastlayer.at(pdgid)->Fill(maxLayerId);
