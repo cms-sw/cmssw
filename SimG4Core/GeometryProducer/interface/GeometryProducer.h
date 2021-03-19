@@ -21,11 +21,16 @@ namespace sim {
   class FieldBuilder;
 }
 
+namespace cms {
+  class DDCompactView;
+}
+
 class SimWatcher;
 class SimProducer;
 class DDDWorld;
 class G4RunManagerKernel;
 class SimTrackManager;
+class DDCompactView;
 
 class GeometryProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
@@ -46,9 +51,7 @@ private:
   void updateMagneticField(edm::EventSetup const &es);
 
   G4RunManagerKernel *m_kernel;
-  bool m_pUseMagneticField;
   edm::ParameterSet m_pField;
-  bool m_pUseSensitiveDetectors;
   SimActivityRegistry m_registry;
   std::vector<std::shared_ptr<SimWatcher>> m_watchers;
   std::vector<std::shared_ptr<SimProducer>> m_producers;
@@ -58,7 +61,14 @@ private:
   std::vector<SensitiveTkDetector *> m_sensTkDets;
   std::vector<SensitiveCaloDetector *> m_sensCaloDets;
   edm::ParameterSet m_p;
+
+  mutable const DDCompactView *m_pDD;
+  mutable const cms::DDCompactView *m_pDD4hep;
+
   bool m_firstRun;
+  bool m_pUseMagneticField;
+  bool m_pUseSensitiveDetectors;
+  bool m_pGeoFromDD4hep;
 };
 
 #endif

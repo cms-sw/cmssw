@@ -35,10 +35,15 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     debugModules = cms.untracked.vstring('*'),
-    destinations = cms.untracked.vstring('log'),
-    #log = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'))
-    log = cms.untracked.PSet( threshold = cms.untracked.string('WARNING'))
+    files = cms.untracked.PSet(
+        log = cms.untracked.PSet(
+            threshold = cms.untracked.string('WARNING')
+        )
+    )
 )
 
 #process.load("CalibTracker.SiPixelConnectivity.PixelToLNKAssociateFromAsciiESProducer_cfi")

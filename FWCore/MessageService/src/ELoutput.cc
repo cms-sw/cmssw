@@ -116,6 +116,7 @@ namespace {
   }                          // formatTime()
 }  // namespace
 
+using namespace edm::messagelogger;
 namespace edm {
   namespace service {
     // ----------------------------------------------------------------------

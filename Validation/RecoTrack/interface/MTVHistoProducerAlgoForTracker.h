@@ -74,10 +74,6 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   std::vector<METype> h_reco_dzpvsigcut, h_assoc_dzpvsigcut, h_assoc2_dzpvsigcut, h_simul_dzpvsigcut,
       h_simul2_dzpvsigcut, h_pileup_dzpvsigcut;
 
-  std::vector<METype> h_reco_dzpvcut_pt, h_assoc_dzpvcut_pt, h_assoc2_dzpvcut_pt, h_simul_dzpvcut_pt,
-      h_simul2_dzpvcut_pt, h_pileup_dzpvcut_pt;
-  std::vector<METype> h_reco_dzpvsigcut_pt, h_assoc_dzpvsigcut_pt, h_assoc2_dzpvsigcut_pt, h_simul_dzpvsigcut_pt,
-      h_simul2_dzpvsigcut_pt, h_pileup_dzpvsigcut_pt;
   std::vector<METype> h_reco_simpvz, h_assoc_simpvz, h_assoc2_simpvz, h_simul_simpvz, h_looper_simpvz, h_pileup_simpvz;
 
   std::vector<METype> h_reco_seedingLayerSet, h_assoc2_seedingLayerSet, h_looper_seedingLayerSet,

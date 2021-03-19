@@ -67,7 +67,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -185,14 +184,18 @@ private:
   edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_l2cand_;
   std::vector<edm::EDGetTokenT<reco::TrackCollection>> tok_pixtks_;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+
   std::vector<reco::TrackRef> pixelTrackRefsHB_, pixelTrackRefsHE_;
-  edm::ESHandle<MagneticField> bFieldH_;
-  edm::ESHandle<CaloGeometry> pG_;
   edm::Handle<HBHERecHitCollection> hbhe_;
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle_;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle_;
   edm::Handle<reco::BeamSpot> beamSpotH_;
   edm::Handle<reco::VertexCollection> recVtxs_;
+
+  const MagneticField *bField_;
+  const CaloGeometry *geo_;
   math::XYZPoint leadPV_;
 
   std::map<unsigned int, unsigned int> trigList_;
@@ -413,6 +416,9 @@ IsoTrig::IsoTrig(const edm::ParameterSet &iConfig)
     pLimits_[i] = pl[i];
   rEB_ = 123.8;
   zEE_ = 317.0;
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
 IsoTrig::~IsoTrig() {
@@ -562,10 +568,9 @@ void IsoTrig::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
 
   HLTConfigProvider const &hltConfig = hltPrescaleProvider_.hltConfigProvider();
 
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH_);
-  iSetup.get<CaloGeometryRecord>().get(pG_);
-  const MagneticField *bField = bFieldH_.product();
-  GlobalVector BField = bField->inTesla(GlobalPoint(0, 0, 0));
+  bField_ = &iSetup.getData(tok_magField_);
+  geo_ = &iSetup.getData(tok_geom_);
+  GlobalVector BField = bField_->inTesla(GlobalPoint(0, 0, 0));
   bfVal_ = BField.mag();
 
   trigger::TriggerEvent triggerEvent;
@@ -1211,10 +1216,9 @@ void IsoTrig::StudyTrkEbyP(edm::Handle<reco::TrackCollection> &trkCollection) {
     edm::LogVerbatim("IsoTrack") << "trkCollection.isValid is false";
   } else {
     std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
-    const MagneticField *bField = bFieldH_.product();
-    const CaloGeometry *geo = pG_.product();
     std::vector<spr::propagatedTrackDirection> trkCaloDirections1;
-    spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
+    spr::propagateCALO(
+        trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
     unsigned int nTracks = 0;
     int nRH_eMipDR = 0, nNearTRKs = 0;
     std::vector<bool> selFlags;
@@ -1225,7 +1229,7 @@ void IsoTrig::StudyTrkEbyP(edm::Handle<reco::TrackCollection> &trkCollection) {
         edm::LogVerbatim("IsoTrack") << "track no. " << nTracks << " p(): " << pTrack->p();
       if (pTrack->p() > 20) {
         math::XYZTLorentzVector v2(pTrack->px(), pTrack->py(), pTrack->pz(), pTrack->p());
-        eMipDR = spr::eCone_ecal(geo,
+        eMipDR = spr::eCone_ecal(geo_,
                                  barrelRecHitsHandle_,
                                  endcapRecHitsHandle_,
                                  trkDetItr->pointHCAL,
@@ -1256,7 +1260,7 @@ void IsoTrig::StudyTrkEbyP(edm::Handle<reco::TrackCollection> &trkCollection) {
         if ((verbosity_ / 1000) % 10 > 1)
           edm::LogVerbatim("IsoTrack") << "coneh " << conehmaxNearP << "ok " << trkDetItr->okECAL << " "
                                        << trkDetItr->okHCAL;
-        double e1 = spr::eCone_ecal(geo,
+        double e1 = spr::eCone_ecal(geo_,
                                     barrelRecHitsHandle_,
                                     endcapRecHitsHandle_,
                                     trkDetItr->pointHCAL,
@@ -1264,7 +1268,7 @@ void IsoTrig::StudyTrkEbyP(edm::Handle<reco::TrackCollection> &trkCollection) {
                                     a_neutR1_,
                                     trkDetItr->directionECAL,
                                     nRH_eMipDR);
-        double e2 = spr::eCone_ecal(geo,
+        double e2 = spr::eCone_ecal(geo_,
                                     barrelRecHitsHandle_,
                                     endcapRecHitsHandle_,
                                     trkDetItr->pointHCAL,
@@ -1293,7 +1297,7 @@ void IsoTrig::StudyTrkEbyP(edm::Handle<reco::TrackCollection> &trkCollection) {
           int nRecHitsCone = -99, ietaHotCell = -99, iphiHotCell = -99;
           GlobalPoint gposHotCell(0., 0., 0.);
           std::vector<DetId> coneRecHitDetIds;
-          hCone = spr::eCone_hcal(geo,
+          hCone = spr::eCone_hcal(geo_,
                                   hbhe_,
                                   trkDetItr->pointHCAL,
                                   trkDetItr->pointECAL,
@@ -1443,10 +1447,9 @@ void IsoTrig::studyMipCut(edm::Handle<reco::TrackCollection> &trkCollection,
     edm::LogWarning("IsoTrack") << "trkCollection.isValid is false";
   } else {
     std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
-    const MagneticField *bField = bFieldH_.product();
-    const CaloGeometry *geo = pG_.product();
     std::vector<spr::propagatedTrackDirection> trkCaloDirections1;
-    spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
+    spr::propagateCALO(
+        trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
     if (verbosity_ % 10 > 0)
       edm::LogVerbatim("IsoTrack") << "Number of L2cands:" << L2cands->size() << " to be matched to something out of "
                                    << trkCaloDirections1.size() << " reco tracks";
@@ -1480,7 +1483,7 @@ void IsoTrig::studyMipCut(edm::Handle<reco::TrackCollection> &trkCollection,
           mindP1 = dp1;
           mindRvec = v2;
           int nRH_eMipDR = 0, nNearTRKs = 0;
-          eMipDR = spr::eCone_ecal(geo,
+          eMipDR = spr::eCone_ecal(geo_,
                                    barrelRecHitsHandle_,
                                    endcapRecHitsHandle_,
                                    trkDetItr->pointHCAL,
@@ -1505,7 +1508,7 @@ void IsoTrig::studyMipCut(edm::Handle<reco::TrackCollection> &trkCollection,
           bool qltyPVFlag = spr::goodTrack(pTrack, leadPV_, oneCutParameters, ((verbosity_ / 100) % 10 > 1));
           conehmaxNearP = spr::chargeIsolationCone(
               nTracks, trkCaloDirections1, a_charIsoR_, nNearTRKs, ((verbosity_ / 100) % 10 > 1));
-          double e1 = spr::eCone_ecal(geo,
+          double e1 = spr::eCone_ecal(geo_,
                                       barrelRecHitsHandle_,
                                       endcapRecHitsHandle_,
                                       trkDetItr->pointHCAL,
@@ -1513,7 +1516,7 @@ void IsoTrig::studyMipCut(edm::Handle<reco::TrackCollection> &trkCollection,
                                       a_neutR1_,
                                       trkDetItr->directionECAL,
                                       nRH_eMipDR);
-          double e2 = spr::eCone_ecal(geo,
+          double e2 = spr::eCone_ecal(geo_,
                                       barrelRecHitsHandle_,
                                       endcapRecHitsHandle_,
                                       trkDetItr->pointHCAL,
@@ -1539,7 +1542,7 @@ void IsoTrig::studyMipCut(edm::Handle<reco::TrackCollection> &trkCollection,
           int nRecHitsCone = -99, ietaHotCell = -99, iphiHotCell = -99;
           GlobalPoint gposHotCell(0., 0., 0.);
           std::vector<DetId> coneRecHitDetIds;
-          hCone = spr::eCone_hcal(geo,
+          hCone = spr::eCone_hcal(geo_,
                                   hbhe_,
                                   trkDetItr->pointHCAL,
                                   trkDetItr->pointECAL,
@@ -1685,11 +1688,9 @@ void IsoTrig::studyTrigger(edm::Handle<reco::TrackCollection> &trkCollection,
 void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
                              std::vector<reco::TrackCollection::const_iterator> &goodTks) {
   if (trkCollection.isValid()) {
-    // get handles to calogeometry and calotopology
-    const CaloGeometry *geo = pG_.product();
-    const MagneticField *bField = bFieldH_.product();
     std::vector<spr::propagatedTrackDirection> trkCaloDirections;
-    spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDirections, ((verbosity_ / 100) % 10 > 2));
+    spr::propagateCALO(
+        trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections, ((verbosity_ / 100) % 10 > 2));
 
     std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
     if ((verbosity_ / 1000) % 10 > 1) {
@@ -1734,7 +1735,7 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
       if (selectTk && trkDetItr->okECAL && trkDetItr->okHCAL) {
         ngoodTk++;
         int nRH_eMipDR = 0, nNearTRKs = 0;
-        double e1 = spr::eCone_ecal(geo,
+        double e1 = spr::eCone_ecal(geo_,
                                     barrelRecHitsHandle_,
                                     endcapRecHitsHandle_,
                                     trkDetItr->pointHCAL,
@@ -1742,7 +1743,7 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
                                     a_neutR1_,
                                     trkDetItr->directionECAL,
                                     nRH_eMipDR);
-        double e2 = spr::eCone_ecal(geo,
+        double e2 = spr::eCone_ecal(geo_,
                                     barrelRecHitsHandle_,
                                     endcapRecHitsHandle_,
                                     trkDetItr->pointHCAL,
@@ -1750,7 +1751,7 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
                                     a_neutR2_,
                                     trkDetItr->directionECAL,
                                     nRH_eMipDR);
-        eMipDR = spr::eCone_ecal(geo,
+        eMipDR = spr::eCone_ecal(geo_,
                                  barrelRecHitsHandle_,
                                  endcapRecHitsHandle_,
                                  trkDetItr->pointHCAL,
@@ -1765,7 +1766,7 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
         int nRecHitsCone = -99, ietaHotCell = -99, iphiHotCell = -99;
         GlobalPoint gposHotCell(0., 0., 0.);
         std::vector<DetId> coneRecHitDetIds;
-        hCone = spr::eCone_hcal(geo,
+        hCone = spr::eCone_hcal(geo_,
                                 hbhe_,
                                 trkDetItr->pointHCAL,
                                 trkDetItr->pointECAL,
@@ -1836,10 +1837,8 @@ void IsoTrig::chgIsolation(double &etaTriggered,
   std::vector<double> maxP;
 
   std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
-  const MagneticField *bField = bFieldH_.product();
-  const CaloGeometry *geo = pG_.product();
   std::vector<spr::propagatedTrackDirection> trkCaloDirections1;
-  spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
+  spr::propagateCALO(trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections1, ((verbosity_ / 100) % 10 > 2));
   if (verbosity_ % 10 > 0)
     edm::LogVerbatim("IsoTrack") << "Propagated TrkCollection";
   for (unsigned int k = 0; k < pixelIsolationConeSizeAtEC_.size(); ++k)
@@ -1958,11 +1957,9 @@ void IsoTrig::getGoodTracks(const edm::Event &iEvent, edm::Handle<reco::TrackCol
   t_nGoodTk->clear();
   std::vector<int> nGood(4, 0);
   if (trkCollection.isValid()) {
-    // get handles to calogeometry and calotopology
-    const CaloGeometry *geo = pG_.product();
-    const MagneticField *bField = bFieldH_.product();
     std::vector<spr::propagatedTrackDirection> trkCaloDirections;
-    spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDirections, ((verbosity_ / 100) % 10 > 2));
+    spr::propagateCALO(
+        trkCollection, geo_, bField_, theTrackQuality_, trkCaloDirections, ((verbosity_ / 100) % 10 > 2));
 
     // get the trigger jet
     edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
@@ -2013,7 +2010,7 @@ void IsoTrig::getGoodTracks(const edm::Event &iEvent, edm::Handle<reco::TrackCol
                                      << selectTk;
       if (selectTk && trkDetItr->okECAL && trkDetItr->okHCAL && mindR > 1.0) {
         int nRH_eMipDR(0), nNearTRKs(0);
-        double eMipDR = spr::eCone_ecal(geo,
+        double eMipDR = spr::eCone_ecal(geo_,
                                         barrelRecHitsHandle_,
                                         endcapRecHitsHandle_,
                                         trkDetItr->pointHCAL,

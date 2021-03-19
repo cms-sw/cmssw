@@ -54,7 +54,7 @@ namespace deep_tau {
 
   std::unique_ptr<DeepTauBase::TauDiscriminator> DeepTauBase::Output::get_value(const edm::Handle<TauCollection>& taus,
                                                                                 const tensorflow::Tensor& pred,
-                                                                                const WPList& working_points,
+                                                                                const WPList* working_points,
                                                                                 bool is_online) const {
     std::vector<reco::SingleTauDiscriminatorContainer> outputbuffer(taus->size());
 
@@ -69,9 +69,11 @@ namespace deep_tau {
         x = den_val != 0 ? x / den_val : std::numeric_limits<float>::max();
       }
       outputbuffer[tau_index].rawValues.push_back(x);
-      for (const auto& wp : working_points) {
-        const bool pass = x > (*wp)(taus->at(tau_index), is_online);
-        outputbuffer[tau_index].workingPoints.push_back(pass);
+      if (working_points) {
+        for (const auto& wp : *working_points) {
+          const bool pass = x > (*wp)(taus->at(tau_index), is_online);
+          outputbuffer[tau_index].workingPoints.push_back(pass);
+        }
       }
     }
     std::unique_ptr<TauDiscriminator> output = std::make_unique<TauDiscriminator>();
@@ -174,7 +176,11 @@ namespace deep_tau {
 
   void DeepTauBase::createOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus) {
     for (const auto& output_desc : outputs_) {
-      auto result = output_desc.second.get_value(taus, pred, workingPoints_.at(output_desc.first), is_online_);
+      const WPList* working_points = nullptr;
+      if (workingPoints_.find(output_desc.first) != workingPoints_.end()) {
+        working_points = &workingPoints_.at(output_desc.first);
+      }
+      auto result = output_desc.second.get_value(taus, pred, working_points, is_online_);
       event.put(std::move(result), output_desc.first);
     }
   }

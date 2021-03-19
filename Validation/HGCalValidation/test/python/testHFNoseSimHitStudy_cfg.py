@@ -28,9 +28,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
-    process.MessageLogger.categories.append('HFNSim')
-    process.MessageLogger.categories.append('HGCalValidation')
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HFNSim=dict()
+    process.MessageLogger.HGCalValidation=dict()
 
 
 # Input source

@@ -198,7 +198,7 @@ namespace edm {
     //See if all modules were used
     std::set<std::string> usedWorkerLabels;
     for (auto const& worker : allWorkers()) {
-      usedWorkerLabels.insert(worker->description().moduleLabel());
+      usedWorkerLabels.insert(worker->description()->moduleLabel());
     }
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string>>("@all_modules"));
     std::set<std::string> modulesInConfigSet(modulesInConfig.begin(), modulesInConfig.end());
@@ -291,7 +291,7 @@ namespace edm {
 
     for (auto w : allWorkers()) {
       //determine if this module could read a branch we want to delete early
-      auto pset = pset::Registry::instance()->getMapped(w->description().parameterSetID());
+      auto pset = pset::Registry::instance()->getMapped(w->description()->parameterSetID());
       if (nullptr != pset) {
         auto branches = pset->getUntrackedParameter<std::vector<std::string>>("mightGet", kEmpty);
         if (not branches.empty()) {
@@ -446,10 +446,10 @@ namespace edm {
         // We have a filter on an end path, and the filter is not explicitly ignored.
         // See if the filter is allowed.
         std::vector<std::string> allowed_filters = proc_pset.getUntrackedParameter<vstring>("@filters_on_endpaths");
-        if (!search_all(allowed_filters, worker->description().moduleName())) {
+        if (!search_all(allowed_filters, worker->description()->moduleName())) {
           // Filter is not allowed. Ignore the result, and issue a warning.
           filterAction = WorkerInPath::Ignore;
-          LogWarning("FilterOnEndPath") << "The EDFilter '" << worker->description().moduleName()
+          LogWarning("FilterOnEndPath") << "The EDFilter '" << worker->description()->moduleName()
                                         << "' with module label '" << moduleLabel << "' appears on EndPath '"
                                         << pathName << "'.\n"
                                         << "The return value of the filter will be ignored.\n"
@@ -534,7 +534,7 @@ namespace edm {
   void StreamSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {
-      if (worker->description().moduleLabel() == iLabel) {
+      if (worker->description()->moduleLabel() == iLabel) {
         found = worker;
         break;
       }
@@ -547,12 +547,14 @@ namespace edm {
     found->beginStream(streamID_, streamContext_);
   }
 
+  void StreamSchedule::deleteModule(std::string const& iLabel) { workerManager_.deleteModuleIfExists(iLabel); }
+
   std::vector<ModuleDescription const*> StreamSchedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
     result.reserve(allWorkers().size());
 
     for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->descPtr();
+      ModuleDescription const* p = worker->description();
       result.push_back(p);
     }
     return result;
@@ -607,7 +609,6 @@ namespace edm {
       auto pathErrorHolder = std::make_unique<std::atomic<std::exception_ptr*>>(nullptr);
       auto pathErrorPtr = pathErrorHolder.get();
       auto allPathsDone = make_waiting_task(
-          tbb::task::allocate_root(),
           [iTask, this, serviceToken, pathError = std::move(pathErrorHolder)](std::exception_ptr const* iPtr) mutable {
             ServiceRegistry::Operate operate(serviceToken);
 
@@ -624,38 +625,38 @@ namespace edm {
       //The holder guarantees that if the paths finish before the loop ends
       // that we do not start too soon. It also guarantees that the task will
       // run under that condition.
-      WaitingTaskHolder allPathsHolder(allPathsDone);
+      WaitingTaskHolder allPathsHolder(*iTask.group(), allPathsDone);
 
-      auto pathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                         [allPathsHolder, pathErrorPtr, transitionInfo = info, this, serviceToken](
+      auto pathsDone = make_waiting_task([allPathsHolder, pathErrorPtr, transitionInfo = info, this, serviceToken](
                                              std::exception_ptr const* iPtr) mutable {
-                                           ServiceRegistry::Operate operate(serviceToken);
+        ServiceRegistry::Operate operate(serviceToken);
 
-                                           if (iPtr) {
-                                             //this is used to prioritize this error over one
-                                             // that happens in EndPath or Accumulate
-                                             pathErrorPtr->store(new std::exception_ptr(*iPtr));
-                                           }
-                                           finishedPaths(*pathErrorPtr, std::move(allPathsHolder), transitionInfo);
-                                         });
+        if (iPtr) {
+          //this is used to prioritize this error over one
+          // that happens in EndPath or Accumulate
+          pathErrorPtr->store(new std::exception_ptr(*iPtr));
+        }
+        finishedPaths(*pathErrorPtr, std::move(allPathsHolder), transitionInfo);
+      });
 
       //The holder guarantees that if the paths finish before the loop ends
       // that we do not start too soon. It also guarantees that the task will
       // run under that condition.
-      WaitingTaskHolder taskHolder(pathsDone);
+      WaitingTaskHolder taskHolder(*iTask.group(), pathsDone);
 
       //start end paths first so on single threaded the paths will run first
+      WaitingTaskHolder hAllPathsDone(*iTask.group(), allPathsDone);
       for (auto it = end_paths_.rbegin(), itEnd = end_paths_.rend(); it != itEnd; ++it) {
-        it->processOneOccurrenceAsync(allPathsDone, info, serviceToken, streamID_, &streamContext_);
+        it->processOneOccurrenceAsync(hAllPathsDone, info, serviceToken, streamID_, &streamContext_);
       }
 
       for (auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend(); it != itEnd; ++it) {
-        it->processOneOccurrenceAsync(pathsDone, info, serviceToken, streamID_, &streamContext_);
+        it->processOneOccurrenceAsync(taskHolder, info, serviceToken, streamID_, &streamContext_);
       }
 
       ParentContext parentContext(&streamContext_);
       workerManager_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-          allPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
+          hAllPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
     } catch (...) {
       iTask.doneWaiting(std::current_exception());
     }
@@ -693,7 +694,10 @@ namespace edm {
         ParentContext parentContext(&streamContext_);
         using Traits = OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>;
 
-        results_inserter_->doWork<Traits>(info, streamID_, parentContext, &streamContext_);
+        auto expt = results_inserter_->runModuleDirectly<Traits>(info, streamID_, parentContext, &streamContext_);
+        if (expt) {
+          std::rethrow_exception(expt);
+        }
       } catch (cms::Exception& ex) {
         if (not iExcept) {
           if (ex.context().empty()) {
@@ -764,7 +768,7 @@ namespace edm {
     if (itFound != trig_paths_.end()) {
       oLabelsToFill.reserve(itFound->size());
       for (size_t i = 0; i < itFound->size(); ++i) {
-        oLabelsToFill.push_back(itFound->getWorker(i)->description().moduleLabel());
+        oLabelsToFill.push_back(itFound->getWorker(i)->description()->moduleLabel());
       }
     }
   }
@@ -793,7 +797,7 @@ namespace edm {
     if (found) {
       descriptions.reserve(itFound->size());
       for (size_t i = 0; i < itFound->size(); ++i) {
-        descriptions.push_back(itFound->getWorker(i)->descPtr());
+        descriptions.push_back(itFound->getWorker(i)->description());
       }
     }
   }
@@ -822,7 +826,7 @@ namespace edm {
     if (found) {
       descriptions.reserve(itFound->size());
       for (size_t i = 0; i < itFound->size(); ++i) {
-        descriptions.push_back(itFound->getWorker(i)->descPtr());
+        descriptions.push_back(itFound->getWorker(i)->description());
       }
     }
   }
@@ -836,7 +840,7 @@ namespace edm {
     sum.timesPassed += path.timesPassed(which);
     sum.timesFailed += path.timesFailed(which);
     sum.timesExcept += path.timesExcept(which);
-    sum.moduleLabel = path.getWorker(which)->description().moduleLabel();
+    sum.moduleLabel = path.getWorker(which)->description()->moduleLabel();
   }
 
   static void fillPathSummary(Path const& path, PathSummary& sum) {
@@ -868,7 +872,7 @@ namespace edm {
     sum.timesPassed += w.timesPassed();
     sum.timesFailed += w.timesFailed();
     sum.timesExcept += w.timesExcept();
-    sum.moduleLabel = w.description().moduleLabel();
+    sum.moduleLabel = w.description()->moduleLabel();
   }
 
   static void fillWorkerSummary(Worker const* pw, WorkerSummary& sum) { fillWorkerSummaryAux(*pw, sum); }

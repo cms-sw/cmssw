@@ -188,8 +188,8 @@ conv2LayerPairs = cms.EDProducer('SeedingLayersEDProducer',
                                 )
 
 
-photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('generalTracks')
-photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
+photonConvTrajSeedFromQuadruplets.TrackRefitter      = 'generalTracks'
+photonConvTrajSeedFromQuadruplets.primaryVerticesTag = 'pixelVertices'
 
 
 # TRACKER DATA CONTROL

@@ -99,7 +99,7 @@ namespace edm {
     Worker* found = nullptr;
     for (auto& wm : workerManagers_) {
       for (auto const& worker : wm.allWorkers()) {
-        if (worker->description().moduleLabel() == iLabel) {
+        if (worker->description()->moduleLabel() == iLabel) {
           found = worker;
           break;
         }
@@ -113,12 +113,18 @@ namespace edm {
     }
   }
 
+  void GlobalSchedule::deleteModule(std::string const& iLabel) {
+    for (auto& wm : workerManagers_) {
+      wm.deleteModuleIfExists(iLabel);
+    }
+  }
+
   std::vector<ModuleDescription const*> GlobalSchedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
     result.reserve(allWorkers().size());
 
     for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->descPtr();
+      ModuleDescription const* p = worker->description();
       result.push_back(p);
     }
     return result;

@@ -9,7 +9,6 @@
 #include "DataFormats/L1TMuon/interface/CSCConstants.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboardLUT.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboardLUTGenerator.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 
 class CSCBaseboard {

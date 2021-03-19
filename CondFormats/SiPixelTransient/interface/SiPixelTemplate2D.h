@@ -100,14 +100,10 @@ struct SiPixelTemplateHeader2D {  //!< template header structure
 };
 
 struct SiPixelTemplateStore2D {  //!< template storage structure
-  SiPixelTemplateHeader2D head;
-  SiPixelTemplateEntry2D** entry = nullptr;  //!< use 2d entry to store BPix and FPix entries [dynamically allocated]
-  void destroy() {                           // deletes arrays created by pushfile method of SiPixelTemplate
-    if (entry != nullptr) {
-      delete[] entry[0];
-      delete[] entry;
-    }
-  }
+  SiPixelTemplateHeader2D head;  //!< Header information
+
+  //!< use 2d entry to store BPix and FPix entries [dynamically allocated]
+  std::vector<std::vector<SiPixelTemplateEntry2D>> entry;
 };
 
 // ******************************************************************************************

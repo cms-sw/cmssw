@@ -251,6 +251,9 @@ namespace edm {
     /// clone the type of module with label iLabel but configure with iPSet.
     void replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel);
 
+    /// Delete the module with label iLabel
+    void deleteModule(std::string const& iLabel);
+
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const { return workerManager_.allWorkers(); }
 
@@ -383,9 +386,8 @@ namespace edm {
     T::setStreamContext(streamContext_, principal);
 
     auto id = principal.id();
-    auto doneTask = make_waiting_task(
-        tbb::task::allocate_root(),
-        [this, iHolder, id, cleaningUpAfterException, token](std::exception_ptr const* iPtr) mutable {
+    auto doneTask =
+        make_waiting_task([this, iHolder, id, cleaningUpAfterException, token](std::exception_ptr const* iPtr) mutable {
           std::exception_ptr excpt;
           if (iPtr) {
             excpt = *iPtr;
@@ -418,39 +420,44 @@ namespace edm {
           iHolder.doneWaiting(excpt);
         });
 
-    auto task =
-        make_functor_task(tbb::task::allocate_root(),
-                          [this, doneTask, h = WaitingTaskHolder(doneTask), info = transitionInfo, token]() mutable {
-                            ServiceRegistry::Operate op(token);
-                            // Caught exception is propagated via WaitingTaskHolder
-                            CMS_SA_ALLOW try {
-                              T::preScheduleSignal(actReg_.get(), &streamContext_);
+    auto task = make_functor_task(
+        [this, h = WaitingTaskHolder(*iHolder.group(), doneTask), info = transitionInfo, token]() mutable {
+          ServiceRegistry::Operate op(token);
+          // Caught exception is propagated via WaitingTaskHolder
+          CMS_SA_ALLOW try {
+            T::preScheduleSignal(actReg_.get(), &streamContext_);
 
-                              workerManager_.resetAll();
-                            } catch (...) {
-                              h.doneWaiting(std::current_exception());
-                              return;
-                            }
+            workerManager_.resetAll();
+          } catch (...) {
+            h.doneWaiting(std::current_exception());
+            return;
+          }
 
-                            for (auto& p : end_paths_) {
-                              p.runAllModulesAsync<T>(doneTask, info, token, streamID_, &streamContext_);
-                            }
+          for (auto& p : end_paths_) {
+            p.runAllModulesAsync<T>(h, info, token, streamID_, &streamContext_);
+          }
 
-                            for (auto& p : trig_paths_) {
-                              p.runAllModulesAsync<T>(doneTask, info, token, streamID_, &streamContext_);
-                            }
+          for (auto& p : trig_paths_) {
+            p.runAllModulesAsync<T>(h, info, token, streamID_, &streamContext_);
+          }
 
-                            workerManager_.processOneOccurrenceAsync<T>(
-                                doneTask, info, token, streamID_, &streamContext_, &streamContext_);
-                          });
+          workerManager_.processOneOccurrenceAsync<T>(h, info, token, streamID_, &streamContext_, &streamContext_);
+        });
 
     if (streamID_.value() == 0) {
       //Enqueueing will start another thread if there is only
       // one thread in the job. Having stream == 0 use spawn
       // avoids starting up another thread when there is only one stream.
-      tbb::task::spawn(*task);
+      iHolder.group()->run([task]() {
+        TaskSentry s{task};
+        task->execute();
+      });
     } else {
-      tbb::task::enqueue(*task);
+      tbb::task_arena arena{tbb::task_arena::attach()};
+      arena.enqueue([task]() {
+        TaskSentry s{task};
+        task->execute();
+      });
     }
   }
 }  // namespace edm

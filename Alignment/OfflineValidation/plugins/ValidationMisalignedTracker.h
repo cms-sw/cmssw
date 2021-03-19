@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 //
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"

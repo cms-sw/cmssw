@@ -1,7 +1,6 @@
 #include <memory>
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 
@@ -31,19 +30,20 @@ private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> tok_slew_;
   const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
-HcalPulseContainmentTest::HcalPulseContainmentTest(const edm::ParameterSet& iConfig) { hcalTimeSlew_delay_ = nullptr; }
+HcalPulseContainmentTest::HcalPulseContainmentTest(const edm::ParameterSet& iConfig)
+    : tok_slew_(esConsumes<HcalTimeSlew, HcalTimeSlewRecord>(edm::ESInputTag{"", "HBHE"})),
+      hcalTimeSlew_delay_(nullptr) {}
 
 HcalPulseContainmentTest::~HcalPulseContainmentTest() {}
 
 void HcalPulseContainmentTest::beginJob() {}
 
 void HcalPulseContainmentTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HcalTimeSlew> delay;
-  iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
-  hcalTimeSlew_delay_ = &*delay;
+  hcalTimeSlew_delay_ = &iSetup.getData(tok_slew_);
 
   float fixedphase_ns = 6.0;
   float max_fracerror = 0.02;

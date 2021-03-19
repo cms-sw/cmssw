@@ -30,7 +30,7 @@ public:
   inline int algoId(unsigned int iAlgo) const { return fAlgoId.at(iAlgo); }
   inline bool isCharged(unsigned int iAlgo) const { return fCharged.at(iAlgo); }
   inline double coneSize(unsigned int iAlgo) const { return fConeSize.at(iAlgo); }
-  inline double neutralPt(int iNPV) const { return cur_NeutralPtMin + iNPV * cur_NeutralPtSlope; }
+  inline double neutralPt(double const iPUProxy) const { return cur_NeutralPtMin + iPUProxy * cur_NeutralPtSlope; }
 
   inline double rms() const { return cur_RMS; }
   inline double median() const { return cur_Med; }

@@ -22,7 +22,8 @@ public:
                          int mcShape,
                          int recoShape,
                          double photoelectronsToAnalog,
-                         const std::vector<double>& darkCurrent);
+                         const std::vector<double>& darkCurrent,
+                         const std::vector<double>& noiseCorrelation);
   //construct from pset
   HcalHardcodeParameters(const edm::ParameterSet& p);
 
@@ -43,6 +44,7 @@ public:
   const int recoShape() const { return recoShape_; }
   const double photoelectronsToAnalog() const { return photoelectronsToAnalog_; }
   const double darkCurrent(unsigned index, double intlumi) const;
+  const double noiseCorrelation(unsigned index) const;
 
 private:
   //member variables
@@ -54,6 +56,7 @@ private:
   int mcShape_, recoShape_;
   double photoelectronsToAnalog_;
   std::vector<double> darkCurrent_;
+  std::vector<double> noiseCorrelation_;
   bool doSipmRadiationDamage_;
   HcalSiPMRadiationDamage sipmRadiationDamage_;
 };

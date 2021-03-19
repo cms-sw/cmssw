@@ -34,7 +34,7 @@ namespace edm {
     template <typename IT>
     UnscheduledConfigurator(IT iBegin, IT iEnd, UnscheduledAuxiliary const* iAux) : m_aux(iAux) {
       for (auto it = iBegin; it != iEnd; ++it) {
-        m_labelToWorker.emplace((*it)->description().moduleLabel(), *it);
+        m_labelToWorker.emplace((*it)->description()->moduleLabel(), *it);
       }
     }
 

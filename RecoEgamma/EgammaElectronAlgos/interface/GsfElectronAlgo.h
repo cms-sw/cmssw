@@ -176,7 +176,6 @@ public:
                   const ElectronHcalHelper::Configuration& hcalCfg,
                   const IsolationConfiguration&,
                   const EcalRecHitsConfiguration&,
-                  std::unique_ptr<EcalClusterFunctionBaseClass>&& superClusterErrorFunction,
                   std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
                   const RegressionHelper::Configuration& regCfg,
                   const edm::ParameterSet& tkIsol03Cfg,
@@ -251,7 +250,6 @@ private:
 
   // additional configuration and helpers
   ElectronHcalHelper hcalHelper_;
-  std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction_;
   std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
   RegressionHelper regHelper_;
 };

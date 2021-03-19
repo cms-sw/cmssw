@@ -16,11 +16,6 @@
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelHitEfficiencyModule.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
 // Data Formats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
@@ -28,10 +23,8 @@
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 using namespace std;
 
@@ -42,14 +35,10 @@ SiPixelHitEfficiencyModule::SiPixelHitEfficiencyModule(uint32_t id) : id_(id) { 
 SiPixelHitEfficiencyModule::~SiPixelHitEfficiencyModule() {}
 
 void SiPixelHitEfficiencyModule::book(const edm::ParameterSet &iConfig,
-                                      edm::EventSetup const &iSetup,
+                                      const TrackerTopology *pTT,
                                       DQMStore::IBooker &iBooker,
                                       int type,
                                       bool isUpgrade) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *pTT = tTopoHandle.product();
-
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;

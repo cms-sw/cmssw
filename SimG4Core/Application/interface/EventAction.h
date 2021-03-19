@@ -36,6 +36,9 @@ public:
     m_trackManager->addTrack(iTrack, inHistory, withAncestor);
   }
 
+  bool trackExists(unsigned int id) const { return m_trackManager->trackExists(id); }
+  TrackWithHistory* getTrackByID(unsigned int id) const { return m_trackManager->getTrackByID(id); }
+
   void addTkCaloStateInfo(uint32_t t, const std::pair<math::XYZVectorD, math::XYZTLorentzVectorD>& p);
 
   inline void prepareForNewPrimary() { m_trackManager->cleanTracksWithHistory(); }

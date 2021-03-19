@@ -47,16 +47,11 @@ public:
 
 protected:
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  void processHit(const TrackingRecHit& recHit,
-                  edm::EventSetup const& iSetup,
-                  const TrackerGeometry& tkGeom,
-                  double wfac = 1);
-  void processClusters(edm::Event const& iEvent,
-                       edm::EventSetup const& iSetup,
-                       const TrackerGeometry& tkGeom,
-                       double wfac = 1);
+  void processHit(const TrackingRecHit& recHit, edm::EventSetup const& iSetup, double wfac = 1);
+  void processClusters(edm::Event const& iEvent, edm::EventSetup const& iSetup, double wfac = 1);
   void addClusterToMap(uint32_t detid, const SiStripCluster* cluster);
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
 
 private:
   edm::ParameterSet parameters_;
@@ -157,6 +152,8 @@ private:
 
   std::vector<float> vpu_;
   std::map<uint32_t, std::set<const SiStripCluster*> > clusterMap_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const TrackerGeometry* tkGeom_ = nullptr;
 };
 
 // -----------------------------
@@ -184,7 +181,8 @@ StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
       haveAllHistograms_(parameters_.getUntrackedParameter<bool>("haveAllHistograms", false)),
       puScaleFactorFile_(
           parameters_.getUntrackedParameter<std::string>("puScaleFactorFile", "PileupScaleFactor_run203002.root")),
-      verbose_(parameters_.getUntrackedParameter<bool>("verbose", false)) {
+      verbose_(parameters_.getUntrackedParameter<bool>("verbose", false)),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
   trackEtaH_ = nullptr;
   trackEtaerrH_ = nullptr;
   trackCosThetaH_ = nullptr;
@@ -261,6 +259,10 @@ StandaloneTrackMonitor::StandaloneTrackMonitor(const edm::ParameterSet& ps)
       vpu_.push_back(h1->GetBinContent(i));
     f1->Close();
   }
+}
+
+void StandaloneTrackMonitor::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  tkGeom_ = &(iSetup.getData(geomToken_));
 }
 
 void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& iBook,
@@ -459,9 +461,6 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& iBook,
 }
 void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   // Get event setup (to get global transformation)
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geomHandle);
-  const TrackerGeometry& tkGeom = (*geomHandle);
 
   siStripClusterInfo_.initEvent(iSetup);
 
@@ -631,7 +630,7 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
               ++nStripTID;
 
             // Find on-track clusters
-            processHit(hit, iSetup, tkGeom, wfac);
+            processHit(hit, iSetup, wfac);
           }
         }
       }
@@ -655,12 +654,9 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
     nTracksH_->Fill(ntracks);
 
   // off track cluster properties
-  processClusters(iEvent, iSetup, tkGeom, wfac);
+  processClusters(iEvent, iSetup, wfac);
 }
-void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent,
-                                             edm::EventSetup const& iSetup,
-                                             const TrackerGeometry& tkGeom,
-                                             double wfac) {
+void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent, edm::EventSetup const& iSetup, double wfac) {
   // SiStripClusters
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterHandle;
   iEvent.getByToken(clusterToken_, clusterHandle);
@@ -686,7 +682,7 @@ void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent,
         float charge = siStripClusterInfo_.charge();
         float width = siStripClusterInfo_.width();
 
-        const GeomDetUnit* detUnit = tkGeom.idToDetUnit(detId);
+        const GeomDetUnit* detUnit = tkGeom_->idToDetUnit(detId);
         float thickness = detUnit->surface().bounds().thickness();  // unit cm
         if (thickness > 0.035) {
           hOffTrkClusChargeThickH_->Fill(charge, wfac);
@@ -701,12 +697,9 @@ void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent,
     edm::LogError("StandaloneTrackMonitor") << "ClusterCollection " << clusterTag_ << " not valid!!" << std::endl;
   }
 }
-void StandaloneTrackMonitor::processHit(const TrackingRecHit& recHit,
-                                        edm::EventSetup const& iSetup,
-                                        const TrackerGeometry& tkGeom,
-                                        double wfac) {
+void StandaloneTrackMonitor::processHit(const TrackingRecHit& recHit, edm::EventSetup const& iSetup, double wfac) {
   uint32_t detid = recHit.geographicalId();
-  const GeomDetUnit* detUnit = tkGeom.idToDetUnit(detid);
+  const GeomDetUnit* detUnit = tkGeom_->idToDetUnit(detid);
   float thickness = detUnit->surface().bounds().thickness();  // unit cm
 
   auto const& thit = static_cast<BaseTrackerRecHit const&>(recHit);

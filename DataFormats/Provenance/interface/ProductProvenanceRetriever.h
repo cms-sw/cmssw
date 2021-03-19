@@ -9,6 +9,7 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -25,7 +26,6 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 
 namespace edm {
   class ProvenanceReaderBase;
-  class WaitingTask;
   class ModuleCallingContext;
   class ProductRegistry;
 
@@ -47,7 +47,7 @@ namespace edm {
     ProvenanceReaderBase() {}
     virtual ~ProvenanceReaderBase();
     virtual std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const = 0;
-    virtual void readProvenanceAsync(WaitingTask* task,
+    virtual void readProvenanceAsync(WaitingTaskHolder task,
                                      ModuleCallingContext const* moduleCallingContext,
                                      unsigned int transitionIndex,
                                      std::atomic<const std::set<ProductProvenance>*>& writeTo) const = 0;
@@ -77,7 +77,7 @@ namespace edm {
 
     void reset();
 
-    void readProvenanceAsync(WaitingTask* task, ModuleCallingContext const* moduleCallingContext) const;
+    void readProvenanceAsync(WaitingTaskHolder task, ModuleCallingContext const* moduleCallingContext) const;
 
     void update(edm::ProductRegistry const&);
 

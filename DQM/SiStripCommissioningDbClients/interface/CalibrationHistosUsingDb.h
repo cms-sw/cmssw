@@ -15,6 +15,7 @@ public:
   CalibrationHistosUsingDb(const edm::ParameterSet& pset,
                            DQMStore*,
                            SiStripConfigDb* const,
+                           edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken,
                            const sistrip::RunType& task = sistrip::CALIBRATION);
 
   ~CalibrationHistosUsingDb() override;

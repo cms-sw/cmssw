@@ -17,6 +17,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TFile.h>
 #include <TVector2.h>
@@ -39,7 +40,7 @@
 #define LOGERR(x) edm::LogError(x)
 #define LOGDRESSED(x) edm::LogInfo(x)
 #else
-#define docast(x, y) reinterpret_cast<x>(y)
+#define docast(x, y) static_cast<x>(y)
 #define LOGVERB(x) LogTrace(x)
 #define LOGWARN(x) edm::LogWarning(x)
 #define LOGERR(x) edm::LogError(x)
@@ -88,13 +89,13 @@ namespace {
                                const size_t test,
                                const float EoPin_cut = 1.0e6) {
     constexpr reco::PFBlockElement::TrackType ConvType = reco::PFBlockElement::T_FROM_GAMMACONV;
+    auto elemkey = &(block->elements()[key]);
     // this is inside out but I just want something that works right now
-    switch (keytype) {
+    switch (elemkey->type()) {
       case reco::PFBlockElement::GSF: {
-        const reco::PFBlockElementGsfTrack* elemasgsf =
-            docast(const reco::PFBlockElementGsfTrack*, &(block->elements()[key]));
+        const reco::PFBlockElementGsfTrack* elemasgsf = docast(const reco::PFBlockElementGsfTrack*, elemkey);
         if (elemasgsf && valtype == PFBlockElement::ECAL) {
-          const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
+          const ClusterElement* elemasclus = static_cast<const ClusterElement*>(&(block->elements()[test]));
           float cluster_e = elemasclus->clusterRef()->correctedEnergy();
           float trk_pin = elemasgsf->Pin().P();
           if (cluster_e / trk_pin > EoPin_cut) {
@@ -104,9 +105,9 @@ namespace {
         }
       } break;
       case reco::PFBlockElement::TRACK: {
-        const reco::PFBlockElementTrack* elemaskf = docast(const reco::PFBlockElementTrack*, &(block->elements()[key]));
+        const reco::PFBlockElementTrack* elemaskf = docast(const reco::PFBlockElementTrack*, elemkey);
         if (elemaskf && valtype == PFBlockElement::ECAL) {
-          const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
+          const ClusterElement* elemasclus = static_cast<const ClusterElement*>(&(block->elements()[test]));
           float cluster_e = elemasclus->clusterRef()->correctedEnergy();
           float trk_pin = std::sqrt(elemaskf->trackRef()->innerMomentum().mag2());
           if (cluster_e / trk_pin > EoPin_cut) {
@@ -148,7 +149,7 @@ namespace {
           if (!useConvs && elemaskf->trackType(ConvType))
             return false;
           if (elemaskf && valtype == PFBlockElement::ECAL) {
-            const ClusterElement* elemasclus = reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
+            const ClusterElement* elemasclus = static_cast<const ClusterElement*>(&(block->elements()[test]));
             float cluster_e = elemasclus->clusterRef()->correctedEnergy();
             float trk_pin = std::sqrt(elemaskf->trackRef()->innerMomentum().mag2());
             if (cluster_e / trk_pin > EoPin_cut)
@@ -1998,8 +1999,7 @@ void PFEGammaAlgo::unlinkRefinableObjectKFandECALMatchedToHCAL(ProtoEGObject& RO
       if (RO.localMap.contains(ecal->get(), *secd_kf)) {
         auto hcal_matched = std::partition(hcal_begin, hcal_end, tracksToHCALs);
         for (auto hcalclus = hcal_begin; hcalclus != hcal_matched; ++hcalclus) {
-          const reco::PFBlockElementCluster* clusthcal =
-              dynamic_cast<const reco::PFBlockElementCluster*>(hcalclus->get());
+          const reco::PFBlockElementCluster* clusthcal = docast(const reco::PFBlockElementCluster*, hcalclus->get());
           const double hcalenergy = clusthcal->clusterRef()->energy();
           const double hpluse = ecalenergy + hcalenergy;
           const bool isHoHE = ((hcalenergy / hpluse) > 0.1 && goodTrack);

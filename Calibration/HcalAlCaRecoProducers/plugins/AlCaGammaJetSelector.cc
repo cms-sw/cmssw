@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -143,7 +144,7 @@ bool AlCaGammaJetSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   if (!(select(photons, pfjets)))
     return false;
 
-  //std::cout << "good event\n";
+  edm::LogVerbatim("AlCaGammaJet") << "good event\n";
   nSelected_++;
   return true;
 }

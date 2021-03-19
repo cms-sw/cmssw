@@ -10,6 +10,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <filesystem>
+
 using namespace std;
 using namespace trklet;
 
@@ -25,6 +27,16 @@ MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global,
   else
     throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " " << name << " subname = " << subname << " "
                                       << layer_ << " " << disk_;
+
+  barrel_ = layer_ > 0;
+
+  nvm_ = barrel_ ? settings_.nvmme(layer_ - 1) * settings_.nallstubs(layer_ - 1)
+                 : settings_.nvmme(disk_ + N_LAYER - 1) * settings_.nallstubs(disk_ + N_LAYER - 1);
+
+  if (nvm_ == 32)
+    nvmbits_ = 5;
+  else if (nvm_ == 16)
+    nvmbits_ = 4;
 
   if (layer_ > 0) {
     unsigned int nbits = 3;
@@ -45,12 +57,23 @@ MatchEngine::MatchEngine(string name, Settings const& settings, Globals* global,
     }
 
     if (settings_.writeTable()) {
-      ofstream out;
+      if (not std::filesystem::exists(settings_.tablePath())) {
+        int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
+        if (fail)
+          throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
+                                         << settings_.tablePath();
+      }
+
       char layer = '0' + layer_;
       string fname = "METable_L";
       fname += layer;
       fname += ".tab";
-      out.open(fname.c_str());
+
+      const string full_fname = settings_.tablePath() + fname;
+      ofstream out(full_fname);
+      if (out.fail())
+        throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << full_fname;
+
       out << "{" << endl;
       for (unsigned int i = 0; i < table_.size(); i++) {
         if (i != 0) {
@@ -115,8 +138,6 @@ void MatchEngine::addInput(MemoryBase* memory, string input) {
 }
 
 void MatchEngine::execute() {
-  bool barrel = layer_ > 0;
-
   unsigned int countall = 0;
   unsigned int countpass = 0;
 
@@ -135,6 +156,7 @@ void MatchEngine::execute() {
   int rzbin = 0;
   int projfinerz = 0;
   int projfinerzadj = 0;
+  unsigned int projfinephi = 0;
 
   int projindex = 0;
   int projrinv = 0;
@@ -173,9 +195,9 @@ void MatchEngine::execute() {
       iproj++;
       moreproj = iproj < nproj;
 
-      unsigned int rzfirst = barrel ? proj->zbin1projvm(layer_) : proj->rbin1projvm(disk_);
+      unsigned int rzfirst = barrel_ ? proj->zbin1projvm(layer_) : proj->rbin1projvm(disk_);
       unsigned int rzlast = rzfirst;
-      bool second = (barrel ? proj->zbin2projvm(layer_) : proj->rbin2projvm(disk_)) == 1;
+      bool second = (barrel_ ? proj->zbin2projvm(layer_) : proj->rbin2projvm(disk_)) == 1;
       if (second)
         rzlast += 1;
 
@@ -225,12 +247,15 @@ void MatchEngine::execute() {
 
         Tracklet* proj = vmprojs_->getTracklet(projindex);
 
+        FPGAWord fpgaphi = barrel_ ? proj->fpgaphiproj(layer_) : proj->fpgaphiprojdisk(disk_);
+        projfinephi = (fpgaphi.value() >> (fpgaphi.nbits() - (nvmbits_ + 3))) & 7;
+
         nstubs = vmstubs_->nStubsBin(rzbin);
 
-        projfinerz = barrel ? proj->finezvm(layer_) : proj->finervm(disk_);
+        projfinerz = barrel_ ? proj->finezvm(layer_) : proj->finervm(disk_);
 
         projrinv =
-            barrel
+            barrel_
                 ? (16 + (((-2) * proj->fpgaphiprojder(layer_).value()) >> (proj->fpgaphiprojder(layer_).nbits() - 4)))
                 : proj->getBendIndex(disk_).value();
         assert(projrinv >= 0);
@@ -275,31 +300,33 @@ void MatchEngine::execute() {
 
       int nbits = isPSmodule ? 3 : 4;
 
-      //TODO - should use finephi information to reduce combinatorics
+      int deltaphi = projfinephi - vmstub.finephi().value();
+
+      bool passphi = (abs(deltaphi) < 3) || (abs(deltaphi) > 5);
 
       unsigned int index = (projrinv << nbits) + vmstub.bend().value();
 
       //Check if stub z position consistent
       int idrz = stubfinerz - projfinerzadj;
-      bool pass;
+      bool passz;
 
-      if (barrel) {
+      if (barrel_) {
         if (isPSseed) {
-          pass = idrz >= -2 && idrz <= 2;
+          passz = idrz >= -2 && idrz <= 2;
         } else {
-          pass = idrz >= -5 && idrz <= 5;
+          passz = idrz >= -5 && idrz <= 5;
         }
       } else {
         if (isPSmodule) {
-          pass = idrz >= -1 && idrz <= 1;
+          passz = idrz >= -1 && idrz <= 1;
         } else {
-          pass = idrz >= -5 && idrz <= 5;
+          passz = idrz >= -5 && idrz <= 5;
         }
       }
 
       //Check if stub bend and proj rinv consistent
-      if (pass) {
-        if (barrel ? table_[index] : (isPSmodule ? tablePS_[index] : table2S_[index])) {
+      if (passz && passphi) {
+        if (barrel_ ? table_[index] : (isPSmodule ? tablePS_[index] : table2S_[index])) {
           Tracklet* proj = vmprojs_->getTracklet(projindex);
           std::pair<Tracklet*, int> tmp(proj, vmprojs_->getAllProjIndex(projindex));
           if (settings_.writeMonitorData("Seeds")) {

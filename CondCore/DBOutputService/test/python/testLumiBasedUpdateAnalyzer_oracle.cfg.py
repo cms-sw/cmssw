@@ -30,17 +30,16 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(1),
-        authenticationPath = cms.untracked.string('/build/gg')
+        authenticationPath = cms.untracked.string('.')
     ),
     #timetype = cms.untracked.string('runnumber'),
     jobName = cms.untracked.string("TestLumiBasedUpdate"),
     connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS'),
     preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
     runNumber = cms.untracked.uint64(options.runNumber),
-    #lastLumiFile = cms.untracked.string('/build/gg/last_lumi.txt'),
+    #lastLumiFile = cms.untracked.string('last_lumi.txt'),
     writeTransactionDelay = cms.untracked.uint32(options.transDelay),
     autoCommit = cms.untracked.bool(True),
-    lastLumiFile = cms.untracked.string('lastLumi.txt'),
     saveLogsOnDB = cms.untracked.bool(True),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('PedestalsRcd'),
@@ -51,7 +50,6 @@ process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
 )
 
 process.mytest = cms.EDAnalyzer("LumiBasedUpdateAnalyzer",
-    lastLumiFile = cms.untracked.string('/build/gg/last_lumi.txt'),
     record = cms.string('PedestalsRcd')
 )
 

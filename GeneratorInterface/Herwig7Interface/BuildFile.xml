@@ -2,7 +2,7 @@
 <use name="boost"/>
 <use name="hepmc"/>
 <use name="thepeg"/>
-<use name="herwigpp"/>
+<use name="herwig7"/>
 <export>
   <lib name="GeneratorInterfaceHerwig7Interface"/>
 </export>

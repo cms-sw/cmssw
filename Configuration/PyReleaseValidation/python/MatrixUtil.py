@@ -117,7 +117,7 @@ class InputInfo(object):
         self.dataSetParent = dataSetParent
         
     def das(self, das_options, dataset):
-        if len(self.run) is not 0 or self.ls:
+        if len(self.run) != 0 or self.ls:
             queries = self.queries(dataset)[:3]
             if len(self.run) != 0:
               command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
@@ -184,7 +184,7 @@ class InputInfo(object):
                 site = " site=%s" % os.environ["CMSSW_DAS_QUERY_SITES"]
             else:
                 site = ""
-        if len(self.run) is not 0:
+        if len(self.run) != 0:
             return ["file {0}={1} run={2}{3}".format(query_by, query_source, query_run, site) for query_run in self.run]
             #return ["file {0}={1} run={2} ".format(query_by, query_source, query_run) for query_run in self.run]
         else:

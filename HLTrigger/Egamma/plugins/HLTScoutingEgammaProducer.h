@@ -88,6 +88,7 @@ private:
 
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEB_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEE_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> topologyToken_;
 };
 
 #endif

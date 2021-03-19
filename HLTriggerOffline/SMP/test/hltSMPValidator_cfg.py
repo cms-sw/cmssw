@@ -32,10 +32,9 @@ process.DQMStore = cms.Service("DQMStore")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 2000
-process.MessageLogger.destinations += ['SMPValidationMessages']
-process.MessageLogger.categories   += ['SMPValidation']
+
 process.MessageLogger.debugModules += ['*']#HLTHiggsValidator','HLTHiggsSubAnalysis','HLTHiggsPlotter']
-process.MessageLogger.SMPValidationMessages = cms.untracked.PSet(
+process.MessageLogger.files.SMPValidationMessages = cms.untracked.PSet(
     threshold       = cms.untracked.string('DEBUG'),
     default         = cms.untracked.PSet(limit = cms.untracked.int32(0)),
     SMPValidation = cms.untracked.PSet(limit = cms.untracked.int32(1000))

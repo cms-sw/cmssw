@@ -27,9 +27,6 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 
   theParity = theChamber % 2 == 0 ? Parity::Even : Parity::Odd;
 
-  // generate the LUTs
-  generator_ = std::make_unique<CSCUpgradeMotherboardLUTGenerator>();
-
   // enable the upgrade processors
   if (runPhase2_ and theRing == 1) {
     clctProc = std::make_unique<CSCUpgradeCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
@@ -299,11 +296,6 @@ enum CSCPart CSCUpgradeMotherboard::getCSCPart(int keystrip) const {
   }
 }
 
-void CSCUpgradeMotherboard::debugLUTs() {
-  if (debug_luts)
-    generator_->generateLUTs(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
-}
-
 bool CSCUpgradeMotherboard::sortLCTsByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) {
   return lct1.getQuality() > lct2.getQuality();
 }
@@ -318,8 +310,6 @@ void CSCUpgradeMotherboard::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts,
   if (lcts.size() > max_lcts)
     lcts.erase(lcts.begin() + max_lcts, lcts.end());
 }
-
-void CSCUpgradeMotherboard::setupGeometry() { generator_->setCSCGeometry(cscGeometry_); }
 
 void CSCUpgradeMotherboard::setPrefIndex() {
   pref[0] = match_trig_window_size / 2;

@@ -371,6 +371,7 @@ TMTrackProducer_params = cms.PSet(
      KalmanMaxSkipLayersHard = cms.uint32(1), # For HT tracks with many stubs
      KalmanMaxSkipLayersEasy = cms.uint32(2), # For HT tracks with few stubs
      KalmanMaxStubsEasy      = cms.uint32(10), # Max stubs an HT track can have to be "easy".
+     KFUseMaybeLayers        = cms.bool(False), # Disable "maybe layer" to match with firmware
      #--- Cuts applied to KF states as a function of the last KF tracker layer they had a stub in.
      # (If "4" or "5" in name, cut only applies to 4 or 5 param helix fit).
      KFLayerVsPtToler        = cms.vdouble(999., 999., 0.1 , 0.1 , 0.05, 0.05, 0.05),

@@ -54,6 +54,9 @@ namespace edm {
       RandomNumberGeneratorService(ParameterSet const& pset, ActivityRegistry& activityRegistry);
       ~RandomNumberGeneratorService() override;
 
+      RandomNumberGeneratorService(RandomNumberGeneratorService const&) = delete;
+      RandomNumberGeneratorService const& operator=(RandomNumberGeneratorService const&) = delete;
+
       /// Use the next 2 functions to get the random number engine.
       /// These are the only functions most modules should call.
 
@@ -81,6 +84,7 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
       void preModuleConstruction(ModuleDescription const& description);
+      void preModuleDestruction(ModuleDescription const& description);
       void preallocate(SystemBounds const&);
 
       void preBeginLumi(LuminosityBlock const& lumi) override;
@@ -160,9 +164,6 @@ namespace edm {
         unsigned int moduleID_;
       };
 
-      RandomNumberGeneratorService(RandomNumberGeneratorService const&) = delete;
-      RandomNumberGeneratorService const& operator=(RandomNumberGeneratorService const&) = delete;
-
       void preModuleStreamCheck(StreamContext const& sc, ModuleCallingContext const& mcc);
       void postModuleStreamCheck(StreamContext const& sc, ModuleCallingContext const& mcc);
 
@@ -234,8 +235,10 @@ namespace edm {
       // It is left as max unsigned if the module is never constructed and not in the process
       class SeedsAndName {
       public:
+        static constexpr unsigned int kInvalid = std::numeric_limits<unsigned int>::max();
+
         SeedsAndName(VUint32 const& theSeeds, std::string const& theEngineName)
-            : seeds_(theSeeds), engineName_(theEngineName), moduleID_(std::numeric_limits<unsigned int>::max()) {}
+            : seeds_(theSeeds), engineName_(theEngineName), moduleID_(kInvalid) {}
         VUint32 const& seeds() const { return seeds_; }
         std::string const& engineName() const { return engineName_; }
         unsigned int moduleID() const { return moduleID_; }

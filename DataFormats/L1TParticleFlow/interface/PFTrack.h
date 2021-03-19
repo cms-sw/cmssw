@@ -83,5 +83,7 @@ namespace l1t {
 
   typedef std::vector<l1t::PFTrack> PFTrackCollection;
   typedef edm::Ref<l1t::PFTrackCollection> PFTrackRef;
+  typedef edm::RefVector<l1t::PFTrackCollection> PFTrackRefVector;
+  typedef std::vector<l1t::PFTrackRef> PFTrackVectorRef;
 }  // namespace l1t
 #endif

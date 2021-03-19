@@ -7,8 +7,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiPixelInclusiveBuilder")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-#process.MessageLogger.destinations = cms.untracked.vstring("cout")
-#process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string("INFO"))
+#process.MessageLogger.cerr.enable = False
+#process.MessageLogger.cout = dict(threshold = "INFO", enable = True)
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 

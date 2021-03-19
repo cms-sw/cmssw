@@ -44,21 +44,13 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile.h"
-
 // std
 #include <cstdlib>
-#include <string>
-//#include <cmath>
-//#include <numeric>
 #include <algorithm>
 
-//
-// ----- Constructor
-//
-SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet const &iConfig) : conf_(iConfig) {
+SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet const& iConfig,
+                                                             edm::ConsumesCollector iC)
+    : conf_(iConfig) {
   monitorPedestals_ = iConfig.getParameter<bool>("MonitorSiStripPedestal");
   monitorNoises_ = iConfig.getParameter<bool>("MonitorSiStripNoise");
   monitorQuality_ = iConfig.getParameter<bool>("MonitorSiStripQuality");
@@ -68,99 +60,106 @@ SiStripClassToMonitorCondData::SiStripClassToMonitorCondData(edm::ParameterSet c
   monitorLowThreshold_ = iConfig.getParameter<bool>("MonitorSiStripLowThreshold");
   monitorHighThreshold_ = iConfig.getParameter<bool>("MonitorSiStripHighThreshold");
   monitorCabling_ = iConfig.getParameter<bool>("MonitorSiStripCabling");
-}
-// -----
-
-//
-// ----- Destructor
-//
-SiStripClassToMonitorCondData::~SiStripClassToMonitorCondData() {}
-// -----
-
-//
-// ----- beginRun
-//
-void SiStripClassToMonitorCondData::beginRun(edm::RunNumber_t iRun, edm::EventSetup const &eSetup) {
+  tkDetMapToken_ = iC.esConsumes<edm::Transition::BeginRun>();
+  tTopoToken_ = iC.esConsumes<edm::Transition::BeginRun>();
   if (monitorPedestals_) {
-    pedestalsDQM_ =
-        std::make_unique<SiStripPedestalsDQM>(eSetup,
-                                              iRun,
-                                              conf_.getParameter<edm::ParameterSet>("SiStripPedestalsDQM_PSet"),
-                                              conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    pedestalsToken_ = iC.esConsumes();
+  }
+  if (monitorNoises_) {
+    noiseToken_ = iC.esConsumes();
+    const auto& hPSet = iConfig.getParameter<edm::ParameterSet>("SiStripNoisesDQM_PSet");
+    if (hPSet.getParameter<bool>("SimGainRenormalisation")) {
+      simGainToken_ = iC.esConsumes<edm::Transition::BeginRun>();
+    } else if (hPSet.getParameter<bool>("GainRenormalisation")) {
+      gainTokenForNoise_ = iC.esConsumes<edm::Transition::BeginRun>();
+    }
+  }
+  if (monitorQuality_) {
+    const auto& fPSet = conf_.getParameter<edm::ParameterSet>("FillConditions_PSet");
+    const auto& qualityLabel = fPSet.getParameter<std::string>("StripQualityLabel");
+    qualityToken_ = iC.esConsumes(edm::ESInputTag{"", qualityLabel});
+  }
+  if (monitorApvGains_) {
+    gainToken_ = iC.esConsumes();
+  }
+  if (monitorLorentzAngle_) {
+    lorentzAngleToken_ = iC.esConsumes();
+  }
+  if (monitorBackPlaneCorrection_) {
+    backplaneCorrectionToken_ = iC.esConsumes();
+  }
+  if (monitorLowThreshold_ || monitorHighThreshold_) {
+    thresholdToken_ = iC.esConsumes();
+  }
+  if (monitorCabling_) {
+    detCablingToken_ = iC.esConsumes();
+  }
+}
+
+SiStripClassToMonitorCondData::~SiStripClassToMonitorCondData() {}
+
+void SiStripClassToMonitorCondData::beginRun(edm::RunNumber_t iRun, edm::EventSetup const& eSetup) {
+  const auto tTopo = &eSetup.getData(tTopoToken_);
+  const auto& fPSet = conf_.getParameter<edm::ParameterSet>("FillConditions_PSet");
+  const TkDetMap* tkDetMap{nullptr};
+  if (fPSet.getParameter<bool>("HistoMaps_On")) {
+    tkDetMap = &eSetup.getData(tkDetMapToken_);
+  }
+  if (monitorPedestals_) {
+    const auto& hPSet = conf_.getParameter<edm::ParameterSet>("SiStripPedestalsDQM_PSet");
+    pedestalsDQM_ = std::make_unique<SiStripPedestalsDQM>(pedestalsToken_, iRun, hPSet, fPSet, tTopo, tkDetMap);
   }
 
   if (monitorNoises_) {
-    noisesDQM_ = std::make_unique<SiStripNoisesDQM>(eSetup,
-                                                    iRun,
-                                                    conf_.getParameter<edm::ParameterSet>("SiStripNoisesDQM_PSet"),
-                                                    conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    const auto& hPSet = conf_.getParameter<edm::ParameterSet>("SiStripNoisesDQM_PSet");
+    const SiStripApvGain* gain = nullptr;
+    if (hPSet.getParameter<bool>("SimGainRenormalisation")) {
+      gain = &eSetup.getData(simGainToken_);
+    } else if (hPSet.getParameter<bool>("GainRenormalisation")) {
+      gain = &eSetup.getData(gainTokenForNoise_);
+    }
+    noisesDQM_ = std::make_unique<SiStripNoisesDQM>(noiseToken_, iRun, hPSet, fPSet, tTopo, tkDetMap, gain);
   }
 
   if (monitorQuality_) {
-    qualityDQM_ = std::make_unique<SiStripQualityDQM>(eSetup,
-                                                      iRun,
-                                                      conf_.getParameter<edm::ParameterSet>("SiStripQualityDQM_PSet"),
-                                                      conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    const auto& hPSet = conf_.getParameter<edm::ParameterSet>("SiStripQualityDQM_PSet");
+    qualityDQM_ = std::make_unique<SiStripQualityDQM>(qualityToken_, iRun, hPSet, fPSet, tTopo, tkDetMap);
   }
 
   if (monitorApvGains_) {
-    apvgainsDQM_ =
-        std::make_unique<SiStripApvGainsDQM>(eSetup,
-                                             iRun,
-                                             conf_.getParameter<edm::ParameterSet>("SiStripApvGainsDQM_PSet"),
-                                             conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    const auto& hPSet = conf_.getParameter<edm::ParameterSet>("SiStripApvGainsDQM_PSet");
+    apvgainsDQM_ = std::make_unique<SiStripApvGainsDQM>(gainToken_, iRun, hPSet, fPSet, tTopo, tkDetMap);
   }
 
   if (monitorLorentzAngle_) {
+    const auto& hPSet = conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet");
     lorentzangleDQM_ =
-        std::make_unique<SiStripLorentzAngleDQM>(eSetup,
-                                                 iRun,
-                                                 conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet"),
-                                                 conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+        std::make_unique<SiStripLorentzAngleDQM>(lorentzAngleToken_, iRun, hPSet, fPSet, tTopo, tkDetMap);
   }
 
   if (monitorBackPlaneCorrection_) {
-    bpcorrectionDQM_ = std::make_unique<SiStripBackPlaneCorrectionDQM>(
-        eSetup,
-        iRun,
-        conf_.getParameter<edm::ParameterSet>("SiStripBackPlaneCorrectionDQM_PSet"),
-        conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    const auto& hPSet = conf_.getParameter<edm::ParameterSet>("SiStripBackPlaneCorrectionDQM_PSet");
+    bpcorrectionDQM_ =
+        std::make_unique<SiStripBackPlaneCorrectionDQM>(backplaneCorrectionToken_, iRun, hPSet, fPSet, tTopo, tkDetMap);
   }
 
   if (monitorLowThreshold_) {
-    lowthresholdDQM_ =
-        std::make_unique<SiStripThresholdDQM>(eSetup,
-                                              iRun,
-                                              conf_.getParameter<edm::ParameterSet>("SiStripLowThresholdDQM_PSet"),
-                                              conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    const auto& hPSet = conf_.getParameter<edm::ParameterSet>("SiStripLowThresholdDQM_PSet");
+    lowthresholdDQM_ = std::make_unique<SiStripThresholdDQM>(thresholdToken_, iRun, hPSet, fPSet, tTopo, tkDetMap);
   }
 
   if (monitorHighThreshold_) {
-    highthresholdDQM_ =
-        std::make_unique<SiStripThresholdDQM>(eSetup,
-                                              iRun,
-                                              conf_.getParameter<edm::ParameterSet>("SiStripHighThresholdDQM_PSet"),
-                                              conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    const auto& hPSet = conf_.getParameter<edm::ParameterSet>("SiStripHighThresholdDQM_PSet");
+    highthresholdDQM_ = std::make_unique<SiStripThresholdDQM>(thresholdToken_, iRun, hPSet, fPSet, tTopo, tkDetMap);
   }
 
   if (monitorCabling_) {
-    cablingDQM_ = std::make_unique<SiStripCablingDQM>(eSetup,
-                                                      iRun,
-                                                      conf_.getParameter<edm::ParameterSet>("SiStripCablingDQM_PSet"),
-                                                      conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+    const auto& hPSet = conf_.getParameter<edm::ParameterSet>("SiStripCablingDQM_PSet");
+    cablingDQM_ = std::make_unique<SiStripCablingDQM>(detCablingToken_, iRun, hPSet, fPSet, tTopo, tkDetMap);
   }
-}  // beginRun
-// -----
+}
 
-//
-// ----- beginJob
-//
-void SiStripClassToMonitorCondData::beginJob(void) {}  // beginJob
-
-//
-// ----- getModuleMEsOnDemand
-//
-void SiStripClassToMonitorCondData::getModMEsOnDemand(edm::EventSetup const &eSetup, uint32_t requestedDetId) {
+void SiStripClassToMonitorCondData::getModMEsOnDemand(edm::EventSetup const& eSetup, uint32_t requestedDetId) {
   if (monitorPedestals_) {
     pedestalsDQM_->analysisOnDemand(eSetup, requestedDetId);
   }
@@ -169,7 +168,7 @@ void SiStripClassToMonitorCondData::getModMEsOnDemand(edm::EventSetup const &eSe
   }
   if (monitorQuality_) {
     qualityDQM_->analysisOnDemand(eSetup, requestedDetId);
-    qualityDQM_->fillGrandSummaryMEs(eSetup);
+    qualityDQM_->fillGrandSummaryMEs();
   }  // fillGrand. for SiStripquality
   if (monitorApvGains_) {
     apvgainsDQM_->analysisOnDemand(eSetup, requestedDetId);
@@ -195,7 +194,7 @@ void SiStripClassToMonitorCondData::getModMEsOnDemand(edm::EventSetup const &eSe
 //
 // ----- getlayerMEsOnDemand
 //
-void SiStripClassToMonitorCondData::getLayerMEsOnDemand(edm::EventSetup const &eSetup,
+void SiStripClassToMonitorCondData::getLayerMEsOnDemand(edm::EventSetup const& eSetup,
                                                         std::string requestedSubDetector,
                                                         uint32_t requestedSide,
                                                         uint32_t requestedLayer) {
@@ -207,7 +206,7 @@ void SiStripClassToMonitorCondData::getLayerMEsOnDemand(edm::EventSetup const &e
   }
   if (monitorQuality_) {
     qualityDQM_->analysisOnDemand(eSetup, requestedSubDetector, requestedSide, requestedLayer);
-    qualityDQM_->fillGrandSummaryMEs(eSetup);
+    qualityDQM_->fillGrandSummaryMEs();
   }
   if (monitorApvGains_) {
     apvgainsDQM_->analysisOnDemand(eSetup, requestedSubDetector, requestedSide, requestedLayer);
@@ -232,7 +231,7 @@ void SiStripClassToMonitorCondData::getLayerMEsOnDemand(edm::EventSetup const &e
 //
 // ----- Analyze
 //
-void SiStripClassToMonitorCondData::analyseCondData(edm::EventSetup const &eSetup) {
+void SiStripClassToMonitorCondData::analyseCondData(edm::EventSetup const& eSetup) {
   if (monitorPedestals_) {
     pedestalsDQM_->analysis(eSetup);
   }
@@ -241,7 +240,7 @@ void SiStripClassToMonitorCondData::analyseCondData(edm::EventSetup const &eSetu
   }
   if (monitorQuality_) {
     qualityDQM_->analysis(eSetup);
-    qualityDQM_->fillGrandSummaryMEs(eSetup);
+    qualityDQM_->fillGrandSummaryMEs();
   }  // fillGrand. for SiStripquality
   if (monitorApvGains_) {
     apvgainsDQM_->analysis(eSetup);
@@ -265,23 +264,43 @@ void SiStripClassToMonitorCondData::analyseCondData(edm::EventSetup const &eSetu
 }  // analyze
 // -----
 
-//
-// ----- endRun
-//
-void SiStripClassToMonitorCondData::endRun(edm::EventSetup const &eSetup) {
+void SiStripClassToMonitorCondData::end() {
+  if (monitorPedestals_) {
+    pedestalsDQM_->end();
+  }
+  if (monitorNoises_) {
+    noisesDQM_->end();
+  }
+  if (monitorLowThreshold_) {
+    lowthresholdDQM_->end();
+  }
+  if (monitorHighThreshold_) {
+    highthresholdDQM_->end();
+  }
+  if (monitorApvGains_) {
+    apvgainsDQM_->end();
+  }
+  if (monitorLorentzAngle_) {
+    lorentzangleDQM_->end();
+  }
+  if (monitorBackPlaneCorrection_) {
+    bpcorrectionDQM_->end();
+  }
+  if (monitorQuality_) {
+    qualityDQM_->end();
+  }
+  if (monitorCabling_) {
+    cablingDQM_->end();
+  }
+}
+
+void SiStripClassToMonitorCondData::save() {
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
 
-  DQMStore *dqmStore_ = edm::Service<DQMStore>().operator->();
+  DQMStore* dqmStore_ = edm::Service<DQMStore>().operator->();
 
   if (outputMEsInRootFile) {
     dqmStore_->save(outputFileName);
   }
-
-}  // endRun
-// -----
-
-//
-// ----- endJob
-//
-void SiStripClassToMonitorCondData::endJob(void) {}  // endJob
+}

@@ -9,26 +9,6 @@ OuterTrackerMCHarvester::~OuterTrackerMCHarvester() {}
 void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
   using namespace edm;
 
-  // Global variables
-  TF1 *fit = new TF1("fit", "gaus", -0.01, 0.01);
-  TF1 *fit2 = new TF1("fit2", "gaus", -0.1, 0.1);
-  TF1 *fit3 = new TF1("fit3", "gaus", -1, 1);
-
-  std::vector<double> sigma_pt1;
-  std::vector<double> error_pt1;
-  std::vector<double> sigma_pt2;
-  std::vector<double> error_pt2;
-  std::vector<double> sigma_pt3;
-  std::vector<double> error_pt3;
-  std::vector<double> sigma_eta;
-  std::vector<double> error_eta;
-  std::vector<double> sigma_phi;
-  std::vector<double> error_phi;
-  std::vector<double> sigma_VtxZ;
-  std::vector<double> error_VtxZ;
-  std::vector<double> sigma_d0;
-  std::vector<double> error_d0;
-
   float eta_bins[] = {0.0, 0.7, 1.0, 1.2, 1.6, 2.0, 2.4};
   int eta_binnum = 6;
 
@@ -294,42 +274,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt1->SetMinimum(0.0);
       resPt1->SetStats(false);
 
-      //int testNumEntries1 = resPt1a->GetEntries();
-      if (resPt1a->GetEntries() > 0 && resPt2a->GetEntries() > 0 && resPt3a->GetEntries() > 0 &&
-          resPt4a->GetEntries() > 0 && resPt5a->GetEntries() > 0 && resPt6a->GetEntries() > 0) {
-        //if (testNumEntries1 > 0) {
-        // Fit the histograms with a gaussian curve - take sigma and the error
-        // from the fit
-        resPt1a->Fit(fit2, "Q", "R");
-        resPt2a->Fit(fit2, "Q", "R");
-        resPt3a->Fit(fit2, "Q", "R");
-        resPt4a->Fit(fit2, "Q", "R");
-        resPt5a->Fit(fit2, "Q", "R");
-        resPt6a->Fit(fit2, "Q", "R");
-        sigma_pt1.push_back(resPt1a->GetFunction("fit2")->GetParameter(2));
-        sigma_pt1.push_back(resPt2a->GetFunction("fit2")->GetParameter(2));
-        sigma_pt1.push_back(resPt3a->GetFunction("fit2")->GetParameter(2));
-        sigma_pt1.push_back(resPt4a->GetFunction("fit2")->GetParameter(2));
-        sigma_pt1.push_back(resPt5a->GetFunction("fit2")->GetParameter(2));
-        sigma_pt1.push_back(resPt6a->GetFunction("fit2")->GetParameter(2));
-        error_pt1.push_back(resPt1a->GetFunction("fit2")->GetParError(2));
-        error_pt1.push_back(resPt2a->GetFunction("fit2")->GetParError(2));
-        error_pt1.push_back(resPt3a->GetFunction("fit2")->GetParError(2));
-        error_pt1.push_back(resPt4a->GetFunction("fit2")->GetParError(2));
-        error_pt1.push_back(resPt5a->GetFunction("fit2")->GetParError(2));
-        error_pt1.push_back(resPt6a->GetFunction("fit2")->GetParError(2));
-
-        // Fill the new histogram to create resolution plot
-        for (int i = 0; i < 6; i++) {
-          resPt1->SetBinContent(i + 1, sigma_pt1[i]);
-          resPt1->SetBinError(i + 1, error_pt1[i]);
-        }
-      } else {
-        edm::LogWarning("DataNotFound") << "L1 tracks not found for pT resolution (2-3)!\n";
-        for (int i = 0; i < 6; i++) {
-          resPt1->SetBinContent(i + 1, -1);
-          resPt1->SetBinError(i + 1, -1);
-        }
+      std::vector<TH1F *> vResPt1 = {resPt1a, resPt2a, resPt3a, resPt4a, resPt5a, resPt6a};
+      for (int i = 0; i < 6; i++) {
+        resPt1->SetBinContent(i + 1, vResPt1[i]->GetStdDev());
+        resPt1->SetBinError(i + 1, vResPt1[i]->GetStdDevError());
       }
     }  // if ME found
     else {
@@ -358,42 +306,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt2->SetMinimum(0.0);
       resPt2->SetStats(false);
 
-      //int testNumEntries2 = resPt1b->GetEntries();
-      // if (testNumEntries2 > 0) {
-      if (resPt1b->GetEntries() > 0 && resPt2b->GetEntries() > 0 && resPt3b->GetEntries() > 0 &&
-          resPt4b->GetEntries() > 0 && resPt5b->GetEntries() > 0 && resPt6b->GetEntries() > 0) {
-        // Fit the histograms with a gaussian curve - take sigma and the error
-        // from the fit
-        resPt1b->Fit(fit2, "Q", "R");
-        resPt2b->Fit(fit2, "Q", "R");
-        resPt3b->Fit(fit2, "Q", "R");
-        resPt4b->Fit(fit2, "Q", "R");
-        resPt5b->Fit(fit2, "Q", "R");
-        resPt6b->Fit(fit2, "Q", "R");
-        sigma_pt2.push_back(resPt1b->GetFunction("fit2")->GetParameter(2));
-        sigma_pt2.push_back(resPt2b->GetFunction("fit2")->GetParameter(2));
-        sigma_pt2.push_back(resPt3b->GetFunction("fit2")->GetParameter(2));
-        sigma_pt2.push_back(resPt4b->GetFunction("fit2")->GetParameter(2));
-        sigma_pt2.push_back(resPt5b->GetFunction("fit2")->GetParameter(2));
-        sigma_pt2.push_back(resPt6b->GetFunction("fit2")->GetParameter(2));
-        error_pt2.push_back(resPt1b->GetFunction("fit2")->GetParError(2));
-        error_pt2.push_back(resPt2b->GetFunction("fit2")->GetParError(2));
-        error_pt2.push_back(resPt3b->GetFunction("fit2")->GetParError(2));
-        error_pt2.push_back(resPt4b->GetFunction("fit2")->GetParError(2));
-        error_pt2.push_back(resPt5b->GetFunction("fit2")->GetParError(2));
-        error_pt2.push_back(resPt6b->GetFunction("fit2")->GetParError(2));
-
-        // Fill the new histogram to create resolution plot
-        for (int i = 0; i < 6; i++) {
-          resPt2->SetBinContent(i + 1, sigma_pt2[i]);
-          resPt2->SetBinError(i + 1, error_pt2[i]);
-        }
-      } else {
-        edm::LogWarning("DataNotFound") << "L1 tracks not found for pT resolution (3-8)!\n";
-        for (int i = 0; i < 6; i++) {
-          resPt2->SetBinContent(i + 1, -1);
-          resPt2->SetBinError(i + 1, -1);
-        }
+      std::vector<TH1F *> vResPt2 = {resPt1b, resPt2b, resPt3b, resPt4b, resPt5b, resPt6b};
+      for (int i = 0; i < 6; i++) {
+        resPt2->SetBinContent(i + 1, vResPt2[i]->GetStdDev());
+        resPt2->SetBinError(i + 1, vResPt2[i]->GetStdDevError());
       }
     }  // if ME found
     else {
@@ -422,42 +338,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPt3->SetMinimum(0.0);
       resPt3->SetStats(false);
 
-      //int testNumEntries3 = resPt1c->GetEntries();
-      if (resPt1c->GetEntries() > 0 && resPt2c->GetEntries() > 0 && resPt3c->GetEntries() > 0 &&
-          resPt4c->GetEntries() > 0 && resPt5c->GetEntries() > 0 && resPt6c->GetEntries() > 0) {
-        //        if (testNumEntries3 > 0) {
-        // Fit the histograms with a gaussian curve - take sigma and the error
-        // from the fit
-        resPt1c->Fit(fit2, "Q", "R");
-        resPt2c->Fit(fit2, "Q", "R");
-        resPt3c->Fit(fit2, "Q", "R");
-        resPt4c->Fit(fit2, "Q", "R");
-        resPt5c->Fit(fit2, "Q", "R");
-        resPt6c->Fit(fit2, "Q", "R");
-        sigma_pt3.push_back(resPt1c->GetFunction("fit2")->GetParameter(2));
-        sigma_pt3.push_back(resPt2c->GetFunction("fit2")->GetParameter(2));
-        sigma_pt3.push_back(resPt3c->GetFunction("fit2")->GetParameter(2));
-        sigma_pt3.push_back(resPt4c->GetFunction("fit2")->GetParameter(2));
-        sigma_pt3.push_back(resPt5c->GetFunction("fit2")->GetParameter(2));
-        sigma_pt3.push_back(resPt6c->GetFunction("fit2")->GetParameter(2));
-        error_pt3.push_back(resPt1c->GetFunction("fit2")->GetParError(2));
-        error_pt3.push_back(resPt2c->GetFunction("fit2")->GetParError(2));
-        error_pt3.push_back(resPt3c->GetFunction("fit2")->GetParError(2));
-        error_pt3.push_back(resPt4c->GetFunction("fit2")->GetParError(2));
-        error_pt3.push_back(resPt5c->GetFunction("fit2")->GetParError(2));
-        error_pt3.push_back(resPt6c->GetFunction("fit2")->GetParError(2));
-
-        // Fill the new histogram to create resolution plot
-        for (int i = 0; i < 6; i++) {
-          resPt3->SetBinContent(i + 1, sigma_pt3[i]);
-          resPt3->SetBinError(i + 1, error_pt3[i]);
-        }
-      } else {
-        edm::LogWarning("DataNotFound") << "L1 tracks not found for pT resolution (8-inf)!\n";
-        for (int i = 0; i < 6; i++) {
-          resPt3->SetBinContent(i + 1, -1);
-          resPt3->SetBinError(i + 1, -1);
-        }
+      std::vector<TH1F *> vResPt3 = {resPt1c, resPt2c, resPt3c, resPt4c, resPt5c, resPt6c};
+      for (int i = 0; i < 6; i++) {
+        resPt3->SetBinContent(i + 1, vResPt3[i]->GetStdDev());
+        resPt3->SetBinError(i + 1, vResPt3[i]->GetStdDevError());
       }
     }  // if ME found
     else {
@@ -485,41 +369,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resEta->SetMinimum(0.0);
       resEta->SetStats(false);
 
-      //int testNumEntries4 = resEta1->GetEntries();
-      if (resEta1->GetEntries() > 0 && resEta2->GetEntries() > 0 && resEta3->GetEntries() > 0 &&
-          resEta4->GetEntries() > 0 && resEta5->GetEntries() > 0 && resEta6->GetEntries() > 0) {
-        // Fit the histograms with a gaussian curve - take sigma and the error
-        // from the fit
-        resEta1->Fit(fit, "Q", "R");
-        resEta2->Fit(fit, "Q", "R");
-        resEta3->Fit(fit, "Q", "R");
-        resEta4->Fit(fit, "Q", "R");
-        resEta5->Fit(fit, "Q", "R");
-        resEta6->Fit(fit, "Q", "R");
-        sigma_eta.push_back(resEta1->GetFunction("fit")->GetParameter(2));
-        sigma_eta.push_back(resEta2->GetFunction("fit")->GetParameter(2));
-        sigma_eta.push_back(resEta3->GetFunction("fit")->GetParameter(2));
-        sigma_eta.push_back(resEta4->GetFunction("fit")->GetParameter(2));
-        sigma_eta.push_back(resEta5->GetFunction("fit")->GetParameter(2));
-        sigma_eta.push_back(resEta6->GetFunction("fit")->GetParameter(2));
-        error_eta.push_back(resEta1->GetFunction("fit")->GetParError(2));
-        error_eta.push_back(resEta2->GetFunction("fit")->GetParError(2));
-        error_eta.push_back(resEta3->GetFunction("fit")->GetParError(2));
-        error_eta.push_back(resEta4->GetFunction("fit")->GetParError(2));
-        error_eta.push_back(resEta5->GetFunction("fit")->GetParError(2));
-        error_eta.push_back(resEta6->GetFunction("fit")->GetParError(2));
-
-        // Fill the new histogram to create resolution plot
-        for (int i = 0; i < 6; i++) {
-          resEta->SetBinContent(i + 1, sigma_eta[i]);
-          resEta->SetBinError(i + 1, error_eta[i]);
-        }
-      } else {
-        edm::LogWarning("DataNotFound") << "L1 tracks not found for eta resolution!\n";
-        for (int i = 0; i < 6; i++) {
-          resEta->SetBinContent(i + 1, -1);
-          resEta->SetBinError(i + 1, -1);
-        }
+      std::vector<TH1F *> vResEta = {resEta1, resEta2, resEta3, resEta4, resEta5, resEta6};
+      for (int i = 0; i < 6; i++) {
+        resEta->SetBinContent(i + 1, vResEta[i]->GetStdDev());
+        resEta->SetBinError(i + 1, vResEta[i]->GetStdDevError());
       }
     }  // if ME found
     else {
@@ -547,41 +400,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resPhi->SetMinimum(0.0);
       resPhi->SetStats(false);
 
-      //int testNumEntries5 = resPhi1->GetEntries();
-      if (resPhi1->GetEntries() > 0 && resPhi2->GetEntries() > 0 && resPhi3->GetEntries() > 0 &&
-          resPhi4->GetEntries() > 0 && resPhi5->GetEntries() > 0 && resPhi6->GetEntries() > 0) {
-        // Fit the histograms with a gaussian curve - take sigma and the error
-        // from the fit
-        resPhi1->Fit(fit, "Q", "R");
-        resPhi2->Fit(fit, "Q", "R");
-        resPhi3->Fit(fit, "Q", "R");
-        resPhi4->Fit(fit, "Q", "R");
-        resPhi5->Fit(fit, "Q", "R");
-        resPhi6->Fit(fit, "Q", "R");
-        sigma_phi.push_back(resPhi1->GetFunction("fit")->GetParameter(2));
-        sigma_phi.push_back(resPhi2->GetFunction("fit")->GetParameter(2));
-        sigma_phi.push_back(resPhi3->GetFunction("fit")->GetParameter(2));
-        sigma_phi.push_back(resPhi4->GetFunction("fit")->GetParameter(2));
-        sigma_phi.push_back(resPhi5->GetFunction("fit")->GetParameter(2));
-        sigma_phi.push_back(resPhi6->GetFunction("fit")->GetParameter(2));
-        error_phi.push_back(resPhi1->GetFunction("fit")->GetParError(2));
-        error_phi.push_back(resPhi2->GetFunction("fit")->GetParError(2));
-        error_phi.push_back(resPhi3->GetFunction("fit")->GetParError(2));
-        error_phi.push_back(resPhi4->GetFunction("fit")->GetParError(2));
-        error_phi.push_back(resPhi5->GetFunction("fit")->GetParError(2));
-        error_phi.push_back(resPhi6->GetFunction("fit")->GetParError(2));
-
-        // Fill the new histogram to create resolution plot
-        for (int i = 0; i < 6; i++) {
-          resPhi->SetBinContent(i + 1, sigma_phi[i]);
-          resPhi->SetBinError(i + 1, error_phi[i]);
-        }
-      } else {
-        edm::LogWarning("DataNotFound") << "L1 tracks not found for phi resolution!\n";
-        for (int i = 0; i < 6; i++) {
-          resPhi->SetBinContent(i + 1, -1);
-          resPhi->SetBinError(i + 1, -1);
-        }
+      std::vector<TH1F *> vResPhi = {resPhi1, resPhi2, resPhi3, resPhi4, resPhi5, resPhi6};
+      for (int i = 0; i < 6; i++) {
+        resPhi->SetBinContent(i + 1, vResPhi[i]->GetStdDev());
+        resPhi->SetBinError(i + 1, vResPhi[i]->GetStdDevError());
       }
     }  // if ME found
     else {
@@ -609,41 +431,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resVtxZ->SetMinimum(0.0);
       resVtxZ->SetStats(false);
 
-      //int testNumEntries6 = resVtxZ_1->GetEntries();
-      if (resVtxZ_1->GetEntries() > 0 && resVtxZ_2->GetEntries() > 0 && resVtxZ_3->GetEntries() > 0 &&
-          resVtxZ_4->GetEntries() > 0 && resVtxZ_5->GetEntries() > 0 && resVtxZ_6->GetEntries() > 0) {
-        // Fit the histograms with a gaussian curve - take sigma and the error
-        // from the fit
-        resVtxZ_1->Fit(fit3, "Q", "R");
-        resVtxZ_2->Fit(fit3, "Q", "R");
-        resVtxZ_3->Fit(fit3, "Q", "R");
-        resVtxZ_4->Fit(fit3, "Q", "R");
-        resVtxZ_5->Fit(fit3, "Q", "R");
-        resVtxZ_6->Fit(fit3, "Q", "R");
-        sigma_VtxZ.push_back(resVtxZ_1->GetFunction("fit3")->GetParameter(2));
-        sigma_VtxZ.push_back(resVtxZ_2->GetFunction("fit3")->GetParameter(2));
-        sigma_VtxZ.push_back(resVtxZ_3->GetFunction("fit3")->GetParameter(2));
-        sigma_VtxZ.push_back(resVtxZ_4->GetFunction("fit3")->GetParameter(2));
-        sigma_VtxZ.push_back(resVtxZ_5->GetFunction("fit3")->GetParameter(2));
-        sigma_VtxZ.push_back(resVtxZ_6->GetFunction("fit3")->GetParameter(2));
-        error_VtxZ.push_back(resVtxZ_1->GetFunction("fit3")->GetParError(2));
-        error_VtxZ.push_back(resVtxZ_2->GetFunction("fit3")->GetParError(2));
-        error_VtxZ.push_back(resVtxZ_3->GetFunction("fit3")->GetParError(2));
-        error_VtxZ.push_back(resVtxZ_4->GetFunction("fit3")->GetParError(2));
-        error_VtxZ.push_back(resVtxZ_5->GetFunction("fit3")->GetParError(2));
-        error_VtxZ.push_back(resVtxZ_6->GetFunction("fit3")->GetParError(2));
-
-        // Fill the new histogram to create resolution plot
-        for (int i = 0; i < 6; i++) {
-          resVtxZ->SetBinContent(i + 1, sigma_VtxZ[i]);
-          resVtxZ->SetBinError(i + 1, error_VtxZ[i]);
-        }
-      } else {
-        edm::LogWarning("DataNotFound") << "L1 tracks not found for VtxZ resolution!\n";
-        for (int i = 0; i < 6; i++) {
-          resVtxZ->SetBinContent(i + 1, -1);
-          resVtxZ->SetBinError(i + 1, -1);
-        }
+      std::vector<TH1F *> vResVtxZ = {resVtxZ_1, resVtxZ_2, resVtxZ_3, resVtxZ_4, resVtxZ_5, resVtxZ_6};
+      for (int i = 0; i < 6; i++) {
+        resVtxZ->SetBinContent(i + 1, vResVtxZ[i]->GetStdDev());
+        resVtxZ->SetBinError(i + 1, vResVtxZ[i]->GetStdDevError());
       }
     }  // if ME found
     else {
@@ -671,41 +462,10 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
       resd0->SetMinimum(0.0);
       resd0->SetStats(false);
 
-      //int testNumEntries7 = resd0_1->GetEntries();
-      if (resd0_1->GetEntries() > 0 && resd0_2->GetEntries() > 0 && resd0_3->GetEntries() > 0 &&
-          resd0_4->GetEntries() > 0 && resd0_5->GetEntries() > 0 && resd0_6->GetEntries() > 0) {
-        // Fit the histograms with a gaussian curve - take sigma and the error
-        // from the fit
-        resd0_1->Fit(fit, "Q", "R");
-        resd0_2->Fit(fit, "Q", "R");
-        resd0_3->Fit(fit, "Q", "R");
-        resd0_4->Fit(fit, "Q", "R");
-        resd0_5->Fit(fit, "Q", "R");
-        resd0_6->Fit(fit, "Q", "R");
-        sigma_d0.push_back(resd0_1->GetFunction("fit")->GetParameter(2));
-        sigma_d0.push_back(resd0_2->GetFunction("fit")->GetParameter(2));
-        sigma_d0.push_back(resd0_3->GetFunction("fit")->GetParameter(2));
-        sigma_d0.push_back(resd0_4->GetFunction("fit")->GetParameter(2));
-        sigma_d0.push_back(resd0_5->GetFunction("fit")->GetParameter(2));
-        sigma_d0.push_back(resd0_6->GetFunction("fit")->GetParameter(2));
-        error_d0.push_back(resd0_1->GetFunction("fit")->GetParError(2));
-        error_d0.push_back(resd0_2->GetFunction("fit")->GetParError(2));
-        error_d0.push_back(resd0_3->GetFunction("fit")->GetParError(2));
-        error_d0.push_back(resd0_4->GetFunction("fit")->GetParError(2));
-        error_d0.push_back(resd0_5->GetFunction("fit")->GetParError(2));
-        error_d0.push_back(resd0_6->GetFunction("fit")->GetParError(2));
-
-        // Fill the new histogram to create resolution plot
-        for (int i = 0; i < 6; i++) {
-          resd0->SetBinContent(i + 1, sigma_d0[i]);
-          resd0->SetBinError(i + 1, error_d0[i]);
-        }
-      } else {
-        edm::LogWarning("DataNotFound") << "L1 tracks not found for d0 resolution!\n";
-        for (int i = 0; i < 6; i++) {
-          resd0->SetBinContent(i + 1, -1);
-          resd0->SetBinError(i + 1, -1);
-        }
+      std::vector<TH1F *> vResD0 = {resd0_1, resd0_2, resd0_3, resd0_4, resd0_5, resd0_6};
+      for (int i = 0; i < 6; i++) {
+        resd0->SetBinContent(i + 1, vResD0[i]->GetStdDev());
+        resd0->SetBinError(i + 1, vResD0[i]->GetStdDevError());
       }
     }  // if ME found
     else {
@@ -716,9 +476,6 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IG
   else {
     edm::LogWarning("DataNotFound") << "Cannot find valid DQM back end \n";
   }
-  delete fit;
-  delete fit2;
-  delete fit3;
 }  // end dqmEndJob
 
 DEFINE_FWK_MODULE(OuterTrackerMCHarvester);

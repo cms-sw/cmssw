@@ -26,8 +26,8 @@ def customise(process):
     ))
 
     if hasattr(process,'MessageLogger'):
-        process.MessageLogger.categories.append('G4cerr')
-        process.MessageLogger.categories.append('G4cout')
+        process.MessageLogger.G4cerr = cms.untracked.PSet()
+        process.MessageLogger.G4cout = cms.untracked.PSet()
 
     return(process)
 

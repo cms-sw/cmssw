@@ -24,7 +24,7 @@ process.load('DQMServices.Core.DQMStoreNonLegacy_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.MessageLogger.categories.append("TrackerGeometryBuilder");
+process.MessageLogger.TrackerGeometryBuilder=dict();
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),

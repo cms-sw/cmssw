@@ -135,6 +135,13 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
 
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_ecalChStatus_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+
   TH1I *h_nHLT, *h_HLTAccept, *h_HLTCorr, *h_numberPV;
   TH1I *h_goodPV, *h_goodRun;
   TH2I* h_nHLTvsRN;
@@ -174,9 +181,9 @@ StudyCaloResponse::StudyCaloResponse(const edm::ParameterSet& iConfig)
       isItAOD_(iConfig.getUntrackedParameter<bool>("isItAOD", false)),
       vetoTrigger_(iConfig.getUntrackedParameter<bool>("vetoTrigger", false)),
       doTree_(iConfig.getUntrackedParameter<bool>("doTree", false)),
-      vetoMuon_(iConfig.getUntrackedParameter<bool>("vetoMuon", false)),
+      vetoMuon_(iConfig.getUntrackedParameter<bool>("vetoMuon", true)),
       vetoEcal_(iConfig.getUntrackedParameter<bool>("vetoEcal", false)),
-      cutMuon_(iConfig.getUntrackedParameter<double>("cutMuon", 0.001)),
+      cutMuon_(iConfig.getUntrackedParameter<double>("cutMuon", 0.1)),
       cutEcal_(iConfig.getUntrackedParameter<double>("cutEcal", 2.0)),
       cutRatio_(iConfig.getUntrackedParameter<double>("cutRatio", 0.90)),
       puWeights_(iConfig.getUntrackedParameter<std::vector<double> >("puWeights")),
@@ -216,6 +223,13 @@ StudyCaloResponse::StudyCaloResponse(const edm::ParameterSet& iConfig)
     tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   }
   tok_ew_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_ecalChStatus_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
 
   edm::LogVerbatim("IsoTrack") << "Verbosity " << verbosity_ << " with " << trigNames_.size() << " triggers:";
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
@@ -277,8 +291,8 @@ void StudyCaloResponse::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<bool>("isItAOD", false);
   desc.addUntracked<bool>("vetoTrigger", false);
   desc.addUntracked<bool>("doTree", false);
-  desc.addUntracked<bool>("vetoMuon", false);
-  desc.addUntracked<double>("cutMuon", 0.001);
+  desc.addUntracked<bool>("vetoMuon", true);
+  desc.addUntracked<double>("cutMuon", 0.1);
   desc.addUntracked<bool>("vetoEcal", false);
   desc.addUntracked<double>("cutEcal", 2.0);
   desc.addUntracked<double>("cutRatio", 0.9);
@@ -312,6 +326,7 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
   iEvent.getByToken(tok_trigEvt, triggerEventHandle);
 
   bool ok(false);
+  std::string triggerUse("None");
   if (!triggerEventHandle.isValid()) {
     edm::LogWarning("IsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
   } else {
@@ -361,6 +376,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
               if (verbosity_ % 10 > 0)
                 edm::LogVerbatim("IsoTrack") << newtriggerName;
               if (hlt > 0) {
+                if (!ok)
+                  triggerUse = newtriggerName;
                 ok = true;
                 tr_TrigName.push_back(newtriggerName);
               }
@@ -386,31 +403,19 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
       h_HLTCorr->Fill(iflg);
     }
   }
+  if ((verbosity_ / 10) % 10 > 0)
+    edm::LogVerbatim("IsoTrack") << "Trigger check gives " << ok << " with " << triggerUse;
 
   //Look at the tracks
   if (ok) {
     h_goodRun->Fill(RunNo);
     tr_goodRun = RunNo;
     // get handles to calogeometry and calotopology
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    const CaloGeometry* geo = pG.product();
-
-    edm::ESHandle<CaloTopology> theCaloTopology;
-    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-    const CaloTopology* caloTopology = theCaloTopology.product();
-
-    edm::ESHandle<HcalTopology> htopo;
-    iSetup.get<HcalRecNumberingRecord>().get(htopo);
-    const HcalTopology* theHBHETopology = htopo.product();
-
-    edm::ESHandle<MagneticField> bFieldH;
-    iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-    const MagneticField* bField = bFieldH.product();
-
-    edm::ESHandle<EcalChannelStatus> ecalChStatus;
-    iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
-    const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
+    const CaloGeometry* geo = &iSetup.getData(tok_geom_);
+    const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
+    const HcalTopology* theHBHETopology = &iSetup.getData(tok_topo_);
+    const MagneticField* bField = &iSetup.getData(tok_magField_);
+    const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
 
     edm::Handle<reco::VertexCollection> recVtxs;
     iEvent.getByToken(tok_recVtx_, recVtxs);
@@ -533,15 +538,13 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                recMuon != muonEventHandle->end();
                ++recMuon) {
             if (((recMuon->isPFMuon()) && (recMuon->isGlobalMuon() || recMuon->isTrackerMuon())) &&
-                (recMuon->innerTrack()->validFraction() > 0.49)) {
+                (recMuon->innerTrack()->validFraction() > 0.49) && (recMuon->innerTrack().isNonnull())) {
               chiGlobal = ((recMuon->globalTrack().isNonnull()) ? recMuon->globalTrack()->normalizedChi2() : 999);
               goodGlob = (recMuon->isGlobalMuon() && chiGlobal < 3 &&
                           recMuon->combinedQuality().chi2LocalPosition < 12 && recMuon->combinedQuality().trkKink < 20);
               if (muon::segmentCompatibility(*recMuon) > (goodGlob ? 0.303 : 0.451)) {
-                dr = reco::deltaR(pTrack->momentum().eta(),
-                                  pTrack->momentum().phi(),
-                                  recMuon->momentum().eta(),
-                                  recMuon->momentum().phi());
+                const reco::Track* pTrack0 = (recMuon->innerTrack()).get();
+                dr = reco::deltaR(pTrack0->eta(), pTrack0->phi(), pTrack->eta(), pTrack->phi());
                 if (dr < cutMuon_) {
                   vetoMuon = true;
                   break;
@@ -559,8 +562,7 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
         double maxNearP31x31 =
             spr::chargeIsolationEcal(ntrk, trkCaloDets, geo, caloTopology, 15, 15, ((verbosity_ / 1000) % 10 > 0));
 
-        edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-        iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+        const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
 
         edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
         edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
@@ -575,7 +577,7 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                  *theEcalChStatus,
                                  geo,
                                  caloTopology,
-                                 sevlv.product(),
+                                 sevlv,
                                  3,
                                  3,
                                  0.030,
@@ -589,7 +591,7 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                    *theEcalChStatus,
                                    geo,
                                    caloTopology,
-                                   sevlv.product(),
+                                   sevlv,
                                    5,
                                    5,
                                    0.030,
@@ -603,7 +605,7 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
                                    *theEcalChStatus,
                                    geo,
                                    caloTopology,
-                                   sevlv.product(),
+                                   sevlv,
                                    7,
                                    7,
                                    0.030,
@@ -907,7 +909,7 @@ void StudyCaloResponse::beginJob() {
                     etaBin_[ie],
                     (etaBin_[ie + 1] - 1),
                     pvBin_[i - 4],
-                    pvBin_[i - 3],
+                    (pvBin_[i - 3] - 1),
                     TrkNames[7].c_str());
           } else {
             sprintf(htit,

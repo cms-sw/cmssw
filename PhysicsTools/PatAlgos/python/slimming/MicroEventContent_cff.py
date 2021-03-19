@@ -66,7 +66,8 @@ MicroEventContent = cms.PSet(
         'keep *_l1extraParticles_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         # stage 2 L1 trigger
-        'keep *_gtStage2Digis__*',
+        'keep GlobalExtBlkBXVector_simGtExtUnprefireable_*_*', 
+        'keep *_gtStage2Digis__*', 
         'keep *_gmtStage2Digis_Muon_*',
         'keep *_caloStage2Digis_Jet_*',
         'keep *_caloStage2Digis_Tau_*',
@@ -88,6 +89,9 @@ MicroEventContent = cms.PSet(
 	'keep recoTracks_displacedStandAloneMuons__*',
         # L1 prefiring weights
         'keep *_prefiringweight_*_*',
+        # patLowPtElectrons
+        'keep *_slimmedLowPtElectrons_*_*',
+        'keep *_gsfTracksOpenConversions_*_*',
     )
 )
 
@@ -113,20 +117,6 @@ MicroEventContentGEN = cms.PSet(
         'keep *_genParticles_t0_*',
     )
 )
-
-# Only add low pT electrons for bParking era
-from Configuration.Eras.Modifier_bParking_cff import bParking
-_bParking_extraCommands = ['keep *_slimmedLowPtElectrons_*_*',
-                           'keep recoGsfElectronCores_lowPtGsfElectronCores_*_*',
-                           'keep recoSuperClusters_lowPtGsfElectronSuperClusters_*_*',
-                           'keep recoCaloClusters_lowPtGsfElectronSuperClusters_*_*',
-                           'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
-                           'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
-                           'keep floatedmValueMap_lowPtGsfElectronID_*_*',
-                           'keep *_lowPtGsfLinks_*_*',
-                           'keep *_gsfTracksOpenConversions_*_*',
-                           ]
-bParking.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _bParking_extraCommands)
 
 # --- Only for 2018 data & MC
 _run2_HCAL_2018_extraCommands = ["keep *_packedPFCandidates_hcalDepthEnergyFractions_*"]
@@ -154,6 +144,7 @@ _pp_on_AA_extraCommands = [
     'keep *_hiEvtPlaneFlat_*_*',
     'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*',
 ]
+
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
 
@@ -166,6 +157,8 @@ MicroEventContentMC.outputCommands += [
                                         # RUN
                                         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
                                       ]
+_pp_on_AA_MC_extraCommands = ['keep *_packedGenParticlesSignal_*_*']
+pp_on_AA.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _pp_on_AA_MC_extraCommands)
 
 from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016
 strips_vfp30_2016.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + [

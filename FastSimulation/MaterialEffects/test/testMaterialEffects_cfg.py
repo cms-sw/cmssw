@@ -183,5 +183,6 @@ process.p = cms.Path(
 
 # Keep the logging output to a nice level #
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['detailedInfo.txt']
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.detailedInfo= dict(extension='.txt')
 

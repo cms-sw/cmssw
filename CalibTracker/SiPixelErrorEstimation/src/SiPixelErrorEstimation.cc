@@ -53,6 +53,9 @@ SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps)
   tPixRecHitCollection = consumes<SiPixelRecHitCollection>(edm::InputTag("siPixelRecHits"));
   tSimTrackContainer = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
   tTrackCollection = consumes<reco::TrackCollection>(src_);
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  magneticFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
 SiPixelErrorEstimation::~SiPixelErrorEstimation() {}
@@ -370,8 +373,7 @@ void SiPixelErrorEstimation::endJob() {
 
 void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = es.getHandle(trackerTopoToken_);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   using namespace edm;
@@ -392,14 +394,12 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
   std::vector<PSimHit> matched;
   TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
-  edm::ESHandle<TrackerGeometry> pDD;
-  es.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::ESHandle<TrackerGeometry> pDD = es.getHandle(trackerGeomToken_);
   const TrackerGeometry* tracker = &(*pDD);
 
   //cout << "...1..." << endl;
 
-  edm::ESHandle<MagneticField> magneticField;
-  es.get<IdealMagneticFieldRecord>().get(magneticField);
+  edm::ESHandle<MagneticField> magneticField = es.getHandle(magneticFieldToken_);
   //const MagneticField* magField_ = magFieldHandle.product();
 
   edm::FileInPath FileInPath_;

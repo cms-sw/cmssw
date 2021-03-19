@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PUT")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append('HLTPrescaleRecorder')
+process.MessageLogger.HLTPrescaleRecorder=dict()
 
 process.source = cms.Source("EmptySource",
    firstRun = cms.untracked.uint32(1)

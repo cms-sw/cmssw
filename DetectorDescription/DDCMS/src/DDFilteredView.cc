@@ -770,8 +770,9 @@ const int DDFilteredView::nodeCopyNoAt(int level) const {
 // Compare if name matches a selection pattern that
 // may or may not be defined as a regular expression
 bool DDFilteredView::compareEqualName(const std::string_view selection, const std::string_view name) const {
-  return (!(dd4hep::dd::isRegex(selection)) ? dd4hep::dd::compareEqual(name, selection)
-                                            : regex_match(name.begin(), name.end(), regex(std::string(selection))));
+  return (!(dd4hep::dd::isRegex(selection))
+              ? dd4hep::dd::compareEqual(name, selection)
+              : regex_match(name.begin(), name.end(), regex(selection.begin(), selection.end())));
 }
 
 // Check if both name and it's selection pattern
@@ -841,14 +842,9 @@ double DDFilteredView::getNextValue(const std::string& key) const {
   double result(0.0);
 
   if (currentSpecPar_ != nullptr) {
-    std::string_view svalue = currentSpecPar_->strValue(key);
-    if (!svalue.empty()) {
-      result = dd4hep::_toDouble({svalue.data(), svalue.size()});
-    } else if (currentSpecPar_->hasValue(key)) {
-      auto const& nitem = currentSpecPar_->numpars.find(key);
-      if (nitem != end(currentSpecPar_->numpars)) {
-        result = nitem->second[0];
-      }
+    auto const& nitem = currentSpecPar_->numpars.find(key);
+    if (nitem != end(currentSpecPar_->numpars)) {
+      result = nitem->second[0];
     }
   }
 

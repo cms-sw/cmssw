@@ -1,6 +1,3 @@
-
-//#define DebugLog
-
 // system include files
 #include <memory>
 #include <string>
@@ -65,8 +62,6 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -109,6 +104,9 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
 
   TTree *tree;
   int t_Run, t_Event, t_nVtx, t_nTrk, t_ieta;
@@ -177,24 +175,26 @@ IsoTrackCalibration::IsoTrackCalibration(const edm::ParameterSet &iConfig) : nRu
     tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   }
 
-#ifdef DebugLog
   if (verbosity_ >= 0) {
-    std::cout << "Parameters read from config file \n"
-              << "\t minPt " << selectionParameters_.minPt << "\t theTrackQuality " << theTrackQuality_
-              << "\t minQuality " << selectionParameters_.minQuality << "\t maxDxyPV " << selectionParameters_.maxDxyPV
-              << "\t maxDzPV " << selectionParameters_.maxDzPV << "\t maxChi2 " << selectionParameters_.maxChi2
-              << "\t maxDpOverP " << selectionParameters_.maxDpOverP << "\t minOuterHit "
-              << selectionParameters_.minOuterHit << "\t minLayerCrossed " << selectionParameters_.minLayerCrossed
-              << "\t maxInMiss " << selectionParameters_.maxInMiss << "\t maxOutMiss "
-              << selectionParameters_.maxOutMiss << "\t a_coneR " << a_coneR_ << "\t a_charIsoR " << a_charIsoR_
-              << "\t a_mipR " << a_mipR_ << "\t isMC " << isMC_ << "\t isQCD " << isQCD_ << "\t isAOD " << isAOD_
-              << std::endl;
-    std::cout << trigNames_.size() << " triggers to be studied:";
+    edm::LogVerbatim("IsoTrack") << "Parameters read from config file \n"
+                                 << "\t minPt " << selectionParameters_.minPt << "\t theTrackQuality "
+                                 << theTrackQuality_ << "\t minQuality " << selectionParameters_.minQuality
+                                 << "\t maxDxyPV " << selectionParameters_.maxDxyPV << "\t maxDzPV "
+                                 << selectionParameters_.maxDzPV << "\t maxChi2 " << selectionParameters_.maxChi2
+                                 << "\t maxDpOverP " << selectionParameters_.maxDpOverP << "\t minOuterHit "
+                                 << selectionParameters_.minOuterHit << "\t minLayerCrossed "
+                                 << selectionParameters_.minLayerCrossed << "\t maxInMiss "
+                                 << selectionParameters_.maxInMiss << "\t maxOutMiss "
+                                 << selectionParameters_.maxOutMiss << "\t a_coneR " << a_coneR_ << "\t a_charIsoR "
+                                 << a_charIsoR_ << "\t a_mipR " << a_mipR_ << "\t isMC " << isMC_ << "\t isQCD "
+                                 << isQCD_ << "\t isAOD " << isAOD_;
+    edm::LogVerbatim("IsoTrack") << trigNames_.size() << " triggers to be studied:";
     for (unsigned int k = 0; k < trigNames_.size(); ++k)
-      std::cout << " " << trigNames_[k];
-    std::cout << std::endl;
+      edm::LogVerbatim("IsoTrack") << "[" << k << "] " << trigNames_[k];
   }
-#endif
+
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
 IsoTrackCalibration::~IsoTrackCalibration() {
@@ -205,23 +205,15 @@ IsoTrackCalibration::~IsoTrackCalibration() {
 void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   t_Run = iEvent.id().run();
   t_Event = iEvent.id().event();
-#ifdef DebugLog
   if (verbosity_ % 10 > 0)
-    std::cout << "Run " << t_Run << " Event " << t_Event << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
-              << iEvent.bunchCrossing() << " starts ==========" << std::endl;
-#endif
-  //Get magnetic field and ECAL channel status
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField *bField = bFieldH.product();
+    edm::LogVerbatim("IsoTrack") << "Run " << t_Run << " Event " << t_Event << " Luminosity "
+                                 << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing()
+                                 << " starts ==========";
+  //Get magnetic field
+  const MagneticField *bField = &iSetup.getData(tok_magField_);
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-
-  // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry *geo = pG.product();
+  // get handles to calogeometry
+  const CaloGeometry *geo = &iSetup.getData(tok_geom_);
 
   //Get track collection
   edm::Handle<reco::TrackCollection> trkCollection;
@@ -249,14 +241,11 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
   } else if (beamSpotH.isValid()) {
     leadPV = beamSpotH->position();
   }
-#ifdef DebugLog
   if ((verbosity_ / 100) % 10 > 0) {
-    std::cout << "Primary Vertex " << leadPV;
+    edm::LogVerbatim("IsoTrack") << "Primary Vertex " << leadPV;
     if (beamSpotH.isValid())
-      std::cout << " Beam Spot " << beamSpotH->position();
-    std::cout << std::endl;
+      edm::LogVerbatim("IsoTrack") << " Beam Spot " << beamSpotH->position();
   }
-#endif
 
   // RecHits
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
@@ -275,9 +264,7 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
     edm::Handle<trigger::TriggerEvent> triggerEventHandle;
     iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
     if (!triggerEventHandle.isValid()) {
-#ifdef DebugLog
-      std::cout << "Error! Can't get the product " << triggerEvent_.label() << std::endl;
-#endif
+      edm::LogVerbatim("IsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
     } else {
       /////////////////////////////TriggerResults
       edm::Handle<edm::TriggerResults> triggerResults;
@@ -291,11 +278,9 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
             for (unsigned int i = 0; i < trigNames_.size(); ++i) {
               if (triggerNames_[iHLT].find(trigNames_[i]) != std::string::npos) {
                 triggerOK = true;
-#ifdef DebugLog
                 if (verbosity_ % 10 > 0)
-                  std::cout << "This is the trigger we are looking for " << triggerNames_[iHLT] << " Flag " << hlt
-                            << std::endl;
-#endif
+                  edm::LogVerbatim("IsoTrack")
+                      << "This is the trigger we are looking for " << triggerNames_[iHLT] << " Flag " << hlt;
               }
             }
           }
@@ -316,11 +301,9 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
     for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
          trkDetItr++, nTracks++) {
       const reco::Track *pTrack = &(*(trkDetItr->trkItr));
-#ifdef DebugLog
       if (verbosity_ % 10 > 0)
-        std::cout << "This track : " << nTracks << " (pt/eta/phi/p) :" << pTrack->pt() << "/" << pTrack->eta() << "/"
-                  << pTrack->phi() << "/" << pTrack->p() << std::endl;
-#endif
+        edm::LogVerbatim("IsoTrack") << "This track : " << nTracks << " (pt/eta/phi/p) :" << pTrack->pt() << "/"
+                                     << pTrack->eta() << "/" << pTrack->phi() << "/" << pTrack->p();
 
       t_ieta = 0;
       if (trkDetItr->okHCAL) {
@@ -348,11 +331,9 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
       oneCutParameters.maxOutMiss = 2;
       t_qltyPVFlag = spr::goodTrack(pTrack, leadPV, oneCutParameters, ((verbosity_ / 100) % 10 > 2));
 
-#ifdef DebugLog
       if (verbosity_ % 10 > 0)
-        std::cout << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "/" << trkDetItr->okHCAL
-                  << std::endl;
-#endif
+        edm::LogVerbatim("IsoTrack") << "qltyFlag|okECAL|okHCAL : " << qltyFlag << "|" << trkDetItr->okECAL << "/"
+                                     << trkDetItr->okHCAL;
       if (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL) {
         nselTracks++;
         int nRH_eMipDR(0), nNearTRKs(0);
@@ -426,19 +407,17 @@ void IsoTrackCalibration::analyze(const edm::Event &iEvent, const edm::EventSetu
           t_p = pTrack->p();
           t_pt = pTrack->pt();
           t_phi = pTrack->phi();
-#ifdef DebugLog
           if (verbosity_ % 10 > 0) {
-            std::cout << "This track : " << nTracks << " (pt/eta/phi/p) :" << pTrack->pt() << "/" << pTrack->eta()
-                      << "/" << pTrack->phi() << "/" << t_p << std::endl;
-            std::cout << "e_MIP " << t_eMipDR << " Chg Isolation " << t_hmaxNearP << " eHcal" << t_eHcal << " ieta "
-                      << t_ieta << " Quality " << t_qltyMissFlag << ":" << t_qltyPVFlag << ":" << t_selectTk
-                      << std::endl;
+            edm::LogVerbatim("IsoTrack") << "This track : " << nTracks << " (pt/eta/phi/p) :" << pTrack->pt() << "/"
+                                         << pTrack->eta() << "/" << pTrack->phi() << "/" << t_p;
+            edm::LogVerbatim("IsoTrack") << "e_MIP " << t_eMipDR << " Chg Isolation " << t_hmaxNearP << " eHcal"
+                                         << t_eHcal << " ieta " << t_ieta << " Quality " << t_qltyMissFlag << ":"
+                                         << t_qltyPVFlag << ":" << t_selectTk;
             for (unsigned int lll = 0; lll < t_DetIds->size(); lll++) {
-              std::cout << "det id is = " << t_DetIds->at(lll) << "  "
-                        << " hit enery is  = " << t_HitEnergies->at(lll) << std::endl;
+              edm::LogVerbatim("IsoTrack")
+                  << "det id is = " << t_DetIds->at(lll) << "   hit enery is  = " << t_HitEnergies->at(lll);
             }
           }
-#endif
           tree->Fill();
         }  // end of conditions on t_eMipDR and t_hmaxNearP
       }    // end of loose check of track quality

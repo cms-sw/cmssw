@@ -11,7 +11,8 @@ process.load('Configuration.Geometry.GeometryExtended2017_cff')
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
 
-process.MessageLogger.destinations = cms.untracked.vstring("Ecal2017.info")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.Ecal2017 = dict(extension ="info")
 
 # enable Geant4 overlap check 
 process.g4SimHits.CheckGeometry = cms.bool(True)

@@ -4,9 +4,7 @@ process = cms.Process("clusterAnalysis")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 
-process.MessageLogger.destinations.append('infos')
-process.MessageLogger.infos = cms.untracked.PSet(
-    placeholder = cms.untracked.bool(False),
+process.MessageLogger.files.infos = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO"),
     default = cms.untracked.PSet(
         limit = cms.untracked.int32(10000000)

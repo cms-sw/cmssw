@@ -11,7 +11,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -35,6 +34,8 @@ namespace {
     edm::EDGetTokenT<reco::TrackCollection> srcToken_;
     edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
 
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+
     bool onlyValid_;
     bool applyVertexCut_;
   };
@@ -43,6 +44,8 @@ namespace {
     srcToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("src"));
 
     offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
+
+    trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 
     onlyValid_ = iConfig.getParameter<bool>("onlyValidHits");
 
@@ -53,8 +56,7 @@ namespace {
     if (!checktrigger(iEvent, iSetup, DCS))
       return;
 
-    edm::ESHandle<TrackerGeometry> tracker;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+    edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
     assert(tracker.isValid());
 
     edm::Handle<reco::TrackCollection> tracks;

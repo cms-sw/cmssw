@@ -15,8 +15,8 @@ process.load('SimG4Core.Application.g4SimHits_cfi')
 process.load('IOMC.RandomEngine.IOMC_cff')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HCalGeom')
-    process.MessageLogger.categories.append('HcalSim')
+    process.MessageLogger.HCalGeom=dict()
+    process.MessageLogger.HcalSim=dict()
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('hcaltb07.root')

@@ -921,14 +921,20 @@ namespace edmtest {
       //Using mutable since we want to update the value.
       mutable std::atomic<unsigned int> m_value;
       mutable std::atomic<unsigned int> m_expectedValue;
+      // Set only in constructor, framework runs constructors serially
+      CMS_THREAD_SAFE mutable edm::EDPutTokenT<unsigned int> m_putToken;
     };
 
-    class TestAccumulator : public edm::stream::EDProducer<edm::GlobalCache<Count>, edm::Accumulator> {
+    class TestAccumulator
+        : public edm::stream::EDProducer<edm::GlobalCache<Count>, edm::Accumulator, edm::EndLuminosityBlockProducer> {
     public:
       static std::atomic<unsigned int> m_expectedCount;
 
       explicit TestAccumulator(edm::ParameterSet const& p, Count const* iCount) {
         iCount->m_expectedValue = p.getParameter<unsigned int>("expectedCount");
+        if (iCount->m_putToken.isUninitialized()) {
+          iCount->m_putToken = produces<unsigned int, edm::Transition::EndLuminosityBlock>();
+        }
       }
 
       static std::unique_ptr<Count> initializeGlobalCache(edm::ParameterSet const&) {
@@ -936,6 +942,13 @@ namespace edmtest {
       }
 
       void accumulate(edm::Event const&, edm::EventSetup const&) override { ++(globalCache()->m_value); }
+
+      static void globalEndLuminosityBlockProduce(edm::LuminosityBlock& l,
+                                                  edm::EventSetup const&,
+                                                  LuminosityBlockContext const* ctx) {
+        Count const* count = ctx->global();
+        l.emplace(count->m_putToken, count->m_value.load());
+      }
 
       static void globalEndJob(Count const* iCount) {
         if (iCount->m_value != iCount->m_expectedValue) {

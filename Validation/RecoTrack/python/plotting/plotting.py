@@ -310,14 +310,16 @@ def _calculateRatios(histos, ratioUncertainty=False):
             return (self._gr.GetY()[bin], self._gr.GetErrorY(bin), self._gr.GetErrorY(bin))
 
     def wrap(o):
-        if isinstance(o, ROOT.TH1):
+        if isinstance(o, ROOT.TH1) and not isinstance(o, ROOT.TH2):
             return WrapTH1(o, ratioUncertainty)
         elif isinstance(o, ROOT.TGraph):
             return WrapTGraph(o, ratioUncertainty)
         elif isinstance(o, ROOT.TGraph2D):
             return WrapTGraph2D(o, ratioUncertainty)
 
-    wrappers = [wrap(h) for h in histos]
+    wrappers = [wrap(h) for h in histos if wrap(h) is not None]
+    if len(wrappers) < 1:
+        return []
     ref = wrappers[0]
 
     wrappers_bins = []
@@ -1859,6 +1861,9 @@ class Plot:
             return ratio
         return ratio and self._ratio
 
+    def setName(self, name):
+        self._name = name
+
     def getName(self):
         if self._outname is not None:
             return self._outname
@@ -2202,7 +2207,7 @@ class Plot:
             addl.Draw("same")
 
         # Draw ratios
-        if ratio and len(histos) > 0:
+        if ratio and len(self._ratios) > 0:
             frame._padRatio.cd()
             firstRatio = self._ratios[0].getRatio()
             if self._ratioUncertainty and firstRatio is not None:
@@ -2411,16 +2416,6 @@ class PlotGroup(object):
         width = 500
         height = 500
 
-        canvas = _createCanvas(self._name+"Single", width, height)
-        canvasRatio = _createCanvas(self._name+"SingleRatio", width, int(height*self._ratioFactor))
-
-        # from TDRStyle
-        for c in [canvas, canvasRatio]:
-            c.SetTopMargin(0.05)
-            c.SetBottomMargin(0.13)
-            c.SetLeftMargin(0.16)
-            c.SetRightMargin(0.05)
-
         lx1def = 0.6
         lx2def = 0.95
         ly1def = 0.85
@@ -2431,6 +2426,16 @@ class PlotGroup(object):
         for plot in self._plots:
             if plot.isEmpty():
                 continue
+
+            canvas = _createCanvas(self._name+"Single", width, height)
+            canvasRatio = _createCanvas(self._name+"SingleRatio", width, int(height*self._ratioFactor))
+
+            # from TDRStyle
+            for c in [canvas, canvasRatio]:
+                c.SetTopMargin(0.05)
+                c.SetBottomMargin(0.13)
+                c.SetLeftMargin(0.16)
+                c.SetRightMargin(0.05)
 
             ratioForThisPlot = plot.isRatio(ratio)
             c = canvas
@@ -2531,15 +2536,15 @@ class PlotOnSideGroup(PlotGroup):
 
     def create(self, tdirectoryNEvents, requireAllHistograms=False):
         self._plots = []
-        for element in tdirectoryNEvents:
+        for i, element in enumerate(tdirectoryNEvents):
             pl = self._plot.clone()
             pl.create([element], requireAllHistograms)
+            pl.setName(pl.getName()+"_"+str(i))
             self._plots.append(pl)
 
     def draw(self, *args, **kwargs):
         kargs = copy.copy(kwargs)
         kargs["ratio"] = False
-        kargs["separate"] = False
         return super(PlotOnSideGroup, self).draw(*args, **kargs)
 
 class PlotFolder:
@@ -2912,6 +2917,8 @@ class PlotterItem:
                                 subf.append(key.GetName())
                         subFolders.append(subf)
                     break
+                else:
+                    print("Did not find directory '%s' from file %s" % (pd, tfile.GetName()))
 
             if not isOpenFile:
                 tfile.Close()

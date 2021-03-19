@@ -5,7 +5,6 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.Geometry.GeometryDB_cff")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cout', 'cerr']
 
 ### needed to get the geometry
 from Configuration.AlCa.GlobalTag import GlobalTag

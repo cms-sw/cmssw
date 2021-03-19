@@ -138,6 +138,18 @@ from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
 l1PFMetsTask = cms.Task(l1PFMetCalo , l1PFMetPF , l1PFMetPuppi)
 _phase2_siml1emulator.add(l1PFMetsTask)
 
+# NNTaus
+# ########################################################################
+from L1Trigger.Phase2L1ParticleFlow.L1NNTauProducer_cff import *
+l1NNTauProducer = L1NNTauProducer.clone(
+  L1PFObjects = cms.InputTag("l1pfCandidates","PF")
+)
+l1NNTauProducerPuppi = L1NNTauProducerPuppi.clone(
+  L1PFObjects = cms.InputTag("l1pfCandidates","Puppi")
+)
+_phase2_siml1emulator.add(l1NNTauProducer)
+_phase2_siml1emulator.add(l1NNTauProducerPuppi)
+
 # --> add modules
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
 phase2_trigger.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator)

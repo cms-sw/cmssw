@@ -408,10 +408,14 @@ def customiseMerging(process, changeProcessname=True,reselect=False):
  #   process.merge_step.remove(process.gedPhotonsTmp)
  #   process.merge_step.remove(process.particleFlowTmp)
     process.merge_step.remove(process.hcalnoise)
+    process.merge_step.remove(process.lowPtGsfElectronTask)
+    process.merge_step.remove(process.gsfTracksOpenConversions)
 
     process.load('CommonTools.ParticleFlow.genForPF2PAT_cff')
 
     process.merge_step += process.genForPF2PATSequence
+
+    process.slimmingTask.remove(process.slimmedLowPtElectronsTask)
 
     process.schedule.insert(0,process.merge_step)
     # process.load('PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi')

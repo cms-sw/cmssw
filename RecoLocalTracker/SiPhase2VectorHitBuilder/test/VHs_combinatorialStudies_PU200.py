@@ -75,15 +75,25 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # debug
 process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring("debugVH_PU200"),
-                                    debugModules = cms.untracked.vstring("*"),
-                                    categories = cms.untracked.vstring("VectorHitsBuilderValidation"),
-                                    debugVH_PU200 = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
-                                                                       DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-                                                                       default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-                                                                       VectorHitsBuilderValidation = cms.untracked.PSet(limit = cms.untracked.int32(-1))
-                                                                       )
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        debugVH_PU200 = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            VectorHitsBuilderValidation = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            default = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            threshold = cms.untracked.string('DEBUG')
+        )
+    )
+)
 
 # Analyzer
 process.analysis = cms.EDAnalyzer('VectorHitsBuilderValidation',

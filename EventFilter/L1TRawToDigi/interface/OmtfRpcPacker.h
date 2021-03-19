@@ -2,7 +2,7 @@
 #define EventFilter_L1TRawToDigi_Omtf_RpcPacker_H
 
 #include <string>
-
+#include <memory>
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfLinkMappingRpc.h"

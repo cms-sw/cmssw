@@ -550,12 +550,17 @@ namespace edmtest {
       }
     };
 
-    class TestAccumulator : public edm::one::EDProducer<edm::Accumulator> {
+    class TestAccumulator : public edm::one::EDProducer<edm::Accumulator, edm::EndLuminosityBlockProducer> {
     public:
       explicit TestAccumulator(edm::ParameterSet const& p)
-          : m_expectedCount(p.getParameter<unsigned int>("expectedCount")) {}
+          : m_expectedCount(p.getParameter<unsigned int>("expectedCount")),
+            m_putToken(produces<unsigned int, edm::Transition::EndLuminosityBlock>()) {}
 
       void accumulate(edm::Event const&, edm::EventSetup const&) override { ++m_count; }
+
+      void endLuminosityBlockProduce(edm::LuminosityBlock& l, edm::EventSetup const&) override {
+        l.emplace(m_putToken, m_count.load());
+      }
 
       ~TestAccumulator() {
         if (m_count.load() != m_expectedCount) {
@@ -566,6 +571,7 @@ namespace edmtest {
 
       mutable std::atomic<unsigned int> m_count{0};
       const unsigned int m_expectedCount;
+      const edm::EDPutTokenT<unsigned int> m_putToken;
     };
 
   }  // namespace one

@@ -12,12 +12,10 @@
 
 // to retreive hits
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
 
@@ -28,9 +26,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
-#include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
@@ -79,9 +74,6 @@ private:
   void clear();
 
 private:
-  //Keep reference to instantiate HcalNumberingFromDDD later
-  HcalNumberingFromDDD* numberingFromDDD_;
-
   //HGCal numbering scheme
   std::vector<HGCNumberingScheme*> hgcNumbering_;
   std::vector<HGCalNumberingScheme*> hgcalNumbering_;
@@ -103,8 +95,7 @@ private:
   std::vector<double> hgchitX_, hgchitY_, hgchitZ_;
 };
 
-SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet& p)
-    : numberingFromDDD_(nullptr), levelT1_(999), levelT2_(999), count_(0) {
+SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet& p) : levelT1_(999), levelT2_(999), count_(0) {
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("SimG4HGCalValidation");
   names_ = m_Anal.getParameter<std::vector<std::string> >("Names");
   types_ = m_Anal.getParameter<std::vector<int> >("Types");
@@ -126,7 +117,6 @@ SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet& p)
 }
 
 SimG4HGCalValidation::~SimG4HGCalValidation() {
-  delete numberingFromDDD_;
   for (auto number : hgcNumbering_)
     delete number;
   for (auto number : hgcalNumbering_)
@@ -190,18 +180,8 @@ void SimG4HGCalValidation::update(const BeginOfJob* job) {
         throw cms::Exception("Unknown", "ValidHGCal") << "Cannot find HGCalDDDConstants for " << nameX << "\n";
       }
     } else {
-      nameX = "HcalEndcap";
-      dets_.push_back((unsigned int)(DetId::Hcal));
-      subdet_.push_back((int)(HcalSubdetector::HcalEndcap));
-      edm::ESHandle<HcalDDDSimConstants> hdc;
-      es->get<HcalSimNumberingRecord>().get(hdc);
-      if (hdc.isValid()) {
-        numberingFromDDD_ = new HcalNumberingFromDDD(hdc.product());
-        layers = 18;
-      } else {
-        edm::LogError("ValidHGCal") << "Cannot find HcalDDDSimConstant";
-        throw cms::Exception("Unknown", "ValidHGCal") << "Cannot find HcalDDDSimConstant\n";
-      }
+      edm::LogError("ValidHGCal") << "Wrong Type " << types_[type];
+      throw cms::Exception("Unknown", "ValidHGCal") << "Wrong Type " << types_[type] << "\n";
     }
     if (detType == 0) {
       for (int i = 0; i < layers; ++i)
@@ -272,51 +252,35 @@ void SimG4HGCalValidation::update(const G4Step* aStep) {
         unsigned int index(0);
         int layer(0);
         G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
-        if (types_[type] <= 1) {
-          // HGCal
-          G4ThreeVector localpos = touchable->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
-          float globalZ = touchable->GetTranslation(0).z();
-          int iz(globalZ > 0 ? 1 : -1);
-          int module(-1), cell(-1);
-          if (types_[type] == 1) {
-            if (touchable->GetHistoryDepth() == levelT1_) {
-              layer = touchable->GetReplicaNumber(0);
-            } else {
-              layer = touchable->GetReplicaNumber(2);
-              module = touchable->GetReplicaNumber(1);
-              cell = touchable->GetReplicaNumber(0);
-            }
-            index =
-                hgcNumbering_[type]->getUnitID((ForwardSubdetector)(subdet_[type]), layer, module, cell, iz, localpos);
+        // HGCal
+        G4ThreeVector localpos = touchable->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
+        float globalZ = touchable->GetTranslation(0).z();
+        int iz(globalZ > 0 ? 1 : -1);
+        int module(-1), cell(-1);
+        if (types_[type] == 1) {
+          if (touchable->GetHistoryDepth() == levelT1_) {
+            layer = touchable->GetReplicaNumber(0);
           } else {
-            if ((touchable->GetHistoryDepth() == levelT1_) || (touchable->GetHistoryDepth() == levelT2_)) {
-              layer = touchable->GetReplicaNumber(0);
-            } else {
-              layer = touchable->GetReplicaNumber(3);
-              module = touchable->GetReplicaNumber(2);
-              cell = touchable->GetReplicaNumber(1);
-            }
-            double weight(0);
-            index = hgcalNumbering_[type]->getUnitID(layer, module, cell, iz, hitPoint, weight);
+            layer = touchable->GetReplicaNumber(2);
+            module = touchable->GetReplicaNumber(1);
+            cell = touchable->GetReplicaNumber(0);
           }
-          if (verbosity_ > 1)
-            edm::LogVerbatim("ValidHGCal")
-                << "HGCal: " << name << " Layer " << layer << " Module " << module << " Cell " << cell;
+          index =
+              hgcNumbering_[type]->getUnitID((ForwardSubdetector)(subdet_[type]), layer, module, cell, iz, localpos);
         } else {
-          // Hcal
-          int depth = (touchable->GetReplicaNumber(0)) % 10 + 1;
-          int lay = (touchable->GetReplicaNumber(0) / 10) % 100 + 1;
-          int det = (touchable->GetReplicaNumber(1)) / 1000;
-          HcalNumberingFromDDD::HcalID tmp =
-              numberingFromDDD_->unitID(det, math::XYZVectorD(hitPoint.x(), hitPoint.y(), hitPoint.z()), depth, lay);
-          index = HcalTestNumbering::packHcalIndex(tmp.subdet, tmp.zside, tmp.depth, tmp.etaR, tmp.phis, tmp.lay);
-          layer = tmp.lay;
-          if (verbosity_ > 1)
-            edm::LogVerbatim("ValidHGCal")
-                << "HCAL: " << det << ":" << depth << ":" << lay << " o/p " << tmp.subdet << ":" << tmp.zside << ":"
-                << tmp.depth << ":" << tmp.etaR << ":" << tmp.phis << ":" << tmp.lay << " point " << hitPoint << " "
-                << hitPoint.rho() << ":" << hitPoint.eta() << ":" << hitPoint.phi();
+          if ((touchable->GetHistoryDepth() == levelT1_) || (touchable->GetHistoryDepth() == levelT2_)) {
+            layer = touchable->GetReplicaNumber(0);
+          } else {
+            layer = touchable->GetReplicaNumber(3);
+            module = touchable->GetReplicaNumber(2);
+            cell = touchable->GetReplicaNumber(1);
+          }
+          double weight(0);
+          index = hgcalNumbering_[type]->getUnitID(layer, module, cell, iz, hitPoint, weight);
         }
+        if (verbosity_ > 1)
+          edm::LogVerbatim("ValidHGCal") << "HGCal: " << name << " Layer " << layer << " Module " << module << " Cell "
+                                         << cell;
 
         double edeposit = aStep->GetTotalEnergyDeposit();
         if (verbosity_ > 0)

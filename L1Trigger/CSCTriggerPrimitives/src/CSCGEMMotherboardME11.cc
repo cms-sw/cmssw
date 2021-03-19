@@ -58,8 +58,6 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
                                 const CSCComparatorDigiCollection* compdc,
                                 const GEMPadDigiClusterCollection* gemClusters) {
   CSCGEMMotherboard::clear();
-  setupGeometry();
-  debugLUTs();
 
   // encode high multiplicity bits
   unsigned alctBits = alctProc->getHighMultiplictyBits();

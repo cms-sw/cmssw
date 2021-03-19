@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Validation/HcalHits/interface/HcalSimHitsClient.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

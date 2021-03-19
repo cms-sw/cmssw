@@ -10,13 +10,13 @@ namespace l1t {
     class RegionalMuonGMTUnpacker : public Unpacker {
     public:
       bool unpack(const Block& block, UnpackerCollections* coll) override;
-      void setKalmanAlgoTrue() { isKalman_ = true; }
+      void setIsRun3() { isRun3_ = true; }
 
     private:
       static constexpr unsigned nWords_ = 6;  // every link transmits 6 words (3 muons) per bx
       static constexpr unsigned bxzs_enable_shift_ = 1;
 
-      bool isKalman_{false};
+      bool isRun3_{false};
     };
   }  // namespace stage2
 }  // namespace l1t

@@ -20,6 +20,7 @@
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
@@ -50,6 +51,7 @@ SiPixelHLTSource::SiPixelHLTSource(const edm::ParameterSet &iConfig)
     : conf_(iConfig),
       rawin_(consumes<FEDRawDataCollection>(conf_.getParameter<edm::InputTag>("RawInput"))),
       errin_(consumes<edm::DetSetVector<SiPixelRawDataError>>(conf_.getParameter<edm::InputTag>("ErrorInput"))),
+      trackerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
       saveFile(conf_.getUntrackedParameter<bool>("saveFile", false)),
       slowDown(conf_.getUntrackedParameter<bool>("slowDown", false)),
       dirName_(conf_.getUntrackedParameter<string>("DirName", "Pixel/FEDIntegrity/")) {
@@ -65,7 +67,7 @@ SiPixelHLTSource::~SiPixelHLTSource() {
 
 void SiPixelHLTSource::dqmBeginRun(const edm::Run &r, const edm::EventSetup &iSetup) {
   LogInfo("PixelDQM") << " SiPixelHLTSource::beginJob - Initialisation ... " << std::endl;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+
   if (firstRun) {
     eventNo = 0;
 
@@ -83,6 +85,7 @@ void SiPixelHLTSource::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const
 //------------------------------------------------------------------
 void SiPixelHLTSource::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   eventNo++;
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomToken_);
   // get raw input data
   edm::Handle<FEDRawDataCollection> rawinput;
   iEvent.getByToken(rawin_, rawinput);

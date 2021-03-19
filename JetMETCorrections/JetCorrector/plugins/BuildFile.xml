@@ -1,0 +1,8 @@
+<library name="JetMETCorrectionsJetCorrectorPlugins" file="*.cc">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/JetReco"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="JetMETCorrections/JetCorrector"/>
+</library>

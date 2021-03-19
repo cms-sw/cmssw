@@ -3,6 +3,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 StripByStripTestDriver::StripByStripTestDriver(const edm::ParameterSet& conf)
     : inputTag(conf.getParameter<edm::InputTag>("DigiProducer")),

@@ -8,7 +8,7 @@
 
 /* \brief description of the bit assigment
    [0:8]   iphi index wrt x-axis on +z side
-   [9:16]  |radius| index (starting from a minimum radius depending on type)
+   [9:16]  |ring| index (starting from a minimum radius depending on type)
    [17:21] Layer #
    [22]    Trigger(1)/Detector(0) cell
    [23]    SiPM type (0 for 2mm: 1 for 4mm)
@@ -27,7 +27,7 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   HGCScintillatorDetId(uint32_t rawid);
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
-  HGCScintillatorDetId(int type, int layer, int iradius, int iphi, bool trigger = false, int sipm = 0);
+  HGCScintillatorDetId(int type, int layer, int ring, int iphi, bool trigger = false, int sipm = 0);
   /** Constructor from a generic cell id */
   HGCScintillatorDetId(const DetId& id);
   /** Assignment from a generic cell id */
@@ -50,15 +50,16 @@ public:
   int layer() const { return (id_ >> kHGCalLayerOffset) & kHGCalLayerMask; }
 
   /// get the eta index
-  int iradiusAbs() const;
-  int iradius() const { return zside() * iradiusAbs(); }
-  int ietaAbs() const { return iradiusAbs(); }
-  int ieta() const { return zside() * ietaAbs(); }
+  int ring() const;
+  int iradiusAbs() const { return ring(); }
+  int iradius() const { return zside() * ring(); }
+  int ietaAbs() const { return ring(); }
+  int ieta() const { return zside() * ring(); }
 
   /// get the phi index
   int iphi() const;
   std::pair<int, int> ietaphi() const { return std::pair<int, int>(ieta(), iphi()); }
-  std::pair<int, int> iradiusphi() const { return std::pair<int, int>(iradius(), iphi()); }
+  std::pair<int, int> ringphi() const { return std::pair<int, int>(iradius(), iphi()); }
 
   /// get/set the sipm size
   int sipm() const { return (id_ >> kHGCalSiPMOffset) & kHGCalSiPMMask; }

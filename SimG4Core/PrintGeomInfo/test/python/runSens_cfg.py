@@ -10,7 +10,8 @@ process.load('Configuration.Geometry.GeometryExtended2021_cff')
 #process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 #process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
 
-process.MessageLogger.destinations = cms.untracked.vstring("SensDet.txt")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.files.SensDet = dict(extension="txt")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

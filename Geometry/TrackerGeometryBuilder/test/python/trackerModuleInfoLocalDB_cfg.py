@@ -14,10 +14,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-                                                      fromDDD = cms.bool( False )
-                                                     )
-
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBESSourceGeometry = cms.ESSource("PoolDBESSource",

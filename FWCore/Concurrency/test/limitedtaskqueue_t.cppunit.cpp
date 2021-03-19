@@ -11,21 +11,20 @@
 #include <unistd.h>
 #include <memory>
 #include <atomic>
-#include "tbb/task.h"
+#include "tbb/task_arena.h"
+#include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
 
 class LimitedTaskQueue_test : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(LimitedTaskQueue_test);
   CPPUNIT_TEST(testPush);
-  CPPUNIT_TEST(testPushAndWait);
   CPPUNIT_TEST(testPause);
   CPPUNIT_TEST(stressTest);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   void testPush();
-  void testPushAndWait();
   void testPause();
   void stressTest();
   void setUp() {}
@@ -40,30 +39,30 @@ void LimitedTaskQueue_test::testPush() {
 
     edm::LimitedTaskQueue queue{1};
     {
-      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
-                                          [](tbb::task* iTask) { tbb::task::destroy(*iTask); }};
-      waitTask->set_ref_count(1 + 3);
-      tbb::task* pWaitTask = waitTask.get();
+      std::atomic<int> waitingTasks{3};
+      tbb::task_group group;
 
-      queue.push([&count, pWaitTask] {
+      queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ == 0);
         usleep(10);
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
 
-      queue.push([&count, pWaitTask] {
+      queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ == 1);
         usleep(10);
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
 
-      queue.push([&count, pWaitTask] {
+      queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ == 2);
         usleep(10);
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
 
-      waitTask->wait_for_all();
+      do {
+        group.wait();
+      } while (0 != waitingTasks.load());
       CPPUNIT_ASSERT(count == 3);
     }
   }
@@ -74,147 +73,80 @@ void LimitedTaskQueue_test::testPush() {
     constexpr unsigned int kMax = 2;
     edm::LimitedTaskQueue queue{kMax};
     {
-      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
-                                          [](tbb::task* iTask) { tbb::task::destroy(*iTask); }};
-      waitTask->set_ref_count(1 + 3);
-      tbb::task* pWaitTask = waitTask.get();
+      std::atomic<int> waitingTasks{3};
+      tbb::task_group group;
 
-      queue.push([&count, pWaitTask] {
+      queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ < kMax);
         usleep(10);
         --count;
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
 
-      queue.push([&count, pWaitTask] {
+      queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ < kMax);
         usleep(10);
         --count;
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
 
-      queue.push([&count, pWaitTask] {
+      queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ < kMax);
         usleep(10);
         --count;
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
 
-      waitTask->wait_for_all();
+      do {
+        group.wait();
+      } while (0 != waitingTasks);
       CPPUNIT_ASSERT(count == 0);
     }
   }
 }
 
-void LimitedTaskQueue_test::testPushAndWait() {
-  {
-    std::atomic<unsigned int> count{0};
-
-    edm::LimitedTaskQueue queue{1};
-    {
-      queue.push([&count] {
-        CPPUNIT_ASSERT(count++ == 0);
-        usleep(10);
-      });
-
-      queue.push([&count] {
-        CPPUNIT_ASSERT(count++ == 1);
-        usleep(10);
-      });
-
-      queue.pushAndWait([&count] {
-        CPPUNIT_ASSERT(count++ == 2);
-        usleep(10);
-      });
-
-      CPPUNIT_ASSERT(count == 3);
-    }
-  }
-
-  {
-    std::atomic<unsigned int> count{0};
-    std::atomic<unsigned int> countTasksRun{0};
-    constexpr unsigned int kMax = 2;
-
-    edm::LimitedTaskQueue queue{kMax};
-    {
-      queue.pushAndWait([&count, &countTasksRun] {
-        CPPUNIT_ASSERT(count++ < kMax);
-        usleep(10);
-        --count;
-        CPPUNIT_ASSERT(1 == ++countTasksRun);
-      });
-
-      queue.pushAndWait([&count, &countTasksRun] {
-        CPPUNIT_ASSERT(count++ < kMax);
-        usleep(10);
-        --count;
-        CPPUNIT_ASSERT(2 == ++countTasksRun);
-      });
-
-      queue.pushAndWait([&count, &countTasksRun] {
-        CPPUNIT_ASSERT(count++ < kMax);
-        usleep(10);
-        --count;
-        CPPUNIT_ASSERT(3 == ++countTasksRun);
-      });
-
-      auto c = count.load();
-      if (c != 0) {
-        std::cout << "ERROR count " << c << " != 0" << std::endl;
-      }
-      CPPUNIT_ASSERT(count == 0);
-
-      auto v = countTasksRun.load();
-      if (v != 3) {
-        std::cout << "ERROR # tasks Run " << v << " != 3" << std::endl;
-      }
-      CPPUNIT_ASSERT(v == 3);
-    }
-  }
-}
 void LimitedTaskQueue_test::testPause() {
   std::atomic<unsigned int> count{0};
 
   edm::LimitedTaskQueue queue{1};
   {
     {
-      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
-                                          [](tbb::task* iTask) { tbb::task::destroy(*iTask); }};
-      waitTask->set_ref_count(1 + 3);
-      tbb::task* pWaitTask = waitTask.get();
+      std::atomic<int> waitingTasks{3};
+      tbb::task_group group;
+
       edm::LimitedTaskQueue::Resumer resumer;
       std::atomic<bool> resumerSet{false};
       std::exception_ptr e1;
-      queue.pushAndPause([&resumer, &resumerSet, &count, pWaitTask, &e1](edm::LimitedTaskQueue::Resumer iResumer) {
-        resumer = std::move(iResumer);
-        resumerSet = true;
-        try {
-          CPPUNIT_ASSERT(++count == 1);
-        } catch (...) {
-          e1 = std::current_exception();
-        }
-        pWaitTask->decrement_ref_count();
-      });
+      queue.pushAndPause(group,
+                         [&resumer, &resumerSet, &count, &waitingTasks, &e1](edm::LimitedTaskQueue::Resumer iResumer) {
+                           resumer = std::move(iResumer);
+                           resumerSet = true;
+                           try {
+                             CPPUNIT_ASSERT(++count == 1);
+                           } catch (...) {
+                             e1 = std::current_exception();
+                           }
+                           --waitingTasks;
+                         });
 
       std::exception_ptr e2;
-      queue.push([&count, pWaitTask, &e2] {
+      queue.push(group, [&count, &waitingTasks, &e2] {
         try {
           CPPUNIT_ASSERT(++count == 2);
         } catch (...) {
           e2 = std::current_exception();
         }
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
 
       std::exception_ptr e3;
-      queue.push([&count, pWaitTask, &e3] {
+      queue.push(group, [&count, &waitingTasks, &e3] {
         try {
           CPPUNIT_ASSERT(++count == 3);
         } catch (...) {
           e3 = std::current_exception();
         }
-        pWaitTask->decrement_ref_count();
+        --waitingTasks;
       });
       usleep(100);
       //can't do == since the queue may not have processed the first task yet
@@ -222,7 +154,9 @@ void LimitedTaskQueue_test::testPause() {
       while (not resumerSet) {
       }
       CPPUNIT_ASSERT(resumer.resume());
-      waitTask->wait_for_all();
+      do {
+        group.wait();
+      } while (0 != waitingTasks.load());
       CPPUNIT_ASSERT(count == 3);
       if (e1) {
         std::rethrow_exception(e1);
@@ -238,31 +172,28 @@ void LimitedTaskQueue_test::testPause() {
 }
 
 void LimitedTaskQueue_test::stressTest() {
+  //NOTE: group needs to last longer than queue
+  tbb::task_group group;
+
   constexpr unsigned int kMax = 3;
   edm::LimitedTaskQueue queue{kMax};
 
   unsigned int index = 100;
   const unsigned int nTasks = 1000;
   while (0 != --index) {
-    std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
-                                        [](tbb::task* iTask) { tbb::task::destroy(*iTask); }};
-    waitTask->set_ref_count(3);
-    tbb::task* pWaitTask = waitTask.get();
+    std::atomic<int> waiting{1};
     std::atomic<unsigned int> count{0};
     std::atomic<unsigned int> nRunningTasks{0};
 
     std::atomic<bool> waitToStart{true};
     {
-      auto j = edm::make_functor_task(tbb::task::allocate_root(), [&queue, &waitToStart, pWaitTask, &count, &nRunningTasks] {
-        //gcc 4.7 doesn't preserve the 'atomic' nature of waitToStart in the loop
-        while (waitToStart.load()) {
-          __sync_synchronize();
+      group.run([&queue, &waitToStart, &group, &waiting, &count, &nRunningTasks] {
+        while (waitToStart) {
         };
-        std::shared_ptr<tbb::task> guard{pWaitTask, [](tbb::task* iTask) { iTask->decrement_ref_count(); }};
         for (unsigned int i = 0; i < nTasks; ++i) {
-          pWaitTask->increment_ref_count();
-          queue.push([&count, pWaitTask, &nRunningTasks] {
-            std::shared_ptr<tbb::task> guardAgain{pWaitTask, [](tbb::task* iTask) { iTask->decrement_ref_count(); }};
+          ++waiting;
+          queue.push(group, [&count, &waiting, &nRunningTasks] {
+            std::shared_ptr<std::atomic<int>> guardAgain{&waiting, [](auto* v) { --(*v); }};
             auto nrt = nRunningTasks++;
             if (nrt >= kMax) {
               std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
@@ -273,25 +204,28 @@ void LimitedTaskQueue_test::stressTest() {
           });
         }
       });
-      tbb::task::enqueue(*j);
 
-      waitToStart = false;
-      for (unsigned int i = 0; i < nTasks; ++i) {
-        pWaitTask->increment_ref_count();
-        queue.push([&count, pWaitTask, &nRunningTasks] {
-          std::shared_ptr<tbb::task> guard{pWaitTask, [](tbb::task* iTask) { iTask->decrement_ref_count(); }};
-          auto nrt = nRunningTasks++;
-          if (nrt >= kMax) {
-            std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
-          }
-          CPPUNIT_ASSERT(nrt < kMax);
-          ++count;
-          --nRunningTasks;
-        });
-      }
-      pWaitTask->decrement_ref_count();
+      group.run([&queue, &waitToStart, &group, &waiting, &count, &nRunningTasks] {
+        waitToStart = false;
+        for (unsigned int i = 0; i < nTasks; ++i) {
+          ++waiting;
+          queue.push(group, [&count, &waiting, &nRunningTasks] {
+            std::shared_ptr<std::atomic<int>> guardAgain{&waiting, [](auto* v) { --(*v); }};
+            auto nrt = nRunningTasks++;
+            if (nrt >= kMax) {
+              std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
+            }
+            CPPUNIT_ASSERT(nrt < kMax);
+            ++count;
+            --nRunningTasks;
+          });
+        }
+        --waiting;
+      });
     }
-    waitTask->wait_for_all();
+    do {
+      group.wait();
+    } while (0 != waiting.load());
 
     CPPUNIT_ASSERT(0 == nRunningTasks);
     CPPUNIT_ASSERT(2 * nTasks == count);

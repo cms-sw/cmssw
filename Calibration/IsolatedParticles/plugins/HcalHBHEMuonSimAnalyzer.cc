@@ -38,8 +38,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#define EDM_ML_DEBUG
-
 class HcalHBHEMuonSimAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HcalHBHEMuonSimAnalyzer(const edm::ParameterSet&);
@@ -70,6 +68,14 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> tok_SimVtx_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEB_, tok_caloEE_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloHH_;
+
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_topo_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+
+  const HcalDDDRecConstants* hcons_;
 
   static const int depthMax_ = 7;
   const int idMuon_ = 13;
@@ -111,25 +117,23 @@ HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfi
     maxDepth_ = depthMax_;
   else if (maxDepth_ < 1)
     maxDepth_ = 4;
-#ifdef EDM_ML_DEBUG
-  std::cout << "Labels: " << g4Label_ << ":" << ebLabel_ << ":" << eeLabel_ << ":" << hcLabel_ << "\nVerbosity "
-            << verbosity_ << " MaxDepth " << maxDepth_ << " Maximum Eta " << etaMax_ << " tMin|tMax " << tMinE_ << ":"
-            << tMaxE_ << ":" << tMinH_ << ":" << tMaxH_ << std::endl;
-#endif
+
+  edm::LogVerbatim("HBHEMuon") << "Labels: " << g4Label_ << ":" << ebLabel_ << ":" << eeLabel_ << ":" << hcLabel_
+                               << "\nVerbosity " << verbosity_ << " MaxDepth " << maxDepth_ << " Maximum Eta "
+                               << etaMax_ << " tMin|tMax " << tMinE_ << ":" << tMaxE_ << ":" << tMinH_ << ":" << tMaxH_;
+
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+  tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_topo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 }
 
 HcalHBHEMuonSimAnalyzer::~HcalHBHEMuonSimAnalyzer() {}
 
 void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   clearVectors();
-  bool debug(false);
-#ifdef EDM_ML_DEBUG
-  debug = ((verbosity_ / 10) > 0);
-#endif
-
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  const HcalDDDRecConstants* hcons = &(*pHRNDC);
+  bool debug = ((verbosity_ / 10) > 0);
 
   runNumber_ = iEvent.id().run();
   eventNumber_ = iEvent.id().event();
@@ -164,10 +168,8 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   if (testN) {
     for (edm::PCaloHitContainer::const_iterator itr = pcalohh->begin(); itr != pcalohh->end(); ++itr) {
       PCaloHit hit(*itr);
-      DetId newid = HcalHitRelabeller::relabel(hit.id(), hcons);
-#ifdef EDM_ML_DEBUG
-      std::cout << "Old ID " << std::hex << hit.id() << std::dec << " New " << HcalDetId(newid) << std::endl;
-#endif
+      DetId newid = HcalHitRelabeller::relabel(hit.id(), hcons_);
+      edm::LogVerbatim("HBHEMuon") << "Old ID " << std::hex << hit.id() << std::dec << " New " << HcalDetId(newid);
       hit.setID(newid.rawId());
       calohh.push_back(hit);
     }
@@ -176,21 +178,10 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
-
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField* bField = bFieldH.product();
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology* caloTopology = theCaloTopology.product();
-
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
+  const MagneticField* bField = &iSetup.getData(tok_magField_);
+  const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
+  const HcalTopology* theHBHETopology = &iSetup.getData(tok_topo_);
 
   // Loop over all SimTracks
   for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
@@ -207,15 +198,15 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       for (int i = 0; i < depthMax_; ++i)
         eHcalDepth[i] = eHcalDepthHot[i] = activeL[i] = activeHotL[i] = -10000;
 
-#ifdef EDM_ML_DEBUG
       if ((verbosity_ % 10) > 0)
-        std::cout << "Track Type " << simTrkItr->type() << " Vertex " << simTrkItr->vertIndex() << " Charge "
-                  << simTrkItr->charge() << " Momentum " << simTrkItr->momentum().P() << ":"
-                  << simTrkItr->momentum().eta() << ":" << simTrkItr->momentum().phi() << " ECAL|HCAL " << trkD.okECAL
-                  << ":" << trkD.okHCAL << " Point " << trkD.pointECAL << ":" << trkD.pointHCAL << " Direction "
-                  << trkD.directionECAL.eta() << ":" << trkD.directionECAL.phi() << " | " << trkD.directionHCAL.eta()
-                  << ":" << trkD.directionHCAL.phi() << std::endl;
-#endif
+        edm::LogVerbatim("HBHEMuon") << "Track Type " << simTrkItr->type() << " Vertex " << simTrkItr->vertIndex()
+                                     << " Charge " << simTrkItr->charge() << " Momentum " << simTrkItr->momentum().P()
+                                     << ":" << simTrkItr->momentum().eta() << ":" << simTrkItr->momentum().phi()
+                                     << " ECAL|HCAL " << trkD.okECAL << ":" << trkD.okHCAL << " Point "
+                                     << trkD.pointECAL << ":" << trkD.pointHCAL << " Direction "
+                                     << trkD.directionECAL.eta() << ":" << trkD.directionECAL.phi() << " | "
+                                     << trkD.directionHCAL.eta() << ":" << trkD.directionHCAL.phi();
+
       bool propageback(false);
       spr::propagatedTrackDirection trkD_back = spr::propagateHCALBack(thisTrk, SimTk, SimVtx, geo, bField, debug);
       HcalDetId closestCell_back;
@@ -230,12 +221,10 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         etaGlob_.push_back(tkvx.momentum.eta());
         phiGlob_.push_back(tkvx.momentum.phi());
         pMuon_.push_back(tkvx.momentum.mag());
-#ifdef EDM_ML_DEBUG
         if ((verbosity_ % 10) > 0)
-          std::cout << "Track at vertex " << tkvx.ok << " position " << tkvx.position << " Momentum "
-                    << tkvx.momentum.mag() << ":" << tkvx.momentum.eta() << ":" << tkvx.momentum.phi() << " Charge "
-                    << tkvx.charge << std::endl;
-#endif
+          edm::LogVerbatim("HBHEMuon") << "Track at vertex " << tkvx.ok << " position " << tkvx.position << " Momentum "
+                                       << tkvx.momentum.mag() << ":" << tkvx.momentum.eta() << ":"
+                                       << tkvx.momentum.phi() << " Charge " << tkvx.charge;
 
         // Energy in ECAL
         DetId isoCell;
@@ -253,17 +242,15 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
         eHcal = spr::eHCALmatrix(
             theHBHETopology, closestCell, calohh, 0, 0, false, -100.0, -100.0, -100.0, -100.0, tMinH_, tMaxH_, debug);
-#ifdef EDM_ML_DEBUG
         if ((verbosity_ % 10) > 0)
-          std::cout << "eEcal " << trkD.okECAL << ":" << eEcal << " eHcal " << eHcal << std::endl;
-#endif
+          edm::LogVerbatim("HBHEMuon") << "eEcal " << trkD.okECAL << ":" << eEcal << " eHcal " << eHcal;
 
         HcalSubdetector subdet = HcalDetId(closestCell).subdet();
         int ieta = HcalDetId(closestCell).ieta();
         int iphi = HcalDetId(closestCell).iphi();
         int zside = HcalDetId(closestCell).zside();
         bool hbhe = (std::abs(ieta) == 16);
-        int depthHE = hcons->getMinDepth(1, 16, iphi, zside);
+        int depthHE = hcons_->getMinDepth(1, 16, iphi, zside);
         std::vector<std::pair<double, int> > ehdepth;
         spr::energyHCALCell((HcalDetId)closestCell,
                             calohh,
@@ -284,24 +271,16 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
           double actL = activeLength(DetId(hcid0));
           activeL[ehdepth[i].second - 1] = actL;
           activeLengthTot += actL;
-#ifdef EDM_ML_DEBUG
           if ((verbosity_ % 10) > 0)
-            std::cout << hcid0 << " E " << ehdepth[i].first << " L " << actL << std::endl;
-#endif
+            edm::LogVerbatim("HBHEMuon") << hcid0 << " E " << ehdepth[i].first << " L " << actL;
         }
 
         HcalDetId hotCell;
-#ifdef EDM_ML_DEBUG
-        double h3x3 =
-#endif
-            spr::eHCALmatrix(geo, theHBHETopology, closestCell, calohh, 1, 1, hotCell, debug);
+        double h3x3 = spr::eHCALmatrix(geo, theHBHETopology, closestCell, calohh, 1, 1, hotCell, debug);
         isHot = matchId(closestCell, hotCell);
-#ifdef EDM_ML_DEBUG
         if ((verbosity_ % 10) > 0)
-          std::cout << "hcal 3X3  < " << h3x3 << ">"
-                    << " ClosestCell <" << (HcalDetId)(closestCell) << "> hotCell id < " << hotCell << "> isHot"
-                    << isHot << std::endl;
-#endif
+          edm::LogVerbatim("HBHEMuon") << "hcal 3X3  < " << h3x3 << "> ClosestCell <" << (HcalDetId)(closestCell)
+                                       << "> hotCell id < " << hotCell << "> isHot" << isHot;
 
         if (hotCell != HcalDetId()) {
           subdet = HcalDetId(hotCell).subdet();
@@ -309,7 +288,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
           iphi = HcalDetId(hotCell).iphi();
           zside = HcalDetId(hotCell).zside();
           hbhe = (std::abs(ieta) == 16);
-          depthHE = hcons->getMinDepth(1, 16, iphi, zside);
+          depthHE = hcons_->getMinDepth(1, 16, iphi, zside);
           std::vector<std::pair<double, int> > ehdepth;
           spr::energyHCALCell(
               hotCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, tMinH_, tMaxH_, depthHE, debug);
@@ -320,18 +299,14 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
             double actL = activeLength(DetId(hcid0));
             activeHotL[ehdepth[i].second - 1] = actL;
             activeLengthHotTot += actL;
-#ifdef EDM_ML_DEBUG
             if ((verbosity_ % 10) > 0)
-              std::cout << hcid0 << " E " << ehdepth[i].first << " L " << actL << std::endl;
-#endif
+              edm::LogVerbatim("HBHEMuon") << hcid0 << " E " << ehdepth[i].first << " L " << actL;
           }
         }
-#ifdef EDM_ML_DEBUG
         if ((verbosity_ % 10) > 0) {
           for (int k = 0; k < depthMax_; ++k)
-            std::cout << "Depth " << k << " E " << eHcalDepth[k] << ":" << eHcalDepthHot[k] << std::endl;
+            edm::LogVerbatim("HBHEMuon") << "Depth " << k << " E " << eHcalDepth[k] << ":" << eHcalDepthHot[k];
         }
-#endif
         matchedId_.push_back(tmpmatch);
         ecal3x3Energy_.push_back(eEcal);
         ecalDetId_.push_back(isoCell.rawId());
@@ -385,13 +360,11 @@ void HcalHBHEMuonSimAnalyzer::beginJob() {
 }
 
 void HcalHBHEMuonSimAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  const HcalDDDRecConstants& hdc = (*pHRNDC);
+  hcons_ = &iSetup.getData(tok_ddrec_);
   actHB_.clear();
   actHE_.clear();
-  actHB_ = hdc.getThickActive(0);
-  actHE_ = hdc.getThickActive(1);
+  actHB_ = hcons_->getThickActive(0);
+  actHE_ = hcons_->getThickActive(1);
 }
 
 void HcalHBHEMuonSimAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

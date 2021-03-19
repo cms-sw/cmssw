@@ -104,7 +104,9 @@ namespace tensorflow {
     return createSession(sessionOptions);
   }
 
-  Session* createSession(MetaGraphDef* metaGraphDef, const std::string& exportDir, SessionOptions& sessionOptions) {
+  Session* createSession(const MetaGraphDef* metaGraphDef,
+                         const std::string& exportDir,
+                         SessionOptions& sessionOptions) {
     // check for valid pointer
     if (metaGraphDef == nullptr) {
       throw cms::Exception("InvalidMetaGraphDef") << "error while creating session: metaGraphDef is nullptr";
@@ -151,7 +153,7 @@ namespace tensorflow {
     return session;
   }
 
-  Session* createSession(MetaGraphDef* metaGraphDef, const std::string& exportDir, int nThreads) {
+  Session* createSession(const MetaGraphDef* metaGraphDef, const std::string& exportDir, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
@@ -159,7 +161,7 @@ namespace tensorflow {
     return createSession(metaGraphDef, exportDir, sessionOptions);
   }
 
-  Session* createSession(GraphDef* graphDef, SessionOptions& sessionOptions) {
+  Session* createSession(const GraphDef* graphDef, SessionOptions& sessionOptions) {
     // check for valid pointer
     if (graphDef == nullptr) {
       throw cms::Exception("InvalidGraphDef") << "error while creating session: graphDef is nullptr";
@@ -185,7 +187,7 @@ namespace tensorflow {
     return session;
   }
 
-  Session* createSession(GraphDef* graphDef, int nThreads) {
+  Session* createSession(const GraphDef* graphDef, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);

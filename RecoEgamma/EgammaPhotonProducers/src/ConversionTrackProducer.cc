@@ -9,25 +9,68 @@
 //
 //
 
-#include <memory>
-#include <string>
-#include <iostream>
-#include <cmath>
-#include <vector>
-
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
+#include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-
-#include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackProducer.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoTracker/ConversionSeedGenerators/interface/IdealHelixParameters.h"
+#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+#include <string>
+#include <vector>
+
+class ConversionTrackProducer : public edm::stream::EDProducer<> {
+  typedef edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>, reco::GsfTrackCollection, unsigned short> >
+      TrajGsfTrackAssociationCollection;
+
+public:
+  explicit ConversionTrackProducer(const edm::ParameterSet& conf);
+
+  ~ConversionTrackProducer() override;
+
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  edm::EDGetTokenT<edm::View<reco::Track> > genericTracks;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> kfTrajectories;
+  edm::EDGetTokenT<TrajGsfTrackAssociationCollection> gsfTrajectories;
+  bool useTrajectory;
+  bool setTrackerOnly;
+  bool setIsGsfTrackOpen;
+  bool setArbitratedEcalSeeded;
+  bool setArbitratedMerged;
+  bool setArbitratedMergedEcalGeneral;
+
+  //--------------------------------------------------
+  //Added by D. Giordano
+  // 2011/08/05
+  // Reduction of the track sample based on geometric hypothesis for conversion tracks
+
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotInputTag;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken;
+  bool filterOnConvTrackHyp;
+  double minConvRadius;
+  IdealHelixParameters ConvTrackPreSelector;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ConversionTrackProducer);
 
 ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf)
     : useTrajectory(conf.getParameter<bool>("useTrajectory")),

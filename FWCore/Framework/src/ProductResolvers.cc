@@ -243,7 +243,7 @@ namespace edm {
     setMergeableRunProductMetadataInProductData(mrpm);
   }
 
-  void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
+  void InputProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                             Principal const& principal,
                                             bool skipCurrentProcess,
                                             ServiceToken const& token,
@@ -289,11 +289,14 @@ namespace edm {
         }
       }
       if (queue) {
-        queue->push(workToDo);
+        queue->push(*waitTask.group(), workToDo);
       } else {
         //Have to create a new task
-        auto t = make_functor_task(tbb::task::allocate_root(), workToDo);
-        tbb::task::spawn(*t);
+        auto t = make_functor_task(workToDo);
+        waitTask.group()->run([t]() {
+          TaskSentry s{t};
+          t->execute();
+        });
       }
     }
   }
@@ -323,7 +326,7 @@ namespace edm {
     return Resolution(nullptr);
   }
 
-  void PuttableProductResolver::prefetchAsync_(WaitingTask* waitTask,
+  void PuttableProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                Principal const& principal,
                                                bool skipCurrentProcess,
                                                ServiceToken const& token,
@@ -346,14 +349,14 @@ namespace edm {
         // if the module does not put this data product or the
         // module has an exception while running
 
-        auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
+        auto waiting = make_waiting_task([this](std::exception_ptr const* iException) {
           if (nullptr != iException) {
             m_waitingTasks.doneWaiting(*iException);
           } else {
             m_waitingTasks.doneWaiting(std::exception_ptr());
           }
         });
-        worker_->callWhenDoneAsync(waiting);
+        worker_->callWhenDoneAsync(WaitingTaskHolder(*waitTask.group(), waiting));
       }
     }
   }
@@ -381,48 +384,27 @@ namespace edm {
   void UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
     worker_ = iConfigure.findWorker(branchDescription().moduleLabel());
-    assert(worker_ != nullptr);
   }
 
   ProductResolverBase::Resolution UnscheduledProductResolver::resolveProduct_(Principal const&,
                                                                               bool skipCurrentProcess,
-                                                                              SharedResourcesAcquirer* sra,
-                                                                              ModuleCallingContext const* mcc) const {
+                                                                              SharedResourcesAcquirer*,
+                                                                              ModuleCallingContext const*) const {
     if (!skipCurrentProcess and worker_) {
-      return resolveProductImpl<true>([this, sra, mcc]() {
-        try {
-          ParentContext parentContext(mcc);
-          aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()), *mcc);
-
-          auto workCall = [this, &parentContext, mcc]() {
-            auto sentry(make_sentry(mcc, [this](ModuleCallingContext const* iContext) {
-              aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext);
-            }));
-
-            EventTransitionInfo const& info = aux_->eventTransitionInfo();
-            worker_->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
-                info, info.principal().streamID(), parentContext, mcc->getStreamContext());
-          };
-
-          if (sra) {
-            assert(false);
-          } else {
-            workCall();
-          }
-
-        } catch (cms::Exception& ex) {
-          std::ostringstream ost;
-          ost << "Calling produce method for unscheduled module " << worker_->description().moduleName() << "/'"
-              << worker_->description().moduleLabel() << "'";
-          ex.addContext(ost.str());
-          throw;
-        }
+      return resolveProductImpl<true>([this]() {
+        edm::Exception ex(errors::UnimplementedFeature);
+        ex << "Attempting to run unscheduled module without doing prefetching";
+        std::ostringstream ost;
+        ost << "Calling produce method for unscheduled module " << worker_->description()->moduleName() << "/'"
+            << worker_->description()->moduleLabel() << "'";
+        ex.addContext(ost.str());
+        throw ex;
       });
     }
     return Resolution(nullptr);
   }
 
-  void UnscheduledProductResolver::prefetchAsync_(WaitingTask* waitTask,
+  void UnscheduledProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                   Principal const& principal,
                                                   bool skipCurrentProcess,
                                                   ServiceToken const& token,
@@ -431,6 +413,10 @@ namespace edm {
     if (skipCurrentProcess) {
       return;
     }
+    if (worker_ == nullptr) {
+      throw cms::Exception("LogicError") << "UnscheduledProductResolver::prefetchAsync_()  called with null worker_. "
+                                            "This should not happen, please contact framework developers.";
+    }
     //need to try changing prefetchRequested_ before adding to waitingTasks_
     bool expected = false;
     bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);
@@ -438,7 +424,7 @@ namespace edm {
     if (prefetchRequested) {
       //Have to create a new task which will make sure the state for UnscheduledProductResolver
       // is properly set after the module has run
-      auto t = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iPtr) {
+      auto t = make_waiting_task([this](std::exception_ptr const* iPtr) {
         //The exception is being rethrown because resolveProductImpl sets the ProductResolver to a failed
         // state for the case where an exception occurs during the call to the function.
         // Caught exception is propagated via WaitingTaskList
@@ -458,7 +444,12 @@ namespace edm {
       ParentContext parentContext(mcc);
       EventTransitionInfo const& info = aux_->eventTransitionInfo();
       worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
-          t, info, token, info.principal().streamID(), parentContext, mcc->getStreamContext());
+          WaitingTaskHolder(*waitTask.group(), t),
+          info,
+          token,
+          info.principal().streamID(),
+          parentContext,
+          mcc->getStreamContext());
     }
   }
 
@@ -692,7 +683,7 @@ namespace edm {
     return Resolution(nullptr);
   }
 
-  void SwitchProducerProductResolver::prefetchAsync_(WaitingTask* waitTask,
+  void SwitchProducerProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                      Principal const& principal,
                                                      bool skipCurrentProcess,
                                                      ServiceToken const& token,
@@ -715,7 +706,7 @@ namespace edm {
       // the waitingTasks() list will be released from waiting even
       // if the module does not put this data product or the
       // module has an exception while running
-      auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
+      auto waiting = make_waiting_task([this](std::exception_ptr const* iException) {
         if (nullptr != iException) {
           waitingTasks().doneWaiting(*iException);
         } else {
@@ -723,7 +714,7 @@ namespace edm {
           waitingTasks().doneWaiting(std::exception_ptr());
         }
       });
-      worker()->callWhenDoneAsync(waiting);
+      worker()->callWhenDoneAsync(WaitingTaskHolder(*waitTask.group(), waiting));
     }
   }
 
@@ -765,7 +756,7 @@ namespace edm {
     return resolveProductImpl(realProduct().resolveProduct(principal, skipCurrentProcess, sra, mcc));
   }
 
-  void SwitchAliasProductResolver::prefetchAsync_(WaitingTask* waitTask,
+  void SwitchAliasProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                   Principal const& principal,
                                                   bool skipCurrentProcess,
                                                   ServiceToken const& token,
@@ -785,7 +776,7 @@ namespace edm {
       // the waitingTasks() list will be released from waiting even
       // if the module does not put this data product or the
       // module has an exception while running
-      auto waiting = make_waiting_task(tbb::task::allocate_root(), [this](std::exception_ptr const* iException) {
+      auto waiting = make_waiting_task([this](std::exception_ptr const* iException) {
         if (nullptr != iException) {
           waitingTasks().doneWaiting(*iException);
         } else {
@@ -793,7 +784,8 @@ namespace edm {
           waitingTasks().doneWaiting(std::exception_ptr());
         }
       });
-      realProduct().prefetchAsync(waiting, principal, skipCurrentProcess, token, sra, mcc);
+      realProduct().prefetchAsync(
+          WaitingTaskHolder(*waitTask.group(), waiting), principal, skipCurrentProcess, token, sra, mcc);
     }
   }
 
@@ -921,7 +913,7 @@ namespace edm {
     return Resolution(nullptr);
   }
 
-  void NoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
+  void NoProcessProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                 Principal const& principal,
                                                 bool skipCurrentProcess,
                                                 ServiceToken const& token,
@@ -941,14 +933,14 @@ namespace edm {
 
       if (prefetchRequested) {
         //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, false, sra, mcc, token);
+        tryPrefetchResolverAsync(0, principal, false, sra, mcc, token, waitTask.group());
       }
     } else {
       skippingWaitingTasks_.add(waitTask);
       bool expected = false;
       if (skippingPrefetchRequested_.compare_exchange_strong(expected, true)) {
         //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, true, sra, mcc, token);
+        tryPrefetchResolverAsync(0, principal, true, sra, mcc, token, waitTask.group());
       }
     }
   }
@@ -974,26 +966,27 @@ namespace edm {
                                  SharedResourcesAcquirer* iSRA,
                                  ModuleCallingContext const* iMCC,
                                  bool iSkipCurrentProcess,
-                                 ServiceToken iToken)
+                                 ServiceToken iToken,
+                                 tbb::task_group* iGroup)
           : resolver_(iResolver),
             principal_(iPrincipal),
             sra_(iSRA),
             mcc_(iMCC),
+            group_(iGroup),
             serviceToken_(iToken),
             index_(iResolverIndex),
             skipCurrentProcess_(iSkipCurrentProcess) {}
 
-      tbb::task* execute() override {
+      void execute() final {
         auto exceptPtr = exceptionPtr();
         if (exceptPtr) {
           resolver_->prefetchFailed(index_, *principal_, skipCurrentProcess_, *exceptPtr);
         } else {
           if (not resolver_->dataValidFromResolver(index_, *principal_, skipCurrentProcess_)) {
             resolver_->tryPrefetchResolverAsync(
-                index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_);
+                index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_, group_);
           }
         }
-        return nullptr;
       }
 
     private:
@@ -1001,6 +994,7 @@ namespace edm {
       Principal const* principal_;
       SharedResourcesAcquirer* sra_;
       ModuleCallingContext const* mcc_;
+      tbb::task_group* group_;
       ServiceToken serviceToken_;
       unsigned int index_;
       bool skipCurrentProcess_;
@@ -1036,7 +1030,8 @@ namespace edm {
                                                           bool skipCurrentProcess,
                                                           SharedResourcesAcquirer* sra,
                                                           ModuleCallingContext const* mcc,
-                                                          ServiceToken token) const {
+                                                          ServiceToken token,
+                                                          tbb::task_group* group) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto index = iProcessingIndex;
 
@@ -1055,18 +1050,14 @@ namespace edm {
       if (matchingHolders_[k] != ProductResolverIndexInvalid) {
         //make new task
 
-        auto task = new (tbb::task::allocate_root())
-            TryNextResolverWaitingTask(this, index, &principal, sra, mcc, skipCurrentProcess, token);
-        task->increment_ref_count();
+        auto task = new TryNextResolverWaitingTask(this, index, &principal, sra, mcc, skipCurrentProcess, token, group);
+        WaitingTaskHolder hTask(*group, task);
         ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
 
         //Make sure the Services are available on this thread
         ServiceRegistry::Operate guard(token);
 
-        productResolver->prefetchAsync(task, principal, skipCurrentProcess, token, sra, mcc);
-        if (0 == task->decrement_ref_count()) {
-          tbb::task::spawn(*task);
-        }
+        productResolver->prefetchAsync(hTask, principal, skipCurrentProcess, token, sra, mcc);
         return;
       }
       ++index;
@@ -1178,7 +1169,7 @@ namespace edm {
         ->resolveProduct(principal, skipCurrentProcess, sra, mcc);
   }
 
-  void SingleChoiceNoProcessProductResolver::prefetchAsync_(WaitingTask* waitTask,
+  void SingleChoiceNoProcessProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                             Principal const& principal,
                                                             bool skipCurrentProcess,
                                                             ServiceToken const& token,

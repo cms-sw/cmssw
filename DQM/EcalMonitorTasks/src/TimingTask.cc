@@ -54,7 +54,7 @@ namespace ecaldqm {
     if (ByLumiResetSwitch) {
       meTimeMapByLS = &MEs_.at("TimeMapByLS");
       if (timestamp_.iLumi % 10 == 0)
-        meTimeMapByLS->reset();
+        meTimeMapByLS->reset(GetElectronicsMap());
     }
   }
 
@@ -100,7 +100,7 @@ namespace ecaldqm {
       }
 
       if (energy > energyThreshold)
-        meChi2.fill(signedSubdet, hit.chi2());
+        meChi2.fill(getEcalDQMSetupObjects(), signedSubdet, hit.chi2());
 
       // Apply cut on chi2 of pulse shape fit
       if (hit.chi2() > chi2Threshold)
@@ -110,18 +110,18 @@ namespace ecaldqm {
       if (hit.timeError() > timeErrorThreshold_)
         return;
 
-      meTimeAmp.fill(id, energy, time);
-      meTimeAmpAll.fill(id, energy, time);
+      meTimeAmp.fill(getEcalDQMSetupObjects(), id, energy, time);
+      meTimeAmpAll.fill(getEcalDQMSetupObjects(), id, energy, time);
 
       if (energy > timingVsBXThreshold_ && signedSubdet == EcalBarrel)
-        meTimingVsBX.fill(bxBin_, time);
+        meTimingVsBX.fill(getEcalDQMSetupObjects(), bxBin_, time);
 
       if (energy > energyThreshold) {
-        meTimeAll.fill(id, time);
-        meTimeMap.fill(id, time);
-        meTimeMapByLS->fill(id, time);
-        meTime1D.fill(id, time);
-        meTimeAllMap.fill(id, time);
+        meTimeAll.fill(getEcalDQMSetupObjects(), id, time);
+        meTimeMap.fill(getEcalDQMSetupObjects(), id, time);
+        meTimeMapByLS->fill(getEcalDQMSetupObjects(), id, time);
+        meTime1D.fill(getEcalDQMSetupObjects(), id, time);
+        meTimeAllMap.fill(getEcalDQMSetupObjects(), id, time);
       }
     });
   }
@@ -163,8 +163,8 @@ namespace ecaldqm {
         continue;
 
       // Fill MEs
-      meTimeAmpBXm.fill(id, amp, uhitItr->outOfTimeAmplitude(4));  // BX-1
-      meTimeAmpBXp.fill(id, amp, uhitItr->outOfTimeAmplitude(6));  // BX+1
+      meTimeAmpBXm.fill(getEcalDQMSetupObjects(), id, amp, uhitItr->outOfTimeAmplitude(4));  // BX-1
+      meTimeAmpBXp.fill(getEcalDQMSetupObjects(), id, amp, uhitItr->outOfTimeAmplitude(6));  // BX+1
     }
   }
 
