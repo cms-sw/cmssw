@@ -5,6 +5,9 @@ from SimG4Core.Application.hectorParameter_cfi import *
 ## HF Raddam Dose Class in /SimG4CMS/Calo
 from SimG4CMS.Calo.HFDarkeningParams_cff import *
 
+## HF shower parameters
+from Geometry.HcalSimData.HFParameters_cff import *
+
 ## This object is used to customise g4SimHits for different running scenarios
 
 common_heavy_suppression = cms.PSet(
@@ -394,14 +397,11 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     HFShower = cms.PSet(
         common_UsePMT,
         common_UseHF,
-        ProbMax           = cms.double(1.0),
-        CFibre            = cms.double(0.5),
         PEPerGeV          = cms.double(0.31),
         TrackEM           = cms.bool(False),
         UseShowerLibrary  = cms.bool(True),
         UseHFGflash       = cms.bool(False),
         EminLibrary       = cms.double(0.0),
-        OnlyLong          = cms.bool(True),
         LambdaMean        = cms.double(350.0),
         ApplyFiducialCut  = cms.bool(True),
         RefIndex          = cms.double(1.459),
@@ -409,18 +409,11 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ApertureTrapped   = cms.double(0.22),
         CosApertureTrapped= cms.double(0.5),
         SinPsiMax         = cms.untracked.double(0.5),
-        ParametrizeLast   = cms.untracked.bool(False)
+        ParametrizeLast   = cms.untracked.bool(False),
+        HFShowerBlock     = HFShowerBlock
     ),
     HFShowerLibrary = cms.PSet(
-        FileName        = cms.FileInPath('SimG4CMS/Calo/data/HFShowerLibrary_oldpmt_noatt_eta4_16en_v3.root'),
-        BackProbability = cms.double(0.2),
-        TreeEMID        = cms.string('emParticles'),
-        TreeHadID       = cms.string('hadParticles'),
-        Verbosity       = cms.untracked.bool(False),
-        ApplyFiducialCut= cms.bool(True),
-        BranchPost      = cms.untracked.string(''),
-        BranchEvt       = cms.untracked.string(''),
-        BranchPre       = cms.untracked.string('')
+        HFLibraryFileBlock    = HFLibraryFileBlock
     ),
     HFShowerPMT = cms.PSet(
         common_UsePMT,
@@ -604,8 +597,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
 ## Change the HFShowerLibrary file from Run 2
 ##
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify( g4SimHits.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root' )
-run2_common.toModify( g4SimHits.HFShower, ProbMax = 0.5)
 
 ##
 ## Change HCAL numbering scheme in 2017
