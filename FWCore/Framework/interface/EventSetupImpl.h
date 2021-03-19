@@ -71,7 +71,7 @@ namespace edm {
 
     bool validRecord(eventsetup::EventSetupRecordKey const& iKey) const;
 
-    tbb::task_arena* taskArena() const { return taskArena_; }
+    tbb::task_arena* taskArena CMS_THREAD_SAFE() const { return taskArena_; }
     ///Only EventSetupProvider allowed to create an EventSetupImpl
     friend class eventsetup::EventSetupProvider;
     friend class eventsetup::EventSetupRecordProvider;
