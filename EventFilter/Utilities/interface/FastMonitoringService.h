@@ -80,7 +80,7 @@ namespace evf {
       MCOUNT
     };
 
-    enum InputState {
+    enum InputState : short {
       inIgnore = 0,
       inInit,
       inWaitInput,
