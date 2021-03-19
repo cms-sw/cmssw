@@ -1,23 +1,72 @@
 import FWCore.ParameterSet.Config as cms
 
-MessageLogger = cms.Service("MessageLogger",
-    suppressInfo = cms.untracked.vstring(),
-    suppressFwkInfo = cms.untracked.vstring(),
-    suppressDebug = cms.untracked.vstring(),
-    cout = cms.untracked.PSet(
-        placeholder = cms.untracked.bool(True)
-    ),
-    default = cms.untracked.PSet(
+_category = cms.optional.untracked.PSetTemplate(
+    reportEvery = cms.untracked.int32(1),
+    limit = cms.optional.untracked.int32,
+    timespan = cms.optional.untracked.int32
+)
 
-    ),
-    cerr = cms.untracked.PSet(
-        optionalPSet = cms.untracked.bool(True),
+_destination_base = cms.untracked.PSet(
+    noLineBreaks = cms.optional.untracked.bool,
+    noTimeStamps = cms.optional.untracked.bool,
+    lineLength = cms.optional.untracked.int32,
+    threshold = cms.optional.untracked.string,
+    statisticsThreshold = cms.optional.untracked.string,
+    allowAnyLabel_ = _category
+)
+_destination_no_stat = _destination_base.clone(
+    enableStatistics = cms.untracked.bool(False),
+    resetStatistics = cms.untracked.bool(False)
+)
+
+_file_destination = cms.optional.untracked.PSetTemplate(
+    noLineBreaks = cms.optional.untracked.bool,
+    noTimeStamps = cms.optional.untracked.bool,
+    lineLength = cms.optional.untracked.int32,
+    threshold = cms.optional.untracked.string,
+    statisticsThreshold = cms.optional.untracked.string,
+    enableStatistics = cms.untracked.bool(False),
+    resetStatistics = cms.untracked.bool(False),
+    filename = cms.optional.untracked.string,
+    extension = cms.optional.untracked.string,
+    output = cms.optional.untracked.string,
+    allowAnyLabel_ = _category
+)
+
+_default_pset = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32(1),
+    limit = cms.optional.untracked.int32,
+    timespan = cms.optional.untracked.int32,
+
+    noLineBreaks = cms.untracked.bool(False),
+    noTimeStamps = cms.untracked.bool(False),
+    lineLength = cms.untracked.int32(80),
+    threshold = cms.untracked.string("INFO"),
+    statisticsThreshold = cms.untracked.string("INFO"),
+    allowAnyLabel_ = _category
+)
+
+
+MessageLogger = cms.Service("MessageLogger",
+    suppressWarning = cms.untracked.vstring(),
+    suppressFwkInfo = cms.untracked.vstring(),
+    suppressInfo = cms.untracked.vstring(),
+    suppressDebug = cms.untracked.vstring(),
+    debugModules = cms.untracked.vstring(),
+    cout = _destination_no_stat.clone(
+        enable = cms.untracked.bool(False)
+        ),
+    default = _default_pset.clone(),
+    cerr = _destination_base.clone(
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
+        resetStatistics = cms.untracked.bool(False),
+        statisticsThreshold = cms.untracked.string('WARNING'),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         noTimeStamps = cms.untracked.bool(False),
         FwkReport = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
             reportEvery = cms.untracked.int32(1),
             limit = cms.untracked.int32(10000000)
         ),
@@ -25,30 +74,18 @@ MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(10000000)
         ),
         Root_NoDictionary = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
             limit = cms.untracked.int32(0)
         ),
         FwkSummary = cms.untracked.PSet(
-            optionalPSet = cms.untracked.bool(True),
             reportEvery = cms.untracked.int32(1),
             limit = cms.untracked.int32(10000000)
         ),
         threshold = cms.untracked.string('INFO')
     ),
-    suppressWarning = cms.untracked.vstring(),
-    statistics = cms.untracked.vstring('cerr_stats'),
-    cerr_stats = cms.untracked.PSet(
-        optionalPSet = cms.untracked.bool(True),
-        threshold = cms.untracked.string('WARNING'),
-        output = cms.untracked.string('cerr')
+    files = cms.untracked.PSet(
+        allowAnyLabel_ = _file_destination
     ),
-    destinations = cms.untracked.vstring(
-        'cout', 
-        'cerr'),
-    debugModules = cms.untracked.vstring(),
-    categories = cms.untracked.vstring('FwkReport', 
-        'FwkSummary', 
-        'Root_NoDictionary')
+    allowAnyLabel_ = _category
 )
 
 

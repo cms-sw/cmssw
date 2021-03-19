@@ -210,7 +210,7 @@ void __class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 @example_myparticle  //ParameterSetDescription desc;
 @example_myparticle  //desc.add<edm::InputTag>("muons","muons");
 @example_myparticle  //desc.add<edm::InputTag>("electrons","pixelMatchGsfElectrons");
-@example_myparticle  //descriptions.addDefault(desc);
+@example_myparticle  //descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

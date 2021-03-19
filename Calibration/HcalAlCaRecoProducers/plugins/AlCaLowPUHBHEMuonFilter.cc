@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -144,10 +143,14 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
     const std::vector<std::string>& triggerNames_ = triggerNames.triggerNames();
     for (unsigned int iHLT = 0; iHLT < triggerResults->size(); iHLT++) {
       int hlt = triggerResults->accept(iHLT);
-      //std::cout << "trigger names: "<<iHLT<<" "<<triggerNames_[iHLT]<<std::endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("LowPUHBHEMuonX") << "trigger names: " << iHLT << " " << triggerNames_[iHLT];
+#endif
       for (auto const& trigName : trigNames_) {
         if (triggerNames_[iHLT].find(trigName) != std::string::npos) {
-          //std::cout << "find trigger names: "<<trigName <<std::endl;
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("LowPUHBHEMuonX") << "find trigger names: " << trigName;
+#endif
           if (hlt > 0)
             ok = true;
 #ifdef EDM_ML_DEBUG

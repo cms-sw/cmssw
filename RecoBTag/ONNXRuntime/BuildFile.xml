@@ -1,5 +1,4 @@
 <use name="DataFormats/BTauReco"/>
-<use name="PhysicsTools/ONNXRuntime"/>
 <export>
   <lib name="1"/>
 </export>

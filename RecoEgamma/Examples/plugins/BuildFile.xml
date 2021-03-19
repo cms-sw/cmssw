@@ -1,7 +1,5 @@
 <use name="RecoEgamma/EgammaMCTools"/>
 <use name="RecoEcal/EgammaCoreTools"/>
-<use name="RecoTracker/TkDetLayers"/>
-<use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/Records"/>
@@ -31,15 +29,11 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TrackerRecHit2D"/>
-<use name="DataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrajectoryState"/>
-<use name="DataFormats/VertexReco"/>
 <use name="DQMServices/Core"/>
-<use name="SimDataFormats/CrossingFrame"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="SimDataFormats/Track"/>
-<use name="SimDataFormats/TrackingAnalysis"/>
 <use name="SimDataFormats/Vertex"/>
 <library file="*.cc" name="RecoEgammaExamplesPlugins">
   <flags EDM_PLUGIN="1"/>

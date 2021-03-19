@@ -160,7 +160,7 @@ void HcalHitValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run cons
 }
 
 void HcalHitValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
-  LogDebug("HcalHitValid") << "Run = " << e.id().run() << " Event = " << e.id().event();
+  edm::LogVerbatim("HcalHitValid") << "Run = " << e.id().run() << " Event = " << e.id().event();
 
   std::vector<PCaloHit> caloHits;
   edm::Handle<edm::PCaloHitContainer> hitsHcal;
@@ -196,12 +196,12 @@ void HcalHitValidation::analyze(const edm::Event &e, const edm::EventSetup &) {
       getJets = true;
   }
 
-  LogDebug("HcalHitValid") << "HcalValidation: Input flags Hits " << getHits << ", Layer " << getLayer << ", NxN "
-                           << getNxN << ", Jets " << getJets;
+  edm::LogVerbatim("HcalHitValid") << "HcalValidation: Input flags Hits " << getHits << ", Layer " << getLayer
+                                   << ", NxN " << getNxN << ", Jets " << getJets;
 
   if (getHits) {
     caloHits.insert(caloHits.end(), hitsHcal->begin(), hitsHcal->end());
-    LogDebug("HcalHitValid") << "HcalValidation: Hit buffer " << caloHits.size();
+    edm::LogVerbatim("HcalHitValid") << "HcalValidation: Hit buffer " << caloHits.size();
     analyzeHits(caloHits);
   }
 
@@ -240,9 +240,10 @@ void HcalHitValidation::analyzeHits(std::vector<PCaloHit> &hits) {
     uint16_t depth_ = hits[i].depth();
     double energyEM = hits[i].energyEM();
     double energyHad = hits[i].energyHad();
-    LogDebug("HcalHitValid") << "Hit[" << i << "] ID " << std::hex << id_ << std::dec << " Det " << det << " Sub "
-                             << subdet << " depth " << depth << " " << depth_ << " Eta " << eta << " Phi " << phi
-                             << " E " << energy << "(EM " << energyEM << ", Had " << energyHad << ") time " << time;
+    edm::LogVerbatim("HcalHitValid") << "Hit[" << i << "] ID " << std::hex << id_ << std::dec << " Det " << det
+                                     << " Sub " << subdet << " depth " << depth << " " << depth_ << " Eta " << eta
+                                     << " Phi " << phi << " E " << energy << "(EM " << energyEM << ", Had " << energyHad
+                                     << ") time " << time;
     if (det == 4) {  // Check DetId.h
       if (subdet == static_cast<int>(HcalBarrel)) {
         nHB++;
@@ -317,8 +318,8 @@ void HcalHitValidation::analyzeHits(std::vector<PCaloHit> &hits) {
   meHFNHit_->Fill(double(nHF));
   mePMTHit_->Fill(double(nPMT));
 
-  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeHits: HB " << nHB << " HE " << nHE << " HO " << nHO << " HF "
-                           << nHF << " PMT " << nPMT << " Bad " << nBad << " All " << nHit;
+  edm::LogVerbatim("HcalHitValid") << "HcalHitValidation::analyzeHits: HB " << nHB << " HE " << nHE << " HO " << nHO
+                                   << " HF " << nHF << " PMT " << nPMT << " Bad " << nBad << " All " << nHit;
 }
 
 void HcalHitValidation::analyzeLayer(edm::Handle<PHcalValidInfoLayer> &infoLayer) {
@@ -342,8 +343,7 @@ void HcalHitValidation::analyzeLayer(edm::Handle<PHcalValidInfoLayer> &infoLayer
       nh++;
     }
 
-    LogDebug("HcalHitValid") << "HcalHitValidation::analyzeLayer:Hit "
-                             << "subdet = " << id << "  lay = " << layer;
+    edm::LogVerbatim("HcalHitValid") << "HcalHitValidation::analyzeLayer:Hit subdet = " << id << "  lay = " << layer;
 
     meLayerLay_->Fill(double(layer));
     meEtaHLay_->Fill(etaHits[j]);
@@ -394,9 +394,9 @@ void HcalHitValidation::analyzeLayer(edm::Handle<PHcalValidInfoLayer> &infoLayer
   meEHFEmLay_->Fill(eEcalHF);
   meEHFHdLay_->Fill(eHcalHF);
 
-  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeLayer: eHO " << eHO << "  eHBHE = " << eHBHE
-                           << " elongHF = " << elongHF << " eshortHF = " << eshortHF << "  eEcalHF = " << eEcalHF
-                           << "  eHcalHF = " << eHcalHF;
+  edm::LogVerbatim("HcalHitValid") << "HcalHitValidation::analyzeLayer: eHO " << eHO << "  eHBHE = " << eHBHE
+                                   << " elongHF = " << elongHF << " eshortHF = " << eshortHF
+                                   << "  eEcalHF = " << eEcalHF << "  eHcalHF = " << eHcalHF;
 }
 
 void HcalHitValidation::analyzeNxN(edm::Handle<PHcalValidInfoNxN> &infoNxN) {
@@ -433,8 +433,8 @@ void HcalHitValidation::analyzeNxN(edm::Handle<PHcalValidInfoNxN> &infoNxN) {
     meTrNxN_->Fill(idIxI[j], eIxI[j]);  // transverse profile
   }
 
-  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeNxN: " << nIxI << " hits in NxN analysis; Total Energy "
-                           << etotNxN << "/" << etotNxNr;
+  edm::LogVerbatim("HcalHitValid") << "HcalHitValidation::analyzeNxN: " << nIxI
+                                   << " hits in NxN analysis; Total Energy " << etotNxN << "/" << etotNxNr;
 }
 
 void HcalHitValidation::analyzeJets(edm::Handle<PHcalValidInfoJets> &infoJets) {
@@ -483,11 +483,10 @@ void HcalHitValidation::analyzeJets(edm::Handle<PHcalValidInfoJets> &infoJets) {
     meEtaJet_->Fill(jetEta[j]);
     mePhiJet_->Fill(jetPhi[j]);
   }
-  LogDebug("HcalHitValid") << "HcalHitValidation::analyzeJets: " << nJets << " jets with " << nJetHits
-                           << " hits in the "
-                           << "leading jet\n"
-                           << "   d(Eta) = " << detaJet << "  d(Phi) = " << dphiJet << "  d(R) = " << drJet
-                           << "  diJet Mass = " << dijetM;
+  edm::LogVerbatim("HcalHitValid") << "HcalHitValidation::analyzeJets: " << nJets << " jets with " << nJetHits
+                                   << " hits in the leading jet\n"
+                                   << "   d(Eta) = " << detaJet << "  d(Phi) = " << dphiJet << "  d(R) = " << drJet
+                                   << "  diJet Mass = " << dijetM;
 }
 
 // define this as a plug-in

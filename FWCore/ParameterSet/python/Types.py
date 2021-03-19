@@ -892,7 +892,11 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return []
     def clone(self, **params):
         myparams = self.parameters_()
+        if "allowAnyLabel_" in params:
+            raise AttributeError("Not allowed to change `allowAnyLabel_` value in call to clone")
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
+        if self._Parameterizable__validator is not None:
+            myparams["allowAnyLabel_"] = self._Parameterizable__validator
         returnValue = PSet(**myparams)
         returnValue.setIsTracked(self.isTracked())
         returnValue._isModified = False
@@ -1902,7 +1906,11 @@ if __name__ == "__main__":
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.untracked.PSet(\n        a = cms.int32(5)\n    )\n)')
             self.assertEqual(p1.aPSet.a.value(), 5)
             p1 = PSet(allowAnyLabel_=required.PSetTemplate(a=required.int32))
+            p1Clone = p1.clone()
             self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            self.assertEqual(p1Clone.dumpPython(), 'cms.PSet(\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            with self.assertRaises(AttributeError):
+                p1.clone(allowAnyLabel_=optional.double)
             p1.foo = dict(a=5)
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    foo = cms.PSet(\n        a = cms.int32(5)\n    ),\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
             self.assertEqual(p1.foo.a.value(), 5)
@@ -1946,7 +1954,9 @@ if __name__ == "__main__":
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n        a = cms.int32(5)\n    )\n)')
             self.assertEqual(p1.aPSet.a.value(), 5)
             p1 = PSet(aPSet=optional.untracked.PSetTemplate(a=optional.int32))
+            p1Clone = p1.clone()
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.untracked.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            self.assertEqual(p1Clone.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.untracked.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
             p1.aPSet = dict(a=5)
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.untracked.PSet(\n        a = cms.int32(5)\n    )\n)')
             self.assertEqual(p1.aPSet.a.value(), 5)

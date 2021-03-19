@@ -195,7 +195,7 @@ namespace l1t {
     const std::vector<std::pair<std::string, bool>> initialDecisions = m_gtUtil->decisionsInitial();
     const std::vector<std::pair<std::string, bool>> intermDecisions = m_gtUtil->decisionsInterm();
     const std::vector<std::pair<std::string, bool>> finalDecisions = m_gtUtil->decisionsFinal();
-    const std::vector<std::pair<std::string, int>> prescales = m_gtUtil->prescales();
+    const std::vector<std::pair<std::string, double>> prescales = m_gtUtil->prescales();
     const std::vector<std::pair<std::string, std::vector<int>>> masks = m_gtUtil->masks();
 
     LogDebug("GtRecordDump") << "retrieved all event vectors " << endl;
@@ -232,7 +232,7 @@ namespace l1t {
         (m_algoSummary.find(name)->second).at(2) += 1;
 
       // get the prescale and mask (needs some error checking here)
-      int prescale = (prescales.at(i)).second;
+      double prescale = (prescales.at(i)).second;
       std::vector<int> mask = (masks.at(i)).second;
 
       if (m_dumpTriggerResults && name != "NULL")

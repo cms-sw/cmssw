@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -298,7 +297,7 @@ void AlCaGammaJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
       for (int iPho = 0; iPho < int(photon.size()); ++iPho) {
         edm::Ref<reco::PhotonCollection> photonRef(phoHandle, iPho);
         if (!photonRef) {
-          std::cout << "failed ref" << std::endl;
+          edm::LogVerbatim("AlCaGammaJet") << "failed ref";
           miniLoosePhoton.push_back(-1);
           miniTightPhoton.push_back(-1);
         } else {

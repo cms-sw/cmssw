@@ -85,18 +85,18 @@ void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
       mode_ = TotemTimingRecHit::CFD;
 
-      rec_hits.push_back(TotemTimingRecHit(x_pos,
-                                           x_width,
-                                           y_pos,
-                                           y_width,
-                                           z_pos,
-                                           z_width,  // spatial information
-                                           t,
-                                           triggerCellTimeInstant,
-                                           timePrecision,
-                                           *max_corrected_it,
-                                           baselineRegression.rms,
-                                           mode_));
+      rec_hits.emplace_back(x_pos,
+                            x_width,
+                            y_pos,
+                            y_width,
+                            z_pos,
+                            z_width,
+                            t,
+                            triggerCellTimeInstant,
+                            timePrecision,
+                            *max_corrected_it,
+                            baselineRegression.rms,
+                            mode_);
     }
   }
 }

@@ -5,6 +5,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 # NEW CLUSTERS (remove previously used clusters)
 pixelPairStepClusters = _cfg.clusterRemoverForIter('PixelPairStep')
@@ -53,14 +54,14 @@ trackingPhase2PU140.toModify(pixelPairStepSeedLayers,
     BPix = dict(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0016),
-        hitErrorRZ = cms.double(0.0035),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+        hitErrorRZ   = cms.double(0.0035),
+        TTRHBuilder  = 'TTRHBuilderWithoutAngle4PixelPairs',
     ),
     FPix = dict(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0030),
-        hitErrorRZ = cms.double(0.0020),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+        hitErrorRZ   = cms.double(0.0020),
+        TTRHBuilder  = 'TTRHBuilderWithoutAngle4PixelPairs',
     )
 )
 
@@ -338,11 +339,11 @@ pixelPairStep =  TrackMVAClassifierPrompt.clone(
 )
 trackingPhase1.toModify(pixelPairStep, mva=dict(GBRForestLabel = 'MVASelectorPixelPairStep_Phase1'))
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(pixelPairStep, TrackLwtnnClassifier.clone(
-    src         = 'pixelPairStepTracks',
-    qualityCuts = [-0.6, -0.1, 0.4]
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(pixelPairStep, TrackTfClassifier.clone(
+    src='pixelPairStepTracks',
+    qualityCuts=qualityCutDictionary['PixelPairStep']
 ))
 
 highBetaStar_2018.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])

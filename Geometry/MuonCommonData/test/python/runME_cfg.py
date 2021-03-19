@@ -23,9 +23,9 @@ process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('G4cerr')
-    process.MessageLogger.categories.append('G4cout')
-    process.MessageLogger.categories.append('MuonGeom')
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.MuonGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

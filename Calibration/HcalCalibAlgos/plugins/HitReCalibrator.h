@@ -12,16 +12,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 
 //
 // class declaration
@@ -51,6 +50,8 @@ namespace cms {
     edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
     edm::EDGetTokenT<HORecHitCollection> tok_ho_;
     edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+
+    edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
   };
 }  // end namespace cms
 #endif

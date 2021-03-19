@@ -34,6 +34,14 @@
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
+<library file="SiPixel2DTemplateDBObject_PayloadInspector.cc" name="SiPixel2DTemplateDBObject_PayloadInspector">
+  <use name="CondCore/SiPixelPlugins"/>
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/SiPixelTransient"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+</library>
+
 <library file="SiPixelVCal_PayloadInspector.cc" name="SiPixelVCal_PayloadInspector">
   <use name="CondCore/SiPixelPlugins"/>
   <use name="CondCore/Utilities"/>
@@ -47,6 +55,20 @@
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/SiPixelTransient"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+</library>
+
+<library file="SiPixelQualityProbabilities_PayloadInspector.cc" name="SiPixelQualityProbabilities_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
+</library>
+
+<library file="SiPixelFEDChannelContainer_PayloadInspector.cc" name="SiPixelFEDChannelContainer_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
 <library file="plugin.cc" name="CondCoreSiPixelPluginsPlugin">

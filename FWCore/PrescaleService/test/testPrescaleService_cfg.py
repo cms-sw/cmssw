@@ -5,8 +5,13 @@ process = cms.Process("TEST")
 
 # instantiate & configure message logger service
 process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO') ),
-    destinations = cms.untracked.vstring('cout')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 

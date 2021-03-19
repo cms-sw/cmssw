@@ -24,7 +24,7 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
 # This part has to be clean up when they will be officially removed from the entire flow
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(siStripZeroSuppression, # FIXME
-  RawDigiProducersList = cms.VInputTag( cms.InputTag('simSiStripDigis','VirginRaw'),
-                                        cms.InputTag('simSiStripDigis','ProcessedRaw'),
-                                        cms.InputTag('simSiStripDigis','ScopeMode'))
+  RawDigiProducersList = [ 'simSiStripDigis:VirginRaw',
+                           'simSiStripDigis:ProcessedRaw',
+                           'simSiStripDigis:ScopeMode' ]
 )

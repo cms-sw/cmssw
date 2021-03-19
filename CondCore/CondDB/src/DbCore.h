@@ -29,6 +29,7 @@
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/TableDescription.h"
 #include "RelationalAccess/ITable.h"
+#include "RelationalAccess/IColumn.h"
 #include "RelationalAccess/ITableDataEditor.h"
 #include "RelationalAccess/IBulkOperation.h"
 #include "RelationalAccess/IBulkOperation.h"

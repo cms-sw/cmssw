@@ -35,7 +35,6 @@ options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = ['*']  
-process.MessageLogger.categories = ['HeavyIonVertexing','heavyIonHLTVertexing','MinBiasTracking']
 process.MessageLogger.cerr = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'),
     DEBUG = cms.untracked.PSet(
@@ -49,7 +48,8 @@ process.MessageLogger.cerr = cms.untracked.PSet(
 	),
     heavyIonHLTVertexing = cms.untracked.PSet(
         limit = cms.untracked.int32(-1)
-    )
+    ),
+    MinBiasTracking = cms.untracked.PSet()
 )
 	   
 process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck',

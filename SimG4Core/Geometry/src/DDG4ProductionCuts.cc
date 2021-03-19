@@ -1,20 +1,19 @@
 #include "SimG4Core/Geometry/interface/DDG4ProductionCuts.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <DD4hep/Filter.h>
+#include <DD4hep/SpecParRegistry.h>
 
 #include "G4ProductionCuts.hh"
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
 #include "G4LogicalVolume.hh"
+#include "G4LogicalVolumeStore.hh"
 
 #include <algorithm>
-
-using geant_units::operators::convertCmToMm;
 
 namespace {
   /** helper function to compare parts through their name instead of comparing them
@@ -114,15 +113,27 @@ void DDG4ProductionCuts::dd4hepInitialize() {
   dd4hep::SpecParRefs specs;
   specPars_->filter(specs, keywordRegion_);
 
+  // LOOP ON ALL LOGICAL VOLUMES
   for (auto const& it : *dd4hepMap_) {
+    bool foundMatch = false;  // Same behavior as in DDD: when matching SpecPar is found, stop search!
+    // SEARCH ON ALL SPECPARS
     for (auto const& fit : specs) {
       for (auto const& pit : fit.second->paths) {
-        if (dd4hep::dd::compareEqualName(dd4hep::dd::realTopName(pit), dd4hep::dd::noNamespace(it.first.name()))) {
+        const std::string_view selection = dd4hep::dd::noNamespace(dd4hep::dd::realTopName(pit));
+        const std::string_view name = dd4hep::dd::noNamespace(it.first.name());
+        if (!(dd4hep::dd::isRegex(selection))
+                ? dd4hep::dd::compareEqual(name, selection)
+                : std::regex_match(name.begin(), name.end(), std::regex(selection.begin(), selection.end()))) {
           dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const dd4hep::SpecPar*>(&*it.second, &*fit.second));
+          foundMatch = true;
+          break;
         }
       }
-    }
-  }
+      if (foundMatch)
+        break;
+    }  // Search on all SpecPars
+  }    // Loop on all logical volumes
+
   // sort all root volumes - to get the same sequence at every run of the application.
   sort(begin(dd4hepVec_), end(dd4hepVec_), &sortByName);
 
@@ -130,9 +141,26 @@ void DDG4ProductionCuts::dd4hepInitialize() {
   for (auto const& it : dd4hepVec_) {
     auto regName = it.second->strValue(keywordRegion_);
     G4Region* region = G4RegionStore::GetInstance()->FindOrCreateRegion({regName.data(), regName.size()});
+
     region->AddRootLogicalVolume(it.first);
-    edm::LogVerbatim("Geometry") << it.first->GetName() << ": " << it.second->strValue(keywordRegion_);
+    edm::LogVerbatim("Geometry") << it.first->GetName() << ": " << regName;
     edm::LogVerbatim("Geometry") << " MakeRegions: added " << it.first->GetName() << " to region " << region->GetName();
+
+    // Also treat reflected volumes
+    const G4String& nonReflectedG4Name = it.first->GetName();
+    const G4String& reflectedG4Name = nonReflectedG4Name + "_refl";
+    const G4LogicalVolumeStore* const allG4LogicalVolumes = G4LogicalVolumeStore::GetInstance();
+    const auto reflectedG4LogicalVolumeIt = std::find_if(
+        allG4LogicalVolumes->begin(), allG4LogicalVolumes->end(), [&](const G4LogicalVolume* const aG4LogicalVolume) {
+          return (aG4LogicalVolume->GetName() == reflectedG4Name);
+        });
+    // If G4 Logical volume has a reflected volume, add it to the region as well.
+    if (reflectedG4LogicalVolumeIt != allG4LogicalVolumes->end()) {
+      region->AddRootLogicalVolume(*reflectedG4LogicalVolumeIt);
+      edm::LogVerbatim("Geometry") << " MakeRegions: added " << (*reflectedG4LogicalVolumeIt)->GetName()
+                                   << " to region " << region->GetName();
+    }
+
     edm::LogVerbatim("Geometry").log([&](auto& log) {
       for (auto const& sit : it.second->spars) {
         log << sit.first << " =  " << sit.second[0] << "\n";
@@ -222,52 +250,12 @@ void DDG4ProductionCuts::setProdCuts(const dd4hep::SpecPar* spec, G4Region* regi
     // search for production cuts
     // you must have four of them: e+ e- gamma proton
     //
-    double gammacut = 0.0;
-    double electroncut = 0.0;
-    double positroncut = 0.0;
-    double protoncut = 0.0;
-
-    auto gammacutStr = spec->strValue("ProdCutsForGamma");
-    if (gammacutStr.empty()) {
-      throw cms::Exception(
-          "SimG4CorePhysics",
-          " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForGamma.");
-    }
-    // Geant4 expects mm units. DD4hep returns cm, so must convert to mm.
-    gammacut = convertCmToMm(dd4hep::_toDouble({gammacutStr.data(), gammacutStr.size()}));
-
-    auto electroncutStr = spec->strValue("ProdCutsForElectrons");
-    if (electroncutStr.empty()) {
-      throw cms::Exception(
-          "SimG4CorePhysics",
-          " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForElectrons.");
-    }
-    electroncut = convertCmToMm(dd4hep::_toDouble({electroncutStr.data(), electroncutStr.size()}));
-
-    auto positroncutStr = spec->strValue("ProdCutsForPositrons");
-    if (positroncutStr.empty()) {
-      throw cms::Exception(
-          "SimG4CorePhysics",
-          " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForPositrons.");
-    }
-    positroncut = convertCmToMm(dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()}));
-
-    if (!spec->hasValue("ProdCutsForProtons")) {
-      // There is no ProdCutsForProtons set in XML,
-      // check if it's a legacy geometry scenario without it
-      if (protonCut_) {
-        protoncut = electroncut;
-      } else {
-        protoncut = 0.;
-      }
-    } else {
-      auto protoncutStr = spec->strValue("ProdCutsForProtons");
-      if (protoncutStr.empty()) {
-        throw cms::Exception(
-            "SimG4CorePhysics",
-            " DDG4ProductionCuts::setProdCuts: Problem with Region tags - more than one ProdCutsForProtons.");
-      }
-      protoncut = convertCmToMm(dd4hep::_toDouble({protoncutStr.data(), protoncutStr.size()}));
+    double gammacut = spec->dblValue("ProdCutsForGamma") / dd4hep::mm;  // Convert from DD4hep units to mm
+    double electroncut = spec->dblValue("ProdCutsForElectrons") / dd4hep::mm;
+    double positroncut = spec->dblValue("ProdCutsForPositrons") / dd4hep::mm;
+    double protoncut = spec->dblValue("ProdCutsForProtons") / dd4hep::mm;
+    if (protoncut == 0) {
+      protoncut = electroncut;
     }
 
     prodCuts = new G4ProductionCuts();

@@ -682,7 +682,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       // Fill global quality information
       fillGlbQuality(iEvent, iSetup, muon);
     }
-    LogDebug("MuonIdentification");
+    LogDebug("MuonIdentification") << "";
 
     if (fillTrackerKink_) {
       fillTrackerKink(muon);

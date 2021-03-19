@@ -20,7 +20,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('EcalSimX')
+    process.MessageLogger.EcalSimX=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100),

@@ -9,6 +9,8 @@ process.load('CondCore.CondDB.CondDB_cfi')
 # the reco part of the database need the DDCompactView.
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
 process.load('Geometry.CaloEventSetup.CaloGeometryDBWriter_cfi')
 process.load('CondTools.Geometry.HcalParametersWriter_cff')
 
@@ -28,20 +30,17 @@ process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
                                            XMLFileName = cms.untracked.string("./geSingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
-process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-                                                      fromDDD = cms.bool( True )
-                                                     )
 
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder",fromDD4hep=cms.bool(False))
 process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder",fromDD4hep=cms.bool(False))
 
 process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder")
 
-process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader")
+process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
-process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader")
+process.DTGeometryWriter = cms.EDAnalyzer("DTRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
-process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader")
+process.RPCGeometryWriter = cms.EDAnalyzer("RPCRecoIdealDBLoader",fromDD4Hep = cms.untracked.bool(False))
 
 process.GEMGeometryWriter = cms.EDAnalyzer("GEMRecoIdealDBLoader")
 
@@ -65,8 +64,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                                             cms.PSet(record = cms.string('DTRecoGeometryRcd'),tag = cms.string('DTRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('RPCRecoGeometryRcd'),tag = cms.string('RPCRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('GEMRecoGeometryRcd'),tag = cms.string('GEMRECO_Geometry_TagXX'))
-                                                            )
-                                          )
+                                                        )
+                                    )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

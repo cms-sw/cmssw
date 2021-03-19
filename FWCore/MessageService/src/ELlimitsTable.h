@@ -75,20 +75,20 @@ namespace edm {
       void zero();  // Clears only counts.
 
       void setLimit(const std::string& id, int n);
-      void setLimit(const ELseverityLevel& sev, int n);
+      void setLimit(const messagelogger::ELseverityLevel& sev, int n);
       void setInterval(const std::string& id, int interval);
-      void setInterval(const ELseverityLevel& sev, int interval);
+      void setInterval(const messagelogger::ELseverityLevel& sev, int interval);
       void setTimespan(const std::string& id, int n);
-      void setTimespan(const ELseverityLevel& sev, int n);
+      void setTimespan(const messagelogger::ELseverityLevel& sev, int n);
 
       ELlimitsTable& operator=(const ELlimitsTable& t);
 
       // -----  Tables and auxilliary private data:
       //
     protected:
-      int severityLimits[ELseverityLevel::nLevels];
-      int severityTimespans[ELseverityLevel::nLevels];
-      int severityIntervals[ELseverityLevel::nLevels];
+      int severityLimits[messagelogger::ELseverityLevel::nLevels];
+      int severityTimespans[messagelogger::ELseverityLevel::nLevels];
+      int severityIntervals[messagelogger::ELseverityLevel::nLevels];
       int wildcardLimit;
       int wildcardInterval;
       int wildcardTimespan;

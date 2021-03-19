@@ -12,46 +12,33 @@ process.options = cms.untracked.PSet(
 # process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # This whole mess does not really work - I do not get rid of FwkReport and TrackProducer info...
 process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring('alignment'), ##, 'cout')
-
-    categories = cms.untracked.vstring('Alignment', 
-        'LogicError', 
-        'FwkReport', 
-        'TrackProducer'),
-    # FwkReport = cms.untracked.PSet( threshold = cms.untracked.string('WARNING') ),
-    # TrackProducer = cms.untracked.PSet( threshold = cms.untracked.string('WARNING') ),
-#    cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('DEBUG'),
-#        FwkReport = cms.untracked.PSet(
-#            threshold = cms.untracked.string('ERROR')
-#        ),
-#        TrackProducer = cms.untracked.PSet(
-#            threshold = cms.untracked.string('ERROR')
-#        )
-#    ),
-    alignment = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(10)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(10)
-        ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        threshold = cms.untracked.string('DEBUG'),
-        LogicError = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        Alignment = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    destinations = cms.untracked.vstring('alignment') ## (, 'cout')
-
+    files = cms.untracked.PSet(
+        alignment = cms.untracked.PSet(
+            Alignment = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            ERROR = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(10)
+            ),
+            LogicError = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            WARNING = cms.untracked.PSet(
+                limit = cms.untracked.int32(10)
+            ),
+            enableStatistics = cms.untracked.bool(True),
+            threshold = cms.untracked.string('DEBUG')
+        )
+    )
 )
 
 # initialize magnetic field

@@ -3,7 +3,7 @@
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Common"/>
 <use name="SimDataFormats/PileupSummaryInfo"/>
-<use name="roofit"/>
+<use name="roofitcore"/>
 <use name="rootcore"/>
 <use name="root"/>
 <use name="boost"/>

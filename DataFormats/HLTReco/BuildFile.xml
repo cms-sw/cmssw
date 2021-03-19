@@ -4,10 +4,14 @@
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/HcalIsolatedTrack"/>
 <use name="DataFormats/TauReco"/>
+<use name="DataFormats/L1TParticleFlow"/>
+<use name="DataFormats/L1TCorrelator"/>
+<use name="DataFormats/GsfTrackReco"/>
 <export>
   <lib name="1"/>
 </export>

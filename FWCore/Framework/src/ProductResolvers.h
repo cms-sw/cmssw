@@ -17,6 +17,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include <memory>
 #include <atomic>
@@ -115,7 +116,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTask* waitTask,
+    void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -163,7 +164,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTask* waitTask,
+    void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -182,7 +183,7 @@ namespace edm {
   class UnscheduledProductResolver : public ProducedProductResolver {
   public:
     explicit UnscheduledProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : ProducedProductResolver(bd, ProductStatus::ResolveNotRun), aux_(nullptr), prefetchRequested_(false) {}
+        : ProducedProductResolver(bd, ProductStatus::ResolveNotRun) {}
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
 
@@ -191,7 +192,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTask* waitTask,
+    void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -202,9 +203,9 @@ namespace edm {
     void resetProductData_(bool deleteEarly) override;
 
     CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
-    UnscheduledAuxiliary const* aux_;
-    Worker* worker_;
-    mutable std::atomic<bool> prefetchRequested_;
+    UnscheduledAuxiliary const* aux_ = nullptr;
+    Worker* worker_ = nullptr;
+    mutable std::atomic<bool> prefetchRequested_ = false;
   };
 
   class AliasProductResolver : public DataManagingOrAliasProductResolver {
@@ -225,7 +226,7 @@ namespace edm {
                                ModuleCallingContext const* mcc) const override {
       return realProduct_.resolveProduct(principal, skipCurrentProcess, sra, mcc);
     }
-    void prefetchAsync_(WaitingTask* waitTask,
+    void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -324,7 +325,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const final;
-    void prefetchAsync_(WaitingTask* waitTask,
+    void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -355,7 +356,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const final;
-    void prefetchAsync_(WaitingTask* waitTask,
+    void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -385,7 +386,7 @@ namespace edm {
       skipCurrentProcess = false;
       return realProduct_->resolveProduct(*parentPrincipal_, skipCurrentProcess, sra, mcc);
     }
-    void prefetchAsync_(WaitingTask* waitTask,
+    void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -442,7 +443,8 @@ namespace edm {
                                   bool skipCurrentProcess,
                                   SharedResourcesAcquirer* sra,
                                   ModuleCallingContext const* mcc,
-                                  ServiceToken token) const;
+                                  ServiceToken token,
+                                  tbb::task_group*) const;
 
     bool dataValidFromResolver(unsigned int iProcessingIndex,
                                Principal const& principal,
@@ -459,7 +461,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTask* waitTask,
+    void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,
@@ -517,7 +519,7 @@ namespace edm {
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,
                                ModuleCallingContext const* mcc) const override;
-    void prefetchAsync_(WaitingTask* waitTask,
+    void prefetchAsync_(WaitingTaskHolder waitTask,
                         Principal const& principal,
                         bool skipCurrentProcess,
                         ServiceToken const& token,

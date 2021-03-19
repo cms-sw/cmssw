@@ -16,6 +16,7 @@ These products should be informational products about the filter decision.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
@@ -33,7 +34,6 @@ namespace edm {
   class PreallocationConfiguration;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
 
   class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
@@ -67,7 +67,7 @@ namespace edm {
   private:
     bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
     //Needed by WorkerT but not supported
-    void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {}
+    void preActionBeforeRunEventAsync(WaitingTaskHolder, ModuleCallingContext const&, Principal const&) const {}
 
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();

@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
@@ -21,6 +21,8 @@ class SiStripFedCabling;
 class SiStripDetCabling;
 class TrackingActionExecutor;
 class FEDRawDataCollection;
+class SiStripFedCablingRcd;
+class SiStripDetCablingRcd;
 
 class TrackingAnalyser : public DQMEDHarvester {
 public:
@@ -69,8 +71,11 @@ private:
   std::string outputFileName_;
 
   edm::ParameterSet tkMapPSet_;
-  edm::ESHandle<SiStripFedCabling> fedCabling_;
-  edm::ESHandle<SiStripDetCabling> detCabling_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  const SiStripFedCabling* fedCabling_;
+  const SiStripDetCabling* detCabling_;
   TrackingActionExecutor* actionExecutor_;
 
   unsigned long long m_cacheID_;

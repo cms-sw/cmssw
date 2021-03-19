@@ -14,19 +14,22 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Alignment.SurveyAnalysis.SurveyInfoScenario_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    test = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noLineBreaks = cms.untracked.bool(True)
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    statistics = cms.untracked.vstring('cout', 
-        'test'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        noLineBreaks = cms.untracked.bool(True)
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
     ),
-    categories = cms.untracked.vstring('Alignment'),
-    destinations = cms.untracked.vstring('cout', 
-        'test')
+    files = cms.untracked.PSet(
+        test = cms.untracked.PSet(
+            enableStatistics = cms.untracked.bool(True),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('DEBUG')
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

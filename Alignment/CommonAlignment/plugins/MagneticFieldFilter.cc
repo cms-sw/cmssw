@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
@@ -52,6 +51,10 @@ private:
   float currentToField(const float& current) const;
 
   // ----------member data ---------------------------
+
+  // esConsumes
+  const edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+
   /// see: https://hypernews.cern.ch/HyperNews/CMS/get/magnetic-field/63/1/1/1.html
   static constexpr float linearCoeffCurrentToField_ = 2.084287e-04;
   /// see: https://hypernews.cern.ch/HyperNews/CMS/get/magnetic-field/63/1/1/1.html
@@ -71,7 +74,9 @@ constexpr float MagneticFieldFilter::constantTermCurrentToField_;
 // constructor
 //
 MagneticFieldFilter::MagneticFieldFilter(const edm::ParameterSet& iConfig)
-    : magneticField_(iConfig.getUntrackedParameter<int>("magneticField")), magneticFieldCurrentRun_(-10000) {}
+    : runInfoToken_(esConsumes<edm::Transition::BeginRun>()),
+      magneticField_(iConfig.getUntrackedParameter<int>("magneticField")),
+      magneticFieldCurrentRun_(-10000) {}
 
 //
 // member functions
@@ -85,9 +90,7 @@ bool MagneticFieldFilter::filter(edm::Event&, const edm::EventSetup&) {
 // ------------ method called when starting to processes a run  ------------
 
 void MagneticFieldFilter::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<RunInfo> sum;
-  iSetup.get<RunInfoRcd>().get(sum);
-  auto summary = sum.product();
+  const auto& summary = &iSetup.getData(runInfoToken_);
   // convert from Tesla to kGauss (multiply with 10) and
   // round off to whole kGauss (add 0.5 and cast to int) as is done in
   // 'MagneticField::computeNominalValue()':

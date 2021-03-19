@@ -1,7 +1,5 @@
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
-
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
-
 #include "BMTFUnpackerOutput.h"
 
 namespace l1t {
@@ -21,6 +19,10 @@ namespace l1t {
       else
         bxBlocks =
             block.getBxBlocks((unsigned int)6, false);  //it returnes 6-32bit bxBlocks originated from the amc13 Block
+
+      edm::LogInfo("L1T") << "Will use the setup:"
+                          << " ZS_enabled->" << ZS_enabled << " isTriggeringAlgo->" << isTriggeringAlgo << " isKalman->"
+                          << isKalman;
 
       RegionalMuonCandBxCollection *res;
       if (isTriggeringAlgo)
@@ -45,8 +47,7 @@ namespace l1t {
 
       int processor = block.amc().getBoardID() - 1;
       if (processor < 0 || processor > 11) {
-        edm::LogInfo("l1t:stage2::BMTFUnpackerOutput::unpack")
-            << "Processor found out of range so it will be calculated by the old way";
+        edm::LogInfo("L1T") << "Processor found out of range, it will be calculated by the old way";
         if (block.amc().getAMCNumber() % 2 != 0)
           processor = block.amc().getAMCNumber() / 2;
         else

@@ -19,6 +19,8 @@ namespace trklet {
 
     ~VMStubsTEMemory() override = default;
 
+    void resize(int nbins) { stubsbinnedvm_.resize(nbins); }
+
     bool addVMStub(VMStubTE vmstub, int bin);
 
     bool addVMStub(VMStubTE vmstub);
@@ -26,6 +28,8 @@ namespace trklet {
     unsigned int nVMStubs() const { return stubsvm_.size(); }
 
     unsigned int nVMStubsBinned(unsigned int bin) const { return stubsbinnedvm_[bin].size(); }
+
+    unsigned int nBin() const { return stubsbinnedvm_.size(); }
 
     const VMStubTE& getVMStubTE(unsigned int i) const { return stubsvm_[i]; }
 

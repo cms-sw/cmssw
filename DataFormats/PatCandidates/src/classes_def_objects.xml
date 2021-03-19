@@ -484,6 +484,8 @@
   <class name="std::vector<edm::Ptr<pat::PackedCandidate> >" />
   <class name="edm::Wrapper<edm::Ptr<pat::PackedCandidate> >" />
   <class name="edm::Wrapper<std::vector<edm::Ptr<pat::PackedCandidate> > >" />
+  <class name="edm::ValueMap<edm::Ptr<pat::PackedCandidate> >" />
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<pat::PackedCandidate> > >" />
 
   <class name="std::vector<edm::Ptr<pat::PackedGenParticle> >" />
   <class name="edm::Wrapper<edm::Ptr<pat::PackedGenParticle> >" />
@@ -589,6 +591,7 @@
   <class name="edm::Wrapper<pat::HemisphereRefVector>" />
   <class name="edm::Wrapper<pat::ConversionRefVector>" />
   <class name="edm::Wrapper<pat::PackedCandidateRefVector>" />
+  <class name="edm::Wrapper<pat::PackedGenParticleRefVector>" />
 
   <!-- RefToBase<Candidate> from PATObjects -->
     <!-- With direct Holder -->

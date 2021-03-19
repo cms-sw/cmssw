@@ -7,9 +7,17 @@
 #include "CondCore/CondDB/interface/Logger.h"
 #include "CoralMsgReporter.h"
 
+cond::persistency::MsgDispatcher::MsgDispatcher(Logger& logger) { m_recipient = &logger; }
+
+void cond::persistency::MsgDispatcher::unsubscribe() { m_recipient = nullptr; }
+
+bool cond::persistency::MsgDispatcher::hasRecipient() { return m_recipient != nullptr; }
+
+cond::persistency::Logger& cond::persistency::MsgDispatcher::recipient() { return *m_recipient; }
+
 /// Default constructor
-cond::persistency::CoralMsgReporter::CoralMsgReporter(Logger& logger)
-    : m_logger(logger), m_level(coral::Error), m_format(0), m_mutex() {
+cond::persistency::CoralMsgReporter::CoralMsgReporter()
+    : m_dispatcher(), m_level(coral::Error), m_format(0), m_mutex() {
   // Use a non-default format?
   //char* msgformat = getenv ( "CORAL_MSGFORMAT" );
   if (getenv("CORAL_MESSAGEREPORTER_FORMATTED"))
@@ -79,58 +87,61 @@ coral::MsgLevel cond::persistency::CoralMsgReporter::outputLevel() const { retur
 /// Modify output level
 void cond::persistency::CoralMsgReporter::setOutputLevel(coral::MsgLevel lvl) { m_level = lvl; }
 
-/// Report message to stdout
-void cond::persistency::CoralMsgReporter::report(int lvl, const std::string& src, const std::string& msg) {
-  if (lvl < m_level)
-    return;
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-  std::stringstream out;
-  /**
-  if ( m_format == 1 ) // COOL format
-  {
-    // Formatted CORAL reporter (as in COOL)
-    //std::ostream& out = std::cout;
-    const std::string::size_type src_name_maxsize = 36;
-    if ( src.size() <= src_name_maxsize )
-    {
-      out << src << std::string( src_name_maxsize-src.size(), ' ' );
-    }
-    else
-    {
-      out << src.substr( 0, src_name_maxsize-3 ) << "...";
-    }
-    switch ( lvl )
-    {
-    case 0:  out << " Nil      "; break;
-    case 1:  out << " Verbose  "; break;
-    case 2:  out << " Debug    "; break;
-    case 3:  out << " Info     "; break;
-    case 4:  out << " Warning  "; break;
-    case 5:  out << " Error    "; break;
-    case 6:  out << " Fatal    "; break;
-    case 7:  out << " Always   "; break;
-    default: out << " Unknown  "; break;
-    }
-    out << msg << std::endl;
-  }
-  else{
-  **/
-  // Default CORAL reporter
+void reportToRecipient(const std::string& msg, int lvl, cond::persistency::Logger& recipient) {
   switch (lvl) {
     case coral::Nil:
     case coral::Verbose:
     case coral::Debug:
-      m_logger.logDebug() << "CORAL: " << msg;
+      recipient.logDebug() << "CORAL: " << msg;
       break;
     case coral::Info:
-      m_logger.logInfo() << "CORAL: " << msg;
+      recipient.logInfo() << "CORAL: " << msg;
       break;
     case coral::Warning:
-      m_logger.logWarning() << "CORAL: " << msg;
+      recipient.logWarning() << "CORAL: " << msg;
       break;
     case coral::Error:
-      m_logger.logError() << "CORAL: " << msg;
+      recipient.logError() << "CORAL: " << msg;
       break;
   }
+}
+
+/// Report message to stdout
+void cond::persistency::CoralMsgReporter::report(int lvl, const std::string&, const std::string& msg) {
+  if (lvl < m_level)
+    return;
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
+  if (m_dispatcher.get() && m_dispatcher->hasRecipient()) {
+    reportToRecipient(msg, lvl, m_dispatcher->recipient());
+  }
+  // Default CORAL reporter
+  std::string level("");
+  switch (lvl) {
+    case coral::Nil:
+      level = "Nil";
+      break;
+    case coral::Verbose:
+      level = "Verbose";
+      break;
+    case coral::Debug:
+      level = "Debug";
+      break;
+    case coral::Info:
+      level = "Info";
+      break;
+    case coral::Warning:
+      level = "Warning";
+      break;
+    case coral::Error:
+      level = "Error";
+      break;
+  }
+  std::cout << msg << " " << level << " " << msg << std::endl;
+}
+
+void cond::persistency::CoralMsgReporter::subscribe(Logger& logger) {
+  m_dispatcher.reset(new MsgDispatcher(logger));
+  std::weak_ptr<MsgDispatcher> callBack(m_dispatcher);
+  logger.subscribeCoralMessages(callBack);
 }

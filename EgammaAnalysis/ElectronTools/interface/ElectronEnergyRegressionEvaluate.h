@@ -22,11 +22,10 @@
 #include "TTree.h"
 
 // For applying regression
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #ifndef STANDALONE
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "EgammaAnalysis/ElectronTools/interface/SuperClusterHelper.h"
-//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #endif
 
 class ElectronEnergyRegressionEvaluate {

@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -49,6 +48,7 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
+#include "G4Timer.hh"
 #include "G4Event.hh"
 #include "G4Run.hh"
 #include "G4SystemOfUnits.hh"
@@ -67,6 +67,7 @@
 #include <thread>
 #include <sstream>
 #include <vector>
+#include "tbb/task_arena.h"
 
 static std::once_flag applyOnce;
 thread_local bool RunManagerMTWorker::dumpMF = false;
@@ -195,8 +196,10 @@ void RunManagerMTWorker::resetTLS() {
   if (active_tlsdata != 0 and not tls_shutdown_timeout) {
     ++n_tls_shutdown_task;
     //need to run tasks on each thread which has set the tls
-    auto task = edm::make_functor_task(tbb::task::allocate_root(), []() { resetTLS(); });
-    tbb::task::enqueue(*task);
+    {
+      tbb::task_arena arena(tbb::task_arena::attach{});
+      arena.enqueue([]() { RunManagerMTWorker::resetTLS(); });
+    }
     timespec s;
     s.tv_sec = 0;
     s.tv_nsec = 10000;
@@ -246,6 +249,9 @@ void RunManagerMTWorker::initializeTLS() {
 }
 
 void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es) {
+  G4Timer timer;
+  timer.Start();
+
   // I guess everything initialized here should be in thread_local storage
   initializeTLS();
   if (m_tls->threadInitialized)
@@ -307,7 +313,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
     if (!fieldFile.empty()) {
       std::call_once(applyOnce, []() { dumpMF = true; });
       if (dumpMF) {
-        edm::LogVerbatim("SimG4CoreApplication") << " RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
+        edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
         DumpMagneticField(tM->GetFieldManager()->GetDetectorField(), fieldFile);
       }
     }
@@ -322,13 +328,14 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   m_tls->sensCaloDets.swap(sensDets.second);
 
   edm::LogVerbatim("SimG4CoreApplication")
-      << " RunManagerMTWorker: Sensitive Detector building finished; found " << m_tls->sensTkDets.size()
-      << " Tk type Producers, and " << m_tls->sensCaloDets.size() << " Calo type producers ";
+      << "RunManagerMTWorker: Sensitive Detectors are built in thread " << thisID << " found "
+      << m_tls->sensTkDets.size() << " Tk type SD, and " << m_tls->sensCaloDets.size() << " Calo type SD";
 
   // Set the physics list for the worker, share from master
   PhysicsList* physicsList = runManagerMaster->physicsListForWorker();
 
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker: start initialisation of PhysicsList for the thread";
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMTWorker: start initialisation of PhysicsList for the thread " << thisID;
 
   // Geant4 UI commands in PreInit state
   if (!runManagerMaster->G4Commands().empty()) {
@@ -346,7 +353,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   const bool kernelInit = m_tls->kernel->RunInitialization();
   if (!kernelInit) {
-    throw edm::Exception(edm::errors::Configuration) << "RunManagerMTWorker: Geant4 kernel initialization failed";
+    throw edm::Exception(edm::errors::Configuration)
+        << "RunManagerMTWorker: Geant4 kernel initialization failed in thread " << thisID;
   }
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
@@ -363,10 +371,12 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   }
   initializeUserActions();
 
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::initializeThread done for the thread " << thisID;
-
   G4StateManager::GetStateManager()->SetNewState(G4State_Idle);
   m_tls->threadInitialized = true;
+
+  timer.Stop();
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMTWorker::initializeThread done for the thread " << thisID << "  " << timer;
 }
 
 void RunManagerMTWorker::initializeUserActions() {

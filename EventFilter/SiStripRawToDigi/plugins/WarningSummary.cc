@@ -4,11 +4,8 @@
 #include <algorithm>
 
 void sistrip::WarningSummary::add(const std::string& message, const std::string& details) {
-  const auto wIt = std::find_if(
-      std::begin(m_warnings), std::end(m_warnings), [&message](const std::pair<std::string, std::size_t>& item) {
-        return item.first == message;
-      });
-  if (std::end(m_warnings) == wIt) {
+  const auto wIt = m_warnings.find(message);
+  if (wIt == m_warnings.end()) {
     m_warnings.emplace(message, 1);
     edm::LogWarning(m_category) << message << ": " << details
                                 << (m_debug ? ""

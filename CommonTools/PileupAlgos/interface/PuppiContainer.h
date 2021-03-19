@@ -10,7 +10,7 @@ public:
   PuppiContainer(const edm::ParameterSet &iConfig);
   ~PuppiContainer();
   void initialize(const std::vector<RecoObj> &iRecoObjects);
-  void setNPV(int iNPV) { fNPV = iNPV; }
+  void setPUProxy(double const iPUProxy) { fPUProxy = iPUProxy; }
 
   std::vector<PuppiCandidate> const &pfParticles() const { return fPFParticles; }
   std::vector<double> const &puppiWeights();
@@ -61,7 +61,7 @@ protected:
   double fPtMaxNeutrals;
   double fPtMaxNeutralsStartSlope;
   int fNAlgos;
-  int fNPV;
+  double fPUProxy;
   std::vector<PuppiAlgo> fPuppiAlgo;
 };
 #endif

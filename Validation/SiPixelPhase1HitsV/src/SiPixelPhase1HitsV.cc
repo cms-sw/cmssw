@@ -15,8 +15,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -33,7 +31,9 @@ SiPixelPhase1HitsV::SiPixelPhase1HitsV(const edm::ParameterSet &iConfig)
       tracksToken_(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("tracksTag"))),
       tpToken_(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("tpTag"))),
       trackAssociatorByHitsToken_(consumes<reco::TrackToTrackingParticleAssociator>(
-          iConfig.getParameter<edm::InputTag>("trackAssociatorByHitsTag"))) {}
+          iConfig.getParameter<edm::InputTag>("trackAssociatorByHitsTag"))),
+
+      trackerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {}
 
 void SiPixelPhase1HitsV::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   edm::Handle<edm::PSimHitContainer> barrelLowInput;
@@ -60,8 +60,7 @@ void SiPixelPhase1HitsV::analyze(const edm::Event &iEvent, const edm::EventSetup
 
   // Get geometry information
 
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  edm::ESHandle<TrackerGeometry> tracker = iSetup.getHandle(trackerGeomToken_);
 
   // get low barrel info
   for (it = barrelLowInput->begin(); it != barrelLowInput->end(); ++it) {

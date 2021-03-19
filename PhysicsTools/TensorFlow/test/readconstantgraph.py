@@ -4,17 +4,15 @@
 Test script that reads the constant graph created by "createconstantgraph.py".
 """
 
-
 import os
 import sys
-import tensorflow as tf
 
-from PhysicsTools.TensorFlow.tools import TF2, read_constant_graph
+import cmsml
 
 
-# go into v1 compatibility mode
-if TF2:
-    tf = tf.compat.v1
+# get tensorflow and work with the v1 compatibility layer
+tf, tf1, tf_version = cmsml.tensorflow.import_tf()
+tf = tf1
 tf.disable_eager_execution()
 
 # prepare the datadir
@@ -25,5 +23,6 @@ else:
     datadir = os.path.join(os.path.dirname(thisdir), "bin", "data")
 
 # read and evaluate the graph
-graph, sess = read_constant_graph(os.path.join(datadir, "constantgraph.pb"), create_session=True)
+graph_path = os.path.join(datadir, "constantgraph.pb")
+graph, sess = cmsml.tensorflow.load_graph(graph_path, create_session=True)
 print(sess.run("output:0", feed_dict={"scale:0": 1.0, "input:0": [range(10)]})[0][0])

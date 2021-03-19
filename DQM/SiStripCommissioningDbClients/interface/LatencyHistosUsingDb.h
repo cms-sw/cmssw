@@ -10,7 +10,10 @@
 
 class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingHistograms {
 public:
-  LatencyHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  LatencyHistosUsingDb(const edm::ParameterSet& pset,
+                       DQMStore*,
+                       SiStripConfigDb* const,
+                       edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~LatencyHistosUsingDb() override;
 

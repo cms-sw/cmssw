@@ -92,14 +92,11 @@ process.options = cms.untracked.PSet(
 
 # enable debug message logging for our modules
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.categories.append('L1TCaloEvents')
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 if (options.dumpRaw or options.dumpDigis):
-    process.MessageLogger.destinations.append('infos')
-    process.MessageLogger.infos = cms.untracked.PSet(placeholder = cms.untracked.bool(False),
+    process.MessageLogger.files.infos = cms.untracked.PSet(
                                                      INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
                                                      L1TCaloEvents = cms.untracked.PSet(
-                                                         optionalPSet = cms.untracked.bool(True),
                                                          limit = cms.untracked.int32(10000)
                                                      )
     )

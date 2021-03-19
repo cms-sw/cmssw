@@ -30,9 +30,11 @@ options.parseArguments()
 ## MessageLogger
 ##
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("SiPixelGainCalibScaler")  
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiPixelGainCalibScaler=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
+    enableStatistics = cms.untracked.bool(True),
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
@@ -40,7 +42,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
                                    ),                                                      
     SiPixelGainCalibScaler = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
-process.MessageLogger.statistics.append('cout') 
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff") # Ideal geometry and interface 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')

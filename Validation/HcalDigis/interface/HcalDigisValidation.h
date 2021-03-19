@@ -5,7 +5,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -141,21 +140,15 @@ private:
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_Topo_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> tok_Cond_;
 
-  edm::ESHandle<CaloGeometry> geometry;
-  edm::ESHandle<HcalDbService> conditions;
-
-  //TP Code
-  edm::ESHandle<HcalTopology> htopo;
-  //~TP Code
+  const HcalDbService *conditions_;
+  const HcalDDDRecConstants *hcons_;
+  const HcalTopology *htopo_;
 
   int nevent1;
   int nevent2;
   int nevent3;
   int nevent4;
   int nevtot;
-
-  const HcalDDDRecConstants *hcons;
-  const HcalTopology *htopology;
 
   int maxDepth_[5];   // 0:any, 1:HB, 2:HE, 3:HF
   int nChannels_[5];  // 0:any, 1:HB, 2:HE,

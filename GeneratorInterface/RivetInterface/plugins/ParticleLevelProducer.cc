@@ -88,6 +88,16 @@ void ParticleLevelProducer::addGenJet(Rivet::Jet jet,
     } else {
       tags->push_back(reco::GenParticle(p.charge(), p4(p) * 1e-20, genVertex_, p.pid(), 2, true));
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, ++iTag)));
+      // Also save lepton+neutrino daughters of tag particles
+      int iTagMother = iTag;
+      for (auto const& d : p.constituents()) {
+        ++iTag;
+        int d_status = (d.isStable()) ? 1 : 2;
+        tags->push_back(reco::GenParticle(d.charge(), p4(d) * 1e-20, genVertex_, d.pid(), d_status, true));
+        tags->at(iTag).addMother(reco::GenParticleRef(tagsRefHandle, iTagMother));
+        tags->at(iTagMother).addDaughter(reco::GenParticleRef(tagsRefHandle, iTag));
+        genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, iTag)));
+      }
     }
   }
 

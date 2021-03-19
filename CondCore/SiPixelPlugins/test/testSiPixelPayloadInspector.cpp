@@ -8,6 +8,7 @@
 #include "CondCore/SiPixelPlugins/plugins/SiPixelGenErrorDBObject_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelVCal_PayloadInspector.cc"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondCore/SiPixelPlugins/plugins/SiPixelQualityProbabilities_PayloadInspector.cc"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
@@ -187,6 +188,18 @@ int main(int argc, char** argv) {
   SiPixelGenErrorIDsBPixMap histo24;
   histo24.process(connectionString, PI::mk_input(tag, end, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo24.data() << std::endl;
+
+  // SiPixelQualityProbabilities
+
+  tag = "SiPixelQualityProbabilities_UltraLegacy2018_v0_mc";
+  start = boost::lexical_cast<unsigned long long>(1);
+  end = boost::lexical_cast<unsigned long long>(1);
+
+  std::cout << "## Exercising SiPixelQualityProbabilities plots " << std::endl;
+
+  SiPixelQualityProbabilitiesScenariosCount histo25;
+  histo25.process(connectionString, PI::mk_input(tag, start, start));
+  std::cout << histo25.data() << std::endl;
 
   inputs.clear();
 #if PY_MAJOR_VERSION >= 3

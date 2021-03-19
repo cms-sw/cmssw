@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('SimG4CoreGeometry')
+    process.MessageLogger.SimG4CoreGeometry=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -130,7 +130,6 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
             'Main:timesAllowErrors = 10000', 
             'Check:epTolErr = 0.01', 
             'Beams:setProductionScalesFromLHEF = off', 
-            'SLHA:keepSM = on', 
             'SLHA:minMassSM = 1000.', 
             'ParticleDecays:limitTau0 = on', 
             'ParticleDecays:tau0Max = 10', 
@@ -143,7 +142,6 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     pythiaPylistVerbosity = cms.untracked.int32(0)
 )
-
 
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 

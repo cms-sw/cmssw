@@ -162,7 +162,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.MessageLogger.destinations.extend(["LogTrackingMaterialAnalysis"])
-process.MessageLogger.categories.append("TrackingMaterialAnalysis")
+process.MessageLogger.files.LogTrackingMaterialAnalysis = dict()
+process.MessageLogger.TrackingMaterialAnalysis=dict()
 process.path = cms.Path(process.trackingMaterialAnalyser)
 

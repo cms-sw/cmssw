@@ -4,12 +4,14 @@ process = cms.Process("TestLumiProducerFromBrilcalc")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations   = cms.untracked.vstring("cout"),
-                                    categories     = cms.untracked.vstring("LumiProducerFromBrilcalc"),
-                                    debugModules   = cms.untracked.vstring("LumiInfo"),
-                                    cout           = cms.untracked.PSet(
-                                        threshold  = cms.untracked.string('DEBUG')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    debugModules = cms.untracked.vstring('LumiInfo')
 )
 
 # just use a random relval which has meaningless run/LS numbers, and then a corresponding test file

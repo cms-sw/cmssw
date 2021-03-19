@@ -58,7 +58,6 @@ def addPrint(process):
     # enable text dump
     if not hasattr(process,'MessageLogger'):
         process.load('FWCore.MessageService.MessageLogger_cfi')
-    process.MessageLogger.categories.append('FastReport')
     process.MessageLogger.cerr.FastReport = cms.untracked.PSet( limit = cms.untracked.int32( 10000000 ) )
     return process
 

@@ -18,7 +18,7 @@ process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = '%%%GLOBALTAG%%%'
 
-process.MessageLogger.cerr = cms.untracked.PSet(placeholder = cms.untracked.bool(True))
+process.MessageLogger.cerr = cms.untracked.PSet(enable = cms.untracked.bool(False))
 process.MessageLogger = cms.Service("MessageLogger",
         destinations = cms.untracked.vstring("%%%LOGFILE%%%"),
         %%%LOGFILE%%% = cms.untracked.PSet(

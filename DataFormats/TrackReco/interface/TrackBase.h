@@ -113,7 +113,7 @@ namespace reco {
       highPtTripletStep = 22,
       lowPtQuadStep = 23,
       detachedQuadStep = 24,
-      reservedForUpgrades1 = 25,
+      displacedGeneralStep = 25,
       reservedForUpgrades2 = 26,
       bTagGhostTracks = 27,
       beamhalo = 28,

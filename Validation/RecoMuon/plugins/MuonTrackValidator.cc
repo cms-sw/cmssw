@@ -55,8 +55,9 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
       std::replace(dirName.begin(), dirName.end(), ':', '_');
       ibooker.setCurrentFolder(dirName);
 
-      h_tracks.push_back(ibooker.book1D("Ntracks", "Number of reconstructed tracks", 100, -0.5, 99.5));
-      h_fakes.push_back(ibooker.book1D("Nfakes", "Number of fake reco tracks", 20, -0.5, 19.5));
+      h_tracks.push_back(
+          ibooker.book1D("Ntracks", "Number of reconstructed tracks", nintNTracks, minNTracks, maxNTracks));
+      h_fakes.push_back(ibooker.book1D("Nfakes", "Number of fake reco tracks", nintFTracks, minFTracks, maxFTracks));
       h_charge.push_back(ibooker.book1D("Ncharge", "track charge", 3, -1.5, 1.5));
 
       h_recoeta.push_back(ibooker.book1D("num_reco_eta", "N of reco track vs eta", nintEta, minEta, maxEta));

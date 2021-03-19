@@ -77,39 +77,39 @@ namespace edm {
 
       // ---  handle severity information:
       //
-      ELseverityLevel checkSeverity();
-      int severityCount(const ELseverityLevel& sev) const;
-      int severityCount(const ELseverityLevel& from, const ELseverityLevel& to) const;
-      void resetSeverityCount(const ELseverityLevel& sev);
-      void resetSeverityCount(const ELseverityLevel& from, const ELseverityLevel& to);
+      messagelogger::ELseverityLevel checkSeverity();
+      int severityCount(const messagelogger::ELseverityLevel& sev) const;
+      int severityCount(const messagelogger::ELseverityLevel& from, const messagelogger::ELseverityLevel& to) const;
+      void resetSeverityCount(const messagelogger::ELseverityLevel& sev);
+      void resetSeverityCount(const messagelogger::ELseverityLevel& from, const messagelogger::ELseverityLevel& to);
       void resetSeverityCount();  // reset all
 
       // ---  apply the following actions to all attached destinations:
       //
-      void setThresholds(const ELseverityLevel& sev);
+      void setThresholds(const messagelogger::ELseverityLevel& sev);
       void setLimits(const std::string& id, int limit);
-      void setLimits(const ELseverityLevel& sev, int limit);
+      void setLimits(const messagelogger::ELseverityLevel& sev, int limit);
       void setIntervals(const std::string& id, int interval);
-      void setIntervals(const ELseverityLevel& sev, int interval);
+      void setIntervals(const messagelogger::ELseverityLevel& sev, int interval);
       void setTimespans(const std::string& id, int seconds);
-      void setTimespans(const ELseverityLevel& sev, int seconds);
+      void setTimespans(const messagelogger::ELseverityLevel& sev, int seconds);
       void wipe();
       void finish();
 
     protected:
       // ---  member data accessors:
       //
-      const ELseverityLevel& abortThreshold() const;
-      const ELseverityLevel& exitThreshold() const;
-      const ELseverityLevel& highSeverity() const;
+      const messagelogger::ELseverityLevel& abortThreshold() const;
+      const messagelogger::ELseverityLevel& exitThreshold() const;
+      const messagelogger::ELseverityLevel& highSeverity() const;
       int severityCounts(int lev) const;
 
     private:
       // ---  traditional member data:
       //
       std::list<edm::propagate_const<std::shared_ptr<ELdestination>>> sinks_;
-      ELseverityLevel highSeverity_;
-      int severityCounts_[ELseverityLevel::nLevels];
+      messagelogger::ELseverityLevel highSeverity_;
+      int severityCounts_[messagelogger::ELseverityLevel::nLevels];
 
       std::map<std::string, edm::propagate_const<std::shared_ptr<ELdestination>>> attachedDestinations_;
 

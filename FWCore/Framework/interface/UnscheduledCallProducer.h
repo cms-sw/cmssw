@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/UnscheduledAuxiliary.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
@@ -51,6 +52,13 @@ namespace edm {
       }
     }
 
+    void removeWorker(Worker const* worker) {
+      unscheduledWorkers_.erase(std::remove(unscheduledWorkers_.begin(), unscheduledWorkers_.end(), worker),
+                                unscheduledWorkers_.end());
+      accumulatorWorkers_.erase(std::remove(accumulatorWorkers_.begin(), accumulatorWorkers_.end(), worker),
+                                accumulatorWorkers_.end());
+    }
+
     void setEventTransitionInfo(EventTransitionInfo const& info) { aux_.setEventTransitionInfo(info); }
 
     UnscheduledAuxiliary const& auxiliary() const { return aux_; }
@@ -59,7 +67,7 @@ namespace edm {
     const_iterator end() const { return unscheduledWorkers_.end(); }
 
     template <typename T, typename U>
-    void runNowAsync(WaitingTask* task,
+    void runNowAsync(WaitingTaskHolder task,
                      typename T::TransitionInfoType const& info,
                      ServiceToken const& token,
                      StreamID streamID,
@@ -81,7 +89,7 @@ namespace edm {
     }
 
     template <typename T>
-    void runAccumulatorsAsync(WaitingTask* task,
+    void runAccumulatorsAsync(WaitingTaskHolder task,
                               typename T::TransitionInfoType const& info,
                               ServiceToken const& token,
                               StreamID streamID,

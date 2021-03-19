@@ -836,8 +836,6 @@ public:
   virtual void endJob() override;
 
 private:
-  edm::ParameterSet conf_;
-  edm::InputTag src_;
   //const static bool PRINT = false;
   bool PRINT;
   int select1, select2;
@@ -848,6 +846,16 @@ private:
 
   // Needed for the ByToken method
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > myClus;
+  edm::EDGetTokenT<LumiSummary> lumiSummaryToken_;
+  edm::EDGetTokenT<LumiDetails> lumiDetailsToken_;
+  edm::EDGetTokenT<edm::ConditionsInLumiBlock> condToken_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1gtrrToken_;
+  edm::EDGetTokenT<Level1TriggerScalersCollection> l1tsToken_;
+  edm::EDGetTokenT<edm::TriggerResults> hltToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
 
   //TFile* hFile;
   TH1D *hdetunit;
@@ -986,16 +994,24 @@ private:
 
 /////////////////////////////////////////////////////////////////
 // Contructor, empty.
-TestClusters::TestClusters(edm::ParameterSet const &conf) : conf_(conf), src_(conf.getParameter<edm::InputTag>("src")) {
+TestClusters::TestClusters(edm::ParameterSet const &conf) {
   PRINT = conf.getUntrackedParameter<bool>("Verbosity", false);
   select1 = conf.getUntrackedParameter<int>("Select1", 0);
   select2 = conf.getUntrackedParameter<int>("Select2", 0);
-  //src_ =  conf.getParameter<edm::InputTag>( "src" );
   if (PRINT)
     cout << " Construct " << endl;
 
   // For the ByToken method
   myClus = consumes<edmNew::DetSetVector<SiPixelCluster> >(conf.getParameter<edm::InputTag>("src"));
+  lumiSummaryToken_ = consumes<LumiSummary>(edm::InputTag("lumiProducer"));
+  lumiDetailsToken_ = consumes<LumiDetails>(edm::InputTag("lumiProducer"));
+  condToken_ = consumes<edm::ConditionsInLumiBlock>(edm::InputTag("conditionsInEdm"));
+  l1gtrrToken_ = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigis"));
+  l1tsToken_ = consumes<Level1TriggerScalersCollection>(edm::InputTag("scalersRawToDigi"));
+  hltToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"));
+  vtxToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 }
 // Virtual destructor needed.
 TestClusters::~TestClusters() {}
@@ -1861,8 +1877,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
   //static int nsum = 0, lsold=-999, lumiold=0.;
 
   // Get event setup
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle<TrackerGeometry> geom = es.getHandle(trackerGeomToken_);
   const TrackerGeometry &theTracker(*geom);
 
   countAllEvents++;
@@ -1889,11 +1904,11 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
   edm::LuminosityBlock const &iLumi = e.getLuminosityBlock();
   edm::Handle<LumiSummary> lumi;
   edm::Handle<LumiDetails> ld;
-  iLumi.getByLabel("lumiProducer", lumi);
-  iLumi.getByLabel("lumiProducer", ld);
+  iLumi.getByToken(lumiSummaryToken_, lumi);
+  iLumi.getByToken(lumiDetailsToken_, ld);
 
   edm::Handle<edm::ConditionsInLumiBlock> cond;
-  iLumi.getByLabel("conditionsInEdm", cond);
+  iLumi.getByToken(condToken_, cond);
   // This will only work when running on RECO until (if) they fix it in the FW
   // When running on RAW and reconstructing, the LumiSummary will not appear
   // in the event before reaching endLuminosityBlock(). Therefore, it is not
@@ -1941,7 +1956,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
   int numPVsGood = 0;
   if (select2 < 11 && run > 165000) {  // skip for earlier runs, crashes
     edm::Handle<reco::VertexCollection> vertices;
-    e.getByLabel("offlinePrimaryVertices", vertices);
+    e.getByToken(vtxToken_, vertices);
 
     //int numPVs = vertices->size(); // unused
     if (!vertices.failedToGet() && vertices.isValid()) {
@@ -2003,7 +2018,6 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
   // Get Cluster Collection from InputTag
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusters;
-  //e.getByLabel( src_ , clusters);
   // New By Token method
   e.getByToken(myClus, clusters);
 
@@ -2029,7 +2043,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 #ifdef L1
   // Get L1
   Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
-  e.getByLabel("gtDigis", L1GTRR);
+  e.getByToken(l1gtrrToken_, L1GTRR);
 
   if (L1GTRR.isValid()) {
     //bool l1a = L1GTRR->decision();  // global decission?  unused
@@ -2102,7 +2116,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
   edm::Handle<edm::TriggerResults> HLTResults;
 
   // Extract the HLT results
-  e.getByLabel(edm::InputTag("TriggerResults", "", "HLT"), HLTResults);
+  e.getByToken(hltToken_, HLTResults);
   if ((HLTResults.isValid() == true) && (HLTResults->size() > 0)) {
     //TrigNames.init(*HLTResults);
     const edm::TriggerNames &TrigNames = e.triggerNames(*HLTResults);
@@ -2142,7 +2156,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
 #ifdef USE_RESYNCS
   Handle<Level1TriggerScalersCollection> l1ts;
-  e.getByLabel("scalersRawToDigi", l1ts);
+  e.getByToken(l1tsToken_, l1ts);
 
   if (l1ts->size() > 0) {
     int r1 = (*l1ts)[0].lastResync();
@@ -2245,8 +2259,7 @@ void TestClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
 
 #ifdef NEW_ID
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = es.getHandle(trackerTopoToken_);
 #endif
 
   //---------------------------------------

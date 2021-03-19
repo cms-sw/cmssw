@@ -199,6 +199,8 @@ def _appendPhase2Digis(obj):
         'keep *_l1PFMetCalo_*_*',
         'keep *_l1PFMetPF_*_*',
         'keep *_l1PFMetPuppi_*_*',
+        'keep *_l1NNTauProducer_*_*',
+        'keep *_l1NNTauProducerPuppi_*_*',
         'keep *_TTStubsFromPhase2TrackerDigis_*_*',
         'keep *_TTClustersFromPhase2TrackerDigis_*_*',
         'keep *_TTTracksFromExtendedTrackletEmulation_*_*',

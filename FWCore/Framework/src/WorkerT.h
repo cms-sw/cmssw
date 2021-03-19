@@ -22,6 +22,7 @@ WorkerT: Code common to all workers.
 namespace edm {
 
   class ModuleCallingContext;
+  class ModuleProcessName;
   class ProductResolverIndexAndSkipBit;
   class ThinnedAssociationsHelper;
   class WaitingTaskWithArenaHolder;
@@ -77,6 +78,8 @@ namespace edm {
     T const& module() const { return *module_; }
 
   private:
+    void doClearModule() override { get_underlying_safe(module_).reset(); }
+
     bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) override;
 
     void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const final;
@@ -107,10 +110,12 @@ namespace edm {
     TaskQueueAdaptor serializeRunModule() override;
 
     void modulesWhoseProductsAreConsumed(
-        std::vector<ModuleDescription const*>& modules,
+        std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
+        std::vector<ModuleProcessName>& modulesInPreviousProcesses,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
-      module_->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, module_->moduleDescription().processName());
+      module_->modulesWhoseProductsAreConsumed(
+          modules, modulesInPreviousProcesses, preg, labelsToDesc, module_->moduleDescription().processName());
     }
 
     void convertCurrentProcessAlias(std::string const& processName) override {
@@ -140,7 +145,7 @@ namespace edm {
 
     std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const override;
 
-    void preActionBeforeRunEventAsync(WaitingTask* iTask,
+    void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                       ModuleCallingContext const& iModuleCallingContext,
                                       Principal const& iPrincipal) const override {
       module_->preActionBeforeRunEventAsync(iTask, iModuleCallingContext, iPrincipal);

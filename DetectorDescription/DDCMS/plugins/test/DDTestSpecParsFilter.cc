@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/DDSpecParRegistryRcd.h"
+
 #include <DD4hep/SpecParRegistry.h>
 
 #include <iostream>
@@ -56,6 +57,13 @@ void DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup) 
         log << ki << " ";
       log << "};\n ";
       for (const auto& kl : t.second->spars) {
+        log << kl.first << " = ";
+        for (const auto& kil : kl.second) {
+          log << kil << " ";
+        }
+        log << "\n ";
+      }
+      for (const auto& kl : t.second->numpars) {
         log << kl.first << " = ";
         for (const auto& kil : kl.second) {
           log << kil << " ";

@@ -25,10 +25,10 @@ phPFIsoDepositGamma= cms.EDProducer("CandIsoDepositProducer",
                                         )
                             )
 
-phPFIsoDepositCharged.ExtractorPSet.DR_Veto    = 0 
-phPFIsoDepositChargedAll.ExtractorPSet.DR_Veto = 0 
-phPFIsoDepositNeutral.ExtractorPSet.DR_Veto    = 0 
-phPFIsoDepositPU.ExtractorPSet.DR_Veto         = 0 
+phPFIsoDepositCharged.ExtractorPSet.DR_Veto    = 0
+phPFIsoDepositChargedAll.ExtractorPSet.DR_Veto = 0
+phPFIsoDepositNeutral.ExtractorPSet.DR_Veto    = 0
+phPFIsoDepositPU.ExtractorPSet.DR_Veto         = 0
 
 photonPFIsolationDepositsTask = cms.Task(
     phPFIsoDepositCharged,

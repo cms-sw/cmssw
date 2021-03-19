@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
@@ -62,10 +62,10 @@ private:
 
   DQMStore *dqmStore_;
   edm::ParameterSet conf_;
-  edm::ESHandle<SiStripDetCabling> detcabling;
   std::vector<uint32_t> SelectedDetIds;
 
-  unsigned long long m_cacheID_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detCablingToken_;
+  edm::ESWatcher<SiStripDetCablingRcd> detCablingWatcher_;
 };
 
 #endif

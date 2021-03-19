@@ -3,10 +3,17 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SiStripSummaryReader")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('SiStripSummaryReader.log')
+    files = cms.untracked.PSet(
+        SiStripSummaryReader = cms.untracked.PSet(
+
+        )
+    )
 )
 
 

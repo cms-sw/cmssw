@@ -3,6 +3,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TMath.h"
 
 /****************************************************************************

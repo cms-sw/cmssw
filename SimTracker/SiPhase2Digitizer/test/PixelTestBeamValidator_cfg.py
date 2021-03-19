@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-from Configuration.ProcessModifiers.phase2_PixelCPEGeneric_cff import phase2_PixelCPEGeneric
+from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
 
-process = cms.Process('digiTest',Phase2C9,phase2_PixelCPEGeneric)
+process = cms.Process('digiTest',Phase2C9,PixelCPEGeneric)
 
 import FWCore.ParameterSet.VarParsing as VarParsing 
 options = VarParsing.VarParsing ("analysis") 
