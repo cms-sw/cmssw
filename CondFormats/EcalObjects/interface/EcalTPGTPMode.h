@@ -37,8 +37,6 @@ public:
   uint16_t FenixPar18;
 
   COND_SERIALIZABLE;
-
-
 };
 
 #endif
