@@ -35,11 +35,11 @@ hgcalValidator = DQMEDAnalyzer(
     #Select caloParticles for efficiency or pass through
     doCaloParticleSelection = cms.untracked.bool(True),
     #SimCluster related plots
-    dosimclustersPlots = cms.untracked.bool(True),
+    doSimClustersPlots = cms.untracked.bool(True),
     #Layer Cluster related plots
-    dolayerclustersPlots = cms.untracked.bool(True),
+    doLayerClustersPlots = cms.untracked.bool(True),
     #Multi Cluster related plots
-    domulticlustersPlots = cms.untracked.bool(True),
+    doMultiClustersPlots = cms.untracked.bool(True),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).
