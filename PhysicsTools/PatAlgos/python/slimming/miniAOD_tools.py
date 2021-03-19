@@ -628,9 +628,9 @@ def miniAOD_customizeData(process):
     process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
     process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
     task = getPatAlgosToolsTask(process)
-    from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-    ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
-    ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsProtons))
+    from Configuration.Eras.Modifier_ctpps_cff import ctpps
+    ctpps.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
+    ctpps.toModify(task, func=lambda t: t.add(process.ctppsProtons))
     from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.simGtExtUnprefireable))
 
