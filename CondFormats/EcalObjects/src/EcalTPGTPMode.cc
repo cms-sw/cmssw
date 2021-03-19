@@ -6,37 +6,37 @@ EcalTPGTPMode::EcalTPGTPMode() {}
 
 EcalTPGTPMode::~EcalTPGTPMode() {}
 
-void EcalTPGTPMode::Print() const {
-  LogDebug("EcalTPGTPMode") << ">>> Trigger primitive mode:  ";
-  LogDebug("EcalTPGTPMode") << "    enable EE odd filter  " << EnableEEOddFilter;
-  LogDebug("EcalTPGTPMode") << "    enable EB odd filter  " << EnableEBOddFilter;
-  LogDebug("EcalTPGTPMode") << "    enable EE odd peak finder  " << EnableEEOddPeakFinder;
-  LogDebug("EcalTPGTPMode") << "    enable EB odd peak finder  " << EnableEBOddPeakFinder;
-  LogDebug("EcalTPGTPMode") << "    disable EE even peak finder  " << DisableEEEvenPeakFinder;
-  LogDebug("EcalTPGTPMode") << "    disable EB even peak finder  " << DisableEBEvenPeakFinder;
+void EcalTPGTPMode::print(std::ostream& out) const {
+  out << ">>> Trigger primitive mode:  " << std::endl ;
+  out << "    enable EE odd filter  " << EnableEEOddFilter << std::endl;
+  out << "    enable EB odd filter  " << EnableEBOddFilter << std::endl;
+  out << "    enable EE odd peak finder  " << EnableEEOddPeakFinder << std::endl;
+  out << "    enable EB odd peak finder  " << EnableEBOddPeakFinder << std::endl;
+  out << "    disable EE even peak finder  " << DisableEEEvenPeakFinder << std::endl;
+  out << "    disable EB even peak finder  " << DisableEBEvenPeakFinder << std::endl;
   if (FenixEEStripOutput == 0)
-    LogDebug("EcalTPGTPMode") << "    EE strip formatter output: even filter ";
+    out << "    EE strip formatter output: even filter " << std::endl;
   if (FenixEEStripOutput == 1)
-    LogDebug("EcalTPGTPMode") << "    EE strip formatter output: odd filter ";
+    out << "    EE strip formatter output: odd filter " << std::endl;
   if (FenixEEStripOutput == 2)
-    LogDebug("EcalTPGTPMode") << "    EE strip formatter output: larger of odd and even ";
+    out << "    EE strip formatter output: larger of odd and even " << std::endl;
   if (FenixEEStripOutput == 3)
-    LogDebug("EcalTPGTPMode") << "    EE strip formatter output: odd + even ";
+    out << "    EE strip formatter output: odd + even " << std::endl;
   if (FenixEBStripOutput == 0)
-    LogDebug("EcalTPGTPMode") << "    EB strip formatter output: even filter ";
+    out << "    EB strip formatter output: even filter " << std::endl;
   if (FenixEBStripOutput == 1)
-    LogDebug("EcalTPGTPMode") << "    EB strip formatter output: odd filter ";
+    out << "    EB strip formatter output: odd filter " << std::endl;
   if (FenixEBStripOutput == 2)
-    LogDebug("EcalTPGTPMode") << "    EB strip formatter output: larger of odd and even ";
+    out << "    EB strip formatter output: larger of odd and even " << std::endl;
   if (FenixEBStripOutput == 3)
-    LogDebug("EcalTPGTPMode") << "    EB strip formatter output: odd + even ";
-  LogDebug("EcalTPGTPMode") << "    Flag EE odd>even strip  " << FenixEEStripInfobit2;
-  LogDebug("EcalTPGTPMode") << "    Flag EB odd>even strip  " << FenixEBStripInfobit2;
+    out << "    EB strip formatter output: odd + even " << std::endl;
+  out << "    Flag EE odd>even strip  " << FenixEEStripInfobit2 << std::endl;
+  out << "    Flag EB odd>even strip  " << FenixEBStripInfobit2 << std::endl;
   if (EBFenixTcpOutput == 0)
-    LogDebug("EcalTPGTPMode") << "    EB tcp formatter output: even filter ";
+    out << "    EB tcp formatter output: even filter " << std::endl;
   if (EBFenixTcpOutput == 1)
-    LogDebug("EcalTPGTPMode") << "    EB tcp formatter output: larger of odd and even ";
+    out << "    EB tcp formatter output: larger of odd and even " << std::endl;
   if (EBFenixTcpOutput == 2)
-    LogDebug("EcalTPGTPMode") << "    EB tcp formatter output: even + odd ";
-  LogDebug("EcalTPGTPMode") << "    Flag EB odd>even TCP  " << EBFenixTcpInfobit1;
+    out << "    EB tcp formatter output: even + odd " << std::endl;
+  out << "    Flag EB odd>even TCP  " << EBFenixTcpInfobit1 << std::endl;
 }

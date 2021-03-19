@@ -1,5 +1,5 @@
-#ifndef EcalTPGTPMode_RCD_h
-#define EcalTPGTPMode_RCD_h
+#ifndef CondFormats_DataRecord_EcalTPGTPModeRcd_h
+#define CondFormats_DataRecord_EcalTPGTPModeRcd_h
 
 //
 // Author:      Davide Valsecchi

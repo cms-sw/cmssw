@@ -14,8 +14,6 @@ public:
   EcalTPGTPMode();
   ~EcalTPGTPMode();
 
-  void Print() const;
-
   bool EnableEBOddFilter;
   bool EnableEEOddFilter;
   bool EnableEBOddPeakFinder;
@@ -35,6 +33,14 @@ public:
   uint16_t FenixPar16;
   uint16_t FenixPar17;
   uint16_t FenixPar18;
+
+  // print parameters to stream:
+  void print(std::ostream&) const;
+  
+  friend std::ostream& operator<<(std::ostream& out, const EcalTPGTPMode& params) {
+    params.print(out);
+    return out;
+  }
 
   COND_SERIALIZABLE;
 };
