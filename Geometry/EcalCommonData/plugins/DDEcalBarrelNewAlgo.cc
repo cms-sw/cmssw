@@ -2983,6 +2983,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                        myrot(mBManifName().name() + "R2", CLHEP::HepRotationX(90 * deg)));
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EBGeomX") << mBManifLog.name() << ":" << (iGr - 1) << " positioned in " << spmName()
+                                      << " at "
                                       << (gTra - DDTranslation(-3 * mBManifOutDiam() / 2. + vecGrilleHeight()[iGr] / 2.,
                                                                manifCut,
                                                                grilleThick() / 2 + 3 * mBManifOutDiam() / 2.))
@@ -3708,7 +3709,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                              CLHEP::HepRotationZ(90 * deg + vecPincerRodAzimuth()[iRod])));
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EBGeomX") << rodLog.name() << ":" << (1 + iRod) << " positioned in " << xilyName << " at "
-                                      << rodTra << " with " << (pincerRodName().name() + std::to_string(iRod));
+                                      << rodTra << " with rotation";
 #endif
         }
       }
