@@ -37,4 +37,3 @@ photonPFIsolationDepositsTask = cms.Task(
     phPFIsoDepositNeutral,
     phPFIsoDepositPU
     )
-photonPFIsolationDepositsSequence = cms.Sequence(photonPFIsolationDepositsTask)
