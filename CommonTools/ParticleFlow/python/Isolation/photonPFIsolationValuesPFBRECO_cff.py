@@ -45,5 +45,4 @@ photonPFIsolationValuesPFBRECOTask = cms.Task(
     phPFIsoValueNeutral04PFIdPFBRECO,
     phPFIsoValuePU04PFIdPFBRECO
     )
-photonPFIsolationValuesPFBRECOSequence = cms.Sequence(photonPFIsolationValuesPFBRECOTask)
 

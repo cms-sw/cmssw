@@ -37,4 +37,3 @@ photonPFIsolationDepositsPFBRECOTask = cms.Task(
     phPFIsoDepositNeutralPFBRECO,
     phPFIsoDepositPUPFBRECO
     )
-photonPFIsolationDepositsPFBRECOSequence = cms.Sequence(photonPFIsolationDepositsPFBRECOTask)
