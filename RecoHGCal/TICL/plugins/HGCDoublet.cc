@@ -118,17 +118,6 @@ int HGCDoublet::areAligned(double xi,
                            << " isWithinLimitsPointing: " << isWithinLimitsPointing << std::endl;
   }
 
-  const GlobalVector originOuter(xo - origin.x(), yo - origin.y(), zo - origin.z());
-  auto dot_pointing_origin = pointingDir.dot(originOuter);
-  auto dot_pointing_origin_sq = dot_pointing_origin * dot_pointing_origin;
-  auto cosTheta_pointing_origin_sq = dot_pointing_origin_sq / (originOuter.mag2() * mag_pointing_sq);
-  if (debug) {
-    LogDebug("HGCDoublet") << "Pointing direction with origin: " << originOuter << std::endl;
-    LogDebug("HGCDoublet") << "-- Are Aligned -- dot_pointing_origin: " << dot_pointing_origin
-                           << " mag_pointing_sq: " << mag_pointing_sq << " originOuter.mag2:" << originOuter.mag2()
-                           << " isWithinLimitsPointing: " << (cosTheta_pointing_origin_sq > minCosPointing_sq) << std::endl;
-  }
-
   return isWithinLimits && isWithinLimitsPointing;
 }
 

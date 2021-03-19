@@ -70,7 +70,6 @@ protected:
   const bool doSimClustersPlots_;
   const bool doLayerClustersPlots_;
   const bool doMultiClustersPlots_;
-  const bool doCPSelForAllMCPlots_;
   std::vector<edm::InputTag> label_clustersmask;
   const edm::FileInPath cummatbudinxo_;
 
