@@ -9,14 +9,17 @@ soup=BeautifulSoup(page.read(),features="lxml")
 seen=dict()
 tables=soup.find_all('table',recursive=True)
 
-header=tables[2].findAll('thead')
-rowheader=header[0].findAll('tr')
-rowheaders=rowheader[0].findAll('td')
-rowheaders[2].append(' (# reports)')
+rowheader=tables[2].find('thead')
+rowheaders=rowheader.find_all('tr')
+htag = soup.new_tag('td')
+htag.string='Num reports'
+htag['class']='Q'
+rowheaders[-1].insert(7,htag)
 
-rows = tables[2].findChildren('tr')
+rowsbody = tables[2].find('tbody')
+rows=rowsbody.find_all('tr')
 for row in rows:
-    cells=row.findChildren('td')
+    cells=row.find_all('td')
     key=str(cells[2])+str(cells[4])+str(cells[5])
     if key in seen.keys():
         seen[key]=seen[key]+1
@@ -31,10 +34,13 @@ for row in rows:
         seen[key]=1
 
 
-rows = tables[2].find('tbody').findChildren('tr')
+rowsbody = tables[2].find('tbody')
+rows=rowsbody.find_all('tr')
 for row in rows:
-    cells=row.findChildren('td')
+    cells=row.find_all('td')
     key=str(cells[2])+str(cells[4])+str(cells[5])
-    if not key==rowheaders[2]:
-        cells[2].append(' ({})'.format(seen[key]))
+    tag = soup.new_tag('td')
+    tag.string='{}'.format(seen[key])
+    tag['class']='Q'
+    row.insert(3,tag)
 print(soup.prettify("latin1"))
