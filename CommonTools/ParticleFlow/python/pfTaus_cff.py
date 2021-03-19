@@ -110,7 +110,6 @@ pfTausBaseTask = cms.Task(
    pfTausDiscriminationByDecayModeFinding ,
    pfTausDiscriminationByIsolation
 )
-pfTausBaseSequence = cms.Sequence(pfTausBaseTask)
 
 # Associate track to pfJets
 pfJetTracksAssociatorAtVertex = ak4PFJetTracksAssociatorAtVertex.clone(
@@ -135,7 +134,6 @@ pfTausPreTask = cms.Task(
     pfTauPileUpVertices ,
     pfTauTagInfoProducer
 )
-pfTausPreSequence = cms.Sequence(pfTausPreTask)
 
 # Select taus from given collection that pass cloned discriminants
 pfTaus = pfTauSelector.clone(

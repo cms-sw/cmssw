@@ -12,5 +12,5 @@ pfType1MET.corrector = 'ak4PFL2L3Corrector'
 pfType1METChainTask = cms.Task( ak4PFL2L3CorrectorChain , pfType1MET )
 pfType1METChain = cms.Sequence( pfType1METChainTask )
 
-pfCorMETTask = cms.Task( pfRawMET , pfType1METChain )
+pfCorMETTask = cms.Task( pfRawMET , pfType1METChainTask )
 pfCorMET = cms.Sequence( pfCorMETTask )

@@ -7,4 +7,3 @@ pfPhotonIsolationTask = cms.Task(
     photonPFIsolationDepositsTask ,
     photonPFIsolationValuesTask
     )
-pfPhotonIsolationSequence = cms.Sequence(pfPhotonIsolationTask)
