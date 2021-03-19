@@ -4,6 +4,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
 
 namespace edm {
   RunPrincipal::RunPrincipal(std::shared_ptr<RunAuxiliary> aux,
@@ -34,12 +35,12 @@ namespace edm {
   }
 
   void RunPrincipal::put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
-    putOrMerge(bd, std::move(edp));
+    put_(bd, std::move(edp));
   }
 
   void RunPrincipal::put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const {
     auto phb = getProductResolverByIndex(index);
-    phb->putOrMergeProduct(std::move(edp));
+    dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(edp));
   }
 
   unsigned int RunPrincipal::transitionIndex_() const { return index().value(); }

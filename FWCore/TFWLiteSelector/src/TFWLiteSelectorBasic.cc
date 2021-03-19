@@ -477,6 +477,7 @@ void TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       if (m_->tree_->GetBranch(prod.branchName().c_str()) == nullptr) {
         prod.setDropped(true);
       }
+      prod.setOnDemand(true);
 
       //std::cout << "id " << it->first << " branch " << it->second << std::endl;
       //m_->pointerToBranchBuffer_.push_back(&(*itB));

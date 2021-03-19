@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/src/ProductDeletedException.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "ProductResolvers.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -166,7 +167,11 @@ namespace edm {
                 addScheduledProduct(cbd);
               }
             } else {
-              addInputProduct(cbd);
+              if (bd.onDemand()) {
+                addDelayedReaderInputProduct(cbd);
+              } else {
+                addPutOnReadInputProduct(cbd);
+              }
             }
           }
         } else {
@@ -333,8 +338,12 @@ namespace edm {
     addProductOrThrow(std::move(phb));
   }
 
-  void Principal::addInputProduct(std::shared_ptr<BranchDescription const> bd) {
-    addProductOrThrow(std::make_unique<InputProductResolver>(std::move(bd)));
+  void Principal::addDelayedReaderInputProduct(std::shared_ptr<BranchDescription const> bd) {
+    addProductOrThrow(std::make_unique<DelayedReaderInputProductResolver>(std::move(bd)));
+  }
+
+  void Principal::addPutOnReadInputProduct(std::shared_ptr<BranchDescription const> bd) {
+    addProductOrThrow(std::make_unique<PutOnReadInputProductResolver>(std::move(bd)));
   }
 
   void Principal::addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd) {
@@ -907,11 +916,11 @@ namespace edm {
     return std::monostate{};
   }
 
-  void Principal::putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* phb) const {
-    phb->putOrMergeProduct(std::move(prod));
+  void Principal::put_(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* phb) const {
+    dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(prod));
   }
 
-  void Principal::putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
+  void Principal::put_(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
     if (edp.get() == nullptr) {
       throw edm::Exception(edm::errors::InsertFailure, "Null Pointer")
           << "put: Cannot put because unique_ptr to product is null."
@@ -920,7 +929,7 @@ namespace edm {
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
     // ProductResolver assumes ownership
-    putOrMerge(std::move(edp), phb);
+    put_(std::move(edp), phb);
   }
 
   void Principal::adjustIndexesAfterProductRegistryAddition() {
@@ -936,7 +945,11 @@ namespace edm {
             // no product holder.  Must add one. The new entry must be an input product holder.
             assert(!bd.produced());
             auto cbd = std::make_shared<BranchDescription const>(bd);
-            addInputProduct(cbd);
+            if (bd.onDemand()) {
+              addDelayedReaderInputProduct(cbd);
+            } else {
+              addPutOnReadInputProduct(cbd);
+            }
             changed = true;
           }
         }

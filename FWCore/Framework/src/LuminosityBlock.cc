@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -92,7 +93,7 @@ namespace edm {
         auto resolver = p.getProductResolverByIndex(index);
         if (not resolver->productResolved() and isEndTransition(provRecorder_.transition()) ==
                                                     resolver->branchDescription().availableOnlyAtEndTransition()) {
-          resolver->putProduct(std::unique_ptr<WrapperBase>());
+          dynamic_cast<ProductPutterBase const*>(resolver)->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
     }
