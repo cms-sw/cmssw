@@ -116,7 +116,7 @@ void PPSTimingCalibrationPCLWorker::dqmAnalyze(const edm::Event& iEvent,
 
 void PPSTimingCalibrationPCLWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("diamondRecHitTag", edm::InputTag("ctppsDiamondRecHits"))
+  desc.add<edm::InputTag>("diamondRecHitTag", edm::InputTag("ctppsDiamondUncalibRecHits"))
       ->setComment("input tag for the PPS diamond detectors rechits");
   desc.add<std::string>("dqmDir", "AlCaReco/PPSTimingCalibrationPCL")
       ->setComment("output path for the various DQM plots");
