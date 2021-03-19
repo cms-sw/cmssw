@@ -50,6 +50,7 @@ class Eras (object):
                  'Phase2C11I13M9',
                  'Phase2C11I13T22M9',
                  'Phase2C11I13T23M9',
+                 'Phase2C11I13T25M9',
                  'Phase2C11I13T26M9'
         ]
 
