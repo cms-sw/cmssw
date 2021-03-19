@@ -16,7 +16,7 @@ genParticlesForMETAllVisible = cms.EDFilter(
     4000012, 9900012, 9900014,
     9900016, 39, 12, 14, 16
     )
-    )                   
+)                   
 
 genMetTrue = cms.EDProducer("GenMETProducer",
     src = cms.InputTag("genParticlesForMETAllVisible"), ## Input  product label       
@@ -27,7 +27,8 @@ genMetTrue = cms.EDProducer("GenMETProducer",
     applyFiducialThresholdForFractions   = cms.bool(False),
 )
 
-genMetTrueSequence = cms.Sequence(
-    genParticlesForMETAllVisible *
+genMetTrueTask = cms.Task(
+    genParticlesForMETAllVisible ,
     genMetTrue
     )
+genMetTrueSequence = cms.Sequence(genMetTrueTask)
