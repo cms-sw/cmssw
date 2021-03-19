@@ -23,16 +23,17 @@ phase2_tracker.toModify(PixelCPEGenericESProducer,
 # customize the Pixel CPE generic producer for phase2 3D pixels
 # Will remove any usage of template / genError payloads from the reconstruction
 from Configuration.Eras.Modifier_phase2_3DPixels_cff import phase2_3DPixels
-(phase2_tracker & phase2_3DPixels).toModify(PixelCPEGenericESProducer,
-                                            UseErrorsFromTemplates = False,    # no GenErrors
-                                            LoadTemplatesFromDB = False,       # do not load templates
-                                            )
+from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
+(phase2_tracker & (phase2_3DPixels & PixelCPEGeneric)).toModify(PixelCPEGenericESProducer,
+                                                                UseErrorsFromTemplates = False,    # no GenErrors
+                                                                LoadTemplatesFromDB = False,       # do not load templates
+                                                                )
 
 # customize the Pixel CPE generic producer for phase2 square pixels
 # Do use Template errors for square pixels even in the first tracking step
 # This is needed because hardcoded errors in https://github.com/cms-sw/cmssw/blob/master/RecoLocalTracker/SiPixelRecHits/src/PixelCPEGeneric.cc#L113
 # have been optimized for rectangular 25x100 pixels, and in the current generic reco setup we use hardcoded errors for the first tracking pass
 from Configuration.Eras.Modifier_phase2_squarePixels_cff import phase2_squarePixels
-(phase2_tracker & phase2_squarePixels).toModify(PixelCPEGenericESProducer,
-                                                NoTemplateErrorsWhenNoTrkAngles = False # use genErrors in the seeding step (when no track angles are available)
-                                                )
+(phase2_tracker & (phase2_squarePixels | phase2_3DPixels)).toModify(PixelCPEGenericESProducer,
+                                                                    NoTemplateErrorsWhenNoTrkAngles = False # use genErrors in the seeding step (when no track angles are available)
+                                                                    )

@@ -1288,14 +1288,14 @@ upgradeProperties[2026] = {
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D80' : {
-        'Geom' : 'Extended2026D80', # N.B.: Geometry with 3D pixels in the Inner Tracker.
+        'Geom' : 'Extended2026D80', # N.B.: Geometry with 3D pixels in the Inner Tracker L1.
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T25',
-        'Era' : 'Phase2C11I13M9', 
+        'Era' : 'Phase2C11I13T25M9', # customized for 3D pixels and Muon M9
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D81' : {
-        'Geom' : 'Extended2026D81', # N.B.: Geometry with 3D pixels and square 50x50 um2 pixels in the Inner Tracker.
+        'Geom' : 'Extended2026D81', # N.B.: Geometry with 3D pixels (TBPX,L1) and square 50x50 um2 pixels (TFPX+TEPX) in the Inner Tracker.
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T26',
         'Era' : 'Phase2C11I13T26M9', # customized for square pixels and Muon M9
