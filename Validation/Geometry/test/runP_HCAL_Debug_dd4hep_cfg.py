@@ -4,6 +4,7 @@ from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
 process = cms.Process('PROD',Run3_dd4hep)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("GeneratorInterface.Core.generatorSmeared_cfi")
@@ -21,18 +22,6 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.MaterialBudget=dict()
 #   process.MessageLogger.MaterialBudgetFull=dict()
 
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Validation/Geometry/data/cmsExtendedGeometryNoMuon2021.xml'),
-                                            appendToDataLabel = cms.string(''))
-process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string(''))
-process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    appendToDataLabel = cms.string(''))
-process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                 appendToDataLabel = cms.string(''))
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff")
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),
