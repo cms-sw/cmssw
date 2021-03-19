@@ -1003,9 +1003,6 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
         if (ihitcount == 1 && ifirst == 0) {
           ifirst = ihitcount;
         }
-        MTDDetId thisId = MTDDetId(hit.recHit()->geographicalId());
-        edm::LogWarning("TrackExtenderWithMTD") << "MTD hit #" << ihitcount << " sub/RR = " << thisId.mtdSubDetector()
-                                                << " " << thisId.mtdRR() << " First = " << ifirst;
         if (MTDDetId(hit.recHit()->geographicalId()).mtdSubDetector() == 2) {
           ietlcount++;
         }
@@ -1024,9 +1021,6 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       const auto& propresult =
           thePropagator->propagateWithPath(ihit1->updatedState(), (ihit1 + 1)->updatedState().surface());
       double etlpathlength = std::abs(propresult.second);
-      edm::LogWarning("TrackExtenderWithMTD")
-          << "Total path = " << pathlength << " ETL path = " << etlpathlength
-          << " hit1 z = " << mtdhit1->globalPosition().z() << " hit2 z = " << mtdhit2->globalPosition().z();
       //
       // The information of the two ETL hits is combined and attributed to the innermost hit
       //
@@ -1034,7 +1028,6 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
         validpropagation = false;
       } else {
         pathlength -= etlpathlength;
-        edm::LogWarning("TrackExtenderWithMTD") << "New total path = " << pathlength << " p = " << p.mag();
         TrackTofPidInfo tofInfo =
             computeTrackTofPidInfo(p.mag2(), etlpathlength, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true);
         //
@@ -1051,15 +1044,15 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
                   mtdhit2->time() / (mtdhit2->timeError() * mtdhit2->timeError())) /
                  thiterror;
           thiterror = 1. / std::sqrt(thiterror);
-          edm::LogWarning("TrackExtenderWithMTD")
-              << "ETL hits times/errors: " << mtdhit1->time() << " +/- " << mtdhit1->timeError() << " , "
-              << mtdhit2->time() << " +/- " << mtdhit2->timeError() << " extrapolated time1: " << tofInfo.dt << " +/- "
-              << tofInfo.dterror << " average = " << thit << " +/- " << thiterror;
+          LogDebug("TrackExtenderWithMTD") << "p trk = " << p.mag() << " ETL hits times/errors: " << mtdhit1->time()
+                                           << " +/- " << mtdhit1->timeError() << " , " << mtdhit2->time() << " +/- "
+                                           << mtdhit2->timeError() << " extrapolated time1: " << tofInfo.dt << " +/- "
+                                           << tofInfo.dterror << " average = " << thit << " +/- " << thiterror;
           validmtd = true;
         }
       }
     } else {
-      edm::LogWarning("TrackExtenderWithMTD")
+      edm::LogInfo("TrackExtenderWithMTD")
           << "MTD hits #" << ihitcount << "ETL hits #" << ietlcount << " anomalous pattern, skipping...";
     }
 
