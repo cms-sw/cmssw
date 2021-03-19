@@ -240,8 +240,15 @@ namespace evf {
                 << " Error creating bu run dir -: " << hltdir << " mkdir error:" << strerror(errno) << "\n";
 
           std::filesystem::copy_file(hltSourceDirectory_ + "/HltConfig.py", tmphltdir + "/HltConfig.py");
-
           std::filesystem::copy_file(hltSourceDirectory_ + "/fffParameters.jsn", tmphltdir + "/fffParameters.jsn");
+
+          std::string optfiles[3] = {"hltinfo", "blacklist", "whitelist"};
+          for (auto& optfile : optfiles) {
+            try {
+              std::filesystem::copy_file(hltSourceDirectory_ + "/" + optfile, tmphltdir + "/" + optfile);
+            } catch (...) {
+            }
+          }
 
           std::filesystem::rename(tmphltdir, hltdir);
         } else
