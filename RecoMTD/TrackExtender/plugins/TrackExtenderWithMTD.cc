@@ -875,6 +875,14 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
 
     fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
   }
+
+  // the ETL hits order must be from the innermost to the outermost
+
+  if (output.size() == 2) {
+    if (std::abs(output[0]->globalPosition().z()) > std::abs(output[1]->globalPosition().z())) {
+      std::reverse(output.begin(), output.end());
+    }
+  }
   return output;
 }
 
