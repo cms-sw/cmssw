@@ -43,6 +43,8 @@ private:
   const EcalClusterLazyTools::ESGetTokens ecalClusterLazyToolsESGetTokens_;
   const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
   const bool EtaOrIeta_;
+  const double multThresEB_;
+  const double multThresEE_;
 };
 
 EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::ParameterSet& config)
@@ -51,7 +53,9 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
       ecalRechitEEToken_(consumes(config.getParameter<edm::InputTag>("ecalRechitEE"))),
       ecalClusterLazyToolsESGetTokens_{consumesCollector()},
       ecalPFRechitThresholdsToken_{esConsumes()},
-      EtaOrIeta_(config.getParameter<bool>("isIeta")) {
+      EtaOrIeta_(config.getParameter<bool>("isIeta")), 
+      multThresEB_(config.getParameter<double>("multThresEB")), 
+      multThresEE_(config.getParameter<double>("multThresEE")){
   //register your products
   produces<reco::RecoEcalCandidateIsolationMap>();
   produces<reco::RecoEcalCandidateIsolationMap>("sigmaIEtaIEta5x5");
@@ -66,6 +70,8 @@ void EgammaHLTClusterShapeProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>(("ecalRechitEB"), edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEB"));
   desc.add<edm::InputTag>(("ecalRechitEE"), edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEE"));
   desc.add<bool>(("isIeta"), true);
+  desc.add<double>(("multThresEB"), EgammaLocalCovParamDefaults::kMultThresEB);
+  desc.add<double>(("multThresEE"), EgammaLocalCovParamDefaults::kMultThresEE);
   descriptions.add(("hltEgammaHLTClusterShapeProducer"), desc);
 }
 
@@ -111,8 +117,8 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
     double sigmaee5x5NoiseCleaned = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()),
                                                                        EgammaLocalCovParamDefaults::kRelEnCut,
                                                                        &thresholds,
-                                                                       EgammaLocalCovParamDefaults::kMultThresEB,
-                                                                       EgammaLocalCovParamDefaults::kMultThresEE)[0]);
+                                                                       multThresEB_,
+                                                                       multThresEE_)[0]);
     clshMap.insert(recoecalcandref, sigmaee);
     clsh5x5Map.insert(recoecalcandref, sigmaee5x5);
     clsh5x5NoiseCleanedMap.insert(recoecalcandref, sigmaee5x5NoiseCleaned);

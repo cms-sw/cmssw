@@ -140,6 +140,8 @@ private:
   std::vector<int> severitiesexclEB_;
   std::vector<int> severitiesexclEE_;
 
+  double multThresEB_;
+  double multThresEE_;
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
@@ -244,6 +246,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
   }
   //
   photonCollection_ = config.getParameter<std::string>("outputPhotonCollection");
+  multThresEB_ = config.getParameter<double>("multThresEB");
+  multThresEE_ = config.getParameter<double>("multThresEE");
   hOverEConeSize_ = config.getParameter<double>("hOverEConeSize");
   highEt_ = config.getParameter<double>("highEt");
   // R9 value to decide converted/unconverted
@@ -621,8 +625,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
                                                                     topology,
                                                                     EgammaLocalCovParamDefaults::kRelEnCut,
                                                                     &thresholds,
-                                                                    EgammaLocalCovParamDefaults::kMultThresEB,
-                                                                    EgammaLocalCovParamDefaults::kMultThresEE)
+                                                                    multThresEB_,
+                                                                    multThresEE_)
                          : std::vector<float>({0.f, 0.f, 0.f}));
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);

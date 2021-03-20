@@ -146,6 +146,10 @@ public:
 
     // only make sense for ecal driven electrons
     bool seedFromTEC;
+
+    // noise cleaning
+    double multThresEB;
+    double multThresEE;
   };
 
   // Ecal rec hits
