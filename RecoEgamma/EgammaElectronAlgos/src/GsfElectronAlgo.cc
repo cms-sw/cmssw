@@ -295,6 +295,7 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
                                                                      CaloTopology const& topology,
                                                                      CaloGeometry const& geometry,
                                                                      EcalPFRecHitThresholds const& thresholds) const {
+
   using ClusterTools = EcalClusterToolsT<full5x5>;
   reco::GsfElectron::ShowerShape showerShape;
 
@@ -326,8 +327,8 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
                                                                              &topology,
                                                                              EgammaLocalCovParamDefaults::kRelEnCut,
                                                                              &thresholds,
-                                                                             EgammaLocalCovParamDefaults::kMultThresEB,
-                                                                             EgammaLocalCovParamDefaults::kMultThresEE)
+                                                                             cfg_.cuts.multThresEB,
+                                                                             cfg_.cuts.multThresEE)
                                             : ClusterTools::localCovariances(seedCluster, recHits, &topology);
 
   showerShape.sigmaEtaEta = sqrt(covariances[0]);
