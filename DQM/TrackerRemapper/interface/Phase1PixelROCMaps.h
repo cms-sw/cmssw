@@ -62,10 +62,11 @@ public:
 
   void printCoordinates() {
     if (this->isBarrel()) {
-      std::cout << "layer: " << m_layer << " ladder: " << m_s_ladder << " module: " << m_s_module << std::endl;
+      edm::LogPrint("DetCoordinates") << "layer: " << m_layer << " ladder: " << m_s_ladder << " module: " << m_s_module
+                                      << std::endl;
     } else {
-      std::cout << "ring: " << m_ring << " blade: " << m_s_blade << " panel: " << m_panel << " disk: " << m_s_disk
-                << std::endl;
+      edm::LogPrint("DetCoordinates") << "ring: " << m_ring << " blade: " << m_s_blade << " panel: " << m_panel
+                                      << " disk: " << m_s_disk << std::endl;
     }
   }
 
@@ -86,21 +87,21 @@ public:
     // barrel
     for (unsigned int lay = 1; lay <= n_layers; lay++) {
       int nlad = nlad_list[lay - 1];
-
       std::string name = "occ_Layer_" + std::to_string(lay);
       std::string title = "; Module # ; Ladder #";
+
       h_bpix_maps[lay - 1] = new TH2D(
-          name.c_str(), title.c_str(), 72 * divide_roc, -4.5, 4.5, (nlad * 4 + 2) * divide_roc, -nlad - 0.5, nlad + 0.5);
+          name.c_str(), title.c_str(), 72, -n_layers - 0.5, n_layers + 0.5, (nlad * 4 + 2), -nlad - 0.5, nlad + 0.5);
     }
 
     // endcaps
     for (unsigned int ring = 1; ring <= n_rings; ring++) {
-      int n = ring == 1 ? 92 : 140;
-      float y = ring == 1 ? 11.5 : 17.5;
+      int n = nybins_list[ring - 1];
+      float y = nxbins_list[ring - 1] + 0.5;
       std::string name = "occ_ring_" + std::to_string(ring);
       std::string title = "; Disk # ; Blade/Panel #";
 
-      h_fpix_maps[ring - 1] = new TH2D(name.c_str(), title.c_str(), 56 * divide_roc, -3.5, 3.5, n * divide_roc, -y, y);
+      h_fpix_maps[ring - 1] = new TH2D(name.c_str(), title.c_str(), 56, -n_rings - 0.5, n_rings + 0.5, n, -y, y);
     }
   }
 
@@ -127,10 +128,15 @@ private:
   static constexpr int n_layers = 4;
 
   const int nlad_list[n_layers] = {6, 14, 22, 32};
-  const int divide_roc = 1;
+  const int nybins_list[n_rings] = {92, 140};
+  const int nxbins_list[n_rings] = {11, 17};
 
+  // maps
   std::array<TH2D*, n_layers> h_bpix_maps;
   std::array<TH2D*, n_rings> h_fpix_maps;
+
+  // options
+  static constexpr const char* kVerbose = "verbose";
 
   // Forward declarations of private methods
 

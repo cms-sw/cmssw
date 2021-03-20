@@ -36,7 +36,9 @@ DetCoordinates Phase1PixelROCMaps::findDetCoordinates(const uint32_t& t_detid)
     throw cms::Exception("LogicError") << "Unknown Pixel SubDet ID " << std::endl;
   }
 
-  //coord.printCoordinates();
+  if (std::strcmp(m_option, kVerbose) == 0) {
+    coord.printCoordinates();
+  }
 
   return coord;
 }
@@ -47,8 +49,6 @@ modBins Phase1PixelROCMaps::maskedBarrelRocsToBins(DetCoordinates coord)
 /*--------------------------------------------------------------------*/
 {
   modBins rocsToMask;
-
-  //int nlad_list[4] = {6, 14, 22, 32};
   int nlad = nlad_list[coord.m_layer - 1];
 
   int start_x = coord.m_s_module > 0 ? ((coord.m_s_module + 4) * 8) + 1 : ((4 - (std::abs(coord.m_s_module))) * 8) + 1;
@@ -74,8 +74,6 @@ rocBins Phase1PixelROCMaps::maskedBarrelRocsToBins(DetCoordinates coord, std::bi
 /*--------------------------------------------------------------------*/
 {
   rocBins rocsToMask;
-
-  //int nlad_list[4] = {6, 14, 22, 32};
   int nlad = nlad_list[coord.m_layer - 1];
 
   int start_x = coord.m_s_module > 0 ? ((coord.m_s_module + 4) * 8) + 1 : ((4 - (std::abs(coord.m_s_module))) * 8) + 1;
@@ -143,7 +141,6 @@ modBins Phase1PixelROCMaps::maskedForwardRocsToBins(DetCoordinates coord)
 /*--------------------------------------------------------------------*/
 {
   modBins rocsToMask;
-  int nybins_list[2] = {92, 140};
   int nybins = nybins_list[coord.m_ring - 1];
 
   int start_x = coord.m_s_disk > 0 ? ((coord.m_s_disk + 3) * 8) + 1 : ((3 - (std::abs(coord.m_s_disk))) * 8) + 1;
@@ -169,7 +166,6 @@ rocBins Phase1PixelROCMaps::maskedForwardRocsToBins(DetCoordinates coord, std::b
 /*--------------------------------------------------------------------*/
 {
   rocBins rocsToMask;
-  int nybins_list[2] = {92, 140};
   int nybins = nybins_list[coord.m_ring - 1];
 
   int start_x = coord.m_s_disk > 0 ? ((coord.m_s_disk + 3) * 8) + 1 : ((3 - (std::abs(coord.m_s_disk))) * 8) + 1;
