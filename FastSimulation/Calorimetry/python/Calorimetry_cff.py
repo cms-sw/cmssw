@@ -263,13 +263,13 @@ FamosCalorimetryBlock = cms.PSet(
             timeShiftHF = cms.vdouble(50.7, 52.5, 52.9, 53.9, 54.5, 55.1, 55.1, 55.7, 55.9, 56.1, 56.1, 56.1, 56.5),
             ),
         HFShower           = cms.PSet(
-            HFShowerBlock     = HFShowerBlock
+            HFShowerBlock  = cms.PSet(refToPSet_ = cms.string("HFShowerBlock"))
             ),
         HFShowerLibrary    = cms.PSet(
             useShowerLibrary = cms.untracked.bool(True),
             useCorrectionSL  = cms.untracked.bool(True),
             ApplyFiducialCut = cms.bool(True),
-            HFLibraryFileBlock    = HFLibraryFileBlock
+            HFLibraryFileBlock = cms.PSet(refToPSet_ = cms.string("HFLibraryFileBlock"))
             )
         ),
     GFlash = cms.PSet(
