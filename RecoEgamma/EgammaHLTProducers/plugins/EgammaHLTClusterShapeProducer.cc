@@ -53,9 +53,9 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
       ecalRechitEEToken_(consumes(config.getParameter<edm::InputTag>("ecalRechitEE"))),
       ecalClusterLazyToolsESGetTokens_{consumesCollector()},
       ecalPFRechitThresholdsToken_{esConsumes()},
-      EtaOrIeta_(config.getParameter<bool>("isIeta")), 
-      multThresEB_(config.getParameter<double>("multThresEB")), 
-      multThresEE_(config.getParameter<double>("multThresEE")){
+      EtaOrIeta_(config.getParameter<bool>("isIeta")),
+      multThresEB_(config.getParameter<double>("multThresEB")),
+      multThresEE_(config.getParameter<double>("multThresEE")) {
   //register your products
   produces<reco::RecoEcalCandidateIsolationMap>();
   produces<reco::RecoEcalCandidateIsolationMap>("sigmaIEtaIEta5x5");

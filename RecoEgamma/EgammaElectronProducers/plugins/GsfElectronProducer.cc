@@ -21,7 +21,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
-#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h" 
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 
 using namespace reco;
 
