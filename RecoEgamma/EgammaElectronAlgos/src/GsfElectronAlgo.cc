@@ -295,7 +295,6 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
                                                                      CaloTopology const& topology,
                                                                      CaloGeometry const& geometry,
                                                                      EcalPFRecHitThresholds const& thresholds) const {
-
   using ClusterTools = EcalClusterToolsT<full5x5>;
   reco::GsfElectron::ShowerShape showerShape;
 
@@ -321,15 +320,14 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
 
   // do noise-cleaning for full5x5, by passing per crystal PF recHit thresholds and mult values
   // mult values for EB and EE were obtained by dedicated studies
-  std::vector<float> localCovariances = full5x5
-                                            ? ClusterTools::localCovariances(seedCluster,
-                                                                             recHits,
-                                                                             &topology,
-                                                                             EgammaLocalCovParamDefaults::kRelEnCut,
-                                                                             &thresholds,
-                                                                             cfg_.cuts.multThresEB,
-                                                                             cfg_.cuts.multThresEE)
-                                            : ClusterTools::localCovariances(seedCluster, recHits, &topology);
+  std::vector<float> localCovariances = full5x5 ? ClusterTools::localCovariances(seedCluster,
+                                                                                 recHits,
+                                                                                 &topology,
+                                                                                 EgammaLocalCovParamDefaults::kRelEnCut,
+                                                                                 &thresholds,
+                                                                                 cfg_.cuts.multThresEB,
+                                                                                 cfg_.cuts.multThresEE)
+                                                : ClusterTools::localCovariances(seedCluster, recHits, &topology);
 
   showerShape.sigmaEtaEta = sqrt(covariances[0]);
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]);
