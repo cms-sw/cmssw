@@ -1,7 +1,7 @@
-#ifndef DataFormats_L1TrackTrigger_L1TrackTruthPair_h
-#define DataFormats_L1TrackTrigger_L1TrackTruthPair_h
+#ifndef SimDataFormats_Associations_L1TrackTruthPair_h
+#define SimDataFormats_Associations_L1TrackTruthPair_h
 
-#include "DataFormats/L1TrackTrigger/interface/TTTrackTruthPair.h"
+#include "SimDataFormats/Associations/interface/TTTrackTruthPair.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include <vector>
 
