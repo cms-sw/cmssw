@@ -399,8 +399,8 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,
         closest = &m;
       }
     }
-    
-    if(!closest) 
+
+    if (!closest)
       return;
 
     rechitpro.bunch = closest->eventId().bunchCrossing();
