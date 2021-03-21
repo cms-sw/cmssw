@@ -8,19 +8,10 @@
  */
 
 #include "HLTrigger/HLTcore/interface/HLTPrescaleRecorder.h"
-
-#include "CondFormats/HLTObjects/interface/HLTPrescaleTableCond.h"
-#include "CondFormats/DataRecord/interface/HLTPrescaleTableRcd.h"
-
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PrescaleService/interface/PrescaleService.h"
-
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include <sys/time.h>
 #include <string>
@@ -43,10 +34,10 @@ HLTPrescaleRecorder::HLTPrescaleRecorder(const edm::ParameterSet& ps)
       hltInputTag_(ps.getParameter<InputTag>("hltInputTag")),
       hltInputToken_(),
       hltDBTag_(ps.getParameter<string>("hltDBTag")),
+      hltPrescaleTableCondToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", hltDBTag_))),
       ps_(nullptr),
       db_(nullptr),
       hltHandle_(),
-      hltESHandle_(),
       hlt_() {
   if (src_ == 1) {
     // Run
@@ -155,9 +146,8 @@ void HLTPrescaleRecorder::beginRun(edm::Run const& iRun, const edm::EventSetup& 
     }
   } else if (src_ == 4) {
     /// From CondDB (needs ESProducer module as well)
-    const HLTPrescaleTableRcd& hltRecord(iSetup.get<HLTPrescaleTableRcd>());
-    hltRecord.get(hltDBTag_, hltESHandle_);
-    hlt_ = hltESHandle_->hltPrescaleTable();
+    auto const& hltPrescaleTableCond = iSetup.getData(hltPrescaleTableCondToken_);
+    hlt_ = hltPrescaleTableCond.hltPrescaleTable();
   }
 
   return;
