@@ -87,7 +87,7 @@
       materials:Copper, materials:Copper, materials:Air</Vector>
     <Vector name="VolumeNames" type="string" nEntries="6">
       HGCalHEAbsorber1, HGCalHEAbsorber2, HGCalHEAirGap1, HGCalHECopperCover, 
-      HGCalHECoolingPlate, HGCalHESiliconModule</Vector>
+      HGCalHECoolingPlate, HGCalHESiliconLayer</Vector>
     <Vector name="Thickness" type="numeric" nEntries="6">
       40.0*mm, 35.0*mm, 3.7*mm, 1.1*mm, 6.1*mm, 8.6*mm
     </Vector>
