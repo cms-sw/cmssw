@@ -1131,8 +1131,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       if ((dy <= 0.5 * hexside_) || (dx * tan30deg_ <= (hexside_ - dy))) {
         waferU = HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]);
         waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]);
-        if ((mode_ == HGCalGeometryMode::Hexagon8File) ||
-	    (mode_ == HGCalGeometryMode::Hexagon8Module)) {
+        if ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module)) {
           int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
           celltype = HGCalWaferType::getType(index, hgpar_->waferInfoMap_);
         } else {
