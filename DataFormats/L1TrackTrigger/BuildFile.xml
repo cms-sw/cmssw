@@ -7,7 +7,6 @@
 <use name="DataFormats/TrackerCommon"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
-<use name="SimDataFormats/TrackingAnalysis"/>
 <export>
   <lib name="1"/>
 </export>

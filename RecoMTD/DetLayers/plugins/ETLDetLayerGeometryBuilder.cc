@@ -66,7 +66,10 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
       }
     }
   }
-  pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]);
+  //
+  // the first entry is Z+ ( MTD side 1), the second is Z- (MTD side 0)
+  //
+  pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[1], result[0]);
   return res_pair;
 }
 

@@ -446,7 +446,7 @@ inline int GEMDQMBase::getVFATNumberGE11(const int station, const int ieta, cons
 }
 
 inline int GEMDQMBase::getVFATNumberByStrip(const int station, const int ieta, const int strip) {
-  const int vfat_phi = (strip % GEMeMap::maxChan_) ? strip / GEMeMap::maxChan_ + 1 : strip / GEMeMap::maxChan_;
+  const int vfat_phi = (strip % GEMeMap::maxChan_) ? strip / GEMeMap::maxChan_ : strip / GEMeMap::maxChan_ - 1;
   return getVFATNumber(station, ieta, vfat_phi);
 }
 

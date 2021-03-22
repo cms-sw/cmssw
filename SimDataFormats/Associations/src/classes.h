@@ -9,6 +9,7 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TTTrackTruthPair.h"
 
 namespace SimDataFormats_Associations {
   struct SimDataFormats_Associations {

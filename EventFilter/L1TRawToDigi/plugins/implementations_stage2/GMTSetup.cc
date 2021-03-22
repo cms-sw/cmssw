@@ -44,7 +44,7 @@ namespace l1t {
         auto gmt_in_packer = static_pointer_cast<l1t::stage2::RegionalMuonGMTPacker>(
             PackerFactory::get()->make("stage2::RegionalMuonGMTPacker"));
         if (fw >= 0x6000000) {
-          gmt_in_packer->setKalmanAlgoTrue();
+          gmt_in_packer->setIsRun3();
         }
         auto gmt_out_packer =
             static_pointer_cast<l1t::stage2::GMTMuonPacker>(PackerFactory::get()->make("stage2::GMTMuonPacker"));
@@ -87,7 +87,7 @@ namespace l1t {
       auto gmt_in_unp = static_pointer_cast<l1t::stage2::RegionalMuonGMTUnpacker>(
           UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker"));
       if (fw >= 0x6000000) {
-        gmt_in_unp->setKalmanAlgoTrue();
+        gmt_in_unp->setIsRun3();
       }
 
       for (int iLink = 72; iLink < 144; iLink += 2) {
