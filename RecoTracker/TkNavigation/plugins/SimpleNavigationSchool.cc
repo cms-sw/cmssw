@@ -82,19 +82,22 @@ void SimpleNavigationSchool::linkBarrelLayers(SymmetricLayerFinder& symFinder) {
     FDLC leftFL;
     FDLC rightFL;
 
-    // always add next barrel layer first
-    if (i + 1 != theBarrelLayers.end())
-      reachableBL.push_back(*(i + 1));
+
+    //always add next barrel layer first
+    if (i + 1 != theBarrelLayers.end())	{
+      reachableBL.push_back(*(i + 1));		   
+    }
 
     // Add closest reachable forward layer (except for last BarrelLayer)
     if (i != theBarrelLayers.end() - 1) {
-      linkNextForwardLayer(*i, rightFL);
+      linkNextForwardLayer(*i, rightFL);		   
     }
 
     // Add next BarrelLayer with length larger than the current BL
     if (i + 2 < theBarrelLayers.end()) {
-      linkNextLargerLayer(i, theBarrelLayers.end(), reachableBL);
-    }
+      linkNextLargerLayer(i, theBarrelLayers.end(), reachableBL);	
+    }		  
+
 
     theBarrelNLC.push_back(
         new SimpleBarrelNavigableLayer(*i, reachableBL, symFinder.mirror(rightFL), rightFL, theField, 5.));

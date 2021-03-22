@@ -1,6 +1,6 @@
 //#define EDM_ML_DEBUG
 
-#include "ETLDetLayerGeometryBuilder.h"
+#include "RecoMTD/DetLayers/interface/ETLDetLayerGeometryBuilder.h"
 
 #include <RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h>
 #include <RecoMTD/DetLayers/interface/MTDDetRing.h>
@@ -66,9 +66,6 @@ pair<vector<DetLayer*>, vector<DetLayer*> > ETLDetLayerGeometryBuilder::buildLay
       }
     }
   }
-  //
-  // the first entry is Z+ ( MTD side 1), the second is Z- (MTD side 0)
-  //
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[1], result[0]);
   return res_pair;
 }
