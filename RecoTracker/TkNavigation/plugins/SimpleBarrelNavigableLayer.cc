@@ -50,6 +50,7 @@ SimpleBarrelNavigableLayer::SimpleBarrelNavigableLayer(const BarrelDetLayer* det
   sort(theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), TkLayerLess());
   sort(theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), TkLayerLess());
   sort(theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), TkLayerLess());
+
 }
 
 vector<const DetLayer*> SimpleBarrelNavigableLayer::nextLayers(NavigationDirection dir) const {
