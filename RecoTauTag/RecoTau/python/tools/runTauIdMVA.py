@@ -125,8 +125,8 @@ class TauIDEmbedder(object):
             )
 
     def runTauID(self):
-        setattr(self.process,"rerunMvaIsolationTask"+self.postfix,self.cms.Task())
-        setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,self.cms.Sequence())
+        _rerunMvaIsolationTask = self.cms.Task()
+        _rerunMvaIsolationSequence = self.cms.Sequence()
         tauIDSources = self.cms.PSet()
 
         # rerun the seq to obtain the 2017 nom training with 0.5 iso cone, old DM, ptph>1, trained on 2017MCv1
@@ -151,20 +151,22 @@ class TauIDEmbedder(object):
                 if self.debug: print ("runTauID: not is_above_cmssw_version(9, 4, 4). Will update the list of available in DB samples to access 2017v1")
                 self.loadMVA_WPs_run2_2017()
 
-            setattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v1raw"+self.postfix,patDiscriminationByIsolationMVArun2v1raw.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationOldDMMVArun2017v1raw = "rerunDiscriminationByIsolationOldDMMVArun2017v1raw"+self.postfix
+            setattr(self.process,_byIsolationOldDMMVArun2017v1raw,patDiscriminationByIsolationMVArun2v1raw.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
                 loadMVAfromDB = self.cms.bool(True),
-                mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
+                mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1"),
                 mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
                 verbosity = self.cms.int32(0)
             ))
 
-            setattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v1VLoose"+self.postfix,patDiscriminationByIsolationMVArun2v1VLoose.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationOldDMMVArun2017v1VLoose = "rerunDiscriminationByIsolationOldDMMVArun2017v1VLoose"+self.postfix
+            setattr(self.process,_byIsolationOldDMMVArun2017v1VLoose,patDiscriminationByIsolationMVArun2v1VLoose.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
-                toMultiplex = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1raw'+self.postfix),
-                key = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1raw'+self.postfix+':category'),#?
+                toMultiplex = _byIsolationOldDMMVArun2017v1raw,
+                key = _byIsolationOldDMMVArun2017v1raw+':category',
                 loadMVAfromDB = self.cms.bool(True),
                 mvaOutput_normalization = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization"), #writeTauIdDiscrMVAoutputNormalizations
                 mapping = self.cms.VPSet(
@@ -175,6 +177,14 @@ class TauIDEmbedder(object):
                     )
                 )
             ))
+            _byIsolationOldDMMVArun2017v1VLooseProd = getattr(self.process,_byIsolationOldDMMVArun2017v1VLoose)
+
+            _rerunIsolationOldDMMVArun2017v1Task = self.cms.Task(
+                getattr(self.process,_byIsolationOldDMMVArun2017v1raw),
+                _byIsolationOldDMMVArun2017v1VLooseProd
+            )
+            tauIDSources.byIsolationMVArun2017v1DBoldDMwLTraw2017 = self.cms.InputTag(_byIsolationOldDMMVArun2017v1raw)
+            tauIDSources.byVLooseIsolationMVArun2017v1DBoldDMwLT2017 = self.cms.InputTag(_byIsolationOldDMMVArun2017v1VLoose)
 
             wp_to_eff_match = {
                 "VVLoose" : "WPEff95",
@@ -185,27 +195,16 @@ class TauIDEmbedder(object):
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            self.rerunIsolationOldDMMVArun2017v1Task = self.cms.Task(
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v1raw"+self.postfix),
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v1VLoose"+self.postfix)
-            )
             for wp in ["VVLoose","Loose","Medium","Tight","VTight","VVTight"]:
-                setattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v1"+wp+self.postfix,getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v1VLoose"+self.postfix).clone())
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v1"+wp+self.postfix).mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_"+wp_to_eff_match[wp])
-                self.rerunIsolationOldDMMVArun2017v1Task.add(getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v1"+wp+self.postfix))
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(self.rerunIsolationOldDMMVArun2017v1Task)
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + self.cms.Sequence(self.rerunIsolationOldDMMVArun2017v1Task))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+                _aWP = "rerunDiscriminationByIsolationOldDMMVArun2017v1"+wp+self.postfix
+                setattr(self.process,_aWP,_byIsolationOldDMMVArun2017v1VLooseProd.clone())
+                _aWPProd = getattr(self.process,_aWP)
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_"+wp_to_eff_match[wp])
+                _rerunIsolationOldDMMVArun2017v1Task.add(_aWPProd)
+                setattr(tauIDSources,"by"+wp+"IsolationMVArun2017v1DBoldDMwLT2017",self.cms.InputTag(_aWP))
 
-            tauIDSources.byIsolationMVArun2017v1DBoldDMwLTraw2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1raw'+self.postfix)
-            tauIDSources.byVVLooseIsolationMVArun2017v1DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1VVLoose'+self.postfix)
-            tauIDSources.byVLooseIsolationMVArun2017v1DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1VLoose'+self.postfix)
-            tauIDSources.byLooseIsolationMVArun2017v1DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1Loose'+self.postfix)
-            tauIDSources.byMediumIsolationMVArun2017v1DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1Medium'+self.postfix)
-            tauIDSources.byTightIsolationMVArun2017v1DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1Tight'+self.postfix)
-            tauIDSources.byVTightIsolationMVArun2017v1DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1VTight'+self.postfix)
-            tauIDSources.byVVTightIsolationMVArun2017v1DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1VVTight'+self.postfix)
-
+            _rerunMvaIsolationTask.add(_rerunIsolationOldDMMVArun2017v1Task)
+            _rerunMvaIsolationSequence += self.cms.Sequence(_rerunIsolationOldDMMVArun2017v1Task)
 
         if "2017v2" in self.toKeep:
             self.tauIdDiscrMVA_2017_version = "v2"
@@ -228,20 +227,22 @@ class TauIDEmbedder(object):
                 if self.debug: print ("runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access 2017v2")
                 self.loadMVA_WPs_run2_2017()
 
-            setattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v2raw"+self.postfix,patDiscriminationByIsolationMVArun2v1raw.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationOldDMMVArun2017v2raw = "rerunDiscriminationByIsolationOldDMMVArun2017v2raw"+self.postfix
+            setattr(self.process,_byIsolationOldDMMVArun2017v2raw,patDiscriminationByIsolationMVArun2v1raw.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
                 loadMVAfromDB = self.cms.bool(True),
-                mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
+                mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2"),
                 mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
                 verbosity = self.cms.int32(0)
             ))
 
-            setattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v2VLoose"+self.postfix,patDiscriminationByIsolationMVArun2v1VLoose.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationOldDMMVArun2017v2VLoose = "rerunDiscriminationByIsolationOldDMMVArun2017v2VLoose"+self.postfix
+            setattr(self.process,_byIsolationOldDMMVArun2017v2VLoose,patDiscriminationByIsolationMVArun2v1VLoose.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
-                toMultiplex = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2raw'+self.postfix),
-                key = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2raw'+self.postfix+':category'),#?
+                toMultiplex = _byIsolationOldDMMVArun2017v2raw,
+                key = _byIsolationOldDMMVArun2017v2raw+':category',
                 loadMVAfromDB = self.cms.bool(True),
                 mvaOutput_normalization = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_mvaOutput_normalization"), #writeTauIdDiscrMVAoutputNormalizations
                 mapping = self.cms.VPSet(
@@ -253,6 +254,14 @@ class TauIDEmbedder(object):
                 ),
                 verbosity = self.cms.int32(0)
             ))
+            _byIsolationOldDMMVArun2017v2VLooseProd = getattr(self.process,_byIsolationOldDMMVArun2017v2VLoose)
+
+            _rerunIsolationOldDMMVArun2017v2Task = self.cms.Task(
+                getattr(self.process,_byIsolationOldDMMVArun2017v2raw),
+                _byIsolationOldDMMVArun2017v2VLooseProd
+            )
+            tauIDSources.byIsolationMVArun2017v2DBoldDMwLTraw2017 = self.cms.InputTag(_byIsolationOldDMMVArun2017v2raw)
+            tauIDSources.byVLooseIsolationMVArun2017v2DBoldDMwLT2017 = self.cms.InputTag(_byIsolationOldDMMVArun2017v2VLoose)
 
             wp_to_eff_match = {
                 "VVLoose" : "WPEff95",
@@ -263,26 +272,16 @@ class TauIDEmbedder(object):
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            self.rerunIsolationOldDMMVArun2017v2Task = self.cms.Task(
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v2raw"+self.postfix),
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v2VLoose"+self.postfix)
-            )
             for wp in ["VVLoose","Loose","Medium","Tight","VTight","VVTight"]:
-                setattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v2"+wp+self.postfix,getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v2VLoose"+self.postfix).clone())
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v2"+wp+self.postfix).mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_"+wp_to_eff_match[wp])
-                self.rerunIsolationOldDMMVArun2017v2Task.add(getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2017v2"+wp+self.postfix))
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(self.rerunIsolationOldDMMVArun2017v2Task)
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + self.cms.Sequence(self.rerunIsolationOldDMMVArun2017v2Task))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+                _aWP = "rerunDiscriminationByIsolationOldDMMVArun2017v2"+wp+self.postfix
+                setattr(self.process,_aWP,_byIsolationOldDMMVArun2017v2VLooseProd.clone())
+                _aWPProd = getattr(self.process,_aWP)
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_"+wp_to_eff_match[wp])
+                _rerunIsolationOldDMMVArun2017v2Task.add(_aWPProd)
+                setattr(tauIDSources,"by"+wp+"IsolationMVArun2017v2DBoldDMwLT2017",self.cms.InputTag(_aWP))
 
-            tauIDSources.byIsolationMVArun2017v2DBoldDMwLTraw2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2raw'+self.postfix)
-            tauIDSources.byVVLooseIsolationMVArun2017v2DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2VVLoose'+self.postfix)
-            tauIDSources.byVLooseIsolationMVArun2017v2DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2VLoose'+self.postfix)
-            tauIDSources.byLooseIsolationMVArun2017v2DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2Loose'+self.postfix)
-            tauIDSources.byMediumIsolationMVArun2017v2DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2Medium'+self.postfix)
-            tauIDSources.byTightIsolationMVArun2017v2DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2Tight'+self.postfix)
-            tauIDSources.byVTightIsolationMVArun2017v2DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2VTight'+self.postfix)
-            tauIDSources.byVVTightIsolationMVArun2017v2DBoldDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v2VVTight'+self.postfix)
+            _rerunMvaIsolationTask.add(_rerunIsolationOldDMMVArun2017v2Task)
+            _rerunMvaIsolationSequence += self.cms.Sequence(_rerunIsolationOldDMMVArun2017v2Task)
 
         if "newDM2017v2" in self.toKeep:
             self.tauIdDiscrMVA_2017_version = "v2"
@@ -305,20 +304,22 @@ class TauIDEmbedder(object):
                 if self.debug: print ("runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access newDM2017v2")
                 self.loadMVA_WPs_run2_2017()
 
-            setattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2017v2raw"+self.postfix,patDiscriminationByIsolationMVArun2v1raw.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationNewDMMVArun2017v2raw = "rerunDiscriminationByIsolationNewDMMVArun2017v2raw"+self.postfix
+            setattr(self.process,_byIsolationNewDMMVArun2017v2raw,patDiscriminationByIsolationMVArun2v1raw.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
                 loadMVAfromDB = self.cms.bool(True),
-                mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
+                mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2"),
                 mvaOpt = self.cms.string("DBnewDMwLTwGJ"),
                 verbosity = self.cms.int32(0)
             ))
 
-            setattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2017v2VLoose"+self.postfix,patDiscriminationByIsolationMVArun2v1VLoose.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationNewDMMVArun2017v2VLoose = "rerunDiscriminationByIsolationNewDMMVArun2017v2VLoose"+self.postfix
+            setattr(self.process,_byIsolationNewDMMVArun2017v2VLoose,patDiscriminationByIsolationMVArun2v1VLoose.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
-                toMultiplex = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2raw'+self.postfix),
-                key = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2raw'+self.postfix+':category'),#?
+                toMultiplex = _byIsolationNewDMMVArun2017v2raw,
+                key = _byIsolationNewDMMVArun2017v2raw+':category',
                 loadMVAfromDB = self.cms.bool(True),
                 mvaOutput_normalization = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_mvaOutput_normalization"), #writeTauIdDiscrMVAoutputNormalizations
                 mapping = self.cms.VPSet(
@@ -330,6 +331,14 @@ class TauIDEmbedder(object):
                 ),
                 verbosity = self.cms.int32(0)
             ))
+            _byIsolationNewDMMVArun2017v2VLooseProd = getattr(self.process,_byIsolationNewDMMVArun2017v2VLoose)
+
+            _rerunIsolationNewDMMVArun2017v2Task = self.cms.Task(
+                getattr(self.process,_byIsolationNewDMMVArun2017v2raw),
+                _byIsolationNewDMMVArun2017v2VLooseProd
+            )
+            tauIDSources.byIsolationMVArun2017v2DBnewDMwLTraw2017 = self.cms.InputTag(_byIsolationNewDMMVArun2017v2raw)
+            tauIDSources.byVLooseIsolationMVArun2017v2DBnewDMwLT2017 = self.cms.InputTag(_byIsolationNewDMMVArun2017v2VLoose)
 
             wp_to_eff_match = {
                 "VVLoose" : "WPEff95",
@@ -340,26 +349,16 @@ class TauIDEmbedder(object):
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            self.rerunIsolationNewDMMVArun2017v2Task = self.cms.Task(
-                getattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2017v2raw"+self.postfix),
-                getattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2017v2VLoose"+self.postfix)
-            )
             for wp in ["VVLoose","Loose","Medium","Tight","VTight","VVTight"]:
-                setattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2017v2"+wp+self.postfix,getattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2017v2VLoose"+self.postfix).clone())
-                getattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2017v2"+wp+self.postfix).mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_"+wp_to_eff_match[wp])
-                self.rerunIsolationNewDMMVArun2017v2Task.add(getattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2017v2"+wp+self.postfix))
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(self.rerunIsolationNewDMMVArun2017v2Task)
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + self.cms.Sequence(self.rerunIsolationNewDMMVArun2017v2Task))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+                _aWP = "rerunDiscriminationByIsolationNewDMMVArun2017v2"+wp+self.postfix
+                setattr(self.process,_aWP,_byIsolationNewDMMVArun2017v2VLooseProd.clone())
+                _aWPProd = getattr(self.process,_aWP)
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_"+wp_to_eff_match[wp])
+                _rerunIsolationNewDMMVArun2017v2Task.add(_aWPProd)
+                setattr(tauIDSources,"by"+wp+"IsolationMVArun2017v2DBnewDMwLT2017",self.cms.InputTag(_aWP))
 
-            tauIDSources.byIsolationMVArun2017v2DBnewDMwLTraw2017 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2raw'+self.postfix)
-            tauIDSources.byVVLooseIsolationMVArun2017v2DBnewDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2VVLoose'+self.postfix)
-            tauIDSources.byVLooseIsolationMVArun2017v2DBnewDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2VLoose'+self.postfix)
-            tauIDSources.byLooseIsolationMVArun2017v2DBnewDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2Loose'+self.postfix)
-            tauIDSources.byMediumIsolationMVArun2017v2DBnewDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2Medium'+self.postfix)
-            tauIDSources.byTightIsolationMVArun2017v2DBnewDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2Tight'+self.postfix)
-            tauIDSources.byVTightIsolationMVArun2017v2DBnewDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2VTight'+self.postfix)
-            tauIDSources.byVVTightIsolationMVArun2017v2DBnewDMwLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2017v2VVTight'+self.postfix)
+            _rerunMvaIsolationTask.add(_rerunIsolationNewDMMVArun2017v2Task)
+            _rerunMvaIsolationSequence += self.cms.Sequence(_rerunIsolationNewDMMVArun2017v2Task)
 
         if "dR0p32017v2" in self.toKeep:
             self.tauIdDiscrMVA_2017_version = "v2"
@@ -382,8 +381,9 @@ class TauIDEmbedder(object):
                 if self.debug: print ("runTauID: not is_above_cmssw_version(9, 4, 5). Will update the list of available in DB samples to access dR0p32017v2")
                 self.loadMVA_WPs_run2_2017()
 
-            setattr(self.process,"rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw"+self.postfix,patDiscriminationByIsolationMVArun2v1raw.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationOldDMdR0p3MVArun2017v2raw = "rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw"+self.postfix
+            setattr(self.process,_byIsolationOldDMdR0p3MVArun2017v2raw,patDiscriminationByIsolationMVArun2v1raw.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2"),
@@ -395,11 +395,12 @@ class TauIDEmbedder(object):
                 verbosity = self.cms.int32(0)
             ))
 
-            setattr(self.process,"rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VLoose"+self.postfix,patDiscriminationByIsolationMVArun2v1VLoose.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationOldDMdR0p3MVArun2017v2VLoose = "rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VLoose"+self.postfix
+            setattr(self.process,_byIsolationOldDMdR0p3MVArun2017v2VLoose,patDiscriminationByIsolationMVArun2v1VLoose.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
-                toMultiplex = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw'+self.postfix),
-                key = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw'+self.postfix+':category'),#?
+                toMultiplex = _byIsolationOldDMdR0p3MVArun2017v2raw,
+                key = _byIsolationOldDMdR0p3MVArun2017v2raw+':category',
                 loadMVAfromDB = self.cms.bool(True),
                 mvaOutput_normalization = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_mvaOutput_normalization"), #writeTauIdDiscrMVAoutputNormalizations
                 mapping = self.cms.VPSet(
@@ -411,6 +412,14 @@ class TauIDEmbedder(object):
                 ),
                 verbosity = self.cms.int32(0)
             ))
+            _byIsolationOldDMdR0p3MVArun2017v2VLooseProd = getattr(self.process,_byIsolationOldDMdR0p3MVArun2017v2VLoose)
+
+            _rerunIsolationOldDMdR0p3MVArun2017v2Task = self.cms.Task(
+                getattr(self.process,_byIsolationOldDMdR0p3MVArun2017v2raw),
+                _byIsolationOldDMdR0p3MVArun2017v2VLooseProd
+            )
+            tauIDSources.byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017 = self.cms.InputTag(_byIsolationOldDMdR0p3MVArun2017v2raw)
+            tauIDSources.byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.cms.InputTag(_byIsolationOldDMdR0p3MVArun2017v2VLoose)
 
             wp_to_eff_match = {
                 "VVLoose" : "WPEff95",
@@ -421,39 +430,29 @@ class TauIDEmbedder(object):
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            self.rerunIsolationOldDMdR0p3MVArun2017v2Task = self.cms.Task(
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw"+self.postfix),
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VLoose"+self.postfix)
-            )
             for wp in ["VVLoose","Loose","Medium","Tight","VTight","VVTight"]:
-                setattr(self.process,"rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2"+wp+self.postfix,getattr(self.process,"rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VLoose"+self.postfix).clone())
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2"+wp+self.postfix).mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_"+wp_to_eff_match[wp])
-                self.rerunIsolationOldDMdR0p3MVArun2017v2Task.add(getattr(self.process,"rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2"+wp+self.postfix))
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(self.rerunIsolationOldDMdR0p3MVArun2017v2Task)
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + self.cms.Sequence(self.rerunIsolationOldDMdR0p3MVArun2017v2Task))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+                _aWP = "rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2"+wp+self.postfix
+                setattr(self.process,_aWP,_byIsolationOldDMdR0p3MVArun2017v2VLooseProd.clone())
+                _aWPProd = getattr(self.process,_aWP)
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_"+wp_to_eff_match[wp])
+                _rerunIsolationOldDMdR0p3MVArun2017v2Task.add(_aWPProd)
+                setattr(tauIDSources,"by"+wp+"IsolationMVArun2017v2DBoldDMdR0p3wLT2017",self.cms.InputTag(_aWP))
 
-            tauIDSources.byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw'+self.postfix)
-            tauIDSources.byVVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VVLoose'+self.postfix)
-            tauIDSources.byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VLoose'+self.postfix)
-            tauIDSources.byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2Loose'+self.postfix)
-            tauIDSources.byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2Medium'+self.postfix)
-            tauIDSources.byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2Tight'+self.postfix)
-            tauIDSources.byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VTight'+self.postfix)
-            tauIDSources.byVVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2VVTight'+self.postfix)
+            _rerunMvaIsolationTask.add(_rerunIsolationOldDMdR0p3MVArun2017v2Task)
+            _rerunMvaIsolationSequence += self.cms.Sequence(_rerunIsolationOldDMdR0p3MVArun2017v2Task)
 
         # 2016 training strategy(v2) - essentially the same as 2017 training strategy (v1), trained on 2016MC, old DM - currently not implemented in the tau sequence of any release
         # self.process.rerunDiscriminationByIsolationOldDMMVArun2v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
-        #     PATTauProducer = self.cms.InputTag(self.originalTauName),
+        #     PATTauProducer = self.originalTauName,
         #     Prediscriminants = noPrediscriminants,
         #     loadMVAfromDB = self.cms.bool(True),
-        #     mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
+        #     mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v2"),
         #     mvaOpt = self.cms.string("DBoldDMwLTwGJ"),
         #     verbosity = self.cms.int32(0)
         # )
         # #
         # self.process.rerunDiscriminationByIsolationOldDMMVArun2v2VLoose = patDiscriminationByIsolationMVArun2v1VLoose.clone(
-        #     PATTauProducer = self.cms.InputTag(self.originalTauName),
+        #     PATTauProducer = self.originalTauName,
         #     Prediscriminants = noPrediscriminants,
         #     toMultiplex = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v2raw'),
         #     key = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v2raw:category'),#?
@@ -470,8 +469,9 @@ class TauIDEmbedder(object):
 
         # 2016 training strategy(v1), trained on 2016MC, old DM
         if "2016v1" in self.toKeep:
-            setattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2v1raw"+self.postfix,patDiscriminationByIsolationMVArun2v1raw.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationOldDMMVArun2016v1raw = "rerunDiscriminationByIsolationOldDMMVArun2v1raw"+self.postfix
+            setattr(self.process,_byIsolationOldDMMVArun2016v1raw,patDiscriminationByIsolationMVArun2v1raw.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1"),
@@ -479,11 +479,12 @@ class TauIDEmbedder(object):
                 verbosity = self.cms.int32(0)
             ))
 
-            setattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2v1VLoose"+self.postfix,patDiscriminationByIsolationMVArun2v1VLoose.clone(
-                    PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationOldDMMVArun2016v1VLoose = "rerunDiscriminationByIsolationOldDMMVArun2v1VLoose"+self.postfix
+            setattr(self.process,_byIsolationOldDMMVArun2016v1VLoose,patDiscriminationByIsolationMVArun2v1VLoose.clone(
+                    PATTauProducer = self.originalTauName,
                     Prediscriminants = noPrediscriminants,
-                    toMultiplex = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1raw'+self.postfix),
-                    key = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1raw'+self.postfix+':category'),
+                    toMultiplex = _byIsolationOldDMMVArun2016v1raw,
+                    key = _byIsolationOldDMMVArun2016v1raw+':category',
                     loadMVAfromDB = self.cms.bool(True),
                     mvaOutput_normalization = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1_mvaOutput_normalization"),
                     mapping = self.cms.VPSet(
@@ -494,6 +495,14 @@ class TauIDEmbedder(object):
                         )
                     )
                 ))
+            _byIsolationOldDMMVArun2016v1VLooseProd = getattr(self.process,_byIsolationOldDMMVArun2016v1VLoose)
+
+            _rerunIsolationOldDMMVArun2016v1Task = self.cms.Task(
+                getattr(self.process,_byIsolationOldDMMVArun2016v1raw),
+                _byIsolationOldDMMVArun2016v1VLooseProd
+            )
+            tauIDSources.byIsolationMVArun2v1DBoldDMwLTraw2016 = self.cms.InputTag(_byIsolationOldDMMVArun2016v1raw)
+            tauIDSources.byVLooseIsolationMVArun2v2DBoldDMwLT2016 = self.cms.InputTag(_byIsolationOldDMMVArun2016v1VLoose)
 
             wp_to_eff_match = {
                 "VVLoose" : "WPEff95",
@@ -504,30 +513,22 @@ class TauIDEmbedder(object):
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            self.rerunIsolationOldDMMVArun2016v1Task = self.cms.Task(
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2v1raw"+self.postfix),
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2v1VLoose"+self.postfix)
-            )
             for wp in ["Loose","Medium","Tight","VTight","VVTight"]:
-                setattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2v1"+wp+self.postfix,getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2v1VLoose"+self.postfix).clone())
-                getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2v1"+wp+self.postfix).mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1_"+wp_to_eff_match[wp])
-                self.rerunIsolationOldDMMVArun2016v1Task.add(getattr(self.process,"rerunDiscriminationByIsolationOldDMMVArun2v1"+wp+self.postfix))
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(self.rerunIsolationOldDMMVArun2016v1Task)
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + self.cms.Sequence(self.rerunIsolationOldDMMVArun2016v1Task))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+                _aWP = "rerunDiscriminationByIsolationOldDMMVArun2v1"+wp+self.postfix
+                setattr(self.process,_aWP,_byIsolationOldDMMVArun2016v1VLooseProd.clone())
+                _aWPProd = getattr(self.process,_aWP)
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1_"+wp_to_eff_match[wp])
+                _rerunIsolationOldDMMVArun2016v1Task.add(_aWPProd)
+                setattr(tauIDSources,"by"+wp+"IsolationMVArun2v1DBoldDMwLT2016",self.cms.InputTag(_aWP))
 
-            tauIDSources.byIsolationMVArun2v1DBoldDMwLTraw2016 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1raw'+self.postfix)
-            tauIDSources.byVLooseIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1VLoose'+self.postfix)
-            tauIDSources.byLooseIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1Loose'+self.postfix)
-            tauIDSources.byMediumIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1Medium'+self.postfix)
-            tauIDSources.byTightIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1Tight'+self.postfix)
-            tauIDSources.byVTightIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1VTight'+self.postfix)
-            tauIDSources.byVVTightIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2v1VVTight'+self.postfix)
+            _rerunMvaIsolationTask.add(_rerunIsolationOldDMMVArun2016v1Task)
+            _rerunMvaIsolationSequence += self.cms.Sequence(_rerunIsolationOldDMMVArun2016v1Task)
 
         # 2016 training strategy(v1), trained on 2016MC, new DM
         if "newDM2016v1" in self.toKeep:
-            setattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2v1raw"+self.postfix,patDiscriminationByIsolationMVArun2v1raw.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationNewDMMVArun2016v1raw = "rerunDiscriminationByIsolationNewDMMVArun2v1raw"+self.postfix
+            setattr(self.process,_byIsolationNewDMMVArun2016v1raw,patDiscriminationByIsolationMVArun2v1raw.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
                 loadMVAfromDB = self.cms.bool(True),
                 mvaName = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2016v1"),
@@ -535,11 +536,12 @@ class TauIDEmbedder(object):
                 verbosity = self.cms.int32(0)
             ))
 
-            setattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2v1VLoose"+self.postfix,patDiscriminationByIsolationMVArun2v1VLoose.clone(
-                PATTauProducer = self.cms.InputTag(self.originalTauName),
+            _byIsolationNewDMMVArun2016v1VLoose = "rerunDiscriminationByIsolationNewDMMVArun2v1VLoose"+self.postfix
+            setattr(self.process,_byIsolationNewDMMVArun2016v1VLoose,patDiscriminationByIsolationMVArun2v1VLoose.clone(
+                PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
-                toMultiplex = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1raw'+self.postfix),
-                key = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1raw'+self.postfix+':category'),
+                toMultiplex = _byIsolationNewDMMVArun2016v1raw,
+                key = _byIsolationNewDMMVArun2016v1raw+':category',
                 loadMVAfromDB = self.cms.bool(True),
                 mvaOutput_normalization = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2016v1_mvaOutput_normalization"),
                 mapping = self.cms.VPSet(
@@ -550,6 +552,14 @@ class TauIDEmbedder(object):
                     )
                 )
             ))
+            _byIsolationNewDMMVArun2016v1VLooseProd = getattr(self.process,_byIsolationNewDMMVArun2016v1VLoose)
+
+            _rerunIsolationNewDMMVArun2016v1Task = self.cms.Task(
+                getattr(self.process,_byIsolationNewDMMVArun2016v1raw),
+                _byIsolationNewDMMVArun2016v1VLooseProd
+            )
+            tauIDSources.byIsolationMVArun2v1DBnewDMwLTraw2016 = self.cms.InputTag(_byIsolationNewDMMVArun2016v1raw)
+            tauIDSources.byVLooseIsolationMVArun2v2DBnewDMwLT2016 = self.cms.InputTag(_byIsolationNewDMMVArun2016v1VLoose)
 
             wp_to_eff_match = {
                 "VVLoose" : "WPEff95",
@@ -560,29 +570,21 @@ class TauIDEmbedder(object):
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            self.rerunIsolationNewDMMVArun2016v1Task = self.cms.Task(
-                getattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2v1raw"+self.postfix),
-                getattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2v1VLoose"+self.postfix)
-            )
             for wp in ["Loose","Medium","Tight","VTight","VVTight"]:
-                setattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2v1"+wp+self.postfix,getattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2v1VLoose"+self.postfix).clone())
-                getattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2v1"+wp+self.postfix).mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2016v1_"+wp_to_eff_match[wp])
-                self.rerunIsolationNewDMMVArun2016v1Task.add(getattr(self.process,"rerunDiscriminationByIsolationNewDMMVArun2v1"+wp+self.postfix))
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(self.rerunIsolationNewDMMVArun2016v1Task)
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + self.cms.Sequence(self.rerunIsolationNewDMMVArun2016v1Task))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+                _aWP = "rerunDiscriminationByIsolationNewDMMVArun2v1"+wp+self.postfix
+                setattr(self.process,_aWP,_byIsolationNewDMMVArun2016v1VLooseProd.clone())
+                _aWPProd = getattr(self.process,_aWP)
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2016v1_"+wp_to_eff_match[wp])
+                _rerunIsolationNewDMMVArun2016v1Task.add(_aWPProd)
+                setattr(tauIDSources,"by"+wp+"IsolationMVArun2v1DBnewDMwLT2016",self.cms.InputTag(_aWP))
 
-            tauIDSources.byIsolationMVArun2v1DBoldDMwLTraw2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1raw'+self.postfix)
-            tauIDSources.byVLooseIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1VLoose'+self.postfix)
-            tauIDSources.byLooseIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1Loose'+self.postfix)
-            tauIDSources.byMediumIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1Medium'+self.postfix)
-            tauIDSources.byTightIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1Tight'+self.postfix)
-            tauIDSources.byVTightIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1VTight'+self.postfix)
-            tauIDSources.byVVTightIsolationMVArun2v1DBoldDMwLT2016 = self.cms.InputTag('rerunDiscriminationByIsolationNewDMMVArun2v1VVTight'+self.postfix)
+            _rerunMvaIsolationTask.add(_rerunIsolationNewDMMVArun2016v1Task)
+            _rerunMvaIsolationSequence += self.cms.Sequence(_rerunIsolationNewDMMVArun2016v1Task)
 
         if "deepTau2017v1" in self.toKeep:
             if self.debug: print ("Adding DeepTau IDs")
 
+            _deepTauName = "deepTau2017v1"
             workingPoints_ = {
                 "e": {
                     "VVVLoose" : 0.96424,
@@ -617,7 +619,7 @@ class TauIDEmbedder(object):
                 }
             }
             file_names = ['RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb']
-            setattr(self.process,"deepTau2017v1"+self.postfix,self.cms.EDProducer("DeepTauId",
+            setattr(self.process,_deepTauName+self.postfix,self.cms.EDProducer("DeepTauId",
                 electrons              = self.cms.InputTag('slimmedElectrons'),
                 muons                  = self.cms.InputTag('slimmedMuons'),
                 taus                   = self.cms.InputTag(self.originalTauName),
@@ -632,15 +634,16 @@ class TauIDEmbedder(object):
 
             ))
 
-            self.processDeepProducer('deepTau2017v1', tauIDSources, workingPoints_)
+            self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
 
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(getattr(self.process,"deepTau2017v1"+self.postfix))
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + getattr(self.process,"deepTau2017v1"+self.postfix))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
+            _rerunMvaIsolationTask.add(_deepTauProducer)
+            _rerunMvaIsolationSequence += _deepTauProducer
 
         if "deepTau2017v2" in self.toKeep:
             if self.debug: print ("Adding DeepTau IDs")
 
+            _deepTauName = "deepTau2017v2"
             workingPoints_ = {
                 "e": {
                     "VVVLoose": 0.0630386,
@@ -675,7 +678,7 @@ class TauIDEmbedder(object):
                 'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_inner.pb',
                 'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_outer.pb',
             ]
-            setattr(self.process,"deepTau2017v2"+self.postfix,self.cms.EDProducer("DeepTauId",
+            setattr(self.process,_deepTauName+self.postfix,self.cms.EDProducer("DeepTauId",
                 electrons              = self.cms.InputTag('slimmedElectrons'),
                 muons                  = self.cms.InputTag('slimmedMuons'),
                 taus                   = self.cms.InputTag(self.originalTauName),
@@ -690,14 +693,16 @@ class TauIDEmbedder(object):
 
             ))
 
-            self.processDeepProducer('deepTau2017v2', tauIDSources, workingPoints_)
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(getattr(self.process,"deepTau2017v2"+self.postfix))
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + getattr(self.process,"deepTau2017v2"+self.postfix))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+            self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
+
+            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
+            _rerunMvaIsolationTask.add(_deepTauProducer)
+            _rerunMvaIsolationSequence += _deepTauProducer
 
         if "deepTau2017v2p1" in self.toKeep:
             if self.debug: print ("Adding DeepTau IDs")
 
+            _deepTauName = "deepTau2017v2p1"
             workingPoints_ = {
                 "e": {
                     "VVVLoose": 0.0630386,
@@ -732,7 +737,7 @@ class TauIDEmbedder(object):
                 'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_inner.pb',
                 'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_outer.pb',
             ]
-            setattr(self.process,"deepTau2017v2p1"+self.postfix,self.cms.EDProducer("DeepTauId",
+            setattr(self.process,_deepTauName+self.postfix,self.cms.EDProducer("DeepTauId",
                 electrons                = self.cms.InputTag('slimmedElectrons'),
                 muons                    = self.cms.InputTag('slimmedMuons'),
                 taus                     = self.cms.InputTag(self.originalTauName),
@@ -747,15 +752,16 @@ class TauIDEmbedder(object):
 
             ))
 
-            self.processDeepProducer('deepTau2017v2p1', tauIDSources, workingPoints_)
+            self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
 
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(getattr(self.process,"deepTau2017v2p1"+self.postfix))
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + getattr(self.process,"deepTau2017v2p1"+self.postfix))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
+            _rerunMvaIsolationTask.add(_deepTauProducer)
+            _rerunMvaIsolationSequence += _deepTauProducer
 
         if "DPFTau_2016_v0" in self.toKeep:
             if self.debug: print ("Adding DPFTau isolation (v0)")
 
+            _deepTauName = "DPFTau_2016_v0"
             workingPoints_ = {
                 "all": {
                     "Tight" : "if(decayMode == 0) return (0.898328 - 0.000160992 * pt);" + \
@@ -771,7 +777,7 @@ class TauIDEmbedder(object):
                 }
             }
             file_names = [ 'RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb' ]
-            setattr(self.process,"dpfTau2016v0"+self.postfix,self.cms.EDProducer("DPFIsolation",
+            setattr(self.process,_deepTauName+self.postfix,self.cms.EDProducer("DPFIsolation",
                 pfcands     = self.cms.InputTag('packedPFCandidates'),
                 taus        = self.cms.InputTag(self.originalTauName),
                 vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
@@ -780,23 +786,24 @@ class TauIDEmbedder(object):
                 mem_mapped  = self.cms.bool(False)
             ))
 
-            self.processDeepProducer('dpfTau2016v0', tauIDSources, workingPoints_)
+            self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
 
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(getattr(self.process,"dpfTau2016v0"+self.postfix))
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + getattr(self.process,"dpfTau2016v0"+self.postfix))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
+            _rerunMvaIsolationTask.add(_deepTauProducer)
+            _rerunMvaIsolationSequence += _deepTauProducer
 
         if "DPFTau_2016_v1" in self.toKeep:
             print ("Adding DPFTau isolation (v1)")
             print ("WARNING: WPs are not defined for DPFTau_2016_v1")
             print ("WARNING: The score of DPFTau_2016_v1 is inverted: i.e. for Sig->0, for Bkg->1 with -1 for undefined input (preselection not passed).")
 
+            _deepTauName = "DPFTau_2016_v1"
             workingPoints_ = {
                 "all": {"Tight" : 0.123} #FIXME: define WP
             }
 
             file_names = [ 'RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1_quantized.pb' ]
-            setattr(self.process,"dpfTau2016v1"+self.postfix,self.cms.EDProducer("DPFIsolation",
+            setattr(self.process,_deepTauName+self.postfix,self.cms.EDProducer("DPFIsolation",
                 pfcands     = self.cms.InputTag('packedPFCandidates'),
                 taus        = self.cms.InputTag(self.originalTauName),
                 vertices    = self.cms.InputTag('offlineSlimmedPrimaryVertices'),
@@ -805,18 +812,19 @@ class TauIDEmbedder(object):
                 mem_mapped  = self.cms.bool(False)
             ))
 
-            self.processDeepProducer('dpfTau2016v1', tauIDSources, workingPoints_)
+            self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
 
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(getattr(self.process,"dpfTau2016v1"+self.postfix))
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + getattr(self.process,"dpfTau2016v1"+self.postfix))
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
+            _rerunMvaIsolationTask.add(_deepTauProducer)
+            _rerunMvaIsolationSequence += _deepTauProducer
 
         if "againstEle2018" in self.toKeep:
             antiElectronDiscrMVA6_version = "MVA6v3_noeveto"
             ### Define new anti-e discriminants
             ## Raw
             from RecoTauTag.RecoTau.PATTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
-            setattr(self.process,"patTauDiscriminationByElectronRejectionMVA62018Raw"+self.postfix,patTauDiscriminationAgainstElectronMVA6.clone(
+            _byElectronRejectionMVA62018Raw = "patTauDiscriminationByElectronRejectionMVA62018Raw"+self.postfix
+            setattr(self.process,_byElectronRejectionMVA62018Raw,patTauDiscriminationAgainstElectronMVA6.clone(
                 Prediscriminants = noPrediscriminants, #already selected for MiniAOD
                 vetoEcalCracks = self.cms.bool(False), #keep taus in EB-EE cracks
                 mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL',
@@ -831,11 +839,12 @@ class TauIDEmbedder(object):
             ## WPs
             from RecoTauTag.RecoTau.PATTauDiscriminantCutMultiplexer_cfi import patTauDiscriminantCutMultiplexer
             # VLoose
-            setattr(self.process,"patTauDiscriminationByVLooseElectronRejectionMVA62018"+self.postfix,patTauDiscriminantCutMultiplexer.clone(
-                PATTauProducer = getattr(self.process,"patTauDiscriminationByElectronRejectionMVA62018Raw"+self.postfix).PATTauProducer,
-                Prediscriminants = getattr(self.process,"patTauDiscriminationByElectronRejectionMVA62018Raw"+self.postfix).Prediscriminants,
-                toMultiplex = self.cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw"+self.postfix),
-                key = self.cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw"+self.postfix,"category"),
+            _byElectronRejectionMVA62018VLoose = "patTauDiscriminationByVLooseElectronRejectionMVA62018"+self.postfix
+            setattr(self.process,_byElectronRejectionMVA62018VLoose,patTauDiscriminantCutMultiplexer.clone(
+                PATTauProducer = self.originalTauName,
+                Prediscriminants = noPrediscriminants,
+                toMultiplex = _byElectronRejectionMVA62018Raw,
+                key = _byElectronRejectionMVA62018Raw+":category",
                 mapping = self.cms.VPSet(
                     self.cms.PSet(
                         category = self.cms.uint32(0),
@@ -879,6 +888,17 @@ class TauIDEmbedder(object):
                     )
                 )
             ))
+            _byElectronRejectionMVA62018VLooseProd = getattr(self.process,_byElectronRejectionMVA62018VLoose)
+
+            _patTauDiscriminationByElectronRejectionMVA62018Task = self.cms.Task(
+                getattr(self.process,_byElectronRejectionMVA62018Raw),
+                _byElectronRejectionMVA62018VLooseProd
+            )
+            _againstElectronTauIDSources = self.cms.PSet(
+                againstElectronMVA6Raw2018 = self.cms.InputTag(_byElectronRejectionMVA62018Raw),
+                againstElectronMVA6category2018 = self.cms.InputTag(_byElectronRejectionMVA62018Raw,"category"),
+                againstElectronVLooseMVA62018 = self.cms.InputTag(_byElectronRejectionMVA62018VLoose)
+            )
             # Other WPs
             wp_to_eff_match = {
                 "VLoose" : "WPeff98",
@@ -888,7 +908,8 @@ class TauIDEmbedder(object):
                 "VTight" : "WPeff60",
             }
             for wp in ["Loose", "Medium", "Tight", "VTight"]:
-                setattr(self.process,"patTauDiscriminationBy"+wp+"ElectronRejectionMVA62018"+self.postfix,getattr(self.process,"patTauDiscriminationByVLooseElectronRejectionMVA62018"+self.postfix).clone(
+                _aWP = "patTauDiscriminationBy"+wp+"ElectronRejectionMVA62018"+self.postfix
+                setattr(self.process,_aWP,_byElectronRejectionMVA62018VLooseProd.clone(
                     mapping = self.cms.VPSet(
                         self.cms.PSet(
                             category = self.cms.uint32(0),
@@ -932,29 +953,12 @@ class TauIDEmbedder(object):
                         )
                     )
                 ))
-            ### Put all new anti-e discrminats to a sequence
-            patTauDiscriminationByElectronRejectionMVA62018Task = self.cms.Task(
-                getattr(self.process,"patTauDiscriminationByElectronRejectionMVA62018Raw"+self.postfix),
-                getattr(self.process,"patTauDiscriminationByVLooseElectronRejectionMVA62018"+self.postfix),
-                getattr(self.process,"patTauDiscriminationByLooseElectronRejectionMVA62018"+self.postfix),
-                getattr(self.process,"patTauDiscriminationByMediumElectronRejectionMVA62018"+self.postfix),
-                getattr(self.process,"patTauDiscriminationByTightElectronRejectionMVA62018"+self.postfix),
-                getattr(self.process,"patTauDiscriminationByVTightElectronRejectionMVA62018"+self.postfix)
-            )
-            patTauDiscriminationByElectronRejectionMVA62018Seq = self.cms.Sequence(patTauDiscriminationByElectronRejectionMVA62018Task)
-            getattr(self.process,"rerunMvaIsolationTask"+self.postfix).add(patTauDiscriminationByElectronRejectionMVA62018Task)
-            tmpSeq = self.cms.Sequence(getattr(self.process,"rerunMvaIsolationSequence"+self.postfix) + patTauDiscriminationByElectronRejectionMVA62018Seq)
-            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,tmpSeq)
+                _patTauDiscriminationByElectronRejectionMVA62018Task.add(getattr(self.process,_aWP))
+                setattr(_againstElectronTauIDSources,"againstElectron"+wp+"MVA62018",self.cms.InputTag(_aWP))
 
-            _againstElectronTauIDSources = self.cms.PSet(
-                againstElectronMVA6Raw2018 = self.cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw"+self.postfix),
-                againstElectronMVA6category2018 = self.cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw"+self.postfix,"category"),
-                againstElectronVLooseMVA62018 = self.cms.InputTag("patTauDiscriminationByVLooseElectronRejectionMVA62018"+self.postfix),
-                againstElectronLooseMVA62018 = self.cms.InputTag("patTauDiscriminationByLooseElectronRejectionMVA62018"+self.postfix),
-                againstElectronMediumMVA62018 = self.cms.InputTag("patTauDiscriminationByMediumElectronRejectionMVA62018"+self.postfix),
-                againstElectronTightMVA62018 = self.cms.InputTag("patTauDiscriminationByTightElectronRejectionMVA62018"+self.postfix),
-                againstElectronVTightMVA62018 = self.cms.InputTag("patTauDiscriminationByVTightElectronRejectionMVA62018"+self.postfix)
-            )
+            _rerunMvaIsolationTask.add(_patTauDiscriminationByElectronRejectionMVA62018Task)
+            _rerunMvaIsolationSequence += self.cms.Sequence(_patTauDiscriminationByElectronRejectionMVA62018Task)
+
             _tauIDSourcesWithAgainistEle = self.cms.PSet(
                 tauIDSources.clone(),
                 _againstElectronTauIDSources
@@ -974,6 +978,8 @@ class TauIDEmbedder(object):
                 getattr(self.process, self.updatedTauName).tauIDSources,
                 tauIDSources)
             getattr(self.process, self.updatedTauName).tauIDSources = tauIDSources
+        setattr(self.process,"rerunMvaIsolationTask"+self.postfix,_rerunMvaIsolationTask)
+        setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,_rerunMvaIsolationSequence)
 
 
     def processDeepProducer(self, producer_name, tauIDSources, workingPoints_):
