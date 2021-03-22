@@ -239,8 +239,13 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   for (auto i = 0U; i < phase1PixelTopology::numberOfLayers + 1; ++i) {
     output->hitsLayerStart()[i] = hitsModuleStart[cpeView.layerGeometry().layerStart[i]];
   }
-  cms::cuda::fillManyFromVector(
-      output->phiBinner(), phase1PixelTopology::numberOfLayers, output->iphi(), output->hitsLayerStart(), numberOfHits, 256, nullptr);
+  cms::cuda::fillManyFromVector(output->phiBinner(),
+                                phase1PixelTopology::numberOfLayers,
+                                output->iphi(),
+                                output->hitsLayerStart(),
+                                numberOfHits,
+                                256,
+                                nullptr);
 
   LogDebug("SiPixelRecHitSoAFromLegacy") << "created HitSoa for " << numberOfClusters << " clusters in "
                                          << numberOfDetUnits << " Dets";
