@@ -46,7 +46,7 @@ namespace ticl {
     std::once_flag initializeGeometry_;
     const HGCalDDDConstants* hgcons_;
     const StringCutObjectSelector<reco::Track> cutTk_;
-    inline static const std::string detectorName_ = "HGCalEESensitive";
+    const std::string detector_;
     edm::ESHandle<Propagator> propagator_;
     const std::string propName_;
     edm::ESHandle<MagneticField> bfield_;

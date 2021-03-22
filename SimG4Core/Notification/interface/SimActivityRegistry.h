@@ -18,10 +18,6 @@
 //         Created:  Sun Nov 13 11:43:40 EST 2005
 //
 
-// system include files
-#include "boost/bind.hpp"
-#include "boost/mem_fn.hpp"
-
 // user include files
 #include "SimG4Core/Notification/interface/Signaler.h"
 

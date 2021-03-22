@@ -74,12 +74,8 @@ void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event,
                                  << "====================================================\n"
                                  << "\n";
 
-  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP;
-  setup.get<TrackAssociatorRecord>().get(parametersDefiner, parametersDefinerTP);
-
-  edm::ESHandle<TrackerTopology> httopo;
-  setup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology& ttopo = *httopo;
+  const auto& parametersDefinerTP = &setup.getData(tpDefinerEsToken);
+  const TrackerTopology& ttopo = setup.getData(tTopoEsToken);
 
   edm::Handle<GenParticleCollection> TPCollectionHeff;
   event.getByToken(label_tp_effic, TPCollectionHeff);

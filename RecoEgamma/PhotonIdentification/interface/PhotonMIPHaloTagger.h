@@ -8,7 +8,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include <string>
+#include <vector>
 
 class PhotonMIPHaloTagger {
 public:

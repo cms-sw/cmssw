@@ -121,7 +121,7 @@ namespace ecaldqm {
                                    0x1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR;
   }
 
-  void StatusManager::readFromStream(std::istream &_input) {
+  void StatusManager::readFromStream(std::istream &_input, const EcalElectronicsMapping *electronicsMap) {
     TPRegexp linePat(
         "^[ ]*(Crystal|TT|PN)[ ]+(EB[0-9+-]*|EE[0-9+-]*|[0-9]+)[ "
         "]+([0-9]+)[ ]([a-zA-Z_]+)");
@@ -183,7 +183,7 @@ namespace ecaldqm {
           status_.insert(
               std::pair<uint32_t, uint32_t>(EcalTrigTowerDetId(zside, EcalBarrel, iEta, iPhi).rawId(), statusVal));
         } else if (module.Contains("EE")) {
-          std::vector<EcalScDetId> scIds(getElectronicsMap()->getEcalScDetId(dccId(module.Data()), channel, false));
+          std::vector<EcalScDetId> scIds(electronicsMap->getEcalScDetId(dccId(module.Data()), channel, false));
           for (unsigned iS(0); iS != scIds.size(); ++iS)
             status_.insert(std::pair<uint32_t, uint32_t>(scIds[iS].rawId(), statusVal));
         }
