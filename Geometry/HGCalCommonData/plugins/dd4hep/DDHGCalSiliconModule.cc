@@ -295,9 +295,8 @@ struct HGCalSiliconModule {
     static const double sqrt3 = std::sqrt(3.0);
     int layercenter = layerCenter_[layer];
     int firstWafer = waferLayerStart_[layer];
-    int lastWafer =
-        ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
-                                                                 : static_cast<int>(waferIndex_.size()));
+    int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
+                                                                             : static_cast<int>(waferIndex_.size()));
     double r = 0.5 * (waferSize_ + waferSepar_);
     double R = 2.0 * r / sqrt3;
     double dy = 0.75 * R;

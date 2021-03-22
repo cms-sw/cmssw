@@ -122,7 +122,8 @@ public:
   }
 
   bool tileTrapezoid() const {
-    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule));
+    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) ||
+            (mode_ == HGCalGeometryMode::TrapezoidModule));
   }
   bool waferHexagon6() const {
     return ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull));

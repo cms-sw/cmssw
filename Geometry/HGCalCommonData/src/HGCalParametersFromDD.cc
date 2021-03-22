@@ -78,7 +78,12 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     DDsvalues_type sv(fv.mergedSpecifics());
     php.mode_ = getGeometryMode("GeometryMode", sv);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Volume " << name << " GeometryMode " << php.mode_ << ":" << HGCalGeometryMode::Hexagon << ":" << HGCalGeometryMode::HexagonFull << ":" << HGCalGeometryMode::Hexagon8 << ":" << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Hexagon8Module << ":"  << HGCalGeometryMode::Trapezoid << ":" << HGCalGeometryMode::TrapezoidFile << ":" << HGCalGeometryMode::TrapezoidModule;
+    edm::LogVerbatim("HGCalGeom") << "Volume " << name << " GeometryMode " << php.mode_ << ":"
+                                  << HGCalGeometryMode::Hexagon << ":" << HGCalGeometryMode::HexagonFull << ":"
+                                  << HGCalGeometryMode::Hexagon8 << ":" << HGCalGeometryMode::Hexagon8Full << ":"
+                                  << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Hexagon8Module << ":"
+                                  << HGCalGeometryMode::Trapezoid << ":" << HGCalGeometryMode::TrapezoidFile << ":"
+                                  << HGCalGeometryMode::TrapezoidModule;
 #endif
     php.levelZSide_ = 3;        // Default level for ZSide
     php.detectorType_ = 0;      // These two parameters are
@@ -199,7 +204,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.defineFull_ = true;
       // Load wafer positions
       geom->loadWaferHexagon8(php);
-    } else if ((php.mode_ == HGCalGeometryMode::Trapezoid) || (php.mode_ == HGCalGeometryMode::TrapezoidFile) || (php.mode_ == HGCalGeometryMode::TrapezoidModule)) {
+    } else if ((php.mode_ == HGCalGeometryMode::Trapezoid) || (php.mode_ == HGCalGeometryMode::TrapezoidFile) ||
+               (php.mode_ == HGCalGeometryMode::TrapezoidModule)) {
       // Load maximum eta & top level
       php.levelT_ = dbl_to_int(getDDDArray("LevelTop", sv));
       php.firstLayer_ = (int)(getDDDValue("FirstLayer", sv));
@@ -388,7 +394,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.defineFull_ = true;
       // Load wafer positions
       geom->loadWaferHexagon8(php);
-    } else if ((php.mode_ == HGCalGeometryMode::Trapezoid) || (php.mode_ == HGCalGeometryMode::TrapezoidFile) || (php.mode_ == HGCalGeometryMode::TrapezoidModule)) {
+    } else if ((php.mode_ == HGCalGeometryMode::Trapezoid) || (php.mode_ == HGCalGeometryMode::TrapezoidFile) ||
+               (php.mode_ == HGCalGeometryMode::TrapezoidModule)) {
       // Load maximum eta & top level
       php.levelT_ = dbl_to_int(fv.get<std::vector<double> >(name, "LevelTop"));
       tempD = fv.get<std::vector<double> >(name, "LevelZSide");
@@ -421,9 +428,9 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       geom->loadSpecParsTrapezoid(fv, vmap, php, name);
       // Load Geometry parameters
       if ((php.mode_ == HGCalGeometryMode::Trapezoid) || (php.mode_ == HGCalGeometryMode::TrapezoidFile))
-	geom->loadGeometryHexagon8(cpv, php, name, php.firstLayer_);
+        geom->loadGeometryHexagon8(cpv, php, name, php.firstLayer_);
       else
-	geom->loadGeometryHexagonModule(cpv, php, name, namec, php.firstLayer_);
+        geom->loadGeometryHexagonModule(cpv, php, name, namec, php.firstLayer_);
       // Load cell positions
       geom->loadCellTrapezoid(php);
     } else {
