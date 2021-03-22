@@ -15,10 +15,11 @@
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoHGCal/TICL/plugins/SeedingRegionAlgoBase.h"
+#include "SeedingRegionAlgoFactory.h"
 #include "SeedingRegionByL1.h"
 #include "SeedingRegionByTracks.h"
 #include "SeedingRegionGlobal.h"
-#include "SeedingRegionAlgoFactory.h"
+#include "SeedingRegionByHF.h"
 
 using namespace ticl;
 
