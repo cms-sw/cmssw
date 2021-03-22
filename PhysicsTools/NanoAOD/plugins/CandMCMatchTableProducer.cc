@@ -139,24 +139,23 @@ public:
             else
               flav[i] = (hasTauAnc) ? 15 : 1;
 
-            float minpt = 0;
+            float minpt = 0; 
+	    const reco::GenParticle* highestPtConstituent=0;
             for (auto& consti : matchDressedLep->getGenConstituents()) {
               if (abs(consti->pdgId()) != 11)
                 continue;
               if (consti->pt() < minpt)
                 continue;
               minpt = consti->pt();
-              for (unsigned int gen = 0; gen < genParts->size(); ++gen) {
-                auto genp = genParts->at(gen);
-                if (abs(genp.pdgId()) != 11)
-                  continue;
-                if (deltaR(genp, *consti) < 0.01 &&
-                    abs(genp.pt() - consti->pt()) / consti->pt() < 0.01) {  // they are the same objects
-                  key[i] = gen;
-                }
-              }
-            }
-          } else if (!match.isNonnull())
+	      highestPtConstituent=consti;
+	    }
+	    if (highestPtConstituent){
+	      auto iter=std::find_if( genParts->begin(), genParts->end(), [highestPtConstituent](reco::GenParticle genp){ return (abs(genp.pdgId()) != 11) && (deltaR(genp, *highestPtConstituent) <0.01) &&  (abs(genp.pt() - highestPtConstituent->pt()) / highestPtConstituent->pt() < 0.01);});
+	      if (iter!=genParts->end()){
+		key[i]=iter-genParts->begin();
+	      }
+	    }
+	  } else if (!match.isNonnull())
             flav[i] = 0;
           else if (match->isPromptFinalState())
             flav[i] = (match->pdgId() == 22 ? 22 : 1);  // prompt electron or photon
