@@ -11,7 +11,7 @@ using ROOT::Experimental::RNTupleWriteOptions;
 
 #include "RNTupleFieldPtr.h"
 
-void LumiNTuple::createFields(TFile& file) {
+void LumiNTuple::createFields(const edm::LuminosityBlockID& id, TFile& file) {
   auto model = RNTupleModel::Create();
   m_run = RNTupleFieldPtr<UInt_t>("run", *model);
   m_luminosityBlock = RNTupleFieldPtr<UInt_t>("luminosityBlock", *model);
@@ -22,12 +22,38 @@ void LumiNTuple::createFields(TFile& file) {
   );
 }
 
-void LumiNTuple::fill(const edm::LuminosityBlockID& id) {
+void LumiNTuple::fill(const edm::LuminosityBlockID& id, TFile& file) {
+  if (!m_ntuple) {
+    createFields(id, file);
+  }
   m_run.fill(id.run());
   m_luminosityBlock.fill(id.value());
   m_ntuple->Fill();
 }
 
-void LumiNTuple::write() {
+void LumiNTuple::finalizeWrite() {
+  m_ntuple.reset();
+}
+
+// TODO SummaryTableOutput fields
+void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
+  auto model = RNTupleModel::Create();
+  m_run = RNTupleFieldPtr<UInt_t>("run", *model);
+  // TODO use Append when we bump our RNTuple version
+  m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
+    std::make_unique<RPageSinkFile>("Runs", file, RNTupleWriteOptions())
+  );
+}
+
+void RunNTuple::fill(const edm::RunForOutput& iRun, TFile& file) {
+  if (!m_ntuple) {
+    createFields(iRun, file);
+  }
+  m_run.fill(iRun.id().run());
+  // todo fill SummaryTableOutputs
+  m_ntuple->Fill();
+}
+
+void RunNTuple::finalizeWrite() {
   m_ntuple.reset();
 }

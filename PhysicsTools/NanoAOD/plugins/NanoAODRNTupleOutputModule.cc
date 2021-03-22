@@ -85,6 +85,7 @@ private:
   } m_commonFields;
 
   LumiNTuple m_lumi;
+  RunNTuple m_run;
 };
 
 NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& pset)
@@ -99,11 +100,30 @@ NanoAODRNTupleOutputModule::~NanoAODRNTupleOutputModule() {}
 void NanoAODRNTupleOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& iLumi) {
   edm::Service<edm::JobReport> jr;
   jr->reportLumiSection(m_jrToken, iLumi.id().run(), iLumi.id().value());
-  m_lumi.fill(iLumi.id());
+  m_lumi.fill(iLumi.id(), *m_file);
   m_processHistoryRegistry.registerProcessHistory(iLumi.processHistory());
 }
 
-void NanoAODRNTupleOutputModule::writeRun(edm::RunForOutput const& iRun) {}
+void NanoAODRNTupleOutputModule::writeRun(edm::RunForOutput const& iRun) {
+  edm::Service<edm::JobReport> jr;
+  jr->reportRunNumber(m_jrToken, iRun.id().run());
+
+  m_run.fill(iRun, *m_file);
+  // TODO nano metadata
+  //edm::Handle<nanoaod::UniqueString> hstring;
+  //for (const auto& p : m_nanoMetadata) {
+  //  iRun.getByToken(p.second, hstring);
+  //  TObjString* tos = dynamic_cast<TObjString*>(m_file->Get(p.first.c_str()));
+  //  if (tos) {
+  //    if (hstring->str() != tos->GetString())
+  //      throw cms::Exception("LogicError", "Inconsistent nanoMetadata " + p.first + " (" + hstring->str() + ")");
+  //  } else {
+  //    auto ostr = std::make_unique<TObjString>(hstring->str().c_str());
+  //    m_file->WriteTObject(ostr.release(), p.first.c_str());
+  //  }
+  //}
+  m_processHistoryRegistry.registerProcessHistory(iRun.processHistory());
+}
 
 bool NanoAODRNTupleOutputModule::isFileOpen() const {
   return nullptr != m_ntuple.get();
@@ -125,9 +145,6 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
-
-  // initialize RNTuples with fixed fields: lumi
-  m_lumi.createFields(*m_file);
 }
 
 void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEvent) {
@@ -183,8 +200,9 @@ void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
 
 void NanoAODRNTupleOutputModule::reallyCloseFile() {
   // write ntuple to disk by calling the RNTupleWriter destructor
-  m_lumi.write();
   m_ntuple.reset();
+  m_lumi.finalizeWrite();
+  m_run.finalizeWrite();
   m_file->Write();
   m_file->Close();
 
@@ -208,6 +226,10 @@ void NanoAODRNTupleOutputModule::reallyCloseFile() {
   auto lumi_ntuple = ROOT::Experimental::RNTupleReader::Open("LuminosityBlocks", m_fileName);
   lumi_ntuple->PrintInfo();
   lumi_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
+
+  auto run_ntuple = ROOT::Experimental::RNTupleReader::Open("Runs", m_fileName);
+  run_ntuple->PrintInfo();
+  run_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
 
   edm::Service<edm::JobReport> jr;
   jr->outputFileClosed(m_jrToken);
