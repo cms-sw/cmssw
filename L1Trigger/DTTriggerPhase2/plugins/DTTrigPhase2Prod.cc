@@ -45,7 +45,6 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTThContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTThDigi.h"
 
-
 // DT trigger GeomUtils
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
 
@@ -168,7 +167,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
 
   debug_ = pset.getUntrackedParameter<bool>("debug");
   dump_ = pset.getUntrackedParameter<bool>("dump");
-  
+
   do_correlation_ = pset.getParameter<bool>("do_correlation");
   scenario_ = pset.getParameter<int>("scenario");
 
@@ -179,7 +178,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
 
   // Choosing grouping scheme:
   algo_ = pset.getParameter<int>("algo");
-  
+
   // Local to global coordinates approach
   cmssw_for_global_ = pset.getUntrackedParameter<bool>("cmssw_for_global", true);
   geometry_tag_ = pset.getUntrackedParameter<std::string>("geometry_tag", "");
@@ -208,8 +207,6 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
       LogDebug("DTTrigPhase2Prod") << "DTp2:constructor: Full chamber analyzer";
     mpathanalyzer_ = std::make_unique<MuonPathAnalyzerInChamber>(pset, consumesColl);
   }
-  
-
 
   // Getting buffer option
   activateBuffer_ = pset.getParameter<bool>("activateBuffer");
@@ -307,7 +304,7 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
       std::queue<std::pair<DTLayerId, DTDigi>> timequeue;
 
       for (const auto& elem : tmpvec)
-        timequeue.emplace(std::move(elem));
+        timequeue.emplace(elem);
       tmpvec.clear();
 
       // Distribute the digis from the queue into supercells
@@ -534,39 +531,37 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     if (debug_)
       LogDebug("DTTrigPhase2Prod") << "pushing back phase-2 dataformat carlo-federica dataformat";
 
-
-    if(slId.superLayer()!=2){
-	//phiTP    
-	outP2Ph.push_back(L1Phase2MuDTPhDigi(
-					     (int)round(metaPrimitiveIt.t0 / (float)LHC_CLK_FREQ) - shift_back,
-					     chId.wheel(),                                                // uwh (m_wheel)
-					     sectorTP,                                                    // usc (m_sector)
-					     chId.station(),                                              // ust (m_station)
-					     sl,                                                          // ust (m_station)
-					     (int)round(metaPrimitiveIt.phi * PHIRES_CONV),               // uphi (_phiAngle)
-					     (int)round(metaPrimitiveIt.phiB * PHIBRES_CONV),             // uphib (m_phiBending)
-					     metaPrimitiveIt.quality,                                     // uqua (m_qualityCode)
-					     metaPrimitiveIt.index,                                       // uind (m_segmentIndex)
-					     (int)round(metaPrimitiveIt.t0) - shift_back * LHC_CLK_FREQ,  // ut0 (m_t0Segment)
-					     (int)round(metaPrimitiveIt.chi2 * CHI2RES_CONV),             // uchi2 (m_chi2Segment)
-					     metaPrimitiveIt.rpcFlag                                      // urpc (m_rpcFlag)
-					     ));
-    }else{
-	//thTP
-	    outP2Th.push_back(L1Phase2MuDTThDigi(
-						 (int)round(metaPrimitiveIt.t0 / (float)LHC_CLK_FREQ) - shift_back, 
-						 chId.wheel(),                                               // uwh (m_wheel)     
-						 sectorTP,                                                   // usc (m_sector)    
-						 chId.station(),                                             // ust (m_station)
-						 (int)round(metaPrimitiveIt.phi * ZRES_CONV),                  // uz (m_zGlobal)
-						 (int)round(metaPrimitiveIt.phiB * KRES_CONV),                 // uk (m_kSlope)
-						 metaPrimitiveIt.quality,                                    // uqua (m_qualityCode)
-						 metaPrimitiveIt.index,                                      // uind (m_segmentIndex)
-						 (int)round(metaPrimitiveIt.t0) - shift_back * LHC_CLK_FREQ, // ut0 (m_t0Segment)
-						 (int)round(metaPrimitiveIt.chi2 * CHI2RES_CONV),            // uchi2 (m_chi2Segment)
-						 metaPrimitiveIt.rpcFlag                                     // urpc (m_rpcFlag)
-						 ));
-	    
+    if (slId.superLayer() != 2) {
+      //phiTP
+      outP2Ph.push_back(L1Phase2MuDTPhDigi(
+          (int)round(metaPrimitiveIt.t0 / (float)LHC_CLK_FREQ) - shift_back,
+          chId.wheel(),                                                // uwh (m_wheel)
+          sectorTP,                                                    // usc (m_sector)
+          chId.station(),                                              // ust (m_station)
+          sl,                                                          // ust (m_station)
+          (int)round(metaPrimitiveIt.phi * PHIRES_CONV),               // uphi (_phiAngle)
+          (int)round(metaPrimitiveIt.phiB * PHIBRES_CONV),             // uphib (m_phiBending)
+          metaPrimitiveIt.quality,                                     // uqua (m_qualityCode)
+          metaPrimitiveIt.index,                                       // uind (m_segmentIndex)
+          (int)round(metaPrimitiveIt.t0) - shift_back * LHC_CLK_FREQ,  // ut0 (m_t0Segment)
+          (int)round(metaPrimitiveIt.chi2 * CHI2RES_CONV),             // uchi2 (m_chi2Segment)
+          metaPrimitiveIt.rpcFlag                                      // urpc (m_rpcFlag)
+          ));
+    } else {
+      //thTP
+      outP2Th.push_back(L1Phase2MuDTThDigi(
+          (int)round(metaPrimitiveIt.t0 / (float)LHC_CLK_FREQ) - shift_back,
+          chId.wheel(),                                                // uwh (m_wheel)
+          sectorTP,                                                    // usc (m_sector)
+          chId.station(),                                              // ust (m_station)
+          (int)round(metaPrimitiveIt.phi * ZRES_CONV),                 // uz (m_zGlobal)
+          (int)round(metaPrimitiveIt.phiB * KRES_CONV),                // uk (m_kSlope)
+          metaPrimitiveIt.quality,                                     // uqua (m_qualityCode)
+          metaPrimitiveIt.index,                                       // uind (m_segmentIndex)
+          (int)round(metaPrimitiveIt.t0) - shift_back * LHC_CLK_FREQ,  // ut0 (m_t0Segment)
+          (int)round(metaPrimitiveIt.chi2 * CHI2RES_CONV),             // uchi2 (m_chi2Segment)
+          metaPrimitiveIt.rpcFlag                                      // urpc (m_rpcFlag)
+          ));
     }
   }
 
