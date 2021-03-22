@@ -24,7 +24,7 @@ run2_miniAOD_80XLegacy.toModify( slimmedElectronsTo106X.modifierConfig.modificat
 
 # this below is used only in some eras
 slimmedElectronsUpdated = cms.EDProducer("PATElectronUpdater",
-    src = cms.InputTag("slimmedElectronsTo106X"),
+    src = cms.InputTag("slimmedElectrons"),
     vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
     computeMiniIso = cms.bool(False),
     fixDxySign = cms.bool(True),
@@ -34,14 +34,13 @@ slimmedElectronsUpdated = cms.EDProducer("PATElectronUpdater",
 )
 run2_miniAOD_80XLegacy.toModify( slimmedElectronsUpdated, computeMiniIso = True )
 # bypass the update to 106X in 106X to only pick up the IP sign fix
-run2_egamma_2016.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectrons"))
-run2_egamma_2017.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectrons"))
-run2_egamma_2018.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectrons"))
-run2_nanoAOD_106Xv1.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectrons"))
+#run2_egamma_2016.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectrons"))
+#run2_egamma_2017.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectrons"))
+#run2_egamma_2018.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectrons"))
+#run2_nanoAOD_106Xv1.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectrons"))
 ####because run2_egamma_2017 and run2_egamma_2018 can modify things further, need the following line to resort back
 for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
     modifier.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectronsTo106X"))
-
 
 electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
     modules = cms.vstring(
@@ -547,21 +546,19 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
 ##Adding the 4 most important scale & smearing corrections to electron table 
 for modifier in run2_nanoAOD_106Xv1,run2_nanoAOD_106Xv2,run2_egamma_2016,run2_egamma_2017,run2_egamma_2018,run2_miniAOD_80XLegacy, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
     modifier.toModify(electronTable.variables,
-        energyScaleUp=Var("userFloat('energyScaleUpNew')", float,  doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
-        energyScaleDown=Var("userFloat('energyScaleDownNew')", float,  doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
-        energySigmaUp=Var("userFloat('energySigmaUpNew')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
-        energySigmaDown=Var("userFloat('energySigmaDownNew')", float,  doc="energy with the ecal energy smearing value shifted 1 sigma up"),
+                      dEscaleUp=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energyScaleUpNew')", float,  doc="ecal energy scale shifted 1 sigma up(adding gain/stat/syst in quadrature)", precision=8),
+                      dEscaleDown=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energyScaleDownNew')", float,  doc="ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature)", precision=8),
+                      dEsigmaUp=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energySigmaUpNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
+                      dEsigmaDown=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energySigmaDownNew')", float,  doc="ecal energy smearing value shifted 1 sigma up", precision=8),
     )
 
 # scale and smearing only when available
 for modifier in run2_nanoAOD_94X2016,:
     modifier.toModify(electronTable.variables,
-        energyScaleUp=Var("userFloat('energyScaleUp')", float,  doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
-        energyScaleDown=Var("userFloat('energyScaleDown')", float,  doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
-        energySigmaUp=Var("userFloat('energySigmaUp')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
-        energySigmaDown=Var("userFloat('energySigmaDown')", float,  doc="energy with the ecal energy smearing value shifted 1 sigma up"),
-                      
-
+                      dEscaleUp=Var("userFloat('ecalTrkEnergyPostCorr')-userFloat('energyScaleUp')", float,  doc="ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)", precision=8),
+                      dEscaleDown=Var("userFloat('ecalTrkEnergyPostCorr')-userFloat('energyScaleDown')", float,  doc="ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature)", precision=8),
+                      dEsigmaUp=Var("userFloat('ecalTrkEnergyPostCorr')-userFloat('energySigmaUp')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
+                      dEsigmaDown=Var("userFloat('ecalTrkEnergyPostCorr')-userFloat('energySigmaDown')", float,  doc="ecal energy smearing value shifted 1 sigma up", precision=8),
     )
 
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)

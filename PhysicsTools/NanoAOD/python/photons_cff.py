@@ -299,21 +299,19 @@ for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94
 ##adding 4 most imp scale & smearing variables to table
 for modifier in run2_nanoAOD_106Xv1,run2_nanoAOD_106Xv2,run2_egamma_2016,run2_egamma_2017,run2_egamma_2018,run2_miniAOD_80XLegacy, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
     modifier.toModify(photonTable.variables,
-        energyScaleUp=Var("userFloat('energyScaleUpNew')", float, doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
-        energyScaleDown=Var("userFloat('energyScaleDownNew')", float, doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
-        energySigmaUp=Var("userFloat('energySigmaUpNew')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
-        energySigmaDown=Var("userFloat('energySigmaDownNew')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
-
-)
+                      dEscaleUp=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energyScaleUpNew')", float, doc="ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)", precision=8),
+                      dEscaleDown=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energyScaleDownNew')", float, doc="ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature)", precision=8),
+                      dEsigmaUp=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energySigmaUpNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
+                      dEsigmaDown=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energySigmaDownNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
+    )
 
 for modifier in run2_nanoAOD_94X2016,:
     modifier.toModify(photonTable.variables,
-        energyScaleUp=Var("userFloat('energyScaleUp')", float,  doc="energy with the ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)"),
-        energyScaleDown=Var("userFloat('energyScaleDown')", float,  doc="energy with the ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature) "),
-        energySigmaUp=Var("userFloat('energySigmaUp')", float, doc="energy with the ecal energy smearing value shifted 1 sigma up"),
-        energySigmaDown=Var("userFloat('energySigmaDown')", float,  doc="energy with the ecal energy smearing value shifted 1 sigma up"),
-                      
-)
+                      dEscaleUp=Var("userFloat('ecalEnergyPostCorr') - userFloat('energyScaleUp')", float,  doc="ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)", precision=8),
+                      dEscaleDown=Var("userFloat('ecalEnergyPostCorr') - userFloat('energyScaleDown')", float,  doc="ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature)", precision=8),
+                      dEsigmaUp=Var("userFloat('ecalEnergyPostCorr') - userFloat('energySigmaUp')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
+                      dEsigmaDown=Var("userFloat('ecalEnergyPostCorr') - userFloat('energySigmaDown')", float,  doc="ecal energy smearing value shifted 1 sigma up", precision=8),
+    )
 
 photonSequence = cms.Sequence(
         bitmapVIDForPho + \
