@@ -32,11 +32,6 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32($3)
 )
 
-#process.hcal_db_producer = cms.ESProducer("HcalDbProducer",
-#    dump = cms.untracked.vstring(''),
-#    file = cms.untracked.string('')
-#)
-
 process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = '$connectstring'
 
