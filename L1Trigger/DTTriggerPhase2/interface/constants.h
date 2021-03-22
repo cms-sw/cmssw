@@ -182,17 +182,17 @@ namespace cmsdt {
   // In mm / ns (velocidad de deriva)
   constexpr float DRIFT_SPEED = 0.0542;
   // With 4 bits for the decimal part
-  constexpr int DRIFT_SPEED_X4 = 889; // 55.5 * 2 ** 4 
+  constexpr int DRIFT_SPEED_X4 = 889;  // 55.5 * 2 ** 4
 
   // distance between SLs, cm
   constexpr float VERT_PHI1_PHI3 = 23.5;
 
   // inverse of the distance between SLs, FW units
-  constexpr int VERT_PHI1_PHI3_INV = 558; 
+  constexpr int VERT_PHI1_PHI3_INV = 558;
 
   // distance between center of the chamber and each SL in mm, 2 bit precision for the decimal part
-  constexpr int CH_CENTER_TO_MID_SL_X2 = 470; // 117.5 * 2 ** 2
-  
+  constexpr int CH_CENTER_TO_MID_SL_X2 = 470;  // 117.5 * 2 ** 2
+
   /*
   This is the maximum value than internal time can take. This is because
   internal time is cyclical due to the limited size of the time counters and
@@ -221,7 +221,7 @@ namespace cmsdt {
   constexpr int TDCTIME_REDUCED_SIZE = 10;
   constexpr float ZRES_CONV = 65536. / 1500;
   constexpr float KRES_CONV = 65536. / 2;
- 
+
   /*
  * Size of pre-mixer buffers for DTPrimitives
  *
@@ -261,12 +261,12 @@ namespace cmsdt {
   constexpr int DIV_SHR_BITS_POS = 21;
   constexpr int DIV_SHR_BITS_SLOPE = 21;
   constexpr int DIV_SHR_BITS_SLOPE_XHH = 18;
-  
+
   constexpr int INCREASED_RES_T0 = 0;
   constexpr int INCREASED_RES_POS = 4;
   constexpr int INCREASED_RES_SLOPE = 12;
   constexpr int INCREASED_RES_SLOPE_XHH = 4;
-  
+
   constexpr int INCREASED_RES_POS_POW = 16;
   constexpr int INCREASED_RES_SLOPE_POW = 4096;
 
@@ -274,15 +274,15 @@ namespace cmsdt {
   constexpr int DTDD_PREADD = 9;
   constexpr int DTDD_MULT = 445;
   constexpr int DTDD_SHIFTR_BITS = 13;
-  
+
   /*
    * Local to global coordinates transformation
    */
-  
+
   constexpr int X_SIZE = 18;
-  constexpr int TANPSI_SIZE  = 15;
-  constexpr int PHI_SIZE = 17; // (1 / 2 ** 17)
-  constexpr int PHIB_SIZE = 11; // (2 ** 2) / (2 ** 13)
+  constexpr int TANPSI_SIZE = 15;
+  constexpr int PHI_SIZE = 17;   // (1 / 2 ** 17)
+  constexpr int PHIB_SIZE = 11;  // (2 ** 2) / (2 ** 13)
 
   constexpr int PHI_LUT_ADDR_WIDTH = 12;
   constexpr int PHI_B_SHL_BITS = 7;
@@ -297,7 +297,6 @@ namespace cmsdt {
   constexpr int PHIB_LUT_B_BITS = 16;
 
   constexpr int PHI_PHIB_RES_DIFF_BITS = 6;
-
 
 }  // namespace cmsdt
 

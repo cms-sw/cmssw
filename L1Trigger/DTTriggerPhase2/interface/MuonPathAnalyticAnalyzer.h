@@ -21,7 +21,7 @@ struct CONSTANTS {
 };
 
 struct LATCOMB_CONSTANTS {
-  int latcomb; 
+  int latcomb;
   CONSTANTS constants;
 };
 
@@ -42,8 +42,9 @@ struct CELL_VALID_LAYOUT_CONSTANTS {
 class MuonPathAnalyticAnalyzer : public MuonPathAnalyzer {
 public:
   // Constructors and destructor
-  MuonPathAnalyticAnalyzer(const edm::ParameterSet &pset, edm::ConsumesCollector &iC,
-    std::shared_ptr<GlobalCoordsObtainer> & globalcoordsobtainer);
+  MuonPathAnalyticAnalyzer(const edm::ParameterSet &pset,
+                           edm::ConsumesCollector &iC,
+                           std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer);
   ~MuonPathAnalyticAnalyzer() override;
 
   // Main methods
@@ -81,11 +82,19 @@ private:
   // Private methods
   void analyze(MuonPathPtr &inMPath, std::vector<cmsdt::metaPrimitive> &metaPrimitives);
   void fillLAYOUT_VALID_TO_LATCOMB_CONSTS_ENCODER();
-  void segment_fitter(DTSuperLayerId MuonPathSLId, int wires[4], int t0s[4], int valid[4], int reduced_times[4],
-    int cell_horiz_layout[4], LATCOMB_CONSTANTS latcomb_consts, int xwire_mm[4], int coarse_pos, int coarse_offset,
-    std::vector<cmsdt::metaPrimitive> &metaPrimitives);
+  void segment_fitter(DTSuperLayerId MuonPathSLId,
+                      int wires[4],
+                      int t0s[4],
+                      int valid[4],
+                      int reduced_times[4],
+                      int cell_horiz_layout[4],
+                      LATCOMB_CONSTANTS latcomb_consts,
+                      int xwire_mm[4],
+                      int coarse_pos,
+                      int coarse_offset,
+                      std::vector<cmsdt::metaPrimitive> &metaPrimitives);
   int compute_parameter(MAGNITUDE constants, int t0s[4], int DIV_SHR_BITS, int INCREASED_RES);
-  std::vector <int> getLateralityCombination (int latcomb);
+  std::vector<int> getLateralityCombination(int latcomb);
 
   // Private attributes
 
@@ -100,11 +109,10 @@ private:
   int cellLayout_[cmsdt::NUM_LAYERS];
   bool cmssw_for_global_;
   std::string geometry_tag_;
-  std::vector <CELL_VALID_LAYOUT_CONSTANTS> LAYOUT_VALID_TO_LATCOMB_CONSTS_ENCODER;
-  
+  std::vector<CELL_VALID_LAYOUT_CONSTANTS> LAYOUT_VALID_TO_LATCOMB_CONSTS_ENCODER;
+
   // global coordinates
   std::shared_ptr<GlobalCoordsObtainer> globalcoordsobtainer_;
-
 };
 
 #endif
