@@ -518,23 +518,19 @@ process.load("HLT_75e33/modules/hltBTagPFPuppiDeepFlavour0p275Eta2p4TripleEta2p4
 process.load("HLT_75e33/modules/hltBTagPFPuppiDeepFlavour0p375Eta2p4TripleEta2p4_cfi")
 process.load("HLT_75e33/modules/hltBTagPFPuppiDeepFlavour0p935DoubleEta2p4_cfi")
 process.load("HLT_75e33/modules/hltCaloMET_cfi")
-process.load("HLT_75e33/modules/hltDeepBLifetimeTagInfosPF_cfi")
 process.load("HLT_75e33/modules/hltDeepBLifetimeTagInfosPFPuppi_cfi")
 process.load("HLT_75e33/modules/hltDeepBLifetimeTagInfosPFPuppiModEta2p4_cfi")
-process.load("HLT_75e33/modules/hltDeepCombinedSecondaryVertexBJetTagsInfos_cfi")
 process.load("HLT_75e33/modules/hltDeepCombinedSecondaryVertexBJetTagsInfosPuppi_cfi")
 process.load("HLT_75e33/modules/hltDeepCombinedSecondaryVertexBJetTagsInfosPuppiModEta2p4_cfi")
-process.load("HLT_75e33/modules/hltDeepCombinedSecondaryVertexBJetTagsPF_cfi")
 process.load("HLT_75e33/modules/hltDeepCombinedSecondaryVertexBJetTagsPFPuppi_cfi")
 process.load("HLT_75e33/modules/hltDeepCombinedSecondaryVertexBJetTagsPFPuppiModEta2p4_cfi")
 process.load("HLT_75e33/modules/hltDeepInclusiveMergedVerticesPF_cfi")
 process.load("HLT_75e33/modules/hltDeepInclusiveSecondaryVerticesPF_cfi")
 process.load("HLT_75e33/modules/hltDeepInclusiveVertexFinderPF_cfi")
-process.load("HLT_75e33/modules/hltDeepSecondaryVertexTagInfosPF_cfi")
 process.load("HLT_75e33/modules/hltDeepSecondaryVertexTagInfosPFPuppi_cfi")
 process.load("HLT_75e33/modules/hltDeepSecondaryVertexTagInfosPFPuppiModEta2p4_cfi")
 process.load("HLT_75e33/modules/hltDeepTrackVertexArbitratorPF_cfi")
-process.load("HLT_75e33/modules/hltDoublePFPuppiJets128Eta2p3MaxDeta1p6_cfi")
+process.load("HLT_75e33/modules/hltDoublePFPuppiJets128Eta2p4MaxDeta1p6_cfi")
 process.load("HLT_75e33/modules/hltDoublePFPuppiJets128MaxEta2p4_cfi")
 process.load("HLT_75e33/modules/hltHtMhtPFPuppiCentralJetsQuadC30MaxEta2p4_cfi")
 process.load("HLT_75e33/modules/hltParticleFlowSoftKiller_cfi")
@@ -543,10 +539,6 @@ process.load("HLT_75e33/modules/hltPfDeepFlavourJetTags_cfi")
 process.load("HLT_75e33/modules/hltPfDeepFlavourJetTagsModEta2p4_cfi")
 process.load("HLT_75e33/modules/hltPfDeepFlavourTagInfos_cfi")
 process.load("HLT_75e33/modules/hltPfDeepFlavourTagInfosModEta2p4_cfi")
-process.load("HLT_75e33/modules/hltPfJetBProbabilityBJetTags_cfi")
-process.load("HLT_75e33/modules/hltPfJetBProbabilityBJetTagsPuppi_cfi")
-process.load("HLT_75e33/modules/hltPfJetProbabilityBJetTags_cfi")
-process.load("HLT_75e33/modules/hltPfJetProbabilityBJetTagsPuppi_cfi")
 process.load("HLT_75e33/modules/hltPFMET_cfi")
 process.load("HLT_75e33/modules/hltPFMETJetCorrector_cfi")
 process.load("HLT_75e33/modules/hltPFMETJetCorrectorL1_cfi")
@@ -561,9 +553,7 @@ process.load("HLT_75e33/modules/hltPFPuppiCentralJetsQuad30HT330MaxEta2p4_cfi")
 process.load("HLT_75e33/modules/hltPFPuppiHT_cfi")
 process.load("HLT_75e33/modules/hltPFPuppiHT1070_cfi")
 process.load("HLT_75e33/modules/hltPFPuppiJetForBtagEta2p4_cfi")
-process.load("HLT_75e33/modules/hltPFPuppiJetForBtagEta4p0_cfi")
 process.load("HLT_75e33/modules/hltPFPuppiJetForBtagSelectorEta2p4_cfi")
-process.load("HLT_75e33/modules/hltPFPuppiJetForBtagSelectorEta4p0_cfi")
 process.load("HLT_75e33/modules/hltPFPuppiMET_cfi")
 process.load("HLT_75e33/modules/hltPFPuppiMETTypeOne_cfi")
 process.load("HLT_75e33/modules/hltPFPuppiMETTypeOne140_cfi")
@@ -592,11 +582,10 @@ process.load("HLT_75e33/modules/l1t2PFPuppiJet55offMaxEta2p4_cfi")
 process.load("HLT_75e33/modules/l1t4PFPuppiJet25OnlineMaxEta2p4_cfi")
 process.load("HLT_75e33/modules/l1t4PFPuppiJet40offMaxEta2p4_cfi")
 process.load("HLT_75e33/modules/l1tDoublePFPuppiJet112offMaxEta2p4_cfi")
-process.load("HLT_75e33/modules/l1tDoublePFPuppiJets128Eta2p3MaxDeta1p6_cfi")
+process.load("HLT_75e33/modules/l1tDoublePFPuppiJets112offMaxDeta1p6_cfi")
 process.load("HLT_75e33/modules/l1tPFPuppiHT_cfi")
 process.load("HLT_75e33/modules/l1tPFPuppiHT400offMaxEta2p4_cfi")
 process.load("HLT_75e33/modules/l1tPFPuppiHT450off_cfi")
-process.load("HLT_75e33/modules/l1tPFPuppiHTMaxEta2p4_cfi")
 process.load("HLT_75e33/modules/l1tPFPuppiMET220off_cfi")
 process.load("HLT_75e33/modules/l1tSinglePFPuppiJet230off_cfi")
 process.load("HLT_75e33/modules/l1tSlwPFPuppiJets_cfi")
@@ -730,32 +719,22 @@ process.load("HLT_75e33/modules/unsortedOfflinePrimaryVertices_cfi")
 process.load("HLT_75e33/modules/vertexMerger_cfi")
 process.load("HLT_75e33/modules/zdcreco_cfi")
 process.load("HLT_75e33/paths/HLT_AK4PFPuppiJet520_cfi")
-process.load("HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4_v1_cfi")
-process.load("HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4_v1_cfi")
-process.load("HLT_75e33/paths/HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepCSV_2p4_v1_cfi")
-process.load("HLT_75e33/paths/HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4_v1_cfi")
-process.load("HLT_75e33/paths/HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepCSV_2p4_v1_cfi")
-process.load("HLT_75e33/paths/HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4_v1_cfi")
+process.load("HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4_cfi")
+process.load("HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4_cfi")
+process.load("HLT_75e33/paths/HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepCSV_2p4_cfi")
+process.load("HLT_75e33/paths/HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4_cfi")
+process.load("HLT_75e33/paths/HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepCSV_2p4_cfi")
+process.load("HLT_75e33/paths/HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4_cfi")
 process.load("HLT_75e33/paths/HLT_PFPuppiHT1070_cfi")
 process.load("HLT_75e33/paths/HLT_PFPuppiMETTypeOne140_PFPuppiMHT140_cfi")
-process.load("HLT_75e33/paths/HLTObjects_cfi")
-process.load("HLT_75e33/paths/L1_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_p71_2p4_v1_cfi")
-process.load("HLT_75e33/paths/L1_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepCSV_2p4_v1_cfi")
-process.load("HLT_75e33/paths/L1Objects_cfi")
+process.load("HLT_75e33/paths/L1T_DoublePFPuppiJets112_2p4_DEta1p6_cfi")
+process.load("HLT_75e33/paths/L1T_PFHT400PT30_QuadPFPuppiJet_70_55_40_40_2p4_cfi")
 process.load("HLT_75e33/paths/L1T_PFPuppiHT450off_cfi")
 process.load("HLT_75e33/paths/L1T_PFPuppiMET220off_cfi")
 process.load("HLT_75e33/paths/L1T_SinglePFPuppiJet230off_cfi")
 process.load("HLT_75e33/paths/l1tReconstructionPath_cfi")
 process.load("HLT_75e33/paths/MC_JME_cfi")
-process.load("HLT_75e33/paths/noFilter_PFBProba_path_cfi")
-process.load("HLT_75e33/paths/noFilter_PFBProbaPuppi_path_cfi")
-process.load("HLT_75e33/paths/noFilter_PFDeepCSV_path_cfi")
-process.load("HLT_75e33/paths/noFilter_PFDeepCSVPuppi_cfi")
-process.load("HLT_75e33/paths/noFilter_PFDeepCSVPuppi_path_cfi")
-process.load("HLT_75e33/paths/noFilter_PFDeepFlavourPuppi_cfi")
-process.load("HLT_75e33/paths/noFilter_PFDeepFlavourPuppi_path_cfi")
-process.load("HLT_75e33/paths/noFilter_PFProba_path_cfi")
-process.load("HLT_75e33/paths/noFilter_PFProbaPuppi_path_cfi")
+process.load("HLT_75e33/paths/MC_BTV_cfi")
 process.load("HLT_75e33/psets/AnomalousCellParameters_cfi")
 process.load("HLT_75e33/psets/apd_sim_parameters_cfi")
 process.load("HLT_75e33/psets/caloParticles_cfi")
@@ -1050,15 +1029,10 @@ process.load("HLT_75e33/sequences/highPtTripletStepSequence_cfi")
 process.load("HLT_75e33/sequences/HLTAK4PFJetsReconstruction_cfi")
 process.load("HLT_75e33/sequences/HLTAK4PFPuppiJetsReconstruction_cfi")
 process.load("HLT_75e33/sequences/HLTAK8PFJetsReconstruction_cfi")
-process.load("HLT_75e33/sequences/HLTBtagBProbabiltySequencePF_cfi")
-process.load("HLT_75e33/sequences/HLTBtagBProbabiltySequencePFPuppi_cfi")
-process.load("HLT_75e33/sequences/HLTBtagDeepCSVSequencePF_cfi")
 process.load("HLT_75e33/sequences/HLTBtagDeepCSVSequencePFPuppi_cfi")
 process.load("HLT_75e33/sequences/HLTBtagDeepCSVSequencePFPuppiModEta2p4_cfi")
 process.load("HLT_75e33/sequences/HLTBtagDeepFlavourSequencePFPuppi_cfi")
 process.load("HLT_75e33/sequences/HLTBtagDeepFlavourSequencePFPuppiModEta2p4_cfi")
-process.load("HLT_75e33/sequences/HLTBtagProbabiltySequencePF_cfi")
-process.load("HLT_75e33/sequences/HLTBtagProbabiltySequencePFPuppi_cfi")
 process.load("HLT_75e33/sequences/HLTCaloMETReconstruction_cfi")
 process.load("HLT_75e33/sequences/HLTJMESequence_cfi")
 process.load("HLT_75e33/sequences/HLTParticleFlowSequence_cfi")
@@ -1168,31 +1142,19 @@ process.schedule = cms.Schedule(*[
     process.HLT_PFPuppiHT1070,
     process.HLT_PFPuppiMETTypeOne140_PFPuppiMHT140,
 
-    # L1T and HLT objects used by b-tagging
-    process.L1Objects,
-    process.HLTObjects,
-
     # b-tagging L1T paths
-    process.L1_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepCSV_2p4_v1,
-    process.L1_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_p71_2p4_v1,
+    process.L1T_PFHT400PT30_QuadPFPuppiJet_70_55_40_40_2p4,
+    process.L1T_DoublePFPuppiJets112_2p4_DEta1p6,
 
     # b-tagging HLT paths
-    process.HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepCSV_2p4_v1,
-    process.HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepCSV_2p4_v1,
-    process.HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4_v1,
-    process.HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4_v1,
-    process.HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4_v1,
-    process.HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4_v1,
+    process.HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepCSV_2p4,
+    process.HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepCSV_2p4,
+    process.HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4,
+    process.HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4,
+    process.HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4,
+    process.HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4,
 
     # MC-like paths, without any filters
     process.MC_JME,
-    process.noFilter_PFDeepCSVPuppi,
-    process.noFilter_PFDeepFlavourPuppi,
-    process.noFilter_PFDeepCSV_path,
-    process.noFilter_PFProba_path,
-    process.noFilter_PFBProba_path,
-    process.noFilter_PFDeepCSVPuppi_path,
-    process.noFilter_PFProbaPuppi_path,
-    process.noFilter_PFBProbaPuppi_path,
-    process.noFilter_PFDeepFlavourPuppi_path,
+    process.MC_BTV,
 ])
