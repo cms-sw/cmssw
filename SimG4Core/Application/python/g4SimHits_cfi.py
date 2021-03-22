@@ -410,10 +410,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         CosApertureTrapped= cms.double(0.5),
         SinPsiMax         = cms.untracked.double(0.5),
         ParametrizeLast   = cms.untracked.bool(False),
-        HFShowerBlock     = HFShowerBlock
+        HFShowerBlock     = cms.PSet(refToPSet_ = cms.string("HFShowerBlock"))
     ),
     HFShowerLibrary = cms.PSet(
-        HFLibraryFileBlock    = HFLibraryFileBlock
+        HFLibraryFileBlock = cms.PSet(refToPSet_ = cms.string("HFLibraryFileBlock"))
     ),
     HFShowerPMT = cms.PSet(
         common_UsePMT,
