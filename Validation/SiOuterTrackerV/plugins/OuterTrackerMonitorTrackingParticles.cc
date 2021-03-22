@@ -38,7 +38,7 @@
 // constructors and destructor
 //
 OuterTrackerMonitorTrackingParticles::OuterTrackerMonitorTrackingParticles(const edm::ParameterSet &iConfig)
-    : conf_(iConfig) {
+    : m_topoToken(esConsumes()), conf_(iConfig) {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   trackingParticleToken_ =
       consumes<std::vector<TrackingParticle>>(conf_.getParameter<edm::InputTag>("trackingParticleToken"));
@@ -80,9 +80,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event &iEvent, con
   iEvent.getByToken(ttStubMCTruthToken_, MCTruthTTStubHandle);
 
   // Geometries
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology *const tTopo = &iSetup.getData(m_topoToken);
 
   // Loop over tracking particles
   int this_tp = 0;
