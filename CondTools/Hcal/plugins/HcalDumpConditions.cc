@@ -235,22 +235,6 @@ namespace edmtest {
         mDumpRequest, e, context, "TPChannelParameters", topo, tok_TPChannelParameters);
     dumpIt<HcalTPParameters, HcalTPParametersRcd>(mDumpRequest, e, context, "TPParameters", tok_TPParameters);
 
-    /*
-
-    // Calibration...Set items 
-    const HcalDbService* pSetup = &context.getData(m_tokdb);
-    if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("CalibrationsSet")) != mDumpRequest.end() ||
-	std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("CalibrationWidthsSet")) !=
-	mDumpRequest.end()) {
-      if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("CalibrationsSet")) != mDumpRequest.end()) {
-	  writeToFile(*(pSetup->getHcalCalibrationsSet()), e, "CalibrationsSet");
-      }
-      if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("CalibrationWidthsSet")) !=
-	  mDumpRequest.end()) {
-	writeToFile(*pSetup->getHcalCalibrationWidthsSet(), e, "CalibrationWidthsSet");
-      }
-    }
-    */
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);
 }  // namespace edmtest
