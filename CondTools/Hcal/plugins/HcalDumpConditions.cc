@@ -234,7 +234,6 @@ namespace edmtest {
     dumpIt<HcalTPChannelParameters, HcalTPChannelParametersRcd>(
         mDumpRequest, e, context, "TPChannelParameters", topo, tok_TPChannelParameters);
     dumpIt<HcalTPParameters, HcalTPParametersRcd>(mDumpRequest, e, context, "TPParameters", tok_TPParameters);
-
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);
 }  // namespace edmtest
