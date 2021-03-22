@@ -422,7 +422,7 @@ struct HGCalMixLayer {
     int firstWafer = waferLayerStart_[layer];
     int lastWafer =
         ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
-                                                                 : static_cast<int>(waferLayerStart_.size()));
+                                                                 : static_cast<int>(waferIndex_.size()));
     double r = 0.5 * (waferSize_ + waferSepar_);
     double R = 2.0 * r / sqrt3;
     double dy = 0.75 * R;
