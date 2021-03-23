@@ -152,7 +152,7 @@ public:
             if (highestPtConstituent) {
               auto iter =
                   std::find_if(genParts->begin(), genParts->end(), [highestPtConstituent](reco::GenParticle genp) {
-                    return (abs(genp.pdgId()) != 11) && (deltaR(genp, *highestPtConstituent) < 0.01) &&
+                    return (abs(genp.pdgId()) == 11) && (deltaR(genp, *highestPtConstituent) < 0.01) &&
                            (abs(genp.pt() - highestPtConstituent->pt()) / highestPtConstituent->pt() < 0.01);
                   });
               if (iter != genParts->end()) {
