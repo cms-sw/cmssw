@@ -15,13 +15,13 @@
   <flags CXXFLAGS="-g"/>
 </bin>
 
-<bin file="testRiemannFit.cpp" name="testBrokenLineFit">
+<bin file="testFits.cpp" name="testBrokenLineFit">
   <use name="cuda"/>
   <use name="eigen"/>
   <flags CXXFLAGS="-g -DUSE_BL"/>
 </bin>
 
-<bin file="testRiemannFit.cpp" name="testRiemannFitDump">
+<bin file="testFits.cpp" name="testRiemannFitDump">
   <use name="cuda"/>
   <use name="eigen"/>
   <flags CXXFLAGS="-g -DRFIT_DEBUG"/>
@@ -55,14 +55,14 @@
   <flags CXXFLAGS="-DEIGEN_NO_DEBUG"/>
 </bin>
 
-<bin file="PixelTrackRiemannFit.cc" name="PixelTrackBrokenLineFit">
+<bin file="PixelTrackFits.cc" name="PixelTrackBrokenLineFit">
   <use name="cuda"/>
   <use name="eigen"/>
   <use name="root"/>
   <flags CXXFLAGS="-DEIGEN_NO_DEBUG -DUSE_BL"/>
 </bin>
 
-<bin file="PixelTrackRiemannFit.cc" name="PixelTrackRiemannFit_Debug">
+<bin file="PixelTrackFits.cc" name="PixelTrackRiemannFit_Debug">
   <use name="cuda"/>
   <use name="eigen"/>
   <use name="root"/>

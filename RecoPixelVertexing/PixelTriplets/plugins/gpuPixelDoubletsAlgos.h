@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoubletsAlgos_h
-#define RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoubletsAlgos_h
+#ifndef RecoPixelVertexing_PixelTriplets_plugins_gpuPixelDoubletsAlgos_h
+#define RecoPixelVertexing_PixelTriplets_plugins_gpuPixelDoubletsAlgos_h
 
 #include <algorithm>
 #include <cmath>
@@ -17,10 +17,10 @@
 
 namespace gpuPixelDoublets {
 
-  using CellNeighbors = CAConstants::CellNeighbors;
-  using CellTracks = CAConstants::CellTracks;
-  using CellNeighborsVector = CAConstants::CellNeighborsVector;
-  using CellTracksVector = CAConstants::CellTracksVector;
+  using CellNeighbors = caConstants::CellNeighbors;
+  using CellTracks = caConstants::CellTracks;
+  using CellNeighborsVector = caConstants::CellNeighborsVector;
+  using CellTracksVector = caConstants::CellTracksVector;
 
   __device__ __forceinline__ void doubletsFromHisto(uint8_t const* __restrict__ layerPairs,
                                                     uint32_t nPairs,
@@ -61,7 +61,7 @@ namespace gpuPixelDoublets {
     // nPairsMax to be optimized later (originally was 64).
     // If it should be much bigger, consider using a block-wide parallel prefix scan,
     // e.g. see  https://nvlabs.github.io/cub/classcub_1_1_warp_scan.html
-    const int nPairsMax = CAConstants::maxNumberOfLayerPairs();
+    const int nPairsMax = caConstants::maxNumberOfLayerPairs;
     assert(nPairs <= nPairsMax);
     __shared__ uint32_t innerLayerCumulativeSize[nPairsMax];
     __shared__ uint32_t ntot;
@@ -142,8 +142,8 @@ namespace gpuPixelDoublets {
       // all cuts: true if fails
       constexpr float z0cut = 12.f;      // cm
       constexpr float hardPtCut = 0.5f;  // GeV
-      constexpr float minRadius =
-          hardPtCut * 87.78f;  // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
+      // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
+      constexpr float minRadius = hardPtCut * 87.78f;
       constexpr float minRadius2T4 = 4.f * minRadius * minRadius;
       auto ptcut = [&](int j, int16_t idphi) {
         auto r2t4 = minRadius2T4;
@@ -178,7 +178,6 @@ namespace gpuPixelDoublets {
       auto kl = PhiBinner::bin(int16_t(mep - iphicut));
       auto kh = PhiBinner::bin(int16_t(mep + iphicut));
       auto incr = [](auto& k) { return k = (k + 1) % PhiBinner::nbins(); };
-      // bool piWrap = std::abs(kh-kl) > PhiBinner::nbins()/2;
 
 #ifdef GPU_DEBUG
       int tot = 0;
@@ -241,4 +240,4 @@ namespace gpuPixelDoublets {
 
 }  // namespace gpuPixelDoublets
 
-#endif  // RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoupletsAlgos_h
+#endif  // RecoPixelVertexing_PixelTriplets_plugins_gpuPixelDoubletsAlgos_h

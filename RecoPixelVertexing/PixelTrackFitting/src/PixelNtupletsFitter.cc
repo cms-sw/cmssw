@@ -26,7 +26,7 @@ PixelNtupletsFitter::PixelNtupletsFitter(float nominalB, const MagneticField* fi
 std::unique_ptr<reco::Track> PixelNtupletsFitter::run(const std::vector<const TrackingRecHit*>& hits,
                                                       const TrackingRegion& region,
                                                       const edm::EventSetup&) const {
-  using namespace Rfit;
+  using namespace riemannFit;
 
   std::unique_ptr<reco::Track> ret;
 
@@ -47,7 +47,7 @@ std::unique_ptr<reco::Track> PixelNtupletsFitter::run(const std::vector<const Tr
   }
 
   assert(nhits == 4);
-  Rfit::Matrix3xNd<4> hits_gp;
+  riemannFit::Matrix3xNd<4> hits_gp;
 
   Eigen::Matrix<float, 6, 4> hits_ge = Eigen::Matrix<float, 6, 4>::Zero();
 
@@ -58,10 +58,10 @@ std::unique_ptr<reco::Track> PixelNtupletsFitter::run(const std::vector<const Tr
         errors[i].czz();
   }
 
-  helix_fit fittedTrack = useRiemannFit_ ? Rfit::Helix_fit(hits_gp, hits_ge, nominalB_, true)
-                                         : BrokenLine::BL_Helix_fit(hits_gp, hits_ge, nominalB_);
+  HelixFit fittedTrack = useRiemannFit_ ? riemannFit::helixFit(hits_gp, hits_ge, nominalB_, true)
+                                        : brokenline::helixFit(hits_gp, hits_ge, nominalB_);
 
-  int iCharge = fittedTrack.q;
+  int iCharge = fittedTrack.qCharge;
 
   // parameters are:
   // 0: phi

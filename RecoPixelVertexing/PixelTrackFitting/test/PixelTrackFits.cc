@@ -18,15 +18,15 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace Rfit;
+using namespace riemannFit;
 using std::unique_ptr;
 
-namespace Rfit {
+namespace riemannFit {
   using Vector3i = Eigen::Matrix<int, 3, 1>;
   using Vector4i = Eigen::Matrix<int, 4, 1>;
   using Vector6d = Eigen::Matrix<double, 6, 1>;
   using Vector8d = Eigen::Matrix<double, 8, 1>;
-};  // namespace Rfit
+};  // namespace riemannFit
 
 // quadruplets...
 struct hits_gen {
@@ -64,7 +64,7 @@ void smearing(const Vector5d& err, const bool& isbarrel, double& x, double& y, d
   if (isbarrel) {
     double dev_Rp = dist_Rp(generator);
     double dev_R = dist_R(generator);
-    double R = sqrt(Rfit::sqr(x) + Rfit::sqr(y));
+    double R = sqrt(riemannFit::sqr(x) + riemannFit::sqr(y));
     x += dev_Rp * +y / R + dev_R * -x / R;
     y += dev_Rp * -x / R + dev_R * -y / R;
     z += dist_z(generator);
@@ -83,15 +83,19 @@ void Hits_cov(Eigen::Matrix<float, 6, 4>& V,
               const Vector5d& err,
               bool isbarrel) {
   if (isbarrel) {
-    double R2 = Rfit::sqr(hits(0, i)) + Rfit::sqr(hits(1, i));
-    V.col(i)[0] = (Rfit::sqr(err[1]) * Rfit::sqr(hits(1, i)) + Rfit::sqr(err[0]) * Rfit::sqr(hits(0, i))) / R2;
-    V.col(i)[2] = (Rfit::sqr(err[1]) * Rfit::sqr(hits(0, i)) + Rfit::sqr(err[0]) * Rfit::sqr(hits(1, i))) / R2;
-    V.col(i)[1] = (Rfit::sqr(err[0]) - Rfit::sqr(err[1])) * hits(1, i) * hits(0, i) / R2;
-    V.col(i)[5] = Rfit::sqr(err[2]);
+    double R2 = riemannFit::sqr(hits(0, i)) + riemannFit::sqr(hits(1, i));
+    V.col(i)[0] = (riemannFit::sqr(err[1]) * riemannFit::sqr(hits(1, i)) +
+                   riemannFit::sqr(err[0]) * riemannFit::sqr(hits(0, i))) /
+                  R2;
+    V.col(i)[2] = (riemannFit::sqr(err[1]) * riemannFit::sqr(hits(0, i)) +
+                   riemannFit::sqr(err[0]) * riemannFit::sqr(hits(1, i))) /
+                  R2;
+    V.col(i)[1] = (riemannFit::sqr(err[0]) - riemannFit::sqr(err[1])) * hits(1, i) * hits(0, i) / R2;
+    V.col(i)[5] = riemannFit::sqr(err[2]);
   } else {
-    V.col(i)[0] = Rfit::sqr(err[3]);
-    V.col(i)[2] = Rfit::sqr(err[3]);
-    V.col(i)[5] = Rfit::sqr(err[4]);
+    V.col(i)[0] = riemannFit::sqr(err[3]);
+    V.col(i)[2] = riemannFit::sqr(err[3]);
+    V.col(i)[5] = riemannFit::sqr(err[4]);
   }
 }
 
@@ -118,15 +122,15 @@ hits_gen Hits_gen(const unsigned int& n, const Matrix<double, 6, 1>& gen_par) {
   for (unsigned int i = 0; i < n; ++i) {
     const double a = gen_par(4);
     const double b = rad[i];
-    const double c = sqrt(Rfit::sqr(x2) + Rfit::sqr(y2));
-    const double beta = acos((Rfit::sqr(a) - Rfit::sqr(b) - Rfit::sqr(c)) / (-2. * b * c));
+    const double c = sqrt(riemannFit::sqr(x2) + riemannFit::sqr(y2));
+    const double beta = acos((riemannFit::sqr(a) - riemannFit::sqr(b) - riemannFit::sqr(c)) / (-2. * b * c));
     const double gamma = alpha + beta;
     gen.hits(0, i) = rad[i] * cos(gamma);
     gen.hits(1, i) = rad[i] * sin(gamma);
     gen.hits(2, i) =
         gen_par(2) +
         1 / tan(gen_par(5) * pi / 180) * 2. *
-            asin(sqrt(Rfit::sqr((gen_par(0) - gen.hits(0, i))) + Rfit::sqr((gen_par(1) - gen.hits(1, i)))) /
+            asin(sqrt(riemannFit::sqr((gen_par(0) - gen.hits(0, i))) + riemannFit::sqr((gen_par(1) - gen.hits(1, i)))) /
                  (2. * gen_par(4))) *
             gen_par(4);
     // isbarrel(i) = ??
@@ -143,10 +147,10 @@ Vector5d True_par(const Matrix<double, 6, 1>& gen_par, const int& charge, const 
   Vector5d true_par;
   const double x0 = gen_par(0) + gen_par(4) * cos(gen_par(3) * pi / 180);
   const double y0 = gen_par(1) + gen_par(4) * sin(gen_par(3) * pi / 180);
-  circle_fit circle;
+  CircleFit circle;
   circle.par << x0, y0, gen_par(4);
-  circle.q = 1;
-  Rfit::par_uvrtopak(circle, B_field, false);
+  circle.qCharge = 1;
+  riemannFit::par_uvrtopak(circle, B_field, false);
   true_par.block(0, 0, 3, 1) = circle.par;
   true_par(3) = 1 / tan(gen_par(5) * pi / 180);
   const int dir = ((gen_par(0) - cos(true_par(0) - pi / 2) * true_par(1)) * (gen_par(1) - y0) -
@@ -155,8 +159,8 @@ Vector5d True_par(const Matrix<double, 6, 1>& gen_par, const int& charge, const 
                       ? -1
                       : 1;
   true_par(4) = gen_par(2) + 1 / tan(gen_par(5) * pi / 180) * dir * 2.f *
-                                 asin(sqrt(Rfit::sqr((gen_par(0) - cos(true_par(0) - pi / 2) * true_par(1))) +
-                                           Rfit::sqr((gen_par(1) - sin(true_par(0) - pi / 2) * true_par(1)))) /
+                                 asin(sqrt(riemannFit::sqr((gen_par(0) - cos(true_par(0) - pi / 2) * true_par(1))) +
+                                           riemannFit::sqr((gen_par(1) - sin(true_par(0) - pi / 2) * true_par(1)))) /
                                       (2.f * gen_par(4))) *
                                  gen_par(4);
   return true_par;
@@ -365,7 +369,7 @@ void test_helix_fit(bool getcin) {
   const int iteration = 5000;
   gen_par = New_par(gen_par, 1, B_field);
   true_par = True_par(gen_par, 1, B_field);
-  std::array<helix_fit, iteration> helixRiemann_fit;
+  std::array<HelixFit, iteration> helixRiemann_fit;
 
   std::cout << "\nTrue parameters: "
             << "phi: " << true_par(0) << " "
@@ -387,9 +391,9 @@ void test_helix_fit(bool getcin) {
     delta -= std::chrono::high_resolution_clock::now() - start;
     helixRiemann_fit[i % iteration] =
 #ifdef USE_BL
-        BrokenLine::BL_Helix_fit(gen.hits, gen.hits_ge, B_field);
+        brokenline::helixFit(gen.hits, gen.hits_ge, B_field);
 #else
-        Rfit::Helix_fit(gen.hits, gen.hits_ge, B_field, true);
+        riemannFit::helixFit(gen.hits, gen.hits_ge, B_field, true);
 #endif
     delta += std::chrono::high_resolution_clock::now() - start;
 
@@ -406,7 +410,7 @@ void test_helix_fit(bool getcin) {
            << true_par(3) << endl
            << "Zip:  " << helixRiemann_fit[i].par(4) << " +/- " << sqrt(helixRiemann_fit[i].cov(4, 4)) << " vs "
            << true_par(4) << endl
-           << "charge:" << helixRiemann_fit[i].q << " vs 1" << endl
+           << "charge:" << helixRiemann_fit[i].qCharge << " vs 1" << endl
            << "covariance matrix:" << endl
            << helixRiemann_fit[i].cov << endl
            << "Initial hits:\n"

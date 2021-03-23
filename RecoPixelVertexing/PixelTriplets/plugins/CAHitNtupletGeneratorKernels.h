@@ -26,8 +26,8 @@ namespace cAHitNtupletGenerator {
   using HitsView = TrackingRecHit2DSOAView;
   using HitsOnGPU = TrackingRecHit2DSOAView;
 
-  using HitToTuple = CAConstants::HitToTuple;
-  using TupleMultiplicity = CAConstants::TupleMultiplicity;
+  using HitToTuple = caConstants::HitToTuple;
+  using TupleMultiplicity = caConstants::TupleMultiplicity;
 
   using Quality = pixelTrack::Quality;
   using TkSoA = pixelTrack::TrackSoA;
@@ -39,14 +39,14 @@ namespace cAHitNtupletGenerator {
     float chi2MaxPt;  // GeV
     float chi2Scale;
 
-    struct region {
+    struct Region {
       float maxTip;  // cm
       float minPt;   // GeV
       float maxZip;  // cm
     };
 
-    region triplet;
-    region quadruplet;
+    Region triplet;
+    Region quadruplet;
   };
 
   // params
@@ -152,14 +152,15 @@ public:
   using HitsOnGPU = TrackingRecHit2DSOAView;
   using HitsOnCPU = TrackingRecHit2DHeterogeneous<Traits>;
 
-  using HitToTuple = CAConstants::HitToTuple;
-  using TupleMultiplicity = CAConstants::TupleMultiplicity;
+  using HitToTuple = caConstants::HitToTuple;
+  using TupleMultiplicity = caConstants::TupleMultiplicity;
 
   using Quality = pixelTrack::Quality;
   using TkSoA = pixelTrack::TrackSoA;
   using HitContainer = pixelTrack::HitContainer;
 
-  CAHitNtupletGeneratorKernels(Params const& params) : m_params(params) {}
+  CAHitNtupletGeneratorKernels(Params const& params)
+      : params_(params), paramsMaxDoubletes3Quarters_(3 * params.maxNumberOfDoublets_ / 4) {}
   ~CAHitNtupletGeneratorKernels() = default;
 
   TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_.get(); }
@@ -175,15 +176,17 @@ public:
   void cleanup(cudaStream_t cudaStream);
 
   static void printCounters(Counters const* counters);
-  Counters* counters_ = nullptr;
+  void setCounters(Counters* counters) { counters_ = counters; }
 
 private:
+  Counters* counters_ = nullptr;
+
   // workspace
   unique_ptr<unsigned char[]> cellStorage_;
-  unique_ptr<CAConstants::CellNeighborsVector> device_theCellNeighbors_;
-  CAConstants::CellNeighbors* device_theCellNeighborsContainer_;
-  unique_ptr<CAConstants::CellTracksVector> device_theCellTracks_;
-  CAConstants::CellTracks* device_theCellTracksContainer_;
+  unique_ptr<caConstants::CellNeighborsVector> device_theCellNeighbors_;
+  caConstants::CellNeighbors* device_theCellNeighborsContainer_;
+  unique_ptr<caConstants::CellTracksVector> device_theCellTracks_;
+  caConstants::CellTracks* device_theCellTracksContainer_;
 
   unique_ptr<GPUCACell[]> device_theCells_;
   unique_ptr<GPUCACell::OuterHitOfCell[]> device_isOuterHitOfCell_;
@@ -198,7 +201,20 @@ private:
 
   unique_ptr<cms::cuda::AtomicPairCounter::c_type[]> device_storage_;
   // params
-  Params const& m_params;
+  Params const& params_;
+  /// Intermediate result avoiding repeated computations.
+  const uint32_t paramsMaxDoubletes3Quarters_;
+  /// Compute the number of doublet blocks for block size
+  inline uint32_t nDoubletBlocks(uint32_t blockSize) {
+    // We want (3 * params_.maxNumberOfDoublets_ / 4 + blockSize - 1) / blockSize, but first part is pre-computed.
+    return (paramsMaxDoubletes3Quarters_ + blockSize - 1) / blockSize;
+  }
+
+  /// Compute the number of quadruplet blocks for block size
+  inline uint32_t nQuadrupletBlocks(uint32_t blockSize) {
+    // caConstants::maxNumberOfQuadruplets is a constexpr, so the compiler will pre compute the 3*max/4
+    return (3 * caConstants::maxNumberOfQuadruplets / 4 + blockSize - 1) / blockSize;
+  }
 };
 
 using CAHitNtupletGeneratorKernelsGPU = CAHitNtupletGeneratorKernels<cms::cudacompat::GPUTraits>;

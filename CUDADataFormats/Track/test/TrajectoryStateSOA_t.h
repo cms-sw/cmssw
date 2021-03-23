@@ -1,4 +1,4 @@
-#include "CUDADataFormats/Track/interface/TrajectoryStateSoA.h"
+#include "CUDADataFormats/Track/interface/TrajectoryStateSoAT.h"
 
 using Vector5d = Eigen::Matrix<double, 5, 1>;
 using Matrix5d = Eigen::Matrix<double, 5, 5>;
@@ -17,7 +17,7 @@ __host__ __device__ Matrix5d loadCov(Vector5d const& e) {
   return cov;
 }
 
-using TS = TrajectoryStateSoA<128>;
+using TS = TrajectoryStateSoAT<128>;
 
 __global__ void testTSSoA(TS* pts, int n) {
   assert(n <= 128);

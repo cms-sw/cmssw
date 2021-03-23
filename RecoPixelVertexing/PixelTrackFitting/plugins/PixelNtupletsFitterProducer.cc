@@ -16,7 +16,7 @@
 class PixelNtupletsFitterProducer : public edm::global::EDProducer<> {
 public:
   explicit PixelNtupletsFitterProducer(const edm::ParameterSet& iConfig)
-      : useRiemannFit_(iConfig.getParameter<bool>("useRiemannFit")) {
+      : useRiemannFit_(iConfig.getParameter<bool>("useRiemannFit")), idealMagneticFieldToken_(esConsumes()) {
     produces<PixelFitter>();
   }
   ~PixelNtupletsFitterProducer() override {}
@@ -29,14 +29,14 @@ public:
 
 private:
   bool useRiemannFit_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldToken_;
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 };
 
 void PixelNtupletsFitterProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::ESHandle<MagneticField> fieldESH;
-  iSetup.get<IdealMagneticFieldRecord>().get(fieldESH);
+  auto const& idealField = iSetup.getData(idealMagneticFieldToken_);
   float bField = 1 / PixelRecoUtilities::fieldInInvGev(iSetup);
-  auto impl = std::make_unique<PixelNtupletsFitter>(bField, fieldESH.product(), useRiemannFit_);
+  auto impl = std::make_unique<PixelNtupletsFitter>(bField, &idealField, useRiemannFit_);
   auto prod = std::make_unique<PixelFitter>(std::move(impl));
   iEvent.put(std::move(prod));
 }

@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoublets_h
-#define RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoublets_h
+#ifndef RecoPixelVertexing_PixelTriplets_plugins_gpuPixelDoublets_h
+#define RecoPixelVertexing_PixelTriplets_plugins_gpuPixelDoublets_h
 
 #include "RecoPixelVertexing/PixelTriplets/plugins/gpuPixelDoubletsAlgos.h"
 
@@ -8,7 +8,7 @@
 namespace gpuPixelDoublets {
 
   constexpr int nPairs = 13 + 2 + 4;
-  static_assert(nPairs <= CAConstants::maxNumberOfLayerPairs());
+  static_assert(nPairs <= caConstants::maxNumberOfLayerPairs);
 
   // start constants
   // clang-format off
@@ -58,10 +58,10 @@ namespace gpuPixelDoublets {
   // end constants
   // clang-format on
 
-  using CellNeighbors = CAConstants::CellNeighbors;
-  using CellTracks = CAConstants::CellTracks;
-  using CellNeighborsVector = CAConstants::CellNeighborsVector;
-  using CellTracksVector = CAConstants::CellTracksVector;
+  using CellNeighbors = caConstants::CellNeighbors;
+  using CellTracks = caConstants::CellTracks;
+  using CellNeighborsVector = caConstants::CellNeighborsVector;
+  using CellTracksVector = caConstants::CellTracksVector;
 
   __global__ void initDoublets(GPUCACell::OuterHitOfCell* isOuterHitOfCell,
                                int nHits,
@@ -75,8 +75,8 @@ namespace gpuPixelDoublets {
       isOuterHitOfCell[i].reset();
 
     if (0 == first) {
-      cellNeighbors->construct(CAConstants::maxNumOfActiveDoublets(), cellNeighborsContainer);
-      cellTracks->construct(CAConstants::maxNumOfActiveDoublets(), cellTracksContainer);
+      cellNeighbors->construct(caConstants::maxNumOfActiveDoublets, cellNeighborsContainer);
+      cellTracks->construct(caConstants::maxNumOfActiveDoublets, cellTracksContainer);
       auto i = cellNeighbors->extend();
       assert(0 == i);
       (*cellNeighbors)[0].reset();
@@ -127,4 +127,4 @@ namespace gpuPixelDoublets {
 
 }  // namespace gpuPixelDoublets
 
-#endif  // RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDouplets_h
+#endif  // RecoPixelVertexing_PixelTriplets_plugins_gpuPixelDoublets_h

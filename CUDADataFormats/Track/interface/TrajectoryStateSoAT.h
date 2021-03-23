@@ -1,11 +1,11 @@
-#ifndef CUDADataFormatsTrackTrajectoryStateSOA_H
-#define CUDADataFormatsTrackTrajectoryStateSOA_H
+#ifndef CUDADataFormats_Track_TrajectoryStateSOAT_H
+#define CUDADataFormats_Track_TrajectoryStateSOAT_H
 
 #include <Eigen/Dense>
 #include "HeterogeneousCore/CUDAUtilities/interface/eigenSoA.h"
 
 template <int32_t S>
-struct TrajectoryStateSoA {
+struct TrajectoryStateSoAT {
   using Vector5f = Eigen::Matrix<float, 5, 1>;
   using Vector15f = Eigen::Matrix<float, 15, 1>;
 
@@ -56,4 +56,4 @@ struct TrajectoryStateSoA {
   }
 };
 
-#endif  // CUDADataFormatsTrackTrajectoryStateSOA_H
+#endif  // CUDADataFormats_Track_TrajectoryStateSOAT_H

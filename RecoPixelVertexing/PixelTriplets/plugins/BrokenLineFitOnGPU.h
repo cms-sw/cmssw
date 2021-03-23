@@ -23,14 +23,14 @@ using OutputSoA = pixelTrack::TrackSoA;
 // #define BL_DUMP_HITS
 
 template <int N>
-__global__ void kernelBLFastFit(Tuples const *__restrict__ foundNtuplets,
-                                CAConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                                HitsOnGPU const *__restrict__ hhp,
-                                double *__restrict__ phits,
-                                float *__restrict__ phits_ge,
-                                double *__restrict__ pfast_fit,
-                                uint32_t nHits,
-                                uint32_t offset) {
+__global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
+                                 caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
+                                 HitsOnGPU const *__restrict__ hhp,
+                                 double *__restrict__ phits,
+                                 float *__restrict__ phits_ge,
+                                 double *__restrict__ pfast_fit,
+                                 uint32_t nHits,
+                                 uint32_t offset) {
   constexpr uint32_t hitsInFit = N;
 
   assert(hitsInFit <= nHits);
@@ -50,7 +50,7 @@ __global__ void kernelBLFastFit(Tuples const *__restrict__ foundNtuplets,
   }
 #endif
 
-  for (int local_idx = local_start, nt = Rfit::maxNumberOfConcurrentFits(); local_idx < nt;
+  for (int local_idx = local_start, nt = riemannFit::maxNumberOfConcurrentFits; local_idx < nt;
        local_idx += gridDim.x * blockDim.x) {
     auto tuple_idx = local_idx + offset;
     if (tuple_idx >= tupleMultiplicity->size(nHits))
@@ -62,9 +62,9 @@ __global__ void kernelBLFastFit(Tuples const *__restrict__ foundNtuplets,
 
     assert(foundNtuplets->size(tkid) == nHits);
 
-    Rfit::Map3xNd<N> hits(phits + local_idx);
-    Rfit::Map4d fast_fit(pfast_fit + local_idx);
-    Rfit::Map6xNf<N> hits_ge(phits_ge + local_idx);
+    riemannFit::Map3xNd<N> hits(phits + local_idx);
+    riemannFit::Map4d fast_fit(pfast_fit + local_idx);
+    riemannFit::Map6xNf<N> hits_ge(phits_ge + local_idx);
 
 #ifdef BL_DUMP_HITS
     __shared__ int done;
@@ -105,7 +105,7 @@ __global__ void kernelBLFastFit(Tuples const *__restrict__ foundNtuplets,
       hits.col(i) << hhp->xGlobal(hit), hhp->yGlobal(hit), hhp->zGlobal(hit);
       hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
     }
-    BrokenLine::BL_Fast_fit(hits, fast_fit);
+    brokenline::fastFit(hits, fast_fit);
 
     // no NaN here....
     assert(fast_fit(0) == fast_fit(0));
@@ -116,14 +116,14 @@ __global__ void kernelBLFastFit(Tuples const *__restrict__ foundNtuplets,
 }
 
 template <int N>
-__global__ void kernelBLFit(CAConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                            double B,
-                            OutputSoA *results,
-                            double *__restrict__ phits,
-                            float *__restrict__ phits_ge,
-                            double *__restrict__ pfast_fit,
-                            uint32_t nHits,
-                            uint32_t offset) {
+__global__ void kernel_BLFit(caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
+                             double bField,
+                             OutputSoA *results,
+                             double *__restrict__ phits,
+                             float *__restrict__ phits_ge,
+                             double *__restrict__ pfast_fit,
+                             uint32_t nHits,
+                             uint32_t offset) {
   assert(N <= nHits);
 
   assert(results);
@@ -133,7 +133,7 @@ __global__ void kernelBLFit(CAConstants::TupleMultiplicity const *__restrict__ t
 
   // look in bin for this hit multiplicity
   auto local_start = blockIdx.x * blockDim.x + threadIdx.x;
-  for (int local_idx = local_start, nt = Rfit::maxNumberOfConcurrentFits(); local_idx < nt;
+  for (int local_idx = local_start, nt = riemannFit::maxNumberOfConcurrentFits; local_idx < nt;
        local_idx += gridDim.x * blockDim.x) {
     auto tuple_idx = local_idx + offset;
     if (tuple_idx >= tupleMultiplicity->size(nHits))
@@ -142,22 +142,21 @@ __global__ void kernelBLFit(CAConstants::TupleMultiplicity const *__restrict__ t
     // get it for the ntuple container (one to one to helix)
     auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_idx);
 
-    Rfit::Map3xNd<N> hits(phits + local_idx);
-    Rfit::Map4d fast_fit(pfast_fit + local_idx);
-    Rfit::Map6xNf<N> hits_ge(phits_ge + local_idx);
+    riemannFit::Map3xNd<N> hits(phits + local_idx);
+    riemannFit::Map4d fast_fit(pfast_fit + local_idx);
+    riemannFit::Map6xNf<N> hits_ge(phits_ge + local_idx);
 
-    BrokenLine::PreparedBrokenLineData<N> data;
-    Rfit::Matrix3d Jacob;
+    brokenline::PreparedBrokenLineData<N> data;
 
-    BrokenLine::karimaki_circle_fit circle;
-    Rfit::line_fit line;
+    brokenline::karimaki_circle_fit circle;
+    riemannFit::LineFit line;
 
-    BrokenLine::prepareBrokenLineData(hits, fast_fit, B, data);
-    BrokenLine::BL_Line_fit(hits_ge, fast_fit, B, data, line);
-    BrokenLine::BL_Circle_fit(hits, hits_ge, fast_fit, B, data, circle);
+    brokenline::prepareBrokenLineData(hits, fast_fit, bField, data);
+    brokenline::lineFit(hits_ge, fast_fit, bField, data, line);
+    brokenline::circleFit(hits, hits_ge, fast_fit, bField, data, circle);
 
-    results->stateAtBS.copyFromCircle(circle.par, circle.cov, line.par, line.cov, 1.f / float(B), tkid);
-    results->pt(tkid) = float(B) / float(std::abs(circle.par(2)));
+    results->stateAtBS.copyFromCircle(circle.par, circle.cov, line.par, line.cov, 1.f / float(bField), tkid);
+    results->pt(tkid) = float(bField) / float(std::abs(circle.par(2)));
     results->eta(tkid) = asinhf(line.par(0));
     results->chi2(tkid) = (circle.chi2 + line.chi2) / (2 * N - 5);
 

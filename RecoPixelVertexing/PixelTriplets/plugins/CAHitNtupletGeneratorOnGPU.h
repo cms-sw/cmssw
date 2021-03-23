@@ -13,7 +13,6 @@
 #include "CAHitNtupletGeneratorKernels.h"
 #include "HelixFitOnGPU.h"
 
-// FIXME  (split header???)
 #include "GPUCACell.h"
 
 namespace edm {

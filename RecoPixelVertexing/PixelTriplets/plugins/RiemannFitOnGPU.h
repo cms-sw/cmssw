@@ -19,14 +19,14 @@ using Tuples = pixelTrack::HitContainer;
 using OutputSoA = pixelTrack::TrackSoA;
 
 template <int N>
-__global__ void kernelFastFit(Tuples const *__restrict__ foundNtuplets,
-                              CAConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                              uint32_t nHits,
-                              HitsOnGPU const *__restrict__ hhp,
-                              double *__restrict__ phits,
-                              float *__restrict__ phits_ge,
-                              double *__restrict__ pfast_fit,
-                              uint32_t offset) {
+__global__ void kernel_FastFit(Tuples const *__restrict__ foundNtuplets,
+                               caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
+                               uint32_t nHits,
+                               HitsOnGPU const *__restrict__ hhp,
+                               double *__restrict__ phits,
+                               float *__restrict__ phits_ge,
+                               double *__restrict__ pfast_fit,
+                               uint32_t offset) {
   constexpr uint32_t hitsInFit = N;
 
   assert(hitsInFit <= nHits);
@@ -43,7 +43,7 @@ __global__ void kernelFastFit(Tuples const *__restrict__ foundNtuplets,
     printf("%d Ntuple of size %d for %d hits to fit\n", tupleMultiplicity->size(nHits), nHits, hitsInFit);
 #endif
 
-  for (int local_idx = local_start, nt = Rfit::maxNumberOfConcurrentFits(); local_idx < nt;
+  for (int local_idx = local_start, nt = riemannFit::maxNumberOfConcurrentFits; local_idx < nt;
        local_idx += gridDim.x * blockDim.x) {
     auto tuple_idx = local_idx + offset;
     if (tuple_idx >= tupleMultiplicity->size(nHits))
@@ -55,9 +55,9 @@ __global__ void kernelFastFit(Tuples const *__restrict__ foundNtuplets,
 
     assert(foundNtuplets->size(tkid) == nHits);
 
-    Rfit::Map3xNd<N> hits(phits + local_idx);
-    Rfit::Map4d fast_fit(pfast_fit + local_idx);
-    Rfit::Map6xNf<N> hits_ge(phits_ge + local_idx);
+    riemannFit::Map3xNd<N> hits(phits + local_idx);
+    riemannFit::Map4d fast_fit(pfast_fit + local_idx);
+    riemannFit::Map6xNf<N> hits_ge(phits_ge + local_idx);
 
     // Prepare data structure
     auto const *hitId = foundNtuplets->begin(tkid);
@@ -73,7 +73,7 @@ __global__ void kernelFastFit(Tuples const *__restrict__ foundNtuplets,
       hits.col(i) << hhp->xGlobal(hit), hhp->yGlobal(hit), hhp->zGlobal(hit);
       hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
     }
-    Rfit::Fast_fit(hits, fast_fit);
+    riemannFit::fastFit(hits, fast_fit);
 
     // no NaN here....
     assert(fast_fit(0) == fast_fit(0));
@@ -84,14 +84,14 @@ __global__ void kernelFastFit(Tuples const *__restrict__ foundNtuplets,
 }
 
 template <int N>
-__global__ void kernelCircleFit(CAConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                                uint32_t nHits,
-                                double B,
-                                double *__restrict__ phits,
-                                float *__restrict__ phits_ge,
-                                double *__restrict__ pfast_fit_input,
-                                Rfit::circle_fit *circle_fit,
-                                uint32_t offset) {
+__global__ void kernel_CircleFit(caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
+                                 uint32_t nHits,
+                                 double bField,
+                                 double *__restrict__ phits,
+                                 float *__restrict__ phits_ge,
+                                 double *__restrict__ pfast_fit_input,
+                                 riemannFit::CircleFit *circle_fit,
+                                 uint32_t offset) {
   assert(circle_fit);
   assert(N <= nHits);
 
@@ -99,22 +99,22 @@ __global__ void kernelCircleFit(CAConstants::TupleMultiplicity const *__restrict
 
   // look in bin for this hit multiplicity
   auto local_start = blockIdx.x * blockDim.x + threadIdx.x;
-  for (int local_idx = local_start, nt = Rfit::maxNumberOfConcurrentFits(); local_idx < nt;
+  for (int local_idx = local_start, nt = riemannFit::maxNumberOfConcurrentFits; local_idx < nt;
        local_idx += gridDim.x * blockDim.x) {
     auto tuple_idx = local_idx + offset;
     if (tuple_idx >= tupleMultiplicity->size(nHits))
       break;
 
-    Rfit::Map3xNd<N> hits(phits + local_idx);
-    Rfit::Map4d fast_fit(pfast_fit_input + local_idx);
-    Rfit::Map6xNf<N> hits_ge(phits_ge + local_idx);
+    riemannFit::Map3xNd<N> hits(phits + local_idx);
+    riemannFit::Map4d fast_fit(pfast_fit_input + local_idx);
+    riemannFit::Map6xNf<N> hits_ge(phits_ge + local_idx);
 
-    Rfit::VectorNd<N> rad = (hits.block(0, 0, 2, N).colwise().norm());
+    riemannFit::VectorNd<N> rad = (hits.block(0, 0, 2, N).colwise().norm());
 
-    Rfit::Matrix2Nd<N> hits_cov = Rfit::Matrix2Nd<N>::Zero();
-    Rfit::loadCovariance2D(hits_ge, hits_cov);
+    riemannFit::Matrix2Nd<N> hits_cov = riemannFit::Matrix2Nd<N>::Zero();
+    riemannFit::loadCovariance2D(hits_ge, hits_cov);
 
-    circle_fit[local_idx] = Rfit::Circle_fit(hits.block(0, 0, 2, N), hits_cov, fast_fit, rad, B, true);
+    circle_fit[local_idx] = riemannFit::circleFit(hits.block(0, 0, 2, N), hits_cov, fast_fit, rad, bField, true);
 
 #ifdef RIEMANN_DEBUG
 //    auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_idx);
@@ -125,15 +125,15 @@ __global__ void kernelCircleFit(CAConstants::TupleMultiplicity const *__restrict
 }
 
 template <int N>
-__global__ void kernelLineFit(CAConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                              uint32_t nHits,
-                              double B,
-                              OutputSoA *results,
-                              double *__restrict__ phits,
-                              float *__restrict__ phits_ge,
-                              double *__restrict__ pfast_fit_input,
-                              Rfit::circle_fit *__restrict__ circle_fit,
-                              uint32_t offset) {
+__global__ void kernel_LineFit(caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
+                               uint32_t nHits,
+                               double bField,
+                               OutputSoA *results,
+                               double *__restrict__ phits,
+                               float *__restrict__ phits_ge,
+                               double *__restrict__ pfast_fit_input,
+                               riemannFit::CircleFit *__restrict__ circle_fit,
+                               uint32_t offset) {
   assert(results);
   assert(circle_fit);
   assert(N <= nHits);
@@ -142,7 +142,7 @@ __global__ void kernelLineFit(CAConstants::TupleMultiplicity const *__restrict__
 
   // look in bin for this hit multiplicity
   auto local_start = (blockIdx.x * blockDim.x + threadIdx.x);
-  for (int local_idx = local_start, nt = Rfit::maxNumberOfConcurrentFits(); local_idx < nt;
+  for (int local_idx = local_start, nt = riemannFit::maxNumberOfConcurrentFits; local_idx < nt;
        local_idx += gridDim.x * blockDim.x) {
     auto tuple_idx = local_idx + offset;
     if (tuple_idx >= tupleMultiplicity->size(nHits))
@@ -151,17 +151,17 @@ __global__ void kernelLineFit(CAConstants::TupleMultiplicity const *__restrict__
     // get it for the ntuple container (one to one to helix)
     auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_idx);
 
-    Rfit::Map3xNd<N> hits(phits + local_idx);
-    Rfit::Map4d fast_fit(pfast_fit_input + local_idx);
-    Rfit::Map6xNf<N> hits_ge(phits_ge + local_idx);
+    riemannFit::Map3xNd<N> hits(phits + local_idx);
+    riemannFit::Map4d fast_fit(pfast_fit_input + local_idx);
+    riemannFit::Map6xNf<N> hits_ge(phits_ge + local_idx);
 
-    auto const &line_fit = Rfit::Line_fit(hits, hits_ge, circle_fit[local_idx], fast_fit, B, true);
+    auto const &line_fit = riemannFit::lineFit(hits, hits_ge, circle_fit[local_idx], fast_fit, bField, true);
 
-    Rfit::fromCircleToPerigee(circle_fit[local_idx]);
+    riemannFit::fromCircleToPerigee(circle_fit[local_idx]);
 
     results->stateAtBS.copyFromCircle(
-        circle_fit[local_idx].par, circle_fit[local_idx].cov, line_fit.par, line_fit.cov, 1.f / float(B), tkid);
-    results->pt(tkid) = B / std::abs(circle_fit[local_idx].par(2));
+        circle_fit[local_idx].par, circle_fit[local_idx].cov, line_fit.par, line_fit.cov, 1.f / float(bField), tkid);
+    results->pt(tkid) = bField / std::abs(circle_fit[local_idx].par(2));
     results->eta(tkid) = asinhf(line_fit.par(0));
     results->chi2(tkid) = (circle_fit[local_idx].chi2 + line_fit.chi2) / (2 * N - 5);
 
