@@ -766,7 +766,8 @@ void FastTimerService::PlotsPerJob::fill_lumi(AtomicResources const& data, unsig
 ///////////////////////////////////////////////////////////////////////////////
 
 FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::ActivityRegistry& registry)
-    :  // configuration
+    : tbb::task_scheduler_observer(true),
+      // configuration
       callgraph_(),
       // job configuration
       concurrent_lumis_(0),
@@ -1099,6 +1100,9 @@ void FastTimerService::postSourceLumi(edm::LuminosityBlockIndex index) {
 }
 
 void FastTimerService::postEndJob() {
+  for (auto& thread : threads_) {
+    thread.measure_and_accumulate(overhead_);
+  }
   if (print_job_summary_) {
     edm::LogVerbatim out("FastReport");
     printSummary(out, job_summary_, "Job");
@@ -1662,14 +1666,45 @@ void FastTimerService::postModuleStreamEndLumi(edm::StreamContext const& sc, edm
   thread().measure_and_accumulate(lumi_transition_[index]);
 }
 
+pthread_key_t FastTimerService::ThreadGuard::key;
+pthread_once_t FastTimerService::ThreadGuard::key_once = PTHREAD_ONCE_INIT;
+
+FastTimerService::ThreadGuard::ThreadGuard() {
+  auto err = ::pthread_key_create(&key, reset_thread);
+  if (err) {
+    edm::LogWarning("FastTimerService") << "ThreadGuard key creation failed: " << ::strerror(err);
+  }
+}
+
+bool FastTimerService::ThreadGuard::register_thread(FastTimerService::Measurement& m, FastTimerService::AtomicResources& r) {
+  auto ptr = ::pthread_getspecific(key);
+
+  if (not ptr) {
+    auto p = new specific_t(m, r);
+    auto err = ::pthread_setspecific(key, p);
+    if (err) {
+      edm::LogWarning("FastTimerService") << "ThreadGuard pthread_setspecific failed: " << ::strerror(err);
+    }
+    return true;
+  }
+  return false;
+}
+
+void FastTimerService::ThreadGuard::reset_thread(void* ptr) {
+  auto p = static_cast<specific_t*>(ptr);
+  // account any resources used or freed by the thread before leaving the TBB pool
+  p->first.measure_and_accumulate(p->second);
+  delete p;
+}
+
 void FastTimerService::on_scheduler_entry(bool worker) {
-  // initialise the measurement point for a thread that has newly joining the TBB pool
-  thread().measure();
+  if (guard_.register_thread(thread(), overhead_)) {
+    // initialise the measurement point for a thread that has newly joined the TBB pool
+    thread().measure();
+  }
 }
 
 void FastTimerService::on_scheduler_exit(bool worker) {
-  // account any resources used or freed by the thread before leaving the TBB pool
-  thread().measure_and_accumulate(overhead_);
 }
 
 FastTimerService::Measurement& FastTimerService::thread() { return threads_.local(); }
