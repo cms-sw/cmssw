@@ -297,9 +297,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
   }
 
   // Get comparator digis in this chamber.
-  bool noDigis = getDigis(compdc);
+  bool hasDigis = getDigis(compdc);
 
-  if (!noDigis) {
+  if (hasDigis) {
     // Get halfstrip times from comparator digis.
     std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS];
     readComparatorDigis(halfstrip);
@@ -404,7 +404,7 @@ void CSCCathodeLCTProcessor::run(
 }
 
 bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc) {
-  bool noDigis = true;
+  bool hasDigis = false;
 
   // Loop over layers and save comparator digis on each one into digiV[layer].
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
@@ -419,7 +419,7 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
     }
 
     if (!digiV[i_layer].empty()) {
-      noDigis = false;
+      hasDigis = true;
       if (infoV > 1) {
         LogTrace("CSCCathodeLCTProcessor") << "found " << digiV[i_layer].size() << " comparator digi(s) in layer "
                                            << i_layer << " of " << detid.chamberName() << " (trig. sector " << theSector
@@ -428,7 +428,7 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
     }
   }
 
-  return noDigis;
+  return hasDigis;
 }
 
 void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id) {
