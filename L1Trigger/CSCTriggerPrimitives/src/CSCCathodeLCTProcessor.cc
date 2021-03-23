@@ -1302,7 +1302,7 @@ int CSCCathodeLCTProcessor::calculateComparatorCode(const std::array<std::array<
 }
 
 void CSCCathodeLCTProcessor::assignPositionCC(const unsigned offset,
-                                              std::tuple<uint16_t, bool, bool>& returnValue) const {
+                                              std::tuple<int16_t, bool, bool>& returnValue) const {
   /*
     | Value | Half-Strip Offset  | Delta Half-Strip  | Quarter-Strip Bit  | Eighth-Strip Bit |
     |-------|--------------------|-------------------|--------------------|------------------|
@@ -1323,7 +1323,7 @@ void CSCCathodeLCTProcessor::assignPositionCC(const unsigned offset,
     |   14  |   7/4              |   1               |   1                |   1              |
     |   15  |   2                |   2               |   0                |   0              |
    */
-  std::vector<std::tuple<uint16_t, bool, bool>> my_tuple = {
+  std::vector<std::tuple<int16_t, bool, bool>> my_tuple = {
       {-2, false, true},
       {-2, true, false},
       {-2, true, true},
@@ -1407,14 +1407,30 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
 
   // calculate the new position
   uint16_t halfstrip = digi.getKeyStrip();
-  std::tuple<uint16_t, bool, bool> halfstripoffset;
-  assignPositionCC(positionCC, halfstripoffset);
-  halfstrip += std::get<0>(halfstripoffset);
+  std::tuple<int16_t, bool, bool> stripoffset;
+  assignPositionCC(positionCC, stripoffset);
+  const int halfstripoffset = std::get<0>(stripoffset);
+  halfstrip += halfstripoffset;
+
+  // calculate the new CFEB number
+  int newCFEB = digi.getCFEB();
+
+  // case where key half-strip is on the lower edge of the CFEB
+  if (digi.getStrip() == 0 and halfstripoffset == -1 and digi.getCFEB() > 0) {
+    newCFEB = digi.getCFEB() - 1;
+  }
+  // case where key half-strip is on the upper edge of the CFEB
+  if (digi.getStrip() == CSCConstants::NUM_HALF_STRIPS_PER_CFEB - 1 and halfstripoffset == 1 and
+      digi.getCFEB() < numCFEBs_) {
+    newCFEB = digi.getCFEB() + 1;
+  }
+
+  digi.setCFEB(newCFEB);
 
   // store the new 1/2, 1/4 and 1/8 strip positions
-  digi.setStrip(halfstrip - digi.getCFEB() * 32);
-  digi.setQuartStrip(std::get<1>(halfstripoffset));
-  digi.setEightStrip(std::get<2>(halfstripoffset));
+  digi.setStrip(halfstrip - digi.getCFEB() * CSCConstants::NUM_HALF_STRIPS_PER_CFEB);
+  digi.setQuartStrip(std::get<1>(stripoffset));
+  digi.setEightStrip(std::get<2>(stripoffset));
 
   // store the bending angle value in the pattern data member
   digi.setSlope(slopeCCValue);
