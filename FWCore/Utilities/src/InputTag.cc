@@ -179,10 +179,6 @@ namespace edm {
                                           void const* productRegistry) const {
     ProductResolverIndex index = index_.load();
 
-    // This will no longer be necessary when the compiler supports the memory
-    // order associated with atomics.
-    __sync_synchronize();
-
     if (index < ProductResolverIndexInitializing && typeID_ == typeID && branchType_ == branchType &&
         productRegistry_ == productRegistry) {
       return index;
@@ -199,11 +195,6 @@ namespace edm {
       typeID_ = typeID;
       branchType_ = branchType;
       productRegistry_ = productRegistry;
-
-      // This will no longer be necessary when the compiler supports the memory
-      // order associated with atomics.
-      __sync_synchronize();
-
       index_.store(index);
     }
   }

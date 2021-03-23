@@ -87,3 +87,9 @@ phase2_hgcal.toModify( RecoParticleFlowFEVT,
     outputCommands = RecoParticleFlowFEVT.outputCommands + ['keep recoPFRecHits_particleFlowClusterECAL__*',
                                                             'keep recoPFRecHits_particleFlowRecHitHGC__*',
                                                             'keep *_simPFProducer_*_*'])
+
+from Configuration.ProcessModifiers.mlpf_cff import mlpf
+from RecoParticleFlow.PFProducer.mlpf_EventContent_cff import MLPF_RECO
+
+mlpf.toModify(RecoParticleFlowRECO,
+    outputCommands = RecoParticleFlowRECO.outputCommands + MLPF_RECO.outputCommands)

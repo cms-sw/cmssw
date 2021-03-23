@@ -12,6 +12,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 //
 // class decleration
 //
@@ -35,6 +38,8 @@ private:
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   // ----------member data ---------------------------
 };

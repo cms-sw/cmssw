@@ -36,6 +36,7 @@ from Validation.RecoParticleFlow.PFJetResValidation_cff import *
 from Validation.RecoParticleFlow.PFClusterValidation_cff import *
 from Validation.RPCRecHits.rpcRecHitValidation_cfi import *
 from Validation.DTRecHits.DTRecHitQuality_cfi import *
+from Validation.CSCRecHits.cscRecHitValidation_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
 from Validation.L1T.L1Validator_cfi import *
 from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_sourceV_cff import *
@@ -94,6 +95,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + pfMuonValidationSequence
                                  + pfClusterValidationSequence
                                  + rpcRecHitValidation_step
+                                 + cscRecHitValidation
                                  + dtLocalRecoValidation_no2D
                                  + pfTauRunDQMValidation
                                  + bTagPlotsMCbcl
@@ -211,6 +213,7 @@ globalPrevalidationMuons = cms.Sequence(
     + validationMuonRPCDigis
     + recoMuonValidation
     + rpcRecHitValidation_step
+    + cscRecHitValidation
     + dtLocalRecoValidation_no2D
     + muonIdValDQMSeq
 )
@@ -219,8 +222,13 @@ globalValidationMuons = cms.Sequence()
 
 _phase_1_globalValidation = globalValidation.copy()
 _phase_1_globalValidation += siPixelPhase1OfflineDQM_sourceV
+
+_phase_1_globalValidationPixelTrackingOnly =  globalValidationPixelTrackingOnly.copy()
+_phase_1_globalValidationPixelTrackingOnly += siPixelPhase1ValidationPixelTrackingOnly_sourceV
+
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 (phase1Pixel & ~fastSim).toReplaceWith( globalValidation, _phase_1_globalValidation ) #module siPixelPhase1OfflineDQM_sourceV can't run in FastSim since siPixelClusters of type edmNew::DetSetVector are not produced
+(phase1Pixel & ~fastSim).toReplaceWith( globalValidationPixelTrackingOnly, _phase_1_globalValidationPixelTrackingOnly ) #module siPixelPhase1OfflineDQM_sourceV can't run in FastSim since siPixelClusters of type edmNew::DetSetVector are not produced
 
 _run3_globalValidation = globalValidation.copy()
 _run3_globalValidation += gemSimValid

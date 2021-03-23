@@ -7,6 +7,9 @@ HcalPedestalWidthsCheck::HcalPedestalWidthsCheck(edm::ParameterSet const& ps) {
   checkemapflag = ps.getUntrackedParameter<bool>("checkEmap", false);
   validateflag = ps.getUntrackedParameter<bool>("validateWidths", false);
   epsilon = ps.getUntrackedParameter<double>("deltaW", 0);
+  m_tok1 = esConsumes<HcalPedestalWidths, HcalPedestalWidthsRcd>(edm::ESInputTag("", "update"));
+  m_tok2 = esConsumes<HcalPedestalWidths, HcalPedestalWidthsRcd>(edm::ESInputTag("", "reference"));
+  m_tokmap = esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(edm::ESInputTag("", "reference"));
 }
 
 HcalPedestalWidthsCheck::~HcalPedestalWidthsCheck() {}
@@ -15,19 +18,13 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
   using namespace edm::eventsetup;
 
   // get fake pedestals from file ("new pedestals")
-  edm::ESHandle<HcalPedestalWidths> newPeds;
-  es.get<HcalPedestalWidthsRcd>().get("update", newPeds);
-  const HcalPedestalWidths* myNewPeds = newPeds.product();
+  const HcalPedestalWidths* myNewPeds = &es.getData(m_tok1);
 
   // get DB pedestals from Frontier/OrcoX ("reference")
-  edm::ESHandle<HcalPedestalWidths> refPeds;
-  es.get<HcalPedestalWidthsRcd>().get("reference", refPeds);
-  const HcalPedestalWidths* myRefPeds = refPeds.product();
+  const HcalPedestalWidths* myRefPeds = &es.getData(m_tok2);
 
   // get e-map from reference
-  edm::ESHandle<HcalElectronicsMap> refEMap;
-  es.get<HcalElectronicsMapRcd>().get("reference", refEMap);
-  const HcalElectronicsMap* myRefEMap = refEMap.product();
+  const HcalElectronicsMap* myRefEMap = &es.getData(m_tokmap);
 
   // dump pedestals:
   if (dumpupdate != "null") {

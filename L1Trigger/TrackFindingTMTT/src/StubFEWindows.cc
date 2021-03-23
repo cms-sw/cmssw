@@ -4,6 +4,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include <algorithm>
+#include <utility>
 
 using namespace std;
 
@@ -70,9 +71,8 @@ namespace tmtt {
 
   double* StubFEWindows::storedWindowSize(const TrackerTopology* trackerTopo, const DetId& detId) {
     // Code accessing geometry inspired by L1Trigger/TrackTrigger/src/TTStubAlgorithm_official.cc
-
-    // Scott Meyers's solution to give const & non-const versions of same function, without
-    // code duplication.
-    return const_cast<double*>((static_cast<const StubFEWindows*>(this))->storedWindowSize(trackerTopo, detId));
+    // Non-const version of operator, without needing to duplicate code.
+    // (Scott Meyers trick).
+    return const_cast<double*>(std::as_const(*this).storedWindowSize(trackerTopo, detId));
   }
 }  // namespace tmtt

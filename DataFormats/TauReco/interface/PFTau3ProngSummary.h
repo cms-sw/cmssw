@@ -10,7 +10,6 @@
  * Lars Perchalla and Philip Sauerland Theses under Achim Stahl supervision. This
  * code is a result of the continuation of this work by Ian M. Nugent and Vladimir Cherepanov.
  */
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"

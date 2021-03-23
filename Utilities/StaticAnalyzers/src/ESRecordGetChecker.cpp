@@ -45,7 +45,7 @@ namespace clangcms {
       llvm::SmallString<100> buf;
       llvm::raw_svector_ostream os(buf);
       os << "function '";
-      llvm::dyn_cast<CXXMethodDecl>(D)->getNameForDiagnostic(os, Policy, true);
+      llvm::dyn_cast<FunctionDecl>(D)->getNameForDiagnostic(os, Policy, true);
       os << "' ";
       os << "calls function '";
       MD->getNameForDiagnostic(os, Policy, true);
@@ -87,6 +87,18 @@ namespace clangcms {
         walker.Visit(I->getBody());
       }
     }
+    return;
+  }
+
+  void ESRGetChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager &mgr, BugReporter &BR) const {
+    const SourceManager &SM = BR.getSourceManager();
+    PathDiagnosticLocation DLoc = PathDiagnosticLocation::createBegin(FD, SM);
+    if (SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()))
+      return;
+    if (!FD->doesThisDeclarationHaveABody())
+      return;
+    ESRWalker walker(this, BR, mgr.getAnalysisDeclContext(FD));
+    walker.Visit(FD->getBody());
     return;
   }
 

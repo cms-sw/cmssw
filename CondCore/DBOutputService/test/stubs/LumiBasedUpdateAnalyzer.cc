@@ -9,13 +9,7 @@
 #include <iostream>
 
 LumiBasedUpdateAnalyzer::LumiBasedUpdateAnalyzer(const edm::ParameterSet& iConfig)
-    : m_record(iConfig.getParameter<std::string>("record")) {
-  m_lastLumiFile = iConfig.getUntrackedParameter<std::string>("lastLumiFile", "");
-  std::cout << "LumiBasedUpdateAnalyzer::LumiBasedUpdateAnalyzer" << std::endl;
-  m_prevLumi = 0;
-  m_prevLumiTime = std::chrono::steady_clock::now();
-  m_omsServiceUrl = iConfig.getUntrackedParameter<std::string>("omsServiceUrl", "");
-}
+    : m_record(iConfig.getParameter<std::string>("record")) {}
 LumiBasedUpdateAnalyzer::~LumiBasedUpdateAnalyzer() {
   std::cout << "LumiBasedUpdateAnalyzer::~LumiBasedUpdateAnalyzer" << std::endl;
 }
@@ -27,23 +21,14 @@ void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSet
     return;
   }
   mydbservice->logger().start();
-  unsigned int irun = evt.id().run();
-  cond::Time_t lastLumi = cond::time::MIN_VAL;
-  if (!m_omsServiceUrl.empty()) {
-    lastLumi = cond::getLastLumiFromOMS(m_omsServiceUrl);
-  } else {
-    lastLumi = cond::getLatestLumiFromFile(m_lastLumiFile);
-    if (lastLumi == m_prevLumi) {
-      mydbservice->logger().logInfo() << "Last lumi:" << lastLumi << " Prev lumi:" << m_prevLumi;
-      mydbservice->logger().end(1);
-      return;
-    }
-    m_prevLumi = lastLumi;
-    m_prevLumiTime = std::chrono::steady_clock::now();
+  if (!m_tagLocks) {
+    mydbservice->lockRecords();
+    m_tagLocks = true;
   }
-  unsigned int lumiId = cond::time::unpack(lastLumi).second;
-  mydbservice->logger().logInfo() << "Last lumi: " << lastLumi << " run: " << cond::time::unpack(lastLumi).first
-                                  << " lumiid:" << lumiId;
+  ::sleep(2);
+  //unsigned int irun = evt.id().run();
+  unsigned int irun = evt.getLuminosityBlock().run();
+  unsigned int lumiId = evt.getLuminosityBlock().luminosityBlock();
   std::string tag = mydbservice->tag(m_record);
   std::cout << "tag " << tag << std::endl;
   std::cout << "run " << irun << std::endl;
@@ -62,8 +47,12 @@ void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSet
     mydbservice->logger().logError() << e.what();
     ret = -1;
   }
-  //::sleep(13);
   mydbservice->logger().end(ret);
 }
-void LumiBasedUpdateAnalyzer::endJob() {}
+void LumiBasedUpdateAnalyzer::endJob() {
+  if (m_tagLocks) {
+    edm::Service<cond::service::OnlineDBOutputService> mydbservice;
+    mydbservice->releaseLocks();
+  }
+}
 DEFINE_FWK_MODULE(LumiBasedUpdateAnalyzer);

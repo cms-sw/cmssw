@@ -9,7 +9,8 @@ template <typename InputT, typename OutputT = InputT>
 class SonicClient : public SonicClientBase, public SonicClientTypes<InputT, OutputT> {
 public:
   //constructor
-  SonicClient(const edm::ParameterSet& params) : SonicClientBase(params), SonicClientTypes<InputT, OutputT>() {}
+  SonicClient(const edm::ParameterSet& params, const std::string& debugName, const std::string& clientName)
+      : SonicClientBase(params, debugName, clientName), SonicClientTypes<InputT, OutputT>() {}
 };
 
 #endif

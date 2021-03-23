@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingTrk
+from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingTrk, ticlSeedingTrkHFNose
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer as _trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
 from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer as _multiClustersFromTrackstersProducer
@@ -18,7 +18,7 @@ filteredLayerClustersTrkEM = _filteredLayerClustersProducer.clone(
 # CA - PATTERN RECOGNITION
 
 ticlTrackstersTrkEM = _trackstersProducer.clone(
-    filtered_mask = cms.InputTag("filteredLayerClustersTrkEM", "TrkEM"),
+    filtered_mask = "filteredLayerClustersTrkEM:TrkEM",
     seeding_regions = "ticlSeedingTrk",
     filter_on_categories = [0, 1],
     pid_threshold = 0.5,
@@ -48,4 +48,32 @@ ticlTrkEMStepTask = cms.Task(ticlSeedingTrk
     ,filteredLayerClustersTrkEM
     ,ticlTrackstersTrkEM
     ,ticlMultiClustersFromTrackstersTrkEM)
+
+filteredLayerClustersHFNoseTrkEM = filteredLayerClustersTrkEM.clone(
+    LayerClusters = 'hgcalLayerClustersHFNose',
+    LayerClustersInputMask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
+    min_cluster_size = 2, # inclusive
+    algo_number = 9,
+    iteration_label = "TrkEMn"
+)
+
+ticlTrackstersHFNoseTrkEM = ticlTrackstersTrkEM.clone(
+    detector = "HFNose",
+    layer_clusters = "hgcalLayerClustersHFNose",
+    layer_clusters_hfnose_tiles = "ticlLayerTileHFNose",
+    original_mask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
+    filtered_mask = "filteredLayerClustersHFNoseTrkEM:TrkEMn",
+    seeding_regions = "ticlSeedingTrkHFNose",
+    time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    itername = "TrkEMn",
+    filter_on_categories = [0, 1],
+    min_layers_per_trackster = 5,
+    pid_threshold = 0.,
+    shower_start_max_layer = 5 #inclusive
+
+)
+
+ticlHFNoseTrkEMStepTask = cms.Task(ticlSeedingTrkHFNose
+    ,filteredLayerClustersHFNoseTrkEM
+    ,ticlTrackstersHFNoseTrkEM)
 

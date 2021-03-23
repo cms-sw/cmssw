@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
 #include "FWCore/Framework/interface/stream/makeGlobal.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 // forward declarations
 
 namespace edm {
@@ -166,9 +167,11 @@ namespace edm {
           r.setProducer(this->producer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
+          ESParentContext parentC(mcc);
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::BeginRun),
                              this->consumer()->esGetTokenIndices(Transition::BeginRun),
+                             parentC,
                              false};
           MyGlobalRun::beginRun(cnstR, c, m_global.get(), m_runs[ri]);
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
@@ -189,9 +192,11 @@ namespace edm {
 
           RunIndex ri = rp.index();
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
+          ESParentContext parentC(mcc);
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::EndRun),
                              this->consumer()->esGetTokenIndices(Transition::EndRun),
+                             parentC,
                              false};
           MyGlobalRunSummary::globalEndRun(r, c, &rc, m_runSummaries[ri].get());
           if constexpr (T::HasAbility::kEndRunProducer) {
@@ -213,9 +218,11 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
+          ESParentContext parentC(mcc);
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                              this->consumer()->esGetTokenIndices(Transition::BeginLuminosityBlock),
+                             parentC,
                              false};
 
           MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb, c, &rc, m_lumis[li]);
@@ -238,9 +245,11 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::LuminosityBlockContext lc(m_lumis[li].get(), m_runs[ri].get(), m_global.get());
+          ESParentContext parentC(mcc);
           const EventSetup c{info,
                              static_cast<unsigned int>(Transition::EndLuminosityBlock),
                              this->consumer()->esGetTokenIndices(Transition::EndLuminosityBlock),
+                             parentC,
                              false};
           MyGlobalLuminosityBlockSummary::globalEndLuminosityBlock(lb, c, &lc, m_lumiSummaries[li].get());
           if constexpr (T::HasAbility::kEndLuminosityBlockProducer) {

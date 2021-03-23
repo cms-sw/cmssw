@@ -1,4 +1,4 @@
-<library file="Module.cc" name="ValidationCSCRecHitsPlugin">
+<library file="*.cc" name="ValidationCSCRecHitsPlugin">
   <use name="FWCore/Framework"/>
   <use name="Validation/CSCRecHits"/>
   <use name="clhep"/>

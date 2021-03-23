@@ -2,10 +2,10 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
   <ConstantsSection label="CTPPS_Timing_Stations_Assembly.xml" eval="true">
     <!--positions of the stations from the IP5 to the first element of the station-->
-    <Constant name="CTPPS_Timing_Negative_Station_Position_z_1" value="-215.078*m"/>
-    <Constant name="CTPPS_Timing_Positive_Station_Position_z_1" value="215.078*m"/>
-    <Constant name="CTPPS_Timing_Negative_Station_Position_z_2" value="-215.7*m"/>
-    <Constant name="CTPPS_Timing_Positive_Station_Position_z_2" value="215.7*m"/>
+    <Constant name="CTPPS_Timing_Negative_Station_Position_z_1" value="+215.078*m"/>
+    <Constant name="CTPPS_Timing_Positive_Station_Position_z_1" value="-215.078*m"/>
+    <Constant name="CTPPS_Timing_Negative_Station_Position_z_2" value="+215.700*m"/>
+    <Constant name="CTPPS_Timing_Positive_Station_Position_z_2" value="-215.700*m"/>
   </ConstantsSection>
   <PosPartSection label="CTPPS_Timing_Stations_Assembly.xml">
     <PosPart copyNumber="22">

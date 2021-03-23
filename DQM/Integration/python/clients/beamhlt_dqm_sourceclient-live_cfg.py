@@ -4,12 +4,19 @@ import FWCore.ParameterSet.Config as cms
 # Define once the BeamSpotOnline record name,
 # will be used both in BeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
+BSOnlineTag = 'BeamSpotOnlineTestHLT'
+BSOnlineJobName = 'BeamSpotOnlineTestHLT'
 
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) # FIMXE
 import sys
 from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
 process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
+
+# Configure tag and jobName if running Playback system
+if "dqm_cmssw/playback" in str(sys.argv[1]):
+  BSOnlineTag = BSOnlineTag + 'Playback'
+  BSOnlineJobName = BSOnlineJobName + 'Playback'
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -25,28 +32,28 @@ process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
 #    destinations = cms.untracked.vstring('cerr'),
 #)
 
-unitTest=False
-if 'unitTest=True' in sys.argv:
-  unitTest=True
+# switch
+live = True # FIXME
+unitTest = False
 
-# Switch to veto the upload of the BeamSpot conditions to the DB
-# when False it performs the upload
-noDB = True
-if 'noDB=False' in sys.argv:
-  noDB=False
+if 'unitTest=True' in sys.argv:
+  live=False
+  unitTest=True
 
 # Common part for PP and H.I Running
 #-----------------------------
 if unitTest:
   process.load("DQM.Integration.config.unittestinputsource_cfi")
   from DQM.Integration.config.unittestinputsource_cfi import options
-else:
+elif live:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
   from DQM.Integration.config.inputsource_cfi import options
-
   # new stream label
   process.source.streamLabel = cms.untracked.string('streamDQMOnlineBeamspot')
+else:
+  process.load("DQM.Integration.config.fileinputsource_cfi")
+  from DQM.Integration.config.fileinputsource_cfi import options
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -79,7 +86,8 @@ process.load("DQM.BeamMonitor.BeamMonitor_cff")
 # Calibration
 #---------------
 # Condition for P5 cluster
-#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
@@ -156,37 +164,55 @@ if (process.runType.getRunType() == process.runType.pp_run or
 
     #---------
     # Upload BeamSpotOnlineObject (HLTRcd) to CondDB
-    process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
-
+    if unitTest == False:
+      process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
         DBParameters = cms.PSet(
                                 messageLevel = cms.untracked.int32(0),
                                 authenticationPath = cms.untracked.string('.')
                                ),
 
         # Upload to CondDB
-        connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS'),
-        preLoadConnectionString = cms.untracked.string('frontier://FrontierPrep/CMS_CONDITIONS'),
-
+        connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS'),
+        preLoadConnectionString = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
         runNumber = cms.untracked.uint64(options.runNumber),
-        lastLumiFile = cms.untracked.string(''),
+        #lastLumiFile = cms.untracked.string('last_lumi.txt'),
+        #lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
+        omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
         writeTransactionDelay = cms.untracked.uint32(options.transDelay),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         saveLogsOnDB = cms.untracked.bool(True),
-        jobName = cms.untracked.string("BeamSpotOnlineHLTTest"), # name of the DB log record
+        jobName = cms.untracked.string(BSOnlineJobName), # name of the DB log record
         toPut = cms.VPSet(cms.PSet(
             record = cms.string(BSOnlineRecordName),
-            tag = cms.string('BSOnlineHLT_tag'),
+            tag = cms.string(BSOnlineTag),
             timetype = cms.untracked.string('Lumi'),
             onlyAppendUpdatePolicy = cms.untracked.bool(True)
         ))
-    )
+      )
+    else:
+      process.OnlineDBOutputService = cms.Service("OnlineDBOutputService",
+        DBParameters = cms.PSet(
+                                messageLevel = cms.untracked.int32(0),
+                                authenticationPath = cms.untracked.string('.')
+                                ),
 
-    # If not live or noDB: produce a (local) SQLITE file
-    if unitTest or noDB:
-      process.OnlineDBOutputService.connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db')
-      process.OnlineDBOutputService.preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db')
-      process.OnlineDBOutputService.saveLogsOnDB = cms.untracked.bool(False)
+        # Upload to CondDB
+        connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db'),
+        preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db'),
+        runNumber = cms.untracked.uint64(options.runNumber),
+        lastLumiFile = cms.untracked.string('last_lumi.txt'),
+        #lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
+        writeTransactionDelay = cms.untracked.uint32(options.transDelay),
+        latency = cms.untracked.uint32(2),
+        autoCommit = cms.untracked.bool(True),
+        toPut = cms.VPSet(cms.PSet(
+            record = cms.string(BSOnlineRecordName),
+            tag = cms.string(BSOnlineTag),
+            timetype = cms.untracked.string('Lumi'),
+            onlyAppendUpdatePolicy = cms.untracked.bool(True)
+        ))
+      )
 
     process.p = cms.Path( process.hltTriggerTypeFilter
                         * process.dqmcommon

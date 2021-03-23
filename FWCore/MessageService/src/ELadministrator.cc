@@ -42,20 +42,20 @@
 // ELadministrator::attach( const ELdestination & sink )
 // ELadministrator::attach( const ELdestination & sink, const ELstring & name )
 // ELadministrator::checkSeverity()
-// ELadministrator::severityCount( const ELseverityLevel & sev ) const
-// ELadministrator::severityCount( const ELseverityLevel & from,
-//                                  const ELseverityLevel & to    ) const
-// ELadministrator::resetSeverityCount( const ELseverityLevel & sev )
-// ELadministrator::resetSeverityCount( const ELseverityLevel & from,
-//                                      const ELseverityLevel & to    )
+// ELadministrator::severityCount( const messagelogger::ELseverityLevel & sev ) const
+// ELadministrator::severityCount( const messagelogger::ELseverityLevel & from,
+//                                  const messagelogger::ELseverityLevel & to    ) const
+// ELadministrator::resetSeverityCount( const messagelogger::ELseverityLevel & sev )
+// ELadministrator::resetSeverityCount( const messagelogger::ELseverityLevel & from,
+//                                      const messagelogger::ELseverityLevel & to    )
 // ELadministrator::resetSeverityCount()
-// ELadministrator::setThresholds( const ELseverityLevel & sev )
+// ELadministrator::setThresholds( const messagelogger::ELseverityLevel & sev )
 // ELadministrator::setLimits( const ELstring & id, int limit )
-// ELadministrator::setLimits( const ELseverityLevel & sev, int limit )
+// ELadministrator::setLimits( const messagelogger::ELseverityLevel & sev, int limit )
 // ELadministrator::setIntervals( const ELstring & id, int interval )
-// ELadministrator::setIntervals( const ELseverityLevel & sev, int interval )
+// ELadministrator::setIntervals( const messagelogger::ELseverityLevel & sev, int interval )
 // ELadministrator::setTimespans( const ELstring & id, int seconds )
-// ELadministrator::setTimespans( const ELseverityLevel & sev, int seconds )
+// ELadministrator::setTimespans( const messagelogger::ELseverityLevel & sev, int seconds )
 // ELadministrator::wipe()
 // ELadministrator::finish()
 //
@@ -82,6 +82,7 @@
 #include <sstream>
 #include <list>
 using std::cerr;
+using namespace edm::messagelogger;
 
 namespace edm {
   namespace service {

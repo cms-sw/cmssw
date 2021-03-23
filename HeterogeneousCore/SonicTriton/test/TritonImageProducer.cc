@@ -1,6 +1,6 @@
-#include "HeterogeneousCore/SonicCore/interface/SonicEDProducer.h"
-#include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,14 +11,14 @@
 #include <vector>
 #include <map>
 
-class TritonImageProducer : public SonicEDProducer<TritonClient> {
+class TritonImageProducer : public TritonEDProducer<> {
 public:
   explicit TritonImageProducer(edm::ParameterSet const& cfg)
-      : SonicEDProducer<TritonClient>(cfg), topN_(cfg.getParameter<unsigned>("topN")) {
-    //for debugging
-    setDebugName("TritonImageProducer");
+      : TritonEDProducer<>(cfg, "TritonImageProducer"),
+        batchSize_(cfg.getParameter<unsigned>("batchSize")),
+        topN_(cfg.getParameter<unsigned>("topN")) {
     //load score list
-    std::string imageListFile(cfg.getParameter<std::string>("imageList"));
+    std::string imageListFile(cfg.getParameter<edm::FileInPath>("imageList").fullPath());
     std::ifstream ifile(imageListFile);
     if (ifile.is_open()) {
       std::string line;
@@ -30,12 +30,13 @@ public:
     }
   }
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
+    client_->setBatchSize(batchSize_);
     // create an npix x npix x ncol image w/ arbitrary color value
     // model only has one input, so just pick begin()
     auto& input1 = iInput.begin()->second;
     auto data1 = std::make_shared<TritonInput<float>>();
-    data1->reserve(input1.batchSize());
-    for (unsigned i = 0; i < input1.batchSize(); ++i) {
+    data1->reserve(batchSize_);
+    for (unsigned i = 0; i < batchSize_; ++i) {
       data1->emplace_back(input1.sizeDims(), 0.5f);
     }
     // convert to server format
@@ -50,8 +51,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     TritonClient::fillPSetDescription(desc);
+    desc.add<unsigned>("batchSize", 1);
     desc.add<unsigned>("topN", 5);
-    desc.add<std::string>("imageList");
+    desc.add<edm::FileInPath>("imageList");
     //to ensure distinct cfi names
     descriptions.addWithDefaultLabel(desc);
   }
@@ -76,10 +78,11 @@ private:
         if (counter >= topN_)
           break;
       }
-      edm::LogInfo(client_.debugName()) << msg.str();
+      edm::LogInfo(debugName_) << msg.str();
     }
   }
 
+  unsigned batchSize_;
   unsigned topN_;
   std::vector<std::string> imageList_;
 };

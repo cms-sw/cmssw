@@ -65,7 +65,6 @@ Implementation:
 class ConversionProducer : public edm::stream::EDProducer<> {
 public:
   explicit ConversionProducer(const edm::ParameterSet&);
-  ~ConversionProducer() override;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -98,7 +97,7 @@ private:
 
   bool usePvtx_;  //if use primary vertices
   edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
-  ConversionVertexFinder* theVertexFinder_;
+  ConversionVertexFinder vertexFinder_;
 
   const TransientTrackBuilder* thettbuilder_;
 
@@ -159,10 +158,13 @@ private:
                       const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>& rr);
 
   //kinematic vertex fitting, return true for valid vertex
-  bool checkVertex(const reco::TransientTrack& ttk_l,
-                   const reco::TransientTrack& ttk_r,
-                   MagneticField const& magField,
-                   reco::Vertex& the_vertex);
+  inline bool checkVertex(const reco::TransientTrack& ttk_l,
+                          const reco::TransientTrack& ttk_r,
+                          MagneticField const& magField,
+                          reco::Vertex& the_vertex) {
+    return vertexFinder_.run({ttk_l, ttk_r}, the_vertex);
+  }
+
   bool checkPhi(const edm::RefToBase<reco::Track>& tk_l,
                 const edm::RefToBase<reco::Track>& tk_r,
                 TrackerGeometry const& trackerGeom,
@@ -201,10 +203,7 @@ inline LocalVector toLocal(const reco::Track::Vector& v, const Surface& s) {
   return s.toLocal(GlobalVector(v.x(), v.y(), v.z()));
 }
 
-ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig)
-    : theVertexFinder_(nullptr)
-
-{
+ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig) : vertexFinder_{iConfig} {
   algoName_ = iConfig.getParameter<std::string>("AlgorithmName");
 
   src_ = consumes<edm::View<reco::ConversionTrack> >(iConfig.getParameter<edm::InputTag>("src"));
@@ -284,20 +283,12 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig)
   r_cut = iConfig.getParameter<double>("rCut");
   vtxChi2_ = iConfig.getParameter<double>("vtxChi2");
 
-  theVertexFinder_ = new ConversionVertexFinder(iConfig);
-
   thettbuilder_ = nullptr;
 
   //output
   ConvertedPhotonCollection_ = iConfig.getParameter<std::string>("convertedPhotonCollection");
 
   produces<reco::ConversionCollection>(ConvertedPhotonCollection_);
-}
-
-ConversionProducer::~ConversionProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  delete theVertexFinder_;
 }
 
 // ------------ method called to produce the data  ------------
@@ -952,22 +943,6 @@ bool ConversionProducer::checkTrackPair(const std::pair<edm::RefToBase<reco::Tra
   }
 
   return true;
-}
-
-//because reco::vertex uses track ref, so have to keep them
-bool ConversionProducer::checkVertex(const reco::TransientTrack& ttk_l,
-                                     const reco::TransientTrack& ttk_r,
-                                     MagneticField const& magField,
-                                     reco::Vertex& the_vertex) {
-  bool found = false;
-
-  std::vector<reco::TransientTrack> pair;
-  pair.push_back(ttk_l);
-  pair.push_back(ttk_r);
-
-  found = theVertexFinder_->run(pair, the_vertex);
-
-  return found;
 }
 
 double ConversionProducer::etaTransformation(float EtaParticle, float Zvertex) {

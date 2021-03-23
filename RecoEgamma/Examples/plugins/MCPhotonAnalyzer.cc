@@ -1,44 +1,121 @@
-#include <iostream>
-//
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-//
-#include "RecoEgamma/Examples/plugins/MCPhotonAnalyzer.h"
-#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
-#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
-//
+#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
+#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-//
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-//
-#include "DataFormats/Common/interface/Handle.h"
-//
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-//
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
-//
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-//
+
+#include <iostream>
+#include <map>
+#include <vector>
+
+class MCPhotonAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  //
+  explicit MCPhotonAnalyzer(const edm::ParameterSet&);
+  ~MCPhotonAnalyzer() override;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
+
+private:
+  float etaTransformation(float a, float b);
+  float phiNormalization(float& a);
+
+  //
+  PhotonMCTruthFinder* thePhotonMCTruthFinder_;
+
+  const TrackerGeometry* trackerGeom;
+
+  std::string fOutputFileName_;
+  TFile* fOutputFile_;
+
+  int nEvt_;
+  int nMatched_;
+
+  /// global variable for the MC photon
+
+  double mcPhi_;
+  double mcEta_;
+
+  std::string HepMCLabel;
+  std::string SimTkLabel;
+  std::string SimVtxLabel;
+  std::string SimHitLabel;
+
+  // all photons
+  TH1F* h_MCPhoE_;
+  TH1F* h_MCPhoEta_;
+  TH1F* h_MCPhoEta1_;
+  TH1F* h_MCPhoEta2_;
+  TH1F* h_MCPhoEta3_;
+  TH1F* h_MCPhoEta4_;
+  TH1F* h_MCPhoPhi_;
+  // Conversion
+  TH1F* h_MCConvPhoE_;
+  TH1F* h_MCConvPhoEta_;
+  TH1F* h_MCConvPhoPhi_;
+  TH1F* h_MCConvPhoR_;
+  TH1F* h_MCConvPhoREta1_;
+  TH1F* h_MCConvPhoREta2_;
+  TH1F* h_MCConvPhoREta3_;
+  TH1F* h_MCConvPhoREta4_;
+  TH1F* h_convFracEta1_;
+  TH1F* h_convFracEta2_;
+  TH1F* h_convFracEta3_;
+  TH1F* h_convFracEta4_;
+
+  /// Conversions with two tracks
+  TH1F* h_MCConvPhoTwoTracksE_;
+  TH1F* h_MCConvPhoTwoTracksEta_;
+  TH1F* h_MCConvPhoTwoTracksPhi_;
+  TH1F* h_MCConvPhoTwoTracksR_;
+  /// Conversions with one track
+  TH1F* h_MCConvPhoOneTrackE_;
+  TH1F* h_MCConvPhoOneTrackEta_;
+  TH1F* h_MCConvPhoOneTrackPhi_;
+  TH1F* h_MCConvPhoOneTrackR_;
+
+  TH1F* h_MCEleE_;
+  TH1F* h_MCEleEta_;
+  TH1F* h_MCElePhi_;
+  TH1F* h_BremFrac_;
+  TH1F* h_BremEnergy_;
+  TH2F* h_EleEvsPhoE_;
+  TH2F* h_bremEvsEleE_;
+
+  TProfile* p_BremVsR_;
+  TProfile* p_BremVsEta_;
+
+  TProfile* p_BremVsConvR_;
+  TProfile* p_BremVsConvEta_;
+
+  TH2F* h_bremFracVsConvR_;
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MCPhotonAnalyzer);
 
 using namespace std;
 

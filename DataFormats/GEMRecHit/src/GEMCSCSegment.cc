@@ -5,6 +5,7 @@
  */
 
 #include "DataFormats/GEMRecHit/interface/GEMCSCSegment.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 namespace {

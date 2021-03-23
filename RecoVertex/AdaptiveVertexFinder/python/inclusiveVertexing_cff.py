@@ -43,7 +43,7 @@ candidateVertexMergerCvsL = candidateVertexMerger.clone(
 )
 
 candidateVertexArbitratorCvsL = candidateVertexArbitrator.clone(
-   secondaryVertices = cms.InputTag("candidateVertexMergerCvsL")
+   secondaryVertices = "candidateVertexMergerCvsL"
 )
 
 inclusiveCandidateSecondaryVerticesCvsL = candidateVertexMerger.clone(

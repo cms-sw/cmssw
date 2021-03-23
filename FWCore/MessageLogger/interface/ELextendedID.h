@@ -27,7 +27,7 @@ namespace edm {
     // -----  Publicly accessible data members:
     //
     std::string id;
-    ELseverityLevel severity;
+    messagelogger::ELseverityLevel severity;
     std::string module;
     std::string subroutine;
 

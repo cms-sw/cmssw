@@ -1,9 +1,10 @@
 #ifndef PixelVertexProducerClusters_H
 #define PixelVertexProducerClusters_H
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 namespace edm {
@@ -21,6 +22,7 @@ public:
   void produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const override;
 
 private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   edm::EDGetTokenT<SiPixelRecHitCollection> pixelToken_;
 };
 #endif

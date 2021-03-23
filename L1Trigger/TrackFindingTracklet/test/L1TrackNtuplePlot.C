@@ -23,6 +23,7 @@
 #include "TProfile2D.h"
 #include "TMath.h"
 #include <TError.h>
+#include "TSystem.h"
 
 #include <iostream>
 #include <string>
@@ -2022,6 +2023,7 @@ void L1TrackNtuplePlot(TString type,
   TH1F* h3_resVsEta_ptRel_L = new TH1F("resVsEta_ptRel_L_gaus", ";|#eta|; #sigma(p_{T}) / p_{T}", nETARANGE, 0, 2.4);
   TH1F* h3_resVsEta_ptRel_H = new TH1F("resVsEta_ptRel_H_gaus", ";|#eta|; #sigma(p_{T}) / p_{T}", nETARANGE, 0, 2.4);
 
+  gSystem->mkdir("FitResults");
   TString fitdir = "FitResults/";
 
   for (int i = 0; i < nETARANGE; i++) {
@@ -2409,6 +2411,7 @@ void L1TrackNtuplePlot(TString type,
   char ctxt[500];
   TCanvas c;
 
+  gSystem->mkdir("TrkPlots");
   TString DIR = "TrkPlots/";
 
   // plots overlaying 68, 90, 99% confidence levels]

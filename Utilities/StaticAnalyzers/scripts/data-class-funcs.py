@@ -92,7 +92,7 @@ for line in fileinput.input(files =('function-statics-db.txt','function-calls-db
 		statics.add(fields[3])
 fileinput.close()
 
-for n,nbrdict in G.adjacency_iter():
+for n,nbrdict in G.adjacency():
 	for nbr,eattr in nbrdict.items():
 		if n in badfuncs or nbr in badfuncs :
 			if 'kind' in eattr and eattr['kind'] == ' overrides function '  :
@@ -100,13 +100,13 @@ for n,nbrdict in G.adjacency_iter():
 				virtfuncs.add(nbr)
 print()
 
-for n,nbrdict in H.adjacency_iter():
+for n,nbrdict in H.adjacency():
 	for nbr,eattr in nbrdict.items():
 		if n in badclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
 			virtclasses.add(nbr)
 
 
-for n,nbrdict in H.adjacency_iter():
+for n,nbrdict in H.adjacency():
 	for nbr,eattr in nbrdict.items():
 		if nbr in dclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
 			dclasses.add(n)
@@ -160,7 +160,7 @@ print()
 
 for dataclassfunc in sorted(dataclassfuncs):
 	for tfunc in sorted(toplevelfuncs):
-		if nx.has_path(G,tfunc,dataclassfunc):
+		if G.has_node(tfunc) and G.has_node(dataclassfunc) and nx.has_path(G,tfunc,dataclassfunc):
 			m = getfunc.match(dataclassfunc)
 			n = handle.match(m.group(1))
 			if n : o = n.group(3)

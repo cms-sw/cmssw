@@ -8,9 +8,9 @@ Set up the work area
 for lxplus with SLC7 (default since April 2019)
 
 ~~~
-export SCRAM_ARCH=slc7_amd64_gcc820
-cmsrel CMSSW_11_2_0_pre6
-cd CMSSW_11_2_0_pre6
+export SCRAM_ARCH=slc7_amd64_gcc900
+cmsrel CMSSW_11_3_0_pre1
+cd CMSSW_11_3_0_pre1
 cmsenv
 ~~~
 
@@ -101,7 +101,7 @@ cd test/crab
 Initialize CRAB environment if not done already:
 
 ~~~
-source /cvmfs/cms.cern.ch/crab3/sh.crab
+source /cvmfs/cms.cern.ch/crab3/crab.sh
 voms-proxy-init -voms cms
 cmsenv
 ~~~

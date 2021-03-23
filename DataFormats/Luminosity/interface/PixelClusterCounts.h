@@ -14,8 +14,6 @@
 #include <iostream>
 #include <vector>
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DataFormats/Luminosity/interface/LumiConstants.h"
 #include "DataFormats/Luminosity/interface/PixelClusterCountsInEvent.h"
 

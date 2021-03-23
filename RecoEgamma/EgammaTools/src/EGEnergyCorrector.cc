@@ -1,6 +1,6 @@
 #include <TFile.h>
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"

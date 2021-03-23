@@ -37,8 +37,30 @@ common_UseHF = cms.PSet(
 )
 
 common_UseLuminosity = cms.PSet(
-    InstLuminosity  = cms.double(0.),   
+    InstLuminosity  = cms.double(0.),
     DelivLuminosity = cms.double(5000.)
+)
+
+common_MCtruth = cms.PSet(
+    DoFineCalo = cms.bool(False),
+    SaveCaloBoundaryInformation = cms.bool(False),
+    # currently unused; left in place for future studies
+    EminFineTrack = cms.double(10000.0),
+    FineCaloNames = cms.vstring('ECAL', 'HCal', 'HGCal', 'HFNoseVol', 'VCAL'),
+    FineCaloLevels = cms.vint32(4, 4, 8, 3, 3),
+    UseFineCalo = cms.vint32(2, 3),
+)
+
+## enable fine calorimeter functionality: must occur *before* common PSet is used below
+from Configuration.ProcessModifiers.fineCalo_cff import fineCalo
+fineCalo.toModify(common_MCtruth,
+    DoFineCalo = True
+)
+
+## enable CaloBoundary information for all Phase2 workflows
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(common_MCtruth,
+        SaveCaloBoundaryInformation =True
 )
 
 g4SimHits = cms.EDProducer("OscarMTProducer",
@@ -264,8 +286,9 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         RusRoWorldProton        = cms.double(1.0)
     ),
     TrackingAction = cms.PSet(
+        common_MCtruth,
         DetailedTiming = cms.untracked.bool(False),
-        CheckTrack = cms.untracked.bool(False)
+        CheckTrack = cms.untracked.bool(False),
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
@@ -288,6 +311,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     CaloSD = cms.PSet(
         common_heavy_suppression,
+        common_MCtruth,
         SuppressHeavy = cms.bool(False),
         EminTrack = cms.double(1.0),
         TmaxHit   = cms.double(1000.0),
@@ -298,7 +322,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         UseResponseTables = cms.vint32(0,0,0,0,0),
         BeamPosition      = cms.double(0.0),
         CorrectTOFBeam    = cms.bool(False),
-        UseFineCaloID     = cms.bool(False),
         DetailedTiming    = cms.untracked.bool(False),
         UseMap            = cms.untracked.bool(False),
         Verbosity         = cms.untracked.int32(0),
@@ -363,12 +386,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         HFDarkeningParameterBlock = HFDarkeningParameterBlock
     ),
     CaloTrkProcessing = cms.PSet(
+        common_MCtruth,
         TestBeam   = cms.bool(False),
         EminTrack  = cms.double(0.01),
         PutHistory = cms.bool(False),
-        DoFineCalo = cms.bool(False),
-        EminFineTrack = cms.double(10000.0),
-        EminFinePhoton = cms.double(5000.0)
     ),
     HFShower = cms.PSet(
         common_UsePMT,

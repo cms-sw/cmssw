@@ -74,16 +74,19 @@ void RPCGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 std::unique_ptr<RPCGeometry> RPCGeometryESModule::produce(const MuonGeometryRecord& record) {
   if (fromDDD_) {
+    edm::LogVerbatim("RPCGeoemtryESModule") << "(0) RPCGeometryESModule  - DDD ";
     edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(idealGeomToken_);
     auto const& mdc = record.get(dddConstantsToken_);
     RPCGeometryBuilder builder;
     return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), mdc));
   } else if (fromDD4hep_) {
+    edm::LogVerbatim("RPCGeoemtryESModule") << "(0) RPCGeometryESModule  - DD4HEP ";
     edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(idealDD4hepGeomToken_);
     auto const& mdc = record.get(dddConstantsToken_);
     RPCGeometryBuilder builder;
     return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), mdc));
   } else {
+    edm::LogVerbatim("RPCGeoemtryESModule") << "(0) RPCGeometryESModule  - DB ";
     auto const& rigrpc = record.get(recoIdealToken_);
     RPCGeometryBuilderFromCondDB builder;
     return std::unique_ptr<RPCGeometry>(builder.build(rigrpc));

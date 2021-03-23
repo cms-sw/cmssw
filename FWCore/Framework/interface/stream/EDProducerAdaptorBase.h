@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -35,7 +36,6 @@ namespace edm {
 
   class ModuleCallingContext;
   class ActivityRegistry;
-  class WaitingTask;
   class WaitingTaskWithArenaHolder;
 
   namespace maker {
@@ -76,8 +76,9 @@ namespace edm {
                      WaitingTaskWithArenaHolder&);
 
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {
-      }
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
+                                                    ModuleCallingContext const&,
+                                                    Principal const&) const {}
     };
   }  // namespace stream
 }  // namespace edm

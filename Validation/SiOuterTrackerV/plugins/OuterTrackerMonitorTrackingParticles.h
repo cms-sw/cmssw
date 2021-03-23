@@ -97,6 +97,7 @@ public:
   MonitorElement *resd0_eta2to2p4 = nullptr;
 
 private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken;
   edm::ParameterSet conf_;
   edm::EDGetTokenT<std::vector<TrackingParticle>> trackingParticleToken_;
   edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>

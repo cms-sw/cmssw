@@ -14,7 +14,6 @@ correctedMulti5x5SuperClustersWithPreshower = cms.EDProducer("EgammaSCCorrection
     applyCrackCorrection = cms.bool(True),
     crackCorrectorName = cms.string('EcalClusterCrackCorrection'),
     applyLocalContCorrection= cms.bool(False),
-    localContCorrectorName = cms.string('EcalBasicClusterLocalContCorrection'),
     # energy correction
     fix_fCorrPset = cms.PSet(
        brLinearLowThr = cms.double(0.9),

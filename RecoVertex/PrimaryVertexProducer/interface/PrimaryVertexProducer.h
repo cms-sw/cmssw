@@ -30,6 +30,8 @@
 
 //#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducerAlgorithm.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFindingBase.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ_vect.h"
@@ -65,6 +67,8 @@ public:
 
 private:
   // ----------member data ---------------------------
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theTTBToken;
+
   TrackFilterForPVFindingBase* theTrackFilter;
   TrackClusterizerInZ* theTrackClusterizer;
 

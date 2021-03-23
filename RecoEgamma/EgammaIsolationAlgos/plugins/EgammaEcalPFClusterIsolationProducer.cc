@@ -6,16 +6,14 @@
 //*****************************************************************************
 
 #include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -23,15 +21,14 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
 
 template <typename T1>
-class EgammaEcalPFClusterIsolationProducer : public edm::stream::EDProducer<> {
+class EgammaEcalPFClusterIsolationProducer : public edm::global::EDProducer<> {
 public:
   typedef std::vector<T1> T1Collection;
   typedef edm::Ref<T1Collection> T1Ref;
   explicit EgammaEcalPFClusterIsolationProducer(const edm::ParameterSet&);
-  ~EgammaEcalPFClusterIsolationProducer() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   const edm::EDGetTokenT<T1Collection> emObjectProducer_;
@@ -63,9 +60,6 @@ EgammaEcalPFClusterIsolationProducer<T1>::EgammaEcalPFClusterIsolationProducer(c
 }
 
 template <typename T1>
-EgammaEcalPFClusterIsolationProducer<T1>::~EgammaEcalPFClusterIsolationProducer() {}
-
-template <typename T1>
 void EgammaEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("candidateProducer", edm::InputTag("gedGsfElectrons"));
@@ -81,16 +75,16 @@ void EgammaEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::Configurati
 }
 
 template <typename T1>
-void EgammaEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<T1Collection> emObjectHandle;
-  iEvent.getByToken(emObjectProducer_, emObjectHandle);
+void EgammaEcalPFClusterIsolationProducer<T1>::produce(edm::StreamID,
+                                                       edm::Event& iEvent,
+                                                       const edm::EventSetup&) const {
+  auto emObjectHandle = iEvent.getHandle(emObjectProducer_);
 
   auto isoMap = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler(*isoMap);
   std::vector<float> retV(emObjectHandle->size(), 0);
 
-  edm::Handle<reco::PFClusterCollection> clusterHandle;
-  iEvent.getByToken(pfClusterProducer_, clusterHandle);
+  auto clusterHandle = iEvent.getHandle(pfClusterProducer_);
 
   EcalPFClusterIsolation<T1> isoAlgo(
       drMax_, drVetoBarrel_, drVetoEndcap_, etaStripBarrel_, etaStripEndcap_, energyBarrel_, energyEndcap_);
