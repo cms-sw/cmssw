@@ -215,8 +215,8 @@ namespace cmsdt {
   constexpr int NUM_CELL_COMB = 3;
   constexpr int TOTAL_CHANNELS = (NUM_LAYERS * NUM_CH_PER_LAYER);
   constexpr int NUM_SUPERLAYERS = 3;
-  constexpr float PHIRES_CONV = 65536. / 0.8;
-  constexpr float PHIBRES_CONV = 2048. / 1.4;
+  constexpr float PHIRES_CONV = 65536. / 0.5;  // 17 bits, [-0.5, 0.5]
+  constexpr float PHIBRES_CONV = 4096. / 2.;  // 13 bits, [-2, 2]
   constexpr int CHI2RES_CONV = 1000000;
   constexpr int TDCTIME_REDUCED_SIZE = 10;
   constexpr float ZRES_CONV = 65536. / 1500;
