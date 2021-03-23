@@ -20,4 +20,9 @@
   <class name="edm::Wrapper<std::map<TrackingParticleRef, std::vector<OmniClusterRef> > >" persistent="false" /> 
   <class name="std::map<OmniClusterRef, std::vector<TrackingParticleRef> >" persistent="false" /> 
   <class name="edm::Wrapper<std::map<OmniClusterRef, std::vector<TrackingParticleRef> > >" persistent="false" /> 
+
+  <class name="trackerHitAssociationHeterogeneous::ProductCUDA" persistent="false"/>
+  <class name="cms::cuda::Product<trackerHitAssociationHeterogeneous::ProductCUDA>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<trackerHitAssociationHeterogeneous::ProductCUDA>>" persistent="false"/>
+
 </lcgdict>
