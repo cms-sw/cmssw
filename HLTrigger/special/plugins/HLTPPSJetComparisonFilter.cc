@@ -37,6 +37,8 @@ public:
 
 private:
   // ----------member data ---------------------------
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> const lhcInfoRcdToken_;
+
   edm::ParameterSet param_;
 
   edm::InputTag jetInputTag_;  // Input tag identifying the jet track
@@ -90,7 +92,8 @@ void HLTPPSJetComparisonFilter::fillDescriptions(edm::ConfigurationDescriptions 
 HLTPPSJetComparisonFilter::~HLTPPSJetComparisonFilter() = default;
 
 HLTPPSJetComparisonFilter::HLTPPSJetComparisonFilter(const edm::ParameterSet &iConfig)
-    : jetInputTag_(iConfig.getParameter<edm::InputTag>("jetInputTag")),
+    : lhcInfoRcdToken_(esConsumes()),
+      jetInputTag_(iConfig.getParameter<edm::InputTag>("jetInputTag")),
       jet_token_(consumes<reco::PFJetCollection>(jetInputTag_)),
 
       forwardProtonInputTag_(iConfig.getParameter<edm::InputTag>("forwardProtonInputTag")),
@@ -110,8 +113,7 @@ HLTPPSJetComparisonFilter::HLTPPSJetComparisonFilter(const edm::ParameterSet &iC
 // member functions
 //
 bool HLTPPSJetComparisonFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
-  edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
+  auto const &hLHCInfo = iSetup.getHandle(lhcInfoRcdToken_);
   float sqs = 2. * hLHCInfo->energy();  // get sqrt(s)
 
   edm::Handle<reco::PFJetCollection> jets;
