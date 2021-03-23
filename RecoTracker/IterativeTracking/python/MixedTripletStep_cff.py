@@ -294,14 +294,19 @@ mixedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
 
 from Configuration.ProcessModifiers.trackingMkFitMixedTripletStep_cff import trackingMkFitMixedTripletStep
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 mixedTripletStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
     seeds = 'mixedTripletStepSeeds',
 )
+mixedTripletStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'mixedTripletStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-mixedTripletStep.json',
+)
 mixedTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
     seeds = 'mixedTripletStepTrackCandidatesMkFitSeeds',
-    iterationNumber = 6,
+    config = ('', 'mixedTripletStepTrackCandidatesMkFitConfig'),
     clustersToSkip = 'mixedTripletStepClusters',
 )
 trackingMkFitMixedTripletStep.toReplaceWith(mixedTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
@@ -496,7 +501,7 @@ MixedTripletStepTask = cms.Task(chargeCut2069Clusters,mixedTripletStepClusters,
 MixedTripletStep = cms.Sequence(MixedTripletStepTask)
 
 _MixedTripletStepTask_trackingMkFit = MixedTripletStepTask.copy()
-_MixedTripletStepTask_trackingMkFit.add(mixedTripletStepTrackCandidatesMkFitSeeds, mixedTripletStepTrackCandidatesMkFit)
+_MixedTripletStepTask_trackingMkFit.add(mixedTripletStepTrackCandidatesMkFitSeeds, mixedTripletStepTrackCandidatesMkFit, mixedTripletStepTrackCandidatesMkFitConfig)
 trackingMkFitMixedTripletStep.toReplaceWith(MixedTripletStepTask, _MixedTripletStepTask_trackingMkFit)
 
 _MixedTripletStepTask_LowPU = MixedTripletStepTask.copyAndExclude([chargeCut2069Clusters, mixedTripletStepClassifier1])

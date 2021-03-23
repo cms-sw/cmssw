@@ -188,14 +188,19 @@ trackingPhase2PU140.toModify(detachedQuadStepTrackCandidates,
 
 from Configuration.ProcessModifiers.trackingMkFitDetachedQuadStep_cff import trackingMkFitDetachedQuadStep
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 detachedQuadStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
     seeds = 'detachedQuadStepSeeds',
 )
+detachedQuadStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-detachedQuadStep.json',
+    ComponentName = 'detachedQuadStepTrackCandidatesMkFitConfig',
+)
 detachedQuadStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
     seeds = 'detachedQuadStepTrackCandidatesMkFitSeeds',
-    iterationNumber = 4,
+    config = ('', 'detachedQuadStepTrackCandidatesMkFitConfig'),
     clustersToSkip = 'detachedQuadStepClusters',
 )
 trackingMkFitDetachedQuadStep.toReplaceWith(detachedQuadStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
@@ -357,7 +362,7 @@ DetachedQuadStepTask = cms.Task(detachedQuadStepClusters,
 DetachedQuadStep = cms.Sequence(DetachedQuadStepTask)
 
 _DetachedQuadStepTask_trackingMkFit = DetachedQuadStepTask.copy()
-_DetachedQuadStepTask_trackingMkFit.add(detachedQuadStepTrackCandidatesMkFitSeeds, detachedQuadStepTrackCandidatesMkFit)
+_DetachedQuadStepTask_trackingMkFit.add(detachedQuadStepTrackCandidatesMkFitSeeds, detachedQuadStepTrackCandidatesMkFit, detachedQuadStepTrackCandidatesMkFitConfig)
 trackingMkFitDetachedQuadStep.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_trackingMkFit)
 
 _DetachedQuadStepTask_Phase2PU140 = DetachedQuadStepTask.copy()

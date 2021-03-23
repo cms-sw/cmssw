@@ -46,10 +46,10 @@ private:
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > > pixelMaskToken_;
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripMaskToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
-  edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
+  const edm::ESGetToken<mkfit::IterationConfig, TrackerRecoGeometryRecord> mkFitIterConfigToken_;
+  const edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
   std::function<double(mkfit::Event&, mkfit::MkBuilder&)> buildFunction_;
   const float minGoodStripCharge_;
-  const int iterationNumber_;  // TODO: temporary solution
   const bool seedCleaning_;
   const bool backwardFitInCMSSW_;
   const bool removeDuplicates_;
@@ -58,13 +58,13 @@ private:
 };
 
 MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
-    : hitToken_{consumes<MkFitHitWrapper>(iConfig.getParameter<edm::InputTag>("hits"))},
-      seedToken_{consumes<MkFitSeedWrapper>(iConfig.getParameter<edm::InputTag>("seeds"))},
-      mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
+    : hitToken_{consumes(iConfig.getParameter<edm::InputTag>("hits"))},
+      seedToken_{consumes(iConfig.getParameter<edm::InputTag>("seeds"))},
+      mkFitGeomToken_{esConsumes()},
+      mkFitIterConfigToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("config"))},
       putToken_{produces<MkFitOutputWrapper>()},
       minGoodStripCharge_{static_cast<float>(
           iConfig.getParameter<edm::ParameterSet>("minGoodStripCharge").getParameter<double>("value"))},
-      iterationNumber_{iConfig.getParameter<int>("iterationNumber")},
       seedCleaning_{iConfig.getParameter<bool>("seedCleaning")},
       backwardFitInCMSSW_{iConfig.getParameter<bool>("backwardFitInCMSSW")},
       removeDuplicates_{iConfig.getParameter<bool>("removeDuplicates")},
@@ -103,7 +103,8 @@ void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add("clustersToSkip", edm::InputTag());
   desc.add<std::string>("buildingRoutine", "cloneEngine")
       ->setComment("Valid values are: 'bestHit', 'standard', 'cloneEngine'");
-  desc.add<int>("iterationNumber", 0)->setComment("Iteration number (default: 0)");
+  desc.add<edm::ESInputTag>("config")->setComment(
+      "ESProduct that has the mkFit configuration parameters for this iteration");
   desc.add("seedCleaning", true)->setComment("Clean seeds within mkFit");
   desc.add("removeDuplicates", true)->setComment("Run duplicate removal within mkFit");
   desc.add("backwardFitInCMSSW", false)
@@ -137,6 +138,7 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
   // sure that the ESProducer is called even if the input/output
   // converters
   const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
+  const auto& mkFitIterConfig = iSetup.getData(mkFitIterConfigToken_);
 
   const std::vector<bool>* pixelMaskPtr = nullptr;
   std::vector<bool> pixelMask;
@@ -174,7 +176,7 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
 
   auto lambda = [&]() {
     mkfit::run_OneIteration(mkFitGeom.trackerInfo(),
-                            mkFitGeom.iterationsInfo()[iterationNumber_],
+                            mkFitIterConfig,
                             hits.eventOfHits(),
                             {pixelMaskPtr, &stripMask},
                             streamCache(iID)->get(),

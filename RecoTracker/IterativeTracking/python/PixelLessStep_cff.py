@@ -287,14 +287,19 @@ pixelLessStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
 
 from Configuration.ProcessModifiers.trackingMkFitPixelLessStep_cff import trackingMkFitPixelLessStep
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 pixelLessStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
     seeds = 'pixelLessStepSeeds',
 )
+pixelLessStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'pixelLessStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-pixelLessStep.json',
+)
 pixelLessStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
     seeds = 'pixelLessStepTrackCandidatesMkFitSeeds',
-    iterationNumber = 7,
+    config = ('', 'pixelLessStepTrackCandidatesMkFitConfig'),
     clustersToSkip = 'pixelLessStepClusters',
 )
 trackingMkFitPixelLessStep.toReplaceWith(pixelLessStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
@@ -485,7 +490,7 @@ PixelLessStepTask = cms.Task(pixelLessStepClusters,
 PixelLessStep = cms.Sequence(PixelLessStepTask)
 
 _PixelLessStepTask_trackingMkFit = PixelLessStepTask.copy()
-_PixelLessStepTask_trackingMkFit.add(pixelLessStepTrackCandidatesMkFitSeeds, pixelLessStepTrackCandidatesMkFit)
+_PixelLessStepTask_trackingMkFit.add(pixelLessStepTrackCandidatesMkFitSeeds, pixelLessStepTrackCandidatesMkFit, pixelLessStepTrackCandidatesMkFit)
 trackingMkFitPixelLessStep.toReplaceWith(PixelLessStepTask, _PixelLessStepTask_trackingMkFit)
 
 _PixelLessStepTask_LowPU = PixelLessStepTask.copyAndExclude([pixelLessStepHitTriplets, pixelLessStepClassifier1, pixelLessStepClassifier2])
