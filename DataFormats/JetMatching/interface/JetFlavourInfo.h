@@ -1,12 +1,12 @@
-#ifndef SimDataFormats_JetMatching_JetFlavourInfo_H
-#define SimDataFormats_JetMatching_JetFlavourInfo_H
+#ifndef DataFormats_JetMatching_JetFlavourInfo_H
+#define DataFormats_JetMatching_JetFlavourInfo_H
 
 #include <vector>
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 namespace reco {
-  /**\class JetFlavourInfo JetFlavourInfo.h SimDataFormats/JetMatching/interface/JetFlavourInfo.h
+  /**\class JetFlavourInfo JetFlavourInfo.h DataFormats/JetMatching/interface/JetFlavourInfo.h
  * \brief Class storing the jet flavour information
  *
  * JetFlavourInfo class stores the jet flavour information based on hadrons
