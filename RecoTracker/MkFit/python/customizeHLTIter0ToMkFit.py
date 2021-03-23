@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoTracker.MkFit.mkFitGeometryESProducer_cfi as mkFitGeometryESProducer_cfi
 import RecoTracker.MkFit.mkFitHitConverter_cfi as mkFitHitConverter_cfi
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi as SiStripRecHitConverter_cfi
@@ -33,9 +34,14 @@ def customizeHLTIter0ToMkFit(process):
         seeds = "hltIter0PFLowPixelSeedsFromPixelTracks",
         ttrhBuilder = ":hltESPTTRHBWithTrackAngle",
     )
+    process.hltIter0PFlowTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+        ComponentName = 'hltIter0PFlowTrackCandidatesMkFitConfig',
+        config = 'RecoTracker/MkFit/data/mkfit-phase1-initialStep.json',
+    )
     process.hltIter0PFlowCkfTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
         hits = "hltIter0PFlowCkfTrackCandidatesMkFitHits",
         seeds = "hltIter0PFlowCkfTrackCandidatesMkFitSeeds",
+        config = ('', 'hltIter0PFlowTrackCandidatesMkFitConfig'),
         minGoodStripCharge = dict(refToPSet_ = 'HLTSiStripClusterChargeCutLoose'),
     )
     process.hltIter0PFlowCkfTrackCandidates = mkFitOutputConverter_cfi.mkFitOutputConverter.clone(

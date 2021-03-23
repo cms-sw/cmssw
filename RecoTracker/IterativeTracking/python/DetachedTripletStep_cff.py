@@ -216,14 +216,19 @@ trackingLowPU.toModify(detachedTripletStepTrajectoryCleanerBySharedHits, fractio
 
 from Configuration.ProcessModifiers.trackingMkFitDetachedTripletStep_cff import trackingMkFitDetachedTripletStep
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 detachedTripletStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
     seeds = 'detachedTripletStepSeeds',
 )
+detachedTripletStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'detachedTripletStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-detachedTripletStep.json',
+)
 detachedTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
     seeds = 'detachedTripletStepTrackCandidatesMkFitSeeds',
-    iterationNumber = 5,
+    config = ('', 'detachedTripletStepTrackCandidatesMkFitConfig'),
     clustersToSkip = 'detachedTripletStepClusters',
 )
 trackingMkFitDetachedTripletStep.toReplaceWith(detachedTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
@@ -399,7 +404,7 @@ DetachedTripletStepTask = cms.Task(detachedTripletStepClusters,
 DetachedTripletStep = cms.Sequence(DetachedTripletStepTask)
 
 _DetachedTripletStepTask_trackingMkFit = DetachedTripletStepTask.copy()
-_DetachedTripletStepTask_trackingMkFit.add(detachedTripletStepTrackCandidatesMkFitSeeds, detachedTripletStepTrackCandidatesMkFit)
+_DetachedTripletStepTask_trackingMkFit.add(detachedTripletStepTrackCandidatesMkFitSeeds, detachedTripletStepTrackCandidatesMkFit, detachedTripletStepTrackCandidatesMkFitConfig)
 trackingMkFitDetachedTripletStep.toReplaceWith(DetachedTripletStepTask, _DetachedTripletStepTask_trackingMkFit)
 
 _DetachedTripletStepTask_LowPU = DetachedTripletStepTask.copyAndExclude([detachedTripletStepClassifier2])

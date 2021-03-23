@@ -227,15 +227,20 @@ from Configuration.ProcessModifiers.trackingMkFitInitialStep_cff import tracking
 from RecoTracker.MkFit.mkFitGeometryESProducer_cfi import mkFitGeometryESProducer
 import RecoTracker.MkFit.mkFitHitConverter_cfi as mkFitHitConverter_cfi
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 mkFitHits = mkFitHitConverter_cfi.mkFitHitConverter.clone() # TODO: figure out better place for this module?
 initialStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
     seeds = 'initialStepSeeds',
 )
+initialStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'initialStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-initialStep.json',
+)
 initialStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
     seeds = 'initialStepTrackCandidatesMkFitSeeds',
-    iterationNumber = 0,
+    config = ('', 'initialStepTrackCandidatesMkFitConfig'),
 )
 trackingMkFitInitialStep.toReplaceWith(initialStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
     seeds = 'initialStepSeeds',
@@ -423,7 +428,7 @@ _InitialStepTask_trackingMkFitCommon.add(mkFitHits, mkFitGeometryESProducer)
 trackingMkFitCommon.toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFitCommon)
 
 _InitialStepTask_trackingMkFit = InitialStepTask.copy()
-_InitialStepTask_trackingMkFit.add(initialStepTrackCandidatesMkFitSeeds, initialStepTrackCandidatesMkFit)
+_InitialStepTask_trackingMkFit.add(initialStepTrackCandidatesMkFitSeeds, initialStepTrackCandidatesMkFit, initialStepTrackCandidatesMkFitConfig)
 trackingMkFitInitialStep.toReplaceWith(InitialStepTask, _InitialStepTask_trackingMkFit)
 
 _InitialStepTask_LowPU = InitialStepTask.copyAndExclude([firstStepPrimaryVerticesUnsorted, initialStepTrackRefsForJets, caloJetsForTrkTask, firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])

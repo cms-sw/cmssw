@@ -245,13 +245,18 @@ trackingPhase2PU140.toModify(lowPtTripletStepTrackCandidates,
 from Configuration.ProcessModifiers.trackingMkFitLowPtTripletStep_cff import trackingMkFitLowPtTripletStep
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 lowPtTripletStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
     seeds = 'lowPtTripletStepSeeds',
 )
+lowPtTripletStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'lowPtTripletStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-lowPtTripletStep.json',
+)
 lowPtTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
     seeds = 'lowPtTripletStepTrackCandidatesMkFitSeeds',
-    iterationNumber = 3,
+    config = ('', 'lowPtTripletStepTrackCandidatesMkFitConfig'),
     clustersToSkip = 'lowPtTripletStepClusters',
 )
 trackingMkFitLowPtTripletStep.toReplaceWith(lowPtTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(

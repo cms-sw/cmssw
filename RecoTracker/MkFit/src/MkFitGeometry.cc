@@ -5,12 +5,9 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 
-// these two are only temporarily in this file
-#define USE_MATRIPLEX
-#include "mkFit/SteeringParams.h"
-
 #include "LayerNumberConverter.h"
 #include "TrackerInfo.h"
+#include "mkFit/IterationConfig.h"
 
 MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
                              const GeometricSearchTracker& tracker,

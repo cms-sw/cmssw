@@ -271,14 +271,19 @@ tobTecStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTra
 
 from Configuration.ProcessModifiers.trackingMkFitTobTecStep_cff import trackingMkFitTobTecStep
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
+import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
 import RecoTracker.MkFit.mkFitProducer_cfi as mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 tobTecStepTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
     seeds = 'tobTecStepSeeds',
 )
+tobTecStepTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+    ComponentName = 'tobTecStepTrackCandidatesMkFitConfig',
+    config = 'RecoTracker/MkFit/data/mkfit-phase1-tobTecStep.json',
+)
 tobTecStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
     seeds = 'tobTecStepTrackCandidatesMkFitSeeds',
-    iterationNumber = 8,
+    config = ('', 'tobTecStepTrackCandidatesMkFitConfig'),
     clustersToSkip = 'tobTecStepClusters',
 )
 trackingMkFitTobTecStep.toReplaceWith(tobTecStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
@@ -469,7 +474,7 @@ TobTecStepTask = cms.Task(tobTecStepClusters,
 TobTecStep = cms.Sequence(TobTecStepTask)
 
 _TobTecStepTask_trackingMkFit = TobTecStepTask.copy()
-_TobTecStepTask_trackingMkFit.add(tobTecStepTrackCandidatesMkFitSeeds, tobTecStepTrackCandidatesMkFit)
+_TobTecStepTask_trackingMkFit.add(tobTecStepTrackCandidatesMkFitSeeds, tobTecStepTrackCandidatesMkFit, tobTecStepTrackCandidatesMkFitConfig)
 trackingMkFitTobTecStep.toReplaceWith(TobTecStepTask, _TobTecStepTask_trackingMkFit)
 
 ### Following are specific for LowPU, they're collected here to
