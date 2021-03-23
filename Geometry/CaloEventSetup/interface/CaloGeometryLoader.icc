@@ -84,7 +84,7 @@ void CaloGeometryLoader<T>::makeGeometry(const DDCompactView* cpv,
     const CLHEP::HepRotation hr(temp);
     const CLHEP::Hep3Vector h3v(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
     const HepGeom::Transform3D ht3d(hr,  // only scale translation
-                                    k_ScaleFromDDDtoGeant * h3v);
+                                    k_ScaleFromDDD * h3v);
 
     const DetId id(getDetIdForDDDNode(fv));
 
@@ -105,7 +105,7 @@ void CaloGeometryLoader<T>::makeGeometry(const DDCompactView* cpv,
         nullptr == at ? ht3d
                       : (nullptr == globalT ? at->transform() * ht3d : at->transform() * globalT->transform() * ht3d));
 
-    fillGeom(geom, parameters, atr, id, k_ScaleFromDDDtoGeant);
+    fillGeom(geom, parameters, atr, id, k_ScaleFromDDD);
   }
 
   assert(counter <= T::k_NumberOfCellsForCorners);
@@ -149,7 +149,7 @@ void CaloGeometryLoader<T>::makeGeometry(const cms::DDCompactView* cpv,
     const CLHEP::HepRotation hr(temp);
     const CLHEP::Hep3Vector h3v(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
     const HepGeom::Transform3D ht3d(hr,  // only scale translation
-                                    k_ScaleFromDD4HeptoGeant * h3v);
+                                    k_ScaleFromDD4Hep * h3v);
 
     const DetId id(getDetIdForDD4HepNode(fv));
 
@@ -170,7 +170,7 @@ void CaloGeometryLoader<T>::makeGeometry(const cms::DDCompactView* cpv,
         nullptr == at ? ht3d
                       : (nullptr == globalT ? at->transform() * ht3d : at->transform() * globalT->transform() * ht3d));
 
-    fillGeom(geom, parameters, atr, id, k_ScaleFromDD4HeptoGeant);
+    fillGeom(geom, parameters, atr, id, k_ScaleFromDD4Hep);
   }
 
   assert(counter <= T::k_NumberOfCellsForCorners);

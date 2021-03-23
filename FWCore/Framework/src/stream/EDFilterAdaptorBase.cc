@@ -26,6 +26,7 @@
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/stream/ProducingModuleAdaptorBase.cc"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 using namespace edm::stream;
 namespace edm {
@@ -54,8 +55,9 @@ namespace edm {
       e.setConsumer(mod);
       e.setProducer(mod, &mod->previousParentage_, &mod->gotBranchIDsFromAcquire_);
       EventSignalsSentry sentry(act, mcc);
+      ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), false};
+          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC, false};
       bool result = mod->filter(e, c);
       commit(e, &mod->previousParentageId_);
       return result;
@@ -72,8 +74,9 @@ namespace edm {
       e.setConsumer(mod);
       e.setProducerForAcquire(mod, nullptr, mod->gotBranchIDsFromAcquire_);
       EventAcquireSignalsSentry sentry(act, mcc);
+      ESParentContext parentC(mcc);
       const EventSetup c{
-          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), false};
+          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC, false};
       mod->doAcquire_(e, c, holder);
     }
 

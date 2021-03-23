@@ -43,6 +43,7 @@
 
 using namespace edm;
 using namespace edm::service;
+using namespace edm::messagelogger;
 
 namespace {
   constexpr std::array<char const*, 12> s_globalTransitionNames = {{"@beginJob",

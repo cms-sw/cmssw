@@ -8,8 +8,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <map>
@@ -30,26 +28,29 @@ public:
   virtual ~SiStripActionExecutor();
 
   bool readConfiguration();
-  bool readTkMapConfiguration(const edm::EventSetup& eSetup);
+  bool readTkMapConfiguration(const SiStripDetCabling* detCabling,
+                              const TkDetMap* tkDetMap,
+                              const TrackerTopology* tTopo);
 
   void saveMEs(DQMStore& dqm_store, std::string fname);
   void createSummary(DQMStore& dqm_store);
   void createSummaryOffline(DQMStore& dqm_store);
-  void createTkMap(const edm::ParameterSet& tkmapPset,
-                   DQMStore& dqm_store,
-                   std::string& map_type,
-                   const edm::EventSetup& eSetup);
+  void createTkMap(const edm::ParameterSet& tkmapPset, DQMStore& dqm_store, const std::string& map_type);
   void createOfflineTkMap(const edm::ParameterSet& tkmapPset,
                           DQMStore& dqm_store,
                           std::string& map_type,
-                          const edm::EventSetup& eSetup);
-  void createTkInfoFile(std::vector<std::string> tkhmap_names, TTree* tkinfo_tree, DQMStore& dqm_store);
+                          const SiStripQuality* stripQuality);
+  void createTkInfoFile(std::vector<std::string> tkhmap_names,
+                        TTree* tkinfo_tree,
+                        DQMStore& dqm_store,
+                        const GeometricDet* geomDet);
 
   void createStatus(DQMStore& dqm_store);
   void fillDummyStatus();
   void fillStatus(DQMStore& dqm_store,
-                  edm::ESHandle<SiStripDetCabling> const& fedcabling,
-                  edm::EventSetup const& eSetup);
+                  const SiStripDetCabling* cabling,
+                  const TkDetMap* tkDetMap,
+                  const TrackerTopology* tTopo);
   void fillStatusAtLumi(DQMStore& dqm_store);
 
   void createDummyShiftReport();

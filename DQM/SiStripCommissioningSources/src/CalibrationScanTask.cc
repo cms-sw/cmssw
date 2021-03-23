@@ -2,9 +2,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include <CondFormats/DataRecord/interface/SiStripPedestalsRcd.h>
 #include <CondFormats/SiStripObjects/interface/SiStripPedestals.h>
 
 #include <arpa/inet.h>
@@ -21,7 +18,7 @@ CalibrationScanTask::CalibrationScanTask(DQMStore* dqm,
                                          const sistrip::RunType& rtype,
                                          const char* filename,
                                          uint32_t run,
-                                         const edm::EventSetup& setup)
+                                         const SiStripPedestals& pedestals)
     : CommissioningTask(dqm, conn, "CalibrationScanTask"),
       runType_(rtype),
       nBins_(0),
@@ -41,9 +38,7 @@ CalibrationScanTask::CalibrationScanTask(DQMStore* dqm,
 
   LogDebug("Commissioning") << "[CalibrationScanTask::CalibrationScanTask] Constructing object...";
   // load the pedestals
-  edm::ESHandle<SiStripPedestals> pedestalsHandle;
-  setup.get<SiStripPedestalsRcd>().get(pedestalsHandle);
-  SiStripPedestals::Range detPedRange = pedestalsHandle->getRange(conn.detId());
+  SiStripPedestals::Range detPedRange = pedestals.getRange(conn.detId());
   int start = conn.apvPairNumber() * 256;
   int stop = start + 256;
   int value = 0;
@@ -52,7 +47,7 @@ CalibrationScanTask::CalibrationScanTask(DQMStore* dqm,
   if (conn.detId() == 0)
     return;
   for (int strip = start; strip < stop; ++strip) {
-    value = int(pedestalsHandle->getPed(strip, detPedRange));
+    value = int(pedestals.getPed(strip, detPedRange));
     if (value > 895)
       value -= 1024;
     ped.push_back(value);

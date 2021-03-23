@@ -25,12 +25,11 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiModule.h"
-
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 #include <cstdint>
 
-class SiPixelDigiSource : public DQMOneLumiEDAnalyzer<> {
+class SiPixelDigiSource : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<bool>> {
 public:
   explicit SiPixelDigiSource(const edm::ParameterSet& conf);
   ~SiPixelDigiSource() override;
@@ -40,9 +39,9 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  std::shared_ptr<bool> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                   const edm::EventSetup& iSetup) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   virtual void buildStructure(edm::EventSetup const&);
   virtual void bookMEs(DQMStore::IBooker&, const edm::EventSetup& iSetup);
@@ -226,7 +225,7 @@ private:
   int nDigisB;
 
   //define Token(-s)
-  edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > srcToken_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> srcToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoTokenBeginRun_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;

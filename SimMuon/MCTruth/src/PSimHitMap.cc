@@ -1,5 +1,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 void PSimHitMap::fill(const edm::Event &e) {
   theMap.clear();

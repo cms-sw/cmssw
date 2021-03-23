@@ -34,8 +34,10 @@ private:
 
   MonitorElement *DCSMap_;
   MonitorElement *totalDCSFraction;
-  MonitorElement *dcsWheelFractions[5];
-  MonitorElement *dcsDiskFractions[10];
+  constexpr static int kNWheels = 5;
+  MonitorElement *dcsWheelFractions[kNWheels];
+  constexpr static int kNDisks = 10;
+  MonitorElement *dcsDiskFractions[kNDisks];
   std::pair<int, int> FEDRange_;
   int numberOfDisks_;
   int NumberOfFeds_;

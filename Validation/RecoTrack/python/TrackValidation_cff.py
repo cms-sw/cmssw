@@ -353,14 +353,9 @@ trackingParticlesElectron = _trackingParticleRefSelector.clone(
     ptMin = 0,
 )
 
-#ByChi2 association (for jetCore usage, not used by default)
-MTVTrackAssociationByChi2 = trackingParticleRecoTrackAsssociation.clone(
-     associator = cms.InputTag('trackAssociatorByChi2')
-)
-
 # Select jets for JetCore tracking
-highPtJets = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJets"), cut = cms.string("pt()>1000"))
-highPtJetsForTrk = highPtJetsForTrk = highPtJets.clone(src = "ak4CaloJetsForTrk")
+highPtJets = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJets"), cut = cms.string("pt()>1000")) 
+highPtJetsForTrk = highPtJets.clone(src = "ak4CaloJetsForTrk")
 
 # Select B-hadron TPs
 trackingParticlesBHadron = _trackingParticleBHadronRefSelector.clone()
@@ -369,7 +364,6 @@ trackingParticlesBHadron = _trackingParticleBHadronRefSelector.clone()
 trackValidator = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(
     useLogPt = cms.untracked.bool(True),
     dodEdxPlots = True,
-    # associators=cms.untracked.VInputTag('MTVTrackAssociationByChi2'), #uncomment for byChi2 assoc. for jetcore studies (1/5)
     doPVAssociationPlots = True
     #,minpT = cms.double(-1)
     #,maxpT = cms.double(3)
@@ -540,8 +534,6 @@ trackValidatorBuilding = _trackValidatorSeedingBuilding.clone(
     dirName = "Tracking/TrackBuilding/",
     doMVAPlots = True,
     doResolutionPlotsForLabels = ['jetCoreRegionalStepTracks'],
-    # associators = ["trackAssociatorByChi2"], #uncomment for byChi2 assoc. for jetcore studies (2/5)
-    # UseAssociators = True, #uncomment for byChi2 assoc. for jetcore studies (3/5)
 )
 trackValidatorBuildingPreSplitting = trackValidatorBuilding.clone(
     associators = ["quickTrackAssociatorByHitsPreSplitting"],
@@ -606,7 +598,25 @@ trackValidatorGsfTracks = trackValidatorConversion.clone(
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorGsfTracks.histoProducerAlgoBlock, _eraName, _era, seedingLayerSets=trackValidator.histoProducerAlgoBlock.seedingLayerSets.value()+locals()["_seedingLayerSetsForElectrons"+_postfix])
 
-
+# For jetCore tracks
+trackValidatorJetCore = trackValidator.clone(#equivalent to trackBuilding case
+    dirName = "Tracking/JetCore/",
+    useLogPt = cms.untracked.bool(True),
+    dodEdxPlots = False,
+    associators= ["trackAssociatorByChi2"],#cms.untracked.VInputTag('MTVTrackAssociationByChi2'),
+    UseAssociators = True,
+    doPVAssociationPlots = True,
+)
+for _eraName, _postfix, _era in _relevantEras:
+    if 'jetCoreRegionalStep' in _cfg.iterationAlgos(_postfix) :
+        _setForEra(trackValidatorJetCore, _eraName, _era,
+            label = ["generalTracks", "jetCoreRegionalStepTracks", 
+                    "cutsRecoTracksJetCoreRegionalStepByOriginalAlgo","cutsRecoTracksJetCoreRegionalStepByOriginalAlgoHp",
+                    "cutsRecoTracksJetCoreRegionalStep", "cutsRecoTracksJetCoreRegionalStepHp"],
+            doResolutionPlotsForLabels =["generalTracks", "jetCoreRegionalStepTracks", 
+                    "cutsRecoTracksJetCoreRegionalStepByOriginalAlgo","cutsRecoTracksJetCoreRegionalStepByOriginalAlgoHp",
+                    "cutsRecoTracksJetCoreRegionalStep", "cutsRecoTracksJetCoreRegionalStepHp"], 
+        )
 
 # for B-hadrons
 trackValidatorBHadron = trackValidator.clone(
@@ -622,6 +632,32 @@ for _eraName, _postfix, _era in _relevantEras:
                label = ["generalTracks", locals()["_generalTracksHp"+_postfix], "cutsRecoTracksBtvLike"]
     )
 
+
+# for displaced tracks
+trackValidatorDisplaced = trackValidator.clone(
+    dirName = "Tracking/TrackDisplaced/",
+    label = [x for x in trackValidator.label.value() if ("Pt09" not in x) and ("BtvLike" not in x) and ("AK4PFJets" not in x)],
+    ptMaxTP = 1e5,
+    dodEdxPlots = False,
+    invertRapidityCutTP = False,
+    histoProducerAlgoBlock = dict(
+        TpSelectorForEfficiencyVsPt   = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5), # enough to set min pT here
+        TpSelectorForEfficiencyVsEta  = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5), # enough to set min pT here
+        TpSelectorForEfficiencyVsPhi  = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsVTXR = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        TpSelectorForEfficiencyVsVTXZ = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        generalTpSelector             = dict(ptMin=0.005, signalOnly=True, tip=1e5, lip=1e5),
+        minDxy = -60,
+        maxDxy =  60,
+        nintDxy = 120,
+        minDz  = -30,
+        maxDz  =  30,
+        nintDz =  60,
+    ),
+    signalOnlyTP = True,
+    lipTP = 1e5,
+    tipTP = 1e5,
+)
 
 # the track selectors
 tracksValidationSelectors = cms.Task(
@@ -658,8 +694,7 @@ phase2_tracker.toModify(tracksValidationSelectors, lambda x: x.add(tracksEtaGrea
 tracksValidationTruth = cms.Task(
     tpClusterProducer,
     tpClusterProducerPreSplitting,
-    # trackAssociatorByChi2, #uncomment for byChi2 assoc. for jetcore studies (4/5)
-    # MTVTrackAssociationByChi2, #uncomment for byChi2 assoc. for jetcore studies (5/5)
+    trackAssociatorByChi2, 
     quickTrackAssociatorByHits,
     quickTrackAssociatorByHitsPreSplitting,
     trackingParticleRecoTrackAsssociation,
@@ -699,16 +734,22 @@ tracksValidation = cms.Sequence(
     tracksPreValidation
 )
 
+from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
+seedingDeepCore.toReplaceWith(tracksValidation, cms.Sequence(tracksValidation.copy()+trackValidatorJetCore))
+
+from Configuration.ProcessModifiers.displacedTrackValidation_cff import displacedTrackValidation
+displacedTrackValidation.toReplaceWith(tracksValidation, cms.Sequence(tracksValidation.copy()+trackValidatorDisplaced))
+
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-#tracksValidationPhase2 = cms.Sequence(tracksValidation+trackValidatorTPEtaGreater2p7) # it does not work
 tracksPreValidationPhase2 = tracksPreValidation.copy()
 tracksPreValidationPhase2.add(trackingParticlesEtaGreater2p7)
 phase2_tracker.toReplaceWith(tracksPreValidation, tracksPreValidationPhase2)
 
-tracksValidationPhase2 = tracksValidation.copy()
+tracksValidationPhase2 = tracksValidation.copyAndExclude([
+    trackValidatorJetCore
+])
 tracksValidationPhase2+=trackValidatorTPEtaGreater2p7
 phase2_tracker.toReplaceWith(tracksValidation, tracksValidationPhase2)
-
 
 fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
     trackValidatorBuildingPreSplitting,
@@ -849,6 +890,21 @@ trackValidatorSeedingPreSplittingTrackingOnly = trackValidatorSeedingTrackingOnl
     doSummaryPlots = False,
 
 )
+
+trackValidatorJetCoreSeedingTrackingOnly = trackValidatorSeedingTrackingOnly.clone(
+    dirName = "Tracking/JetCore/TrackSeeding/",
+    associators = ["trackAssociatorByChi2"],
+    UseAssociators = True,
+    doSeedPlots = True,
+)
+
+for _eraName, _postfix, _era in _relevantEras:
+    if 'jetCoreRegionalStep' in _cfg.iterationAlgos(_postfix) :
+      _setForEra(trackValidatorJetCoreSeedingTrackingOnly, _eraName, _era,
+            label = [ "seedTracksjetCoreRegionalStepSeeds",],
+            doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeeds",]
+      )
+    
 for _eraName, _postfix, _era in _relevantErasAndFastSim:
     _setForEra(trackValidatorSeedingTrackingOnly, _eraName, _era, label = locals()["_seedSelectors"+_postfix])
 for _eraName, _postfix, _era in _relevantEras:
@@ -881,13 +937,26 @@ trackValidatorsTrackingOnly += trackValidatorBuildingPreSplitting
 trackValidatorsTrackingOnly.replace(trackValidatorConversionStandalone, trackValidatorConversionTrackingOnly)
 trackValidatorsTrackingOnly.remove(trackValidatorGsfTracksStandalone)
 trackValidatorsTrackingOnly.replace(trackValidatorBHadronStandalone, trackValidatorBHadronTrackingOnly)
+
+seedingDeepCore.toReplaceWith(trackValidatorsTrackingOnly, cms.Sequence(
+            trackValidatorsTrackingOnly.copy()+
+            trackValidatorJetCore+
+            trackValidatorJetCoreSeedingTrackingOnly
+            ) 
+        )
+phase2_tracker.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackingOnly.copyAndExclude([ #must be done for each era which does not have jetcore in the iteration
+    trackValidatorJetCore,
+    trackValidatorJetCoreSeedingTrackingOnly
+])) 
+
+displacedTrackValidation.toReplaceWith(trackValidatorsTrackingOnly, cms.Sequence(trackValidatorsTrackingOnly.copy()+trackValidatorDisplaced))
+
 fastSim.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackingOnly.copyAndExclude([
     trackValidatorBuildingPreSplitting,
     trackValidatorSeedingPreSplittingTrackingOnly,
     trackValidatorConversionTrackingOnly,
     trackValidatorBHadronTrackingOnly
 ]))
-
 tracksValidationTrackingOnly = cms.Sequence(
     trackValidatorsTrackingOnly,
     tracksPreValidationTrackingOnly,

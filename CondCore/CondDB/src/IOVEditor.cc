@@ -1,4 +1,5 @@
 #include "CondCore/CondDB/interface/IOVEditor.h"
+#include "CondCore/CondDB/interface/Auth.h"
 #include "CondCore/CondDB/interface/Utils.h"
 #include "SessionImpl.h"
 //
@@ -33,8 +34,8 @@ namespace cond {
       // buffer for the iov sequence
       std::vector<std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime> > iovBuffer;
       std::vector<std::tuple<cond::Time_t, cond::Hash> > deleteBuffer;
-      bool validationMode = false;
       std::set<std::string> changes;
+      int protectionCode = 0;
     };
 
     IOVEditor::IOVEditor() : m_data(), m_session() {}
@@ -59,6 +60,8 @@ namespace cond {
 
     IOVEditor::IOVEditor(const IOVEditor& rhs) : m_data(rhs.m_data), m_session(rhs.m_session) {}
 
+    IOVEditor::~IOVEditor() {}
+
     IOVEditor& IOVEditor::operator=(const IOVEditor& rhs) {
       m_data = rhs.m_data;
       m_session = rhs.m_session;
@@ -73,8 +76,31 @@ namespace cond {
                                                     m_data->payloadType,
                                                     m_data->synchronizationType,
                                                     m_data->endOfValidity,
-                                                    m_data->lastValidatedTime)) {
+                                                    m_data->lastValidatedTime,
+                                                    m_data->protectionCode)) {
         cond::throwException("Tag \"" + tag + "\" has not been found in the database.", "IOVEditor::load");
+      }
+      if (m_data->protectionCode) {
+        if (m_data->protectionCode & cond::auth::COND_DBTAG_WRITE_ACCESS_CODE) {
+          bool writeAllowed = m_session->iovSchema().tagAccessPermissionTable().getAccessPermission(
+              tag,
+              m_session->principalName,
+              cond::auth::COND_DBKEY_CREDENTIAL_CODE,
+              cond::auth::COND_DBTAG_WRITE_ACCESS_CODE);
+          if (!writeAllowed)
+            cond::throwException(
+                "Tag \"" + tag + "\" can't be accessed for update by db-user \"" + m_session->principalName + "\".",
+                "IOVEditor::load");
+        }
+        if (m_data->protectionCode & cond::auth::COND_DBTAG_LOCK_ACCESS_CODE) {
+          bool mylock = m_session->iovSchema().tagAccessPermissionTable().getAccessPermission(
+              tag, m_session->sessionHash, cond::auth::COND_SESSION_HASH_CODE, cond::auth::COND_DBTAG_LOCK_ACCESS_CODE);
+          if (!mylock)
+            cond::throwException(
+                "Tag \"" + tag + "\" can't be accessed for update, because it has been locked by an other session. \"" +
+                    m_session->principalName + "\".",
+                "IOVEditor::load");
+        }
       }
       m_data->tag = tag;
       m_data->exists = true;
@@ -131,11 +157,6 @@ namespace cond {
       }
     }
 
-    void IOVEditor::setValidationMode() {
-      if (m_data.get())
-        m_data->validationMode = true;
-    }
-
     void IOVEditor::insert(cond::Time_t since, const cond::Hash& payloadHash, bool checkType) {
       boost::posix_time::ptime now = boost::posix_time::microsec_clock::universal_time();
       insert(since, payloadHash, now, checkType);
@@ -173,8 +194,8 @@ namespace cond {
       if (m_data->change || m_data->metadataChange) {
         if (m_data->metadataChange && m_data->description.empty())
           throwException("A non-empty description string is mandatory.", "IOVEditor::flush");
-        if (m_data->validationMode)
-          m_session->iovSchema().tagTable().setValidationMode();
+        //if (m_data->validationMode)
+        //  m_session->iovSchema().tagTable().setValidationMode();
         if (!m_data->exists) {
           // set the creation time ( only available in the migration from v1...)
           if (m_data->creationTime.is_not_a_date_time())
@@ -298,6 +319,52 @@ namespace cond {
 
     bool IOVEditor::flush(const std::string& logText, bool forceInsertion) {
       return flush(logText, boost::posix_time::microsec_clock::universal_time(), forceInsertion);
+    }
+
+    bool IOVEditor::isLocked() const { return m_data->protectionCode & cond::auth::COND_DBTAG_LOCK_ACCESS_CODE; }
+
+    void IOVEditor::lock() {
+      if (isLocked())
+        return;
+      checkTransaction("IOVEditor::lock");
+      m_session->iovSchema().tagAccessPermissionTable().setAccessPermission(m_data->tag,
+                                                                            m_session->sessionHash,
+                                                                            cond::auth::COND_SESSION_HASH_CODE,
+                                                                            cond::auth::COND_DBTAG_LOCK_ACCESS_CODE);
+      m_data->protectionCode |= cond::auth::COND_DBTAG_LOCK_ACCESS_CODE;
+      m_session->iovSchema().tagTable().setProtectionCode(m_data->tag, cond::auth::COND_DBTAG_LOCK_ACCESS_CODE);
+      m_session->lockedTags.insert(m_data->tag);
+      std::string lt("-");
+      std::string action("Lock set by session ");
+      action += m_session->sessionHash;
+      m_session->iovSchema().tagLogTable().insert(m_data->tag,
+                                                  boost::posix_time::microsec_clock::universal_time(),
+                                                  cond::getUserName(),
+                                                  cond::getHostName(),
+                                                  cond::getCommand(),
+                                                  action,
+                                                  lt);
+    }
+
+    void IOVEditor::unlock() {
+      if (!isLocked())
+        return;
+      checkTransaction("IOVEditor::unlock");
+      m_session->iovSchema().tagAccessPermissionTable().removeAccessPermission(
+          m_data->tag, m_session->sessionHash, cond::auth::COND_SESSION_HASH_CODE);
+      m_data->protectionCode &= cond::auth::COND_DBTAG_WRITE_ACCESS_CODE;
+      m_session->iovSchema().tagTable().unsetProtectionCode(m_data->tag, cond::auth::COND_DBTAG_LOCK_ACCESS_CODE);
+      m_session->lockedTags.erase(m_data->tag);
+      std::string lt("-");
+      std::string action("Lock released by session ");
+      action += m_session->sessionHash;
+      m_session->iovSchema().tagLogTable().insert(m_data->tag,
+                                                  boost::posix_time::microsec_clock::universal_time(),
+                                                  cond::getUserName(),
+                                                  cond::getHostName(),
+                                                  cond::getCommand(),
+                                                  action,
+                                                  lt);
     }
 
     void IOVEditor::checkTransaction(const std::string& ctx) {

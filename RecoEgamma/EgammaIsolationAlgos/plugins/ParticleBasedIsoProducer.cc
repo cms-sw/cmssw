@@ -8,17 +8,19 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/PFBlockBasedIsolation.h"
 
 class ParticleBasedIsoProducer : public edm::stream::EDProducer<> {
 public:
   ParticleBasedIsoProducer(const edm::ParameterSet& conf);
-  ~ParticleBasedIsoProducer() override;
 
   void beginRun(edm::Run const& r, edm::EventSetup const& es) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::ParameterSet conf_;
@@ -45,7 +47,7 @@ private:
   std::string valueMapPFCandEle_;
   std::string valueMapElePFCandIso_;
 
-  PFBlockBasedIsolation* thePFBlockBasedIsolation_;
+  std::unique_ptr<PFBlockBasedIsolation> thePFBlockBasedIsolation_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -84,48 +86,21 @@ ParticleBasedIsoProducer::ParticleBasedIsoProducer(const edm::ParameterSet& conf
   produces<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(valueMapElePFCandIso_);
 }
 
-ParticleBasedIsoProducer::~ParticleBasedIsoProducer() {}
-
 void ParticleBasedIsoProducer::beginRun(const edm::Run& run, const edm::EventSetup& c) {
-  thePFBlockBasedIsolation_ = new PFBlockBasedIsolation();
+  thePFBlockBasedIsolation_ = std::make_unique<PFBlockBasedIsolation>();
   edm::ParameterSet pfBlockBasedIsolationSetUp = conf_.getParameter<edm::ParameterSet>("pfBlockBasedIsolationSetUp");
   thePFBlockBasedIsolation_->setup(pfBlockBasedIsolationSetUp);
 }
 
-void ParticleBasedIsoProducer::endRun(const edm::Run& run, const edm::EventSetup& c) {
-  delete thePFBlockBasedIsolation_;
-}
-
 void ParticleBasedIsoProducer::produce(edm::Event& theEvent, const edm::EventSetup& c) {
-  edm::Handle<reco::PhotonCollection> photonHandle;
-  theEvent.getByToken(photonProducerT_, photonHandle);
-
-  edm::Handle<reco::PhotonCollection> photonTmpHandle;
-  theEvent.getByToken(photonTmpProducerT_, photonTmpHandle);
-
-  edm::Handle<reco::GsfElectronCollection> electronTmpHandle;
-  theEvent.getByToken(electronTmpProducerT_, electronTmpHandle);
-
-  edm::Handle<reco::GsfElectronCollection> electronHandle;
-  theEvent.getByToken(electronProducerT_, electronHandle);
-
-  edm::Handle<reco::PFCandidateCollection> pfEGCandidateHandle;
-  // Get the  PF refined cluster  collection
-  theEvent.getByToken(pfEgammaCandidates_, pfEGCandidateHandle);
-
-  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle;
-  // Get the  PF candidates collection
-  theEvent.getByToken(pfCandidates_, pfCandidateHandle);
-
-  edm::ValueMap<reco::PhotonRef> pfEGCandToPhotonMap;
-  edm::Handle<edm::ValueMap<reco::PhotonRef>> pfEGCandToPhotonMapHandle;
-  theEvent.getByToken(valMapPFCandToPhoton_, pfEGCandToPhotonMapHandle);
-  pfEGCandToPhotonMap = *(pfEGCandToPhotonMapHandle.product());
-
-  edm::ValueMap<reco::GsfElectronRef> pfEGCandToElectronMap;
-  edm::Handle<edm::ValueMap<reco::GsfElectronRef>> pfEGCandToElectronMapHandle;
-  theEvent.getByToken(valMapPFCandToEle_, pfEGCandToElectronMapHandle);
-  pfEGCandToElectronMap = *(pfEGCandToElectronMapHandle.product());
+  auto photonHandle = theEvent.getHandle(photonProducerT_);
+  auto photonTmpHandle = theEvent.getHandle(photonTmpProducerT_);
+  auto electronTmpHandle = theEvent.getHandle(electronTmpProducerT_);
+  auto electronHandle = theEvent.getHandle(electronProducerT_);
+  auto pfEGCandidateHandle = theEvent.getHandle(pfEgammaCandidates_);
+  auto pfCandidateHandle = theEvent.getHandle(pfCandidates_);
+  auto const& pfEGCandToPhotonMap = theEvent.get(valMapPFCandToPhoton_);
+  auto const& pfEGCandToElectronMap = theEvent.get(valMapPFCandToEle_);
 
   std::vector<std::vector<reco::PFCandidateRef>> pfCandIsoPairVecPho;
 
@@ -212,4 +187,28 @@ void ParticleBasedIsoProducer::produce(edm::Event& theEvent, const edm::EventSet
   fillerElectrons.insert(electronHandle, pfCandIsoPairVecEle.begin(), pfCandIsoPairVecEle.end());
   fillerElectrons.fill();
   theEvent.put(std::move(eleToPFCandIsoMap_p), valueMapElePFCandIso_);
+}
+
+void ParticleBasedIsoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // particleBasedIsolation
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("valueMapEleToEG", "");
+  desc.add<std::string>("valueMapPhoToEG", "valMapPFEgammaCandToPhoton");
+  desc.add<edm::InputTag>("electronTmpProducer", {"gedGsfElectronsTmp"});
+  desc.add<edm::InputTag>("pfCandidates", {"particleFlow"});
+  desc.add<std::string>("valueMapElePFblockIso", "gedGsfElectrons");
+  desc.add<edm::InputTag>("electronProducer", {"gedGsfElectrons"});
+  desc.add<edm::InputTag>("photonTmpProducer", {"gedPhotonsTmp"});
+  desc.add<edm::InputTag>("pfEgammaCandidates", {"particleFlowEGamma"});
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("ComponentName", "pfBlockBasedIsolation");
+    psd0.add<double>("coneSize", 9999999999.);
+    desc.add<edm::ParameterSetDescription>("pfBlockBasedIsolationSetUp", psd0);
+  }
+  desc.add<edm::InputTag>("photonProducer", {"gedPhotons"});
+  desc.add<std::string>("valueMapPhoPFblockIso", "gedPhotons");
+  descriptions.add("particleBasedIsolation", desc);
+  // or use the following to generate the label from the module's C++ type
+  //descriptions.addWithDefaultLabel(desc);
 }

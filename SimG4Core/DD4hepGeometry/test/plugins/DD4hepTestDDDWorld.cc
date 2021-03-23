@@ -29,12 +29,6 @@ using namespace cms;
 using namespace edm;
 using namespace dd4hep;
 
-#ifdef HAVE_GEANT4_UNITS
-#define MM_2_CM 1.0
-#else
-#define MM_2_CM 0.1
-#endif
-
 namespace {
   bool sortByName(const std::pair<G4LogicalVolume*, const dd4hep::SpecPar*>& p1,
                   const std::pair<G4LogicalVolume*, const dd4hep::SpecPar*>& p2) {
@@ -171,11 +165,11 @@ void DD4hepTestDDDWorld::update() {
     // you must have four of them: e+ e- gamma proton
     //
 
-    // Geant4 expects mm units. DD4hep returns cm, so must convert to mm.
-    double gammacut = it.second->dblValue("ProdCutsForGamma") / MM_2_CM;
-    double electroncut = it.second->dblValue("ProdCutsForElectrons") / MM_2_CM;
-    double positroncut = it.second->dblValue("ProdCutsForPositrons") / MM_2_CM;
-    double protoncut = it.second->dblValue("ProdCutsForProtons") / MM_2_CM;
+    // Geant4 expects mm units. DD4hep may return different units, so convert to mm.
+    double gammacut = it.second->dblValue("ProdCutsForGamma") / dd4hep::mm;
+    double electroncut = it.second->dblValue("ProdCutsForElectrons") / dd4hep::mm;
+    double positroncut = it.second->dblValue("ProdCutsForPositrons") / dd4hep::mm;
+    double protoncut = it.second->dblValue("ProdCutsForProtons") / dd4hep::mm;
     if (protoncut == 0) {
       protoncut = electroncut;
     }

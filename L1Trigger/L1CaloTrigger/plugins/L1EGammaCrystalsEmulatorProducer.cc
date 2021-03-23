@@ -78,6 +78,7 @@ static constexpr int n_GCTcards = 3;
 static constexpr float ECAL_eta_range = 1.4841;
 static constexpr float half_crystal_size = 0.00873;
 static constexpr float slideIsoPtThreshold = 80;
+static constexpr float plateau_ss = 130.0;
 static constexpr float a0_80 = 0.85, a1_80 = 0.0080, a0 = 0.21;                        // passes_iso
 static constexpr float b0 = 0.38, b1 = 1.9, b2 = 0.05;                                 //passes_looseTkiso
 static constexpr float c0_ss = 0.94, c1_ss = 0.052, c2_ss = 0.044;                     //passes_ss
@@ -1176,28 +1177,45 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_iso(float pt, float iso) {
+  bool is_iso = true;
   if (pt < slideIsoPtThreshold) {
     if (!((a0_80 - a1_80 * pt) > iso))
-      return false;
+      is_iso = false;
   } else {
     if (iso > a0)
-      return false;
+      is_iso = false;
   }
-  return true;
+  if (pt > plateau_ss)
+    is_iso = true;
+  return is_iso;
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_looseTkiso(float pt, float iso) {
-  return (b0 + b1 * std::exp(-b2 * pt) > iso);
+  bool is_iso = (b0 + b1 * std::exp(-b2 * pt) > iso);
+  if (pt > plateau_ss)
+    is_iso = true;
+  return is_iso;
 }
 
 bool L1EGCrystalClusterEmulatorProducer::passes_ss(float pt, float ss) {
-  return ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
+  bool is_ss = ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
+  if (pt > plateau_ss)
+    is_ss = true;
+  return is_ss;
 }
 
-bool L1EGCrystalClusterEmulatorProducer::passes_photon(float pt, float pss) { return (pss > d0 - d1 * pt); }
+bool L1EGCrystalClusterEmulatorProducer::passes_photon(float pt, float pss) {
+  bool is_ss = (pss > d0 - d1 * pt);
+  if (pt > plateau_ss)
+    is_ss = true;
+  return is_ss;
+}
 
 bool L1EGCrystalClusterEmulatorProducer::passes_looseTkss(float pt, float ss) {
-  return ((e0_looseTkss - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
+  bool is_ss = ((e0_looseTkss - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
+  if (pt > plateau_ss)
+    is_ss = true;
+  return is_ss;
 }
 
 //define this as a plug-in

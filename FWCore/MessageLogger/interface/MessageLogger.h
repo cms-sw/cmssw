@@ -35,33 +35,33 @@ namespace edm {
 
   namespace level {
     struct System {
-      static constexpr const ELseverityLevel level = ELsevere;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELsevere;
       constexpr static bool suppress() noexcept { return false; }
     };
     struct Error {
-      static constexpr const ELseverityLevel level = ELerror;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELerror;
       static bool suppress() noexcept { return !MessageDrop::instance()->errorEnabled; }
     };
     struct Warning {
-      static constexpr const ELseverityLevel level = ELwarning;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELwarning;
       static bool suppress() noexcept {
         return (MessageDrop::warningAlwaysSuppressed || !MessageDrop::instance()->warningEnabled);
       }
     };
     struct FwkInfo {
-      static constexpr const ELseverityLevel level = ELfwkInfo;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELfwkInfo;
       static bool suppress() noexcept {
         return (MessageDrop::fwkInfoAlwaysSuppressed || !MessageDrop::instance()->fwkInfoEnabled);
       }
     };
     struct Info {
-      static constexpr const ELseverityLevel level = ELinfo;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELinfo;
       static bool suppress() noexcept {
         return (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->infoEnabled);
       }
     };
     struct Debug {
-      static constexpr const ELseverityLevel level = ELdebug;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELdebug;
       constexpr static bool suppress() noexcept { return false; }
     };
   }  // namespace level
@@ -141,6 +141,10 @@ namespace edm {
     explicit LogDebug_(std::string_view id, std::string_view file, int line);
     //Needed for the LogDebug macro
     LogDebug_(Log<level::Debug, false> const& iOther) : Log<level::Debug, false>(nullptr, iOther) {}
+    LogDebug_(LogDebug_ const&) = delete;
+    LogDebug_(LogDebug_&&) = default;
+    LogDebug_& operator=(LogDebug_ const&) = delete;
+    LogDebug_& operator=(LogDebug_&&) = default;
 
   private:
     std::string_view stripLeadingDirectoryTree(std::string_view file) const;
@@ -152,6 +156,10 @@ namespace edm {
     explicit LogTrace_(std::string_view id) : Log<level::Debug, true>(id) {}
     //Needed for the LogTrace macro
     LogTrace_(Log<level::Debug, true> const& iOther) : Log<level::Debug, true>(nullptr, iOther) {}
+    LogTrace_(LogTrace_ const&) = delete;
+    LogTrace_(LogTrace_&&) = default;
+    LogTrace_& operator=(LogTrace_ const&) = delete;
+    LogTrace_& operator=(LogTrace_&&) = default;
   };
 
   namespace impl {
@@ -161,12 +169,14 @@ namespace edm {
       //Need an operator with lower precendence than operator<<
       LogDebug_ operator|(Log<level::Debug, false>& iOther) { return LogDebug_(iOther); }
       LogTrace_ operator|(Log<level::Debug, true>& iOther) { return LogTrace_(iOther); }
+      LogDebug_ operator|(Log<level::Debug, false>&& iOther) { return LogDebug_(iOther); }
+      LogTrace_ operator|(Log<level::Debug, true>&& iOther) { return LogTrace_(iOther); }
     };
   }  // namespace impl
 
   namespace edmmltest {
     struct WarningThatSuppressesLikeLogInfo {
-      static constexpr const ELseverityLevel level = ELwarning;
+      static constexpr const messagelogger::ELseverityLevel level = messagelogger::ELwarning;
       static bool suppress() noexcept {
         return (MessageDrop::infoAlwaysSuppressed || !MessageDrop::instance()->warningEnabled);
       }
@@ -210,7 +220,7 @@ namespace edm {
 
   // The following two methods have no effect except in stand-alone apps
   // that do not create a MessageServicePresence:
-  void setStandAloneMessageThreshold(edm::ELseverityLevel const& severity);
+  void setStandAloneMessageThreshold(edm::messagelogger::ELseverityLevel const& severity);
   void squelchStandAloneMessageCategory(std::string const& category);
 
 }  // namespace edm

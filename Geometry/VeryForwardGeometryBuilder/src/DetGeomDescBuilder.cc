@@ -1,5 +1,6 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -33,8 +34,15 @@ void detgeomdescbuilder::buildDetGeomDescDescendants(DDFilteredView& fv, DetGeom
     return;
 
   do {
-    // Create node, and add it to the geoInfoParent's list.
+    // Create node
     DetGeomDesc* child = new DetGeomDesc(fv, isRun2);
+
+    // legacy Run2 z sign fix for diamond detectors
+    const auto& detId = child->geographicalID();
+    if (isRun2 && detId.subdetId() == CTPPSDetId::sdTimingDiamond)
+      child->invertZSign();
+
+    // add the to the geoInfoParent's list.
     geoInfo->addComponent(child);
 
     // Recursion
@@ -62,8 +70,15 @@ std::unique_ptr<DetGeomDesc> detgeomdescbuilder::buildDetGeomDescFromCompactView
 
   // Construct the tree of children geo info (DetGeomDesc).
   do {
-    // Create node, and add it to the geoInfoRoot's list.
+    // Create node
     DetGeomDesc* child = new DetGeomDesc(fv, isRun2);
+
+    // legacy Run2 z sign fix for diamond detectors
+    const auto& detId = child->geographicalID();
+    if (isRun2 && detId.subdetId() == CTPPSDetId::sdTimingDiamond)
+      child->invertZSign();
+
+    // add the node to the geoInfoRoot's list.
     geoInfoRoot->addComponent(child);
   } while (fv.next(0));
 

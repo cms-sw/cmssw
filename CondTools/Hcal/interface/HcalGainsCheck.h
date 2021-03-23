@@ -16,7 +16,6 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -65,6 +64,9 @@ private:
   bool emapflag;
   bool validategainsflag;
   double epsilon;
+  edm::ESGetToken<HcalGains, HcalGainsRcd> m_tok1;
+  edm::ESGetToken<HcalGains, HcalGainsRcd> m_tok2;
+  edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> m_tokmap;
 
   TFile* f;
   //plots:

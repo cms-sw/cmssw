@@ -62,13 +62,16 @@ void ME0GeometryDump::analyze(const edm::Event& event, const edm::EventSetup& ev
         for (unsigned int k3 = 0; k3 < etaPartitions.size(); ++k3) {
           edm::LogVerbatim("ME0Geometry")
               << "\nEtaPartition " << k3 << ":" << etaPartitions[k3]->id() << etaPartitions[k3]->type().name()
-              << " with " << etaPartitions[k3]->nstrips() << " strips of pitch " << etaPartitions[k3]->pitch()
-              << " and " << etaPartitions[k3]->npads() << " pads of pitch " << etaPartitions[k3]->padPitch();
+              << " with " << etaPartitions[k3]->nstrips() << " strips of pitch " << std::setprecision(4)
+              << etaPartitions[k3]->pitch() << " and " << etaPartitions[k3]->npads() << " pads of pitch "
+              << std::setprecision(4) << etaPartitions[k3]->padPitch();
           if (verbose_) {
             for (int k = 0; k < etaPartitions[k3]->nstrips(); ++k)
-              edm::LogVerbatim("ME0Geometry") << "Strip[" << k << "] " << etaPartitions[k3]->centreOfStrip(k);
+              edm::LogVerbatim("ME0Geometry")
+                  << "Strip[" << k << "] " << std::setprecision(4) << etaPartitions[k3]->centreOfStrip(k);
             for (int k = 0; k < etaPartitions[k3]->npads(); ++k)
-              edm::LogVerbatim("ME0Geometry") << "Pad[" << k << "] " << etaPartitions[k3]->centreOfPad(k);
+              edm::LogVerbatim("ME0Geometry")
+                  << "Pad[" << k << "] " << std::setprecision(4) << etaPartitions[k3]->centreOfPad(k);
           }
         }
       }

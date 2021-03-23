@@ -10,9 +10,7 @@ namespace sonictest {
   class SonicDummyFilter : public SonicEDFilter<DummyClient> {
   public:
     explicit SonicDummyFilter(edm::ParameterSet const& cfg)
-        : SonicEDFilter<DummyClient>(cfg), input_(cfg.getParameter<int>("input")) {
-      //for debugging
-      setDebugName("SonicDummyFilter");
+        : SonicEDFilter<DummyClient>(cfg, "SonicDummyFilter"), input_(cfg.getParameter<int>("input")) {
       putToken_ = produces<edmtest::IntProduct>();
     }
 

@@ -223,7 +223,6 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   // loop over the 16 towers possibilities
   for (int k = 0; k < 16; k++) {
-    fem = 0;
     Ehot = 0;
     depth = 0;
 

@@ -7,6 +7,7 @@
  *
  *  \author Nicola Pozzobon
  *  \date   2013, Jul 19
+ *  (tidy up: Ian Tomalin, 2020)
  *
  */
 
@@ -53,14 +54,14 @@ public:
 
 private:
   /// Data members
-  std::vector<edm::InputTag> TTStubsInputTags;
-  std::vector<edm::InputTag> TTClusterTruthInputTags;
+  std::vector<edm::InputTag> ttStubsInputTags_;
+  std::vector<edm::InputTag> ttClusterTruthInputTags_;
 
-  std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTStub<T> > > > TTStubsTokens;
-  std::vector<edm::EDGetTokenT<TTClusterAssociationMap<T> > > TTClusterTruthTokens;
+  std::vector<edm::EDGetTokenT<edmNew::DetSetVector<TTStub<T> > > > ttStubsTokens_;
+  std::vector<edm::EDGetTokenT<TTClusterAssociationMap<T> > > ttClusterTruthTokens_;
 
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  edm::ESHandle<TrackerTopology> theTrackerTopology;
+  edm::ESHandle<TrackerGeometry> theTrackerGeometry_;
+  edm::ESHandle<TrackerTopology> theTrackerTopology_;
 
   /// Mandatory methods
   void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
@@ -79,17 +80,17 @@ private:
 /// Constructors
 template <typename T>
 TTStubAssociator<T>::TTStubAssociator(const edm::ParameterSet& iConfig) {
-  TTStubsInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTStubs");
-  TTClusterTruthInputTags = iConfig.getParameter<std::vector<edm::InputTag> >("TTClusterTruth");
+  ttStubsInputTags_ = iConfig.getParameter<std::vector<edm::InputTag> >("TTStubs");
+  ttClusterTruthInputTags_ = iConfig.getParameter<std::vector<edm::InputTag> >("TTClusterTruth");
 
-  for (auto iTag = TTClusterTruthInputTags.begin(); iTag != TTClusterTruthInputTags.end(); iTag++) {
-    TTClusterTruthTokens.push_back(consumes<TTClusterAssociationMap<T> >(*iTag));
+  for (const auto& iTag : ttClusterTruthInputTags_) {
+    ttClusterTruthTokens_.push_back(consumes<TTClusterAssociationMap<T> >(iTag));
   }
 
-  for (auto iTag = TTStubsInputTags.begin(); iTag != TTStubsInputTags.end(); iTag++) {
-    TTStubsTokens.push_back(consumes<edmNew::DetSetVector<TTStub<T> > >(*iTag));
+  for (const auto& iTag : ttStubsInputTags_) {
+    ttStubsTokens_.push_back(consumes<edmNew::DetSetVector<TTStub<T> > >(iTag));
 
-    produces<TTStubAssociationMap<T> >((*iTag).instance());
+    produces<TTStubAssociationMap<T> >(iTag.instance());
   }
 }
 
@@ -103,8 +104,8 @@ void TTStubAssociator<T>::beginRun(const edm::Run& run, const edm::EventSetup& i
   /// Print some information when loaded
   edm::LogInfo("TTStubAssociator< ") << templateNameFinder<T>() << " > loaded.";
 
-  iSetup.get<TrackerTopologyRcd>().get(theTrackerTopology);
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
+  iSetup.get<TrackerTopologyRcd>().get(theTrackerTopology_);
+  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry_);
 }
 
 /// End run

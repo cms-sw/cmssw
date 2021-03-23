@@ -11,6 +11,7 @@
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -29,7 +30,9 @@ namespace edm {
     e.setProducer(this, &previousParentage_);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act, mcc);
-    const EventSetup c{info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
+    ESParentContext parentC(mcc);
+    const EventSetup c{
+        info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
     this->produce(e, c);
     commit_(e, &previousParentageId_);
     return true;
@@ -47,8 +50,9 @@ namespace edm {
     Run r(info, moduleDescription_, mcc, false);
     r.setConsumer(this);
     Run const& cnstR = r;
+    ESParentContext parentC(mcc);
     const EventSetup c{
-        info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
+        info, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC, false};
     this->beginRun(cnstR, c);
     commit_(r);
   }
@@ -57,8 +61,9 @@ namespace edm {
     Run r(info, moduleDescription_, mcc, true);
     r.setConsumer(this);
     Run const& cnstR = r;
+    ESParentContext parentC(mcc);
     const EventSetup c{
-        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
+        info, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
     this->endRun(cnstR, c);
     commit_(r);
   }
@@ -67,9 +72,11 @@ namespace edm {
     LuminosityBlock lb(info, moduleDescription_, mcc, false);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
+    ESParentContext parentC(mcc);
     const EventSetup c{info,
                        static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                        esGetTokenIndices(Transition::BeginLuminosityBlock),
+                       parentC,
                        false};
     this->beginLuminosityBlock(cnstLb, c);
     commit_(lb);
@@ -78,9 +85,11 @@ namespace edm {
   void EDProducer::doEndLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
     LuminosityBlock lb(info, moduleDescription_, mcc, true);
     lb.setConsumer(this);
+    ESParentContext parentC(mcc);
     const EventSetup c{info,
                        static_cast<unsigned int>(Transition::EndLuminosityBlock),
                        esGetTokenIndices(Transition::EndLuminosityBlock),
+                       parentC,
                        false};
     LuminosityBlock const& cnstLb = lb;
     this->endLuminosityBlock(cnstLb, c);

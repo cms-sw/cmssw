@@ -6,9 +6,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "boost/filesystem.hpp"
-#include "boost/filesystem/path.hpp"
+#include <filesystem>
 
 // EvtGen plugin
 //
@@ -58,23 +56,15 @@ namespace gen {
       if (ps.exists("evtgenUserFileEmbedded")) {
         std::vector<std::string> user_decay_lines =
             ps.getParameter<std::vector<std::string> >("evtgenUserFileEmbedded");
-        auto tmp_dir = boost::filesystem::temp_directory_path();
-        tmp_dir += "/%%%%-%%%%-%%%%-%%%%";
-        auto tmp_path = boost::filesystem::unique_path(tmp_dir);
-        std::string user_decay_tmp = std::string(tmp_path.c_str());
-        FILE* tmpf = std::fopen(user_decay_tmp.c_str(), "w");
-        if (!tmpf) {
-          edm::LogError("Py8InterfaceBase::~Py8InterfaceBase")
-              << "Py8InterfaceBase::Py8InterfaceBase fails when trying to open a temporary file for embedded user.dec "
-                 "for EvtGenPlugin. Terminating program ";
-          exit(0);
-        }
+        char tempslhaname[] = "pythia8evtgenXXXXXX";
+        int fd = mkstemp(tempslhaname);
+
         for (unsigned int i = 0; i < user_decay_lines.size(); i++) {
           user_decay_lines.at(i) += "\n";
-          std::fputs(user_decay_lines.at(i).c_str(), tmpf);
+          write(fd, user_decay_lines.at(i).c_str(), user_decay_lines.at(i).size());
         }
-        std::fclose(tmpf);
-        evtgenUserFiles.push_back(user_decay_tmp);
+        close(fd);
+        evtgenUserFiles.push_back(std::string(tempslhaname));
       }
     }
   }

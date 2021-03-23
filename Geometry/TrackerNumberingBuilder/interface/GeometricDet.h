@@ -171,28 +171,28 @@ private:
   GeometricEnumType type_;
 
   nav_type ddd_;
-  DetId geographicalID_;
+  DetId geographicalID_ = 0;
 
   Translation trans_;  // in mm
-  double rho_;         // in mm
-  double phi_;
+  double rho_ = 0.;    // in mm
+  double phi_ = 0.;
   RotationMatrix rot_;
 
   cms::DDSolidShape shape_;
   std::vector<double> params_;  // in mm
 
-  double radLength_;
-  double xi_;
-  double pixROCRows_;
-  double pixROCCols_;
-  double pixROCx_;
-  double pixROCy_;
-  bool stereo_;
-  bool isLowerSensor_;
-  bool isUpperSensor_;
-  double siliconAPVNum_;
+  double radLength_ = 0.;
+  double xi_ = 0.;
+  double pixROCRows_ = 0.;
+  double pixROCCols_ = 0.;
+  double pixROCx_ = 0.;
+  double pixROCy_ = 0.;
+  bool stereo_ = false;
+  bool isLowerSensor_ = false;
+  bool isUpperSensor_ = false;
+  double siliconAPVNum_ = 0.;
 
-  bool isFromDD4hep_;
+  bool isFromDD4hep_ = false;
 
   ConstGeometricDetContainer container_;
 };

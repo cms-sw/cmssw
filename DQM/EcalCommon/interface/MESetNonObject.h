@@ -20,26 +20,26 @@ namespace ecaldqm {
 
     MESet *clone(std::string const & = "") const override;
 
-    void book(DQMStore::IBooker &) override;
-    bool retrieve(DQMStore::IGetter &, std::string * = nullptr) const override;
+    void book(DQMStore::IBooker &, EcalElectronicsMapping const *) override;
+    bool retrieve(EcalElectronicsMapping const *, DQMStore::IGetter &, std::string * = nullptr) const override;
 
-    void fill(double, double = 1., double = 1.) override;
+    void fill(EcalDQMSetupObjects const, double, double = 1., double = 1.) override;
 
-    void setBinContent(int, double) override;
+    void setBinContent(EcalDQMSetupObjects const, int, double) override;
 
-    void setBinError(int, double) override;
+    void setBinError(EcalDQMSetupObjects const, int, double) override;
 
-    void setBinEntries(int, double) override;
+    void setBinEntries(EcalDQMSetupObjects const, int, double) override;
 
-    double getBinContent(int, int = 0) const override;
+    double getBinContent(EcalDQMSetupObjects const, int, int = 0) const override;
 
     double getFloatValue() const;
 
-    double getBinError(int, int = 0) const override;
+    double getBinError(EcalDQMSetupObjects const, int, int = 0) const override;
 
-    double getBinEntries(int, int = 0) const override;
+    double getBinEntries(EcalDQMSetupObjects const, int, int = 0) const override;
 
-    int findBin(double, double = 0.) const;
+    int findBin(EcalDQMSetupObjects const, double, double = 0.) const;
 
     bool isVariableBinning() const override;
 

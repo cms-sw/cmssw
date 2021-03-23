@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -61,14 +61,15 @@ private:
   void endJob() override;
 
   //update the cabling if necessary
-  void updateCabling(const edm::EventSetup& eventSetup);
+  void updateCabling(const SiStripFedCablingRcd& cablingRcd);
 
   //path to output file
   std::ofstream fOut_;
   std::string fOutPath_;
   //FED cabling
-  uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
 
   edm::InputTag digicollection_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > digiToken_;
@@ -81,7 +82,8 @@ private:
 
 SiStripShotFilter::SiStripShotFilter(const edm::ParameterSet& iConfig)
     : fOutPath_(iConfig.getUntrackedParameter<std::string>("OutputFilePath", "shotChannels.dat")),
-      cablingCacheId_(0),
+      fedCablingWatcher_(this, &SiStripShotFilter::updateCabling),
+      fedCablingToken_(esConsumes<>()),
       digicollection_(iConfig.getParameter<edm::InputTag>("DigiCollection")),
       zs_(iConfig.getUntrackedParameter<bool>("ZeroSuppressed", true))
 
@@ -97,9 +99,7 @@ SiStripShotFilter::~SiStripShotFilter() {}
 
 // ------------ method called to for each event  ------------
 bool SiStripShotFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //update cabling
-  updateCabling(iSetup);
-
+  fedCablingWatcher_.check(iSetup);
   //get digi data
   edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
   iEvent.getByToken(digiToken_, digis);
@@ -158,14 +158,8 @@ void SiStripShotFilter::beginJob() {
 // ------------ method called once each job just after ending the event loop  ------------
 void SiStripShotFilter::endJob() { fOut_.close(); }
 
-void SiStripShotFilter::updateCabling(const edm::EventSetup& eventSetup) {
-  uint32_t currentCacheId = eventSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
-  if (cablingCacheId_ != currentCacheId) {
-    edm::ESHandle<SiStripFedCabling> cablingHandle;
-    eventSetup.get<SiStripFedCablingRcd>().get(cablingHandle);
-    cabling_ = cablingHandle.product();
-    cablingCacheId_ = currentCacheId;
-  }
+void SiStripShotFilter::updateCabling(const SiStripFedCablingRcd& cablingRcd) {
+  cabling_ = &cablingRcd.get(fedCablingToken_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

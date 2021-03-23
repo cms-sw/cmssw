@@ -63,7 +63,7 @@ public:
          const edm::ParameterSet& pset);
 
   void setHOTag(bool ho) { useHO_ = ho; }
-  void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
+  void setMuonHandle(const edm::Handle<reco::MuonCollection>& muons) { muonHandle_ = muons; }
 
   void setCandConnectorParameters(const edm::ParameterSet& iCfgCandConnector) {
     connector_.setParameters(iCfgCandConnector);

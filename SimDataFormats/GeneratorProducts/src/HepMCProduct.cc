@@ -7,8 +7,8 @@
 #include <iostream>
 #include <algorithm>  // because we use std::swap
 
-//#include "CLHEP/Vector/ThreeVector.h"
-
+#include <HepMC/GenEvent.h>
+#include <HepMC/SimpleVector.h>
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 using namespace edm;

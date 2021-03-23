@@ -55,7 +55,7 @@ private:
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsSingleRP_;
   edm::EDGetTokenT<reco::ForwardProtonCollection> tokenRecoProtonsMultiRP_;
 
-  std::string lhcInfoLabel_;
+  edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoESToken_;
 
   std::string outputFile_;
 
@@ -198,15 +198,14 @@ CTPPSProtonReconstructionSimulationValidator::CTPPSProtonReconstructionSimulatio
           consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsSingleRP"))),
       tokenRecoProtonsMultiRP_(
           consumes<reco::ForwardProtonCollection>(iConfig.getParameter<InputTag>("tagRecoProtonsMultiRP"))),
-      lhcInfoLabel_(iConfig.getParameter<std::string>("lhcInfoLabel")),
+      lhcInfoESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
       outputFile_(iConfig.getParameter<string>("outputFile")) {}
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get conditions
-  edm::ESHandle<LHCInfo> hLHCInfo;
-  iSetup.get<LHCInfoRcd>().get(lhcInfoLabel_, hLHCInfo);
+  const auto &lhcInfo = iSetup.getData(lhcInfoESToken_);
 
   // get input
   edm::Handle<edm::HepMCProduct> hHepMCBeforeSmearing;
@@ -317,7 +316,7 @@ void CTPPSProtonReconstructionSimulationValidator::analyze(const edm::Event &iEv
       if (rec_pr.method() == reco::ForwardProton::ReconstructionMethod::multiRP)
         meth_idx = 1;
 
-      fillPlots(meth_idx, idx, rec_pr, vtx, mom, *hLHCInfo);
+      fillPlots(meth_idx, idx, rec_pr, vtx, mom, lhcInfo);
     }
   }
 

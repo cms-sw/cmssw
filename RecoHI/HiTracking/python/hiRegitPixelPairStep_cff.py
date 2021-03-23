@@ -19,30 +19,31 @@ hiRegitPixelPairStepClusters = cms.EDProducer("HITrackClusterRemover",
                                      pixelClusters = cms.InputTag("siPixelClusters"),
                                      stripClusters = cms.InputTag("siStripClusters"),
                                      Common = cms.PSet(
-    maxChi2 = cms.double(9.0),
-    ),
-                                     Strip = cms.PSet(
-    maxChi2 = cms.double(9.0),
-    #Yen-Jie's mod to preserve merged clusters
-    maxSize = cms.uint32(2)
-    )
+    						maxChi2 = cms.double(9.0),
+    						),
+    				     Strip = cms.PSet(
+    						maxChi2 = cms.double(9.0),
+    						#Yen-Jie's mod to preserve merged clusters
+    						maxSize = cms.uint32(2)
+    						)
                                      )
 
 
 # SEEDING LAYERS
-hiRegitPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.clone()
-hiRegitPixelPairStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitPixelPairStepClusters')
-hiRegitPixelPairStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitPixelPairStepClusters')
-
+hiRegitPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.clone(
+    BPix = dict(skipClusters = 'hiRegitPixelPairStepClusters'),
+    FPix = dict(skipClusters = 'hiRegitPixelPairStepClusters')
+)
 
 
 # seeding
-hiRegitPixelPairStepSeeds     = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.clone()
-hiRegitPixelPairStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromJetsBlock.clone()
-hiRegitPixelPairStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitPixelPairStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitPixelPairStepSeedLayers'
-hiRegitPixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
-
+hiRegitPixelPairStepSeeds     = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.clone(
+    RegionFactoryPSet = HiTrackingRegionFactoryFromJetsBlock.clone(
+	RegionPSet = dict(ptMin = 1.2)
+    ),
+    ClusterCheckPSet = dict(doClusterCheck = False), # do not check for max number of clusters pixel or strips
+    OrderedHitsFactoryPSet = dict(SeedingLayers = 'hiRegitPixelPairStepSeedLayers'),
+)
 
 # building: feed the new-named seeds
 hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilterBase.clone()
@@ -54,45 +55,45 @@ hiRegitPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairS
 
 # trackign candidate
 hiRegitPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrackCandidates.clone(
-    src               = cms.InputTag('hiRegitPixelPairStepSeeds'),
+    src               = 'hiRegitPixelPairStepSeeds',
     TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitPixelPairStepTrajectoryBuilder')),
     maxNSeeds = 100000
-    )
+)
 
 # fitting: feed new-names
 hiRegitPixelPairStepTracks                 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(
     src                 = 'hiRegitPixelPairStepTrackCandidates',
-    AlgorithmName = cms.string('pixelPairStep'),
-    )
+    AlgorithmName = 'pixelPairStep',
+)
 
 
 # Track selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src='hiRegitPixelPairStepTracks',
-    trackSelectors= cms.VPSet(
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-    name = 'hiRegitPixelPairStepLoose',
-    d0_par2 = [9999.0, 0.0],
-    dz_par2 = [9999.0, 0.0],
-    applyAdaptedPVCuts = False
-    ), #end of pset
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-    name = 'hiRegitPixelPairStepTight',
-    preFilterName = 'hiRegitPixelPairStepLoose',
-    d0_par2 = [9999.0, 0.0],
-    dz_par2 = [9999.0, 0.0],
-    applyAdaptedPVCuts = False
-    ),
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-    name = 'hiRegitPixelPairStep',
-    preFilterName = 'hiRegitPixelPairStepTight',
-    d0_par2 = [9999.0, 0.0],
-    dz_par2 = [9999.0, 0.0],
-    applyAdaptedPVCuts = False
-    ),
+    src = 'hiRegitPixelPairStepTracks',
+    trackSelectors = cms.VPSet(
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+           name = 'hiRegitPixelPairStepLoose',
+           d0_par2 = [9999.0, 0.0],
+           dz_par2 = [9999.0, 0.0],
+           applyAdaptedPVCuts = False
+       ), #end of pset
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+           name = 'hiRegitPixelPairStepTight',
+           preFilterName = 'hiRegitPixelPairStepLoose',
+           d0_par2 = [9999.0, 0.0],
+           dz_par2 = [9999.0, 0.0],
+           applyAdaptedPVCuts = False
+       ),
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+           name = 'hiRegitPixelPairStep',
+           preFilterName = 'hiRegitPixelPairStepTight',
+           d0_par2 = [9999.0, 0.0],
+           dz_par2 = [9999.0, 0.0],
+           applyAdaptedPVCuts = False
+       ),
     ) #end of vpset
-    ) #end of clone  
+) #end of clone  
 
 hiRegitPixelPairStepTask = cms.Task(hiRegitPixelPairStepClusters,
                                     hiRegitPixelPairStepSeedLayers,

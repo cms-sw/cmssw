@@ -10,7 +10,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -27,7 +27,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 class DDHGCalModuleAlgo : public DDAlgorithm {
 public:
@@ -86,7 +86,7 @@ void DDHGCalModuleAlgo::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << wafer_.size() << " wafers";
   for (unsigned int i = 0; i < wafer_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Wafer_[" << i << "] " << wafer_[i];
+    edm::LogVerbatim("HGCalGeom") << "Wafer[" << i << "] " << wafer_[i];
 #endif
   materials_ = vsArgs["MaterialNames"];
   names_ = vsArgs["VolumeNames"];
@@ -162,7 +162,7 @@ void DDHGCalModuleAlgo::execute(DDCompactView& cpv) {
 
 void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo test: \t\tInside Layers";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: \t\tInside Layers";
 #endif
   double zi(zMinBlock_);
   int laymin(0);
@@ -182,7 +182,7 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
 
       std::string name = "HGCal" + names_[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo test: Layer " << ly << ":" << ii << " Front " << zi << ", "
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: Layer " << ly << ":" << ii << " Front " << zi << ", "
                                     << routF << " Back " << zo << ", " << rinB << " superlayer thickness "
                                     << layerThick_[i];
 #endif
@@ -190,7 +190,7 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
       DDMaterial matter(matName);
       DDLogicalPart glog;
       if (layerSense_[ly] == 0) {
-        double alpha = geant_units::piRadians / sectors_;
+        double alpha = 1._pi / sectors_;
         double rmax = routF * cos(alpha) - tol;
         std::vector<double> pgonZ, pgonRin, pgonRout;
         pgonZ.emplace_back(-0.5 * thick_[ii]);
@@ -199,8 +199,8 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
         pgonRin.emplace_back(rinB);
         pgonRout.emplace_back(rmax);
         pgonRout.emplace_back(rmax);
-        DDSolid solid = DDSolidFactory::polyhedra(
-            DDName(name, idNameSpace_), sectors_, -alpha, 2 * geant_units::piRadians, pgonZ, pgonRin, pgonRout);
+        DDSolid solid =
+            DDSolidFactory::polyhedra(DDName(name, idNameSpace_), sectors_, -alpha, 2._pi, pgonZ, pgonRin, pgonRout);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << solid.name() << " polyhedra of " << sectors_
@@ -210,8 +210,7 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
       } else {
-        DDSolid solid = DDSolidFactory::tubs(
-            DDName(name, idNameSpace_), 0.5 * thick_[ii], rinB, routF, 0.0, 2 * geant_units::piRadians);
+        DDSolid solid = DDSolidFactory::tubs(DDName(name, idNameSpace_), 0.5 * thick_[ii], rinB, routF, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << solid.name() << " Tubs made of " << matName
@@ -225,9 +224,8 @@ void DDHGCalModuleAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
       cpv.position(glog, module, copy, r1, rot);
       ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo test: " << glog.name() << " number " << copy
-                                    << " positioned in " << module.name() << " at " << r1 << " with " << rot
-                                    << std::endl;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << glog.name() << " number " << copy << " positioned in "
+                                    << module.name() << " at " << r1 << " with " << rot;
 #endif
       zz += (0.5 * thick_[ii]);
     }  // End of loop over layers in a block
@@ -259,7 +257,7 @@ double DDHGCalModuleAlgo::rMax(double z) {
 #endif
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "rMax : " << z << ":" << ik << ":" << r << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "rMax : " << z << ":" << ik << ":" << r;
 #endif
   return r;
 }
@@ -300,7 +298,7 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin, doubl
             copies_.insert(copy);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalModuleAlgo: " << name << " number " << copy << " positioned in "
-                                        << glog.ddname() << " at " << tran << " with " << rotation << std::endl;
+                                        << glog.ddname() << " at " << tran << " with " << rotation;
 #endif
         }
       }

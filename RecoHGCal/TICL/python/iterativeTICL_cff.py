@@ -37,14 +37,9 @@ ticlLayerTileHFNose = ticlLayerTileProducer.clone(
 
 ticlLayerTileHFNoseTask = cms.Task(ticlLayerTileHFNose)
 
-iterHFNoseTICLTask = cms.Task(
-    ticlLayerTileHFNoseTask,
-    ticlHFNoseMIPStepTask,
-    ticlHFNoseEMStepTask
+iterHFNoseTICLTask = cms.Task(ticlLayerTileHFNoseTask
+    ,ticlHFNoseTrkEMStepTask
+    ,ticlHFNoseEMStepTask
+    ,ticlHFNoseHADStepTask
+    ,ticlHFNoseMIPStepTask
 )
-
-def injectTICLintoPF(process):
-    if getattr(process,'particleFlowTmp', None):
-      process.particleFlowTmp.src = ['particleFlowTmpBarrel', 'pfTICL']
-
-    return process

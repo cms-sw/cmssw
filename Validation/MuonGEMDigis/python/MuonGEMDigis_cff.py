@@ -6,26 +6,27 @@ from Validation.MuonGEMHits.MuonGEMCommonParameters_cfi import GEMValidationComm
 
 gemStripValidation = DQMEDAnalyzer('GEMStripDigiValidation',
   GEMValidationCommonParameters,
-  detailPlot = cms.bool(True),
   gemStripDigi = muonGEMDigiPSet.gemUnpackedStripDigi,
   gemSimHit = muonSimHitMatcherPSet.gemSimHit,
+  gemDigiSimLink = cms.InputTag("simMuonGEMDigis","GEM"),
 )
 
 gemPadValidation = DQMEDAnalyzer('GEMPadDigiValidation',
   GEMValidationCommonParameters,
-  detailPlot = cms.bool(True),
   gemPadDigi = muonGEMDigiPSet.gemPadDigi,
+  gemSimHit = muonSimHitMatcherPSet.gemSimHit,
+  gemDigiSimLink = cms.InputTag("simMuonGEMDigis","GEM"),
 )
 
 gemClusterValidation = DQMEDAnalyzer('GEMPadDigiClusterValidation',
   GEMValidationCommonParameters,
-  detailPlot = cms.bool(True),
   gemPadCluster = muonGEMDigiPSet.gemPadCluster,
+  gemSimHit = muonSimHitMatcherPSet.gemSimHit,
+  gemDigiSimLink = cms.InputTag("simMuonGEMDigis","GEM"),
 )
 
 gemCoPadValidation = DQMEDAnalyzer('GEMCoPadDigiValidation',
   GEMValidationCommonParameters,
-  detailPlot = cms.bool(True),
   gemCoPadDigi = muonGEMDigiPSet.gemCoPadDigi,
 )
 

@@ -6,6 +6,8 @@ from RecoEgamma.EgammaPhotonProducers.propOppoMomentumWithMaterialForElectrons_c
 #TrajectoryBuilder
 from RecoTracker.CkfPattern.CkfTrajectoryBuilder_cff import *
 import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
+from RecoEgamma.EgammaPhotonProducers.trajectoryFilterForConversions_cfi import TrajectoryFilterForConversions
+
 TrajectoryBuilderForConversions = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone(
     estimator            = 'eleLooseChi2',
     TTRHBuilder          = 'WithTrackAngle',

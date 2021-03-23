@@ -84,7 +84,7 @@ private:
                             const edm::Handle<reco::PhotonCollection>& photonHandle,
                             const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
                             const edm::Handle<reco::PFCandidateCollection> pfEGCandidateHandle,
-                            edm::Handle<reco::VertexCollection>& pvVertices,
+                            reco::VertexCollection const& pvVertices,
                             reco::PhotonCollection& outputCollection,
                             int& iSC,
                             const edm::Handle<edm::ValueMap<float>>& chargedHadrons,
@@ -251,37 +251,22 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
 
   //AA
   //Flags and Severities to be excluded from photon calculations
-  const auto flagnamesEB = config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEB");
-
-  const auto flagnamesEE = config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEE");
+  auto const& flagnamesEB = config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEB");
+  auto const& flagnamesEE = config.getParameter<std::vector<std::string>>("RecHitFlagToBeExcludedEE");
 
   flagsexclEB_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
-
   flagsexclEE_ = StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
 
-  const auto severitynamesEB = config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEB");
+  auto const& severitynamesEB = config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEB");
+  auto const& severitynamesEE = config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEE");
 
   severitiesexclEB_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEB);
-
-  const auto severitynamesEE = config.getParameter<std::vector<std::string>>("RecHitSeverityToBeExcludedEE");
-
   severitiesexclEE_ = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
 
   photonEnergyCorrector_ = std::make_unique<PhotonEnergyCorrector>(config, consumesCollector());
 
   //AA
 
-  //
-
-  // Parameters for the position calculation:
-  //  std::map<std::string,double> providedParameters;
-  // providedParameters.insert(std::make_pair("LogWeighted",config.getParameter<bool>("posCalc_logweight")));
-  //providedParameters.insert(std::make_pair("T0_barl",config.getParameter<double>("posCalc_t0_barl")));
-  //providedParameters.insert(std::make_pair("T0_endc",config.getParameter<double>("posCalc_t0_endc")));
-  //providedParameters.insert(std::make_pair("T0_endcPresh",config.getParameter<double>("posCalc_t0_endcPresh")));
-  //providedParameters.insert(std::make_pair("W0",config.getParameter<double>("posCalc_w0")));
-  //providedParameters.insert(std::make_pair("X0",config.getParameter<double>("posCalc_x0")));
-  //posCalculator_ = PositionCalc(providedParameters);
   // cut values for pre-selection
   preselCutValuesBarrel_ = {config.getParameter<double>("minSCEtBarrel"),
                             config.getParameter<double>("maxHoverEBarrel"),
@@ -340,9 +325,7 @@ void GEDPhotonProducer::beginRun(edm::Run const& r, edm::EventSetup const& event
 
 void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eventSetup) {
   using namespace edm;
-  //  nEvt_++;
 
-  reco::PhotonCollection outputPhotonCollection;
   auto outputPhotonCollection_p = std::make_unique<reco::PhotonCollection>();
   edm::ValueMap<reco::PhotonRef> pfEGCandToPhotonMap;
 
@@ -396,30 +379,9 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
   }
 
   // Get EcalRecHits
-  bool validEcalRecHits = true;
-  const EcalRecHitCollection dummyEB;
-  auto barrelHitHandle = theEvent.getHandle(barrelEcalHits_);
-  if (!barrelHitHandle.isValid()) {
-    throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the barrelEcalHits";
-  }
-  const EcalRecHitCollection& barrelRecHits(validEcalRecHits ? *(barrelHitHandle.product()) : dummyEB);
-
-  auto endcapHitHandle = theEvent.getHandle(endcapEcalHits_);
-  const EcalRecHitCollection dummyEE;
-  if (!endcapHitHandle.isValid()) {
-    throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the endcapEcalHits";
-  }
-  const EcalRecHitCollection& endcapRecHits(validEcalRecHits ? *(endcapHitHandle.product()) : dummyEE);
-
-  bool validPreshowerRecHits = true;
-  auto preshowerHitHandle = theEvent.getHandle(preshowerHits_);
-  EcalRecHitCollection preshowerRecHits;
-  if (!preshowerHitHandle.isValid()) {
-    throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the preshowerEcalHits";
-  }
-  if (validPreshowerRecHits) {
-    preshowerRecHits = *preshowerHitHandle;
-  }
+  auto const& barrelRecHits = theEvent.get(barrelEcalHits_);
+  auto const& endcapRecHits = theEvent.get(endcapEcalHits_);
+  auto const& preshowerRecHits = theEvent.get(preshowerHits_);
 
   Handle<reco::PFCandidateCollection> pfEGCandidateHandle;
   // Get the  PF refined cluster  collection
@@ -450,16 +412,8 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
   auto const& topology = eventSetup.getData(caloTopologyToken_);
 
   // Get the primary event vertex
-  Handle<reco::VertexCollection> vertexHandle;
   const reco::VertexCollection dummyVC;
-  bool validVertex = true;
-  if (usePrimaryVertex_) {
-    theEvent.getByToken(vertexProducer_, vertexHandle);
-    if (!vertexHandle.isValid()) {
-      throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the product primary Vertex Collection";
-    }
-  }
-  auto const& vertexCollection{usePrimaryVertex_ && validVertex ? *vertexHandle : dummyVC};
+  auto const& vertexCollection{usePrimaryVertex_ ? theEvent.get(vertexProducer_) : dummyVC};
 
   //  math::XYZPoint vtx(0.,0.,0.);
   //if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
@@ -484,7 +438,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
                          hcalTowers,
                          //vtx,
                          vertexCollection,
-                         outputPhotonCollection,
+                         *outputPhotonCollection_p,
                          iSC);
 
   iSC = 0;
@@ -494,8 +448,8 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
                          photonHandle,
                          pfCandidateHandle,
                          pfEGCandidateHandle,
-                         vertexHandle,
-                         outputPhotonCollection,
+                         theEvent.get(vertexProducer_),
+                         *outputPhotonCollection_p,
                          iSC,
                          phoChargedIsolationMap,
                          phoNeutralHadronIsolationMap,
@@ -508,7 +462,6 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
 
   // put the product in the event
   edm::LogInfo("GEDPhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
-  outputPhotonCollection_p->assign(outputPhotonCollection.begin(), outputPhotonCollection.end());
   const auto photonOrphHandle = theEvent.put(std::move(outputPhotonCollection_p), photonCollection_);
 
   if (!recoStep_.isFinal() && not pfEgammaCandidates_.isUninitialized()) {
@@ -878,7 +831,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
                                              const edm::Handle<reco::PhotonCollection>& photonHandle,
                                              const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
                                              const edm::Handle<reco::PFCandidateCollection> pfEGCandidateHandle,
-                                             edm::Handle<reco::VertexCollection>& vertexHandle,
+                                             reco::VertexCollection const& vertexCollection,
                                              reco::PhotonCollection& outputPhotonCollection,
                                              int& iSC,
                                              const edm::Handle<edm::ValueMap<float>>& chargedHadrons,
@@ -939,7 +892,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     newCandidate.setPflowIDVariables(pfID);
 
     // do the regression
-    photonEnergyCorrector_->calculate(evt, newCandidate, subdet, *vertexHandle, es);
+    photonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection, es);
     if (candidateP4type_ == "fromEcalEnergy") {
       newCandidate.setP4(newCandidate.p4(reco::Photon::ecal_photons));
       newCandidate.setCandidateP4type(reco::Photon::ecal_photons);

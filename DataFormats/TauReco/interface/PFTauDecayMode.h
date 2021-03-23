@@ -22,7 +22,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDecayModeFwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace reco {
   class PFTauDecayMode : public CompositeCandidate {

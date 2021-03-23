@@ -10,6 +10,7 @@
 #include "fastjet/Selector.hh"
 #include "fastjet/PseudoJet.hh"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace fastjet;
 using namespace std;

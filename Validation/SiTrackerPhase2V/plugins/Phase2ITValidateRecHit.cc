@@ -194,8 +194,8 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
         isPrimary = phase2tkutil::isPrimary(simTrackIt->second, simhitClosest);
       Local3DPoint simlp(simhitClosest->localPosition());
       const LocalError& lperr = rechit.localPositionError();
-      double dx = lp.x() - simlp.x();
-      double dy = lp.y() - simlp.y();
+      double dx = phase2tkutil::cmtomicron * (lp.x() - simlp.x());
+      double dy = phase2tkutil::cmtomicron * (lp.y() - simlp.y());
       double pullx = 999.;
       double pully = 999.;
       if (lperr.xx())
@@ -310,20 +310,20 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X");
-    psd0.add<std::string>("title", "Delta_X;RecHit resolution X dimension");
-    psd0.add<double>("xmin", -0.2);
+    psd0.add<std::string>("title", "Delta_X;RecHit resolution X coordinate [#mum]");
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.2);
+    psd0.add<double>("xmin", -100.0);
+    psd0.add<double>("xmax", 100.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("DeltaX", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y");
-    psd0.add<std::string>("title", "Delta_Y;RecHit resolution Y dimension;");
-    psd0.add<double>("xmin", -0.2);
+    psd0.add<std::string>("title", "Delta_Y;RecHit resolution Y coordinate [#mum];");
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.2);
+    psd0.add<double>("xmin", -100.0);
+    psd0.add<double>("xmax", 100.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("DeltaY", psd0);
   }
@@ -350,25 +350,25 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_vs_Eta");
-    psd0.add<std::string>("title", "Delta_X_vs_Eta;#eta;#Delta x");
-    psd0.add<double>("ymax", 0.02);
+    psd0.add<std::string>("title", "Delta_X_vs_Eta;#eta;#Delta x [#mum]");
+    psd0.add<double>("ymin", -100.0);
+    psd0.add<double>("ymax", 100.0);
     psd0.add<int>("NxBins", 82);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.1);
     psd0.add<double>("xmin", -4.1);
-    psd0.add<double>("ymin", -0.02);
     desc.add<edm::ParameterSetDescription>("DeltaX_eta", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_vs_Eta");
-    psd0.add<std::string>("title", "Delta_Y_vs_Eta;#eta;#Delta y");
-    psd0.add<double>("ymax", 0.02);
+    psd0.add<std::string>("title", "Delta_Y_vs_Eta;#eta;#Delta y [#mum]");
+    psd0.add<double>("ymin", -100.0);
+    psd0.add<double>("ymax", 100.0);
     psd0.add<int>("NxBins", 82);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.1);
     psd0.add<double>("xmin", -4.1);
-    psd0.add<double>("ymin", -0.02);
     desc.add<edm::ParameterSetDescription>("DeltaY_eta", psd0);
   }
   {
@@ -409,20 +409,20 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_SimHitPrimary");
-    psd0.add<std::string>("title", "Delta_X_SimHitPrimary;#delta x;");
-    psd0.add<double>("xmin", -0.2);
+    psd0.add<std::string>("title", "Delta_X_SimHitPrimary;#delta x [#mum];");
+    psd0.add<double>("xmin", -100.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.2);
+    psd0.add<double>("xmax", 100.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("DeltaX_primary", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_Y_SimHitPrimary");
-    psd0.add<std::string>("title", "Delta_Y_SimHitPrimary;#Delta y;");
-    psd0.add<double>("xmin", -0.2);
+    psd0.add<std::string>("title", "Delta_Y_SimHitPrimary;#Delta y [#mum];");
+    psd0.add<double>("xmin", -100.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.2);
+    psd0.add<double>("xmax", 100.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("DeltaY_primary", psd0);
   }

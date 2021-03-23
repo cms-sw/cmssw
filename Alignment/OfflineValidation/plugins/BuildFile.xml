@@ -3,6 +3,7 @@
 <use name="Alignment/CommonAlignment"/>
 <use name="Alignment/TrackerAlignment"/>
 <use name="CondCore/DBOutputService"/>
+<use name="CondFormats/BeamSpotObjects"/>
 <use name="CondFormats/Alignment"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/SiPixelObjects"/>

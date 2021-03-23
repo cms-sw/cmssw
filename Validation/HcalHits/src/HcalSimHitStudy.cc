@@ -23,12 +23,11 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet &ps) {
 HcalSimHitStudy::~HcalSimHitStudy() {}
 
 void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
-  const auto &pHRNDC = es.getData(tok_HRNDC_);
-  hcons = &pHRNDC;
-  maxDepthHB_ = hcons->getMaxDepth(0);
-  maxDepthHE_ = hcons->getMaxDepth(1);
-  maxDepthHF_ = hcons->getMaxDepth(2);
-  maxDepthHO_ = hcons->getMaxDepth(3);
+  hcons_ = &es.getData(tok_HRNDC_);
+  maxDepthHB_ = hcons_->getMaxDepth(0);
+  maxDepthHE_ = hcons_->getMaxDepth(1);
+  maxDepthHF_ = hcons_->getMaxDepth(2);
+  maxDepthHO_ = hcons_->getMaxDepth(3);
   maxDepth_ = (maxDepthHB_ > maxDepthHE_ ? maxDepthHB_ : maxDepthHE_);
   maxDepth_ = (maxDepth_ > maxDepthHF_ ? maxDepth_ : maxDepthHF_);
   maxDepth_ = (maxDepth_ > maxDepthHO_ ? maxDepth_ : maxDepthHO_);
@@ -36,21 +35,21 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
   // Get Phi segmentation from geometry, use the max phi number so that all iphi
   // values are included.
 
-  int NphiMax = hcons->getNPhi(0);
+  int NphiMax = hcons_->getNPhi(0);
 
-  NphiMax = (hcons->getNPhi(1) > NphiMax ? hcons->getNPhi(1) : NphiMax);
-  NphiMax = (hcons->getNPhi(2) > NphiMax ? hcons->getNPhi(2) : NphiMax);
-  NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
+  NphiMax = (hcons_->getNPhi(1) > NphiMax ? hcons_->getNPhi(1) : NphiMax);
+  NphiMax = (hcons_->getNPhi(2) > NphiMax ? hcons_->getNPhi(2) : NphiMax);
+  NphiMax = (hcons_->getNPhi(3) > NphiMax ? hcons_->getNPhi(3) : NphiMax);
 
   // Center the iphi bins on the integers
   iphi_min = 0.5;
   iphi_max = NphiMax + 0.5;
   iphi_bins = (int)(iphi_max - iphi_min);
 
-  int iEtaHBMax = hcons->getEtaRange(0).second;
-  int iEtaHEMax = std::max(hcons->getEtaRange(1).second, 1);
-  int iEtaHFMax = hcons->getEtaRange(2).second;
-  int iEtaHOMax = hcons->getEtaRange(3).second;
+  int iEtaHBMax = hcons_->getEtaRange(0).second;
+  int iEtaHEMax = std::max(hcons_->getEtaRange(1).second, 1);
+  int iEtaHFMax = hcons_->getEtaRange(2).second;
+  int iEtaHOMax = hcons_->getEtaRange(3).second;
 
   // Retain classic behavior, all plots have same ieta range.
   // Comment out code to allow each subdetector to have its on range
@@ -187,7 +186,7 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
 }*/
 
 void HcalSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
-  LogDebug("HcalSim") << "Run = " << e.id().run() << " Event = " << e.id().event();
+  edm::LogVerbatim("HcalSim") << "Run = " << e.id().run() << " Event = " << e.id().event();
 
   std::vector<PCaloHit> caloHits;
   edm::Handle<edm::PCaloHitContainer> hitsHcal;
@@ -199,11 +198,11 @@ void HcalSimHitStudy::analyze(const edm::Event &e, const edm::EventSetup &) {
       getHits = true;
   }
 
-  LogDebug("HcalSim") << "HcalValidation: Input flags Hits " << getHits;
+  edm::LogVerbatim("HcalSim") << "HcalValidation: Input flags Hits " << getHits;
 
   if (getHits) {
     caloHits.insert(caloHits.end(), hitsHcal->begin(), hitsHcal->end());
-    LogDebug("HcalSim") << "HcalValidation: Hit buffer " << caloHits.size();
+    edm::LogVerbatim("HcalSim") << "HcalValidation: Hit buffer " << caloHits.size();
     analyzeHits(caloHits);
   }
 }
@@ -257,22 +256,22 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
     double log10en = log10(energy);
     int log10i = int((log10en + 10.) * 10.);
     double time = hits[i].time();
-    unsigned int id_ = hits[i].id();
+    unsigned int id = hits[i].id();
     int det, subdet, depth, eta, phi;
     HcalDetId hid;
     if (testNumber_)
-      hid = HcalHitRelabeller::relabel(id_, hcons);
+      hid = HcalHitRelabeller::relabel(id, hcons_);
     else
-      hid = HcalDetId(id_);
+      hid = HcalDetId(id);
     det = hid.det();
     subdet = hid.subdet();
     depth = hid.depth();
     eta = hid.ieta();
     phi = hid.iphi();
 
-    LogDebug("HcalSim") << "Hit[" << i << "] ID " << std::hex << id_ << std::dec << " Det " << det << " Sub " << subdet
-                        << " depth " << depth << " Eta " << eta << " Phi " << phi << " E " << energy << " time "
-                        << time;
+    edm::LogVerbatim("HcalSim") << "Hit[" << i << "] ID " << std::hex << id << std::dec << " Det " << det << " Sub "
+                                << subdet << " depth " << depth << " Eta " << eta << " Phi " << phi << " E " << energy
+                                << " time " << time;
     if (det == 4) {  // Check DetId.h
       if (subdet == static_cast<int>(HcalBarrel))
         nHB++;
@@ -455,6 +454,6 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
     }
   }
 
-  LogDebug("HcalSim") << "HcalSimHitStudy::analyzeHits: HB " << nHB << " HE " << nHE << " HO " << nHO << " HF " << nHF
-                      << " Bad " << nBad << " All " << nHit;
+  edm::LogVerbatim("HcalSim") << "HcalSimHitStudy::analyzeHits: HB " << nHB << " HE " << nHE << " HO " << nHO << " HF "
+                              << nHF << " Bad " << nBad << " All " << nHit;
 }

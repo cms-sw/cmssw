@@ -11,12 +11,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 // Needed for the FED cabling
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
@@ -39,9 +40,7 @@
 
 namespace sistrip {
   class SpyUnpacker;
-  class SpyUtilities;
 }  // namespace sistrip
-class SiStripFedCabling;
 
 using edm::LogError;
 using edm::LogInfo;
@@ -78,8 +77,10 @@ namespace sistrip {
     SpyUnpacker* unpacker_;             //!<
 
     //utilities for cabling etc...
-    SpyUtilities utility_;
-
+    edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+    const SiStripFedCabling* fedCabling_;
+    edm::ESWatcher<SiStripFedCablingRcd> cablingWatcher_;
+    void updateFedCabling(const SiStripFedCablingRcd& rcd);
   };  // end of SpyUnpackerModule class.
 
 }  // end of namespace sistrip.
@@ -94,7 +95,9 @@ namespace sistrip {
         allowIncompleteEvents_(pset.getParameter<bool>("AllowIncompleteEvents")),
         storeCounters_(pset.getParameter<bool>("StoreCounters")),
         storeScopeRawDigis_(pset.getParameter<bool>("StoreScopeRawDigis")),
-        unpacker_(nullptr) {
+        unpacker_(nullptr),
+        fedCablingToken_(esConsumes<>()),
+        cablingWatcher_(this, &sistrip::SpyUnpackerModule::updateFedCabling) {
     productToken_ = consumes<FEDRawDataCollection>(productLabel_);
 
     if ((fed_ids_.empty())) {
@@ -133,6 +136,10 @@ namespace sistrip {
     }
   }
 
+  void SpyUnpackerModule::updateFedCabling(const SiStripFedCablingRcd& rcd) {
+    fedCabling_ = &rcd.get(fedCablingToken_);
+  }
+
   /*! \brief Scope mode digis and event counter producer.
    *  Retrieves cabling map from EventSetup and FEDRawDataCollection
    *  from Event, creates a DetSetVector of SiStripRawDigis, uses the
@@ -140,8 +147,7 @@ namespace sistrip {
    *  attaches the container to the Event.
    */
   void SpyUnpackerModule::produce(edm::Event& event, const edm::EventSetup& setup) {
-    const SiStripFedCabling* lCabling = utility_.getCabling(setup);
-
+    cablingWatcher_.check(setup);
     //retrieve FED raw data (by label, which is "source" by default)
     edm::Handle<FEDRawDataCollection> buffers;
     event.getByToken(productToken_, buffers);
@@ -157,7 +163,7 @@ namespace sistrip {
     //create digis
     // Using FED IDs...
     unpacker_->createDigis(
-        *lCabling, *buffers, digis.get(), fed_ids_, pTotalCounts.get(), pL1ACounts.get(), pGlobalRun.get());
+        *fedCabling_, *buffers, digis.get(), fed_ids_, pTotalCounts.get(), pL1ACounts.get(), pGlobalRun.get());
 
     // Add digis to event
     if (storeScopeRawDigis_)

@@ -112,10 +112,18 @@ struct SiPixelGenErrorStore {  //!< template storage structure
 // ******************************************************************************************
 class SiPixelGenError {
 public:
-  SiPixelGenError(const std::vector<SiPixelGenErrorStore>& thePixelTemp) : thePixelTemp_(thePixelTemp) {
-    id_current_ = -1;
-    index_id_ = -1;
-  }  //!< Constructor for cases in which template store already exists
+  SiPixelGenError(const std::vector<SiPixelGenErrorStore>& thePixelTemp)
+      : id_current_(-1),
+        index_id_(-1),
+        lorxwidth_(0),
+        lorywidth_(0),
+        lorxbias_(0),
+        lorybias_(0),
+        fbin_{0, 0, 0},
+        xsize_(0),
+        ysize_(0),
+        zsize_(0),
+        thePixelTemp_(thePixelTemp) {}  //!< Constructor for cases in which template store already exists
 
   // Load the private store with info from the file with the index (int) filenum from directory dir:
   //   ${dir}generror_summary_zp${filenum}.out
