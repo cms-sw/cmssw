@@ -196,8 +196,8 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
     } else {
       LogTrace(category_) << "predicted state invalid";
     }
-    if (!predTsos.isValid()) {
-      LogTrace(category_) << "Error: predTsos is still invalid forward fit.";
+    if (!predTsos.isValid() || predTsos.globalPosition().mag2() > 1.e12) {
+      LogTrace(category_) << "Error: predTsos is still invalid or too far in forward fit.";
       //      return vector<Trajectory>();
       continue;
     } else if ((**ihit).isValid()) {

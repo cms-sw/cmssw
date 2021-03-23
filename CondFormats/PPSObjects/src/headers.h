@@ -12,3 +12,4 @@
 #include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
 #include "CondFormats/PPSObjects/interface/PPSDirectSimulationData.h"
+#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"

@@ -94,7 +94,8 @@ void testDDFilteredView::checkFilteredView() {
   cout << "Get attl from hf as double values:\n";
   vector<double> attl = fview.get<vector<double>>("hf", "attl");
   int count(0);
-  for (auto const& i : attl) {
+  for (double i : attl) {
+    i *= dd4hep::cm;  // Convert DD4hep units to /cm
     std::cout << "attl " << i << " == " << refdattl_[count] << "\n";
     CPPUNIT_ASSERT(abs(i - refdattl_[count]) < 10e-6);
     count++;
@@ -103,18 +104,20 @@ void testDDFilteredView::checkFilteredView() {
   std::cout << "Get LongFL from hf as double values:\n";
   count = 0;
   std::vector<double> LongFL = fview.get<std::vector<double>>("hf", "LongFL");
-  for (auto const& i : LongFL) {
+  for (double i : LongFL) {
+    i /= dd4hep::cm;  // Convert DD4hep units to cm
     std::cout << "LongFL " << i << " == " << refdLongFL_[count] << "\n";
     CPPUNIT_ASSERT(abs(i - refdLongFL_[count]) < 10e-2);
     count++;
   }
 
-  std::cout << "Get LongFL from hf as string values:\n";
+  std::cout << "Get LongFL from hf as numerically evaluated string values:\n";
   count = 0;
   std::vector<std::string> sLongFL = fview.get<std::vector<std::string>>("hf", "LongFL");
   for (auto const& i : sLongFL) {
-    std::cout << "LongFL " << i << " == " << refsLongFL_[count] << "\n";
-    CPPUNIT_ASSERT(abs(std::stod(i) - std::stod(refsLongFL_[count])) < 10e-6);
+    double dblVal = std::stod(i) / dd4hep::cm;  // Convert DD4hep units to cm
+    std::cout << "LongFL " << dblVal << " == " << refsLongFL_[count] << "\n";
+    CPPUNIT_ASSERT(abs(dblVal - std::stod(refsLongFL_[count])) < 10e-6);
     count++;
   }
 

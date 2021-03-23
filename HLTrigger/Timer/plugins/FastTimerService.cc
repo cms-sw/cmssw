@@ -382,30 +382,29 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
   std::string y_title_ms = fmt::sprintf("events / %.1f ms", ranges.time_resolution);
   std::string y_title_kB = fmt::sprintf("events / %.1f kB", ranges.memory_resolution);
 
-  // to enable underflows and overflows in the computation of mean and rms
-  // use getTH1()->SetStatOverflows(TH1::kConsider)
+  // MonitorElement::setStatOverflows(kTRUE) includes underflows and overflows in the computation of mean and RMS
   time_thread_ =
       booker.book1D(name + " time_thread", title + " processing time (cpu)", time_bins, 0., ranges.time_range);
   time_thread_->setXTitle("processing time [ms]");
   time_thread_->setYTitle(y_title_ms);
-  time_thread_->getTH1()->SetStatOverflows(TH1::kConsider);
+  time_thread_->setStatOverflows(kTRUE);
 
   time_real_ = booker.book1D(name + " time_real", title + " processing time (real)", time_bins, 0., ranges.time_range);
   time_real_->setXTitle("processing time [ms]");
   time_real_->setYTitle(y_title_ms);
-  time_real_->getTH1()->SetStatOverflows(TH1::kConsider);
+  time_real_->setStatOverflows(kTRUE);
 
   if (memory_usage::is_available()) {
     allocated_ = booker.book1D(name + " allocated", title + " allocated memory", mem_bins, 0., ranges.memory_range);
     allocated_->setXTitle("memory [kB]");
     allocated_->setYTitle(y_title_kB);
-    allocated_->getTH1()->SetStatOverflows(TH1::kConsider);
+    allocated_->setStatOverflows(kTRUE);
 
     deallocated_ =
         booker.book1D(name + " deallocated", title + " deallocated memory", mem_bins, 0., ranges.memory_range);
     deallocated_->setXTitle("memory [kB]");
     deallocated_->setYTitle(y_title_kB);
-    deallocated_->getTH1()->SetStatOverflows(TH1::kConsider);
+    deallocated_->setStatOverflows(kTRUE);
   }
 
   if (not byls)
@@ -422,7 +421,7 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
                                          " ");
   time_thread_byls_->setXTitle("lumisection");
   time_thread_byls_->setYTitle("processing time [ms]");
-  time_thread_byls_->getTProfile()->SetStatOverflows(TH1::kConsider);
+  time_thread_byls_->setStatOverflows(kTRUE);
 
   time_real_byls_ = booker.bookProfile(name + " time_real_byls",
                                        title + " processing time (real) vs. lumisection",
@@ -435,7 +434,7 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
                                        " ");
   time_real_byls_->setXTitle("lumisection");
   time_real_byls_->setYTitle("processing time [ms]");
-  time_real_byls_->getTProfile()->SetStatOverflows(TH1::kConsider);
+  time_real_byls_->setStatOverflows(kTRUE);
 
   if (memory_usage::is_available()) {
     allocated_byls_ = booker.bookProfile(name + " allocated_byls",
@@ -449,7 +448,7 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
                                          " ");
     allocated_byls_->setXTitle("lumisection");
     allocated_byls_->setYTitle("memory [kB]");
-    allocated_byls_->getTProfile()->SetStatOverflows(TH1::kConsider);
+    allocated_byls_->setStatOverflows(kTRUE);
 
     deallocated_byls_ = booker.bookProfile(name + " deallocated_byls",
                                            title + " deallocated memory vs. lumisection",
@@ -462,7 +461,7 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
                                            " ");
     deallocated_byls_->setXTitle("lumisection");
     deallocated_byls_->setYTitle("memory [kB]");
-    deallocated_byls_->getTProfile()->SetStatOverflows(TH1::kConsider);
+    deallocated_byls_->setStatOverflows(kTRUE);
   }
 }
 
@@ -569,29 +568,28 @@ void FastTimerService::PlotsPerPath::book(dqm::reco::DQMStore::IBooker& booker,
 
   total_.book(booker, "path", path.name_, ranges, lumisections, byls);
 
-  // to enable underflows and overflows in the computation of mean and rms
-  // use getTH1()->SetStatOverflows(TH1::kConsider)
+  // MonitorElement::setStatOverflows(kTRUE) includes underflows and overflows in the computation of mean and RMS
   unsigned int bins = path.modules_and_dependencies_.size();
   module_counter_ = booker.book1DD("module_counter", "module counter", bins + 1, -0.5, bins + 0.5);
   module_counter_->setYTitle("events");
-  module_counter_->getTH1()->SetStatOverflows(TH1::kConsider);
+  module_counter_->setStatOverflows(kTRUE);
   module_time_thread_total_ =
       booker.book1DD("module_time_thread_total", "total module time (cpu)", bins, -0.5, bins - 0.5);
   module_time_thread_total_->setYTitle("processing time [ms]");
-  module_time_thread_total_->getTH1()->SetStatOverflows(TH1::kConsider);
+  module_time_thread_total_->setStatOverflows(kTRUE);
   module_time_real_total_ =
       booker.book1DD("module_time_real_total", "total module time (real)", bins, -0.5, bins - 0.5);
   module_time_real_total_->setYTitle("processing time [ms]");
-  module_time_real_total_->getTH1()->SetStatOverflows(TH1::kConsider);
+  module_time_real_total_->setStatOverflows(kTRUE);
   if (memory_usage::is_available()) {
     module_allocated_total_ =
         booker.book1DD("module_allocated_total", "total allocated memory", bins, -0.5, bins - 0.5);
     module_allocated_total_->setYTitle("memory [kB]");
-    module_allocated_total_->getTH1()->SetStatOverflows(TH1::kConsider);
+    module_allocated_total_->setStatOverflows(kTRUE);
     module_deallocated_total_ =
         booker.book1DD("module_deallocated_total", "total deallocated memory", bins, -0.5, bins - 0.5);
     module_deallocated_total_->setYTitle("memory [kB]");
-    module_deallocated_total_->getTH1()->SetStatOverflows(TH1::kConsider);
+    module_deallocated_total_->setStatOverflows(kTRUE);
   }
   for (unsigned int bin : boost::irange(0u, bins)) {
     auto const& module = job[path.modules_and_dependencies_[bin]];

@@ -6,4 +6,5 @@
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/Records"/>
 <use name="geant4core"/>
+<use name="dd4hep"/>
 <use name="boost"/>

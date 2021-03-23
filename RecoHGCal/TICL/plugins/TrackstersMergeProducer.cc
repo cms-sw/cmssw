@@ -296,7 +296,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   }
 
   // Neutral Hadrons
-  constexpr float mpion2 = 0.13957f * 0.13957f;
+  constexpr double mpion = 0.13957;
+  constexpr float mpion2 = mpion * mpion;
   for (unsigned i = 0; i < trackstersHAD.size(); ++i) {
     auto mergedIdx = indexInMergedCollHAD[i];
     usedTrackstersMerged[mergedIdx] = true;
@@ -509,10 +510,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       tmpCandidate.setCharge(track.charge());
       tmpCandidate.setTrackPtr(edm::Ptr<reco::Track>(track_h, s.index));
       tmpCandidate.setPdgId(211 * track.charge());
-      float energy = std::sqrt(track.pt() * track.pt() + mpion2);
+      float energy = std::sqrt(track.p() * track.p() + mpion2);
       tmpCandidate.setRawEnergy(energy);
-      math::XYZTLorentzVector p4(track.momentum().x(), track.momentum().y(), track.momentum().z(), energy);
-      tmpCandidate.setP4(p4);
+      math::PtEtaPhiMLorentzVector p4Polar(track.pt(), track.eta(), track.phi(), mpion);
+      tmpCandidate.setP4(p4Polar);
       resultCandidates->push_back(tmpCandidate);
       usedSeeds[s.index] = true;
     }
@@ -529,10 +530,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       tmpCandidate.setCharge(track.charge());
       tmpCandidate.setTrackPtr(edm::Ptr<reco::Track>(track_h, i));
       tmpCandidate.setPdgId(211 * track.charge());
-      float energy = std::sqrt(track.pt() * track.pt() + mpion2);
+      float energy = std::sqrt(track.p() * track.p() + mpion2);
       tmpCandidate.setRawEnergy(energy);
-      math::XYZTLorentzVector p4(track.momentum().x(), track.momentum().y(), track.momentum().z(), energy);
-      tmpCandidate.setP4(p4);
+      math::PtEtaPhiMLorentzVector p4Polar(track.pt(), track.eta(), track.phi(), mpion);
+      tmpCandidate.setP4(p4Polar);
       resultCandidates->push_back(tmpCandidate);
       usedSeeds[i] = true;
     }

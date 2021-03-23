@@ -7,6 +7,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4VTouchable.hh"
+#include "G4Track.hh"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 #include <map>
 #include <vector>
@@ -58,7 +60,7 @@ private:
   void detectorLevel(const G4VTouchable*, int&, int*, G4String*) const;
 
   bool testBeam_, putHistory_, doFineCalo_;
-  double eMin_, eMinFine_, eMinFinePhoton_;
+  double eMin_, eMinFine_;
   int lastTrackID_;
   std::vector<Detector> detectors_, fineDetectors_;
 };

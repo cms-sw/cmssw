@@ -2,6 +2,7 @@
 #ifndef DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -12,7 +13,11 @@ class TrackerGeometry;
 
 class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public SamplingHistograms {
 public:
-  FineDelayHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  FineDelayHistosUsingDb(const edm::ParameterSet& pset,
+                         DQMStore*,
+                         SiStripConfigDb* const,
+                         edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken,
+                         edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken);
 
   ~FineDelayHistosUsingDb() override;
 
@@ -31,6 +36,7 @@ private:
 
   std::map<unsigned int, float> delays_;
 
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   const TrackerGeometry* tracker_;
 
   bool cosmic_;

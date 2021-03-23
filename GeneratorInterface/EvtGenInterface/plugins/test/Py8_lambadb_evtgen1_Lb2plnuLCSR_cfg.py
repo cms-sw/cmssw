@@ -53,9 +53,9 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     ExternalDecays = cms.PSet(
         EvtGen1 = cms.untracked.PSet(
             convertPythiaCodes = cms.untracked.bool(False),
-            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2014_NOLONGLIFE.DEC'),
+            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_NOLONGLIFE.DEC'),
             list_forced_decays = cms.vstring('MyLambda_b0','Myanti-Lambda_b0'),
-            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt_2014.pdl'),
+            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
 	    operates_on_particles = cms.vint32(5122),  #only care about signal particle
             user_decay_embedded = cms.vstring(
 """

@@ -8,12 +8,8 @@
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 
 //-------------------------------------------------------------------------------------
-EcalFenixStrip::EcalFenixStrip(const edm::EventSetup &setup,
-                               const EcalElectronicsMapping *theMapping,
-                               bool debug,
-                               bool famos,
-                               int maxNrSamples,
-                               int nbMaxXtals)
+EcalFenixStrip::EcalFenixStrip(
+    const EcalElectronicsMapping *theMapping, bool debug, bool famos, int maxNrSamples, int nbMaxXtals)
     : theMapping_(theMapping), debug_(debug), famos_(famos), nbMaxXtals_(nbMaxXtals) {
   linearizer_.resize(nbMaxXtals_);
   for (int i = 0; i < nbMaxXtals_; i++)

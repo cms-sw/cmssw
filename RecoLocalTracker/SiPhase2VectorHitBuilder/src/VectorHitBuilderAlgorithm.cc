@@ -3,6 +3,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit2D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 void VectorHitBuilderAlgorithm::run(edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D>> clusters,
                                     VectorHitCollection& vhAcc,

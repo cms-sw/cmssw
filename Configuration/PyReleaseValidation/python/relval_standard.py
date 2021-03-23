@@ -362,6 +362,7 @@ workflows[136.8562] = ['',['RunZeroBias1_hBStarRP','HLTDR2_2018_hBStar','RECODR2
 ### NANOAOD wf on 2018 prompt reco MINIADD
 workflows[136.8521] = ['',['RunJetHT2018A_nano','NANOEDM2018_102Xv1','HARVESTNANOAOD2018_102Xv1']]
 workflows[136.8522] = ['',['RunJetHT2018A_nanoUL','NANOEDM2018_106Xv1','HARVESTNANOAOD2018_106Xv1']]
+workflows[136.8523] = ['',['RunJetHT2018C_nanoULremini','NANOEDM2018_106Xv2','HARVESTNANOAOD2018_106Xv2']]
 
 ### run 2018B ###
 workflows[136.861] = ['',['RunHLTPhy2018B','HLTDR2_2018','RECODR2_2018reHLT_Offline','HARVEST2018']]
@@ -414,28 +415,22 @@ workflows[136.88811] = ['',['RunJetHT2018D_reminiaodUL','REMINIAOD_data2018UL','
 ### run 2018D pixel tracks ###
 workflows[136.8855] = ['',['RunHLTPhy2018D','HLTDR2_2018','RECODR2_2018reHLT_Prompt_pixelTrackingOnly','HARVEST2018_pixelTrackingOnly']]
 workflows[136.885501] = ['',['RunHLTPhy2018D','HLTDR2_2018','RECODR2_2018reHLT_Patatrack_PixelOnlyCPU','HARVEST2018_pixelTrackingOnly']]
-workflows[136.885502] = ['',['RunHLTPhy2018D','HLTDR2_2018','RECODR2_2018reHLT_Patatrack_PixelOnlyGPU','HARVEST2018_pixelTrackingOnly']]
 workflows[136.8885] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_Prompt_pixelTrackingOnly','HARVEST2018_pixelTrackingOnly']]
 workflows[136.888501] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_Patatrack_PixelOnlyCPU','HARVEST2018_pixelTrackingOnly']]
-workflows[136.888502] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_Patatrack_PixelOnlyGPU','HARVEST2018_pixelTrackingOnly']]
 
 ### run 2018D ECAL-only ###
 workflows[136.885511] = ['',['RunHLTPhy2018D','HLTDR2_2018','RECODR2_2018reHLT_ECALOnlyCPU','HARVEST2018_ECALOnly']]
-workflows[136.885512] = ['',['RunHLTPhy2018D','HLTDR2_2018','RECODR2_2018reHLT_ECALOnlyGPU','HARVEST2018_ECALOnly']]
 workflows[136.888511] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_ECALOnlyCPU','HARVEST2018_ECALOnly']]
-workflows[136.888512] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_ECALOnlyGPU','HARVEST2018_ECALOnly']]
 
 ### run 2018D HCAL-only ###
 workflows[136.885521] = ['',['RunHLTPhy2018D','HLTDR2_2018','RECODR2_2018reHLT_HCALOnlyCPU','HARVEST2018_HCALOnly']]
-workflows[136.885522] = ['',['RunHLTPhy2018D','HLTDR2_2018','RECODR2_2018reHLT_HCALOnlyGPU','HARVEST2018_HCALOnly']]
 workflows[136.888521] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_HCALOnlyCPU','HARVEST2018_HCALOnly']]
-workflows[136.888522] = ['',['RunJetHT2018D','HLTDR2_2018','RECODR2_2018reHLT_HCALOnlyGPU','HARVEST2018_HCALOnly']]
 
 # multi-run harvesting
 workflows[137.8] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM',
                         'RunEGamma2018D','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_MULTIRUN']]
 ### LS2 - MWGR ###
-workflows[138.1] = ['',['RunCosmics2020GEM','RECOCOSDRUN3','ALCACOSDRUN3','HARVESTDCRUN3']]
+workflows[138.1] = ['',['RunCosmics2020','RECOCOSDRUN3','ALCACOSDRUN3','HARVESTDCRUN3']]
 workflows[138.2] = ['',['RunCosmics2020','RECOCOSDEXPRUN3','ALCACOSDEXPRUN3','HARVESTDCEXPRUN3']]
 
 #### Test of lumi section boundary crossing with run2 2018D ####

@@ -39,7 +39,8 @@ class ExternalGeneratorFilter(cms.EDFilter):
         options.indent()
         result += "\n"+options.indentation() + self._prod.dumpPython(options)
         result +=options.indentation()+",\n"
-        result += options.indentation() + self._external_process_verbose_.dumpPython(options)
+        result += options.indentation() + "_external_process_waitTime_ = " + self._external_process_waitTime_.dumpPython(options) + ',\n'
+        result += options.indentation() + "_external_process_verbose_ = " + self._external_process_verbose_.dumpPython(options) + ','
         options.unindent()
         result += "\n)\n"
         return result

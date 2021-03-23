@@ -22,7 +22,7 @@
 <use name="RecoEgamma/EgammaTools"/>
 <use name="RecoEgamma/EgammaIsolationAlgos"/>
 <use name="RecoEgamma/ElectronIdentification"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
 <use name="CondFormats/DataRecord"/>
 <export>
   <lib name="1"/>

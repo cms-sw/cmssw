@@ -141,8 +141,7 @@ egammaHIPhotonIsolationModifier = cms.PSet(
     modifierName = cms.string('EGExtraInfoModifierFromHIPhotonIsolationValueMaps'),
     electron_config = cms.PSet(),
     photon_config = cms.PSet(
-        photonSrc = cms.InputTag("gedPhotons"),
-        photonIsolationHI = cms.InputTag("photonIsolationHIProducerppGED")
+        photonIsolationHI = cms.InputTag("reducedEgamma:photonIsolationHIProducerppGED")
         )
     )
 

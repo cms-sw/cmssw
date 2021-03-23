@@ -39,13 +39,13 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const DDCompac
   CmsTrackerBuilder<DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
-  if (DEBUG) {
-    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
-  }
-
   edm::LogVerbatim("DDDCmsTrackerContruction") << "Assign DetIds";
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
   theCmsTrackerDetIdBuilder.buildId(*tracker);
+
+  if (DEBUG) {
+    printAllTrackerGeometricDets(tracker.get());
+  }
 
   fv.parent();
   //
@@ -83,13 +83,13 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
   CmsTrackerBuilder<cms::DDFilteredView> theCmsTrackerBuilder;
   theCmsTrackerBuilder.build(fv, tracker.get(), attribute);
 
-  if (DEBUG) {
-    printAllTrackerGeometricDetsBeforeDetIDBuilding(tracker.get());
-  }
-
   edm::LogVerbatim("DDDCmsTrackerContruction") << "Assign DetIds";
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder(detidShifts);
   theCmsTrackerDetIdBuilder.buildId(*tracker);
+
+  if (DEBUG) {
+    printAllTrackerGeometricDets(tracker.get());
+  }
 
   return tracker;
 }
@@ -100,7 +100,7 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
  * and all GeometricDets are sorted according to their geometric position.
  * This allows a convenient debugging, as the DetIds will be later assigned according to this information.
  */
-void DDDCmsTrackerContruction::printAllTrackerGeometricDetsBeforeDetIDBuilding(const GeometricDet* tracker) {
+void DDDCmsTrackerContruction::printAllTrackerGeometricDets(const GeometricDet* tracker) {
   std::ofstream outputFile("All_Tracker_GeometricDets_before_DetId_building.log", std::ios::out);
 
   // Tree navigation: queue for BFS (we want to see same hierarchy level together).

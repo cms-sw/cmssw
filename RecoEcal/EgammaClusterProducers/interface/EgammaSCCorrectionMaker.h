@@ -34,16 +34,17 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include "RecoEcal/EgammaClusterProducers/interface/EcalBasicClusterLocalContCorrection.h"
+
 class EgammaSCCorrectionMaker : public edm::stream::EDProducer<> {
 public:
   explicit EgammaSCCorrectionMaker(const edm::ParameterSet&);
-  ~EgammaSCCorrectionMaker() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   std::unique_ptr<EcalClusterFunctionBaseClass> energyCorrectionFunction_;
   std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
-  std::unique_ptr<EcalClusterFunctionBaseClass> localContCorrectionFunction_;
+  std::unique_ptr<EcalBasicClusterLocalContCorrection> localContCorrectionFunction_;
 
   // pointer to the correction algo object
   std::unique_ptr<EgammaSCEnergyCorrectionAlgo> energyCorrector_;
@@ -55,7 +56,6 @@ private:
 
   std::string energyCorrectorName_;
   std::string crackCorrectorName_;
-  std::string localContCorrectorName_;
 
   int modeEB_;
   int modeEE_;

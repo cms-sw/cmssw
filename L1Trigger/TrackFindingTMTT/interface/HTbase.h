@@ -1,36 +1,17 @@
-
 #ifndef L1Trigger_TrackFindingTMTT_HTbase_h
 #define L1Trigger_TrackFindingTMTT_HTbase_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTcell.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track2D.h"
+#include "L1Trigger/TrackFindingTMTT/interface/Array2D.h"
 
 #include <vector>
 #include <list>
 #include <utility>
 #include <memory>
 
-namespace tmtt {
-  template <typename T>
-  class matrix {
-  public:
-    //for a mxn matrix - row major
-    matrix(unsigned int m, unsigned int n) : _n{n}, _m{m} { _matrix.resize(m * n); }
-    const T& operator()(unsigned int i, unsigned int j) const { return _matrix.at(i * _n + j); }
-    T& operator()(unsigned int i, unsigned int j) {
-      if (i >= _m || j >= _n)
-        throw std::out_of_range("matrix access out of bounds");
-
-      return _matrix[i * _n + j];
-    }
-
-  private:
-    std::vector<T> _matrix;
-    unsigned int _n, _m;
-  };
-}  // namespace tmtt
-
 //=== Base class for Hough Transform array for a single (eta,phi) sector.
+
 namespace tmtt {
 
   class Settings;
@@ -61,7 +42,7 @@ namespace tmtt {
 
     // Get all the cells that make up the array, which in turn give access to the stubs inside them.
     // N.B. You can use allCells().size1() and allCells().size2() to get the dimensions ofthe array.
-    virtual const matrix<std::unique_ptr<HTcell>>& allCells() const { return htArray_; }
+    virtual const Array2D<std::unique_ptr<HTcell>>& allCells() const { return htArray_; }
 
     //=== Info about track candidates found.
 
@@ -148,7 +129,7 @@ namespace tmtt {
 
     // Hough transform array.
     // This has two dimensions, representing the two track helix parameters being varied.
-    matrix<std::unique_ptr<HTcell>> htArray_;
+    Array2D<std::unique_ptr<HTcell>> htArray_;
 
     unsigned int optoLinkID_;  // ID of opto-link from HT to Track Fitter.
 

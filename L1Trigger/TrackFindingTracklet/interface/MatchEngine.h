@@ -33,6 +33,10 @@ namespace trklet {
     int layer_;
     int disk_;
 
+    bool barrel_;
+    int nvm_;
+    int nvmbits_;
+
     //used in the layers
     std::vector<bool> table_;
 

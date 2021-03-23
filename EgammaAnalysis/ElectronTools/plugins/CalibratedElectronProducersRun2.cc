@@ -12,7 +12,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibratorRun2.h"
 

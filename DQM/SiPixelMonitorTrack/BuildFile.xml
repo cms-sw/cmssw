@@ -1,5 +1,4 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
 <use name="DQMServices/Core"/>
 <use name="DQM/SiPixelCommon"/>
 <use name="DataFormats/TrackerRecHit2D"/>
@@ -11,7 +10,6 @@
 <use name="TrackingTools/KalmanUpdators"/>
 <use name="TrackingTools/MeasurementDet"/>
 <use name="TrackingTools/Records"/>
-<use name="RecoTracker/TransientTrackingRecHit"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="boost"/>
 <flags EDM_PLUGIN="1"/>

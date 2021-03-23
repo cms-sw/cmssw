@@ -9,7 +9,8 @@
  *
  * \author: M. Fierro            - HEPHY Vienna - ORCA version
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
- * \author: Vladimir Rekovic - add correlation with overlap removal cases
+ * \author: Vladimir Rekovic     - add correlation with overlap removal cases
+ *                               - fractional prescales
  *
  * $Date$
  * $Revision$
@@ -830,7 +831,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
                               const int iBxInEvent,
                               const int totalBxInEvent,
                               const unsigned int numberPhysTriggers,
-                              const std::vector<int>& prescaleFactorsAlgoTrig,
+                              const std::vector<double>& prescaleFactorsAlgoTrig,
                               const std::vector<unsigned int>& triggerMaskAlgoTrig,
                               const std::vector<int>& triggerMaskVetoAlgoTrig,
                               const bool algorithmTriggersUnprescaled,

@@ -1,5 +1,5 @@
 #include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include <TFile.h>
 #include <TSystem.h>
 #include <cmath>

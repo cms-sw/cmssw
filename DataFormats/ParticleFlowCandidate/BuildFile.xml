@@ -7,6 +7,8 @@
 <use name="DataFormats/GsfTrackReco"/>
 <use name="DataFormats/MuonReco"/>
 <use name="FWCore/Utilities"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/VertexReco"/>
 <use name="rootcore"/>
 <use name="rootmath"/>
 <use name="clhepheader"/>

@@ -45,6 +45,12 @@ namespace cond {
       cond::persistency::Session session() const;
 
       //
+      void lockRecords();
+
+      //
+      void releaseLocks();
+
+      //
       void startTransaction();
       void commitTransaction();
 

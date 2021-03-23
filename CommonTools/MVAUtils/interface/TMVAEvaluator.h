@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "TMVA/IMethod.h"

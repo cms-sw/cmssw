@@ -1,6 +1,7 @@
 from __future__ import print_function
 # Auto generated configuration file
 # with command line options: stepALCA --datatier ALCARECO --conditions auto:run2_data -s ALCA:PromptCalibProdSiStripGains --eventcontent ALCARECO -n 1000 --dasquery=file dataset=/ZeroBias/Run2016C-SiStripCalMinBias-18Apr2017-v1/ALCARECO run=276243 --no_exec
+import warnings
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -22,7 +23,7 @@ def getFileNames_das_client(era_name):
     jsondict = das_client.get_data(query)
     status = jsondict['status']
     if status != 'ok':
-        print("DAS query status: %s"%(status))
+        warnings.warn("DAS query status: %s"%(status))
         return files
 
     data =  jsondict['data']
@@ -36,7 +37,7 @@ def getFileNames_das_client(era_name):
     jsondict = das_client.get_data(query)
     status = jsondict['status']
     if status != 'ok':
-        print("DAS query status: %s"%(status))
+        warnings.warn("DAS query status: %s"%(status))
         return files
 
     mongo_query = jsondict['mongo_query']
@@ -89,8 +90,9 @@ process.maxEvents = cms.untracked.PSet(
 INPUTFILES=getFileNames_das_client(options.era)
 
 if len(INPUTFILES)==0: 
-    print("** WARNING: ** According to a DAS query no suitable data for test is available. Skipping test")
-    os._exit(0)
+    warnings.warn("** WARNING: ** According to a DAS query no suitable data for test is available. Skipping test!")
+    ### since there are tests depending on this one, if the query fails, let's exit with an error
+    os._exit(1)
 
 myFiles = cms.untracked.vstring()
 myFiles.extend([INPUTFILES[0][0].replace("\"","")])

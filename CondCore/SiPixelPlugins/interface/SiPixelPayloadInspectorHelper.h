@@ -227,10 +227,13 @@ namespace SiPixelPI {
 
     if (lay > 0) {
       canv.cd(lay);
-      s_title = "Barrel Pixel Layer" + std::to_string(lay);
+      s_title = "Barrel Pixel Layer " + std::to_string(lay);
     } else {
       canv.cd(ring);
-      s_title = "Forward Pixel Ring" + std::to_string(ring);
+      if (ring > 4) {
+        ring = ring - 4;
+      }
+      s_title = "Forward Pixel Ring " + std::to_string(ring);
     }
 
     gStyle->SetPadRightMargin(0.125);

@@ -33,37 +33,37 @@
 // ----------------------------------------------------------------------
 
 namespace edm {
-
-  struct ErrorSummaryEntry {
-    std::string category;
-    std::string module;
-    ELseverityLevel severity;
-    unsigned int count;
-    ErrorSummaryEntry(std::string const& cat, std::string const& mod, ELseverityLevel sev, unsigned int cnt = 0)
-        : category(cat), module(mod), severity(sev), count(cnt) {}
-    ErrorSummaryEntry() : category(), module(), severity(), count(0) {}
-    bool operator<(ErrorSummaryEntry const& rhs) const {
-      if (category < rhs.category)
-        return true;
-      if (category > rhs.category)
+  namespace messagelogger {
+    struct ErrorSummaryEntry {
+      std::string category;
+      std::string module;
+      ELseverityLevel severity;
+      unsigned int count;
+      ErrorSummaryEntry(std::string const& cat, std::string const& mod, ELseverityLevel sev, unsigned int cnt = 0)
+          : category(cat), module(mod), severity(sev), count(cnt) {}
+      ErrorSummaryEntry() : category(), module(), severity(), count(0) {}
+      bool operator<(ErrorSummaryEntry const& rhs) const {
+        if (category < rhs.category)
+          return true;
+        if (category > rhs.category)
+          return false;
+        if (module < rhs.module)
+          return true;
+        if (module > rhs.module)
+          return false;
+        if (severity < rhs.severity)
+          return true;
+        if (severity > rhs.severity)
+          return false;
+        if (count < rhs.count)
+          return true;
         return false;
-      if (module < rhs.module)
-        return true;
-      if (module > rhs.module)
-        return false;
-      if (severity < rhs.severity)
-        return true;
-      if (severity > rhs.severity)
-        return false;
-      if (count < rhs.count)
-        return true;
-      return false;
-    }
-    bool operator==(ErrorSummaryEntry const& rhs) const {
-      return ((category < rhs.category) && (module < rhs.module) && (severity < rhs.severity) && (count < rhs.count));
-    }
-  };
-
+      }
+      bool operator==(ErrorSummaryEntry const& rhs) const {
+        return ((category < rhs.category) && (module < rhs.module) && (severity < rhs.severity) && (count < rhs.count));
+      }
+    };
+  }  // namespace messagelogger
 }  // end of namespace edm
 
 #endif  // MessageLogger_ErrorSummaryEntry_h

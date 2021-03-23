@@ -383,10 +383,8 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         if (itElectron->gsfTrack() == i->gsfTrackRef()) {
           Matched = true;
         } else {
-          for (reco::GsfTrackRefVector::const_iterator it = itElectron->ambiguousGsfTracksBegin();
-               it != itElectron->ambiguousGsfTracksEnd();
-               it++) {
-            MatchedToAmbiguousGsfTrack |= (bool)(i->gsfTrackRef() == (*it));
+          for (auto const& it : itElectron->ambiguousGsfTracks()) {
+            MatchedToAmbiguousGsfTrack |= (bool)(i->gsfTrackRef() == it);
           }
         }
 

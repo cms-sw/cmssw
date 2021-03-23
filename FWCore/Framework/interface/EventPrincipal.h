@@ -117,7 +117,8 @@ namespace edm {
 
     BranchListIndexes const& branchListIndexes() const;
 
-    Provenance getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const;
+    Provenance const& getProvenance(ProductID const& pid) const;
+    StableProvenance const& getStableProvenance(ProductID const& pid) const;
 
     BasicHandle getByProductID(ProductID const& oid) const;
 
@@ -148,6 +149,7 @@ namespace edm {
     }
 
     using Base::getProvenance;
+    using Base::getStableProvenance;
 
   private:
     BranchID pidToBid(ProductID const& pid) const;

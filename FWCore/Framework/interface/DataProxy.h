@@ -25,13 +25,14 @@
 
 // user include files
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 // forward declarations
 namespace edm {
   class ActivityRegistry;
   class EventSetupImpl;
-  class WaitingTask;
   class ServiceToken;
+  class ESParentContext;
 
   namespace eventsetup {
     struct ComponentDescription;
@@ -48,14 +49,19 @@ namespace edm {
       // ---------- const member functions ---------------------
       bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
 
-      void prefetchAsync(
-          WaitingTask*, EventSetupRecordImpl const&, DataKey const&, EventSetupImpl const*, ServiceToken const&) const;
+      void prefetchAsync(WaitingTaskHolder,
+                         EventSetupRecordImpl const&,
+                         DataKey const&,
+                         EventSetupImpl const*,
+                         ServiceToken const&,
+                         ESParentContext const&) const;
 
       void const* get(EventSetupRecordImpl const&,
                       DataKey const&,
                       bool iTransiently,
                       ActivityRegistry const*,
-                      EventSetupImpl const*) const;
+                      EventSetupImpl const*,
+                      ESParentContext const&) const;
       void const* getAfterPrefetch(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently) const;
 
       ///returns the description of the DataProxyProvider which owns this Proxy
@@ -80,11 +86,12 @@ namespace edm {
           the pointer must be a pointer to that base class interface and not a pointer to an inheriting class
           instance.
           */
-      virtual void prefetchAsyncImpl(WaitingTask*,
+      virtual void prefetchAsyncImpl(WaitingTaskHolder,
                                      EventSetupRecordImpl const&,
                                      DataKey const& iKey,
                                      EventSetupImpl const*,
-                                     ServiceToken const&) = 0;
+                                     ServiceToken const&,
+                                     ESParentContext const&) = 0;
 
       /** indicates that the Proxy should invalidate any cached information
           as that information has 'expired' (i.e. we have moved to a new IOV)

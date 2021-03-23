@@ -1,10 +1,7 @@
 #include "DQM/SiStripMonitorSummary/plugins/SiStripPlotGain.h"
 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-
-SiStripPlotGain::SiStripPlotGain(const edm::ParameterSet &iConfig) : cacheID(0xFFFFFFFF) {
+SiStripPlotGain::SiStripPlotGain(const edm::ParameterSet &iConfig)
+    : gainToken_{esConsumes<edm::Transition::BeginRun>()}, tTopoToken_{esConsumes<edm::Transition::BeginRun>()} {
   // now do what ever initialization is needed
   file = new TFile("correlTest.root", "RECREATE");
   tkmap = new TrackerMap();
@@ -15,23 +12,15 @@ SiStripPlotGain::~SiStripPlotGain() {}
 //
 
 void SiStripPlotGain::beginRun(const edm::Run &run, const edm::EventSetup &es) {
-  if (getCache(es) == cacheID)
-    return;
-  cacheID = getCache(es);
-
-  edm::LogInfo("") << "[SiStripPlotGain::beginRun] cacheID " << cacheID << std::endl;
-
-  es.get<SiStripApvGainRcd>().get(Handle_);
-  DoAnalysis(es, *Handle_.product());
+  if (gainWatcher_.check(es)) {
+    edm::LogInfo("") << "[SiStripPlotGain::beginRun] cacheID " << es.get<SiStripApvGainRcd>().cacheIdentifier()
+                     << std::endl;
+    DoAnalysis(es.getData(tTopoToken_), es.getData(gainToken_));
+  }
 }
 
-void SiStripPlotGain::DoAnalysis(const edm::EventSetup &es, const SiStripApvGain &gain) {
+void SiStripPlotGain::DoAnalysis(const TrackerTopology &tTopo, const SiStripApvGain &gain) {
   edm::LogInfo("") << "[Doanalysis]";
-
-  // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
 
   std::vector<TH1F *> histos;
 
@@ -58,24 +47,23 @@ void SiStripPlotGain::DoAnalysis(const edm::EventSetup &es, const SiStripApvGain
   }
 }
 
-void SiStripPlotGain::getHistos(const uint32_t &detid, const TrackerTopology *tTopo, std::vector<TH1F *> &histos) {
+void SiStripPlotGain::getHistos(DetId detid, const TrackerTopology &tTopo, std::vector<TH1F *> &histos) {
   histos.clear();
 
   int subdet = -999;
   int component = -999;
-  SiStripDetId a(detid);
-  if (a.subdetId() == 3) {
+  if (detid.subdetId() == 3) {
     subdet = 0;
-    component = tTopo->tibLayer(detid);
-  } else if (a.subdetId() == 4) {
+    component = tTopo.tibLayer(detid);
+  } else if (detid.subdetId() == 4) {
     subdet = 1;
-    component = tTopo->tidSide(detid) == 2 ? tTopo->tidWheel(detid) : tTopo->tidWheel(detid) + 3;
-  } else if (a.subdetId() == 5) {
+    component = tTopo.tidSide(detid) == 2 ? tTopo.tidWheel(detid) : tTopo.tidWheel(detid) + 3;
+  } else if (detid.subdetId() == 5) {
     subdet = 2;
-    component = tTopo->tobLayer(detid);
-  } else if (a.subdetId() == 6) {
+    component = tTopo.tobLayer(detid);
+  } else if (detid.subdetId() == 6) {
     subdet = 3;
-    component = tTopo->tecSide(detid) == 2 ? tTopo->tecWheel(detid) : tTopo->tecWheel(detid) + 9;
+    component = tTopo.tecSide(detid) == 2 ? tTopo.tecWheel(detid) : tTopo.tecWheel(detid) + 9;
   }
 
   int index = 100 + subdet * 100 + component;

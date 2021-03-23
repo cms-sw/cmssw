@@ -18,6 +18,7 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
                            int projrinv,
                            int projfinerz,
                            int projfinephi,
+                           bool usesecond,
                            bool isPSseed,
                            Tracklet* proj) {
   vmstubsmemory_ = vmstubsmemory;
@@ -27,6 +28,7 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   projrinv_ = projrinv;
   projfinerz_ = projfinerz;
   projfinephi_ = projfinephi;
+  usesecond_ = usesecond;
   isPSseed_ = isPSseed;
   proj_ = proj;
 }
@@ -37,10 +39,6 @@ void MatchEngineUnit::step() {
 
   const VMStubME& vmstub = vmstubsmemory_->getVMStubMEBin(slot_, istub_);
 
-  istub_++;
-  if (istub_ >= vmstubsmemory_->nStubsBin(slot_))
-    idle_ = true;
-
   bool isPSmodule = vmstub.isPSmodule();
   int stubfinerz = vmstub.finerz().value();
   int stubfinephi = vmstub.finephi().value();
@@ -48,10 +46,6 @@ void MatchEngineUnit::step() {
   int deltaphi = stubfinephi - projfinephi_;
 
   bool dphicut = (abs(deltaphi) < 3) || (abs(deltaphi) > 5);  //TODO - need better implementations
-  dphicut = true;                                             //Not used until cuts cleaned up
-
-  if (!barrel_)
-    dphicut = true;
 
   int nbits = isPSmodule ? 3 : 4;
 
@@ -63,7 +57,7 @@ void MatchEngineUnit::step() {
 
   if (barrel_) {
     if (isPSseed_) {
-      pass = idrz >= -2 && idrz <= 2;
+      pass = idrz >= -1 && idrz <= 1;
     } else {
       pass = idrz >= -5 && idrz <= 5;
     }
@@ -71,7 +65,7 @@ void MatchEngineUnit::step() {
     if (isPSmodule) {
       pass = idrz >= -1 && idrz <= 1;
     } else {
-      pass = idrz >= -5 && idrz <= 5;
+      pass = idrz >= -3 && idrz <= 3;
     }
   }
 
@@ -80,4 +74,22 @@ void MatchEngineUnit::step() {
     std::pair<Tracklet*, const Stub*> tmp(proj_, vmstub.stub());
     candmatches_.store(tmp);
   }
+
+  istub_++;
+  if (istub_ >= vmstubsmemory_->nStubsBin(slot_)) {
+    if (usesecond_) {
+      usesecond_ = false;
+      istub_ = 0;
+      slot_++;
+      projfinerz_ -= (1 << NFINERZBITS);
+    } else {
+      idle_ = true;
+    }
+  }
+}
+
+void MatchEngineUnit::reset() {
+  candmatches_.reset();
+  idle_ = true;
+  istub_ = 0;
 }

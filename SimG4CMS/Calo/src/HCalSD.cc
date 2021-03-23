@@ -78,6 +78,7 @@ HCalSD::HCalSD(const std::string& name,
   //static SimpleConfigurable<double> bk3(1.75,  "HCalSD:BirkC3");
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
 
+  bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
   useBirk = m_HC.getParameter<bool>("UseBirkLaw");
   double bunit = (CLHEP::g / (CLHEP::MeV * CLHEP::cm2));
@@ -192,6 +193,7 @@ HCalSD::HCalSD(const std::string& name,
     std::stringstream ss0;
     ss0 << "HCalSD: Names to be tested for Volume = HF has " << hfNames.size() << " elements";
 #endif
+    int addlevel = dd4hep ? 1 : 0;
     for (unsigned int i = 0; i < hfNames.size(); ++i) {
       G4String namv(static_cast<std::string>(dd4hep::dd::noNamespace(hfNames[i])));
       lv = nullptr;
@@ -202,9 +204,9 @@ HCalSD::HCalSD(const std::string& name,
         }
       }
       hfLV.emplace_back(lv);
-      hfLevels.emplace_back(temp[i]);
+      hfLevels.emplace_back(temp[i] + addlevel);
 #ifdef EDM_ML_DEBUG
-      ss0 << "\n        HF[" << i << "] = " << namv << " LV " << lv << " at level " << temp[i];
+      ss0 << "\n        HF[" << i << "] = " << namv << " LV " << lv << " at level " << (temp[i] + addlevel);
 #endif
     }
 #ifdef EDM_ML_DEBUG
@@ -366,6 +368,13 @@ bool HCalSD::getFromLibrary(const G4Step* aStep) {
   weight_ = 1.0;
   bool kill(false);
   isHF = isItHF(aStep);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalSim") << "GetFromLibrary: isHF " << isHF << " darken " << (m_HFDarkening != nullptr)
+                              << " useParam " << useParam << " useShowerLibrary " << useShowerLibrary << " Muon? "
+                              << G4TrackToParticleID::isMuon(track) << " electron? "
+                              << G4TrackToParticleID::isGammaElectronPositron(track) << " Stable Hadron? "
+                              << G4TrackToParticleID::isStableHadronIon(track);
+#endif
   if (isHF) {
     if (m_HFDarkening) {
       G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
@@ -985,7 +994,9 @@ double HCalSD::layerWeight(int det, const G4ThreeVector& pos, int depth, int lay
 
 void HCalSD::plotProfile(const G4Step* aStep, const G4ThreeVector& global, double edep, double time, int id) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  static const G4String modName[8] = {"HEModule", "HVQF", "HBModule", "MBAT", "MBBT", "MBBTC", "MBBT_R1P", "MBBT_R1M"};
+  static const unsigned int names = 10;
+  static const G4String modName[names] = {
+      "HEModule", "HVQF", "HBModule", "MBAT", "MBBT", "MBBTC", "MBBT_R1P", "MBBT_R1M", "MBBT_R1PX", "MBBT_R1MX"};
   G4ThreeVector local;
   bool found = false;
   double depth = -2000;
@@ -995,7 +1006,7 @@ void HCalSD::plotProfile(const G4Step* aStep, const G4ThreeVector& global, doubl
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalSim") << "plotProfile Depth " << n << " Name " << name;
 #endif
-    for (unsigned int ii = 0; ii < 8; ++ii) {
+    for (unsigned int ii = 0; ii < names; ++ii) {
       if (name == modName[ii]) {
         found = true;
         int dn = touch->GetHistoryDepth() - n;

@@ -5,5 +5,7 @@
 <use name="FWCore/Sources"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/Common"/>
+<use name="FWCore/Reflection"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="boost"/>
 <flags EDM_PLUGIN="1"/>

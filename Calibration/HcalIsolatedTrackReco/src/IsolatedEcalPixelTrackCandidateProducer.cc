@@ -24,20 +24,20 @@
 // user include files
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "Calibration/HcalIsolatedTrackReco/interface/IsolatedEcalPixelTrackCandidateProducer.h"
+
+//#define EDM_ML_DEBUG
 
 IsolatedEcalPixelTrackCandidateProducer::IsolatedEcalPixelTrackCandidateProducer(const edm::ParameterSet& conf)
     : tok_ee(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EERecHitSource"))),
       tok_eb(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBRecHitSource"))),
       tok_trigcand(consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("filterLabel"))),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       coneSizeEta0_(conf.getParameter<double>("EcalConeSizeEta0")),
       coneSizeEta1_(conf.getParameter<double>("EcalConeSizeEta1")),
       hitCountEthrEB_(conf.getParameter<double>("EBHitCountEnergyThreshold")),
@@ -75,11 +75,9 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
                                                       edm::Event& iEvent,
                                                       const edm::EventSetup& iSetup) const {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HcalIsoTrack") << "==============Inside IsolatedEcalPixelTrackCandidateProducer";
+  edm::LogVerbatim("HcalIsoTrack") << "==============Inside IsolatedEcalPixelTrackCandidateProducer";
 #endif
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
 
   edm::Handle<EcalRecHitCollection> ecalEB;
   iEvent.getByToken(tok_eb, ecalEB);
@@ -87,7 +85,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
   edm::Handle<EcalRecHitCollection> ecalEE;
   iEvent.getByToken(tok_ee, ecalEE);
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HcalIsoTrack") << "ecal Collections isValid: " << ecalEB.isValid() << "/" << ecalEE.isValid();
+  edm::LogVerbatim("HcalIsoTrack") << "ecal Collections isValid: " << ecalEB.isValid() << "/" << ecalEE.isValid();
 #endif
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> trigCand;
@@ -99,10 +97,10 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
 
   auto iptcCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HcalIsoTrack") << "coneSize_ " << coneSizeEta0_ << "/" << coneSizeEta1_ << " hitCountEthrEB_ "
-                               << hitCountEthrEB_ << " hitEthrEB_ " << hitEthrEB_ << " fachitCountEE_ "
-                               << fachitCountEE_ << " hitEthrEE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":"
-                               << hitEthrEE2_ << ":" << hitEthrEE3_;
+  edm::LogVerbatim("HcalIsoTrack") << "coneSize_ " << coneSizeEta0_ << "/" << coneSizeEta1_ << " hitCountEthrEB_ "
+                                   << hitCountEthrEB_ << " hitEthrEB_ " << hitEthrEB_ << " fachitCountEE_ "
+                                   << fachitCountEE_ << " hitEthrEE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":"
+                                   << hitEthrEE2_ << ":" << hitEthrEE3_;
 #endif
   for (int p = 0; p < nCand; p++) {
     int nhitIn(0), nhitOut(0);
@@ -113,10 +111,10 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
     double etaAbs = std::abs(etaPhi.first);
     double coneSize_ = (etaAbs > 1.5) ? coneSizeEta1_ : (coneSizeEta0_ * (1.5 - etaAbs) + coneSizeEta1_ * etaAbs) / 1.5;
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("HcalIsoTrack") << "Track: eta/phi " << etaPhi.first << "/" << etaPhi.second
-                                 << " pt:" << isoPixTrackRefs[p]->track()->pt() << " cone " << coneSize_ << "\n"
-                                 << "rechit size EB/EE : " << ecalEB->size() << "/" << ecalEE->size()
-                                 << " coneSize_: " << coneSize_;
+    edm::LogVerbatim("HcalIsoTrack") << "Track: eta/phi " << etaPhi.first << "/" << etaPhi.second
+                                     << " pt:" << isoPixTrackRefs[p]->track()->pt() << " cone " << coneSize_ << "\n"
+                                     << "rechit size EB/EE : " << ecalEB->size() << "/" << ecalEE->size()
+                                     << " coneSize_: " << coneSize_;
 #endif
     if (etaAbs < 1.7) {
       int nin(0), nout(0);
@@ -134,8 +132,8 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
             ++nout;
           }
 #ifdef EDM_ML_DEBUG
-          edm::LogInfo("HcalIsoTrack") << "EBRechit close to the track has E " << eItr.energy()
-                                       << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
+          edm::LogVerbatim("HcalIsoTrack") << "EBRechit close to the track has E " << eItr.energy()
+                                           << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
 #endif
         }
       }
@@ -160,15 +158,15 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
             ++nout;
           }
 #ifdef EDM_ML_DEBUG
-          edm::LogInfo("HcalIsoTrack") << "EERechit close to the track has E " << eItr.energy()
-                                       << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
+          edm::LogVerbatim("HcalIsoTrack") << "EERechit close to the track has E " << eItr.energy()
+                                           << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
 #endif
         }
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("HcalIsoTrack") << "nhitIn:" << nhitIn << " inEnergy:" << inEnergy << " nhitOut:" << nhitOut
-                                 << " outEnergy:" << outEnergy;
+    edm::LogVerbatim("HcalIsoTrack") << "nhitIn:" << nhitIn << " inEnergy:" << inEnergy << " nhitOut:" << nhitOut
+                                     << " outEnergy:" << outEnergy;
 #endif
     reco::IsolatedPixelTrackCandidate newca(*isoPixTrackRefs[p]);
     newca.setEnergyIn(inEnergy);
@@ -178,7 +176,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID,
     iptcCollection->push_back(newca);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HcalIsoTrack") << "ncand:" << nCand << " outcollction size:" << iptcCollection->size();
+  edm::LogVerbatim("HcalIsoTrack") << "ncand:" << nCand << " outcollction size:" << iptcCollection->size();
 #endif
   iEvent.put(std::move(iptcCollection));
 }

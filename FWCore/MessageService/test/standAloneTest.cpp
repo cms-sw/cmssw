@@ -4,6 +4,8 @@
 namespace edmtest {
 
   void sampleStandAlone() {
+    LogDebug("cat_A");  //test stand alone declaration
+    LogDebug("cat_A").log([](auto&& iLog) { iLog << " LogDebug.log was called"; });
     LogDebug("cat_A") << "LogDebug    was used to send cat_A";
     LogDebug("cat_B") << "LogDebug    was used to send cat_B";
     LogTrace("cat_A") << "LogTrace    was used to send cat_A";
@@ -33,25 +35,25 @@ int main() {
   edmtest::sampleStandAlone();
 
   edm::LogImportant("note") << "threshold DEBUG";
-  edm::setStandAloneMessageThreshold(edm::ELdebug);
+  edm::setStandAloneMessageThreshold(edm::messagelogger::ELdebug);
   edmtest::sampleStandAlone();
 
   edm::LogImportant("note") << "threshold INFO";
-  edm::setStandAloneMessageThreshold(edm::ELinfo);
+  edm::setStandAloneMessageThreshold(edm::messagelogger::ELinfo);
   edmtest::sampleStandAlone();
 
   edm::LogImportant("note") << "threshold FWKINFO";
-  edm::setStandAloneMessageThreshold(edm::ELfwkInfo);
+  edm::setStandAloneMessageThreshold(edm::messagelogger::ELfwkInfo);
   edmtest::sampleStandAlone();
 
   edm::LogImportant("note") << "threshold WARNING";
-  edm::setStandAloneMessageThreshold(edm::ELwarning);
+  edm::setStandAloneMessageThreshold(edm::messagelogger::ELwarning);
   edmtest::sampleStandAlone();
 
   edm::LogImportant("note") << "threshold ELerror";  // ERROR would confuse
                                                      // the grep checking that
                                                      // the runtests worked
-  edm::setStandAloneMessageThreshold(edm::ELerror);
+  edm::setStandAloneMessageThreshold(edm::messagelogger::ELerror);
   edmtest::sampleStandAlone();
 
   edm::LogImportant("note") << "squelch cat_A";
