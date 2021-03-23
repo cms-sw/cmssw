@@ -21,7 +21,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
+#include "CondFormats/GBRForest/interface/GBRForestD.h"
 
 class PFClusterEMEnergyCorrector {
 public:

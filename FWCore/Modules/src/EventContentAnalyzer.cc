@@ -369,32 +369,28 @@ namespace edm {
                                     << " (productId = " << provenance->productID() << ")" << std::endl;
 
         if (listProvenance_) {
-          auto const& prov = iEvent.getProvenance(provenance->branchID());
-          auto const* productProvenance = prov.productProvenance();
-          if (productProvenance) {
-            const bool isAlias = productProvenance->branchID() != provenance->branchID();
-            std::string aliasForModLabel;
-            LogAbsolute("EventContent") << prov;
-            if (isAlias) {
-              aliasForModLabel = iEvent.getProvenance(productProvenance->branchID()).moduleLabel();
-              LogAbsolute("EventContent") << "Is an alias for " << aliasForModLabel;
-            }
-            ProcessHistory const& processHistory = iEvent.processHistory();
-            for (ProcessConfiguration const& pc : processHistory) {
-              if (pc.processName() == prov.processName()) {
-                ParameterSetID const& psetID = pc.parameterSetID();
-                pset::Registry const* psetRegistry = pset::Registry::instance();
-                ParameterSet const* processPset = psetRegistry->getMapped(psetID);
-                if (processPset) {
-                  if (processPset->existsAs<ParameterSet>(modLabel)) {
-                    if (isAlias) {
-                      LogAbsolute("EventContent") << "Alias PSet";
-                    }
-                    LogAbsolute("EventContent") << processPset->getParameterSet(modLabel);
+          const bool isAlias = provenance->branchDescription().isAlias();
+          std::string aliasForModLabel;
+          LogAbsolute("EventContent") << *provenance;
+          if (isAlias) {
+            aliasForModLabel = iEvent.getStableProvenance(provenance->originalBranchID()).moduleLabel();
+            LogAbsolute("EventContent") << "Is an alias for " << aliasForModLabel;
+          }
+          ProcessHistory const& processHistory = iEvent.processHistory();
+          for (ProcessConfiguration const& pc : processHistory) {
+            if (pc.processName() == provenance->processName()) {
+              ParameterSetID const& psetID = pc.parameterSetID();
+              pset::Registry const* psetRegistry = pset::Registry::instance();
+              ParameterSet const* processPset = psetRegistry->getMapped(psetID);
+              if (processPset) {
+                if (processPset->existsAs<ParameterSet>(modLabel)) {
+                  if (isAlias) {
+                    LogAbsolute("EventContent") << "Alias PSet";
                   }
-                  if (isAlias and processPset->existsAs<ParameterSet>(aliasForModLabel)) {
-                    LogAbsolute("EventContent") << processPset->getParameterSet(aliasForModLabel);
-                  }
+                  LogAbsolute("EventContent") << processPset->getParameterSet(modLabel);
+                }
+                if (isAlias and processPset->existsAs<ParameterSet>(aliasForModLabel)) {
+                  LogAbsolute("EventContent") << processPset->getParameterSet(aliasForModLabel);
                 }
               }
             }

@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #
 selectedPatLowPtElectrons = cms.EDFilter("PATElectronSelector",
     src = cms.InputTag("patLowPtElectrons"),
-    cut = cms.string("pt>1. && electronID('ID')>1.5"),
+    cut = cms.string("pt > 1. && electronID('ID') > -0.25"),
 )
 
 # Modifier for bParking (fully open selection)

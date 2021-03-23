@@ -27,7 +27,7 @@
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/KalmanUpdators"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/Statistics"/>
 <use name="RecoTracker/Record"/>

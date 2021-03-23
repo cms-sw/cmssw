@@ -21,7 +21,7 @@
 
 #include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/Math/interface/deltaR.h"

@@ -1,6 +1,6 @@
 <use name="DataFormats/Common"/>
 <use name="CUDADataFormats/CaloCommon"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
+<use name="CUDADataFormats/Common"/>
 <use name="cuda"/>
 
 <export>

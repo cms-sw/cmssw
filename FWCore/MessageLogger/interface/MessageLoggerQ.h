@@ -69,9 +69,9 @@ namespace edm {
     static bool handshaked(const OpCode& op);
 
     // --- special control of standAlone logging behavior
-    static void standAloneThreshold(edm::ELseverityLevel const& severity);
+    static void standAloneThreshold(edm::messagelogger::ELseverityLevel const& severity);
     static void squelch(std::string const& category);
-    static bool ignore(edm::ELseverityLevel const& severity, std::string const& category);
+    static bool ignore(edm::messagelogger::ELseverityLevel const& severity, std::string const& category);
 
   private:
     // ---  traditional birth/death, but disallowed to users:
@@ -84,7 +84,7 @@ namespace edm {
 
     // --- data:
     CMS_THREAD_SAFE static std::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
-    CMS_THREAD_SAFE static edm::ELseverityLevel threshold;
+    CMS_THREAD_SAFE static edm::messagelogger::ELseverityLevel threshold;
     CMS_THREAD_SAFE static std::set<std::string> squelchSet;
 
   };  // MessageLoggerQ

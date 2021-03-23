@@ -3,6 +3,5 @@
     <use name="rootgraphics"/>
     <use name="DataFormats/Common"/>
     <use name="DataFormats/HcalDigi"/>
-    <use name="DataFormats/HcalDetId"/>
     <use name="cuda"/>
 </bin>

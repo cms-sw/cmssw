@@ -84,12 +84,13 @@ if __name__ == '__main__':
                      10024.0, #2017 ttbar
                      10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
-                     11624.911, #2021 DD4hep ttbar
+#temporarly remove DD4HEP from the short matrix 11634.911, #2021 DD4hep ttbar
                      11634.0, #2021 ttbar
                      12434.0, #2023 ttbar
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
-                     23434.999, #2026D49 ttbar premixing stage1+stage2, PU50
                      28234.0, #2026D60 (exercise HF nose)
+                     34634.0, #2026D76 ttbar (2021 new baseline)
+                     34834.999, #2026D76 ttbar premixing stage1+stage2, PU50
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],

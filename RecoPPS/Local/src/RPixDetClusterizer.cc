@@ -103,8 +103,7 @@ void RPixDetClusterizer::make_cluster(RPixCalibDigi const &aSeed, std::vector<CT
         unsigned int currIndex = c * maxRow + r;
         if (calib_rpix_digi_map_.find(currIndex) != calib_rpix_digi_map_.end()) {
           if (!atempCluster.addPixel(r, c, calib_rpix_digi_map_[currIndex].electrons())) {
-            CTPPSPixelCluster acluster(atempCluster.isize, atempCluster.adc, atempCluster.row, atempCluster.col);
-            clusters.push_back(acluster);
+            clusters.emplace_back(atempCluster.isize, atempCluster.adc, atempCluster.row, atempCluster.col);
             return;
           }
           calib_rpix_digi_map_.erase(currIndex);
@@ -114,8 +113,7 @@ void RPixDetClusterizer::make_cluster(RPixCalibDigi const &aSeed, std::vector<CT
 
   }  // while accretion
 
-  CTPPSPixelCluster cluster(atempCluster.isize, atempCluster.adc, atempCluster.row, atempCluster.col);
-  clusters.push_back(cluster);
+  clusters.emplace_back(atempCluster.isize, atempCluster.adc, atempCluster.row, atempCluster.col);
 }
 
 int RPixDetClusterizer::calibrate(

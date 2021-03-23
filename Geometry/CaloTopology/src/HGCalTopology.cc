@@ -33,14 +33,15 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons, int det) : hdcons_
     det_ = (DetId::Detector)(det);
     subdet_ = ForwardEmpty;
     kHGeomHalf_ = sectors_ * layers_ * cellMax_;
-    types_ = 2;
+    types_ = 3;
   } else {
     det_ = (DetId::Detector)(det);
     subdet_ = ForwardEmpty;
     kHGeomHalf_ = sectors_ * layers_;
     types_ = 3;
   }
-  kSizeForDenseIndexing = (unsigned int)(2 * kHGhalf_);
+  kHGhalfType_ = sectors_ * layers_ * cells_ * types_;
+  kSizeForDenseIndexing = static_cast<unsigned int>(2 * kHGhalf_);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalTopology initialized for detector " << det << ":" << det_ << ":" << subdet_
                                 << " having " << sectors_ << " Sectors, " << layers_ << " Layers from " << firstLay_
@@ -350,7 +351,7 @@ uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
   uint32_t idx;
   if (waferHexagon6()) {
     int type = (id.iType > 0) ? 1 : 0;
-    idx = (uint32_t)(((id.zSide > 0) ? kHGhalf_ : 0) +
+    idx = (uint32_t)(((id.zSide > 0) ? kHGhalfType_ : 0) +
                      ((((id.iCell1 - 1) * layers_ + id.iLay - 1) * sectors_ + id.iSec1) * types_ + type));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Input Hex " << id.zSide << ":" << id.iLay << ":" << id.iSec1 << ":" << id.iCell1
@@ -359,7 +360,7 @@ uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
 #endif
   } else if (tileTrapezoid()) {
     idx =
-        (uint32_t)(((id.zSide > 0) ? kHGhalf_ : 0) +
+        (uint32_t)(((id.zSide > 0) ? kHGhalfType_ : 0) +
                    ((((id.iCell1 - 1) * layers_ + id.iLay - firstLay_) * sectors_ + id.iSec1 - 1) * types_ + id.iType));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Input Trap " << id.zSide << ":" << id.iLay << ":" << id.iSec1 << ":" << id.iCell1
@@ -368,7 +369,7 @@ uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
 #endif
   } else {
     idx =
-        (uint32_t)(((id.zSide > 0) ? kHGhalf_ : 0) +
+        (uint32_t)(((id.zSide > 0) ? kHGhalfType_ : 0) +
                    (((((id.iCell1 * cellMax_ + id.iCell2) * layers_ + id.iLay - 1) * waferMax_ + id.iSec1 + waferOff_) *
                          waferMax_ +
                      id.iSec2 + waferOff_) *
@@ -387,8 +388,8 @@ uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
 DetId HGCalTopology::denseId2detId(uint32_t hi) const {
   HGCalTopology::DecodedDetId id;
   if (validHashIndex(hi)) {
-    id.zSide = ((int)(hi) < kHGhalf_ ? -1 : 1);
-    int di = ((int)(hi) % kHGhalf_);
+    id.zSide = ((int)(hi) < kHGhalfType_ ? -1 : 1);
+    int di = ((int)(hi) % kHGhalfType_);
     if (waferHexagon6()) {
       int type = (di % types_);
       id.iType = (type == 0 ? -1 : 1);
@@ -634,15 +635,21 @@ HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
 DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& idx) const {
   DetId id;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Encode " << idx.det << ":" << idx.zSide << ":" << idx.iType << ":" << idx.iLay
-                                << ":" << idx.iSec1 << ":" << idx.iSec2 << ":" << idx.iCell1 << ":" << idx.iCell2;
+  edm::LogVerbatim("HGCalGeomX") << "Encode " << idx.det << ":" << idx.zSide << ":" << idx.iType << ":" << idx.iLay
+                                 << ":" << idx.iSec1 << ":" << idx.iSec2 << ":" << idx.iCell1 << ":" << idx.iCell2;
 #endif
   if (waferHexagon6()) {
     id =
         HGCalDetId((ForwardSubdetector)(idx.det), idx.zSide, idx.iLay, ((idx.iType > 0) ? 1 : 0), idx.iSec1, idx.iCell1)
             .rawId();
   } else if (tileTrapezoid()) {
-    id = HGCScintillatorDetId(idx.iType, idx.iLay, idx.zSide * idx.iSec1, idx.iCell1).rawId();
+    HGCScintillatorDetId hid(idx.iType, idx.iLay, idx.zSide * idx.iSec1, idx.iCell1);
+    std::pair<int, int> typm = hdcons_.tileType(hid.layer(), hid.ring(), 0);
+    if (typm.first >= 0) {
+      hid.setType(typm.first);
+      hid.setSiPM(typm.second);
+    }
+    id = hid.rawId();
   } else if (det_ == DetId::Forward && subdet_ == ForwardSubdetector::HFNose) {
     id = HFNoseDetId(idx.zSide, idx.iType, idx.iLay, idx.iSec1, idx.iSec2, idx.iCell1, idx.iCell2).rawId();
   } else {

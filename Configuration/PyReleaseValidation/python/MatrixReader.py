@@ -79,7 +79,7 @@ class MatrixReader(object):
                              'relval_production':True,
                              'relval_ged':True,
                              'relval_upgrade':False,
-                             'relval_gpu':True,
+                             'relval_gpu':False,
                              'relval_2017':True,
                              'relval_2026':True,
                              'relval_identity':False,

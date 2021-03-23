@@ -6,6 +6,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
+#include "DataFormats/HLTReco/interface/EgammaObject.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"

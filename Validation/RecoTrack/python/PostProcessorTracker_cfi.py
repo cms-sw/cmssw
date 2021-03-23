@@ -328,6 +328,8 @@ postProcessorTrackSequenceStandalone = cms.Sequence(
     postProcessorTrackSummaryStandalone
 )
 
+
+
 postProcessorTrackPhase2 = postProcessorTrack.clone()
 postProcessorTrackPhase2.subDirs.extend(["Tracking/TrackTPEtaGreater2p7/*"])
 postProcessorTrackSummaryPhase2 = postProcessorTrackSummary.clone()
@@ -336,6 +338,16 @@ postProcessorTrackSummaryPhase2.subDirs.extend(["Tracking/TrackTPEtaGreater2p7/*
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toReplaceWith(postProcessorTrack,postProcessorTrackPhase2)
 phase2_tracker.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummaryPhase2)
+
+
+from Configuration.ProcessModifiers.displacedTrackValidation_cff import displacedTrackValidation
+postProcessorTrackDisplaced = postProcessorTrack.clone()
+postProcessorTrackDisplaced.subDirs.extend(["Tracking/TrackDisplaced/*"])
+postProcessorTrackSummaryDisplaced = postProcessorTrackSummary.clone()
+postProcessorTrackSummaryDisplaced.subDirs.extend(["Tracking/TrackDisplaced/*"])
+displacedTrackValidation.toReplaceWith(postProcessorTrack,postProcessorTrackDisplaced)
+displacedTrackValidation.toReplaceWith(postProcessorTrackSummary,postProcessorTrackSummaryDisplaced)
+
 
 postProcessorTrackTrackingOnly = postProcessorTrack.clone()
 postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*","Tracking/TrackSeeding/*", "Tracking/PixelTrack/*"])

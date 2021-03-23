@@ -25,7 +25,7 @@
 <use name="RecoVertex/AdaptiveVertexFit"/>
 <use name="TrackingTools/IPTools"/>
 <use name="DataFormats/VertexReco"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
 <use name="CommonTools/MVAUtils"/>
 <use name="rootcore"/>
 <export>

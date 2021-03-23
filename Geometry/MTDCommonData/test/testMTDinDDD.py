@@ -61,7 +61,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.load('Configuration.Geometry.GeometryExtended2026D50_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
 
 process.testBTL = cms.EDAnalyzer("TestMTDIdealGeometry",
                                label = cms.untracked.string(''),

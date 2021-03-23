@@ -67,7 +67,7 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi 
 
 # building: feed the new-named seeds
 hiRegitMuDetachedTripletStepTrajectoryFilterBase = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryFilterBase.clone(
-    minPt = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+    minPt = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = 3,
 )
 
 hiRegitMuDetachedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryFilter.clone(
@@ -104,43 +104,44 @@ hiRegitMuDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name      = 'hiRegitMuDetachedTripletStepLoose',
             min_nhits = 8
-            ),
+        ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name          = 'hiRegitMuDetachedTripletStepTight',
             preFilterName = 'hiRegitMuDetachedTripletStepLoose',
             min_nhits     = 8,
             useMVA        = True,
             minMVA        = -0.2
-            ),
+        ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name          = 'hiRegitMuDetachedTripletStep',
             preFilterName = 'hiRegitMuDetachedTripletStepTight',
             min_nhits     = 8,
             useMVA        = True,
             minMVA        = -0.09
-            )
+        )
     ) #end of vpset
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(hiRegitMuDetachedTripletStepSelector, useAnyMVA = False)
-trackingPhase1.toModify(hiRegitMuDetachedTripletStepSelector, trackSelectors= cms.VPSet(
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name      = 'hiRegitMuDetachedTripletStepLoose',
-            min_nhits = 8
+trackingPhase1.toModify(hiRegitMuDetachedTripletStepSelector, 
+        useAnyMVA = False,
+        trackSelectors= cms.VPSet(
+            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+                name      = 'hiRegitMuDetachedTripletStepLoose',
+                min_nhits = 8
             ),
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-            name          = 'hiRegitMuDetachedTripletStepTight',
-            preFilterName = 'hiRegitMuDetachedTripletStepLoose',
-            min_nhits     = 8,
-            useMVA        = False,
-            minMVA        = -0.2
+            RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+                name          = 'hiRegitMuDetachedTripletStepTight',
+                preFilterName = 'hiRegitMuDetachedTripletStepLoose',
+                min_nhits     = 8,
+                useMVA        = False,
+                minMVA        = -0.2
             ),
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-            name          = 'hiRegitMuDetachedTripletStep',
-            preFilterName = 'hiRegitMuDetachedTripletStepTight',
-            min_nhits     = 8,
-            useMVA        = False,
-            minMVA        = -0.09
+            RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+                name          = 'hiRegitMuDetachedTripletStep',
+                preFilterName = 'hiRegitMuDetachedTripletStepTight',
+                min_nhits     = 8,
+                useMVA        = False,
+                minMVA        = -0.09
             )
         )
 )

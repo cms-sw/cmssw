@@ -1400,7 +1400,7 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   // look-up the unsigned values
   const unsigned positionCC(lutpos_[pattern]->lookup(comparatorCode));
   const unsigned slopeCC(lutslope_[pattern]->lookup(comparatorCode));
-  unsigned run2PatternCC(lutpatconv_[pattern]->lookup(comparatorCode));
+  const unsigned run2PatternCC(convertSlopeToRun2Pattern(slopeCC));
 
   // if the slope is negative, set bending to 0
   const bool slopeCCSign((slopeCC >> 4) & 0x1);
@@ -1422,9 +1422,6 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   digi.setSlope(slopeCCValue);
 
   // set the quasi Run-2 pattern - to accommodate integration with EMTF/OMTF
-  if (run2PatternCC == 0) {
-    run2PatternCC = convertSlopeToRun2Pattern(slopeCC);
-  }
   digi.setPattern(run2PatternCC);
 
   // now print out the new CLCT for debugging
@@ -1443,7 +1440,7 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
 }
 
 unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(const unsigned slope) const {
-  const unsigned slopeList[32] = {2,  2,  2, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 10, 10,
-                                  10, 10, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3,  3};
+  const unsigned slopeList[32] = {10, 10, 8, 8, 8, 8, 6, 6, 6, 6, 4, 4, 4, 2, 2, 2,
+                                  10, 10, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3, 3};
   return slopeList[slope];
 }

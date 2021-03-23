@@ -104,6 +104,57 @@ namespace trklet {
                        double phiderdisk[N_DISK],
                        double rderdisk[N_DISK]);
 
+    void approxproj(double halfRinv,
+                    double phi0,
+                    double d0,
+                    double t,
+                    double z0,
+                    double halfRinv_0,
+                    double d0_0,  // zeroeth order result for higher order terms calculation
+                    double rmean,
+                    double& phiproj,
+                    double& phiprojder,
+                    double& zproj,
+                    double& zprojder);
+
+    void approxprojdisk(double halfRinv,
+                        double phi0,
+                        double d0,
+                        double t,
+                        double z0,
+                        double halfRinv_0,
+                        double d0_0,  // zeroeth order result for higher order terms calculation
+                        double zmean,
+                        double& phiproj,
+                        double& phiprojder,
+                        double& rproj,
+                        double& rprojder);
+
+    void approxtracklet(double r1,
+                        double z1,
+                        double phi1,
+                        double r2,
+                        double z2,
+                        double phi2,
+                        double r3,
+                        double z3,
+                        double phi3,
+                        bool take3,
+                        unsigned ndisks,
+                        double& rinv,
+                        double& phi0,
+                        double& d0,
+                        double& t,
+                        double& z0,
+                        double phiproj[4],
+                        double zproj[4],
+                        double phider[4],
+                        double zder[4],
+                        double phiprojdisk[5],
+                        double rprojdisk[5],
+                        double phiderdisk[5],
+                        double rderdisk[5]);
+
   private:
     int TCIndex_;
     int layer_;
@@ -112,6 +163,7 @@ namespace trklet {
     int lproj_[N_LAYER - 2];
     double zproj_[N_DISK - 2];
     int dproj_[N_DISK - 2];
+    double rzmeanInv_[N_DISK - 2];
 
     std::vector<double> toR_;
     std::vector<double> toZ_;

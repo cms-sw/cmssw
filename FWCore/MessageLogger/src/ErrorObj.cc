@@ -80,7 +80,7 @@ namespace edm {
   // Birth/death:
   // ----------------------------------------------------------------------
 
-  ErrorObj::ErrorObj(const ELseverityLevel& sev, std::string_view id, bool verbat) : verbatim(verbat) {
+  ErrorObj::ErrorObj(const messagelogger::ELseverityLevel& sev, std::string_view id, bool verbat) : verbatim(verbat) {
 #ifdef ErrorObjCONSTRUCTOR_TRACE
     std::cerr << "Constructor for ErrorObj\n";
 #endif
@@ -159,7 +159,8 @@ namespace edm {
   // Mutators:
   // ----------------------------------------------------------------------
 
-  void ErrorObj::setSeverity(const ELseverityLevel& sev) {
+  void ErrorObj::setSeverity(const messagelogger::ELseverityLevel& sev) {
+    using namespace edm::messagelogger;
     myXid.severity = (sev <= ELzeroSeverity) ? (ELseverityLevel)ELdebug
                                              : (sev >= ELhighestSeverity) ? (ELseverityLevel)ELsevere : sev;
   }
@@ -212,7 +213,7 @@ namespace edm {
 
   }  // emitToken()
 
-  void ErrorObj::set(const ELseverityLevel& sev, std::string_view id) {
+  void ErrorObj::set(const messagelogger::ELseverityLevel& sev, std::string_view id) {
     clear();
 
     myTimestamp = time(nullptr);

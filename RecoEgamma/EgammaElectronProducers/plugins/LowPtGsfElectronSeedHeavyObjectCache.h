@@ -1,7 +1,7 @@
 #ifndef RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedHeavyObjectCache_h
 #define RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedHeavyObjectCache_h
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include <vector>

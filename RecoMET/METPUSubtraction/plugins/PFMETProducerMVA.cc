@@ -1,4 +1,5 @@
 #include "RecoMET/METPUSubtraction/plugins/PFMETProducerMVA.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
 

@@ -151,14 +151,23 @@
  <class name="edm::ValueMap<float>" />
  <class name="edm::ValueMap<double>" />
  <class name="edm::ValueMap<std::pair<float, float>>" />
+ <class name="edm::ValueMap<std::vector<float>>" />
  <class name="edm::Wrapper<edm::ValueMap<int> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<bool> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<unsigned int> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<float> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<double> >" splitLevel="0"/>
  <class name="edm::Wrapper<edm::ValueMap<std::pair<float, float>> >" splitLevel="0"/>
+ <class name="edm::Wrapper<edm::ValueMap<std::vector<float>> >" splitLevel="0"/>
  <class name="std::vector<edm::EventAuxiliary>"/>
  <class name="edm::Wrapper<std::vector<edm::EventAuxiliary> >"/>
+ <class name="edm::ErrorSummaryEntry" ClassVersion="10">
+  <version ClassVersion="10" checksum="3974422774"/>
+ </class>
+ <class name="edm::ELseverityLevel" ClassVersion="10">
+  <version ClassVersion="10" checksum="2388166397"/>
+ </class>
+ <class name="std::vector<edm::ErrorSummaryEntry>"/>
  <class name="edm::Wrapper<std::vector<edm::ErrorSummaryEntry> >"/>
  <class name="edm::MergeableCounter" ClassVersion="10">
   <version ClassVersion="10" checksum="3792606006"/>

@@ -63,6 +63,7 @@ namespace cond {
     private:
       std::string m_authPath = std::string("");
       int m_authSys = 0;
+      std::string m_authenticationService = std::string("");
       coral::MsgLevel m_messageLevel = coral::Error;
       CoralMsgReporter* m_msgReporter = nullptr;
       bool m_loggingEnabled = false;

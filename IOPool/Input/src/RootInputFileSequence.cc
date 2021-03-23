@@ -253,10 +253,10 @@ namespace edm {
     if (filePtr) {
       size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
       rootFile_ = makeRootFile(filePtr);
+      assert(rootFile_);
       if (input) {
         rootFile_->setSignals(&(input->preEventReadFromSourceSignal_), &(input->postEventReadFromSourceSignal_));
       }
-      assert(rootFile_);
       fileIterLastOpened_ = fileIter_;
       setIndexIntoFile(currentIndexIntoFile);
       rootFile_->reportOpened(inputTypeName);

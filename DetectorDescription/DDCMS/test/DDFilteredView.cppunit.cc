@@ -111,12 +111,13 @@ void testDDFilteredView::checkFilteredView() {
     count++;
   }
 
-  std::cout << "Get LongFL from hf as string values:\n";
+  std::cout << "Get LongFL from hf as numerically evaluated string values:\n";
   count = 0;
   std::vector<std::string> sLongFL = fview.get<std::vector<std::string>>("hf", "LongFL");
   for (auto const& i : sLongFL) {
-    std::cout << "LongFL " << i << " == " << refsLongFL_[count] << "\n";
-    CPPUNIT_ASSERT(abs(std::stod(i) - std::stod(refsLongFL_[count])) < 10e-6);
+    double dblVal = std::stod(i) / dd4hep::cm;  // Convert DD4hep units to cm
+    std::cout << "LongFL " << dblVal << " == " << refsLongFL_[count] << "\n";
+    CPPUNIT_ASSERT(abs(dblVal - std::stod(refsLongFL_[count])) < 10e-6);
     count++;
   }
 

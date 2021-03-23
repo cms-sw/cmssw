@@ -145,6 +145,16 @@ private:
                double &chi2);
 
   // ----------member data ---------------------------
+
+  // ES token
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+
+  // handles
+  edm::Handle<TkLasBeamCollection> laserBeams;
+  edm::ESHandle<MagneticField> fieldHandle;
+  edm::ESHandle<TrackerGeometry> geometry;
+
   const edm::InputTag src_;
   bool fitBeamSplitters_;
   unsigned int nAtParameters_;
@@ -194,16 +204,13 @@ double TkLasBeamFitter::gBSparam = 0.0;
 bool TkLasBeamFitter::gFitBeamSplitters = false;
 bool TkLasBeamFitter::gIsInnerBarrel = false;
 
-// handles
-Handle<TkLasBeamCollection> laserBeams;
-ESHandle<MagneticField> fieldHandle;
-ESHandle<TrackerGeometry> geometry;
-
 //
 // constructors and destructor
 //
 TkLasBeamFitter::TkLasBeamFitter(const edm::ParameterSet &iConfig)
-    : src_(iConfig.getParameter<edm::InputTag>("src")),
+    : magFieldToken_(esConsumes<edm::Transition::EndRun>()),
+      geomToken_(esConsumes<edm::Transition::EndRun>()),
+      src_(iConfig.getParameter<edm::InputTag>("src")),
       fitBeamSplitters_(iConfig.getParameter<bool>("fitBeamSplitters")),
       nAtParameters_(iConfig.getParameter<unsigned int>("numberOfFittedAtParameters")),
       h_bsAngle(nullptr),
@@ -336,8 +343,8 @@ void TkLasBeamFitter::endRunProduce(edm::Run &run, const edm::EventSetup &setup)
 
   // get TkLasBeams, Tracker geometry, magnetic field
   run.getByLabel("LaserAlignment", "tkLaserBeams", laserBeams);
-  setup.get<TrackerDigiGeometryRecord>().get(geometry);
-  setup.get<IdealMagneticFieldRecord>().get(fieldHandle);
+  geometry = setup.getHandle(geomToken_);
+  fieldHandle = setup.getHandle(magFieldToken_);
 
   // hack for fixed BSparams (ugly!)
   //   double bsParams[34] = {-0.000266,-0.000956,-0.001205,-0.000018,-0.000759,0.002554,

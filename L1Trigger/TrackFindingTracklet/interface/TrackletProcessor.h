@@ -4,12 +4,12 @@
 #define L1Trigger_TrackFindingTracklet_interface_TrackletProcessor_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculatorBase.h"
-#include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/StubPairsMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/TrackletProjectionsMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/AllStubsMemory.h"
+#include "L1Trigger/TrackFindingTracklet/interface/VMRouterTable.h"
+#include "L1Trigger/TrackFindingTracklet/interface/CircularBuffer.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletEngineUnit.h"
 
 #include <vector>
+#include <tuple>
 #include <map>
 
 namespace trklet {
@@ -17,6 +17,8 @@ namespace trklet {
   class Settings;
   class Globals;
   class MemoryBase;
+  class AllStubsMemory;
+  class VMStubsTEMemory;
 
   class TrackletProcessor : public TrackletCalculatorBase {
   public:
@@ -32,27 +34,48 @@ namespace trklet {
 
     void execute();
 
-    void setVMPhiBin();
-
     void writeTETable();
+
+    void buildLUT();
 
   private:
     int iTC_;
+    int iAllStub_;
 
-    std::vector<VMStubsTEMemory*> innervmstubs_;
-    std::vector<VMStubsTEMemory*> outervmstubs_;
+    VMStubsTEMemory* outervmstubs_;
+
+    // The use of a std::tuple here is awkward and should be fixed. This code is slotted for a significant
+    // overhaul to allign with the HLS implementation. At that point the use fo the tuple should be
+    // eliminated
+    //                                               istub          imem        start imem    end imem
+    std::vector<std::tuple<CircularBuffer<TEData>, unsigned int, unsigned int, unsigned int, unsigned int> >
+        tedatabuffers_;
+
+    std::vector<TrackletEngineUnit> teunits_;
 
     std::vector<AllStubsMemory*> innerallstubs_;
     std::vector<AllStubsMemory*> outerallstubs_;
 
-    bool extra_;
-
-    std::map<unsigned int, std::vector<bool> > phitable_;
     std::map<unsigned int, std::vector<bool> > pttableinner_;
     std::map<unsigned int, std::vector<bool> > pttableouter_;
 
+    std::vector<bool> pttableinnernew_;
+    std::vector<bool> pttableouternew_;
+
+    std::vector<std::vector<bool> > useregion_;
+
+    int nbitsfinephi_;
+    int nbitsfinephidiff_;
+
     int innerphibits_;
     int outerphibits_;
+
+    unsigned int nbitszfinebintable_;
+    unsigned int nbitsrfinebintable_;
+
+    unsigned int nbitsrzbin_;
+
+    VMRouterTable vmrtable_;
   };
 
 };  // namespace trklet

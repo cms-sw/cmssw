@@ -5,6 +5,9 @@ from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
 from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
 from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
 
+from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTconditions_2016
+from Configuration.Eras.Modifier_run2_HLTconditions_2017_cff import run2_HLTconditions_2017
+
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1

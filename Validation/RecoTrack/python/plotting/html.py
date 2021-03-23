@@ -52,6 +52,7 @@ _tpEtaGreater2p7Name = "All tracks (TP |eta| &gt; 2.7)"
 _conversionName = "Tracks for conversions"
 _gsfName = "Electron GSF tracks"
 _bhadronName = "All tracks (B-hadron TPs)"
+_displacedName = "All tracks (TPs with no tip or lip cuts)"
 def _toHP(s):
     return "High purity "+_lowerFirst(s)
 def _toOriAlgo(s):
@@ -113,6 +114,12 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("bhadron_ByAlgoMask", _toAlgoMask(_bhadronName)),
     ("bhadron_highPurityByAlgoMask", _toAlgoMask(_allToHP(_bhadronName))),
     ("bhadron_btvLike", _allToBTV(_bhadronName)),
+    ("displaced_", _displacedName),
+    ("displaced_highPurity", _allToHP(_displacedName)),
+    ("displaced_ByOriginalAlgo", _toOriAlgo(_displacedName)),
+    ("displaced_highPurityByOriginalAlgo", _toOriAlgo(_allToHP(_displacedName))),
+    ("displaced_ByAlgoMask", _toAlgoMask(_displacedName)),
+    ("displaced_highPurityByAlgoMask", _toAlgoMask(_allToHP(_displacedName))),
 ])
 
 _trackAlgoName = {
@@ -142,6 +149,7 @@ _trackAlgoOrder = [
     'mixedTripletStep',
     'pixelLessStep',
     'tobTecStep',
+    'displacedGeneralStep',
     'jetCoreRegionalStep',
     'muonSeededStepInOut',
     'muonSeededStepOutIn',
@@ -198,6 +206,8 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("gsf", _gsfName),
     ("bhadron", _bhadronName),
     ("bhadron_highPurity", _allToHP(_bhadronName)),
+    ("displaced", _displacedName),
+    ("displaced_highPurity", _allToHP(_displacedName)),
     # Pixel tracks
     ("pixel", "Pixel tracks"),
     # These are for vertices

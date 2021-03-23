@@ -28,7 +28,7 @@ process.MessageLogger.files.debugs = cms.untracked.PSet(
 )
 
 # Choose Tracker Geometry
-process.load("Configuration.Geometry.GeometryExtended2026D50_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D76_cff")
 
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
 

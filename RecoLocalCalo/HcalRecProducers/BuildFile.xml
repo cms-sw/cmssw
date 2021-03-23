@@ -1,7 +1,5 @@
 <use name="boost"/>
 <use name="cuda"/>
-<use name="CUDADataFormats/CaloCommon"/>
-<use name="CUDADataFormats/Common"/>
 <use name="CUDADataFormats/HcalDigi"/>
 <use name="CUDADataFormats/HcalRecHitSoA"/>
 <use name="CalibCalorimetry/HcalAlgos"/>
@@ -14,12 +12,10 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ServiceRegistry"/>
-<use name="Geometry/CaloGeometry"/>
 <use name="Geometry/HcalCommonData"/>
 <use name="Geometry/Records"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="RecoLocalCalo/HcalRecAlgos"/>
-<use name="SimCalorimetry/CaloSimAlgos"/>
 <use name="SimCalorimetry/HcalSimAlgos"/>
 <flags EDM_PLUGIN="1"/>

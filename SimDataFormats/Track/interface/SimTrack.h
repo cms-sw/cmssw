@@ -2,6 +2,9 @@
 #define SimTrack_H
 
 #include "SimDataFormats/Track/interface/CoreSimTrack.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 class SimTrack : public CoreSimTrack {
 public:
@@ -44,12 +47,31 @@ public:
 
   inline void setVertexIndex(const int v) { ivert = v; }
 
+  void setCrossedBoundaryVars(bool crossedBoundary,
+                              int idAtBoundary,
+                              math::XYZTLorentzVectorF positionAtBoundary,
+                              math::XYZTLorentzVectorF momentumAtBoundary) {
+    crossedBoundary_ = crossedBoundary;
+    idAtBoundary_ = idAtBoundary;
+    positionAtBoundary_ = positionAtBoundary;
+    momentumAtBoundary_ = momentumAtBoundary;
+  }
+  bool crossedBoundary() const { return crossedBoundary_; }
+  const math::XYZTLorentzVectorF& getPositionAtBoundary() const { return positionAtBoundary_; }
+  const math::XYZTLorentzVectorF& getMomentumAtBoundary() const { return momentumAtBoundary_; }
+  int getIDAtBoundary() const { return idAtBoundary_; }
+
 private:
   int ivert;
   int igenpart;
 
   math::XYZVectorD tkposition;
   math::XYZTLorentzVectorD tkmomentum;
+
+  bool crossedBoundary_;
+  int idAtBoundary_;
+  math::XYZTLorentzVectorF positionAtBoundary_;
+  math::XYZTLorentzVectorF momentumAtBoundary_;
 };
 
 #include <iosfwd>

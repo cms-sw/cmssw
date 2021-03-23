@@ -28,7 +28,7 @@ uncleanedOnlyTracking = cms.Sequence(uncleanedOnlyTrackingTask)
 # Conversions
 #
 
-from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cfi import *
+from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cff import *
 uncleanedOnlyConversionTrackCandidates = conversionTrackCandidates.clone(
     scHybridBarrelProducer  = "uncleanedOnlyCorrectedHybridSuperClusters",
     bcBarrelCollection      = "hybridSuperClusters:uncleanOnlyHybridSuperClusters",

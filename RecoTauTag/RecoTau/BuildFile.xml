@@ -2,7 +2,7 @@
 <use name="MagneticField/Records"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/CaloGeometry"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="DataFormats/Math"/>

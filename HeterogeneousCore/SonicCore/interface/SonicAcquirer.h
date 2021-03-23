@@ -8,6 +8,8 @@
 #include "HeterogeneousCore/SonicCore/interface/sonic_utils.h"
 
 #include <chrono>
+#include <memory>
+#include <string>
 
 template <typename Client, typename Module>
 class SonicAcquirer : public Module {
@@ -15,26 +17,34 @@ public:
   //typedef to simplify usage
   typedef typename Client::Input Input;
   //constructor
-  SonicAcquirer(edm::ParameterSet const& cfg) : client_(cfg.getParameter<edm::ParameterSet>("Client")) {}
+  SonicAcquirer(edm::ParameterSet const& cfg, const std::string& debugName = "")
+      : clientPset_(cfg.getParameterSet("Client")), debugName_(debugName) {}
   //destructor
   ~SonicAcquirer() override = default;
 
-  //derived classes use a dedicated acquire() interface that incorporates client_.input()
+  //construct client at beginning of job
+  //in case client constructor depends on operations happening in derived module constructors
+  void beginStream(edm::StreamID) override { makeClient(); }
+
+  //derived classes use a dedicated acquire() interface that incorporates client_->input()
   //(no need to interact with callback holder)
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, edm::WaitingTaskWithArenaHolder holder) final {
     auto t0 = std::chrono::high_resolution_clock::now();
-    acquire(iEvent, iSetup, client_.input());
-    sonic_utils::printDebugTime(client_.debugName(), "acquire() time: ", t0);
+    acquire(iEvent, iSetup, client_->input());
+    sonic_utils::printDebugTime(debugName_, "acquire() time: ", t0);
     t_dispatch_ = std::chrono::high_resolution_clock::now();
-    client_.dispatch(holder);
+    client_->dispatch(holder);
   }
   virtual void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) = 0;
 
 protected:
-  //for debugging
-  void setDebugName(const std::string& debugName) { client_.setDebugName(debugName); }
+  //helper
+  void makeClient() { client_ = std::make_unique<Client>(clientPset_, debugName_); }
+
   //members
-  Client client_;
+  edm::ParameterSet clientPset_;
+  std::unique_ptr<Client> client_;
+  std::string debugName_;
   std::chrono::time_point<std::chrono::high_resolution_clock> t_dispatch_;
 };
 

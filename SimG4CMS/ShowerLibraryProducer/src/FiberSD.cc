@@ -55,11 +55,13 @@ FiberSD::~FiberSD() {
 }
 
 void FiberSD::Initialize(G4HCofThisEvent* HCE) {
-  edm::LogVerbatim("FiberSim") << "FiberSD : Initialize called for " << GetName();
+  edm::LogVerbatim("FiberSim") << "FiberSD : Initialize called for " << GetName() << " in collection " << HCE;
   theHC = new FiberG4HitsCollection(GetName(), collectionName[0]);
   if (theHCID < 0)
     theHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(theHCID, theHC);
+  edm::LogVerbatim("FiberSim") << "FiberSD : Add hit collectrion for " << collectionName[0] << ":" << theHCID << ":"
+                               << theHC;
 }
 
 G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
@@ -108,7 +110,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 }
 
 void FiberSD::EndOfEvent(G4HCofThisEvent* HCE) {
-  edm::LogVerbatim("FiberSim") << "FiberSD: Sees" << theHC->entries() << " hits";
+  edm::LogVerbatim("FiberSim") << "FiberSD: finds " << theHC->entries() << " hits";
   clear();
   edm::LogVerbatim("FiberSim") << "theHC entries = " << theHC->entries();
 }
