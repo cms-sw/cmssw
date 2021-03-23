@@ -11,6 +11,8 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <algorithm>
+
 namespace {
 
 void trim_version_suffix(std::string& trigger_name) {
@@ -31,6 +33,19 @@ bool is_nanoaod_trigger(const std::string& name) {
 }
 
 } // anonymous namespace
+
+TriggerFieldPtr::TriggerFieldPtr(std::string name, int index, std::string fieldName,
+  RNTupleModel& model) : m_triggerName(name), m_triggerIndex(index)
+{
+  m_field = RNTupleFieldPtr<bool>(fieldName, model);
+}
+
+void TriggerFieldPtr::fill(const edm::TriggerResults& triggers) {
+  if (m_triggerIndex == -1) {
+    m_field.fill(false);
+  }
+  m_field.fill(triggers.accept(m_triggerIndex));
+}
 
 std::vector<std::string> TriggerOutputFields::getTriggerNames(
   const edm::TriggerResults& triggerResults)
@@ -60,24 +75,57 @@ void TriggerOutputFields::createFields(const edm::EventForOutput& event, RNTuple
   m_lastRun = event.id().run();
   edm::Handle<edm::TriggerResults> handle;
   event.getByToken(m_token, handle);
-  // TODO check if handle is valid?
   const edm::TriggerResults& triggerResults = *handle;
   std::vector<std::string> triggerNames(TriggerOutputFields::getTriggerNames(triggerResults));
   m_triggerFields.reserve(triggerNames.size());
   for (std::size_t i = 0; i < triggerNames.size(); i++) {
     auto& name = triggerNames[i];
+    std::cout << name << "\n";
     if (!is_nanoaod_trigger(name)) {
       continue;
     }
     trim_version_suffix(name);
-    makeUniqueFieldName(model, name);
-    m_triggerFields.emplace_back(RNTupleFieldPtr<bool>(name, model));
-    m_triggerFieldIndices.push_back(i);
+    std::string modelName = name;
+    makeUniqueFieldName(model, modelName);
+    m_triggerFields.emplace_back(TriggerFieldPtr(name, i, modelName, model));
+  }
+}
+
+// Worst case O(n^2) to adjust the triggers
+void TriggerOutputFields::updateTriggerFields(const edm::TriggerResults& triggers) {
+  std::vector<std::string> newNames(TriggerOutputFields::getTriggerNames(triggers));
+  // adjust existing trigger indices
+  for (auto &t: m_triggerFields) {
+    t.setIndex(-1);
+    for (std::size_t j = 0; j < newNames.size(); j++) {
+      auto& name = newNames[j];
+      if (!is_nanoaod_trigger(name)) {
+        continue;
+      }
+      trim_version_suffix(name);
+      if (name == t.getTriggerName()) {
+        t.setIndex(j);
+      }
+    }
+  }
+  // find new triggers
+  for (std::size_t j = 0; j < newNames.size(); j++) {
+    auto& name = newNames[j];
+    if (!is_nanoaod_trigger(name)) {
+      continue;
+    }
+    trim_version_suffix(name);
+    if (std::none_of(m_triggerFields.cbegin(), m_triggerFields.cend(),
+      [&](const TriggerFieldPtr& t) { return t.getTriggerName() == name; }))
+    {
+      // TODO backfill / friend ntuples
+      edm::LogWarning("TriggerOutputFields") << "Skipping output of TriggerField " << name << "\n";
+    }
   }
 }
 
 void TriggerOutputFields::makeUniqueFieldName(RNTupleModel& model, std::string& name) {
-  // fix with cache of names in a higher-level object, don't ask the RNTupleModel each time
+  // Could also use a cache of names in a higher-level object, don't ask the RNTupleModel each time
   const auto* existing_field = model.Get<bool>(name);
   if (!existing_field) {
     return;
@@ -88,14 +136,14 @@ void TriggerOutputFields::makeUniqueFieldName(RNTupleModel& model, std::string& 
 }
 
 void TriggerOutputFields::fill(const edm::EventForOutput& event) {
-  if (m_lastRun != event.id().run()) {
-    std::cout << "skipping trigger output from run " << event.id().run() << "\n";
-    return;
-  }
   edm::Handle<edm::TriggerResults> handle;
   event.getByToken(m_token, handle);
   const edm::TriggerResults& triggers = *handle;
-  for (std::size_t i = 0; i < m_triggerFields.size(); i++) {
-    m_triggerFields[i].fill(triggers.accept(m_triggerFieldIndices.at(i)));
+  if (m_lastRun != event.id().run()) {
+    m_lastRun = event.id().run();
+    updateTriggerFields(triggers);
+  }
+  for (auto &t: m_triggerFields) {
+    t.fill(triggers);
   }
 }
