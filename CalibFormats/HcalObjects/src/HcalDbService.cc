@@ -388,9 +388,9 @@ const HcalSiPMParameter* HcalDbService::getHcalSiPMParameter(const HcalGenericDe
 
 const HcalSiPMCharacteristics* HcalDbService::getHcalSiPMCharacteristics() const { return mSiPMCharacteristics; }
 
-const HcalTPChannelParameter* HcalDbService::getHcalTPChannelParameter(const HcalGenericDetId& fId) const {
+const HcalTPChannelParameter* HcalDbService::getHcalTPChannelParameter(const HcalGenericDetId& fId, bool throwOnFail) const {
   if (mTPChannelParameters) {
-    return mTPChannelParameters->getValues(fId);
+    return mTPChannelParameters->getValues(fId, throwOnFail);
   }
   return nullptr;
 }
