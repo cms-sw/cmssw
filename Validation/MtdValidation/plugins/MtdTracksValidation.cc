@@ -94,10 +94,6 @@ private:
   MonitorElement* meTrackMVAQual_;
   MonitorElement* meTrackPathLenghtvsEta_;
 
-  MonitorElement* meFailMVAEta_;
-  MonitorElement* meFailMVAPhi_;
-  MonitorElement* meFailMVAPt_;
-
   MonitorElement* meVerNumber_;
   MonitorElement* meVerZ_;
   MonitorElement* meVerTime_;
@@ -173,12 +169,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     if (track.pt() < trackMinEnergy_)
       continue;
-
-    if (mtdQualMVA[trackref] == -1) {
-      meFailMVAEta_->Fill(std::fabs(trackGen.eta()));
-      meFailMVAPhi_->Fill(trackGen.phi());
-      meFailMVAPt_->Fill(trackGen.pt());
-    }
 
     meTracktmtd_->Fill(tMtd[trackref]);
     meTrackSigmatmtd_->Fill(SigmatMtd[trackref]);
@@ -375,9 +365,6 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meTrackMVAQual_ = ibook.book1D("TrackMVAQual", "Track MVA Quality as stored in Value Map ; MVAQual", 100, 0, 1);
   meTrackPathLenghtvsEta_ = ibook.bookProfile(
       "TrackPathLenghtvsEta", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 100, 0, 3.2, 100.0, 400.0, "S");
-  meFailMVAEta_ = ibook.book1D("TrackFailingMVAEta", "Failing MVA track #eta;|#eta| ", 100, 0, 3.2);
-  meFailMVAPhi_ = ibook.book1D("TrackFailingMVAPhi", "Failing MVA track #phi;#phi [rad] ", 100, -3.2, 3.2);
-  meFailMVAPt_ = ibook.book1D("TrackFailingMVAPt", "Failing MVA track pT;pT [GeV]", 50, 0, 10);
   meVerZ_ = ibook.book1D("VerZ", "RECO Vertex Z;Z_{RECO} [cm]", 180, -18, 18);
   meVerTime_ = ibook.book1D("VerTime", "RECO Vertex Time;t0 [ns]", 100, -1, 1);
   meVerNumber_ = ibook.book1D("VerNumber", "RECO Vertex Number: Number of vertices", 100, 0, 500);
