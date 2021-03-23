@@ -184,10 +184,21 @@ UCTTowerIndex UCTGeometry::getUCTTowerIndex(UCTRegionIndex region, uint32_t iEta
     return UCTTowerIndex(0, 0);  // Illegal values
   }
   int regionEta = region.first;
-  int absRegionEta = std::abs(regionEta);
-  int towerEta = (regionEta / absRegionEta) * (absRegionEta * NEtaInRegion + iEta);
   uint32_t regionPhi = region.second;
-  int towerPhi = regionPhi * NPhiInRegion + iPhi + 1;
+  bool negativeSide = (regionEta < 0);
+  uint32_t regionNo = abs(regionEta) - 1;
+  int towerEta = 0xDEADBEEF;
+  if(regionNo < NRegionsInCard) {
+    towerEta = 1 + regionNo * getNEta(regionNo) + iEta; // Ranges 1 - 28
+  }
+  else if(regionNo < (NRegionsInCard + NHFRegionsInCard)) {
+    towerEta = HFEtaOffset + 1 + (regionNo - NRegionsInCard) * getNEta(regionNo) + iEta; // Ranges 30 - 42
+  }
+  if(negativeSide) towerEta = -towerEta;
+  int towerPhi = regionPhi * NPhiInRegion + iPhi - 1; // Always pretend that there are 4 phi-regions
+  if(towerPhi <= 0) towerPhi += 72;
+  // Legal values of towerPhi = 1, 2, 5, 6, ..., 69, 70 for towerEta 30-39
+  // Legal values of towerPhi = 1, 5, ..., 69 for towerEta 40-41
   return UCTTowerIndex(towerEta, towerPhi);
 }
 
