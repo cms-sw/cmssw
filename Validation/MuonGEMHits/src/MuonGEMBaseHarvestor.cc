@@ -13,7 +13,7 @@ TProfile* MuonGEMBaseHarvestor::computeEfficiency(
   eff_profile->GetXaxis()->SetTitle(total_x->GetTitle());
   eff_profile->GetYaxis()->SetTitle("#epsilon");
 
-  for (Int_t bin = 1; bin < total.GetXaxis()->GetNbins(); bin++) {
+  for (Int_t bin = 1; bin <= total.GetXaxis()->GetNbins(); bin++) {
     Double_t num_passed = passed.GetBinContent(bin);
     Double_t num_total = total.GetBinContent(bin);
 

@@ -621,13 +621,7 @@ void ZdcSimHitStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 
   // Below is the old script which I will comment later
 
-  LogDebug("ZdcSimHitStudy")
-      // std::cout
-      // std::cout
-      << "Run = " << iEvent.id().run() << " Event = " << iEvent.id().event();
-  /*    << "Run = " << e.id().run() << " Event = "
-        << e.id().event();*/
-  // std::cout<<std::endl;
+  edm::LogVerbatim("ZdcSimHitStudy") << "Run = " << iEvent.id().run() << " Event = " << iEvent.id().event();
 
   std::vector<PCaloHit> caloHits;
   edm::Handle<edm::PCaloHitContainer> hitsZdc;
@@ -639,14 +633,11 @@ void ZdcSimHitStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       getHits = true;
   }
 
-  LogDebug("ZdcSim") << "ZdcValidation: Input flags Hits " << getHits;
+  edm::LogVerbatim("ZdcSim") << "ZdcValidation: Input flags Hits " << getHits;
 
   if (getHits) {
     caloHits.insert(caloHits.end(), hitsZdc->begin(), hitsZdc->end());
-    LogDebug("ZdcSimHitStudy")
-        // std::cout
-        << "ZdcValidation: Hit buffer " << caloHits.size();
-    //<< std::endl;
+    edm::LogVerbatim("ZdcSimHitStudy") << "ZdcValidation: Hit buffer " << caloHits.size();
     analyzeHits(caloHits);
   }
 }
@@ -682,12 +673,10 @@ void ZdcSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
 
     FillHitValHist(side, section, channel, energy, time);
 
-    LogDebug("ZdcSimHitStudy")
-        // std::cout
-        << "Hit[" << i << "] ID " << std::hex << id_ << std::dec << " DetID " << id << " Det " << det << " side "
-        << side << " Section " << section << " channel " << channel << " E " << energy << " time \n"
-        << time;
-    //<<std::endl;
+    edm::LogVerbatim("ZdcSimHitStudy") << "Hit[" << i << "] ID " << std::hex << id_ << std::dec << " DetID " << id
+                                       << " Det " << det << " side " << side << " Section " << section << " channel "
+                                       << channel << " E " << energy << " time \n"
+                                       << time;
 
     if (det == 5) {  // Check DetId.h
       if (section == HcalZDCDetId::EM)
@@ -758,10 +747,8 @@ void ZdcSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
     meZdcCorEtotNEtotP_->Fill(enetotN, enetotP);
     meZdcEneTot_->Fill(enetot);
   }
-  LogDebug("HcalSimHitStudy")
-      // std::cout
-      << "HcalSimHitStudy::analyzeHits: Had " << nZdcHad << " EM " << nZdcEM << " Bad " << nBad << " All " << nHit;
-  //<<std::endl;
+  edm::LogVerbatim("HcalSimHitStudy") << "HcalSimHitStudy::analyzeHits: Had " << nZdcHad << " EM " << nZdcEM << " Bad "
+                                      << nBad << " All " << nHit;
 }
 
 int ZdcSimHitStudy::FillHitValHist(int side, int section, int channel, double energy, double time) {

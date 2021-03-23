@@ -162,6 +162,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 NoPlot('muonIdx3SJ'),
                 Plot1D('n2b1', 'n2b1', 20, 0, 1, 'N2 (beta=1)'),
                 Plot1D('n3b1', 'n3b1', 20, 0, 5, 'N3 (beta=1)'),
+                Plot1D('nConstituents', 'nConstituents', 20, 0, 80, 'Number of particles in the jet'),
                 Plot1D('nBHadrons', 'nBHadrons', 4, -0.5, 3.5, 'number of b-hadrons'),
                 Plot1D('nCHadrons', 'nCHadrons', 4, -0.5, 3.5, 'number of c-hadrons'),
                 Plot1D('particleNetMD_QCD', 'particleNetMD_QCD', 20, 0, 1, 'Mass-decorrelated ParticleNet tagger raw QCD score'),
@@ -339,6 +340,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('pfRelIso03_chg', 'pfRelIso03_chg', 20, 0, 2, 'PF relative isolation dR=0.3, charged component'),
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 20, 0, 200, 'pt'),
+                Plot1D('charge', 'charge', 3, -1.5, 1.5, 'electric charge')
             )
         ),
         Jet = cms.PSet(
@@ -466,6 +468,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('isGlobal', 'isGlobal', 2, -0.5, 1.5, 'muon is global muon'),
                 Plot1D('isPFcand', 'isPFcand', 2, -0.5, 1.5, 'muon is PF candidate'),
                 Plot1D('isTracker', 'isTracker', 2, -0.5, 1.5, 'muon is tracker muon'),
+                Plot1D('isStandalone', 'isStandalone', 2, -0.5, 1.5, 'muon is a standalone muon'),
                 NoPlot('jetIdx'),
                 Plot1D('jetPtRelv2', 'jetPtRelv2', 20, 0, 30, 'Relative momentum of the lepton with respect to the closest jet after subtracting the lepton'),
                 Plot1D('jetRelIso', 'jetRelIso', 20, -0.2, 1.8, 'Relative isolation in matched jet (1/ptRatio-1, pfRelIso04_all if no matched jet)'),
@@ -510,6 +513,19 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
             plots = cms.VPSet(
                 NoPlot('_size'),
                 Plot1D('z', 'z', 20, -20, 20, 'Z position of other primary vertices, excluding the main PV'),
+            )
+        ),
+        PPSLocalTrack = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 26, -0.5, 25.5, 'ppsLocalTrack variables'),
+                Plot1D('decRPId', 'decRPId', 20, 0, 200, 'local track detector dec id'),
+                NoPlot('multiRPProtonIdx'),
+                Plot1D('rpType', 'rpType', 2, 3.5, 5.5, 'strip=3, pixel=4, diamond=5, timing=6'),
+                Plot1D('time', 'time', 20, -2, 2, 'local track time'),
+                Plot1D('timeUnc', 'timeUnc', 20, 0, 0.3, 'local track time uncertainty'),
+                Plot1D('x', 'x', 20, 2, 30, 'local track x'),
+                Plot1D('y', 'y', 20, -20, 20, 'local track y'),
             )
         ),
         PSWeight = cms.PSet(
@@ -566,6 +582,28 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('seedGain', 'seedGain', 12, 0.5, 12.5, 'Gain of the seed crystal'),
                 Plot1D('sieie', 'sieie', 20, 0, 0.05, 'sigma_IetaIeta of the supercluster, calculated with full 5x5 region'),
                 NoPlot('vidNestedWPBitmap'),
+            )
+        ),
+        Proton_multiRP = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 3, -0.5, 2.5, 'bon'),
+                Plot1D('arm', 'arm', 2, -0.5, 1.5, '0 = sector45, 1 = sector56'),
+                Plot1D('t', 't', 20, -500, -0.003, 'Mandelstam variable t'),
+                Plot1D('thetaX', 'thetaX', 20, -0.0004, 0.0004, 'scattering angle in the y direction'),
+                Plot1D('thetaY', 'thetaY', 20, -0.001, 0.001, 'scattering angle in the x direction'),
+                Plot1D('time', 'time', 20, -1000, -1000, 'time'),
+                Plot1D('timeUnc', 'timeUnc', 20, 0, 0, 'time uncertainty'),
+                Plot1D('xi', 'xi', 20, 0, 0.3, 'fractional momentum loss'),
+            )
+        ),
+        Proton_singleRP = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Count1D('_size', 3, -0.5, 2.5, 'bon'),
+                Plot1D('xi', 'xi', 20, 0, 0.3, 'fractional momentum loss'),
+                Plot1D('thetaY', 'thetaY', 20, -0.001, 0.001, 'scattering angle in the x direction'),
+                Plot1D('decRPId', 'decRPId', 20, 0, 200, 'Detector ID'),
             )
         ),
         Pileup = cms.PSet(
@@ -634,6 +672,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('y', 'y', 20, -0.5, 0.5, 'secondary vertex Y position, in cm'),
                 Plot1D('z', 'z', 20, -10, 10, 'secondary vertex Z position, in cm'),
                 Plot1D('ntracks', 'ntracks', 11, -0.5, 10.5, 'number of tracks'),
+                Plot1D('charge', 'charge', 11 , -0.5, 10.5, 'sum of the charge of the SV tracks'),
             )
         ),
         SoftActivityJet = cms.PSet(

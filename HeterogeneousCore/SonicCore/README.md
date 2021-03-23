@@ -15,9 +15,8 @@ To implement a concrete derived producer class, the following skeleton can be us
 class MyProducer : public SonicEDProducer<Client>
 {
 public:
-  explicit MyProducer(edm::ParameterSet const& cfg) : SonicEDProducer<Client>(cfg) {
-    //for debugging
-    setDebugName("MyProducer");
+  explicit MyProducer(edm::ParameterSet const& cfg) : SonicEDProducer<Client>(cfg, "MyProducer") {
+    //do any necessary operations
   }
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     //convert event data to client input format
@@ -65,7 +64,7 @@ To add a new communication protocol for SONIC, follow these steps:
 2. Set up the concrete client(s) that use the communication protocol in a new package in the `HeterogeneousCore` subsystem
 3. Add a test producer (see above) to make sure it works
 
-To implement a concrete client, the following skeleton can be used for the `.h` file, with the function implementations in an associated `.cc` file:
+To implement a concrete client, the following skeleton can be used for the `.h` file:
 ```cpp
 #ifndef HeterogeneousCore_MyPackage_MyClient
 #define HeterogeneousCore_MyPackage_MyClient
@@ -75,7 +74,7 @@ To implement a concrete client, the following skeleton can be used for the `.h` 
 
 class MyClient : public SonicClient<Input,Output> {
 public:
-  MyClient(const edm::ParameterSet& params);
+  MyClient(const edm::ParameterSet& params, const std::string& debugName);
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
@@ -84,6 +83,14 @@ protected:
 };
 
 #endif
+```
+
+The concrete client member function implementations, in an associated `.cc` file, should include the following:
+```cpp
+MyClient::MyClient(const edm::ParameterSet& params, const std::string& debugName)
+    : SonicClient(params, debugName, "MyClient") {
+  //do any necessary operations
+}
 ```
 
 The `SonicClient` has three available modes:

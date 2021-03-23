@@ -13,7 +13,7 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 
 #include <vector>
 #include <memory>

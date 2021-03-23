@@ -4,9 +4,6 @@
 <use name="eigen"/>
 <use name="rootminuit2"/>
 <use name="vdt_headers"/>
-<use name="CUDADataFormats/Common" />
-<use name="CUDADataFormats/HcalDigi"/>
-<use name="CUDADataFormats/HcalRecHitSoA" />
 <use name="CalibCalorimetry/HcalAlgos"/>
 <use name="CalibFormats/CaloObjects"/>
 <use name="CalibFormats/HcalObjects"/>
@@ -17,7 +14,6 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/CaloTopology"/>
-<use name="Geometry/HcalCommonData"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>

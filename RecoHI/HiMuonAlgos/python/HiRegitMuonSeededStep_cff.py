@@ -6,7 +6,7 @@ from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgo
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiEarlyGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = [
-	'hiGlobalPrimTracks',
+        'hiGlobalPrimTracks',
         'hiDetachedTripletStepTracks',
         'hiLowPtTripletStepTracks',
         'hiPixelPairGlobalPrimTracks',
@@ -19,22 +19,22 @@ hiEarlyGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.track
          ],
     hasSelector = [1,1,1,1,1,1,1,1,1,1],
     selectedTrackQuals = [
-	"hiInitialStepSelector:hiInitialStep",
-	"hiDetachedTripletStepSelector:hiDetachedTripletStep",
-	"hiLowPtTripletStepSelector:hiLowPtTripletStep",
-	"hiPixelPairStepSelector:hiPixelPairStep",
-	"hiJetCoreRegionalStepSelector:hiJetCoreRegionalStep",
-	"hiRegitMuInitialStepSelector:hiRegitMuInitialStepLoose",
-	"hiRegitMuPixelPairStepSelector:hiRegitMuPixelPairStep",
-	"hiRegitMuMixedTripletStepSelector:hiRegitMuMixedTripletStep",
-	"hiRegitMuPixelLessStepSelector:hiRegitMuPixelLessStep",
-	"hiRegitMuDetachedTripletStepSelector:hiRegitMuDetachedTripletStep"
-     	 ],
+        "hiInitialStepSelector:hiInitialStep",
+        "hiDetachedTripletStepSelector:hiDetachedTripletStep",
+        "hiLowPtTripletStepSelector:hiLowPtTripletStep",
+        "hiPixelPairStepSelector:hiPixelPairStep",
+        "hiJetCoreRegionalStepSelector:hiJetCoreRegionalStep",
+        "hiRegitMuInitialStepSelector:hiRegitMuInitialStepLoose",
+        "hiRegitMuPixelPairStepSelector:hiRegitMuPixelPairStep",
+        "hiRegitMuMixedTripletStepSelector:hiRegitMuMixedTripletStep",
+        "hiRegitMuPixelLessStepSelector:hiRegitMuPixelLessStep",
+        "hiRegitMuDetachedTripletStepSelector:hiRegitMuDetachedTripletStep"
+         ],
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6,7,8,9), pQual=cms.bool(True)),  # should this be False?
                              ),
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False)
-    )
+)
 
 hiEarlyMuons = earlyMuons.clone(
     inputCollectionLabels = ["hiEarlyGeneralTracks", "standAloneMuons:UpdatedAtVtx"]
@@ -49,14 +49,12 @@ hiRegitMuonSeededSeedsOutIn = RecoTracker.SpecialSeedGenerators.outInSeedsFromSt
 hiRegitMuonSeededSeedsInOut = RecoTracker.SpecialSeedGenerators.inOutSeedsFromTrackerMuons_cfi.inOutSeedsFromTrackerMuons.clone(
     src = "hiEarlyMuons",
 )
-
 hiRegitMuonSeededTrackCandidatesInOut = muonSeededTrackCandidatesInOut.clone(
     src = "hiRegitMuonSeededSeedsInOut"
 )
 hiRegitMuonSeededTrackCandidatesOutIn = muonSeededTrackCandidatesOutIn.clone(
     src = "hiRegitMuonSeededSeedsOutIn"
 )
-
 hiRegitMuonSeededTracksOutIn = muonSeededTracksOutIn.clone(
     src = "hiRegitMuonSeededTrackCandidatesOutIn",
     AlgorithmName = 'hiRegitMuMuonSeededStepOutIn'
@@ -65,7 +63,6 @@ hiRegitMuonSeededTracksInOut = muonSeededTracksInOut.clone(
     src = "hiRegitMuonSeededTrackCandidatesInOut",
     AlgorithmName = 'hiRegitMuMuonSeededStepInOut'
 )
-
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuonSeededTracksInOutSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
@@ -76,47 +73,48 @@ hiRegitMuonSeededTracksInOutSelector = RecoHI.HiTracking.hiMultiTrackSelector_cf
       GBRForestVars  = ['chi2perdofperlayer', 'nhits', 'nlayers', 'eta'],
       trackSelectors = cms.VPSet(
          RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name      = 'hiRegitMuonSeededTracksInOutLoose',
-            min_nhits = 8
-            ),
+             name      = 'hiRegitMuonSeededTracksInOutLoose',
+             min_nhits = 8
+         ),
          RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-            name          = 'hiRegitMuonSeededTracksInOutTight',
-            preFilterName = 'hiRegitMuonSeededTracksInOutLoose',
-            min_nhits     = 8,
-            useMVA        = True,
-            minMVA        = -0.2
-            ),
+             name          = 'hiRegitMuonSeededTracksInOutTight',
+             preFilterName = 'hiRegitMuonSeededTracksInOutLoose',
+             min_nhits     = 8,
+             useMVA        = True,
+             minMVA        = -0.2
+         ),
          RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-            name          = 'hiRegitMuonSeededTracksInOutHighPurity',
-            preFilterName = 'hiRegitMuonSeededTracksInOutTight',
-            min_nhits     = 8,
-            useMVA        = True,
-            minMVA        = -0.09
-            ),
-         ) #end of vpset
+             name          = 'hiRegitMuonSeededTracksInOutHighPurity',
+             preFilterName = 'hiRegitMuonSeededTracksInOutTight',
+             min_nhits     = 8,
+             useMVA        = True,
+             minMVA        = -0.09
+         ),
+     ) #end of vpset
 ) #end of clone
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(hiRegitMuonSeededTracksInOutSelector, useAnyMVA = False)
-trackingPhase1.toModify(hiRegitMuonSeededTracksInOutSelector, trackSelectors= cms.VPSet(
-         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+trackingPhase1.toModify(hiRegitMuonSeededTracksInOutSelector, 
+    useAnyMVA = False,
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name      = 'hiRegitMuonSeededTracksInOutLoose',
             min_nhits = 8
-            ),
-         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+        ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name          = 'hiRegitMuonSeededTracksInOutTight',
             preFilterName = 'hiRegitMuonSeededTracksInOutLoose',
             min_nhits     = 8,
             useMVA        = False,
             minMVA        = -0.2
-            ),
-         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+        ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name          = 'hiRegitMuonSeededTracksInOutHighPurity',
             preFilterName = 'hiRegitMuonSeededTracksInOutTight',
             min_nhits     = 8,
             useMVA        = False,
             minMVA        = -0.09
-            ),
-         ) #end of vpset
+        ),
+    ) #end of vpset
 )
 
 hiRegitMuonSeededTracksOutInSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
@@ -127,47 +125,48 @@ hiRegitMuonSeededTracksOutInSelector = RecoHI.HiTracking.hiMultiTrackSelector_cf
       GBRForestVars  = ['chi2perdofperlayer', 'nhits', 'nlayers', 'eta'],
       trackSelectors = cms.VPSet(
          RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name      = 'hiRegitMuonSeededTracksOutInLoose',
-            min_nhits = 8
-            ),
+             name      = 'hiRegitMuonSeededTracksOutInLoose',
+             min_nhits = 8
+         ),
          RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-            name          = 'hiRegitMuonSeededTracksOutInTight',
-            preFilterName = 'hiRegitMuonSeededTracksOutInLoose',
-            min_nhits     = 8,
-            useMVA        = True,
-            minMVA        = -0.2
-            ),
+             name          = 'hiRegitMuonSeededTracksOutInTight',
+             preFilterName = 'hiRegitMuonSeededTracksOutInLoose',
+             min_nhits     = 8,
+             useMVA        = True,
+             minMVA        = -0.2
+         ),
          RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-            name          = 'hiRegitMuonSeededTracksOutInHighPurity',
-            preFilterName = 'hiRegitMuonSeededTracksOutInTight',
-            min_nhits     = 8,
-            useMVA        = True,
-            minMVA        = -0.09
-            ),
-         ) #end of vpset
+             name          = 'hiRegitMuonSeededTracksOutInHighPurity',
+             preFilterName = 'hiRegitMuonSeededTracksOutInTight',
+             min_nhits     = 8,
+             useMVA        = True,
+             minMVA        = -0.09
+         ),
+     ) #end of vpset
 ) #end of clone
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(hiRegitMuonSeededTracksOutInSelector, useAnyMVA = False)
-trackingPhase1.toModify(hiRegitMuonSeededTracksOutInSelector, trackSelectors= cms.VPSet(
+trackingPhase1.toModify(hiRegitMuonSeededTracksOutInSelector, 
+    useAnyMVA = False,
+    trackSelectors= cms.VPSet(
          RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name      = 'hiRegitMuonSeededTracksOutInLoose',
-            min_nhits = 8
-            ),
+             name      = 'hiRegitMuonSeededTracksOutInLoose',
+             min_nhits = 8
+         ),
          RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-            name          = 'hiRegitMuonSeededTracksOutInTight',
-            preFilterName = 'hiRegitMuonSeededTracksOutInLoose',
-            min_nhits     = 8,
-            useMVA        = False,
-            minMVA        = -0.2
-            ),
+             name          = 'hiRegitMuonSeededTracksOutInTight',
+             preFilterName = 'hiRegitMuonSeededTracksOutInLoose',
+             min_nhits     = 8,
+             useMVA        = False,
+             minMVA        = -0.2
+         ),
          RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-            name          = 'hiRegitMuonSeededTracksOutInHighPurity',
-            preFilterName = 'hiRegitMuonSeededTracksOutInTight',
-            min_nhits     = 8,
-            useMVA        = False,
-            minMVA        = -0.09
-            ),
-         ) #end of vpset
+             name          = 'hiRegitMuonSeededTracksOutInHighPurity',
+             preFilterName = 'hiRegitMuonSeededTracksOutInTight',
+             min_nhits     = 8,
+             useMVA        = False,
+             minMVA        = -0.09
+         ),
+     ) #end of vpset
 )
 
 hiRegitMuonSeededStepCoreTask = cms.Task(

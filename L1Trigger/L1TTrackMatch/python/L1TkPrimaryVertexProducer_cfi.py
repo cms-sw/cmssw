@@ -11,6 +11,7 @@ L1TkPrimaryVertex = cms.EDProducer('L1TkFastVertexProducer',
      ZMAX = cms.double ( 25. ) ,        # in cm
      CHI2MAX = cms.double( 100. ),
      PTMINTRA = cms.double( 2.),        # PTMIN of L1Tracks, in GeV
+     nVtx = cms.int32( 1 ),              # number of vertices to return
      nStubsmin = cms.int32( 4 ) ,       # minimum number of stubs
      nStubsPSmin = cms.int32( 3 ),       # minimum number of stubs in PS modules 
      nBinning = cms.int32( 601 ),        # number of bins for the temp histo (from -30 cm to + 30 cm)

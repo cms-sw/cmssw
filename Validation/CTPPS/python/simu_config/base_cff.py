@@ -40,9 +40,8 @@ profile_base = cms.PSet(
     timeResolutionDiamonds45 = cms.string("999"),
     timeResolutionDiamonds56 = cms.string("999"),
 
-    effTimePath = cms.string(""),
-    effTimeObject45 = cms.string(""),
-    effTimeObject56 = cms.string("")
+    efficienciesPerRP = cms.VPSet(),
+    efficienciesPerPlane = cms.VPSet()
   )
 )
 
@@ -105,19 +104,20 @@ ctppsDirectProtonSimulation.pitchStrips = 66E-3 * 12 / 19 # effective value to r
 ctppsDirectProtonSimulation.pitchPixelsHor = 50E-3
 ctppsDirectProtonSimulation.pitchPixelsVer = 80E-3
 ctppsDirectProtonSimulation.useEmpiricalApertures = True
-ctppsDirectProtonSimulation.useTimingRPEfficiency = False
 ctppsDirectProtonSimulation.produceHitsRelativeToBeam = True
 ctppsDirectProtonSimulation.produceScoringPlaneHits = False
 ctppsDirectProtonSimulation.produceRecHits = True
 
 # local reconstruction
+from CalibPPS.ESProducers.ppsTopology_cff import *
+
 from RecoPPS.Local.totemRPLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsPixelLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsDiamondLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsLocalTrackLiteProducer_cff import *
 
 totemRPUVPatternFinder.tagRecHit = cms.InputTag('ctppsDirectProtonSimulation')
-ctppsPixelLocalTracks.label = "ctppsDirectProtonSimulation"
+ctppsPixelLocalTracks.tag = cms.InputTag('ctppsDirectProtonSimulation')
 ctppsDiamondLocalTracks.recHitsTag = cms.InputTag('ctppsDirectProtonSimulation')
 
 ctppsLocalTrackLiteProducer.includeDiamonds = False

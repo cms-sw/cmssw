@@ -62,6 +62,11 @@ int main(const int argc, const char **argv) {
   settings.setMemoryModulesFile("../data/memorymodules_" + settings.geomext() + ".dat");
   settings.setWiresFile("../data/wires_" + settings.geomext() + ".dat");
 
+  if (settings.extended()) {
+    settings.setTableTEDFile("../data/table_TED/table_TED_Dummy.txt");
+    settings.setTableTREFile("../data/table_TRE/table_TRE_Dummy.txt");
+  }
+
   edm::LogVerbatim("Tracklet") << "cabling DTC links :     " << settings.DTCLinkFile();
   edm::LogVerbatim("Tracklet") << "module cabling :     " << settings.moduleCablingFile();
   edm::LogVerbatim("Tracklet") << "DTC link layer disk :     " << settings.DTCLinkLayerDiskFile();

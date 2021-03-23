@@ -41,8 +41,7 @@ public:
 
 private:
   int eventCounter_;
-  edm::ParameterSet conf_;
-  SiStripClassToMonitorCondData *condDataMonitoring_;
+  std::unique_ptr<SiStripClassToMonitorCondData> condDataMonitoring_;
 };
 
 #endif

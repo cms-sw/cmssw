@@ -351,9 +351,14 @@ namespace edm {
     }
   }
 
-  Provenance EventPrincipal::getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const {
+  Provenance const& EventPrincipal::getProvenance(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
-    return getProvenance(bid, mcc);
+    return getProvenance(bid);
+  }
+
+  StableProvenance const& EventPrincipal::getStableProvenance(ProductID const& pid) const {
+    BranchID bid = pidToBid(pid);
+    return getStableProvenance(bid);
   }
 
   EventSelectionIDVector const& EventPrincipal::eventSelectionIDs() const { return eventSelectionIDs_; }

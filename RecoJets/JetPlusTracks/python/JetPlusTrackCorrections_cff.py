@@ -38,9 +38,9 @@ JetPlusTrackZSPCorJetAntiKt4 = cms.EDProducer(
     dRcone = cms.double(0.4)
     )
 
-JetPlusTrackZSPCorJetAntiKt4.JetTracksAssociationAtVertex = cms.InputTag("ak4JetTracksAssociatorAtVertexJPT")
-JetPlusTrackZSPCorJetAntiKt4.JetTracksAssociationAtCaloFace = cms.InputTag("ak4JetTracksAssociatorAtCaloFace")
-JetPlusTrackZSPCorJetAntiKt4.JetSplitMerge = cms.int32(2)
+JetPlusTrackZSPCorJetAntiKt4.JetTracksAssociationAtVertex   = "ak4JetTracksAssociatorAtVertexJPT"
+JetPlusTrackZSPCorJetAntiKt4.JetTracksAssociationAtCaloFace = "ak4JetTracksAssociatorAtCaloFace"
+JetPlusTrackZSPCorJetAntiKt4.JetSplitMerge = 2
 
 ### ---------- Sequences
 

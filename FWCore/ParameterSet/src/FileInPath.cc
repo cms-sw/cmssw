@@ -4,15 +4,13 @@
 #include <atomic>
 #include <cstdlib>
 #include <vector>
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem/operations.hpp"
+#include <cassert>
+#include <filesystem>
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Parse.h"
 #include "FWCore/Utilities/interface/resolveSymbolicLinks.h"
-
-namespace bf = boost::filesystem;
 
 namespace {
 
@@ -83,17 +81,17 @@ namespace {
   // Return false is *nothing* is found
   // Throw an exception if either a directory or symbolic link is found.
   // If true is returned, then put the
-  bool locateFile(bf::path p, std::string const& relative) {
+  bool locateFile(std::filesystem::path p, std::string const& relative) {
     p /= relative;
 
-    if (!bf::exists(p))
+    if (!std::filesystem::exists(p))
       return false;
 
-    if (bf::is_directory(p)) {
+    if (std::filesystem::is_directory(p)) {
       throw edm::Exception(edm::errors::FileInPathError) << "Path " << p.string() << " is a directory, not a file\n";
     }
 
-    if (bf::is_symlink(bf::symlink_status(p))) {
+    if (std::filesystem::is_symlink(std::filesystem::symlink_status(p))) {
       throw edm::Exception(edm::errors::FileInPathError)
           << "Path " << p.string() << " is a symbolic link, not a file\n";
     }
@@ -372,16 +370,17 @@ namespace edm {
     for (auto const& element : pathElements) {
       // Set the boost::fs path to the current element of
       // CMSSW_SEARCH_PATH:
-      bf::path pathPrefix(element);
+      std::filesystem::path pathPrefix(element);
 
       // Does the a file exist? locateFile throws is it finds
       // something goofy.
       if (locateFile(pathPrefix, relativePath_)) {
         // Convert relative path to canonical form, and save it.
-        relativePath_ = bf::path(relativePath_).normalize().string();
+        relativePath_ = std::filesystem::path(relativePath_).lexically_normal().string();
+        //std::filesystem::path(relativePath_).normalize().string();
 
         // Save the absolute path.
-        canonicalFilename_ = bf::absolute(relativePath_, pathPrefix).string();
+        canonicalFilename_ = std::filesystem::absolute(pathPrefix / relativePath_).string();
         if (canonicalFilename_.empty()) {
           throw edm::Exception(edm::errors::FileInPathError)
               << "fullPath is empty"
@@ -390,10 +389,12 @@ namespace edm {
 
         // From the current path element, find the branch path (basically the path minus the
         // last directory, e.g. /src or /share):
-        for (bf::path br = pathPrefix.branch_path(); !br.normalize().string().empty(); br = br.branch_path()) {
+        for (std::filesystem::path br = pathPrefix.parent_path();
+             !std::filesystem::weakly_canonical(br).string().empty();
+             br = br.parent_path()) {
           if (!localTop_.empty()) {
             // Create a path object for our local path LOCALTOP:
-            bf::path local_(localTop_);
+            std::filesystem::path local_(localTop_);
             // If the branch path matches the local path, the file was found locally:
             if (br == local_) {
               location_ = Local;
@@ -403,7 +404,7 @@ namespace edm {
 
           if (!releaseTop_.empty()) {
             // Create a path object for our release path RELEASETOP:
-            bf::path release_(releaseTop_);
+            std::filesystem::path release_(releaseTop_);
             // If the branch path matches the release path, the file was found in the release:
             if (br == release_) {
               location_ = Release;
@@ -413,7 +414,7 @@ namespace edm {
 
           if (!dataTop_.empty()) {
             // Create a path object for our data path DATATOP:
-            bf::path data_(dataTop_);
+            std::filesystem::path data_(dataTop_);
             // If the branch path matches the data path, the file was found in the data area:
             if (br == data_) {
               location_ = Data;
@@ -430,7 +431,7 @@ namespace edm {
         << "edm::FileInPath unable to find file " << relativePath_ << " anywhere in the search path."
         << "\nThe search path is defined by: " << PathVariableName << "\n${" << PathVariableName
         << "} is: " << std::getenv(PathVariableName.c_str())
-        << "\nCurrent directory is: " << bf::initial_path().string() << "\n";
+        << "\nCurrent directory is: " << std::filesystem::current_path().string() << "\n";
   }
 
   void FileInPath::disableFileLookup() { s_fileLookupDisabled = true; }

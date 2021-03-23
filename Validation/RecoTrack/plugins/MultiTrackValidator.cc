@@ -47,10 +47,12 @@ namespace {
 }  // namespace
 
 MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset)
-    : associators(pset.getUntrackedParameter<std::vector<edm::InputTag>>("associators")),
-      label(pset.getParameter<std::vector<edm::InputTag>>("label")),
+    : tTopoEsToken(esConsumes()),
       parametersDefiner(pset.getParameter<std::string>("parametersDefiner")),
+      tpDefinerEsToken(esConsumes(edm::ESInputTag("", parametersDefiner))),
       parametersDefinerIsCosmic_(parametersDefiner == "CosmicParametersDefinerForTP"),
+      associators(pset.getUntrackedParameter<std::vector<edm::InputTag>>("associators")),
+      label(pset.getParameter<std::vector<edm::InputTag>>("label")),
       ignoremissingtkcollection_(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection", false)),
       useAssociators_(pset.getParameter<bool>("UseAssociators")),
       calculateDrSingleCollection_(pset.getUntrackedParameter<bool>("calculateDrSingleCollection")),
@@ -586,14 +588,11 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
                              << "====================================================\n"
                              << "\n";
 
-  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTPHandle;
-  setup.get<TrackAssociatorRecord>().get(parametersDefiner, parametersDefinerTPHandle);
+  const auto& parametersDefinerTPHandle = setup.getHandle(tpDefinerEsToken);
   //Since we modify the object, we must clone it
   auto parametersDefinerTP = parametersDefinerTPHandle->clone();
 
-  edm::ESHandle<TrackerTopology> httopo;
-  setup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology& ttopo = *httopo;
+  const TrackerTopology& ttopo = setup.getData(tTopoEsToken);
 
   // FIXME: we really need to move to edm::View for reading the
   // TrackingParticles... Unfortunately it has non-trivial

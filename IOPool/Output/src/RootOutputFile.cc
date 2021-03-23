@@ -129,8 +129,16 @@ namespace edm {
     if (-1 != om->eventAutoFlushSize()) {
       eventTree_.setAutoFlush(-1 * om->eventAutoFlushSize());
     }
-    eventTree_.addAuxiliary<EventAuxiliary>(
-        BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_);
+    if (om_->compactEventAuxiliary()) {
+      eventTree_.addAuxiliary<EventAuxiliary>(
+          BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_, false);
+      eventTree_.tree()->SetBranchStatus(BranchTypeToAuxiliaryBranchName(InEvent).c_str(),
+                                         false);  // see writeEventAuxiliary
+    } else {
+      eventTree_.addAuxiliary<EventAuxiliary>(
+          BranchTypeToAuxiliaryBranchName(InEvent), pEventAux_, om_->auxItems()[InEvent].basketSize_);
+    }
+
     eventTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
                                                            pEventEntryInfoVector(),
                                                            om_->auxItems()[InEvent].basketSize_);
@@ -384,10 +392,25 @@ namespace edm {
     if (fb.tree() != nullptr && whyNotFastClonable_ != FileBlock::CanFastClone) {
       maybeIssueWarning(whyNotFastClonable_, fb.fileName(), file_);
     }
+
+    if (om_->compactEventAuxiliary() &&
+        (whyNotFastClonable_ & (FileBlock::EventsOrLumisSelectedByID | FileBlock::InitialEventsSkipped |
+                                FileBlock::EventSelectionUsed)) == 0) {
+      long long int reserve = remainingEvents;
+      if (fb.tree() != nullptr) {
+        reserve = reserve > 0 ? std::min(fb.tree()->GetEntries(), reserve) : fb.tree()->GetEntries();
+      }
+      if (reserve > 0) {
+        compactEventAuxiliary_.reserve(compactEventAuxiliary_.size() + reserve);
+      }
+    }
   }
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
-    eventTree_.setEntries();
+    // We can't do setEntries() on the event tree if the EventAuxiliary branch is empty & disabled
+    if (not om_->compactEventAuxiliary()) {
+      eventTree_.setEntries();
+    }
     lumiTree_.setEntries();
     runTree_.setEntries();
   }
@@ -440,6 +463,10 @@ namespace edm {
     indexIntoFile_.addEntry(
         reducedPHID, pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
+
+    if (om_->compactEventAuxiliary()) {
+      compactEventAuxiliary_.push_back(*pEventAux_);
+    }
 
     // Report event written
     Service<JobReport> reportSvc;
@@ -614,6 +641,43 @@ namespace edm {
         metaDataTree_->Branch(poolNames::productDependenciesBranchName().c_str(), &ppDeps, om_->basketSize(), 0);
     assert(b);
     b->Fill();
+  }
+
+  // For duplicate removal and to determine if fast cloning is possible, the input
+  // module by default reads the entire EventAuxiliary branch when it opens the
+  // input files.  If EventAuxiliary is written in the usual way, this results
+  // in many small reads scattered throughout the file, which can have very poor
+  // performance characteristics on some filesystems.  As a workaround, we save
+  // EventAuxiliary and write it at the end of the file.
+
+  void RootOutputFile::writeEventAuxiliary() {
+    constexpr std::size_t maxEaBasketSize = 4 * 1024 * 1024;
+
+    if (om_->compactEventAuxiliary()) {
+      auto tree = eventTree_.tree();
+      auto const& bname = BranchTypeToAuxiliaryBranchName(InEvent).c_str();
+
+      tree->SetBranchStatus(bname, true);
+      auto basketsize =
+          std::min(maxEaBasketSize,
+                   compactEventAuxiliary_.size() * (sizeof(EventAuxiliary) + 26));  // 26 is an empirical fudge factor
+      tree->SetBasketSize(bname, basketsize);
+      auto b = tree->GetBranch(bname);
+
+      assert(b);
+
+      LogDebug("writeEventAuxiliary") << "EventAuxiliary ratio extras/GUIDs/all = "
+                                      << compactEventAuxiliary_.extrasSize() << "/"
+                                      << compactEventAuxiliary_.guidsSize() << "/" << compactEventAuxiliary_.size();
+
+      for (auto const& aux : compactEventAuxiliary_) {
+        const auto ea = aux.eventAuxiliary();
+        pEventAux_ = &ea;
+        // Fill EventAuxiliary branch
+        b->Fill();
+      }
+      eventTree_.setEntries();
+    }
   }
 
   void RootOutputFile::finishEndFile() {

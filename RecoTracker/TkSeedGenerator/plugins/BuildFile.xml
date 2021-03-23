@@ -26,12 +26,13 @@
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="MagneticField/UniformEngine"/>
+<use name="PhysicsTools/TensorFlow"/>
 <use name="RecoPixelVertexing/PixelLowPtUtilities"/>
 <use name="RecoPixelVertexing/PixelTrackFitting"/>
 <use name="RecoPixelVertexing/PixelTriplets"/>
 <use name="RecoTracker/MeasurementDet"/>
 <use name="RecoTracker/Record"/>
-<use name="RecoTracker/SpecialSeedGenerators"/>
+<use name="RecoTracker/SpecialSeedGenerators" source_only="1"/>
 <use name="RecoTracker/TkHitPairs"/>
 <use name="RecoTracker/TkSeedGenerator"/>
 <use name="RecoTracker/TkSeedingLayers"/>

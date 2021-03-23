@@ -43,6 +43,7 @@ public:
    * @param es events setup
    */
   void analyze(const edm::Event& evt, const edm::EventSetup& es) override;
+  void from_hdf_to_db();
 
 private:
   static std::string toNth(int n);

@@ -310,6 +310,9 @@ namespace edm {
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.
 
+    //Guarantee that task group is the last to be destroyed
+    tbb::task_group taskGroup_;
+
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;

@@ -2,6 +2,7 @@
 #define DQMOffline_Muon_GEMOfflineMonitor_h
 
 #include "DQMOffline/Muon/interface/GEMOfflineDQMBase.h"
+
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -19,16 +20,20 @@ protected:
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
 private:
-  void bookDetectorOccupancy(
-      DQMStore::IBooker &, const GEMStation *, const MEMapKey1 &, const TString &, const TString &);
+  void bookDigiOccupancy(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
+  void bookHitOccupancy(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
+
+  void doDigiOccupancy(const edm::ESHandle<GEMGeometry> &, const edm::Handle<GEMDigiCollection> &);
+  void doHitOccupancy(const edm::ESHandle<GEMGeometry> &, const edm::Handle<GEMRecHitCollection> &);
 
   edm::EDGetTokenT<GEMDigiCollection> digi_token_;
   edm::EDGetTokenT<GEMRecHitCollection> rechit_token_;
 
-  std::string log_category_;
+  bool do_digi_occupancy_;
+  bool do_hit_occupancy_;
 
-  MEMap1 me_digi_det_;
-  MEMap1 me_hit_det_;
+  MEMap me_digi_det_;  // TH2F, region-station
+  MEMap me_hit_det_;   // TH2F, region-station
 };
 
 #endif  // DQMOffline_Muon_GEMOfflineMonitor_h

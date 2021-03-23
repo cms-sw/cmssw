@@ -63,7 +63,6 @@ void GEMDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
   muonSimHitMatcher_->match(t, v);
 
   // get the digi collections
-  const edm::DetSetVector<GEMDigiSimLink>& gemDigisSL = *gemDigisSLH_.product();
   const GEMDigiCollection& gemDigis = *gemDigisH_.product();
   const GEMPadDigiCollection& gemPads = *gemPadsH_.product();
   const GEMPadDigiClusterCollection& gemClusters = *gemClustersH_.product();
@@ -76,8 +75,10 @@ void GEMDigiMatcher::match(const SimTrack& t, const SimVertex& v) {
     return;
 
   // now match the digis
-  if (matchToSimLink_)
+  if (matchToSimLink_) {
+    const edm::DetSetVector<GEMDigiSimLink>& gemDigisSL = *gemDigisSLH_.product();
     matchDigisSLToSimTrack(gemDigisSL);
+  }
   matchDigisToSimTrack(gemDigis);
   matchPadsToSimTrack(gemPads);
   matchClustersToSimTrack(gemClusters);

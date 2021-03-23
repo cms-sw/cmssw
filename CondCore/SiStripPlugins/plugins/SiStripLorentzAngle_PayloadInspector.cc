@@ -15,6 +15,8 @@
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
+#include "CondCore/SiStripPlugins/interface/SiStripTkMaps.h"
+
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <memory>
@@ -33,18 +35,18 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     1d histogram of SiStripLorentzAngle of 1 IOV 
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiStripLorentzAngleValue : public cond::payloadInspector::Histogram1D<SiStripLorentzAngle> {
+  class SiStripLorentzAngleValue : public Histogram1D<SiStripLorentzAngle, SINGLE_IOV> {
   public:
     SiStripLorentzAngleValue()
-        : cond::payloadInspector::Histogram1D<SiStripLorentzAngle>(
-              "SiStrip LorentzAngle values", "SiStrip LorentzAngle values", 100, 0.0, 0.05) {
-      Base::setSingleIov(true);
-    }
+        : Histogram1D<SiStripLorentzAngle, SINGLE_IOV>(
+              "SiStrip LorentzAngle values", "SiStrip LorentzAngle values", 100, 0.0, 0.05) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -65,15 +67,14 @@ namespace {
   /************************************************
     TrackerMap of SiStrip Lorentz Angle
   *************************************************/
-  class SiStripLorentzAngle_TrackerMap : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  class SiStripLorentzAngle_TrackerMap : public PlotImage<SiStripLorentzAngle, SINGLE_IOV> {
   public:
     SiStripLorentzAngle_TrackerMap()
-        : cond::payloadInspector::PlotImage<SiStripLorentzAngle>("Tracker Map SiStrip Lorentz Angle") {
-      setSingleIov(true);
-    }
+        : PlotImage<SiStripLorentzAngle, SINGLE_IOV>("Tracker Map SiStrip Lorentz Angle") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
       std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripLorentzAngle");
@@ -103,20 +104,60 @@ namespace {
   };
 
   /************************************************
+    SiStripTkMaps of SiStrip Lorentz Angle
+  *************************************************/
+  class SiStripLorentzAngleTkMap : public PlotImage<SiStripLorentzAngle, SINGLE_IOV> {
+  public:
+    SiStripLorentzAngleTkMap() : PlotImage<SiStripLorentzAngle, SINGLE_IOV>("Tracker Map SiStrip Lorentz Angle") {}
+
+    bool fill() override {
+      //SiStripPI::setPaletteStyle(SiStripPI::DEFAULT);
+      gStyle->SetPalette(1);
+
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = PlotBase::getTag<0>().name;
+
+      std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
+
+      auto theIOVsince = std::to_string(std::get<0>(iov));
+      std::string titleMap = "SiStrip Lorentz Angle Map, Run: " + theIOVsince + " (tag:#color[2]{" + tagname + "})";
+
+      SiStripTkMaps myMap("COLZA L");
+      myMap.bookMap(titleMap, "SiStrip #mu_{H}=(tan#theta_{L}/B) [1/T]");
+
+      std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
+
+      for (const auto &element : LAMap_) {
+        myMap.fill(element.first, element.second);
+      }  // loop over the LA MAP
+
+      std::string fileName(m_imageFileName);
+      TCanvas canvas("LA map", "LA map");
+      myMap.drawMap(canvas, "");
+      canvas.SaveAs(fileName.c_str());
+
+#ifdef MMDEBUG
+      canvas.SaveAs("test.root");
+#endif
+      return true;
+    }
+  };
+
+  /************************************************
     Plot Lorentz Angle averages by partition 
   *************************************************/
 
-  class SiStripLorentzAngleByRegion : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  class SiStripLorentzAngleByRegion : public PlotImage<SiStripLorentzAngle, SINGLE_IOV> {
   public:
     SiStripLorentzAngleByRegion()
-        : cond::payloadInspector::PlotImage<SiStripLorentzAngle>("SiStripLorentzAngle By Region"),
+        : PlotImage<SiStripLorentzAngle, SINGLE_IOV>("SiStripLorentzAngle By Region"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
-              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {
-      setSingleIov(true);
-    }
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
 
       SiStripDetSummary summaryLA{&m_trackerTopo};
@@ -221,20 +262,18 @@ namespace {
     Plot SiStripLorentz Angle averages by partition comparison
   *************************************************/
 
-  template <int ntags, cond::payloadInspector::IOVMultiplicity nIOVs>
-  class SiStripLorentzAngleComparatorByRegionBase
-      : public cond::payloadInspector::PlotImage<SiStripLorentzAngle, nIOVs, ntags> {
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripLorentzAngleComparatorByRegionBase : public PlotImage<SiStripLorentzAngle, nIOVs, ntags> {
   public:
     SiStripLorentzAngleComparatorByRegionBase()
-        : cond::payloadInspector::PlotImage<SiStripLorentzAngle, nIOVs, ntags>(
-              "SiStripLorentzAngle By Region Comparison"),
+        : PlotImage<SiStripLorentzAngle, nIOVs, ntags>("SiStripLorentzAngle By Region Comparison"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
 
     bool fill() override {
       // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
@@ -243,8 +282,8 @@ namespace {
       assert(this->m_plotAnnotations.ntags < 3);
 
       if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -396,15 +435,14 @@ namespace {
     }
   };
 
-  using SiStripLorentzAngleByRegionCompareSingleTag =
-      SiStripLorentzAngleComparatorByRegionBase<1, cond::payloadInspector::MULTI_IOV>;
-  using SiStripLorentzAngleByRegionCompareTwoTags =
-      SiStripLorentzAngleComparatorByRegionBase<2, cond::payloadInspector::SINGLE_IOV>;
+  using SiStripLorentzAngleByRegionCompareSingleTag = SiStripLorentzAngleComparatorByRegionBase<1, MULTI_IOV>;
+  using SiStripLorentzAngleByRegionCompareTwoTags = SiStripLorentzAngleComparatorByRegionBase<2, SINGLE_IOV>;
 
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripLorentzAngle) {
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleTkMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngle_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegionCompareSingleTag);

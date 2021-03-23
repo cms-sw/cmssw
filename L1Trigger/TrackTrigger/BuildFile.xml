@@ -12,6 +12,7 @@
 <use name="root"/>
 <use name="rootrflx"/>
 <use name="DataFormats/L1TrackTrigger"/>
+<use name="PhysicsTools/ONNXRuntime"/>
 <export>
   <flags SEALPLUGIN="1"/>
   <lib name="1"/>

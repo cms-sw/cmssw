@@ -30,6 +30,7 @@ namespace cond {
 
     class DecodingKey {
     public:
+      static constexpr const char* const KEY_FMT_VERSION = "2.0";
       static constexpr const char* const FILE_NAME = "db.key";
       static constexpr const char* const FILE_PATH = ".cms_cond/db.key";
       static constexpr size_t DEFAULT_KEY_SIZE = 100;
@@ -48,6 +49,8 @@ namespace cond {
       void list(std::ostream& out);
 
       void flush();
+
+      const std::string& version() const;
 
       const std::string& principalName() const;
 
@@ -69,6 +72,8 @@ namespace cond {
     private:
       std::string m_fileName;
 
+      std::string m_version;
+
       bool m_mode;
 
       std::string m_pwd;
@@ -89,7 +94,16 @@ inline cond::auth::KeyGenerator::KeyGenerator() : m_iteration(0) {}
 inline cond::auth::ServiceCredentials::ServiceCredentials() : connectionString(""), userName(""), password("") {}
 
 inline cond::auth::DecodingKey::DecodingKey()
-    : m_fileName(""), m_mode(true), m_pwd(""), m_principalName(""), m_principalKey(""), m_owner(""), m_services() {}
+    : m_fileName(""),
+      m_version(""),
+      m_mode(true),
+      m_pwd(""),
+      m_principalName(""),
+      m_principalKey(""),
+      m_owner(""),
+      m_services() {}
+
+inline const std::string& cond::auth::DecodingKey::version() const { return m_version; }
 
 inline const std::string& cond::auth::DecodingKey::principalName() const { return m_principalName; }
 

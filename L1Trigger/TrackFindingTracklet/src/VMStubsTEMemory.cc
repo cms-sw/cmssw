@@ -1,6 +1,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
-#include <iomanip>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iomanip>
+#include <filesystem>
 
 using namespace std;
 using namespace trklet;
@@ -61,6 +62,20 @@ VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings, unsigned
 bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
   //If the pt of the stub is consistent with the allowed pt of tracklets
   //in that can be formed in this VM and the other VM used in the TE.
+
+  if (settings_.combined()) {
+    if (disk_ > 0) {
+      assert(vmstub.stub()->isPSmodule());
+    }
+    bool negdisk = vmstub.stub()->disk().value() < 0.0;
+    if (negdisk)
+      bin += 4;
+    assert(bin < (int)stubsbinnedvm_.size());
+    stubsbinnedvm_[bin].push_back(vmstub);
+    stubsvm_.push_back(vmstub);
+    return true;
+  }
+
   bool pass = passbend(vmstub.bend().value());
 
   if (!pass) {
@@ -194,13 +209,14 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
 
 void VMStubsTEMemory::clean() {
   stubsvm_.clear();
-  for (unsigned int i = 0; i < settings_.NLONGVMBINS(); i++) {
-    stubsbinnedvm_[i].clear();
+  for (auto& stubsbinnedvm : stubsbinnedvm_) {
+    stubsbinnedvm.clear();
   }
 }
 
 void VMStubsTEMemory::writeStubs(bool first) {
-  openFile(first, "../data/MemPrints/VMStubsTE/VMStubs_");
+  const string dirVM = settings_.memPath() + "VMStubsTE/";
+  openFile(first, dirVM, "VMStubs_");
 
   if (isinner_) {  // inner VM for TE purpose
     for (unsigned int j = 0; j < stubsvm_.size(); j++) {
@@ -262,8 +278,18 @@ void VMStubsTEMemory::setbendtable(std::vector<bool> vmbendtable) {
 }
 
 void VMStubsTEMemory::writeVMBendTable() {
-  ofstream outvmbendcut;
-  outvmbendcut.open(getName() + "_vmbendcut.tab");
+  if (not std::filesystem::exists(settings_.tablePath())) {
+    int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
+    if (fail)
+      throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
+                                     << settings_.tablePath();
+  }
+
+  const string fname = settings_.tablePath() + getName() + "_vmbendcut.tab";
+  ofstream outvmbendcut(fname);
+  if (outvmbendcut.fail())
+    throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
+
   outvmbendcut << "{" << endl;
   unsigned int vmbendtableSize = vmbendtable_.size();
   assert(vmbendtableSize == 16 || vmbendtableSize == 8);

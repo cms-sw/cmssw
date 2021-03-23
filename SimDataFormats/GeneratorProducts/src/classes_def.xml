@@ -41,7 +41,8 @@
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>
  </class>
-	<class name="HepMC::HeavyIon" ClassVersion="10">
+	<class name="HepMC::HeavyIon" ClassVersion="11">
+  <version ClassVersion="11" checksum="1386021189"/>
   <version ClassVersion="10" checksum="972653740"/>
  </class>
 	<class name="HepMC::PdfInfo" ClassVersion="10">

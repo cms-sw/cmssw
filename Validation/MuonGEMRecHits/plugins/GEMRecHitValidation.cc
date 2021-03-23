@@ -11,6 +11,10 @@ GEMRecHitValidation::GEMRecHitValidation(const edm::ParameterSet& pset)
 
   const auto& simhit_pset = pset.getParameterSet("gemSimHit");
   const auto& simhit_tag = simhit_pset.getParameter<edm::InputTag>("inputTag");
+
+  const auto& digisimlink_tag = pset.getParameter<edm::InputTag>("gemDigiSimLink");
+  digisimlink_token_ = consumes<edm::DetSetVector<GEMDigiSimLink>>(digisimlink_tag);
+
   simhit_token_ = consumes<edm::PSimHitContainer>(simhit_tag);
   geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
   geomTokenBeginRun_ = esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
@@ -27,7 +31,20 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   TString cls_title = "Cluster Size Distribution";
   TString cls_x_title = "Cluster size";
 
-  me_cls_ = booker.book1D("cls", cls_title + ";" + cls_x_title + ";" + "Entries", 11, -0.5, 10.5);
+  me_cls_ = booker.book1D("cls", cls_title + ";" + cls_x_title + ";" + "Entries", 10, 0.5, 10.5);
+
+  for (const auto& station : gem->regions()[0]->stations()) {
+    Int_t station_id = station->station();
+    for (const auto& roll : station->superChambers()[0]->chambers()[0]->etaPartitions()) {
+      Int_t ieta = roll->id().ieta();
+      ME2IdsKey key{station_id, ieta};
+      me_cls_roll_[key] = booker.book1D(Form("cls_GE%d1_iEta%d", station_id, ieta),
+                                        Form("Cluster Size Distribution : GE%d1 iEta %d", station_id, ieta),
+                                        10,
+                                        0.5,
+                                        10.5);
+    }
+  }
 
   if (detail_plot_) {
     for (const auto& region : gem->regions()) {
@@ -43,28 +60,53 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
         } else {
           for (const auto& chamber : superChamberVec[0]->chambers()) {
             Int_t layer_id = chamber->id().layer();
-            ME3IdsKey key3{region_id, station_id, layer_id};
 
-            me_detail_cls_[key3] = bookHist1D(booker, key3, "cls", cls_title, 11, -0.5, 10.5, cls_x_title);
-          }  // chamber loop
-        }    // end else
-      }      // station loop
-    }        // region loop
-  }          // detail plot
+            for (const auto& roll : chamber->etaPartitions()) {
+              Int_t ieta = roll->id().ieta();
+              ME4IdsKey key4{region_id, station_id, layer_id, ieta};
+
+              me_detail_cls_[key4] = bookHist1D(booker, key4, "cls", "Cluster Size Distribution", 11, -0.5, 10.5);
+            }  // roll loop
+          }    // chamber loop
+        }      // end else
+      }        // station loop
+    }          // region loop
+  }            // detail plot
 
   // NOTE Residual
   booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Residual");
 
-  for (const auto& region : gem->regions()) {
-    Int_t region_id = region->region();
+  for (const auto& station : gem->regions()[0]->stations()) {
+    Int_t station_id = station->station();
+    for (const auto& roll : station->superChambers()[0]->chambers()[0]->etaPartitions()) {
+      Int_t ieta = roll->id().ieta();
+      ME2IdsKey key{station_id, ieta};
 
-    me_residual_x_[region_id] =
-        bookHist1D(booker, region_id, "residual_x", "Residual in X", 120, -3, 3, "Residual in X [cm]");
+      me_residual_x_[key] = booker.book1D(Form("residual_x_GE%d1_R%d", station_id, ieta),
+                                          Form("Residual in X : GE%d1 iEta %d; Residual in X [cm]", station_id, ieta),
+                                          60,
+                                          -2,
+                                          2);
 
-    me_residual_y_[region_id] =
-        bookHist1D(booker, region_id, "residual_y", "Residual in Y", 600, -15, 15, "Residual in Y [cm]");
+      me_residual_y_[key] = booker.book1D(Form("residual_y_GE%d1_iEta%d", station_id, ieta),
+                                          Form("Residual in Y : GE%d1 iEta %d; Residual in Y [cm]", station_id, ieta),
+                                          60,
+                                          -15,
+                                          15);
 
-    if (detail_plot_) {
+      me_residual_rphi_[key] = booker.book1D(
+          Form("residual_rphi_GE%d1_iEta%d", station_id, ieta),
+          Form("Residual in R #times #phi : GE%d1 iEta %d; Residual in r #times #phi [cm]", station_id, ieta),
+          60,
+          -15,
+          15);
+    }
+  }
+
+  if (detail_plot_) {
+    for (const auto& region : gem->regions()) {
+      Int_t region_id = region->region();
+
       for (const auto& station : region->stations()) {
         Int_t station_id = station->station();
 
@@ -72,32 +114,59 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
         if (!superChamberVec.empty() && superChamberVec[0] != nullptr) {
           for (const auto& chamber : superChamberVec[0]->chambers()) {
             Int_t layer_id = chamber->id().layer();
-            ME3IdsKey key3{region_id, station_id, layer_id};
 
-            // Occupancy histograms of SimHits and RecHits for Efficiency
-            me_detail_residual_x_[key3] =
-                bookHist1D(booker, key3, "residual_x", "Residual in X", 120, -3, 3, "Residual in X [cm]");
+            for (const auto& roll : chamber->etaPartitions()) {
+              Int_t ieta = roll->id().ieta();
+              ME4IdsKey key4{region_id, station_id, layer_id, ieta};
 
-            me_detail_residual_y_[key3] =
-                bookHist1D(booker, key3, "residual_y", "Residual in Y", 600, -15, 15, "Residual in Y [cm]");
+              me_detail_residual_x_[key4] =
+                  bookHist1D(booker, key4, "residual_x", "Residual in x", 60, -2, 2, "Residual in x [cm]");
 
-          }  // chamber loop
-        }    // end if
-      }      // station loop
-    }        // detail_plot
-  }          // region loop
+              me_detail_residual_y_[key4] =
+                  bookHist1D(booker, key4, "residual_y", "Residual in y", 60, -15, 15, "Residual in y [cm]");
+
+              me_detail_residual_rphi_[key4] = bookHist1D(booker,
+                                                          key4,
+                                                          "residual_rphi",
+                                                          "Residual in r #times #phi",
+                                                          60,
+                                                          -15,
+                                                          15,
+                                                          "Residual in r #times #phi [cm]");
+            }  // roll loop
+          }    // chamber loop
+        }      // end if
+      }        // station loop
+    }          // region loop
+  }            // detail plot
 
   // NOTE Pull
   booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Pull");
 
-  for (const auto& region : gem->regions()) {
-    Int_t region_id = region->region();
+  if (detail_plot_) {
+    for (const auto& station : gem->regions()[0]->stations()) {
+      Int_t station_id = station->station();
+      for (const auto& roll : station->superChambers()[0]->chambers()[0]->etaPartitions()) {
+        Int_t ieta = roll->id().ieta();
+        ME2IdsKey key{station_id, ieta};
 
-    me_pull_x_[region_id] = bookHist1D(booker, region_id, "pull_x", "Pull in X", 100, -3, 3);
+        me_detail_pull_x_[key] = booker.book1D(Form("pull_x_GE%d1_iEta%d", station_id, ieta),
+                                               Form("Pull in X : GE%d1 iEta %d", station_id, ieta),
+                                               60,
+                                               -3,
+                                               3);
 
-    me_pull_y_[region_id] = bookHist1D(booker, region_id, "pull_y", "Pull in Y", 100, -3, 3);
+        me_detail_pull_y_[key] = booker.book1D(Form("pull_y_GE%d1_iEta%d", station_id, ieta),
+                                               Form("Pull in Y : GE%d1 iEta %d", station_id, ieta),
+                                               60,
+                                               -3,
+                                               3);
+      }
+    }
 
-    if (detail_plot_) {
+    for (const auto& region : gem->regions()) {
+      Int_t region_id = region->region();
+
       for (const auto& station : region->stations()) {
         Int_t station_id = station->station();
 
@@ -105,93 +174,104 @@ void GEMRecHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
         if (!superChamberVec.empty() && superChamberVec[0] != nullptr) {
           for (const auto& chamber : superChamberVec[0]->chambers()) {
             Int_t layer_id = chamber->id().layer();
-            ME3IdsKey key3{region_id, station_id, layer_id};
 
-            me_detail_pull_x_[key3] = bookHist1D(booker, key3, "pull_x", "Pull in X", 100, -3, 3);
+            for (const auto& roll : chamber->etaPartitions()) {
+              Int_t ieta = roll->id().ieta();
+              ME4IdsKey key4{region_id, station_id, layer_id, ieta};
 
-            me_detail_pull_y_[key3] = bookHist1D(booker, key3, "pull_y", "Pull in Y", 100, -3, 3);
+              me_detail_pull_x_la_[key4] = bookHist1D(booker, key4, "pull_x", "Pull in x", 60, -3, 3);
 
-          }  // chamber loop
-        }    // end if
-      }      // station loop
-    }        // detail plot
-  }          // region loop
+              me_detail_pull_y_la_[key4] = bookHist1D(booker, key4, "pull_y", "Pull in y", 60, -3, 3);
+            }  // roll loop
+          }    // chamber loop
+        }      // end if
+      }        // station loop
+    }          // region loop
+  }            // detail plot
 
   // NOTE Occupancy
   booker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask/Occupancy");
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
-    me_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "rechit", "RecHit");
-
-    me_simhit_occ_eta_[region_id] = bookHist1D(booker,
-                                               region_id,
-                                               "muon_simhit_occ_eta",
-                                               "Muon SimHit Eta Occupancy",
-                                               50,
-                                               eta_range_[0],
-                                               eta_range_[1],
-                                               "|#eta|");
-
-    me_rechit_occ_eta_[region_id] = bookHist1D(booker,
-                                               region_id,
-                                               "matched_rechit_occ_eta",
-                                               "Matched RecHit Eta Occupancy",
-                                               50,
-                                               eta_range_[0],
-                                               eta_range_[1],
-                                               "|#eta|");
+    if (detail_plot_)
+      me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "rechit", "RecHit");
 
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
       ME2IdsKey key2{region_id, station_id};
 
-      me_simhit_occ_phi_[key2] =
-          bookHist1D(booker, key2, "muon_simhit_occ_phi", "Muon SimHit Phi Occupancy", 51, -M_PI, M_PI, "#phi");
+      if (detail_plot_)
+        me_detail_rechit_occ_det_[key2] =
+            bookDetectorOccupancy(booker, key2, station, "matched_rechit", "Matched RecHit");
 
-      me_rechit_occ_phi_[key2] =
-          bookHist1D(booker, key2, "matched_rechit_occ_phi", "Matched RecHit Phi Occupancy", 51, -M_PI, M_PI, "#phi");
+      const auto& superChamberVec = station->superChambers();
+      if (!superChamberVec.empty() && superChamberVec[0] != nullptr) {
+        for (const auto& chamber : superChamberVec[0]->chambers()) {
+          Int_t layer_id = chamber->id().layer();
+          ME3IdsKey key3{region_id, station_id, layer_id};
 
-      me_simhit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "muon_simhit", "Muon SimHit");
+          Int_t num_eta_partitions = chamber->nEtaPartitions();
 
-      me_rechit_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "matched_rechit", "Matched RecHit");
+          me_total_rechit_[key3] =
+              bookHist1D(booker, key3, "total_rechit", "Number of rec hits per event", 25, -0.5, 24.5);
 
-      if (detail_plot_) {
-        const auto& superChamberVec = station->superChambers();
-        if (!superChamberVec.empty() && superChamberVec[0] != nullptr) {
-          for (const auto& chamber : superChamberVec[0]->chambers()) {
-            Int_t layer_id = chamber->id().layer();
-            ME3IdsKey key3{region_id, station_id, layer_id};
+          me_occ_pid_[key3] = bookPIDHist(booker, key3, "rechit_occ_pid", "Number of entreis for each particle");
 
+          me_occ_ieta_[key3] = bookHist1D(booker,
+                                          key3,
+                                          "rechit_occ_ieta",
+                                          "Rechit Occupancy per eta partition",
+                                          num_eta_partitions,
+                                          0.5,
+                                          num_eta_partitions + 0.5);
+
+          me_occ_phi_[key3] = bookHist1D(booker, key3, "rechit_occ_phi", "Rechit Phi Occupancy", 108, -5, 355);
+
+          me_rechit_occ_eta_[key3] = bookHist1D(booker,
+                                                key3,
+                                                "matched_rechit_occ_eta",
+                                                "Matched RecHit Eta Occupancy",
+                                                16,
+                                                eta_range_[station_id * 2 + 0],
+                                                eta_range_[station_id * 2 + 1],
+                                                "|#eta|");
+
+          me_rechit_occ_phi_[key3] =
+              bookHist1D(booker, key3, "matched_rechit_occ_phi", "Matched RecHit Phi Occupancy", 36, -5, 355, "#phi");
+
+          if (detail_plot_) {
             me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "rechit", "RecHit");
 
             me_detail_occ_polar_[key3] = bookPolarOccupancy(booker, key3, "rechit", "RecHit");
-
-          }  // chamber loop
-        }    // end if
-      }      // detail plot
-    }        // station loop
-  }          // region_loop
+          }
+        }  // chamber loop
+      }    // end if
+    }      // station loop
+  }        // region_loop
 }
 
 Bool_t GEMRecHitValidation::matchRecHitAgainstSimHit(GEMRecHitCollection::const_iterator rechit, Int_t simhit_strip) {
-  Bool_t matched = false;
-
   Int_t cls = rechit->clusterSize();
   Int_t rechit_first_strip = rechit->firstClusterStrip();
 
   if (cls == 1) {
-    matched = simhit_strip == rechit_first_strip;
+    return simhit_strip == rechit_first_strip;
   } else {
     Int_t rechit_last_strip = rechit_first_strip + cls - 1;
-    matched = (simhit_strip >= rechit_first_strip) and (simhit_strip <= rechit_last_strip);
+    return (simhit_strip >= rechit_first_strip) and (simhit_strip <= rechit_last_strip);
   }
-
-  return matched;
 }
 
 void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   const GEMGeometry* gem = &setup.getData(geomToken_);
+
+  edm::Handle<edm::DetSetVector<GEMDigiSimLink>> digiSimLink;
+  event.getByToken(digisimlink_token_, digiSimLink);
+  if (not digiSimLink.isValid()) {
+    edm::LogError(kLogCategory_) << "Failed to get GEMDigiSimLink." << std::endl;
+    return;
+  }
 
   edm::Handle<edm::PSimHitContainer> simhit_container;
   event.getByToken(simhit_token_, simhit_container);
@@ -207,34 +287,76 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     return;
   }
 
-  for (auto rechit = rechit_collection->begin(); rechit != rechit_collection->end(); rechit++) {
-    GEMDetId gem_id{rechit->gemId()};
+  std::map<ME3IdsKey, Int_t> total_rechit;
+  for (const auto& rechit : *rechit_collection) {
+    GEMDetId gem_id{rechit.gemId()};
     Int_t region_id = gem_id.region();
     Int_t station_id = gem_id.station();
     Int_t layer_id = gem_id.layer();
+    Int_t ieta = gem_id.ieta();
+    ME4IdsKey key4{region_id, station_id, layer_id, ieta};
 
+    ME2IdsKey key{station_id, ieta};
     ME2IdsKey key2{region_id, station_id};
     ME3IdsKey key3{region_id, station_id, layer_id};
 
     const BoundPlane& surface = gem->idToDet(gem_id)->surface();
-    GlobalPoint&& rechit_global_pos = surface.toGlobal(rechit->localPosition());
+    GlobalPoint&& rechit_global_pos = surface.toGlobal(rechit.localPosition());
 
     Float_t rechit_g_x = rechit_global_pos.x();
     Float_t rechit_g_y = rechit_global_pos.y();
     Float_t rechit_g_abs_z = std::fabs(rechit_global_pos.z());
     Float_t rechit_g_r = rechit_global_pos.perp();
-    Float_t rechit_g_phi = rechit_global_pos.phi();
+    Float_t rechit_g_phi = toDegree(rechit_global_pos.phi());
 
-    Int_t cls = rechit->clusterSize();
+    Int_t first_strip = rechit.firstClusterStrip();
+    Int_t cls = rechit.clusterSize();
+    cls = cls > 10 ? 10 : cls;
+
+    me_cls_roll_[key]->Fill(cls);
+    me_occ_ieta_[key3]->Fill(ieta);
+    me_occ_phi_[key3]->Fill(rechit_g_phi);
+    total_rechit[key3]++;
 
     me_cls_->Fill(cls);
-    me_occ_zr_[region_id]->Fill(rechit_g_abs_z, rechit_g_r);
 
     if (detail_plot_) {
-      me_detail_cls_[key3]->Fill(cls);
+      me_detail_cls_[key4]->Fill(cls);
+      me_detail_occ_zr_[region_id]->Fill(rechit_g_abs_z, rechit_g_r);
       me_detail_occ_xy_[key3]->Fill(rechit_g_x, rechit_g_y);
       me_detail_occ_polar_[key3]->Fill(rechit_g_phi, rechit_g_r);
     }  // detail plot
+
+    auto links = digiSimLink->find(gem_id);
+
+    if (links == digiSimLink->end())
+      continue;
+    std::map<Int_t, Int_t> pid_count;
+
+    for (Int_t strip = first_strip; strip < first_strip + cls; strip++) {
+      for (const auto& link : *links) {
+        Int_t link_strip = link.getStrip();
+        if (link_strip == strip) {
+          Int_t pid = link.getParticleType();
+          pid_count[pid]++;
+          break;
+        }
+      }
+    }
+    Int_t max_pid = 0;
+    Int_t max_count = 0;
+    for (auto& [pid, count] : pid_count) {
+      if (max_count < count) {
+        max_pid = pid;
+        max_count = count;
+      }
+    }
+    Int_t pid_idx = getPidIdx(max_pid);
+    me_occ_pid_[key3]->Fill(pid_idx);
+  }
+
+  for (auto [key, num_total_rechit] : total_rechit) {
+    me_total_rechit_[key]->Fill(num_total_rechit);
   }
 
   // NOTE
@@ -244,9 +366,6 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
       continue;
     }
 
-    if (not isMuonSimHit(simhit))
-      continue;
-
     GEMDetId simhit_gemid{simhit.detUnitId()};
     const BoundPlane& surface = gem->idToDet(simhit_gemid)->surface();
 
@@ -254,23 +373,35 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
     Int_t station_id = simhit_gemid.station();
     Int_t layer_id = simhit_gemid.layer();
     Int_t chamber_id = simhit_gemid.chamber();
-    Int_t roll_id = simhit_gemid.roll();
+    Int_t ieta = simhit_gemid.ieta();
+    Int_t num_layers = simhit_gemid.nlayers();
 
+    ME2IdsKey key{station_id, ieta};
     ME2IdsKey key2{region_id, station_id};
     ME3IdsKey key3{region_id, station_id, layer_id};
+    ME4IdsKey key4{region_id, station_id, layer_id, ieta};
 
     const LocalPoint& simhit_local_pos = simhit.localPosition();
     const GlobalPoint& simhit_global_pos = surface.toGlobal(simhit_local_pos);
 
     Float_t simhit_g_abs_eta = std::fabs(simhit_global_pos.eta());
-    Float_t simhit_g_phi = simhit_global_pos.phi();
+    Float_t simhit_g_phi = toDegree(simhit_global_pos.phi());
 
-    Int_t simhit_strip = gem->etaPartition(simhit_gemid)->strip(simhit_local_pos);
-    Int_t det_occ_bin_x = getDetOccBinX(chamber_id, layer_id);
+    Int_t det_occ_bin_x = getDetOccBinX(num_layers, chamber_id, layer_id);
 
-    me_simhit_occ_eta_[region_id]->Fill(simhit_g_abs_eta);
-    me_simhit_occ_phi_[key2]->Fill(simhit_g_phi);
-    me_simhit_occ_det_[key2]->Fill(det_occ_bin_x, roll_id);
+    auto simhit_trackId = simhit.trackId();
+
+    auto links = digiSimLink->find(simhit_gemid);
+    if (links == digiSimLink->end())
+      continue;
+
+    Int_t simhit_strip = -1;
+    for (const auto& link : *links) {
+      if (simhit_trackId == link.getTrackId()) {
+        simhit_strip = link.getStrip();
+        break;
+      }
+    }
 
     GEMRecHitCollection::range range = rechit_collection->get(simhit_gemid);
     for (auto rechit = range.first; rechit != range.second; ++rechit) {
@@ -278,6 +409,9 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
         edm::LogError(kLogCategory_) << "GEMRecHit didn't matched with GEMGeometry." << std::endl;
         continue;
       }
+
+      if (not isMuonSimHit(simhit))
+        continue;
 
       if (matchRecHitAgainstSimHit(rechit, simhit_strip)) {
         const LocalPoint& rechit_local_pos = rechit->localPosition();
@@ -287,25 +421,31 @@ void GEMRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup
 
         Float_t residual_x = rechit_local_pos.x() - simhit_local_pos.x();
         Float_t residual_y = rechit_local_pos.y() - simhit_local_pos.y();
+        Float_t residual_r = sqrt(pow(residual_x, 2) + pow(residual_y, 2));
+        Float_t residual_phi = rechit_local_pos.phi() - simhit_local_pos.phi();
+        Float_t residual_rphi = residual_r * residual_phi;
 
         Float_t pull_x = residual_x / resolution_x;
         Float_t pull_y = residual_y / resolution_y;
 
-        me_residual_x_[region_id]->Fill(residual_x);
-        me_residual_y_[region_id]->Fill(residual_y);
-        me_pull_x_[region_id]->Fill(pull_x);
-        me_pull_y_[region_id]->Fill(pull_y);
+        me_residual_x_[key]->Fill(residual_x);
+        me_residual_y_[key]->Fill(residual_y);
+        me_residual_rphi_[key]->Fill(residual_rphi);
 
-        me_rechit_occ_eta_[region_id]->Fill(simhit_g_abs_eta);
-        me_rechit_occ_phi_[key2]->Fill(simhit_g_phi);
-        me_rechit_occ_det_[key2]->Fill(det_occ_bin_x, roll_id);
+        me_rechit_occ_eta_[key3]->Fill(simhit_g_abs_eta);
+        me_rechit_occ_phi_[key3]->Fill(simhit_g_phi);
 
         if (detail_plot_) {
-          me_detail_residual_x_[key3]->Fill(residual_x);
-          me_detail_residual_y_[key3]->Fill(residual_y);
+          me_detail_rechit_occ_det_[key2]->Fill(det_occ_bin_x, ieta);
 
-          me_detail_pull_x_[key3]->Fill(pull_x);
-          me_detail_pull_y_[key3]->Fill(pull_y);
+          me_detail_residual_x_[key4]->Fill(residual_x);
+          me_detail_residual_y_[key4]->Fill(residual_y);
+          me_detail_residual_rphi_[key4]->Fill(residual_rphi);
+
+          me_detail_pull_x_[key]->Fill(pull_x);
+          me_detail_pull_y_[key]->Fill(pull_y);
+          me_detail_pull_x_la_[key4]->Fill(pull_x);
+          me_detail_pull_y_la_[key4]->Fill(pull_y);
         }  // detail_plot
 
         // If we find GEMRecHit that matches PSimHit, then exit

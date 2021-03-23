@@ -7,17 +7,15 @@ variables converted to constants to reduce its memory footprint.
 https://www.tensorflow.org/api_docs/python/tf/graph_util/convert_variables_to_constants
 """
 
-
 import os
 import sys
-import tensorflow as tf
 
-from PhysicsTools.TensorFlow.tools import TF2, write_constant_graph
+import cmsml
 
 
-# go into v1 compatibility mode
-if TF2:
-    tf = tf.compat.v1
+# get tensorflow and work with the v1 compatibility layer
+tf, tf1, tf_version = cmsml.tensorflow.import_tf()
+tf = tf1
 tf.disable_eager_execution()
 
 # prepare the datadir
@@ -42,5 +40,6 @@ sess.run(tf.global_variables_initializer())
 print(sess.run(y, feed_dict={scale_: 1.0, x_: [range(10)]})[0][0])
 
 # write it
+graph_path = os.path.join(datadir, "constantgraph.pb")
 outputs = ["output"]
-write_constant_graph(sess, ["output"], os.path.join(datadir, "constantgraph.pb"))
+cmsml.tensorflow.save_graph(graph_path, sess, output_names=outputs, variables_to_constants=True)

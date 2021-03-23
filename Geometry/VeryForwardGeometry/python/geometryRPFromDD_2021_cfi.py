@@ -1,5 +1,3 @@
-# TODO: for the moment this is just copy of the 2018 config !!! this needs updating !!!
-
 import FWCore.ParameterSet.Config as cms
 
 # common and strip files
@@ -144,7 +142,7 @@ XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
                                               )
 
 # position of RPs
-XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
+XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2021/v1/RP_Dist_Beam_Cent.xml")
 
 ctppsGeometryESModule = cms.ESProducer("CTPPSGeometryESModule",
     verbosity = cms.untracked.uint32(1),

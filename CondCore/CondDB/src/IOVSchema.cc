@@ -1,4 +1,5 @@
 #include "CondCore/CondDB/interface/Exception.h"
+#include "CondCore/CondDB/interface/Auth.h"
 #include "IOVSchema.h"
 //
 #include <openssl/sha.h>
@@ -32,7 +33,15 @@ namespace cond {
       return tmp;
     }
 
-    TAG::Table::Table(coral::ISchema& schema) : m_schema(schema) {}
+    TAG::Table::Table(coral::ISchema& schema) : m_schema(schema) {
+      if (exists()) {
+        std::set<std::string> columns;
+        int ncols = m_schema.tableHandle(tname).description().numberOfColumns();
+        for (int i = 0; i < ncols; i++)
+          columns.insert(m_schema.tableHandle(tname).description().columnDescription(i).name());
+        m_isProtectable = columns.count(PROTECTION_CODE::name);
+      }
+    }
 
     bool TAG::Table::Table::exists() { return existsTable(m_schema, tname); }
 
@@ -48,10 +57,12 @@ namespace cond {
                        DESCRIPTION,
                        LAST_VALIDATED_TIME,
                        INSERTION_TIME,
-                       MODIFICATION_TIME>
+                       MODIFICATION_TIME,
+                       PROTECTION_CODE>
           descr(tname);
       descr.setPrimaryKey<NAME>();
       createTable(m_schema, descr.get());
+      m_isProtectable = true;
     }
 
     bool TAG::Table::select(const std::string& name) {
@@ -68,13 +79,24 @@ namespace cond {
                             std::string& objectType,
                             cond::SynchronizationType& synchronizationType,
                             cond::Time_t& endOfValidity,
-                            cond::Time_t& lastValidatedTime) {
-      Query<TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, LAST_VALIDATED_TIME> q(m_schema);
-      q.addCondition<NAME>(name);
-      for (const auto& row : q)
-        std::tie(timeType, objectType, synchronizationType, endOfValidity, lastValidatedTime) = row;
+                            cond::Time_t& lastValidatedTime,
+                            int& protectionCode) {
+      if (isProtectable()) {
+        Query<TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, LAST_VALIDATED_TIME, PROTECTION_CODE> q(
+            m_schema);
+        q.addCondition<NAME>(name);
+        for (const auto& row : q)
+          std::tie(timeType, objectType, synchronizationType, endOfValidity, lastValidatedTime, protectionCode) = row;
+        return q.retrievedRows();
+      } else {
+        Query<TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, LAST_VALIDATED_TIME> q(m_schema);
+        q.addCondition<NAME>(name);
+        for (const auto& row : q)
+          std::tie(timeType, objectType, synchronizationType, endOfValidity, lastValidatedTime) = row;
+        protectionCode = 0;
 
-      return q.retrievedRows();
+        return q.retrievedRows();
+      }
     }
 
     bool TAG::Table::getMetadata(const std::string& name,
@@ -96,25 +118,49 @@ namespace cond {
                             const std::string& description,
                             cond::Time_t lastValidatedTime,
                             const boost::posix_time::ptime& insertionTime) {
-      RowBuffer<NAME,
-                TIME_TYPE,
-                OBJECT_TYPE,
-                SYNCHRONIZATION,
-                END_OF_VALIDITY,
-                DESCRIPTION,
-                LAST_VALIDATED_TIME,
-                INSERTION_TIME,
-                MODIFICATION_TIME>
-          dataToInsert(std::tie(name,
-                                timeType,
-                                objectType,
-                                synchronizationType,
-                                endOfValidity,
-                                description,
-                                lastValidatedTime,
-                                insertionTime,
-                                insertionTime));
-      insertInTable(m_schema, tname, dataToInsert.get());
+      if (isProtectable()) {
+        RowBuffer<NAME,
+                  TIME_TYPE,
+                  OBJECT_TYPE,
+                  SYNCHRONIZATION,
+                  END_OF_VALIDITY,
+                  DESCRIPTION,
+                  LAST_VALIDATED_TIME,
+                  INSERTION_TIME,
+                  MODIFICATION_TIME,
+                  PROTECTION_CODE>
+            dataToInsert(std::tie(name,
+                                  timeType,
+                                  objectType,
+                                  synchronizationType,
+                                  endOfValidity,
+                                  description,
+                                  lastValidatedTime,
+                                  insertionTime,
+                                  insertionTime,
+                                  cond::auth::COND_DBTAG_NO_PROTECTION_CODE));
+        insertInTable(m_schema, tname, dataToInsert.get());
+      } else {
+        RowBuffer<NAME,
+                  TIME_TYPE,
+                  OBJECT_TYPE,
+                  SYNCHRONIZATION,
+                  END_OF_VALIDITY,
+                  DESCRIPTION,
+                  LAST_VALIDATED_TIME,
+                  INSERTION_TIME,
+                  MODIFICATION_TIME>
+            dataToInsert(std::tie(name,
+                                  timeType,
+                                  objectType,
+                                  synchronizationType,
+                                  endOfValidity,
+                                  description,
+                                  lastValidatedTime,
+                                  insertionTime,
+                                  insertionTime));
+        insertInTable(m_schema, tname, dataToInsert.get());
+      }
     }
 
     void TAG::Table::update(const std::string& name,
@@ -143,6 +189,38 @@ namespace cond {
                                     const boost::posix_time::ptime& updateTime) {
       UpdateBuffer buffer;
       buffer.setColumnData<LAST_VALIDATED_TIME, MODIFICATION_TIME>(std::tie(lastValidatedTime, updateTime));
+      buffer.addWhereCondition<NAME>(name);
+      updateTable(m_schema, tname, buffer);
+    }
+
+    void TAG::Table::setProtectionCode(const std::string& name, int code) {
+      if (!isProtectable()) {
+        throwException("Tag in this schema are not protectable.", "TAG::Table::create");
+      }
+      Query<PROTECTION_CODE> q(m_schema);
+      q.addCondition<NAME>(name);
+      int newCode = 0;
+      for (const auto& row : q)
+        std::tie(newCode) = row;
+      newCode |= code;
+      UpdateBuffer buffer;
+      buffer.setColumnData<PROTECTION_CODE>(std::tie(newCode));
+      buffer.addWhereCondition<NAME>(name);
+      updateTable(m_schema, tname, buffer);
+    }
+
+    void TAG::Table::unsetProtectionCode(const std::string& name, int code) {
+      if (!isProtectable()) {
+        throwException("Tag in this schema are not protectable.", "TAG::Table::unsetProtectionCode");
+      }
+      Query<PROTECTION_CODE> q(m_schema);
+      q.addCondition<NAME>(name);
+      int presentCode = 0;
+      for (const auto& row : q)
+        std::tie(presentCode) = row;
+      int newCode = presentCode & (~code);
+      UpdateBuffer buffer;
+      buffer.setColumnData<PROTECTION_CODE>(std::tie(newCode));
       buffer.addWhereCondition<NAME>(name);
       updateTable(m_schema, tname, buffer);
     }
@@ -340,6 +418,61 @@ namespace cond {
       insertInTable(m_schema, tname, dataToInsert.get());
     }
 
+    TAG_AUTHORIZATION::Table::Table(coral::ISchema& schema) : m_schema(schema) {}
+
+    bool TAG_AUTHORIZATION::Table::exists() { return existsTable(m_schema, tname); }
+
+    void TAG_AUTHORIZATION::Table::create() {
+      if (exists()) {
+        throwException("TAG_AUTHORIZATION table already exists in this schema.", "TAG_AUTHORIZATION::create");
+      }
+      TableDescription<TAG_NAME, ACCESS_TYPE, CREDENTIAL, CREDENTIAL_TYPE> descr(tname);
+      descr.setPrimaryKey<TAG_NAME, CREDENTIAL, CREDENTIAL_TYPE>();
+      descr.setForeignKey<TAG_NAME, TAG::NAME>("TAG_NAME_FK");
+      createTable(m_schema, descr.get());
+    }
+
+    bool TAG_AUTHORIZATION::Table::getAccessPermission(const std::string& tagName,
+                                                       const std::string& credential,
+                                                       int credentialType,
+                                                       int accessType) {
+      Query<ACCESS_TYPE> q(m_schema);
+      q.addCondition<TAG_NAME>(tagName);
+      q.addCondition<CREDENTIAL>(credential);
+      q.addCondition<CREDENTIAL_TYPE>(credentialType);
+      int allowedAccess = 0;
+      for (auto row : q) {
+        allowedAccess = std::get<0>(row);
+      }
+      return allowedAccess & accessType;
+    }
+
+    void TAG_AUTHORIZATION::Table::setAccessPermission(const std::string& tagName,
+                                                       const std::string& credential,
+                                                       int credentialType,
+                                                       int accessType) {
+      RowBuffer<TAG_NAME, ACCESS_TYPE, CREDENTIAL, CREDENTIAL_TYPE> dataToInsert(
+          std::tie(tagName, accessType, credential, credentialType));
+      insertInTable(m_schema, tname, dataToInsert.get());
+    }
+
+    void TAG_AUTHORIZATION::Table::removeAccessPermission(const std::string& tagName,
+                                                          const std::string& credential,
+                                                          int credentialType) {
+      DeleteBuffer buffer;
+      buffer.addWhereCondition<TAG_NAME>(tagName);
+      buffer.addWhereCondition<CREDENTIAL>(credential);
+      buffer.addWhereCondition<CREDENTIAL_TYPE>(credentialType);
+      deleteFromTable(m_schema, tname, buffer);
+    }
+
+    void TAG_AUTHORIZATION::Table::removeEntriesForCredential(const std::string& credential, int credentialType) {
+      DeleteBuffer buffer;
+      buffer.addWhereCondition<CREDENTIAL>(credential);
+      buffer.addWhereCondition<CREDENTIAL_TYPE>(credentialType);
+      deleteFromTable(m_schema, tname, buffer);
+    }
+
     PAYLOAD::Table::Table(coral::ISchema& schema) : m_schema(schema) {}
 
     bool PAYLOAD::Table::exists() { return existsTable(m_schema, tname); }
@@ -413,7 +546,11 @@ namespace cond {
     }
 
     IOVSchema::IOVSchema(coral::ISchema& schema)
-        : m_tagTable(schema), m_iovTable(schema), m_tagLogTable(schema), m_payloadTable(schema) {}
+        : m_tagTable(schema),
+          m_iovTable(schema),
+          m_tagLogTable(schema),
+          m_tagAccessPermissionTable(schema),
+          m_payloadTable(schema) {}
 
     bool IOVSchema::exists() {
       if (!m_tagTable.exists())
@@ -432,6 +569,7 @@ namespace cond {
         m_payloadTable.create();
         m_iovTable.create();
         m_tagLogTable.create();
+        m_tagAccessPermissionTable.create();
         created = true;
       }
       return created;
@@ -442,6 +580,13 @@ namespace cond {
     IIOVTable& IOVSchema::iovTable() { return m_iovTable; }
 
     ITagLogTable& IOVSchema::tagLogTable() { return m_tagLogTable; }
+
+    ITagAccessPermissionTable& IOVSchema::tagAccessPermissionTable() {
+      if (!m_tagTable.isProtectable()) {
+        throwException("Tag in this schema are not protectable.", "IOVSchema::tagAccessPermissionTable");
+      }
+      return m_tagAccessPermissionTable;
+    }
 
     IPayloadTable& IOVSchema::payloadTable() { return m_payloadTable; }
 

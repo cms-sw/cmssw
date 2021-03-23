@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -44,12 +45,6 @@
 #include <DataFormats/SiStripCommon/interface/ConstantsForRunType.h>
 #include <DataFormats/SiStripCommon/interface/SiStripFedKey.h>
 #include <CondFormats/SiStripObjects/interface/FedChannelConnection.h>
-#include <CondFormats/SiStripObjects/interface/SiStripFedCabling.h>
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-#include <CondFormats/SiStripObjects/interface/SiStripNoises.h>
-#include <CondFormats/DataRecord/interface/SiStripFedCablingRcd.h>
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-#include <CondFormats/SiStripObjects/interface/SiStripNoises.h>
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -76,7 +71,7 @@ SiStripFineDelayHit::SiStripFineDelayHit(const edm::ParameterSet& iConfig) : eve
   //register your products
   produces<edm::DetSetVector<SiStripRawDigi> >("FineDelaySelection");
   //now do what ever other initialization is needed
-  anglefinder_ = new SiStripFineDelayTLA(iConfig);
+  anglefinder_ = new SiStripFineDelayTLA(iConfig, consumesCollector());
   cosmic_ = iConfig.getParameter<bool>("cosmic");
   field_ = iConfig.getParameter<bool>("MagneticField");
   maxAngle_ = iConfig.getParameter<double>("MaxTrackAngle");
@@ -101,6 +96,11 @@ SiStripFineDelayHit::SiStripFineDelayHit(const edm::ParameterSet& iConfig) : eve
   explorationWindow_ = iConfig.getParameter<uint32_t>("ExplorationWindow");
   noTracking_ = iConfig.getParameter<bool>("NoTracking");
   mode_ = 0;
+
+  tkGeomToken_ = esConsumes();
+  tTopoToken_ = esConsumes();
+  fedCablingToken_ = esConsumes<edm::Transition::BeginRun>();
+  noiseToken_ = esConsumes();
 }
 
 SiStripFineDelayHit::~SiStripFineDelayHit() {
@@ -402,8 +402,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   //   iEvent.getByLabel(trackLabel_,trackCollection);
   iEvent.getByToken(trackCollectionToken_, trackCollection);
   const reco::TrackCollection* tracks = trackCollection.product();
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  const auto& tracker = iSetup.getData(tkGeomToken_);
   if (!tracks->empty()) {
     anglefinder_->init(iEvent, iSetup);
     LogDebug("produce") << "Found " << tracks->size() << " tracks.";
@@ -427,8 +426,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     iEvent.getByToken(trackToken_, TrajectoryCollection);
     trajVec = *(TrajectoryCollection.product());
     // Get TrackerTopology
-    edm::ESHandle<TrackerTopology> tTopo;
-    iSetup.get<TrackerTopologyRcd>().get(tTopo);
+    const auto tTopo = &iSetup.getData(tTopoToken_);
     // loop on tracks
     for (reco::TrackCollection::const_iterator itrack = tracks->begin(); itrack < tracks->end(); itrack++) {
       // first check the track Pt
@@ -452,17 +450,17 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         else if (((layerCode >> 6) & 0x3) == 3)
           subdet = StripSubdetector::TEC;
         int32_t layerIdx = (layerCode & 0xF) * (((layerCode >> 4) & 0x3) ? -1 : 1);
-        intersections = detId(*tracker, tTopo.product(), &(*itrack), trajVec, subdet, layerIdx);
+        intersections = detId(tracker, tTopo, &(*itrack), trajVec, subdet, layerIdx);
       } else {
         // for latency scans, no layer is specified -> no cut on detid
-        intersections = detId(*tracker, tTopo.product(), &(*itrack), trajVec);
+        intersections = detId(tracker, tTopo, &(*itrack), trajVec);
       }
       LogDebug("produce") << "  Found " << intersections.size() << " interesting intersections." << std::endl;
       for (std::vector<std::pair<uint32_t, std::pair<double, double> > >::iterator it = intersections.begin();
            it < intersections.end();
            it++) {
         std::pair<const SiStripCluster*, double> candidateCluster =
-            closestCluster(*tracker, &(*itrack), it->first, *clusterSet, *hitSet);
+            closestCluster(tracker, &(*itrack), it->first, *clusterSet, *hitSet);
         if (candidateCluster.first) {
           LogDebug("produce") << "    Found a cluster." << std::endl;
           // cut on the distance
@@ -529,8 +527,7 @@ void SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 void SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   event_ = &iEvent;
   // Get TrackerTopology
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  const auto tTopo = &iSetup.getData(tTopoToken_);
   // container for the selected hits
   std::vector<edm::DetSet<SiStripRawDigi> > output;
   output.reserve(100);
@@ -549,7 +546,7 @@ void SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::Event
   else if (((layerCode >> 6) & 0x3) == 3)
     subdet = StripSubdetector::TEC;
   int32_t layerIdx = (layerCode & 0xF) * (((layerCode >> 4) & 0x3) ? -1 : 1);
-  DeviceMask mask = deviceMask(subdet, layerIdx, tTopo.product());
+  DeviceMask mask = deviceMask(subdet, layerIdx, tTopo);
   // look at the clusters
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
   //   iEvent.getByLabel(clusterLabel_,clusters);
@@ -580,10 +577,9 @@ void SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::Event
       // 1.5< noise <8
       // charge<250
       // 50 > s/n > 10
-      edm::ESHandle<SiStripNoises> noiseHandle_;
-      iSetup.get<SiStripNoisesRcd>().get(noiseHandle_);
-      SiStripNoises::Range detNoiseRange = noiseHandle_->getRange(DSViter->id());
-      float noise = noiseHandle_->getNoise(leadingPosition, detNoiseRange);
+      const auto& noises = iSetup.getData(noiseToken_);
+      SiStripNoises::Range detNoiseRange = noises.getRange(DSViter->id());
+      float noise = noises.getNoise(leadingPosition, detNoiseRange);
       if (noise < 1.5)
         continue;
       if (leadingCharge >= 250 || noise >= 8 || leadingCharge / noise > 50 || leadingCharge / noise < 10)
@@ -613,11 +609,10 @@ void SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::Event
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripFineDelayHit::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   // Retrieve FED cabling object
-  edm::ESHandle<SiStripFedCabling> cabling;
-  iSetup.get<SiStripFedCablingRcd>().get(cabling);
-  auto feds = cabling->fedIds();
+  const auto& cabling = iSetup.getData(fedCablingToken_);
+  auto feds = cabling.fedIds();
   for (auto fedid = feds.begin(); fedid < feds.end(); ++fedid) {
-    auto connections = cabling->fedConnections(*fedid);
+    auto connections = cabling.fedConnections(*fedid);
     for (std::vector<FedChannelConnection>::const_iterator conn = connections.begin(); conn < connections.end();
          ++conn) {
       /*

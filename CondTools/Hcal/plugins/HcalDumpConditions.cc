@@ -18,7 +18,6 @@ September 21, 2009  Added HcalLutMetadata - Gena Kukartsev
 #include <sstream>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -41,6 +40,8 @@ namespace edmtest {
     explicit HcalDumpConditions(edm::ParameterSet const& p) {
       front = p.getUntrackedParameter<std::string>("outFilePrefix", "Dump");
       mDumpRequest = p.getUntrackedParameter<std::vector<std::string> >("dump", std::vector<std::string>());
+      m_toktopo = esConsumes<HcalTopology, HcalRecNumberingRecord>();
+      m_tokdb = esConsumes<HcalDbService, HcalDbRecord>();
     }
 
     explicit HcalDumpConditions(int i) {}
@@ -65,6 +66,8 @@ namespace edmtest {
   private:
     std::string front;
     std::vector<std::string> mDumpRequest;
+    edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> m_toktopo;
+    edm::ESGetToken<HcalDbService, HcalDbRecord> m_tokdb;
   };
 
   template <class S, class SRcd>
@@ -75,12 +78,9 @@ namespace edmtest {
                                   const HcalTopology* topo,
                                   const std::string label) {
     if (std::find(mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end()) {
-      edm::ESHandle<S> p;
-      if (!label.empty())
-        context.get<SRcd>().get(label, p);
-      else
-        context.get<SRcd>().get(p);
-      S myobject(*p.product());
+      edm::ESGetToken<S, SRcd> tok =
+          ((!label.empty()) ? esConsumes<S, SRcd>(edm::ESInputTag("", label)) : esConsumes<S, SRcd>());
+      S myobject = context.getData(tok);
       if (topo)
         myobject.setTopo(topo);
 
@@ -97,9 +97,8 @@ namespace edmtest {
                                   const edm::EventSetup& context,
                                   const std::string name) {
     if (std::find(mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end()) {
-      edm::ESHandle<S> p;
-      context.get<SRcd>().get(p);
-      S myobject(*p.product());
+      edm::ESGetToken<S, SRcd> tok = esConsumes<S, SRcd>();
+      const S& myobject = context.getData(tok);
 
       writeToFile(myobject, e, name);
 
@@ -119,9 +118,7 @@ namespace edmtest {
   }
 
   void HcalDumpConditions::analyze(const edm::Event& e, const edm::EventSetup& context) {
-    edm::ESHandle<HcalTopology> topology;
-    context.get<HcalRecNumberingRecord>().get(topology);
-    const HcalTopology* topo = &(*topology);
+    const HcalTopology* topo = &context.getData(m_toktopo);
 
     using namespace edm::eventsetup;
     std::cout << "HcalDumpConditions::analyze-> I AM IN RUN NUMBER " << e.id().run() << std::endl;
@@ -164,13 +161,12 @@ namespace edmtest {
     dumpIt<HcalTPChannelParameters, HcalTPChannelParametersRcd>(mDumpRequest, e, context, "TPChannelParameters", topo);
     dumpIt<HcalTPParameters, HcalTPParametersRcd>(mDumpRequest, e, context, "TPParameters");
 
-    edm::ESHandle<HcalDbService> pSetup;
+    const HcalDbService* pSetup = &context.getData(m_tokdb);
     if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("CalibrationsSet")) != mDumpRequest.end() ||
         std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("CalibrationWidthsSet")) !=
             mDumpRequest.end()) {
-      context.get<HcalDbRecord>().get(pSetup);
       if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("CalibrationsSet")) != mDumpRequest.end()) {
-        writeToFile(*pSetup->getHcalCalibrationsSet(), e, "CalibrationsSet");
+        writeToFile(*(pSetup->getHcalCalibrationsSet()), e, "CalibrationsSet");
       }
       if (std::find(mDumpRequest.begin(), mDumpRequest.end(), std::string("CalibrationWidthsSet")) !=
           mDumpRequest.end()) {

@@ -12,6 +12,7 @@ public:
 private:
   // NOTE to make it compatible to both full geometry and slice test
   std::vector<Int_t> region_ids_, station_ids_, layer_ids_;
+  Bool_t detail_plot_;
 };
 
 #endif  // Validation_MuonGEMRecHits_MuonGEMDigisHarvestor_h

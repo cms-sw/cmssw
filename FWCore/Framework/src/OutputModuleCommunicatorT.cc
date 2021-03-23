@@ -25,19 +25,23 @@
 namespace {
 
   template <typename F>
-  void async(edm::one::OutputModuleBase& iMod, F&& iFunc) {
-    iMod.sharedResourcesAcquirer().serialQueueChain().push(std::move(iFunc));
+  void async(edm::one::OutputModuleBase& iMod, tbb::task_group& iGroup, F&& iFunc) {
+    iMod.sharedResourcesAcquirer().serialQueueChain().push(iGroup, std::move(iFunc));
   }
 
   template <typename F>
-  void async(edm::limited::OutputModuleBase& iMod, F&& iFunc) {
-    iMod.queue().push(std::move(iFunc));
+  void async(edm::limited::OutputModuleBase& iMod, tbb::task_group& iGroup, F&& iFunc) {
+    iMod.queue().push(iGroup, std::move(iFunc));
   }
 
   template <typename F>
-  void async(edm::global::OutputModuleBase&, F iFunc) {
-    auto t = edm::make_functor_task(tbb::task::allocate_root(), iFunc);
-    tbb::task::spawn(*t);
+  void async(edm::global::OutputModuleBase&, tbb::task_group& iGroup, F iFunc) {
+    //NOTE, need the functor since group can not run a 'mutable' lambda
+    auto t = edm::make_functor_task(iFunc);
+    iGroup.run([t]() {
+      edm::TaskSentry s(t);
+      t->execute();
+    });
   }
 }  // namespace
 
@@ -94,7 +98,7 @@ namespace edm {
       }
       iTask.doneWaiting(ex);
     };
-    async(module(), std::move(t));
+    async(module(), *iTask.group(), std::move(t));
   }
 
   template <typename T>
@@ -135,7 +139,7 @@ namespace edm {
       }
       iTask.doneWaiting(ex);
     };
-    async(module(), std::move(t));
+    async(module(), *iTask.group(), std::move(t));
   }
 
   template <typename T>
@@ -169,7 +173,7 @@ namespace edm {
       }
       iTask.doneWaiting(ex);
     };
-    async(module(), std::move(t));
+    async(module(), *iTask.group(), std::move(t));
   }
 
   template <typename T>

@@ -4,5 +4,9 @@
 <use name="TrackingTools/TrajectoryParametrization"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/Math"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/TrajectoryState"/>
+<use name="FWCore/Utilities"/>
+<use name="MagneticField/Engine"/>
 <use name="vdt_headers"/>
 <use name="rootmath"/>

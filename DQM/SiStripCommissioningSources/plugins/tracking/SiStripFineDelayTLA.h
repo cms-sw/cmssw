@@ -11,6 +11,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 class TrackerGeometry;
 class TrackingRecHit;
 class TrajectorySeed;
@@ -18,7 +21,7 @@ class Trajectory;
 
 class SiStripFineDelayTLA {
 public:
-  explicit SiStripFineDelayTLA(const edm::ParameterSet& conf);
+  explicit SiStripFineDelayTLA(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   virtual ~SiStripFineDelayTLA();
   void init(const edm::Event& e, const edm::EventSetup& c);
 
@@ -31,6 +34,7 @@ private:
 private:
   edm::ParameterSet conf_;
   const TrackerGeometry* tracker;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
 };
 
 #endif

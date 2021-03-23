@@ -214,6 +214,8 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
                                              ctx.stream()),
       cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
                                              ctx.stream()),
+      cms::cuda::make_device_unique<float[]>(configParameters_.maxChannels * configParameters_.maxTimeSamples,
+                                             ctx.stream()),
       cms::cuda::make_device_unique<float[]>(
           configParameters_.maxChannels * configParameters_.maxTimeSamples * configParameters_.maxTimeSamples,
           ctx.stream()),

@@ -4,13 +4,15 @@
 #define L1TGlobal_L1TGlobalUtil_h
 
 // system include files
+#include <memory>
+
 #include <vector>
 
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
-#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosFractRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetosFract.h"
 
 // Objects to produce for the output record.
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
@@ -26,7 +28,7 @@
 
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtilHelper.h"
 
-#include "L1Trigger/L1TGlobal/interface/PrescalesVetosHelper.h"
+#include "L1Trigger/L1TGlobal/interface/PrescalesVetosFractHelper.h"
 
 // forward declarations
 
@@ -102,7 +104,7 @@ namespace l1t {
     // It is provided only until prescales and masks are available as CondFormats...
     // Most users should simply ignore this method and use the default ctor only!
     // Will look for prescale csv file in L1Trigger/L1TGlobal/data/Luminosity/startup/<filename>
-    void OverridePrescalesAndMasks(std::string filename, unsigned int psColumn = 1);
+    void OverridePrescalesAndMasks(std::string filename, unsigned int psColumn = 1.);
 
     /// initialize the class (mainly reserve)
     void retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup);  // using helper
@@ -127,7 +129,7 @@ namespace l1t {
     const bool getFinalDecisionByBit(int& bit, bool& decision) const;
 
     // Access Prescale
-    const bool getPrescaleByBit(int& bit, int& prescale) const;
+    const bool getPrescaleByBit(int& bit, double& prescale) const;
 
     // Access Masks:
     // follows logic of uGT board:
@@ -143,7 +145,7 @@ namespace l1t {
     const bool getFinalDecisionByName(const std::string& algName, bool& decision) const;
 
     // Access Prescales
-    const bool getPrescaleByName(const std::string& algName, int& prescale) const;
+    const bool getPrescaleByName(const std::string& algName, double& prescale) const;
 
     // Access Masks (see note) above
     const bool getMaskByName(const std::string& algName, std::vector<int>& mask) const;
@@ -154,7 +156,7 @@ namespace l1t {
     inline const std::vector<std::pair<std::string, bool>>& decisionsFinal() { return m_decisionsFinal; }
 
     // Access all prescales
-    inline const std::vector<std::pair<std::string, int>>& prescales() { return m_prescales; }
+    inline const std::vector<std::pair<std::string, double>>& prescales() { return m_prescales; }
 
     // Access Masks (see note) above
     inline const std::vector<std::pair<std::string, std::vector<int>>>& masks() { return m_masks; }
@@ -186,7 +188,7 @@ namespace l1t {
 
     // prescale factors
     bool m_readPrescalesFromFile;
-    const l1t::PrescalesVetosHelper* m_l1GtPrescalesVetoes;
+    const l1t::PrescalesVetosFractHelper* m_l1GtPrescalesVetoes;
     unsigned long long m_l1GtPfAlgoCacheID;
 
     // prescales and masks
@@ -205,8 +207,8 @@ namespace l1t {
     unsigned int m_PreScaleColumn;
     unsigned int m_numberOfPreScaleColumns;
 
-    std::vector<std::vector<int>> m_initialPrescaleFactorsAlgoTrig;
-    const std::vector<std::vector<int>>* m_prescaleFactorsAlgoTrig;
+    std::vector<std::vector<double>> m_initialPrescaleFactorsAlgoTrig;
+    const std::vector<std::vector<double>>* m_prescaleFactorsAlgoTrig;
     const std::map<int, std::vector<int>> m_initialTriggerMaskAlgoTrig;
     const std::map<int, std::vector<int>>* m_triggerMaskAlgoTrig;  // vector stores the BX
 
@@ -220,7 +222,7 @@ namespace l1t {
     std::vector<std::pair<std::string, bool>> m_decisionsInitial;
     std::vector<std::pair<std::string, bool>> m_decisionsInterm;
     std::vector<std::pair<std::string, bool>> m_decisionsFinal;
-    std::vector<std::pair<std::string, int>> m_prescales;
+    std::vector<std::pair<std::string, double>> m_prescales;
     std::vector<std::pair<std::string, std::vector<int>>> m_masks;  // vector stores the bx's that are mask for given algo
 
     /// verbosity level
@@ -229,10 +231,12 @@ namespace l1t {
     std::unique_ptr<L1TGlobalUtilHelper> m_l1tGlobalUtilHelper;
 
     edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_L1TUtmTriggerMenuRunToken;
-    edm::ESGetToken<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd> m_L1TGlobalPrescalesVetosRunToken;
+    edm::ESGetToken<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd>
+        m_L1TGlobalPrescalesVetosFractRunToken;
 
     edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_L1TUtmTriggerMenuEventToken;
-    edm::ESGetToken<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd> m_L1TGlobalPrescalesVetosEventToken;
+    edm::ESGetToken<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd>
+        m_L1TGlobalPrescalesVetosFractEventToken;
   };
 
   template <typename T>
@@ -248,7 +252,7 @@ namespace l1t {
                                T& module,
                                UseEventSetupIn useEventSetupIn)
       : L1TGlobalUtil() {
-    m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset, iC, module));
+    m_l1tGlobalUtilHelper = std::make_unique<L1TGlobalUtilHelper>(pset, iC, module);
     m_readPrescalesFromFile = m_l1tGlobalUtilHelper->readPrescalesFromFile();
     eventSetupConsumes(iC, useEventSetupIn);
   }
@@ -270,7 +274,8 @@ namespace l1t {
                                edm::InputTag const& l1tExtBlkInputTag,
                                UseEventSetupIn useEventSetupIn)
       : L1TGlobalUtil() {
-    m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset, iC, module, l1tAlgBlkInputTag, l1tExtBlkInputTag));
+    m_l1tGlobalUtilHelper =
+        std::make_unique<L1TGlobalUtilHelper>(pset, iC, module, l1tAlgBlkInputTag, l1tExtBlkInputTag);
     m_readPrescalesFromFile = m_l1tGlobalUtilHelper->readPrescalesFromFile();
     eventSetupConsumes(iC, useEventSetupIn);
   }

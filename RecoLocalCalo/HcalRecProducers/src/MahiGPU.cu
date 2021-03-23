@@ -1,12 +1,12 @@
 #include <Eigen/Dense>
 
 #include "DataFormats/CaloRecHit/interface/MultifitComputations.h"
-
 // needed to compile with USER_CXXFLAGS="-DCOMPUTE_TDC_TIME"
 #include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+
 // TODO reuse some of the HCAL constats from
 //#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConstants.h"
-// ?
 
 #include "SimpleAlgoGPU.h"
 #include "KernelHelpers.h"
@@ -69,6 +69,7 @@ namespace hcal {
     // TODO: add/validate restrict (will increase #registers in use by the kernel)
     __global__ void kernel_prep1d_sameNumberOfSamples(float* amplitudes,
                                                       float* noiseTerms,
+                                                      float* electronicNoiseTerms,
                                                       float* outputEnergy,
                                                       float* outputChi2,
                                                       uint16_t const* dataf01HE,
@@ -166,6 +167,7 @@ namespace hcal {
       // offset output
       auto* amplitudesForChannel = amplitudes + nsamplesForCompute * gch;
       auto* noiseTermsForChannel = noiseTerms + nsamplesForCompute * gch;
+      auto* electronicNoiseTermsForChannel = electronicNoiseTerms + nsamplesForCompute * gch;
       auto const nchannelsf015 = nchannelsf01HE + nchannelsf5HB;
 
       // get event input quantities
@@ -182,6 +184,7 @@ namespace hcal {
                           ? idsf01HE[gch]
                           : (gch < nchannelsf015 ? idsf5HB[gch - nchannelsf01HE] : idsf3HB[gch - nchannelsf015]);
       auto const did = HcalDetId{id};
+
       auto const adc =
           gch < nchannelsf01HE
               ? adc_for_sample<Flavor1>(dataf01HE + stride * gch, sample)
@@ -216,6 +219,7 @@ namespace hcal {
       auto const* pedestalWidthsForChannel = useEffectivePedestals && (gch < nchannelsf01HE || gch >= nchannelsf015)
                                                  ? effectivePedestalWidths + hashedId * 4
                                                  : pedestalWidths + hashedId * 4;
+
       auto const* gains = gainValues + hashedId * 4;
       auto const gain = gains[capid];
       auto const gain0 = gains[0];
@@ -433,6 +437,7 @@ namespace hcal {
       // store to global memory
       amplitudesForChannel[sampleWithinWindow] = amplitude;
       noiseTermsForChannel[sampleWithinWindow] = noiseTerm;
+      electronicNoiseTermsForChannel[sampleWithinWindow] = pedestalWidth;
     }
 
     // TODO: need to add an array of offsets for pulses (a la activeBXs...)
@@ -669,7 +674,7 @@ namespace hcal {
         Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrix,
         Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrixM,
         Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> const& pulseMatrixP) {
-#pragma unroll
+      CMS_UNROLL_LOOP
       for (int ipulse = 0; ipulse < NPULSES; ipulse++) {
         auto const resultAmplitude = resultAmplitudesVector(ipulse);
         if (resultAmplitude == 0)
@@ -681,7 +686,7 @@ namespace hcal {
 
         // preload a column
         float pmcol[NSAMPLES], pmpcol[NSAMPLES], pmmcol[NSAMPLES];
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int counter = 0; counter < NSAMPLES; counter++) {
           pmcol[counter] = __ldg(&pulseMatrix.coeffRef(counter, ipulse));
           pmpcol[counter] = __ldg(&pulseMatrixP.coeffRef(counter, ipulse));
@@ -689,7 +694,7 @@ namespace hcal {
         }
 
         auto const ampl2 = resultAmplitude * resultAmplitude;
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int col = 0; col < NSAMPLES; col++) {
           auto const valueP_col = pmpcol[col];
           auto const valueM_col = pmmcol[col];
@@ -701,8 +706,8 @@ namespace hcal {
           auto tmp_value = 0.5 * (tmppcol * tmppcol + tmpmcol * tmpmcol);
           covarianceMatrix(col, col) += ampl2 * tmp_value;
 
-// FIXME: understand if this actually gets unrolled
-#pragma unroll
+          // FIXME: understand if this actually gets unrolled
+          CMS_UNROLL_LOOP
           for (int row = col + 1; row < NSAMPLES; row++) {
             float const valueP_row = pmpcol[row];  //pulseMatrixP(j, ipulseReal);
             float const value_row = pmcol[row];    //pulseMatrix(j, ipulseReal);
@@ -728,7 +733,9 @@ namespace hcal {
                                     float const* __restrict__ pulseMatricesP,
                                     int const* __restrict__ pulseOffsetValues,
                                     float const* __restrict__ noiseTerms,
+                                    float const* __restrict__ electronicNoiseTerms,
                                     int8_t const* __restrict__ soiSamples,
+                                    float const* __restrict__ noiseCorrelationValues,
                                     float const* __restrict__ pedestalWidths,
                                     float const* __restrict__ effectivePedestalWidths,
                                     bool const useEffectivePedestals,
@@ -788,10 +795,13 @@ namespace hcal {
                                                  pedestalWidthsForChannel[1] * pedestalWidthsForChannel[1] +
                                                  pedestalWidthsForChannel[2] * pedestalWidthsForChannel[2] +
                                                  pedestalWidthsForChannel[3] * pedestalWidthsForChannel[3]);
+
       auto const* gains = gainValues + hashedId * 4;
       // FIXME on cpu ts 0 capid was used - does it make any difference
       auto const gain = gains[0];
       auto const respCorrection = respCorrectionValues[hashedId];
+
+      auto const noisecorr = noiseCorrelationValues[hashedId];
 
 #ifdef HCAL_MAHI_GPUDEBUG
 #ifdef HCAL_MAHI_GPUDEBUG_FILTERDETID
@@ -805,7 +815,7 @@ namespace hcal {
       int const soi = soiSamples[gch];
       */
       calo::multifit::ColumnVector<NPULSES, int> pulseOffsets;
-#pragma unroll
+      CMS_UNROLL_LOOP
       for (int i = 0; i < NPULSES; ++i)
         pulseOffsets(i) = i;
       //        pulseOffsets(i) = pulseOffsetValues[i] - pulseOffsetValues[0];
@@ -816,6 +826,8 @@ namespace hcal {
       // map views
       Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> inputAmplitudesView{inputAmplitudes + gch * NSAMPLES};
       Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> noiseTermsView{noiseTerms + gch * NSAMPLES};
+      Eigen::Map<const calo::multifit::ColumnVector<NSAMPLES>> noiseElectronicView{electronicNoiseTerms +
+                                                                                   gch * NSAMPLES};
       Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixMView{pulseMatricesM +
                                                                                               gch * NSAMPLES * NPULSES};
       Eigen::Map<const calo::multifit::ColMajorMatrix<NSAMPLES, NPULSES>> glbPulseMatrixPView{pulseMatricesP +
@@ -854,12 +866,16 @@ namespace hcal {
         // shared memory
         float* covarianceMatrixStorage = shrMatrixLFnnlsStorage;
         calo::multifit::MapSymM<float, NSAMPLES> covarianceMatrix{covarianceMatrixStorage};
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int counter = 0; counter < calo::multifit::MapSymM<float, NSAMPLES>::total; counter++)
-          covarianceMatrixStorage[counter] = averagePedestalWidth2;
-#pragma unroll
-        for (int counter = 0; counter < calo::multifit::MapSymM<float, NSAMPLES>::stride; counter++)
-          covarianceMatrix(counter, counter) += __ldg(&noiseTermsView.coeffRef(counter));
+          covarianceMatrixStorage[counter] = (noisecorr != 0.f) ? 0.f : averagePedestalWidth2;
+        CMS_UNROLL_LOOP
+        for (unsigned int counter = 0; counter < calo::multifit::MapSymM<float, NSAMPLES>::stride; counter++) {
+          covarianceMatrix(counter, counter) += noiseTermsView.coeffRef(counter);
+          if (counter != 0)
+            covarianceMatrix(counter, counter - 1) += noisecorr * __ldg(&noiseElectronicView.coeffRef(counter - 1)) *
+                                                      __ldg(&noiseElectronicView.coeffRef(counter));
+        }
 
         // update covariance matrix
         update_covariance(
@@ -907,36 +923,36 @@ namespace hcal {
         //float AtAStorage[MapSymM<float, NPULSES>::total];
         calo::multifit::MapSymM<float, NPULSES> AtA{shrAtAStorage};
         calo::multifit::ColumnVector<NPULSES> Atb;
-#pragma unroll
+        CMS_UNROLL_LOOP
         for (int icol = 0; icol < NPULSES; icol++) {
           float reg_ai[NSAMPLES];
 
-// load column icol
-#pragma unroll
+          // load column icol
+          CMS_UNROLL_LOOP
           for (int counter = 0; counter < NSAMPLES; counter++)
             reg_ai[counter] = A(counter, icol);
 
           // compute diagonal
           float sum = 0.f;
-#pragma unroll
+          CMS_UNROLL_LOOP
           for (int counter = 0; counter < NSAMPLES; counter++)
             sum += reg_ai[counter] * reg_ai[counter];
 
           // store
           AtA(icol, icol) = sum;
 
-// go thru the other columns
-#pragma unroll
+          // go thru the other columns
+          CMS_UNROLL_LOOP
           for (int j = icol + 1; j < NPULSES; j++) {
             // load column j
             float reg_aj[NSAMPLES];
-#pragma unroll
+            CMS_UNROLL_LOOP
             for (int counter = 0; counter < NSAMPLES; counter++)
               reg_aj[counter] = A(counter, j);
 
             // accum
             float sum = 0.f;
-#pragma unroll
+            CMS_UNROLL_LOOP
             for (int counter = 0; counter < NSAMPLES; counter++)
               sum += reg_aj[counter] * reg_ai[counter];
 
@@ -947,7 +963,7 @@ namespace hcal {
 
           // Atb accum
           float sum_atb = 0;
-#pragma unroll
+          CMS_UNROLL_LOOP
           for (int counter = 0; counter < NSAMPLES; counter++)
             sum_atb += reg_ai[counter] * reg_b[counter];
 
@@ -1010,7 +1026,7 @@ namespace hcal {
       auto const idx_for_energy = std::abs(pulseOffsetValues[0]);
       outputEnergy[gch] = (gain * resultAmplitudesVector(idx_for_energy)) * respCorrection;
       /*
-      #pragma unroll
+      CMS_UNROLL_LOOP
       for (int i=0; i<NPULSES; i++)
           if (pulseOffsets[i] == soi)
               // NOTE: gain is a number < 10^-3/4, multiply first to avoid stab issues
@@ -1060,6 +1076,7 @@ namespace hcal {
       hcal::mahi::kernel_prep1d_sameNumberOfSamples<<<blocks, threadsPerBlock, nbytesShared, cudaStream>>>(
           scratch.amplitudes.get(),
           scratch.noiseTerms.get(),
+          scratch.electronicNoiseTerms.get(),
           outputGPU.recHits.energy.get(),
           outputGPU.recHits.chi2.get(),
           inputGPU.f01HEDigis.data.get(),
@@ -1187,7 +1204,9 @@ namespace hcal {
             scratch.pulseMatricesP.get(),
             conditions.pulseOffsets.values,
             scratch.noiseTerms.get(),
+            scratch.electronicNoiseTerms.get(),
             scratch.soiSamples.get(),
+            conditions.sipmParameters.auxi2,
             conditions.pedestalWidths.values,
             conditions.effectivePedestalWidths.values,
             configParameters.useEffectivePedestals,

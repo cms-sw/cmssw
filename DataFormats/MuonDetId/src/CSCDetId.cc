@@ -64,6 +64,13 @@ std::string CSCDetId::chamberName(int endcap, int station, int ring, int chamber
   return "ME" + eSign + std::to_string(station) + "/" + std::to_string(ring) + "/" + std::to_string(chamber);
 }
 
+std::string CSCDetId::chamberName(int chamberType) {
+  // ME1a, ME1b, ME12, ME13, ME21, ME22, ME31, ME32, ME41, ME42
+  const unsigned stations[10] = {1, 1, 1, 1, 2, 2, 3, 3, 4, 4};
+  const std::string rings[10] = {"A", "B", "2", "3", "1", "2", "1", "2", "1", "2"};
+  return "ME" + std::to_string(stations[chamberType - 1]) + rings[chamberType - 1];
+}
+
 std::string CSCDetId::chamberName() const { return chamberName(endcap(), station(), ring(), chamber()); }
 
 std::ostream& operator<<(std::ostream& os, const CSCDetId& id) {
