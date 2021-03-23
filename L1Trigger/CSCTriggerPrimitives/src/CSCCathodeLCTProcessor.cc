@@ -1416,11 +1416,11 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   int newCFEB = digi.getCFEB();
 
   // case where key half-strip is on the lower edge of the CFEB
-  if (digi.getStrip() == 0 and halfstripoffset == -1 and digi.getCFEB() > 0) {
+  if (digi.getStrip() == 0 and halfstripoffset <= -1 and digi.getCFEB() > 0) {
     newCFEB = digi.getCFEB() - 1;
   }
   // case where key half-strip is on the upper edge of the CFEB
-  if (digi.getStrip() == CSCConstants::NUM_HALF_STRIPS_PER_CFEB - 1 and halfstripoffset == 1 and
+  if (digi.getStrip() == CSCConstants::NUM_HALF_STRIPS_PER_CFEB - 1 and halfstripoffset >= 1 and
       digi.getCFEB() < numCFEBs_) {
     newCFEB = digi.getCFEB() + 1;
   }
