@@ -18,7 +18,7 @@ L1THLTTauMatching::L1THLTTauMatching(const edm::ParameterSet& iConfig)
       tauTrigger(consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("L1TauTrigger"))),
       mEt_Min(iConfig.getParameter<double>("EtMin")),
       reduceTauContent(iConfig.getParameter<bool>("ReduceTauContent")),
-      keepOriginalVertex(iConfig.getParameter<bool>("KeepOriginalVertex")){
+      keepOriginalVertex(iConfig.getParameter<bool>("KeepOriginalVertex")) {
   produces<PFTauCollection>();
 }
 L1THLTTauMatching::~L1THLTTauMatching() {}
@@ -81,9 +81,8 @@ void L1THLTTauMatching::fillDescriptions(edm::ConfigurationDescriptions& descrip
       ->setComment("Input collection of PFTaus");
   desc.add<double>("EtMin", 0.0)->setComment("Minimal pT of PFTau to match");
   desc.add<bool>("ReduceTauContent", true)->setComment("Should produce taus with reduced content (Only p4 and vertex)");
-  desc.add<bool>("KeepOriginalVertex", false)->setComment("Should use original vertex instead of setting the vertex to that of the leading charged hadron");
-  descriptions.setComment(
-      "This module produces collection of PFTaus matched to L1 Taus / Jets passing a HLT filter.");
+  desc.add<bool>("KeepOriginalVertex", false)
+      ->setComment("Should use original vertex instead of setting the vertex to that of the leading charged hadron");
+  descriptions.setComment("This module produces collection of PFTaus matched to L1 Taus / Jets passing a HLT filter.");
   descriptions.add("L1THLTTauMatching", desc);
 }
-

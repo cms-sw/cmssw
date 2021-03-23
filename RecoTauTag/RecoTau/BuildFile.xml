@@ -26,7 +26,6 @@
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="roottmva"/>
 <use name="PhysicsTools/TensorFlow"/>
-<use name="TauTriggerTools/Common"/>
 <export>
   <lib name="1"/>
 </export>
