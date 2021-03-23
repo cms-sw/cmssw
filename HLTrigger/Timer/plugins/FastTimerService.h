@@ -3,6 +3,7 @@
 
 // system headers
 #include <unistd.h>
+#include <pthread.h>
 
 // C++ headers
 #include <chrono>
@@ -454,6 +455,23 @@ private:
   ResourcesPerJob job_summary_;               // whole event time accounting per-job
   std::vector<ResourcesPerJob> run_summary_;  // whole event time accounting per-run
   std::mutex summary_mutex_;                  // synchronise access to the summary objects across different threads
+
+  //
+  struct ThreadGuard {
+    using specific_t = std::pair<FastTimerService::Measurement&, FastTimerService::AtomicResources&>;
+
+    ThreadGuard();
+    ~ThreadGuard() = default;
+
+    static void reset_thread(void* t);
+    bool register_thread(FastTimerService::Measurement& t, FastTimerService::AtomicResources& r);
+
+    static pthread_key_t key;
+    static pthread_once_t key_once;
+  };
+
+  //
+  ThreadGuard guard_;
 
   // per-thread quantities, lazily allocated
   tbb::enumerable_thread_specific<Measurement, tbb::cache_aligned_allocator<Measurement>, tbb::ets_key_per_instance>
