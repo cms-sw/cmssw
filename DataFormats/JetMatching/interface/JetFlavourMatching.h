@@ -1,10 +1,10 @@
-#ifndef SimDataFormats_JetMatching_JetFlavourMatching_h
-#define SimDataFormats_JetMatching_JetFlavourMatching_h
+#ifndef DataFormats_JetMatching_JetFlavourMatching_h
+#define DataFormats_JetMatching_JetFlavourMatching_h
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+#include "DataFormats/JetMatching/interface/JetFlavour.h"
 #include <vector>
 
 namespace reco {
@@ -32,4 +32,4 @@ namespace reco {
 
 }  // namespace reco
 
-#endif  // SimDataFormats_JetMatching_JetFlavourMatching_h
+#endif  // DataFormats_JetMatching_JetFlavourMatching_h
