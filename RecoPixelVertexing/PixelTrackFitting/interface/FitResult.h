@@ -8,7 +8,7 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
-namespace Rfit {
+namespace riemannFit {
 
   using Vector2d = Eigen::Vector2d;
   using Vector3d = Eigen::Vector3d;
@@ -23,7 +23,7 @@ namespace Rfit {
   template <int N>
   using Matrix3xNd = Eigen::Matrix<double, 3, N>;  // used for inputs hits
 
-  struct circle_fit {
+  struct CircleFit {
     Vector3d par;  //!< parameter: (X0,Y0,R)
     Matrix3d cov;
     /*!< covariance matrix: \n
@@ -31,11 +31,11 @@ namespace Rfit {
       |cov(X0,Y0)|cov(Y0,Y0)|cov( R,Y0)| \n
       |cov(X0, R)|cov(Y0, R)|cov( R, R)|
     */
-    int32_t q;  //!< particle charge
+    int32_t qCharge;  //!< particle charge
     float chi2;
   };
 
-  struct line_fit {
+  struct LineFit {
     Vector2d par;  //!<(cotan(theta),Zip)
     Matrix2d cov;
     /*!<
@@ -45,7 +45,7 @@ namespace Rfit {
     double chi2;
   };
 
-  struct helix_fit {
+  struct HelixFit {
     Vector5d par;  //!<(phi,Tip,pt,cotan(theta)),Zip)
     Matrix5d cov;
     /*!< ()->cov() \n
@@ -58,8 +58,8 @@ namespace Rfit {
     float chi2_circle;
     float chi2_line;
     //    Vector4d fast_fit;
-    int32_t q;  //!< particle charge
-  };            // __attribute__((aligned(16)));
+    int32_t qCharge;  //!< particle charge
+  };                  // __attribute__((aligned(16)));
 
-}  // namespace Rfit
+}  // namespace riemannFit
 #endif

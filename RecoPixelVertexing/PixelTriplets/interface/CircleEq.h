@@ -80,16 +80,6 @@ constexpr void CircleEq<T>::compute(T x1, T y1, T x2, T y2, T x3, T y3) {
   auto num = x1p * y3p - y1p * x3p;  // num also gives correct sign for CT
   auto det = d12 * y3p - d32 * y1p;
 
-  /*
-  auto ct  = num/det;
-  auto sn  = det>0 ? T(1.) : T(-1.);
-  auto st2 = (d12*x3p-d32*x1p)/det;
-  auto seq = T(1.) +st2*st2;
-  auto al2 = sn/std::sqrt(seq);
-  auto be2 = -st2*al2;
-  ct *= T(2.)*al2;
-  */
-
   auto st2 = (d12 * x3p - d32 * x1p);
   auto seq = det * det + st2 * st2;
   auto al2 = T(1.) / std::sqrt(seq);

@@ -5,9 +5,9 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/FitResult.h"
 
-namespace Rfit {
+namespace riemannFit {
 
-  constexpr double d = 1.e-4;  //!< used in numerical derivative (J2 in Circle_fit())
+  constexpr double epsilon = 1.e-4;  //!< used in numerical derivative (J2 in Circle_fit())
 
   using VectorXd = Eigen::VectorXd;
   using MatrixXd = Eigen::MatrixXd;
@@ -49,13 +49,11 @@ namespace Rfit {
   using Vector4f = Eigen::Vector4f;
   using Vector6f = Eigen::Matrix<double, 6, 1>;
 
-  using u_int = unsigned int;
-
   template <class C>
   __host__ __device__ void printIt(C* m, const char* prefix = "") {
 #ifdef RFIT_DEBUG
-    for (u_int r = 0; r < m->rows(); ++r) {
-      for (u_int c = 0; c < m->cols(); ++c) {
+    for (uint r = 0; r < m->rows(); ++r) {
+      for (uint c = 0; c < m->cols(); ++c) {
         printf("%s Matrix(%d,%d) = %g\n", prefix, r, c, (*m)(r, c));
       }
     }
@@ -102,19 +100,19 @@ namespace Rfit {
     // | 3  4  5 |
     constexpr uint32_t hits_in_fit = M6xNf::ColsAtCompileTime;
     for (uint32_t i = 0; i < hits_in_fit; ++i) {
-      auto ge_idx = 0;
-      auto j = 0;
-      auto l = 0;
-      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
-      ge_idx = 2;
-      j = 1;
-      l = 1;
-      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
-      ge_idx = 1;
-      j = 1;
-      l = 0;
-      hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) = hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) =
-          ge.col(i)[ge_idx];
+      {
+        constexpr uint32_t ge_idx = 0, j = 0, l = 0;
+        hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      }
+      {
+        constexpr uint32_t ge_idx = 2, j = 1, l = 1;
+        hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      }
+      {
+        constexpr uint32_t ge_idx = 1, j = 1, l = 0;
+        hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) = hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) =
+            ge.col(i)[ge_idx];
+      }
     }
   }
 
@@ -134,33 +132,33 @@ namespace Rfit {
     // | 3  4  5 |
     constexpr uint32_t hits_in_fit = M6xNf::ColsAtCompileTime;
     for (uint32_t i = 0; i < hits_in_fit; ++i) {
-      auto ge_idx = 0;
-      auto j = 0;
-      auto l = 0;
-      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
-      ge_idx = 2;
-      j = 1;
-      l = 1;
-      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
-      ge_idx = 5;
-      j = 2;
-      l = 2;
-      hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
-      ge_idx = 1;
-      j = 1;
-      l = 0;
-      hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) = hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) =
-          ge.col(i)[ge_idx];
-      ge_idx = 3;
-      j = 2;
-      l = 0;
-      hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) = hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) =
-          ge.col(i)[ge_idx];
-      ge_idx = 4;
-      j = 2;
-      l = 1;
-      hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) = hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) =
-          ge.col(i)[ge_idx];
+      {
+        constexpr uint32_t ge_idx = 0, j = 0, l = 0;
+        hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      }
+      {
+        constexpr uint32_t ge_idx = 2, j = 1, l = 1;
+        hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      }
+      {
+        constexpr uint32_t ge_idx = 5, j = 2, l = 2;
+        hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) = ge.col(i)[ge_idx];
+      }
+      {
+        constexpr uint32_t ge_idx = 1, j = 1, l = 0;
+        hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) = hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) =
+            ge.col(i)[ge_idx];
+      }
+      {
+        constexpr uint32_t ge_idx = 3, j = 2, l = 0;
+        hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) = hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) =
+            ge.col(i)[ge_idx];
+      }
+      {
+        constexpr uint32_t ge_idx = 4, j = 2, l = 1;
+        hits_cov(i + l * hits_in_fit, i + j * hits_in_fit) = hits_cov(i + j * hits_in_fit, i + l * hits_in_fit) =
+            ge.col(i)[ge_idx];
+      }
     }
   }
 
@@ -172,19 +170,19 @@ namespace Rfit {
     \param B magnetic field in Gev/cm/c unit.
     \param error flag for errors computation.
   */
-  __host__ __device__ inline void par_uvrtopak(circle_fit& circle, const double B, const bool error) {
+  __host__ __device__ inline void par_uvrtopak(CircleFit& circle, const double B, const bool error) {
     Vector3d par_pak;
     const double temp0 = circle.par.head(2).squaredNorm();
     const double temp1 = sqrt(temp0);
-    par_pak << atan2(circle.q * circle.par(0), -circle.q * circle.par(1)), circle.q * (temp1 - circle.par(2)),
-        circle.par(2) * B;
+    par_pak << atan2(circle.qCharge * circle.par(0), -circle.qCharge * circle.par(1)),
+        circle.qCharge * (temp1 - circle.par(2)), circle.par(2) * B;
     if (error) {
       const double temp2 = sqr(circle.par(0)) * 1. / temp0;
-      const double temp3 = 1. / temp1 * circle.q;
-      Matrix3d J4;
-      J4 << -circle.par(1) * temp2 * 1. / sqr(circle.par(0)), temp2 * 1. / circle.par(0), 0., circle.par(0) * temp3,
-          circle.par(1) * temp3, -circle.q, 0., 0., B;
-      circle.cov = J4 * circle.cov * J4.transpose();
+      const double temp3 = 1. / temp1 * circle.qCharge;
+      Matrix3d j4Mat;
+      j4Mat << -circle.par(1) * temp2 * 1. / sqr(circle.par(0)), temp2 * 1. / circle.par(0), 0., circle.par(0) * temp3,
+          circle.par(1) * temp3, -circle.qCharge, 0., 0., B;
+      circle.cov = j4Mat * circle.cov * j4Mat.transpose();
     }
     circle.par = par_pak;
   }
@@ -195,19 +193,19 @@ namespace Rfit {
     \param circle_uvr parameter (X0,Y0,R), covariance matrix to
     be transformed and particle charge.
   */
-  __host__ __device__ inline void fromCircleToPerigee(circle_fit& circle) {
+  __host__ __device__ inline void fromCircleToPerigee(CircleFit& circle) {
     Vector3d par_pak;
     const double temp0 = circle.par.head(2).squaredNorm();
     const double temp1 = sqrt(temp0);
-    par_pak << atan2(circle.q * circle.par(0), -circle.q * circle.par(1)), circle.q * (temp1 - circle.par(2)),
-        circle.q / circle.par(2);
+    par_pak << atan2(circle.qCharge * circle.par(0), -circle.qCharge * circle.par(1)),
+        circle.qCharge * (temp1 - circle.par(2)), circle.qCharge / circle.par(2);
 
     const double temp2 = sqr(circle.par(0)) * 1. / temp0;
-    const double temp3 = 1. / temp1 * circle.q;
-    Matrix3d J4;
-    J4 << -circle.par(1) * temp2 * 1. / sqr(circle.par(0)), temp2 * 1. / circle.par(0), 0., circle.par(0) * temp3,
-        circle.par(1) * temp3, -circle.q, 0., 0., -circle.q / (circle.par(2) * circle.par(2));
-    circle.cov = J4 * circle.cov * J4.transpose();
+    const double temp3 = 1. / temp1 * circle.qCharge;
+    Matrix3d j4Mat;
+    j4Mat << -circle.par(1) * temp2 * 1. / sqr(circle.par(0)), temp2 * 1. / circle.par(0), 0., circle.par(0) * temp3,
+        circle.par(1) * temp3, -circle.qCharge, 0., 0., -circle.qCharge / (circle.par(2) * circle.par(2));
+    circle.cov = j4Mat * circle.cov * j4Mat.transpose();
 
     circle.par = par_pak;
   }
@@ -228,18 +226,18 @@ namespace Rfit {
     op(3) = ip(1);
     op(4) = -ip(4);
 
-    Matrix5d J = Matrix5d::Zero();
+    Matrix5d jMat = Matrix5d::Zero();
 
-    J(0, 2) = sinTheta;
-    J(0, 3) = -sinTheta2 * cosTheta * ip(2);
-    J(1, 0) = 1.;
-    J(2, 3) = -1.;
-    J(3, 1) = 1.;
-    J(4, 4) = -1;
+    jMat(0, 2) = sinTheta;
+    jMat(0, 3) = -sinTheta2 * cosTheta * ip(2);
+    jMat(1, 0) = 1.;
+    jMat(2, 3) = -1.;
+    jMat(3, 1) = 1.;
+    jMat(4, 4) = -1;
 
-    ocov = J * icov * J.transpose();
+    ocov = jMat * icov * jMat.transpose();
   }
 
-}  // namespace Rfit
+}  // namespace riemannFit
 
 #endif  // RecoPixelVertexing_PixelTrackFitting_interface_FitUtils_h

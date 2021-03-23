@@ -25,12 +25,11 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
       (GPUCACell::OuterHitOfCell *)malloc(std::max(1U, nhits) * sizeof(GPUCACell::OuterHitOfCell)));
   assert(device_isOuterHitOfCell_.get());
 
-  cellStorage_.reset((unsigned char *)malloc(CAConstants::maxNumOfActiveDoublets() * sizeof(GPUCACell::CellNeighbors) +
-                                             CAConstants::maxNumOfActiveDoublets() * sizeof(GPUCACell::CellTracks)));
+  cellStorage_.reset((unsigned char *)malloc(caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +
+                                             caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellTracks)));
   device_theCellNeighborsContainer_ = (GPUCACell::CellNeighbors *)cellStorage_.get();
-  device_theCellTracksContainer_ =
-      (GPUCACell::CellTracks *)(cellStorage_.get() +
-                                CAConstants::maxNumOfActiveDoublets() * sizeof(GPUCACell::CellNeighbors));
+  device_theCellTracksContainer_ = (GPUCACell::CellTracks *)(cellStorage_.get() + caConstants::maxNumOfActiveDoublets *
+                                                                                      sizeof(GPUCACell::CellNeighbors));
 
   gpuPixelDoublets::initDoublets(device_isOuterHitOfCell_.get(),
                                  nhits,
@@ -40,15 +39,15 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
                                  device_theCellTracksContainer_);
 
   // device_theCells_ = Traits:: template make_unique<GPUCACell[]>(cs, m_params.maxNumberOfDoublets_, stream);
-  device_theCells_.reset((GPUCACell *)malloc(sizeof(GPUCACell) * m_params.maxNumberOfDoublets_));
+  device_theCells_.reset((GPUCACell *)malloc(sizeof(GPUCACell) * params_.maxNumberOfDoublets_));
   if (0 == nhits)
     return;  // protect against empty events
 
   // FIXME avoid magic numbers
   auto nActualPairs = gpuPixelDoublets::nPairs;
-  if (!m_params.includeJumpingForwardDoublets_)
+  if (!params_.includeJumpingForwardDoublets_)
     nActualPairs = 15;
-  if (m_params.minHitsPerNtuplet_ > 3) {
+  if (params_.minHitsPerNtuplet_ > 3) {
     nActualPairs = 13;
   }
 
@@ -60,17 +59,17 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
                                          hh.view(),
                                          device_isOuterHitOfCell_.get(),
                                          nActualPairs,
-                                         m_params.idealConditions_,
-                                         m_params.doClusterCut_,
-                                         m_params.doZ0Cut_,
-                                         m_params.doPtCut_,
-                                         m_params.maxNumberOfDoublets_);
+                                         params_.idealConditions_,
+                                         params_.doClusterCut_,
+                                         params_.doZ0Cut_,
+                                         params_.doPtCut_,
+                                         params_.maxNumberOfDoublets_);
 }
 
 template <>
 void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
   auto *tuples_d = &tracks_d->hitIndices;
-  auto *quality_d = (Quality *)(&tracks_d->m_quality);
+  auto *quality_d = tracks_d->qualityData();
 
   assert(tuples_d && quality_d);
 
@@ -94,14 +93,14 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
                  device_nCells_,
                  device_theCellNeighbors_.get(),
                  device_isOuterHitOfCell_.get(),
-                 m_params.hardCurvCut_,
-                 m_params.ptmin_,
-                 m_params.CAThetaCutBarrel_,
-                 m_params.CAThetaCutForward_,
-                 m_params.dcaCutInnerTriplet_,
-                 m_params.dcaCutOuterTriplet_);
+                 params_.hardCurvCut_,
+                 params_.ptmin_,
+                 params_.CAThetaCutBarrel_,
+                 params_.CAThetaCutForward_,
+                 params_.dcaCutInnerTriplet_,
+                 params_.dcaCutOuterTriplet_);
 
-  if (nhits > 1 && m_params.earlyFishbone_) {
+  if (nhits > 1 && params_.earlyFishbone_) {
     gpuPixelDoublets::fishbone(
         hh.view(), device_theCells_.get(), device_nCells_, device_isOuterHitOfCell_.get(), nhits, false);
   }
@@ -113,8 +112,8 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
                        tuples_d,
                        device_hitTuple_apc_,
                        quality_d,
-                       m_params.minHitsPerNtuplet_);
-  if (m_params.doStats_)
+                       params_.minHitsPerNtuplet_);
+  if (params_.doStats_)
     kernel_mark_used(hh.view(), device_theCells_.get(), device_nCells_);
 
   cms::cuda::finalizeBulk(device_hitTuple_apc_, tuples_d);
@@ -126,12 +125,12 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   cms::cuda::launchFinalize(device_tupleMultiplicity_.get(), cudaStream);
   kernel_fillMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get());
 
-  if (nhits > 1 && m_params.lateFishbone_) {
+  if (nhits > 1 && params_.lateFishbone_) {
     gpuPixelDoublets::fishbone(
         hh.view(), device_theCells_.get(), device_nCells_, device_isOuterHitOfCell_.get(), nhits, true);
   }
 
-  if (m_params.doStats_) {
+  if (params_.doStats_) {
     kernel_checkOverflows(tuples_d,
                           device_tupleMultiplicity_.get(),
                           device_hitToTuple_.get(),
@@ -142,7 +141,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
                           device_theCellTracks_.get(),
                           device_isOuterHitOfCell_.get(),
                           nhits,
-                          m_params.maxNumberOfDoublets_,
+                          params_.maxNumberOfDoublets_,
                           counters_);
   }
 }
@@ -150,12 +149,12 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
 template <>
 void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
   auto const *tuples_d = &tracks_d->hitIndices;
-  auto *quality_d = (Quality *)(&tracks_d->m_quality);
+  auto *quality_d = tracks_d->qualityData();
 
   // classify tracks based on kinematics
-  kernel_classifyTracks(tuples_d, tracks_d, m_params.cuts_, quality_d);
+  kernel_classifyTracks(tuples_d, tracks_d, params_.cuts_, quality_d);
 
-  if (m_params.lateFishbone_) {
+  if (params_.lateFishbone_) {
     // apply fishbone cleaning to good tracks
     kernel_fishboneCleaner(device_theCells_.get(), device_nCells_, quality_d);
   }
@@ -171,7 +170,7 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   // remove duplicates (tracks that share a hit)
   kernel_tripletCleaner(hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get());
 
-  if (m_params.doStats_) {
+  if (params_.doStats_) {
     // counters (add flag???)
     kernel_doStatsForHitInTracks(device_hitToTuple_.get(), counters_);
     kernel_doStatsForTracks(tuples_d, quality_d, counters_);

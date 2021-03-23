@@ -12,8 +12,8 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cudaStream_t stream) {
   // ALLOCATIONS FOR THE INTERMEDIATE RESULTS (STAYS ON WORKER)
   //////////////////////////////////////////////////////////
 
-  device_theCellNeighbors_ = Traits::template make_unique<CAConstants::CellNeighborsVector>(stream);
-  device_theCellTracks_ = Traits::template make_unique<CAConstants::CellTracksVector>(stream);
+  device_theCellNeighbors_ = Traits::template make_unique<caConstants::CellNeighborsVector>(stream);
+  device_theCellTracks_ = Traits::template make_unique<caConstants::CellTracksVector>(stream);
 
   device_hitToTuple_ = Traits::template make_unique<HitToTuple>(stream);
 

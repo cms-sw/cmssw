@@ -53,10 +53,14 @@ public:
 private:
   void produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override;
 
-  edm::EDGetTokenT<reco::BeamSpot> tBeamSpot_;
-  edm::EDGetTokenT<PixelTrackHeterogeneous> tokenTrack_;
-  edm::EDGetTokenT<SiPixelRecHitCollectionNew> cpuHits_;
-  edm::EDGetTokenT<HMSstorage> hmsToken_;
+  // Event Data tokens
+  const edm::EDGetTokenT<reco::BeamSpot> tBeamSpot_;
+  const edm::EDGetTokenT<PixelTrackHeterogeneous> tokenTrack_;
+  const edm::EDGetTokenT<SiPixelRecHitCollectionNew> cpuHits_;
+  const edm::EDGetTokenT<HMSstorage> hmsToken_;
+  // Event Setup tokens
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttTopoToken_;
 
   int32_t const minNumberOfHits_;
 };
@@ -66,6 +70,8 @@ PixelTrackProducerFromSoA::PixelTrackProducerFromSoA(const edm::ParameterSet &iC
       tokenTrack_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("trackSrc"))),
       cpuHits_(consumes<SiPixelRecHitCollectionNew>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
       hmsToken_(consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
+      idealMagneticFieldToken_(esConsumes()),
+      ttTopoToken_(esConsumes()),
       minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")) {
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -91,30 +97,22 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
   auto indToEdmP = std::make_unique<IndToEdm>();
   auto &indToEdm = *indToEdmP;
 
-  edm::ESHandle<MagneticField> fieldESH;
-  iSetup.get<IdealMagneticFieldRecord>().get(fieldESH);
+  auto const &idealField = iSetup.getData(idealMagneticFieldToken_);
 
   pixeltrackfitting::TracksWithRecHits tracks;
-  edm::ESHandle<TrackerTopology> httopo;
-  iSetup.get<TrackerTopologyRcd>().get(httopo);
 
-  edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByToken(tBeamSpot_, bsHandle);
-  const auto &bsh = *bsHandle;
-  // std::cout << "beamspot " << bsh.x0() << ' ' << bsh.y0() << ' ' << bsh.z0() << std::endl;
+  auto const &httopo = iSetup.getData(ttTopoToken_);
+
+  const auto &bsh = iEvent.get(tBeamSpot_);
   GlobalPoint bs(bsh.x0(), bsh.y0(), bsh.z0());
 
-  edm::Handle<SiPixelRecHitCollectionNew> gh;
-  iEvent.getByToken(cpuHits_, gh);
-  auto const &rechits = *gh;
+  auto const &rechits = iEvent.get(cpuHits_);
   std::vector<TrackingRecHit const *> hitmap;
   auto const &rcs = rechits.data();
   auto nhits = rcs.size();
   hitmap.resize(nhits, nullptr);
 
-  edm::Handle<HMSstorage> hhms;
-  iEvent.getByToken(hmsToken_, hhms);
-  auto const *hitsModuleStart = (*hhms).get();
+  auto const *hitsModuleStart = iEvent.get(hmsToken_).get();
   auto fc = hitsModuleStart;
 
   for (auto const &h : rcs) {
@@ -147,8 +145,8 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
       break;  // this is a guard: maybe we need to move to nTracks...
     indToEdm.push_back(-1);
     auto q = quality[it];
-    if (q != trackQuality::loose)
-      continue;  // FIXME
+    if (q != pixelTrack::Quality::loose)
+      continue;
     if (nHits < minNumberOfHits_)
       continue;
     indToEdm.back() = nt;
@@ -164,10 +162,10 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
     float chi2 = tsoa.chi2(it);
     float phi = tsoa.phi(it);
 
-    Rfit::Vector5d ipar, opar;
-    Rfit::Matrix5d icov, ocov;
+    riemannFit::Vector5d ipar, opar;
+    riemannFit::Matrix5d icov, ocov;
     fit.copyToDense(ipar, icov, it);
-    Rfit::transformToPerigeePlane(ipar, icov, opar, ocov);
+    riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
 
     LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);
     AlgebraicSymMatrix55 m;
@@ -180,16 +178,14 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
     Surface::RotationType rot(sp, -cp, 0, 0, 0, -1.f, cp, sp, 0);
 
     Plane impPointPlane(bs, rot);
-    GlobalTrajectoryParameters gp(impPointPlane.toGlobal(lpar.position()),
-                                  impPointPlane.toGlobal(lpar.momentum()),
-                                  lpar.charge(),
-                                  fieldESH.product());
-    JacobianLocalToCurvilinear jl2c(impPointPlane, lpar, *fieldESH.product());
+    GlobalTrajectoryParameters gp(
+        impPointPlane.toGlobal(lpar.position()), impPointPlane.toGlobal(lpar.momentum()), lpar.charge(), &idealField);
+    JacobianLocalToCurvilinear jl2c(impPointPlane, lpar, idealField);
 
     AlgebraicSymMatrix55 mo = ROOT::Math::Similarity(jl2c.jacobian(), m);
 
     int ndof = 2 * hits.size() - 5;
-    chi2 = chi2 * ndof;  // FIXME
+    chi2 = chi2 * ndof;
     GlobalPoint vv = gp.position();
     math::XYZPoint pos(vv.x(), vv.y(), vv.z());
     GlobalVector pp = gp.momentum();
@@ -202,7 +198,7 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
   // std::cout << "processed " << nt << " good tuples " << tracks.size() << "out of " << indToEdm.size() << std::endl;
 
   // store tracks
-  storeTracks(iEvent, tracks, *httopo);
+  storeTracks(iEvent, tracks, httopo);
   iEvent.put(std::move(indToEdmP));
 }
 

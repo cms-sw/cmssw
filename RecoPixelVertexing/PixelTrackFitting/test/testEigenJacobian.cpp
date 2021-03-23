@@ -1,8 +1,8 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/FitUtils.h"
 #include <cmath>
 
-using Rfit::Matrix5d;
-using Rfit::Vector5d;
+using riemannFit::Matrix5d;
+using riemannFit::Vector5d;
 
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
 
@@ -76,7 +76,7 @@ int main() {
 
         // Matrix5d covf = transfFast(cov0,par0);
 
-        Rfit::transformToPerigeePlane(par0, cov0, par1, cov1);
+        riemannFit::transformToPerigeePlane(par0, cov0, par1, cov1);
 
         std::cout << "cov1\n" << cov1 << std::endl;
 

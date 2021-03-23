@@ -9,7 +9,7 @@ void print() {
 }
 
 int main() {
-  using namespace CAConstants;
+  using namespace caConstants;
 
   print<GPUCACell>();
   print<CellNeighbors>();

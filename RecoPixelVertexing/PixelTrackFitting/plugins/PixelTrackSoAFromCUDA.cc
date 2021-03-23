@@ -17,6 +17,9 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 
+// Switch on to enable checks and printout for found tracks
+#undef PIXEL_DEBUG_PRODUCE
+
 class PixelTrackSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit PixelTrackSoAFromCUDA(const edm::ParameterSet& iConfig);
@@ -33,7 +36,7 @@ private:
   edm::EDGetTokenT<cms::cuda::Product<PixelTrackHeterogeneous>> tokenCUDA_;
   edm::EDPutTokenT<PixelTrackHeterogeneous> tokenSOA_;
 
-  cms::cuda::host::unique_ptr<pixelTrack::TrackSoA> m_soa;
+  cms::cuda::host::unique_ptr<pixelTrack::TrackSoA> soa_;
 };
 
 PixelTrackSoAFromCUDA::PixelTrackSoAFromCUDA(const edm::ParameterSet& iConfig)
@@ -54,29 +57,30 @@ void PixelTrackSoAFromCUDA::acquire(edm::Event const& iEvent,
   cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
   auto const& inputData = ctx.get(inputDataWrapped);
 
-  m_soa = inputData.toHostAsync(ctx.stream());
+  soa_ = inputData.toHostAsync(ctx.stream());
 }
 
 void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
-  /*
-  auto const & tsoa = *m_soa;
+#ifdef PIXEL_DEBUG_PRODUCE
+  auto const& tsoa = *soa_;
   auto maxTracks = tsoa.stride();
   std::cout << "size of SoA" << sizeof(tsoa) << " stride " << maxTracks << std::endl;
 
   int32_t nt = 0;
   for (int32_t it = 0; it < maxTracks; ++it) {
     auto nHits = tsoa.nHits(it);
-    assert(nHits==int(tsoa.hitIndices.size(it)));
-    if (nHits == 0) break;  // this is a guard: maybe we need to move to nTracks...
+    assert(nHits == int(tsoa.hitIndices.size(it)));
+    if (nHits == 0)
+      break;  // this is a guard: maybe we need to move to nTracks...
     nt++;
   }
   std::cout << "found " << nt << " tracks in cpu SoA at " << &tsoa << std::endl;
-  */
+#endif
 
   // DO NOT  make a copy  (actually TWO....)
-  iEvent.emplace(tokenSOA_, PixelTrackHeterogeneous(std::move(m_soa)));
+  iEvent.emplace(tokenSOA_, PixelTrackHeterogeneous(std::move(soa_)));
 
-  assert(!m_soa);
+  assert(!soa_);
 }
 
 DEFINE_FWK_MODULE(PixelTrackSoAFromCUDA);
