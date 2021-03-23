@@ -199,7 +199,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     meOccupancy_->Fill(global_point.z(), global_point.phi());
 
     if (LocalPosDebug_) {
-      meLocalOccupancy_->Fill(local_point.x(), local_point.y());
+      meLocalOccupancy_->Fill(local_point.x() + recHit.position(), local_point.y());
       meHitXlocal_->Fill(local_point.x());
       meHitYlocal_->Fill(local_point.y());
       meHitZlocal_->Fill(local_point.z());
