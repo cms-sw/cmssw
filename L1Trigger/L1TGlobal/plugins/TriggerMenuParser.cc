@@ -12,6 +12,7 @@
  * \new features: Vladimir Rekovic
  *                - indexing
  *                - correlations with overlap object removal
+ *                - displaced muons by R.Cavanaugh
  *
  * $Date$
  * $Revision$
@@ -297,7 +298,8 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                    condition.getType() == esConditionType::CaloCaloCorrelation ||
                    condition.getType() == esConditionType::CaloEsumCorrelation ||
                    condition.getType() == esConditionType::InvariantMass ||
-                   condition.getType() == esConditionType::TransverseMass) {
+                   condition.getType() == esConditionType::TransverseMass ||
+        	   condition.getType() == esConditionType::InvariantMassUpt) { // Added by R.Cavanaugh for displaced muons
           parseCorrelation(condition, chipNr);
 
           //parse Externals
@@ -588,6 +590,19 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
             }
           }
         } break;
+        case esScaleType::UnconstrainedPtScale: { // Added by R.Cavanaugh for displaced muons
+	  scaleParam->uptMin = scale.getMinimum();
+	  scaleParam->uptMax = scale.getMaximum();
+	  scaleParam->uptStep = scale.getStep();
+	  
+	  //Get bin edges 
+	  const std::vector<esBin>& binsV = scale.getBins(); 
+	  for (unsigned int i = 0; i < binsV.size(); i++) {  
+	    const esBin& bin = binsV.at(i);                  
+	    std::pair<double, double> binLimits(bin.minimum, bin.maximum); 
+	    scaleParam->uptBins.push_back(binLimits); 
+	  } 
+	} break; 
         case esScaleType::EtaScale: {
           scaleParam->etaMin = scale.getMinimum();
           scaleParam->etaMax = scale.getMaximum();
@@ -2581,9 +2596,17 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
           cutType = cutType | 0x8;
           //std::cout << "CCLA running Invarient mass cutType= " << cutType << std::endl;
         }
-      }
-    }
-  }
+      } else if (cut.getCutType() == esCutType::MassUpt) { // Added by R. Cavanaugh for displaced muons
+        LogDebug("TriggerMenuParser") << "CutType: " << cut.getCutType() << "\tMass Cut minV = " << minV
+                                      << " Max = " << maxV << " precMin = " << cut.getMinimum().index
+                                      << " precMax = " << cut.getMaximum().index << std::endl;
+        corrParameter.minMassCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
+        corrParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
+        corrParameter.precMassCut = cut.getMinimum().index;
+        cutType = cutType | 0x40; // Note:    0x40 (MassUpt) is next available bit after 0x20 (TwoBodyPt)
+      }                           // Careful: cutType carries same info as esCutType, but is hard coded!!
+    }                             //          This seems like a historical hack, which may be error prone.
+  }                               //          cutType is defined here, for use later in CorrCondition.cc
   corrParameter.corrCutType = cutType;
 
   // Get the two objects that form the legs
