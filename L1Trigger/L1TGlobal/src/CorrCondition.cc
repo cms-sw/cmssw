@@ -321,6 +321,14 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
   int etBin1 = 0;
   double et1Phy = 0.;
 
+  // Added by R.Cavanaugh for displaced muons
+  int uptIndex0 = 0;
+  int uptBin0 = 0;
+  double upt0Phy = 0.0;
+  int uptIndex1 = 0;
+  int uptBin1 = 0;
+  double upt1Phy = 0.0;
+
   int chrg0 = -1;
   int chrg1 = -1;
 
@@ -370,6 +378,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         phiIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPhiAtVtx();  //(*candMuVec)[obj0Index]->phiIndex();
         etaIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwEtaAtVtx();
         etIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPt();
+	uptIndex0 = (candMuVec->at(cond0bx, obj0Index))->hwPtUnconstrained(); // Added by R.Cavanaugh for displaced muons
         chrg0 = (candMuVec->at(cond0bx, obj0Index))->hwCharge();
         int etaBin0 = etaIndex0;
         if (etaBin0 < 0)
@@ -377,6 +386,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         //		LogDebug("L1TGlobal") << "Muon phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0  << " et " << etIndex0 << std::endl;
 
         etBin0 = etIndex0;
+	uptBin0 = uptIndex0;   // Added by R.Cavanaugh for displaced muons
         int ssize = m_gtScales->getMUScales().etBins.size();
         if (etBin0 >= ssize) {
           etBin0 = ssize - 1;
@@ -390,6 +400,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         eta0Phy = 0.5 * (binEdges.second + binEdges.first);
         binEdges = m_gtScales->getMUScales().etBins.at(etBin0);
         et0Phy = 0.5 * (binEdges.second + binEdges.first);
+	// Added by R.Cavanaugh for displaced muons
+        binEdges = m_gtScales->getMUScales().uptBins.at(uptBin0); 
+        upt0Phy = 0.5 * (binEdges.second + binEdges.first); 
 
         LogDebug("L1TGlobal") << "Found all quantities for the muon 0" << std::endl;
       } break;
@@ -646,6 +659,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
           phiIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPhiAtVtx();  //(*candMuVec)[obj0Index]->phiIndex();
           etaIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwEtaAtVtx();
           etIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPt();
+	  uptIndex1 = (candMuVec->at(cond1bx, obj1Index))->hwPtUnconstrained(); // Added by R.Cavanaugh for displaced muons
           chrg1 = (candMuVec->at(cond1bx, obj1Index))->hwCharge();
           etaBin1 = etaIndex1;
           if (etaBin1 < 0)
@@ -653,6 +667,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
           //		   LogDebug("L1TGlobal") << "Muon phi" << phiIndex1 << " eta " << etaIndex1 << " etaBin1 = " << etaBin1  << " et " << etIndex1 << std::endl;
 
           etBin1 = etIndex1;
+	  uptBin1 = uptIndex1;   // Added by R.Cavanaugh for displaced muons
           int ssize = m_gtScales->getMUScales().etBins.size();
           if (etBin1 >= ssize) {
             LogTrace("L1TGlobal") << "muon2 hw et" << etBin1 << " out of scale range.  Setting to maximum.";
@@ -666,7 +681,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
           eta1Phy = 0.5 * (binEdges.second + binEdges.first);
           binEdges = m_gtScales->getMUScales().etBins.at(etBin1);
           et1Phy = 0.5 * (binEdges.second + binEdges.first);
-
+	  // Added by R.Cavanaugh for displaced muons
+          binEdges = m_gtScales->getMUScales().uptBins.at(uptBin1); 
+          upt1Phy = 0.5 * (binEdges.second + binEdges.first); 
         } break;
         case CondCalo: {
           switch (cndObjTypeVec[1]) {
@@ -1149,7 +1166,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         }
       }
 
-      if (corrPar.corrCutType & 0x8 || corrPar.corrCutType & 0x10) {
+      if (corrPar.corrCutType & 0x8 || corrPar.corrCutType & 0x10 || corrPar.corrCutType & 0x40) { // R. Cavanaugh added 0x40 for massUpt
         //invariant mass calculation based on
         // M = sqrt(2*p1*p2(cosh(eta1-eta2) - cos(phi1 - phi2)))
         // but we calculate (1/2)M^2
@@ -1159,6 +1176,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         if (corrPar.corrCutType & 0x10)
           coshDeltaEtaPhy = 1.;
         double massSqPhy = et0Phy * et1Phy * (coshDeltaEtaPhy - cosDeltaPhiPhy);
+	if( corrPar.corrCutType & 0x40 ) // Added by R.Cavanaugh for displaced muons
+	  massSqPhy = upt0Phy * upt1Phy * (coshDeltaEtaPhy - cosDeltaPhiPhy);
 
         long long cosDeltaPhiLUT = m_gtScales->getLUT_DeltaPhi_Cos(lutName, deltaPhiFW);
         unsigned int precCosLUT = m_gtScales->getPrec_DeltaPhi_Cos(lutName);
@@ -1214,7 +1233,6 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
           LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut ["
                                 << (long long)(corrPar.minMassCutValue * pow(10, preShift)) << ","
                                 << (long long)(corrPar.maxMassCutValue * pow(10, preShift)) << "]" << std::endl;
-
         } else {
           LogDebug("L1TGlobal") << "    Failed Invariant Mass Cut ["
                                 << (long long)(corrPar.minMassCutValue * pow(10, preShift)) << ","
