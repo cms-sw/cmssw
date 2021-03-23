@@ -208,7 +208,7 @@ void TICLTrackstersValidation::bookHistograms(DQMStore::IBooker& ibook,
   int labelIndex = 0;
   for (const auto& trackster_token : tracksterTokens_) {
     auto& histo = histos[trackster_token.index()];
-    ibook.setCurrentFolder(folder_ + "TICLTracksters/" + trackstersCollectionsNames_[labelIndex]);
+    ibook.setCurrentFolder(folder_ + "HGCalValidator/" + trackstersCollectionsNames_[labelIndex]);
     histo.number_ = ibook.book1D("Number of Tracksters per Event", "Number of Tracksters per Event;# Tracksters;Events", 250, 0., 250.);
     histo.raw_energy_ = ibook.book1D("Raw Energy", "Raw Energy;Raw Energy [GeV];"+trkers, eNBins, &eBins[0]);
     histo.regr_energy_ = ibook.book1D("Regressed Energy", "Regressed Energy;Regressed Energy [GeV];"+trkers, eNBins, &eBins[0]);

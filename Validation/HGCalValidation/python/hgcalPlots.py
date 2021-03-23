@@ -2539,7 +2539,7 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   groupingFlag = " on Layer "
 
   hgcalTrackstersPlotter = Plotter()
-  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/TICLTracksters/" + collection
+  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/" + collection
   #_multiplicity_tracksters_numberOfEventsHistogram = dqmfolder+"/Number of Trackster per Event"
 
   _common["ymin"] = 0.0
