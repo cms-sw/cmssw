@@ -18,7 +18,8 @@ HFFibre::HFFibre(const std::string& name,
                  const HcalSimulationParameters* hps,
                  edm::ParameterSet const& p)
     : hcalConstant_(hcons), hcalsimpar_(hps) {
-  edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
+  edm::ParameterSet m_HF =
+      (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
   cFibre = c_light * (m_HF.getParameter<double>("CFibre"));
 
   edm::LogVerbatim("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre << " m/ns";
