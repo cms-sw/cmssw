@@ -978,6 +978,8 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
     _cfg.generalizedindex = _cfg.iphi * 10000 + (row->ieta > 0) * 100 + abs(row->ieta);  //is this used for anything?
 
     _cfg.lut = _coder.getCompressionLUT(_detid);
+    auto pWeight = conditions->getHcalTPChannelParameter(_detid, false);
+    if (pWeight) _cfg.weight = pWeight->getauxi1();
 
     int crot = 100 * row->crate + row->slot;
     unsigned int size = _cfg.lut.size();
