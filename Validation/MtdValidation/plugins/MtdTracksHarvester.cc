@@ -10,10 +10,10 @@
 
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-class MtdGlobalRecoHarvester : public DQMEDHarvester {
+class MtdTracksHarvester : public DQMEDHarvester {
 public:
-  explicit MtdGlobalRecoHarvester(const edm::ParameterSet& iConfig);
-  ~MtdGlobalRecoHarvester() override;
+  explicit MtdTracksHarvester(const edm::ParameterSet& iConfig);
+  ~MtdTracksHarvester() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -33,13 +33,13 @@ private:
 };
 
 // ------------ constructor and destructor --------------
-MtdGlobalRecoHarvester::MtdGlobalRecoHarvester(const edm::ParameterSet& iConfig)
+MtdTracksHarvester::MtdTracksHarvester(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")) {}
 
-MtdGlobalRecoHarvester::~MtdGlobalRecoHarvester() {}
+MtdTracksHarvester::~MtdTracksHarvester() {}
 
 // ------------ endjob tasks ----------------------------
-void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& igetter) {
+void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& igetter) {
   // --- Get the monitoring histograms
   MonitorElement* meBTLTrackEffEtaTot = igetter.get(folder_ + "TrackBTLEffEtaTot");
   MonitorElement* meBTLTrackEffPhiTot = igetter.get(folder_ + "TrackBTLEffPhiTot");
@@ -65,7 +65,7 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
       !meETLTrackEffPtTotZneg || !meETLTrackEffEtaMtdZneg || !meETLTrackEffPhiMtdZneg || !meETLTrackEffPtMtdZneg ||
       !meETLTrackEffEtaTotZpos || !meETLTrackEffPhiTotZpos || !meETLTrackEffPtTotZpos || !meETLTrackEffEtaMtdZpos ||
       !meETLTrackEffPhiMtdZpos || !meETLTrackEffPtMtdZpos) {
-    edm::LogError("MtdGlobalRecoHarvester") << "Monitoring histograms not found!" << std::endl;
+    edm::LogError("MtdTracksHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
 
@@ -250,12 +250,12 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ----------
-void MtdGlobalRecoHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MtdTracksHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<std::string>("folder", "MTD/GlobalReco/");
+  desc.add<std::string>("folder", "MTD/Tracks/");
 
-  descriptions.add("MtdGlobalRecoPostProcessor", desc);
+  descriptions.add("MtdTracksPostProcessor", desc);
 }
 
-DEFINE_FWK_MODULE(MtdGlobalRecoHarvester);
+DEFINE_FWK_MODULE(MtdTracksHarvester);
