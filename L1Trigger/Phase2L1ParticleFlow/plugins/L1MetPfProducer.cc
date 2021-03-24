@@ -22,7 +22,7 @@ public:
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
   edm::EDGetTokenT<vector<l1t::PFCandidate>> _l1PFToken;
-    
+
     long unsigned int maxCands=128;
 
     // quantization controllers
@@ -38,21 +38,27 @@ private:
     const float phi_lsb = 2*M_PI/(1<<PHI_SIZE); // rad
 
     // for LUTs
-    static constexpr int PROJ_TAB_SIZE = (1<<(PHI_SIZE-2));
-    static constexpr int DROP_BITS = 2;
-    static constexpr int INV_TAB_SIZE = (1<<(PT_SIZE-DROP_BITS));
-    static constexpr int ATAN_SIZE = (PHI_SIZE-3);
-    static constexpr int ATAN_TAB_SIZE = (1<<ATAN_SIZE);
+    // static constexpr int PROJ_TAB_SIZE = (1<<(PHI_SIZE-2));
+    // static constexpr int DROP_BITS = 2;
+    // static constexpr int INV_TAB_SIZE = (1<<(PT_SIZE-DROP_BITS));
+    // static constexpr int ATAN_SIZE = (PHI_SIZE-3);
+    // static constexpr int ATAN_TAB_SIZE = (1<<ATAN_SIZE);
 
-    //static pt_t cos_table[PROJ_TAB_SIZE];
-    pt_t cos_table[PROJ_TAB_SIZE];
-    pt_t sin_table[PROJ_TAB_SIZE];
-    pt_t inv_table[INV_TAB_SIZE];
-    pt_t atan_table[ATAN_TAB_SIZE];
-    void init_projx_table(pt_t table_out[PROJ_TAB_SIZE]);
-    void init_projy_table(pt_t table_out[PROJ_TAB_SIZE]);
-    void init_inv_table(pt_t table_out[INV_TAB_SIZE]);
-    void init_atan_table(pt_t table_out[ATAN_TAB_SIZE]);
+    std::vector<pt_t> cos_table;
+    std::vector<pt_t> sin_table;
+    std::vector<pt_t> inv_table;
+    std::vector<pt_t> atan_table;
+    uint sinCosTableBits_;
+    uint sinCosTableSize_;
+    uint inverseDropBits_;
+    uint inversionTableSize_;
+    uint arcTanTableBits_;
+    uint arcTanTableSize_;
+    
+    void init_projx_table(std::vector<pt_t> table_out);
+    void init_projy_table(std::vector<pt_t> table_out);
+    void init_inv_table(std::vector<pt_t> table_out);
+    void init_atan_table(std::vector<pt_t> table_out);
 
     void ProjX(pt_t pt, phi_t phi, pxy_t &x, bool debug=false) const;
     void ProjY(pt_t pt, phi_t phi, pxy_t &y, bool debug=false) const;
@@ -68,7 +74,7 @@ private:
 
     // for alternate floating-pt implementation
     const float maxPt_ = (1<<(PT_SIZE-PT_DEC_BITS));
-    const float inverseMax_ = (1<<(PT_SIZE-DROP_BITS));
+    const float inverseMax_ = (1<<(PT_SIZE-inverseDropBits_));
     
     inline double quantize(double value, double to_integer) const {
         return round(value * to_integer) / to_integer;
@@ -80,9 +86,23 @@ private:
 };
 
 L1MetPfProducer::L1MetPfProducer(const edm::ParameterSet& cfg)
-    : _l1PFToken(consumes<std::vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
+    : _l1PFToken(consumes<std::vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))),
+      sinCosTableBits_(cfg.getParameter<uint>("sinCosTableBits")),
+      inverseDropBits_(cfg.getParameter<uint>("inverseDropBits")),
+      arcTanTableBits_(cfg.getParameter<uint>("arcTanTableBits"))
+{
     produces<std::vector<l1t::EtSum> >();
-    
+
+    sinCosTableSize_ = 1<<sinCosTableBits_;
+    cos_table.resize(sinCosTableSize_);
+    sin_table.resize(sinCosTableSize_);
+
+    inversionTableSize_ = (1<<(PT_SIZE-inverseDropBits_));
+    inv_table.resize(inversionTableSize_);
+
+    arcTanTableSize_ = 1<<arcTanTableBits_;
+    atan_table.resize(arcTanTableSize_);
+
     init_projx_table( cos_table );
     init_projy_table( sin_table );
     init_inv_table( inv_table );
@@ -159,7 +179,7 @@ void L1MetPfProducer::CalcMetFast(std::vector<float> pt_vec, std::vector<float> 
         float phi = quantize( TVector2::Phi_mpi_pi(phi_vec[i]), 1./phi_lsb);
 
         // LUTs correspond to Q1 only to allow a smaller number of entries
-        float table_phi = quantize(phi, PROJ_TAB_SIZE/(M_PI/2));
+        float table_phi = quantize(phi, sinCosTableSize_/(M_PI/2));
 
         float px = quantize( pt * cos(table_phi), 1./pt_lsb);
         float py = quantize( pt * sin(table_phi), 1./pt_lsb);
@@ -180,7 +200,7 @@ void L1MetPfProducer::CalcMetFast(std::vector<float> pt_vec, std::vector<float> 
     if (denominator > inverseMax_) denominator = inverseMax_;
     // no add'l quantization needed, since we currently store inverse for all pt values below max
     // ratio is stored in units of 1/max pt val 
-    float met_phi = atan( quantize(numerator / denominator, ATAN_TAB_SIZE) );
+    float met_phi = atan( quantize(numerator / denominator, arcTanTableSize_) );
   
     // recover the full angle from [0,pi/4)
     if( fabs(sumx) < fabs(sumy) ) met_phi = M_PI/2 - met_phi; // to [0,pi/2)
@@ -193,12 +213,12 @@ void L1MetPfProducer::CalcMetFast(std::vector<float> pt_vec, std::vector<float> 
     metVector.SetEta(0);
 }
 
-void L1MetPfProducer::init_projx_table(pt_t table_out[PROJ_TAB_SIZE]) {
+void L1MetPfProducer::init_projx_table(std::vector<pt_t> table_out) {
     // Return table of cos(phi) where phi is in (0,pi/2)
     // multiply result by 2^(PT_SIZE) (equal to 1 in our units)
-    for (int i = 0; i < PROJ_TAB_SIZE; i++) {
+    for (uint i = 0; i < sinCosTableSize_; i++) {
         //store result, guarding overflow near costheta=1      
-        pt2_t x = round((1<<PT_SIZE) * cos(float(i)/PROJ_TAB_SIZE * M_PI/2));
+        pt2_t x = round((1<<PT_SIZE) * cos(float(i)/sinCosTableSize_ * M_PI/2));
         // (using extra precision here (pt2_t, not pt_t) to check the out of bounds condition)
         if(x >= (1<<PT_SIZE)) table_out[i] = (1<<PT_SIZE)-1;
         else table_out[i] = x;
@@ -207,24 +227,26 @@ void L1MetPfProducer::init_projx_table(pt_t table_out[PROJ_TAB_SIZE]) {
 }
 
 void L1MetPfProducer::ProjX(pt_t pt, phi_t phi, pxy_t &x, bool debug) const{
-    //map phi to first quadrant value: range [0, 2^(PHI_SIZE-2))
-    ap_uint<PHI_SIZE-2> phiQ1 = phi;
-    if(phi>=(1<<(PHI_SIZE-2))) phiQ1 = (1<<(PHI_SIZE-2)) -1 - phiQ1; // map 64-128 (0-63) to 63-0
-    if(phi<0 && phi>=-(1<<(PHI_SIZE-2))) phiQ1 = (1<<(PHI_SIZE-2)) -1 - phiQ1; // map -64-1 (0-63) to 63-0
+    //map phi to first quadrant value: range [0, 2^(sinCosTableBits_))
+    //ap_uint<sinCosTableBits_> phiQ1 = phi; // not constexpr
+    ap_uint<PHI_SIZE> phiQ1 = phi;
+    // int phiQ1 = phi >= sinCosTableSize_ ? sinCosTableSize_-1 : int(phi);
+    if(phi>=(1<<(sinCosTableBits_))) phiQ1 = (1<<(sinCosTableBits_)) -1 - phiQ1; // map 64-128 (0-63) to 63-0
+    if(phi<0 && phi>=-(1<<(sinCosTableBits_))) phiQ1 = (1<<(sinCosTableBits_)) -1 - phiQ1; // map -64-1 (0-63) to 63-0
 
     // get x component and flip sign if necessary
     x = (pt * cos_table[phiQ1]) >> PT_SIZE;
     if(debug) std::cout << pt << "  cos_table[" << phiQ1 << "] = " << cos_table[phiQ1] << "  " << x << std::endl;
-    if( phi>=(1<<(PHI_SIZE-2))
-        || phi<-(1<<(PHI_SIZE-2)))
+    if( phi>=(1<<(sinCosTableBits_))
+        || phi<-(1<<(sinCosTableBits_)))
         x = -x;
 
     return;
 }
 
-void L1MetPfProducer::init_projy_table(pt_t table_out[PROJ_TAB_SIZE]) {
-    for (int i = 0; i < PROJ_TAB_SIZE; i++) {
-        pt2_t x = round((1<<PT_SIZE) * sin(float(i)/PROJ_TAB_SIZE * M_PI/2));
+void L1MetPfProducer::init_projy_table(std::vector<pt_t> table_out) {
+    for (uint i = 0; i < sinCosTableSize_; i++) {
+        pt2_t x = round((1<<PT_SIZE) * sin(float(i)/sinCosTableSize_ * M_PI/2));
         if(x >= (1<<PT_SIZE)) table_out[i] = (1<<PT_SIZE)-1;
         else table_out[i] = x;
     }
@@ -233,10 +255,11 @@ void L1MetPfProducer::init_projy_table(pt_t table_out[PROJ_TAB_SIZE]) {
 
 void L1MetPfProducer::ProjY(pt_t pt, phi_t phi, pxy_t &y, bool debug) const{
 
-    //map phi to first quadrant value: range [0, 2^(PHI_SIZE-2))
-    ap_uint<PHI_SIZE-2> phiQ1 = phi;
-    if(phi>=(1<<(PHI_SIZE-2))) phiQ1 = (1<<(PHI_SIZE-2)) -1 - phiQ1; // map 64-128 (0-63) to 63-0
-    if(phi<0 && phi>=-(1<<(PHI_SIZE-2))) phiQ1 = (1<<(PHI_SIZE-2)) -1 - phiQ1; // map -64-1 (0-63) to 63-0
+    //map phi to first quadrant value: range [0, 2^(sinCosTableBits_))
+    ap_uint<PHI_SIZE> phiQ1 = phi;
+    // uint phiQ1 = phi > sinCosTableSize_ ? sinCosTableSize_-1 : uint(phi);
+    if(phi>=(1<<(sinCosTableBits_))) phiQ1 = (1<<(sinCosTableBits_)) -1 - phiQ1; // map 64-128 (0-63) to 63-0
+    if(phi<0 && phi>=-(1<<(sinCosTableBits_))) phiQ1 = (1<<(sinCosTableBits_)) -1 - phiQ1; // map -64-1 (0-63) to 63-0
 
     // get y component and flip sign if necessary
     y = (pt * sin_table[phiQ1]) >> PT_SIZE;
@@ -246,19 +269,19 @@ void L1MetPfProducer::ProjY(pt_t pt, phi_t phi, pxy_t &y, bool debug) const{
     return;
 }
 
-void L1MetPfProducer::init_inv_table(pt_t table_out[INV_TAB_SIZE]) {
+void L1MetPfProducer::init_inv_table(std::vector<pt_t> table_out) {
     // multiply result by 1=2^(PT-SIZE)
     table_out[0]=(1<<PT_SIZE)-1;
-    for (int i = 1; i < INV_TAB_SIZE; i++) {
+    for (uint i = 1; i < inversionTableSize_; i++) {
         table_out[i] = round((1<<PT_SIZE) / float(i));
     }
     return;
 }
-void L1MetPfProducer::init_atan_table(pt_t table_out[ATAN_TAB_SIZE]) {
+void L1MetPfProducer::init_atan_table(std::vector<pt_t> table_out) {
     // multiply result by 1=2^(PT-SIZE)
     table_out[0]=int(0);
-    for (int i = 1; i < ATAN_TAB_SIZE; i++) {
-        table_out[i] = int(round(atan(float(i)/ATAN_TAB_SIZE) * (1<<(PHI_SIZE-3)) / (M_PI/4)));
+    for (uint i = 1; i < arcTanTableSize_; i++) {
+        table_out[i] = int(round(atan(float(i)/arcTanTableSize_) * (1<<(PHI_SIZE-3)) / (M_PI/4)));
     }
     return;
 }
@@ -277,13 +300,16 @@ void L1MetPfProducer::PhiFromXY(pxy_t px, pxy_t py, phi_t &phi) const{
     if(a>b){ a = y; b = x; }
 
     pt_t inv_b;
-    if(b>= (1<<(PT_SIZE-DROP_BITS))) inv_b = 1;
+    if(b>= (1<<(PT_SIZE-inverseDropBits_))) inv_b = 1;
     // don't bother to store these large numbers in the LUT...                                         
     // instead approximate their inverses as 1                                                         
     else inv_b = inv_table[b];
 
     pt_t a_over_b = a * inv_b; // x 2^(PT_SIZE-DROP_BITS)                                              
-    ap_uint<ATAN_SIZE> atan_index = a_over_b >> (PT_SIZE-ATAN_SIZE); // keep only most significant bits
+    // can't use arcTanTableSize_ as the type width since its not known at compile time
+    //ap_uint<arcTanTableSize_> atan_index = a_over_b >> (PT_SIZE-arcTanTableSize_); // keep only most significant bits
+    ap_uint<PHI_SIZE> atan_index = a_over_b >> (PT_SIZE-arcTanTableBits_); // keep only most significant bits
+    if(atan_index >= (1<<arcTanTableSize_)) atan_index = (1<<arcTanTableSize_)-1; 
     phi = atan_table[atan_index];
 
     // rotate from (0,pi/4) to full quad1                                                              
