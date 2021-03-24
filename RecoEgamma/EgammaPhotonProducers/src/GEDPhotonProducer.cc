@@ -45,6 +45,9 @@
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 
 class GEDPhotonProducer : public edm::stream::EDProducer<> {
 public:
@@ -77,7 +80,8 @@ private:
                             CaloTowerCollection const* hcalTowers,
                             const reco::VertexCollection& pvVertices,
                             reco::PhotonCollection& outputCollection,
-                            int& iSC);
+                            int& iSC,
+                            EcalPFRecHitThresholds const& thresholds);
 
   void fillPhotonCollection(edm::Event& evt,
                             edm::EventSetup const& es,
@@ -136,6 +140,8 @@ private:
   std::vector<int> severitiesexclEB_;
   std::vector<int> severitiesexclEE_;
 
+  double multThresEB_;
+  double multThresEE_;
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
@@ -163,6 +169,7 @@ private:
 
   const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -195,7 +202,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
       ecalClusterESGetTokens_{consumesCollector()},
       recoStep_(config.getParameter<std::string>("reconstructionStep")),
       caloTopologyToken_{esConsumes()},
-      caloGeometryToken_{esConsumes()} {
+      caloGeometryToken_{esConsumes()},
+      ecalPFRechitThresholdsToken_{esConsumes()} {
   if (recoStep_.isFinal()) {
     photonProducerT_ = consumes(photonProducer_);
     pfCandidates_ = consumes(config.getParameter<edm::InputTag>("pfCandidates"));
@@ -238,6 +246,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config)
   }
   //
   photonCollection_ = config.getParameter<std::string>("outputPhotonCollection");
+  multThresEB_ = config.getParameter<double>("multThresEB");
+  multThresEE_ = config.getParameter<double>("multThresEE");
   hOverEConeSize_ = config.getParameter<double>("hOverEConeSize");
   highEt_ = config.getParameter<double>("highEt");
   // R9 value to decide converted/unconverted
@@ -410,6 +420,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
   caloGeom_ = &eventSetup.getData(caloGeometryToken_);
 
   auto const& topology = eventSetup.getData(caloTopologyToken_);
+  auto const& thresholds = eventSetup.getData(ecalPFRechitThresholdsToken_);
 
   // Get the primary event vertex
   const reco::VertexCollection dummyVC;
@@ -439,7 +450,8 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& eve
                          //vtx,
                          vertexCollection,
                          *outputPhotonCollection_p,
-                         iSC);
+                         iSC,
+                         thresholds);
 
   iSC = 0;
   if (validPhotonHandle && recoStep_.isFinal())
@@ -500,7 +512,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
                                              CaloTowerCollection const* hcalTowers,
                                              const reco::VertexCollection& vertexCollection,
                                              reco::PhotonCollection& outputPhotonCollection,
-                                             int& iSC) {
+                                             int& iSC,
+                                             EcalPFRecHitThresholds const& thresholds) {
   const EcalRecHitCollection* hits = nullptr;
   std::vector<double> preselCutValues;
   std::vector<int> flags_, severitiesexcl_;
@@ -586,6 +599,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     std::vector<float> cov =
         (hits != nullptr ? EcalClusterTools::covariances(*(scRef->seed()), hits, topology, caloGeom_)
                          : std::vector<float>({0.f, 0.f, 0.f}));
+    // fractional local covariances
     std::vector<float> locCov = (hits != nullptr ? EcalClusterTools::localCovariances(*(scRef->seed()), hits, topology)
                                                  : std::vector<float>({0.f, 0.f, 0.f}));
 
@@ -602,8 +616,17 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     std::vector<float> full5x5_cov =
         (hits != nullptr ? noZS::EcalClusterTools::covariances(*(scRef->seed()), hits, topology, caloGeom_)
                          : std::vector<float>({0.f, 0.f, 0.f}));
+    // for full5x5 local covariances, do noise-cleaning
+    // by passing per crystal PF recHit thresholds and mult values.
+    // mult values for EB and EE were obtained by dedicated studies.
     std::vector<float> full5x5_locCov =
-        (hits != nullptr ? noZS::EcalClusterTools::localCovariances(*(scRef->seed()), hits, topology)
+        (hits != nullptr ? noZS::EcalClusterTools::localCovariances(*(scRef->seed()),
+                                                                    hits,
+                                                                    topology,
+                                                                    EgammaLocalCovParamDefaults::kRelEnCut,
+                                                                    &thresholds,
+                                                                    multThresEB_,
+                                                                    multThresEE_)
                          : std::vector<float>({0.f, 0.f, 0.f}));
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);
