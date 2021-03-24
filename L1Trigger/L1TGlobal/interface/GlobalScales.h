@@ -38,7 +38,7 @@ namespace l1t {
       double etStep;
       std::vector<std::pair<double, double>> etBins;
 
-      // Added by R.Cavanaugh for displaced muons
+      // Added displaced muons
       double uptMin;  
       double uptMax;  
       double uptStep; 
