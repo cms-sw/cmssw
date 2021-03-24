@@ -381,7 +381,7 @@ void BtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLBarrel"));
   desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
-  desc.add<bool>("LocalPositionDebug", true);
+  desc.add<bool>("LocalPositionDebug", false);
 
   descriptions.add("btlLocalReco", desc);
 }
