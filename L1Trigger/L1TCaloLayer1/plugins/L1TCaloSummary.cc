@@ -57,6 +57,7 @@
 
 #include "L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.hh"
 #include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
+#include <bitset>
 
 using namespace l1tcalo;
 using namespace l1extra;
@@ -398,9 +399,6 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     eta = g.getUCTTowerEta(object->iEta());
     phi = g.getUCTTowerPhi(object->iPhi());
     cJetCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kCentral));
-    if(pt > 150.) {
-      std::cout << "Jet: pt = " << pt << " eta = " << eta << " phi = " << phi << std::endl;
-    }
   }
   std::list<UCTObject*> forwardJetObjs = summaryCard->getForwardJetObjs();
   for(std::list<UCTObject*>::const_iterator i = forwardJetObjs.begin(); i != forwardJetObjs.end(); i++) {
@@ -416,9 +414,26 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pt = ((double) object->et()) * caloScaleFactor;
     eta = g.getUCTTowerEta(object->iEta());
     phi = g.getUCTTowerPhi(object->iPhi());
-    bJetCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kCentral));// using kCentral for now, need a new type
+    bitset<3> activeRegionEtaPattern = 0;
+    for(uint32_t iEta = 0; iEta < 3; iEta++){
+      bool activeStrip = false;
+      for(uint32_t iPhi = 0; iPhi < 3; iPhi++){
+        if(object->boostedJetRegionET()[3*iEta+iPhi] > 30 && object->boostedJetRegionET()[3*iEta+iPhi] > object->et()*0.0625) activeStrip = true;
+      }
+      if(activeStrip) activeRegionEtaPattern |= (0x1 << iEta);
+    }
+    bitset<3> activeRegionPhiPattern = 0;
+    for(uint32_t iPhi = 0; iPhi < 3; iPhi++){
+      bool activeStrip = false;
+      for(uint32_t iEta = 0; iEta < 3; iEta++){
+        if(object->boostedJetRegionET()[3*iEta+iPhi] > 30 && object->boostedJetRegionET()[3*iEta+iPhi] > object->et()*0.0625) activeStrip = true;
+      }
+      if(activeStrip) activeRegionPhiPattern |= (0x1 << iPhi);
+    }
+    string regionEta = activeRegionEtaPattern.to_string<char,std::string::traits_type,std::string::allocator_type>();
+    string regionPhi = activeRegionPhiPattern.to_string<char,std::string::traits_type,std::string::allocator_type>();
+    if(regionEta == "010" || regionPhi == "010" || regionEta == "110" || regionPhi == "110" || regionEta == "011" || regionPhi == "011" ) bJetCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kCentral));
   }
-
   const UCTObject* et = summaryCard->getET();
   pt = ((double) et->et()) * caloScaleFactor;
   double totET = pt;
@@ -427,9 +442,6 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   eta = g.getUCTTowerEta(met->iEta());
   phi = g.getUCTTowerPhi(met->iPhi());
   metCands->push_back(L1EtMissParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1EtMissParticle::kMET, totET));
-
-  
-
   const UCTObject* ht = summaryCard->getHT();
   pt = ((double) ht->et()) * caloScaleFactor;
   double totHT = pt;
