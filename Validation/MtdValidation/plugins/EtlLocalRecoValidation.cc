@@ -487,8 +487,8 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitEta_[2] = ibook.book1D(
       "EtlHitEtaZposD1", "ETL RECO hits #eta (+Z, Single(topo1D)/First(topo2D) Disk);#eta_{RECO}", 100, 1.56, 3.2);
   meHitEta_[3] = ibook.book1D("EtlHitEtaZposD2", "ETL RECO hits #eta (+Z, Second Disk);#eta_{RECO}", 100, 1.56, 3.2);
-  meTimeRes_ = ibook.book1D("EtlTimeRes", "ETL time resolution;T_{RECO}-T_{SIM}/T_{SIM} [ns]", 100, -0.5, 0.5);
-  meEnergyRes_ = ibook.book1D("EtlEnergyRes", "ETL energy resolution;E_{RECO}-E_{SIM}/E_{SIM} [MeV]", 100, -0.5, 0.5);
+  meTimeRes_ = ibook.book1D("EtlTimeRes", "ETL time resolution;T_{RECO}-T_{SIM}/T_{SIM}", 100, -0.5, 0.5);
+  meEnergyRes_ = ibook.book1D("EtlEnergyRes", "ETL energy resolution;E_{RECO}-E_{SIM}/E_{SIM}", 100, -0.5, 0.5);
   meHitTvsE_[0] = ibook.bookProfile(
       "EtlHitTvsEZnegD1",
       "ETL RECO time vs energy (-Z, Single(topo1D)/First(topo2D) Disk);E_{RECO} [MeV];ToA_{RECO} [ns]",
@@ -639,16 +639,10 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                       3.2,
                                       0.,
                                       100.);
-  meTPullvsE_ = ibook.bookProfile("EtlTPullvsE",
-                                  "ETL time pull vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM}/#sigma_T_{RECO} [ns]",
-                                  20,
-                                  0.,
-                                  2.,
-                                  -0.8,
-                                  0.8,
-                                  "S");
+  meTPullvsE_ = ibook.bookProfile(
+      "EtlTPullvsE", "ETL time pull vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}", 20, 0., 2., -0.8, 0.8, "S");
   meTPullvsEta_ = ibook.bookProfile("EtlTPullvsEta",
-                                    "ETL time pull vs #eta;|#eta_{RECO}|;T_{RECO}-T_{SIM}/#sigma_T_{RECO} [ns]",
+                                    "ETL time pull vs #eta;|#eta_{RECO}|;T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}",
                                     26,
                                     1.65,
                                     3.0,

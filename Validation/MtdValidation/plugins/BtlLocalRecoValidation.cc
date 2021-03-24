@@ -105,6 +105,11 @@ private:
 
   MonitorElement* meTimeRes_;
   MonitorElement* meEnergyRes_;
+
+  MonitorElement* meLongPosPull_;
+  MonitorElement* meLongPosPullvsE_;
+  MonitorElement* meLongPosPullvsEta_;
+
   MonitorElement* meTPullvsE_;
   MonitorElement* meTPullvsEta_;
 
@@ -220,6 +225,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     // Resolution histograms
     if (m_btlSimHits.count(detId.rawId()) == 1 && m_btlSimHits[detId.rawId()].energy > hitMinEnergy_) {
+      float longpos_res = recHit.position() - convertMmToCm(m_btlSimHits[detId.rawId()].x_local);
       float time_res = recHit.time() - m_btlSimHits[detId.rawId()].time;
       float energy_res = recHit.energy() - m_btlSimHits[detId.rawId()].energy;
 
@@ -232,6 +238,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       meTimeRes_->Fill(time_res / m_btlSimHits[detId.rawId()].time);
       meEnergyRes_->Fill(energy_res / m_btlSimHits[detId.rawId()].energy);
+
+      meLongPosPull_->Fill(longpos_res / recHit.positionError());
+      meLongPosPullvsEta_->Fill(fabs(global_point_sim.eta()), longpos_res / recHit.positionError());
+      meLongPosPullvsE_->Fill(m_btlSimHits[detId.rawId()].energy, longpos_res / recHit.positionError());
 
       meTPullvsEta_->Fill(fabs(global_point_sim.eta()), time_res / recHit.timeError());
       meTPullvsE_->Fill(m_btlSimHits[detId.rawId()].energy, time_res / recHit.timeError());
@@ -318,18 +328,35 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitLongPos_ = ibook.book1D("BtlLongPos", "BTL RECO hits longitudinal position;long. pos._{RECO}", 100, -10, 10);
   meHitLongPosErr_ =
       ibook.book1D("BtlLongPosErr", "BTL RECO hits longitudinal position error; long. pos. error_{RECO}", 100, -1, 1);
-  meTimeRes_ = ibook.book1D("BtlTimeRes", "BTL time resolution;T_{RECO}-T_{SIM}/T_{SIM} [ns]", 100, -0.5, 0.5);
-  meEnergyRes_ = ibook.book1D("BtlEnergyRes", "BTL energy resolution;E_{RECO}-E_{SIM}/E_{SIM} [MeV]", 100, -0.5, 0.5);
-  meTPullvsE_ = ibook.bookProfile("BtlTPullvsE",
-                                  "BTL time pull vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM}/#sigma_T_{RECO} [ns]",
-                                  20,
-                                  0.,
-                                  20.,
-                                  -0.8,
-                                  0.8,
-                                  "S");
+  meTimeRes_ = ibook.book1D("BtlTimeRes", "BTL time resolution;T_{RECO}-T_{SIM}/T_{SIM}", 100, -0.5, 0.5);
+  meEnergyRes_ = ibook.book1D("BtlEnergyRes", "BTL energy resolution;E_{RECO}-E_{SIM}/E_{SIM}", 100, -0.5, 0.5);
+  meLongPosPull_ = ibook.book1D("BtlLongPosPull",
+                                "BTL longitudinal position pull;X^{loc}_{RECO}-X^{loc}_{SIM}/#sigma_{xloc_{RECO}}",
+                                100,
+                                -5.5,
+                                5.5);
+  meLongPosPullvsE_ = ibook.bookProfile(
+      "BtlLongposPullvsE",
+      "BTL longitudinal position pull vs E;E_{SIM} [MeV];X^{loc}_{RECO}-X^{loc}_{SIM}/#sigma_{xloc_{RECO}}",
+      20,
+      0.,
+      20.,
+      -1.5,
+      1.5,
+      "S");
+  meLongPosPullvsEta_ = ibook.bookProfile(
+      "BtlLongposPullvsEta",
+      "BTL longitudinal position pull vs #eta;|#eta_{RECO}|;X^{loc}_{RECO}-X^{loc}_{SIM}/#sigma_{xloc_{RECO}}",
+      32,
+      0,
+      1.55,
+      -1.5,
+      1.5,
+      "S");
+  meTPullvsE_ = ibook.bookProfile(
+      "BtlTPullvsE", "BTL time pull vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}", 20, 0., 20., -0.8, 0.8, "S");
   meTPullvsEta_ = ibook.bookProfile("BtlTPullvsEta",
-                                    "BTL time pull vs #eta;|#eta_{RECO}|;T_{RECO}-T_{SIM}/#sigma_T_{RECO} [ns]",
+                                    "BTL time pull vs #eta;|#eta_{RECO}|;T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}",
                                     32,
                                     0,
                                     1.55,
@@ -354,7 +381,7 @@ void BtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLBarrel"));
   desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
-  desc.add<bool>("LocalPositionDebug", false);
+  desc.add<bool>("LocalPositionDebug", true);
 
   descriptions.add("btlLocalReco", desc);
 }
