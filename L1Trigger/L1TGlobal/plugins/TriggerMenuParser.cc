@@ -299,7 +299,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                    condition.getType() == esConditionType::CaloEsumCorrelation ||
                    condition.getType() == esConditionType::InvariantMass ||
                    condition.getType() == esConditionType::TransverseMass ||
-        	   condition.getType() == esConditionType::InvariantMassUpt) { // Added by R.Cavanaugh for displaced muons
+        	   condition.getType() == esConditionType::InvariantMassUpt) { // Added for displaced muons
           parseCorrelation(condition, chipNr);
 
           //parse Externals
@@ -590,7 +590,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
             }
           }
         } break;
-        case esScaleType::UnconstrainedPtScale: { // Added by R.Cavanaugh for displaced muons
+        case esScaleType::UnconstrainedPtScale: { // Added for displaced muons
 	  scaleParam->uptMin = scale.getMinimum();
 	  scaleParam->uptMax = scale.getMaximum();
 	  scaleParam->uptStep = scale.getStep();
@@ -2591,12 +2591,10 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         // cutType = cutType | 0x8;
         if (corrCond.getType() == esConditionType::TransverseMass) {
           cutType = cutType | 0x10;
-          //std::cout << "CCLA running Transverse mass cutType= " << cutType << std::endl;
         } else {
           cutType = cutType | 0x8;
-          //std::cout << "CCLA running Invarient mass cutType= " << cutType << std::endl;
         }
-      } else if (cut.getCutType() == esCutType::MassUpt) { // Added by R. Cavanaugh for displaced muons
+      } else if (cut.getCutType() == esCutType::MassUpt) { // Added for displaced muons
         LogDebug("TriggerMenuParser") << "CutType: " << cut.getCutType() << "\tMass Cut minV = " << minV
                                       << " Max = " << maxV << " precMin = " << cut.getMinimum().index
                                       << " precMax = " << cut.getMaximum().index << std::endl;
