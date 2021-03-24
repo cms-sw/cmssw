@@ -22,6 +22,8 @@ using ROOT::Experimental::RNTupleWriter;
 using ROOT::Experimental::Detail::RPageSinkFile;
 using ROOT::Experimental::RNTupleWriteOptions;
 
+#include "TObjString.h"
+
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
@@ -32,6 +34,7 @@ using ROOT::Experimental::RNTupleWriteOptions;
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "DataFormats/NanoAOD/interface/UniqueString.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 #include "PhysicsTools/NanoAOD/plugins/NanoAODRNTuples.h"
@@ -86,6 +89,8 @@ private:
 
   LumiNTuple m_lumi;
   RunNTuple m_run;
+
+  std::vector<std::pair<std::string, edm::EDGetToken>> m_nanoMetadata;
 };
 
 NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& pset)
@@ -109,19 +114,19 @@ void NanoAODRNTupleOutputModule::writeRun(edm::RunForOutput const& iRun) {
   jr->reportRunNumber(m_jrToken, iRun.id().run());
 
   m_run.fill(iRun, *m_file);
-  // TODO nano metadata
-  //edm::Handle<nanoaod::UniqueString> hstring;
-  //for (const auto& p : m_nanoMetadata) {
-  //  iRun.getByToken(p.second, hstring);
-  //  TObjString* tos = dynamic_cast<TObjString*>(m_file->Get(p.first.c_str()));
-  //  if (tos) {
-  //    if (hstring->str() != tos->GetString())
-  //      throw cms::Exception("LogicError", "Inconsistent nanoMetadata " + p.first + " (" + hstring->str() + ")");
-  //  } else {
-  //    auto ostr = std::make_unique<TObjString>(hstring->str().c_str());
-  //    m_file->WriteTObject(ostr.release(), p.first.c_str());
-  //  }
-  //}
+
+  edm::Handle<nanoaod::UniqueString> hstring;
+  for (const auto& p : m_nanoMetadata) {
+    iRun.getByToken(p.second, hstring);
+    TObjString* tos = dynamic_cast<TObjString*>(m_file->Get(p.first.c_str()));
+    if (tos && hstring->str() != tos->GetString()) {
+      throw cms::Exception("LogicError", "Inconsistent nanoMetadata " + p.first +
+          " (" + hstring->str() + ")");
+    } else {
+      auto ostr = std::make_unique<TObjString>(hstring->str().c_str());
+      m_file->WriteTObject(ostr.release(), p.first.c_str());
+    }
+  }
   m_processHistoryRegistry.registerProcessHistory(iRun.processHistory());
 }
 
@@ -145,6 +150,22 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
+
+  const auto& keeps = keptProducts();
+  for (const auto& keep : keeps[edm::InRun]) {
+    if (keep.first->className() == "nanoaod::MergeableCounterTable") {
+      //m_runTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
+    }
+    else if (keep.first->className() == "nanoaod::UniqueString" &&
+             keep.first->moduleLabel() == "nanoMetadata")
+    {
+      m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
+    }
+    else {
+      throw cms::Exception("Configuration", "NanoAODRNTupleOutputModule cannot handle class " +
+          keep.first->className() + " in Run branch");
+    }
+  }
 }
 
 void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEvent) {
