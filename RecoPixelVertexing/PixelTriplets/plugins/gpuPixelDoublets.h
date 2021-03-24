@@ -7,7 +7,9 @@
 
 namespace gpuPixelDoublets {
 
-  constexpr int nPairs = 13 + 2 + 4;
+  constexpr int nPairsForQuadruplets = 13;                     // quadruplets require hits in all layers
+  constexpr int nPairsForTriplets = nPairsForQuadruplets + 2;  // include barrel "jumping" layer pairs
+  constexpr int nPairs = nPairsForTriplets + 4;                // include forward "jumping" layer pairs
   static_assert(nPairs <= caConstants::maxNumberOfLayerPairs);
 
   // start constants
@@ -15,7 +17,7 @@ namespace gpuPixelDoublets {
 
   CONSTANT_VAR const uint8_t layerPairs[2 * nPairs] = {
       0, 1, 0, 4, 0, 7,              // BPIX1 (3)
-      1, 2, 1, 4, 1, 7,              // BPIX2 (5)
+      1, 2, 1, 4, 1, 7,              // BPIX2 (6)
       4, 5, 7, 8,                    // FPIX1 (8)
       2, 3, 2, 4, 2, 7, 5, 6, 8, 9,  // BPIX3 & FPIX2 (13)
       0, 2, 1, 3,                    // Jumping Barrel (15)

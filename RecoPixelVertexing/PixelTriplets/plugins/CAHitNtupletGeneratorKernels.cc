@@ -18,15 +18,18 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
   std::cout << "building Doublets out of " << nhits << " Hits" << std::endl;
 #endif
 
-  // in principle we can use "nhits" to heuristically dimension the workspace...
-  // overkill to use template here (std::make_unique would suffice)
-  // device_isOuterHitOfCell_ = Traits:: template make_unique<GPUCACell::OuterHitOfCell[]>(cs, std::max(1U,nhits), stream);
-  device_isOuterHitOfCell_.reset(
-      (GPUCACell::OuterHitOfCell *)malloc(std::max(1U, nhits) * sizeof(GPUCACell::OuterHitOfCell)));
+  // use "nhits" to heuristically dimension the workspace
+
+  // no need to use the Traits allocations, since we know this is being compiled for the CPU
+  //device_isOuterHitOfCell_ = Traits::template make_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U, nhits), stream);
+  device_isOuterHitOfCell_ = std::make_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U, nhits));
   assert(device_isOuterHitOfCell_.get());
 
-  cellStorage_.reset((unsigned char *)malloc(caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +
-                                             caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellTracks)));
+  auto cellStorageSize = caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +
+                         caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellTracks);
+  // no need to use the Traits allocations, since we know this is being compiled for the CPU
+  //cellStorage_ = Traits::template make_unique<unsigned char[]>(cellStorageSize, stream);
+  cellStorage_ = std::make_unique<unsigned char[]>(cellStorageSize);
   device_theCellNeighborsContainer_ = (GPUCACell::CellNeighbors *)cellStorage_.get();
   device_theCellTracksContainer_ = (GPUCACell::CellTracks *)(cellStorage_.get() + caConstants::maxNumOfActiveDoublets *
                                                                                       sizeof(GPUCACell::CellNeighbors));
@@ -38,17 +41,21 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
                                  device_theCellTracks_.get(),
                                  device_theCellTracksContainer_);
 
-  // device_theCells_ = Traits:: template make_unique<GPUCACell[]>(cs, m_params.maxNumberOfDoublets_, stream);
-  device_theCells_.reset((GPUCACell *)malloc(sizeof(GPUCACell) * params_.maxNumberOfDoublets_));
+  // no need to use the Traits allocations, since we know this is being compiled for the CPU
+  //device_theCells_ = Traits::template make_unique<GPUCACell[]>(params_.maxNumberOfDoublets_, stream);
+  device_theCells_ = std::make_unique<GPUCACell[]>(params_.maxNumberOfDoublets_);
   if (0 == nhits)
     return;  // protect against empty events
 
-  // FIXME avoid magic numbers
+  // take all layer pairs into account
   auto nActualPairs = gpuPixelDoublets::nPairs;
-  if (!params_.includeJumpingForwardDoublets_)
-    nActualPairs = 15;
+  if (not params_.includeJumpingForwardDoublets_) {
+    // exclude forward "jumping" layer pairs
+    nActualPairs = gpuPixelDoublets::nPairsForTriplets;
+  }
   if (params_.minHitsPerNtuplet_ > 3) {
-    nActualPairs = 13;
+    // for quadruplets, exclude all "jumping" layer pairs
+    nActualPairs = gpuPixelDoublets::nPairsForQuadruplets;
   }
 
   assert(nActualPairs <= gpuPixelDoublets::nPairs);
