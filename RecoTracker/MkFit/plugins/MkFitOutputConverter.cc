@@ -11,6 +11,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -219,7 +220,16 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         auto const isPixel = eventOfHits[hitOnTrack.layer].is_pix_lyr();
         auto const& hits = isPixel ? clusterIndexToHit.pixelHits() : clusterIndexToHit.outerHits();
 
-        recHits.push_back(hits[hitOnTrack.index]->clone());
+        auto const& thit = static_cast<BaseTrackerRecHit const&>(*hits[hitOnTrack.index]);
+        if (thit.firstClusterRef().isPixel() || thit.detUnit()->type().isEndcap()) {
+          recHits.push_back(hits[hitOnTrack.index]->clone());
+        } else {
+          recHits.push_back(std::make_unique<SiStripRecHit1D>(
+              thit.localPosition(),
+              LocalError(thit.localPositionError().xx(), 0.f, std::numeric_limits<float>::max()),
+              *thit.det(),
+              thit.firstClusterRef()));
+        }
         LogTrace("MkFitOutputConverter") << "  pos " << recHits.back().globalPosition().x() << " "
                                          << recHits.back().globalPosition().y() << " "
                                          << recHits.back().globalPosition().z() << " mag2 "
