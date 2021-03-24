@@ -38,9 +38,9 @@ FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataF
   constexpr int iSample = 2;  //only in-time sample
   const auto& sample = dataFrame.sample(iSample);
 
-  std::vector<double> amplitudeV = {double(sample.data()) * adcLSB_};
-  // NB: Here amplitudeV is defined as a vector in order to be used below
-  //     as an input to FormulaEvaluator::evaluate.
+  const std::array<double, 1> amplitudeV = {{double(sample.data()) * adcLSB_}};
+  // NB: Here amplitudeV is defined as an array in order to be used
+  //     below as an input to FormulaEvaluator::evaluate.
   double time = double(sample.toa()) * toaLSBToNS_ - tofDelay_;
   unsigned char flag = 0;
 
@@ -50,7 +50,7 @@ FTLUncalibratedRecHit ETLUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataF
                                << std::endl;
   LogDebug("ETLUncalibRecHit") << "Final uncalibrated amplitude : " << amplitudeV[0] << std::endl;
 
-  std::vector<double> emptyV;
+  const std::array<double, 1> emptyV = {{0.}};
   double timeError = timeError_.evaluate(amplitudeV, emptyV);
 
   return FTLUncalibratedRecHit(dataFrame.id(),
