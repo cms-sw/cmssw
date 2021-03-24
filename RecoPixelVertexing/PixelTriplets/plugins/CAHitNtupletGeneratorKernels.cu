@@ -182,12 +182,15 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
   if (0 == nhits)
     return;  // protect against empty events
 
-  // FIXME avoid magic numbers
+  // take all layer pairs into account
   auto nActualPairs = gpuPixelDoublets::nPairs;
-  if (!params_.includeJumpingForwardDoublets_)
-    nActualPairs = 15;
+  if (not params_.includeJumpingForwardDoublets_) {
+    // exclude forward "jumping" layer pairs
+    nActualPairs = gpuPixelDoublets::nPairsForTriplets;
+  }
   if (params_.minHitsPerNtuplet_ > 3) {
-    nActualPairs = 13;
+    // for quadruplets, exclude all "jumping" layer pairs
+    nActualPairs = gpuPixelDoublets::nPairsForQuadruplets;
   }
 
   assert(nActualPairs <= gpuPixelDoublets::nPairs);
