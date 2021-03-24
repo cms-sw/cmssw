@@ -34,6 +34,7 @@ using json = nlohmann::json;
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "HLTrigger/Timer/interface/memory_usage.h"
 #include "HLTrigger/Timer/interface/processor_model.h"
@@ -1100,9 +1101,7 @@ void FastTimerService::postSourceLumi(edm::LuminosityBlockIndex index) {
 }
 
 void FastTimerService::postEndJob() {
-  for (auto& thread : threads_) {
-    thread.measure_and_accumulate(overhead_);
-  }
+  guard_.finalize();
   if (print_job_summary_) {
     edm::LogVerbatim out("FastReport");
     printSummary(out, job_summary_, "Job");
@@ -1666,39 +1665,53 @@ void FastTimerService::postModuleStreamEndLumi(edm::StreamContext const& sc, edm
   thread().measure_and_accumulate(lumi_transition_[index]);
 }
 
-pthread_key_t FastTimerService::ThreadGuard::key;
-pthread_once_t FastTimerService::ThreadGuard::key_once = PTHREAD_ONCE_INIT;
-
 FastTimerService::ThreadGuard::ThreadGuard() {
-  auto err = ::pthread_key_create(&key, reset_thread);
+  auto err = ::pthread_key_create(&key_, retire_thread);
   if (err) {
-    edm::LogWarning("FastTimerService") << "ThreadGuard key creation failed: " << ::strerror(err);
+    throw cms::Exception("FastTimerService") << "ThreadGuard key creation failed: " << ::strerror(err);
   }
 }
 
-bool FastTimerService::ThreadGuard::register_thread(FastTimerService::Measurement& m, FastTimerService::AtomicResources& r) {
-  auto ptr = ::pthread_getspecific(key);
+// If this is a new thread, register it and return true
+bool FastTimerService::ThreadGuard::register_thread(FastTimerService::AtomicResources& r) {
+  auto ptr = ::pthread_getspecific(key_);
 
   if (not ptr) {
-    auto p = new specific_t(m, r);
-    auto err = ::pthread_setspecific(key, p);
+    auto p = thread_resources_.emplace_back(std::make_unique<specific_t>(r));
+    auto err = ::pthread_setspecific(key_, p->get());
     if (err) {
-      edm::LogWarning("FastTimerService") << "ThreadGuard pthread_setspecific failed: " << ::strerror(err);
+      throw cms::Exception("FastTimerService") << "ThreadGuard pthread_setspecific failed: " << ::strerror(err);
     }
     return true;
   }
   return false;
 }
 
-void FastTimerService::ThreadGuard::reset_thread(void* ptr) {
+// called when a thread exits
+void FastTimerService::ThreadGuard::retire_thread(void* ptr) {
   auto p = static_cast<specific_t*>(ptr);
   // account any resources used or freed by the thread before leaving the TBB pool
-  p->first.measure_and_accumulate(p->second);
-  delete p;
+  p->measurement_.measure_and_accumulate(p->resource_);
+  p->live_ = false;
+}
+
+// finalize all threads that have not retired
+void FastTimerService::ThreadGuard::finalize() {
+  for (auto& p : thread_resources_) {
+    if (p->live_) {
+      p->measurement_.measure_and_accumulate(p->resource_);
+    }
+  }
+}
+
+FastTimerService::Measurement& FastTimerService::ThreadGuard::thread() {
+  auto ptr = ::pthread_getspecific(key_);
+  auto p = static_cast<ThreadGuard::specific_t*>(ptr);
+  return p->measurement_;
 }
 
 void FastTimerService::on_scheduler_entry(bool worker) {
-  if (guard_.register_thread(thread(), overhead_)) {
+  if (guard_.register_thread(overhead_)) {
     // initialise the measurement point for a thread that has newly joined the TBB pool
     thread().measure();
   }
@@ -1707,7 +1720,9 @@ void FastTimerService::on_scheduler_entry(bool worker) {
 void FastTimerService::on_scheduler_exit(bool worker) {
 }
 
-FastTimerService::Measurement& FastTimerService::thread() { return threads_.local(); }
+FastTimerService::Measurement& FastTimerService::thread() {
+  return guard_.thread();
+}
 
 // describe the module's configuration
 void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
