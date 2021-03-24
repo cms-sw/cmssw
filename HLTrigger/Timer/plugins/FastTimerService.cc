@@ -1717,12 +1717,9 @@ void FastTimerService::on_scheduler_entry(bool worker) {
   }
 }
 
-void FastTimerService::on_scheduler_exit(bool worker) {
-}
+void FastTimerService::on_scheduler_exit(bool worker) {}
 
-FastTimerService::Measurement& FastTimerService::thread() {
-  return guard_.thread();
-}
+FastTimerService::Measurement& FastTimerService::thread() { return guard_.thread(); }
 
 // describe the module's configuration
 void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
