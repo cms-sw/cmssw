@@ -9,7 +9,6 @@
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
 
-#include "Common.h"
 #include "DeclsForKernels.h"
 #include "EigenMatrixTypes_gpu.h"
 
