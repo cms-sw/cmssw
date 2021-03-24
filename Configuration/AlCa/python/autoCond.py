@@ -25,8 +25,6 @@ autoCond = {
     'run2_mc_hi'        :   '113X_mcRun2_HeavyIon_v3',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '113X_mcRun2_pA_v3',
-    # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '113X_dataRun2_v4',
     # GlobalTag for Run2 data reprocessing
     'run2_data'         :   '113X_dataRun2_v4',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
@@ -35,19 +33,14 @@ autoCond = {
     'run2_data_relval'  :   '113X_dataRun2_relval_v4',
     # GlobalTag for Run2 HI data
     'run2_data_promptlike_hi' : '113X_dataRun2_PromptLike_HI_v4',
-    # GlobalTag for Run1 HLT: it points to the online GT
-    'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v11',
-    # GlobalTag for Run2 HLT: it points to the online GT
-    'run2_hlt'          :   '101X_dataRun2_HLT_frozen_v11',
-    # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'      :   '112X_dataRun2_HLT_relval_v4',
-    'run2_hlt_relval_hi'   :   '112X_dataRun2_HLT_relval_HI_v3',
-    # GlobalTag for Run2 HLT for HI (not 2018 HI): it points to the online GT
-    'run2_hlt_hi'       :   '101X_dataRun2_HLTHI_frozen_v11',
+    # GlobalTag for Run3 HLT: it points to the online GT
+    'run3_hlt'          :   '112X_dataRun3_HLT_v2',
+    # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
+    'run2_hlt_relval'   :   '112X_dataRun2_HLT_relval_v5',
     # GlobalTag for Run3 data relvals (express GT)
-    'run3_data_express'        :   '112X_dataRun3_Express_v3',
+    'run3_data_express'        :   '112X_dataRun3_Express_v4',
     # GlobalTag for Run3 data relvals
-    'run3_data_promptlike'     :   '112X_dataRun3_Prompt_v3',
+    'run3_data_prompt'         :   '112X_dataRun3_Prompt_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'       :  '113X_mc2017_design_v4',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
@@ -91,6 +84,12 @@ aliases = {
     'BASEGT' : 'BASE1_V1|BASE2_V1'
 }
 
+### Run 1 data GTs ###
+    # GlobalTag with fixed snapshot time for Run1 HLT RelVals: customizations to run with fixed L1 Menu
+autoCond['run1_hlt_relval']  = autoCond['run2_hlt_relval']
+    # GlobalTag for Run1 data reprocessing
+autoCond['run1_data']        = autoCond['run2_data']
+
 # dedicated GlobalTags for HLT
 from Configuration.HLT.autoCondHLT import autoCondHLT
 autoCond = autoCondHLT(autoCond)
@@ -102,6 +101,10 @@ autoCond = autoCondPhase2(autoCond)
 # special cases modifier for autoCond GTs
 from Configuration.AlCa.autoCondModifiers import autoCond0T
 autoCond = autoCond0T(autoCond)
+
+# special GT for 2015 HLT HI run
+from Configuration.AlCa.autoCondModifiers import autoCondHLTHI
+autoCond = autoCondHLTHI(autoCond)
 
 ### OLD KEYS ### kept for backward compatibility
     # GlobalTag for MC production with perfectly aligned and calibrated detector
@@ -115,7 +118,7 @@ autoCond['startpa']          = ( autoCond['run1_mc_pa'] )
     # GlobalTag for data reprocessing
 autoCond['com10']            = ( autoCond['run1_data'] )
     # GlobalTag for running HLT on recent data: it points to the online GT (remove the snapshot!)
-autoCond['hltonline']        = ( autoCond['run1_hlt'] )
+autoCond['hltonline']        = ( autoCond['run3_hlt'] )
     # GlobalTag for POSTLS1 upgrade studies:
 autoCond['upgradePLS1']      = ( autoCond['run2_mc'] )
 autoCond['upgradePLS150ns']  = ( autoCond['run2_mc_50ns'] )
