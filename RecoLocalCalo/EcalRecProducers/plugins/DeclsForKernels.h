@@ -13,26 +13,26 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatiosGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRefGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphasGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrectionsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalMultifitParametersGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestalsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseCovariancesGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseShapesGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalRechitADCToGeVConstantGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalRechitChannelStatusGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelationGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrectionsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstantsGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalGainRatiosGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalIntercalibConstantsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosRefGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAlphasGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalLinearCorrectionsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalMultifitParametersGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPedestalsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseCovariancesGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseShapesGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitADCToGeVConstantGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitChannelStatusGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSamplesCorrelationGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeBiasCorrectionsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
 
 #include "EigenMatrixTypes_gpu.h"
 
@@ -67,11 +67,11 @@ namespace ecal {
     struct ConfigurationParameters {
       using type = double;
       // device ptrs
-      type *amplitudeFitParametersEB = nullptr, *amplitudeFitParametersEE = nullptr;
+      const type *amplitudeFitParametersEB = nullptr, *amplitudeFitParametersEE = nullptr;
 
       uint32_t timeFitParametersSizeEB, timeFitParametersSizeEE;
       // device ptrs
-      type *timeFitParametersEB = nullptr, *timeFitParametersEE = nullptr;
+      const type *timeFitParametersEB = nullptr, *timeFitParametersEE = nullptr;
 
       type timeFitLimitsFirstEB, timeFitLimitsFirstEE;
       type timeFitLimitsSecondEB, timeFitLimitsSecondEE;
@@ -250,7 +250,7 @@ namespace ecal {
     // parameters that are read in the configuration file for rechit producer
     struct ConfigurationParameters {
       // device ptrs
-      int* ChannelStatusToBeExcluded = nullptr;
+      const int* ChannelStatusToBeExcluded = nullptr;
       uint32_t ChannelStatusToBeExcludedSize;
 
       bool killDeadChannels;
@@ -267,9 +267,9 @@ namespace ecal {
       float EBLaserMAX;
       float EELaserMAX;
 
-      int* expanded_v_DB_reco_flags;
-      uint32_t* expanded_Sizes_v_DB_reco_flags;
-      uint32_t* expanded_flagbit_v_DB_reco_flags;
+      const int* expanded_v_DB_reco_flags;
+      const uint32_t* expanded_Sizes_v_DB_reco_flags;
+      const uint32_t* expanded_flagbit_v_DB_reco_flags;
       uint32_t expanded_v_DB_reco_flagsSize;
 
       uint32_t flagmask;
