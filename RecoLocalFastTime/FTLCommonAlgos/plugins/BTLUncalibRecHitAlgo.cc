@@ -83,8 +83,8 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
 
   // --- Calculate the error on the hit time using the provided parameterization
 
-  std::vector<double> amplitudeV = {(amplitude.first + amplitude.second) / nHits};
-  std::vector<double> emptyV;
+  const std::array<double, 1> amplitudeV = {{(amplitude.first + amplitude.second) / nHits}};
+  const std::array<double, 1> emptyV = {{0.}};
 
   double timeError = (nHits > 0. ? timeError_.evaluate(amplitudeV, emptyV) : -1.);
 
