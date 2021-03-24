@@ -55,6 +55,9 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 
 class DetId;
 class CaloTopology;
@@ -199,7 +202,10 @@ public:
   static std::vector<float> localCovariances(const reco::BasicCluster &cluster,
                                              const EcalRecHitCollection *recHits,
                                              const CaloTopology *topology,
-                                             float w0 = 4.7);
+                                             float w0 = EgammaLocalCovParamDefaults::kRelEnCut,
+                                             const EcalPFRecHitThresholds *thresholds = nullptr,
+                                             float multEB = 0.0,
+                                             float multEE = 0.0);
 
   static std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster,
                                                const EcalRecHitCollection *recHits,
@@ -1034,7 +1040,10 @@ template <bool noZS>
 std::vector<float> EcalClusterToolsT<noZS>::localCovariances(const reco::BasicCluster &cluster,
                                                              const EcalRecHitCollection *recHits,
                                                              const CaloTopology *topology,
-                                                             float w0) {
+                                                             float w0,
+                                                             const EcalPFRecHitThresholds *thresholds,
+                                                             float multEB,
+                                                             float multEE) {
   float e_5x5 = e5x5(cluster, recHits, topology);
   float covEtaEta, covEtaPhi, covPhiPhi;
 
@@ -1059,12 +1068,27 @@ std::vector<float> EcalClusterToolsT<noZS>::localCovariances(const reco::BasicCl
 
     bool isBarrel = seedId.subdetId() == EcalBarrel;
     const double crysSize = isBarrel ? barrelCrysSize : endcapCrysSize;
+    float mult = isBarrel ? multEB : multEE;  // we will multiply PF RecHit threshold by mult.
+                                              // mult = 1 should work reasonably well for noise cleaning.
+    // dedicated studies showed mult=1.25 works best for Run3 in endcap, where noise is high.
+    // If no noise cleaning is intended then put mult=0.
 
     CaloRectangle rectangle{-2, 2, -2, 2};
     for (auto const &detId : rectangle(seedId, *topology)) {
       float frac = getFraction(v_id, detId);
       float energy = recHitEnergy(detId, recHits) * frac;
-      if (energy <= 0)
+
+      if ((thresholds == nullptr) && (mult != 0.0)) {
+        throw cms::Exception("EmptyPFRechHitThresColl")
+            << "In EcalClusterTools::localCovariances, if EcalPFRecHitThresholds==nulptr, then multEB and multEE "
+               "should be 0 as well.";
+      }
+      float rhThres = 0.0;
+      if (thresholds != nullptr) {
+        rhThres = (*thresholds)[detId];  // access PFRechit thresholds for noise cleaning
+      }
+
+      if (energy <= (rhThres * mult))
         continue;
 
       float dEta = getNrCrysDiffInEta(detId, seedId) - mean5x5PosInNrCrysFromSeed.first;
