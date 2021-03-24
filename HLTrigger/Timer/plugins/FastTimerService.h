@@ -458,24 +458,30 @@ private:
 
   //
   struct ThreadGuard {
-    using specific_t = std::pair<FastTimerService::Measurement&, FastTimerService::AtomicResources&>;
+    struct specific_t {
+      specific_t(AtomicResources& r) : resource_(r), live_(true) {}
+      ~specific_t() = default;
+
+      Measurement measurement_;
+      AtomicResources& resource_;
+      bool live_;
+    };
 
     ThreadGuard();
     ~ThreadGuard() = default;
 
-    static void reset_thread(void* t);
-    bool register_thread(FastTimerService::Measurement& t, FastTimerService::AtomicResources& r);
+    static void retire_thread(void* t);
 
-    static pthread_key_t key;
-    static pthread_once_t key_once;
+    bool register_thread(FastTimerService::AtomicResources& r);
+    Measurement& thread();
+    void finalize();
+
+    tbb::concurrent_vector<std::unique_ptr<specific_t>> thread_resources_;
+    pthread_key_t key_;
   };
 
   //
   ThreadGuard guard_;
-
-  // per-thread quantities, lazily allocated
-  tbb::enumerable_thread_specific<Measurement, tbb::cache_aligned_allocator<Measurement>, tbb::ets_key_per_instance>
-      threads_;
 
   // atomic variables to keep track of the completion of each step, process by process
   std::unique_ptr<std::atomic<unsigned int>[]> subprocess_event_check_;
