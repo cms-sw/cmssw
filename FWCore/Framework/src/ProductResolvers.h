@@ -9,6 +9,7 @@ a set of related EDProducts. This is the storage unit of such information.
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/src/ProductPutOrMergerBase.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -100,10 +101,23 @@ namespace edm {
     ProductStatus const defaultStatus_;
   };
 
-  class DelayedReaderInputProductResolver : public DataManagingProductResolver {
+  class MergeableInputProductResolver : public DataManagingProductResolver {
+  public:
+    MergeableInputProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus)
+        : DataManagingProductResolver(bd, iDefaultStatus) {}
+
+  protected:
+    void setOrMergeProduct(std::unique_ptr<WrapperBase> prod,
+                           MergeableRunProductMetadata const* mergeableRunProductMetadata) const;
+
+    // merges the product with the pre-existing product
+    void mergeProduct(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const;
+  };
+
+  class DelayedReaderInputProductResolver : public MergeableInputProductResolver {
   public:
     explicit DelayedReaderInputProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : DataManagingProductResolver(bd, ProductStatus::ResolveNotRun), m_prefetchRequested{false}, aux_{nullptr} {
+        : MergeableInputProductResolver(bd, ProductStatus::ResolveNotRun), m_prefetchRequested{false}, aux_{nullptr} {
       assert(bd->onDemand());
       assert(not bd->produced());
     }
@@ -126,11 +140,6 @@ namespace edm {
 
     void retrieveAndMerge_(Principal const& principal,
                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const override;
-    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod,
-                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const;
-
-    // merges the product with the pre-existing product
-    void mergeProduct(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const;
 
     void setMergeableRunProductMetadata_(MergeableRunProductMetadata const*) override;
 
@@ -143,16 +152,19 @@ namespace edm {
     UnscheduledAuxiliary const* aux_;  //provides access to the delayedGet signals
   };
 
-  class PutOnReadInputProductResolver : public DataManagingProductResolver, public ProductPutterBase {
+  class PutOnReadInputProductResolver : public MergeableInputProductResolver,
+                                        public ProductPutterBase,
+                                        public ProductPutOrMergerBase {
   public:
     PutOnReadInputProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : DataManagingProductResolver(bd, ProductStatus::ResolveNotRun) {
+        : MergeableInputProductResolver(bd, ProductStatus::ResolveNotRun) {
       assert(not bd->produced());
       assert(not bd->onDemand());
     }
 
   protected:
     void putProduct(std::unique_ptr<WrapperBase> edp) const override;
+    void putOrMergeProduct(std::unique_ptr<WrapperBase> prod) const override;
 
     Resolution resolveProduct_(Principal const& principal,
                                bool skipCurrentProcess,

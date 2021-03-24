@@ -77,7 +77,7 @@ namespace edm {
     return Resolution(nullptr);
   }
 
-  void DelayedReaderInputProductResolver::mergeProduct(
+  void MergeableInputProductResolver::mergeProduct(
       std::unique_ptr<WrapperBase> iFrom, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
     // if its not mergeable and the previous read failed, go ahead and use this one
     if (status() == ProductStatus::ResolveFailed) {
@@ -213,7 +213,7 @@ namespace edm {
         }
         if (status() == defaultStatus() || status() == ProductStatus::ProductSet ||
             (status() == ProductStatus::ResolveFailed && !branchDescription().isMergeable())) {
-          putOrMergeProduct_(std::move(edp), mergeableRunProductMetadata);
+          setOrMergeProduct(std::move(edp), mergeableRunProductMetadata);
         } else {  // status() == ResolveFailed && branchDescription().isMergeable()
           throw Exception(errors::MismatchedInputFiles)
               << "Merge of Run or Lumi product failed for branch " << branchDescription().branchName() << "\n"
@@ -237,7 +237,7 @@ namespace edm {
     }
   }
 
-  void DelayedReaderInputProductResolver::putOrMergeProduct_(
+  void MergeableInputProductResolver::setOrMergeProduct(
       std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
     if (status() == defaultStatus()) {
       //resolveProduct has not been called or it failed
@@ -347,6 +347,10 @@ namespace edm {
                                                      ServiceToken const& token,
                                                      SharedResourcesAcquirer* sra,
                                                      ModuleCallingContext const* mcc) const {}
+
+  void PutOnReadInputProductResolver::putOrMergeProduct(std::unique_ptr<WrapperBase> edp) const {
+    setOrMergeProduct(std::move(edp), nullptr);
+  }
 
   ProductResolverBase::Resolution PuttableProductResolver::resolveProduct_(Principal const&,
                                                                            bool skipCurrentProcess,

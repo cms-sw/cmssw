@@ -244,6 +244,12 @@
     <use name="FWCore/Sources"/>
   </library>
 
+  <library file="PutOrMergeTestSource.cc" name="PutOrMergeTestSource">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Sources"/>
+    <use name="DataFormats/TestObjects"/>
+  </library>
+
   <library file="OtherThingProducer.cc,OtherThingAlgorithm.cc" name="TestOtherThingProducer">
     <flags EDM_PLUGIN="1"/>
     <use name="DataFormats/Common"/>
@@ -431,4 +437,6 @@
   </bin>
 
   <test name="TestFWCoreIntegrationInterProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TestInterProcessProd_cfg.py"/>
+
+  <test name="TestFWCoreIntegrationPutOrMerge" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/putOrMergeTest_cfg.py"/>
 </environment>
