@@ -90,7 +90,8 @@ namespace ecaldqm {
     std::vector<int>::iterator pBin(std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing()));
     bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
     // fine binning for TP Occ vs BX plot as requested by DAQ in March 2021
-    std::vector<int>::iterator pBinFine(std::upper_bound(bxBinEdgesFine_.begin(), bxBinEdgesFine_.end(), _evt.bunchCrossing()));
+    std::vector<int>::iterator pBinFine(
+        std::upper_bound(bxBinEdgesFine_.begin(), bxBinEdgesFine_.end(), _evt.bunchCrossing()));
     bxBinFine_ = static_cast<int>(pBinFine - bxBinEdgesFine_.begin()) - 0.5;
 
     edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd_;
