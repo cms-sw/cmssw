@@ -6,3 +6,6 @@ L1MetPfProducer = cms.EDProducer("L1MetPfProducer",
                                  inverseDropBits = cms.uint32(2),
                                  arcTanTableBits = cms.uint32(7)
                              )
+L1MetPfProducerNT = cms.EDProducer("L1MetPfProducerNewTypes",
+                                   L1PFObjects = cms.InputTag("L1PFProducer","l1pfCandidates"),
+                               )
