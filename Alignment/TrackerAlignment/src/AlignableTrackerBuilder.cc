@@ -25,7 +25,7 @@ AlignableTrackerBuilder ::AlignableTrackerBuilder(const TrackerGeometry* tracker
                                                   const TrackerTopology* trackerTopology)
     : trackerGeometry_(trackerGeometry),
       trackerTopology_(trackerTopology),
-      alignableObjectId_(trackerGeometry, nullptr, nullptr),
+      alignableObjectId_(trackerGeometry, nullptr, nullptr, nullptr),
       alignableMap_(nullptr),
       trackerAlignmentLevelBuilder_(trackerTopology, trackerGeometry) {
   std::ostringstream ss;

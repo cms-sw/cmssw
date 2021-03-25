@@ -54,7 +54,7 @@ private:
   bool m_done;
   std::string m_input, m_output;
 
-  std::string m_dtLabel, m_cscLabel;
+  std::string m_dtLabel, m_cscLabel, m_gemLabel;
   double m_shiftErr, m_angleErr;
   std::string m_fileName;
   bool m_getAPEs;
@@ -101,6 +101,7 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
   else if (m_input == std::string("db")) {
     m_dtLabel = iConfig.getParameter<std::string>("dtLabel");
     m_cscLabel = iConfig.getParameter<std::string>("cscLabel");
+    m_gemLabel = iConfig.getParameter<std::string>("gemLabel");
     m_shiftErr = iConfig.getParameter<double>("shiftErr");
     m_angleErr = iConfig.getParameter<double>("angleErr");
     m_getAPEs = iConfig.getParameter<bool>("getAPEs");
@@ -109,6 +110,7 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
   else if (m_input == std::string("surveydb")) {
     m_dtLabel = iConfig.getParameter<std::string>("dtLabel");
     m_cscLabel = iConfig.getParameter<std::string>("cscLabel");
+    m_gemLabel = iConfig.getParameter<std::string>("gemLabel");
   }
 
   else if (m_input == std::string("scenario")) {
@@ -159,7 +161,7 @@ void MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::Event
     }
 
     else if (m_input == std::string("db")) {
-      MuonAlignmentInputDB inputMethod(m_dtLabel, m_cscLabel, idealGeometryLabelForInputDB, m_getAPEs);
+      MuonAlignmentInputDB inputMethod(m_dtLabel, m_cscLabel, m_gemLabel, idealGeometryLabelForInputDB, m_getAPEs);
       muonAlignment = new MuonAlignment(iSetup, inputMethod);
       if (m_getAPEs) {
         muonAlignment->copyAlignmentToSurvey(m_shiftErr, m_angleErr);
@@ -222,6 +224,7 @@ void MuonGeometryDBConverter::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<std::string>("input", "ideal");
   desc.add<std::string>("dtLabel", "");
   desc.add<std::string>("cscLabel", "");
+  desc.add<std::string>("gemLabel", "");
   desc.add<double>("shiftErr", 1000.0);
   desc.add<double>("angleErr", 6.28);
   desc.add<bool>("getAPEs", true);
