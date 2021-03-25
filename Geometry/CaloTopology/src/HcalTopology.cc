@@ -245,7 +245,8 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
     if (id.ietaAbs() > lastHBRing_ && id.ietaAbs() < firstHFRing_)
       return false;
   }
-  if (id.version() == 0) {
+  // Version 2 TPs should be for HBHE when using 1TS filter scheme
+  if (id.version() == 0 or id.version() == 2) {
     if (id.ietaAbs() > 28) {
       if (triggerMode_ >= HcalTopologyMode::TriggerMode_2017)
         return false;
@@ -265,8 +266,8 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
       return false;
     if (id.ietaAbs() > 39 && ((id.iphi() % 4) != 3))
       return false;
-  } else if (id.version() > 1) {
-    // only versions 0 and 1 are supported
+  } else if (id.version() > 2) {
+    // only versions 0, 1, and 2 are supported
     return false;
   }
 
