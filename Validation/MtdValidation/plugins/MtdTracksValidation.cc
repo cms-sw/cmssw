@@ -178,9 +178,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     meTrackSigmat0SafePid_->Fill(Sigmat0Safe[trackref]);
     meTrackMVAQual_->Fill(mtdQualMVA[trackref]);
 
-    meTrackPathLenghtvsEta_->Fill(std::fabs(track.eta()), pathLength[mtdTrackref]);
+    meTrackPathLenghtvsEta_->Fill(std::abs(track.eta()), pathLength[mtdTrackref]);
 
-    if (fabs(track.eta()) < trackMinEta_) {
+    if (std::abs(track.eta()) < trackMinEta_) {
       // --- all BTL tracks (with and without hit in MTD) ---
       meBTLTrackEffEtaTot_->Fill(track.eta());
       meBTLTrackEffPhiTot_->Fill(track.phi());

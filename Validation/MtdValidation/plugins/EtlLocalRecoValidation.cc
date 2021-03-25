@@ -271,7 +271,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         meTimeRes_->Fill(time_res / m_etlSimHits[idet][detId.rawId()].time);
         meEnergyRes_->Fill(energy_res / m_etlSimHits[idet][detId.rawId()].energy);
 
-        meTPullvsEta_->Fill(fabs(global_point.eta()), time_res / recHit.timeError());
+        meTPullvsEta_->Fill(std::abs(global_point.eta()), time_res / recHit.timeError());
         meTPullvsE_->Fill(m_etlSimHits[idet][detId.rawId()].energy, time_res / recHit.timeError());
       }
     }
