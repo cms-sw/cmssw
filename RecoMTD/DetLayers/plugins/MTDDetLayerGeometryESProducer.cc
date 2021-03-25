@@ -18,7 +18,6 @@
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
-
 #include "RecoMTD/DetLayers/interface/ETLDetLayerGeometryBuilder.h"
 #include "RecoMTD/DetLayers/interface/BTLDetLayerGeometryBuilder.h"
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
@@ -52,7 +51,6 @@ MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::Paramete
 }
 
 std::unique_ptr<MTDDetLayerGeometry> MTDDetLayerGeometryESProducer::produce(const MTDRecoGeometryRecord& record) {
-  
   auto mtdDetLayerGeometry = std::make_unique<MTDDetLayerGeometry>();
   auto mtd = record.getHandle(geomToken_);
   auto mtdtopo = record.getHandle(mtdtopoToken_);

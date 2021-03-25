@@ -11,10 +11,12 @@
 
 #include "FWCore/Utilities/interface/mplVector.h"
 
-class TrackerRecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
-                                      TrackerRecoGeometryRecord,
-                                      edm::mpl::Vector<TrackerTopologyRcd, TrackerDigiGeometryRecord, 
-                                      MTDGeometryRecord, MTDTopologyRcd, MTDDigiGeometryRecord> > {};
-
+class TrackerRecoGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<TrackerRecoGeometryRecord,
+                                                            edm::mpl::Vector<TrackerTopologyRcd,
+                                                                             TrackerDigiGeometryRecord,
+                                                                             MTDGeometryRecord,
+                                                                             MTDTopologyRcd,
+                                                                             MTDDigiGeometryRecord> > {};
 
 #endif
