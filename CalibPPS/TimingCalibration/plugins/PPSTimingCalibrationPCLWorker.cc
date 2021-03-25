@@ -52,7 +52,7 @@ private:
 PPSTimingCalibrationPCLWorker::PPSTimingCalibrationPCLWorker(const edm::ParameterSet& iConfig)
     : diamondRecHitToken_(
           consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(iConfig.getParameter<edm::InputTag>("diamondRecHitTag"))),
-      geomEsToken_(esConsumes()),
+      geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
       dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {}
 
 //------------------------------------------------------------------------------
