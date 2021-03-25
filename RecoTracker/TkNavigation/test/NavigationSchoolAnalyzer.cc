@@ -78,7 +78,7 @@ void NavigationSchoolAnalyzer::print(std::ostream& os, const DetLayer* dl) {
   if (GeomDetEnumerators::isTracker(dl->subDetector())) {
     LorW = tTopo->layer(tag->geographicalId());
     side = tTopo->side(tag->geographicalId());
-  } else if(dl->subDetector() == GeomDetEnumerators::TimingEndcap) {
+  } else if (dl->subDetector() == GeomDetEnumerators::TimingEndcap) {
     ETLDetId id(dl->basicComponents().front()->geographicalId().rawId());
     LorW = id.nDisc();
     //The MTD side returns 0 for the negative side and 1 for the positive side

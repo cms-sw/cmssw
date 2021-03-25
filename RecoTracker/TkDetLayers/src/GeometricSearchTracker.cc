@@ -78,9 +78,6 @@ GeometricSearchTracker::~GeometricSearchTracker() {
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 const DetLayer* GeometricSearchTracker::idToLayer(const DetId& id) const {
-
-
-
   //If it's a tracker Det
   if (id.det() == 1) {
     switch (id.subdetId()) {
@@ -127,25 +124,16 @@ const DetLayer* GeometricSearchTracker::idToLayer(const DetId& id) const {
     return nullptr;  //just to avoid compile warnings
   } else {
     //If it's MTD
-    return mtdDetLayerGeometry->idToLayer(id); 
+    return mtdDetLayerGeometry->idToLayer(id);
   }
-} 
-
-
-void GeometricSearchTracker::addDetLayerGeometry() {
-
- mtdDetLayerGeometry = new MTDDetLayerGeometry();
-
 }
 
+void GeometricSearchTracker::addDetLayerGeometry() { mtdDetLayerGeometry = new MTDDetLayerGeometry(); }
 
 void GeometricSearchTracker::addMTDLayers(const std::vector<BarrelDetLayer const*>& btl,
                                           const std::vector<ForwardDetLayer const*>& negEtl,
                                           const std::vector<ForwardDetLayer const*>& posEtl) {
-
-
-
-  //Barrel  
+  //Barrel
   theBTLLayers.assign(btl.begin(), btl.end());
   theBarrelLayers.insert(theBarrelLayers.end(), theBTLLayers.begin(), theBTLLayers.end());
   //Endcap
@@ -162,7 +150,7 @@ void GeometricSearchTracker::addMTDLayers(const std::vector<BarrelDetLayer const
   theForwardLayers.insert(theForwardLayers.end(), thePosForwardLayers.begin(), thePosForwardLayers.end());
   theAllLayers.assign(theBarrelLayers.begin(), theBarrelLayers.end());
   theAllLayers.insert(theAllLayers.end(), theForwardLayers.begin(), theForwardLayers.end());
-  
+
   // number the layers
   int sq = 0;
   for (auto l : theAllLayers)
@@ -185,9 +173,5 @@ void GeometricSearchTracker::addMTDLayers(const std::vector<BarrelDetLayer const
                                << "n MTDbarrelLayers: " << this->theBTLLayers.size() << "\n"
                                << "n MTDnegLayers: " << this->theNegETLLayers.size() << "\n"
                                << "n MTDposLayers: " << this->thePosETLLayers.size() << "\n"
-                                                                                                                                                                                                                                                  << "\nn Total :     " << theAllLayers.size() << std::endl;
-  
+                               << "\nn Total :     " << theAllLayers.size() << std::endl;
 }
-
-
-

@@ -54,7 +54,7 @@ public:
   const DetLayer* idToLayer(const DetId& detId) const override;
 
   // Added to allow building the MTDDetLayer from external plugins
-  void buildLayers(const MTDGeometry *geo, const MTDTopology *mtopo);
+  void buildLayers(const MTDGeometry* geo, const MTDTopology* mtopo);
 
   void sortLayers();
 
@@ -68,7 +68,6 @@ private:
   void addBTLLayers(const std::vector<DetLayer*>& btllayers);
 
   DetId makeDetLayerId(const DetLayer* detLayer) const;
-
 
   std::vector<const DetLayer*> etlLayers_fw;
   std::vector<const DetLayer*> etlLayers_bk;

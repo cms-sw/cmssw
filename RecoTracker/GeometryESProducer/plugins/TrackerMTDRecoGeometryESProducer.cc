@@ -59,7 +59,7 @@ std::unique_ptr<GeometricSearchTracker> TrackerMTDRecoGeometryESProducer::produc
     const TrackerRecoGeometryRecord &iRecord) {
   TrackerGeometry const &tG = iRecord.get(geomToken_);
   MTDGeometry const &mG = iRecord.get(mtdgeomToken_);
-  
+
   GeometricSearchTrackerBuilder builder;
   return std::unique_ptr<GeometricSearchTracker>(
       builder.build(tG.trackerDet(), &tG, &iRecord.get(tTopToken_), &mG, &iRecord.get(mtdTopToken_), usePhase2Stacks_));

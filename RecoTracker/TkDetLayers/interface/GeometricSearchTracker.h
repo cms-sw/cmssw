@@ -33,7 +33,6 @@ public:
                     const std::vector<ForwardDetLayer const*>& negEtl,
                     const std::vector<ForwardDetLayer const*>& posEtl);
 
-
   std::vector<DetLayer const*> const& allLayers() const { return theAllLayers; }
 
   std::vector<BarrelDetLayer const*> const& barrelLayers() const { return theBarrelLayers; }
@@ -61,8 +60,8 @@ public:
   const DetLayer* detLayer(const DetId& id) const { return idToLayer(id); };
 
   //Need to make this pointer public so the tracker builder can build the MTD
-  MTDDetLayerGeometry *mtdDetLayerGeometry;
- 
+  MTDDetLayerGeometry* mtdDetLayerGeometry;
+
 private:
   std::vector<DetLayer const*> theAllLayers;
   std::vector<BarrelDetLayer const*> theBarrelLayers;
@@ -81,15 +80,13 @@ private:
   std::vector<ForwardDetLayer const*> thePosTidLayers;
   std::vector<ForwardDetLayer const*> thePosTecLayers;
 
-   //MTD stuff
-   std::vector<BarrelDetLayer const*> theBTLLayers;
-   std::vector<ForwardDetLayer const*> theETLLayers;
-   std::vector<ForwardDetLayer const*> theNegETLLayers;
-   std::vector<ForwardDetLayer const*> thePosETLLayers;
+  //MTD stuff
+  std::vector<BarrelDetLayer const*> theBTLLayers;
+  std::vector<ForwardDetLayer const*> theETLLayers;
+  std::vector<ForwardDetLayer const*> theNegETLLayers;
+  std::vector<ForwardDetLayer const*> thePosETLLayers;
 
   const TrackerTopology* theTrkTopo;
-
-
 };
 
 #endif

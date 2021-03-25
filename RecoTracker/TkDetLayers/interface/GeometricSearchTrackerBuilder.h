@@ -27,10 +27,8 @@ public:
                                 const TrackerGeometry* theGeomDetGeometry,
                                 const TrackerTopology* tTopo,
                                 const MTDGeometry* mtd,
-                                const MTDTopology *mTopo,
+                                const MTDTopology* mTopo,
                                 const bool usePhase2Stacks = false) __attribute__((cold));
-
-
 };
 
 #endif
