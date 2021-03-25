@@ -27,7 +27,6 @@ allLabel = 'all'
 
 collection_choices = [layerClustersGeneralLabel]
 collection_choices.extend([simClustersGeneralLabel]+[multiclustersGeneralLabel]+[trackstersGeneralLabel]+[hitValidationLabel]+[hitCalibrationLabel]+[allLabel]+[caloParticlesLabel])
-collections = ["hgcalMultiClusters","ticlMultiClustersFromTrackstersMerge","ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersTrkEM","ticlMultiClustersFromTrackstersEM","ticlMultiClustersFromTrackstersHAD","ticlMultiClustersFromTrackstersDummy"]
 
 def main(opts):
 
@@ -79,6 +78,7 @@ def main(opts):
         particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
                          "muon-": "-13", "muon+":"13", 
                          "electron-": "-11", "electron+": "11", "photon": "22", 
+                         "kaon0L": "310", "kaon0S": "130",
                          "kaon-": "-321", "kaon+": "321"}
         hgcaloPart = [hgcalPlots.hgcalCaloParticlesPlotter]
         for i_part, i_partID in particletypes.iteritems() :
@@ -100,6 +100,7 @@ def main(opts):
         particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
                          "muon-": "-13", "muon+":"13", 
                          "electron-": "-11", "electron+": "11", "photon": "22", 
+                         "kaon0L": "310", "kaon0S": "130",
                          "kaon-": "-321", "kaon+": "321"}
         hgcaloPart = [hgcalPlots.hgcalCaloParticlesPlotter]
         for i_part, i_partID in particletypes.iteritems() :
