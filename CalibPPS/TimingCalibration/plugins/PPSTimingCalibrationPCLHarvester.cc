@@ -75,6 +75,11 @@ void PPSTimingCalibrationPCLHarvester::beginRun(const edm::Run& iRun, const edm:
 //------------------------------------------------------------------------------
 
 void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
+  // first ensure DB output service is available
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if (!poolDbService.isAvailable())
+    throw cms::Exception("PPSTimingCalibrationPCLHarvester:dqmEndJob") << "PoolDBService required";
+
   // book the parameters containers
   PPSTimingCalibration::ParametersMap calib_params;
   PPSTimingCalibration::TimingMap calib_time;
@@ -137,9 +142,6 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
   PPSTimingCalibration calib(formula_, calib_params, calib_time);
 
   // write the object
-  edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if (!poolDbService.isAvailable())
-    throw cms::Exception("PPSTimingCalibrationPCLHarvester:dqmEndJob") << "PoolDBService required";
   poolDbService->writeOne(&calib, poolDbService->currentTime(), "PPSTimingCalibrationRcd");
 }
 
