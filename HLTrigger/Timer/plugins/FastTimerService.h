@@ -464,19 +464,20 @@ private:
 
       Measurement measurement_;
       AtomicResources& resource_;
-      bool live_;
+      std::atomic<bool> live_;
     };
 
     ThreadGuard();
     ~ThreadGuard() = default;
 
     static void retire_thread(void* t);
+    static std::shared_ptr<specific_t>* ptr(void* p);
 
     bool register_thread(FastTimerService::AtomicResources& r);
     Measurement& thread();
     void finalize();
 
-    tbb::concurrent_vector<std::unique_ptr<specific_t>> thread_resources_;
+    tbb::concurrent_vector<std::shared_ptr<specific_t>> thread_resources_;
     pthread_key_t key_;
   };
 
