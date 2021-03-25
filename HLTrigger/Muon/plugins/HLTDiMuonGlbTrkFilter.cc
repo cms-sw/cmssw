@@ -1,31 +1,26 @@
+#include "HLTDiMuonGlbTrkFilter.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "HLTDiMuonGlbTrkFilter.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
-
-HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
+HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig), idealMagneticFieldRecordToken_(esConsumes()) {
   m_muonsTag = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
   m_muonsToken = consumes<reco::MuonCollection>(m_muonsTag);
   m_candsTag = iConfig.getParameter<edm::InputTag>("inputCandCollection");
@@ -116,7 +111,7 @@ bool HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent,
     // Needed for DCA calculation
     edm::ESHandle<MagneticField> bFieldHandle;
     if (m_maxDCAMuMu < 100.)
-      iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+      bFieldHandle = iSetup.getHandle(idealMagneticFieldRecordToken_);
     for (unsigned int i = 0; i < filteredMuons.size() - 1; ++i)
       for (unsigned int j = i + 1; j < filteredMuons.size(); ++j) {
         const reco::Muon& mu1(muons->at(filteredMuons.at(i)));
