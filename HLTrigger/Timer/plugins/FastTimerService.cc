@@ -1677,8 +1677,9 @@ bool FastTimerService::ThreadGuard::register_thread(FastTimerService::AtomicReso
   auto ptr = ::pthread_getspecific(key_);
 
   if (not ptr) {
-    auto p = thread_resources_.emplace_back(std::make_unique<specific_t>(r));
-    auto err = ::pthread_setspecific(key_, p->get());
+    auto p = thread_resources_.emplace_back(std::make_shared<specific_t>(r));
+    auto pp = new std::shared_ptr<specific_t>(*p);
+    auto err = ::pthread_setspecific(key_, pp);
     if (err) {
       throw cms::Exception("FastTimerService") << "ThreadGuard pthread_setspecific failed: " << ::strerror(err);
     }
@@ -1687,27 +1688,33 @@ bool FastTimerService::ThreadGuard::register_thread(FastTimerService::AtomicReso
   return false;
 }
 
+std::shared_ptr<FastTimerService::ThreadGuard::specific_t>* FastTimerService::ThreadGuard::ptr(void* p) {
+  return static_cast<std::shared_ptr<specific_t>*>(p);
+}
+
 // called when a thread exits
-void FastTimerService::ThreadGuard::retire_thread(void* ptr) {
-  auto p = static_cast<specific_t*>(ptr);
-  // account any resources used or freed by the thread before leaving the TBB pool
-  p->measurement_.measure_and_accumulate(p->resource_);
-  p->live_ = false;
+void FastTimerService::ThreadGuard::retire_thread(void* p) {
+  auto ps = ptr(p);
+  auto expected = true;
+  if ((*ps)->live_.compare_exchange_strong(expected, false)) {
+    // account any resources used or freed by the thread before leaving the TBB pool
+    (*ps)->measurement_.measure_and_accumulate((*ps)->resource_);
+  }
+  delete ps;
 }
 
 // finalize all threads that have not retired
 void FastTimerService::ThreadGuard::finalize() {
   for (auto& p : thread_resources_) {
-    if (p->live_) {
+    auto expected = true;
+    if (p->live_.compare_exchange_strong(expected, false)) {
       p->measurement_.measure_and_accumulate(p->resource_);
     }
   }
 }
 
 FastTimerService::Measurement& FastTimerService::ThreadGuard::thread() {
-  auto ptr = ::pthread_getspecific(key_);
-  auto p = static_cast<ThreadGuard::specific_t*>(ptr);
-  return p->measurement_;
+  return (*ptr(::pthread_getspecific(key_)))->measurement_;
 }
 
 void FastTimerService::on_scheduler_entry(bool worker) {
