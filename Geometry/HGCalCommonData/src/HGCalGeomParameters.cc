@@ -20,6 +20,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 #include <algorithm>
+#include <sstream>
 #include <unordered_set>
 
 //#define EDM_ML_DEBUG
@@ -706,7 +707,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, HGCalP
       if (lay == 0) {
         throw cms::Exception("DDException")
             << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
-      } else {
+      } else if (sol.shape() == DDSolidShape::ddtubs) {
         if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
           php.layer_.emplace_back(lay);
         const DDTubs& tube = static_cast<DDTubs>(sol);
@@ -784,7 +785,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDCompactView* cpv,
       if (lay == 0) {
         throw cms::Exception("DDException")
             << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
-      } else {
+      } else if (fv.shape() == cms::DDSolidShape::ddtubs) {
         if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
           php.layer_.emplace_back(lay);
         const std::vector<double>& pars = fv.parameters();
@@ -867,8 +868,12 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
         if (zvals.find(std::make_pair(lay, zside)) == zvals.end()) {
           zvals[std::make_pair(lay, zside)] = HGCalParameters::k_ScaleFromDDD * fv1.translation().Z();
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " Side " << zside << " Z "
-                                        << zvals[std::make_pair(lay, zside)];
+	  std::ostringstream st1;
+	  st1 << "Name0 " << fv1.name() << " LTop " << levelTop << ":" << lay << " ZSide " << zside << " # of levels " << nsiz;
+	  for (const auto& c : copy)
+	    st1 << ":" << c;
+	  st1 << " Z " << zvals[std::make_pair(lay, zside)];
+	  edm::LogVerbatim("HGCalGeom") << st1.str();
 #endif
         }
       }
@@ -893,13 +898,16 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
         zside = -1;
       const DDSolid& sol = fv2.logicalPart().solid();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << sol.name() << " shape " << sol.shape() << " size " << nsiz << ":" << levelTop
-                                    << " lay " << lay << " z " << zside;
+      std::ostringstream st2;
+      st2 << "Name1 " << sol.name() << " shape " << sol.shape() << " LTop " << levelTop << ":" << lay << " ZSide " << zside << ":" << php.levelZSide_ << " # of levels " << nsiz;
+      for (const auto& c : copy)
+	st2 << ":" << c;
+      edm::LogVerbatim("HGCalGeom") << st2.str();
 #endif
       if (lay == 0) {
         throw cms::Exception("DDException")
             << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
-      } else {
+      } else if (sol.shape() == DDSolidShape::ddtubs) {
         if (zvals.find(std::make_pair(lay, zside)) != zvals.end()) {
           if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
             php.layer_.emplace_back(lay);
@@ -913,6 +921,14 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
             double zp = zvals[std::make_pair(lay, 1)];
             HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
             layers[lay] = laypar;
+#ifdef EDM_ML_DEBUG
+	    std::ostringstream st3;
+	    st3 << "Name1 " << fv2.name() << " LTop " << levelTop << ":" << lay << " ZSide " << zside << " # of levels " << nsiz;
+	    for (const auto& c : copy)
+	      st3 << ":" << c;
+	    st3 << " R " << rin << ":" << rout;
+	    edm::LogVerbatim("HGCalGeom") << st3.str();
+#endif
           }
 
           if (trforms.find(std::make_pair(lay, zside)) == trforms.end()) {
@@ -965,6 +981,9 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
   const cms::DDFilter filter1("Volume", sdTag2);
   cms::DDFilteredView fv1((*cpv), filter1);
   while (fv1.firstChild()) {
+#ifdef EDM_ML_DEBUG
+    ++ntot1;
+#endif
     int nsiz = static_cast<int>(fv1.level());
     if (nsiz > levelTop) {
       std::vector<int> copy = fv1.copyNos();
@@ -979,8 +998,12 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
         if (zvals.find(std::make_pair(lay, zside)) == zvals.end()) {
           zvals[std::make_pair(lay, zside)] = HGCalParameters::k_ScaleFromDD4Hep * fv1.translation().Z();
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " Side " << zside << " Z "
-                                        << zvals[std::make_pair(lay, zside)];
+	  std::ostringstream st1;
+	  st1 << "Name0 " << fv1.name() << " LTop " << levelTop << ":" << lay << " ZSide " << zside << " # of levels " << nsiz;
+	  for (const auto& c : copy)
+	    st1 << ":" << c;
+	  st1 << " Z " << zvals[std::make_pair(lay, zside)];
+	  edm::LogVerbatim("HGCalGeom") << st1.str();
 #endif
         }
       }
@@ -990,38 +1013,49 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
   const cms::DDFilter filter2("Volume", sdTag1);
   cms::DDFilteredView fv2((*cpv), filter2);
   while (fv2.firstChild()) {
+    // Layers first
+    int nsiz = static_cast<int>(fv2.level());
 #ifdef EDM_ML_DEBUG
     ++ntot2;
 #endif
-    // Layers first
-    int nsiz = static_cast<int>(fv2.level());
-    if (nsiz < levelTop) {
+    if (nsiz > levelTop) {
       std::vector<int> copy = fv2.copyNos();
-      int lay = copy[0];
+      int lay = copy[nsiz - levelTop - 1];
       int zside = (nsiz > php.levelZSide_) ? copy[nsiz - php.levelZSide_ - 1] : -1;
       if (zside != 1)
         zside = -1;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << fv2.name() << " shape " << cms::dd::name(cms::DDSolidShapeMap, fv2.shape())
-                                    << " size " << nsiz << ":" << levelTop << " lay " << lay << " z " << zside << ":"
-                                    << php.levelZSide_;
+      std::ostringstream st2;
+      st2 << "Name1 " << fv2.name() << "Shape " << cms::dd::name(cms::DDSolidShapeMap, fv2.shape()) << " LTop " << levelTop << ":" << lay << " ZSide " << zside << ":" << php.levelZSide_ << " # of levels " << nsiz;
+      for (const auto& c : copy)
+	st2 << ":" << c;
+      edm::LogVerbatim("HGCalGeom") << st2.str();
 #endif
       if (lay == 0) {
         throw cms::Exception("DDException")
             << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
       } else {
-        if (zvals.find(std::make_pair(lay, zside)) == zvals.end()) {
+        if (zvals.find(std::make_pair(lay, zside)) != zvals.end()) {
           if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
             php.layer_.emplace_back(lay);
           auto itr = layers.find(lay);
           if (itr == layers.end()) {
             const std::vector<double>& pars = fv2.parameters();
             double rin = HGCalParameters::k_ScaleFromDD4Hep * pars[0];
-            double rout = HGCalParameters::k_ScaleFromDD4Hep * pars[1];
+            double rout = (php.firstMixedLayer_ > 0 && lay >= php.firstMixedLayer_) ? php.radiusMixBoundary_[lay - php.firstMixedLayer_] : HGCalParameters::k_ScaleFromDD4Hep * pars[1];
             double zp = zvals[std::make_pair(lay, 1)];
             HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
             layers[lay] = laypar;
+#ifdef EDM_ML_DEBUG
+	    std::ostringstream st3;
+	    st3 << "Name2 " << fv2.name() << " LTop " << levelTop << ":" << lay << " ZSide " << zside << " # of levels " << nsiz;
+	    for (const auto& c : copy)
+	      st3 << ":" << c;
+	    st3 << " R " << rin << ":" << rout;
+	    edm::LogVerbatim("HGCalGeom") << st3.str();
+#endif
           }
+
           if (trforms.find(std::make_pair(lay, zside)) == trforms.end()) {
             DD3Vector x, y, z;
             fv2.rotation().GetComponents(x, y, z);
