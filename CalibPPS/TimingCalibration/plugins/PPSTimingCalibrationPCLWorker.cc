@@ -65,19 +65,16 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
   edm::ESHandle<CTPPSGeometry> hGeom;
   iSetup.get<VeryForwardRealGeometryRecord>().get(hGeom);
   for (auto it = hGeom->beginSensor(); it != hGeom->endSensor(); ++it) {
-    CTPPSDetId base_detid(it->first);
-    try {
-      CTPPSDiamondDetId detid(base_detid);
-      if (detid.station() != 1)
-        continue;
-      detid.channelName(ch_name);
-      iHists.leadingTime[detid.rawId()] = iBooker.book1D("t_" + ch_name, ch_name + ";t (ns);Entries", 1200, -60., 60.);
-      iHists.toT[detid.rawId()] = iBooker.book1D("tot_" + ch_name, ch_name + ";ToT (ns);Entries", 100, -20., 20.);
-      iHists.leadingTimeVsToT[detid.rawId()] =
-          iBooker.book2D("tvstot_" + ch_name, ch_name + ";ToT (ns);t (ns)", 240, 0., 60., 450, -20., 25.);
-    } catch (const cms::Exception&) {
+    if (!CTPPSDiamondDetId::check(it->first))
       continue;
-    }
+    const CTPPSDiamondDetId detid(it->first);
+    if (detid.station() != 1)
+      continue;
+    detid.channelName(ch_name);
+    iHists.leadingTime[detid.rawId()] = iBooker.book1D("t_" + ch_name, ch_name + ";t (ns);Entries", 1200, -60., 60.);
+    iHists.toT[detid.rawId()] = iBooker.book1D("tot_" + ch_name, ch_name + ";ToT (ns);Entries", 100, -20., 20.);
+    iHists.leadingTimeVsToT[detid.rawId()] =
+        iBooker.book2D("tvstot_" + ch_name, ch_name + ";ToT (ns);t (ns)", 240, 0., 60., 450, -20., 25.);
   }
 }
 

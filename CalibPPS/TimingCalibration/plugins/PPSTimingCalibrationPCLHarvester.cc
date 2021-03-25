@@ -67,14 +67,11 @@ void PPSTimingCalibrationPCLHarvester::beginRun(const edm::Run& iRun, const edm:
   edm::ESHandle<CTPPSGeometry> hGeom;
   iSetup.get<VeryForwardRealGeometryRecord>().get(hGeom);
   for (auto it = hGeom->beginSensor(); it != hGeom->endSensor(); ++it) {
-    CTPPSDetId base_detid(it->first);
-    try {
-      CTPPSDiamondDetId detid(base_detid);
-      if (detid.station() == 1)
-        detids_.emplace_back(detid);
-    } catch (const cms::Exception&) {
+    if (!CTPPSDiamondDetId::check(it->first))
       continue;
-    }
+    const CTPPSDiamondDetId detid(it->first);
+    if (detid.station() == 1) // for the time being, only compute for this station (run 2 diamond)
+      detids_.emplace_back(detid);
   }
 }
 
