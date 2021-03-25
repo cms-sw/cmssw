@@ -468,7 +468,7 @@ void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,
   myMVAVar_dphicalo = ele.deltaPhiSeedClusterTrackAtCalo();
 
   myMVAVar_see = ele.sigmaIetaIeta();  //EleSigmaIEtaIEta
-  std::array<float,3> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
+  std::array<float, 3> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
   if (edm::isFinite(vCov[2]))
     myMVAVar_spp = sqrt(vCov[2]);  //EleSigmaIPhiIPhi
   else

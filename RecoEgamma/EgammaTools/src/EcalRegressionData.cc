@@ -80,7 +80,7 @@ void EcalRegressionData::fill(const reco::SuperCluster& superClus,
   eBottom_ = EcalClusterTools::eBottom(*superClus.seed(), recHits, topology);
   eLeft_ = EcalClusterTools::eLeft(*superClus.seed(), recHits, topology);
   eRight_ = EcalClusterTools::eRight(*superClus.seed(), recHits, topology);
-  std::array<float,3> localCovs = EcalClusterTools::localCovariances(*superClus.seed(), recHits, topology);
+  std::array<float, 3> localCovs = EcalClusterTools::localCovariances(*superClus.seed(), recHits, topology);
   sigmaIEtaIEta_ = edm::isNotFinite(localCovs[0]) ? 0. : std::sqrt(localCovs[0]);
   sigmaIPhiIPhi_ = edm::isNotFinite(localCovs[2]) ? 0. : std::sqrt(localCovs[2]);
 
