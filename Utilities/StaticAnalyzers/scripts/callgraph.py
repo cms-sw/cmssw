@@ -64,7 +64,7 @@ for tfunc in toplevelfuncs:
                             if epfuncre.search(p): break
                             stripped=re.sub(farg,"()",p)
                             if previous != stripped:
-                                cs+=stripped+"; "
+                                cs+=' '+stripped+";"
                                 previous = stripped
                         callstacks.add(cs)
                         break
@@ -73,7 +73,7 @@ for tfunc in toplevelfuncs:
 report=dict()
 for key in sorted(module2package.keys()):
    for value in sorted(module2package[key]):
-       vre=re.compile(value)
+       vre=re.compile(' %s::.*();' % value)
        for cs in sorted(callstacks):
            if vre.search(cs):
                report.setdefault(key, {}).setdefault(value, []).append(cs)

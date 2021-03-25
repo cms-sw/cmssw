@@ -33,6 +33,8 @@ public:
   /// this special method allows to move a CSCsector by a same amount
   void moveCSCSectors(const edm::ParameterSet& scenario);
 
+  void moveGEMSectors(const edm::ParameterSet& scenario);
+
   /// this special method allows to move the complete muon system by a same amount
   void moveMuon(const edm::ParameterSet& scenario);
 
