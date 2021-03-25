@@ -42,6 +42,8 @@ private:
                       TimingCalibrationHistograms&) const override;
 
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondRecHit>> diamondRecHitToken_;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
+
   const std::string dqmDir_;
 };
 
@@ -50,6 +52,7 @@ private:
 PPSTimingCalibrationPCLWorker::PPSTimingCalibrationPCLWorker(const edm::ParameterSet& iConfig)
     : diamondRecHitToken_(
           consumes<edm::DetSetVector<CTPPSDiamondRecHit>>(iConfig.getParameter<edm::InputTag>("diamondRecHitTag"))),
+      geomEsToken_(esConsumes()),
       dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {}
 
 //------------------------------------------------------------------------------
@@ -62,9 +65,8 @@ void PPSTimingCalibrationPCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
   iBooker.setCurrentFolder(dqmDir_);
   std::string ch_name;
 
-  edm::ESHandle<CTPPSGeometry> hGeom;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(hGeom);
-  for (auto it = hGeom->beginSensor(); it != hGeom->endSensor(); ++it) {
+  const auto& geom = iSetup.getData(geomEsToken_);
+  for (auto it = geom.beginSensor(); it != geom.endSensor(); ++it) {
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
     const CTPPSDiamondDetId detid(it->first);
