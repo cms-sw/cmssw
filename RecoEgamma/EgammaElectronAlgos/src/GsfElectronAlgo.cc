@@ -316,11 +316,11 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
     recHitSeverityToBeExcluded = cfg_.recHits.recHitSeverityToBeExcludedEndcaps;
   }
 
-  std::vector<float> covariances = ClusterTools::covariances(seedCluster, recHits, &topology, &geometry);
+  std::array<float,3> covariances = ClusterTools::covariances(seedCluster, recHits, &topology, &geometry);
 
   // do noise-cleaning for full5x5, by passing per crystal PF recHit thresholds and mult values
   // mult values for EB and EE were obtained by dedicated studies
-  std::vector<float> localCovariances = full5x5 ? ClusterTools::localCovariances(seedCluster,
+  std::array<float,3> localCovariances = full5x5 ? ClusterTools::localCovariances(seedCluster,
                                                                                  recHits,
                                                                                  &topology,
                                                                                  EgammaLocalCovParamDefaults::kRelEnCut,
