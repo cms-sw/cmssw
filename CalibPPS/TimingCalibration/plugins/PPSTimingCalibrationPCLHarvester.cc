@@ -115,21 +115,22 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
       continue;
     }
     const double upper_tot_range = hists.toT[chid]->getMean() + 2.5;
-    auto prof = hists.leadingTimeVsToT[chid]->getTH2D()->ProfileX("_prof_x", 1, -1);
-    interp_.SetParameters(hists.leadingTime[chid]->getRMS(),
-                          hists.toT[chid]->getMean(),
-                          0.8,
-                          hists.leadingTime[chid]->getMean() - hists.leadingTime[chid]->getRMS());
-    const auto& res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
-    if ((bool)res) {
-      calib_params[key] = {
-          interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
-      calib_time[key] = std::make_pair(0.1, 0.);  // hardcoded resolution/offset placeholder for the time being
-      // can possibly do something with interp_.GetChiSquare() in the near future
-    } else
-      edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
-          << "Fit did not converge for channel (" << detid << ").";
-    delete prof;
+    { // scope for x-profile
+      std::unique_ptr<TProfile> prof(hists.leadingTimeVsToT[chid]->getTH2D()->ProfileX("_prof_x", 1, -1));
+      interp_.SetParameters(hists.leadingTime[chid]->getRMS(),
+                            hists.toT[chid]->getMean(),
+                            0.8,
+                            hists.leadingTime[chid]->getMean() - hists.leadingTime[chid]->getRMS());
+      const auto& res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
+      if ((bool)res) {
+        calib_params[key] = {
+            interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
+        calib_time[key] = std::make_pair(0.1, 0.);  // hardcoded resolution/offset placeholder for the time being
+        // can possibly do something with interp_.GetChiSquare() in the near future
+      } else
+        edm::LogWarning("PPSTimingCalibrationPCLHarvester:dqmEndJob")
+            << "Fit did not converge for channel (" << detid << ").";
+    }
   }
 
   // fill the DB object record
