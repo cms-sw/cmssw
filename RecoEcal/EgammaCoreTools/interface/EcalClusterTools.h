@@ -185,7 +185,7 @@ public:
 
   // return a vector v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
 
-  static std::vector<float> covariances(const reco::BasicCluster &cluster,
+  static std::array<float,3> covariances(const reco::BasicCluster &cluster,
                                         const EcalRecHitCollection *recHits,
                                         const CaloTopology *topology,
                                         const CaloGeometry *geometry,
@@ -199,7 +199,7 @@ public:
   //
   //Warning: covIEtaIEta has been studied by egamma, but so far covIPhiIPhi hasnt been studied extensively so there could be a bug in
   //         the covIPhiIEta or covIPhiIPhi calculations. I dont think there is but as it hasnt been heavily used, there might be one
-  static std::vector<float> localCovariances(const reco::BasicCluster &cluster,
+  static std::array<float,3> localCovariances(const reco::BasicCluster &cluster,
                                              const EcalRecHitCollection *recHits,
                                              const CaloTopology *topology,
                                              float w0 = EgammaLocalCovParamDefaults::kRelEnCut,
@@ -207,7 +207,7 @@ public:
                                              float multEB = 0.0,
                                              float multEE = 0.0);
 
-  static std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster,
+  static std::array<float,3> scLocalCovariances(const reco::SuperCluster &cluster,
                                                const EcalRecHitCollection *recHits,
                                                const CaloTopology *topology,
                                                float w0 = 4.7);
@@ -960,7 +960,7 @@ std::pair<float, float> EcalClusterToolsT<noZS>::mean5x5PositionInXY(const reco:
 }
 
 template <bool noZS>
-std::vector<float> EcalClusterToolsT<noZS>::covariances(const reco::BasicCluster &cluster,
+std::array<float,3> EcalClusterToolsT<noZS>::covariances(const reco::BasicCluster &cluster,
                                                         const EcalRecHitCollection *recHits,
                                                         const CaloTopology *topology,
                                                         const CaloGeometry *geometry,
@@ -1025,10 +1025,10 @@ std::vector<float> EcalClusterToolsT<noZS>::covariances(const reco::BasicCluster
     covEtaPhi = 0;
     covPhiPhi = 0;
   }
-  std::vector<float> v;
-  v.push_back(covEtaEta);
-  v.push_back(covEtaPhi);
-  v.push_back(covPhiPhi);
+  std::array<float,3> v;
+  v[0]=covEtaEta;
+  v[1]=covEtaPhi;
+  v[2]=covPhiPhi;
   return v;
 }
 
@@ -1037,7 +1037,7 @@ std::vector<float> EcalClusterToolsT<noZS>::covariances(const reco::BasicCluster
 //it also does not require any eta correction function in the endcap
 //it is multipled by an approprate crystal size to ensure it gives similar values to covariances(...)
 template <bool noZS>
-std::vector<float> EcalClusterToolsT<noZS>::localCovariances(const reco::BasicCluster &cluster,
+std::array<float,3> EcalClusterToolsT<noZS>::localCovariances(const reco::BasicCluster &cluster,
                                                              const EcalRecHitCollection *recHits,
                                                              const CaloTopology *topology,
                                                              float w0,
@@ -1125,10 +1125,10 @@ std::vector<float> EcalClusterToolsT<noZS>::localCovariances(const reco::BasicCl
     covEtaPhi = 0;
     covPhiPhi = 0;
   }
-  std::vector<float> v;
-  v.push_back(covEtaEta);
-  v.push_back(covEtaPhi);
-  v.push_back(covPhiPhi);
+  std::array<float,3> v;
+  v[0]=covEtaEta;
+  v[1]=covEtaPhi;
+  v[2]=covPhiPhi;
   return v;
 }
 
@@ -1384,7 +1384,7 @@ float EcalClusterToolsT<noZS>::getDPhiEndcap(const DetId &crysId, float meanX, f
 }
 
 template <bool noZS>
-std::vector<float> EcalClusterToolsT<noZS>::scLocalCovariances(const reco::SuperCluster &cluster,
+std::array<float,3> EcalClusterToolsT<noZS>::scLocalCovariances(const reco::SuperCluster &cluster,
                                                                const EcalRecHitCollection *recHits,
                                                                const CaloTopology *topology,
                                                                float w0) {
@@ -1453,10 +1453,10 @@ std::vector<float> EcalClusterToolsT<noZS>::scLocalCovariances(const reco::Super
     covPhiPhi = 0;
   }
 
-  std::vector<float> v;
-  v.push_back(covEtaEta);
-  v.push_back(covEtaPhi);
-  v.push_back(covPhiPhi);
+  std::array<float,3> v;
+  v[0]=covEtaEta;
+  v[1]=covEtaPhi;
+  v[2]=covPhiPhi;
 
   return v;
 }
