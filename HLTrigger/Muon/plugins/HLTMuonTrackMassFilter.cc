@@ -23,8 +23,6 @@
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -32,11 +30,11 @@
 
 #include <vector>
 #include <memory>
-#include <iostream>
 #include <sstream>
 
 HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
+      idealMagneticFieldRecordToken_(esConsumes()),
       beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
       beamspotToken_(consumes<reco::BeamSpot>(beamspotTag_)),
       muonTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
@@ -147,8 +145,7 @@ bool HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent,
   iEvent.getByToken(beamspotToken_, beamspotHandle);
   reco::BeamSpot::Point beamspot(beamspotHandle->position());
   // Needed for DCA calculation
-  edm::ESHandle<MagneticField> bFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+  auto const& bFieldHandle = iSetup.getHandle(idealMagneticFieldRecordToken_);
   //
   // Muons
   //
