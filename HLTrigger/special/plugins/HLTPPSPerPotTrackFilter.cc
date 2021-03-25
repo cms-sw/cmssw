@@ -101,7 +101,7 @@ void HLTPPSPerPotTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& d
 
 HLTPPSPerPotTrackFilter::HLTPPSPerPotTrackFilter(const edm::ParameterSet& iConfig) {
   // First define pixels (2017+) selection
-  const auto pixelVPset = iConfig.getParameter<std::vector<edm::ParameterSet>>("pixelFilter");
+  const auto& pixelVPset = iConfig.getParameter<std::vector<edm::ParameterSet>>("pixelFilter");
   if (!pixelVPset.empty()) {
     pixelLocalTrackToken_ = consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(
         iConfig.getParameter<edm::InputTag>("pixelLocalTrackInputTag"));
@@ -110,7 +110,7 @@ HLTPPSPerPotTrackFilter::HLTPPSPerPotTrackFilter(const edm::ParameterSet& iConfi
           PerPotFilter{pset.getParameter<int>("minTracks"), pset.getParameter<int>("maxTracks")};
   }
   // Then define strips (2016-17) selection
-  const auto stripVPset = iConfig.getParameter<std::vector<edm::ParameterSet>>("stripFilter");
+  const auto& stripVPset = iConfig.getParameter<std::vector<edm::ParameterSet>>("stripFilter");
   if (!stripVPset.empty()) {
     stripLocalTrackToken_ =
         consumes<edm::DetSetVector<TotemRPLocalTrack>>(iConfig.getParameter<edm::InputTag>("stripLocalTrackInputTag"));
@@ -119,7 +119,7 @@ HLTPPSPerPotTrackFilter::HLTPPSPerPotTrackFilter(const edm::ParameterSet& iConfi
           PerPotFilter{pset.getParameter<int>("minTracks"), pset.getParameter<int>("maxTracks")};
   }
   // Finally define diamond (2016+) selection
-  const auto diamVPset = iConfig.getParameter<std::vector<edm::ParameterSet>>("diamondFilter");
+  const auto& diamVPset = iConfig.getParameter<std::vector<edm::ParameterSet>>("diamondFilter");
   if (!diamVPset.empty()) {
     diamondLocalTrackToken_ = consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(
         iConfig.getParameter<edm::InputTag>("diamondLocalTrackInputTag"));
