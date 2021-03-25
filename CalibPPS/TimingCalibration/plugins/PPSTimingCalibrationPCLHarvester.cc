@@ -37,6 +37,7 @@ public:
 
 private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+  edm::Service<cond::service::PoolDBOutputService> poolDbService_;
   std::vector<CTPPSDiamondDetId> detids_;
   const std::string dqmDir_;
   const std::string formula_;
@@ -51,6 +52,11 @@ PPSTimingCalibrationPCLHarvester::PPSTimingCalibrationPCLHarvester(const edm::Pa
       formula_(iConfig.getParameter<std::string>("formula")),
       min_entries_(iConfig.getParameter<unsigned int>("minEntries")),
       interp_("interp", formula_.c_str(), 10.5, 25.) {
+  // first ensure DB output service is available
+  if (!poolDbService_.isAvailable())
+    throw cms::Exception("PPSTimingCalibrationPCLHarvester:dqmEndJob") << "PoolDBService required";
+
+  // constrain the min/max fit values
   interp_.SetParLimits(1, 9., 15.);
   interp_.SetParLimits(2, 0.2, 2.5);
 }
@@ -75,11 +81,6 @@ void PPSTimingCalibrationPCLHarvester::beginRun(const edm::Run& iRun, const edm:
 //------------------------------------------------------------------------------
 
 void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
-  // first ensure DB output service is available
-  edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if (!poolDbService.isAvailable())
-    throw cms::Exception("PPSTimingCalibrationPCLHarvester:dqmEndJob") << "PoolDBService required";
-
   // book the parameters containers
   PPSTimingCalibration::ParametersMap calib_params;
   PPSTimingCalibration::TimingMap calib_time;
@@ -142,7 +143,7 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
   PPSTimingCalibration calib(formula_, calib_params, calib_time);
 
   // write the object
-  poolDbService->writeOne(&calib, poolDbService->currentTime(), "PPSTimingCalibrationRcd");
+  poolDbService_->writeOne(&calib, poolDbService_->currentTime(), "PPSTimingCalibrationRcd");
 }
 
 //------------------------------------------------------------------------------
