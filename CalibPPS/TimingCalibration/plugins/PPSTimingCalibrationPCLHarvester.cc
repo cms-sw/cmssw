@@ -26,9 +26,6 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
 
-#include "TProfile.h"
-#include "TF1.h"
-
 //------------------------------------------------------------------------------
 
 class PPSTimingCalibrationPCLHarvester : public DQMEDHarvester {
