@@ -240,10 +240,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meEnergyRes_->Fill(energy_res / m_btlSimHits[detId.rawId()].energy);
 
       meLongPosPull_->Fill(longpos_res / recHit.positionError());
-      meLongPosPullvsEta_->Fill(fabs(global_point_sim.eta()), longpos_res / recHit.positionError());
+      meLongPosPullvsEta_->Fill(std::abs(global_point_sim.eta()), longpos_res / recHit.positionError());
       meLongPosPullvsE_->Fill(m_btlSimHits[detId.rawId()].energy, longpos_res / recHit.positionError());
 
-      meTPullvsEta_->Fill(fabs(global_point_sim.eta()), time_res / recHit.timeError());
+      meTPullvsEta_->Fill(std::abs(global_point_sim.eta()), time_res / recHit.timeError());
       meTPullvsE_->Fill(m_btlSimHits[detId.rawId()].energy, time_res / recHit.timeError());
     }
 
