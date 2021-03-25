@@ -70,7 +70,7 @@ void PPSTimingCalibrationPCLHarvester::beginRun(const edm::Run& iRun, const edm:
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
     const CTPPSDiamondDetId detid(it->first);
-    if (detid.station() == 1) // for the time being, only compute for this station (run 2 diamond)
+    if (detid.station() == 1)  // for the time being, only compute for this station (run 2 diamond)
       detids_.emplace_back(detid);
   }
 }
@@ -118,7 +118,7 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
       continue;
     }
     const double upper_tot_range = hists.toT[chid]->getMean() + 2.5;
-    { // scope for x-profile
+    {  // scope for x-profile
       std::unique_ptr<TProfile> prof(hists.leadingTimeVsToT[chid]->getTH2D()->ProfileX("_prof_x", 1, -1));
       interp_.SetParameters(hists.leadingTime[chid]->getRMS(),
                             hists.toT[chid]->getMean(),
