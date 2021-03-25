@@ -1217,6 +1217,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
           closest = &m;
         }
       }
+
+      if (!closest)
+        return;
+
       float closestX = closest->localPosition().x();
       rechitpro.resx = rechitpro.x - closestX;
       rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
@@ -1232,6 +1236,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
           closest = &m;
         }
       }
+
+      if (!closest)
+        return;
+
       float closestX = closest->localPosition().x();
       rechitpro.resx = rechitpro.x - closestX;
       rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
@@ -1333,6 +1341,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir,
           closest = &m;
         }
       }
+
+      if (!closest)
+        return;
+
       float closestX = closest->localPosition().x();
       rechitpro.resx = rechitpro.x - closestX;
       rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
@@ -1349,6 +1361,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir,
           closest = &m;
         }
       }
+
+      if (!closest)
+        return;
+
       float closestX = closest->localPosition().x();
       rechitpro.resx = rechitpro.x - closestX;
       rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
