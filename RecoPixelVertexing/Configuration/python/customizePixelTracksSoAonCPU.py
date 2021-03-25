@@ -51,11 +51,11 @@ def customizePixelTracksForTriplets(process):
 
 def customizePixelTracksSoAonCPUForProfiling(process):
 
-  process.MessageLogger.cerr.FwkReport.reportEvery = 100
-
   process = customizePixelTracksSoAonCPU(process)
+
   process.siPixelRecHitSoAFromLegacy.convertToLegacy = False
   
   process.TkSoA = cms.Path(process.offlineBeamSpot + process.siPixelDigis + process.siPixelClustersPreSplitting + process.siPixelRecHitSoAFromLegacy + process.pixelTrackSoA + process.pixelVertexSoA)
   process.schedule = cms.Schedule(process.TkSoA)
+
   return process

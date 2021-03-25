@@ -9,7 +9,7 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="testRiemannFit.cpp">
+<bin file="testFits.cpp">
   <use name="cuda"/>
   <use name="eigen"/>
   <flags CXXFLAGS="-g"/>
@@ -21,13 +21,13 @@
   <flags CXXFLAGS="-g -DUSE_BL"/>
 </bin>
 
-<bin file="testFits.cpp" name="testRiemannFitDump">
+<bin file="testFits.cpp" name="testFitsDump">
   <use name="cuda"/>
   <use name="eigen"/>
   <flags CXXFLAGS="-g -DRFIT_DEBUG"/>
 </bin>
 
-<bin file="testEigenGPU.cu" name="testRiemannFitGPU_t">
+<bin file="testEigenGPU.cu" name="testFitsGPU_t">
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="cuda"/>
   <use name="eigen"/>
@@ -48,7 +48,7 @@
   <flags CXXFLAGS="-g"/>
 </bin>
 
-<bin file="PixelTrackRiemannFit.cc">
+<bin file="PixelTrackFits.cc">
   <use name="cuda"/>
   <use name="eigen"/>
   <use name="root"/>
@@ -62,7 +62,7 @@
   <flags CXXFLAGS="-DEIGEN_NO_DEBUG -DUSE_BL"/>
 </bin>
 
-<bin file="PixelTrackFits.cc" name="PixelTrackRiemannFit_Debug">
+<bin file="PixelTrackFits.cc" name="PixelTrackFits_Debug">
   <use name="cuda"/>
   <use name="eigen"/>
   <use name="root"/>
