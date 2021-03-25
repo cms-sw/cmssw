@@ -20,21 +20,12 @@ def customizePixelTracksSoAonCPU(process):
     pixelRecHitSrc = 'siPixelRecHitsPreSplitting'
   )
 
-  from RecoPixelVertexing.PixelVertexFinding.pixelVertexCUDA_cfi import pixelVertexCUDA
-  process.pixelVertexSoA = pixelVertexCUDA.clone(
-    onGPU = False,
-    pixelTrackSrc = 'pixelTrackSoA'
-  )
-
   from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA
   process.pixelTracks = pixelTrackProducerFromSoA.clone(
     pixelRecHitLegacySrc = 'siPixelRecHitsPreSplitting'
   )
 
-  from RecoPixelVertexing.PixelVertexFinding.pixelVertexFromSoA_cfi import pixelVertexFromSoA
-  process.pixelVertices = pixelVertexFromSoA.clone()
-
-  process.reconstruction_step += process.siPixelRecHitsPreSplitting + process.pixelTrackSoA + process.pixelVertexSoA
+  process.reconstruction_step += process.siPixelRecHitsPreSplitting + process.pixelTrackSoA
 
   return process
 
@@ -55,7 +46,8 @@ def customizePixelTracksSoAonCPUForProfiling(process):
 
   process.siPixelRecHitSoAFromLegacy.convertToLegacy = False
   
-  process.TkSoA = cms.Path(process.offlineBeamSpot + process.siPixelDigis + process.siPixelClustersPreSplitting + process.siPixelRecHitSoAFromLegacy + process.pixelTrackSoA + process.pixelVertexSoA)
+  process.TkSoA = cms.Path(process.offlineBeamSpot + process.siPixelDigis + process.siPixelClustersPreSplitting + process.siPixelRecHitSoAFromLegacy + process.pixelTrackSoA)
+
   process.schedule = cms.Schedule(process.TkSoA)
 
   return process
