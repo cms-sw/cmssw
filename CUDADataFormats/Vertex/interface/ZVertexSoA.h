@@ -1,5 +1,5 @@
-#ifndef CUDADataFormatsVertexZVertexSoA_H
-#define CUDADataFormatsVertexZVertexSoA_H
+#ifndef CUDADataFormats_Vertex_ZVertexSoA_h
+#define CUDADataFormats_Vertex_ZVertexSoA_h
 
 #include <cstdint>
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
@@ -23,4 +23,4 @@ struct ZVertexSoA {
   __host__ __device__ void init() { nvFinal = 0; }
 };
 
-#endif  // CUDADataFormatsVertexZVertexSoA.H
+#endif  // CUDADataFormats_Vertex_ZVertexSoA_h

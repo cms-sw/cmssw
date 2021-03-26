@@ -23,6 +23,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#undef PIXVERTEX_DEBUG_PRODUCE
+
 class PixelVertexProducerFromSoA : public edm::global::EDProducer<> {
 public:
   using IndToEdm = std::vector<uint16_t>;
@@ -62,15 +64,10 @@ void PixelVertexProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions
 void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &) const {
   auto vertexes = std::make_unique<reco::VertexCollection>();
 
-  edm::Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByToken(tokenTracks_, trackCollection);
-  auto const &tracks = *(trackCollection.product());
-  edm::Handle<IndToEdm> indToEdmH;
-  iEvent.getByToken(tokenIndToEdm_, indToEdmH);
-  auto const &indToEdm = *indToEdmH;
-
-  edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByToken(tokenBeamSpot_, bsHandle);
+  auto tracksHandle = iEvent.getHandle(tokenTracks_);
+  auto tracksSize = tracksHandle->size();
+  auto const &indToEdm = iEvent.get(tokenIndToEdm_);
+  auto bsHandle = iEvent.getHandle(tokenBeamSpot_);
 
   float x0 = 0, y0 = 0, z0 = 0, dxdz = 0, dydz = 0;
   std::vector<int32_t> itrk;
@@ -89,7 +86,10 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
 
   int nv = soa.nvFinal;
 
-  // std::cout << "converting " << nv << " vertices " << " from " << indToEdm.size() << " tracks" << std::endl;
+#ifdef PIXVERTEX_DEBUG_PRODUCE
+  std::cout << "converting " << nv << " vertices "
+            << " from " << indToEdm.size() << " tracks" << std::endl;
+#endif  // PIXVERTEX_DEBUG_PRODUCE
 
   std::set<uint16_t> uind;  // fort verifing index consistency
   for (int j = nv - 1; j >= 0; --j) {
@@ -111,7 +111,9 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
     }
     auto nt = itrk.size();
     if (nt == 0) {
+#ifdef PIXVERTEX_DEBUG_PRODUCE
       std::cout << "vertex " << i << " with no tracks..." << std::endl;
+#endif  // PIXVERTEX_DEBUG_PRODUCE
       continue;
     }
     if (nt < 2) {
@@ -123,11 +125,11 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
     for (auto it : itrk) {
       assert(it < int(indToEdm.size()));
       auto k = indToEdm[it];
-      if (k > tracks.size()) {
+      if (k > tracksSize) {
         edm::LogWarning("PixelVertexProducer") << "oops track " << it << " does not exists on CPU " << k;
         continue;
       }
-      auto tk = reco::TrackRef(trackCollection, k);
+      auto tk = reco::TrackRef(tracksHandle, k);
       v.add(reco::TrackBaseRef(tk));
     }
     itrk.clear();
