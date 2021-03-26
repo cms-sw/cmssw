@@ -192,6 +192,21 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
+  void validateLooper(ParameterSet& pset) {
+    auto const modtype = pset.getParameter<std::string>("@module_type");
+    auto const moduleLabel = pset.getParameter<std::string>("@module_label");
+    auto filler = ParameterSetDescriptionFillerPluginFactory::get()->create(modtype);
+    ConfigurationDescriptions descriptions(filler->baseType(), modtype);
+    filler->fill(descriptions);
+    try {
+      edm::convertException::wrap([&]() { descriptions.validate(pset, moduleLabel); });
+    } catch (cms::Exception& iException) {
+      iException.addContext(
+          fmt::format("Validating configuration of EDLooper of type {} with label: '{}'", modtype, moduleLabel));
+      throw;
+    }
+  }
+
   std::shared_ptr<EDLooperBase> fillLooper(eventsetup::EventSetupsController& esController,
                                            eventsetup::EventSetupProvider& cp,
                                            ParameterSet& params) {
@@ -208,6 +223,7 @@ namespace edm {
     for (std::vector<std::string>::iterator itName = loopers.begin(), itNameEnd = loopers.end(); itName != itNameEnd;
          ++itName) {
       ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
+      validateLooper(*providerPSet);
       providerPSet->registerIt();
       vLooper = eventsetup::LooperFactory::get()->addTo(esController, cp, *providerPSet);
     }
