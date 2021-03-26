@@ -557,7 +557,7 @@ trackerDict = {
     "T3" : {
         1 : [
             'Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml',
-            'Geometry/TrackerCommonData/data/pixfwdMaterials/2021/v2/pixfwdMaterials.xml',
+            'Geometry/TrackerCommonData/data/pixfwdMaterials/2021/v3/pixfwdMaterials.xml',
             'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdCylinder.xml', 
             'Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdDisks.xml',
