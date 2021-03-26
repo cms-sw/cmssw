@@ -958,7 +958,7 @@ namespace {
 
       if (payload.get()) {
         Phase1PixelSummaryMap fullMap(
-            "", fmt::sprintf("%s", payloadString), fmt::sprintf("%s", payloadString));
+            "", fmt::sprintf("%s", payloadString), fmt::sprintf("%s #mu_{H} [1/T]", payloadString));
         fullMap.createTrackerBaseMap();
 
         std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
