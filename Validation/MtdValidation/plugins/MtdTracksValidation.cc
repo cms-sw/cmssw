@@ -47,7 +47,7 @@ private:
   // ------------ member data ------------
 
   const std::string folder_;
-  const float trackMinEnergy_;
+  const float trackMinPt_;
   const float trackMinEta_;
   const float trackMaxEta_;
 
@@ -60,6 +60,8 @@ private:
 
   edm::EDGetTokenT<edm::ValueMap<float>> tmtdToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> SigmatmtdToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> t0SrcToken_;
+  edm::EDGetTokenT<edm::ValueMap<float>> Sigmat0SrcToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> t0PidToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> Sigmat0PidToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> t0SafePidToken_;
@@ -85,7 +87,8 @@ private:
   MonitorElement* meETLTrackPtRes_;
 
   MonitorElement* meTracktmtd_;
-  MonitorElement* meTrackSigmatmtd_;
+  MonitorElement* meTrackt0Src_;
+  MonitorElement* meTrackSigmat0Src_;
   MonitorElement* meTrackt0Pid_;
   MonitorElement* meTrackSigmat0Pid_;
   MonitorElement* meTrackt0SafePid_;
@@ -102,7 +105,7 @@ private:
 // ------------ constructor and destructor --------------
 MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
-      trackMinEnergy_(iConfig.getParameter<double>("trackMinimumPt")),
+      trackMinPt_(iConfig.getParameter<double>("trackMinimumPt")),
       trackMinEta_(iConfig.getParameter<double>("trackMinimumEta")),
       trackMaxEta_(iConfig.getParameter<double>("trackMaximumEta")) {
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
@@ -110,8 +113,10 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
   trackAssocToken_ = consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("trackAssocSrc"));
   pathLengthToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"));
-  tmtdToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0Src"));
-  SigmatmtdToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0Src"));
+  tmtdToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("tmtd"));
+  SigmatmtdToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmatmtd"));
+  t0SrcToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0Src"));
+  Sigmat0SrcToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0Src"));
   t0PidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0PID"));
   Sigmat0PidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0PID"));
   t0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0SafePID"));
@@ -145,6 +150,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   const auto& tMtd = iEvent.get(tmtdToken_);
   const auto& SigmatMtd = iEvent.get(SigmatmtdToken_);
+  const auto& t0Src = iEvent.get(t0SrcToken_);
+  const auto& Sigmat0Src = iEvent.get(Sigmat0SrcToken_);
   const auto& t0Pid = iEvent.get(t0PidToken_);
   const auto& Sigmat0Pid = iEvent.get(Sigmat0PidToken_);
   const auto& t0Safe = iEvent.get(t0SafePidToken_);
@@ -167,11 +174,18 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     const reco::TrackRef mtdTrackref = reco::TrackRef(iEvent.getHandle(RecTrackToken_), trackAssoc[trackref]);
     const reco::Track track = *mtdTrackref;
 
-    if (track.pt() < trackMinEnergy_)
+    if (track.pt() < trackMinPt_)
       continue;
 
-    meTracktmtd_->Fill(tMtd[trackref]);
-    meTrackSigmatmtd_->Fill(SigmatMtd[trackref]);
+    meTracktmtd_->Fill(tMtd[mtdTrackref]);
+    if (std::round(SigmatMtd[mtdTrackref] - Sigmat0Pid[trackref]) != 0) {
+      LogWarning("mtdTracks") << "TimeError associated to refitted track is different from TimeError stored in tofPID "
+                                 "sigmat0 ValueMap: this should not happen";
+    }
+
+    meTrackt0Src_->Fill(t0Src[trackref]);
+    meTrackSigmat0Src_->Fill(Sigmat0Src[trackref]);
+
     meTrackt0Pid_->Fill(t0Pid[trackref]);
     meTrackSigmat0Pid_->Fill(Sigmat0Pid[trackref]);
     meTrackt0SafePid_->Fill(t0Safe[trackref]);
@@ -352,15 +366,17 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("TrackETLEffPtMtdZpos", "Track efficiency vs pt (Mtd) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
   meETLTrackPtRes_ =
       ibook.book1D("TrackETLPtRes", "Track pT resolution;pT_{Gentrack}-pT_{MTDtrack}/pT_{Gentrack} ", 100, -0.1, 0.1);
-  meTracktmtd_ = ibook.book1D("Tracktmtd", "Track time from TrackExtenderWithMTD;tmtd [ns]", 100, -1.5, 1.5);
-  meTrackSigmatmtd_ =
-      ibook.book1D("TrackSigmatmtd", "Time Error from TrackExtenderWithMTD; #sigma_{tmtd} [ns]", 100, 0, 0.1);
+
+  meTracktmtd_ = ibook.book1D("Tracktmtd", "Track time from TrackExtenderWithMTD;tmtd [ns]", 150, 1, 16);
+  meTrackt0Src_ = ibook.book1D("Trackt0Src", "Track time from TrackExtenderWithMTD;t0Src [ns]", 100, -1.5, 1.5);
+  meTrackSigmat0Src_ =
+      ibook.book1D("TrackSigmat0Src", "Time Error from TrackExtenderWithMTD; #sigma_{t0Src} [ns]", 100, 0, 0.1);
+
   meTrackt0Pid_ = ibook.book1D("Trackt0Pid", "Track t0 as stored in TofPid;t0 [ns]", 100, -1, 1);
-  meTrackSigmat0Pid_ =
-      ibook.book1D("TrackSigmat0Pid", "Sigmat0 as stored in TofPid; #sigma_{t0} [ns]", 100, -0.02, 0.06);
+  meTrackSigmat0Pid_ = ibook.book1D("TrackSigmat0Pid", "Sigmat0 as stored in TofPid; #sigma_{t0} [ns]", 100, 0, 0.1);
   meTrackt0SafePid_ = ibook.book1D("Trackt0SafePID", "Track t0 Safe as stored in TofPid;t0 [ns]", 100, -1, 1);
   meTrackSigmat0SafePid_ =
-      ibook.book1D("TrackSigmat0SafePID", "Sigmat0 Safe as stored in TofPid; #sigma_{t0} [ns]", 100, -0.02, 0.06);
+      ibook.book1D("TrackSigmat0SafePID", "Sigmat0 Safe as stored in TofPid; #sigma_{t0} [ns]", 100, 0, 0.1);
   meTrackNumHits_ = ibook.book1D("TrackNumHits", "Number of valid MTD hits per track ; Number of hits", 10, -5, 5);
   meTrackMVAQual_ = ibook.book1D("TrackMVAQual", "Track MVA Quality as stored in Value Map ; MVAQual", 100, 0, 1);
   meTrackPathLenghtvsEta_ = ibook.bookProfile(
@@ -376,19 +392,21 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/Tracks");
-  desc.add<edm::InputTag>("inputTagG", edm::InputTag("generalTracks", ""));
-  desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD", ""));
-  desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D", ""));
-  desc.add<edm::InputTag>("t0Src", edm::InputTag("trackExtenderWithMTD:generalTrackt0", ""));
-  desc.add<edm::InputTag>("sigmat0Src", edm::InputTag("trackExtenderWithMTD:generalTracksigmat0", ""));
-  desc.add<edm::InputTag>("trackAssocSrc", edm::InputTag("trackExtenderWithMTD", "generalTrackassoc"))
+  desc.add<edm::InputTag>("inputTagG", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD"));
+  desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D"));
+  desc.add<edm::InputTag>("tmtd", edm::InputTag("trackExtenderWithMTD:tmtd"));
+  desc.add<edm::InputTag>("sigmatmtd", edm::InputTag("trackExtenderWithMTD:sigmatmtd"));
+  desc.add<edm::InputTag>("t0Src", edm::InputTag("trackExtenderWithMTD:generalTrackt0"));
+  desc.add<edm::InputTag>("sigmat0Src", edm::InputTag("trackExtenderWithMTD:generalTracksigmat0"));
+  desc.add<edm::InputTag>("trackAssocSrc", edm::InputTag("trackExtenderWithMTD:generalTrackassoc"))
       ->setComment("Association between General and MTD Extended tracks");
-  desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD", "pathLength"));
-  desc.add<edm::InputTag>("t0SafePID", edm::InputTag("tofPID:t0safe", ""));
-  desc.add<edm::InputTag>("sigmat0SafePID", edm::InputTag("tofPID:sigmat0safe", ""));
-  desc.add<edm::InputTag>("sigmat0PID", edm::InputTag("tofPID:sigmat0", ""));
-  desc.add<edm::InputTag>("t0PID", edm::InputTag("tofPID:t0", ""));
-  desc.add<edm::InputTag>("trackMVAQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA", ""));
+  desc.add<edm::InputTag>("pathLengthSrc", edm::InputTag("trackExtenderWithMTD:pathLength"));
+  desc.add<edm::InputTag>("t0SafePID", edm::InputTag("tofPID:t0safe"));
+  desc.add<edm::InputTag>("sigmat0SafePID", edm::InputTag("tofPID:sigmat0safe"));
+  desc.add<edm::InputTag>("sigmat0PID", edm::InputTag("tofPID:sigmat0"));
+  desc.add<edm::InputTag>("t0PID", edm::InputTag("tofPID:t0"));
+  desc.add<edm::InputTag>("trackMVAQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
   desc.add<double>("trackMinimumPt", 1.0);  // [GeV]
   desc.add<double>("trackMinimumEta", 1.5);
   desc.add<double>("trackMaximumEta", 3.2);
