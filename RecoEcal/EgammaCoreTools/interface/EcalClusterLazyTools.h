@@ -267,12 +267,12 @@ public:
     return ClusterTools::lat(cluster, getEcalRecHitCollection(cluster), geometry_, logW, w0);
   }
 
-  // return a vector v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
+  // return an array v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
   std::array<float, 3> covariances(const reco::BasicCluster &cluster, float w0 = 4.7) const {
     return ClusterTools::covariances(cluster, getEcalRecHitCollection(cluster), topology_, geometry_, w0);
   }
 
-  // return a vector v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
+  // return an array v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
   // this function calculates differences in eta/phi in units of crystals not
   // global eta/phi this is gives better performance in the crack regions of
   // the calorimeter but gives otherwise identical results to covariances

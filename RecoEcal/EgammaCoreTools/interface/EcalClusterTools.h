@@ -183,15 +183,14 @@ public:
                                 bool logW = true,
                                 float w0 = 4.7);
 
-  // return a vector v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
-
+  // return an array v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
   static std::array<float, 3> covariances(const reco::BasicCluster &cluster,
                                           const EcalRecHitCollection *recHits,
                                           const CaloTopology *topology,
                                           const CaloGeometry *geometry,
                                           float w0 = 4.7);
 
-  // return a vector v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
+  // return an array v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
   //this function calculates differences in eta/phi in units of crystals not global eta/phi
   //this is gives better performance in the crack regions of the calorimeter but gives otherwise identical results to covariances function
   //   except that it doesnt need an eta based correction funtion in the endcap
@@ -1025,10 +1024,7 @@ std::array<float, 3> EcalClusterToolsT<noZS>::covariances(const reco::BasicClust
     covEtaPhi = 0;
     covPhiPhi = 0;
   }
-  std::array<float, 3> v;
-  v[0] = covEtaEta;
-  v[1] = covEtaPhi;
-  v[2] = covPhiPhi;
+  std::array<float, 3> v{{covEtaEta, covEtaPhi, covPhiPhi}};
   return v;
 }
 
@@ -1125,10 +1121,7 @@ std::array<float, 3> EcalClusterToolsT<noZS>::localCovariances(const reco::Basic
     covEtaPhi = 0;
     covPhiPhi = 0;
   }
-  std::array<float, 3> v;
-  v[0] = covEtaEta;
-  v[1] = covEtaPhi;
-  v[2] = covPhiPhi;
+  std::array<float, 3> v{{covEtaEta, covEtaPhi, covPhiPhi}};
   return v;
 }
 
@@ -1453,11 +1446,7 @@ std::array<float, 3> EcalClusterToolsT<noZS>::scLocalCovariances(const reco::Sup
     covPhiPhi = 0;
   }
 
-  std::array<float, 3> v;
-  v[0] = covEtaEta;
-  v[1] = covEtaPhi;
-  v[2] = covPhiPhi;
-
+  std::array<float, 3> v{{covEtaEta, covEtaPhi, covPhiPhi}};
   return v;
 }
 
