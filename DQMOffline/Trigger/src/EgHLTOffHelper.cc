@@ -327,8 +327,7 @@ void OffHelper::fillClusShapeData(const reco::GsfElectron& ele, OffEle::ClusShap
   if (seedDetId.subdetId() == EcalBarrel) {
     const auto& stdCov =
         EcalClusterTools::covariances(seedClus, ebRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    const auto& crysCov =
-        EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
     if (ele.superCluster()->rawEnergy() != 0.) {
@@ -340,8 +339,7 @@ void OffHelper::fillClusShapeData(const reco::GsfElectron& ele, OffEle::ClusShap
   } else {
     const auto& stdCov =
         EcalClusterTools::covariances(seedClus, eeRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    const auto& crysCov =
-        EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
     if (ele.superCluster()->rawEnergy() != 0.) {
@@ -498,15 +496,13 @@ void OffHelper::fillClusShapeData(const reco::Photon& pho, OffPho::ClusShapeData
   if (seedDetId.subdetId() == EcalBarrel) {
     const auto& stdCov =
         EcalClusterTools::covariances(seedClus, ebRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    const auto& crysCov =
-        EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, ebRecHits_.product(), caloTopology_.product());
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
   } else {
     const auto& stdCov =
         EcalClusterTools::covariances(seedClus, eeRecHits_.product(), caloTopology_.product(), caloGeom_.product());
-    const auto& crysCov =
-        EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
+    const auto& crysCov = EcalClusterTools::localCovariances(seedClus, eeRecHits_.product(), caloTopology_.product());
 
     clusShapeData.sigmaPhiPhi = sqrt(stdCov[2]);
     clusShapeData.sigmaIPhiIPhi = sqrt(crysCov[2]);
