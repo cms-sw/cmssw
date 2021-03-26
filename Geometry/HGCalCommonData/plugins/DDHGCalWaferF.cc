@@ -200,8 +200,9 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
             int copy = HGCalTypes::packCellTypeUV(cellType_, u, v);
             cpv.position(DDName(cellNames_[cell]), glogs[i], copy, tran, rot);
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << cellNames_[cell] << " number " << copy
-                                          << " positioned in " << glogs[i].name() << " at " << tran << " with no rotation";
+            edm::LogVerbatim("HGCalGeom")
+                << "DDHGCalWaferF: " << cellNames_[cell] << " number " << copy << " positioned in " << glogs[i].name()
+                << " at " << tran << " with no rotation";
 #endif
           }
         }
