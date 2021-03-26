@@ -302,7 +302,7 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
       ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at " << r1 << " with " << rot;
+                                    << module.name() << " at " << r1 << " with no rotation";
 #endif
       zz += hthick;
     }  // End of loop over layers in a block
@@ -391,7 +391,7 @@ void DDHGCalEEFileAlgo::positionSensitive(
           ++ntype[type];
           edm::LogVerbatim("HGCalGeom") << " DDHGCalEEFileAlgo: " << name << " number " << copy << " type " << layertype
                                         << ":" << type << " positioned in " << glog.ddname() << " at " << tran
-                                        << " with " << rotation;
+                                        << " with no rotation";
 #endif
         }
       }
