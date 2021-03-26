@@ -102,7 +102,7 @@ public:
       std::string title = "; Disk # ; Blade/Panel #";
 
       h_fpix_maps[ring - 1] =
-          std::make_shared<TH2D>(name.c_str(), title.c_str(), 56, -n_rings - 0.5, n_rings + 0.5, n, -y, y);
+          std::make_shared<TH2D>(name.c_str(), title.c_str(), 56, -n_rings - 1.5, n_rings + 1.5, n, -y, y);
     }
   }
 
