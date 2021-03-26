@@ -590,7 +590,7 @@ void Phase1PixelROCMaps::drawBarrelMaps(TCanvas& canvas)
   canvas.SetRightMargin(0.05);
   canvas.Modified();
   for (unsigned int lay = 1; lay <= n_layers; lay++) {
-    PixelROCMapHelper::dress_plot(canvas, h_bpix_maps[lay - 1], lay, 0, 1);
+    PixelROCMapHelper::dress_plot(canvas, h_bpix_maps[lay - 1].get(), lay, 0, 1);
   }
 }
 
@@ -604,7 +604,7 @@ void Phase1PixelROCMaps::drawForwardMaps(TCanvas& canvas)
   canvas.SetRightMargin(0.05);
   canvas.Modified();
   for (unsigned int ring = 1; ring <= n_rings; ring++) {
-    PixelROCMapHelper::dress_plot(canvas, h_fpix_maps[ring - 1], 0, ring, 1);
+    PixelROCMapHelper::dress_plot(canvas, h_fpix_maps[ring - 1].get(), 0, ring, 1);
   }
 }
 
@@ -620,7 +620,7 @@ void Phase1PixelROCMaps::drawMaps(TCanvas& canvas)
 
   // dress the plots
   for (unsigned int lay = 1; lay <= n_layers; lay++) {
-    PixelROCMapHelper::dress_plot(canvas, h_bpix_maps[lay - 1], lay, 0, 1);
+    PixelROCMapHelper::dress_plot(canvas, h_bpix_maps[lay - 1].get(), lay, 0, 1);
   }
 
   canvas.Update();
@@ -628,6 +628,6 @@ void Phase1PixelROCMaps::drawMaps(TCanvas& canvas)
   canvas.cd();
 
   for (unsigned int ring = 1; ring <= n_rings; ring++) {
-    PixelROCMapHelper::dress_plot(canvas, h_fpix_maps[ring - 1], 0, n_layers + ring, 1);
+    PixelROCMapHelper::dress_plot(canvas, h_fpix_maps[ring - 1].get(), 0, n_layers + ring, 1);
   }
 }

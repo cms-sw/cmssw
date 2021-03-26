@@ -90,7 +90,7 @@ public:
       std::string name = "occ_Layer_" + std::to_string(lay);
       std::string title = "; Module # ; Ladder #";
 
-      h_bpix_maps[lay - 1] = new TH2D(
+      h_bpix_maps[lay - 1] = std::make_shared<TH2D>(
           name.c_str(), title.c_str(), 72, -n_layers - 0.5, n_layers + 0.5, (nlad * 4 + 2), -nlad - 0.5, nlad + 0.5);
     }
 
@@ -101,7 +101,8 @@ public:
       std::string name = "occ_ring_" + std::to_string(ring);
       std::string title = "; Disk # ; Blade/Panel #";
 
-      h_fpix_maps[ring - 1] = new TH2D(name.c_str(), title.c_str(), 56, -n_rings - 0.5, n_rings + 0.5, n, -y, y);
+      h_fpix_maps[ring - 1] =
+          std::make_shared<TH2D>(name.c_str(), title.c_str(), 56, -n_rings - 0.5, n_rings + 0.5, n, -y, y);
     }
   }
 
@@ -114,8 +115,8 @@ public:
   void drawForwardMaps(TCanvas& canvas);
   void drawMaps(TCanvas& canvas);
 
-  inline std::array<TH2D*, 4> getLayerMaps() { return h_bpix_maps; }
-  inline std::array<TH2D*, 2> getRingMaps() { return h_fpix_maps; }
+  inline std::array<std::shared_ptr<TH2D>, 4> getLayerMaps() { return h_bpix_maps; }
+  inline std::array<std::shared_ptr<TH2D>, 2> getRingMaps() { return h_fpix_maps; }
 
 private:
   Option_t* m_option;
@@ -132,8 +133,8 @@ private:
   const int nxbins_list[n_rings] = {11, 17};
 
   // maps
-  std::array<TH2D*, n_layers> h_bpix_maps;
-  std::array<TH2D*, n_rings> h_fpix_maps;
+  std::array<std::shared_ptr<TH2D>, n_layers> h_bpix_maps;
+  std::array<std::shared_ptr<TH2D>, n_rings> h_fpix_maps;
 
   // options
   static constexpr const char* kVerbose = "verbose";
