@@ -114,6 +114,7 @@ private:
   MonitorElement* meTPullvsEta_;
 
   MonitorElement* meCluTime_;
+  MonitorElement* meCluTimeError_;
   MonitorElement* meCluEnergy_;
   MonitorElement* meCluPhi_;
   MonitorElement* meCluEta_;
@@ -236,8 +237,8 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           topo.pixelToModuleLocalPoint(local_point_sim, detId.row(topo.nrows()), detId.column(topo.nrows()));
       const auto& global_point_sim = thedet->toGlobal(local_point_sim);
 
-      meTimeRes_->Fill(time_res / m_btlSimHits[detId.rawId()].time);
-      meEnergyRes_->Fill(energy_res / m_btlSimHits[detId.rawId()].energy);
+      meTimeRes_->Fill(time_res);
+      meEnergyRes_->Fill(energy_res);
 
       meLongPosPull_->Fill(longpos_res / recHit.positionError());
       meLongPosPullvsEta_->Fill(std::abs(global_point_sim.eta()), longpos_res / recHit.positionError());
@@ -276,6 +277,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       meCluEnergy_->Fill(cluster.energy());
       meCluTime_->Fill(cluster.time());
+      meCluTimeError_->Fill(cluster.timeError());
       meCluPhi_->Fill(global_point.phi());
       meCluEta_->Fill(global_point.eta());
       meCluZvsPhi_->Fill(global_point.z(), global_point.phi());
@@ -328,8 +330,8 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitLongPos_ = ibook.book1D("BtlLongPos", "BTL RECO hits longitudinal position;long. pos._{RECO}", 100, -10, 10);
   meHitLongPosErr_ =
       ibook.book1D("BtlLongPosErr", "BTL RECO hits longitudinal position error; long. pos. error_{RECO}", 100, -1, 1);
-  meTimeRes_ = ibook.book1D("BtlTimeRes", "BTL time resolution;T_{RECO}-T_{SIM}/T_{SIM}", 100, -0.5, 0.5);
-  meEnergyRes_ = ibook.book1D("BtlEnergyRes", "BTL energy resolution;E_{RECO}-E_{SIM}/E_{SIM}", 100, -0.5, 0.5);
+  meTimeRes_ = ibook.book1D("BtlTimeRes", "BTL time resolution;T_{RECO}-T_{SIM}", 100, -0.5, 0.5);
+  meEnergyRes_ = ibook.book1D("BtlEnergyRes", "BTL energy resolution;E_{RECO}-E_{SIM}", 100, -0.5, 0.5);
   meLongPosPull_ = ibook.book1D("BtlLongPosPull",
                                 "BTL longitudinal position pull;X^{loc}_{RECO}-X^{loc}_{SIM}/#sigma_{xloc_{RECO}}",
                                 100,
@@ -364,6 +366,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     0.8,
                                     "S");
   meCluTime_ = ibook.book1D("BtlCluTime", "BTL cluster time ToA;ToA [ns]", 250, 0, 25);
+  meCluTimeError_ = ibook.book1D("BtlCluTimeError", "BTL cluster time error;#sigma_{t} [ns]", 100, 0, 0.1);
   meCluEnergy_ = ibook.book1D("BtlCluEnergy", "BTL cluster energy;E_{RECO} [MeV]", 100, 0, 20);
   meCluPhi_ = ibook.book1D("BtlCluPhi", "BTL cluster #phi;#phi_{RECO} [rad]", 144, -3.2, 3.2);
   meCluEta_ = ibook.book1D("BtlCluEta", "BTL cluster #eta;#eta_{RECO}", 100, -1.55, 1.55);
