@@ -37,6 +37,7 @@ public:
 
 private:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomEsToken_;
   std::vector<CTPPSDiamondDetId> detids_;
   const std::string dqmDir_;
   const std::string formula_;
@@ -47,7 +48,8 @@ private:
 //------------------------------------------------------------------------------
 
 PPSTimingCalibrationPCLHarvester::PPSTimingCalibrationPCLHarvester(const edm::ParameterSet& iConfig)
-    : dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
+    : geomEsToken_(esConsumes<edm::Transition::BeginRun>()),
+      dqmDir_(iConfig.getParameter<std::string>("dqmDir")),
       formula_(iConfig.getParameter<std::string>("formula")),
       min_entries_(iConfig.getParameter<unsigned int>("minEntries")),
       interp_("interp", formula_.c_str(), 10.5, 25.) {
@@ -64,9 +66,8 @@ PPSTimingCalibrationPCLHarvester::PPSTimingCalibrationPCLHarvester(const edm::Pa
 //------------------------------------------------------------------------------
 
 void PPSTimingCalibrationPCLHarvester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CTPPSGeometry> hGeom;
-  iSetup.get<VeryForwardRealGeometryRecord>().get(hGeom);
-  for (auto it = hGeom->beginSensor(); it != hGeom->endSensor(); ++it) {
+  const auto& geom = iSetup.getData(geomEsToken_);
+  for (auto it = geom.beginSensor(); it != geom.endSensor(); ++it) {
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
     const CTPPSDiamondDetId detid(it->first);
