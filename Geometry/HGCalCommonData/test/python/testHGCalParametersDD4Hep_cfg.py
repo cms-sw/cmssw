@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Phase2C11_dd4hep_cff import Phase2C11_dd4hep
 
-process = cms.Process("HGCalParametersTest")
+process = cms.Process("HGCalParametersTest",Phase2C11_dd4hep)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -40,10 +41,6 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity       = cms.untracked.int32(0),
     firstRun        = cms.untracked.uint32(1)
 )
-
-process.hgcalEEParametersInitialize.fromDD4Hep = cms.bool(True)
-process.hgcalHESiParametersInitialize.fromDD4Hep = cms.bool(True)
-process.hgcalHEScParametersInitialize.fromDD4Hep = cms.bool(True)
 
 process.testEE = cms.EDAnalyzer("HGCalParameterTester",
                                 Name = cms.untracked.string("HGCalEESensitive"),
