@@ -102,7 +102,7 @@ void testEcalClusterLazyTools::analyze(const edm::Event& ev, const edm::EventSet
     std::cout << std::endl;
     std::vector<float> vLat = lazyTools.lat(clus);
     std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
-    std::array<float, 3> vCov = lazyTools.covariances(clus);
+    const auto& vCov = lazyTools.covariances(clus);
     std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
     std::array<float, 3> vLocCov = lazyTools.localCovariances(clus);
     std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;

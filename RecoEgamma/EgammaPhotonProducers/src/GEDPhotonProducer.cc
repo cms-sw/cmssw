@@ -596,11 +596,11 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     float e2x5 = (hits != nullptr ? EcalClusterTools::e2x5Max(*(scRef->seed()), hits, topology) : 0.f);
     float e3x3 = (hits != nullptr ? EcalClusterTools::e3x3(*(scRef->seed()), hits, topology) : 0.f);
     float e5x5 = (hits != nullptr ? EcalClusterTools::e5x5(*(scRef->seed()), hits, topology) : 0.f);
-    std::array<float, 3> cov =
+    const auto& cov =
         (hits != nullptr ? EcalClusterTools::covariances(*(scRef->seed()), hits, topology, caloGeom_)
                          : std::array<float, 3>({{0.f, 0.f, 0.f}}));
     // fractional local covariances
-    std::array<float, 3> locCov =
+    const auto& locCov =
         (hits != nullptr ? EcalClusterTools::localCovariances(*(scRef->seed()), hits, topology)
                          : std::array<float, 3>({{0.f, 0.f, 0.f}}));
 
@@ -614,13 +614,13 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     float full5x5_e2x5 = (hits != nullptr ? noZS::EcalClusterTools::e2x5Max(*(scRef->seed()), hits, topology) : 0.f);
     float full5x5_e3x3 = (hits != nullptr ? noZS::EcalClusterTools::e3x3(*(scRef->seed()), hits, topology) : 0.f);
     float full5x5_e5x5 = (hits != nullptr ? noZS::EcalClusterTools::e5x5(*(scRef->seed()), hits, topology) : 0.f);
-    std::array<float, 3> full5x5_cov =
+    const auto& full5x5_cov =
         (hits != nullptr ? noZS::EcalClusterTools::covariances(*(scRef->seed()), hits, topology, caloGeom_)
                          : std::array<float, 3>({{0.f, 0.f, 0.f}}));
     // for full5x5 local covariances, do noise-cleaning
     // by passing per crystal PF recHit thresholds and mult values.
     // mult values for EB and EE were obtained by dedicated studies.
-    std::array<float, 3> full5x5_locCov =
+    const auto& full5x5_locCov =
         (hits != nullptr ? noZS::EcalClusterTools::localCovariances(*(scRef->seed()),
                                                                     hits,
                                                                     topology,
