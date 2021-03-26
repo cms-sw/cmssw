@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelVertexFinding_src_gpuVertexFinder_h
-#define RecoPixelVertexing_PixelVertexFinding_src_gpuVertexFinder_h
+#ifndef RecoPixelVertexing_PixelVertexFinding_gpuVertexFinder_h
+#define RecoPixelVertexing_PixelVertexFinding_gpuVertexFinder_h
 
 #include <cstddef>
 #include <cstdint>
@@ -80,4 +80,4 @@ namespace gpuVertexFinder {
 
 }  // namespace gpuVertexFinder
 
-#endif  // RecoPixelVertexing_PixelVertexFinding_src_gpuVertexFinder_h
+#endif  // RecoPixelVertexing_PixelVertexFinding_gpuVertexFinder_h
