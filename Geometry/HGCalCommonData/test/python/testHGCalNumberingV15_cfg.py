@@ -4,12 +4,8 @@ from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 process = cms.Process("PROD",Phase2C11)
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D49XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D68XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D70XML_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
-#process.load("Geometry.HGCalCommonData.testHGCalV15XML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalV15XML_cfi")
+process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
@@ -48,7 +44,6 @@ process.prodEE = cms.EDAnalyzer("HGCalNumberingTester",
                                 LocalPositionX= cms.vdouble(500.0,350.0,800.0,1400.0),
                                 LocalPositionY= cms.vdouble(500.0,0.0,0.0,0.0),
                                 Increment     = cms.int32(19),
-#                               DetType       = cms.int32(1),
                                 DetType       = cms.int32(2),
                                 Reco          = cms.bool(False)
 )
@@ -68,5 +63,4 @@ process.prodHEB = process.prodEE.clone(
     DetType    = 0
 )
  
-#process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
 process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)

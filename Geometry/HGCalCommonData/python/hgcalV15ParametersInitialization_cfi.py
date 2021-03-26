@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hgcalEEParametersInitialize = cms.ESProducer('HGCalParametersESModule',
   name = cms.string('HGCalEELayer'),
-  name2 = cms.string('HGCalEE'),
+  name2 = cms.string('HGCalEESensitive'),
   nameW = cms.string('HGCalEEWafer'),
   nameC = cms.string('HGCalEESensitive'),
   nameT = cms.string('HGCal'),
@@ -19,6 +19,7 @@ dd4hep.toModify(hgcalEEParametersInitialize,
 
 hgcalHESiParametersInitialize = hgcalEEParametersInitialize.clone(
     name  = cms.string("HGCalHESiliconLayer"),
+    name2 = cms.string("HGCalHESiliconSensitive"),
     nameW = cms.string("HGCalHEWafer"),
     nameC = cms.string("HGCalHESiliconSensitive"),
     nameX = cms.string("HGCalHESiliconSensitive"),
@@ -26,6 +27,7 @@ hgcalHESiParametersInitialize = hgcalEEParametersInitialize.clone(
 
 hgcalHEScParametersInitialize = hgcalEEParametersInitialize.clone(
     name  = cms.string("HGCalHEScintillatorSensitive"),
+    name2 = cms.string("HGCalHEScintillatorSensitive"),
     nameW = cms.string("HGCalWafer"),
     nameC = cms.string("HGCalHEScintillatorSensitive"),
     nameX = cms.string("HGCalHEScintillatorSensitive"),
