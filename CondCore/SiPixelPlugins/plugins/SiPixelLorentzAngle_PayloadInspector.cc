@@ -15,6 +15,7 @@
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "CondCore/SiPixelPlugins/interface/PixelRegionContainers.h"
 #include "DQM/TrackerRemapper/interface/Phase1PixelROCMaps.h"
+#include "DQM/TrackerRemapper/interface/Phase1PixelSummaryMap.h"
 
 #include <memory>
 #include <sstream>
@@ -936,6 +937,76 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
+  /************************************************
+   Full Pixel Tracker Map class
+  *************************************************/
+  class SiPixelLorentzAngleFullPixelMap
+      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
+  public:
+    SiPixelLorentzAngleFullPixelMap()
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelLorentzAngle Map") {
+      label_ = "SiPixelLorentzAngleFullPixelMap";
+      payloadString = "Lorentz Angle";
+    }
+
+    bool fill() override {
+      gStyle->SetPalette(1);
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      std::shared_ptr<SiPixelLorentzAngle> payload = this->fetchPayload(std::get<1>(iov));
+
+      if (payload.get()) {
+        Phase1PixelSummaryMap fullMap(
+            "", fmt::sprintf("%s", payloadString), fmt::sprintf("%s", payloadString));
+        fullMap.createTrackerBaseMap();
+
+        std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
+
+        if (LAMap_.size() == SiPixelPI::phase0size || LAMap_.size() > SiPixelPI::phase1size) {
+          edm::LogError(label_) << "There are " << LAMap_.size()
+                                << " DetIds in this payload. SiPixelLorentzAngleFullPixelMap maps are not supported "
+                                   "for non-Phase1 Pixel geometries !";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          SiPixelPI::displayNotSupported(canvas, LAMap_.size());
+          std::string fileName(this->m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        } else {
+          if (LAMap_.size() < SiPixelPI::phase1size) {
+            edm::LogWarning(label_) << "\n ********* WARNING! ********* \n There are " << LAMap_.size()
+                                    << " DetIds in this payload !"
+                                    << "\n **************************** \n";
+          }
+        }
+
+        for (const auto &entry : LAMap_) {
+          fullMap.fillTrackerMap(entry.first, entry.second);
+        }
+
+        TCanvas canvas("Canv", "Canv", 3000, 2000);
+        fullMap.printTrackerMap(canvas);
+
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextSize(0.025);
+        ltx.SetTextAlign(11);
+        ltx.DrawLatexNDC(
+            gPad->GetLeftMargin() + 0.01,
+            gPad->GetBottomMargin() + 0.01,
+            ("#color[4]{" + tag.name + "}, IOV: #color[4]{" + std::to_string(std::get<0>(iov)) + "}").c_str());
+
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+      }
+      return true;
+    }
+
+  protected:
+    std::string payloadString;
+    std::string label_;
+  };
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiPixelLorentzAngle) {
@@ -953,4 +1024,5 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelLorentzAngle) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleByRegionComparisonTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiPixelBPixLorentzAngleMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixLorentzAngleMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleFullPixelMap);
 }
