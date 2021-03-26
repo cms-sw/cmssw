@@ -7,7 +7,7 @@
  * Structure is as close as possible to electronics
  *
  *
- * \author Ursula Berthon, Stephanie Baffioni,  LLR Palaiseau
+ * \author Ursula Berthon, Stephanie Baffioni, LLR Palaiseau
  *
  * \version   1st Version may 2006
  * \version   2nd Version jul 2006
@@ -31,6 +31,7 @@
 
 #include <map>
 #include <utility>
+#include <string>
 
 /** Main Algo for Ecal trigger primitives. */
 
@@ -51,11 +52,12 @@ public:
                              int binofmax,
                              bool tcpFormat,
                              bool debug,
-                             bool famos);
+                             bool famos,
+                            bool TPinfoPrintout);
 
   //barrel only
   explicit EcalTrigPrimFunctionalAlgo(
-      const EcalElectronicsMapping *theMapping, int binofmax, bool tcpFormat, bool debug, bool famos);
+      const EcalElectronicsMapping *theMapping, int binofmax, bool tcpFormat, bool debug, bool famos, bool TPinfoPrintout);
 
   virtual ~EcalTrigPrimFunctionalAlgo();
 
@@ -74,17 +76,23 @@ public:
                    const EcalTPGSlidingWindow *ecaltpgSlidW,
                    const EcalTPGWeightIdMap *ecaltpgWeightMap,
                    const EcalTPGWeightGroup *ecaltpgWeightGroup,
+                   const EcalTPGOddWeightIdMap *ecaltpgOddWeightMap,
+                   const EcalTPGOddWeightGroup *ecaltpgOddWeightGroup,
                    const EcalTPGFineGrainStripEE *ecaltpgFgStripEE,
                    const EcalTPGCrystalStatus *ecaltpgBadX,
-                   const EcalTPGStripStatus *ecaltpgStripStatus) {
+                   const EcalTPGStripStatus *ecaltpgStripStatus,
+                   const EcalTPGTPMode * ecaltpgTPMode) {
     estrip_->setPointers(ecaltpPed,
                          ecaltpLin,
                          ecaltpgWeightMap,
                          ecaltpgWeightGroup,
+                         ecaltpgOddWeightMap,
+                         ecaltpgOddWeightGroup,
                          ecaltpgSlidW,
                          ecaltpgFgStripEE,
                          ecaltpgBadX,
-                         ecaltpgStripStatus);
+                         ecaltpgStripStatus,
+                         ecaltpgTPMode);
   }
   void setPointers2(const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
                     const EcalTPGLutGroup *ecaltpgLutGroup,
@@ -92,14 +100,16 @@ public:
                     const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB,
                     const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
                     const EcalTPGTowerStatus *ecaltpgBadTT,
-                    const EcalTPGSpike *ecaltpgSpike) {
+                    const EcalTPGSpike *ecaltpgSpike,
+                    const EcalTPGTPMode * ecaltpgTPMode) {
     etcp_->setPointers(ecaltpgFgEBGroup,
                        ecaltpgLutGroup,
                        ecaltpgLut,
                        ecaltpgFineGrainEB,
                        ecaltpgFineGrainTowerEE,
                        ecaltpgBadTT,
-                       ecaltpgSpike);
+                       ecaltpgSpike,
+                       ecaltpgTPMode);
   }
 
 private:
@@ -139,6 +149,7 @@ private:
   bool barrelOnly_;
   bool debug_;
   bool famos_;
+  bool TPinfoPrintout_;
 
   static const unsigned int nrSamples_;        // nr samples to write, should not be changed since by
                                                // convention the size means that it is coming from simulation
@@ -151,6 +162,7 @@ private:
 
   // data structures kept during the whole run
   std::vector<std::vector<int>> striptp_;
+  // std::vector<std::vector<int>> odd_striptp_; // duplicate data path for odd filter
   std::vector<std::vector<std::pair<int, std::vector<EBDataFrame>>>> towerMapEB_;
   std::vector<std::vector<std::pair<int, std::vector<EEDataFrame>>>> towerMapEE_;
   std::vector<std::pair<int, EcalTrigTowerDetId>> hitTowers_;
@@ -184,6 +196,10 @@ void EcalTrigPrimFunctionalAlgo::run_part2(
   estrip_->getFGVB()->setbadStripMissing(false);
 
   for (int itow = 0; itow < nrTowers_; ++itow) {
+    if(TPinfoPrintout_){
+      std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+      std::cout << "on Tower " << itow << " of " << nrTowers_ << std::endl;
+    }
     int index = hitTowers_[itow].first;
     const EcalTrigTowerDetId &thisTower = hitTowers_[itow].second;
 
@@ -194,6 +210,10 @@ void EcalTrigPrimFunctionalAlgo::run_part2(
                                                             // size; nr of crystals/strip
 
       if ((towerMap[index])[i].first > 0) {
+         if(TPinfoPrintout_){
+          std::cout << "-------------------------------------------------" << std::endl;
+          std::cout << "on Strip index " << i << std::endl;
+        }
         estrip_->process(df, (towerMap[index])[i].first, striptp_[nstr++]);
       }
     }  // loop over strips in one tower
