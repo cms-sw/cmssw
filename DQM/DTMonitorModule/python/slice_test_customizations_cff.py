@@ -13,14 +13,14 @@ def customise_for_slice_test(process, enableDigis, enableTPs):
     # This is commented out as the AB7 unpacker is not in CMSSW
     # at present, the following lines need to be uncommented in the P5 setup
 
-    from EventFilter.DTRawToDigi.dtab7unpacker_cfi import dtAB7unpacker
-    process.dtAB7Unpacker = dtAB7unpacker.clone()
+    # from EventFilter.DTRawToDigi.dtab7unpacker_cfi import dtAB7unpacker
+    # process.dtAB7Unpacker = dtAB7unpacker.clone()
 
     # Here using the uROS unpacker as proxy, the following lines
     # need to be commented out in the setup running @ P5
 
-    # from EventFilter.DTRawToDigi.dturosunpacker_cfi import dturosunpacker
-    # process.dtAB7Unpacker = dturosunpacker.clone()
+    from EventFilter.DTRawToDigi.dturosunpacker_cfi import dturosunpacker
+    process.dtAB7Unpacker = dturosunpacker.clone()
 
     if hasattr(process,"dtDQMTask"):
         print("[customise_for_slice_test]: extending dtDQMTask sequence to include AB7 unpacker")
