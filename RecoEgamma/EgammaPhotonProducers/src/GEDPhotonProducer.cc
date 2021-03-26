@@ -596,13 +596,11 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     float e2x5 = (hits != nullptr ? EcalClusterTools::e2x5Max(*(scRef->seed()), hits, topology) : 0.f);
     float e3x3 = (hits != nullptr ? EcalClusterTools::e3x3(*(scRef->seed()), hits, topology) : 0.f);
     float e5x5 = (hits != nullptr ? EcalClusterTools::e5x5(*(scRef->seed()), hits, topology) : 0.f);
-    const auto& cov =
-        (hits != nullptr ? EcalClusterTools::covariances(*(scRef->seed()), hits, topology, caloGeom_)
-                         : std::array<float, 3>({{0.f, 0.f, 0.f}}));
+    const auto& cov = (hits != nullptr ? EcalClusterTools::covariances(*(scRef->seed()), hits, topology, caloGeom_)
+                                       : std::array<float, 3>({{0.f, 0.f, 0.f}}));
     // fractional local covariances
-    const auto& locCov =
-        (hits != nullptr ? EcalClusterTools::localCovariances(*(scRef->seed()), hits, topology)
-                         : std::array<float, 3>({{0.f, 0.f, 0.f}}));
+    const auto& locCov = (hits != nullptr ? EcalClusterTools::localCovariances(*(scRef->seed()), hits, topology)
+                                          : std::array<float, 3>({{0.f, 0.f, 0.f}}));
 
     float sigmaEtaEta = std::sqrt(cov[0]);
     float sigmaIetaIeta = std::sqrt(locCov[0]);

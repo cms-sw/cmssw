@@ -382,10 +382,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     float full5x5_e2x5 = noZS::EcalClusterTools::e2x5Max(*(scRef->seed()), &(*hits), &(*topology));
     float full5x5_e3x3 = noZS::EcalClusterTools::e3x3(*(scRef->seed()), &(*hits), &(*topology));
     float full5x5_e5x5 = noZS::EcalClusterTools::e5x5(*(scRef->seed()), &(*hits), &(*topology));
-    const auto& full5x5_cov =
-        noZS::EcalClusterTools::covariances(*(scRef->seed()), &(*hits), &(*topology), geometry);
-    const auto& full5x5_locCov =
-        noZS::EcalClusterTools::localCovariances(*(scRef->seed()), &(*hits), &(*topology));
+    const auto& full5x5_cov = noZS::EcalClusterTools::covariances(*(scRef->seed()), &(*hits), &(*topology), geometry);
+    const auto& full5x5_locCov = noZS::EcalClusterTools::localCovariances(*(scRef->seed()), &(*hits), &(*topology));
 
     float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);
     float full5x5_sigmaIetaIeta = sqrt(full5x5_locCov[0]);
