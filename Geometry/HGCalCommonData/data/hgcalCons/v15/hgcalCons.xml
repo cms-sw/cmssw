@@ -20,7 +20,7 @@
  </ConstantsSection>
 
 <SpecParSection label="hgcalCons.xml" eval="true">
-  <SpecPar name="HGCalEESensitive">
+  <SpecPar name="HGCalEELayer">
     <PartSelector path="//HGCalEELayer.*"/>    
     <Parameter name="Volume" value="HGCalEELayer" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Module" eval="false"/>
@@ -74,11 +74,11 @@
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal10]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal11]"/>
   </SpecPar>
-  <SpecPar name="HGCalEESensitive2">
+  <SpecPar name="HGCalEESensitive">
     <PartSelector path="//HGCalEESensitive.*"/>    
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
   </SpecPar>
-  <SpecPar name="HGCalHESiliconSensitive">
+  <SpecPar name="HGCalHESiliconLayer">
     <PartSelector path="//HGCalHESiliconLayer.*"/>
     <Parameter name="Volume" value="HGCalHESiliconLayer" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Module" eval="false"/>
@@ -132,7 +132,7 @@
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal10]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal11]"/>
   </SpecPar>
-  <SpecPar name="HGCalHESiliconSensitive2">
+  <SpecPar name="HGCalHESiliconSensitive">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
   </SpecPar>
