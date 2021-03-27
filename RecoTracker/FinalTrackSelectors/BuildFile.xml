@@ -5,10 +5,10 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="CondFormats/GBRForest"/>
+<use name="PhysicsTools/TensorFlow"/>
+<use name="TrackingTools/PatternTools"/>
 <use name="roottmva"/>
 <use name="lwtnn"/>
-<use name="TrackingTools/Records"/>
-<use name="PhysicsTools/TensorFlow"/>
 <export>
   <lib name="1"/>
 </export>

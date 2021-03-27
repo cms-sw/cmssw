@@ -3,6 +3,7 @@
 <use name="DataFormats/Common"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/PrescaleService"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/MessageLogger"/>
 <use name="L1Trigger/GlobalTriggerAnalyzer"/>
