@@ -21,6 +21,7 @@
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/TrackReco"/>
+<use name="EventFilter/L1TRawToDigi"/>
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/RPCGeometry"/>
