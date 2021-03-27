@@ -6,8 +6,6 @@ process = cms.Process("NavigationSchoolAnalyze")
 
 # process.load("Configuration.StandardSequences.Geometry_cff")
 #process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
