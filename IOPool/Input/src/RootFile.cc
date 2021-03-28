@@ -546,6 +546,10 @@ namespace edm {
           setIsMergeable(product.second);
         }
       }
+      //inform system we want to use DelayedReader
+      for (auto& product : newReg->productListUpdator()) {
+        product.second.setOnDemand(true);
+      }
 
       // freeze the product registry
       newReg->setFrozen(inputType != InputType::Primary);
