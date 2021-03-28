@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineTestHLT'
 BSOnlineJobName = 'BeamSpotOnlineTestHLT'
+BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 
 import sys
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
@@ -15,6 +16,7 @@ process = cms.Process("FakeBeamMonitor", Run2_2018)
 if "dqm_cmssw/playback" in str(sys.argv[1]):
   BSOnlineTag = BSOnlineTag + 'Playback'
   BSOnlineJobName = BSOnlineJobName + 'Playback'
+  BSOnlineOmsServiceUrl = ''
 
 # switch
 live = True # FIXME
@@ -122,7 +124,7 @@ if unitTest == False:
       connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS'),
       preLoadConnectionString = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
       runNumber = cms.untracked.uint64(options.runNumber),
-      omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
+      omsServiceUrl = cms.untracked.string(BSOnlineOmsServiceUrl),
       writeTransactionDelay = cms.untracked.uint32(options.transDelay),
       latency = cms.untracked.uint32(2),
       autoCommit = cms.untracked.bool(True),
