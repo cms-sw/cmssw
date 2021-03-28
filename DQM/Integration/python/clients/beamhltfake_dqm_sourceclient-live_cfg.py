@@ -122,8 +122,6 @@ if unitTest == False:
       connect = cms.string('oracle://cms_orcon_prod/CMS_CONDITIONS'),
       preLoadConnectionString = cms.untracked.string('frontier://FrontierProd/CMS_CONDITIONS'),
       runNumber = cms.untracked.uint64(options.runNumber),
-      #lastLumiFile = cms.untracked.string('last_lumi.txt'),
-      #lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
       omsServiceUrl = cms.untracked.string('http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'),
       writeTransactionDelay = cms.untracked.uint32(options.transDelay),
       latency = cms.untracked.uint32(2),
@@ -151,7 +149,6 @@ else:
 
     runNumber = cms.untracked.uint64(options.runNumber),
     lastLumiFile = cms.untracked.string('last_lumi.txt'),
-    #lastLumiUrl = cms.untracked.string('http://ru-c2e14-11-01.cms:11100/urn:xdaq-application:lid=52/getLatestLumiSection'),
     writeTransactionDelay = cms.untracked.uint32(options.transDelay),
     latency = cms.untracked.uint32(2),
     autoCommit = cms.untracked.bool(True),
