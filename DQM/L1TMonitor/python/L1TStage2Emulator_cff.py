@@ -103,9 +103,7 @@ Stage2L1HardwareValidation = cms.Sequence(
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 _run3_Stage2L1HardwareValidation = Stage2L1HardwareValidation.copy()
-_run3_Stage2L1HardwareValidation += valMuonGEMPadDigis
-_run3_Stage2L1HardwareValidation += valMuonGEMPadDigiClusters
-run3_GEM.toReplaceWith( Stage2L1HardwareValidation, _run3_Stage2L1HardwareValidation )
+run3_GEM.toReplaceWith( Stage2L1HardwareValidation, cms.Sequence( valMuonGEMPadDigis + valMuonGEMPadDigiClusters + _run3_Stage2L1HardwareValidation) )
 
 Stage2L1HardwareValidationForValidationEvents = cms.Sequence(
     valCaloStage2Layer2Digis
