@@ -13,6 +13,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
