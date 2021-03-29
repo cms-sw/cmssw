@@ -46,8 +46,6 @@ private:
   EcalFenixTcpFormatEB *formatter_EB_;
   EcalFenixTcpFormatEE *formatter_EE_;
 
-
-
   // permanent data structures
   std::vector<std::vector<int>> bypasslin_out_;
   std::vector<int> adder_even_out_;
@@ -65,7 +63,7 @@ public:
                    const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
                    const EcalTPGTowerStatus *ecaltpgBadTT,
                    const EcalTPGSpike *ecaltpgSpike,
-                   const EcalTPGTPMode* ecaltpgTPMode) {
+                   const EcalTPGTPMode *ecaltpgTPMode) {
     ecaltpgFgEBGroup_ = ecaltpgFgEBGroup;
     ecaltpgLutGroup_ = ecaltpgLutGroup;
     ecaltpgLut_ = ecaltpgLut;
@@ -77,7 +75,8 @@ public:
   }
   // end temporary, for timing tests
 
-  EcalFenixTcp(bool tcpFormat, bool debug, bool famos, int binOfMax, int maxNrSamples, int nbMaxStrips,bool TPinfoPrintout);
+  EcalFenixTcp(
+      bool tcpFormat, bool debug, bool famos, int binOfMax, int maxNrSamples, int nbMaxStrips, bool TPinfoPrintout);
   virtual ~EcalFenixTcp();
 
   void process(std::vector<EBDataFrame> &bid,  // dummy argument for template call
@@ -140,7 +139,7 @@ public:
   const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE_;
   const EcalTPGTowerStatus *ecaltpgBadTT_;
   const EcalTPGSpike *ecaltpgSpike_;
-  const EcalTPGTPMode * ecaltpgTPMode_;
+  const EcalTPGTPMode *ecaltpgTPMode_;
 };
 
 #endif

@@ -18,12 +18,12 @@ EcalFenixTcpFormatEE::EcalFenixTcpFormatEE(bool tcpFormat, bool debug, bool famo
 EcalFenixTcpFormatEE::~EcalFenixTcpFormatEE() {}
 
 void EcalFenixTcpFormatEE::process(std::vector<int> &Et,
-                                 std::vector<int> &fgvb,
-                                 std::vector<int> &sfgvb,
-                                 int eTTotShift,
-                                 std::vector<EcalTriggerPrimitiveSample> &out,
-                                 std::vector<EcalTriggerPrimitiveSample> &out2,
-                                 bool isInInnerRings) {
+                                   std::vector<int> &fgvb,
+                                   std::vector<int> &sfgvb,
+                                   int eTTotShift,
+                                   std::vector<EcalTriggerPrimitiveSample> &out,
+                                   std::vector<EcalTriggerPrimitiveSample> &out2,
+                                   bool isInInnerRings) {
   // put TP-s in the output
   // on request also in TcpFormat
   // for famos version we have to write dummies except for the middle
@@ -92,11 +92,11 @@ void EcalFenixTcpFormatEE::process(std::vector<int> &Et,
 }
 
 void EcalFenixTcpFormatEE::setParameters(uint32_t towid,
-                                       const EcalTPGLutGroup *ecaltpgLutGroup,
-                                       const EcalTPGLutIdMap *ecaltpgLut,
-                                       const EcalTPGTowerStatus *ecaltpgbadTT,
-                                       const EcalTPGSpike *ecaltpgSpike,
-                                       const EcalTPGTPMode *  ecaltpgTPMode) {
+                                         const EcalTPGLutGroup *ecaltpgLutGroup,
+                                         const EcalTPGLutIdMap *ecaltpgLut,
+                                         const EcalTPGTowerStatus *ecaltpgbadTT,
+                                         const EcalTPGSpike *ecaltpgSpike,
+                                         const EcalTPGTPMode *ecaltpgTPMode) {
   // Get TP zeroing threshold - defaut to 1023 for old data (no record found or
   // EE)
   spikeZeroThresh_ = 1023;

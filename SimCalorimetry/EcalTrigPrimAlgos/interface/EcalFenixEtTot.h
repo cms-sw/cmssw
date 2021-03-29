@@ -31,7 +31,12 @@ public:
   virtual ~EcalFenixEtTot();
   virtual std::vector<int> process(const std::vector<EBDataFrame *> &);
 
-  void process(std::vector<std::vector<int>> &, int nStr, int bitMask,int bitOddEven, std::vector<int> &out_even,  std::vector<int> &out_odd);
+  void process(std::vector<std::vector<int>> &,
+               int nStr,
+               int bitMask,
+               int bitOddEven,
+               std::vector<int> &out_even,
+               std::vector<int> &out_odd);
 
 private:
 };

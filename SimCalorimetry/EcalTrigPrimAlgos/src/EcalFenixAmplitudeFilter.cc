@@ -5,8 +5,8 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
 #include <iostream>
 
-EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter(bool TPinfoPrintout) : inputsAlreadyIn_(0), stripid_{0}, shift_(6), TPinfoPrintout_(TPinfoPrintout) {}
-
+EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter(bool TPinfoPrintout)
+    : inputsAlreadyIn_(0), stripid_{0}, shift_(6), TPinfoPrintout_(TPinfoPrintout) {}
 
 EcalFenixAmplitudeFilter::~EcalFenixAmplitudeFilter() {}
 
@@ -44,8 +44,9 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
 
   for (unsigned int i = 0; i < addout.size(); i++) {
     // Only save TP info for Clock i >= 4 (from 0-9) because first 5 digis required to produce first ET value
-    if (i>=4){
-      if(TPinfoPrintout_) std::cout<<i<<std::dec;
+    if (i >= 4) {
+      if (TPinfoPrintout_)
+        std::cout << i << std::dec;
     }
     setInput(addout[i], fgvbIn[i]);
     process();
@@ -86,24 +87,27 @@ void EcalFenixAmplitudeFilter::process() {
   processedOutput_ = output;
   processedFgvbOutput_ = fgvbInt;
   // by RK
-  if(TPinfoPrintout_){
-    std::cout<<" "<<stripid_;
+  if (TPinfoPrintout_) {
+    std::cout << " " << stripid_;
     for (int i = 0; i < 5; i++) {
-      std::cout<<" "<<weights_[i]<<std::dec;}
+      std::cout << " " << weights_[i] << std::dec;
+    }
     for (int i = 0; i < 5; i++) {
-      std::cout<<" "<<weights_[i]/64.0<<std::dec;}
+      std::cout << " " << weights_[i] / 64.0 << std::dec;
+    }
     for (int i = 0; i < 5; i++) {
-      std::cout<<" "<<buffer_[i]<<std::dec;} // digis
+      std::cout << " " << buffer_[i] << std::dec;
+    }  // digis
     std::cout << " --> output: " << output;
     std::cout << " EVEN";
-    std::cout<<std::endl;
+    std::cout << std::endl;
   }
 }
 
 void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,
                                              const EcalTPGWeightIdMap *ecaltpgWeightMap,
                                              const EcalTPGWeightGroup *ecaltpgWeightGroup) {
-  stripid_ = raw;    // by RK
+  stripid_ = raw;  // by RK
   uint32_t params_[5];
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgWeightGroup->getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(raw);

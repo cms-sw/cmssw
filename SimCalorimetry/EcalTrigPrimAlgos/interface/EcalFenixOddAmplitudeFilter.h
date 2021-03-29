@@ -20,7 +20,7 @@ class EcalFenixOddAmplitudeFilter {
 private:
   int peakFlag_[5];
   int inputsAlreadyIn_;
-  uint32_t stripid_; // by RK
+  uint32_t stripid_;  // by RK
   int buffer_[5];
   int weights_[5];
   int shift_;
@@ -36,8 +36,7 @@ public:
   EcalFenixOddAmplitudeFilter();
   EcalFenixOddAmplitudeFilter(bool TPinfoPrintout);
   virtual ~EcalFenixOddAmplitudeFilter();
-  virtual void process(std::vector<int> &addout,
-                       std::vector<int> &output);
+  virtual void process(std::vector<int> &addout, std::vector<int> &output);
   void setParameters(uint32_t raw,
                      const EcalTPGOddWeightIdMap *ecaltpgOddWeightMap,
                      const EcalTPGOddWeightGroup *ecaltpgOddWeightGroup);

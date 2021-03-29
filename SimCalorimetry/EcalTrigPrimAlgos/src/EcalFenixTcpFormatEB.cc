@@ -54,36 +54,36 @@ void EcalFenixTcpFormatEB::process(std::vector<int> &Et_even_sum,
         out[i] = EcalTriggerPrimitiveSample();
     }
   } else {
-
     for (unsigned int i = 0; i < Et_even_sum.size(); ++i) {
       int myFgvb = fgvb[i];
       int mysFgvb = sfgvb[i];
       bool is_odd_larger = false;
 
       // Check if odd sum is larger than even sum, in case flag_EB_odd_even_tcp is used
-      if (Et_odd_sum[i]>Et_even_sum[i]){
+      if (Et_odd_sum[i] > Et_even_sum[i]) {
         is_odd_larger = true;
       }
 
-      switch(ecaltpgTPMode_->EBFenixTcpOutput){
-        case 0: //output even sum
+      switch (ecaltpgTPMode_->EBFenixTcpOutput) {
+        case 0:  //output even sum
           myEt = Et_even_sum[i];
           break;
-        case 1: // output larger of odd and even
-          if (Et_odd_sum[i]>Et_even_sum[i]){
+        case 1:  // output larger of odd and even
+          if (Et_odd_sum[i] > Et_even_sum[i]) {
             myEt = Et_odd_sum[i];
-          }else{
+          } else {
             myEt = Et_even_sum[i];
           }
           break;
-        case 2: // output even+odd
+        case 2:  // output even+odd
           myEt = Et_even_sum[i] + Et_odd_sum[i];
           break;
       }
 
       // check TPmode config to decide to output the FGVB or the odd>even flag
       int infobit1 = myFgvb;
-      if (ecaltpgTPMode_->EBFenixTcpInfobit1) infobit1 = is_odd_larger;
+      if (ecaltpgTPMode_->EBFenixTcpInfobit1)
+        infobit1 = is_odd_larger;
 
       // bug fix 091009:
       //myEt = Et[i];
@@ -117,11 +117,11 @@ void EcalFenixTcpFormatEB::process(std::vector<int> &Et_even_sum,
 }
 
 void EcalFenixTcpFormatEB::setParameters(uint32_t towid,
-                                       const EcalTPGLutGroup *ecaltpgLutGroup,
-                                       const EcalTPGLutIdMap *ecaltpgLut,
-                                       const EcalTPGTowerStatus *ecaltpgbadTT,
-                                       const EcalTPGSpike *ecaltpgSpike,
-                                       const EcalTPGTPMode * ecaltpgTPMode) {
+                                         const EcalTPGLutGroup *ecaltpgLutGroup,
+                                         const EcalTPGLutIdMap *ecaltpgLut,
+                                         const EcalTPGTowerStatus *ecaltpgbadTT,
+                                         const EcalTPGSpike *ecaltpgSpike,
+                                         const EcalTPGTPMode *ecaltpgTPMode) {
   // Get TP zeroing threshold - defaut to 1023 for old data (no record found or
   // EE)
   spikeZeroThresh_ = 1023;

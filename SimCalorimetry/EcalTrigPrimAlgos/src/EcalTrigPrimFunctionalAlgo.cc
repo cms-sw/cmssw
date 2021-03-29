@@ -55,7 +55,7 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const EcalTrigTowerConsti
                                                        int binofmax,
                                                        bool tcpFormat,
                                                        bool debug,
-                                                       bool famos, 
+                                                       bool famos,
                                                        bool TPinfoPrintout)
     : eTTmap_(eTTmap),
       theEndcapGeometry_(endcapGeometry),
@@ -97,7 +97,8 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(
 void EcalTrigPrimFunctionalAlgo::init() {
   // create main sub algos
   estrip_ = std::make_unique<EcalFenixStrip>(theMapping_, debug_, famos_, maxNrSamples_, nbMaxXtals_, TPinfoPrintout_);
-  etcp_ = std::make_unique<EcalFenixTcp>(tcpFormat_, debug_, famos_, binOfMaximum_, maxNrSamples_, nbMaxStrips_, TPinfoPrintout_);
+  etcp_ = std::make_unique<EcalFenixTcp>(
+      tcpFormat_, debug_, famos_, binOfMaximum_, maxNrSamples_, nbMaxStrips_, TPinfoPrintout_);
 
   // initialise data structures
   initStructures(towerMapEB_);

@@ -40,7 +40,7 @@ public:
                      const EcalTPGLutIdMap *ecaltpgLut,
                      const EcalTPGTowerStatus *ecaltpgbadTT,
                      const EcalTPGSpike *ecaltpgSpike,
-                     const EcalTPGTPMode * ecaltpgTPMode);
+                     const EcalTPGTPMode *ecaltpgTPMode);
 
 private:
   const unsigned int *lut_;
@@ -51,7 +51,7 @@ private:
   bool famos_;
   unsigned int binOfMax_;
   uint16_t spikeZeroThresh_;
-  const EcalTPGTPMode * ecaltpgTPMode_;
+  const EcalTPGTPMode *ecaltpgTPMode_;
 };
 
 #endif

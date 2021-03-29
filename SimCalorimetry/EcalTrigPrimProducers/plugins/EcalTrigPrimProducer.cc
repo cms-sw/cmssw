@@ -128,7 +128,6 @@ private:
   // TPG TP mode
   edm::ESGetToken<EcalTPGTPMode, EcalTPGTPModeRcd> tokenEcalTPGTPMode_;
 
-
   int binOfMaximum_;
   bool fillBinOfMaximumFromHistory_;
 
@@ -226,12 +225,13 @@ void EcalTrigPrimProducer::beginRun(edm::Run const &run, edm::EventSetup const &
 
   auto const &ecalmapping = setup.getData(tokenEcalMapping_);
   if (barrelOnly_) {
-    algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(&ecalmapping, binOfMaximum_, tcpFormat_, debug_, famos_,TPinfoPrintout_);
+    algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(
+        &ecalmapping, binOfMaximum_, tcpFormat_, debug_, famos_, TPinfoPrintout_);
   } else {
     auto const &endcapGeometry = setup.getData(tokenEndcapGeom_);
     auto const &eTTmap = setup.getData(tokenETTMap_);
     algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(
-        &eTTmap, &endcapGeometry, &ecalmapping, binOfMaximum_, tcpFormat_, debug_, famos_,TPinfoPrintout_);
+        &eTTmap, &endcapGeometry, &ecalmapping, binOfMaximum_, tcpFormat_, debug_, famos_, TPinfoPrintout_);
   }
 }
 
