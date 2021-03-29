@@ -112,7 +112,7 @@
   <Constant name="zHGCalHEmix3"          value="[zHGCal8]"/>
   <Constant name="zHGCalHEmix4"          value="[zHGCal10]"/>
   <Constant name="zHGCalHEmix5"          value="[zHGCal11]"/>
-  <Constant name="zHGCalHEmix6"          value="[zHGCal13]"/>
+  <Constant name="zHGCalHEmix6"          value="[zHGCal12]"/>
   <Constant name="rMinHGCalHEmix1"       value="[rMinHGCal6]"/>
   <Constant name="rMinHGCalHEmix2"       value="[rMinHGCal8]"/>
   <Constant name="rMaxHGCalHEmix1"       value="[rMaxHGCal6]"/>
