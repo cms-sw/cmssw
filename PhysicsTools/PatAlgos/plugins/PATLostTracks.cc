@@ -68,6 +68,7 @@ namespace pat {
     const double maxDxyForNotReconstructedPrimary_;
     const double maxDxySigForNotReconstructedPrimary_;
     const bool useLegacySetup_;
+    const bool fillLostInnerHits_;
   };
 }  // namespace pat
 
@@ -100,7 +101,8 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig)
                                             .getParameter<double>("maxDxyForNotReconstructedPrimary")),
       maxDxySigForNotReconstructedPrimary_(iConfig.getParameter<edm::ParameterSet>("pvAssignment")
                                                .getParameter<double>("maxDxySigForNotReconstructedPrimary")),
-      useLegacySetup_(iConfig.getParameter<bool>("useLegacySetup")) {
+      useLegacySetup_(iConfig.getParameter<bool>("useLegacySetup")),
+      fillLostInnerHits_(iConfig.getParameter<bool>("fillLostInnerHits")) {
   std::vector<std::string> trkQuals(iConfig.getParameter<std::vector<std::string>>("qualsToAutoAccept"));
   std::transform(
       trkQuals.begin(), trkQuals.end(), std::back_inserter(qualsToAutoAccept_), reco::TrackBase::qualityByName);
@@ -276,6 +278,19 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
   reco::Candidate::PolarLorentzVector p4(trk->pt(), trk->eta(), trk->phi(), mass);
   cands.emplace_back(
       pat::PackedCandidate(p4, trk->vertex(), trk->pt(), trk->eta(), trk->phi(), id, pvSlimmedColl, pvSlimmed.key()));
+
+  if (fillLostInnerHits_) {
+    pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
+    int nlost = trk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    if (nlost == 0) {
+      if (trk->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1)) {
+        lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
+      }
+    } else {
+      lostHits = (nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
+    }
+    cands.back().setLostInnerHits(lostHits);
+  }
 
   cands.back().setTrackHighPurity(trk->quality(reco::TrackBase::highPurity));
 

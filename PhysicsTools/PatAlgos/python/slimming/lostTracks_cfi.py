@@ -22,11 +22,15 @@ lostTracks = cms.EDProducer("PATLostTracks",
     passThroughCut = cms.string("0"),
     allowMuonId = cms.bool(False),
     pvAssignment = primaryVertexAssociation.assignment,
-    useLegacySetup = cms.bool(True)
+    useLegacySetup = cms.bool(True),
+    fillLostInnerHits = cms.bool(False)
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(lostTracks, covarianceVersion =1 )
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 run2_miniAOD_UL.toModify(lostTracks, passThroughCut="pt>2", allowMuonId=True, useLegacySetup=False)
+
+from Configuration.Eras.Modifier_bParking_cff import bParking
+bParking.toModify(lostTracks, fillLostInnerHits = True)
 
