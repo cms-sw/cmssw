@@ -615,9 +615,10 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
   auto itr = hgpar_->typesInLayers_.find(indx);
   int type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
 #ifdef EDM_ML_DEBUG
-  if (debug)
+  if (debug) {
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << waferU << ":" << waferV << ":" << indx << ":"
                                   << (itr == hgpar_->typesInLayers_.end()) << ":" << type;
+  }
 #endif
   int kndx = cellV * 100 + cellU;
   if (type == 0) {
