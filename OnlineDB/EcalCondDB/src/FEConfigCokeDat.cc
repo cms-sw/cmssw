@@ -25,8 +25,11 @@ void FEConfigCokeDat::prepareWrite() noexcept(false) {
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL(
-			"INSERT INTO "+getTable()+" (coke_conf_id, logic_id, "
-        " THRESHOLD, SUCC_EVENT_LIMIT, CUMUL_EVENT_LIMIT, SUCC_DETECT_ENABLE, CUMUL_DETECT_ENABLE, THD1_THRESHOLD, SUCC1_EV_LIMIT, CUMUL1_EV_LIMIT, COMBI_MODE, OCC_MODE, COMB_SUCC_DETECT, COMB_CUMUL_DETECT, OCC_DETECT, CUMUL1_DETECT, THD2_THRESHOLD , OCC_LIMIT , THD3_THRESHOLD , CUMUL2_LIMIT , STOP_BUFW  ) "
+        "INSERT INTO " + getTable() +
+        " (coke_conf_id, logic_id, "
+        " THRESHOLD, SUCC_EVENT_LIMIT, CUMUL_EVENT_LIMIT, SUCC_DETECT_ENABLE, CUMUL_DETECT_ENABLE, THD1_THRESHOLD, "
+        "SUCC1_EV_LIMIT, CUMUL1_EV_LIMIT, COMBI_MODE, OCC_MODE, COMB_SUCC_DETECT, COMB_CUMUL_DETECT, OCC_DETECT, "
+        "CUMUL1_DETECT, THD2_THRESHOLD , OCC_LIMIT , THD3_THRESHOLD , CUMUL2_LIMIT , STOP_BUFW  ) "
         "VALUES (:coke_conf_id, :logic_id, "
         ":m1, :m2, :m3, :m4, :m5, :m6, :m7, :m8, :m9, :m10, :m11, :m12, :m13, :m14, :m15, :m16, :m17, :m18, :m19 )");
   } catch (SQLException& e) {
@@ -35,8 +38,8 @@ void FEConfigCokeDat::prepareWrite() noexcept(false) {
 }
 
 void FEConfigCokeDat::writeDB(const EcalLogicID* ecid,
-                             const FEConfigCokeDat* item,
-                             FEConfigCokeInfo* iconf) noexcept(false) {
+                              const FEConfigCokeDat* item,
+                              FEConfigCokeInfo* iconf) noexcept(false) {
   this->checkConnection();
   this->checkPrepare();
 
@@ -73,7 +76,6 @@ void FEConfigCokeDat::writeDB(const EcalLogicID* ecid,
     m_writeStmt->setInt(20, item->getPar18());
     m_writeStmt->setInt(21, item->getPar19());
 
-
     m_writeStmt->executeUpdate();
   } catch (SQLException& e) {
     throw(std::runtime_error("FEConfigCokeDat::writeDB():  " + e.getMessage()));
@@ -94,8 +96,13 @@ void FEConfigCokeDat::fetchData(map<EcalLogicID, FEConfigCokeDat>* fillMap, FECo
   try {
     m_readStmt->setSQL(
         "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-        " d.THRESHOLD, d.SUCC_EVENT_LIMIT, d.CUMUL_EVENT_LIMIT, d.SUCC_DETECT_ENABLE, d.CUMUL_DETECT_ENABLE, d.THD1_THRESHOLD, d.SUCC1_EV_LIMIT, d.CUMUL1_EV_LIMIT, d.COMBI_MODE, d.OCC_MODE, d.COMB_SUCC_DETECT, d.COMB_CUMUL_DETECT, d.OCC_DETECT, d.CUMUL1_DETECT, d.THD2_THRESHOLD , d.OCC_LIMIT , d.THD3_THRESHOLD , d.CUMUL2_LIMIT , d.STOP_BUFW  "
-        "FROM channelview cv JOIN "+getTable()+" d "
+        " d.THRESHOLD, d.SUCC_EVENT_LIMIT, d.CUMUL_EVENT_LIMIT, d.SUCC_DETECT_ENABLE, d.CUMUL_DETECT_ENABLE, "
+        "d.THD1_THRESHOLD, d.SUCC1_EV_LIMIT, d.CUMUL1_EV_LIMIT, d.COMBI_MODE, d.OCC_MODE, d.COMB_SUCC_DETECT, "
+        "d.COMB_CUMUL_DETECT, d.OCC_DETECT, d.CUMUL1_DETECT, d.THD2_THRESHOLD , d.OCC_LIMIT , d.THD3_THRESHOLD , "
+        "d.CUMUL2_LIMIT , d.STOP_BUFW  "
+        "FROM channelview cv JOIN " +
+        getTable() +
+        " d "
         "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
         "WHERE coke_conf_id = :coke_conf_id");
     m_readStmt->setInt(1, iconfID);
@@ -140,7 +147,7 @@ void FEConfigCokeDat::fetchData(map<EcalLogicID, FEConfigCokeDat>* fillMap, FECo
 }
 
 void FEConfigCokeDat::writeArrayDB(const std::map<EcalLogicID, FEConfigCokeDat>* data,
-                                  FEConfigCokeInfo* iconf) noexcept(false) {
+                                   FEConfigCokeInfo* iconf) noexcept(false) {
   this->checkConnection();
   this->checkPrepare();
 
@@ -282,25 +289,25 @@ void FEConfigCokeDat::writeArrayDB(const std::map<EcalLogicID, FEConfigCokeDat>*
 
     delete[] ids;
     delete[] iconfid_vec;
-     delete[] xx1;
-     delete[] xx2;
-     delete[] xx3;
-     delete[] xx4;
-     delete[] xx5;
-     delete[] xx6;
-     delete[] xx7;
-     delete[] xx8;
-     delete[] xx9;
-     delete[] xx10;
-     delete[] xx11;
-     delete[] xx12;
-     delete[] xx13;
-     delete[] xx14;
-     delete[] xx15;
-     delete[] xx16;
-     delete[] xx17;
-     delete[] xx18;
-     delete[] xx19;
+    delete[] xx1;
+    delete[] xx2;
+    delete[] xx3;
+    delete[] xx4;
+    delete[] xx5;
+    delete[] xx6;
+    delete[] xx7;
+    delete[] xx8;
+    delete[] xx9;
+    delete[] xx10;
+    delete[] xx11;
+    delete[] xx12;
+    delete[] xx13;
+    delete[] xx14;
+    delete[] xx15;
+    delete[] xx16;
+    delete[] xx17;
+    delete[] xx18;
+    delete[] xx19;
 
     delete[] ids_len;
     delete[] iconf_len;
@@ -323,7 +330,6 @@ void FEConfigCokeDat::writeArrayDB(const std::map<EcalLogicID, FEConfigCokeDat>*
     delete[] x17_len;
     delete[] x18_len;
     delete[] x19_len;
-
 
   } catch (SQLException& e) {
     throw(std::runtime_error("FEConfigCokeDat::writeArrayDB():  " + e.getMessage()));

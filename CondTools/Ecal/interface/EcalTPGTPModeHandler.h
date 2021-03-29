@@ -83,7 +83,6 @@ namespace popcon {
     int m_i_version;
     unsigned int m_i_run_number;
     int m_i_TPMode;
-    
   };
 }  // namespace popcon
 #endif

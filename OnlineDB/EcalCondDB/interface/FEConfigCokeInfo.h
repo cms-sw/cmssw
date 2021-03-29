@@ -18,7 +18,6 @@ public:
   // Methods for user data
   inline std::string getTable() override { return "FE_CONFIG_COKE_INFO"; }
 
-
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
   // for compatibility

@@ -109,7 +109,8 @@ void FEConfigOddWeightInfo::fetchData(FEConfigOddWeightInfo* result) noexcept(fa
   try {
     DateHandler dh(m_env, m_conn);
 
-    m_readStmt->setSQL("SELECT wei2_conf_id, tag, number_of_groups, db_timestamp  FROM " + getTable() + " where ( wei2_conf_id= :1 or (tag=:2 ) )");
+    m_readStmt->setSQL("SELECT wei2_conf_id, tag, number_of_groups, db_timestamp  FROM " + getTable() +
+                       " where ( wei2_conf_id= :1 or (tag=:2 ) )");
     m_readStmt->setInt(1, result->getId());
     m_readStmt->setString(2, result->getConfigTag());
     ResultSet* rset = m_readStmt->executeQuery();
@@ -135,8 +136,8 @@ void FEConfigOddWeightInfo::fetchLastData(FEConfigOddWeightInfo* result) noexcep
   try {
     DateHandler dh(m_env, m_conn);
 
-    m_readStmt->setSQL("SELECT wei2_conf_id, tag, number_of_groups, db_timestamp FROM " + getTable() + " where   wei2_conf_id = ( select max( wei2_conf_id) from " +
-                       getTable() + " ) ");
+    m_readStmt->setSQL("SELECT wei2_conf_id, tag, number_of_groups, db_timestamp FROM " + getTable() +
+                       " where   wei2_conf_id = ( select max( wei2_conf_id) from " + getTable() + " ) ");
     ResultSet* rset = m_readStmt->executeQuery();
 
     rset->next();
@@ -166,7 +167,6 @@ int FEConfigOddWeightInfo::fetchID() noexcept(false) {
 
     stmt->setString(1, getConfigTag());
 
-
     ResultSet* rset = stmt->executeQuery();
 
     if (rset->next()) {
@@ -190,7 +190,8 @@ void FEConfigOddWeightInfo::setByID(int id) noexcept(false) {
   try {
     Statement* stmt = m_conn->createStatement();
 
-    stmt->setSQL("SELECT wei2_conf_id, tag, number_of_groups, db_timestamp  FROM " + getTable() + " WHERE wei2_conf_id = :1");
+    stmt->setSQL("SELECT wei2_conf_id, tag, number_of_groups, db_timestamp  FROM " + getTable() +
+                 " WHERE wei2_conf_id = :1");
     stmt->setInt(1, id);
 
     ResultSet* rset = stmt->executeQuery();

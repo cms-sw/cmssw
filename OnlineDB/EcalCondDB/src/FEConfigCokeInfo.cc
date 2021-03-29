@@ -21,8 +21,7 @@ FEConfigCokeInfo::FEConfigCokeInfo() {
   clear();
 }
 
-void FEConfigCokeInfo::clear() {
-}
+void FEConfigCokeInfo::clear() {}
 
 FEConfigCokeInfo::~FEConfigCokeInfo() {}
 
@@ -193,7 +192,7 @@ void FEConfigCokeInfo::setByID(int id) noexcept(false) {
   try {
     Statement* stmt = m_conn->createStatement();
 
-    stmt->setSQL("SELECT * FROM "+getTable()+" WHERE coke_conf_id = :1");
+    stmt->setSQL("SELECT * FROM " + getTable() + " WHERE coke_conf_id = :1");
     stmt->setInt(1, id);
 
     ResultSet* rset = stmt->executeQuery();

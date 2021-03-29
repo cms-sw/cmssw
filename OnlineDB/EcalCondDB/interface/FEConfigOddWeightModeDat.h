@@ -101,18 +101,18 @@ public:
   inline void setFenixPar18(int x) { m_fe_par18 = x; }
   inline float getFenixPar18() const { return m_fe_par18; }
 
-
-
-
 private:
   void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigOddWeightModeDat* item, FEConfigOddWeightInfo* iconf) noexcept(false);
+  void writeDB(const EcalLogicID* ecid,
+               const FEConfigOddWeightModeDat* item,
+               FEConfigOddWeightInfo* iconf) noexcept(false);
 
   void writeArrayDB(const std::map<EcalLogicID, FEConfigOddWeightModeDat>* data,
                     FEConfigOddWeightInfo* iconf) noexcept(false);
 
-  void fetchData(std::map<EcalLogicID, FEConfigOddWeightModeDat>* fillMap, FEConfigOddWeightInfo* iconf) noexcept(false);
+  void fetchData(std::map<EcalLogicID, FEConfigOddWeightModeDat>* fillMap,
+                 FEConfigOddWeightInfo* iconf) noexcept(false);
 
   // User data
 

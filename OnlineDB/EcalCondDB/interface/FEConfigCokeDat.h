@@ -95,26 +95,26 @@ public:
   inline void setPar19(int x) { m_stop_bufw = x; }
   inline int getPar19() const { return m_stop_bufw; }
 
-  void clear(){
-    m_thre =0;
-    m_succ_ev_lim=0;
-    m_cum_ev_lim=0;
-    m_succ_det_en=0;
-    m_cum_det_en=0;
-    m_thre1=0;
-    m_succ1_ev_lim=0;
-    m_cum1_ev_lim=0;
-    m_combi_mode=0;
-    m_occ_mode=0;
-    m_comb_succ_det=0;
-    m_comb_cumul_det=0;
-    m_occ_det=0;
-    m_cum1_det=0;
-    m_thre2=0;
-    m_occ_lim=0;
-    m_thre3=0;
-    m_cum2_lim=0;
-    m_stop_bufw=0;
+  void clear() {
+    m_thre = 0;
+    m_succ_ev_lim = 0;
+    m_cum_ev_lim = 0;
+    m_succ_det_en = 0;
+    m_cum_det_en = 0;
+    m_thre1 = 0;
+    m_succ1_ev_lim = 0;
+    m_cum1_ev_lim = 0;
+    m_combi_mode = 0;
+    m_occ_mode = 0;
+    m_comb_succ_det = 0;
+    m_comb_cumul_det = 0;
+    m_occ_det = 0;
+    m_cum1_det = 0;
+    m_thre2 = 0;
+    m_occ_lim = 0;
+    m_thre3 = 0;
+    m_cum2_lim = 0;
+    m_stop_bufw = 0;
   }
 
 private:
@@ -123,7 +123,7 @@ private:
   void writeArrayDB(const std::map<EcalLogicID, FEConfigCokeDat>* data, FEConfigCokeInfo* iconf) noexcept(false);
   void fetchData(std::map<EcalLogicID, FEConfigCokeDat>* fillMap, FEConfigCokeInfo* iconf) noexcept(false);
   // User data
-  int m_thre ;
+  int m_thre;
   int m_succ_ev_lim;
   int m_cum_ev_lim;
   int m_succ_det_en;
@@ -142,7 +142,6 @@ private:
   int m_thre3;
   int m_cum2_lim;
   int m_stop_bufw;
-
 };
 
 #endif

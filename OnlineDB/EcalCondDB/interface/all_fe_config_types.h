@@ -1,7 +1,6 @@
 #ifndef ALLFECONFIG
 #define ALLFECONFIG
 
-
 #include "OnlineDB/EcalCondDB/interface/FEConfigBadStripDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigBadStripInfo.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigBadTTDat.h"
@@ -40,7 +39,5 @@
 #include "OnlineDB/EcalCondDB/interface/FEConfigWeightDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigWeightGroupDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigWeightInfo.h"
-
-
 
 #endif

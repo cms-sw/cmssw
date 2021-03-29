@@ -115,7 +115,8 @@ void FEConfigMainInfo::prepareWrite() noexcept(false) {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL(
         "INSERT INTO fe_config_main (conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, "
-        "wei_conf_id, spi_conf_id, tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, coke_conf_id, wei2_conf_id, tag, version, description) "
+        "wei_conf_id, spi_conf_id, tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, coke_conf_id, wei2_conf_id, "
+        "tag, version, description) "
         " VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10, :11, :12, :13, :14, :15, :16, :17 )");
 
     m_writeStmt->setInt(1, next_id);
@@ -198,7 +199,10 @@ void FEConfigMainInfo::setByID(int id) noexcept(false) {
   try {
     Statement* stmt = m_conn->createStatement();
 
-    stmt->setSQL("SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, spi_conf_id, tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, coke_conf_id, wei2_conf_id, tag, version, description, db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
+    stmt->setSQL(
+        "SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, spi_conf_id, "
+        "tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, coke_conf_id, wei2_conf_id, tag, version, description, "
+        "db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
     stmt->setInt(1, id);
 
     ResultSet* rset = stmt->executeQuery();
@@ -249,7 +253,10 @@ void FEConfigMainInfo::fetchData(FEConfigMainInfo* result) noexcept(false) {
   }
 
   try {
-    m_readStmt->setSQL("SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, spi_conf_id, tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, coke_conf_id, wei2_conf_id, tag, version, description, db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
+    m_readStmt->setSQL(
+        "SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, spi_conf_id, "
+        "tim_conf_id, bxt_conf_id, btt_conf_id, bst_conf_id, coke_conf_id, wei2_conf_id, tag, version, description, "
+        "db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
 
     std::cout << " ### 2 getId from FEConfigMainInfo = " << result->getId() << std::endl;
 
