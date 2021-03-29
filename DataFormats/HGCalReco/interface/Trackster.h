@@ -20,6 +20,8 @@ namespace ticl {
   public:
     typedef math::XYZVector Vector;
 
+    enum iterationIndex { TRKEM = 0, EM, TRKHAD, HAD, MIP };
+
     // types considered by the particle identification
     enum class ParticleType {
       photon = 0,
@@ -50,6 +52,7 @@ namespace ticl {
       zeroProbabilities();
     }
 
+    inline void setIteration(const Trackster::iterationIndex i) { iterationIndex_ = i; }
     std::vector<unsigned int> &vertices() { return vertices_; }
     std::vector<uint8_t> &vertex_multiplicity() { return vertex_multiplicity_; }
     std::vector<std::array<unsigned int, 2> > &edges() { return edges_; }
@@ -113,6 +116,7 @@ namespace ticl {
     }
     inline void setIdProbability(ParticleType type, float value) { id_probabilities_[int(type)] = 1.f; }
 
+    inline const Trackster::iterationIndex ticlIteration() const { return (iterationIndex)iterationIndex_; }
     inline const std::vector<unsigned int> &vertices() const { return vertices_; }
     inline const unsigned int vertices(int index) const { return vertices_[index]; }
     inline const std::vector<uint8_t> &vertex_multiplicity() const { return vertex_multiplicity_; }
@@ -143,6 +147,9 @@ namespace ticl {
     }
 
   private:
+    // TICL iteration producing the trackster
+    uint8_t iterationIndex_;
+
     // The vertices of the DAG are the indices of the
     // 2d objects in the global collection
     std::vector<unsigned int> vertices_;

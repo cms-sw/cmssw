@@ -179,8 +179,19 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   std::copy(
       std::begin(original_layerclusters_mask), std::end(original_layerclusters_mask), std::back_inserter(*output_mask));
 
-  // Mask the used elements, accordingly
-  for (auto const& trackster : *result) {
+  for (auto& trackster : *result) {
+    if (itername_ == "TrkEM")
+      trackster.setIteration(ticl::Trackster::TRKEM);
+    else if (itername_ == "EM")
+      trackster.setIteration(ticl::Trackster::EM);
+    else if (itername_ == "TRK")
+      trackster.setIteration(ticl::Trackster::TRKHAD);
+    else if (itername_ == "HADRONIC")
+      trackster.setIteration(ticl::Trackster::HAD);
+    else if (itername_ == "MIP")
+      trackster.setIteration(ticl::Trackster::MIP);
+
+    // Mask the used elements, accordingly
     for (auto const v : trackster.vertices()) {
       // TODO(rovere): for the moment we mask the layer cluster completely. In
       // the future, properly compute the fraction of usage.
