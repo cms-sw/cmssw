@@ -129,8 +129,7 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
   produces<std::vector<TICLCandidate>>();
 }
 
-void TrackstersMergeProducer::fillTile(TICLTracksterTiles &tracksterTile,
-                                       const std::vector<Trackster> &tracksters) {
+void TrackstersMergeProducer::fillTile(TICLTracksterTiles &tracksterTile, const std::vector<Trackster> &tracksters) {
   int tracksterId = 0;
   for (auto const &t : tracksters) {
     tracksterTile.fill(t.ticlIteration(), t.barycenter().eta(), t.barycenter().phi(), tracksterId);
