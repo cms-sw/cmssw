@@ -51,7 +51,7 @@ process.load("Validation.MtdValidation.etlLocalReco_cfi")
 etlValidation = cms.Sequence(process.etlSimHits + process.etlDigiHits + process.etlLocalReco)
 
 # --- Global Validation
-process.load("Validation.MtdValidation.globalReco_cfi")
+process.load("Validation.MtdValidation.mtdTracks_cfi")
 
 process.DQMStore = cms.Service("DQMStore")
 
