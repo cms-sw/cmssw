@@ -32,9 +32,9 @@ public:
   static void globalEndJob(TrackstersCache *);
 
 private:
-  typedef ticl::Trackster::iterationIndex TracksterIterIndex;
+  typedef ticl::Trackster::IterationIndex TracksterIterIndex;
 
-  void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &);
+  void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
   void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, std::vector<Trackster> &result) const;
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
@@ -129,14 +129,16 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
   produces<std::vector<TICLCandidate>>();
 }
 
-void TrackstersMergeProducer::fillTile(TICLTracksterTiles &tracksterTile, const std::vector<Trackster> &tracksters) {
+void TrackstersMergeProducer::fillTile(TICLTracksterTiles &tracksterTile,
+                                       const std::vector<Trackster> &tracksters,
+                                       TracksterIterIndex tracksterIteration) {
   int tracksterId = 0;
   for (auto const &t : tracksters) {
-    tracksterTile.fill(t.ticlIteration(), t.barycenter().eta(), t.barycenter().phi(), tracksterId);
+    tracksterTile.fill(tracksterIteration, t.barycenter().eta(), t.barycenter().phi(), tracksterId);
     LogDebug("TrackstersMergeProducer") << "Adding tracksterId: " << tracksterId << " into bin [eta,phi]: [ "
-                                        << tracksterTile[t.ticlIteration()].etaBin(t.barycenter().eta()) << ", "
-                                        << tracksterTile[t.ticlIteration()].phiBin(t.barycenter().phi())
-                                        << "] for iteration: " << t.ticlIteration() << std::endl;
+                                        << tracksterTile[tracksterIteration].etaBin(t.barycenter().eta()) << ", "
+                                        << tracksterTile[tracksterIteration].phiBin(t.barycenter().phi())
+                                        << "] for iteration: " << tracksterIteration << std::endl;
 
     tracksterId++;
   }
@@ -213,10 +215,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   const auto &seedingTrk = *seedingTrk_h;
   usedSeeds.resize(tracks.size(), false);
 
-  fillTile(tracksterTile, trackstersTRKEM);
-  fillTile(tracksterTile, trackstersEM);
-  fillTile(tracksterTile, trackstersTRK);
-  fillTile(tracksterTile, trackstersHAD);
+  fillTile(tracksterTile, trackstersTRKEM, TracksterIterIndex::TRKEM);
+  fillTile(tracksterTile, trackstersEM, TracksterIterIndex::EM);
+  fillTile(tracksterTile, trackstersTRK, TracksterIterIndex::TRKHAD);
+  fillTile(tracksterTile, trackstersHAD, TracksterIterIndex::HAD);
 
   auto totalNumberOfTracksters =
       trackstersTRKEM.size() + trackstersTRK.size() + trackstersEM.size() + trackstersHAD.size();
