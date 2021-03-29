@@ -65,9 +65,6 @@
 // class declaration
 //
 
-using namespace std;
-using namespace edm;
-
 enum OperationMode { MODE_ANALYZE = 0, MODE_REMAP = 1 };
 
 class SiPixelPhase1Analyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
@@ -81,8 +78,8 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void BookHistograms();
 
-  void BookBarrelHistograms(TDirectory* currentDir, const string& currentHistoName);
-  void BookForwardHistograms(TDirectory* currentDir, const string& currentHistoName);
+  void BookBarrelHistograms(TDirectory* currentDir, const std::string& currentHistoName);
+  void BookForwardHistograms(TDirectory* currentDir, const std::string& currentHistoName);
 
   void BookBins(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt);
   void BookBarrelBins(const TrackerGeometry& theTrackerGeometry, const TrackerTopology* tt);
@@ -114,27 +111,27 @@ private:
 
   edm::EDGetTokenT<reco::TrackCollection> tracksToken;
 
-  string debugFileName;
+  std::string debugFileName;
   std::ofstream debugFile;
 
   edm::Service<TFileService> fs;
 
   bool firstEvent;
 
-  map<uint32_t, TGraph*> bins, binsSummary;
+  std::map<uint32_t, TGraph*> bins, binsSummary;
 
-  map<string, vector<TH2Poly*> > th2PolyBarrel;
-  map<string, TH2Poly*> th2PolyBarrelSummary;
+  std::map<std::string, std::vector<TH2Poly*> > th2PolyBarrel;
+  std::map<std::string, TH2Poly*> th2PolyBarrelSummary;
 
 #ifdef DEBUG_MODE
-  map<string, vector<TH2*> > th2PolyBarrelDebug;
+  std::map<std::string, std::vector<TH2*> > th2PolyBarrelDebug;
 #endif
 
-  map<string, vector<TH2Poly*> > pxfTh2PolyForward;
-  map<string, TH2Poly*> pxfTh2PolyForwardSummary;
+  std::map<std::string, std::vector<TH2Poly*> > pxfTh2PolyForward;
+  std::map<std::string, TH2Poly*> pxfTh2PolyForwardSummary;
 
 #ifdef DEBUG_MODE
-  map<string, vector<TH2*> > pxfTh2PolyForwardDebug;
+  std::map<std::string, std::vector<TH2*> > pxfTh2PolyForwardDebug;
 #endif
 
   mat4 orthoProjectionMatrix;
@@ -145,22 +142,22 @@ private:
   };
   // used to hold information about elements': ids & matrices which are of the same side, disk and barrel but different panel
   // to build trapezoidal ring elements
-  map<unsigned short, complementaryElements> mapOfComplementaryElements;
+  std::map<unsigned short, complementaryElements> mapOfComplementaryElements;
 
   //Input root file handle;
   TFile* rootFileHandle;
 
   // read input histograms
-  vector<unsigned> isBarrelSource;
-  vector<string> analazedRootFileName;
-  vector<string> pathToHistograms;
-  vector<string> baseHistogramName;
+  std::vector<unsigned> isBarrelSource;
+  std::vector<std::string> analazedRootFileName;
+  std::vector<std::string> pathToHistograms;
+  std::vector<std::string> baseHistogramName;
 
   // temporal functionality
   void SaveDetectorData(bool isBarrel, unsigned rawId, int shell_hc, int layer_disk, int ladder_blade) {
-    static std::ofstream file("det.data", std::ofstream::out);
+    std::ofstream file("det.data", std::ofstream::out);
 
-    file << isBarrel << "\t" << rawId << "\t" << shell_hc << "\t" << layer_disk << "\t" << ladder_blade << endl;
+    file << isBarrel << "\t" << rawId << "\t" << shell_hc << "\t" << layer_disk << "\t" << ladder_blade << std::endl;
   }
 };
 

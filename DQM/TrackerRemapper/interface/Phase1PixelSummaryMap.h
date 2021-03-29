@@ -2,12 +2,13 @@
 #define DQM_TRACKERREMAPPER_PHASE1PIXELSUMMARYMAP_H
 
 #include "TArrow.h"
-#include "TH2Poly.h"
+#include "TCanvas.h"
 #include "TGraph.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TH2Poly.h"
+#include "TLatex.h"
 #include "TStyle.h"
-#include "TCanvas.h"
 
 #include <fmt/printf.h>
 #include <fstream>
@@ -15,6 +16,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
@@ -244,11 +246,11 @@ protected:
         yP.push_back(yP[0]);
 
         LOGDEBUG("Phase1PixelSummaryMap") << detId << "[";
-        for (auto p : xP) {
+        for (const auto& p : xP) {
           LOGDEBUG("Phase1PixelSummaryMap") << p << ",";
         }
         LOGDEBUG("Phase1PixelSummaryMap") << "] [ ";
-        for (auto q : yP) {
+        for (const auto& q : yP) {
           LOGDEBUG("Phase1PixelSummaryMap") << q << ",";
         }
         LOGDEBUG("Phase1PixelSummaryMap") << "]" << std::endl;

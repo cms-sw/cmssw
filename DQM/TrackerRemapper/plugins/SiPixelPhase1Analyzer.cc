@@ -6,6 +6,9 @@
 
 #include "DQM/TrackerRemapper/interface/SiPixelPhase1Analyzer.h"
 
+using namespace std;
+using namespace edm;
+
 SiPixelPhase1Analyzer::SiPixelPhase1Analyzer(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes()),
       topoToken_(esConsumes()),
@@ -404,10 +407,11 @@ void SiPixelPhase1Analyzer::BookForwardBins(const TrackerGeometry& theTrackerGeo
     mat4 meanTransform = (i.second.mat[0] + i.second.mat[1]) * 0.5f;
     // mat4 meanTransform = i.second.mat[0];
 
-    static float baseVertX[4] = {-elemWidth * 0.8f, -elemWidth * 0.5f, elemWidth * 0.8f, elemWidth * 0.5f};
-    static float baseVertY[4] = {elemLength * 0.38f, -elemLength * 0.38f, elemLength * 0.38f, -elemLength * 0.38f};
+    static const float baseVertX[4] = {-elemWidth * 0.8f, -elemWidth * 0.5f, elemWidth * 0.8f, elemWidth * 0.5f};
+    static const float baseVertY[4] = {
+        elemLength * 0.38f, -elemLength * 0.38f, elemLength * 0.38f, -elemLength * 0.38f};
 
-    static float vertXPanel[2][4], vertYPanel[2][4];
+    float vertXPanel[2][4], vertYPanel[2][4];
     float vertIn[3], vertOut[3];
 
     /*				

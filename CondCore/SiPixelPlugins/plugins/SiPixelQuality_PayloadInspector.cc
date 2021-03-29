@@ -100,6 +100,7 @@ namespace {
 
       //=========================
       TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
+      SiPixelPI::displayNotSupported(canvas, 0);
       canvas.cd();
       canvas.SetBottomMargin(0.11);
       canvas.SetLeftMargin(0.13);

@@ -32,15 +32,16 @@
 
 namespace templateHelper {
 
-  using namespace cond::payloadInspector;
-
   //************************************************
   // Display of Template/GenError Titles
   // *************************************************/
   template <class PayloadType, class StoreType, class TransientType>
-  class SiPixelTitles_Display : public PlotImage<PayloadType, SINGLE_IOV> {
+  class SiPixelTitles_Display
+      : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiPixelTitles_Display() : PlotImage<PayloadType, SINGLE_IOV>("Table of SiPixelTemplate/GenError titles") {
+    SiPixelTitles_Display()
+        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
+              "Table of SiPixelTemplate/GenError titles") {
       if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
         isTemplate_ = false;
         label_ = "SiPixelGenErrorDBObject_PayloadInspector";
@@ -51,7 +52,7 @@ namespace templateHelper {
     }
 
     bool fill() override {
-      auto tag = PlotBase::getTag<0>();
+      auto tag = cond::payloadInspector::PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
       auto tagname = tag.name;
       std::vector<StoreType> thePixelTemp_;
@@ -136,7 +137,7 @@ namespace templateHelper {
         std::string fileName(this->m_imageFileName);
         canvas.SaveAs(fileName.c_str());
 
-      }  // if paylaod.get()
+      }  // if payload.get()
       return true;
     }
 
@@ -149,9 +150,11 @@ namespace templateHelper {
   // header plotting
   *************************************************/
   template <class PayloadType, class StoreType, class TransientType>
-  class SiPixelHeaderTable : public PlotImage<PayloadType, SINGLE_IOV> {
+  class SiPixelHeaderTable : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiPixelHeaderTable() : PlotImage<PayloadType, SINGLE_IOV>("SiPixel CPE Conditions Header summary") {
+    SiPixelHeaderTable()
+        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixel CPE Conditions Header summary") {
       if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
         isTemplate_ = false;
         label_ = "SiPixelGenErrorDBObject_PayloadInspector";
@@ -165,7 +168,7 @@ namespace templateHelper {
       gStyle->SetHistMinimumZero();  // will display zero as zero in the text map
       gStyle->SetPalette(kMint);     // for the ghost plot (colored BPix and FPix bins)
 
-      auto tag = PlotBase::getTag<0>();
+      auto tag = cond::payloadInspector::PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
       auto tagname = tag.name;
       std::vector<StoreType> thePixelTemp_;
@@ -305,9 +308,11 @@ namespace templateHelper {
   // TH2Poly Map of IDs
   //***********************************************/
   template <class PayloadType, SiPixelPI::DetType myType>
-  class SiPixelIDs : public PlotImage<PayloadType, SINGLE_IOV> {
+  class SiPixelIDs : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiPixelIDs() : PlotImage<PayloadType, SINGLE_IOV>("SiPixelMap of Template / GenError ID Values") {
+    SiPixelIDs()
+        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixelMap of Template / GenError ID Values") {
       if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
         isTemplate_ = false;
         label_ = "SiPixelGenErrorDBObject_PayloadInspector";
@@ -320,7 +325,7 @@ namespace templateHelper {
     bool fill() override {
       gStyle->SetPalette(kRainBow);
 
-      auto tag = PlotBase::getTag<0>();
+      auto tag = cond::payloadInspector::PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
       std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));
 
@@ -410,9 +415,12 @@ namespace templateHelper {
    Full Pixel Tracker Map class
   *************************************************/
   template <class PayloadType, class StoreType, class TransientType>
-  class SiPixelFullPixelMap : public PlotImage<PayloadType, SINGLE_IOV> {
+  class SiPixelFullPixelMap
+      : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiPixelFullPixelMap() : PlotImage<PayloadType, SINGLE_IOV>("SiPixel CPE conditions Map of IDs") {
+    SiPixelFullPixelMap()
+        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixel CPE conditions Map of IDs") {
       if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
         isTemplate_ = false;
         label_ = "SiPixelGenErrorDBObject_PayloadInspector";
@@ -424,7 +432,7 @@ namespace templateHelper {
 
     bool fill() override {
       gStyle->SetPalette(1);
-      auto tag = PlotBase::getTag<0>();
+      auto tag = cond::payloadInspector::PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
       std::vector<StoreType> thePixelTemp_;
       std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));

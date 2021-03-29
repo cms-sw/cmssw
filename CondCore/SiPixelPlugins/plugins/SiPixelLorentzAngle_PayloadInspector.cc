@@ -34,16 +34,17 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   /************************************************
     1d histogram of SiPixelLorentzAngle of 1 IOV 
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
-  class SiPixelLorentzAngleValue
-      : public cond::payloadInspector::Histogram1D<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelLorentzAngleValue : public Histogram1D<SiPixelLorentzAngle, SINGLE_IOV> {
   public:
     SiPixelLorentzAngleValue()
-        : cond::payloadInspector::Histogram1D<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
+        : Histogram1D<SiPixelLorentzAngle, SINGLE_IOV>(
               "SiPixel LorentzAngle values", "SiPixel LorentzAngle values", 100, 0.0, 0.1) {}
 
     bool fill() override {
@@ -65,12 +66,9 @@ namespace {
   /************************************************
     1d histogram of SiPixelLorentzAngle of 1 IOV 
   *************************************************/
-  class SiPixelLorentzAngleValues
-      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelLorentzAngleValues : public PlotImage<SiPixelLorentzAngle, SINGLE_IOV> {
   public:
-    SiPixelLorentzAngleValues()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelLorentzAngle Values") {}
+    SiPixelLorentzAngleValues() : PlotImage<SiPixelLorentzAngle, SINGLE_IOV>("SiPixelLorentzAngle Values") {}
 
     bool fill() override {
       gStyle->SetOptStat("emr");
@@ -140,12 +138,10 @@ namespace {
     1d histogram of SiPixelLorentzAngle of 1 IOV per region
   *************************************************/
   template <bool isBarrel>
-  class SiPixelLorentzAngleValuesPerRegion
-      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelLorentzAngleValuesPerRegion : public PlotImage<SiPixelLorentzAngle, SINGLE_IOV> {
   public:
     SiPixelLorentzAngleValuesPerRegion()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelLorentzAngle Values per region") {}
+        : PlotImage<SiPixelLorentzAngle, SINGLE_IOV>("SiPixelLorentzAngle Values per region") {}
 
     bool fill() override {
       gStyle->SetOptStat("emr");
@@ -233,20 +229,19 @@ namespace {
   /************************************************
     1d histogram of SiPixelLorentzAngle of 2 IOV per region
   *************************************************/
-  template <bool isBarrel, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
-  class SiPixelLorentzAngleValuesComparisonPerRegion
-      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags> {
+  template <bool isBarrel, IOVMultiplicity nIOVs, int ntags>
+  class SiPixelLorentzAngleValuesComparisonPerRegion : public PlotImage<SiPixelLorentzAngle, nIOVs, ntags> {
   public:
     SiPixelLorentzAngleValuesComparisonPerRegion()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(
+        : PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(
               Form("SiPixelLorentzAngle Values Comparisons per region %i tag(s)", ntags)) {}
 
     bool fill() override {
       gStyle->SetOptStat("emr");
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
       std::string l_tagname = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
@@ -255,8 +250,8 @@ namespace {
       assert(this->m_plotAnnotations.ntags < 3);
 
       if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -399,22 +394,22 @@ namespace {
   };
 
   using SiPixelLorentzAngleValuesBarrelCompareSingleTag =
-      SiPixelLorentzAngleValuesComparisonPerRegion<true, cond::payloadInspector::MULTI_IOV, 1>;
+      SiPixelLorentzAngleValuesComparisonPerRegion<true, MULTI_IOV, 1>;
   using SiPixelLorentzAngleValuesEndcapCompareSingleTag =
-      SiPixelLorentzAngleValuesComparisonPerRegion<false, cond::payloadInspector::MULTI_IOV, 1>;
+      SiPixelLorentzAngleValuesComparisonPerRegion<false, MULTI_IOV, 1>;
 
   using SiPixelLorentzAngleValuesBarrelCompareTwoTags =
-      SiPixelLorentzAngleValuesComparisonPerRegion<true, cond::payloadInspector::SINGLE_IOV, 2>;
+      SiPixelLorentzAngleValuesComparisonPerRegion<true, SINGLE_IOV, 2>;
   using SiPixelLorentzAngleValuesEndcapCompareTwoTags =
-      SiPixelLorentzAngleValuesComparisonPerRegion<false, cond::payloadInspector::SINGLE_IOV, 2>;
+      SiPixelLorentzAngleValuesComparisonPerRegion<false, SINGLE_IOV, 2>;
 
   /************************************************
     1d histogram of SiPixelLorentzAngle of 1 IOV 
   *************************************************/
-  class SiPixelLorentzAngleValueComparisonBase : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  class SiPixelLorentzAngleValueComparisonBase : public PlotImage<SiPixelLorentzAngle> {
   public:
     SiPixelLorentzAngleValueComparisonBase()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Values Comparison") {}
+        : PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Values Comparison") {}
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
       TH1F::SetDefaultSumw2(true);
       std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
@@ -526,20 +521,19 @@ namespace {
   /************************************************
    Summary Comparison per region of SiPixelLorentzAngle between 2 IOVs
   *************************************************/
-  template <cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
-  class SiPixelLorentzAngleByRegionComparisonBase
-      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags> {
+  template <IOVMultiplicity nIOVs, int ntags>
+  class SiPixelLorentzAngleByRegionComparisonBase : public PlotImage<SiPixelLorentzAngle, nIOVs, ntags> {
   public:
     SiPixelLorentzAngleByRegionComparisonBase()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(
+        : PlotImage<SiPixelLorentzAngle, nIOVs, ntags>(
               Form("SiPixelLorentzAngle Comparison by Region %i tag(s)", ntags)) {}
 
     bool fill() override {
       gStyle->SetPaintTextFormat(".3f");
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
       std::string l_tagname = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
@@ -548,8 +542,8 @@ namespace {
       assert(this->m_plotAnnotations.ntags < 3);
 
       if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -742,21 +736,17 @@ namespace {
     }
   };
 
-  using SiPixelLorentzAngleByRegionComparisonSingleTag =
-      SiPixelLorentzAngleByRegionComparisonBase<cond::payloadInspector::MULTI_IOV, 1>;
-  using SiPixelLorentzAngleByRegionComparisonTwoTags =
-      SiPixelLorentzAngleByRegionComparisonBase<cond::payloadInspector::SINGLE_IOV, 2>;
+  using SiPixelLorentzAngleByRegionComparisonSingleTag = SiPixelLorentzAngleByRegionComparisonBase<MULTI_IOV, 1>;
+  using SiPixelLorentzAngleByRegionComparisonTwoTags = SiPixelLorentzAngleByRegionComparisonBase<SINGLE_IOV, 2>;
 
   /************************************************
    occupancy style map BPix
   *************************************************/
 
-  class SiPixelBPixLorentzAngleMap
-      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelBPixLorentzAngleMap : public PlotImage<SiPixelLorentzAngle, SINGLE_IOV> {
   public:
     SiPixelBPixLorentzAngleMap()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelLorentzAngle Barrel Pixel Map"),
+        : PlotImage<SiPixelLorentzAngle, SINGLE_IOV>("SiPixelLorentzAngle Barrel Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
 
@@ -846,12 +836,10 @@ namespace {
    occupancy style map FPix
   *************************************************/
 
-  class SiPixelFPixLorentzAngleMap
-      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelFPixLorentzAngleMap : public PlotImage<SiPixelLorentzAngle, SINGLE_IOV> {
   public:
     SiPixelFPixLorentzAngleMap()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelLorentzAngle Forward Pixel Map"),
+        : PlotImage<SiPixelLorentzAngle, SINGLE_IOV>("SiPixelLorentzAngle Forward Pixel Map"),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
 
@@ -940,12 +928,9 @@ namespace {
   /************************************************
    Full Pixel Tracker Map class
   *************************************************/
-  class SiPixelLorentzAngleFullPixelMap
-      : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV> {
+  class SiPixelLorentzAngleFullPixelMap : public PlotImage<SiPixelLorentzAngle, SINGLE_IOV> {
   public:
-    SiPixelLorentzAngleFullPixelMap()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle, cond::payloadInspector::SINGLE_IOV>(
-              "SiPixelLorentzAngle Map") {
+    SiPixelLorentzAngleFullPixelMap() : PlotImage<SiPixelLorentzAngle, SINGLE_IOV>("SiPixelLorentzAngle Map") {
       label_ = "SiPixelLorentzAngleFullPixelMap";
       payloadString = "Lorentz Angle";
     }
