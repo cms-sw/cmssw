@@ -171,6 +171,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
           break;
       }
   }
+
   switch (idtype) {
     case hgcee:
       rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_));
