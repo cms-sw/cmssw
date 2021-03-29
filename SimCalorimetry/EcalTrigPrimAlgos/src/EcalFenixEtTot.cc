@@ -30,9 +30,9 @@ void EcalFenixEtTot::process(std::vector<std::vector<int>> &bypasslinout,
         output = mask;
       // Check the oddeven flag to assign the amplitude to the correct sum
       // If the feature is off in the strip fenix the bit will be always 0 and only the even sum will be summed
-      if ( (bypasslinout[istrip][i] >> bitOddEven) & 1 ){
+      if ((bypasslinout[istrip][i] >> bitOddEven) & 1) {
         output_odd[i] += output;
-      }else{
+      } else {
         output_even[i] += output;
       }
     }

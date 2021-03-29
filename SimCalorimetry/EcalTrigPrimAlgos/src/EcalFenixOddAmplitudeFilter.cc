@@ -10,7 +10,6 @@
 EcalFenixOddAmplitudeFilter::EcalFenixOddAmplitudeFilter(bool TPinfoPrintout)
     : inputsAlreadyIn_(0), stripid_{0}, shift_(6), TPinfoPrintout_(TPinfoPrintout) {}
 
-
 EcalFenixOddAmplitudeFilter::~EcalFenixOddAmplitudeFilter() {}
 
 int EcalFenixOddAmplitudeFilter::setInput(int input) {
@@ -30,8 +29,7 @@ int EcalFenixOddAmplitudeFilter::setInput(int input) {
   return 1;
 }
 
-void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout,
-                                       std::vector<int> &output) {
+void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout, std::vector<int> &output) {
   // test
   inputsAlreadyIn_ = 0;
   for (unsigned int i = 0; i < 5; i++) {
@@ -40,13 +38,13 @@ void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout,
   // test end
 
   for (unsigned int i = 0; i < addout.size(); i++) {
-
     // Only save TP info for Clock i >= 4 (from 0-9) because first 5 digis required to produce first ET value
-    if (i>=4){
-      if(TPinfoPrintout_) std::cout<<i<<std::dec;
+    if (i >= 4) {
+      if (TPinfoPrintout_)
+        std::cout << i << std::dec;
     }
     setInput(addout[i]);
-    process(); // This should probably be renamed to something meaningful and not the same as the very function it's being called in...
+    process();  // This should probably be renamed to something meaningful and not the same as the very function it's being called in...
     output[i] = processedOutput_;
   }
   // shift the result by 1!
@@ -78,25 +76,27 @@ void EcalFenixOddAmplitudeFilter::process() {
   processedOutput_ = output;
 
   // by RK
-  if(TPinfoPrintout_){
-    std::cout<<" "<<stripid_;
+  if (TPinfoPrintout_) {
+    std::cout << " " << stripid_;
     for (int i = 0; i < 5; i++) {
-      std::cout<<" "<<weights_[i]<<std::dec;}
+      std::cout << " " << weights_[i] << std::dec;
+    }
     for (int i = 0; i < 5; i++) {
-      std::cout<<" "<<weights_[i]/64.0<<std::dec;}
+      std::cout << " " << weights_[i] / 64.0 << std::dec;
+    }
     for (int i = 0; i < 5; i++) {
-      std::cout<<" "<<buffer_[i]<<std::dec;} // Digis
+      std::cout << " " << buffer_[i] << std::dec;
+    }  // Digis
     std::cout << " --> output: " << output;
     std::cout << " ODD";
-    std::cout<<std::endl;
+    std::cout << std::endl;
   }
 }
 
 void EcalFenixOddAmplitudeFilter::setParameters(uint32_t raw,
-                                             const EcalTPGOddWeightIdMap *ecaltpgOddWeightMap,
-                                             const EcalTPGOddWeightGroup *ecaltpgOddWeightGroup) {
-
-  stripid_ = raw;    // by RK
+                                                const EcalTPGOddWeightIdMap *ecaltpgOddWeightMap,
+                                                const EcalTPGOddWeightGroup *ecaltpgOddWeightGroup) {
+  stripid_ = raw;  // by RK
   uint32_t params_[5];
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgOddWeightGroup->getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(raw);
@@ -111,7 +111,6 @@ void EcalFenixOddAmplitudeFilter::setParameters(uint32_t raw,
     // std::cout << "peak flag settings" << std::endl;
 
     for (int i = 0; i < 5; ++i) {
-
       weights_[i] = (params_[i] & 0x40) ? (int)(params_[i] | 0xffffffc0) : (int)(params_[i]);
       //std::cout << "ODD weight: "<<  std::dec << params_[i] << " --> " << std::dec << weights_[i] << std::endl;
       // Construct the peakFlag for sFGVB processing
@@ -122,5 +121,4 @@ void EcalFenixOddAmplitudeFilter::setParameters(uint32_t raw,
     // std::cout << std::endl;
   } else
     edm::LogWarning("EcalTPG") << " could not find EcalTPGGroupsMap entry for " << raw;
-
 }

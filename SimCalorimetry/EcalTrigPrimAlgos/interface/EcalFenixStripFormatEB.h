@@ -1,7 +1,6 @@
 #ifndef ECAL_FENIX_STRIP_FORMAT_EB_H
 #define ECAL_FENIX_STRIP_FORMAT_EB_H
 
-
 #include <cstdint>
 #include <vector>
 
@@ -25,7 +24,7 @@ private:
   int input_even_;
   int input_odd_;
   uint32_t shift_;
-  const EcalTPGTPMode * ecaltpgTPMode_;
+  const EcalTPGTPMode *ecaltpgTPMode_;
   //  int buffer_;
 
   int setInput(int input_even, int inputEvenPeak, int input_odd, int inputOddPeak, int inputsFGVB);
@@ -35,11 +34,11 @@ public:
   EcalFenixStripFormatEB();
   virtual ~EcalFenixStripFormatEB();
   virtual void process(std::vector<int> &sFGVBout,
-                      std::vector<int> &peakout_even,
-                      std::vector<int> &filtout_even,
-                      std::vector<int> &peakout_odd,
-                      std::vector<int> &filtout_odd,
-                      std::vector<int> &output);
-  void setParameters(uint32_t &, const EcalTPGSlidingWindow *&, const EcalTPGTPMode* );
+                       std::vector<int> &peakout_even,
+                       std::vector<int> &filtout_even,
+                       std::vector<int> &peakout_odd,
+                       std::vector<int> &filtout_odd,
+                       std::vector<int> &output);
+  void setParameters(uint32_t &, const EcalTPGSlidingWindow *&, const EcalTPGTPMode *);
 };
 #endif

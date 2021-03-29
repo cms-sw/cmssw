@@ -31,7 +31,12 @@ class EcalTPGTPMode;
 class EcalFenixStrip {
 public:
   // constructor, destructor
-  EcalFenixStrip(const EcalElectronicsMapping *theMapping, bool debug, bool famos, int maxNrSamples, int nbMaxXtals, bool TPinfoPrintout);
+  EcalFenixStrip(const EcalElectronicsMapping *theMapping,
+                 bool debug,
+                 bool famos,
+                 int maxNrSamples,
+                 int nbMaxXtals,
+                 bool TPinfoPrintout);
   virtual ~EcalFenixStrip();
 
 private:
@@ -84,7 +89,7 @@ private:
   const EcalTPGFineGrainStripEE *ecaltpgFgStripEE_;
   const EcalTPGCrystalStatus *ecaltpgBadX_;
   const EcalTPGStripStatus *ecaltpgStripStatus_;
-  const EcalTPGTPMode * ecaltpgTPMode_;
+  const EcalTPGTPMode *ecaltpgTPMode_;
 
   bool identif_;
 
@@ -99,7 +104,7 @@ public:
                    const EcalTPGFineGrainStripEE *ecaltpgFgStripEE,
                    const EcalTPGCrystalStatus *ecaltpgBadX,
                    const EcalTPGStripStatus *ecaltpgStripStatus,
-                   const EcalTPGTPMode * ecaltpgTPMode) {
+                   const EcalTPGTPMode *ecaltpgTPMode) {
     ecaltpPed_ = ecaltpPed;
     ecaltpLin_ = ecaltpLin;
     ecaltpgWeightMap_ = ecaltpgWeightMap;
@@ -116,19 +121,19 @@ public:
   // main methods
   void process(std::vector<EBDataFrame> &samples, int nrXtals, std::vector<int> &out);
   void process(std::vector<EEDataFrame> &samples, int nrXtals, std::vector<int> &out);
-  
+
   template <class T>
-  void  process_part1(int identif,
-                    std::vector<T> &df,
-                    int nrXtals,
-                    uint32_t stripid,
-                    const EcalTPGPedestals *ecaltpPed,
-                    const EcalTPGLinearizationConst *ecaltpLin,
-                    const EcalTPGWeightIdMap *ecaltpgWeightMap,
-                    const EcalTPGWeightGroup *ecaltpgWeightGroup,
-                    const EcalTPGOddWeightIdMap *ecaltpgOddWeightMap,
-                    const EcalTPGOddWeightGroup *ecaltpgOddWeightGroup,
-                    const EcalTPGCrystalStatus *ecaltpBadX);
+  void process_part1(int identif,
+                     std::vector<T> &df,
+                     int nrXtals,
+                     uint32_t stripid,
+                     const EcalTPGPedestals *ecaltpPed,
+                     const EcalTPGLinearizationConst *ecaltpLin,
+                     const EcalTPGWeightIdMap *ecaltpgWeightMap,
+                     const EcalTPGWeightGroup *ecaltpgWeightGroup,
+                     const EcalTPGOddWeightIdMap *ecaltpgOddWeightMap,
+                     const EcalTPGOddWeightGroup *ecaltpgOddWeightGroup,
+                     const EcalTPGCrystalStatus *ecaltpBadX);
   // process method is splitted in 2 parts:
   //   the first one is overloaded, the same except input
   //   the second part is slightly different for barrel/endcap
@@ -156,6 +161,5 @@ public:
 
   void setbadStripMissing(bool flag) { identif_ = flag; }
   bool getbadStripMissing() const { return identif_; }
-
 };
 #endif

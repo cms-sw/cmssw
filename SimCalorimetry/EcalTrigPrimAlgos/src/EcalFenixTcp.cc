@@ -11,7 +11,8 @@
 
 #include <vector>
 //----------------------------------------------------------------------------------------
-EcalFenixTcp::EcalFenixTcp(bool tcpFormat, bool debug, bool famos, int binOfMax, int maxNrSamples, int nbMaxStrips,bool TPinfoPrintout)
+EcalFenixTcp::EcalFenixTcp(
+    bool tcpFormat, bool debug, bool famos, int binOfMax, int maxNrSamples, int nbMaxStrips, bool TPinfoPrintout)
     : debug_(debug), nbMaxStrips_(nbMaxStrips), TPinfoPrintout_(TPinfoPrintout) {
   bypasslin_.resize(nbMaxStrips_);
   for (int i = 0; i < nbMaxStrips_; i++)
@@ -59,7 +60,7 @@ void EcalFenixTcp::process(std::vector<EBDataFrame> &bid,  // dummy argument for
   int bitMask = 12;
   // The 14th bit is always used for the odd>even flag. If the flagging is off in the Strip fenix the feature will be not used.
   int bitOddEven = 13;
-  process_part1(tpframetow, nStr, bitMask,bitOddEven);
+  process_part1(tpframetow, nStr, bitMask, bitOddEven);
 
   process_part2_barrel(tpframetow,
                        nStr,
@@ -105,7 +106,6 @@ void EcalFenixTcp::process(std::vector<EEDataFrame> &bid,  // dummy argument for
 }
 //-----------------------------------------------------------------------------------------
 void EcalFenixTcp::process_part1(std::vector<std::vector<int>> &tpframetow, int nStr, int bitMask, int bitOddEven) {
-
   //     //call adder
   //     this->getAdder()->process(bypasslin_out_, nStr, bitMask,adder_out_);
   this->getAdder()->process(tpframetow, nStr, bitMask, bitOddEven, adder_even_out_, adder_odd_out_);
@@ -174,15 +174,16 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int>> &bypasslin
   // call formatter
   int eTTotShift = 2;
 
-  this->getFormatterEB()->setParameters(towid.rawId(), ecaltpgLutGroup, ecaltpgLut, ecaltpgBadTT, ecaltpgSpike, ecaltpgTPMode_);
-  this->getFormatterEB()->process(adder_even_out_, adder_odd_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, false);
+  this->getFormatterEB()->setParameters(
+      towid.rawId(), ecaltpgLutGroup, ecaltpgLut, ecaltpgBadTT, ecaltpgSpike, ecaltpgTPMode_);
+  this->getFormatterEB()->process(
+      adder_even_out_, adder_odd_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, false);
 
-  if(TPinfoPrintout_){
+  if (TPinfoPrintout_) {
     for (unsigned int i = 3; i < tcp_out.size(); i++) {
       std::cout << " " << i << " " << std::dec << tcp_out[i] << std::endl;
     }
   }
-
 
   if (debug_) {
     std::cout << "output of TCP formatter Barrel is a vector of size: " << std::dec << tcp_out.size() << std::endl;
@@ -220,15 +221,16 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int>> &bypasslin
   //  fgvbEE_->process(bypasslin_out_,nStr,bitMask,fgvb_out_);
   fgvbEE_->process(bypasslinout, nStr, bitMask, fgvb_out_);
 
-
   // call formatter
   int eTTotShift = 2;  // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!)
                        // so shift must be applied to just keep [11:2]
 
-  this->getFormatterEE()->setParameters(towid.rawId(), ecaltpgLutGroup, ecaltpgLut, ecaltpgbadTT, nullptr, ecaltpgTPMode_);
+  this->getFormatterEE()->setParameters(
+      towid.rawId(), ecaltpgLutGroup, ecaltpgLut, ecaltpgbadTT, nullptr, ecaltpgTPMode_);
 
   // Only the even sum is passed to the endcap formatter for the moment.
-  this->getFormatterEE()->process(adder_even_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, isInInnerRings);
+  this->getFormatterEE()->process(
+      adder_even_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, isInInnerRings);
   // this is a test:
   if (debug_) {
     std::cout << "output of TCP formatter(endcap) is a vector of size: " << std::dec << tcp_out.size() << std::endl;

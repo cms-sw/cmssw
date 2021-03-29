@@ -53,11 +53,15 @@ public:
                              bool tcpFormat,
                              bool debug,
                              bool famos,
-                            bool TPinfoPrintout);
+                             bool TPinfoPrintout);
 
   //barrel only
-  explicit EcalTrigPrimFunctionalAlgo(
-      const EcalElectronicsMapping *theMapping, int binofmax, bool tcpFormat, bool debug, bool famos, bool TPinfoPrintout);
+  explicit EcalTrigPrimFunctionalAlgo(const EcalElectronicsMapping *theMapping,
+                                      int binofmax,
+                                      bool tcpFormat,
+                                      bool debug,
+                                      bool famos,
+                                      bool TPinfoPrintout);
 
   virtual ~EcalTrigPrimFunctionalAlgo();
 
@@ -81,7 +85,7 @@ public:
                    const EcalTPGFineGrainStripEE *ecaltpgFgStripEE,
                    const EcalTPGCrystalStatus *ecaltpgBadX,
                    const EcalTPGStripStatus *ecaltpgStripStatus,
-                   const EcalTPGTPMode * ecaltpgTPMode) {
+                   const EcalTPGTPMode *ecaltpgTPMode) {
     estrip_->setPointers(ecaltpPed,
                          ecaltpLin,
                          ecaltpgWeightMap,
@@ -101,7 +105,7 @@ public:
                     const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,
                     const EcalTPGTowerStatus *ecaltpgBadTT,
                     const EcalTPGSpike *ecaltpgSpike,
-                    const EcalTPGTPMode * ecaltpgTPMode) {
+                    const EcalTPGTPMode *ecaltpgTPMode) {
     etcp_->setPointers(ecaltpgFgEBGroup,
                        ecaltpgLutGroup,
                        ecaltpgLut,
@@ -196,7 +200,7 @@ void EcalTrigPrimFunctionalAlgo::run_part2(
   estrip_->getFGVB()->setbadStripMissing(false);
 
   for (int itow = 0; itow < nrTowers_; ++itow) {
-    if(TPinfoPrintout_){
+    if (TPinfoPrintout_) {
       std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
       std::cout << "on Tower " << itow << " of " << nrTowers_ << std::endl;
     }
@@ -210,7 +214,7 @@ void EcalTrigPrimFunctionalAlgo::run_part2(
                                                             // size; nr of crystals/strip
 
       if ((towerMap[index])[i].first > 0) {
-         if(TPinfoPrintout_){
+        if (TPinfoPrintout_) {
           std::cout << "-------------------------------------------------" << std::endl;
           std::cout << "on Strip index " << i << std::endl;
         }

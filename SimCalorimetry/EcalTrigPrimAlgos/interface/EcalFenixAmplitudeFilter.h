@@ -18,7 +18,7 @@ class EcalFenixAmplitudeFilter {
 private:
   int peakFlag_[5];
   int inputsAlreadyIn_;
-  uint32_t stripid_; // by RK
+  uint32_t stripid_;  // by RK
   int buffer_[5];
   int fgvbBuffer_[5];
   int weights_[5];
