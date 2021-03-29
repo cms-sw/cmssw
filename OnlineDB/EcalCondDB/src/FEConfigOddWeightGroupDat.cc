@@ -41,8 +41,8 @@ void FEConfigOddWeightGroupDat::prepareWrite() noexcept(false) {
 }
 
 void FEConfigOddWeightGroupDat::writeDB(const EcalLogicID* ecid,
-                                     const FEConfigOddWeightGroupDat* item,
-                                     FEConfigOddWeightInfo* iconf) noexcept(false) {
+                                        const FEConfigOddWeightGroupDat* item,
+                                        FEConfigOddWeightInfo* iconf) noexcept(false) {
   this->checkConnection();
   this->checkPrepare();
 
@@ -73,7 +73,7 @@ void FEConfigOddWeightGroupDat::writeDB(const EcalLogicID* ecid,
 }
 
 void FEConfigOddWeightGroupDat::fetchData(map<EcalLogicID, FEConfigOddWeightGroupDat>* fillMap,
-                                       FEConfigOddWeightInfo* iconf) noexcept(false) {
+                                          FEConfigOddWeightInfo* iconf) noexcept(false) {
   this->checkConnection();
   fillMap->clear();
 
@@ -117,7 +117,7 @@ void FEConfigOddWeightGroupDat::fetchData(map<EcalLogicID, FEConfigOddWeightGrou
 }
 
 void FEConfigOddWeightGroupDat::writeArrayDB(const std::map<EcalLogicID, FEConfigOddWeightGroupDat>* data,
-                                          FEConfigOddWeightInfo* iconf) noexcept(false) {
+                                             FEConfigOddWeightInfo* iconf) noexcept(false) {
   this->checkConnection();
   this->checkPrepare();
 

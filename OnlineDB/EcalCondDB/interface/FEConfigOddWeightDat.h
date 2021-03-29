@@ -25,7 +25,8 @@ private:
 
   void writeDB(const EcalLogicID* ecid, const FEConfigOddWeightDat* item, FEConfigOddWeightInfo* iconf) noexcept(false);
 
-  void writeArrayDB(const std::map<EcalLogicID, FEConfigOddWeightDat>* data, FEConfigOddWeightInfo* iconf) noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, FEConfigOddWeightDat>* data,
+                    FEConfigOddWeightInfo* iconf) noexcept(false);
 
   void fetchData(std::map<EcalLogicID, FEConfigOddWeightDat>* fillMap, FEConfigOddWeightInfo* iconf) noexcept(false);
 

@@ -36,12 +36,15 @@ public:
 private:
   void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigOddWeightGroupDat* item, FEConfigOddWeightInfo* iconf) noexcept(false);
+  void writeDB(const EcalLogicID* ecid,
+               const FEConfigOddWeightGroupDat* item,
+               FEConfigOddWeightInfo* iconf) noexcept(false);
 
   void writeArrayDB(const std::map<EcalLogicID, FEConfigOddWeightGroupDat>* data,
                     FEConfigOddWeightInfo* iconf) noexcept(false);
 
-  void fetchData(std::map<EcalLogicID, FEConfigOddWeightGroupDat>* fillMap, FEConfigOddWeightInfo* iconf) noexcept(false);
+  void fetchData(std::map<EcalLogicID, FEConfigOddWeightGroupDat>* fillMap,
+                 FEConfigOddWeightInfo* iconf) noexcept(false);
 
   // User data
   int m_group_id;

@@ -14,25 +14,24 @@ FEConfigOddWeightModeDat::FEConfigOddWeightModeDat() {
   m_writeStmt = nullptr;
   m_readStmt = nullptr;
 
-  m_en_EB_flt=0;
-  m_en_EE_flt=0;
-  m_en_EB_pf=0;
-  m_en_EE_pf=0;
-  m_dis_EB_even_pf=0;
-  m_dis_EE_even_pf=0;
-  m_fe_EB_strout=0;
-  m_fe_EE_strout=0;
-  m_fe_EB_strib2=0;
-  m_fe_EE_strib2=0;
-  m_fe_EB_tcpout=0;
-  m_fe_EB_tcpib1=0;
-  m_fe_EE_tcpout=0;
-  m_fe_EE_tcpib1=0;
-  m_fe_par15=0;
-  m_fe_par16=0;
-  m_fe_par17=0;
-  m_fe_par18=0;
-
+  m_en_EB_flt = 0;
+  m_en_EE_flt = 0;
+  m_en_EB_pf = 0;
+  m_en_EE_pf = 0;
+  m_dis_EB_even_pf = 0;
+  m_dis_EE_even_pf = 0;
+  m_fe_EB_strout = 0;
+  m_fe_EE_strout = 0;
+  m_fe_EB_strib2 = 0;
+  m_fe_EE_strib2 = 0;
+  m_fe_EB_tcpout = 0;
+  m_fe_EB_tcpib1 = 0;
+  m_fe_EE_tcpout = 0;
+  m_fe_EE_tcpib1 = 0;
+  m_fe_par15 = 0;
+  m_fe_par16 = 0;
+  m_fe_par17 = 0;
+  m_fe_par18 = 0;
 }
 
 FEConfigOddWeightModeDat::~FEConfigOddWeightModeDat() {}
@@ -43,8 +42,12 @@ void FEConfigOddWeightModeDat::prepareWrite() noexcept(false) {
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL(
-			"INSERT INTO " + getTable() + " (wei2_conf_id, "
-        " enableEBOddFilter, enableEEOddFilter, enableEBOddPeakFinder,enableEEOddPeakFinder, disableEBEvenPeakFinder, DISABLEEEEVENPEAKFINDER, fenixEBStripOutput, fenixEEStripOutput, FenixEBStripInfoBit2, fenixEEStripInfobit2, EBfenixTcpOutput, EBfenixTCPInfobit1,EEFENIXTCPOUTPUT, EEFENIXTCPINFOBIT1 ,fenixpar15, fenixpar16, fenixpar17, fenixpar18  ) "
+        "INSERT INTO " + getTable() +
+        " (wei2_conf_id, "
+        " enableEBOddFilter, enableEEOddFilter, enableEBOddPeakFinder,enableEEOddPeakFinder, disableEBEvenPeakFinder, "
+        "DISABLEEEEVENPEAKFINDER, fenixEBStripOutput, fenixEEStripOutput, FenixEBStripInfoBit2, fenixEEStripInfobit2, "
+        "EBfenixTcpOutput, EBfenixTCPInfobit1,EEFENIXTCPOUTPUT, EEFENIXTCPINFOBIT1 ,fenixpar15, fenixpar16, "
+        "fenixpar17, fenixpar18  ) "
         "VALUES (:wei2_conf_id,  "
         " :w1, :w2, :w3, :w4, :w5, :w6, :w7, :w8, :w9, :w10, :w11, :w12, :w13, :w14, :w15 , :w16, :w17, :w18 )");
   } catch (SQLException& e) {
@@ -53,8 +56,8 @@ void FEConfigOddWeightModeDat::prepareWrite() noexcept(false) {
 }
 
 void FEConfigOddWeightModeDat::writeDB(const EcalLogicID* ecid,
-                                     const FEConfigOddWeightModeDat* item,
-                                     FEConfigOddWeightInfo* iconf) noexcept(false) {
+                                       const FEConfigOddWeightModeDat* item,
+                                       FEConfigOddWeightInfo* iconf) noexcept(false) {
   this->checkConnection();
   this->checkPrepare();
 
@@ -96,7 +99,7 @@ void FEConfigOddWeightModeDat::writeDB(const EcalLogicID* ecid,
 }
 
 void FEConfigOddWeightModeDat::fetchData(map<EcalLogicID, FEConfigOddWeightModeDat>* fillMap,
-                                       FEConfigOddWeightInfo* iconf) noexcept(false) {
+                                         FEConfigOddWeightInfo* iconf) noexcept(false) {
   this->checkConnection();
   fillMap->clear();
 
@@ -109,8 +112,13 @@ void FEConfigOddWeightModeDat::fetchData(map<EcalLogicID, FEConfigOddWeightModeD
 
   try {
     m_readStmt->setSQL(
-        "SELECT  enableEBOddFilter, enableEEOddFilter, enableEBOddPeakFinder,enableEEOddPeakFinder, disableEBEvenPeakFinder, DISABLEEEEVENPEAKFINDER, fenixEBStripOutput, fenixEBStripOutput, FenixEBStripInfoBit2, fenixEEStripInfobit2, EBfenixTcpOutput, EBfenixTCPInfobit1,EEFENIXTCPOUTPUT, EEFENIXTCPINFOBIT1 ,fenixpar15, fenixpar16, fenixpar17, fenixpar18  "
-        "FROM " + getTable()+ " d "
+        "SELECT  enableEBOddFilter, enableEEOddFilter, enableEBOddPeakFinder,enableEEOddPeakFinder, "
+        "disableEBEvenPeakFinder, DISABLEEEEVENPEAKFINDER, fenixEBStripOutput, fenixEBStripOutput, "
+        "FenixEBStripInfoBit2, fenixEEStripInfobit2, EBfenixTcpOutput, EBfenixTCPInfobit1,EEFENIXTCPOUTPUT, "
+        "EEFENIXTCPINFOBIT1 ,fenixpar15, fenixpar16, fenixpar17, fenixpar18  "
+        "FROM " +
+        getTable() +
+        " d "
         "WHERE wei2_conf_id = :wei2_conf_id ");
     m_readStmt->setInt(1, iconfID);
     ResultSet* rset = m_readStmt->executeQuery();
@@ -151,8 +159,7 @@ void FEConfigOddWeightModeDat::fetchData(map<EcalLogicID, FEConfigOddWeightModeD
 }
 
 void FEConfigOddWeightModeDat::writeArrayDB(const std::map<EcalLogicID, FEConfigOddWeightModeDat>* data,
-                                          FEConfigOddWeightInfo* iconf) noexcept(false) {
-
+                                            FEConfigOddWeightInfo* iconf) noexcept(false) {
   const EcalLogicID* channel;
   const FEConfigOddWeightModeDat* dataitem;
 
@@ -160,7 +167,6 @@ void FEConfigOddWeightModeDat::writeArrayDB(const std::map<EcalLogicID, FEConfig
   for (CI p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     dataitem = &(p->second);
-    writeDB( channel, dataitem, iconf);
+    writeDB(channel, dataitem, iconf);
   }
-
 }
