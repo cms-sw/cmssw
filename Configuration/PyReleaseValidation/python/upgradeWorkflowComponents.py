@@ -32,36 +32,12 @@ upgradeKeys[2026] = [
     '2026D49PU',
     '2026D60',
     '2026D60PU',
-    '2026D64',
-    '2026D64PU',
-    '2026D65',
-    '2026D65PU',
-    '2026D66',
-    '2026D66PU',
-    '2026D67',
-    '2026D67PU',
-    '2026D68',
-    '2026D68PU',
-    '2026D69',
-    '2026D69PU',
-    '2026D70',
-    '2026D70PU',
-    '2026D71',
-    '2026D71PU',
-    '2026D72',
-    '2026D72PU',
-    '2026D74',
-    '2026D74PU',
-    '2026D75',
-    '2026D75PU',
     '2026D76',
     '2026D76PU',
     '2026D77',
     '2026D77PU',
     '2026D78',
     '2026D78PU',
-    '2026D79',
-    '2026D79PU',
     '2026D80',
     '2026D80PU',
     '2026D81',
@@ -75,7 +51,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[20000,23200],[23600,28200],[28600,29800],[33400,33800],[50000,51000]]
+numWFConflict = [[20000,23200],[23600,28200],[28600,34600],[35800,36200],[50000,51000]]
 numWFAll={
     2017: [],
     2026: []
@@ -1178,85 +1154,6 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C10',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
-    '2026D64' : {
-        'Geom' : 'Extended2026D64',             # N.B.: Geometry with square 50x50 um2 pixels in the Inner Tracker.
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T22',
-        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
-        'Era' : 'Phase2C11T22',       # customized for square pixels
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D65' : {
-        'Geom' : 'Extended2026D65',             # N.B.: Geometry with 3D pixels in the Inner Tracker.
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T23',     # This symbolic GT has no pixel template / GenError informations.
-        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
-        'Era' : 'Phase2C11T23',           # customizes for 3D Pixels
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D66' : {
-        'Geom' : 'Extended2026D66',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D67' : {
-        'Geom' : 'Extended2026D67',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D68' : {
-        'Geom' : 'Extended2026D68',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D69' : {
-        'Geom' : 'Extended2026D69',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C12',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D70' : {
-        'Geom' : 'Extended2026D70',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D71' : {
-        'Geom' : 'Extended2026D71',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D72' : {
-        'Geom' : 'Extended2026D72',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11I13',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D74' : {
-        'Geom' : 'Extended2026D74',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D75' : {
-        'Geom' : 'Extended2026D75',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C11I13',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
     '2026D76' : {
         'Geom' : 'Extended2026D76',
         'HLTmenu': '@fake2',
@@ -1277,14 +1174,6 @@ upgradeProperties[2026] = {
         'GT' : 'auto:phase2_realistic_T22',
         'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
         'Era' : 'Phase2C11I13T22M9', # customized for square pixels and Muon M9
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D79' : {
-        'Geom' : 'Extended2026D79', # N.B.: Geometry with 3D pixels in the Inner Tracker.
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T23',
-        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
-        'Era' : 'Phase2C11I13T23M9', # customizes for 3D Pixels and Muon M9
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D80' : {
