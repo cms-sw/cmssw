@@ -16,7 +16,7 @@
 //
 //        This will plot the heistograms and save the canvases
 //
-// 
+//
 //   where:
 //
 //   fname   (std::string)     = file name of the input ROOT tree
