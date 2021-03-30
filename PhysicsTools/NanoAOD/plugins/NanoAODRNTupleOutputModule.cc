@@ -60,6 +60,8 @@ private:
 
   std::string m_fileName;
   std::string m_logicalFileName;
+  std::string m_compressionAlgorithm;
+  int m_compressionLevel;
   edm::ProcessHistoryRegistry m_processHistoryRegistry;
   edm::JobReport::Token m_jrToken;
 
@@ -98,6 +100,8 @@ NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& 
       edm::one::OutputModule<>(pset),
       m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
       m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
+      m_compressionAlgorithm(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
+      m_compressionLevel(pset.getUntrackedParameter<int>("compressionLevel")),
       m_processHistoryRegistry() {}
 
 NanoAODRNTupleOutputModule::~NanoAODRNTupleOutputModule() {}
@@ -135,7 +139,7 @@ bool NanoAODRNTupleOutputModule::isFileOpen() const {
 }
 
 void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
-  m_file = std::make_unique<TFile>(m_fileName.c_str(), "RECREATE");
+  m_file = std::make_unique<TFile>(m_fileName.c_str(), "RECREATE", "", m_compressionLevel);
   // todo check if m_file is valid?
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
@@ -150,6 +154,16 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());
+
+  if (m_compressionAlgorithm == "ZLIB") {
+    m_file->SetCompressionAlgorithm(ROOT::kZLIB);
+  } else if (m_compressionAlgorithm == "LZMA") {
+    m_file->SetCompressionAlgorithm(ROOT::kLZMA);
+  } else {
+    throw cms::Exception("Configuration")
+        << "NanoAODOutputModule configured with unknown compression algorithm '"
+	<< m_compressionAlgorithm << "'\n" << "Allowed compression algorithms are ZLIB and LZMA\n";
+  }
 
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InRun]) {
@@ -197,8 +211,10 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
   }
   m_tables.print();
   // todo use Append
+  RNTupleWriteOptions options;
+  options.SetCompression(m_file->GetCompressionSettings());
   m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
-    std::make_unique<RPageSinkFile>("Events", *m_file, RNTupleWriteOptions())
+    std::make_unique<RPageSinkFile>("Events", *m_file, options)
   );
 }
 
@@ -261,6 +277,9 @@ void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions
 
   desc.addUntracked<std::string>("fileName");
   desc.addUntracked<std::string>("logicalFileName", "");
+  desc.addUntracked<int>("compressionLevel", 9)->setComment("ROOT compression level of output file.");
+  desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")->setComment("Algorithm used to "
+    "compress data in the ROOT output file, allowed values are ZLIB and LZMA");
 
   const std::vector<std::string> keep = {"drop *",
                                          "keep nanoaodFlatTable_*Table_*_*",

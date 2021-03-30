@@ -17,8 +17,10 @@ void LumiNTuple::createFields(const edm::LuminosityBlockID& id, TFile& file) {
   m_luminosityBlock = RNTupleFieldPtr<UInt_t>("luminosityBlock", *model);
   // TODO use Append when we bump our RNTuple version:
   // m_ntuple = RNTupleWriter::Append(std::move(model), "LuminosityBlocks", file);
+  RNTupleWriteOptions options;
+  options.SetCompression(file.GetCompressionSettings());
   m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
-    std::make_unique<RPageSinkFile>("LuminosityBlocks", file, RNTupleWriteOptions())
+    std::make_unique<RPageSinkFile>("LuminosityBlocks", file, options)
   );
 }
 
@@ -40,8 +42,10 @@ void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
   auto model = RNTupleModel::Create();
   m_run = RNTupleFieldPtr<UInt_t>("run", *model);
   // TODO use Append when we bump our RNTuple version
+  RNTupleWriteOptions options;
+  options.SetCompression(file.GetCompressionSettings());
   m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
-    std::make_unique<RPageSinkFile>("Runs", file, RNTupleWriteOptions())
+    std::make_unique<RPageSinkFile>("Runs", file, options)
   );
 }
 
