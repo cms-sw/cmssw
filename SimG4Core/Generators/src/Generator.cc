@@ -164,7 +164,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         // be propagated by GEANT, so do not change their status code.
         status = 2;
       }
-      if (status == 2 && abs(pdg)==9900015){
+      if (status == 2 && abs(pdg) == 9900015) {
         status = 3;
       }
 
@@ -248,7 +248,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg)))) {
         status = hasDecayVertex ? 2 : 1;
       }
-      if (status == 2 && abs(pdg)==9900015){
+      if (status == 2 && abs(pdg) == 9900015) {
         status = 3;
       }
 
