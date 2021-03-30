@@ -54,7 +54,7 @@ PixelTestBeamValidation::PixelTestBeamValidation(const edm::ParameterSet& iConfi
   LogDebug("PixelTestBeamValidation") << ">>> Construct PixelTestBeamValidation ";
 
   // The value to be used for ToT == 0 in electrons
-  electronsAtToT0_ = 0.5 * ( thresholdInElectrons_ + electronsPerADC_ );
+  electronsAtToT0_ = 0.5 * (thresholdInElectrons_ + electronsPerADC_);
 
   const std::vector<edm::InputTag> psimhit_v(config_.getParameter<std::vector<edm::InputTag>>("PSimHitSource"));
 
@@ -272,7 +272,8 @@ void PixelTestBeamValidation::analyze(const edm::Event& iEvent, const edm::Event
         cluster_tot += current_digi.adc();
         // Assign the middle value between the threshold and the ElectronPerADC parameter
         // to the first bin in order to allow ToT = 0 (valid value)
-        const double pixel_charge_elec = (bool(current_digi.adc()) ? (current_digi.adc() * electronsPerADC_) : electronsAtToT0_);
+        const double pixel_charge_elec =
+            (bool(current_digi.adc()) ? (current_digi.adc() * electronsPerADC_) : electronsAtToT0_);
         cluster_tot_elec += pixel_charge_elec;
         // Use the center of the pixel
         cluster_position.first += pixel_charge_elec * (current_digi.row() + 0.5);
@@ -439,8 +440,10 @@ void PixelTestBeamValidation::bookHistograms(DQMStore::IBooker& ibooker,
           ibooker, "Dx1D", "MC-truth DIGI cluster residuals X;x_{PSimHit}-x^{cluster}_{digi} [#mum];N_{digi clusters}");
       vME_dy1D_[me_unit] = setupH1D_(
           ibooker, "Dy1D", "MC-truth DIGI cluster residual Y;y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
-      vME_dxy2D_[me_unit] = setupH2D_(
-          ibooker, "Dxy2D", "MC-truth DIGI cluster residuals;x_{PSimHit}-x^{cluster}_{digi} [#mum];y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
+      vME_dxy2D_[me_unit] = setupH2D_(ibooker,
+                                      "Dxy2D",
+                                      "MC-truth DIGI cluster residuals;x_{PSimHit}-x^{cluster}_{digi} "
+                                      "[#mum];y_{PSimHit}-y^{cluster}_{digi} [#mum];N_{digi clusters}");
       vME_digi_charge1D_[me_unit] = setupH1D_(ibooker, "DigiCharge1D", "Digi charge;digi charge [ToT];N_{digi}");
       vME_sim_cluster_charge_[me_unit] =
           setupH2D_(ibooker,
@@ -725,9 +728,9 @@ std::set<std::pair<int, int>> PixelTestBeamValidation::get_illuminated_pixels_(c
   const auto min_pos_pre = tkDetUnit->specificTopology().measurementPosition(LocalPoint(min_x, min_y));
   const auto max_pos_pre = tkDetUnit->specificTopology().measurementPosition(LocalPoint(max_x, max_y));
   // Adding a unit at each side in order to include charge migration
-  const MeasurementPoint min_pos(std::max(0.0,min_pos_pre.x()-1.0),std::max(0.0,min_pos_pre.y()-1.0));
-  const MeasurementPoint max_pos(std::min(max_pos_pre.x()+1.0,tkDetUnit->specificTopology().nrows()-1.0),
-          std::min(max_pos_pre.y()+1.0,tkDetUnit->specificTopology().ncolumns()-1.0)); 
+  const MeasurementPoint min_pos(std::max(0.0, min_pos_pre.x() - 1.0), std::max(0.0, min_pos_pre.y() - 1.0));
+  const MeasurementPoint max_pos(std::min(max_pos_pre.x() + 1.0, tkDetUnit->specificTopology().nrows() - 1.0),
+                                 std::min(max_pos_pre.y() + 1.0, tkDetUnit->specificTopology().ncolumns() - 1.0)); 
   // Count how many cells has passed. Use the most conservative rounding:
   // round for maximums and int (floor) for minimums
   //const int ncells_x = std::round(max_pos.x())-std::floor(min_pos.x());
