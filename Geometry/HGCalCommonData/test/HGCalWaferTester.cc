@@ -54,14 +54,14 @@ private:
   edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> dddToken_;
 };
 
-HGCalWaferTester::HGCalWaferTester(const edm::ParameterSet& iC) :
-  nameSense_(iC.getParameter<std::string>("NameSense")),
-  nameDetector_(iC.getParameter<std::string>("NameDevice")),
-  reco_(iC.getParameter<bool>("Reco")) {
-
+HGCalWaferTester::HGCalWaferTester(const edm::ParameterSet& iC)
+    : nameSense_(iC.getParameter<std::string>("NameSense")),
+      nameDetector_(iC.getParameter<std::string>("NameDevice")),
+      reco_(iC.getParameter<bool>("Reco")) {
   dddToken_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_});
 
-  edm::LogVerbatim("HGCalGeom") << "Test numbering for " << nameDetector_ << " using constants of " << nameSense_ << " for  RecoFlag " << reco_;
+  edm::LogVerbatim("HGCalGeom") << "Test numbering for " << nameDetector_ << " using constants of " << nameSense_
+                                << " for  RecoFlag " << reco_;
 }
 
 void HGCalWaferTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -72,20 +72,24 @@ void HGCalWaferTester::fillDescriptions(edm::ConfigurationDescriptions& descript
   descriptions.add("hgcalWaferTesterEE", desc);
 }
 
-
 // ------------ method called to produce the data  ------------
 void HGCalWaferTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const HGCalDDDConstants& hgdc = iSetup.getData(dddToken_);
-  edm::LogVerbatim("HGCalGeom") << nameDetector_ << " Layers = " << hgdc.layers(reco_) << " Sectors = " << hgdc.sectors() << std::endl;
+  edm::LogVerbatim("HGCalGeom") << nameDetector_ << " Layers = " << hgdc.layers(reco_)
+                                << " Sectors = " << hgdc.sectors() << std::endl;
   if (hgdc.waferHexagon8()) {
     int layer = hgdc.firstLayer();
     for (int u = -12; u <= 12; ++u) {
       std::pair<double, double> xy = hgdc.waferPosition(layer, u, 0, reco_);
-      edm::LogVerbatim("HGCalGeom") << " iz = +, u = " << u << ", v = 0: x = " << xy.first << " y = " << xy.second << "\n" << " iz = -, u = " << u << ", v = 0: x = " << -xy.first << " y = " << xy.second;
+      edm::LogVerbatim("HGCalGeom") << " iz = +, u = " << u << ", v = 0: x = " << xy.first << " y = " << xy.second
+                                    << "\n"
+                                    << " iz = -, u = " << u << ", v = 0: x = " << -xy.first << " y = " << xy.second;
     }
     for (int v = -12; v <= 12; ++v) {
       std::pair<double, double> xy = hgdc.waferPosition(layer, 0, v, reco_);
-      edm::LogVerbatim("HGCalGeom") << " iz = +, u = 0, v = " << v << ": x = " << xy.first << " y = " << xy.second << "\n" << " iz = -, u = 0, v = " << v << ": x = " << -xy.first << " y = " << xy.second;
+      edm::LogVerbatim("HGCalGeom") << " iz = +, u = 0, v = " << v << ": x = " << xy.first << " y = " << xy.second
+                                    << "\n"
+                                    << " iz = -, u = 0, v = " << v << ": x = " << -xy.first << " y = " << xy.second;
     }
   }
 }
