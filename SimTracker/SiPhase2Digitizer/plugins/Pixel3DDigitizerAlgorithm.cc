@@ -187,7 +187,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     if (std::abs(distance_edge) >= max_migration_radius || current_carriers <= 0.5 * ncarriers) {
       break;
     }
- 
+
     // Create the ionization point:
     // First update the newpos vector: the new charge position at the neighbouring pixel
     // is created in the same position as its "parent carriers"
