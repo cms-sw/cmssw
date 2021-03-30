@@ -188,18 +188,17 @@ class TauIDEmbedder(object):
 
             wp_to_eff_match = {
                 "VVLoose" : "WPEff95",
-                "VLoose" : "WPEff90",
                 "Loose" : "WPEff80",
                 "Medium" : "WPEff70",
                 "Tight" : "WPEff60",
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            for wp in ["VVLoose","Loose","Medium","Tight","VTight","VVTight"]:
+            for wp,wpEff in wp_to_eff_match.items():
                 _aWP = "rerunDiscriminationByIsolationOldDMMVArun2017v1"+wp+self.postfix
                 setattr(self.process,_aWP,_byIsolationOldDMMVArun2017v1VLooseProd.clone())
                 _aWPProd = getattr(self.process,_aWP)
-                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_"+wp_to_eff_match[wp])
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_"+wpEff)
                 _rerunIsolationOldDMMVArun2017v1Task.add(_aWPProd)
                 setattr(tauIDSources,"by"+wp+"IsolationMVArun2017v1DBoldDMwLT2017",self.cms.InputTag(_aWP))
 
@@ -265,18 +264,17 @@ class TauIDEmbedder(object):
 
             wp_to_eff_match = {
                 "VVLoose" : "WPEff95",
-                "VLoose" : "WPEff90",
                 "Loose" : "WPEff80",
                 "Medium" : "WPEff70",
                 "Tight" : "WPEff60",
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            for wp in ["VVLoose","Loose","Medium","Tight","VTight","VVTight"]:
+            for wp,wpEff in wp_to_eff_match.items():
                 _aWP = "rerunDiscriminationByIsolationOldDMMVArun2017v2"+wp+self.postfix
                 setattr(self.process,_aWP,_byIsolationOldDMMVArun2017v2VLooseProd.clone())
                 _aWPProd = getattr(self.process,_aWP)
-                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_"+wp_to_eff_match[wp])
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2_"+wpEff)
                 _rerunIsolationOldDMMVArun2017v2Task.add(_aWPProd)
                 setattr(tauIDSources,"by"+wp+"IsolationMVArun2017v2DBoldDMwLT2017",self.cms.InputTag(_aWP))
 
@@ -342,18 +340,17 @@ class TauIDEmbedder(object):
 
             wp_to_eff_match = {
                 "VVLoose" : "WPEff95",
-                "VLoose" : "WPEff90",
                 "Loose" : "WPEff80",
                 "Medium" : "WPEff70",
                 "Tight" : "WPEff60",
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            for wp in ["VVLoose","Loose","Medium","Tight","VTight","VVTight"]:
+            for wp,wpEff in wp_to_eff_match.items():
                 _aWP = "rerunDiscriminationByIsolationNewDMMVArun2017v2"+wp+self.postfix
                 setattr(self.process,_aWP,_byIsolationNewDMMVArun2017v2VLooseProd.clone())
                 _aWPProd = getattr(self.process,_aWP)
-                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_"+wp_to_eff_match[wp])
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_"+wpEff)
                 _rerunIsolationNewDMMVArun2017v2Task.add(_aWPProd)
                 setattr(tauIDSources,"by"+wp+"IsolationMVArun2017v2DBnewDMwLT2017",self.cms.InputTag(_aWP))
 
@@ -423,18 +420,17 @@ class TauIDEmbedder(object):
 
             wp_to_eff_match = {
                 "VVLoose" : "WPEff95",
-                "VLoose" : "WPEff90",
                 "Loose" : "WPEff80",
                 "Medium" : "WPEff70",
                 "Tight" : "WPEff60",
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            for wp in ["VVLoose","Loose","Medium","Tight","VTight","VVTight"]:
+            for wp,wpEff in wp_to_eff_match.items():
                 _aWP = "rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2"+wp+self.postfix
                 setattr(self.process,_aWP,_byIsolationOldDMdR0p3MVArun2017v2VLooseProd.clone())
                 _aWPProd = getattr(self.process,_aWP)
-                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_"+wp_to_eff_match[wp])
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_"+wpEff)
                 _rerunIsolationOldDMdR0p3MVArun2017v2Task.add(_aWPProd)
                 setattr(tauIDSources,"by"+wp+"IsolationMVArun2017v2DBoldDMdR0p3wLT2017",self.cms.InputTag(_aWP))
 
@@ -505,19 +501,17 @@ class TauIDEmbedder(object):
             tauIDSources.byVLooseIsolationMVArun2v2DBoldDMwLT2016 = self.cms.InputTag(_byIsolationOldDMMVArun2016v1VLoose)
 
             wp_to_eff_match = {
-                "VVLoose" : "WPEff95",
-                "VLoose" : "WPEff90",
                 "Loose" : "WPEff80",
                 "Medium" : "WPEff70",
                 "Tight" : "WPEff60",
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            for wp in ["Loose","Medium","Tight","VTight","VVTight"]:
+            for wp,wpEff in wp_to_eff_match.items():
                 _aWP = "rerunDiscriminationByIsolationOldDMMVArun2v1"+wp+self.postfix
                 setattr(self.process,_aWP,_byIsolationOldDMMVArun2016v1VLooseProd.clone())
                 _aWPProd = getattr(self.process,_aWP)
-                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1_"+wp_to_eff_match[wp])
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1_"+wpEff)
                 _rerunIsolationOldDMMVArun2016v1Task.add(_aWPProd)
                 setattr(tauIDSources,"by"+wp+"IsolationMVArun2v1DBoldDMwLT2016",self.cms.InputTag(_aWP))
 
@@ -562,19 +556,17 @@ class TauIDEmbedder(object):
             tauIDSources.byVLooseIsolationMVArun2v2DBnewDMwLT2016 = self.cms.InputTag(_byIsolationNewDMMVArun2016v1VLoose)
 
             wp_to_eff_match = {
-                "VVLoose" : "WPEff95",
-                "VLoose" : "WPEff90",
                 "Loose" : "WPEff80",
                 "Medium" : "WPEff70",
                 "Tight" : "WPEff60",
                 "VTight" : "WPEff50",
                 "VVTight" : "WPEff40"
             }
-            for wp in ["Loose","Medium","Tight","VTight","VVTight"]:
+            for wp,wpEff in wp_to_eff_match.items():
                 _aWP = "rerunDiscriminationByIsolationNewDMMVArun2v1"+wp+self.postfix
                 setattr(self.process,_aWP,_byIsolationNewDMMVArun2016v1VLooseProd.clone())
                 _aWPProd = getattr(self.process,_aWP)
-                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2016v1_"+wp_to_eff_match[wp])
+                _aWPProd.mapping[0].cut = self.cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2016v1_"+wpEff)
                 _rerunIsolationNewDMMVArun2016v1Task.add(_aWPProd)
                 setattr(tauIDSources,"by"+wp+"IsolationMVArun2v1DBnewDMwLT2016",self.cms.InputTag(_aWP))
 
@@ -901,54 +893,53 @@ class TauIDEmbedder(object):
             )
             # Other WPs
             wp_to_eff_match = {
-                "VLoose" : "WPeff98",
                 "Loose" : "WPeff90",
                 "Medium" : "WPeff80",
                 "Tight" : "WPeff70",
                 "VTight" : "WPeff60",
             }
-            for wp in ["Loose", "Medium", "Tight", "VTight"]:
+            for wp,wpEff in wp_to_eff_match.items():
                 _aWP = "patTauDiscriminationBy"+wp+"ElectronRejectionMVA62018"+self.postfix
                 setattr(self.process,_aWP,_byElectronRejectionMVA62018VLooseProd.clone(
                     mapping = self.cms.VPSet(
                         self.cms.PSet(
                             category = self.cms.uint32(0),
-                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL_'+wp_to_eff_match[wp]),
+                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL_'+wpEff),
                             variable = self.cms.string('pt')
                         ),
                         self.cms.PSet(
                             category = self.cms.uint32(2),
-                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL_'+wp_to_eff_match[wp]),
+                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL_'+wpEff),
                             variable = self.cms.string('pt')
                         ),
                         self.cms.PSet(
                             category = self.cms.uint32(5),
-                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_BL_'+wp_to_eff_match[wp]),
+                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_BL_'+wpEff),
                             variable = self.cms.string('pt')
                         ),
                         self.cms.PSet(
                             category = self.cms.uint32(7),
-                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_BL_'+wp_to_eff_match[wp]),
+                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_BL_'+wpEff),
                             variable = self.cms.string('pt')
                         ),
                         self.cms.PSet(
                             category = self.cms.uint32(8),
-                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_EC_'+wp_to_eff_match[wp]),
+                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_EC_'+wpEff),
                             variable = self.cms.string('pt')
                         ),
                         self.cms.PSet(
                             category = self.cms.uint32(10),
-                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC_'+wp_to_eff_match[wp]),
+                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC_'+wpEff),
                             variable = self.cms.string('pt')
                         ),
                         self.cms.PSet(
                             category = self.cms.uint32(13),
-                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_EC_'+wp_to_eff_match[wp]),
+                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_woGwGSF_EC_'+wpEff),
                             variable = self.cms.string('pt')
                         ),
                         self.cms.PSet(
                             category = self.cms.uint32(15),
-                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_EC_'+wp_to_eff_match[wp]),
+                            cut = self.cms.string('RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_wGwGSF_EC_'+wpEff),
                             variable = self.cms.string('pt')
                         )
                     )
