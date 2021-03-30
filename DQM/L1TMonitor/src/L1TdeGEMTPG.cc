@@ -53,7 +53,7 @@ void L1TdeGEMTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   for (auto it = dataClusters->begin(); it != dataClusters->end(); it++) {
     auto range = dataClusters->get((*it).first);
-    const int type = ((*it).first).station();
+    const int type = ((*it).first).station() - 1;
     for (auto cluster = range.first; cluster != range.second; cluster++) {
       if (cluster->isValid()) {
         chamberHistos[type]["cluster_size_data"]->Fill(cluster->pads().size());
@@ -65,7 +65,7 @@ void L1TdeGEMTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   for (auto it = emulClusters->begin(); it != emulClusters->end(); it++) {
     auto range = emulClusters->get((*it).first);
-    const int type = ((*it).first).station();
+    const int type = ((*it).first).station() - 1;
     for (auto cluster = range.first; cluster != range.second; cluster++) {
       if (cluster->isValid()) {
         chamberHistos[type]["cluster_size_emul"]->Fill(cluster->pads().size());

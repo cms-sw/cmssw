@@ -7,6 +7,7 @@ l1tdeGEMTPG = DQMEDAnalyzer(
     emul = cms.InputTag("valMuonGEMPadDigiClusters"),
     monitorDir = cms.string("L1TEMU/L1TdeGEMTPG"),
     verbose = cms.bool(False),
+    ## when multiple chambers are enabled, order them by station number!
     chambers = cms.vstring("GE11"),
     dataEmul = cms.vstring("data","emul"),
     clusterVars = cms.vstring("size", "pad", "bx"),
