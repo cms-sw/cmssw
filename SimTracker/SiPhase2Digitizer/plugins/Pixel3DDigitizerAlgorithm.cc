@@ -166,14 +166,14 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   float current_carriers = ncarriers;
   std::vector<float> newpos({pos_moving[0], pos_moving[1], pos_moving[2]});
   float distance_edge = 0.0_um;
-  for (int i = 1; ; ++i){
+  for (int i = 1;; ++i) {
     std::transform(pos_moving.begin(), pos_moving.end(), do_step(i).begin(), pos_moving.begin(), std::plus<float>());
     distance_edge = pitch - std::abs(pos_moving[displ_ind]);
     // Current diffusion value
     const double sigma = 0.4_um;
     // Get the amount of charge on the neighbor pixel: note the
     // transformation to a Normal
-    float migrated_e = current_carriers * 0.5 * (1.0 - std::erf(distance_edge / (sigma*std::sqrt(2.0))));
+    float migrated_e = current_carriers * 0.5 * (1.0 - std::erf(distance_edge / (sigma * std::sqrt(2.0))));
 
     LogDebug("(super-)charge diffusion") << "step-" << i << ", Current carriers Ne= " << current_carriers << ","
                                          << "r=(" << pos_moving[0] * 1.0_um_inv << ", " << pos_moving[1] * 1.0_um_inv
@@ -185,7 +185,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
 
     // Either far away from the edge or almost half of the carriers already migrated
     if (std::abs(distance_edge) >= max_migration_radius || current_carriers <= 0.5 * ncarriers) {
-        break;
+      break;
     }
  
     // Create the ionization point:
