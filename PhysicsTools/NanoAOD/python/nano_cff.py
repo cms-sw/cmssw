@@ -257,6 +257,8 @@ def nanoAOD_activateVID(process):
         modifier.toModify(process.electronMVAValueMapProducer, src = "slimmedElectronsUpdated")
         modifier.toModify(process.egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
 
+    run2_nanoAOD_106Xv2.toModify(process.electronMVAValueMapProducer, src = "slimmedElectrons")		
+    run2_nanoAOD_106Xv2.toModify(process.egmGsfElectronIDs, physicsObjectSrc = "slimmedElectrons")
 
     switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD) # do not call this to avoid resetting photon IDs in VID, if called before inside makePuppiesFromMiniAOD
     for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:

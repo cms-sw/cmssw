@@ -561,6 +561,17 @@ for modifier in run2_nanoAOD_94X2016,:
                       dEsigmaDown=Var("userFloat('ecalTrkEnergyPostCorr')-userFloat('energySigmaDown')", float,  doc="ecal energy smearing value shifted 1 sigma up", precision=8),
     )
 
+#for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
+run2_nanoAOD_106Xv2.toModify(bitmapVIDForEle, src = "slimmedElectrons")
+run2_nanoAOD_106Xv2.toModify(bitmapVIDForEleSpring15, src = "slimmedElectrons")
+run2_nanoAOD_106Xv2.toModify(bitmapVIDForEleSum16, src = "slimmedElectrons")
+run2_nanoAOD_106Xv2.toModify(bitmapVIDForEleHEEP, src = "slimmedElectrons")
+run2_nanoAOD_106Xv2.toModify(isoForEle, src = "slimmedElectrons")
+run2_nanoAOD_106Xv2.toModify(ptRatioRelForEle, srcLep = "slimmedElectrons")
+run2_nanoAOD_106Xv2.toModify(seedGainEle, src = "slimmedElectrons")
+run2_nanoAOD_106Xv2.toModify(calibratedPatElectronsNano, src = "slimmedElectrons")
+run2_nanoAOD_106Xv2.toModify(slimmedElectronsWithUserData, src = "slimmedElectrons")
+
 electronSequence = cms.Sequence(bitmapVIDForEle + bitmapVIDForEleHEEP + isoForEle + ptRatioRelForEle + seedGainEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(particleLevelForMatching + tautaggerForMatching + matchingElecPhoton + electronsMCMatchForTable + electronsMCMatchForTableAlt + electronMCTable)
@@ -608,3 +619,6 @@ run2_nanoAOD_102Xv1.toReplaceWith(electronSequence, _withTo106XAndUpdateAnd102XS
 _withUpdate_sequence = electronSequence.copy()
 _withUpdate_sequence.replace(bitmapVIDForEle, slimmedElectronsUpdated + bitmapVIDForEle)
 run2_nanoAOD_106Xv1.toReplaceWith(electronSequence, _withUpdate_sequence)
+
+_with106Xv2_sequence = electronSequence.copyAndExclude([slimmedElectronsUpdated])
+run2_nanoAOD_106Xv2.toReplaceWith(electronSequence, _with106Xv2_sequence)
