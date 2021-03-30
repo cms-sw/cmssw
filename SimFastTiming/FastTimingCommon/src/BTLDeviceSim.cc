@@ -69,6 +69,7 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     // translate from crystal-local coordinates to module-local coordinates to get the row and column
     simscaled = topo.pixelToModuleLocalPoint(simscaled, btlid.row(topo.nrows()), btlid.column(topo.nrows()));
     const auto& thepixel = topo.pixel(simscaled);
+    std::cout << "BTL pixel: " << thepixel.first << " " << thepixel.second << std::endl;
     uint8_t row(thepixel.first), col(thepixel.second);
 
     if (btlid.row(topo.nrows()) != row || btlid.column(topo.nrows()) != col) {
