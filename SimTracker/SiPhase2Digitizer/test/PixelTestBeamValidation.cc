@@ -730,7 +730,7 @@ std::set<std::pair<int, int>> PixelTestBeamValidation::get_illuminated_pixels_(c
   // Adding a unit at each side in order to include charge migration
   const MeasurementPoint min_pos(std::max(0.0, min_pos_pre.x() - 1.0), std::max(0.0, min_pos_pre.y() - 1.0));
   const MeasurementPoint max_pos(std::min(max_pos_pre.x() + 1.0, tkDetUnit->specificTopology().nrows() - 1.0),
-                                 std::min(max_pos_pre.y() + 1.0, tkDetUnit->specificTopology().ncolumns() - 1.0)); 
+                                 std::min(max_pos_pre.y() + 1.0, tkDetUnit->specificTopology().ncolumns() - 1.0));
   // Count how many cells has passed. Use the most conservative rounding:
   // round for maximums and int (floor) for minimums
   //const int ncells_x = std::round(max_pos.x())-std::floor(min_pos.x());
