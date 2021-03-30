@@ -642,14 +642,14 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                       0.,
                                       100.);
   meTPullvsE_ = ibook.bookProfile(
-      "EtlTPullvsE", "ETL time pull vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}", 20, 0., 2., -0.8, 0.8, "S");
+      "EtlTPullvsE", "ETL time pull vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}", 20, 0., 2., -5., 5., "S");
   meTPullvsEta_ = ibook.bookProfile("EtlTPullvsEta",
                                     "ETL time pull vs #eta;|#eta_{RECO}|;T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}",
                                     26,
                                     1.65,
                                     3.0,
-                                    -0.8,
-                                    0.8,
+                                    -5.,
+                                    5.,
                                     "S");
   meCluTime_[0] =
       ibook.book1D("EtlCluTimeZnegD1", "ETL cluster ToA (-Z, Single(topo1D)/First(topo2D) Disk);ToA [ns]", 250, 0, 25);

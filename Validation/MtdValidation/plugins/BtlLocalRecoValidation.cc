@@ -335,16 +335,16 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meLongPosPull_ = ibook.book1D("BtlLongPosPull",
                                 "BTL longitudinal position pull;X^{loc}_{RECO}-X^{loc}_{SIM}/#sigma_{xloc_{RECO}}",
                                 100,
-                                -5.5,
-                                5.5);
+                                -5.,
+                                5.);
   meLongPosPullvsE_ = ibook.bookProfile(
       "BtlLongposPullvsE",
       "BTL longitudinal position pull vs E;E_{SIM} [MeV];X^{loc}_{RECO}-X^{loc}_{SIM}/#sigma_{xloc_{RECO}}",
       20,
       0.,
       20.,
-      -1.5,
-      1.5,
+      -5.,
+      5.,
       "S");
   meLongPosPullvsEta_ = ibook.bookProfile(
       "BtlLongposPullvsEta",
@@ -352,18 +352,18 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       32,
       0,
       1.55,
-      -1.5,
-      1.5,
+      -5.,
+      5.,
       "S");
   meTPullvsE_ = ibook.bookProfile(
-      "BtlTPullvsE", "BTL time pull vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}", 20, 0., 20., -0.8, 0.8, "S");
+      "BtlTPullvsE", "BTL time pull vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}", 20, 0., 20., -5., 5., "S");
   meTPullvsEta_ = ibook.bookProfile("BtlTPullvsEta",
                                     "BTL time pull vs #eta;|#eta_{RECO}|;T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}",
                                     32,
                                     0,
                                     1.55,
-                                    -0.8,
-                                    0.8,
+                                    -5.,
+                                    5.,
                                     "S");
   meCluTime_ = ibook.book1D("BtlCluTime", "BTL cluster time ToA;ToA [ns]", 250, 0, 25);
   meCluTimeError_ = ibook.book1D("BtlCluTimeError", "BTL cluster time error;#sigma_{t} [ns]", 100, 0, 0.1);
