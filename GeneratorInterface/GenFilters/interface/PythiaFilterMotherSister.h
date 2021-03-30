@@ -7,10 +7,12 @@
 // 
 /**\class PythiaFilterMotherSister PythiaFilterMotherSister.cc IOMC/PythiaFilterMotherSister/src/PythiaFilterMotherSister.cc
 
- Description: A filter to identify a particle with given id and kinematic && give mother id && given id of one among mother's daughters
+ Description: A filter to identify a particle with given id and kinematic 
+                                                && given mother id (multiple mothers possible)
+                                                && given id and 3d displacement of one among mother's daughters
 
  Implementation:
-     <Notes on implementation>
+     Inspired by PythiaFilterMultiMother.cc
 */
 //
 // 
