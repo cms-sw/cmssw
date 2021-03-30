@@ -7,13 +7,16 @@
 //                         phimin, phimax, zside, nvxlo, nvxhi, rbx, exclude,
 //                         etamax);
 //  c1.Loop();
-//  c1.savePlot(histFileName,append,all,debug);
+//  c1.savePlot(histFileName, append, all, debug);
 //
 //        This will prepare a set of histograms with properties of the tracks
 //        which can be displayed by the method in this file
 //
 //  PlotHist(histFileName, prefix, flagC, etalo, etahi, save)
 //
+//        This will plot the heistograms and save the canvases
+//
+// 
 //   where:
 //
 //   fname   (std::string)     = file name of the input ROOT tree
