@@ -78,7 +78,7 @@ namespace edm {
   }
 
   void MergeableInputProductResolver::mergeProduct(
-      std::unique_ptr<WrapperBase> iFrom, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
+      std::shared_ptr<WrapperBase> iFrom, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
     // if its not mergeable and the previous read failed, go ahead and use this one
     if (status() == ProductStatus::ResolveFailed) {
       setProduct(std::move(iFrom));
@@ -201,7 +201,7 @@ namespace edm {
 
       //Can't use resolveProductImpl since it first checks to see
       // if the product was already retrieved and then returns if it is
-      std::unique_ptr<WrapperBase> edp(reader->getProduct(branchDescription().branchID(), &principal));
+      auto edp(reader->getProduct(branchDescription().branchID(), &principal));
 
       if (edp.get() != nullptr) {
         if (edp->isMergeable() && branchDescription().branchType() == InRun && !edp->hasSwap()) {
@@ -238,7 +238,7 @@ namespace edm {
   }
 
   void MergeableInputProductResolver::setOrMergeProduct(
-      std::unique_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
+      std::shared_ptr<WrapperBase> prod, MergeableRunProductMetadata const* mergeableRunProductMetadata) const {
     if (status() == defaultStatus()) {
       //resolveProduct has not been called or it failed
       setProduct(std::move(prod));
@@ -532,6 +532,16 @@ namespace edm {
       setFailedStatus();
     }
   }
+  void DataManagingProductResolver::setProduct(std::shared_ptr<WrapperBase> edp) const {
+    if (edp) {
+      checkType(*edp);
+      productData_.unsafe_setWrapper(std::move(edp));
+      theStatus_ = ProductStatus::ProductSet;
+    } else {
+      setFailedStatus();
+    }
+  }
+
   // This routine returns true if it is known that currently there is no real product.
   // If there is a real product, it returns false.
   // If it is not known if there is a real product, it returns false.
