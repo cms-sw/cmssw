@@ -26,7 +26,7 @@
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Module" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
-    <Parameter name="LevelTop"            value="9"/>
+    <Parameter name="LevelTop"            value="11"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
