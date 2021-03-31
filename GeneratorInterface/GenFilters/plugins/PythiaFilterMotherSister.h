@@ -4,7 +4,7 @@
 //
 // Package:    PythiaFilterMotherSister
 // Class:      PythiaFilterMotherSister
-// 
+//
 /**\class PythiaFilterMotherSister PythiaFilterMotherSister.cc IOMC/PythiaFilterMotherSister/src/PythiaFilterMotherSister.cc
 
  Description: A filter to identify a particle with given id and kinematic 
@@ -15,11 +15,10 @@
      Inspired by PythiaFilterMultiMother.cc
 */
 //
-// 
-//         
 //
 //
-
+//
+//
 
 // system include files
 #include <memory>
@@ -41,34 +40,34 @@ namespace edm {
 }
 
 class PythiaFilterMotherSister : public edm::global::EDFilter<> {
-   public:
-      explicit PythiaFilterMotherSister(const edm::ParameterSet&);
-      ~PythiaFilterMotherSister() override;
+public:
+  explicit PythiaFilterMotherSister(const edm::ParameterSet&);
+  ~PythiaFilterMotherSister() override;
 
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-   private:
-      // ----------member data ---------------------------
-      
-       const edm::EDGetTokenT<edm::HepMCProduct> token_;
-       const int particleID;
-       const double minpcut;
-       const double maxpcut;
-       const double minptcut;
-       const double maxptcut;
-       const double minetacut;
-       const double maxetacut;
-       const double minrapcut;
-       const double maxrapcut;
-       const double minphicut;
-       const double maxphicut;
+private:
+  // ----------member data ---------------------------
 
-       //const int status; 
-       std::vector<int> motherIDs;
-       const int sisterID;   
-       //const int processID;    
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const int particleID;
+  const double minpcut;
+  const double maxpcut;
+  const double minptcut;
+  const double maxptcut;
+  const double minetacut;
+  const double maxetacut;
+  const double minrapcut;
+  const double maxrapcut;
+  const double minphicut;
+  const double maxphicut;
 
-       const double betaBoost;
-       const double maxSisDisplacement;
+  //const int status;
+  std::vector<int> motherIDs;
+  const int sisterID;
+  //const int processID;
+
+  const double betaBoost;
+  const double maxSisDisplacement;
 };
 #endif
