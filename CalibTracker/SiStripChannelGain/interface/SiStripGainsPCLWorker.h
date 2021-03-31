@@ -113,7 +113,6 @@ private:
 
   //Data members for processing
 
-  edm::EDGetTokenT<std::vector<bool> > TrigTech_token_;
   edm::EDGetTokenT<std::vector<double> > trackchi2ndof_token_;
   edm::EDGetTokenT<std::vector<float> > trackp_token_;
   edm::EDGetTokenT<std::vector<float> > trackpt_token_;
@@ -143,8 +142,6 @@ private:
   edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
 
-  std::string EventPrefix_;  //("");
-  std::string EventSuffix_;  //("");
   std::string TrackPrefix_;  //("track");
   std::string TrackSuffix_;  //("");
   std::string CalibPrefix_;  //("GainCalibration");
