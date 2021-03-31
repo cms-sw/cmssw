@@ -32,12 +32,18 @@ upgradeKeys[2026] = [
     '2026D49PU',
     '2026D60',
     '2026D60PU',
+    '2026D68',
+    '2026D68PU',
+    '2026D70',
+    '2026D70PU',
     '2026D76',
     '2026D76PU',
     '2026D77',
     '2026D77PU',
     '2026D78',
     '2026D78PU',
+    '2026D79',
+    '2026D79PU',
     '2026D80',
     '2026D80PU',
     '2026D81',
@@ -51,7 +57,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[20000,23200],[23600,28200],[28600,34600],[35800,36200],[50000,51000]]
+numWFConflict = [[20000,23200],[23600,28200],[28600,31400],[31800,32200],[32600,34600],[50000,51000]]
 numWFAll={
     2017: [],
     2026: []
@@ -1154,6 +1160,20 @@ upgradeProperties[2026] = {
         'Era' : 'Phase2C10',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
+    '2026D68' : {
+        'Geom' : 'Extended2026D68',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D70' : {
+        'Geom' : 'Extended2026D70',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
     '2026D76' : {
         'Geom' : 'Extended2026D76',
         'HLTmenu': '@fake2',
@@ -1174,6 +1194,14 @@ upgradeProperties[2026] = {
         'GT' : 'auto:phase2_realistic_T22',
         'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
         'Era' : 'Phase2C11I13T22M9', # customized for square pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D79' : {
+        'Geom' : 'Extended2026D79', # N.B.: Geometry with 3D pixels in the Inner Tracker.
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T23',
+        'ProcessModifier': 'PixelCPEGeneric',   # This swaps template reco CPE for generic reco CPE
+        'Era' : 'Phase2C11I13T23M9', # customizes for 3D Pixels and Muon M9
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D80' : {
