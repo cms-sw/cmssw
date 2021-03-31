@@ -104,11 +104,16 @@ public:
     }
 
     // select only particles which did not convert/decay before the calorimeter
-    if (notConvertedOnly_) {
-      if( cp.g4Tracks()[0].getPositionAtBoundary() == math::XYZTLorentzVectorF (0,0,0,0) )
-        return false;
-      if( cp.g4Tracks()[0].getMomentumAtBoundary() == math::XYZTLorentzVectorF (0,0,0,0) )
-        return false;
+    // in case of electrons, bremsstrahlung is usually the cause, thus this selection is skipped
+    if (std::abs(pdgid) != 11) {
+      if (notConvertedOnly_) {
+        if( cp.g4Tracks()[0].getPositionAtBoundary() == math::XYZTLorentzVectorF (0,0,0,0) ){
+          return false;
+        }
+        if( cp.g4Tracks()[0].getMomentumAtBoundary() == math::XYZTLorentzVectorF (0,0,0,0) ){
+          return false;
+        }
+      }
     }
 
     auto etaOk = [&](const CaloParticle& p) -> bool {
