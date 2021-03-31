@@ -450,7 +450,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
           if (addMVAVariables_) {
             // add missing mva variables
-            std::vector<float> vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
+            const auto& vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
             anElectron.setMvaVariables(vCov[1], ip3d);
           }
           // PFClusterIso
@@ -681,7 +681,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
       if (addMVAVariables_) {
         // add mva variables
-        std::vector<float> vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
+        const auto& vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
         anElectron.setMvaVariables(vCov[1], ip3d);
       }
 
