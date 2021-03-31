@@ -3,18 +3,18 @@
 
 #include "TObject.h"
 
-#define fNsmNmax 36  //number of SM
-#define fNlmodN 9    //number of lmodN in a SM
-#define fNmem 10     //number of PNs in a MEM
-#define fNmodN 4     //number of modN in a SM
-#define fNtt 68      //number of trigger towers in a SM
-#define fNmax 8
-#define fNburmax 3
-#define fNseqmax 3
-#define fNcolors 6   //number of laser colors
-
 class TMConfig: public TObject 
 {
+ public:
+  inline constexpr unsigned int fNsmNmax=36;  //number of SM 
+  inline constexpr unsigned int fNlmodN=9;    //number of lmodN in a SM
+  inline constexpr unsigned int fNmem=10;     //number of PNs in a MEM
+  inline constexpr unsigned int fNmodN 4;     //number of modN in a SM
+  inline constexpr unsigned int fNtt=68;      //number of trigger towers in a SM
+  inline constexpr unsigned int fNmax=8;
+  inline constexpr unsigned int fNburmax=3;
+  inline constexpr unsigned int fNseqmax=3;
+  inline constexpr unsigned int fNcolors 6;   //number of laser colors
 
  private:
   int smin;
