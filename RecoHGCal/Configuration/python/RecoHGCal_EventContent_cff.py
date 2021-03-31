@@ -24,7 +24,6 @@ TICL_RECO = cms.PSet(
       'keep *_ticlTrackstersMIP_*_*',
       'keep *_ticlTrackstersMerge_*_*',
       'keep *_ticlTrackstersHFNoseTrkEM_*_*',
-      'keep *_ticlSimTracksters_*_*',
       'keep *_ticlTrackstersHFNoseEM_*_*',
       'keep *_ticlTrackstersHFNoseMIP_*_*',
       'keep *_ticlTrackstersHFNoseHAD_*_*',
@@ -37,6 +36,7 @@ TICL_RECO.outputCommands.extend(TICL_AOD.outputCommands)
 # FEVT Content
 TICL_FEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
+      'keep *_ticlSimTracksters_*_*',
       )
     )
 TICL_FEVT.outputCommands.extend(TICL_RECO.outputCommands)
