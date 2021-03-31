@@ -55,6 +55,7 @@ private:
   void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
   void writeRun(edm::RunForOutput const&) override;
   void reallyCloseFile() override;
+  void writeProvenance();
 
   void initializeNTuple(edm::EventForOutput const& e);
 
@@ -62,6 +63,7 @@ private:
   std::string m_logicalFileName;
   std::string m_compressionAlgorithm;
   int m_compressionLevel;
+  bool m_writeProvenance;
   edm::ProcessHistoryRegistry m_processHistoryRegistry;
   edm::JobReport::Token m_jrToken;
 
@@ -102,6 +104,7 @@ NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& 
       m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
       m_compressionAlgorithm(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
       m_compressionLevel(pset.getUntrackedParameter<int>("compressionLevel")),
+      m_writeProvenance(pset.getUntrackedParameter<bool>("saveProvenance", true)),
       m_processHistoryRegistry() {}
 
 NanoAODRNTupleOutputModule::~NanoAODRNTupleOutputModule() {}
@@ -161,8 +164,8 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
     m_file->SetCompressionAlgorithm(ROOT::kLZMA);
   } else {
     throw cms::Exception("Configuration")
-        << "NanoAODOutputModule configured with unknown compression algorithm '"
-	<< m_compressionAlgorithm << "'\n" << "Allowed compression algorithms are ZLIB and LZMA\n";
+      << "NanoAODOutputModule configured with unknown compression algorithm '"
+      << m_compressionAlgorithm << "'\n" << "Allowed compression algorithms are ZLIB and LZMA\n";
   }
 
   const auto& keeps = keptProducts();
@@ -179,6 +182,11 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
       throw cms::Exception("Configuration", "NanoAODRNTupleOutputModule cannot handle class " +
           keep.first->className() + " in Run branch");
     }
+  }
+
+  // TODO move to reallyCloseFile, here for quick debugging
+  if (m_writeProvenance) {
+    writeProvenance();
   }
 }
 
@@ -236,6 +244,9 @@ void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
 }
 
 void NanoAODRNTupleOutputModule::reallyCloseFile() {
+  //if (m_writeProvenance) {
+  //  writeProvenance();
+  //}
   // write ntuple to disk by calling the RNTupleWriter destructor
   m_ntuple.reset();
   m_lumi.finalizeWrite();
@@ -272,6 +283,12 @@ void NanoAODRNTupleOutputModule::reallyCloseFile() {
   jr->outputFileClosed(m_jrToken);
 }
 
+void NanoAODRNTupleOutputModule::writeProvenance() {
+  PSetNTuple pntuple;
+  pntuple.fill(edm::pset::Registry::instance(), *m_file);
+  pntuple.finalizeWrite();
+}
+
 void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
@@ -280,7 +297,8 @@ void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions
   desc.addUntracked<int>("compressionLevel", 9)->setComment("ROOT compression level of output file.");
   desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")->setComment("Algorithm used to "
     "compress data in the ROOT output file, allowed values are ZLIB and LZMA");
-
+  desc.addUntracked<bool>("saveProvenance", true)
+      ->setComment("Save process provenance information, e.g. for edmProvDump");
   const std::vector<std::string> keep = {"drop *",
                                          "keep nanoaodFlatTable_*Table_*_*",
                                          "keep edmTriggerResults_*_*_*",
