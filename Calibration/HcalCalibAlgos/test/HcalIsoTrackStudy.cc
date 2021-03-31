@@ -258,7 +258,7 @@ HcalIsoTrackStudy::HcalIsoTrackStudy(const edm::ParameterSet& iConfig)
       matrixECAL_(iConfig.getUntrackedParameter<int>("matrixECAL", 5)),
       matrixHCAL_(iConfig.getUntrackedParameter<int>("matrixHCAL", 3)),
       mapR_(iConfig.getUntrackedParameter<double>("mapRadius", 34.98)),
-      get2Ddist_(iConfig.getUntrackedParameter<double>("get2Ddist", false)),
+      get2Ddist_(iConfig.getUntrackedParameter<bool>("get2Ddist", false)),
       nRun_(0),
       nLow_(0),
       nHigh_(0),
