@@ -264,6 +264,12 @@ if __name__ == '__main__':
                       default=False,
                       action='store_true')
 
+    parser.add_option('--dbs-url',
+                      help='Overwrite DbsUrl value in JSON submitted to ReqMgr2',
+                      dest='dbsUrl',
+                      default=None,
+                      action='store')
+
     opt,args = parser.parse_args()
     if opt.IBEos:
       import os
