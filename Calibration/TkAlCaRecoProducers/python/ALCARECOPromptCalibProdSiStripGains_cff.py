@@ -69,13 +69,11 @@ ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOCalibrationTracks +
 
 # ------------------------------------------------------------------------------
 # Get the information you need from the tracks, calibTree-style to have no code difference
-from CalibTracker.SiStripCommon.ShallowEventDataProducer_cfi import shallowEventRun
 from CalibTracker.SiStripCommon.ShallowTracksProducer_cfi import shallowTracks
 from CalibTracker.SiStripCommon.ShallowGainCalibration_cfi import shallowGainCalibration
-ALCARECOShallowEventRun = shallowEventRun.clone()
 ALCARECOShallowTracks = shallowTracks.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefit'))
 ALCARECOShallowGainCalibration = shallowGainCalibration.clone(Tracks=cms.InputTag('ALCARECOCalibrationTracksRefit'))
-ALCARECOShallowSequence = cms.Sequence(ALCARECOShallowEventRun*ALCARECOShallowTracks*ALCARECOShallowGainCalibration)
+ALCARECOShallowSequence = cms.Sequence(ALCARECOShallowTracks*ALCARECOShallowGainCalibration)
 
 # ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
@@ -85,7 +83,6 @@ ALCARECOSiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
 ALCARECOSiStripCalib.DQMdir              = cms.untracked.string('AlCaReco/SiStripGains')
 ALCARECOSiStripCalib.calibrationMode     = cms.untracked.string('StdBunch')                                   
 ALCARECOSiStripCalib.gain.label          = cms.untracked.string('ALCARECOShallowGainCalibration')      
-ALCARECOSiStripCalib.evtinfo.label       = cms.untracked.string('ALCARECOShallowEventRun')             
 ALCARECOSiStripCalib.tracks.label        = cms.untracked.string('ALCARECOShallowTracks')               
 # ----------------------------------------------------------------------------
 

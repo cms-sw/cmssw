@@ -80,12 +80,6 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) {
   gainusedTick_token_ =
       consumes<std::vector<double>>(edm::InputTag(label, CalibPrefix_ + "gainusedTick" + CalibSuffix_));
 
-  edm::ParameterSet evtinfo_pset = iConfig.getUntrackedParameter<edm::ParameterSet>("evtinfo");
-  label = evtinfo_pset.getUntrackedParameter<std::string>("label");
-  EventPrefix_ = evtinfo_pset.getUntrackedParameter<std::string>("prefix");
-  EventSuffix_ = evtinfo_pset.getUntrackedParameter<std::string>("suffix");
-  TrigTech_token_ = consumes<std::vector<bool>>(edm::InputTag(label, EventPrefix_ + "TrigTech" + EventSuffix_));
-
   edm::ParameterSet track_pset = iConfig.getUntrackedParameter<edm::ParameterSet>("tracks");
   label = track_pset.getUntrackedParameter<std::string>("label");
   TrackPrefix_ = track_pset.getUntrackedParameter<std::string>("prefix");
