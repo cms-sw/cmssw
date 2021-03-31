@@ -46,18 +46,15 @@ process.hgcalEEParametersInitialize.fromDD4Hep = cms.bool(True)
 process.hgcalHESiParametersInitialize.fromDD4Hep = cms.bool(True)
 process.hgcalHEScParametersInitialize.fromDD4Hep = cms.bool(True)
 
-process.testEE = cms.EDAnalyzer("HGCalParameterTester",
-                                Name = cms.untracked.string("HGCalEESensitive"),
-                                Mode = cms.untracked.int32(1)
+process.load("Geometry.HGCalCommonData.hgcParameterTesterEE_cfi")
+
+process.hgcParameterTesterHESil = process.hgcParameterTesterEE.clone(
+    Name = cms.string("HGCalHESiliconSensitive")
 )
 
-process.testHESil = process.testEE.clone(
-    Name = cms.untracked.string("HGCalHESiliconSensitive")
-)
-
-process.testHESci = process.testEE.clone(
-    Name = cms.untracked.string("HGCalHEScintillatorSensitive"),
-    Mode = cms.untracked.int32(2)
+process.hgcParameterTesterHESci = process.hgcParameterTesterEE.clone(
+    Name = cms.string("HGCalHEScintillatorSensitive"),
+    Mode = cms.int32(2)
 )
  
-process.p1 = cms.Path(process.generator*process.testEE*process.testHESil*process.testHESci)
+process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE*process.hgcParameterTesterHESil*process.hgcParameterTesterHESci)

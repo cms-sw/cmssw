@@ -22,8 +22,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '
 
 # Input source
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
-    # File from dataset DY1JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8
-    '/store/relval/CMSSW_10_5_0_pre1/RelValZTT_13/MINIAODSIM/PU25ns_103X_upgrade2018_realistic_v8-v1/20000/EA29017F-9967-3F41-BB8A-22C44A454235.root'
+    # File from dataset TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8
+    '/store/mc/RunIISummer20UL18MiniAOD/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/00000/009636D7-07B2-DB49-882D-C251FD62CCE7.root'
 ))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProcess) )
