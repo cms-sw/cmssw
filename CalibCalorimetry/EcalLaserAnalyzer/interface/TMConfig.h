@@ -5,15 +5,15 @@
 
 class TMConfig : public TObject {
 public:
-  inline constexpr unsigned int fNsmNmax = 36;  //number of SM
-  inline constexpr unsigned int fNlmodN = 9;    //number of lmodN in a SM
-  inline constexpr unsigned int fNmem = 10;     //number of PNs in a MEM
-  inline constexpr unsigned int fNmodN 4;       //number of modN in a SM
-  inline constexpr unsigned int fNtt = 68;      //number of trigger towers in a SM
-  inline constexpr unsigned int fNmax = 8;
-  inline constexpr unsigned int fNburmax = 3;
-  inline constexpr unsigned int fNseqmax = 3;
-  inline constexpr unsigned int fNcolors 6;  //number of laser colors
+  static constexpr unsigned int fNsmNmax = 36;  //number of SM
+  static constexpr unsigned int fNlmodN = 9;    //number of lmodN in a SM
+  static constexpr unsigned int fNmem = 10;     //number of PNs in a MEM
+  static constexpr unsigned int fNmodN = 4;       //number of modN in a SM
+  static constexpr unsigned int fNtt = 68;      //number of trigger towers in a SM
+  static constexpr unsigned int fNmax = 8;
+  static constexpr unsigned int fNburmax = 3;
+  static constexpr unsigned int fNseqmax = 3;
+  static constexpr unsigned int fNcolors = 6;  //number of laser colors
 
 private:
   int smin;
