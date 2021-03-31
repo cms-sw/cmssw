@@ -381,16 +381,14 @@ def miniAOD_customizeCommon(process):
     import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
     tauIdEmbedder = tauIdConfig.TauIDEmbedder(
         process, cms, debug = False,
+        originalTauName = _noUpdatedTauName,
         updatedTauName = _updatedTauName,
         toKeep = ['deepTau2017v2']
     )
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
-    process.deepTau2017v2.taus = _noUpdatedTauName
-    process.slimmedTaus = getattr(process, _updatedTauName).clone(
-        src = _noUpdatedTauName
-    )
+    process.slimmedTaus = getattr(process, _updatedTauName).clone()
     process.deepTauIDTask = cms.Task(process.deepTau2017v2, process.slimmedTaus)
     task.add(process.deepTauIDTask)
 
@@ -398,18 +396,18 @@ def miniAOD_customizeCommon(process):
     _updatedTauNameNew = 'slimmedTausDeepIDsv2p1'
     tauIdEmbedderNew = tauIdConfig.TauIDEmbedder(
         process, cms, debug = False,
+        originalTauName = _noUpdatedTauName,
         updatedTauName = _updatedTauNameNew,
         toKeep = ['deepTau2017v2p1']
     )
     tauIdEmbedderNew.runTauID()
-    process.deepTau2017v2p1.taus = _noUpdatedTauName
     deepTauIDTaskNew_ = cms.Task(process.deepTau2017v2p1,process.slimmedTaus)
 
     from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
     from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
     for era in [run2_miniAOD_UL,run2_tau_ul_2016,run2_tau_ul_2018]:
         era.toReplaceWith(process.slimmedTaus,
-                          getattr(process, _updatedTauNameNew).clone(src = _noUpdatedTauName))
+                          getattr(process, _updatedTauNameNew))
         era.toReplaceWith(process.deepTauIDTask,
                           deepTauIDTaskNew_)
 
