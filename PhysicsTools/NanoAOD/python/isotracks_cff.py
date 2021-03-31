@@ -1,14 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
+from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_devel
 
 finalIsolatedTracks = cms.EDProducer("IsolatedTrackCleaner",
     tracks = cms.InputTag("isolatedTracks"),
-    cut = cms.string("((pt>5 && (abs(pdgId) == 11 || abs(pdgId) == 13)) || pt > 10) && (abs(pdgId) < 15 || abs(eta) < 2.5) && abs(dxy) < 0.2 && abs(dz) < 0.1 && ((pfIsolationDR03().chargedHadronIso < 5 && pt < 25) || pfIsolationDR03().chargedHadronIso/pt < 0.2)"), 
+    cut = cms.string("((pt>5 && (abs(pdgId) == 11 || abs(pdgId) == 13)) || pt > 10) && (abs(pdgId) < 15 || abs(eta) < 2.5) && ((abs(dxy) < 0.2 && abs(dz) < 0.1) || pt>15) && ((pfIsolationDR03().chargedHadronIso < 5 && pt < 25) || pfIsolationDR03().chargedHadronIso/pt < 0.2)"), 
     finalLeptons = cms.VInputTag(
         cms.InputTag("finalElectrons"),
         cms.InputTag("finalLooseMuons"),
     ),
 )
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(finalIsolatedTracks, cut = "((pt>5 && (abs(pdgId) == 11 || abs(pdgId) == 13)) || pt > 10) && (abs(pdgId) < 15 || abs(eta) < 2.5) && abs(dxy) < 0.2 && abs(dz) < 0.1 && ((pfIsolationDR03().chargedHadronIso < 5 && pt < 25) || pfIsolationDR03().chargedHadronIso/pt < 0.2)")
+
 
 isoForIsoTk = cms.EDProducer("IsoTrackIsoValueMapProducer",
     src = cms.InputTag("finalIsolatedTracks"),
