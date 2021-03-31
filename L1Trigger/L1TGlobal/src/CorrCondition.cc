@@ -1184,6 +1184,19 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         long long ptObj1 = m_gtScales->getLUT_Pt("Mass_" + lutName, etIndex1);
         unsigned int precPtLUTObj1 = m_gtScales->getPrec_Pt("Mass_" + lutName);
 
+        if( corrPar.corrCutType & 0x40 ) // Added for displaced muons
+          {
+	    lutName = lutObj0;
+            lutName += "-UPT";
+            ptObj0 = m_gtScales->getLUT_Upt("Mass_" + lutName, uptIndex0);
+            precPtLUTObj0 = m_gtScales->getPrec_Upt("Mass_" + lutName);
+
+            lutName = lutObj1;
+            lutName += "-UPT";
+            ptObj1 = m_gtScales->getLUT_Upt("Mass_" + lutName, uptIndex1);
+            precPtLUTObj1 = m_gtScales->getPrec_Upt("Mass_" + lutName);
+          }
+
         // Pt and Angles are at different precission.
         long long massSq = ptObj0 * ptObj1 * (coshDeltaEtaLUT - cosDeltaPhiLUT);
 

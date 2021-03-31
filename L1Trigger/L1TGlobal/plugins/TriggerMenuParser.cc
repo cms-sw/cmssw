@@ -664,6 +664,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     // ---------------
     parsePt_LUTS(scaleMap, "Mass", "EG", precisions["PRECISION-EG-MU-MassPt"]);
     parsePt_LUTS(scaleMap, "Mass", "MU", precisions["PRECISION-EG-MU-MassPt"]);
+    parseUpt_LUTS(scaleMap, "Mass", "MU", precisions["PRECISION-EG-MU-MassPt"]); // Added for displaced muons
     parsePt_LUTS(scaleMap, "Mass", "JET", precisions["PRECISION-EG-JET-MassPt"]);
     parsePt_LUTS(scaleMap, "Mass", "TAU", precisions["PRECISION-EG-TAU-MassPt"]);
     parsePt_LUTS(scaleMap, "Mass", "ETM", precisions["PRECISION-EG-ETM-MassPt"]);
@@ -849,6 +850,30 @@ void l1t::TriggerMenuParser::parsePt_LUTS(std::map<std::string, tmeventsetup::es
 
   m_gtScales.setLUT_Pt(lutpfx + "_" + scLabel1, lut_pt, prec);
 }
+
+// Added for displaced muons
+void l1t::TriggerMenuParser::parseUpt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
+					   std::string lutpfx,
+					   std::string obj1,
+					   unsigned int prec) {
+  using namespace tmeventsetup;
+
+  // First Delta Eta for this set
+  std::string scLabel1 = obj1;
+  scLabel1 += "-UPT";
+
+  //This LUT does not exist in L1 Menu file, don't fill it
+  if (scaleMap.find(scLabel1) == scaleMap.end())
+    return;
+
+  const esScale* scale1 = &scaleMap.find(scLabel1)->second;
+
+  std::vector<long long> lut_pt;
+  getLut(lut_pt, scale1, prec);
+
+  m_gtScales.setLUT_Upt(lutpfx + "_" + scLabel1, lut_pt, prec);
+}
+
 
 void l1t::TriggerMenuParser::parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
                                                      std::string obj1,
@@ -1300,6 +1325,11 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
   relativeBx = corrMu->getBxOffset();
 
   //  Loop over the cuts for this object
+  int upperUnconstrainedPtInd = -1;  // Added for displaced muons
+  int lowerUnconstrainedPtInd = 0;   // Added for displaced muons
+  int upperImpactParameterInd = -1;  // Added for displaced muons
+  int lowerImpactParameterInd = 0;   // Added for displaced muons
+  int impactParameterLUT = 0xF;      // Added for displaced muons, default is to ignore unless specified
   int upperThresholdInd = -1;
   int lowerThresholdInd = 0;
   int upperIndexInd = -1;
@@ -1317,6 +1347,17 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
     const esCut cut = cuts.at(kk);
 
     switch (cut.getCutType()) {
+      case esCutType::UnconstrainedPt:  // Added for displaced muons
+	lowerUnconstrainedPtInd = cut.getMinimum().index;
+	upperUnconstrainedPtInd = cut.getMaximum().index;
+	break;
+
+      case esCutType::ImpactParameter:  // Added for displaced muons
+	lowerImpactParameterInd = cut.getMinimum().index;
+	upperImpactParameterInd = cut.getMaximum().index;
+	impactParameterLUT = l1tstr2int(cut.getData());
+	break;
+
       case esCutType::Threshold:
         lowerThresholdInd = cut.getMinimum().index;
         upperThresholdInd = cut.getMaximum().index;
@@ -1383,6 +1424,12 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
   }  //end loop over cuts
 
   // Set the parameter cuts
+  objParameter[0].unconstrainedPtHigh = upperUnconstrainedPtInd; // Added for displacd muons
+  objParameter[0].unconstrainedPtLow = lowerUnconstrainedPtInd;  // Added for displacd muons
+  objParameter[0].impactParameterHigh = upperImpactParameterInd; // Added for displacd muons
+  objParameter[0].impactParameterLow = lowerImpactParameterInd;  // Added for displacd muons
+  objParameter[0].impactParameterLUT = impactParameterLUT;       // Added for displacd muons
+
   objParameter[0].ptHighThreshold = upperThresholdInd;
   objParameter[0].ptLowThreshold = lowerThresholdInd;
 
