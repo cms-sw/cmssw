@@ -32,7 +32,7 @@ public:
   static void globalEndJob(TrackstersCache *);
 
 private:
-  enum TracksterIterIndex { TRKEM = 0, EM, TRK, HAD };
+  typedef ticl::Trackster::IterationIndex TracksterIterIndex;
 
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
@@ -182,7 +182,6 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   // associating seed to the index of the trackster in the merged collection and the iteration that found it
   std::map<int, std::vector<std::pair<int, TracksterIterIndex>>> seedToTracksterAssociator;
-  std::vector<TracksterIterIndex> iterMergedTracksters;
   edm::Handle<std::vector<reco::Track>> track_h;
   evt.getByToken(tracks_token_, track_h);
   const auto &tracks = *track_h;
@@ -218,13 +217,12 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 
   fillTile(tracksterTile, trackstersTRKEM, TracksterIterIndex::TRKEM);
   fillTile(tracksterTile, trackstersEM, TracksterIterIndex::EM);
-  fillTile(tracksterTile, trackstersTRK, TracksterIterIndex::TRK);
+  fillTile(tracksterTile, trackstersTRK, TracksterIterIndex::TRKHAD);
   fillTile(tracksterTile, trackstersHAD, TracksterIterIndex::HAD);
 
   auto totalNumberOfTracksters =
       trackstersTRKEM.size() + trackstersTRK.size() + trackstersEM.size() + trackstersHAD.size();
   resultTrackstersMerged->reserve(totalNumberOfTracksters);
-  iterMergedTracksters.reserve(totalNumberOfTracksters);
   usedTrackstersMerged.resize(totalNumberOfTracksters, false);
   indexInMergedCollTRKEM.reserve(trackstersTRKEM.size());
   indexInMergedCollEM.reserve(trackstersEM.size());
@@ -242,26 +240,22 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
     indexInMergedCollTRKEM.push_back(resultTrackstersMerged->size());
     seedToTracksterAssociator[t.seedIndex()].emplace_back(resultTrackstersMerged->size(), TracksterIterIndex::TRKEM);
     resultTrackstersMerged->push_back(t);
-    iterMergedTracksters.push_back(TracksterIterIndex::TRKEM);
   }
 
   for (auto const &t : trackstersEM) {
     indexInMergedCollEM.push_back(resultTrackstersMerged->size());
     resultTrackstersMerged->push_back(t);
-    iterMergedTracksters.push_back(TracksterIterIndex::EM);
   }
 
   for (auto const &t : trackstersTRK) {
     indexInMergedCollTRK.push_back(resultTrackstersMerged->size());
-    seedToTracksterAssociator[t.seedIndex()].emplace_back(resultTrackstersMerged->size(), TracksterIterIndex::TRK);
+    seedToTracksterAssociator[t.seedIndex()].emplace_back(resultTrackstersMerged->size(), TracksterIterIndex::TRKHAD);
     resultTrackstersMerged->push_back(t);
-    iterMergedTracksters.push_back(TracksterIterIndex::TRK);
   }
 
   for (auto const &t : trackstersHAD) {
     indexInMergedCollHAD.push_back(resultTrackstersMerged->size());
     resultTrackstersMerged->push_back(t);
-    iterMergedTracksters.push_back(TracksterIterIndex::HAD);
   }
 
   assignPCAtoTracksters(*resultTrackstersMerged,
@@ -335,7 +329,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
               trackstersMergedHandle->at(tracksterIterationPair.first).raw_energy() > 0.) {
             if (tracksterIterationPair.second == TracksterIterIndex::TRKEM) {
               trackstersTRKEMwithSameSeed.push_back(tracksterIterationPair.first);
-            } else if (tracksterIterationPair.second == TracksterIterIndex::TRK) {
+            } else if (tracksterIterationPair.second == TracksterIterIndex::TRKHAD) {
               trackstersTRKwithSameSeed.push_back(tracksterIterationPair.first);
             }
           }
