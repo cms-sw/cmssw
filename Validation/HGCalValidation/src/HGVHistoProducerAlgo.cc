@@ -1256,7 +1256,8 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     std::map<int, double> totenergy_layer;
 
     for (auto const& sc : caloparticle.simClusters()) {
-      LogDebug("HGCalValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and " << sc->energy() << " energy. " << std::endl;
+      LogDebug("HGCalValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and "
+                                 << sc->energy() << " energy. " << std::endl;
       simHits += sc->hits_and_fractions().size();
       energy += sc->energy();
       for (auto const& h_and_f : sc->hits_and_fractions()) {
