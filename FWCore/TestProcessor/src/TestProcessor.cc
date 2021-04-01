@@ -29,6 +29,7 @@
 #include "FWCore/Framework/src/globalTransitionAsync.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -561,7 +562,7 @@ namespace edm {
           //The data product was not set so we need to
           // tell the ProductResolver not to wait
           auto r = pep->getProductResolver(p.first.branchID());
-          r->putProduct(std::unique_ptr<WrapperBase>());
+          dynamic_cast<ProductPutterBase const*>(r)->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
 

@@ -9,17 +9,6 @@ def _swapOfflineBSwithOnline(process):
     process.offlineBeamSpot = onlineBeamSpotProducer.clone()
     return process
 
-def _addLumiProducer(process):
-    if not hasattr(process,'lumiProducer'):
-        #unscheduled.. 
-        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
-        process.lumiProducer=lumiProducer
-    #if it's scheduled
-    if hasattr(process, 'reconstruction_step'):
-        process.reconstruction_step+=process.lumiProducer
-
-    return process
-
 def _overridesFor50ns(process):
     process.bunchSpacingProducer.bunchSpacingOverride = cms.uint32(50)
     process.bunchSpacingProducer.overrideBunchSpacing = cms.bool(True)
@@ -150,7 +139,6 @@ def customiseExpress(process):
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
-    process = _addLumiProducer(process)
 
     return process
 
@@ -171,8 +159,6 @@ def customiseExpressHI(process):
 ##############################################################################
 def customisePromptHI(process):
     process = customiseCommonHI(process)
-
-    process = _addLumiProducer(process)
 
     return process
 

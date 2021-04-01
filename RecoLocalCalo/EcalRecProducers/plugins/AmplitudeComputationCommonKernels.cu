@@ -7,6 +7,7 @@
 #include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
 #include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "DataFormats/Math/interface/approx_log.h"
@@ -113,8 +114,8 @@ namespace ecal {
         //
         // amplitudes
         //
-        int const adc = ecal::mgpa::adc(digis_in[inputTx]);
-        int const gainId = ecal::mgpa::gainId(digis_in[inputTx]);
+        int const adc = ecalMGPA::adc(digis_in[inputTx]);
+        int const gainId = ecalMGPA::gainId(digis_in[inputTx]);
         SampleVector::Scalar amplitude = 0.;
         SampleVector::Scalar pedestal = 0.;
         SampleVector::Scalar gainratio = 0.;

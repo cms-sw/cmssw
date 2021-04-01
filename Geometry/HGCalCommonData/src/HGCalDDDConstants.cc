@@ -25,7 +25,7 @@ using namespace geant_units::operators;
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::string& name)
     : hgpar_(hp), sqrt3_(std::sqrt(3.0)) {
   mode_ = hgpar_->mode_;
-  fullAndPart_ = (mode_ == HGCalGeometryMode::Hexagon8File);
+  fullAndPart_ = ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Mode " << mode_ << " FullAndPart " << fullAndPart_;
 #endif
@@ -615,9 +615,10 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
   auto itr = hgpar_->typesInLayers_.find(indx);
   int type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
 #ifdef EDM_ML_DEBUG
-  if (debug)
+  if (debug) {
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << waferU << ":" << waferV << ":" << indx << ":"
                                   << (itr == hgpar_->typesInLayers_.end()) << ":" << type;
+  }
 #endif
   int kndx = cellV * 100 + cellU;
   if (type == 0) {
@@ -729,7 +730,7 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(int lay, int irad, int
                                   << hgpar_->iradMaxBH_[indx.first] << " Type " << type << " Z " << indx.first << ":"
                                   << z << " phi " << phi << " R " << r << ":" << range.first << ":" << range.second;
 #endif
-    if (mode_ != HGCalGeometryMode::TrapezoidFile)
+    if ((mode_ != HGCalGeometryMode::TrapezoidFile) && (mode_ != HGCalGeometryMode::TrapezoidModule))
       r = std::max(range.first, std::min(r, range.second));
     x = r * std::cos(phi);
     y = r * std::sin(phi);
@@ -1131,7 +1132,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       if ((dy <= 0.5 * hexside_) || (dx * tan30deg_ <= (hexside_ - dy))) {
         waferU = HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]);
         waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]);
-        if (mode_ == HGCalGeometryMode::Hexagon8File) {
+        if ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module)) {
           int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
           celltype = HGCalWaferType::getType(index, hgpar_->waferInfoMap_);
         } else {
@@ -1590,7 +1591,7 @@ bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV, int cellU,
                                 << cellV << " Position " << x << ":" << y << ":" << rr << " Compare Limits "
                                 << hgpar_->rMinLayHex_[ll] << ":" << hgpar_->rMaxLayHex_[ll] << " Flag " << result;
 #endif
-  if (result && (mode_ == HGCalGeometryMode::Hexagon8File)) {
+  if (result && ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module))) {
     int N = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
     auto partn = waferTypeRotation(lay, waferU, waferV, false, false);
     result = HGCalWaferMask::goodCell(cellU, cellV, N, partn.first, partn.second);

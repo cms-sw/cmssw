@@ -38,7 +38,7 @@ HGCalSD::HGCalSD(const std::string& name,
              clg,
              p,
              manager,
-             (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
+             static_cast<float>(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")),
       hgcons_(nullptr),
       slopeMin_(0),
@@ -129,16 +129,27 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   const G4VTouchable* touch = preStepPoint->GetTouchable();
 
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_;
+  printDetectorLevels(touch);
+#endif
   //determine the exact position in global coordinates in the mass geometry
   G4ThreeVector hitPoint = preStepPoint->GetPosition();
   float globalZ = touch->GetTranslation(0).z();
   int iz(globalZ > 0 ? 1 : -1);
 
-  int layer, module, cell;
-  if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
+  int layer(0), module(-1), cell(-1);
+  if (geom_mode_ == HGCalGeometryMode::Hexagon8Module) {
+    if (touch->GetHistoryDepth() > levelT2_) {
+      layer = touch->GetReplicaNumber(4);
+      module = touch->GetReplicaNumber(3);
+      cell = touch->GetReplicaNumber(1);
+    } else {
+      layer = touch->GetReplicaNumber(2);
+      module = touch->GetReplicaNumber(1);
+    }
+  } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
     layer = touch->GetReplicaNumber(0);
-    module = -1;
-    cell = -1;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_
                                << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":"
@@ -230,7 +241,7 @@ uint32_t HGCalSD::setDetUnitId(int layer, int module, int cell, int iz, G4ThreeV
       ignoreRejection();
     }
   }
-  if ((geom_mode_ == HGCalGeometryMode::Hexagon8File) || (id == 0))
+  if ((geom_mode_ == HGCalGeometryMode::Hexagon8File) || (geom_mode_ == HGCalGeometryMode::Hexagon8Module) || (id == 0))
     ignoreRejection();
   return id;
 }

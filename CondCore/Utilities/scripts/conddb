@@ -750,6 +750,38 @@ class run_to_timestamp( object ):
             newiovs[bestRunTime] =  iovs[since]
         return newiovs
 
+class timestamp_to_run( object ):
+    def __init__( self, session ):
+        self.session = session
+
+    def convertIovs( self, iovs ):
+        ks = sorted(iovs.keys())
+        logging.info('Converting %s time-based iovs to run-based' %len(iovs) )         
+        RunInfo = self.session.get_dbtype(conddb.RunInfo)
+        minTs = datetime.datetime.utcfromtimestamp( int(ks[0]) >> 32 )
+        maxTs = datetime.datetime.utcfromtimestamp( int(ks[len(ks)-1]) >> 32 )
+        firstRun = self.session.query(sqlalchemy.func.min(RunInfo.run_number)).filter(RunInfo.end_time > minTs).one()[0]
+        lastRun = self.session.query(sqlalchemy.func.max(RunInfo.run_number)).filter(RunInfo.start_time < maxTs).one()[0]
+        runs = self.session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).filter(RunInfo.run_number >= firstRun).filter(RunInfo.run_number <= lastRun ).order_by(RunInfo.run_number).all()
+        newiovs = {}
+        prevRun = None
+        for since in ks:
+            ts = datetime.datetime.utcfromtimestamp( since >> 32 )
+            run = None
+            for r in runs:
+                if ts >= r[1] and ts <= r[2]:
+                    run = r[0]
+                    break
+            if run is not None:
+                if run == prevRun:
+                    logging.info('Skipping iov with since %s, because it corresponds to an already mapped run %s' %(since,run))
+                else:
+                    prevRun = run
+                    newiovs[run] = iovs[since]
+            else:                                     
+                logging.info('Skipping iov with since %s, because no run is matching that time.'%since )
+        return newiovs
+
 def _convert_time( session, toTimeType, runNumber ):
     if toTimeType == 'Run':
         return runNumber
@@ -1614,31 +1646,53 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         destPayloadType = t['object_type']
         destTimeType = t['time_type']
         destSynchro = t['synchronization']
-    if args.convertTime:
-        if not tag['time_type']=='Run':
-            logging.error('Time conversion from %s is not supported.' %tag['time_type'])
-            raise Exception("Cannot execute the copy.")
+    if args.toTimestamp:
+        if tag['time_type'] == 'Time':
+            logging.info('Source Tag timeType=Time. Ignoring request of conversion to Timestamp')
+            args.toTimestamp = False
+        else:
+            if not tag['time_type']=='Run':
+                logging.error('Conversion from %s to Timestamp is not supported.' %tag['time_type'])
+                raise Exception("Cannot execute the copy.")
+    if args.toRun:
+        if tag['time_type'] == 'Run':
+            logging.info('Source Tag timeType=Run. Ignoring request of conversion to Run')
+            args.toRun = False
+        else:
+            if not tag['time_type']=='Time':
+                logging.error('Conversion from %s to Run is not supported.' %tag['time_type'])
+                raise Exception("Cannot execute the copy.")
     if destExists:
         logging.warning('Destination tag "%s" already exists.' %second )
         if destPayloadType != tag['object_type']:
             logging.error('Cannot copy iovs from tag %s (object type: %s) to tag %s (object type: %s), since the object types are different.' %(first,tag['object_type'],second,destPayloadType))
             raise Exception('Object type mismatch, bailing out.')
-        if destTimeType != tag['time_type']:
-            if args.convertTime:
-                if not destTimeType=='Time':
-                    logging.error('Time conversion to %s is not supported.' %destTimeType)
-                    raise Exception("Cannot execute the copy.")
+        destTimeTypeOk = (destTimeType == tag['time_type'])
+        if args.toTimestamp:
+            if not destTimeType=='Time':
+                logging.error('TimeType of target tag %s does not allow conversion to Time.' %destTimeType)
+                raise Exception("Cannot execute the copy.")
             else:
-                logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
-                raise Exception('Time type mismatch, bailing out.')
+                destTimeTypeOk = True
+        if args.toRun:
+            if not destTimeType=='Run':
+                logging.error('TimeType of target tag %s does not allow conversion to Run.' %destTimeType)
+                raise Exception("Cannot execute the copy.")
+            else:
+                destTimeTypeOk = True
+        if not destTimeTypeOk:
+            logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
+            raise Exception('Time type mismatch, bailing out.')
         if not args.yes:
             output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
             if raw_input().lower() not in ['y', 'yes']:
                 raise Exception('Aborted by the user.')
     else:
         destSynchro = 'any'
-        if args.convertTime:
+        if args.toTimestamp:
             tag['time_type'] = 'Time'
+        if args.toRun:
+            tag['time_type'] = 'Run'
         destTimeType = tag['time_type']
         dest = Tag2(**tag)
         dest.synchronization = destSynchro
@@ -1710,10 +1764,12 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             policy_type = _get_synchro_policy( destSynchro )
             synchro_policy = policy_type( session1, session2, destTimeType, second )
             ret, iovs = synchro_policy.validate( iovs )
-        if args.convertTime:
+        if args.toTimestamp:
             converter = run_to_timestamp( conddb.getSessionOnMasterDB( session1, session2 ) )
             iovs = converter.convertIovs( iovs )
-
+        if args.toRun:
+            converter = timestamp_to_run( conddb.getSessionOnMasterDB( session1, session2 ) )
+            iovs = converter.convertIovs( iovs )            
         # making the list of the payloads to export...         
         for since in iovs.keys():
             hashes.add( iovs[since] )
@@ -1847,8 +1903,8 @@ def copy(args):
             if args.note is None or args.note=='' or args.note==' ':
                 raise Exception('Cannot run in force edit mode without to provide a non-empty editing note.')
         if args.o2oTest:
-            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.nosynchro or args.convertTime:
-                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, nosynchro, snapshot or convertTime.')
+            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.nosynchro or args.toTimestamp:
+                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, nosynchro, snapshot or toTimestamp.')
 
         try:
             ret, niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
@@ -2554,9 +2610,9 @@ def main():
     parser_copy.add_argument('--o2oTest', action='store_true', help='Special copy for o2o test. Copy the second to last iov of the source tag, to allow to run the o2o procedure to add the last iov. It cannot be executed with the from, to, ovveride and snapshot options.')
     parser_copy.add_argument('--synchronize',action='store_true',help='No effect, since the synchronization is applied by default for tags. The option is kept for backward compatibility') 
     parser_copy.add_argument('--nosynchro',action='store_true',help='For tags, disable the synchronization of the destination iovs. No effect for other object type copy') 
-    parser_copy.add_argument('--convertTime',action='store_true',help='For tags, triggers the convertion from run-based iovs to timestamp-based iovs. It will return an error for any combination with input tag non run-based, and existing destination tag non timestamp-based. Not supported with synchronization.') 
+    parser_copy.add_argument('--toTimestamp',action='store_true',help='For tags, triggers the conversion from run-based iovs to timestamp-based iovs. It will return an error for any combination with input tag non run-based, and existing destination tag non timestamp-based. Not supported with synchronization.') 
+    parser_copy.add_argument('--toRun',action='store_true',help='For tags, triggers the conversion from timestamp-based iovs to run-based iovs. When multiple timestamped IOVs are found matching the same run, only the first is considered. IOVs with timestamp not matching any run are skipped. It will return an error for any combination with input tag non timestamp-based, and existing destination tag non run-based. Not supported with synchronization.') 
     parser_copy.set_defaults(func=copy)
-
     parser_edit = parser_subparsers.add_parser('edit', description='Edits an object. Opens up your $EDITOR with prefilled text about the object. There you can modify the data. Save the file and quit the editor. The modified data will be written into the database. e.g. for a tag, its attributes and the list of IOVs/payloads appears and are modifiable.')
     parser_edit.add_argument('name', help="Name of the object. This can be a tag's name (edits its attributes and its IOVs/payloads), a global tag's name (edits its attributes and its mapping records <-> tags) or a payload's SHA1 hexadecimal hash (or a prefix if unique; TODO: edits its attributes). It must exactly match -- if needed, use the search command first to look for it.")
     parser_edit.add_argument('--header', default=False, action='store_true', help='Edit the header attributes of the object.')

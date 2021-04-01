@@ -21,6 +21,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 
 using namespace reco;
 
@@ -207,6 +208,8 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd0.add<bool>("isFiducial", false);
     psd0.add<bool>("seedFromTEC", true);
     psd0.add<double>("maxTIP", 999999999.0);
+    psd0.add<double>("multThresEB", EgammaLocalCovParamDefaults::kMultThresEB);
+    psd0.add<double>("multThresEE", EgammaLocalCovParamDefaults::kMultThresEE);
     // preselection parameters
     desc.add<edm::ParameterSetDescription>("preselection", psd0);
   }
@@ -272,6 +275,8 @@ namespace {
         .isFiducial = pset.getParameter<bool>("isFiducial"),
         .maxTIP = pset.getParameter<double>("maxTIP"),
         .seedFromTEC = pset.getParameter<bool>("seedFromTEC"),
+        .multThresEB = pset.getParameter<double>("multThresEB"),
+        .multThresEE = pset.getParameter<double>("multThresEE"),
     };
   }
 };  // namespace

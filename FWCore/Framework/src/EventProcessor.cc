@@ -192,6 +192,21 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
+  void validateLooper(ParameterSet& pset) {
+    auto const modtype = pset.getParameter<std::string>("@module_type");
+    auto const moduleLabel = pset.getParameter<std::string>("@module_label");
+    auto filler = ParameterSetDescriptionFillerPluginFactory::get()->create(modtype);
+    ConfigurationDescriptions descriptions(filler->baseType(), modtype);
+    filler->fill(descriptions);
+    try {
+      edm::convertException::wrap([&]() { descriptions.validate(pset, moduleLabel); });
+    } catch (cms::Exception& iException) {
+      iException.addContext(
+          fmt::format("Validating configuration of EDLooper of type {} with label: '{}'", modtype, moduleLabel));
+      throw;
+    }
+  }
+
   std::shared_ptr<EDLooperBase> fillLooper(eventsetup::EventSetupsController& esController,
                                            eventsetup::EventSetupProvider& cp,
                                            ParameterSet& params) {
@@ -208,6 +223,7 @@ namespace edm {
     for (std::vector<std::string>::iterator itName = loopers.begin(), itNameEnd = loopers.end(); itName != itNameEnd;
          ++itName) {
       ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
+      validateLooper(*providerPSet);
       providerPSet->registerIt();
       vLooper = eventsetup::LooperFactory::get()->addTo(esController, cp, *providerPSet);
     }
@@ -1421,6 +1437,8 @@ namespace edm {
     EventSetupImpl const& es = iLumiStatus->eventSetupImpl(esp_->subProcessIndex());
     std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = &iLumiStatus->eventSetupImpls();
 
+    // group is used later in this function, and lives outside of iTask
+    tbb::task_group& taskGroup = *iTask.group();
     auto finalTaskForThisLumi = edm::make_waiting_task(
         [status = std::move(iLumiStatus), iTask = std::move(iTask), this](std::exception_ptr const* iPtr) mutable {
           std::exception_ptr ptr;
@@ -1478,10 +1496,8 @@ namespace edm {
         });
 
     auto writeT = edm::make_waiting_task(
-        [this,
-         didGlobalBeginSucceed,
-         &lumiPrincipal = lp,
-         task = WaitingTaskHolder(*iTask.group(), finalTaskForThisLumi)](std::exception_ptr const* iExcept) mutable {
+        [this, didGlobalBeginSucceed, &lumiPrincipal = lp, task = WaitingTaskHolder(taskGroup, finalTaskForThisLumi)](
+            std::exception_ptr const* iExcept) mutable {
           if (iExcept) {
             task.doneWaiting(*iExcept);
           } else {
@@ -1496,7 +1512,7 @@ namespace edm {
 
     LumiTransitionInfo transitionInfo(lp, es, eventSetupImpls);
     using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
-    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(*iTask.group(), writeT),
+    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup, writeT),
                                      *schedule_,
                                      transitionInfo,
                                      serviceToken_,

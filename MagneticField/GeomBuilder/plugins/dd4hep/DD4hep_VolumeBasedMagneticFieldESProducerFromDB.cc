@@ -7,6 +7,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -80,6 +81,7 @@ DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticField
     const edm::ParameterSet& iConfig)
     : debug_(iConfig.getUntrackedParameter<bool>("debugBuilder")) {
   std::string const myConfigLabel = "VBMFESChoice";
+  usesResources({edm::ESSharedResourceNames::kDD4Hep});
 
   //Based on configuration, pick algorithm to produce the proper MagFieldConfig with a specific label
   const int current = iConfig.getParameter<int>("valueOverride");

@@ -28,7 +28,8 @@ options.parseArguments()
 # setting up the process
 process = cms.Process("CONVERT")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
+process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Alignment.MuonAlignment.muonGeometryDBConverter_cfi")
@@ -53,6 +54,14 @@ process.CSCGeometryAlInputMethod = cms.ESProducer("CSCGeometryESModule",
     fromDD4hep = cms.bool(False)
 )
 
+process.GEMGeometryAlInputMethod = cms.ESProducer("GEMGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputMethod'),
+    fromDDD = cms.bool(True),
+    fromDD4Hep = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    applyAlignment = cms.bool(False)
+)
+
 process.DTGeometryAlInputDB = cms.ESProducer("DTGeometryESModule",
     appendToDataLabel = cms.string('idealForInputDB'),
     applyAlignment = cms.bool(False),
@@ -71,6 +80,14 @@ process.CSCGeometryAlInputDB = cms.ESProducer("CSCGeometryESModule",
     applyAlignment = cms.bool(False),
     fromDDD = cms.bool(True),
     fromDD4hep = cms.bool(False)
+)
+
+process.GEMGeometryAlInputDB = cms.ESProducer("GEMGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputDB'),
+    fromDDD = cms.bool(True),
+    fromDD4Hep = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    applyAlignment = cms.bool(False)
 )
 
 process.DTGeometryAlOutputXML = cms.ESProducer("DTGeometryESModule",
@@ -93,6 +110,14 @@ process.CSCGeometryAlOutputXML = cms.ESProducer("CSCGeometryESModule",
     fromDD4hep = cms.bool(False)
 )
 
+process.GEMGeometryAlOutputXML = cms.ESProducer("GEMGeometryESModule",
+    appendToDataLabel = cms.string('idealForOutputXML'),
+    fromDDD = cms.bool(True),
+    fromDD4Hep = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    applyAlignment = cms.bool(False)
+)
+
 process.DTGeometryAlInputXML = cms.ESProducer("DTGeometryESModule",
     appendToDataLabel = cms.string('idealForInputXML'),
     applyAlignment = cms.bool(False),
@@ -113,8 +138,13 @@ process.CSCGeometryAlInputXML = cms.ESProducer("CSCGeometryESModule",
     fromDD4hep = cms.bool(False)
 )
 
-
-
+process.GEMGeometryAlInputXML = cms.ESProducer("GEMGeometryESModule",
+    appendToDataLabel = cms.string('idealForInputXML'),
+    fromDDD = cms.bool(True),
+    fromDD4Hep = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    applyAlignment = cms.bool(False)
+)
 ################################################################################
 # parameters to configure:
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -135,7 +165,13 @@ if options.input == "db":
                   tag = cms.string("CSCAlignmentRcd")),
          cms.PSet(connect = cms.string("sqlite_file:"+options.inputFile),
                   record = cms.string("CSCAlignmentErrorExtendedRcd"),
-                  tag = cms.string("CSCAlignmentErrorExtendedRcd"))
+                  tag = cms.string("CSCAlignmentErrorExtendedRcd")),
+         cms.PSet(connect = cms.string("sqlite_file:"+options.inputFile),
+                  record = cms.string("GEMAlignmentRcd"),
+                  tag = cms.string("GEMAlignmentRcd")),
+         cms.PSet(connect = cms.string("sqlite_file:"+options.inputFile),
+                  record = cms.string("GEMAlignmentErrorExtendedRcd"),
+                  tag = cms.string("GEMAlignmentErrorExtendedRcd"))
         ])
 elif options.input == "xml":
     process.muonGeometryDBConverter.fileName = options.inputFile
@@ -154,6 +190,10 @@ if options.output == "db":
                      tag = cms.string("CSCAlignmentRcd")),
             cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"),
                      tag = cms.string("CSCAlignmentErrorExtendedRcd")),
+            cms.PSet(record = cms.string("GEMAlignmentRcd"),
+                     tag = cms.string("GEMAlignmentRcd")),
+            cms.PSet(record = cms.string("GEMAlignmentErrorExtendedRcd"),
+                     tag = cms.string("GEMAlignmentErrorExtendedRcd"))
         )
     )
     process.PoolDBOutputService.connect = "sqlite_file:"+options.outputFile

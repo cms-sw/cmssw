@@ -198,5 +198,33 @@ namespace edm {
 
     const std::string& extendedBaseType() const override { return kEmpty; }
   };
+
+  template <typename T>
+  class DescriptionFillerForEDLoopers : public ParameterSetDescriptionFillerBase {
+  public:
+    DescriptionFillerForEDLoopers() {}
+    DescriptionFillerForEDLoopers(const DescriptionFillerForEDLoopers&) = delete;                   // stop default
+    const DescriptionFillerForEDLoopers& operator=(const DescriptionFillerForEDLoopers&) = delete;  // stop default
+
+    // If T has a fillDescriptions function then just call that, otherwise
+    // put in an "unknown description" as a default.
+    void fill(ConfigurationDescriptions& descriptions) const override {
+      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
+                         edm::fillDetails::DoFillDescriptions<T>,
+                         edm::fillDetails::DoFillAsUnknown<T>>
+          fill_descriptions;
+      fill_descriptions(descriptions);
+
+      std::conditional_t<edm::fillDetails::has_prevalidate_function<T>::value,
+                         edm::fillDetails::DoPrevalidate<T>,
+                         edm::fillDetails::DoNothing<T>>
+          prevalidate;
+      prevalidate(descriptions);
+    }
+
+    const std::string& baseType() const override { return kBaseForEDLooper; }
+
+    const std::string& extendedBaseType() const override { return kEmpty; }
+  };
 }  // namespace edm
 #endif

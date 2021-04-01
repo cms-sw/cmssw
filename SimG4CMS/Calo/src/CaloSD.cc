@@ -1100,3 +1100,19 @@ void CaloSD::cleanHitCollection() {
 
   cleanIndex = theHC->entries();
 }
+
+void CaloSD::printDetectorLevels(const G4VTouchable* touch) const {
+  //Print name and copy numbers
+  int level = ((touch->GetHistoryDepth()) + 1);
+  std::ostringstream st1;
+  st1 << level << " Levels:";
+  if (level > 0) {
+    for (int ii = 0; ii < level; ii++) {
+      int i = level - ii - 1;
+      G4VPhysicalVolume* pv = touch->GetVolume(i);
+      std::string name = (pv != nullptr) ? pv->GetName() : "Unknown";
+      st1 << " " << name << ":" << touch->GetReplicaNumber(i);
+    }
+  }
+  edm::LogVerbatim("CaloSim") << st1.str();
+}

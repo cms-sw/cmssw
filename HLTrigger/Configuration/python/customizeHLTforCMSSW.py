@@ -129,23 +129,11 @@ def customiseFor2018Input(process):
 
     return process
 
-def customiseFor33104(process):
-    """Customise the HLT menu to remove the unused use_vdt parameters"""
-    for producer in producers_by_type(process, "PrimaryVertexProducer"):
-        if hasattr(producer, "TkClusParameters"):
-            pset = getattr(producer, "TkClusParameters")
-            if hasattr(pset, "TkDAClusParameters"):
-                if hasattr(getattr(pset, "TkDAClusParameters"),"use_vdt"):
-                    del producer.TkClusParameters.TkDAClusParameters.use_vdt
-
-    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
-    process = customiseFor33104(process)
 
     return process

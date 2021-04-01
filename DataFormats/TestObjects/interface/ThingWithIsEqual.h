@@ -8,6 +8,7 @@ namespace edmtest {
   struct ThingWithIsEqual {
     ~ThingWithIsEqual() {}
     ThingWithIsEqual() : a() {}
+    explicit ThingWithIsEqual(cms_int32_t v) : a(v) {}
     bool isProductEqual(ThingWithIsEqual const& thingWithIsEqual) const;
     cms_int32_t a;
   };
