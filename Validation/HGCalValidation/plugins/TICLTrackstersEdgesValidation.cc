@@ -1,5 +1,6 @@
 #include <string>
 #include <unordered_map>
+#include <numeric>
 
 // user include files
 #include "DataFormats/Math/interface/Point3D.h"
@@ -25,6 +26,7 @@ struct Histogram_TICLTrackstersEdgesValidation {
   dqm::reco::MonitorElement *raw_energy_, *raw_energy_1plusLC_;
   dqm::reco::MonitorElement *regr_energy_, *regr_energy_1plusLC_;
   dqm::reco::MonitorElement *raw_energy_vs_regr_energy_, *raw_energy_vs_regr_energy_1plusLC_;
+  dqm::reco::MonitorElement *id_prob_, *id_prob_1plusLC_;
   dqm::reco::MonitorElement* delta_energy_;
   dqm::reco::MonitorElement* delta_energy_relative_;
   dqm::reco::MonitorElement* delta_energy_vs_energy_;
@@ -111,16 +113,24 @@ void TICLTrackstersEdgesValidation::dqmAnalyze(edm::Event const& iEvent,
     histo.number_->Fill(numberOfTracksters);
     for (unsigned int i = 0; i < numberOfTracksters; ++i) {
       const auto& thisTrackster = trackster_h->at(i);
+
       // The following plots should be moved to HGVHistoProducerAlgo
       // when we get rid of the MultiClusters and use only Tracksters
       histo.raw_energy_->Fill(thisTrackster.raw_energy());
       histo.regr_energy_->Fill(thisTrackster.regressed_energy());
       histo.raw_energy_vs_regr_energy_->Fill(thisTrackster.regressed_energy(), thisTrackster.raw_energy());
+      const auto& probs = thisTrackster.id_probabilities();
+      std::vector<int> sorted_probs_idx(probs.size());
+      std::iota(begin(sorted_probs_idx), end(sorted_probs_idx), 0);
+      std::sort(begin(sorted_probs_idx), end(sorted_probs_idx), [&probs](int i, int j) { return probs[i] > probs[j]; });
+      histo.id_prob_->Fill(sorted_probs_idx[0]);
       if (!thisTrackster.vertices().empty()) {
         histo.raw_energy_1plusLC_->Fill(thisTrackster.raw_energy());
         histo.regr_energy_1plusLC_->Fill(thisTrackster.regressed_energy());
         histo.raw_energy_vs_regr_energy_1plusLC_->Fill(thisTrackster.regressed_energy(), thisTrackster.raw_energy());
+        histo.id_prob_1plusLC_->Fill(sorted_probs_idx[0]);
       }
+
       // Plots on edges
       for (const auto& edge : thisTrackster.edges()) {
         auto& ic = layerClusters[edge[0]];
@@ -211,6 +221,9 @@ void TICLTrackstersEdgesValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   TString onePlusLC[] = {"1plus LC", "for tracksters with at least one LC"};
   TString trkers = "Tracksters";
+  static const char* particle_kind[] = {
+      "photon", "electron", "muon", "neutral_pion", "charged_hadron", "neutral_hadron", "ambiguous", "unknown"};
+  auto nCategory = sizeof(particle_kind) / sizeof(*particle_kind);
   int labelIndex = 0;
   for (const auto& trackster_token : tracksterTokens_) {
     auto& histo = histos[trackster_token.index()];
@@ -228,6 +241,8 @@ void TICLTrackstersEdgesValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                     &eBins[0],
                                                     eNBins,
                                                     &eBins[0]);
+    histo.id_prob_ =
+        ibook.book1D("ID probability", "ID probability;category;Max ID probability", nCategory, 0, nCategory);
     histo.raw_energy_1plusLC_ = ibook.book1D(
         "Raw Energy " + onePlusLC[0], "Raw Energy " + onePlusLC[1] + ";Raw Energy [GeV];" + trkers, eNBins, &eBins[0]);
     histo.regr_energy_1plusLC_ = ibook.book1D("Regressed Energy " + onePlusLC[0],
@@ -241,6 +256,15 @@ void TICLTrackstersEdgesValidation::bookHistograms(DQMStore::IBooker& ibook,
                      &eBins[0],
                      eNBins,
                      &eBins[0]);
+    histo.id_prob_1plusLC_ = ibook.book1D("ID probability " + onePlusLC[0],
+                                          "ID probability " + onePlusLC[1] + ";category;Max ID probability",
+                                          nCategory,
+                                          0,
+                                          nCategory);
+    for (int iBin = 0; iBin < histo.id_prob_->getNbinsX(); iBin++) {
+      histo.id_prob_->setBinLabel(iBin + 1, particle_kind[iBin]);
+      histo.id_prob_1plusLC_->setBinLabel(iBin + 1, particle_kind[iBin]);
+    }
     // Plots on edges
     histo.delta_energy_ = ibook.book1D("Delta energy", "Delta Energy (O-I)", 800, -20., 20.);
     histo.delta_energy_relative_ =
