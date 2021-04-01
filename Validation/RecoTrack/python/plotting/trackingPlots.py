@@ -615,6 +615,8 @@ def _mapCollectionToAlgoQuality(collName):
     prefixes = ["cutsreco", "cutsrecofrompv", "cutsrecofrompv2", "cutsrecofrompvalltp", "cutsrecoetagreater2p7"]
     if collNameLow in ["general", "generalfrompv", "generaletagreater2p7"]+prefixes:
         algo = "ootb"
+    elif collNameLow in ["pixel", "pixelfrompv", "pixelfrompvalltp"]:
+        algo = "pixel"
     else:
         def testColl(coll):
             for pfx in prefixes:
@@ -939,6 +941,7 @@ class TrackingSummaryTable:
     class BTVLike: pass
     class AK4PFJets: pass
     class Pixel: pass
+    class PixelPt09: pass
 
     def __init__(self, section, collection=GeneralTracks):
         self._collection = collection
@@ -981,6 +984,8 @@ class TrackingSummaryTable:
                 return _getAlgoQuality(data, "ak4PFJets", "")
             elif self._collection == TrackingSummaryTable.Pixel:
                 return _getAlgoQuality(data, "pixel", "")
+            elif self._collection == TrackingSummaryTable.PixelPt09:
+                return _getAlgoQuality(data, "pixel", "Pt09")
             else:
                 raise Exception("Collection not recognized, %s" % str(self._collection))
         def _formatOrNone(num, func):
@@ -1354,11 +1359,21 @@ _appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForE
 _appendTrackingPlots("TrackBHadron", "bhadron", _simBasedPlots+_recoBasedPlots, onlyForBHadron=True)
 _appendTrackingPlots("TrackDisplaced", "displaced", _simBasedPlots+_recoBasedPlots)
 # Pixel tracks
-_common = dict(purpose=PlotPurpose.Pixel, page="pixel")
-plotter.append("pixelTrack", _trackingFolders("PixelTrack"), TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
-plotterExt.append("pixelTrack", _trackingFolders("PixelTrack"), TrackingPlotFolder(*_extendedPlots, **_common))
-plotter.append("pixelTrack_summary",  _trackingFolders("PixelTrack"), PlotFolder(_summaryRaw, _summaryRawN, loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", section="pixel"))
-plotter.appendTable("pixelTrack_summary", _trackingFolders("PixelTrack"), TrackingSummaryTable(section="pixel", collection=TrackingSummaryTable.Pixel))
+def _appendPixelTrackingPlots(lastDirName, name):
+    _common = dict(purpose=PlotPurpose.Pixel, page="pixel")
+    _folders = _trackingFolders(lastDirName)
+
+    plotter.append(name, _folders, TrackingPlotFolder(*(_simBasedPlots+_recoBasedPlots), **_common))
+    plotterExt.append(name, _folders, TrackingPlotFolder(*_extendedPlots, **_common))
+
+    plotter.append(name+"_summary",  _folders, PlotFolder(_summaryRaw, _summaryRawN, loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
+    plotter.append(name+"_summary",  _folders, PlotFolder(_summaryRaw, _summaryRawN, loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", section=name+"Pt09"))
+    plotter.appendTable(name+"_summary", _folders, TrackingSummaryTable(section=name, collection=TrackingSummaryTable.Pixel))
+    plotter.appendTable(name+"_summary", _folders, TrackingSummaryTable(section=name+"Pt09", collection=TrackingSummaryTable.PixelPt09))
+_appendPixelTrackingPlots("PixelTrack", "pixel")
+_appendPixelTrackingPlots("PixelTrackFromPV", "pixelFromPV")
+_appendPixelTrackingPlots("PixelTrackFromPVAllTP", "pixelFromPVAllTP")
+_appendPixelTrackingPlots("PixelTrackBHadron", "pixelbhadron")
 
 
 # MiniAOD
