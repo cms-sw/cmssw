@@ -192,5 +192,7 @@ namespace ticl {
     // trackster ID probabilities
     std::array<float, 8> id_probabilities_;
   };
+
+  typedef std::vector<Trackster> TracksterCollection;
 }  // namespace ticl
 #endif
