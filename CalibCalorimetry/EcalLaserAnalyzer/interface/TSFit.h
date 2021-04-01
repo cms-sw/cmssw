@@ -1,18 +1,19 @@
 #ifndef TSFit_H
 #define TSFit_H
 
-#define SDIM 14     /* default number of samples for cristal */
-#define PLSHDIM 650 /* default size of the pulse shape array */
-//these 2 last parameters are overwritten in constructor
-
-#define matdim 5 /* parameters fit max matrice size */
-#define diminpar 10
-#define dimoutpar 10
-#define npar_moni 4
-
 #include "TObject.h"
 
 class TSFit : public TObject {
+public:
+  enum {
+    SDIM = 14,     /* default number of samples for cristal */
+    PLSHDIM = 650, /* default size of the pulse shape array */
+    matdim = 5,    /* parameters fit max matrice size */
+    diminpar = 10,
+    dimoutpar = 10,
+    npar_moni = 4
+  };
+
 private:
   /*
     nbs = nb of samples in sample data array[sdim]   nbs<=sdim  

@@ -3,9 +3,10 @@
 
 #include "TObject.h"
 
-#define NMAXSAMP2 50
-
 class TPNFit : public TObject {
+public:
+  enum { NMAXSAMP2 = 50 };
+
 private:
   int fNsamples;
   int fNum_samp_bef_max;
