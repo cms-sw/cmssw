@@ -256,15 +256,17 @@ void MuonAlignmentInputXML::fillAliToIdeal(std::map<Alignable *, Alignable *> &a
 AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup &iSetup) const {
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
+  edm::ESHandle<GEMGeometry> gemGeometry;
   iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
   iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
 
-  AlignableMuon *alignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
+  AlignableMuon *alignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
   std::map<unsigned int, Alignable *> alignableNavigator;  // real AlignableNavigators don't have const methods
   recursiveGetId(alignableNavigator, alignableMuon->DTBarrel());
   recursiveGetId(alignableNavigator, alignableMuon->CSCEndcaps());
 
-  AlignableMuon *ideal_alignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
+  AlignableMuon *ideal_alignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
   std::map<unsigned int, Alignable *> ideal_alignableNavigator;  // real AlignableNavigators don't have const methods
   recursiveGetId(ideal_alignableNavigator, ideal_alignableMuon->DTBarrel());
   recursiveGetId(ideal_alignableNavigator, ideal_alignableMuon->CSCEndcaps());

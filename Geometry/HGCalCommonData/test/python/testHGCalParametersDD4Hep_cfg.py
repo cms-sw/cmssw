@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Phase2C11_dd4hep_cff import Phase2C11_dd4hep
 
-process = cms.Process("HGCalParametersTest")
+process = cms.Process("HGCalParametersTest",Phase2C11_dd4hep)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -41,24 +42,17 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun        = cms.untracked.uint32(1)
 )
 
-process.hgcalEEParametersInitialize.fromDD4Hep = cms.bool(True)
-process.hgcalHESiParametersInitialize.fromDD4Hep = cms.bool(True)
-process.hgcalHEScParametersInitialize.fromDD4Hep = cms.bool(True)
+process.load("Geometry.HGCalCommonData.hgcParameterTesterEE_cfi")
+#process.hgcParameterTesterEE.Mode = 0
 
-process.testEE = cms.EDAnalyzer("HGCalParameterTester",
-                                Name = cms.untracked.string("HGCalEESensitive"),
-                                Mode = cms.untracked.int32(1)
-#                               Mode = cms.untracked.int32(0)
+process.hgcParameterTesterHESil = process.hgcParameterTesterEE.clone(
+    Name = cms.string("HGCalHESiliconSensitive")
 )
 
-process.testHESil = process.testEE.clone(
-    Name = cms.untracked.string("HGCalHESiliconSensitive")
-)
-
-process.testHESci = process.testEE.clone(
-    Name = cms.untracked.string("HGCalHEScintillatorSensitive"),
-    Mode = cms.untracked.int32(2)
+process.hgcParameterTesterHESci = process.hgcParameterTesterEE.clone(
+    Name = cms.string("HGCalHEScintillatorSensitive"),
+    Mode = cms.int32(2)
 )
  
-process.p1 = cms.Path(process.generator*process.testEE*process.testHESil*process.testHESci)
-#process.p1 = cms.Path(process.generator*process.testEE*process.testHESil)
+process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE*process.hgcParameterTesterHESil*process.hgcParameterTesterHESci)
+#process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE*process.hgcParameterTesterHESil)

@@ -16,7 +16,7 @@ AlignableTracker ::AlignableTracker(const TrackerGeometry* trackerGeometry, cons
       AlignableComposite(0, align::Tracker, RotationType()),
       tTopo_(trackerTopology),
       trackerNameSpace_(trackerTopology),
-      alignableObjectId_(trackerGeometry, nullptr, nullptr) {
+      alignableObjectId_(trackerGeometry, nullptr, nullptr, nullptr) {
   AlignableTrackerBuilder builder(trackerGeometry, trackerTopology);
   builder.buildAlignables(this);
   trackerNameSpace_ = builder.trackerNameSpace();

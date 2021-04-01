@@ -327,7 +327,7 @@ const GeomDet* JetCoreMCtruthSeedGenerator::DetectorSelector(int llay,
   std::set<std::pair<int, const GeomDet*>, trkNumCompare> track4detSet;
 
   double minDist = 0.0;
-  GeomDet* output = (GeomDet*)nullptr;
+  const GeomDet* output = nullptr;
   for (const auto& detset : clusters) {
     auto aClusterID = detset.id();
     if (DetId(aClusterID).subdetId() != 1)
@@ -344,7 +344,7 @@ const GeomDet* JetCoreMCtruthSeedGenerator::DetectorSelector(int llay,
     auto localInter = det->specificSurface().toLocal((GlobalPoint)inter);
     if ((minDist == 0.0 || std::abs(localInter.x()) < minDist) && std::abs(localInter.y()) < 3.35) {
       minDist = std::abs(localInter.x());
-      output = (GeomDet*)det;
+      output = det;
     }
   }  //detset
   return output;

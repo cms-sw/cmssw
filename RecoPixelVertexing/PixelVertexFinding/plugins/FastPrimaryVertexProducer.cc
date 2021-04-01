@@ -76,21 +76,24 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const m_geomToken;
+  edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> const m_pixelCPEToken;
   edm::EDGetTokenT<SiPixelClusterCollectionNew> m_clusters;
   edm::EDGetTokenT<edm::View<reco::Jet> > m_jets;
   edm::EDGetTokenT<reco::BeamSpot> m_beamSpot;
-  std::string m_pixelCPE;
   double m_maxZ;
   double m_maxSizeX;
   double m_maxDeltaPhi;
   double m_clusterLength;
 };
 
-FastPrimaryVertexProducer::FastPrimaryVertexProducer(const edm::ParameterSet& iConfig) {
+FastPrimaryVertexProducer::FastPrimaryVertexProducer(const edm::ParameterSet& iConfig)
+    : m_geomToken(esConsumes()),
+      m_pixelCPEToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("pixelCPE")))) {
   m_clusters = consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("clusters"));
   m_jets = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"));
   m_beamSpot = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"));
-  m_pixelCPE = iConfig.getParameter<std::string>("pixelCPE");
   m_maxZ = iConfig.getParameter<double>("maxZ");
   m_maxSizeX = iConfig.getParameter<double>("maxSizeX");
   m_maxDeltaPhi = iConfig.getParameter<double>("maxDeltaPhi");
@@ -122,17 +125,12 @@ void FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const
     }
   }
 
-  edm::ESHandle<PixelClusterParameterEstimator> pe;
-  const PixelClusterParameterEstimator* pp;
-  iSetup.get<TkPixelCPERecord>().get(m_pixelCPE, pe);
-  pp = pe.product();
+  const PixelClusterParameterEstimator* pp = &iSetup.getData(m_pixelCPEToken);
 
   edm::Handle<BeamSpot> beamSpot;
   iEvent.getByToken(m_beamSpot, beamSpot);
 
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  const TrackerGeometry* trackerGeometry = tracker.product();
+  const TrackerGeometry* trackerGeometry = &iSetup.getData(m_geomToken);
 
   float lengthBmodule = 6.66;  //cm
   std::vector<float> zProjections;

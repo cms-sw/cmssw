@@ -8,6 +8,14 @@
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatiosGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalMultifitParametersGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestalsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseCovariancesGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseShapesGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelationGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrectionsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeCalibConstantsGPU.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -18,16 +26,7 @@
 #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalGainRatiosGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalMultifitParametersGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPedestalsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseCovariancesGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalPulseShapesGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSamplesCorrelationGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeBiasCorrectionsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalTimeCalibConstantsGPU.h"
 
-#include "Common.h"
 #include "DeclsForKernels.h"
 #include "EcalUncalibRecHitMultiFitAlgoGPU.h"
 
@@ -229,10 +228,10 @@ void EcalUncalibRecHitProducerGPU::acquire(edm::Event const& event,
   auto const& multifitParameters = multifitParametersData.getProduct(ctx.stream());
 
   // assign ptrs/values: this is done not to change how things look downstream
-  configParameters_.amplitudeFitParametersEB = multifitParameters.amplitudeFitParametersEB;
-  configParameters_.amplitudeFitParametersEE = multifitParameters.amplitudeFitParametersEE;
-  configParameters_.timeFitParametersEB = multifitParameters.timeFitParametersEB;
-  configParameters_.timeFitParametersEE = multifitParameters.timeFitParametersEE;
+  configParameters_.amplitudeFitParametersEB = multifitParameters.amplitudeFitParametersEB.get();
+  configParameters_.amplitudeFitParametersEE = multifitParameters.amplitudeFitParametersEE.get();
+  configParameters_.timeFitParametersEB = multifitParameters.timeFitParametersEB.get();
+  configParameters_.timeFitParametersEE = multifitParameters.timeFitParametersEE.get();
   configParameters_.timeFitParametersSizeEB = multifitParametersData.getValues()[2].get().size();
   configParameters_.timeFitParametersSizeEE = multifitParametersData.getValues()[3].get().size();
 

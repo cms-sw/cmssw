@@ -59,6 +59,7 @@ private:
   bool read_FGLut_, read_Ascii_, read_XML_, LUTGenerationMode_, linearLUTs_;
   bool contain1TSHB_, contain1TSHE_;
   double containPhaseNSHB_, containPhaseNSHE_;
+  bool overrideDBweightsAndFilterHB_, overrideDBweightsAndFilterHE_;
   double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
   std::vector<uint32_t> FG_HF_thresholds_;
@@ -85,6 +86,8 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
   contain1TSHE_ = iConfig.getParameter<bool>("contain1TSHE");
   containPhaseNSHB_ = iConfig.getParameter<double>("containPhaseNSHB");
   containPhaseNSHE_ = iConfig.getParameter<double>("containPhaseNSHE");
+  overrideDBweightsAndFilterHB_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHB");
+  overrideDBweightsAndFilterHE_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHE");
 
   //the following line is needed to tell the framework what
   // data is being produced
@@ -110,8 +113,13 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
 void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const HcalTimeSlew* delay, HcaluLUTTPGCoder* theCoder) {
   using namespace edm::es;
   theCoder->init(topo, delay);
+
+  theCoder->setOverrideDBweightsAndFilterHB(overrideDBweightsAndFilterHB_);
+  theCoder->setOverrideDBweightsAndFilterHE(overrideDBweightsAndFilterHE_);
+
   theCoder->set1TSContainHB(contain1TSHB_);
   theCoder->set1TSContainHE(contain1TSHE_);
+
   theCoder->setContainPhaseHB(containPhaseNSHB_);
   theCoder->setContainPhaseHE(containPhaseNSHE_);
 

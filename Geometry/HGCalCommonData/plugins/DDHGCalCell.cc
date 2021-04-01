@@ -153,7 +153,7 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
   cpv.position(glog2, glog1, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name() << " at "
-                                << tran << " with " << rot;
+                                << tran << " with no rotation";
 #endif
 
   static constexpr int ir0[] = {0, 1, 0};

@@ -17,6 +17,7 @@
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/TrackReco"/>
+<use name="EventFilter/L1TRawToDigi"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="L1Trigger/CSCTrackFinder"/>

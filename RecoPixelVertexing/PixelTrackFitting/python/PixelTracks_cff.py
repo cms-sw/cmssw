@@ -11,6 +11,7 @@ myTTRHBuilderWithoutAngle = RecoTracker.TransientTrackingRecHit.TransientTrackin
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import *
 from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections
+from RecoPixelVertexing.PixelTrackFitting.pixelNtupletsFitter_cfi import pixelNtupletsFitter
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import pixelTrackCleanerBySharedHits
 from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks as _pixelTracks
@@ -75,5 +76,27 @@ pixelTracksTask = cms.Task(
 _pixelTracksTask_lowPU = pixelTracksTask.copy()
 _pixelTracksTask_lowPU.replace(pixelTracksHitQuadruplets, pixelTracksHitTriplets)
 trackingLowPU.toReplaceWith(pixelTracksTask, _pixelTracksTask_lowPU)
+
+# Use ntuple fit and substitute previous Fitter producer with the ntuple one
+from Configuration.ProcessModifiers.pixelNtupleFit_cff import pixelNtupleFit as ntupleFit
+ntupleFit.toModify(pixelTracks, Fitter = "pixelNtupletsFitter")
+_pixelTracksTask_ntupleFit = pixelTracksTask.copy()
+_pixelTracksTask_ntupleFit.replace(pixelFitterByHelixProjections, pixelNtupletsFitter)
+ntupleFit.toReplaceWith(pixelTracksTask, _pixelTracksTask_ntupleFit)
+
+
+from Configuration.ProcessModifiers.gpu_cff import gpu
+from RecoPixelVertexing.PixelTriplets.caHitNtupletCUDA_cfi import caHitNtupletCUDA
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackSoA_cfi import pixelTrackSoA
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as _pixelTrackFromSoA
+_pixelTracksGPUTask = cms.Task(
+  caHitNtupletCUDA,
+  pixelTrackSoA,
+  pixelTracks # FromSoA
+)
+
+gpu.toReplaceWith(pixelTracksTask, _pixelTracksGPUTask)
+gpu.toReplaceWith(pixelTracks,_pixelTrackFromSoA)
+
 
 pixelTracksSequence = cms.Sequence(pixelTracksTask)

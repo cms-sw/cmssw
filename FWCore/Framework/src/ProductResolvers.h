@@ -8,6 +8,8 @@ a set of related EDProducts. This is the storage unit of such information.
 
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/ProductResolverBase.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
+#include "FWCore/Framework/src/ProductPutOrMergerBase.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -71,15 +73,12 @@ namespace edm {
     ProductData const& getProductData() const final { return productData_; }
     void setMergeableRunProductMetadataInProductData(MergeableRunProductMetadata const*);
 
+    void checkType(WrapperBase const& prod) const;
+
   private:
     void throwProductDeletedException() const;
-    void checkType(WrapperBase const& prod) const;
     virtual bool isFromCurrentProcess() const = 0;
-    // merges the product with the pre-existing product
-    void mergeProduct(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const;
 
-    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod,
-                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
     bool productUnavailable_() const final;
     bool productResolved_() const final;
     bool productWasDeleted_() const final;
@@ -102,10 +101,26 @@ namespace edm {
     ProductStatus const defaultStatus_;
   };
 
-  class InputProductResolver : public DataManagingProductResolver {
+  class MergeableInputProductResolver : public DataManagingProductResolver {
   public:
-    explicit InputProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : DataManagingProductResolver(bd, ProductStatus::ResolveNotRun), m_prefetchRequested{false}, aux_{nullptr} {}
+    MergeableInputProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus)
+        : DataManagingProductResolver(bd, iDefaultStatus) {}
+
+  protected:
+    void setOrMergeProduct(std::unique_ptr<WrapperBase> prod,
+                           MergeableRunProductMetadata const* mergeableRunProductMetadata) const;
+
+    // merges the product with the pre-existing product
+    void mergeProduct(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const;
+  };
+
+  class DelayedReaderInputProductResolver : public MergeableInputProductResolver {
+  public:
+    explicit DelayedReaderInputProductResolver(std::shared_ptr<BranchDescription const> bd)
+        : MergeableInputProductResolver(bd, ProductStatus::ResolveNotRun), m_prefetchRequested{false}, aux_{nullptr} {
+      assert(bd->onDemand());
+      assert(not bd->produced());
+    }
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
 
@@ -122,7 +137,6 @@ namespace edm {
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const override;
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
 
     void retrieveAndMerge_(Principal const& principal,
                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const override;
@@ -138,7 +152,37 @@ namespace edm {
     UnscheduledAuxiliary const* aux_;  //provides access to the delayedGet signals
   };
 
-  class ProducedProductResolver : public DataManagingProductResolver {
+  class PutOnReadInputProductResolver : public MergeableInputProductResolver,
+                                        public ProductPutterBase,
+                                        public ProductPutOrMergerBase {
+  public:
+    PutOnReadInputProductResolver(std::shared_ptr<BranchDescription const> bd)
+        : MergeableInputProductResolver(bd, ProductStatus::ResolveNotRun) {
+      assert(not bd->produced());
+      assert(not bd->onDemand());
+    }
+
+  protected:
+    void putProduct(std::unique_ptr<WrapperBase> edp) const override;
+    void putOrMergeProduct(std::unique_ptr<WrapperBase> prod) const override;
+
+    Resolution resolveProduct_(Principal const& principal,
+                               bool skipCurrentProcess,
+                               SharedResourcesAcquirer* sra,
+                               ModuleCallingContext const* mcc) const final;
+    void prefetchAsync_(WaitingTaskHolder waitTask,
+                        Principal const& principal,
+                        bool skipCurrentProcess,
+                        ServiceToken const& token,
+                        SharedResourcesAcquirer* sra,
+                        ModuleCallingContext const* mcc) const final;
+    bool unscheduledWasNotRun_() const final { return false; }
+
+  private:
+    bool isFromCurrentProcess() const final;
+  };
+
+  class ProducedProductResolver : public DataManagingProductResolver, public ProductPutterBase {
   public:
     ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus)
         : DataManagingProductResolver(bd, iDefaultStatus) {
@@ -146,7 +190,7 @@ namespace edm {
     }
 
   protected:
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+    void putProduct(std::unique_ptr<WrapperBase> edp) const override;
 
   private:
     bool isFromCurrentProcess() const final;
@@ -172,7 +216,7 @@ namespace edm {
                         ModuleCallingContext const* mcc) const override;
     bool unscheduledWasNotRun_() const override { return false; }
 
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+    void putProduct(std::unique_ptr<WrapperBase> edp) const override;
     void resetProductData_(bool deleteEarly) override;
 
     CMS_THREAD_SAFE mutable WaitingTaskList m_waitingTasks;
@@ -242,9 +286,6 @@ namespace edm {
       return realProduct_.productWasFetchedAndIsValid(iSkipCurrentProcess);
     }
 
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod,
-                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
     BranchDescription const& branchDescription_() const override { return *bd_; }
     void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override { bd_ = bd; }
     Provenance const* provenance_() const final { return realProduct_.provenance(); }
@@ -286,8 +327,6 @@ namespace edm {
     bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const final {
       return realProduct_.productWasFetchedAndIsValid(iSkipCurrentProcess);
     }
-    void putOrMergeProduct_(std::unique_ptr<WrapperBase> edp,
-                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
     BranchDescription const& branchDescription_() const final {
       return *productData_.branchDescription();
       ;
@@ -315,7 +354,7 @@ namespace edm {
   };
 
   // For the case when SwitchProducer is on a Path
-  class SwitchProducerProductResolver : public SwitchBaseProductResolver {
+  class SwitchProducerProductResolver : public SwitchBaseProductResolver, public ProductPutterBase {
   public:
     SwitchProducerProductResolver(std::shared_ptr<BranchDescription const> bd,
                                   DataManagingOrAliasProductResolver& realProduct);
@@ -331,7 +370,7 @@ namespace edm {
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const final;
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const final;
+    void putProduct(std::unique_ptr<WrapperBase> edp) const final;
     bool unscheduledWasNotRun_() const final { return false; }
     bool productUnavailable_() const final;
     void resetProductData_(bool deleteEarly) final;
@@ -362,7 +401,6 @@ namespace edm {
                         ServiceToken const& token,
                         SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const final;
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const final;
     bool unscheduledWasNotRun_() const final { return realProduct().unscheduledWasNotRun(); }
     bool productUnavailable_() const final { return realProduct().productUnavailable(); }
   };
@@ -409,9 +447,6 @@ namespace edm {
       return realProduct_->productWasFetchedAndIsValid(iSkipCurrentProcess);
     }
 
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod,
-                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
     BranchDescription const& branchDescription_() const override { return *bd_; }
     void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override { bd_ = bd; }
     Provenance const* provenance_() const final { return realProduct_->provenance(); }
@@ -473,9 +508,6 @@ namespace edm {
     bool productResolved_() const final;
     bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
 
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod,
-                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
     BranchDescription const& branchDescription_() const override;
     void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
     Provenance const* provenance_() const override;
@@ -531,9 +563,6 @@ namespace edm {
     bool productResolved_() const final;
     bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
 
-    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
-    void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod,
-                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const final;
     BranchDescription const& branchDescription_() const override;
     void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override;
     Provenance const* provenance_() const override;

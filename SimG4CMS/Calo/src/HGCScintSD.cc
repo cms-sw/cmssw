@@ -128,16 +128,20 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
   const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
   const G4VTouchable* touch = preStepPoint->GetTouchable();
 
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_;
+  printDetectorLevels(touch);
+#endif
   //determine the exact position in global coordinates in the mass geometry
   G4ThreeVector hitPoint = preStepPoint->GetPosition();
   float globalZ = touch->GetTranslation(0).z();
   int iz(globalZ > 0 ? 1 : -1);
 
-  int layer, module, cell;
-  if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
+  int layer(0), module(-1), cell(-1);
+  if (geom_mode_ == HGCalGeometryMode::TrapezoidModule) {
+    layer = touch->GetReplicaNumber(1);
+  } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
     layer = touch->GetReplicaNumber(0);
-    module = -1;
-    cell = -1;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_
                                << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":"

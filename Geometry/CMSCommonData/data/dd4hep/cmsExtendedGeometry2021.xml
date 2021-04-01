@@ -25,7 +25,7 @@
     <Include ref='Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/pixfwdMaterials/2021/v2/pixfwdMaterials.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/pixfwdMaterials/2021/v3/pixfwdMaterials.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/pixfwdCommon.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdCylinder.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdDisks.xml'/>
