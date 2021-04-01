@@ -350,9 +350,9 @@ displacedTrackValidation.toReplaceWith(postProcessorTrackSummary,postProcessorTr
 
 
 postProcessorTrackTrackingOnly = postProcessorTrack.clone()
-postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*","Tracking/TrackSeeding/*", "Tracking/PixelTrack/*"])
+postProcessorTrackTrackingOnly.subDirs.extend(["Tracking/TrackBHadron/*", "Tracking/TrackSeeding/*", "Tracking/PixelTrack/*", "Tracking/PixelTrackFromPV/*", "Tracking/PixelTrackFromPVAllTP/*", "Tracking/PixelTrackBHadron/*"])
 postProcessorTrackSummaryTrackingOnly = postProcessorTrackSummary.clone()
-postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackBHadron","Tracking/TrackSeeding", "Tracking/PixelTrack"])
+postProcessorTrackSummaryTrackingOnly.subDirs.extend(["Tracking/TrackBHadron", "Tracking/TrackSeeding", "Tracking/PixelTrack", "Tracking/PixelTrackFromPV", "Tracking/PixelTrackFromPVAllTP", "Tracking/PixelTrackBHadron"])
 
 postProcessorTrackSequenceTrackingOnly = cms.Sequence(
     postProcessorTrackTrackingOnly+
