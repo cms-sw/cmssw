@@ -34,6 +34,9 @@ from DQM.L1TMonitorClient.L1TStage2OMTFEmulatorClient_cff import *
 # GEM TPG emulator client
 from DQM.L1TMonitorClient.L1TdeGEMTPGClient_cfi import *
 
+# CSC TPG emulator client
+from DQM.L1TMonitorClient.L1TdeCSCTPGClient_cfi import *
+
 # EMTF emulator client
 from DQM.L1TMonitorClient.L1TStage2EMTFEmulatorClient_cff import *
 
@@ -54,6 +57,7 @@ l1TStage2EmulatorClients = cms.Sequence(
     + l1tStage2BMTFEmulatorClient
     + l1tStage2BMTFEmulatorSecondClient
     + l1tStage2OMTFEmulatorClient
+    + l1tdeCSCTPGClient
     + l1tStage2EMTFEmulatorClient
     + l1tStage2EmulatorEventInfoClient
     + l1tStage2uGTEmulatorClient
