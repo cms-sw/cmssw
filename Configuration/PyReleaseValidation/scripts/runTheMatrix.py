@@ -288,6 +288,12 @@ if __name__ == '__main__':
                       default='T2_CH_CERN',
                       action='store')
 
+    parser.add_option('--dbs-url',
+                      help='Overwrite DbsUrl value in JSON submitted to ReqMgr2',
+                      dest='dbsUrl',
+                      default=None,
+                      action='store')
+
     opt,args = parser.parse_args()
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
     if opt.IBEos:
