@@ -1259,7 +1259,6 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
       LogDebug("HGCalValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and "
                                  << sc->energy() << " energy. " << std::endl;
       simHits += sc->hits_and_fractions().size();
-      energy += sc->energy();
       for (auto const& h_and_f : sc->hits_and_fractions()) {
         const auto hitDetId = h_and_f.first;
         int layerId =
@@ -1286,9 +1285,6 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
           if (caloparticle.simClusters().size() == 1)
             histograms.h_caloparticle_nHits_matched_energy_layer_1SimCl.at(pdgid)->Fill(layerId,
                                                                                         hit->energy() * h_and_f.second);
-          layerId_matched_min = layerId;
-          layerId_matched_max = layerId;
-          simHits_matched++;
         } else {
           LogDebug("HGCalValidator") << "   matched to RecHit NOT found !" << std::endl;
         }
