@@ -5,7 +5,7 @@
 
 class TPNFit : public TObject {
 public:
-  enum { NMAXSAMP2 = 50 };
+  static constexpr int NMAXSAMP2 = 50;
 
 private:
   int fNsamples;

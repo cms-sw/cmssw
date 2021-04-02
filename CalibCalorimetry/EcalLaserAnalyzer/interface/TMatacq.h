@@ -5,7 +5,8 @@
 
 class TMatacq : public TObject {
 public:
-  enum { NMAXSAMP = 100, NSPARAB = 16 };
+  static constexpr int NMAXSAMP = 100; 
+  static constexpr int NSPARAB = 16;
 
 private:
   int fNsamples;
