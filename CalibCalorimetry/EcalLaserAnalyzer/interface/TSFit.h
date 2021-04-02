@@ -7,7 +7,7 @@ class TSFit : public TObject {
 public:
   static constexpr unsigned int SDIM = 14;     /* default number of samples for cristal */
   static constexpr unsigned int PLSHDIM = 650; /* default size of the pulse shape array */
-  static constexpr int matdim = 5;    /* parameters fit max matrice size */
+  static constexpr int matdim = 5;             /* parameters fit max matrice size */
   static constexpr unsigned int diminpar = 10;
   static constexpr unsigned int dimoutpar = 10;
   static constexpr unsigned int npar_moni = 4;
