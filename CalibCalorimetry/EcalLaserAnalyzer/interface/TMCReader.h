@@ -5,11 +5,11 @@
 
 class TMCReader : public TObject {
 public:
-  static constexpr unsigned int FNPNMAX = 10; 
-  static constexpr unsigned int FNLMODNMAX = 9; 
-  static constexpr unsigned int FNCHANMAX = 200; 
-  static constexpr unsigned int fNpns = 2; 
-  static constexpr unsigned int fNchans = 400; 
+  static constexpr unsigned int FNPNMAX = 10;
+  static constexpr unsigned int FNLMODNMAX = 9;
+  static constexpr unsigned int FNCHANMAX = 200;
+  static constexpr unsigned int fNpns = 2;
+  static constexpr unsigned int fNchans = 400;
   static constexpr unsigned int fNbins = 102;
 
 private:

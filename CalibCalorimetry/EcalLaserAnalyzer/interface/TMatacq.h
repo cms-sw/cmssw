@@ -5,7 +5,7 @@
 
 class TMatacq : public TObject {
 public:
-  static constexpr int NMAXSAMP = 100; 
+  static constexpr int NMAXSAMP = 100;
   static constexpr int NSPARAB = 16;
 
 private:

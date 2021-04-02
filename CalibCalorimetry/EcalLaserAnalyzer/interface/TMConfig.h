@@ -5,7 +5,6 @@
 
 class TMConfig : public TObject {
 public:
-
   static constexpr unsigned int fNsmNmax = 36;  //number of SM
   static constexpr unsigned int fNlmodN = 9;    //number of lmodN in a SM
   static constexpr unsigned int fNmem = 10;     //number of PNs in a MEM
