@@ -21,8 +21,10 @@ namespace ecaldqm {
         //     HLTMuonPath_(""),
         //     HLTCaloBit_(false),
         //     HLTMuonBit_(false),
-        bxBinEdges_{{1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565}},
+        bxBinEdges_(),
+        bxBinEdgesFine_(),
         bxBin_(0.),
+        bxBinFine_(0.),
         towerReadouts_(),
         lhcStatusInfoCollectionTag_() {}
 
@@ -38,6 +40,8 @@ namespace ecaldqm {
     }
     lhcStatusInfoCollectionTag_ = _params.getUntrackedParameter<edm::InputTag>(
         "lhcStatusInfoCollectionTag", edm::InputTag("tcdsDigis", "tcdsRecord"));
+    bxBinEdges_ = _params.getUntrackedParameter<std::vector<int> >("bxBins");
+    bxBinEdgesFine_ = _params.getUntrackedParameter<std::vector<int> >("bxBinsFine");
   }
 
   void TrigPrimTask::addDependencies(DependencySet& _dependencies) {
@@ -83,8 +87,12 @@ namespace ecaldqm {
     //     HLTCaloBit_ = false;
     //     HLTMuonBit_ = false;
 
-    int* pBin(std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing()));
+    std::vector<int>::iterator pBin(std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing()));
     bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
+    // fine binning for TP Occ vs BX plot as requested by DAQ in March 2021
+    std::vector<int>::iterator pBinFine(
+        std::upper_bound(bxBinEdgesFine_.begin(), bxBinEdgesFine_.end(), _evt.bunchCrossing()));
+    bxBinFine_ = static_cast<int>(pBinFine - bxBinEdgesFine_.begin()) - 0.5;
 
     edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd_;
     _es.get<EcalTPGTowerStatusRcd>().get(TTStatusRcd_);
@@ -251,9 +259,9 @@ namespace ecaldqm {
         meTTFMismatch.fill(ttid);
     }
 
-    meOccVsBx.fill(EcalBarrel, bxBin_, nTP[0]);
-    meOccVsBx.fill(-EcalEndcap, bxBin_, nTP[1]);
-    meOccVsBx.fill(EcalEndcap, bxBin_, nTP[2]);
+    meOccVsBx.fill(EcalBarrel, bxBinFine_, nTP[0]);
+    meOccVsBx.fill(-EcalEndcap, bxBinFine_, nTP[1]);
+    meOccVsBx.fill(EcalEndcap, bxBinFine_, nTP[2]);
 
     // Set TT/Strip Masking status in Ecal3P view
     // Status Records are read-in at beginRun() but filled here
