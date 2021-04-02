@@ -5,14 +5,12 @@
 
 class TSFit : public TObject {
 public:
-  enum {
-    SDIM = 14,     /* default number of samples for cristal */
-    PLSHDIM = 650, /* default size of the pulse shape array */
-    matdim = 5,    /* parameters fit max matrice size */
-    diminpar = 10,
-    dimoutpar = 10,
-    npar_moni = 4
-  };
+  static constexpr unsigned int SDIM = 14;     /* default number of samples for cristal */
+  static constexpr unsigned int PLSHDIM = 650; /* default size of the pulse shape array */
+  static constexpr int matdim = 5;    /* parameters fit max matrice size */
+  static constexpr unsigned int diminpar = 10;
+  static constexpr unsigned int dimoutpar = 10;
+  static constexpr unsigned int npar_moni = 4;
 
 private:
   /*

@@ -37,7 +37,11 @@ matrice fill_mat_int(matrice, matrice, matrice);
 
 class TFParams : public TObject {
 public:
-  enum { dimmat = 30, dimout = 10, nbmax_cell = 1000, SDIM2 = 10, PLSHDIM = 650 };
+  static constexpr unsigned int dimmat = 30;
+  static constexpr unsigned int dimout = 10;
+  static constexpr unsigned int nbmax_cell = 1000;
+  static constexpr int SDIM2 = 10;
+  static constexpr int PLSHDIM = 650;
 
 private:
   int ns;        // number of samples

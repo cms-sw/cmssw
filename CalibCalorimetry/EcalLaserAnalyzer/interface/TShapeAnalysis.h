@@ -7,7 +7,7 @@ class TTree;
 
 class TShapeAnalysis : public TObject {
 public:
-  enum { fNchsel = 1700 };
+  static constexpr int fNchsel = 1700;
 
 private:
   char filename[80];

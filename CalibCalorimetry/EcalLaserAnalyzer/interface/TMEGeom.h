@@ -5,7 +5,7 @@
 
 class TMEGeom : public TObject {
 public:
-  enum { nTT = 25 };
+  static constexpr unsigned int nTT = 25;
 
 private:
   int ttindarr[5][5];

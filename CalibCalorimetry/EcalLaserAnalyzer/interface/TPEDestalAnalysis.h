@@ -5,7 +5,9 @@
 
 class TPEDestalAnalysis : public TObject {
 public:
-  enum { fNpns = 2, fNchans = 400, ngains = 3 };
+  static constexpr unsigned int fNpns = 2;
+  static constexpr unsigned int fNchans = 400;
+  static constexpr unsigned int ngains = 3;
 
 private:
   int nevt;
