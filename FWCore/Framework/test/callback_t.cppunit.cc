@@ -111,8 +111,8 @@ namespace {
                                               &ar);
     edm::FinalWaitingTask task;
     tbb::task_group group;
-    iCallback.prefetchAsync(
-        edm::WaitingTaskHolder(group, &task), &rec, nullptr, edm::ServiceToken{}, edm::ESParentContext{});
+    edm::ServiceToken token;
+    iCallback.prefetchAsync(edm::WaitingTaskHolder(group, &task), &rec, nullptr, token, edm::ESParentContext{});
     do {
       group.wait();
     } while (not task.done());
