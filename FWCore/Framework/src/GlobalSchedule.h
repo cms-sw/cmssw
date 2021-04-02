@@ -175,8 +175,9 @@ namespace edm {
         T::preScheduleSignal(actReg_.get(), globalContext.get());
       }
 
+      ServiceWeakToken weakToken = token;
       auto doneTask = make_waiting_task(
-          [this, iHolder, cleaningUpAfterException, globalContext, token](std::exception_ptr const* iPtr) mutable {
+          [this, iHolder, cleaningUpAfterException, globalContext, weakToken](std::exception_ptr const* iPtr) mutable {
             std::exception_ptr excpt;
             if (iPtr) {
               excpt = *iPtr;
@@ -189,19 +190,19 @@ namespace edm {
                 if (ex.context().empty()) {
                   ost << "Processing " << T::transitionName() << " ";
                 }
-                ServiceRegistry::Operate op(token);
+                ServiceRegistry::Operate op(weakToken.lock());
                 addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
                 excpt = std::current_exception();
               }
               if (actReg_) {
-                ServiceRegistry::Operate op(token);
+                ServiceRegistry::Operate op(weakToken.lock());
                 actReg_->preGlobalEarlyTerminationSignal_(*globalContext, TerminationOrigin::ExceptionFromThisContext);
               }
             }
             if (actReg_) {
               // Caught exception is propagated via WaitingTaskHolder
               CMS_SA_ALLOW try {
-                ServiceRegistry::Operate op(token);
+                ServiceRegistry::Operate op(weakToken.lock());
                 T::postScheduleSignal(actReg_.get(), globalContext.get());
               } catch (...) {
                 if (not excpt) {
