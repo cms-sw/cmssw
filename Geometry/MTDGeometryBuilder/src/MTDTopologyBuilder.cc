@@ -29,10 +29,11 @@ PixelTopology* MTDTopologyBuilder::build(const Bounds* bs,
   float pitchX = width / nrows;
   float pitchY = length / ncols;
 
-  float gapxinterpad = float(GAPxInterpad)*1e-4; //Convert to cm
-  float gapyinterpad = float(GAPyInterpad)*1e-4; //Convert to cm
-  float gapxborder = float(GAPxBorder)*1e-4; //Convert to cm
-  float gapyborder = float(GAPyBorder)*1e-4; //Convert to cm
+  float micronsTocm = 1e-4;
+  float gapxinterpad = float(GAPxInterpad) * micronsTocm; //Convert to cm
+  float gapyinterpad = float(GAPyInterpad) * micronsTocm; //Convert to cm
+  float gapxborder = float(GAPxBorder) * micronsTocm; //Convert to cm
+  float gapyborder = float(GAPyBorder) * micronsTocm; //Convert to cm
 
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDTopologyBuilder") << std::fixed << "Building topology for module of width(X) = " << std::setw(10)

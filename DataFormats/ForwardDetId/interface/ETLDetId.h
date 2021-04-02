@@ -8,8 +8,8 @@
     @class ETLDetId
     @brief Detector identifier class for the Endcap Timing Layer.
 
-    bit 15-7 : module sequential number
-    bit 6-5  : module type (unused so far)
+    bit 15-5 : module sequential number
+    bit 4-3  : module type (unused so far)
 */
 
 class ETLDetId : public MTDDetId {
@@ -20,10 +20,10 @@ private:
   static const uint32_t kETLformatV2 = 1;
 
 public:
-  static const uint32_t kETLmoduleOffset = 5;    //7
-  static const uint32_t kETLmoduleMask = 0x7FF;  //0x1FF
-  static const uint32_t kETLmodTypeOffset = 3;   //5
-  static const uint32_t kETLmodTypeMask = 0x3;   //0x3
+  static const uint32_t kETLmoduleOffset = 5;
+  static const uint32_t kETLmoduleMask = 0x7FF;
+  static const uint32_t kETLmodTypeOffset = 3;
+  static const uint32_t kETLmodTypeMask = 0x3;
 
   static constexpr int kETLv1maxRing = 11;
   static constexpr int kETLv1maxModule = 176;

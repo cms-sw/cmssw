@@ -27,9 +27,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        MTDTopologyAnalyzer = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
         enable = cms.untracked.bool(True),
         enableStatistics = cms.untracked.bool(True),
         noLineBreaks = cms.untracked.bool(True),
@@ -72,7 +69,5 @@ process.Timing = cms.Service("Timing")
 
 process.prod = cms.EDAnalyzer("GeometricTimingDetAnalyzer")
 
-process.prod1 = cms.EDAnalyzer("MTDTopologyAnalyzer")
-
-process.p1 = cms.Path(process.prod+process.prod1)
+process.p1 = cms.Path(process.prod)
 
