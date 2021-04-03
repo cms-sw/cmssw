@@ -35,7 +35,7 @@ RPixChargeShare::RPixChargeShare(const edm::ParameterSet &params, uint32_t det_i
       }
       fChargeMap.close();
     } else
-      throw cms::Exception("RPixChargeShare") << "Charge map file not found";
+      throw cms::Exception("PPS RPixChargeShare") << "Charge map file not found";
   }
 }
 
@@ -50,24 +50,26 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
   for (std::vector<RPixSignalPoint>::const_iterator i = charge_map.begin(); i != charge_map.end(); ++i) {
     double hit_pos_x, hit_pos_y;
     // Used to avoid the abort due to hits out of detector
-    if (((*i).Position().x() + 16.6 / 2) < 0 || ((*i).Position().x() + 16.6 / 2) > 16.6) {
-      edm::LogInfo("RPixChargeShare")
+    if (((*i).Position().x() + ppt.getSimXWidth() / 2.) < 0 ||
+        ((*i).Position().x() + ppt.getSimXWidth() / 2.) > ppt.getSimXWidth()) {
+      edm::LogInfo("PPS RPixChargeShare")
           << "**** Attention ((*i).Position().x()+simX_width_/2.)<0||((*i).Position().x()+simX_width_/2.)>simX_width  ";
-      edm::LogInfo("PPS") << "RPixChargeShare "
-                          << "(*i).Position().x() = " << (*i).Position().x();
+      edm::LogInfo("PPS RPixChargeShare") << "(*i).Position().x() = " << (*i).Position().x();
       continue;
     }
-    if (((*i).Position().y() + 24.4 / 2.) < 0 || ((*i).Position().y() + 24.4 / 2.) > 24.4) {
-      edm::LogInfo("RPixChargeShare")
+    if (((*i).Position().y() + ppt.getSimYWidth() / 2.) < 0 ||
+        ((*i).Position().y() + ppt.getSimYWidth() / 2.) > ppt.getSimYWidth()) {
+      edm::LogInfo("PPS RPixChargeShare")
           << "**** Attention ((*i).Position().y()+simY_width_/2.)<0||((*i).Position().y()+simY_width_/2.)>simY_width  ";
-      edm::LogInfo("PPS") << "RPixChargeShare "
-                          << "(*i).Position().y() = " << (*i).Position().y();
+      edm::LogInfo("PPS RPixChargeShare") << "(*i).Position().y() = " << (*i).Position().y();
       continue;
     }
 
     PPSPixelTopology::PixelInfo relevant_pixels =
         ppt.getPixelsInvolved((*i).Position().x(), (*i).Position().y(), (*i).Sigma(), hit_pos_x, hit_pos_y);
     double effic = relevant_pixels.effFactor();
+    if (effic < 1.e-4)
+      continue;
 
     unsigned short pixel_no = ppt.pixelIndex(relevant_pixels);
 
@@ -76,9 +78,8 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
     cH += charge_in_pixel;
 
     if (verbosity_ > 1)
-      edm::LogInfo("PPS") << "RPixChargeShare "
-                          << "Efficiency in detector " << det_id_ << " and pixel no " << pixel_no << "  : " << effic
-                          << "  ch: " << charge_in_pixel << "   CHtot: " << cH;
+      edm::LogInfo("PPS RPixChargeShare ") << "Efficiency in detector " << det_id_ << " and pixel no " << pixel_no
+                                           << "  : " << effic << "  ch: " << charge_in_pixel << "   CHtot: " << cH;
 
     if (signalCoupling_[0] == 0.) {
       thePixelChargeMap[pixel_no] += charge_in_pixel;
@@ -93,34 +94,42 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
       ppt.pixelRange(pixel_row, pixel_col, pixel_lower_x, pixel_upper_x, pixel_lower_y, pixel_upper_y);
       double pixel_width_x = pixel_upper_x - pixel_lower_x;
       double pixel_width_y = pixel_upper_y - pixel_lower_y;
-      if (pixel_row == 0 || pixel_row == pxlRowSize_ - 1)
-        pixel_width_x = 0.1;  // Correct edge pixel width
-      if (pixel_col == 0 || pixel_col == pxlColSize_ - 1)
-        pixel_width_y = 0.15;  //
       double pixel_center_x = pixel_lower_x + (pixel_width_x) / 2.;
       double pixel_center_y = pixel_lower_y + (pixel_width_y) / 2.;
-      // xbin and ybin are coordinates (um) ??nside the pixel as in the test beam, swapped wrt plane coodinates.
+      // xbin and ybin are coordinates (um) inside the pixel as in the test beam, swapped wrt plane coordinates.
       int xbin = int((((*i).Position().y() - pixel_center_y) + pixel_width_y / 2.) * 1.e3 / 5.);
       int ybin = int((((*i).Position().x() - pixel_center_x) + pixel_width_x / 2.) * 1.e3 / 5.);
       if (pixel_width_x < 0.11 && pixel_width_y < 0.151) {  // pixel 100x150 um^2
         psize = 0;
-        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize])
+        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize]) {
+          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds";
           continue;
+        }
       }
       if (pixel_width_x > 0.11 && pixel_width_y < 0.151) {  // pixel 200x150 um^2
         psize = 2;
-        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize])
+        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize]) {
+          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds";
           continue;
+        }
       }
       if (pixel_width_x < 0.11 && pixel_width_y > 0.151) {  // pixel 100x300 um^2
         psize = 1;
-        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize])
+        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize]) {
+          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds";
           continue;
+        }
       }
       if (pixel_width_x > 0.11 && pixel_width_y > 0.151) {  // pixel 200x300 um^2
         psize = 3;
-        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize])
+        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize]) {
+          edm::LogError("PPS RPixChargeShare") << " Array index out of bounds";
           continue;
+        }
+      }
+      if (xbin < 0 || ybin < 0) {
+        edm::LogError("PPS RPixChargeShare") << " Negative array index xbin or ybin";
+        continue;
       }
       double hit2neighbour[8];
       double collect_prob = chargeMap2E_[psize][xbin][ybin];
