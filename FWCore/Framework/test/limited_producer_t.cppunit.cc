@@ -138,8 +138,8 @@ private:
   void doWork(edm::Worker* iBase, Info const& info, edm::ParentContext const& iContext) {
     edm::FinalWaitingTask task;
     tbb::task_group group;
-    iBase->doWorkAsync<Traits>(
-        edm::WaitingTaskHolder(group, &task), info, edm::ServiceToken(), s_streamID0, iContext, nullptr);
+    edm::ServiceToken token;
+    iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
     do {
       group.wait();
     } while (not task.done());

@@ -263,9 +263,10 @@ namespace edm {
     m_waitingTasks.add(waitTask);
 
     if (prefetchRequested) {
-      auto workToDo = [this, mcc, &principal, token]() {
+      ServiceWeakToken weakToken = token;
+      auto workToDo = [this, mcc, &principal, weakToken]() {
         //need to make sure Service system is activated on the reading thread
-        ServiceRegistry::Operate operate(token);
+        ServiceRegistry::Operate operate(weakToken.lock());
         // Caught exception is propagated via WaitingTaskList
         CMS_SA_ALLOW try {
           resolveProductImpl<true>([this, &principal, mcc]() {
@@ -959,7 +960,7 @@ namespace edm {
         } else {
           if (not resolver_->dataValidFromResolver(index_, *principal_, skipCurrentProcess_)) {
             resolver_->tryPrefetchResolverAsync(
-                index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_, group_);
+                index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_.lock(), group_);
           }
         }
       }
@@ -970,7 +971,7 @@ namespace edm {
       SharedResourcesAcquirer* sra_;
       ModuleCallingContext const* mcc_;
       tbb::task_group* group_;
-      ServiceToken serviceToken_;
+      ServiceWeakToken serviceToken_;
       unsigned int index_;
       bool skipCurrentProcess_;
     };
