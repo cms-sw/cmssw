@@ -3,8 +3,8 @@
 
 /** \class TracksterToSimClusterAssociatorBaseImpl
  *
- * Base class for TracksterToSimClusterAssociators.  Methods take as input
- * the handle of Tracksters and the SimCluster collections and return an
+ * Base class for TracksterToSimClusterAssociator. Methods take as input
+ * the handles of Tracksters, LayerClusters and SimClusters collections and return an
  * AssociationMap (oneToManyWithQuality)
  *
  *  \author Leonardo Cristella

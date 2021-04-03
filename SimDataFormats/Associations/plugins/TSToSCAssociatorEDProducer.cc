@@ -77,12 +77,10 @@ void TSToSCAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, cons
   iEvent.getByToken(LCCollectionToken_, LCCollection);
 
   // associate LC and SC
-  LogTrace("AssociatorValidator") << "Calling associateRecoToSim method"
-                                  << "\n";
+  LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
   hgcal::RecoToSimCollectionTracksters recSimColl = theAssociator->associateRecoToSim(TSCollection, LCCollection, SCCollection);
 
-  LogTrace("AssociatorValidator") << "Calling associateSimToReco method"
-                                  << "\n";
+  LogTrace("AssociatorValidator") << "Calling associateSimToReco method\n";
   hgcal::SimToRecoCollectionTracksters simRecColl = theAssociator->associateSimToReco(TSCollection, LCCollection, SCCollection);
 
   auto rts = std::make_unique<hgcal::RecoToSimCollectionTracksters>(recSimColl);
