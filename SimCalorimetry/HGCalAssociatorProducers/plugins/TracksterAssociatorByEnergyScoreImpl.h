@@ -33,7 +33,7 @@ namespace hgcal {
   };
 
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> tracksterToSimCluster;
-  typedef std::vector<std::vector<hgcal::simClusterOnLayer>> simClusterToTrackster;
+  typedef std::vector<hgcal::simClusterOnLayer> simClusterToTrackster;
   typedef std::tuple<tracksterToSimCluster, simClusterToTrackster> association;
 }  // namespace hgcal
 
