@@ -11,6 +11,7 @@ CaloParticleSelectionForEfficiency = cms.PSet(
     tipCP = cms.double(60),
     chargedOnlyCP = cms.bool(False),
     stableOnlyCP = cms.bool(False),
+    notConvertedOnlyCP = cms.bool(True),
     #311: K0, 130: K0_short, 310: K0_long
     pdgIdCP = cms.vint32(11, -11, 13, -13, 22, 111, 211, -211, 321, -321, 311, 130, 310),
     #--signal only means no PU particles
@@ -19,5 +20,5 @@ CaloParticleSelectionForEfficiency = cms.PSet(
     intimeOnlyCP = cms.bool(True),
     #The total number of rechits
     minHitCP = cms.int32(0),
-    maxSimClustersCP = cms.int32(1)
+    maxSimClustersCP = cms.int32(-1)
 )
