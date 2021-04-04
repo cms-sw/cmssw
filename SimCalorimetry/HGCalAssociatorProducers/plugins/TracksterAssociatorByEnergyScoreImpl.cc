@@ -13,7 +13,9 @@ TracksterAssociatorByEnergyScoreImpl::TracksterAssociatorByEnergyScoreImpl(
 }
 
 hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
-    const edm::Handle<ticl::TracksterCollection>& tCH, const edm::Handle<reco::CaloClusterCollection>& lCCH, const edm::Handle<SimClusterCollection>& sCCH) const {
+    const edm::Handle<ticl::TracksterCollection>& tCH,
+    const edm::Handle<reco::CaloClusterCollection>& lCCH,
+    const edm::Handle<SimClusterCollection>& sCCH) const {
   // Get collections
   const auto& tracksters = *tCH.product();
   const auto& layerClusters = *lCCH.product();
@@ -77,8 +79,7 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
         << "    SimClusterIdx: " << tssInSimCluster[sc].simClusterId << std::endl;
     LogDebug("TracksterAssociatorByEnergyScoreImpl")
         << "    Energy:          " << tssInSimCluster[sc].energy << std::endl;
-    LogDebug("TracksterAssociatorByEnergyScoreImpl")
-        << "    # of clusters :          " << nLayerClusters << std::endl;
+    LogDebug("TracksterAssociatorByEnergyScoreImpl") << "    # of clusters :          " << nLayerClusters << std::endl;
     double tot_energy = 0.;
     for (auto const& haf : tssInSimCluster[sc].hits_and_fractions) {
       LogDebug("TracksterAssociatorByEnergyScoreImpl")
@@ -88,8 +89,8 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
     }
     LogDebug("TracksterAssociatorByEnergyScoreImpl") << "    Tot Sum haf: " << tot_energy << std::endl;
     for (auto const& ts : tssInSimCluster[sc].tracksterIdToEnergyAndScore) {
-      LogDebug("TracksterAssociatorByEnergyScoreImpl") << "      tsIdx/energy/score: " << ts.first << "/"
-                                                       << ts.second.first << "/" << ts.second.second << std::endl;
+      LogDebug("TracksterAssociatorByEnergyScoreImpl")
+          << "      tsIdx/energy/score: " << ts.first << "/" << ts.second.first << "/" << ts.second.second << std::endl;
     }
   }
 
@@ -120,35 +121,34 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
       unsigned int numberOfHitsInLC = hits_and_fractions.size();
 
       for (unsigned int hitId = 0; hitId < numberOfHitsInLC; hitId++) {
-	const auto rh_detid = hits_and_fractions[hitId].first;
-	const auto rhFraction = hits_and_fractions[hitId].second;
+        const auto rh_detid = hits_and_fractions[hitId].first;
+        const auto rhFraction = hits_and_fractions[hitId].second;
 
-	const auto hit_find_in_LC = detIdToLayerClusterId_Map.find(rh_detid);
-	if (hit_find_in_LC == detIdToLayerClusterId_Map.end()) {
-	  detIdToLayerClusterId_Map[rh_detid] = std::vector<hgcal::detIdInfoInCluster>();
-	}
-	detIdToLayerClusterId_Map[rh_detid].emplace_back(lcId, rhFraction);
+        const auto hit_find_in_LC = detIdToLayerClusterId_Map.find(rh_detid);
+        if (hit_find_in_LC == detIdToLayerClusterId_Map.end()) {
+          detIdToLayerClusterId_Map[rh_detid] = std::vector<hgcal::detIdInfoInCluster>();
+        }
+        detIdToLayerClusterId_Map[rh_detid].emplace_back(lcId, rhFraction);
 
-	const auto hit_find_in_SC = detIdToSimClusterId_Map.find(rh_detid);
+        const auto hit_find_in_SC = detIdToSimClusterId_Map.find(rh_detid);
 
-	if (hit_find_in_SC != detIdToSimClusterId_Map.end()) {
-	  const auto itcheck = hitMap_->find(rh_detid);
-	  const HGCRecHit* hit = itcheck->second;
-	  //Loops through all the simclusters that have the layer cluster rechit under study
-	  //Here is time to update the tssInSimCluster and connect the SimCluster with all
-	  //the Tracksters that have the current rechit detid matched.
-	  for (const auto& h : hit_find_in_SC->second) {
-	    //tssInSimCluster[simclusterId][layerclusterId]-> (energy,score)
-	    //SC_i - > TS_j, TS_k, ...
-	    tssInSimCluster[h.clusterId].tracksterIdToEnergyAndScore[tsId].first +=
-		h.fraction * hit->energy();
-	    //TS_i -> SC_j, SC_k, ...
-	    scsInTrackster[tsId].emplace_back(h.clusterId, 0.f);
-	  }
-	}
-      } // End loop over hits on a LayerCluster
-    }   // End loop over LayerClusters in Trackster
-  }     // End of loop over Tracksters
+        if (hit_find_in_SC != detIdToSimClusterId_Map.end()) {
+          const auto itcheck = hitMap_->find(rh_detid);
+          const HGCRecHit* hit = itcheck->second;
+          //Loops through all the simclusters that have the layer cluster rechit under study
+          //Here is time to update the tssInSimCluster and connect the SimCluster with all
+          //the Tracksters that have the current rechit detid matched.
+          for (const auto& h : hit_find_in_SC->second) {
+            //tssInSimCluster[simclusterId][layerclusterId]-> (energy,score)
+            //SC_i - > TS_j, TS_k, ...
+            tssInSimCluster[h.clusterId].tracksterIdToEnergyAndScore[tsId].first += h.fraction * hit->energy();
+            //TS_i -> SC_j, SC_k, ...
+            scsInTrackster[tsId].emplace_back(h.clusterId, 0.f);
+          }
+        }
+      }  // End loop over hits on a LayerCluster
+    }    // End loop over LayerClusters in Trackster
+  }      // End of loop over Tracksters
 
 #ifdef EDM_ML_DEBUG
   for (unsigned int tsId = 0; tsId < nTracksters; ++tsId) {
@@ -182,95 +182,96 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
       std::unordered_map<unsigned, float> SCEnergyInLC;
 
       for (unsigned int hitId = 0; hitId < numberOfHitsInLC; hitId++) {
-	const auto rh_detid = hits_and_fractions[hitId].first;
-	const auto rhFraction = hits_and_fractions[hitId].second;
+        const auto rh_detid = hits_and_fractions[hitId].first;
+        const auto rhFraction = hits_and_fractions[hitId].second;
 
-	const auto hit_find_in_SC = detIdToSimClusterId_Map.find(rh_detid);
+        const auto hit_find_in_SC = detIdToSimClusterId_Map.find(rh_detid);
 
-	// if the fraction is zero or the hit does not belong to any SimCluster,
-	// set the SimCluster Id for the hit to -1; this will
-	// contribute to the number of noise hits
+        // if the fraction is zero or the hit does not belong to any SimCluster,
+        // set the SimCluster Id for the hit to -1; this will
+        // contribute to the number of noise hits
 
-	// MR Remove the case in which the fraction is 0, since this could be a
-	// real hit that has been marked as halo.
-	if (rhFraction == 0.) {
-	  hitsToSimClusterId[hitId] = -2;
-	}
-	//Now check if there are SimClusters linked to this rechit of the layercluster
-	if (hit_find_in_SC == detIdToSimClusterId_Map.end()) {
-	  hitsToSimClusterId[hitId] -= 1;
-	} else {
-	  const auto itcheck = hitMap_->find(rh_detid);
-	  const HGCRecHit* hit = itcheck->second;
-	  auto maxSCEnergyInLC = 0.f;
-	  auto maxSCId = -1;
-	  //Loop through all the linked SimClusters
-	  for (const auto& h : hit_find_in_SC->second) {
-	    SCEnergyInLC[h.clusterId] += h.fraction * hit->energy();
-	    // Keep track of which SimCluster contributed the most, in terms
-	    // of energy, to this specific Layer Cluster.
-	    if (SCEnergyInLC[h.clusterId] > maxSCEnergyInLC) {
-	      maxSCEnergyInLC = SCEnergyInLC[h.clusterId];
-	      maxSCId = h.clusterId;
-	    }
-	  }
-	  hitsToSimClusterId[hitId] = maxSCId;
-	}
+        // MR Remove the case in which the fraction is 0, since this could be a
+        // real hit that has been marked as halo.
+        if (rhFraction == 0.) {
+          hitsToSimClusterId[hitId] = -2;
+        }
+        //Now check if there are SimClusters linked to this rechit of the layercluster
+        if (hit_find_in_SC == detIdToSimClusterId_Map.end()) {
+          hitsToSimClusterId[hitId] -= 1;
+        } else {
+          const auto itcheck = hitMap_->find(rh_detid);
+          const HGCRecHit* hit = itcheck->second;
+          auto maxSCEnergyInLC = 0.f;
+          auto maxSCId = -1;
+          //Loop through all the linked SimClusters
+          for (const auto& h : hit_find_in_SC->second) {
+            SCEnergyInLC[h.clusterId] += h.fraction * hit->energy();
+            // Keep track of which SimCluster contributed the most, in terms
+            // of energy, to this specific Layer Cluster.
+            if (SCEnergyInLC[h.clusterId] > maxSCEnergyInLC) {
+              maxSCEnergyInLC = SCEnergyInLC[h.clusterId];
+              maxSCId = h.clusterId;
+            }
+          }
+          hitsToSimClusterId[hitId] = maxSCId;
+        }
       }  // End loop over hits on a LayerCluster
 
       for (const auto& c : hitsToSimClusterId) {
-	if (c < 0) {
-	  numberOfNoiseHitsInLC++;
-	} else {
-	  occurrencesSCinLC[c]++;
-	}
+        if (c < 0) {
+          numberOfNoiseHitsInLC++;
+        } else {
+          occurrencesSCinLC[c]++;
+        }
       }
 
       for (const auto& c : occurrencesSCinLC) {
-	if (c.second > maxSCNumberOfHitsInLC) {
-	  maxSCId_byNumberOfHits = c.first;
-	  maxSCNumberOfHitsInLC = c.second;
-	}
+        if (c.second > maxSCNumberOfHitsInLC) {
+          maxSCId_byNumberOfHits = c.first;
+          maxSCNumberOfHitsInLC = c.second;
+        }
       }
 
       for (const auto& c : SCEnergyInLC) {
-	if (c.second > maxEnergySharedLCandSC) {
-	  maxSCId_byEnergy = c.first;
-	  maxEnergySharedLCandSC = c.second;
-	}
+        if (c.second > maxEnergySharedLCandSC) {
+          maxSCId_byEnergy = c.first;
+          maxEnergySharedLCandSC = c.second;
+        }
       }
 
       float totalSCEnergyOnLayer = 0.f;
       if (maxSCId_byEnergy >= 0) {
-	totalSCEnergyOnLayer = tssInSimCluster[maxSCId_byEnergy].energy;
-	energyFractionOfSCinLC = maxEnergySharedLCandSC / totalSCEnergyOnLayer;
-	if (tracksters[tsId].raw_energy() > 0.f) {
-	  energyFractionOfLCinSC = maxEnergySharedLCandSC / tracksters[tsId].raw_energy();
-	}
+        totalSCEnergyOnLayer = tssInSimCluster[maxSCId_byEnergy].energy;
+        energyFractionOfSCinLC = maxEnergySharedLCandSC / totalSCEnergyOnLayer;
+        if (tracksters[tsId].raw_energy() > 0.f) {
+          energyFractionOfLCinSC = maxEnergySharedLCandSC / tracksters[tsId].raw_energy();
+        }
       }
 
       LogDebug("TracksterAssociatorByEnergyScoreImpl") << std::setw(12) << "TracksterID:"
-						       << "\t" << std::setw(12) << "layerCluster"
-						       << "\t" << std::setw(10) << "lc energy"
-						       << "\t" << std::setw(5) << "nhits"
-						       << "\t" << std::setw(12) << "noise hits"
-						       << "\t" << std::setw(22) << "maxSCId_byNumberOfHits"
-						       << "\t" << std::setw(8) << "nhitsSC"
-						       << "\t" << std::setw(13) << "maxSCId_byEnergy"
-						       << "\t" << std::setw(20) << "maxEnergySharedLCandSC"
-						       << "\t" << std::setw(22) << "totalSCEnergyOnLayer"
-						       << "\t" << std::setw(22) << "energyFractionOfLCinSC"
-						       << "\t" << std::setw(25) << "energyFractionOfSCinLC"
-						       << "\t" << "\n";
+                                                       << "\t" << std::setw(12) << "layerCluster"
+                                                       << "\t" << std::setw(10) << "lc energy"
+                                                       << "\t" << std::setw(5) << "nhits"
+                                                       << "\t" << std::setw(12) << "noise hits"
+                                                       << "\t" << std::setw(22) << "maxSCId_byNumberOfHits"
+                                                       << "\t" << std::setw(8) << "nhitsSC"
+                                                       << "\t" << std::setw(13) << "maxSCId_byEnergy"
+                                                       << "\t" << std::setw(20) << "maxEnergySharedLCandSC"
+                                                       << "\t" << std::setw(22) << "totalSCEnergyOnLayer"
+                                                       << "\t" << std::setw(22) << "energyFractionOfLCinSC"
+                                                       << "\t" << std::setw(25) << "energyFractionOfSCinLC"
+                                                       << "\t"
+                                                       << "\n";
       LogDebug("TracksterAssociatorByEnergyScoreImpl")
-	  << std::setw(12) << tsId << "\t" << std::setw(12) << lcId << "\t" << std::setw(10)
-	  << tracksters[tsId].raw_energy() << "\t" << std::setw(5) << numberOfHitsInLC << "\t" << std::setw(12)
-	  << numberOfNoiseHitsInLC << "\t" << std::setw(22) << maxSCId_byNumberOfHits << "\t" << std::setw(8)
-	  << maxSCNumberOfHitsInLC << "\t" << std::setw(13) << maxSCId_byEnergy << "\t" << std::setw(20)
-	  << maxEnergySharedLCandSC << "\t" << std::setw(22) << totalSCEnergyOnLayer << "\t" << std::setw(22)
-	  << energyFractionOfLCinSC << "\t" << std::setw(25) << energyFractionOfSCinLC << "\n";
-    } // End of loop over LayerClusters in Trackster
-  }   // End of loop over Tracksters
+          << std::setw(12) << tsId << "\t" << std::setw(12) << lcId << "\t" << std::setw(10)
+          << tracksters[tsId].raw_energy() << "\t" << std::setw(5) << numberOfHitsInLC << "\t" << std::setw(12)
+          << numberOfNoiseHitsInLC << "\t" << std::setw(22) << maxSCId_byNumberOfHits << "\t" << std::setw(8)
+          << maxSCNumberOfHitsInLC << "\t" << std::setw(13) << maxSCId_byEnergy << "\t" << std::setw(20)
+          << maxEnergySharedLCandSC << "\t" << std::setw(22) << totalSCEnergyOnLayer << "\t" << std::setw(22)
+          << energyFractionOfLCinSC << "\t" << std::setw(25) << energyFractionOfSCinLC << "\n";
+    }  // End of loop over LayerClusters in Trackster
+  }    // End of loop over Tracksters
 
   LogDebug("TracksterAssociatorByEnergyScoreImpl")
       << "Improved tssInSimCluster INFO (Now containing the linked tracksters id and energy - score still empty)"
@@ -290,8 +291,8 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
     }
     LogDebug("TracksterAssociatorByEnergyScoreImpl") << "    Tot Sum haf: " << tot_energy << std::endl;
     for (auto const& ts : tssInSimCluster[sc].tracksterIdToEnergyAndScore) {
-      LogDebug("TracksterAssociatorByEnergyScoreImpl") << "      tsIdx/energy/score: " << ts.first << "/"
-                                                       << ts.second.first << "/" << ts.second.second << std::endl;
+      LogDebug("TracksterAssociatorByEnergyScoreImpl")
+          << "      tsIdx/energy/score: " << ts.first << "/" << ts.second.first << "/" << ts.second.second << std::endl;
     }
   }
 
@@ -334,8 +335,8 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
 
       // Compute the correct normalization
       for (auto const& haf : hits_and_fractions) {
-	invTracksterEnergyWeight +=
-	    (haf.second * hitMap_->at(haf.first)->energy()) * (haf.second * hitMap_->at(haf.first)->energy());
+        invTracksterEnergyWeight +=
+            (haf.second * hitMap_->at(haf.first)->energy()) * (haf.second * hitMap_->at(haf.first)->energy());
       }
     }
     invTracksterEnergyWeight = 1.f / invTracksterEnergyWeight;
@@ -344,44 +345,44 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
       const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
       unsigned int numberOfHitsInLC = hits_and_fractions.size();
       for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
-	DetId rh_detid = hits_and_fractions[i].first;
-	float rhFraction = hits_and_fractions[i].second;
+        DetId rh_detid = hits_and_fractions[i].first;
+        float rhFraction = hits_and_fractions[i].second;
 
-	const bool hitWithSC = (detIdToSimClusterId_Map.find(rh_detid) != detIdToSimClusterId_Map.end());
+        const bool hitWithSC = (detIdToSimClusterId_Map.find(rh_detid) != detIdToSimClusterId_Map.end());
 
-	const auto itcheck = hitMap_->find(rh_detid);
-	const HGCRecHit* hit = itcheck->second;
-	float hitEnergyWeight = hit->energy() * hit->energy();
+        const auto itcheck = hitMap_->find(rh_detid);
+        const HGCRecHit* hit = itcheck->second;
+        float hitEnergyWeight = hit->energy() * hit->energy();
 
-	for (auto& scPair : scsInTrackster[tsId]) {
-	  float scFraction = 0.f;
-	  if (hitWithSC) {
-	    const auto findHitIt = std::find(detIdToSimClusterId_Map[rh_detid].begin(),
-					     detIdToSimClusterId_Map[rh_detid].end(),
-					     hgcal::detIdInfoInCluster{scPair.first, 0.f});
-	    if (findHitIt != detIdToSimClusterId_Map[rh_detid].end())
-	      scFraction = findHitIt->fraction;
-	  }
-	  scPair.second +=
-	      (rhFraction - scFraction) * (rhFraction - scFraction) * hitEnergyWeight * invTracksterEnergyWeight;
-  #ifdef EDM_ML_DEBUG
-	  LogDebug("TracksterAssociatorByEnergyScoreImpl")
-	      << "rh_detid:\t" << (uint32_t)rh_detid << "\ttracksterId:\t" << tsId << "\t"
-	      << "rhfraction,scFraction:\t" << rhFraction << ", " << scFraction << "\t"
-	      << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
-	      << "current score:\t" << scPair.second << "\t"
-	      << "invTracksterEnergyWeight:\t" << invTracksterEnergyWeight << "\n";
-  #endif
-	}
+        for (auto& scPair : scsInTrackster[tsId]) {
+          float scFraction = 0.f;
+          if (hitWithSC) {
+            const auto findHitIt = std::find(detIdToSimClusterId_Map[rh_detid].begin(),
+                                             detIdToSimClusterId_Map[rh_detid].end(),
+                                             hgcal::detIdInfoInCluster{scPair.first, 0.f});
+            if (findHitIt != detIdToSimClusterId_Map[rh_detid].end())
+              scFraction = findHitIt->fraction;
+          }
+          scPair.second +=
+              (rhFraction - scFraction) * (rhFraction - scFraction) * hitEnergyWeight * invTracksterEnergyWeight;
+#ifdef EDM_ML_DEBUG
+          LogDebug("TracksterAssociatorByEnergyScoreImpl")
+              << "rh_detid:\t" << (uint32_t)rh_detid << "\ttracksterId:\t" << tsId << "\t"
+              << "rhfraction,scFraction:\t" << rhFraction << ", " << scFraction << "\t"
+              << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
+              << "current score:\t" << scPair.second << "\t"
+              << "invTracksterEnergyWeight:\t" << invTracksterEnergyWeight << "\n";
+#endif
+        }
       }  // End of loop over Hits within a LayerCluster
-    } // End of loop over LayerClusters in Trackster
+    }    // End of loop over LayerClusters in Trackster
 
-    #ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
     if (scsInTrackster[tsId].empty())
       LogDebug("TracksterAssociatorByEnergyScoreImpl") << "trackster Id: \t" << tsId << "\tSC id:\t-1 "
                                                        << "\t score \t-1"
                                                        << "\n";
-    #endif
+#endif
   }  // End of loop over Tracksters
 
   // Compute the SimCluster-To-Trackster score
@@ -408,15 +409,14 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
       SCEnergyFractionInTS = maxEnergyTSinSC / SCenergy;
 
     LogDebug("TracksterAssociatorByEnergyScoreImpl")
-        << std::setw(12) << "simcluster\t" << std::setw(15) << "sc total energy\t"
-        << std::setw(15) << "scEnergyOnLayer\t" << std::setw(14) << "SCNhitsOnLayer\t" << std::setw(18)
-        << "tsWithMaxEnergyInSC\t" << std::setw(15) << "maxEnergyTSinSC\t" << std::setw(20) << "SCEnergyFractionInTS"
+        << std::setw(12) << "simcluster\t" << std::setw(15) << "sc total energy\t" << std::setw(15)
+        << "scEnergyOnLayer\t" << std::setw(14) << "SCNhitsOnLayer\t" << std::setw(18) << "tsWithMaxEnergyInSC\t"
+        << std::setw(15) << "maxEnergyTSinSC\t" << std::setw(20) << "SCEnergyFractionInTS"
         << "\n";
     LogDebug("TracksterAssociatorByEnergyScoreImpl")
-        << std::setw(12) << scId << "\t" << std::setw(15)
-        << simClusters[scId].energy() << "\t" << std::setw(15) << SCenergy << "\t" << std::setw(14) << SCNumberOfHits
-        << "\t" << std::setw(18) << tsWithMaxEnergyInSC << "\t" << std::setw(15) << maxEnergyTSinSC << "\t"
-        << std::setw(20) << SCEnergyFractionInTS << "\n";
+        << std::setw(12) << scId << "\t" << std::setw(15) << simClusters[scId].energy() << "\t" << std::setw(15)
+        << SCenergy << "\t" << std::setw(14) << SCNumberOfHits << "\t" << std::setw(18) << tsWithMaxEnergyInSC << "\t"
+        << std::setw(15) << maxEnergyTSinSC << "\t" << std::setw(20) << SCEnergyFractionInTS << "\n";
 #endif
     // Compute the correct normalization
     for (auto const& haf : tssInSimCluster[scId].hits_and_fractions) {
@@ -430,7 +430,7 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
 
       bool hitWithLC = false;
       if (scFraction == 0.f)
-        continue; // hopefully this should never happen
+        continue;  // hopefully this should never happen
       const auto hit_find_in_LC = detIdToLayerClusterId_Map.find(sc_hitDetId);
       if (hit_find_in_LC != detIdToLayerClusterId_Map.end())
         hitWithLC = true;
@@ -473,20 +473,22 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
           << (tsPair.second.first / SCenergy) << "\n";
     }
 #endif
-  } // End loop over SimCluster indices
+  }  // End loop over SimCluster indices
   return {scsInTrackster, tssInSimCluster};
 }
 
 hgcal::RecoToSimCollectionTracksters TracksterAssociatorByEnergyScoreImpl::associateRecoToSim(
-    const edm::Handle<ticl::TracksterCollection>& tCH, const edm::Handle<reco::CaloClusterCollection>& lCCH, const edm::Handle<SimClusterCollection>& sCCH) const {
+    const edm::Handle<ticl::TracksterCollection>& tCH,
+    const edm::Handle<reco::CaloClusterCollection>& lCCH,
+    const edm::Handle<SimClusterCollection>& sCCH) const {
   hgcal::RecoToSimCollectionTracksters returnValue(productGetter_);
   const auto& links = makeConnections(tCH, lCCH, sCCH);
 
   const auto& scsInTrackster = std::get<0>(links);
   for (size_t tsId = 0; tsId < scsInTrackster.size(); ++tsId) {
     for (auto& scPair : scsInTrackster[tsId]) {
-      LogDebug("TracksterAssociatorByEnergyScoreImpl")
-          << "Trackster Id: \t" << tsId << "\t SimCluster id: \t" << scPair.first << "\t score \t" << scPair.second << "\n";
+      LogDebug("TracksterAssociatorByEnergyScoreImpl") << "Trackster Id: \t" << tsId << "\t SimCluster id: \t"
+                                                       << scPair.first << "\t score \t" << scPair.second << "\n";
       // Fill AssociationMap
       returnValue.insert(edm::Ref<ticl::TracksterCollection>(tCH, tsId),  // Ref to TS
                          std::make_pair(edm::Ref<SimClusterCollection>(sCCH, scPair.first),
@@ -498,15 +500,17 @@ hgcal::RecoToSimCollectionTracksters TracksterAssociatorByEnergyScoreImpl::assoc
 }
 
 hgcal::SimToRecoCollectionTracksters TracksterAssociatorByEnergyScoreImpl::associateSimToReco(
-    const edm::Handle<ticl::TracksterCollection>& tCH, const edm::Handle<reco::CaloClusterCollection>& lCCH, const edm::Handle<SimClusterCollection>& sCCH) const {
+    const edm::Handle<ticl::TracksterCollection>& tCH,
+    const edm::Handle<reco::CaloClusterCollection>& lCCH,
+    const edm::Handle<SimClusterCollection>& sCCH) const {
   hgcal::SimToRecoCollectionTracksters returnValue(productGetter_);
   const auto& links = makeConnections(tCH, lCCH, sCCH);
   const auto& tssInSimCluster = std::get<1>(links);
   for (size_t scId = 0; scId < tssInSimCluster.size(); ++scId) {
     for (auto& tsPair : tssInSimCluster[scId].tracksterIdToEnergyAndScore) {
       returnValue.insert(
-          edm::Ref<SimClusterCollection>(sCCH, scId),                             // Ref to SC
-          std::make_pair(edm::Ref<ticl::TracksterCollection>(tCH, tsPair.first),  // Pair <Ref to TS,
+          edm::Ref<SimClusterCollection>(sCCH, scId),                                // Ref to SC
+          std::make_pair(edm::Ref<ticl::TracksterCollection>(tCH, tsPair.first),     // Pair <Ref to TS,
                          std::make_pair(tsPair.second.first, tsPair.second.second))  // pair <energy, score> >
       );
     }

@@ -39,8 +39,7 @@ namespace hgcal {
   private:
     TracksterToSimClusterAssociator(const TracksterToSimClusterAssociator &) = delete;  // stop default
 
-    const TracksterToSimClusterAssociator &operator=(const TracksterToSimClusterAssociator &) =
-        delete;  // stop default
+    const TracksterToSimClusterAssociator &operator=(const TracksterToSimClusterAssociator &) = delete;  // stop default
 
     // ---------- member data --------------------------------
     std::unique_ptr<TracksterToSimClusterAssociatorBaseImpl> m_impl;

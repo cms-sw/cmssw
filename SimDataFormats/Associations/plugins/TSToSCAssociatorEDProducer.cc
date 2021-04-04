@@ -50,8 +50,7 @@ TSToSCAssociatorEDProducer::TSToSCAssociatorEDProducer(const edm::ParameterSet &
   SCCollectionToken_ = consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("label_scl"));
   TSCollectionToken_ = consumes<ticl::TracksterCollection>(pset.getParameter<edm::InputTag>("label_tst"));
   LCCollectionToken_ = consumes<reco::CaloClusterCollection>(pset.getParameter<edm::InputTag>("label_lcl"));
-  associatorToken_ =
-      consumes<hgcal::TracksterToSimClusterAssociator>(pset.getParameter<edm::InputTag>("associator"));
+  associatorToken_ = consumes<hgcal::TracksterToSimClusterAssociator>(pset.getParameter<edm::InputTag>("associator"));
 }
 
 TSToSCAssociatorEDProducer::~TSToSCAssociatorEDProducer() {}
@@ -78,10 +77,12 @@ void TSToSCAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, cons
 
   // associate LC and SC
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
-  hgcal::RecoToSimCollectionTracksters recSimColl = theAssociator->associateRecoToSim(TSCollection, LCCollection, SCCollection);
+  hgcal::RecoToSimCollectionTracksters recSimColl =
+      theAssociator->associateRecoToSim(TSCollection, LCCollection, SCCollection);
 
   LogTrace("AssociatorValidator") << "Calling associateSimToReco method\n";
-  hgcal::SimToRecoCollectionTracksters simRecColl = theAssociator->associateSimToReco(TSCollection, LCCollection, SCCollection);
+  hgcal::SimToRecoCollectionTracksters simRecColl =
+      theAssociator->associateSimToReco(TSCollection, LCCollection, SCCollection);
 
   auto rts = std::make_unique<hgcal::RecoToSimCollectionTracksters>(recSimColl);
   auto str = std::make_unique<hgcal::SimToRecoCollectionTracksters>(simRecColl);
