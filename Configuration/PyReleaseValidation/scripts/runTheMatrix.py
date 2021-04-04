@@ -5,7 +5,7 @@ import sys, os
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
 from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector,performInjectionOptionTest
-        
+
 # ================================================================================
 
 def showRaw(opt):
@@ -14,7 +14,7 @@ def showRaw(opt):
     mrd.showRaw(opt.useInput, opt.refRel, opt.fromScratch, opt.raw, opt.step1Only, selected=opt.testList)
 
     return 0
-        
+
 # ================================================================================
 
 def runSelected(opt):
@@ -98,7 +98,7 @@ if __name__ == '__main__':
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
         }
-        
+
 
     import optparse
     usage = 'usage: runTheMatrix.py --show -s '
@@ -277,7 +277,7 @@ if __name__ == '__main__':
                       dest='jobReports',
                       default=False,
                       action='store_true')
-    
+
     parser.add_option('--ibeos',
                       help='Use IB EOS site configuration',
                       dest='IBEos',
@@ -289,6 +289,10 @@ if __name__ == '__main__':
                       dest='dasSites',
                       default='T2_CH_CERN',
                       action='store')
+    parser.add_option('--interactive',
+                      help="Open the Matrix interactive shell",
+                      action='store_true',
+                      default=False)
 
     parser.add_option('--dbs-url',
                       help='Overwrite DbsUrl value in JSON submitted to ReqMgr2',
@@ -335,9 +339,9 @@ if __name__ == '__main__':
         opt.apply=map(stepOrIndex,opt.apply.split(','))
     if opt.keep:
         opt.keep=map(stepOrIndex,opt.keep.split(','))
-        
-                
-                
+
+
+
     if opt.testList:
         testList=[]
         for entry in opt.testList.split(','):
@@ -353,7 +357,7 @@ if __name__ == '__main__':
                     testList.append(float(entry))
                 except:
                     print(entry,'is not a possible selected entry')
-            
+
         opt.testList = list(set(testList))
 
 
@@ -370,6 +374,166 @@ if __name__ == '__main__':
         performInjectionOptionTest(opt)
     if opt.overWrite:
         opt.overWrite=eval(opt.overWrite)
+    if opt.interactive:
+        import cmd
+
+        class TheMatrix(cmd.Cmd):
+            intro = "Welcome to the Matrix (? for help)"
+            prompt = "matrix> "
+
+            def __init__(self, opt):
+                cmd.Cmd.__init__(self)
+                self.opt_ = opt
+                self.matrices_ = {}
+                tmp = MatrixReader(self.opt_)
+                for what in tmp.files:
+                    self.opt_.what = what
+                    self.matrices_[what] = MatrixReader(self.opt_)
+                    self.matrices_[what].prepare(self.opt_.useInput, self.opt_.refRel,
+                                                self.opt_.fromScratch)
+                os.system("clear")
+
+            def do_clear(self, arg):
+                """Clear the screen, put prompt at the top"""
+                os.system("clear")
+
+            def do_exit(self, arg):
+                print("Leaving the Matrix")
+                return True
+
+            def default(self, inp):
+                if inp == 'x' or inp == 'q':
+                    return self.do_exit(inp)
+
+            def help_predefined(self):
+                print("\n".join(["predefined [predef1 [...]]\n",
+                "Run w/o argument, it will print the list of known predefined workflows.",
+                "Run with space-separated predefined workflows, it will print the workflow-ids registered to them"]))
+
+            def complete_predefined(self, text, line, start_idx, end_idx):
+                if text and len(text) > 0:
+                    return [t for t in predefinedSet.keys() if t.startswith(text)]
+                else:
+                    return predefinedSet.keys()
+
+            def do_predefined(self, arg):
+                """Print the list of predefined workflows"""
+                print("List of predefined workflows")
+                if arg:
+                    for w in arg.split():
+                        if w in predefinedSet.keys():
+                            print("Predefined Set: %s" % w)
+                            print(predefinedSet[w])
+                        else:
+                            print("Unknown Set: %s" % w)
+                else:
+                    print(predefinedSet.keys())
+
+            def help_showWorkflow(self):
+                print("\n".join(["showWorkflow [workflow1 [...]]\n",
+                    "Run w/o arguments, it will print the list of registered macro-workflows.",
+                    "Run with space-separated workflows, it will print the full list of workflow-ids registered to them"]))
+
+            def complete_showWorkflow(self, text, line, start_idx, end_idx):
+                if text and len(text) > 0:
+                    return [t for t in self.matrices_.keys() if t.startswith(text)]
+                else:
+                    return self.matrices_.keys()
+
+            def do_showWorkflow(self, arg):
+                if arg == '':
+                    print("Available workflows:")
+                    for k in self.matrices_.keys():
+                        print(k)
+                else:
+                    selected = arg.split()
+                    for k in selected:
+                        if k not in self.matrices_.keys():
+                            print("Unknown workflow %s: skipping" % k)
+                        else:
+                            for wfl in self.matrices_[k].workFlows:
+                                wfName, stepNames = wfl.nameId.split('+',1)
+                                print("%s %s %s" % (wfl.numId, wfName, stepNames))
+                            print("%s contains %d workflows" % (k, len(self.matrices_[k].workFlows)))
+
+            def help_searchInWorkflow(self):
+                print("\n".join(["searchInWorkflow wfl_name search_regexp\n",
+                    "This command will search for a match within all workflows registered to wfl_name.",
+                    "The search is done on both the workflow name and the names of steps registered to it."]))
+
+            def complete_searchInWorkflow(self, text, line, start_idx, end_idx):
+                if text and len(text) > 0:
+                    return [t for t in self.matrices_.keys() if t.startswith(text)]
+                else:
+                    return self.matrices_.keys()
+
+            def do_searchInWorkflow(self, arg):
+                args = arg.split()
+                if len(args) < 2:
+                    print("searchInWorkflow name regexp")
+                    return
+                if args[0] not in self.matrices_.keys():
+                    print("Unknown workflow")
+                    return
+                import re
+                pattern = None
+                try:
+                    pattern = re.compile(args[1])
+                except:
+                    print("Failed to compile regexp %s" % args[1])
+                    return
+                counter = 0
+                for wfl in self.matrices_[args[0]].workFlows:
+                    wfName, stepNames = wfl.nameId.split('+',1)
+                    if re.match(pattern, wfName) or re.match(pattern, stepNames):
+                        print("%s %s %s" % (wfl.numId, wfName, stepNames))
+                        counter += 1
+                print("Found %d compatible workflows inside %s" % (counter, args[0]))
+
+            def help_search(self):
+                print("\n".join(["search search_regexp\n",
+                    "This command will search for a match within all workflows registered.",
+                    "The search is done on both the workflow name and the names of steps registered to it."]))
+
+            def do_search(self, arg):
+                args = arg.split()
+                if len(args) < 1:
+                    print("search regexp")
+                    return
+                for wfl in self.matrices_.keys():
+                    self.do_searchInWorkflow(' '.join([wfl, args[0]]))
+
+            def help_dumpWorkflowId(self):
+                print("\n".join(["dumpWorkflowId [wfl-id1 [...]]\n",
+                    "Dumps the details (cmsDriver commands for all steps) of the space-separated workflow-ids in input."]))
+
+            def do_dumpWorkflowId(self, arg):
+                wflids = arg.split()
+                if len(wflids) == 0:
+                    print("dumpWorkflowId [wfl-id1 [...]]")
+                    return
+
+                fmt   = "[%d]: %s\n"
+                maxLen = 100
+                for wflid in wflids:
+                    dump = True
+                    for key, mrd in self.matrices_.iteritems():
+                        for wfl in mrd.workFlows:
+                            if wfl.numId == float(wflid):
+                                wfName, stepNames = wfl.nameId.split('+',1)
+                                if dump:
+                                    dump = False
+                                    print(wfl.numId, stepNames)
+                                    for i,s in enumerate(wfl.cmds):
+                                        print(fmt % (i+1, (str(s)+' ')))
+                                    print("\nWorkflow found in %s." % key)
+                                else:
+                                    print("Workflow also found in %s." % key)
+
+            do_EOF = do_exit
+
+        TheMatrix(opt).cmdloop()
+        sys.exit(0)
 
     if opt.raw and opt.show: ###prodAgent to be discontinued
         ret = showRaw(opt)
