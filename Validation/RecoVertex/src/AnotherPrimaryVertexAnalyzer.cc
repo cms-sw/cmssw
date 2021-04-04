@@ -27,7 +27,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -47,7 +47,7 @@
 // class decleration
 //
 
-class AnotherPrimaryVertexAnalyzer : public edm::EDAnalyzer {
+class AnotherPrimaryVertexAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit AnotherPrimaryVertexAnalyzer(const edm::ParameterSet&);
   ~AnotherPrimaryVertexAnalyzer() override;
@@ -89,9 +89,8 @@ AnotherPrimaryVertexAnalyzer::AnotherPrimaryVertexAnalyzer(const edm::ParameterS
                     iConfig.getParameter<edm::ParameterSet>("prescaleWeightProviderPSet"), consumesCollector(), *this)
               : nullptr) {
   //now do what ever initialization is needed
-
+  usesResource(TFileService::kSharedResource);
   //
-
   _vhm.book();
 }
 

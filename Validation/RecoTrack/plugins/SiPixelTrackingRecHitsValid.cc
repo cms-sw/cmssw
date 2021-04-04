@@ -105,7 +105,12 @@ void SiPixelTrackingRecHitsValid::beginJob() {
 }
 
 SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet& ps)
-    : trackerHitAssociatorConfig_(ps, consumesCollector()), dbe_(nullptr), tfile_(nullptr), t_(nullptr) {
+    : tTopoEsToken_(esConsumes()),
+      tGeomEsToken_(esConsumes()),
+      trackerHitAssociatorConfig_(ps, consumesCollector()),
+      dbe_(nullptr),
+      tfile_(nullptr),
+      t_(nullptr) {
   //Read config file
   MTCCtrack_ = ps.getParameter<bool>("MTCCtrack");
   runStandalone = ps.getParameter<bool>("runStandalone");
@@ -1103,8 +1108,7 @@ SiPixelTrackingRecHitsValid::~SiPixelTrackingRecHitsValid() {
 // Functions that gets called by framework every event
 void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<TrackerTopologyRcd>().get(tTopo);
+  const auto& tTopo = &es.getData(tTopoEsToken_);
 
   run = e.id().run();
   evt = e.id().event();
@@ -1124,9 +1128,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   std::vector<PSimHit> matched;
   TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
-  edm::ESHandle<TrackerGeometry> pDD;
-  es.get<TrackerDigiGeometryRecord>().get(pDD);
-  const TrackerGeometry* tracker = &(*pDD);
+  const TrackerGeometry* tracker = &es.getData(tGeomEsToken_);
 
   if (!MTCCtrack_) {
     // --------------------------------------- all hits -----------------------------------------------------------
@@ -1139,8 +1141,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
     //   << " Pixel RecHits" << std::endl;
 
     //-----Iterate over detunits
-    for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
-      DetId detId = ((*it)->geographicalId());
+    for (const auto& it : tracker->dets()) {
+      DetId detId = it->geographicalId();
 
       unsigned int subid = detId.subdetId();
       if (!((subid == 1) || (subid == 2)))
@@ -1162,7 +1164,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
         float rechitx = lp.x();
         float rechity = lp.y();
 
-        detId = (*it)->geographicalId();
+        detId = it->geographicalId();
         subdetId = (int)detId.subdetId();
         if ((int)detId.subdetId() == (int)PixelSubdetector::PixelBarrel) {
           mePosxBarrel_all_hits->Fill(rechitx);

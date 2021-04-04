@@ -393,9 +393,9 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
         mapChamberStatus[key4Ch] = false;
       }
 
-      Int_t nIdxVFAT = getVFATNumber(gid.station(), gid.roll(), vfatStat->phi() + 1);
-      mapStatusVFAT_.FillBits(key3, nIdxVFAT, unQFVFAT);
-      mapStatusVFATPerCh_.FillBits(key4Ch, nIdxVFAT, unQFVFAT);
+      Int_t nIdxVFAT = getVFATNumber(gid.station(), gid.roll(), vfatStat->phi());
+      mapStatusVFAT_.FillBits(key3, nIdxVFAT + 1, unQFVFAT);
+      mapStatusVFATPerCh_.FillBits(key4Ch, nIdxVFAT + 1, unQFVFAT);
     }
   }
 

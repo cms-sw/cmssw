@@ -626,6 +626,12 @@ private:
                           HitType hitType);
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
+  const edm::ESGetToken<ParametersDefinerForTP, TrackAssociatorRecord> paramsDefineToken_;
+
   std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> seedTokens_;
   std::vector<edm::EDGetTokenT<std::vector<SeedStopInfo>>> seedStopInfoTokens_;
   edm::EDGetTokenT<edm::View<reco::Track>> trackToken_;
@@ -651,8 +657,6 @@ private:
   edm::EDGetTokenT<edm::ValueMap<unsigned int>> tpNLayersToken_;
   edm::EDGetTokenT<edm::ValueMap<unsigned int>> tpNPixelLayersToken_;
   edm::EDGetTokenT<edm::ValueMap<unsigned int>> tpNStripStereoLayersToken_;
-  std::string builderName_;
-  std::string parametersDefinerName_;
   const bool includeSeeds_;
   const bool includeAllHits_;
   const bool includeMVA_;
@@ -1255,7 +1259,13 @@ private:
 // constructors and destructor
 //
 TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
-    : trackToken_(consumes<edm::View<reco::Track>>(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))),
+    : mfToken_(esConsumes()),
+      ttrhToken_(esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("TTRHBuilder")))),
+      tTopoToken_(esConsumes()),
+      tGeomToken_(esConsumes()),
+      paramsDefineToken_(
+          esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("parametersDefiner")))),
+      trackToken_(consumes<edm::View<reco::Track>>(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))),
       clusterTPMapToken_(consumes<ClusterTPAssociation>(iConfig.getUntrackedParameter<edm::InputTag>("clusterTPMap"))),
       simHitTPMapToken_(consumes<SimHitTPAssociationProducer::SimHitTPAssociationList>(
           iConfig.getUntrackedParameter<edm::InputTag>("simHitTPMap"))),
@@ -1289,8 +1299,6 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
           iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleNpixellayers"))),
       tpNStripStereoLayersToken_(consumes<edm::ValueMap<unsigned int>>(
           iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleNstripstereolayers"))),
-      builderName_(iConfig.getUntrackedParameter<std::string>("TTRHBuilder")),
-      parametersDefinerName_(iConfig.getUntrackedParameter<std::string>("parametersDefiner")),
       includeSeeds_(iConfig.getUntrackedParameter<bool>("includeSeeds")),
       includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits")),
       includeMVA_(iConfig.getUntrackedParameter<bool>("includeMVA")),
@@ -1985,20 +1993,10 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace reco;
   using namespace std;
 
-  edm::ESHandle<MagneticField> mfHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(mfHandle);
-  const auto& mf = *mfHandle;
-
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
-  iSetup.get<TransientRecHitRecord>().get(builderName_, theTTRHBuilder);
-
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology& tTopo = *tTopoHandle;
-
-  edm::ESHandle<TrackerGeometry> geometryHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometryHandle);
-  const TrackerGeometry& tracker = *geometryHandle;
+  const auto& mf = iSetup.getData(mfToken_);
+  const auto& theTTRHBuilder = &iSetup.getData(ttrhToken_);
+  const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
+  const TrackerGeometry& tracker = iSetup.getData(tGeomToken_);
 
   edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
   iEvent.getByToken(trackAssociatorToken_, theAssociator);
@@ -3387,9 +3385,7 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent,
                                            const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                            const std::vector<TPHitIndex>& tpHitList,
                                            const TrackingParticleRefKeyToCount& tpKeyToClusterCount) {
-  edm::ESHandle<ParametersDefinerForTP> parametersDefinerH;
-  iSetup.get<TrackAssociatorRecord>().get(parametersDefinerName_, parametersDefinerH);
-  const ParametersDefinerForTP* parametersDefiner = parametersDefinerH.product();
+  const ParametersDefinerForTP* parametersDefiner = &iSetup.getData(paramsDefineToken_);
 
   // Number of 3D layers for TPs
   edm::Handle<edm::ValueMap<unsigned int>> tpNLayersH;

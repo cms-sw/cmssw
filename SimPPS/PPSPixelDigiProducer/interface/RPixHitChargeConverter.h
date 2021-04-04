@@ -5,13 +5,17 @@
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixLinearChargeCollectionDrifter.h"
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixLinearChargeDivider.h"
 #include "SimPPS/PPSPixelDigiProducer/interface/RPixChargeShare.h"
+#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
 
 class RPixHitChargeConverter {
 public:
-  RPixHitChargeConverter(const edm::ParameterSet &params_, CLHEP::HepRandomEngine &eng, uint32_t det_id);
+  RPixHitChargeConverter(const edm::ParameterSet &params_,
+                         CLHEP::HepRandomEngine &eng,
+                         uint32_t det_id,
+                         const PPSPixelTopology &ppt);
   ~RPixHitChargeConverter() = default;
 
-  std::map<unsigned short, double> processHit(const PSimHit &hit);
+  std::map<unsigned short, double> processHit(const PSimHit &hit, const PPSPixelTopology &ppt);
 
 private:
   const uint32_t det_id_;

@@ -109,13 +109,15 @@ ctppsDirectProtonSimulation.produceScoringPlaneHits = False
 ctppsDirectProtonSimulation.produceRecHits = True
 
 # local reconstruction
+from CalibPPS.ESProducers.ppsTopology_cff import *
+
 from RecoPPS.Local.totemRPLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsPixelLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsDiamondLocalReconstruction_cff import *
 from RecoPPS.Local.ctppsLocalTrackLiteProducer_cff import *
 
 totemRPUVPatternFinder.tagRecHit = cms.InputTag('ctppsDirectProtonSimulation')
-ctppsPixelLocalTracks.label = "ctppsDirectProtonSimulation"
+ctppsPixelLocalTracks.tag = cms.InputTag('ctppsDirectProtonSimulation')
 ctppsDiamondLocalTracks.recHitsTag = cms.InputTag('ctppsDirectProtonSimulation')
 
 ctppsLocalTrackLiteProducer.includeDiamonds = False

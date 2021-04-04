@@ -1,6 +1,7 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DD4hep/Shapes.h"
 
@@ -11,6 +12,8 @@ using namespace std;
 using namespace cms;
 using namespace dd4hep;
 using namespace angle_units::operators;
+
+//#define EDM_ML_DEBUG
 
 namespace {
 
@@ -160,6 +163,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
       // create a logical part representing a single layer in the preshower
       Solid solid = ns.addSolid(ddname, Tube(ddname, rIn, rOut, zHalf, 0., 360._deg));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("SFGeomX") << ddname << " Tubs " << cms::convert2mm(zHalf) << ":" << cms::convert2mm(rIn) << ":"
+                                  << cms::convert2mm(rOut) << ":0:360";
+#endif
       Volume layer = ns.addVolume(Volume(ddname, solid, ns.material(es.materials[i])));
 
       // position the logical part w.r.t. the parent volume
@@ -207,6 +214,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
         Solid outAl = ns.addSolid(
             dd_Alname_f, Tube(dd_Alname_f, es.rMax_Abs_Al - 70 * dd4hep::cm, es.rMax_Abs_Al, zHalf, 0., 90._deg));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeomX") << dd_Alname_f << " Tubs " << cms::convert2mm(zHalf - 0.1 * dd4hep::mm) << ":"
+                                    << cms::convert2mm(es.rMax_Abs_Al - 20 * dd4hep::cm) << ":"
+                                    << cms::convert2mm(es.rMax_Abs_Al) << ":0:90";
+#endif
 
         outalbx = es.absAlX_X * 0.1;
         outalby = es.rMax_Abs_Al + 0.1 * dd4hep::mm - es.absAlX_subtr1_Yshift;
@@ -224,6 +236,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         Solid outAltmp3 = ns.addSolid(
             dd_Alname_j,
             SubtractionSolid(dd_Alname_j, outAl, outAltmp, Position(outalbx / 2., outalby / 2. + shiftR, 0)));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeomX") << dd_Alname_h << " Box " << cms::convert2mm(outalbx / 2. + 0.1 * dd4hep::mm) << ":"
+                                    << cms::convert2mm(outalby / 2. + 0.1 * dd4hep::mm) << ":"
+                                    << cms::convert2mm(zHalf);
+        edm::LogVerbatim("SFGeomX") << dd_Alname_j << " Subtraction " << outAl.name() << ":" << outAltmp.name()
+                                    << " at (" << cms::convert2mm(outalbx / 2.) << ","
+                                    << cms::convert2mm(outalby / 2. + shiftR) << ","
+                                    << "0) no rotation";
+#endif
 
         outalby2 = es.absAlX_Y * 0.1;
         outalbx2 = es.rMax_Abs_Al + 0.1 * dd4hep::mm - es.absAlX_subtr1_Xshift;
@@ -250,7 +271,25 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
         Solid outAlCut = Box(65 * dd4hep::cm, 60 * dd4hep::cm - 0.1 * dd4hep::mm, zHalf + 0.2 * dd4hep::mm);
         Solid outAlFin = SubtractionSolid(outAl2, outAlCut);
-
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeomX") << dd_Alname_i << " Box " << cms::convert2mm(outalbx2 / 2. + 0.1 * dd4hep::mm)
+                                    << ":" << cms::convert2mm(outalby2 / 2. + 0.1 * dd4hep::mm) << ":"
+                                    << cms::convert2mm(zHalf);
+        edm::LogVerbatim("SFGeomX") << dd_Alname_k << " Subtraction " << outAltmp3.name() << ":" << outAltmp2.name()
+                                    << " at (" << cms::convert2mm(outalbx2 / 2. + shiftR2) << ","
+                                    << cms::convert2mm(outalby2 / 2) << ",0) no rotation";
+        edm::LogVerbatim("SFGeomX") << dd_Alname_l << " Union " << outAltmp4.name() << ":" << outAltmp4.name()
+                                    << " at (0,0,0) rotation esalgo:RABS90";
+        edm::LogVerbatim("SFGeomX") << dd_Alname_m << " Union " << outAltmp5.name() << ":" << outAltmp4.name()
+                                    << " at (0,0,0) rotation esalgo:RABS180B";
+        edm::LogVerbatim("SFGeomX") << dd_Alname_g << " Union " << outAltmp6.name() << ":" << outAltmp4.name()
+                                    << " at (0,0,0) rotation esalgo:R180";
+        edm::LogVerbatim("SFGeomX") << outAlCut.name() << " Box " << cms::convert2mm(65 * dd4hep::cm) << ":"
+                                    << cms::convert2mm(60 * dd4hep::cm - 0.1 * dd4hep::mm) << ":"
+                                    << cms::convert2mm(zHalf + 0.2 * dd4hep::mm);
+        edm::LogVerbatim("SFGeomX") << outAlFin.name() << " Subtraction " << outAl2.name() << ":" << outAlCut.name()
+                                    << " at (0,0,0) no rotation";
+#endif
         Volume layerFinOutAl = Volume(dd_tmp_name_f, outAlFin, ns.material(es.materials[i - 1]));
 
         for (int L = 0; L < absz; ++L) {
@@ -303,7 +342,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           Solid solid_b = Box(dd_tmp_name_b, bdx, bdy, zHalf);
           Solid solid_b2 = Box(dd_tmp_name_b2, bdx + 0.1 * dd4hep::mm, bdy + 0.1 * dd4hep::mm, zHalf);
-
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Box " << cms::convert2mm(bdx) << ":" << cms::convert2mm(bdy)
+                                      << ":" << cms::convert2mm(zHalf);
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_b2 << " Box " << cms::convert2mm(bdx + 0.1 * dd4hep::mm) << ":"
+                                      << cms::convert2mm(bdy + 0.1 * dd4hep::mm) << ":" << cms::convert2mm(zHalf);
+#endif
           sdx = es.abs1stx[K] - bdx;
           sdy = 0;
           if (es.abs1stx[K] < rIn + 30 * dd4hep::cm)
@@ -320,22 +364,56 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           layerFinOutAl.placeVolume(layer, 1, Position(sdx, sdy, 0));
           layerFinOutAl.placeVolume(layer, 2, Position(-sdx, sdy, 0));
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("SFGeom") << layer.name() << " copy 1 in " << layerFinOutAl.name() << " at ("
+                                     << cms::convert2mm(sdx) << "," << cms::convert2mm(sdy) << ",0) no rotation";
+          edm::LogVerbatim("SFGeom") << layer.name() << " copy 2 in " << layerFinOutAl.name() << " at ("
+                                     << -cms::convert2mm(sdx) << "," << cms::convert2mm(sdy) << ",0) no rotation";
+#endif
 
           Solid solid_c = ns.solid(dd_FAl_name_c);
           Solid solid_d1 = UnionSolid(dd_FAl_name_d1, solid_c, solid_b2, Position(sdx, sdy, 0));
           Solid solid_d2 =
               ns.addSolid(dd_FAl_name_d, UnionSolid(dd_FAl_name_d, solid_d1, solid_b2, Position(-sdx, -sdy, 0)));
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("SFGeomX") << dd_FAl_name_d1 << " Union " << solid_c.name() << ":" << solid_b2.name()
+                                      << " at (" << cms::convert2mm(sdx) << "," << cms::convert2mm(sdy)
+                                      << ",0) no rotation";
+          edm::LogVerbatim("SFGeomX") << dd_FAl_name_d << " Union " << solid_d1.name() << ":" << solid_b2.name()
+                                      << " at (" << -cms::convert2mm(sdx) << "," << -cms::convert2mm(sdy)
+                                      << ",0) no rotation";
+#endif
 
           if (((es.abs1stx[K] < rIn + 30 * dd4hep::cm) && I == 10) ||
               ((es.abs2ndx[K] < rIn + 30 * dd4hep::cm) && I == 20)) {
             layerFinOutAl.placeVolume(layer, 3, Position(sdx, -sdy, 0));
             layerFinOutAl.placeVolume(layer, 4, Position(-sdx, -sdy, 0));
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("SFGeom") << layer.name() << " copy 3 in " << layerFinOutAl.name() << " at ("
+                                       << cms::convert2mm(sdx) << "," << -cms::convert2mm(sdy) << ",0) no rotation";
+            edm::LogVerbatim("SFGeom") << layer.name() << " copy 4 in " << layerFinOutAl.name() << " at ("
+                                       << -cms::convert2mm(sdx) << "," << -cms::convert2mm(sdy) << ",0) no rotation";
+#endif
 
             Solid solid_c = ns.solid(dd_FAl_name_c);
             Solid solid_d1 = UnionSolid(dd_FAl_name_d1, solid_c, solid_b2, Position(sdx, sdy, 0));
             ns.addSolid(dd_FAl_name_d2, UnionSolid(dd_FAl_name_d2, solid_d1, solid_b2, Position(sdx, -sdy, 0)));
             Solid solid_d3 = UnionSolid(dd_FAl_name_d3, solid_d2, solid_b2, Position(-sdx, sdy, 0));
             ns.addSolid(dd_FAl_name_d, UnionSolid(dd_FAl_name_d, solid_d3, solid_b2, Position(-sdx, -sdy, 0)));
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("SFGeomX") << dd_FAl_name_d1 << " Union " << solid_c.name() << ":" << solid_b2.name()
+                                        << " at (" << cms::convert2mm(sdx) << "," << cms::convert2mm(sdy)
+                                        << ",0) no rotation";
+            edm::LogVerbatim("SFGeomX") << dd_FAl_name_d2 << " Union " << solid_d1.name() << ":" << solid_b2.name()
+                                        << " at (" << cms::convert2mm(sdx) << "," << -cms::convert2mm(sdy)
+                                        << ",0) no rotation";
+            edm::LogVerbatim("SFGeomX") << dd_FAl_name_d3 << " Union " << solid_d2.name() << ":" << solid_b2.name()
+                                        << " at (" << -cms::convert2mm(sdx) << "," << cms::convert2mm(sdy)
+                                        << ",0) no rotation";
+            edm::LogVerbatim("SFGeomX") << dd_FAl_name_d << " Union " << solid_d3.name() << ":" << solid_b2.name()
+                                        << " at (" << -cms::convert2mm(sdx) << "," << -cms::convert2mm(sdy)
+                                        << ",0) no rotation";
+#endif
           }
         }
 
@@ -347,17 +425,44 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         Solid solidcut = Box(dd_tmp_name_b, bdx, bdy, zHalf);
         Solid iner = Tube(dd_tmp_name_c, 0, es.in_rad_Abs_Pb, zHalf + 0.1 * dd4hep::mm, 0., 360._deg);
         Solid final = SubtractionSolid(dd_tmp_name_d, solidcut, iner);
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Box " << cms::convert2mm(bdx) << ":" << cms::convert2mm(bdy)
+                                    << ":" << cms::convert2mm(zHalf);
+        edm::LogVerbatim("SFGeomX") << dd_tmp_name_c << " Tubs " << cms::convert2mm(zHalf + 0.1 * dd4hep::mm)
+                                    << ":0:" << cms::convert2mm(es.in_rad_Abs_Pb) << ":0:360";
+        edm::LogVerbatim("SFGeomX") << dd_tmp_name_d << " Subtraction " << solidcut.name() << ":" << iner.name()
+                                    << " at (0,0,0) no rotation";
+#endif
 
         Volume blayer = Volume(dd_tmp_name_d, final, ns.material(es.materials[i]));
         parentVolume.placeVolume(blayer, 1, Position(0, 0, zpos));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeom") << blayer.name() << " copy 1 in " << parentVolume.name() << " at (0,0,"
+                                   << cms::convert2mm(zpos) << ") no rotation";
+#endif
 
         Solid iner_Al =
             Tube(dd_tmp_name_e, es.in_rad_Abs_Al, es.in_rad_Abs_Pb - 0.01 * dd4hep::mm, zHalf, 0., 360._deg);
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeomX") << dd_tmp_name_e << " Tubs " << cms::convert2mm(zHalf) << ":"
+                                    << cms::convert2mm(es.in_rad_Abs_Al) << ":"
+                                    << cms::convert2mm(es.in_rad_Abs_Pb - 0.01 * dd4hep::mm) << ":0:360";
+#endif
         Volume layerAl = Volume(dd_tmp_name_e, iner_Al, ns.material(es.materials[i - 1]));
         parentVolume.placeVolume(layerAl, 1, Position(0, 0, zpos));
         parentVolume.placeVolume(layerFinOutAl, 1, Position(0, 0, zpos));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeom") << layerAl.name() << " copy 1 in " << parentVolume.name() << " at (0,0,"
+                                   << cms::convert2mm(zpos) << ") no rotation";
+        edm::LogVerbatim("SFGeom") << layerFinOutAl.name() << " copy 1 in " << parentVolume.name() << " at (0,0,"
+                                   << cms::convert2mm(zpos) << ") no rotation";
+#endif
       } else {
         parentVolume.placeVolume(layer, 1, Position(0., 0., zpos));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeom") << layer.name() << " copy 1 in " << parentVolume.name() << " at (0,0,"
+                                   << cms::convert2mm(zpos) << ") no rotation";
+#endif
       }
       zpos += zHalf;
     }
@@ -441,6 +546,49 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                (es.ladder_thick - (es.ceramic_length - es.waf_active) * sin(es.wedge_angle * 2)) / 2.,  // pDx3
                (es.ladder_thick - (es.ceramic_length - es.waf_active) * sin(es.wedge_angle * 2)) / 2.,  // pDx4
                0.);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("SFGeomX")
+          << "esalgo:LDRFRNT Trap " << cms::convert2mm(es.ldrFrnt_Length / 2.) << ":"
+          << -convertRadToDeg(es.wedge_angle) << ":0:" << cms::convert2mm(es.ladder_width / 2.) << ":"
+          << cms::convert2mm((es.ladder_thick) / 2.) << ":" << cms::convert2mm((es.ladder_thick) / 2.)
+          << ":0:" << cms::convert2mm(es.ladder_width / 2.) << ":"
+          << cms::convert2mm((es.ladder_thick - es.ceramic_length * sin(es.wedge_angle * 2.)) / 2.) << ":"
+          << cms::convert2mm((es.ladder_thick - es.ceramic_length * sin(es.wedge_angle * 2.)) / 2.) << ":0";
+      edm::LogVerbatim("SFGeomX") << "esalgo:LDRBCK Trap " << cms::convert2mm(es.ldrBck_Length / 2.) << ":"
+                                  << -convertRadToDeg(es.wedge_angle) << ":0:" << cms::convert2mm(es.ladder_width / 2.)
+                                  << ":"
+                                  << cms::convert2mm((es.box_thick / cos(es.wedge_angle * 2) + 0.02 * dd4hep::mm) / 2.)
+                                  << ":"
+                                  << cms::convert2mm((es.box_thick / cos(es.wedge_angle * 2) + 0.02 * dd4hep::mm) / 2.)
+                                  << ":0:" << cms::convert2mm(es.ladder_width / 2.) << ":"
+                                  << cms::convert2mm((es.ladder_thick - es.wedge_back_thick) / 2.) << ":"
+                                  << cms::convert2mm((es.ladder_thick - es.wedge_back_thick) / 2.) << ":0";
+      edm::LogVerbatim("SFGeomX")
+          << "esalgo:LDRFHALF Trap " << cms::convert2mm(es.ldrFrnt_Length / 2.) << ":"
+          << -convertRadToDeg(es.wedge_angle) << ":0:" << cms::convert2mm((es.ladder_width / 2.) / 2.) << ":"
+          << cms::convert2mm((es.ladder_thick) / 2.) << ":" << cms::convert2mm((es.ladder_thick) / 2.)
+          << ":0:" << cms::convert2mm((es.ladder_width / 2.) / 2.) << ":"
+          << cms::convert2mm((es.ladder_thick - es.ceramic_length * sin(es.wedge_angle * 2.)) / 2.) << ":"
+          << cms::convert2mm((es.ladder_thick - es.ceramic_length * sin(es.wedge_angle * 2.)) / 2.) << ":0";
+      edm::LogVerbatim("SFGeomX") << "esalgo:LDRBHALF Trap " << cms::convert2mm(es.ldrBck_Length / 2.) << ":"
+                                  << -convertRadToDeg(es.wedge_angle)
+                                  << ":0:" << cms::convert2mm((es.ladder_width / 2.) / 2.) << ":"
+                                  << cms::convert2mm((es.box_thick / cos(es.wedge_angle * 2.) + 0.02 * dd4hep::mm) / 2.)
+                                  << ":"
+                                  << cms::convert2mm((es.box_thick / cos(es.wedge_angle * 2.) + 0.02 * dd4hep::mm) / 2.)
+                                  << ":0:" << cms::convert2mm((es.ladder_width / 2.) / 2.) << ":"
+                                  << cms::convert2mm((es.ladder_thick - es.wedge_back_thick) / 2.) << ":"
+                                  << cms::convert2mm((es.ladder_thick - es.wedge_back_thick) / 2.) << ":0";
+      edm::LogVerbatim("SFGeomX")
+          << "esalgo:LDRFHTR Trap " << cms::convert2mm((es.ldrFrnt_Length - es.waf_active) / 2.) << ":"
+          << -convertRadToDeg(es.wedge_angle) << ":0:" << cms::convert2mm((es.ladder_width / 2.) / 2.) << ":"
+          << cms::convert2mm((es.ladder_thick) / 2.) << ":" << cms::convert2mm((es.ladder_thick) / 2.)
+          << ":0:" << cms::convert2mm((es.ladder_width / 2.) / 2.) << ":"
+          << cms::convert2mm((es.ladder_thick - (es.ceramic_length - es.waf_active) * sin(es.wedge_angle * 2)) / 2.)
+          << ":"
+          << cms::convert2mm((es.ladder_thick - (es.ceramic_length - es.waf_active) * sin(es.wedge_angle * 2)) / 2.)
+          << ":0";
+#endif
 
       // Creation of ladders with 5 micromodules length
 
@@ -452,10 +600,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               ladd_subtr_no++;
               if (j > 1)
                 ladd_upper = 1;
+              ladd_side = i;
             }
           }
         }
-
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeomX") << "Side " << ladd_side << ":" << ladd_upper << ":" << ladd_subtr_no << ":"
+                                    << ladd_not_plain << " Index " << M << ":" << es.typesL5.size();
+#endif
         const string& ddname("esalgo:" + es.ladPfx[0] + es.typesL5[M]);
         ladder_length = es.micromodule_length + 4 * es.waf_active + 0.1 * dd4hep::mm;
 
@@ -471,6 +623,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             boxaz = es.ladder_thick;
 
             Solid solid_5a = Box(dd_tmp_name_5a, boxax / 2., boxay / 2., boxaz / 2.);
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("SFGeomX") << dd_tmp_name_5a << " Box " << cms::convert2mm(boxax / 2.) << ":"
+                                        << cms::convert2mm(boxay / 2.) << ":" << cms::convert2mm(boxaz / 2.);
+#endif
             if (ladd_side == 0)
               sdxe[enb] = es.ladder_width / 4.;
             sdye[enb] = -boxay / 2. - es.ldrFrnt_Length / 2.;
@@ -483,6 +639,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                            solid_5a,
                            solid_lfhalf,
                            Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe[enb], sdye[enb], sdze[enb])));
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("SFGeomX") << dd_tmp_name_5b << " Union " << solid_5a.name() << ":" << solid_lfhalf.name()
+                                        << " at (" << cms::convert2mm(sdxe[enb]) << "," << cms::convert2mm(sdye[enb])
+                                        << "," << cms::convert2mm(sdze[enb]) << ") rotation esalgo:RM1299";
+#endif
 
             if (ladd_side == 0)
               sdxe2[enb] = -es.ladder_width / 4.;
@@ -496,6 +657,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                            solid_5b,
                            solid_lfhtrunc,
                            Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe2[enb], sdye2[enb], sdze2[enb])));
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("SFGeomX") << dd_tmp_name_5c << " Union " << solid_5b.name() << ":"
+                                        << solid_lfhtrunc.name() << " at (" << cms::convert2mm(sdxe2[enb]) << ","
+                                        << cms::convert2mm(sdye2[enb]) << "," << cms::convert2mm(sdze2[enb])
+                                        << ") rotation esalgo:RM1299";
+#endif
 
             sdxe3[enb] = 0;
             sdye3[enb] = boxay / 2. + es.ldrBck_Length / 2.;
@@ -505,6 +672,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                            solid_5c,
                            solid_lbck,
                            Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe3[enb], sdye3[enb], sdze3[enb])));
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_5c.name() << ":" << solid_lbck.name() << " at ("
+                                        << cms::convert2mm(sdxe3[enb]) << "," << cms::convert2mm(sdye3[enb]) << ","
+                                        << cms::convert2mm(sdze3[enb]) << ") rotation esalgo:RM1299";
+#endif
 
             ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
             ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL5[M], solid, ns.material(es.laddMaterial)));
@@ -519,6 +691,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           boxaz = es.ladder_thick;
 
           Solid solid_5pa = Box(dd_tmp_name_5pa, boxax / 2., boxay / 2., boxaz / 2.);
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_5pa << " Box " << cms::convert2mm(boxax / 2) << ":"
+                                      << cms::convert2mm(boxay / 2) << ":" << cms::convert2mm(boxaz / 2);
+#endif
           sdx = 0;
           sdy = -boxay / 2. - es.ldrFrnt_Length / 2.;
           sdz = -es.ladder_thick / 2. + es.ldrFrnt_Offset;
@@ -527,6 +703,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                        solid_5pa,
                                        solid_lfront,
                                        Transform3D(ns.rotation("esalgo:RM1299"), Position(sdx, sdy, sdz)));
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_5pb << " Union " << solid_5pa.name() << ":" << solid_lfront.name()
+                                      << " at (" << cms::convert2mm(sdx) << "," << cms::convert2mm(sdy) << ","
+                                      << cms::convert2mm(sdz) << ") rotation esalgo:RM1299";
+#endif
 
           sdx = 0;
           sdy = boxay / 2. + es.ldrBck_Length / 2.;
@@ -534,6 +715,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
           Solid solid = UnionSolid(
               ddname, solid_5pb, solid_lbck, Transform3D(ns.rotation("esalgo:RM1299"), Position(sdx, sdy, sdz)));
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_5pb.name() << ":" << solid_lbck.name() << " at ("
+                                      << cms::convert2mm(sdx) << "," << cms::convert2mm(sdy) << ","
+                                      << cms::convert2mm(sdz) << ") rotation esalgo:RM1299";
+#endif
           ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
           ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL5[M], solid, ns.material(es.laddMaterial)));
         }
@@ -551,10 +737,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               ladd_subtr_no++;
               if (j > 1)
                 ladd_upper = 1;
+              ladd_side = i;
             }
           }
         }
-
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeomX") << "Side " << ladd_side << ":" << ladd_upper << ":" << ladd_subtr_no << ":"
+                                    << ladd_not_plain << " Index " << M << ":" << es.typesL5.size();
+#endif
         const string& ddname("esalgo:" + es.ladPfx[0] + es.typesL4[d]);
         ladder_length = es.micromodule_length + 3 * es.waf_active + 0.1 * dd4hep::mm;
 
@@ -569,6 +759,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             boxax = es.ladder_width;
             boxaz = es.ladder_thick;
             Solid solid_a = Box(dd_tmp_name_a, boxax / 2., boxay / 2., boxaz / 2.);
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("SFGeomX") << dd_tmp_name_a << " Box " << cms::convert2mm(boxax / 2) << ":"
+                                        << cms::convert2mm(boxay / 2) << ":" << cms::convert2mm(boxaz / 2);
+#endif
 
             sdxe[enb] = 0;
             sdye[enb] = -boxay / 2. - es.ldrFrnt_Length / 2.;
@@ -578,6 +772,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                            solid_a,
                            solid_lfront,
                            Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe[enb], sdye[enb], sdze[enb])));
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Union " << solid_a.name() << ":" << solid_lfront.name()
+                                        << " at (" << cms::convert2mm(sdxe[enb]) << "," << cms::convert2mm(sdye[enb])
+                                        << "," << cms::convert2mm(sdze[enb]) << ") rotation esalgo:RM1299";
+#endif
 
             if (ladd_side == 0)
               sdxe2[enb] = es.ladder_width / 4.;
@@ -590,6 +789,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                            solid_b,
                            solid_lbhalf,
                            Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe2[enb], sdye2[enb], sdze2[enb])));
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_b.name() << ":" << solid_lbhalf.name()
+                                        << " at (" << cms::convert2mm(sdxe2[enb]) << "," << cms::convert2mm(sdye2[enb])
+                                        << "," << cms::convert2mm(sdze2[enb]) << ") rotation esalgo:RM1299";
+#endif
 
             ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
             ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
@@ -607,6 +811,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               boxaz = es.ladder_thick;
 
               Solid solid_a = Box(dd_tmp_name_a, boxax / 2., boxay / 2., boxaz / 2.);
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeomX") << dd_tmp_name_a << " Box " << cms::convert2mm(boxax / 2) << ":"
+                                          << cms::convert2mm(boxay / 2) << ":" << cms::convert2mm(boxaz / 2);
+#endif
               if (ladd_side == 0)
                 sdxe[enb] = es.ladder_width / 4.;
               sdye[enb] = -boxay / 2. - es.ldrFrnt_Length / 2.;
@@ -619,6 +827,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                              solid_a,
                              solid_lfhalf,
                              Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe[enb], sdye[enb], sdze[enb])));
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Union " << solid_a.name() << ":" << solid_lfhalf.name()
+                                          << " at (" << cms::convert2mm(sdxe[enb]) << "," << cms::convert2mm(sdye[enb])
+                                          << "," << cms::convert2mm(sdze[enb]) << ") rotation esalgo:RM1299";
+#endif
 
               sdxe2[enb] = 0;
               sdye2[enb] = boxay / 2. + es.ldrBck_Length / 2.;
@@ -629,6 +842,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                              solid_b,
                              solid_lbck,
                              Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe2[enb], sdye2[enb], sdze2[enb])));
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeomX")
+                  << ddname << " Union " << solid_b.name() << ":" << solid_lbck.name() << " at ("
+                  << cms::convert2mm(sdxe2[enb]) << "," << cms::convert2mm(sdye2[enb]) << ","
+                  << cms::convert2mm(sdze2[enb]) << ") rotation esalgo:RM1299";
+#endif
 
               ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
               ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
@@ -642,6 +861,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               boxax = es.ladder_width;
               boxaz = es.ladder_thick;
               Solid solid_a = Box(dd_tmp_name_a, boxax / 2., boxay / 2., boxaz / 2.);
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeomX") << dd_tmp_name_a << " Box " << cms::convert2mm(boxax / 2) << ":"
+                                          << cms::convert2mm(boxay / 2) << ":" << cms::convert2mm(boxaz / 2);
+#endif
               if (ladd_side == 0)
                 sdxe[enb] = es.ladder_width / 4.;
               sdye[enb] = -boxay / 2. - es.ldrFrnt_Length / 2.;
@@ -654,6 +877,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                              solid_a,
                              solid_lfhalf,
                              Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe[enb], sdye[enb], sdze[enb])));
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeomX") << dd_tmp_name_b << " Union " << solid_a.name() << ":" << solid_lfhalf.name()
+                                          << " at (" << cms::convert2mm(sdxe[enb]) << "," << cms::convert2mm(sdye[enb])
+                                          << "," << cms::convert2mm(sdze[enb]) << ") rotation esalgo:RM1299";
+#endif
 
               if (ladd_side == 0)
                 sdxe2[enb] = -es.ladder_width / 4.;
@@ -667,6 +895,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                              solid_b,
                              solid_lfhtrunc,
                              Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe2[enb], sdye2[enb], sdze2[enb])));
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeomX")
+                  << dd_tmp_name_c << " Union " << solid_b.name() << ":" << solid_lfhtrunc.name() << " at ("
+                  << cms::convert2mm(sdxe2[enb]) << "," << cms::convert2mm(sdye2[enb]) << ","
+                  << cms::convert2mm(sdze2[enb]) << ") rotation esalgo:RM1299";
+#endif
 
               sdxe3[enb] = 0;
               sdye3[enb] = boxay / 2. + es.ldrBck_Length / 2.;
@@ -676,6 +910,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                              solid_c,
                              solid_lbck,
                              Transform3D(ns.rotation("esalgo:RM1299"), Position(sdxe3[enb], sdye3[enb], sdze3[enb])));
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeomX")
+                  << ddname << " Union " << solid_c.name() << ":" << solid_lbck.name() << " at ("
+                  << cms::convert2mm(sdxe3[enb]) << "," << cms::convert2mm(sdye3[enb]) << ","
+                  << cms::convert2mm(sdze3[enb]) << ") rotation esalgo:RM1299";
+#endif
 
               ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
               ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
@@ -691,6 +931,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           boxaz = es.ladder_thick;
 
           Solid solid_pa = Box(dd_tmp_name_pa, boxax / 2., boxay / 2., boxaz / 2.);
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_pa << " Box " << cms::convert2mm(boxax / 2) << ":"
+                                      << cms::convert2mm(boxay / 2) << ":" << cms::convert2mm(boxaz / 2);
+#endif
           sdx = 0;
           sdy = -boxay / 2. - es.ldrFrnt_Length / 2.;
           sdz = -es.ladder_thick / 2. + es.ldrFrnt_Offset;
@@ -699,12 +943,22 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                       solid_pa,
                                       solid_lfront,
                                       Transform3D(ns.rotation("esalgo:RM1299"), Position(sdx, sdy, sdz)));
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("SFGeomX") << dd_tmp_name_pb << " Union " << solid_pa.name() << ":" << solid_lfront.name()
+                                      << " at (" << cms::convert2mm(sdx) << "," << cms::convert2mm(sdy) << ","
+                                      << cms::convert2mm(sdz) << ") rotation esalgo:RM1299";
+#endif
 
           sdx = 0;
           sdy = boxay / 2. + es.ldrBck_Length / 2.;
           sdz = -es.ladder_thick / 2. + es.ldrBck_Offset;
           Solid solid = UnionSolid(
               ddname, solid_pb, solid_lbck, Transform3D(ns.rotation("esalgo:RM1299"), Position(sdx, sdy, sdz)));
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("SFGeomX") << ddname << " Union " << solid_pb.name() << ":" << solid_lbck.name() << " at ("
+                                      << cms::convert2mm(sdx) << "," << cms::convert2mm(sdy) << ","
+                                      << cms::convert2mm(sdz) << ") rotation esalgo:RM1299";
+#endif
           ns.addVolumeNS(Volume(ddname, solid, ns.material(es.laddMaterial)));
           ns.addVolumeNS(Volume("esalgo:" + es.ladPfx[1] + es.typesL4[d], solid, ns.material(es.laddMaterial)));
         }
@@ -729,6 +983,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               ns.volume(ddname2).placeVolume(swedLog,
                                              scopy + 1000 * swed_scopy_glob + 100,
                                              Transform3D(ns.rotation("esalgo:RM1299"), Position(xpos, ypos, zpos)));
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeom") << swedLog.name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in "
+                                         << ddname << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos)
+                                         << "," << cms::convert2mm(zpos) << ") rotation esalgo:RM1299";
+              edm::LogVerbatim("SFGeom") << swedLog.name() << " copy " << (scopy + 1000 * swed_scopy_glob + 100)
+                                         << " in " << ddname2 << " at (" << cms::convert2mm(xpos) << ","
+                                         << cms::convert2mm(ypos) << "," << cms::convert2mm(zpos)
+                                         << ") rotation esalgo:RM1299";
+#endif
 
               ypos = ypos + es.ywedge_ceramic_diff;
               zpos = -es.ladder_thick / 2. + 0.005 * dd4hep::mm + es.zwedge_ceramic_diff;
@@ -738,6 +1001,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               ns.volume(ddname2).placeVolume(sfbyLog,
                                              scopy + 1000 * swed_scopy_glob,
                                              Transform3D(ns.rotation("esalgo:RM1300A"), Position(xpos, ypos, zpos)));
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeom") << sfbxLog.name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in "
+                                         << ddname << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos)
+                                         << "," << cms::convert2mm(zpos) << ") rotation esalgo:RM1298";
+              edm::LogVerbatim("SFGeom") << sfbyLog.name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in "
+                                         << ddname2 << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos)
+                                         << "," << cms::convert2mm(zpos) << ") rotation esalgo:RM1300A";
+#endif
             }
           }
         }
@@ -759,6 +1030,15 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               ns.volume(ddname2).placeVolume(swedLog,
                                              scopy + 1000 * swed_scopy_glob + 100,
                                              Transform3D(ns.rotation("esalgo:RM1299"), Position(xpos, ypos, zpos)));
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeom") << swedLog.name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in "
+                                         << ddname << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos)
+                                         << "," << cms::convert2mm(zpos) << ") rotation esalgo:RM1299";
+              edm::LogVerbatim("SFGeom") << swedLog.name() << " copy " << (scopy + 1000 * swed_scopy_glob + 100)
+                                         << " in " << ddname2 << " at (" << cms::convert2mm(xpos) << ","
+                                         << cms::convert2mm(ypos) << "," << cms::convert2mm(zpos)
+                                         << ") rotation esalgo:RM1299";
+#endif
 
               ypos = ypos + es.ywedge_ceramic_diff;
               zpos = -es.ladder_thick / 2. + 0.005 * dd4hep::mm + es.zwedge_ceramic_diff;
@@ -768,6 +1048,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               ns.volume(ddname2).placeVolume(sfbyLog,
                                              scopy + 1000 * swed_scopy_glob,
                                              Transform3D(ns.rotation("esalgo:RM1300A"), Position(xpos, ypos, zpos)));
+#ifdef EDM_ML_DEBUG
+              edm::LogVerbatim("SFGeom") << sfbxLog.name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in "
+                                         << ddname << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos)
+                                         << "," << cms::convert2mm(zpos) << ") rotation esalgo:RM1298";
+              edm::LogVerbatim("SFGeom") << sfbyLog.name() << " copy " << (scopy + 1000 * swed_scopy_glob) << " in "
+                                         << ddname2 << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos)
+                                         << "," << cms::convert2mm(zpos) << ") rotation esalgo:RM1300A";
+#endif
             }
           }
         }
@@ -836,11 +1124,21 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         icopy[j] += 1;
 
         sfLog.placeVolume(ns.volume("esalgo:" + es.ladPfx[0] + type), icopy[j], Position(xpos, ypos, zpos));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeom") << ("esalgo:" + es.ladPfx[0] + type) << " copy " << icopy[j] << " in "
+                                   << sfLog.name() << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos)
+                                   << "," << cms::convert2mm(zpos) << ") no rotation";
+#endif
 
         xpos = I * (2 * es.waf_intra_col_sep + es.waf_inter_col_sep);
         sfLog.placeVolume(ns.volume("esalgo:" + es.ladPfx[1] + type),
                           icopy[j],
                           Transform3D(ns.rotation("esalgo:R270"), Position(ypos, -xpos, zpos - es.zlead1 + es.zlead2)));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeom") << ("esalgo:" + es.ladPfx[1] + type) << " copy " << icopy[j] << " in "
+                                   << sfLog.name() << " at (" << cms::convert2mm(ypos) << "," << -cms::convert2mm(xpos)
+                                   << "," << cms::convert2mm(zpos - es.zlead1 + es.zlead2) << ") rotation esalgo:R270";
+#endif
 
         int changed = 0;
         for (int t = 0; t < int(es.typesL5.size()); t++)
@@ -880,6 +1178,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         sfLog.placeVolume(ns.volume("esalgo:" + es.ladPfx[0] + type),
                           icopy[j],
                           Transform3D(ns.rotation("esalgo:R180"), Position(xpos, -ypos, zpos)));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeom") << ("esalgo:" + es.ladPfx[0] + type) << " copy " << icopy[j] << " in "
+                                   << sfLog.name() << " at (" << cms::convert2mm(xpos) << "," << -cms::convert2mm(ypos)
+                                   << "," << cms::convert2mm(zpos) << ") rotation esalgo:R180";
+#endif
 
         xpos = I * (2 * es.waf_intra_col_sep + es.waf_inter_col_sep);
 
@@ -887,6 +1190,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             ns.volume("esalgo:" + es.ladPfx[1] + type),
             icopy[j],
             Transform3D(ns.rotation("esalgo:R090"), Position(-ypos, -xpos, zpos - es.zlead1 + es.zlead2)));
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("SFGeom") << ("esalgo:" + es.ladPfx[1] + type) << " copy " << icopy[j] << " in "
+                                   << sfLog.name() << " at (" << -cms::convert2mm(ypos) << "," << -cms::convert2mm(xpos)
+                                   << "," << cms::convert2mm(zpos - es.zlead1 + es.zlead2) << ") rotation esalgo:R090";
+#endif
       }
     }
   }
@@ -901,9 +1209,17 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     for (size_t i = 0; i < 32; ++i) {
       xpos = -es.waf_active / 2. + i * es.waf_active / 32. + es.waf_active / 64.;
       sfwxLog.placeVolume(sfsxLog, i + 1, Position(xpos, 0., 0.));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("SFGeom") << sfsxLog.name() << " copy " << (i + 1) << " in " << sfwxLog.name() << " at ("
+                                 << cms::convert2mm(xpos) << ",0,0) no rotation";
+#endif
 
       ypos = -es.waf_active / 2. + i * es.waf_active / 32. + es.waf_active / 64.;
       sfwyLog.placeVolume(sfsyLog, i + 1, Position(0., ypos, 0.));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("SFGeom") << sfsyLog.name() << " copy " << (i + 1) << " in " << sfwyLog.name() << " at (0,"
+                                 << cms::convert2mm(ypos) << ",0) no rotation";
+#endif
     }
   }
   return 1;

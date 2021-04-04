@@ -199,7 +199,7 @@ void pat::PATElectronSlimmer::produce(edm::Event& iEvent, const edm::EventSetup&
       }
     }
     if (saveNonZSClusterShapes_(electron)) {
-      std::vector<float> vCov = lazyToolsNoZS.localCovariances(*(electron.superCluster()->seed()));
+      const auto& vCov = lazyToolsNoZS.localCovariances(*(electron.superCluster()->seed()));
       electron.full5x5_setSigmaIetaIphi(vCov[1]);
     }
   }

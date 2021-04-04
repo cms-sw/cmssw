@@ -136,24 +136,18 @@ std::shared_ptr<DTGeometry> DTGeometryESProducer::produce(const MuonGeometryReco
   }
 
   if (m_applyAlignment) {
-    edm::ESHandle<Alignments> globalPosition;
-    record.getRecord<GlobalPositionRcd>().get(m_alignmentsLabel, globalPosition);
-    edm::ESHandle<Alignments> alignments;
-    record.getRecord<DTAlignmentRcd>().get(m_alignmentsLabel, alignments);
-    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-    record.getRecord<DTAlignmentErrorExtendedRcd>().get(m_alignmentsLabel, alignmentErrors);
+    const auto& globalPosition = record.get(m_globalPositionToken);
+    const auto& alignments = record.get(m_alignmentsToken);
+    const auto& alignmentErrors = record.get(m_alignmentErrorsToken);
 
-    if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
+    if (alignments.empty() && alignmentErrors.empty() && globalPosition.empty()) {
       edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"
-                             << "Alignment(Error)s and global position (label '" << m_alignmentsLabel
-                             << "') empty: Geometry producer (label "
-                             << "'" << m_myLabel << "') assumes fake and does not apply.";
+                             << "Alignment and global position errors";
+
     } else {
       GeometryAligner aligner;
-      aligner.applyAlignments<DTGeometry>(&(*host),
-                                          &(*alignments),
-                                          &(*alignmentErrors),
-                                          align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
+      aligner.applyAlignments<DTGeometry>(
+          &(*host), &alignments, &alignmentErrors, align::DetectorGlobalPosition(globalPosition, DetId(DetId::Muon)));
     }
   }
 

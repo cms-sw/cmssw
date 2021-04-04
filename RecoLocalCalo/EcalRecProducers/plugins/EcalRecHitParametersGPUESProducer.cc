@@ -2,6 +2,7 @@
 #include <tuple>
 #include <utility>
 
+#include "CondFormats/EcalObjects/interface/EcalRecHitParametersGPU.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -14,7 +15,6 @@
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitParametersGPU.h"
 
 class EcalRecHitParametersGPUESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:

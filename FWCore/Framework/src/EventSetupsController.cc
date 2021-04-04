@@ -31,11 +31,11 @@
 namespace edm {
   namespace eventsetup {
 
-    EventSetupsController::EventSetupsController() {}
+    EventSetupsController::EventSetupsController() : taskArena_(tbb::this_task_arena::max_concurrency()) {}
 
-    void EventSetupsController::endIOVs() {
+    void EventSetupsController::endIOVsAsync(edm::WaitingTaskHolder iEndTask) {
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        eventSetupRecordIOVQueue->endIOV();
+        eventSetupRecordIOVQueue->endIOVAsync(iEndTask);
       }
     }
 
@@ -46,7 +46,7 @@ namespace edm {
       // Also parses the prefer information from ParameterSets and puts
       // it in a map that is stored in the EventSetupProvider
       std::shared_ptr<EventSetupProvider> returnValue(
-          makeEventSetupProvider(iPSet, providers_.size(), activityRegistry));
+          makeEventSetupProvider(iPSet, providers_.size(), activityRegistry, &taskArena_));
 
       // Construct the ESProducers and ESSources
       // shared_ptrs to them are temporarily stored in this
@@ -89,7 +89,7 @@ namespace edm {
       }
     }
 
-    void EventSetupsController::eventSetupForInstance(
+    void EventSetupsController::eventSetupForInstanceAsync(
         IOVSyncValue const& syncValue,
         WaitingTaskHolder const& taskToStartAfterIOVInit,
         WaitingTaskList& endIOVWaitingTasks,
@@ -125,45 +125,6 @@ namespace edm {
 
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
         eventSetupRecordIOVQueue->checkForNewIOVs(taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl);
-      }
-    }
-
-    void EventSetupsController::eventSetupForInstance(IOVSyncValue const& syncValue) {
-      // This function only supports use cases where the event setup
-      // system is used without multiple concurrent IOVs.
-      // At the time this comment is being written, this is used for
-      // run transitions and in unit test code. In the future,
-      // it may only be needed for unit tests. This function uses
-      // the other version of eventSetupForInstance that
-      // supports concurrent IOVs. To get this to work, a couple
-      // arguments to that function need dummy objects that do
-      // not serve any purpose in this context. We also need to
-      // add in a task to wait for the asynchronous initialization
-      // of IOVs to complete.
-
-      auto waitUntilIOVInitializationCompletes = make_empty_waiting_task();
-      waitUntilIOVInitializationCompletes->increment_ref_count();
-
-      // These do nothing ...
-      WaitingTaskList dummyWaitingTaskList;
-      std::vector<std::shared_ptr<const EventSetupImpl>> dummyEventSetupImpls;
-
-      {
-        WaitingTaskHolder waitingTaskHolder(waitUntilIOVInitializationCompletes.get());
-        // Caught exception is propagated via WaitingTaskHolder
-        CMS_SA_ALLOW try {
-          // All the real work is done here.
-          eventSetupForInstance(syncValue, waitingTaskHolder, dummyWaitingTaskList, dummyEventSetupImpls);
-          dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
-        } catch (...) {
-          dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
-          waitingTaskHolder.doneWaiting(std::current_exception());
-        }
-      }
-      waitUntilIOVInitializationCompletes->wait_for_all();
-
-      if (waitUntilIOVInitializationCompletes->exceptionPtr() != nullptr) {
-        std::rethrow_exception(*(waitUntilIOVInitializationCompletes->exceptionPtr()));
       }
     }
 
@@ -450,5 +411,35 @@ namespace edm {
       }
     }
 
+    void synchronousEventSetupForInstance(IOVSyncValue const& syncValue,
+                                          tbb::task_group& iGroup,
+                                          eventsetup::EventSetupsController& espController) {
+      FinalWaitingTask waitUntilIOVInitializationCompletes;
+
+      // These do nothing ...
+      WaitingTaskList dummyWaitingTaskList;
+      std::vector<std::shared_ptr<const EventSetupImpl>> dummyEventSetupImpls;
+
+      {
+        WaitingTaskHolder waitingTaskHolder(iGroup, &waitUntilIOVInitializationCompletes);
+        // Caught exception is propagated via WaitingTaskHolder
+        CMS_SA_ALLOW try {
+          // All the real work is done here.
+          espController.eventSetupForInstanceAsync(
+              syncValue, waitingTaskHolder, dummyWaitingTaskList, dummyEventSetupImpls);
+          dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
+        } catch (...) {
+          dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
+          waitingTaskHolder.doneWaiting(std::current_exception());
+        }
+      }
+      do {
+        iGroup.wait();
+      } while (not waitUntilIOVInitializationCompletes.done());
+
+      if (waitUntilIOVInitializationCompletes.exceptionPtr() != nullptr) {
+        std::rethrow_exception(*(waitUntilIOVInitializationCompletes.exceptionPtr()));
+      }
+    }
   }  // namespace eventsetup
 }  // namespace edm

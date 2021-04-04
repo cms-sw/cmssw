@@ -17,12 +17,15 @@ SeedingRegionByTracks::SeedingRegionByTracks(const edm::ParameterSet &conf, edm:
     : SeedingRegionAlgoBase(conf, sumes),
       tracks_token_(sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"))),
       cutTk_(conf.getParameter<std::string>("cutTk")),
+      detector_(conf.getParameter<std::string>("detector")),
       propName_(conf.getParameter<std::string>("propagator")),
-      hdc_token_(sumes.esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
-          edm::ESInputTag("", detectorName_))),
       bfield_token_(sumes.esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
       propagator_token_(sumes.esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
-          edm::ESInputTag("", propName_))) {}
+          edm::ESInputTag("", propName_))) {
+  std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
+  hdc_token_ = sumes.esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+      edm::ESInputTag("", detectorName_));
+}
 
 SeedingRegionByTracks::~SeedingRegionByTracks() {}
 
@@ -63,6 +66,16 @@ void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
   std::sort(result.begin(), result.end(), [](const TICLSeedingRegion &a, const TICLSeedingRegion &b) {
     return a.directionAtOrigin.perp2() > b.directionAtOrigin.perp2();
   });
+}
+
+void SeedingRegionByTracks::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.add<std::string>("cutTk",
+                        "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
+                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
+  desc.add<std::string>("propagator", "PropagatorWithMaterial");
+  desc.add<std::string>("detector", "HGCAL");
+  SeedingRegionAlgoBase::fillPSetDescription(desc);
 }
 
 void SeedingRegionByTracks::buildFirstLayers() {

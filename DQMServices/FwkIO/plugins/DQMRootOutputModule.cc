@@ -20,7 +20,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/filesystem.hpp>
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"

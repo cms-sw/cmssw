@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+# Settings from $HERWIGPATH/LHE.in
+
 herwig7LHECommonSettingsBlock = cms.PSet(
     hw_lhe_common_settings = cms.vstring(
-        'read snippets/PPCollider.in',
-        'cd /Herwig/Generators',
         'cd /Herwig/EventHandlers',
         'library LesHouches.so',
         'create ThePEG::LesHouchesEventHandler LesHouchesHandler',
@@ -11,8 +11,10 @@ herwig7LHECommonSettingsBlock = cms.PSet(
         'set LesHouchesHandler:CascadeHandler /Herwig/Shower/ShowerHandler',
         'set LesHouchesHandler:DecayHandler /Herwig/Decays/DecayHandler',
         'set LesHouchesHandler:HadronizationHandler /Herwig/Hadronization/ClusterHadHandler',
+
+        # set the weight option (e.g. for MC@NLO)
         'set LesHouchesHandler:WeightOption VarNegWeight',
-        'set LesHouchesHandler:Weighted On',
+
         'set /Herwig/Generators/EventGenerator:EventHandler /Herwig/EventHandlers/LesHouchesHandler',
         'create ThePEG::Cuts /Herwig/Cuts/NoCuts',
         'create ThePEG::LHAPDF /Herwig/Partons/LHAPDF ThePEGLHAPDF.so',
@@ -30,6 +32,10 @@ herwig7LHECommonSettingsBlock = cms.PSet(
         'set LesHouchesReader:MomentumTreatment RescaleEnergy',
         'set LesHouchesReader:PDFA /Herwig/Partons/LHAPDF',
         'set LesHouchesReader:PDFB /Herwig/Partons/LHAPDF',
-        'insert LesHouchesHandler:LesHouchesReaders 0 LesHouchesReader'
+        'insert LesHouchesHandler:LesHouchesReaders 0 LesHouchesReader',
+        'set /Herwig/Shower/ShowerHandler:MaxPtIsMuF Yes',
+        'set /Herwig/Shower/ShowerHandler:RestrictPhasespace Yes',
+        'set /Herwig/Shower/PartnerFinder:PartnerMethod Random',
+        'set /Herwig/Shower/PartnerFinder:ScaleChoice Partner'
     )
 )

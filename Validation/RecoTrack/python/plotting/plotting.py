@@ -310,14 +310,16 @@ def _calculateRatios(histos, ratioUncertainty=False):
             return (self._gr.GetY()[bin], self._gr.GetErrorY(bin), self._gr.GetErrorY(bin))
 
     def wrap(o):
-        if isinstance(o, ROOT.TH1):
+        if isinstance(o, ROOT.TH1) and not isinstance(o, ROOT.TH2):
             return WrapTH1(o, ratioUncertainty)
         elif isinstance(o, ROOT.TGraph):
             return WrapTGraph(o, ratioUncertainty)
         elif isinstance(o, ROOT.TGraph2D):
             return WrapTGraph2D(o, ratioUncertainty)
 
-    wrappers = [wrap(h) for h in histos]
+    wrappers = [wrap(h) for h in histos if wrap(h) is not None]
+    if len(wrappers) < 1:
+        return []
     ref = wrappers[0]
 
     wrappers_bins = []
@@ -1180,8 +1182,8 @@ class ROC:
 
 
 # Plot styles
-_plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3]
-_plotStylesMarker = [21, 20, 22, 34, 33]
+_plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3, ROOT.kGreen+2]
+_plotStylesMarker = [21, 20, 22, 34, 33, 23]
 
 def _drawFrame(pad, bounds, zmax=None, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ybinlabels=None, suffix=""):
     """Function to draw a frame
@@ -2205,7 +2207,7 @@ class Plot:
             addl.Draw("same")
 
         # Draw ratios
-        if ratio and len(histos) > 0:
+        if ratio and len(self._ratios) > 0:
             frame._padRatio.cd()
             firstRatio = self._ratios[0].getRatio()
             if self._ratioUncertainty and firstRatio is not None:
@@ -2915,6 +2917,8 @@ class PlotterItem:
                                 subf.append(key.GetName())
                         subFolders.append(subf)
                     break
+                else:
+                    print("Did not find directory '%s' from file %s" % (pd, tfile.GetName()))
 
             if not isOpenFile:
                 tfile.Close()

@@ -4,15 +4,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include <string>
+#include <vector>
 
 class PhotonMIPHaloTagger {
 public:

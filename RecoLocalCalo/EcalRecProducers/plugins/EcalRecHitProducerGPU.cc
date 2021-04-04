@@ -9,6 +9,14 @@
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRefGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphasGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrectionsGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalRecHitParametersGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalRechitADCToGeVConstantGPU.h"
+#include "CondFormats/EcalObjects/interface/EcalRechitChannelStatusGPU.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,14 +28,6 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalIntercalibConstantsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAPDPNRatiosRefGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalLaserAlphasGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalLinearCorrectionsGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitParametersGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitADCToGeVConstantGPU.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalRechitChannelStatusGPU.h"
 
 #include "EcalRecHitBuilderKernels.h"
 
@@ -198,11 +198,11 @@ void EcalRecHitProducerGPU::acquire(edm::Event const& event,
   auto const& recHitParametersProduct = recHitParametersHandle_->getProduct(ctx.stream());
 
   // set config ptrs : this is done to avoid changing things downstream
-  configParameters_.ChannelStatusToBeExcluded = recHitParametersProduct.ChannelStatusToBeExcluded;
+  configParameters_.ChannelStatusToBeExcluded = recHitParametersProduct.channelStatusToBeExcluded.get();
   configParameters_.ChannelStatusToBeExcludedSize = std::get<0>(recHitParametersHandle_->getValues()).get().size();
-  configParameters_.expanded_v_DB_reco_flags = recHitParametersProduct.expanded_v_DB_reco_flags;
-  configParameters_.expanded_Sizes_v_DB_reco_flags = recHitParametersProduct.expanded_Sizes_v_DB_reco_flags;
-  configParameters_.expanded_flagbit_v_DB_reco_flags = recHitParametersProduct.expanded_flagbit_v_DB_reco_flags;
+  configParameters_.expanded_v_DB_reco_flags = recHitParametersProduct.expanded_v_DB_reco_flags.get();
+  configParameters_.expanded_Sizes_v_DB_reco_flags = recHitParametersProduct.expanded_Sizes_v_DB_reco_flags.get();
+  configParameters_.expanded_flagbit_v_DB_reco_flags = recHitParametersProduct.expanded_flagbit_v_DB_reco_flags.get();
   configParameters_.expanded_v_DB_reco_flagsSize = std::get<3>(recHitParametersHandle_->getValues()).get().size();
 
   // bundle up conditions

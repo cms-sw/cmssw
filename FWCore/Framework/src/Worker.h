@@ -102,11 +102,11 @@ namespace edm {
       operator bool() { return serial_ != nullptr or limited_ != nullptr; }
 
       template <class F>
-      void push(F&& iF) {
+      void push(tbb::task_group& iG, F&& iF) {
         if (serial_) {
-          serial_->push(iF);
+          serial_->push(iG, iF);
         } else {
-          limited_->push(iF);
+          limited_->push(iG, iF);
         }
       }
     };
@@ -132,9 +132,11 @@ namespace edm {
     virtual SerialTaskQueue* globalRunsQueue() = 0;
     virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
 
-    void prePrefetchSelectionAsync(WaitingTask* task, ServiceToken const&, StreamID stream, EventPrincipal const*);
+    void prePrefetchSelectionAsync(
+        tbb::task_group&, WaitingTask* task, ServiceToken const&, StreamID stream, EventPrincipal const*);
 
-    void prePrefetchSelectionAsync(WaitingTask* task, ServiceToken const&, StreamID stream, void const*) {
+    void prePrefetchSelectionAsync(
+        tbb::task_group&, WaitingTask* task, ServiceToken const&, StreamID stream, void const*) {
       assert(false);
     }
 
@@ -371,13 +373,15 @@ namespace edm {
                     ServiceToken const& token,
                     StreamID streamID,
                     ParentContext const& parentContext,
-                    typename T::Context const* context)
+                    typename T::Context const* context,
+                    tbb::task_group* iGroup)
           : m_worker(worker),
             m_transitionInfo(transitionInfo),
             m_streamID(streamID),
             m_parentContext(parentContext),
             m_context(context),
-            m_serviceToken(token) {}
+            m_serviceToken(token),
+            m_group(iGroup) {}
 
       struct EnableQueueGuard {
         SerialTaskQueue* queue_;
@@ -393,7 +397,7 @@ namespace edm {
         }
       };
 
-      tbb::task* execute() override {
+      void execute() final {
         //Need to make the services available early so other services can see them
         ServiceRegistry::Operate guard(m_serviceToken);
 
@@ -437,19 +441,18 @@ namespace edm {
             //keep another global transition from running if necessary
             auto gQueue = workerhelper::CallImpl<T>::pauseGlobalQueue(m_worker);
             if (gQueue) {
-              gQueue->push([queue, gQueue, f]() mutable {
+              gQueue->push(*m_group, [queue, gQueue, f, group = m_group]() mutable {
                 gQueue->pause();
-                queue.push(std::move(f));
+                queue.push(*group, std::move(f));
               });
             } else {
-              queue.push(std::move(f));
+              queue.push(*m_group, std::move(f));
             }
-            return nullptr;
+            return;
           }
         }
 
         m_worker->runModuleAfterAsyncPrefetch<T>(excptr, m_transitionInfo, m_streamID, m_parentContext, m_context);
-        return nullptr;
       }
 
     private:
@@ -459,6 +462,7 @@ namespace edm {
       ParentContext const m_parentContext;
       typename T::Context const* m_context;
       ServiceToken m_serviceToken;
+      tbb::task_group* m_group;
     };
 
     // AcquireTask is only used for the Event case, but we define
@@ -473,7 +477,7 @@ namespace edm {
                   ServiceToken const&,
                   ParentContext const&,
                   WaitingTaskWithArenaHolder) {}
-      tbb::task* execute() override { return nullptr; }
+      void execute() final {}
     };
 
     template <typename DUMMY>
@@ -490,7 +494,7 @@ namespace edm {
             m_holder(std::move(holder)),
             m_serviceToken(token) {}
 
-      tbb::task* execute() override {
+      void execute() final {
         //Need to make the services available early so other services can see them
         ServiceRegistry::Operate guard(m_serviceToken);
 
@@ -511,23 +515,23 @@ namespace edm {
 
         if (not excptr) {
           if (auto queue = m_worker->serializeRunModule()) {
-            queue.push([worker = m_worker,
+            queue.push(*m_holder.group(),
+                       [worker = m_worker,
                         info = m_eventTransitionInfo,
                         parentContext = m_parentContext,
                         serviceToken = m_serviceToken,
                         holder = m_holder]() {
-              //Need to make the services available
-              ServiceRegistry::Operate operateRunAcquire(serviceToken);
+                         //Need to make the services available
+                         ServiceRegistry::Operate operateRunAcquire(serviceToken);
 
-              std::exception_ptr* ptr = nullptr;
-              worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, holder);
-            });
-            return nullptr;
+                         std::exception_ptr* ptr = nullptr;
+                         worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, holder);
+                       });
+            return;
           }
         }
 
         m_worker->runAcquireAfterAsyncPrefetch(excptr, m_eventTransitionInfo, m_parentContext, std::move(m_holder));
-        return nullptr;
       }
 
     private:
@@ -543,13 +547,17 @@ namespace edm {
     // exception to a CMS exception and adding context to the exception.
     class HandleExternalWorkExceptionTask : public WaitingTask {
     public:
-      HandleExternalWorkExceptionTask(Worker* worker, WaitingTask* runModuleTask, ParentContext const& parentContext);
+      HandleExternalWorkExceptionTask(Worker* worker,
+                                      tbb::task_group* group,
+                                      WaitingTask* runModuleTask,
+                                      ParentContext const& parentContext);
 
-      tbb::task* execute() override;
+      void execute() final;
 
     private:
       Worker* m_worker;
       WaitingTask* m_runModuleTask;
+      tbb::task_group* m_group;
       ParentContext const m_parentContext;
     };
 
@@ -943,49 +951,46 @@ namespace edm {
       if (workerhelper::CallImpl<T>::needToRunSelection(this)) {
         //We need to run the selection in a different task so that
         // we can prefetch the data needed for the selection
-        auto runTask = new (tbb::task::allocate_root())
-            RunModuleTask<T>(this, transitionInfo, token, streamID, parentContext, context);
+        auto runTask =
+            new RunModuleTask<T>(this, transitionInfo, token, streamID, parentContext, context, task.group());
 
         //make sure the task is either run or destroyed
         struct DestroyTask {
           DestroyTask(edm::WaitingTask* iTask) : m_task(iTask) {}
 
           ~DestroyTask() {
-            auto p = m_task.load();
+            auto p = m_task.exchange(nullptr);
             if (p) {
-              tbb::task::destroy(*p);
+              TaskSentry s{p};
             }
           }
 
-          edm::WaitingTask* release() {
-            auto t = m_task.load();
-            m_task.store(nullptr);
-            return t;
-          }
+          edm::WaitingTask* release() { return m_task.exchange(nullptr); }
 
+        private:
           std::atomic<edm::WaitingTask*> m_task;
         };
-
+        auto* group = task.group();
         auto ownRunTask = std::make_shared<DestroyTask>(runTask);
         auto selectionTask = make_waiting_task(
-            tbb::task::allocate_root(),
-            [ownRunTask, parentContext, info = transitionInfo, token, this](std::exception_ptr const*) mutable {
+            [ownRunTask, parentContext, info = transitionInfo, token, group, this](std::exception_ptr const*) mutable {
               ServiceRegistry::Operate guard(token);
-              prefetchAsync<T>(WaitingTaskHolder(ownRunTask->release()), token, parentContext, info, T::transition_);
+              prefetchAsync<T>(
+                  WaitingTaskHolder(*group, ownRunTask->release()), token, parentContext, info, T::transition_);
             });
-        prePrefetchSelectionAsync(selectionTask, token, streamID, &transitionInfo.principal());
+        prePrefetchSelectionAsync(*group, selectionTask, token, streamID, &transitionInfo.principal());
       } else {
-        WaitingTask* moduleTask = new (tbb::task::allocate_root())
-            RunModuleTask<T>(this, transitionInfo, token, streamID, parentContext, context);
+        WaitingTask* moduleTask =
+            new RunModuleTask<T>(this, transitionInfo, token, streamID, parentContext, context, task.group());
+        auto group = task.group();
         if constexpr (T::isEvent_) {
           if (hasAcquire()) {
             WaitingTaskWithArenaHolder runTaskHolder(
-                new (tbb::task::allocate_root()) HandleExternalWorkExceptionTask(this, moduleTask, parentContext));
-            moduleTask = new (tbb::task::allocate_root())
-                AcquireTask<T>(this, transitionInfo, token, parentContext, std::move(runTaskHolder));
+                *group, new HandleExternalWorkExceptionTask(this, group, moduleTask, parentContext));
+            moduleTask = new AcquireTask<T>(this, transitionInfo, token, parentContext, std::move(runTaskHolder));
           }
         }
-        prefetchAsync<T>(WaitingTaskHolder(moduleTask), token, parentContext, transitionInfo, T::transition_);
+        prefetchAsync<T>(WaitingTaskHolder(*group, moduleTask), token, parentContext, transitionInfo, T::transition_);
       }
     }
   }
@@ -1048,27 +1053,27 @@ namespace edm {
       };
 
       if (needsESPrefetching(T::transition_)) {
-        auto afterPrefetch = edm::make_waiting_task(
-            tbb::task::allocate_root(), [toDo = std::move(toDo), this](std::exception_ptr const* iExcept) {
+        auto group = task.group();
+        auto afterPrefetch =
+            edm::make_waiting_task([toDo = std::move(toDo), group, this](std::exception_ptr const* iExcept) {
               if (iExcept) {
                 this->waitingTasks_.doneWaiting(*iExcept);
               } else {
                 if (auto queue = this->serializeRunModule()) {
-                  queue.push(toDo);
+                  queue.push(*group, toDo);
                 } else {
-                  auto taskToDo = make_functor_task(tbb::task::allocate_root(), toDo);
-                  tbb::task::spawn(*taskToDo);
+                  group->run(toDo);
                 }
               }
             });
         esPrefetchAsync(
-            WaitingTaskHolder(afterPrefetch), transitionInfo.eventSetupImpl(), T::transition_, serviceToken);
+            WaitingTaskHolder(*group, afterPrefetch), transitionInfo.eventSetupImpl(), T::transition_, serviceToken);
       } else {
+        auto group = task.group();
         if (auto queue = this->serializeRunModule()) {
-          queue.push(toDo);
+          queue.push(*group, toDo);
         } else {
-          auto taskToDo = make_functor_task(tbb::task::allocate_root(), toDo);
-          tbb::task::spawn(*taskToDo);
+          group->run(toDo);
         }
       }
     }

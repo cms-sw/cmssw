@@ -62,9 +62,11 @@ MuonAlignmentInputMethod::~MuonAlignmentInputMethod() {}
 AlignableMuon* MuonAlignmentInputMethod::newAlignableMuon(const edm::EventSetup& iSetup) const {
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
+  edm::ESHandle<GEMGeometry> gemGeometry;
   iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
   iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
-  return new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
+  return new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 }
 
 //

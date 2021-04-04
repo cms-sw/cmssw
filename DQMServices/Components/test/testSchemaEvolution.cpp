@@ -41,7 +41,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestSchemaEvolution);
 
 void TestSchemaEvolution::fillBaseline() {
   unique_classes_current_.insert(std::make_pair("vector<double>", 6));
-  unique_classes_current_.insert(std::make_pair("TF1", 10));
+  unique_classes_current_.insert(std::make_pair("TF1", 12));
   unique_classes_current_.insert(std::make_pair("TH3S", 4));
   unique_classes_current_.insert(std::make_pair("TAtt3D", 1));
   unique_classes_current_.insert(std::make_pair("TH3", 6));

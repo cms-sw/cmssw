@@ -338,32 +338,26 @@ void DDHGCalMixLayer::constructLayers(const DDLogicalPart& module, DDCompactView
       DDLogicalPart glog;
       if (layerSense_[ly] < 1) {
         std::vector<double> pgonZ, pgonRin, pgonRout;
-        if (layerSense_[ly] == 0 || absorbMode_ == 0) {
-          double rmax =
-              (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1_;
-          pgonZ.emplace_back(-hthick);
-          pgonZ.emplace_back(hthick);
-          pgonRin.emplace_back(rinB);
-          pgonRin.emplace_back(rinB);
-          pgonRout.emplace_back(rmax);
-          pgonRout.emplace_back(rmax);
-        } else {
-          HGCalGeomTools::radius(zz - hthick,
-                                 zz + hthick,
-                                 zFrontB_,
-                                 rMinFront_,
-                                 slopeB_,
-                                 zFrontT_,
-                                 rMaxFront_,
-                                 slopeT_,
-                                 -layerSense_[ly],
-                                 pgonZ,
-                                 pgonRin,
-                                 pgonRout);
-          for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
-            pgonZ[isec] -= zz;
+        double rmax =
+            (std::min(routF, HGCalGeomTools::radius(zz + hthick, zFrontT_, rMaxFront_, slopeT_)) * cosAlpha_) - tol1_;
+        HGCalGeomTools::radius(zz - hthick,
+                               zz + hthick,
+                               zFrontB_,
+                               rMinFront_,
+                               slopeB_,
+                               zFrontT_,
+                               rMaxFront_,
+                               slopeT_,
+                               -layerSense_[ly],
+                               pgonZ,
+                               pgonRin,
+                               pgonRout);
+        for (unsigned int isec = 0; isec < pgonZ.size(); ++isec) {
+          pgonZ[isec] -= zz;
+          if (layerSense_[ly] == 0 || absorbMode_ == 0)
+            pgonRout[isec] = rmax;
+          else
             pgonRout[isec] = pgonRout[isec] * cosAlpha_ - tol1_;
-          }
         }
         DDSolid solid =
             DDSolidFactory::polyhedra(DDName(name, nameSpace_), sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
@@ -498,7 +492,7 @@ void DDHGCalMixLayer::positionMix(const DDLogicalPart& glog,
   int layercenter = layerCenter_[layer];
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
-                                                                           : static_cast<int>(waferLayerStart_.size()));
+                                                                           : static_cast<int>(waferIndex_.size()));
   double r = 0.5 * (waferSize_ + waferSepar_);
   double R = 2.0 * r / sqrt3;
   double dy = 0.75 * R;

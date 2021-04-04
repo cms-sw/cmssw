@@ -32,7 +32,6 @@ public:
   void stop();
   void initialize(std::string const& destinationDir, std::string const& name, int ls);
   void endOfLS(int ls);
-  bool sharedMode() const { return false; }
   void makeRunPrefix(std::string const& destinationDir);
 
   static void extendDescription(edm::ParameterSetDescription& desc);

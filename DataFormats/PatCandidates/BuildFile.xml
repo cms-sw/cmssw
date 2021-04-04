@@ -16,7 +16,7 @@
 <use name="DataFormats/HLTReco"/>
 <use name="DataFormats/CaloTowers"/>
 <use name="DataFormats/EcalRecHit"/>
-<use name="SimDataFormats/JetMatching"/>
+<use name="DataFormats/JetMatching"/>
 <use name="DataFormats/CLHEP"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>

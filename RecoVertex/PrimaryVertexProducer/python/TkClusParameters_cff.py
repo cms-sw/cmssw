@@ -15,7 +15,8 @@ DA_vectParameters = cms.PSet(
         d0CutOff = cms.double(3.),        # downweight high IP tracks 
         dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)       
         zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
-        uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge
+        uniquetrkweight = cms.double(0.8),# require at least two tracks with this weight at T=Tpurge
+        uniquetrkminp = cms.double(0.0)   # minimal a priori track weight for counting unique tracks
         )
 )
 
@@ -36,7 +37,6 @@ highBetaStar_2018.toModify(DA_vectParameters,
 DA2D_vectParameters = cms.PSet(
     algorithm   = cms.string("DA2D_vect"),
     TkDAClusParameters = cms.PSet(
-        verbose = cms.untracked.bool(False),
         coolingFactor = cms.double(0.6),  # moderate annealing speed
         zrange = cms.double(4.),          # consider only clusters within 4 sigma*sqrt(T) of a track
         delta_highT = cms.double(1.e-2),  # convergence requirement at high T
@@ -53,6 +53,7 @@ DA2D_vectParameters = cms.PSet(
         t0Max = cms.double(1.0),          # outlier rejection for use of timing information
         zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge and tmerge
         tmerge = cms.double(1e-1),        # merge intermediat clusters separated by less than zmerge and tmerge
-        uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge
+        uniquetrkweight = cms.double(0.8),# require at least two tracks with this weight at T=Tpurge
+        uniquetrkminp = cms.double(0.0)   # minimal a priori track weight for counting unique tracks
         )
 )

@@ -3,6 +3,17 @@
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/HcalRecHit"/>
+<use name="DataFormats/CaloTowers"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/TrackReco"/>
 <use name="root"/>
 <export>
   <lib name="1"/>

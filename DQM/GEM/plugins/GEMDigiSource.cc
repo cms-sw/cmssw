@@ -16,6 +16,8 @@
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+
 #include "DQM/GEM/interface/GEMDQMBase.h"
 
 #include <string>
@@ -39,6 +41,8 @@ private:
 
   edm::EDGetToken tagDigi_;
 
+  edm::EDGetTokenT<LumiScalersCollection> lumiScalers_;
+
   MEMap3Inf mapTotalDigi_layer_;
   MEMap3Inf mapStripOcc_ieta_;
   MEMap3Inf mapStripOcc_phi_;
@@ -58,6 +62,8 @@ using namespace edm;
 
 GEMDigiSource::GEMDigiSource(const edm::ParameterSet& cfg) : GEMDQMBase(cfg) {
   tagDigi_ = consumes<GEMDigiCollection>(cfg.getParameter<edm::InputTag>("digisInputLabel"));
+  lumiScalers_ = consumes<LumiScalersCollection>(
+      cfg.getUntrackedParameter<edm::InputTag>("lumiCollection", edm::InputTag("scalersRawToDigi")));
 }
 
 void GEMDigiSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -161,6 +167,9 @@ int GEMDigiSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key
 void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup) {
   edm::Handle<GEMDigiCollection> gemDigis;
   event.getByToken(this->tagDigi_, gemDigis);
+  edm::Handle<LumiScalersCollection> lumiScalers;
+  event.getByToken(lumiScalers_, lumiScalers);
+
   std::map<ME3IdsKey, Int_t> total_strip_layer;
   for (const auto& ch : gemChambers_) {
     GEMDetId gid = ch.id();
@@ -178,7 +187,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
         // Filling of digi occupancy
         Int_t nIdxVFAT = getVFATNumberByStrip(gid.station(), rId.roll(), d->strip());
-        mapTotalDigi_layer_.Fill(key3, gid.chamber(), nIdxVFAT);
+        mapTotalDigi_layer_.Fill(key3, gid.chamber(), nIdxVFAT + 1);
 
         // Filling of strip
         mapStripOcc_ieta_.Fill(key3, rId.roll());  // Roll

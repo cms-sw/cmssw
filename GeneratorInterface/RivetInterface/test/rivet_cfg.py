@@ -83,7 +83,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 )
 
 process.load("GeneratorInterface.RivetInterface.rivetAnalyzer_cfi")
-process.rivetAnalyzer.AnalysisNames = cms.vstring('MC_GENERIC', 'CMS_2014_I1305624')
+process.rivetAnalyzer.AnalysisNames = cms.vstring('MC_GENERIC', 'CMS_2014_I1305624', 'MC_XS')
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen*process.rivetAnalyzer)

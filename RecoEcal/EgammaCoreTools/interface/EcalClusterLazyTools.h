@@ -33,7 +33,9 @@
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 #include <optional>
 
 class CaloTopology;
@@ -265,12 +267,12 @@ public:
     return ClusterTools::lat(cluster, getEcalRecHitCollection(cluster), geometry_, logW, w0);
   }
 
-  // return a vector v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
-  std::vector<float> covariances(const reco::BasicCluster &cluster, float w0 = 4.7) const {
+  // return an array v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
+  std::array<float, 3> covariances(const reco::BasicCluster &cluster, float w0 = 4.7) const {
     return ClusterTools::covariances(cluster, getEcalRecHitCollection(cluster), topology_, geometry_, w0);
   }
 
-  // return a vector v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
+  // return an array v with v[0] = covIEtaIEta, v[1] = covIEtaIPhi, v[2] = covIPhiIPhi
   // this function calculates differences in eta/phi in units of crystals not
   // global eta/phi this is gives better performance in the crack regions of
   // the calorimeter but gives otherwise identical results to covariances
@@ -279,10 +281,15 @@ public:
   // egamma, but so far covIPhiIPhi hasnt been studied extensively so there
   // could be a bug in the covIPhiIEta or covIPhiIPhi calculations. I dont
   // think there is but as it hasnt been heavily used, there might be one
-  std::vector<float> localCovariances(const reco::BasicCluster &cluster, float w0 = 4.7) const {
-    return ClusterTools::localCovariances(cluster, getEcalRecHitCollection(cluster), topology_, w0);
+  std::array<float, 3> localCovariances(const reco::BasicCluster &cluster,
+                                        float w0 = EgammaLocalCovParamDefaults::kRelEnCut,
+                                        const EcalPFRecHitThresholds *rhthresholds = nullptr,
+                                        float multEB = 0.0,
+                                        float multEE = 0.0) const {
+    return ClusterTools::localCovariances(
+        cluster, getEcalRecHitCollection(cluster), topology_, w0, rhthresholds, multEB, multEE);
   }
-  std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster, float w0 = 4.7) const {
+  std::array<float, 3> scLocalCovariances(const reco::SuperCluster &cluster, float w0 = 4.7) const {
     return ClusterTools::scLocalCovariances(cluster, getEcalRecHitCollection(cluster), topology_, w0);
   }
   double zernike20(const reco::BasicCluster &cluster, double R0 = 6.6, bool logW = true, float w0 = 4.7) const {

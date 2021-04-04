@@ -16,6 +16,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "RecoEgamma/EgammaTools/interface/HGCalShowerShapeHelper.h"
 #include "RecoEgamma/EgammaTools/interface/HGCalClusterTools.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaHGCALIDParamDefaults.h"
 
 class EgammaHLTHGCalIDVarProducer : public edm::stream::EDProducer<> {
 public:
@@ -54,7 +55,7 @@ private:
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateToken_;
   const edm::EDGetTokenT<reco::PFRecHitCollection> hgcalRecHitToken_;
   const edm::EDGetTokenT<reco::CaloClusterCollection> layerClusterToken_;
-  HGCalShowerShapeHelper ssCalc_;
+  HGCalShowerShapeHelper ssHelper_;
 };
 
 EgammaHLTHGCalIDVarProducer::EgammaHLTHGCalIDVarProducer(const edm::ParameterSet& config)
@@ -64,7 +65,7 @@ EgammaHLTHGCalIDVarProducer::EgammaHLTHGCalIDVarProducer(const edm::ParameterSet
           consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
       hgcalRecHitToken_(consumes<reco::PFRecHitCollection>(config.getParameter<edm::InputTag>("hgcalRecHits"))),
       layerClusterToken_(consumes<reco::CaloClusterCollection>(config.getParameter<edm::InputTag>("layerClusters"))),
-      ssCalc_(consumesCollector()) {
+      ssHelper_(consumesCollector()) {
   pcaAssocMaps_.emplace_back(PCAAssocMap(&HGCalShowerShapeHelper::ShowerWidths::sigma2xx, "sigma2xx"));
   pcaAssocMaps_.emplace_back(PCAAssocMap(&HGCalShowerShapeHelper::ShowerWidths::sigma2yy, "sigma2yy"));
   pcaAssocMaps_.emplace_back(PCAAssocMap(&HGCalShowerShapeHelper::ShowerWidths::sigma2zz, "sigma2zz"));
@@ -89,7 +90,7 @@ void EgammaHLTHGCalIDVarProducer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidate"));
   desc.add<edm::InputTag>("hgcalRecHits", edm::InputTag("hgcalRecHits"));
   desc.add<edm::InputTag>("layerClusters", edm::InputTag("layerClusters"));
-  desc.add<double>("rCylinder", 2.8);
+  desc.add<double>("rCylinder", EgammaHGCALIDParamDefaults::kRCylinder);
   desc.add<double>("hOverECone", 0.15);
   descriptions.add(("hltEgammaHLTHGCalIDVarProducer"), desc);
 }
@@ -99,7 +100,7 @@ void EgammaHLTHGCalIDVarProducer::produce(edm::Event& iEvent, const edm::EventSe
   const auto& hgcalRecHits = iEvent.get(hgcalRecHitToken_);
   const auto& layerClusters = iEvent.get(layerClusterToken_);
 
-  ssCalc_.initPerEvent(iSetup, hgcalRecHits);
+  ssHelper_.initPerEvent(iSetup, hgcalRecHits);
 
   auto rVarMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
   auto hForHoverEMap = std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandHandle);
@@ -109,13 +110,13 @@ void EgammaHLTHGCalIDVarProducer::produce(edm::Event& iEvent, const edm::EventSe
 
   for (size_t candNr = 0; candNr < recoEcalCandHandle->size(); candNr++) {
     reco::RecoEcalCandidateRef candRef(recoEcalCandHandle, candNr);
-    ssCalc_.initPerObject(candRef->superCluster()->hitsAndFractions());
-    rVarMap->insert(candRef, ssCalc_.getRvar(rCylinder_, candRef->superCluster()->energy()));
+    auto ssCalc = ssHelper_.createCalc(*candRef->superCluster());
+    rVarMap->insert(candRef, ssCalc.getRvar(rCylinder_));
 
     float hForHoverE = HGCalClusterTools::hadEnergyInCone(
         candRef->superCluster()->eta(), candRef->superCluster()->phi(), layerClusters, 0., hOverECone_, 0., 0.);
     hForHoverEMap->insert(candRef, hForHoverE);
-    auto pcaWidths = ssCalc_.getPCAWidths(rCylinder_);
+    auto pcaWidths = ssCalc.getPCAWidths(rCylinder_);
     for (auto& pcaMap : pcaAssocMaps_) {
       pcaMap.insert(candRef, pcaWidths);
     }

@@ -30,8 +30,8 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (Patatrack HCAL-only: TTbar - on CPU)
 #   2021 (DD4HEP: TTbar, ZMM)
 #        (ele guns 10, 35, 1000; pho guns 10, 35; mu guns 1, 10, 100, 1000, QCD 3TeV, QCD Flat)
-#        (ZMM, TTbar, ZEE, MinBias, TTbar PU, TTbar PU premix, ZEE PU, TTbar design)
-#        (TTbar trackingOnly, pixelTrackingOnly, trackingMkFit)
+#        (ZMM, TTbar, ZEE, MinBias, TTbar PU, TTbar PU premix, ZEE PU, TTbar design, GluGluTo2Jets, GluGluTo2Jets PU)
+#        (TTbar trackingOnly, pixelTrackingOnly, trackingMkFit, trackdnn)
 #        (Patatrack pixel-only: ZMM - on CPU)
 #        (Patatrack pixel-only: TTbar - on CPU)
 #        (Patatrack ECAL-only: TTbar - on CPU)
@@ -57,8 +57,8 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            10824.521,
            11634.911, 11650.911,
            11601.0,11602.0,11603.0,11604.0,11605.0,11606.0,11607.0,11608.0,11609.0,11630.0,11643.0,
-           11650.0,11634.0,11646.0,11640.0,11834.0,11834.99,11846.0,12024.0,
-           11634.1,11634.5,11634.7,
+           11650.0,11634.0,11646.0,11640.0,11834.0,11834.99,11846.0,12034.0,11725.0,11925.0,
+           11634.1,11634.5,11634.7,11634.91,
            11650.501,
            11634.501,
            11634.511,
@@ -67,7 +67,7 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            11834.13,
            11723.17,
            12434.0,12634.0,12634.99,
-           12834.0,13034.0,13034.99]
+           12834.0,13034.0,13034.99,]
 for numWF in numWFIB:
     if not numWF in _upgrade_workflows: continue
     workflows[numWF] = _upgrade_workflows[numWF]

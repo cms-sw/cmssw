@@ -194,7 +194,7 @@ namespace edm {
         whyNotFastClonable_(0),
         hasNewlyDroppedBranch_(),
         branchListIndexesUnchanged_(false),
-        eventAux_(),
+        eventAuxCache_(),
         eventTree_(filePtr,
                    InEvent,
                    nStreams,
@@ -230,8 +230,6 @@ namespace edm {
         runHelper_(runHelper),
         newBranchToOldBranch_(),
         eventHistoryTree_(nullptr),
-        eventSelectionIDs_(),
-        branchListIndexes_(),
         history_(),
         branchChildren_(new BranchChildren),
         duplicateChecker_(duplicateChecker),
@@ -546,6 +544,10 @@ namespace edm {
           setIsMergeable(product.second);
         }
       }
+      //inform system we want to use DelayedReader
+      for (auto& product : newReg->productListUpdator()) {
+        product.second.setOnDemand(true);
+      }
 
       // freeze the product registry
       newReg->setFrozen(inputType != InputType::Primary);
@@ -770,8 +772,8 @@ namespace edm {
 
       // The Lumi is not skipped.  If this is an event, see if the event is skipped.
       if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent) {
-        fillEventAuxiliary(indexIntoFileIter_.entry());
-        if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), eventAux_.id().event())) {
+        auto eventAux = fillEventAuxiliary(indexIntoFileIter_.entry());
+        if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), eventAux.id().event())) {
           return true;
         }
       }
@@ -799,11 +801,11 @@ namespace edm {
     if (duplicateChecker_.get() == nullptr) {
       return false;
     }
-    fillEventAuxiliary(indexIntoFileIter_.entry());
+    auto const eventAux = fillEventAuxiliary(indexIntoFileIter_.entry());
     return duplicateChecker_->isDuplicateAndCheckActive(indexIntoFileIter_.processHistoryIDIndex(),
                                                         indexIntoFileIter_.run(),
                                                         indexIntoFileIter_.lumi(),
-                                                        eventAux_.id().event(),
+                                                        eventAux.id().event(),
                                                         file_);
   }
 
@@ -851,8 +853,8 @@ namespace edm {
     }
     run = indexIntoFileIter_.run();
     lumi = indexIntoFileIter_.lumi();
-    fillEventAuxiliary(indexIntoFileIter_.entry());
-    event = eventAux_.event();
+    auto eventAux = fillEventAuxiliary(indexIntoFileIter_.entry());
+    event = eventAux.event();
     return IndexIntoFile::kEvent;
   }
 
@@ -960,32 +962,34 @@ namespace edm {
     indexIntoFile_.unsortedEventNumbers().reserve(eventTree_.entries());
 
     // First, loop through the event tree.
+    EventSelectionIDVector eventSelectionIDs;
+    BranchListIndexes branchListIndexes;
     while (eventTree_.next()) {
       bool newRun = false;
       bool newLumi = false;
-      fillThisEventAuxiliary();
-      fillEventHistory();
+      auto evtAux = fillThisEventAuxiliary();
+      fillEventHistory(evtAux, eventSelectionIDs, branchListIndexes);
 
       // Save the event numbers as we loop through the event auxiliary to avoid
       // having to read through the event auxiliary again later. These event numbers
       // are not actually used in this function, but could be needed elsewhere.
-      indexIntoFile_.unsortedEventNumbers().push_back(eventAux().event());
+      indexIntoFile_.unsortedEventNumbers().push_back(evtAux.event());
 
-      ProcessHistoryID reducedPHID = processHistoryRegistry_->reducedProcessHistoryID(eventAux().processHistoryID());
+      ProcessHistoryID reducedPHID = processHistoryRegistry_->reducedProcessHistoryID(evtAux.processHistoryID());
 
-      if (iFirst || prevPhid != reducedPHID || prevRun != eventAux().run()) {
+      if (iFirst || prevPhid != reducedPHID || prevRun != evtAux.run()) {
         iFirst = false;
         newRun = newLumi = true;
-      } else if (prevLumi != eventAux().luminosityBlock()) {
+      } else if (prevLumi != evtAux.luminosityBlock()) {
         newLumi = true;
       }
       prevPhid = reducedPHID;
-      prevRun = eventAux().run();
-      prevLumi = eventAux().luminosityBlock();
+      prevRun = evtAux.run();
+      prevLumi = evtAux.luminosityBlock();
       if (newLumi) {
         lumis.emplace_back(
-            reducedPHID, eventAux().run(), eventAux().luminosityBlock(), eventTree_.entryNumber());  // (insert 1)
-        runLumiSet.insert(LuminosityBlockID(eventAux().run(), eventAux().luminosityBlock()));        // (insert 2)
+            reducedPHID, evtAux.run(), evtAux.luminosityBlock(), eventTree_.entryNumber());  // (insert 1)
+        runLumiSet.insert(LuminosityBlockID(evtAux.run(), evtAux.luminosityBlock()));        // (insert 2)
       } else {
         LumiItem& currentLumi = lumis.back();
         assert(currentLumi.lastEventEntry_ == eventTree_.entryNumber());
@@ -993,17 +997,16 @@ namespace edm {
       }
       if (newRun) {
         // Insert run in list if it is not already there.
-        RunItem item(reducedPHID, eventAux().run());
+        RunItem item(reducedPHID, evtAux.run());
         if (runItemSet.insert(item).second) {  // (check 3, insert 3)
           runs.push_back(std::move(item));     // (insert 5)
-          runSet.insert(eventAux().run());     // (insert 4)
-          phidMap.insert(std::make_pair(eventAux().run(), reducedPHID));
+          runSet.insert(evtAux.run());         // (insert 4)
+          phidMap.insert(std::make_pair(evtAux.run(), reducedPHID));
         }
       }
     }
     // now clean up.
     eventTree_.setEntryNumber(IndexIntoFile::invalidEntry);
-    eventAux_ = EventAuxiliary();
     lastEventEntryNumberRead_ = IndexIntoFile::invalidEntry;
 
     // Loop over run entries and fill information.
@@ -1224,47 +1227,45 @@ namespace edm {
     filePtr_ = nullptr;  // propagate_const<T> has no reset() function
   }
 
-  void RootFile::fillThisEventAuxiliary() {
+  EventAuxiliary const& RootFile::fillThisEventAuxiliary() {
     if (lastEventEntryNumberRead_ == eventTree_.entryNumber()) {
       // Already read.
-      return;
+      return eventAuxCache_;
     }
     if (fileFormatVersion().newAuxiliary()) {
-      EventAuxiliary* pEvAux = &eventAux_;
+      EventAuxiliary* pEvAux = &eventAuxCache_;
       eventTree_.fillAux<EventAuxiliary>(pEvAux);
     } else {
       // for backward compatibility.
       EventAux eventAux;
       EventAux* pEvAux = &eventAux;
       eventTree_.fillAux<EventAux>(pEvAux);
-      conversion(eventAux, eventAux_);
+      conversion(eventAux, eventAuxCache_);
     }
     lastEventEntryNumberRead_ = eventTree_.entryNumber();
+    return eventAuxCache_;
   }
 
-  bool RootFile::fillEventAuxiliary(IndexIntoFile::EntryNumber_t entry) {
-    if (!eventTree_.current(entry)) {
-      return false;
-    }
+  EventAuxiliary RootFile::fillEventAuxiliary(IndexIntoFile::EntryNumber_t entry) {
     eventTree_.setEntryNumber(entry);
-    fillThisEventAuxiliary();
-    return true;
+    return fillThisEventAuxiliary();
   }
 
-  void RootFile::fillEventHistory() {
+  void RootFile::fillEventHistory(EventAuxiliary& evtAux,
+                                  EventSelectionIDVector& eventSelectionIDs,
+                                  BranchListIndexes& branchListIndexes) {
     // We could consider doing delayed reading, but because we have to
     // store this History object in a different tree than the event
     // data tree, this is too hard to do in this first version.
-
     if (fileFormatVersion().eventHistoryBranch()) {
       // Lumi block number was not in EventID for the relevant releases.
-      EventID id(eventAux().id().run(), 0, eventAux().id().event());
+      EventID id(evtAux.id().run(), 0, evtAux.id().event());
       if (eventProcessHistoryIter_->eventID() != id) {
         EventProcessHistoryID target(id, ProcessHistoryID());
         eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);
         assert(eventProcessHistoryIter_->eventID() == id);
       }
-      eventAux_.setProcessHistoryID(eventProcessHistoryIter_->processHistoryID());
+      evtAux.setProcessHistoryID(eventProcessHistoryIter_->processHistoryID());
       ++eventProcessHistoryIter_;
     } else if (fileFormatVersion().eventHistoryTree()) {
       // for backward compatibility.
@@ -1275,35 +1276,35 @@ namespace edm {
       }
       eventHistoryBranch->SetAddress(&pHistory);
       roottree::getEntry(eventHistoryTree_, eventTree_.entryNumber());
-      eventAux_.setProcessHistoryID(history_->processHistoryID());
-      eventSelectionIDs_.swap(history_->eventSelectionIDs());
-      branchListIndexes_.swap(history_->branchListIndexes());
+      evtAux.setProcessHistoryID(history_->processHistoryID());
+      eventSelectionIDs.swap(history_->eventSelectionIDs());
+      branchListIndexes.swap(history_->branchListIndexes());
     } else if (fileFormatVersion().noMetaDataTrees()) {
       // Current format
-      EventSelectionIDVector* pESV = &eventSelectionIDs_;
+      EventSelectionIDVector* pESV = &eventSelectionIDs;
       TBranch* eventSelectionIDBranch = eventTree_.tree()->GetBranch(poolNames::eventSelectionsBranchName().c_str());
       assert(eventSelectionIDBranch != nullptr);
       eventTree_.fillBranchEntry(eventSelectionIDBranch, pESV);
-      BranchListIndexes* pBLI = &branchListIndexes_;
+      BranchListIndexes* pBLI = &branchListIndexes;
       TBranch* branchListIndexesBranch = eventTree_.tree()->GetBranch(poolNames::branchListIndexesBranchName().c_str());
       assert(branchListIndexesBranch != nullptr);
       eventTree_.fillBranchEntry(branchListIndexesBranch, pBLI);
     }
     if (provenanceAdaptor_) {
-      eventAux_.setProcessHistoryID(provenanceAdaptor_->convertID(eventAux().processHistoryID()));
-      for (auto& esID : eventSelectionIDs_) {
+      evtAux.setProcessHistoryID(provenanceAdaptor_->convertID(evtAux.processHistoryID()));
+      for (auto& esID : eventSelectionIDs) {
         esID = provenanceAdaptor_->convertID(esID);
       }
     }
     if (daqProvenanceHelper_) {
-      eventAux_.setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(eventAux_.processHistoryID()));
+      evtAux.setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(evtAux.processHistoryID()));
     }
     if (!fileFormatVersion().splitProductIDs()) {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
-      provenanceAdaptor_->branchListIndexes(branchListIndexes_);
+      provenanceAdaptor_->branchListIndexes(branchListIndexes);
     }
     if (branchIDListHelper_) {
-      branchIDListHelper_->fixBranchListIndexes(branchListIndexes_);
+      branchIDListHelper_->fixBranchListIndexes(branchListIndexes);
     }
   }
 
@@ -1365,15 +1366,15 @@ namespace edm {
         break;
 
       if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
-        fillEventAuxiliary(skippedEventEntry);
-        if (eventSkipperByID_->skipIt(runOfSkippedEvent, lumiOfSkippedEvent, eventAux_.id().event())) {
+        auto const evtAux = fillEventAuxiliary(skippedEventEntry);
+        if (eventSkipperByID_->skipIt(runOfSkippedEvent, lumiOfSkippedEvent, evtAux.id().event())) {
           continue;
         }
       }
       if (duplicateChecker_ && !duplicateChecker_->checkDisabled() && !duplicateChecker_->noDuplicatesInFile()) {
-        fillEventAuxiliary(skippedEventEntry);
+        auto const evtAux = fillEventAuxiliary(skippedEventEntry);
         if (duplicateChecker_->isDuplicateAndCheckActive(
-                phIndexOfSkippedEvent, runOfSkippedEvent, lumiOfSkippedEvent, eventAux_.id().event(), file_)) {
+                phIndexOfSkippedEvent, runOfSkippedEvent, lumiOfSkippedEvent, evtAux.id().event(), file_)) {
           continue;
         }
       }
@@ -1396,8 +1397,8 @@ namespace edm {
         break;
 
       if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
-        fillEventAuxiliary(eventEntry);
-        if (eventSkipperByID_->skipIt(runOfEvent, lumiOfEvent, eventAux_.id().event())) {
+        auto const evtAux = fillEventAuxiliary(eventEntry);
+        if (eventSkipperByID_->skipIt(runOfEvent, lumiOfEvent, evtAux.id().event())) {
           continue;
         }
       }
@@ -1442,22 +1443,12 @@ namespace edm {
   void RootFile::readEvent(EventPrincipal& principal) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
-    // read the event auxiliary if not alrady read.
-    assert(fillEventAuxiliary(indexIntoFileIter_.entry()));
-
     // read the event
     readCurrentEvent(principal);
+    auto const& evtAux = principal.aux();
 
-    runHelper_->checkRunConsistency(eventAux().run(), indexIntoFileIter_.run());
-    runHelper_->checkLumiConsistency(eventAux().luminosityBlock(), indexIntoFileIter_.lumi());
-
-    // If this next assert shows up in performance profiling or significantly affects memory, then these three lines should be deleted.
-    // The IndexIntoFile should guarantee that it never fails.
-    ProcessHistoryID idToCheck = (daqProvenanceHelper_ && fileFormatVersion().useReducedProcessHistoryID()
-                                      ? *daqProvenanceHelper_->oldProcessHistoryID()
-                                      : eventAux().processHistoryID());
-    ProcessHistoryID const& reducedPHID = processHistoryRegistry_->reducedProcessHistoryID(idToCheck);
-    assert(reducedPHID == indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex()));
+    runHelper_->checkRunConsistency(evtAux.run(), indexIntoFileIter_.run());
+    runHelper_->checkLumiConsistency(evtAux.luminosityBlock(), indexIntoFileIter_.lumi());
 
     ++indexIntoFileIter_;
   }
@@ -1467,24 +1458,34 @@ namespace edm {
     if (!eventTree_.current()) {
       return false;
     }
-    fillThisEventAuxiliary();
+    auto evtAux = fillThisEventAuxiliary();
     if (!fileFormatVersion().lumiInEventID()) {
       //ugly, but will disappear when the backward compatibility is done with schema evolution.
-      const_cast<EventID&>(eventAux_.id()).setLuminosityBlockNumber(eventAux_.oldLuminosityBlock());
-      eventAux_.resetObsoleteInfo();
+      const_cast<EventID&>(evtAux.id()).setLuminosityBlockNumber(evtAux.oldLuminosityBlock());
+      evtAux.resetObsoleteInfo();
     }
-    fillEventHistory();
-    runHelper_->overrideRunNumber(eventAux_.id(), eventAux().isRealData());
+    EventSelectionIDVector eventSelectionIDs;
+    BranchListIndexes branchListIndexes;
+    fillEventHistory(evtAux, eventSelectionIDs, branchListIndexes);
+    runHelper_->overrideRunNumber(evtAux.id(), evtAux.isRealData());
 
     // We're not done ... so prepare the EventPrincipal
     eventTree_.insertEntryForIndex(principal.transitionIndex());
-    auto history = processHistoryRegistry_->getMapped(eventAux().processHistoryID());
-    principal.fillEventPrincipal(eventAux(),
+    auto history = processHistoryRegistry_->getMapped(evtAux.processHistoryID());
+    principal.fillEventPrincipal(evtAux,
                                  history,
-                                 std::move(eventSelectionIDs_),
-                                 std::move(branchListIndexes_),
+                                 std::move(eventSelectionIDs),
+                                 std::move(branchListIndexes),
                                  *(makeProductProvenanceRetriever(principal.streamID().value())),
                                  eventTree_.resetAndGetRootDelayedReader());
+
+    // If this next assert shows up in performance profiling or significantly affects memory, then these three lines should be deleted.
+    // The IndexIntoFile should guarantee that it never fails.
+    ProcessHistoryID idToCheck = (daqProvenanceHelper_ && fileFormatVersion().useReducedProcessHistoryID()
+                                      ? *daqProvenanceHelper_->oldProcessHistoryID()
+                                      : evtAux.processHistoryID());
+    ProcessHistoryID const& reducedPHID = processHistoryRegistry_->reducedProcessHistoryID(idToCheck);
+    assert(reducedPHID == indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex()));
 
     // report event read from file
     filePtr_->eventReadFromFile();
@@ -1509,11 +1510,11 @@ namespace edm {
       IndexIntoFile::EntryNumber_t eventEntry = indexIntoFileIter_.firstEventEntryThisRun();
       assert(eventEntry != IndexIntoFile::invalidEntry);
       assert(eventTree_.current(eventEntry));
-      fillEventAuxiliary(eventEntry);
+      auto const evtAux = fillEventAuxiliary(eventEntry);
 
       RunID run = RunID(indexIntoFileIter_.run());
       runHelper_->overrideRunNumber(run);
-      savedRunAuxiliary_ = std::make_shared<RunAuxiliary>(run.run(), eventAux().time(), Timestamp::invalidTimestamp());
+      savedRunAuxiliary_ = std::make_shared<RunAuxiliary>(run.run(), evtAux.time(), Timestamp::invalidTimestamp());
       return savedRunAuxiliary();
     }
     // End code for backward compatibility before the existence of run trees.
@@ -1536,11 +1537,11 @@ namespace edm {
       // If we have a valid event, use its information.
       if (eventEntry != IndexIntoFile::invalidEntry) {
         assert(eventTree_.current(eventEntry));
-        fillEventAuxiliary(eventEntry);
+        auto evtAux = fillEventAuxiliary(eventEntry);
 
         // RunAuxiliary did not contain a valid timestamp.  Take it from the next event in this run if there is one.
         if (runAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
-          runAuxiliary->setBeginTime(eventAux().time());
+          runAuxiliary->setBeginTime(evtAux.time());
         }
 
         // For backwards compatibility when the Run's ProcessHistory included only processes where products were added to the
@@ -1548,8 +1549,10 @@ namespace edm {
         // almost always be correct by the current definition (processes included if any products are added. This makes the run, lumi,
         // and event ProcessHistory's always be the same if no file merging occurs).
         if (!fileFormatVersion().processHistorySameWithinRun()) {
-          fillEventHistory();
-          runAuxiliary->setProcessHistoryID(eventAux().processHistoryID());
+          EventSelectionIDVector eventSelectionIDs;
+          BranchListIndexes branchListIndexes;
+          fillEventHistory(evtAux, eventSelectionIDs, branchListIndexes);
+          runAuxiliary->setProcessHistoryID(evtAux.processHistoryID());
         }
       }
     }
@@ -1592,12 +1595,12 @@ namespace edm {
       IndexIntoFile::EntryNumber_t eventEntry = indexIntoFileIter_.firstEventEntryThisLumi();
       assert(eventEntry != IndexIntoFile::invalidEntry);
       assert(eventTree_.current(eventEntry));
-      fillEventAuxiliary(eventEntry);
+      auto const evtAux = fillEventAuxiliary(eventEntry);
 
       LuminosityBlockID lumi = LuminosityBlockID(indexIntoFileIter_.run(), indexIntoFileIter_.lumi());
       runHelper_->overrideRunNumber(lumi);
       return std::make_shared<LuminosityBlockAuxiliary>(
-          lumi.run(), lumi.luminosityBlock(), eventAux().time(), Timestamp::invalidTimestamp());
+          lumi.run(), lumi.luminosityBlock(), evtAux.time(), Timestamp::invalidTimestamp());
     }
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
@@ -1610,9 +1613,9 @@ namespace edm {
       IndexIntoFile::EntryNumber_t eventEntry = indexIntoFileIter_.firstEventEntryThisLumi();
       if (eventEntry != IndexIntoFile::invalidEntry) {
         assert(eventTree_.current(eventEntry));
-        fillEventAuxiliary(eventEntry);
+        auto const evtAux = fillEventAuxiliary(eventEntry);
 
-        lumiAuxiliary->setBeginTime(eventAux().time());
+        lumiAuxiliary->setBeginTime(evtAux.time());
       }
       lumiAuxiliary->setEndTime(Timestamp::invalidTimestamp());
     }
@@ -1676,6 +1679,8 @@ namespace edm {
       return false;
     if (lumi != indexIntoFileIter_.lumi())
       return false;
+    //The following is used for its side effect of advancing the
+    // eventTree entry.
     fillEventAuxiliary(indexIntoFileIter_.entry());
     return true;
   }
@@ -1696,9 +1701,9 @@ namespace edm {
       std::vector<std::shared_ptr<IndexIntoFile>>::size_type currentIndexIntoFile) {
     if (duplicateChecker_ && !duplicateChecker_->checkDisabled()) {
       if (eventTree_.next()) {
-        fillThisEventAuxiliary();
-        duplicateChecker_->inputFileOpened(
-            eventAux().isRealData(), indexIntoFile_, indexesIntoFiles, currentIndexIntoFile);
+        auto const evtAux = fillThisEventAuxiliary();
+
+        duplicateChecker_->inputFileOpened(evtAux.isRealData(), indexIntoFile_, indexesIntoFiles, currentIndexIntoFile);
       }
       eventTree_.setEntryNumber(IndexIntoFile::invalidEntry);
     }
@@ -1930,42 +1935,44 @@ namespace edm {
 
         auto serviceToken = ServiceRegistry::instance().presentToken();
 
-        chain.push([holder = std::move(taskHolder),
-                    pWriteTo,
-                    iThis,
-                    transitionIndex,
-                    iContext,
-                    pre,
-                    post,
-                    serviceToken]() mutable {
-          if (nullptr == pWriteTo->load()) {
-            ServiceRegistry::Operate operate(serviceToken);
-            std::unique_ptr<const std::set<ProductProvenance>> prov;
-            try {
-              if (pre) {
-                pre->emit(*(iContext->getStreamContext()), *iContext);
-              }
-              prov = std::make_unique<const std::set<ProductProvenance>>(iThis->readProvenance(transitionIndex));
-              if (post) {
-                post->emit(*(iContext->getStreamContext()), *iContext);
-              }
+        chain.push(
+            *taskHolder.group(),
+            [holder = std::move(taskHolder),
+             pWriteTo,
+             iThis,
+             transitionIndex,
+             iContext,
+             pre,
+             post,
+             serviceToken]() mutable {
+              if (nullptr == pWriteTo->load()) {
+                ServiceRegistry::Operate operate(serviceToken);
+                std::unique_ptr<const std::set<ProductProvenance>> prov;
+                try {
+                  if (pre) {
+                    pre->emit(*(iContext->getStreamContext()), *iContext);
+                  }
+                  prov = std::make_unique<const std::set<ProductProvenance>>(iThis->readProvenance(transitionIndex));
+                  if (post) {
+                    post->emit(*(iContext->getStreamContext()), *iContext);
+                  }
 
-            } catch (...) {
-              if (post) {
-                post->emit(*(iContext->getStreamContext()), *iContext);
+                } catch (...) {
+                  if (post) {
+                    post->emit(*(iContext->getStreamContext()), *iContext);
+                  }
+
+                  holder.doneWaiting(std::current_exception());
+                  return;
+                }
+                const std::set<ProductProvenance>* expected = nullptr;
+
+                if (pWriteTo->compare_exchange_strong(expected, prov.get())) {
+                  prov.release();
+                }
               }
-
-              holder.doneWaiting(std::current_exception());
-              return;
-            }
-            const std::set<ProductProvenance>* expected = nullptr;
-
-            if (pWriteTo->compare_exchange_strong(expected, prov.get())) {
-              prov.release();
-            }
-          }
-          holder.doneWaiting(std::exception_ptr());
-        });
+              holder.doneWaiting(std::exception_ptr());
+            });
       }
     }
   }  // namespace

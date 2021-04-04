@@ -1,17 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("G4PrintGeometry")
+from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+process = cms.Process('G4PrintGeometry',Run3_dd4hep)
+process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
 
-process.load('Configuration.ProcessModifiers.dd4hep_cff')
-#process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
-process.load('Geometry.CMSCommonData.cmsExtendedGeometry2021XML_cfi')
-process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
-process.load('Geometry.EcalCommonData.ecalSimulationParameters_cff')
-process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cff')
-process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
-process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
-process.load('Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi')
-process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
+#from Configuration.Eras.Era_Phase2C11_dd4hep_cff import Phase2C11_dd4hep
+#process = cms.Process('G4PrintGeometry',Phase2C11_dd4hep)
+#process.load('Configuration.Geometry.GeometryDD4hepExtended2026D76_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 from SimG4Core.PrintGeomInfo.g4PrintGeomInfo_cfi import *
@@ -21,47 +16,26 @@ process = printGeomInfo(process)
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.G4cerr=dict()
     process.MessageLogger.G4cout=dict()
-
-
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
-                                            appendToDataLabel = cms.string('')
-)
-
-process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                appendToDataLabel = cms.string('')
-)
-
-process.g4SimHits.g4GeometryDD4hepSource = cms.bool(True)
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     DumpSummary      = cms.untracked.bool(True),
-    DumpLVTree       = cms.untracked.bool(True),
+    DumpLVTree       = cms.untracked.bool(False),
     DumpMaterial     = cms.untracked.bool(False),
-    DumpLVList       = cms.untracked.bool(True),
+    DumpLVList       = cms.untracked.bool(False),
     DumpLV           = cms.untracked.bool(False),
-    DumpSolid        = cms.untracked.bool(True),
+    DumpSolid        = cms.untracked.bool(False),
     DumpAttributes   = cms.untracked.bool(False),
     DumpPV           = cms.untracked.bool(False),
     DumpRotation     = cms.untracked.bool(False),
     DumpReplica      = cms.untracked.bool(False),
-    DumpTouch        = cms.untracked.bool(True),
-    DumpSense        = cms.untracked.bool(True),
+    DumpTouch        = cms.untracked.bool(False),
+    DumpSense        = cms.untracked.bool(False),
     DD4Hep           = cms.untracked.bool(True),
-    Name             = cms.untracked.string('csc:ME11*'),
-    Names            = cms.untracked.vstring('EcalHitsEB'),
+    Name             = cms.untracked.string(''),
+    Names            = cms.untracked.vstring(''),
     MaterialFileName = cms.untracked.string('matfileDD4Hep.txt'),
     SolidFileName    = cms.untracked.string('solidfileDD4Hep.txt'),
     LVFileName       = cms.untracked.string('lvfileDD4Hep.txt'),
     PVFileName       = cms.untracked.string('pvfileDD4Hep.txt'),
+    TouchFileName    = cms.untracked.string('touchfileDD4Hep.txt'),
     type             = cms.string('PrintGeomInfoAction')
 ))
-
-process.hcalParameters.fromDD4Hep = cms.bool(True)
-process.hcalSimulationParameters.fromDD4Hep = cms.bool(True)
-process.caloSimulationParameters.fromDD4Hep = cms.bool(True)
-process.ecalSimulationParametersEB.fromDD4Hep = cms.bool(True)
-process.ecalSimulationParametersEE.fromDD4Hep = cms.bool(True)
-process.ecalSimulationParametersES.fromDD4Hep = cms.bool(True)
-process.hgcalEEParametersInitialize.fromDD4Hep = cms.bool(True)
-process.hgcalHESiParametersInitialize.fromDD4Hep = cms.bool(True)
-process.hgcalHEScParametersInitialize.fromDD4Hep = cms.bool(True)

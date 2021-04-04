@@ -24,7 +24,7 @@ SonicClientBase::SonicClientBase(const edm::ParameterSet& params,
 }
 
 void SonicClientBase::setMode(SonicMode mode) {
-  if (mode_ == mode)
+  if (dispatcher_ and mode_ == mode)
     return;
   mode_ = mode;
 

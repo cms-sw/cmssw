@@ -31,7 +31,6 @@ private:
   bool dead_pixels_simulation_on_;
   dead_pixel_set dead_pixels_;
   int verbosity_;
-  unsigned short pixels_no_;
   double threshold_;
   double electron_per_adc_;
   int VcaltoElectronGain_;
