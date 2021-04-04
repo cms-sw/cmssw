@@ -64,6 +64,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
                                     pset.getParameter<bool>("intimeOnlyCP"),
                                     pset.getParameter<bool>("chargedOnlyCP"),
                                     pset.getParameter<bool>("stableOnlyCP"),
+                                    pset.getParameter<bool>("notConvertedOnlyCP"),
                                     pset.getParameter<std::vector<int>>("pdgIdCP"));
 
   tools_.reset(new hgcal::RecHitTools());
