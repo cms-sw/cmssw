@@ -986,7 +986,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
 
   // Pure ECAL -> shower shapes
   fMVAVar_see = ele.sigmaIetaIeta();  //EleSigmaIEtaIEta
-  std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
+  const auto& vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
   if (edm::isFinite(vCov[2]))
     fMVAVar_spp = sqrt(vCov[2]);  //EleSigmaIPhiIPhi
   else
@@ -1096,7 +1096,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
 
   // Pure ECAL -> shower shapes
   fMVAVar_see = ele.sigmaIetaIeta();  //EleSigmaIEtaIEta
-  std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
+  const auto& vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
   if (edm::isFinite(vCov[2]))
     fMVAVar_spp = sqrt(vCov[2]);  //EleSigmaIPhiIPhi
   else
@@ -1654,7 +1654,7 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
 
   // Pure ECAL -> shower shapes
   fMVAVar_see = ele.sigmaIetaIeta();  //EleSigmaIEtaIEta
-  std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
+  const auto& vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed()));
   if (edm::isFinite(vCov[2]))
     fMVAVar_spp = sqrt(vCov[2]);  //EleSigmaIPhiIPhi
   else

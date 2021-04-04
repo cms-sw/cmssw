@@ -52,13 +52,6 @@
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
-
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -70,7 +63,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 // constructors
 HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet)
@@ -78,6 +70,11 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet)
       // initialize the cache
       m_l1GtMenu(nullptr),
       m_l1GtMenuCacheID(0ULL),
+
+      // trigger records
+      m_l1GtTriggerMenuToken(esConsumes()),
+      m_l1GtTriggerMaskAlgoTrigRcdToken(esConsumes()),
+      m_l1GtTriggerMaskTechTrigRcdToken(esConsumes()),
 
       // seeding done via L1 trigger object maps, with objects that fired
       m_l1UseL1TriggerObjectMaps(parSet.getParameter<bool>("L1UseL1TriggerObjectMaps")),
@@ -256,8 +253,7 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent,
   }
 
   // get the trigger mask from the EventSetup
-  edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-  evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
+  auto const& l1GtTmAlgo = evSetup.getHandle(m_l1GtTriggerMaskAlgoTrigRcdToken);
 
   // get L1GlobalTriggerReadoutRecord and GT decision
   edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
@@ -291,8 +287,7 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent,
   // seeding done via technical trigger bits
   if (m_l1TechTriggerSeeding) {
     // get the technical trigger mask from the EventSetup
-    edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
-    evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
+    auto const& l1GtTmTech = evSetup.getHandle(m_l1GtTriggerMaskTechTrigRcdToken);
 
     // get Global Trigger technical trigger word, update the tokenResult members
     // from m_l1AlgoLogicParser and get the result for the logical expression
@@ -317,8 +312,7 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent,
   unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
 
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-    edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-    evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
+    auto const& l1GtMenu = evSetup.getHandle(m_l1GtTriggerMenuToken);
     m_l1GtMenu = l1GtMenu.product();
     m_l1GtMenuCacheID = l1GtMenuCacheID;
 

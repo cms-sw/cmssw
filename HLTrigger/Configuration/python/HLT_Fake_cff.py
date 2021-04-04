@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_3_0/Fake --type Fake
 
-# /dev/CMSSW_11_3_0/Fake/V5 (CMSSW_11_3_0_pre2)
+# /dev/CMSSW_11_3_0/Fake/V8 (CMSSW_11_3_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_3_0/Fake/V5')
+  tableName = cms.string('/dev/CMSSW_11_3_0/Fake/V8')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -186,7 +186,7 @@ fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtDigis + fragment.hltPre
 fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.HLT_Physics_v1, fragment.HLT_Random_v1, fragment.HLT_ZeroBias_v1, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))
 
 
-# dummyfy hltGetConditions in cff's
+# dummify hltGetConditions in cff's
 if 'hltGetConditions' in fragment.__dict__ and 'HLTriggerFirstPath' in fragment.__dict__ :
     fragment.hltDummyConditions = cms.EDFilter( "HLTBool",
         result = cms.bool( True )

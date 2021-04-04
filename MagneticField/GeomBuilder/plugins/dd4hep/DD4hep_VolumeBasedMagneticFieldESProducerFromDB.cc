@@ -7,6 +7,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -80,6 +81,7 @@ DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticField
     const edm::ParameterSet& iConfig)
     : debug_(iConfig.getUntrackedParameter<bool>("debugBuilder")) {
   std::string const myConfigLabel = "VBMFESChoice";
+  usesResources({edm::ESSharedResourceNames::kDD4Hep});
 
   //Based on configuration, pick algorithm to produce the proper MagFieldConfig with a specific label
   const int current = iConfig.getParameter<int>("valueOverride");
@@ -150,7 +152,8 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
   std::unique_ptr<MagneticField> paramField =
       ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);
 
-  edm::LogInfo("MagneticField") << "Version: " << conf->version << " geometryVersion: " << conf->geometryVersion
+  edm::LogInfo("MagneticField") << "(DD4hep) Version: " << conf->version
+                                << " geometryVersion: " << conf->geometryVersion
                                 << " slaveFieldVersion: " << conf->slaveFieldVersion;
 
   if (conf->version == "parametrizedMagneticField") {
@@ -182,7 +185,7 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
       "<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" density=\"1e-13*mg/cm3\" "
       "symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
 
-  auto ddet = make_unique<cms::DDDetector>("", sblob, true);
+  auto ddet = make_unique<cms::DDDetector>("cmsMagneticField:MAGF", sblob, true);
 
   builder.build(ddet.get());
 

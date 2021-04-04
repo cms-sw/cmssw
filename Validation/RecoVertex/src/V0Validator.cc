@@ -385,12 +385,6 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   using namespace edm;
   using namespace std;
 
-  // Get event setup info, B-field and tracker geometry
-  ESHandle<MagneticField> bFieldHandle;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
-  ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
-  iSetup.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
-
   // Make matching collections
   Handle<reco::RecoToSimCollection> recotosimCollectionH;
   iEvent.getByToken(recoRecoToSimCollectionToken_, recotosimCollectionH);

@@ -22,9 +22,9 @@
 #include "G4VProcess.hh"
 #include "G4GFlashSpot.hh"
 #include "G4ParticleTable.hh"
-
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
+#include "DD4hep/Filter.h"
 
 #include <fstream>
 #include <memory>
@@ -50,6 +50,8 @@ CaloSD::CaloSD(const std::string& name,
       timeSlice(timeSliceUnit),
       eminHitD(0.) {
   //Parameters
+  bool dd4hep = p.getParameter<bool>("g4GeometryDD4hepSource");
+  int addlevel = dd4hep ? 1 : 0;
   edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
   energyCut = m_CaloSD.getParameter<double>("EminTrack") * CLHEP::GeV;
   tmaxHit = m_CaloSD.getParameter<double>("TmaxHit") * CLHEP::ns;
@@ -73,6 +75,8 @@ CaloSD::CaloSD(const std::string& name,
   std::vector<std::string> fineNames = m_CaloSD.getParameter<std::vector<std::string>>("FineCaloNames");
   std::vector<int> fineLevels = m_CaloSD.getParameter<std::vector<int>>("FineCaloLevels");
   std::vector<int> useFines = m_CaloSD.getParameter<std::vector<int>>("UseFineCalo");
+  for (auto& level : fineLevels)
+    level += addlevel;
 
   SetVerboseLevel(verbn);
   meanResponse.reset(nullptr);
@@ -128,7 +132,8 @@ CaloSD::CaloSD(const std::string& name,
     G4LogicalVolume* lv = nullptr;
     G4String name = static_cast<G4String>(fineNames[useFines[i]]);
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-      if ((*lvcite)->GetName() == name) {
+      G4String namx(static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())));
+      if (namx == name) {
         lv = (*lvcite);
         break;
       }
@@ -1094,4 +1099,20 @@ void CaloSD::cleanHitCollection() {
 #endif
 
   cleanIndex = theHC->entries();
+}
+
+void CaloSD::printDetectorLevels(const G4VTouchable* touch) const {
+  //Print name and copy numbers
+  int level = ((touch->GetHistoryDepth()) + 1);
+  std::ostringstream st1;
+  st1 << level << " Levels:";
+  if (level > 0) {
+    for (int ii = 0; ii < level; ii++) {
+      int i = level - ii - 1;
+      G4VPhysicalVolume* pv = touch->GetVolume(i);
+      std::string name = (pv != nullptr) ? pv->GetName() : "Unknown";
+      st1 << " " << name << ":" << touch->GetReplicaNumber(i);
+    }
+  }
+  edm::LogVerbatim("CaloSim") << st1.str();
 }

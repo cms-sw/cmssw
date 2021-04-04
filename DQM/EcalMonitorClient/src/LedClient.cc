@@ -107,17 +107,18 @@ namespace ecaldqm {
       sTiming.use(wlItr->second);
       sPNAmplitude.use(wlItr->second);
 
-      MESet::iterator qEnd(meQuality.end());
+      MESet::iterator qEnd(meQuality.end(GetElectronicsMap()));
 
-      MESet::const_iterator tItr(sTiming);
-      MESet::const_iterator aItr(sAmplitude);
+      MESet::const_iterator tItr(GetElectronicsMap(), sTiming);
+      MESet::const_iterator aItr(GetElectronicsMap(), sAmplitude);
 
       int wl(wlItr->first + 3);
-      bool enabled(wl < 0 ? false : sCalibStatus.getBinContent(wl) > 0 ? true : false);
-      for (MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()) {
+      bool enabled(wl < 0 ? false : sCalibStatus.getBinContent(getEcalDQMSetupObjects(), wl) > 0 ? true : false);
+      for (MESet::iterator qItr(meQuality.beginChannel(GetElectronicsMap())); qItr != qEnd;
+           qItr.toNextChannel(GetElectronicsMap())) {
         DetId id(qItr->getId());
 
-        bool doMask(meQuality.maskMatches(id, mask, statusManager_));
+        bool doMask(meQuality.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
         aItr = qItr;
 
@@ -131,8 +132,8 @@ namespace ecaldqm {
         float aMean(aItr->getBinContent());
         float aRms(aItr->getBinError() * sqrt(aEntries));
 
-        meAmplitudeMean.fill(id, aMean);
-        meAmplitudeRMS.setBinContent(id, aRms);
+        meAmplitudeMean.fill(getEcalDQMSetupObjects(), id, aMean);
+        meAmplitudeRMS.setBinContent(getEcalDQMSetupObjects(), id, aRms);
 
         tItr = qItr;
 
@@ -144,8 +145,8 @@ namespace ecaldqm {
         float tMean(tItr->getBinContent());
         float tRms(tItr->getBinError() * sqrt(tEntries));
 
-        meTimingMean.fill(id, tMean);
-        meTimingRMSMap.setBinContent(id, tRms);
+        meTimingMean.fill(getEcalDQMSetupObjects(), id, tMean);
+        meTimingRMSMap.setBinContent(getEcalDQMSetupObjects(), id, tRms);
 
         float intensity(aMean / expectedAmplitude_[wlItr->second]);
         if (isForward(id))
@@ -170,23 +171,23 @@ namespace ecaldqm {
         for (unsigned iPN(0); iPN < 10; ++iPN) {
           EcalPnDiodeDetId id(EcalEndcap, iDCC + 1, iPN + 1);
 
-          bool doMask(mePNQualitySummary.maskMatches(id, mask, statusManager_));
+          bool doMask(mePNQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
-          float pEntries(sPNAmplitude.getBinEntries(id));
+          float pEntries(sPNAmplitude.getBinEntries(getEcalDQMSetupObjects(), id));
 
           if (pEntries < minChannelEntries_) {
-            mePNQualitySummary.setBinContent(id, doMask ? kMUnknown : kUnknown);
+            mePNQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMUnknown : kUnknown);
             continue;
           }
 
-          float pMean(sPNAmplitude.getBinContent(id));
-          float pRms(sPNAmplitude.getBinError(id) * sqrt(pEntries));
+          float pMean(sPNAmplitude.getBinContent(getEcalDQMSetupObjects(), id));
+          float pRms(sPNAmplitude.getBinError(getEcalDQMSetupObjects(), id) * sqrt(pEntries));
           float intensity(pMean / expectedPNAmplitude_[wlItr->second]);
 
           if (intensity < tolerancePNAmp_ || pRms > pMean * tolerancePNRMSRatio_)
-            mePNQualitySummary.setBinContent(id, doMask ? kMBad : kBad);
+            mePNQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMBad : kBad);
           else
-            mePNQualitySummary.setBinContent(id, doMask ? kMGood : kGood);
+            mePNQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, doMask ? kMGood : kGood);
         }
       }
     }

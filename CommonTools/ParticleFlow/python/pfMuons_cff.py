@@ -8,13 +8,10 @@ from CommonTools.ParticleFlow.Isolation.pfIsolatedMuons_cfi import *
 pfMuons = pfIsolatedMuons.clone(cut = "pt > 5 & muonRef.isAvailable()")
 
 
-pfMuonSequence = cms.Sequence(
-    pfAllMuons +
-    pfMuonsFromVertex +
-    pfIsolatedMuons+
+pfMuonTask = cms.Task(
+    pfAllMuons ,
+    pfMuonsFromVertex ,
+    pfIsolatedMuons,
     pfMuons 
     )
-
-
-
-
+pfMuonSequence = cms.Sequence(pfMuonTask)

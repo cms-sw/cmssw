@@ -12,6 +12,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include <vector>
 #include "DataFormats/Math/interface/Error.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
@@ -34,6 +35,8 @@ public:
     std::vector<unsigned int> kmin;                // index of the first cluster within zrange
     std::vector<unsigned int> kmax;                // 1 + index of the last cluster within zrange
     std::vector<const reco::TransientTrack *> tt;  // a pointer to the Transient Track
+
+    double osumtkwt;  // 1. / (sum of all track weights)
 
     void addItem(double new_zpca,
                  double new_tpca,
@@ -256,6 +259,8 @@ public:
 
   DAClusterizerInZT_vect(const edm::ParameterSet &conf);
 
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
+
   std::vector<std::vector<reco::TransientTrack> > clusterize(
       const std::vector<reco::TransientTrack> &tracks) const override;
 
@@ -302,6 +307,7 @@ private:
 
   double mintrkweight_;
   double uniquetrkweight_;
+  double uniquetrkminp_;
   double zmerge_;
   double tmerge_;
   double betapurge_;

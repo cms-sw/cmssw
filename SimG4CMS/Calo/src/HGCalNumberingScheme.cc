@@ -77,7 +77,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
     std::array<int, 3> id = hgcons_.assignCellTrap(pos.x(), pos.y(), pos.z(), layer, false);
     if (id[2] >= 0) {
       std::pair<int, int> typm = hgcons_.tileType(layer, id[0], 0);
-      HGCScintillatorDetId detId(id[2], layer, iz * id[0], id[1]);
+      HGCScintillatorDetId detId(id[2], layer, iz * id[0], id[1], false, 0);
       if (typm.first >= 0) {
         detId.setType(typm.first);
         detId.setSiPM(typm.second);

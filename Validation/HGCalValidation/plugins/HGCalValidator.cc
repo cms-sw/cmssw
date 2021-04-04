@@ -56,14 +56,15 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
                                     pset.getParameter<double>("ptMaxCP"),
                                     pset.getParameter<double>("minRapidityCP"),
                                     pset.getParameter<double>("maxRapidityCP"),
+                                    pset.getParameter<double>("lipCP"),
+                                    pset.getParameter<double>("tipCP"),
                                     pset.getParameter<int>("minHitCP"),
                                     pset.getParameter<int>("maxSimClustersCP"),
-                                    pset.getParameter<double>("tipCP"),
-                                    pset.getParameter<double>("lipCP"),
                                     pset.getParameter<bool>("signalOnlyCP"),
                                     pset.getParameter<bool>("intimeOnlyCP"),
                                     pset.getParameter<bool>("chargedOnlyCP"),
                                     pset.getParameter<bool>("stableOnlyCP"),
+                                    pset.getParameter<bool>("notConvertedOnlyCP"),
                                     pset.getParameter<std::vector<int>>("pdgIdCP"));
 
   tools_.reset(new hgcal::RecHitTools());
@@ -150,12 +151,21 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
   //Booking histograms concerning with hgcal layer clusters
   if (dolayerclustersPlots_) {
     ibook.cd();
-    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters");
-    histoProducerAlgo_->bookClusterHistos(ibook,
-                                          histograms.histoProducerAlgo,
-                                          totallayers_to_monitor_,
-                                          thicknesses_to_monitor_,
-                                          cummatbudinxo_.fullPath());
+    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/ClusterLevel");
+    histoProducerAlgo_->bookClusterHistos_ClusterLevel(ibook,
+                                                       histograms.histoProducerAlgo,
+                                                       totallayers_to_monitor_,
+                                                       thicknesses_to_monitor_,
+                                                       cummatbudinxo_.fullPath());
+    ibook.cd();
+    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/LCtoCP_association");
+    histoProducerAlgo_->bookClusterHistos_LCtoCP_association(
+        ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
+
+    ibook.cd();
+    ibook.setCurrentFolder(dirName_ + "hgcalLayerClusters/CellLevel");
+    histoProducerAlgo_->bookClusterHistos_CellLevel(
+        ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
   }
 
   //Booking histograms for multiclusters

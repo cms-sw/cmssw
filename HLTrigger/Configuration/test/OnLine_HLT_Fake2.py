@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_11_3_0/Fake2 --type Fake2 --unprescale --process HLTFake2 --globaltag auto:run2_hlt_Fake2 --input file:RelVal_Raw_Fake2_DATA.root
 
-# /dev/CMSSW_11_3_0/Fake2/V5 (CMSSW_11_3_0_pre2)
+# /dev/CMSSW_11_3_0/Fake2/V8 (CMSSW_11_3_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_3_0/Fake2/V5')
+  tableName = cms.string('/dev/CMSSW_11_3_0/Fake2/V8')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -368,7 +368,6 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True ),
     numberOfThreads = cms.untracked.uint32( 4 ),
     numberOfStreams = cms.untracked.uint32( 0 ),
-    sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 )
 
 # override the GlobalTag, connection string and pfnPrefix
@@ -377,11 +376,12 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_Fake2')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.TriggerSummaryProducerAOD=cms.untracked.PSet()
-    process.MessageLogger.L1GtTrigReport=cms.untracked.PSet()
-    process.MessageLogger.L1TGlobalSummary=cms.untracked.PSet()
-    process.MessageLogger.HLTrigReport=cms.untracked.PSet()
-    process.MessageLogger.FastReport=cms.untracked.PSet()
+    process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport = cms.untracked.PSet()
+    process.MessageLogger.FastReport = cms.untracked.PSet()
+    process.MessageLogger.ThroughputService = cms.untracked.PSet()
 
 # add specific customizations
 _customInfo = {}

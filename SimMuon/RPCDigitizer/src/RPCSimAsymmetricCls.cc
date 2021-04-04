@@ -156,6 +156,7 @@ void RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
 
     std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
 
+#ifdef EDM_ML_DEBUG
     std::stringstream veffstream;
     veffstream << "[";
     for (std::vector<float>::iterator veffIt = veff.begin(); veffIt != veff.end(); ++veffIt) {
@@ -164,6 +165,7 @@ void RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
     veffstream << "]";
     std::string veffstr = veffstream.str();
     LogDebug("RPCSimAsymmetricCls") << "Get Eff from RPCSimSetup for detId = " << rpcId.rawId() << " :: " << veffstr;
+#endif
 
     // Efficiency
     int centralStrip = topology.channel(entr) + 1;
@@ -322,6 +324,7 @@ void RPCSimAsymmetricCls::simulateNoise(const RPCRoll* roll, CLHEP::HepRandomEng
   LogDebug("RPCSimAsymmetricCls") << "[RPCSimAsymmetricCls::simulateNoise] Treating DetId :: " << rpcId << " = "
                                   << rpcId.rawId() << " which has " << roll->nstrips() << " strips";
 
+#ifdef EDM_ML_DEBUG
   std::stringstream vnoisestream;
   vnoisestream << "[";
   for (std::vector<float>::iterator vnoiseIt = vnoise.begin(); vnoiseIt != vnoise.end(); ++vnoiseIt) {
@@ -331,6 +334,7 @@ void RPCSimAsymmetricCls::simulateNoise(const RPCRoll* roll, CLHEP::HepRandomEng
   std::string vnoisestr = vnoisestream.str();
   LogDebug("RPCSimAsymmetricCls") << "Get Noise from RPCSimSetup for detId = " << rpcId.rawId() << " :: vector with "
                                   << vnoise.size() << "entries :: " << vnoisestr;
+#endif
 
   unsigned int nstrips = roll->nstrips();
   double area = 0.0;

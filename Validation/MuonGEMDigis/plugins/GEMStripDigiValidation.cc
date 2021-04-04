@@ -193,7 +193,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
     Int_t layer_id = id.layer();
     Int_t station_id = id.station();
     Int_t chamber_id = id.chamber();
-    Int_t roll_id = id.roll();
+    Int_t ieta = id.ieta();
     Int_t num_layers = id.nlayers();
 
     ME2IdsKey key2{region_id, station_id};
@@ -228,7 +228,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
 
       if (detail_plot_) {
         me_detail_occ_zr_[region_id]->Fill(digi_g_abs_z, digi_g_r);
-        me_detail_occ_det_[key2]->Fill(bin_x, roll_id);
+        me_detail_occ_det_[key2]->Fill(bin_x, ieta);
         me_detail_occ_xy_[key3]->Fill(digi_g_x, digi_g_y);
         me_detail_occ_strip_[key3]->Fill(strip);
       }
@@ -259,7 +259,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
     Int_t station_id = simhit_gemid.station();
     Int_t layer_id = simhit_gemid.layer();
     Int_t chamber_id = simhit_gemid.chamber();
-    Int_t roll_id = simhit_gemid.roll();
+    Int_t ieta = simhit_gemid.ieta();
     Int_t num_layers = simhit_gemid.nlayers();
 
     ME2IdsKey key2{region_id, station_id};
@@ -292,7 +292,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& event, const edm::EventSe
           if (isMuonSimHit(simhit)) {
             me_detail_strip_occ_eta_[key3]->Fill(simhit_g_eta);
             me_detail_strip_occ_phi_[key3]->Fill(simhit_g_phi);
-            me_detail_strip_occ_det_[key2]->Fill(bin_x, roll_id);
+            me_detail_strip_occ_det_[key2]->Fill(bin_x, ieta);
           }
         }
         break;

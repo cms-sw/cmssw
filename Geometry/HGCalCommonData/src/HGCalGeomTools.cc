@@ -38,12 +38,18 @@ void HGCalGeomTools::radius(double zf,
     --zb1;
     dz2 = -2 * tol_;
   }
+  if (((zb1 + 1) != zFront1.end()) && (std::abs(*(zb1 + 1) - zb) < tol_)) {
+    dz2 = -2 * tol_;
+  }
   auto zb2 = std::lower_bound(zFront2.begin(), zFront2.end(), zb);
   if (zb2 != zFront2.begin())
     --zb2;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:zf " << zf << " : " << *zf1 << " : " << *zf2 << " zb " << zb
-                                << " : " << *zb1 << " : " << *zb2 << " Flag " << flag;
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::radius:zf " << zf << " : "
+                                << static_cast<int>(zf1 - zFront1.begin()) << ":" << *zf1 << " : "
+                                << static_cast<int>(zf2 - zFront2.begin()) << ":" << *zf2 << " zb " << zb << ":"
+                                << static_cast<int>(zb1 - zFront1.begin()) << " : " << *zb1 << " : "
+                                << static_cast<int>(zb2 - zFront2.begin()) << ":" << *zb2 << " Flag " << flag;
 #endif
   if ((zf1 == zb1) && (zf2 == zb2)) {
 #ifdef EDM_ML_DEBUG

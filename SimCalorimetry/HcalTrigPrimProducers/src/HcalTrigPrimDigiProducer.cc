@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/CaloTPG/interface/HcalTPGCompressor.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 
 #include <algorithm>
 
@@ -40,12 +40,16 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   upgrade_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return a; });
   legacy_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return !a; });
 
+  overrideDBweightsAndFilterHE_ = ps.getParameter<bool>("overrideDBweightsAndFilterHE");
+  overrideDBweightsAndFilterHB_ = ps.getParameter<bool>("overrideDBweightsAndFilterHB");
+
+  theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
+
   if (ps.exists("parameters")) {
     auto pset = ps.getUntrackedParameter<edm::ParameterSet>("parameters");
     theAlgo_.overrideParameters(pset);
   }
   theAlgo_.setUpgradeFlags(upgrades[0], upgrades[1], upgrades[2]);
-  theAlgo_.setWeightsQIE11(ps.getParameter<edm::ParameterSet>("weightsQIE11"));
 
   HFEMB_ = false;
   if (ps.exists("LSConfig")) {
@@ -61,6 +65,8 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   tok_tpgTranscoder_ = esConsumes<CaloTPGTranscoder, CaloTPGRecord>();
   tok_lutMetadata_ = esConsumes<HcalLutMetadata, HcalLutMetadataRcd>();
   tok_trigTowerGeom_ = esConsumes<HcalTrigTowerGeometry, CaloGeometryRecord>();
+  tok_hcalTopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+
   // register for data access
   if (runFrontEndFormatError_) {
     tok_raw_ = consumes<FEDRawDataCollection>(inputTagFEDRaw_);
@@ -76,6 +82,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
     tok_hf_up_ = consumes<QIE10DigiCollection>(inputUpgradeLabel_[1]);
   }
   tok_dbService_ = esConsumes<HcalDbService, HcalDbRecord>();
+  tok_dbService_beginRun_ = esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>();
   produces<HcalTrigPrimDigiCollection>();
   theAlgo_.setPeakFinderAlgorithm(ps.getParameter<int>("PeakFinderAlgorithm"));
 
@@ -83,6 +90,92 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 
   theAlgo_.setNCTScaleShift(hfSS.getParameter<int>("NCTShift"));
   theAlgo_.setRCTScaleShift(hfSS.getParameter<int>("RCTShift"));
+}
+
+void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
+  edm::ESHandle<HcalDbService> db = eventSetup.getHandle(tok_dbService_beginRun_);
+  const HcalTopology* topo = &eventSetup.getData(tok_hcalTopo_);
+
+  const HcalElectronicsMap* emap = db->getHcalMapping();
+
+  int lastHERing = topo->lastHERing();
+  int lastHBRing = topo->lastHBRing();
+
+  // First, determine if we should configure for the filter scheme
+  // Check the tp version to make this determination
+  bool foundHB = false;
+  bool foundHE = false;
+  bool newHBtp = false;
+  bool newHEtp = false;
+  std::vector<HcalElectronicsId> vIds = emap->allElectronicsIdTrigger();
+  for (std::vector<HcalElectronicsId>::const_iterator eId = vIds.begin(); eId != vIds.end(); eId++) {
+    // The first HB or HE id is enough to tell whether to use new scheme in HB or HE
+    if (foundHB and foundHE)
+      break;
+
+    HcalTrigTowerDetId hcalTTDetId(emap->lookupTrigger(*eId));
+    if (hcalTTDetId.null())
+      continue;
+
+    int aieta = abs(hcalTTDetId.ieta());
+    int tp_version = hcalTTDetId.version();
+
+    if (aieta <= lastHBRing) {
+      foundHB = true;
+      if (tp_version > 1)
+        newHBtp = true;
+    } else if (aieta > lastHBRing and aieta < lastHERing) {
+      foundHE = true;
+      if (tp_version > 1)
+        newHEtp = true;
+    }
+  }
+
+  std::vector<HcalElectronicsId> eIds = emap->allElectronicsIdPrecision();
+  for (std::vector<HcalElectronicsId>::const_iterator eId = eIds.begin(); eId != eIds.end(); eId++) {
+    HcalGenericDetId gid(emap->lookup(*eId));
+    if (gid.null() or (gid.genericSubdet() != HcalGenericDetId::HcalGenBarrel and
+                       gid.genericSubdet() != HcalGenericDetId::HcalGenEndcap))
+      continue;
+
+    HcalDetId hcalDetId(emap->lookup(*eId));
+    if (hcalDetId.null())
+      continue;
+
+    int aieta = abs(hcalDetId.ieta());
+
+    // Do not let ieta 29 in the map
+    // If the aieta already has a weight in the map, then move on
+    if (aieta < lastHERing) {
+      // Filter weight represented in fixed point 8 bit
+      int fixedPointWeight = db->getHcalTPChannelParameter(hcalDetId)->getauxi1();
+
+      if (aieta <= lastHBRing) {
+        // Fix number of filter presamples to one if we are using DB weights
+        // Size of filter is already known when using DB weights
+        // Weight from DB represented as 8-bit integer
+        if (!overrideDBweightsAndFilterHB_) {
+          if (newHBtp) {
+            theAlgo_.setNumFilterPresamplesHBQIE11(1);
+            theAlgo_.setWeightQIE11(aieta, -static_cast<double>(fixedPointWeight) / 256.0);
+          } else {
+            theAlgo_.setNumFilterPresamplesHBQIE11(0);
+            theAlgo_.setWeightQIE11(aieta, 1.0);
+          }
+        }
+      } else if (aieta > lastHBRing) {
+        if (!overrideDBweightsAndFilterHE_) {
+          if (newHEtp) {
+            theAlgo_.setNumFilterPresamplesHEQIE11(1);
+            theAlgo_.setWeightQIE11(aieta, -static_cast<double>(fixedPointWeight) / 256.0);
+          } else {
+            theAlgo_.setNumFilterPresamplesHEQIE11(0);
+            theAlgo_.setWeightQIE11(aieta, 1.0);
+          }
+        }
+      }
+    }
+  }
 }
 
 void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& eventSetup) {

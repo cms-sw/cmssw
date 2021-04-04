@@ -78,8 +78,13 @@ public:
                         HcalTrigPrimDigiCollection& result);
   void setPeakFinderAlgorithm(int algo);
   void setWeightsQIE11(const edm::ParameterSet& weightsQIE11);
+  void setWeightQIE11(int aieta, double weight);
   void setNCTScaleShift(int);
   void setRCTScaleShift(int);
+
+  void setNumFilterPresamplesHBQIE11(int presamples) { numberOfFilterPresamplesHBQIE11_ = presamples; }
+
+  void setNumFilterPresamplesHEQIE11(int presamples) { numberOfFilterPresamplesHEQIE11_ = presamples; }
 
   void setUpgradeFlags(bool hb, bool he, bool hf);
   void overrideParameters(const edm::ParameterSet& ps);
