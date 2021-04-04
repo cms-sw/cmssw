@@ -40,19 +40,17 @@ namespace hgcal {
 class TracksterAssociatorByEnergyScoreImpl : public hgcal::TracksterToSimClusterAssociatorBaseImpl {
 public:
   explicit TracksterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
-                                                 bool,
-                                                 std::shared_ptr<hgcal::RecHitTools>,
-                                                 const std::unordered_map<DetId, const HGCRecHit *> *);
+                                                bool,
+                                                std::shared_ptr<hgcal::RecHitTools>,
+                                                const std::unordered_map<DetId, const HGCRecHit *> *);
 
-  hgcal::RecoToSimCollectionTracksters associateRecoToSim(
-      const edm::Handle<ticl::TracksterCollection> &tCH,
-      const edm::Handle<reco::CaloClusterCollection> &lCCH,
-      const edm::Handle<SimClusterCollection> &sCCH) const override;
+  hgcal::RecoToSimCollectionTracksters associateRecoToSim(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                                          const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                                          const edm::Handle<SimClusterCollection> &sCCH) const override;
 
-  hgcal::SimToRecoCollectionTracksters associateSimToReco(
-      const edm::Handle<ticl::TracksterCollection> &tCH,
-      const edm::Handle<reco::CaloClusterCollection> &lCCH,
-      const edm::Handle<SimClusterCollection> &sCCH) const override;
+  hgcal::SimToRecoCollectionTracksters associateSimToReco(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                                          const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                                          const edm::Handle<SimClusterCollection> &sCCH) const override;
 
 private:
   const bool hardScatterOnly_;

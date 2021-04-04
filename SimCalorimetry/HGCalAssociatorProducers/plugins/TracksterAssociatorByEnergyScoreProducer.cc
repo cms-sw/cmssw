@@ -42,8 +42,8 @@ TracksterAssociatorByEnergyScoreProducer::TracksterAssociatorByEnergyScoreProduc
 TracksterAssociatorByEnergyScoreProducer::~TracksterAssociatorByEnergyScoreProducer() {}
 
 void TracksterAssociatorByEnergyScoreProducer::produce(edm::StreamID,
-                                                        edm::Event &iEvent,
-                                                        const edm::EventSetup &es) const {
+                                                       edm::Event &iEvent,
+                                                       const edm::EventSetup &es) const {
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
   rhtools_->setGeometry(*geom);
 

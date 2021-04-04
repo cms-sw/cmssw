@@ -34,11 +34,15 @@ namespace hgcal {
 
     /// Associate a Trackster to SimClusters
     virtual hgcal::RecoToSimCollectionTracksters associateRecoToSim(
-        const edm::Handle<ticl::TracksterCollection> &tCH, const edm::Handle<reco::CaloClusterCollection> &lCCH, const edm::Handle<SimClusterCollection> &sCCH) const;
+        const edm::Handle<ticl::TracksterCollection> &tCH,
+        const edm::Handle<reco::CaloClusterCollection> &lCCH,
+        const edm::Handle<SimClusterCollection> &sCCH) const;
 
     /// Associate a SimCluster to Tracksters
     virtual hgcal::SimToRecoCollectionTracksters associateSimToReco(
-        const edm::Handle<ticl::TracksterCollection> &tCH, const edm::Handle<reco::CaloClusterCollection> &lCCH, const edm::Handle<SimClusterCollection> &sCCH) const;
+        const edm::Handle<ticl::TracksterCollection> &tCH,
+        const edm::Handle<reco::CaloClusterCollection> &lCCH,
+        const edm::Handle<SimClusterCollection> &sCCH) const;
   };
 }  // namespace hgcal
 
