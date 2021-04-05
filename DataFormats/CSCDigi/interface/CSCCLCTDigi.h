@@ -24,6 +24,8 @@ public:
   enum CLCTPatternMasks { kRun3SlopeMask = 0xf, kRun3PatternMask = 0x7, kLegacyPatternMask = 0xf };
   enum CLCTPatternShifts { kRun3SlopeShift = 7, kRun3PatternShift = 4, kLegacyPatternShift = 0 };
   enum class Version { Legacy = 0, Run3 };
+  // for data vs emulator studies
+  enum CLCTBXMask { kBXDataMask = 0x3 };
 
   /// Constructors
   CSCCLCTDigi(const uint16_t valid,
@@ -117,6 +119,9 @@ public:
 
   /// return BX
   uint16_t getBX() const { return bx_; }
+
+  /// return 2-bit BX as in data
+  uint16_t getBXData() const { return bx_ & kBXDataMask; }
 
   /// set bx
   void setBX(const uint16_t bx) { bx_ = bx; }
