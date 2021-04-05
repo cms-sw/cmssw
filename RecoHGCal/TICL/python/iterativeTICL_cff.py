@@ -22,14 +22,20 @@ ticlTracksterMergeTask = cms.Task(ticlTrackstersMerge, ticlMultiClustersFromTrac
 pfTICL = _pfTICLProducer.clone()
 ticlPFTask = cms.Task(pfTICL)
 
-iterTICLTask = cms.Task(ticlLayerTileTask
-    ,ticlTrkEMStepTask
+ticlIterations = cms.Task(
+    ticlTrkEMStepTask
     ,ticlEMStepTask
     ,ticlTrkStepTask
     ,ticlHADStepTask
+)
+ticlIterLabels = [_step.itername.value() for _iteration in ticlIterations for _step in _iteration if (_step._TypedParameterizable__type == "TrackstersProducer")]
+
+iterTICLTask = cms.Task(ticlLayerTileTask
+    ,ticlIterations
     ,ticlTracksterMergeTask
     ,ticlPFTask
-    )
+)
+ticlIterLabelsMerge = ticlIterLabels + ["Merge"]
 
 ticlLayerTileHFNose = ticlLayerTileProducer.clone(
     detector = 'HFNose'

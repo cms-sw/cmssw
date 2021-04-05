@@ -7,6 +7,12 @@ from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerC
 from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociation
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
+
+labelMcl = [cms.InputTag("ticlMultiClustersFromTracksters"+iteration) for iteration in ticlIterLabelsMerge]
+lcInputMask = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabels]
+
 hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
 
@@ -17,12 +23,7 @@ hgcalValidator = DQMEDAnalyzer(
     ### reco input configuration ###
     #2dlayerclusters, pfclusters, multiclusters
     label_lcl = layerClusterCaloParticleAssociation.label_lc,
-    label_mcl = cms.VInputTag(
-      cms.InputTag("ticlMultiClustersFromTrackstersTrk"),
-      cms.InputTag("ticlMultiClustersFromTrackstersTrkEM"),
-      cms.InputTag("ticlMultiClustersFromTrackstersEM"),
-      cms.InputTag("ticlMultiClustersFromTrackstersHAD"),
-      cms.InputTag("ticlMultiClustersFromTrackstersMerge")),
+    label_mcl = cms.VInputTag(labelMcl),
 
     associator = cms.untracked.InputTag("layerClusterCaloParticleAssociationProducer"),
 
@@ -54,12 +55,7 @@ hgcalValidator = DQMEDAnalyzer(
 
     simVertices = cms.InputTag("g4SimHits"),
 
-    LayerClustersInputMask = cms.VInputTag(
-        cms.InputTag("ticlTrackstersTrkEM"),
-        cms.InputTag("ticlTrackstersEM"),
-        cms.InputTag("ticlTrackstersTrk"),
-        cms.InputTag("ticlTrackstersHAD")
-    ),
+    LayerClustersInputMask = cms.VInputTag(lcInputMask),
 
     #Total number of layers of HGCal that we want to monitor
     #Could get this also from HGCalImagingAlgo::maxlayer but better to get it from here
