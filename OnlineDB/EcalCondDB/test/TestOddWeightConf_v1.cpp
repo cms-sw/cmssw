@@ -158,9 +158,18 @@ public:
     Tm tdb = fe_wei_info.getDBTime();
     //      tdb.dumpTm();
 
-    vector<EcalLogicID> EB_ecid_vec, EE_ecid_vec;
+    vector<EcalLogicID> EB_ecid_vec, EE_ecid_vec1,EE_ecid_vec2;
     EB_ecid_vec = econn->getEcalLogicIDSet("EB_VFE", 1, 36, 1, 68, 1, 5);
-    EE_ecid_vec = econn->getEcalLogicIDSet("ECAL_readout_strip", 601, 646, 1, 41, 1, 5, "ECAL_readout_strip");
+
+      // EE Strip identifiers
+      // DCC=601-609 TT = ~40 EEstrip = 5
+    EE_ecid_vec1 =
+	  econn->getEcalLogicIDSetOrdered("ECAL_readout_strip", 601, 609, 1, 100, 0, 5, "ECAL_readout_strip", 123);
+      // EE Strip identifiers
+      // DCC=646-654 TT = ~40 EEstrip = 5
+    EE_ecid_vec2 =
+	  econn->getEcalLogicIDSetOrdered("ECAL_readout_strip", 646, 654, 1, 100, 0, 5, "ECAL_readout_strip", 123);
+
 
     map<EcalLogicID, FEConfigOddWeightGroupDat> dataset;
     // All EB with the same weights, and all EE with slightly different
@@ -200,16 +209,24 @@ public:
       // Fill the dataset
       dataset2[EB_ecid_vec[ich]] = weid;
     }
-    for (int ich = 0; ich < (int)EE_ecid_vec.size(); ich++) {
+
+    for (int ich = 0; ich < (int)EE_ecid_vec1.size(); ich++) {
       FEConfigOddWeightDat weid;
-      if (EE_ecid_vec[ich].getID1() > 609 && EE_ecid_vec[ich].getID1() <= 645)
-        continue;
-      std::cout << "EE " << EE_ecid_vec[ich].getID1() << "  " << EE_ecid_vec[ich].getID2() << "  "
-                << EE_ecid_vec[ich].getID3() << std::endl;
-      weid.setWeightGroupId(1);  // EE
-      // Fill the dataset
-      dataset2[EE_ecid_vec[ich]] = weid;
-    }
+       weid.setWeightGroupId(1);
+       // Fill the dataset
+       std::cout << "EE " << EE_ecid_vec1[ich].getID1() << "  " << EE_ecid_vec1[ich].getID2() << "  "
+                << EE_ecid_vec1[ich].getID3() << std::endl;
+       dataset2[EE_ecid_vec1[ich]] = weid;
+     }
+     // EE loop 2 (we had to split the ids of EE in 2 vectors to avoid crash!)
+    for (int ich = 0; ich < (int)EE_ecid_vec2.size(); ich++) {
+       FEConfigOddWeightDat weid;
+       std::cout << "EE " << EE_ecid_vec2[ich].getID1() << "  " << EE_ecid_vec2[ich].getID2() << "  "
+                << EE_ecid_vec2[ich].getID3() << std::endl;
+       weid.setWeightGroupId(1);
+       // Fill the dataset
+       dataset2[EE_ecid_vec2[ich]] = weid;
+     }
 
     // Insert the dataset
 

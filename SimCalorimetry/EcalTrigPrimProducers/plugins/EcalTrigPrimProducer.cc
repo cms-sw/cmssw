@@ -403,7 +403,6 @@ void EcalTrigPrimProducer::fillDescriptions(edm::ConfigurationDescriptions &desc
   // 'binOfMaximum' was missing. This replicates that behavior.
   desc.add<int>("binOfMaximum", -1)->setComment(kComment);
   desc.add<bool>("TPinfoPrintout", false);
-  // desc.add<uint>("TPmode",0); // Need this added in order to avoid throwing of exceptions when validating TPmode flag. Validation will throw an exception if a parameter is in the configuration that is not in the description
   descriptions.addDefault(desc);
 }
 
