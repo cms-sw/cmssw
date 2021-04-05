@@ -62,10 +62,10 @@ void EcalFenixTcpFormatEE::process(std::vector<int> &Et,
 
       // bug fix 091009:
       myEt = Et[i];
+      if (isInInnerRings && (myEt <= 0xfff))
+        myEt = myEt / 2;
       if (myEt > 0xfff)
         myEt = 0xfff;
-      if (isInInnerRings)
-        myEt = myEt / 2;
       myEt >>= eTTotShift;
       if (myEt > 0x3ff)
         myEt = 0x3ff;
