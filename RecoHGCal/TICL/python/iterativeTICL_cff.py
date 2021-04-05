@@ -28,13 +28,14 @@ ticlIterations = cms.Task(
     ,ticlTrkStepTask
     ,ticlHADStepTask
 )
-ticlIterLables = [_step.itername for _iteration in ticlIterations for _step in _iteration if (_step._TypedParameterizable__type == "TrackstersProducer")]
+ticlIterLabels = [_step.itername.value() for _iteration in ticlIterations for _step in _iteration if (_step._TypedParameterizable__type == "TrackstersProducer")]
 
 iterTICLTask = cms.Task(ticlLayerTileTask
     ,ticlIterations
     ,ticlTracksterMergeTask
     ,ticlPFTask
 )
+ticlIterLabelsMerge = ticlIterLabels + ["Merge"]
 
 ticlLayerTileHFNose = ticlLayerTileProducer.clone(
     detector = 'HFNose'
