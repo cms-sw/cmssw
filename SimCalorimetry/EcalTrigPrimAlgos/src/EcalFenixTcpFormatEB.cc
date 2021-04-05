@@ -87,10 +87,11 @@ void EcalFenixTcpFormatEB::process(std::vector<int> &Et_even_sum,
 
       // bug fix 091009:
       //myEt = Et[i];
+      // The innerRing TT is divided by 2 only is the sum is not in overflow
+      if (isInInnerRings && (myEt <= 0xfff))
+        myEt = myEt / 2;
       if (myEt > 0xfff)
         myEt = 0xfff;
-      if (isInInnerRings)
-        myEt = myEt / 2;
       myEt >>= eTTotShift;
       if (myEt > 0x3ff)
         myEt = 0x3ff;
