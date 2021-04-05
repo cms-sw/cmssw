@@ -399,7 +399,7 @@ namespace edm {
 
       void execute() final {
         //Need to make the services available early so other services can see them
-        ServiceRegistry::Operate guard(m_serviceToken);
+        ServiceRegistry::Operate guard(m_serviceToken.lock());
 
         //incase the emit causes an exception, we need a memory location
         // to hold the exception_ptr
@@ -429,7 +429,7 @@ namespace edm {
                       sContext = m_context,
                       serviceToken = m_serviceToken]() {
               //Need to make the services available
-              ServiceRegistry::Operate operateRunModule(serviceToken);
+              ServiceRegistry::Operate operateRunModule(serviceToken.lock());
 
               //If needed, we pause the queue in begin transition and resume it
               // at the end transition. This can guarantee that the module
@@ -461,7 +461,7 @@ namespace edm {
       StreamID m_streamID;
       ParentContext const m_parentContext;
       typename T::Context const* m_context;
-      ServiceToken m_serviceToken;
+      ServiceWeakToken m_serviceToken;
       tbb::task_group* m_group;
     };
 
@@ -496,7 +496,7 @@ namespace edm {
 
       void execute() final {
         //Need to make the services available early so other services can see them
-        ServiceRegistry::Operate guard(m_serviceToken);
+        ServiceRegistry::Operate guard(m_serviceToken.lock());
 
         //incase the emit causes an exception, we need a memory location
         // to hold the exception_ptr
@@ -522,7 +522,7 @@ namespace edm {
                         serviceToken = m_serviceToken,
                         holder = m_holder]() {
                          //Need to make the services available
-                         ServiceRegistry::Operate operateRunAcquire(serviceToken);
+                         ServiceRegistry::Operate operateRunAcquire(serviceToken.lock());
 
                          std::exception_ptr* ptr = nullptr;
                          worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, holder);
@@ -539,7 +539,7 @@ namespace edm {
       EventTransitionInfo m_eventTransitionInfo;
       ParentContext const m_parentContext;
       WaitingTaskWithArenaHolder m_holder;
-      ServiceToken m_serviceToken;
+      ServiceWeakToken m_serviceToken;
     };
 
     // This class does nothing unless there is an exception originating
@@ -972,11 +972,16 @@ namespace edm {
         };
         auto* group = task.group();
         auto ownRunTask = std::make_shared<DestroyTask>(runTask);
-        auto selectionTask = make_waiting_task(
-            [ownRunTask, parentContext, info = transitionInfo, token, group, this](std::exception_ptr const*) mutable {
-              ServiceRegistry::Operate guard(token);
-              prefetchAsync<T>(
-                  WaitingTaskHolder(*group, ownRunTask->release()), token, parentContext, info, T::transition_);
+        ServiceWeakToken weakToken = token;
+        auto selectionTask =
+            make_waiting_task([ownRunTask, parentContext, info = transitionInfo, weakToken, group, this](
+                                  std::exception_ptr const*) mutable {
+              ServiceRegistry::Operate guard(weakToken.lock());
+              prefetchAsync<T>(WaitingTaskHolder(*group, ownRunTask->release()),
+                               weakToken.lock(),
+                               parentContext,
+                               info,
+                               T::transition_);
             });
         prePrefetchSelectionAsync(*group, selectionTask, token, streamID, &transitionInfo.principal());
       } else {
@@ -1038,12 +1043,13 @@ namespace edm {
 
     waitingTasks_.add(task);
     if (workStarted) {
-      auto toDo = [this, info = transitionInfo, streamID, parentContext, context, serviceToken]() {
+      ServiceWeakToken weakToken = serviceToken;
+      auto toDo = [this, info = transitionInfo, streamID, parentContext, context, weakToken]() {
         std::exception_ptr exceptionPtr;
         // Caught exception is propagated via WaitingTaskList
         CMS_SA_ALLOW try {
           //Need to make the services available
-          ServiceRegistry::Operate guard(serviceToken);
+          ServiceRegistry::Operate guard(weakToken.lock());
 
           this->runModule<T>(info, streamID, parentContext, context);
         } catch (...) {
