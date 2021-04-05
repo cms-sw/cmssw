@@ -163,7 +163,6 @@ RepeatingCachedRootSource::RepeatingCachedRootSource(ParameterSet const& pset, I
 
   auto const& prodList = rootFile_->productRegistry()->productList();
   productRegistryUpdate().updateFromInput(prodList);
-  //productRegistryUpdate().setFrozen();
 
   //setup caching
   auto nProdsInEvent =
@@ -186,6 +185,7 @@ void RepeatingCachedRootSource::beginJob() {
   processConfiguration.setParameterSetID(ParameterSet::emptyParameterSetID());
   processConfiguration.setProcessConfigurationID();
 
+  //TODO: to make edm::Ref work we need to find a way to pass in a different EDProductGetter
   EventPrincipal eventPrincipal(productRegistry(),
                                 std::make_shared<BranchIDListHelper>(),
                                 std::make_shared<ThinnedAssociationsHelper>(),
@@ -228,7 +228,9 @@ void RepeatingCachedRootSource::beginJob() {
 
 void RepeatingCachedRootSource::fillDescriptions(ConfigurationDescriptions& descriptions) {
   ParameterSetDescription desc;
-  desc.setComment("Read only a few Events from EDM/Root files.");
+  desc.setComment(
+      "Read only a few Events from one EDM/Root file, and repeat them in sequence. The Events are required to be from "
+      "the same Run and LuminosityBlock.");
   desc.addUntracked<std::string>("fileName")->setComment("Name of file to be processed.");
   desc.addUntracked<unsigned int>("repeatNEvents", 10U)
       ->setComment("Number of events to read from file and then repeat in sequence.");
@@ -238,14 +240,6 @@ void RepeatingCachedRootSource::fillDescriptions(ConfigurationDescriptions& desc
 
   descriptions.add("source", desc);
 }
-
-// RepeatingCachedRootSource::RepeatingCachedRootSource(const RepeatingCachedRootSource& rhs)
-// {
-//    // do actual copying here;
-// }
-
-//RepeatingCachedRootSource::~RepeatingCachedRootSource() {
-//}
 
 //
 // member functions
