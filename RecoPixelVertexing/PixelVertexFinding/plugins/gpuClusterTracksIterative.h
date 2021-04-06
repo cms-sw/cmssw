@@ -61,8 +61,7 @@ namespace gpuVertexFinder {
     for (auto i = threadIdx.x; i < nt; i += blockDim.x) {
       assert(i < ZVertices::MAXTRACKS);
       int iz = int(zt[i] * 10.);  // valid if eps<=0.1
-      // iz = std::clamp(iz, INT8_MIN, INT8_MAX);  // sorry c++17 only
-      iz = std::min(std::max(iz, INT8_MIN), INT8_MAX);
+      iz = std::clamp(iz, INT8_MIN, INT8_MAX);
       izt[i] = iz - INT8_MIN;
       assert(iz - INT8_MIN >= 0);
       assert(iz - INT8_MIN < 256);

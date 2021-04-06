@@ -11,6 +11,13 @@
 
 namespace gpuVertexFinder {
 
+  // reject outlier tracks that contribute more than this to the chi2 of the vertex fit
+  constexpr float maxChi2ForFirstFit = 50.f;
+  constexpr float maxChi2ForFinalFit = 5000.f;
+
+  // split vertices with a chi2/NDoF greater than this
+  constexpr float maxChi2ForSplit = 9.f;
+
   __global__ void loadTracks(TkSoA const* ptracks, ZVertexSoA* soa, WorkSpace* pws, float ptMin) {
     assert(ptracks);
     assert(soa);
@@ -57,11 +64,11 @@ namespace gpuVertexFinder {
   ) {
     clusterTracksByDensity(pdata, pws, minT, eps, errmax, chi2max);
     __syncthreads();
-    fitVertices(pdata, pws, 50.);
+    fitVertices(pdata, pws, maxChi2ForFirstFit);
     __syncthreads();
-    splitVertices(pdata, pws, 9.f);
+    splitVertices(pdata, pws, maxChi2ForSplit);
     __syncthreads();
-    fitVertices(pdata, pws, 5000.);
+    fitVertices(pdata, pws, maxChi2ForFinalFit);
     __syncthreads();
     sortByPt2(pdata, pws);
   }
@@ -75,11 +82,11 @@ namespace gpuVertexFinder {
   ) {
     clusterTracksByDensity(pdata, pws, minT, eps, errmax, chi2max);
     __syncthreads();
-    fitVertices(pdata, pws, 50.);
+    fitVertices(pdata, pws, maxChi2ForFirstFit);
   }
 
   __global__ void vertexFinderKernel2(gpuVertexFinder::ZVertices* pdata, gpuVertexFinder::WorkSpace* pws) {
-    fitVertices(pdata, pws, 5000.);
+    fitVertices(pdata, pws, maxChi2ForFinalFit);
     __syncthreads();
     sortByPt2(pdata, pws);
   }
@@ -133,7 +140,7 @@ namespace gpuVertexFinder {
       vertexFinderKernel1<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
       cudaCheck(cudaGetLastError());
       // one block per vertex...
-      splitVerticesKernel<<<numBlocks, threadsPerBlock, 0, stream>>>(soa, ws_d.get(), 9.f);
+      splitVerticesKernel<<<numBlocks, threadsPerBlock, 0, stream>>>(soa, ws_d.get(), maxChi2ForSplit);
       cudaCheck(cudaGetLastError());
       vertexFinderKernel2<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get());
 #endif
@@ -146,12 +153,12 @@ namespace gpuVertexFinder {
         clusterTracksIterative<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
       }
       cudaCheck(cudaGetLastError());
-      fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), 50.);
+      fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), maxChi2ForFirstFit);
       cudaCheck(cudaGetLastError());
       // one block per vertex...
-      splitVerticesKernel<<<numBlocks, threadsPerBlock, 0, stream>>>(soa, ws_d.get(), 9.f);
+      splitVerticesKernel<<<numBlocks, threadsPerBlock, 0, stream>>>(soa, ws_d.get(), maxChi2ForSplit);
       cudaCheck(cudaGetLastError());
-      fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), 5000.);
+      fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), maxChi2ForFinalFit);
       cudaCheck(cudaGetLastError());
       sortByPt2Kernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get());
     }
@@ -167,10 +174,10 @@ namespace gpuVertexFinder {
 #ifdef PIXVERTEX_DEBUG_PRODUCE
     std::cout << "found " << (*ws_d).nvIntermediate << " vertices " << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
-    fitVertices(soa, ws_d.get(), 50.);
+    fitVertices(soa, ws_d.get(), maxChi2ForFirstFit);
     // one block per vertex!
-    splitVertices(soa, ws_d.get(), 9.f);
-    fitVertices(soa, ws_d.get(), 5000.);
+    splitVertices(soa, ws_d.get(), maxChi2ForSplit);
+    fitVertices(soa, ws_d.get(), maxChi2ForFinalFit);
     sortByPt2(soa, ws_d.get());
 #endif
 
