@@ -67,6 +67,12 @@ namespace {
   using SiPixel2DTemplateIDsBPixMap = SiPixelIDs<SiPixel2DTemplateDBObject, SiPixelPI::t_barrel>;
   using SiPixel2DTemplateIDsFPixMap = SiPixelIDs<SiPixel2DTemplateDBObject, SiPixelPI::t_forward>;
 
+  //************************************************
+  // Full Pixel Tracker Map of Template IDs
+  // ***********************************************/
+  using SiPixel2DTemplateIDsFullPixelMap =
+      SiPixelFullPixelIDMap<SiPixel2DTemplateDBObject, SiPixelTemplateStore2D, SiPixelTemplate2D>;
+
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -75,4 +81,5 @@ PAYLOAD_INSPECTOR_MODULE(SiPixel2DTemplateDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixel2DTemplateHeaderTable);
   PAYLOAD_INSPECTOR_CLASS(SiPixel2DTemplateIDsBPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixel2DTemplateIDsFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixel2DTemplateIDsFullPixelMap);
 }

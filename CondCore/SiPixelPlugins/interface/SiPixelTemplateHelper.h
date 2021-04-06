@@ -415,10 +415,10 @@ namespace templateHelper {
    Full Pixel Tracker Map class
   *************************************************/
   template <class PayloadType, class StoreType, class TransientType>
-  class SiPixelFullPixelMap
+  class SiPixelFullPixelIDMap
       : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
   public:
-    SiPixelFullPixelMap()
+    SiPixelFullPixelIDMap()
         : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
               "SiPixel CPE conditions Map of IDs") {
       if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
@@ -451,10 +451,10 @@ namespace templateHelper {
         fullMap.createTrackerBaseMap();
 
         std::map<unsigned int, short> templMap;
-        if constexpr (std::is_same_v<PayloadType, SiPixelTemplateDBObject>) {
-          templMap = payload->getTemplateIDs();
-        } else {
+        if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
           templMap = payload->getGenErrorIDs();
+        } else {
+          templMap = payload->getTemplateIDs();
         }
 
         for (const auto& entry : templMap) {
