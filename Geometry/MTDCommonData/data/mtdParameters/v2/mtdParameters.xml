@@ -9,7 +9,7 @@
     0, 0, 0, 0, 0, 0, 0, 0, 1, 16, 3, 1
   </Vector>
   <Vector name="ETL" type="numeric" nEntries="12">
-    150, 150, 150, 150, 0, 0, 0, 0, 16, 16, 2, 1
+    50, 50, 50, 50, 0, 0, 0, 0, 16, 16, 2, 1
   </Vector>
 
   </ConstantsSection>
