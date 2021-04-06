@@ -68,8 +68,8 @@ namespace {
   //************************************************
   // Full Pixel Tracker Map of Template IDs
   // ***********************************************/
-  using SiPixelGenErrorFullPixelMap =
-      SiPixelFullPixelMap<SiPixelGenErrorDBObject, SiPixelGenErrorStore, SiPixelGenError>;
+  using SiPixelGenErrorIDsFullPixelMap =
+      SiPixelFullPixelIDMap<SiPixelGenErrorDBObject, SiPixelGenErrorStore, SiPixelGenError>;
 
 }  // namespace
 
@@ -80,5 +80,5 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelGenErrorDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsBPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsFPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsMap);
-  PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorFullPixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsFullPixelMap);
 }

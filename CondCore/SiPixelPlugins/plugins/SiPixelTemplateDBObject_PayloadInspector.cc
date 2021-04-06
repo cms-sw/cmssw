@@ -264,8 +264,8 @@ namespace {
   //************************************************
   // Full Pixel Tracker Map of Template IDs
   // ***********************************************/
-  using SiPixelTemplateFullPixelMap =
-      SiPixelFullPixelMap<SiPixelTemplateDBObject, SiPixelTemplateStore, SiPixelTemplate>;
+  using SiPixelTemplateIDsFullPixelMap =
+      SiPixelFullPixelIDMap<SiPixelTemplateDBObject, SiPixelTemplateStore, SiPixelTemplate>;
 
   //************************************************
   // Display of Template Titles
@@ -290,7 +290,7 @@ namespace {
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiPixelTemplateDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateDBObjectTest);
-  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateFullPixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsFullPixelMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateTitles_Display);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateHeaderTable);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsMap);

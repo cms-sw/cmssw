@@ -11,7 +11,7 @@ mkdir -p $W_DIR/display
 
 getPayloadData.py \
     --plugin pluginSiPixelTemplateDBObject_PayloadInspector \
-    --plot plot_SiPixelTemplateFullPixelMap \
+    --plot plot_SiPixelTemplateIDsFullPixelMap \
     --tag SiPixelTemplateDBObject_phase1_38T_2018_ultralegacymc_v1 \
     --time_type Run \
     --iovs '{"start_iov": "1", "end_iov" : "1"}' \
