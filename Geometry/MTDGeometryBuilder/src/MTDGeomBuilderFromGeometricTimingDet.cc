@@ -146,15 +146,8 @@ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(
     if (theMTDDetTypeMap.find(detName) == theMTDDetTypeMap.end()) {
       std::unique_ptr<const Bounds> bounds(i->bounds());
 
-      PixelTopology* t = MTDTopologyBuilder().build(&*bounds,
-                                                    ROCrows,
-                                                    ROCcols,
-                                                    ROCSx,
-                                                    ROCSy,
-                                                    GAPxInterpad,
-                                                    GAPxBorder,
-                                                    GAPyInterpad,
-                                                    GAPyBorder);
+      PixelTopology* t = MTDTopologyBuilder().build(
+          &*bounds, ROCrows, ROCcols, ROCSx, ROCSy, GAPxInterpad, GAPxBorder, GAPyInterpad, GAPyBorder);
 
       theMTDDetTypeMap[detName] = new MTDGeomDetType(t, detName, det);
       tracker->addType(theMTDDetTypeMap[detName]);

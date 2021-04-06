@@ -43,8 +43,8 @@ public:
                          int ncols,
                          float pitchx,
                          float pitchy,
-                         int ROWS_PER_ROC,       // Num of Rows per ROC
-                         int COLS_PER_ROC,       // Num of Cols per ROC
+                         int ROWS_PER_ROC,  // Num of Rows per ROC
+                         int COLS_PER_ROC,  // Num of Cols per ROC
                          int ROCS_X,
                          int ROCS_Y,
                          float GAPxInterpad,
@@ -117,23 +117,15 @@ public:
 
   //-------------------------------------------------------------
   // Return the BIG pixel information for a given pixel
-  bool isItBigPixelInX(const int ixbin) const override {
-      return false;
-  }
+  bool isItBigPixelInX(const int ixbin) const override { return false; }
 
-  bool isItBigPixelInY(const int iybin) const override {
-      return false;
-  }
+  bool isItBigPixelInY(const int iybin) const override { return false; }
 
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range
-  bool containsBigPixelInX(int ixmin, int ixmax) const override {
-      return false;
-  }
+  bool containsBigPixelInX(int ixmin, int ixmax) const override { return false; }
 
-  bool containsBigPixelInY(int iymin, int iymax) const override {
-      return false;
-  }
+  bool containsBigPixelInY(int iymin, int iymax) const override { return false; }
 
   // Check whether the pixel is at the edge of the module
   bool isItEdgePixelInX(int ixbin) const override { return ((ixbin == 0) | (ixbin == (m_nrows - 1))); }
@@ -141,7 +133,7 @@ public:
   bool isItEdgePixelInY(int iybin) const override { return ((iybin == 0) | (iybin == (m_ncols - 1))); }
 
   bool isItEdgePixel(int ixbin, int iybin) const override {
-      return (isItEdgePixelInX(ixbin) | isItEdgePixelInY(iybin));
+    return (isItEdgePixelInX(ixbin) | isItEdgePixelInY(iybin));
   }
 
   //-------------------------------------------------------------
@@ -195,8 +187,6 @@ private:
   float m_GAPxBorderFrac;
   float m_GAPyInterpadFrac;
   float m_GAPyBorderFrac;
-  
 };
-
 
 #endif
