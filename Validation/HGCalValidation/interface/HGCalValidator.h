@@ -67,9 +67,9 @@ protected:
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
   const bool doCaloParticleSelection_;
-  const bool dosimclustersPlots_;
-  const bool dolayerclustersPlots_;
-  const bool domulticlustersPlots_;
+  const bool doSimClustersPlots_;
+  const bool doLayerClustersPlots_;
+  const bool doMultiClustersPlots_;
   std::vector<edm::InputTag> label_clustersmask;
   const edm::FileInPath cummatbudinxo_;
 
