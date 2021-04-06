@@ -1327,7 +1327,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     );
 
     string hawRName1(alvWedge.hawRName + "1");
-    //Solid hawRSolid1 = mytrap(hawRName1, trapHAWR);
 
     const double al1_fawR(atan((B_hawR - a_hawR) / H_hawR) + M_PI_2);
 
@@ -1418,7 +1417,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                         0.5 * (vFAW[1] + vFAW[2]));
 
     fawLog.placeVolume(
-        ns.assembly(alvWedge.hawRName),  //hawRLog,
+        ns.assembly(alvWedge.hawRName),
         copyOne,
         Transform3D(
             myrot(ns, alvWedge.hawRName + "R", hawRform.getRotation()),
