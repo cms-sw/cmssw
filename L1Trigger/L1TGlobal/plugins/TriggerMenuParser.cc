@@ -12,6 +12,7 @@
  * \new features: Vladimir Rekovic
  *                - indexing
  *                - correlations with overlap object removal
+ *                - displaced muons by R.Cavanaugh
  *
  * $Date$
  * $Revision$
@@ -297,7 +298,8 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                    condition.getType() == esConditionType::CaloCaloCorrelation ||
                    condition.getType() == esConditionType::CaloEsumCorrelation ||
                    condition.getType() == esConditionType::InvariantMass ||
-                   condition.getType() == esConditionType::TransverseMass) {
+                   condition.getType() == esConditionType::TransverseMass ||
+                   condition.getType() == esConditionType::InvariantMassUpt) {  // Added for displaced muons
           parseCorrelation(condition, chipNr);
 
           //parse Externals
@@ -588,6 +590,19 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
             }
           }
         } break;
+        case esScaleType::UnconstrainedPtScale: {  // Added for displaced muons
+          scaleParam->uptMin = scale.getMinimum();
+          scaleParam->uptMax = scale.getMaximum();
+          scaleParam->uptStep = scale.getStep();
+
+          //Get bin edges
+          const std::vector<esBin>& binsV = scale.getBins();
+          for (unsigned int i = 0; i < binsV.size(); i++) {
+            const esBin& bin = binsV.at(i);
+            std::pair<double, double> binLimits(bin.minimum, bin.maximum);
+            scaleParam->uptBins.push_back(binLimits);
+          }
+        } break;
         case esScaleType::EtaScale: {
           scaleParam->etaMin = scale.getMinimum();
           scaleParam->etaMax = scale.getMaximum();
@@ -664,6 +679,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     // ---------------
     parsePt_LUTS(scaleMap, "Mass", "EG", precisions["PRECISION-EG-MU-MassPt"]);
     parsePt_LUTS(scaleMap, "Mass", "MU", precisions["PRECISION-EG-MU-MassPt"]);
+    parseUpt_LUTS(scaleMap, "Mass", "MU", precisions["PRECISION-EG-MU-MassPt"]);  // Added for displaced muons
     parsePt_LUTS(scaleMap, "Mass", "JET", precisions["PRECISION-EG-JET-MassPt"]);
     parsePt_LUTS(scaleMap, "Mass", "TAU", precisions["PRECISION-EG-TAU-MassPt"]);
     parsePt_LUTS(scaleMap, "Mass", "ETM", precisions["PRECISION-EG-ETM-MassPt"]);
@@ -848,6 +864,29 @@ void l1t::TriggerMenuParser::parsePt_LUTS(std::map<std::string, tmeventsetup::es
   getLut(lut_pt, scale1, prec);
 
   m_gtScales.setLUT_Pt(lutpfx + "_" + scLabel1, lut_pt, prec);
+}
+
+// Added for displaced muons
+void l1t::TriggerMenuParser::parseUpt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
+                                           std::string lutpfx,
+                                           std::string obj1,
+                                           unsigned int prec) {
+  using namespace tmeventsetup;
+
+  // First Delta Eta for this set
+  std::string scLabel1 = obj1;
+  scLabel1 += "-UPT";
+
+  //This LUT does not exist in L1 Menu file, don't fill it
+  if (scaleMap.find(scLabel1) == scaleMap.end())
+    return;
+
+  const esScale* scale1 = &scaleMap.find(scLabel1)->second;
+
+  std::vector<long long> lut_pt;
+  getLut(lut_pt, scale1, prec);
+
+  m_gtScales.setLUT_Upt(lutpfx + "_" + scLabel1, lut_pt, prec);
 }
 
 void l1t::TriggerMenuParser::parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
@@ -1300,6 +1339,11 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
   relativeBx = corrMu->getBxOffset();
 
   //  Loop over the cuts for this object
+  int upperUnconstrainedPtInd = -1;  // Added for displaced muons
+  int lowerUnconstrainedPtInd = 0;   // Added for displaced muons
+  int upperImpactParameterInd = -1;  // Added for displaced muons
+  int lowerImpactParameterInd = 0;   // Added for displaced muons
+  int impactParameterLUT = 0xF;      // Added for displaced muons, default is to ignore unless specified
   int upperThresholdInd = -1;
   int lowerThresholdInd = 0;
   int upperIndexInd = -1;
@@ -1317,6 +1361,17 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
     const esCut cut = cuts.at(kk);
 
     switch (cut.getCutType()) {
+      case esCutType::UnconstrainedPt:  // Added for displaced muons
+        lowerUnconstrainedPtInd = cut.getMinimum().index;
+        upperUnconstrainedPtInd = cut.getMaximum().index;
+        break;
+
+      case esCutType::ImpactParameter:  // Added for displaced muons
+        lowerImpactParameterInd = cut.getMinimum().index;
+        upperImpactParameterInd = cut.getMaximum().index;
+        impactParameterLUT = l1tstr2int(cut.getData());
+        break;
+
       case esCutType::Threshold:
         lowerThresholdInd = cut.getMinimum().index;
         upperThresholdInd = cut.getMaximum().index;
@@ -1383,6 +1438,12 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
   }  //end loop over cuts
 
   // Set the parameter cuts
+  objParameter[0].unconstrainedPtHigh = upperUnconstrainedPtInd;  // Added for displacd muons
+  objParameter[0].unconstrainedPtLow = lowerUnconstrainedPtInd;   // Added for displacd muons
+  objParameter[0].impactParameterHigh = upperImpactParameterInd;  // Added for displacd muons
+  objParameter[0].impactParameterLow = lowerImpactParameterInd;   // Added for displacd muons
+  objParameter[0].impactParameterLUT = impactParameterLUT;        // Added for displacd muons
+
   objParameter[0].ptHighThreshold = upperThresholdInd;
   objParameter[0].ptLowThreshold = lowerThresholdInd;
 
@@ -2576,14 +2637,20 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
         // cutType = cutType | 0x8;
         if (corrCond.getType() == esConditionType::TransverseMass) {
           cutType = cutType | 0x10;
-          //std::cout << "CCLA running Transverse mass cutType= " << cutType << std::endl;
         } else {
           cutType = cutType | 0x8;
-          //std::cout << "CCLA running Invarient mass cutType= " << cutType << std::endl;
         }
-      }
-    }
-  }
+      } else if (cut.getCutType() == esCutType::MassUpt) {  // Added for displaced muons
+        LogDebug("TriggerMenuParser") << "CutType: " << cut.getCutType() << "\tMass Cut minV = " << minV
+                                      << " Max = " << maxV << " precMin = " << cut.getMinimum().index
+                                      << " precMax = " << cut.getMaximum().index << std::endl;
+        corrParameter.minMassCutValue = (long long)(minV * pow(10., cut.getMinimum().index));
+        corrParameter.maxMassCutValue = (long long)(maxV * pow(10., cut.getMaximum().index));
+        corrParameter.precMassCut = cut.getMinimum().index;
+        cutType = cutType | 0x40;  // Note:    0x40 (MassUpt) is next available bit after 0x20 (TwoBodyPt)
+      }                            // Careful: cutType carries same info as esCutType, but is hard coded!!
+    }                              //          This seems like a historical hack, which may be error prone.
+  }                                //          cutType is defined here, for use later in CorrCondition.cc
   corrParameter.corrCutType = cutType;
 
   // Get the two objects that form the legs
