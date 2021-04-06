@@ -17,7 +17,8 @@ EcalFenixTcpFormatEE::EcalFenixTcpFormatEE(bool tcpFormat, bool debug, bool famo
 
 EcalFenixTcpFormatEE::~EcalFenixTcpFormatEE() {}
 
-void EcalFenixTcpFormatEE::process(std::vector<int> &Et,
+void EcalFenixTcpFormatEE::process(std::vector<int> &Et_even_sum,
+                                   std::vector<int> &Et_odd_sum,
                                    std::vector<int> &fgvb,
                                    std::vector<int> &sfgvb,
                                    int eTTotShift,
@@ -32,7 +33,7 @@ void EcalFenixTcpFormatEE::process(std::vector<int> &Et,
   if (famos_) {
     for (unsigned int i = 0; i < out.size(); ++i) {
       if (i == binOfMax_ - 1) {
-        myEt = Et[0] >> eTTotShift;
+        myEt =Et_even_sum[0] >> eTTotShift;
         if (myEt > 0x3ff)
           myEt = 0x3ff;
         if (isInInnerRings)
@@ -53,15 +54,41 @@ void EcalFenixTcpFormatEE::process(std::vector<int> &Et,
         out[i] = EcalTriggerPrimitiveSample();
     }
   } else {
-    for (unsigned int i = 0; i < Et.size(); ++i) {
+    for (unsigned int i = 0; i < Et_even_sum.size(); ++i) {
       int myFgvb = fgvb[i];
       int mysFgvb = sfgvb[i];
-      // myEt=Et[i]>>eTTotShift;
-      // if (myEt>0x3ff) myEt=0x3ff ;
-      // if (isInInnerRings) myEt = myEt /2 ;
+      bool is_odd_larger = false;
 
-      // bug fix 091009:
-      myEt = Et[i];
+      // Check if odd sum is larger than even sum, in case flag_EE_odd_even_tcp is used
+      if (Et_odd_sum[i] > Et_even_sum[i]) {
+        is_odd_larger = true;
+      }
+
+      switch (ecaltpgTPMode_->EEFenixTcpOutput) {
+        case 0:  //output even sum
+          myEt = Et_even_sum[i];
+          break;
+        case 1:  // output larger of odd and even
+          if (Et_odd_sum[i] > Et_even_sum[i]) {
+            myEt = Et_odd_sum[i];
+          } else {
+            myEt = Et_even_sum[i];
+          }
+          break;
+        case 2:  // output even+odd
+          myEt = Et_even_sum[i] + Et_odd_sum[i];
+          break;
+        default:
+        // In case of unknown configuration switch to default
+          myEt = Et_even_sum[i];
+          break;
+      }
+
+      // check TPmode config to decide to output the FGVB or the odd>even flag
+      int infobit1 = myFgvb;
+      if (ecaltpgTPMode_->EEFenixTcpInfobit1)
+        infobit1 = is_odd_larger;
+      
       if (isInInnerRings && (myEt <= 0xfff))
         myEt = myEt / 2;
       if (myEt > 0xfff)
@@ -83,10 +110,10 @@ void EcalFenixTcpFormatEE::process(std::vector<int> &Et,
 
       int ttFlag = (lut_out & 0x700) >> 8;
       if (tcpFormat_) {
-        out2[i] = EcalTriggerPrimitiveSample(((ttFlag & 0x7) << 11) | ((myFgvb & 0x1) << 10) | (myEt & 0x3ff));
+        out2[i] = EcalTriggerPrimitiveSample(((ttFlag & 0x7) << 11) | ((infobit1 & 0x1) << 10) | (myEt & 0x3ff));
       }
       myEt = lut_out & 0xff;
-      out[i] = EcalTriggerPrimitiveSample(myEt, myFgvb, mysFgvb, ttFlag);
+      out[i] = EcalTriggerPrimitiveSample(myEt, infobit1, mysFgvb, ttFlag);
     }
   }
 }

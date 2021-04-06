@@ -28,7 +28,8 @@ public:
     std::vector<int> v;
     return v;
   }
-  void process(std::vector<int> &Et,
+  void process(std::vector<int> &Et_even_sum,
+               std::vector<int> &Et_odd_sum,
                std::vector<int> &fgvb,
                std::vector<int> &sfgvb,
                int eTTotShift,
