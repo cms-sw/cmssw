@@ -148,8 +148,8 @@ void EcalFenixStrip::process_part1(int identif,
                                    const EcalTPGCrystalStatus *ecaltpBadX) {
   if (debug_) {
     std::cout << "\n\nEcalFenixStrip input is a vector of size: " << nrXtals << std::endl;
-    std::cout << " " << std::endl; 
-    std::cout << "ECAL TPG TPMode printout:" << std::endl; 
+    std::cout << " " << std::endl;
+    std::cout << "ECAL TPG TPMode printout:" << std::endl;
     ecaltpgTPMode_->print(std::cout);
   }
 
