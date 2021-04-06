@@ -123,13 +123,17 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
 
 void MTDDigiGeometryAnalyzer::checkRectangularMTDTopology(const RectangularMTDTopology &topo) {
-   
+ 
+    std::stringstream pixelinfo;
+    pixelinfo << "Pixel center location:\n";
     LocalPoint center(0, 0, 0);
     for(int r = 0; r < topo.nrows(); r++) {
         for(int c = 0; c < topo.ncolumns(); c++) {
             sunitt << r << " " << c << " " << topo.pixelToModuleLocalPoint(center, r, c) << "\n"; 
+            pixelinfo << r << " " << c << " " << topo.pixelToModuleLocalPoint(center, r, c) << "\n"; 
         }
     }
+    edm::LogVerbatim("MTDDigiGeometryAnalyzer") << pixelinfo.str();
 }
 
 void MTDDigiGeometryAnalyzer::analyseRectangle(const GeomDetUnit& det) {
