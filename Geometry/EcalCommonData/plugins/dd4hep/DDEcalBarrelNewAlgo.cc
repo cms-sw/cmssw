@@ -920,7 +920,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     // Supermodule parent------------------------------------------------------------
 
     const string spmcut1ddname((0 != spm.cutShow) ? spm.name : (spm.name + "CUT1"));
-    Solid ddspm = Polycone(spmcut1ddname, spm.lowPhi, spm.delPhi, spm.vecRMin, spm.vecRMax, spm.vecZPts);
+    //    Solid ddspm = Polycone(spmcut1ddname, spm.lowPhi, spm.delPhi, spm.vecRMin, spm.vecRMax, spm.vecZPts);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("EBGeom") << spmcut1ddname << " PolyCone from " << convertRadToDeg(spm.lowPhi) << " to "
                                << convertRadToDeg(spm.lowPhi + spm.delPhi) << " with " << spm.vecZPts.size()
@@ -936,13 +936,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     array<double, 3> cutBoxParms{{1.05 * (spm.vecRMax[indx] - spm.vecRMin[indx]) * 0.5,
                                   0.5 * spm.cutThick,
                                   fabs(spm.vecZPts.back() - spm.vecZPts.front()) * 0.5 + 1.0 * dd4hep::mm}};
-    Solid spmCutBox = Box(spm.cutName, cutBoxParms[0], cutBoxParms[1], cutBoxParms[2]);
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EBGeom") << spm.cutName << " Box " << cms::convert2mm(cutBoxParms[0]) << ":"
-                               << cms::convert2mm(cutBoxParms[1]) << ":" << cms::convert2mm(cutBoxParms[2]);
+    // Solid spmCutBox = Box(spm.cutName, cutBoxParms[0], cutBoxParms[1], cutBoxParms[2]);
+// #ifdef EDM_ML_DEBUG
+//     edm::LogVerbatim("EBGeom") << spm.cutName << " Box " << cms::convert2mm(cutBoxParms[0]) << ":"
+//                                << cms::convert2mm(cutBoxParms[1]) << ":" << cms::convert2mm(cutBoxParms[2]);
 
-#endif
-    Volume spmCutLog = Volume(spm.cutName, spmCutBox, ns.material(spm.mat));
+// #endif
+    //    Volume spmCutLog = Volume(spm.cutName, spmCutBox, ns.material(spm.mat));
 
     // Supermodule side platess
     array<double, 3> sideParms{{0.5 * spm.sideHigh, 0.5 * spm.sideThick, 0.5 * fabs(spm.vecZPts[1] - spm.vecZPts[0])}};
@@ -971,23 +971,23 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           0.5 * (spm.vecRMax[indx] + spm.vecRMin[indx]), 0, 0.5 * (spm.vecZPts.front() + spm.vecZPts.back()));
       Transform3D alltrot(Transform3D(Transform3D(ro1 * tr1) * tr) * ro);
       if (1 == icopy) {
-        alltrot1 = alltrot;
-        temp1 = SubtractionSolid(spm.name + "_T1", ddspm, spmCutBox, alltrot);
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeom") << (spm.name + "_T1") << " Subtraction " << ddspm.name() << ":" << spmCutBox.name()
-                                   << " at (" << cms::convert2mm(alltrot.Translation().Vect().x()) << ","
-                                   << cms::convert2mm(alltrot.Translation().Vect().y()) << ","
-                                   << cms::convert2mm(alltrot.Translation().Vect().z()) << ")";
-#endif
+//         alltrot1 = alltrot;
+//         temp1 = SubtractionSolid(spm.name + "_T1", ddspm, spmCutBox, alltrot);
+// #ifdef EDM_ML_DEBUG
+//         edm::LogVerbatim("EBGeom") << (spm.name + "_T1") << " Subtraction " << ddspm.name() << ":" << spmCutBox.name()
+//                                    << " at (" << cms::convert2mm(alltrot.Translation().Vect().x()) << ","
+//                                    << cms::convert2mm(alltrot.Translation().Vect().y()) << ","
+//                                    << cms::convert2mm(alltrot.Translation().Vect().z()) << ")";
+// #endif
       } else {
-        alltrot2 = alltrot;
-        temp2 = SubtractionSolid(spm.name, temp1, spmCutBox, alltrot);
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeom") << spm.name << " Subtraction " << temp1.name() << ":" << spmCutBox.name() << " at ("
-                                   << cms::convert2mm(alltrot.Translation().Vect().x()) << ","
-                                   << cms::convert2mm(alltrot.Translation().Vect().y()) << ","
-                                   << cms::convert2mm(alltrot.Translation().Vect().z()) << ")";
-#endif
+//         alltrot2 = alltrot;
+//         temp2 = SubtractionSolid(spm.name, temp1, spmCutBox, alltrot);
+// #ifdef EDM_ML_DEBUG
+//         edm::LogVerbatim("EBGeom") << spm.name << " Subtraction " << temp1.name() << ":" << spmCutBox.name() << " at ("
+//                                    << cms::convert2mm(alltrot.Translation().Vect().x()) << ","
+//                                    << cms::convert2mm(alltrot.Translation().Vect().y()) << ","
+//                                    << cms::convert2mm(alltrot.Translation().Vect().z()) << ")";
+// #endif
       }
       const Tl3D trSide(tvec[0],
                         tvec[1] + (1 == icopy ? 1. : -1.) * (cutBoxParms[1] + sideParms[1]) +
@@ -1002,32 +1002,33 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       const Position sideddtra(sideRot.getTranslation());
       1 == icopy ? sideddtra1 = sideddtra : sideddtra2 = sideddtra;
     }
-    Volume spmLog = Volume(spm.name, ((0 != spm.cutShow) ? ddspm : temp2), ns.material(spm.mat));
-    if (0 != spm.cutShow) {
-      spmLog.placeVolume(spmCutLog, 1, alltrot1);
+    //    Volume spmLog = Volume(spm.name, ((0 != spm.cutShow) ? ddspm : temp2), ns.material(spm.mat));
+    ns.addAssembly(spm.name);
+//     If (0 != spm.cutShow) {
+//       spmLog.placeVolume(spmCutLog, 1, alltrot1);
+// #ifdef EDM_ML_DEBUG
+//       edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at ("
+//                                   << cms::convert2mm(alltrot1.Translation().Vect().x()) << ","
+//                                   << cms::convert2mm(alltrot1.Translation().Vect().y()) << ","
+//                                   << cms::convert2mm(alltrot1.Translation().Vect().z()) << ") with rotation";
+// #endif
+//       spmLog.placeVolume(spmCutLog, 1, alltrot2);
+// #ifdef EDM_ML_DEBUG
+//       edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at ("
+//                                   << cms::convert2mm(alltrot2.Translation().Vect().x()) << ","
+//                                   << cms::convert2mm(alltrot2.Translation().Vect().y()) << ","
+//                                   << cms::convert2mm(alltrot2.Translation().Vect().z()) << ") with rotation";
+// #endif
+//     }
+    ns.assembly(spm.name).placeVolume(sideLog, 1, Transform3D(ns.rotation(spm.sideName + std::to_string(1)), sideddtra1));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at ("
-                                  << cms::convert2mm(alltrot1.Translation().Vect().x()) << ","
-                                  << cms::convert2mm(alltrot1.Translation().Vect().y()) << ","
-                                  << cms::convert2mm(alltrot1.Translation().Vect().z()) << ") with rotation";
-#endif
-      spmLog.placeVolume(spmCutLog, 1, alltrot2);
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EBGeomX") << spmCutLog.name() << ":1 positioned in " << spmLog.name() << " at ("
-                                  << cms::convert2mm(alltrot2.Translation().Vect().x()) << ","
-                                  << cms::convert2mm(alltrot2.Translation().Vect().y()) << ","
-                                  << cms::convert2mm(alltrot2.Translation().Vect().z()) << ") with rotation";
-#endif
-    }
-    spmLog.placeVolume(sideLog, 1, Transform3D(ns.rotation(spm.sideName + std::to_string(1)), sideddtra1));
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EBGeomX") << sideLog.name() << ":1 positioned in " << spmLog.name() << " at ("
+    edm::LogVerbatim("EBGeomX") << sideLog.name() << ":1 positioned in " << spm.name << " at ("
                                 << cms::convert2mm(sideddtra1.x()) << "," << cms::convert2mm(sideddtra1.y()) << ","
                                 << cms::convert2mm(sideddtra1.z()) << ") with rotation";
 #endif
-    spmLog.placeVolume(sideLog, 2, Transform3D(ns.rotation(spm.sideName + std::to_string(2)), sideddtra2));
+    ns.assembly(spm.name).placeVolume(sideLog, 2, Transform3D(ns.rotation(spm.sideName + std::to_string(2)), sideddtra2));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EBGeomX") << sideLog.name() << ":2 positioned in " << spmLog.name() << " at ("
+    edm::LogVerbatim("EBGeomX") << sideLog.name() << ":2 positioned in " << ns.assembly(spm.name).name() << " at ("
                                 << cms::convert2mm(sideddtra2.x()) << "," << cms::convert2mm(sideddtra2.y()) << ","
                                 << cms::convert2mm(sideddtra2.z()) << ") with rotation";
 #endif
@@ -1060,9 +1061,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       if (spm.vecHere[iphi] != 0) {
         // convert from CLHEP to Position & etc.
         Position myTran(both.getTranslation().x(), both.getTranslation().y(), both.getTranslation().z());
-        barVolume.placeVolume(spmLog, iphi + 1, Transform3D(rota, myTran));
+        barVolume.placeVolume(ns.assembly(spm.name), iphi + 1, Transform3D(rota, myTran));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeomX") << spmLog.name() << ":" << (iphi + 1) << " positioned in " << barVolume.name()
+        edm::LogVerbatim("EBGeomX") << ns.assembly(spm.name).name() << ":" << (iphi + 1) << " positioned in " << barVolume.name()
                                     << " at (" << cms::convert2mm(myTran.x()) << "," << cms::convert2mm(myTran.y())
                                     << "," << cms::convert2mm(myTran.z()) << ") with rotation";
 #endif
@@ -1089,9 +1090,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                << convertRadToDeg(ily.phiLow) << ":" << convertRadToDeg(ily.delPhi);
 #endif
     Volume ilyLog = Volume(ily.name, ilySolid, ns.material(spm.mat));
-    spmLog.placeVolume(ilyLog, copyOne, Position(0, 0, ilyLengthHalf));
+    ns.assembly(spm.name).placeVolume(ilyLog, copyOne, Position(0, 0, ilyLengthHalf));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EBGeomX") << ilyLog.name() << ":" << copyOne << " positioned in " << spmLog.name() << " at (0,0,"
+    edm::LogVerbatim("EBGeomX") << ilyLog.name() << ":" << copyOne << " positioned in " << ns.assembly(spm.name).name() << " at (0,0,"
                                 << cms::convert2mm(ilyLengthHalf) << ") with no rotation";
 #endif
     Volume ilyPipeLog[200];
@@ -1233,7 +1234,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
               ++fanOutCopy;
               xilyLog.placeVolume(ilyFanOutLog,
                                   fanOutCopy,
-                                  Transform3D(RotationZ(phi) * RotationY(180_deg),
+                                  Transform3D(RotationZ(phi) * RotationY(180_deg), // CLHEP::HepRotationZ(phi) * CLHEP::HepRotationY(180 * deg)
                                               Position(xx, yy, ily.vecIlyFanOutZ[ilyFO] - ilyLengthHalf)));
 #ifdef EDM_ML_DEBUG
               edm::LogVerbatim("EBGeomX")
@@ -1318,9 +1319,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                  << cms::convert2mm(cro[k]);
 #endif
     Volume clyrLog = Volume(clyrName, clyrSolid, ns.material(ily.vecIlyMat[4]));
-    spmLog.placeVolume(clyrLog, copyOne);
+    ns.assembly(spm.name).placeVolume(clyrLog, copyOne);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EBGeomX") << clyrLog.name() << ":" << copyOne << " positioned in " << spmLog.name()
+    edm::LogVerbatim("EBGeomX") << clyrLog.name() << ":" << copyOne << " positioned in " << ns.assembly(spm.name).name()
                                 << " at (0,0,0) with no rotation";
 #endif
     // Begin Alveolar Wedge parent ------------------------------------------------------
@@ -1362,7 +1363,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     );
 
     string hawRName1(alvWedge.hawRName + "1");
-    Solid hawRSolid1 = mytrap(hawRName1, trapHAWR);
+    //Solid hawRSolid1 = mytrap(hawRName1, trapHAWR);
 
     const double al1_fawR(atan((B_hawR - a_hawR) / H_hawR) + M_PI_2);
 
@@ -1389,7 +1390,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     // HAW cut box to cut off back end of wedge
     const string hawCutName(alvWedge.hawRName + "CUTBOX");
     array<double, 3> hawBoxParms{{0.5 * b_hawR + hawBoxClr, 0.5 * alvWedge.hawRCutY, 0.5 * alvWedge.hawRCutZ}};
-    Solid hawCutBox = Box(hawCutName, hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
+    //    Solid hawCutBox = Box(hawCutName, hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("EBGeom") << hawCutName << " Box " << cms::convert2mm(hawBoxParms[0]) << ":"
                                << cms::convert2mm(hawBoxParms[1]) << ":" << cms::convert2mm(hawBoxParms[2]);
@@ -1409,20 +1410,21 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                           vHAW[1] + Pt3D(-hawBoxClr, -alvWedge.hawRCutDelY, 0),
                           Pt3D(vHAW[0].x() - hawBoxClr, vHAW[0].y(), vHAW[0].z() - zDel));
 
-    Solid hawRSolid = SubtractionSolid(hawRSolid1,
-                                       hawCutBox,
-                                       Transform3D(myrot(ns, hawCutName + "R", hawCutForm.getRotation()),
-                                                   Position(hawCutForm.getTranslation().x(),
-                                                            hawCutForm.getTranslation().y(),
-                                                            hawCutForm.getTranslation().z())));
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EBGeom") << alvWedge.hawRName << " Subtraction " << hawRSolid1.name() << ":" << hawCutBox.name()
-                               << " at (" << cms::convert2mm(hawCutForm.getTranslation().x()) << ","
-                               << cms::convert2mm(hawCutForm.getTranslation().y()) << ","
-                               << cms::convert2mm(hawCutForm.getTranslation().z()) << ")";
-#endif
-    Volume hawRLog = Volume(alvWedge.hawRName, hawRSolid, ns.material(spm.mat));
-
+    // Solid hawRSolid = SubtractionSolid(hawRSolid1,
+    //                                    hawCutBox,
+    //                                    Transform3D(myrot(ns, hawCutName + "R", hawCutForm.getRotation()),
+    //                                                Position(hawCutForm.getTranslation().x(),
+    //                                                         hawCutForm.getTranslation().y(),
+//     //                                                         hawCutForm.getTranslation().z())));
+// #ifdef EDM_ML_DEBUG
+//     edm::LogVerbatim("EBGeom") << alvWedge.hawRName << " Subtraction " << hawRSolid1.name() << ":" << hawCutBox.name()
+//                                << " at (" << cms::convert2mm(hawCutForm.getTranslation().x()) << ","
+//                                << cms::convert2mm(hawCutForm.getTranslation().y()) << ","
+//                                << cms::convert2mm(hawCutForm.getTranslation().z()) << ")";
+// #endif
+    //Volume hawRLog = Volume(alvWedge.hawRName, hawRSolid, ns.material(spm.mat));
+    ns.addAssembly(alvWedge.hawRName);
+    
     // FAW cut box to cut off back end of wedge
     const string fawCutName(alvWedge.fawName + "CUTBOX");
     const array<double, 3> fawBoxParms{{2 * hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]}};
@@ -1456,7 +1458,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                << cms::convert2mm(fawCutForm.getTranslation().z()) << ")";
 #endif
     Volume fawLog = Volume(alvWedge.fawName, fawSolid, ns.material(spm.mat));
-
+    //ns.addAssembly(alvWedge.fawName);
+ 
     const Tf3D hawRform(vHAW[3],
                         vHAW[0],
                         vHAW[1],  // HAW inside FAW
@@ -1465,26 +1468,26 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                         0.5 * (vFAW[1] + vFAW[2]));
 
     fawLog.placeVolume(
-        hawRLog,
+	ns.assembly(alvWedge.hawRName), //hawRLog,
         copyOne,
         Transform3D(
             myrot(ns, alvWedge.hawRName + "R", hawRform.getRotation()),
             Position(hawRform.getTranslation().x(), hawRform.getTranslation().y(), hawRform.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EBGeomX") << hawRLog.name() << ":" << copyOne << " positioned in " << fawLog.name() << " at ("
+    edm::LogVerbatim("EBGeomX") << ns.assembly(alvWedge.hawRName).name() << ":" << copyOne << " positioned in " << fawLog.name() << " at ("
                                 << cms::convert2mm(hawRform.getTranslation().x()) << ","
                                 << cms::convert2mm(hawRform.getTranslation().y()) << ","
                                 << cms::convert2mm(hawRform.getTranslation().z()) << ") with rotation";
 #endif
 
     fawLog.placeVolume(
-        hawRLog,
+        ns.assembly(alvWedge.hawRName),
         copyTwo,
         Transform3D(
             Rotation3D(1., 0., 0., 0., 1., 0., 0., 0., -1.) * RotationY(M_PI),  // rotate about Y after refl thru Z
             Position(-hawRform.getTranslation().x(), -hawRform.getTranslation().y(), -hawRform.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EBGeomX") << hawRLog.name() << ":" << copyTwo << " positioned in " << fawLog.name() << " at ("
+    edm::LogVerbatim("EBGeomX") << ns.assembly(alvWedge.hawRName).name() << ":" << copyTwo << " positioned in " << fawLog.name() << " at ("
                                 << cms::convert2mm(-hawRform.getTranslation().x()) << ","
                                 << cms::convert2mm(-hawRform.getTranslation().y()) << ","
                                 << cms::convert2mm(-hawRform.getTranslation().z()) << ") with rotation";
@@ -1496,14 +1499,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                          Tl3D(alvWedge.fawRadOff + (trapFAW.H() + trapFAW.h()) / 4, 0, 0.5 * trapFAW.L()) *
                          RoZ3D(-90_deg + alvWedge.fawPhiRot));
       if (alvWedge.fawHere) {
-        spmLog.placeVolume(
+        ns.assembly(spm.name).placeVolume(
             fawLog,
             iPhi,
             Transform3D(
                 myrot(ns, alvWedge.fawName + "_Rot" + std::to_string(iPhi), fawform.getRotation()),
                 Position(fawform.getTranslation().x(), fawform.getTranslation().y(), fawform.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeomX") << fawLog.name() << ":" << iPhi << " positioned in " << spmLog.name() << " at ("
+        edm::LogVerbatim("EBGeomX") << fawLog.name() << ":" << iPhi << " positioned in " << ns.assembly(spm.name).name() << " at ("
                                     << cms::convert2mm(fawform.getTranslation().x()) << ","
                                     << cms::convert2mm(fawform.getTranslation().y()) << ","
                                     << cms::convert2mm(fawform.getTranslation().z()) << ") with rotation";
@@ -1541,14 +1544,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                         vHAW[6]);
 
     if (0 != grid.here) {
-      hawRLog.placeVolume(
+      ns.assembly(alvWedge.hawRName).placeVolume(
           gridLog,
           copyOne,
           Transform3D(
               myrot(ns, grid.name + "R", gridForm.getRotation()),
               Position(gridForm.getTranslation().x(), gridForm.getTranslation().y(), gridForm.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EBGeomX") << gridLog.name() << ":" << copyOne << " positioned in " << hawRLog.name() << " at ("
+      edm::LogVerbatim("EBGeomX") << gridLog.name() << ":" << copyOne << " positioned in " << ns.assembly(alvWedge.hawRName).name() << " at ("
                                   << cms::convert2mm(gridForm.getTranslation().x()) << ","
                                   << cms::convert2mm(gridForm.getTranslation().y()) << ","
                                   << cms::convert2mm(gridForm.getTranslation().z()) << ") with rotation";
@@ -1582,8 +1585,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
     // theta is angle in yz plane between z axis & leading edge of crystal
     double theta(90_deg);
-    double zee(0);
-    double side(0);
+    double zee(0 * dd4hep::mm);
+    double side(0 * dd4hep::mm);
     double zeta(0_deg);  // increment in theta for last crystal
 
     for (unsigned int cryType(1); cryType <= alv.nCryTypes; ++cryType) {
@@ -1918,14 +1921,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         const Tf3D tForm(vWeb[0], vWeb[2], vWeb[3], wedge1, wedge2, wedge3);
 
         if (0 != web.here) {
-          hawRLog.placeVolume(
+          ns.assembly(alvWedge.hawRName).placeVolume(
               webClrLog,
               copyOne,
               Transform3D(
                   myrot(ns, webClrName + std::to_string(iWeb), tForm.getRotation()),
                   Position(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EBGeomX") << webClrLog.name() << ":" << copyOne << " positioned in " << hawRLog.name()
+          edm::LogVerbatim("EBGeomX") << webClrLog.name() << ":" << copyOne << " positioned in " << ns.assembly(alvWedge.hawRName).name()
                                       << " at (" << cms::convert2mm(tForm.getTranslation().x()) << ","
                                       << cms::convert2mm(tForm.getTranslation().y()) << ","
                                       << cms::convert2mm(tForm.getTranslation().z()) << ") with rotation";
@@ -1959,13 +1962,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         const double xx(0.050 * dd4hep::mm);
 
         const Tf3D tForm(HepGeom::Translate3D(xx, 0, 0) * tForm1);
-        hawRLog.placeVolume(
+        ns.assembly(alvWedge.hawRName).placeVolume(
             wallLog,
             etaAlv,
             Transform3D(myrot(ns, wallDDName + "_" + std::to_string(etaAlv), tForm.getRotation()),
                         Position(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeomX") << wallLog.name() << ":" << etaAlv << " positioned in " << hawRLog.name() << " at ("
+        edm::LogVerbatim("EBGeomX") << wallLog.name() << ":" << etaAlv << " positioned in " << ns.assembly(alvWedge.hawRName).name() << " at ("
                                     << cms::convert2mm(tForm.getTranslation().x()) << ","
                                     << cms::convert2mm(tForm.getTranslation().y()) << ","
                                     << cms::convert2mm(tForm.getTranslation().z()) << ") with rotation";
@@ -2036,14 +2039,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         const Tf3D tForm(vWeb[0], vWeb[2], vWeb[3], wedge1, wedge2, wedge3);
 
         if (0 != web.here) {
-          hawRLog.placeVolume(
+          ns.assembly(alvWedge.hawRName).placeVolume(
               webClrLog,
               copyOne,
               Transform3D(
                   myrot(ns, webClrName + std::to_string(iWeb), tForm.getRotation()),
                   Position(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z())));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EBGeomX") << webClrLog.name() << ":" << copyOne << " positioned in " << hawRLog.name()
+          edm::LogVerbatim("EBGeomX") << webClrLog.name() << ":" << copyOne << " positioned in " << ns.assembly(alvWedge.hawRName).name()
                                       << " at (" << cms::convert2mm(tForm.getTranslation().x()) << ","
                                       << cms::convert2mm(tForm.getTranslation().y()) << ","
                                       << cms::convert2mm(tForm.getTranslation().z()) << ") with rotation";
@@ -2087,7 +2090,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       Volume backPlateLog = Volume(back.plateName, backPlateSolid, ns.material(back.plateMat));
 
       const Position backPlateTra(
-          0.5 * back.sideHeight + backPlateParms[1], 0, backPlateParms[2] - 0.5 * back.sideLength);
+				  0.5 * back.sideHeight + backPlateParms[1], 0 * dd4hep::mm, backPlateParms[2] - 0.5 * back.sideLength);
 
       Solid backPlate2Solid =
           Box(back.plate2Name, 0.5 * back.plateWidth, 0.5 * back.plate2Thick, 0.5 * back.plateLength);
@@ -2107,12 +2110,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                     << cms::convert2mm(backPlate2Tra.y()) << "," << cms::convert2mm(backPlate2Tra.z())
                                     << ") with no rotation";
 #endif
-        spmLog.placeVolume(
+        ns.assembly(spm.name).placeVolume(
             backPlateLog,
             copyOne,
             Transform3D(myrot(ns, back.plateName + "Rot5", CLHEP::HepRotationZ(270_deg)), outtra + backPlateTra));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeomX") << backPlateLog.name() << ":" << copyOne << " positioned in " << spmLog.name()
+        edm::LogVerbatim("EBGeomX") << backPlateLog.name() << ":" << copyOne << " positioned in " << ns.assembly(spm.name).name()
                                     << " at (" << cms::convert2mm((outtra + backPlateTra).x()) << ","
                                     << cms::convert2mm((outtra + backPlateTra).y()) << ","
                                     << cms::convert2mm((outtra + backPlateTra).z()) << ") with rotation";
@@ -2144,26 +2147,26 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       Solid backSideSolid = mytrap(back.sideName, trapBS);
       Volume backSideLog = Volume(back.sideName, backSideSolid, ns.material(back.sideMat));
 
-      const Position backSideTra1(0, back.plateWidth / 2 + back.sideYOff1, 1 * dd4hep::mm);
+      const Position backSideTra1(0 * dd4hep::mm, back.plateWidth / 2 + back.sideYOff1, 1 * dd4hep::mm);
       if (0 != back.sideHere) {
-        spmLog.placeVolume(
+        ns.assembly(spm.name).placeVolume(
             backSideLog,
             copyOne,
             Transform3D(myrot(ns, back.sideName + "Rot8", CLHEP::HepRotationX(180_deg) * CLHEP::HepRotationZ(90_deg)),
                         outtra + backSideTra1));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeomX") << backSideLog.name() << ":" << copyOne << " positioned in " << spmLog.name()
+        edm::LogVerbatim("EBGeomX") << backSideLog.name() << ":" << copyOne << " positioned in " << ns.assembly(spm.name).name()
                                     << " at (" << cms::convert2mm((outtra + backSideTra1).x()) << ","
                                     << cms::convert2mm((outtra + backSideTra1).y()) << ","
                                     << cms::convert2mm((outtra + backSideTra1).z()) << ") with rotation";
 #endif
-        const Position backSideTra2(0, -back.plateWidth / 2 + back.sideYOff2, 1 * dd4hep::mm);
-        spmLog.placeVolume(
+        const Position backSideTra2(0 * dd4hep::mm, -back.plateWidth / 2 + back.sideYOff2, 1 * dd4hep::mm);
+        ns.assembly(spm.name).placeVolume(
             backSideLog,
             copyTwo,
             Transform3D(myrot(ns, back.sideName + "Rot9", CLHEP::HepRotationZ(90_deg)), outtra + backSideTra2));
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeomX") << backSideLog.name() << ":" << copyTwo << " positioned in " << spmLog.name()
+        edm::LogVerbatim("EBGeomX") << backSideLog.name() << ":" << copyTwo << " positioned in " << ns.assembly(spm.name).name()
                                     << " at (" << cms::convert2mm((outtra + backSideTra2).x()) << ","
                                     << cms::convert2mm((outtra + backSideTra2).y()) << ","
                                     << cms::convert2mm((outtra + backSideTra2).z()) << ") with rotation";
@@ -2314,37 +2317,37 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
         }
         if (0 != grille.here) {
-          spmLog.placeVolume(grilleLog, iGr, Transform3D(gTra));
+          ns.assembly(spm.name).placeVolume(grilleLog, iGr, Transform3D(gTra));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EBGeomX") << grilleLog.name() << ":" << iGr << " positioned in " << spmLog.name() << " at ("
+          edm::LogVerbatim("EBGeomX") << grilleLog.name() << ":" << iGr << " positioned in " << ns.assembly(spm.name).name() << " at ("
                                       << cms::convert2mm(gTra.x()) << "," << cms::convert2mm(gTra.y()) << ","
                                       << cms::convert2mm(gTra.z()) << ") with no rotation";
 #endif
         }
 
         if ((0 != iGr % 2) && (0 != mbManif.here)) {
-          spmLog.placeVolume(mBManifLog,
+          ns.assembly(spm.name).placeVolume(mBManifLog,
                              iGr,
                              Transform3D(myrot(ns, mbManif.name + "R1", CLHEP::HepRotationX(90_deg)),
                                          gTra - Position(-mbManif.outDiam / 2. + grille.vecHeight[iGr] / 2.,
                                                          manifCut,
                                                          grille.thick / 2. + 3 * mbManif.outDiam / 2.)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EBGeomX") << mBManifLog.name() << ":" << iGr << " positioned in " << spmLog.name()
+          edm::LogVerbatim("EBGeomX") << mBManifLog.name() << ":" << iGr << " positioned in " << ns.assembly(spm.name).name()
                                       << " at ("
                                       << cms::convert2mm(gTra.x() + mbManif.outDiam / 2. - grille.vecHeight[iGr] / 2.)
                                       << "," << cms::convert2mm(gTra.y() - manifCut) << ","
                                       << cms::convert2mm(gTra.z() - grille.thick / 2. - 3 * mbManif.outDiam / 2.)
                                       << ") with rotation";
 #endif
-          spmLog.placeVolume(mBManifLog,
+          ns.assembly(spm.name).placeVolume(mBManifLog,
                              iGr - 1,
                              Transform3D(myrot(ns, mbManif.name + "R2", CLHEP::HepRotationX(90_deg)),
                                          gTra - Position(-3 * mbManif.outDiam / 2. + grille.vecHeight[iGr] / 2.,
                                                          manifCut,
                                                          grille.thick / 2 + 3 * mbManif.outDiam / 2.)));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EBGeomX") << mBManifLog.name() << ":" << (iGr - 1) << " positioned in " << spmLog.name()
+          edm::LogVerbatim("EBGeomX") << mBManifLog.name() << ":" << (iGr - 1) << " positioned in " << ns.assembly(spm.name).name()
                                       << " at ("
                                       << cms::convert2mm(gTra.x() + 3 * mbManif.outDiam / 2. -
                                                          grille.vecHeight[iGr] / 2.)
@@ -2549,9 +2552,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             deltaY,
             grille.vecZOff[2 * iMod] + grille.thick + grille.zSpace + halfZBCool - back.sideLength / 2);
         if (0 != backCool.here) {
-          spmLog.placeVolume(backCoolLog, iMod + 1, outtra + backPlateTra + bCoolTra);
+          ns.assembly(spm.name).placeVolume(backCoolLog, iMod + 1, outtra + backPlateTra + bCoolTra);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EBGeomX") << backCoolLog.name() << ":" << (iMod + 1) << " positioned in " << spmLog.name()
+          edm::LogVerbatim("EBGeomX") << backCoolLog.name() << ":" << (iMod + 1) << " positioned in " << ns.assembly(spm.name).name()
                                       << " at (" << cms::convert2mm((outtra + backPlateTra + bCoolTra).x()) << ","
                                       << cms::convert2mm((outtra + backPlateTra + bCoolTra).y()) << ","
                                       << cms::convert2mm((outtra + backPlateTra + bCoolTra).z())
@@ -2648,7 +2651,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           Volume bLog =
               Volume(backMisc.vecName[iMod * nMisc + j], bSolid, ns.material(backMisc.vecMat[iMod * nMisc + j]));
 
-          const Position bTra(backMisc.vecThick[iMod * nMisc + j] / 2, 0, 0);
+          const Position bTra(backMisc.vecThick[iMod * nMisc + j] / 2, 0 * dd4hep::mm, 0 * dd4hep::mm);
 
           if (0 != backMisc.here) {
             backCoolLog.placeVolume(bLog, copyOne, Transform3D(Rotation3D(), bSumTra + bTra));
@@ -2678,14 +2681,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             Volume mLog = Volume(
                 mbLyr.vecMBLyrName[j] + "_" + std::to_string(iMod + 1), mSolid, ns.material(mbLyr.vecMBLyrMat[j]));
 
-            mTra += Position(mbLyr.vecMBLyrThick[j] / 2.0, 0, 0);
+            mTra += Position(mbLyr.vecMBLyrThick[j] / 2.0, 0 * dd4hep::mm, 0 * dd4hep::mm);
             backCoolLog.placeVolume(mLog, copyOne, Transform3D(Rotation3D(), mTra));
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("EBGeomX") << mLog.name() << ":" << copyOne << " positioned in " << backCoolLog.name()
                                         << " at (" << cms::convert2mm(mTra.x()) << "," << cms::convert2mm(mTra.y())
                                         << "," << cms::convert2mm(mTra.z()) << ") with no rotation";
 #endif
-            mTra += Position(mbLyr.vecMBLyrThick[j] / 2.0, 0, 0);
+            mTra += Position(mbLyr.vecMBLyrThick[j] / 2.0, 0 * dd4hep::mm, 0 * dd4hep::mm);
           }
         }
 
@@ -2738,9 +2741,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           string bPipeName(backPipe.name + "_" + std::to_string(iMod + 1));
           string bInnerName(backPipe.name + "_H2O_" + std::to_string(iMod + 1));
 
-          Solid backPipeSolid = Tube(bPipeName, 0, backPipe.vecDiam[iMod] / 2, pipeLength / 2, 0_deg, 360_deg);
+          Solid backPipeSolid = Tube(bPipeName, 0 * dd4hep::mm, backPipe.vecDiam[iMod] / 2, pipeLength / 2, 0_deg, 360_deg);
           Solid backInnerSolid =
-              Tube(bInnerName, 0, backPipe.vecDiam[iMod] / 2 - backPipe.vecThick[iMod], pipeLength / 2, 0_deg, 360_deg);
+	    Tube(bInnerName, 0 * dd4hep::mm, backPipe.vecDiam[iMod] / 2 - backPipe.vecThick[iMod], pipeLength / 2, 0_deg, 360_deg);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EBGeom") << bPipeName << " Tubs " << cms::convert2mm(pipeLength / 2)
                                      << ":0:" << cms::convert2mm(backPipe.vecDiam[iMod] / 2) << ":0:360";
@@ -2756,9 +2759,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                    back.yOff + back.plateWidth / 2 - back.sideWidth - 0.7 * backPipe.vecDiam[iMod],
                                    pipeZPos);
 
-          spmLog.placeVolume(backPipeLog, copyOne, Transform3D(Rotation3D(), bPipeTra1));
+          ns.assembly(spm.name).placeVolume(backPipeLog, copyOne, Transform3D(Rotation3D(), bPipeTra1));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EBGeomX") << backPipeLog.name() << ":" << copyOne << " positioned in " << spmLog.name()
+          edm::LogVerbatim("EBGeomX") << backPipeLog.name() << ":" << copyOne << " positioned in " << ns.assembly(spm.name).name()
                                       << " at (" << cms::convert2mm(bPipeTra1.x()) << ","
                                       << cms::convert2mm(bPipeTra1.y()) << "," << cms::convert2mm(bPipeTra1.z())
                                       << ") with no rotation";
@@ -2766,9 +2769,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
           const Position bPipeTra2(
               bPipeTra1.x(), back.yOff - back.plateWidth / 2 + back.sideWidth + backPipe.vecDiam[iMod], bPipeTra1.z());
 
-          spmLog.placeVolume(backPipeLog, copyTwo, Transform3D(Rotation3D(), bPipeTra2));
+          ns.assembly(spm.name).placeVolume(backPipeLog, copyTwo, Transform3D(Rotation3D(), bPipeTra2));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EBGeomX") << backPipeLog.name() << ":" << copyTwo << " positioned in " << spmLog.name()
+          edm::LogVerbatim("EBGeomX") << backPipeLog.name() << ":" << copyTwo << " positioned in " << ns.assembly(spm.name).name()
                                       << " at (" << cms::convert2mm(bPipeTra2.x()) << ","
                                       << cms::convert2mm(bPipeTra2.y()) << "," << cms::convert2mm(bPipeTra2.z())
                                       << ") with no rotation";
@@ -2804,9 +2807,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         back.yOff + back.plateWidth / 2 - back.sideWidth - 1.2 * dryAirTube.outDiam,
                                         pipeZPos);
 
-          spmLog.placeVolume(dryAirTubeLog, copyOne, Transform3D(Rotation3D(), dryAirTubeTra1));
+          ns.assembly(spm.name).placeVolume(dryAirTubeLog, copyOne, Transform3D(Rotation3D(), dryAirTubeTra1));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EBGeomX") << dryAirTubeLog.name() << ":" << copyOne << " positioned in " << spmLog.name()
+          edm::LogVerbatim("EBGeomX") << dryAirTubeLog.name() << ":" << copyOne << " positioned in " << ns.assembly(spm.name).name()
                                       << " at (" << cms::convert2mm(dryAirTubeTra1.x()) << ","
                                       << cms::convert2mm(dryAirTubeTra1.y()) << ","
                                       << cms::convert2mm(dryAirTubeTra1.z()) << ") with no rotation";
@@ -2816,9 +2819,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                         back.yOff - back.plateWidth / 2 + back.sideWidth + 0.7 * dryAirTube.outDiam,
                                         dryAirTubeTra1.z());
 
-          spmLog.placeVolume(dryAirTubeLog, copyTwo, Transform3D(Rotation3D(), dryAirTubeTra2));
+          ns.assembly(spm.name).placeVolume(dryAirTubeLog, copyTwo, Transform3D(Rotation3D(), dryAirTubeTra2));
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EBGeomX") << dryAirTubeLog.name() << ":" << copyTwo << " positioned in " << spmLog.name()
+          edm::LogVerbatim("EBGeomX") << dryAirTubeLog.name() << ":" << copyTwo << " positioned in " << ns.assembly(spm.name).name()
                                       << " at (" << cms::convert2mm(dryAirTubeTra2.x()) << ","
                                       << cms::convert2mm(dryAirTubeTra2.y()) << ","
                                       << cms::convert2mm(dryAirTubeTra2.z()) << ") with no rotation";
@@ -2883,11 +2886,11 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
       Volume patchLog = Volume(patchPanel.name, patchSolid, ns.material(spm.mat));
 
-      const Position patchTra(back.xOff + 4 * dd4hep::mm, 0, grille.vecZOff.back() + grille.thick + patchParms[2]);
+      const Position patchTra(back.xOff + 4 * dd4hep::mm, 0 * dd4hep::mm, grille.vecZOff.back() + grille.thick + patchParms[2]);
       if (0 != patchPanel.here) {
-        spmLog.placeVolume(patchLog, copyOne, patchTra);
+        ns.assembly(spm.name).placeVolume(patchLog, copyOne, patchTra);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("EBGeomX") << patchLog.name() << ":" << copyOne << " positioned in " << spmLog.name()
+        edm::LogVerbatim("EBGeomX") << patchLog.name() << ":" << copyOne << " positioned in " << spm.name
                                     << " at (" << cms::convert2mm(patchTra.x()) << "," << cms::convert2mm(patchTra.y())
                                     << "," << cms::convert2mm(patchTra.z()) << ") with no rotation";
 #endif
@@ -2903,7 +2906,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
         Volume pLog = Volume(patchPanel.vecNames[j], pSolid, ns.material(patchPanel.vecMat[j]));
 
-        pTra += Position(patchPanel.vecThick[j] / 2, 0, 0);
+        pTra += Position(patchPanel.vecThick[j] / 2, 0 * dd4hep::mm, 0 * dd4hep::mm);
         patchLog.placeVolume(pLog, copyOne, pTra);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("EBGeomX") << pLog.name() << ":" << copyOne << " positioned in " << patchLog.name() << " at ("
@@ -2911,7 +2914,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                     << cms::convert2mm(pTra.z()) << ") with no rotation";
 #endif
 
-        pTra += Position(patchPanel.vecThick[j] / 2, 0, 0);
+        pTra += Position(patchPanel.vecThick[j] / 2, 0 * dd4hep::mm, 0 * dd4hep::mm);
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
