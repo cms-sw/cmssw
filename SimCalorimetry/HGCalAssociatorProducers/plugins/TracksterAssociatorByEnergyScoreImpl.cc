@@ -144,7 +144,8 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
           for (const auto& h : hit_find_in_SC->second) {
             //tssInSimCluster[simclusterId][layerclusterId]-> (energy,score)
             //SC_i - > TS_j, TS_k, ...
-            tssInSimCluster[h.clusterId].tracksterIdToEnergyAndScore[tsId].first += lcFractionInTs * h.fraction * hit->energy();
+            tssInSimCluster[h.clusterId].tracksterIdToEnergyAndScore[tsId].first +=
+                lcFractionInTs * h.fraction * hit->energy();
             //TS_i -> SC_j, SC_k, ...
             scsInTrackster[tsId].emplace_back(h.clusterId, 0.f);
           }
@@ -340,8 +341,8 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
       const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
       // Compute the correct normalization
       for (auto const& haf : hits_and_fractions) {
-        invTracksterEnergyWeight +=
-            (lcFractionInTs * haf.second * hitMap_->at(haf.first)->energy()) * (lcFractionInTs * haf.second * hitMap_->at(haf.first)->energy());
+        invTracksterEnergyWeight += (lcFractionInTs * haf.second * hitMap_->at(haf.first)->energy()) *
+                                    (lcFractionInTs * haf.second * hitMap_->at(haf.first)->energy());
       }
     }
     invTracksterEnergyWeight = 1.f / invTracksterEnergyWeight;
@@ -471,8 +472,8 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
               << "invSCEnergyWeight:\t" << invSCEnergyWeight << "\n";
 #endif
         }  // End of loop over Trackster's LayerClusters
-      }  // End of loop over Tracksters linked to hits of this SimCluster
-    }    // End of loop over hits of SimCluster on a Layer
+      }    // End of loop over Tracksters linked to hits of this SimCluster
+    }      // End of loop over hits of SimCluster on a Layer
 #ifdef EDM_ML_DEBUG
     if (tssInSimCluster[scId].tracksterIdToEnergyAndScore.empty())
       LogDebug("TracksterAssociatorByEnergyScoreImpl") << "SC Id: \t" << scId << "\tTS id:\t-1 "
