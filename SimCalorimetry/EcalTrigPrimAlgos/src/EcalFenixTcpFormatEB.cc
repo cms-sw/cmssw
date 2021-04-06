@@ -35,8 +35,6 @@ void EcalFenixTcpFormatEB::process(std::vector<int> &Et_even_sum,
         myEt = Et_even_sum[0] >> eTTotShift;
         if (myEt > 0x3ff)
           myEt = 0x3ff;
-        if (isInInnerRings)
-          myEt = myEt / 2;
 
         // badTTStatus_ ==0 if the TT works
         // badTTStatus_ !=0 if there are some problems
