@@ -33,7 +33,7 @@ void EcalFenixTcpFormatEE::process(std::vector<int> &Et_even_sum,
   if (famos_) {
     for (unsigned int i = 0; i < out.size(); ++i) {
       if (i == binOfMax_ - 1) {
-        myEt =Et_even_sum[0] >> eTTotShift;
+        myEt = Et_even_sum[0] >> eTTotShift;
         if (myEt > 0x3ff)
           myEt = 0x3ff;
         if (isInInnerRings)
@@ -79,7 +79,7 @@ void EcalFenixTcpFormatEE::process(std::vector<int> &Et_even_sum,
           myEt = Et_even_sum[i] + Et_odd_sum[i];
           break;
         default:
-        // In case of unknown configuration switch to default
+          // In case of unknown configuration switch to default
           myEt = Et_even_sum[i];
           break;
       }
@@ -88,7 +88,7 @@ void EcalFenixTcpFormatEE::process(std::vector<int> &Et_even_sum,
       int infobit1 = myFgvb;
       if (ecaltpgTPMode_->EEFenixTcpInfobit1)
         infobit1 = is_odd_larger;
-      
+
       if (isInInnerRings && (myEt <= 0xfff))
         myEt = myEt / 2;
       if (myEt > 0xfff)

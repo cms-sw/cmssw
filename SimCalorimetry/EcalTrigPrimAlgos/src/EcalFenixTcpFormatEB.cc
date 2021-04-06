@@ -76,7 +76,7 @@ void EcalFenixTcpFormatEB::process(std::vector<int> &Et_even_sum,
           myEt = Et_even_sum[i] + Et_odd_sum[i];
           break;
         default:
-        // In case of unknown configuration switch to default
+          // In case of unknown configuration switch to default
           myEt = Et_even_sum[i];
           break;
       }
