@@ -3,6 +3,6 @@
 <use name="CalibTracker/StandaloneTrackerTopology"/>
 <use name="CondFormats/SiPixelTransient"/>
 <use name="CalibTracker/SiPixelESProducers"/>
-<use name="DQM/TrackerRemapper"/>
 <bin file="testSiPixelPayloadInspector.cpp" name="testPixelPayloadInspector">
+  <use name="DQM/TrackerRemapper"/>
 </bin>
