@@ -25,12 +25,12 @@ struct TrajectoryStateSoAT {
     auto cov = covariance(i);
     cov(0) = ccov(0, 0);
     cov(1) = ccov(0, 1);
-    cov(2) = b * float(ccov(0, 2));
+    cov(2) = b * static_cast<float>(ccov(0, 2));
     cov(4) = cov(3) = 0;
     cov(5) = ccov(1, 1);
-    cov(6) = b * float(ccov(1, 2));
+    cov(6) = b * static_cast<float>(ccov(1, 2));
     cov(8) = cov(7) = 0;
-    cov(9) = b * b * float(ccov(2, 2));
+    cov(9) = b * b * static_cast<float>(ccov(2, 2));
     cov(11) = cov(10) = 0;
     cov(12) = lcov(0, 0);
     cov(13) = lcov(0, 1);
