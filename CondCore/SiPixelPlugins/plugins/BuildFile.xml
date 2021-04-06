@@ -10,8 +10,8 @@
   <use name="CondCore/SiPixelPlugins"/>
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
-  <use name="DQM/TrackerRemapper"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="DQM/TrackerRemapper"/>
 </library>
 
 <library file="SiPixelGainCalibrationOffline_PayloadInspector.cc" name="SiPixelGainCalibrationOffline_PayloadInspector">
@@ -59,6 +59,7 @@
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/SiPixelTransient"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="DQM/TrackerRemapper"/>
 </library>
 
 <library file="SiPixelQualityProbabilities_PayloadInspector.cc" name="SiPixelQualityProbabilities_PayloadInspector">
