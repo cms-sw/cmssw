@@ -116,7 +116,10 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
   scsInTrackster.resize(nTracksters);
 
   for (unsigned int tsId = 0; tsId < nTracksters; ++tsId) {
-    for (const auto& lcId : tracksters[tsId].vertices()) {
+    for (unsigned int i = 0; i < tracksters[tsId].vertices().size(); ++i) {
+      const auto lcId = tracksters[tsId].vertices(i);
+      const auto lcFractionInTs = 1.f / tracksters[tsId].vertex_multiplicity(i);
+
       const std::vector<std::pair<DetId, float>>& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
       unsigned int numberOfHitsInLC = hits_and_fractions.size();
 
@@ -141,7 +144,7 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
           for (const auto& h : hit_find_in_SC->second) {
             //tssInSimCluster[simclusterId][layerclusterId]-> (energy,score)
             //SC_i - > TS_j, TS_k, ...
-            tssInSimCluster[h.clusterId].tracksterIdToEnergyAndScore[tsId].first += h.fraction * hit->energy();
+            tssInSimCluster[h.clusterId].tracksterIdToEnergyAndScore[tsId].first += lcFractionInTs * h.fraction * hit->energy();
             //TS_i -> SC_j, SC_k, ...
             scsInTrackster[tsId].emplace_back(h.clusterId, 0.f);
           }
@@ -330,23 +333,28 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
     }
 
     float invTracksterEnergyWeight = 0.f;
-    for (const auto& lcId : tracksters[tsId].vertices()) {
-      const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
+    for (unsigned int i = 0; i < tracksters[tsId].vertices().size(); ++i) {
+      const auto lcId = tracksters[tsId].vertices(i);
+      const auto lcFractionInTs = 1.f / tracksters[tsId].vertex_multiplicity(i);
 
+      const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
       // Compute the correct normalization
       for (auto const& haf : hits_and_fractions) {
         invTracksterEnergyWeight +=
-            (haf.second * hitMap_->at(haf.first)->energy()) * (haf.second * hitMap_->at(haf.first)->energy());
+            (lcFractionInTs * haf.second * hitMap_->at(haf.first)->energy()) * (lcFractionInTs * haf.second * hitMap_->at(haf.first)->energy());
       }
     }
     invTracksterEnergyWeight = 1.f / invTracksterEnergyWeight;
 
-    for (const auto& lcId : tracksters[tsId].vertices()) {
+    for (unsigned int i = 0; i < tracksters[tsId].vertices().size(); ++i) {
+      const auto lcId = tracksters[tsId].vertices(i);
+      const auto lcFractionInTs = 1.f / tracksters[tsId].vertex_multiplicity(i);
+
       const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
       unsigned int numberOfHitsInLC = hits_and_fractions.size();
       for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
         DetId rh_detid = hits_and_fractions[i].first;
-        float rhFraction = hits_and_fractions[i].second;
+        float rhFraction = hits_and_fractions[i].second * lcFractionInTs;
 
         const bool hitWithSC = (detIdToSimClusterId_Map.find(rh_detid) != detIdToSimClusterId_Map.end());
 
@@ -438,27 +446,32 @@ hgcal::association TracksterAssociatorByEnergyScoreImpl::makeConnections(
       const HGCRecHit* hit = itcheck->second;
       float hitEnergyWeight = hit->energy() * hit->energy();
       for (auto& tsPair : tssInSimCluster[scId].tracksterIdToEnergyAndScore) {
-        unsigned int tracksterId = tsPair.first;
+        unsigned int tsId = tsPair.first;
         float tsFraction = 0.f;
 
-        if (hitWithLC) {
-          const auto findHitIt = std::find(detIdToLayerClusterId_Map[sc_hitDetId].begin(),
-                                           detIdToLayerClusterId_Map[sc_hitDetId].end(),
-                                           hgcal::detIdInfoInCluster{tracksterId, 0.f});
-          if (findHitIt != detIdToLayerClusterId_Map[sc_hitDetId].end())
-            tsFraction = findHitIt->fraction;
-        }
-        tsPair.second.second +=
-            (tsFraction - scFraction) * (tsFraction - scFraction) * hitEnergyWeight * invSCEnergyWeight;
+        for (unsigned int i = 0; i < tracksters[tsId].vertices().size(); ++i) {
+          const auto lcId = tracksters[tsId].vertices(i);
+          const auto lcFractionInTs = 1.f / tracksters[tsId].vertex_multiplicity(i);
+
+          if (hitWithLC) {
+            const auto findHitIt = std::find(detIdToLayerClusterId_Map[sc_hitDetId].begin(),
+                                             detIdToLayerClusterId_Map[sc_hitDetId].end(),
+                                             hgcal::detIdInfoInCluster{lcId, 0.f});
+            if (findHitIt != detIdToLayerClusterId_Map[sc_hitDetId].end())
+              tsFraction = findHitIt->fraction * lcFractionInTs;
+          }
+          tsPair.second.second +=
+              (tsFraction - scFraction) * (tsFraction - scFraction) * hitEnergyWeight * invSCEnergyWeight;
 #ifdef EDM_ML_DEBUG
-        LogDebug("TracksterAssociatorByEnergyScoreImpl")
-            << "SCDetId:\t" << (uint32_t)sc_hitDetId << "\tTracksterId:\t" << tracksterId << "\t"
-            << "tsFraction, scFraction:\t" << tsFraction << ", " << scFraction << "\t"
-            << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
-            << "current score:\t" << tsPair.second.second << "\t"
-            << "invSCEnergyWeight:\t" << invSCEnergyWeight << "\n";
+          LogDebug("TracksterAssociatorByEnergyScoreImpl")
+              << "SCDetId:\t" << (uint32_t)sc_hitDetId << "\tTracksterId:\t" << tracksterId << "\t"
+              << "tsFraction, scFraction:\t" << tsFraction << ", " << scFraction << "\t"
+              << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
+              << "current score:\t" << tsPair.second.second << "\t"
+              << "invSCEnergyWeight:\t" << invSCEnergyWeight << "\n";
 #endif
-      }  // End of loop over LayerClusters linked to hits of this SimCluster
+        }  // End of loop over Trackster's LayerClusters
+      }  // End of loop over Tracksters linked to hits of this SimCluster
     }    // End of loop over hits of SimCluster on a Layer
 #ifdef EDM_ML_DEBUG
     if (tssInSimCluster[scId].tracksterIdToEnergyAndScore.empty())
