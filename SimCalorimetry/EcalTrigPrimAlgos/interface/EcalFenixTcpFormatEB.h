@@ -35,8 +35,7 @@ public:
                std::vector<int> &sfgvb,
                int eTTotShift,
                std::vector<EcalTriggerPrimitiveSample> &out,
-               std::vector<EcalTriggerPrimitiveSample> &outTcc,
-               bool isInInnerRings);
+               std::vector<EcalTriggerPrimitiveSample> &outTcc);
   void setParameters(uint32_t towid,
                      const EcalTPGLutGroup *ecaltpgLutGroup,
                      const EcalTPGLutIdMap *ecaltpgLut,

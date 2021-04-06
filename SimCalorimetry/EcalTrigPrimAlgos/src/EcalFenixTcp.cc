@@ -177,7 +177,7 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int>> &bypasslin
   this->getFormatterEB()->setParameters(
       towid.rawId(), ecaltpgLutGroup, ecaltpgLut, ecaltpgBadTT, ecaltpgSpike, ecaltpgTPMode_);
   this->getFormatterEB()->process(
-      adder_even_out_, adder_odd_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, false);
+      adder_even_out_, adder_odd_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc);
 
   if (TPinfoPrintout_) {
     for (unsigned int i = 3; i < tcp_out.size(); i++) {
