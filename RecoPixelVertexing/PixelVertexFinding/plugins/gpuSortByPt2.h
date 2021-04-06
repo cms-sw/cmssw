@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelVertexFinding_src_gpuSortByPt2_h
-#define RecoPixelVertexing_PixelVertexFinding_src_gpuSortByPt2_h
+#ifndef RecoPixelVertexing_PixelVertexFinding_plugins_gpuSortByPt2_h
+#define RecoPixelVertexing_PixelVertexFinding_plugins_gpuSortByPt2_h
 
 #include <algorithm>
 #include <cmath>
@@ -70,4 +70,4 @@ namespace gpuVertexFinder {
 
 }  // namespace gpuVertexFinder
 
-#endif  // RecoPixelVertexing_PixelVertexFinding_src_gpuSortByPt2_h
+#endif  // RecoPixelVertexing_PixelVertexFinding_plugins_gpuSortByPt2_h

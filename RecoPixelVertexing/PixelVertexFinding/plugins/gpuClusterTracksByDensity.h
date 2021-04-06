@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelVertexFinding_src_gpuClusterTracksByDensity_h
-#define RecoPixelVertexing_PixelVertexFinding_src_gpuClusterTracksByDensity_h
+#ifndef RecoPixelVertexing_PixelVertexFinding_plugins_gpuClusterTracksByDensity_h
+#define RecoPixelVertexing_PixelVertexFinding_plugins_gpuClusterTracksByDensity_h
 
 #include <algorithm>
 #include <cmath>
@@ -231,4 +231,4 @@ namespace gpuVertexFinder {
 
 }  // namespace gpuVertexFinder
 
-#endif  // RecoPixelVertexing_PixelVertexFinding_src_gpuClusterTracksByDensity_h
+#endif  // RecoPixelVertexing_PixelVertexFinding_plugins_gpuClusterTracksByDensity_h

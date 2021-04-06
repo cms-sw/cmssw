@@ -1,3 +1,6 @@
+#ifndef RecoPixelVertexing_PixelVertexFinding_plugins_gpuVertexFinderImpl_h
+#define RecoPixelVertexing_PixelVertexFinding_plugins_gpuVertexFinderImpl_h
+
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include "gpuClusterTracksByDensity.h"
@@ -186,4 +189,4 @@ namespace gpuVertexFinder {
 
 }  // namespace gpuVertexFinder
 
-#undef FROM
+#endif  // RecoPixelVertexing_PixelVertexFinding_plugins_gpuVertexFinderImpl_h
