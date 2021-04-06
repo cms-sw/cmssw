@@ -75,6 +75,7 @@ private:
 
   edm::InputTag associatorLayerClusterSimCluster_;
   edm::EDGetTokenT<hgcal::SimToRecoCollectionWithSimClusters> associatorMapSimToReco_token_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   hgcal::RecHitTools rhtools_;
 };
 DEFINE_FWK_MODULE(TrackstersFromSimClustersProducer);
@@ -89,7 +90,8 @@ TrackstersFromSimClustersProducer::TrackstersFromSimClustersProducer(const edm::
       simclusters_token_(consumes<std::vector<SimCluster>>(ps.getParameter<edm::InputTag>("simclusters"))),
       associatorLayerClusterSimCluster_(ps.getUntrackedParameter<edm::InputTag>("layerClusterSimClusterAssociator")),
       associatorMapSimToReco_token_(
-          consumes<hgcal::SimToRecoCollectionWithSimClusters>(associatorLayerClusterSimCluster_)) {
+          consumes<hgcal::SimToRecoCollectionWithSimClusters>(associatorLayerClusterSimCluster_)),
+      geom_token_(esConsumes()) {
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();
 }
@@ -118,9 +120,8 @@ void TrackstersFromSimClustersProducer::produce(edm::Event& evt, const edm::Even
   const auto& simclusters = evt.get(simclusters_token_);
   const auto& simToRecoColl = evt.get(associatorMapSimToReco_token_);
 
-  edm::ESHandle<CaloGeometry> geom;
-  es.get<CaloGeometryRecord>().get(geom);
-  rhtools_.setGeometry(*geom);
+  const auto& geom = es.getData(geom_token_);
+  rhtools_.setGeometry(geom);
   auto num_simclusters = simclusters.size();
   result->reserve(num_simclusters);
   for (const auto& [key, values] : simToRecoColl) {
