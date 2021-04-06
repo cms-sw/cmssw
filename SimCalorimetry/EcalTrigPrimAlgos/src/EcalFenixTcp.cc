@@ -228,9 +228,10 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int>> &bypasslin
   this->getFormatterEE()->setParameters(
       towid.rawId(), ecaltpgLutGroup, ecaltpgLut, ecaltpgbadTT, nullptr, ecaltpgTPMode_);
 
-  // Only the even sum is passed to the endcap formatter for the moment.
+  // Pass both the even and the odd Et sums to the EE formatter also if there is not TCP in the electronics. 
+  // The feature can be implemented in the TCC in the future: the emulator is kept generic.
   this->getFormatterEE()->process(
-      adder_even_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, isInInnerRings);
+      adder_even_out_, adder_odd_out_, fgvb_out_, strip_fgvb_out_, eTTotShift, tcp_out, tcp_outTcc, isInInnerRings);
   // this is a test:
   if (debug_) {
     std::cout << "output of TCP formatter(endcap) is a vector of size: " << std::dec << tcp_out.size() << std::endl;

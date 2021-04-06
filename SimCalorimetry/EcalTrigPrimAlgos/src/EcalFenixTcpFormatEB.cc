@@ -78,6 +78,10 @@ void EcalFenixTcpFormatEB::process(std::vector<int> &Et_even_sum,
         case 2:  // output even+odd
           myEt = Et_even_sum[i] + Et_odd_sum[i];
           break;
+        default:
+        // In case of unknown configuration switch to default
+          myEt = Et_even_sum[i];
+          break;
       }
 
       // check TPmode config to decide to output the FGVB or the odd>even flag
