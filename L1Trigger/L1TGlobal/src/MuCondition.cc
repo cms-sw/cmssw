@@ -246,9 +246,9 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
             }
           }
 
-          // Original OS 4 muon condition (disagreement with firmware): 
+          // Original OS 4 muon condition (disagreement with firmware):
           //    if (!(((chargeCorr & 2) != 0 && equalSigns) || ((chargeCorr & 4) != 0 && posCount == 2))) {
-          // Fix by R. Cavanaugh: 
+          // Fix by R. Cavanaugh:
           //       Note that negative charge => hwCharge = 0
           //                 positive charge => hwCharge = 1
           //       Hence:  (0,0,0,0) => (posCount = 0) => 4 SS muons
@@ -260,7 +260,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
           //               (1,1,1,1) => (posCount = 4) => 4 SS muons
           //       A requirement (posCount == 2) implies there must be exactly 2 OS pairs of muons
           //       A requirement of at least 1 pair of OS muons implies condition should be (posCount > 0 && posCount < 4)
-	  if (!(((chargeCorr & 2) != 0 && equalSigns) || ((chargeCorr & 4) != 0 && (posCount > 0 && posCount < 4)))) {
+          if (!(((chargeCorr & 2) != 0 && equalSigns) || ((chargeCorr & 4) != 0 && (posCount > 0 && posCount < 4)))) {
             LogDebug("L1TGlobal") << "===> MuCondition:: 4 Muon Fail Charge Correlation Condition = " << chargeCorr
                                   << " posCnt " << posCount << std::endl;
             continue;
