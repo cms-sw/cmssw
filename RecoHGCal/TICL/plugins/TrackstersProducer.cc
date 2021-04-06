@@ -102,7 +102,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
     iterIndex_ = ticl::Trackster::TRKEM;
   else if (itername_ == "EM")
     iterIndex_ = ticl::Trackster::EM;
-  else if (itername_ == "TrkHAD")
+  else if (itername_ == "Trk")
     iterIndex_ = ticl::Trackster::TRKHAD;
   else if (itername_ == "HAD")
     iterIndex_ = ticl::Trackster::HAD;
