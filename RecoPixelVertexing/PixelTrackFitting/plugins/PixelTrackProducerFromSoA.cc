@@ -133,8 +133,8 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
   const auto &tsoa = *iEvent.get(tokenTrack_);
 
   auto const *quality = tsoa.qualityData();
-  auto const &fit = tsoa.stateAtBS;
-  auto const &hitIndices = tsoa.hitIndices;
+  auto const &fit = tsoa.stateAtBS();
+  auto const &hitIndices = tsoa.hitIndices();
   auto maxTracks = tsoa.stride();
 
   int32_t nt = 0;

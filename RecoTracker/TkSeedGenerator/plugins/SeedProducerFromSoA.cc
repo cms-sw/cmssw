@@ -92,8 +92,8 @@ void SeedProducerFromSoA::produce(edm::StreamID streamID, edm::Event& iEvent, co
   const auto& tsoa = *(iEvent.get(tokenTrack_));
 
   auto const* quality = tsoa.qualityData();
-  auto const& fit = tsoa.stateAtBS;
-  auto const& detIndices = tsoa.detIndices;
+  auto const& fit = tsoa.stateAtBS();
+  auto const& detIndices = tsoa.detIndices();
   auto maxTracks = tsoa.stride();
 
   int32_t nt = 0;

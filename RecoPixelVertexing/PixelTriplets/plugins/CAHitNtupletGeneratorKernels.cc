@@ -7,7 +7,7 @@ void CAHitNtupletGeneratorKernelsCPU::printCounters(Counters const *counters) {
 
 template <>
 void CAHitNtupletGeneratorKernelsCPU::fillHitDetIndices(HitsView const *hv, TkSoA *tracks_d, cudaStream_t) {
-  kernel_fillHitDetIndices(&tracks_d->hitIndices, hv, &tracks_d->detIndices);
+  kernel_fillHitDetIndices(&tracks_d->hitIndices(), hv, &tracks_d->detIndices());
 }
 
 template <>
@@ -75,7 +75,7 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
 
 template <>
 void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
-  auto *tuples_d = &tracks_d->hitIndices;
+  auto *tuples_d = &tracks_d->hitIndices();
   auto *quality_d = tracks_d->qualityData();
 
   assert(tuples_d && quality_d);
@@ -154,7 +154,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
 
 template <>
 void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
-  auto const *tuples_d = &tracks_d->hitIndices;
+  auto const *tuples_d = &tracks_d->hitIndices();
   auto *quality_d = tracks_d->qualityData();
 
   // classify tracks based on kinematics

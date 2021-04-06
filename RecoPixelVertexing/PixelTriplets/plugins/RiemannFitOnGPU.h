@@ -159,7 +159,7 @@ __global__ void kernel_LineFit(caConstants::TupleMultiplicity const *__restrict_
 
     riemannFit::fromCircleToPerigee(circle_fit[local_idx]);
 
-    results->stateAtBS.copyFromCircle(
+    results->stateAtBS().copyFromCircle(
         circle_fit[local_idx].par, circle_fit[local_idx].cov, line_fit.par, line_fit.cov, 1.f / float(bField), tkid);
     results->pt(tkid) = bField / std::abs(circle_fit[local_idx].par(2));
     results->eta(tkid) = asinhf(line_fit.par(0));
