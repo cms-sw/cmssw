@@ -14,8 +14,8 @@ public:
   MTDTopologyBuilder();
 
   PixelTopology* build(const Bounds* bounds,
-                       int ROWS_PER_ROC,       // Num of Rows per ROC
-                       int COLS_PER_ROC,       // Num of Cols per ROC
+                       int ROWS_PER_ROC,  // Num of Rows per ROC
+                       int COLS_PER_ROC,  // Num of Cols per ROC
                        int ROCS_X,
                        int ROCS_Y,
                        int GAPxInterpad,

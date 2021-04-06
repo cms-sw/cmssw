@@ -10,15 +10,14 @@
 MTDTopologyBuilder::MTDTopologyBuilder(void) {}
 
 PixelTopology* MTDTopologyBuilder::build(const Bounds* bs,
-                                         int pixelROCRows,       // Num of Rows per ROC
-                                         int pixelROCCols,       // Num of Cols per ROC
+                                         int pixelROCRows,  // Num of Rows per ROC
+                                         int pixelROCCols,  // Num of Cols per ROC
                                          int pixelROCsInX,
-                                         int pixelROCsInY, 
+                                         int pixelROCsInY,
                                          int GAPxInterpad,
                                          int GAPxBorder,
                                          int GAPyInterpad,
                                          int GAPyBorder) {
-
   float width = bs->width();    // module width = Xsize
   float length = bs->length();  // module length = Ysize
 
@@ -30,10 +29,10 @@ PixelTopology* MTDTopologyBuilder::build(const Bounds* bs,
   float pitchY = length / ncols;
 
   float micronsTocm = 1e-4;
-  float gapxinterpad = float(GAPxInterpad) * micronsTocm; //Convert to cm
-  float gapyinterpad = float(GAPyInterpad) * micronsTocm; //Convert to cm
-  float gapxborder = float(GAPxBorder) * micronsTocm; //Convert to cm
-  float gapyborder = float(GAPyBorder) * micronsTocm; //Convert to cm
+  float gapxinterpad = float(GAPxInterpad) * micronsTocm;  //Convert to cm
+  float gapyinterpad = float(GAPyInterpad) * micronsTocm;  //Convert to cm
+  float gapxborder = float(GAPxBorder) * micronsTocm;      //Convert to cm
+  float gapyborder = float(GAPyBorder) * micronsTocm;      //Convert to cm
 
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDTopologyBuilder") << std::fixed << "Building topology for module of width(X) = " << std::setw(10)
@@ -63,5 +62,5 @@ PixelTopology* MTDTopologyBuilder::build(const Bounds* bs,
                                      gapxinterpad,
                                      gapxborder,
                                      gapyinterpad,
-                                     gapyborder )); 
+                                     gapyborder));
 }
