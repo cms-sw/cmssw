@@ -26,20 +26,20 @@ ________________________________________________________________**/
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 //The class
-class AlcaPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks> {
+class AlcaPCCProducer
+    : public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::LuminosityBlockCache<reco::PixelClusterCounts>> {
 public:
   explicit AlcaPCCProducer(const edm::ParameterSet&);
 
 private:
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override;
-  void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) override;
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  std::shared_ptr<reco::PixelClusterCounts> globalBeginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+                                                                       edm::EventSetup const& iSetup) const final;
+  void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final {}
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) final;
 
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelToken_;
   edm::EDPutTokenT<reco::PixelClusterCounts> putToken_;
-
-  std::unique_ptr<reco::PixelClusterCounts> thePCCob;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +53,8 @@ AlcaPCCProducer::AlcaPCCProducer(const edm::ParameterSet& iConfig)
 void AlcaPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   unsigned int bx = iEvent.bunchCrossing();
   //std::cout<<"The Bunch Crossing"<<bx<<std::endl;
-  thePCCob->eventCounter(bx);
+  auto* pccOb = luminosityBlockCache(iEvent.getLuminosityBlock().index());
+  pccOb->eventCounter(bx);
 
   //Looping over the clusters and adding the counts up
   const edmNew::DetSetVector<SiPixelCluster>& clustColl = iEvent.get(pixelToken_);
@@ -74,23 +75,21 @@ void AlcaPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //    nClusterCount++;
     //}
     int nCluster = mod.size();
-    thePCCob->increment(detId(), bx, nCluster);
+    pccOb->increment(detId(), bx, nCluster);
   }
 }
 
 //--------------------------------------------------------------------------------------------------
-void AlcaPCCProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) {
+std::shared_ptr<reco::PixelClusterCounts> AlcaPCCProducer::globalBeginLuminosityBlock(
+    edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) const {
   //New PCC object at the beginning of each lumi section
-  thePCCob = std::make_unique<reco::PixelClusterCounts>();
+  return std::make_shared<reco::PixelClusterCounts>();
 }
-
-//--------------------------------------------------------------------------------------------------
-void AlcaPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) {}
 
 //--------------------------------------------------------------------------------------------------
 void AlcaPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) {
   //Saving the PCC object
-  lumiSeg.put(putToken_, std::move(thePCCob));
+  lumiSeg.emplace(putToken_, std::move(*luminosityBlockCache(lumiSeg.index())));
 }
 
 DEFINE_FWK_MODULE(AlcaPCCProducer);
