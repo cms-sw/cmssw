@@ -28,7 +28,7 @@ int main(void) {
   using namespace gpuClustering;
 
   constexpr int numElements = 256 * maxNumModules;
-  constexpr SiPixelClusterThresholds clusterThresholds{2000,4000};
+  constexpr SiPixelClusterThresholds clusterThresholds(kSiPixelClusterThresholdsDefaultPhase1);
 
   // these in reality are already on GPU
   auto h_id = std::make_unique<uint16_t[]>(numElements);

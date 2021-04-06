@@ -51,8 +51,8 @@ SiPixelDigisClustersFromSoA::SiPixelDigisClustersFromSoA(const edm::ParameterSet
 void SiPixelDigisClustersFromSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigisSoA"));
-  desc.add<int>("clusterThreshold_layer1", 2000);
-  desc.add<int>("clusterThreshold_otherLayers", 4000);
+  desc.add<int>("clusterThreshold_layer1", kSiPixelClusterThresholdsDefaultPhase1.layer1);
+  desc.add<int>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase1.otherLayers);
   descriptions.addWithDefaultLabel(desc);
 }
 
