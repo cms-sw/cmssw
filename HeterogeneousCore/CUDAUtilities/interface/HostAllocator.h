@@ -5,6 +5,8 @@
 #include <new>
 #include <cuda_runtime.h>
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 namespace cms {
   namespace cuda {
 
@@ -28,7 +30,7 @@ namespace cms {
         using other = HostAllocator<U, FLAGS>;
       };
 
-      T* allocate(std::size_t n) const __attribute__((warn_unused_result)) __attribute__((malloc))
+      CMS_THREAD_SAFE T* allocate(std::size_t n) const __attribute__((warn_unused_result)) __attribute__((malloc))
       __attribute__((returns_nonnull)) {
         void* ptr = nullptr;
         cudaError_t status = cudaMallocHost(&ptr, n * sizeof(T), FLAGS);
