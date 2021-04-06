@@ -21,18 +21,14 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "TMath.h"
 //The class
 class AlcaPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks> {
 public:
   explicit AlcaPCCProducer(const edm::ParameterSet&);
-  ~AlcaPCCProducer() override;
 
 private:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override;
@@ -40,43 +36,27 @@ private:
   void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelToken;
-  edm::InputTag fPixelClusterLabel;
-
-  std::string trigstring_;  //specifies the trigger Rand or ZeroBias
-  int countEvt_;            //counter
-  int countLumi_;           //counter
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelToken_;
+  edm::EDPutTokenT<reco::PixelClusterCounts> putToken_;
 
   std::unique_ptr<reco::PixelClusterCounts> thePCCob;
 };
 
 //--------------------------------------------------------------------------------------------------
-AlcaPCCProducer::AlcaPCCProducer(const edm::ParameterSet& iConfig) {
-  fPixelClusterLabel = iConfig.getParameter<edm::InputTag>("pixelClusterLabel");
-  trigstring_ = iConfig.getUntrackedParameter<std::string>("trigstring", "alcaPCC");
-
-  countLumi_ = 0;
-
-  produces<reco::PixelClusterCounts, edm::Transition::EndLuminosityBlock>(trigstring_);
-  pixelToken = consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
-}
-
-//--------------------------------------------------------------------------------------------------
-AlcaPCCProducer::~AlcaPCCProducer() {}
+AlcaPCCProducer::AlcaPCCProducer(const edm::ParameterSet& iConfig)
+    : pixelToken_(consumes(iConfig.getParameter<edm::InputTag>("pixelClusterLabel"))),
+      //specifies the trigger Rand or ZeroBias
+      putToken_(produces<reco::PixelClusterCounts, edm::Transition::EndLuminosityBlock>(
+          iConfig.getUntrackedParameter<std::string>("trigstring", "alcaPCC"))) {}
 
 //--------------------------------------------------------------------------------------------------
 void AlcaPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  countEvt_++;
-
   unsigned int bx = iEvent.bunchCrossing();
   //std::cout<<"The Bunch Crossing"<<bx<<std::endl;
   thePCCob->eventCounter(bx);
 
   //Looping over the clusters and adding the counts up
-  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
-  iEvent.getByToken(pixelToken, hClusterColl);
-
-  const edmNew::DetSetVector<SiPixelCluster>& clustColl = *(hClusterColl.product());
+  const edmNew::DetSetVector<SiPixelCluster>& clustColl = iEvent.get(pixelToken_);
   // ----------------------------------------------------------------------
   // -- Clusters without tracks
   for (auto const& mod : clustColl) {
@@ -102,7 +82,6 @@ void AlcaPCCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void AlcaPCCProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) {
   //New PCC object at the beginning of each lumi section
   thePCCob = std::make_unique<reco::PixelClusterCounts>();
-  countLumi_++;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,7 +90,7 @@ void AlcaPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, co
 //--------------------------------------------------------------------------------------------------
 void AlcaPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) {
   //Saving the PCC object
-  lumiSeg.put(std::move(thePCCob), std::string(trigstring_));
+  lumiSeg.put(putToken_, std::move(thePCCob));
 }
 
 DEFINE_FWK_MODULE(AlcaPCCProducer);
