@@ -3,5 +3,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="CalibTracker/StandaloneTrackerTopology"/>
 <use name="roothistpainter"/>
+<use name="DQM/TrackerRemapper"/>
 <bin file="testSiStripPayloadInspector.cpp" name="testSiStripPayloadInspector">
 </bin>
