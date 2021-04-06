@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelVertexFinding_src_gpuSplitVertices_h
-#define RecoPixelVertexing_PixelVertexFinding_src_gpuSplitVertices_h
+#ifndef RecoPixelVertexing_PixelVertexFinding_plugins_gpuSplitVertices_h
+#define RecoPixelVertexing_PixelVertexFinding_plugins_gpuSplitVertices_h
 
 #include <algorithm>
 #include <cmath>
@@ -136,4 +136,4 @@ namespace gpuVertexFinder {
 
 }  // namespace gpuVertexFinder
 
-#endif  // RecoPixelVertexing_PixelVertexFinding_src_gpuSplitVertices_h
+#endif  // RecoPixelVertexing_PixelVertexFinding_plugins_gpuSplitVertices_h
