@@ -1,4 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-
-from Validation.HGCalValidation.ticlTrackstersValidationDefault_cfi import ticlTrackstersValidationDefault as _ticlTrackstersValidationDefault
-ticlTrackstersValidation = _ticlTrackstersValidationDefault.clone()

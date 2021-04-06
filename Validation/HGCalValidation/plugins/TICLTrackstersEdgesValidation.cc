@@ -322,7 +322,7 @@ void TICLTrackstersEdgesValidation::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("ticlSeedingGlobal", edm::InputTag("ticlSeedingGlobal"));
   desc.add<edm::InputTag>("ticlSeedingTrk", edm::InputTag("ticlSeedingTrk"));
   desc.add<std::string>("folder", "HGCAL/");
-  descriptions.add("ticlTrackstersValidationDefault", desc);
+  descriptions.add("ticlTrackstersEdgesValidationDefault", desc);
 }
 
 DEFINE_FWK_MODULE(TICLTrackstersEdgesValidation);
