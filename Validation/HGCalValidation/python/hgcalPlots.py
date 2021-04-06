@@ -2493,8 +2493,11 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
                     "Rec-matched Hits Sum Energy vs layer"]
 
   dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
-  print(dqmfolder)
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  if not gDirectory.GetDirectory(dqmfolder):
+    print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
+    return hgcalTrackstersPlotter
+
   keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
   key = keys[0]
   while key:
@@ -2545,6 +2548,10 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
   _common["ymin"] = 0.0
   _common["staty"] = 0.85
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  if not gDirectory.GetDirectory(dqmfolder):
+    print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
+    return hgcalTrackstersPlotter
+
   keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
   key = keys[0]
   while key:

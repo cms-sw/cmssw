@@ -41,7 +41,8 @@ hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalHitValidationSequence
                                + hgcalValidatorSequence
                                + hgcalTiclPFValidation
-                               + hgcalTiclTrackstersValidationSequence
+                               #Currently commented out until trackster edges are saved
+#                               + hgcalTiclTrackstersValidationSequence
                                + hgcalPFJetValidation)
 
 _hfnose_hgcalAssociatorsTask = hgcalAssociators.copy()

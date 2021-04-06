@@ -11,10 +11,9 @@ import Validation.RecoTrack.plotting.plotting as plotting
 
 simClustersIters = ["ClusterLevel","ticlTrackstersTrkEM","ticlTrackstersEM","ticlTrackstersTrk","ticlTrackstersHAD"]
 
-trackstersIters = ["ticlMultiClustersFromTrackstersMerge", #"ticlMultiClustersFromTrackstersMIP",
+trackstersIters = ["ticlMultiClustersFromTrackstersMerge", "ticlMultiClustersFromTrackstersMIP",
                    "ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersTrkEM",
-                   "ticlMultiClustersFromTrackstersEM", "ticlMultiClustersFromTrackstersHAD",
-                   "ticlMultiClustersFromTrackstersDummy"]
+                   "ticlMultiClustersFromTrackstersEM", "ticlMultiClustersFromTrackstersHAD"]
 
 simClustersGeneralLabel = 'simClusters'
 layerClustersGeneralLabel = 'hgcalLayerClusters'
@@ -74,7 +73,7 @@ def main(opts):
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
-        # TICLDebugger plots
+        # TICLTrackstersEdges plots
         for i_iter in trackstersIters :
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection, tracksterCollection)]
@@ -140,6 +139,7 @@ def main(opts):
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
+        #TICLTrackstersEdges plots
         for i_iter in trackstersIters :
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection, tracksterCollection)]
