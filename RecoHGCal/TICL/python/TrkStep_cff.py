@@ -18,7 +18,7 @@ filteredLayerClustersTrk = _filteredLayerClustersProducer.clone(
 
 # CA - PATTERN RECOGNITION
 
-ticlTrackstersTrk = _trackstersProducer.clone(
+ticlTrackstersTrkHAD = _trackstersProducer.clone(
   filtered_mask = "filteredLayerClustersTrk:Trk",
   seeding_regions = "ticlSeedingTrk",
   original_mask = 'ticlTrackstersEM',
@@ -37,13 +37,13 @@ ticlTrackstersTrk = _trackstersProducer.clone(
 
 # MULTICLUSTERS
 
-ticlMultiClustersFromTrackstersTrk = _multiClustersFromTrackstersProducer.clone(
-    Tracksters = "ticlTrackstersTrk"
+ticlMultiClustersFromTrackstersTrkHAD = _multiClustersFromTrackstersProducer.clone(
+    Tracksters = "ticlTrackstersTrkHAD"
 )
 
 ticlTrkStepTask = cms.Task(ticlSeedingTrk
     ,filteredLayerClustersTrk
-    ,ticlTrackstersTrk
-    ,ticlMultiClustersFromTrackstersTrk)
+    ,ticlTrackstersTrkHAD
+    ,ticlMultiClustersFromTrackstersTrkHAD)
 
 
