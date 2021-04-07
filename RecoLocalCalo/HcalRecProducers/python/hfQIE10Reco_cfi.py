@@ -1,15 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+import RecoLocalCalo.HcalRecProducers.hosimplereco_cfi as _mod
 
-hfQIE10Reco = cms.EDProducer("HcalSimpleReconstructor",
-    correctionPhaseNS = cms.double(0.0),
-    digiLabel = cms.InputTag("simHcalUnsuppressedDigis","HFQIE10DigiCollection"),
-    Subdetector = cms.string('HFQIE10'),
-    correctForPhaseContainment = cms.bool(False),
-    correctForTimeslew = cms.bool(False),
-    dropZSmarkedPassed = cms.bool(True),
-    firstSample = cms.int32(2),
-    samplesToAdd = cms.int32(1),
-    tsFromDB = cms.bool(True)
+hfQIE10Reco = _mod.hosimplereco.clone(
+    correctionPhaseNS = 0.0,
+    digiLabel = "simHcalUnsuppressedDigis:HFQIE10DigiCollection",
+    Subdetector = 'HFQIE10',
+    correctForPhaseContainment = False,
+    correctForTimeslew = False,
+    dropZSmarkedPassed = True,
+    firstSample = 2,
+    samplesToAdd = 1,
+    tsFromDB = True
 )
 
 
