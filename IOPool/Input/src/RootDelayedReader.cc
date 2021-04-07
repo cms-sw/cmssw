@@ -41,7 +41,7 @@ namespace edm {
     return std::make_pair(resourceAcquirer_.get(), mutex_.get());
   }
 
-  std::unique_ptr<WrapperBase> RootDelayedReader::getProduct_(BranchID const& k, EDProductGetter const* ep) {
+  std::shared_ptr<WrapperBase> RootDelayedReader::getProduct_(BranchID const& k, EDProductGetter const* ep) {
     if (lastException_) {
       std::rethrow_exception(lastException_);
     }
@@ -50,7 +50,7 @@ namespace edm {
       if (nextReader_) {
         return nextReader_->getProduct(k, ep);
       } else {
-        return std::unique_ptr<WrapperBase>();
+        return std::shared_ptr<WrapperBase>();
       }
     }
     TBranch* br = branchInfo->productBranch_;
@@ -58,7 +58,7 @@ namespace edm {
       if (nextReader_) {
         return nextReader_->getProduct(k, ep);
       } else {
-        return std::unique_ptr<WrapperBase>();
+        return std::shared_ptr<WrapperBase>();
       }
     }
 
