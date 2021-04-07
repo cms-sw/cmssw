@@ -5,7 +5,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGTPMode.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormatEE.h>
-#include <iostream>
 
 using namespace std;
 

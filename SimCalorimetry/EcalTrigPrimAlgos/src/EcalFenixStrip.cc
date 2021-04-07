@@ -3,6 +3,7 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEB.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEE.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGTPMode.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
@@ -16,14 +17,14 @@ EcalFenixStrip::EcalFenixStrip(const EcalElectronicsMapping *theMapping,
                                bool famos,
                                int maxNrSamples,
                                int nbMaxXtals,
-                               bool TPinfoPrintout)
-    : theMapping_(theMapping), debug_(debug), famos_(famos), nbMaxXtals_(nbMaxXtals), TPinfoPrintout_(TPinfoPrintout) {
+                               bool tpInfoPrintout)
+    : theMapping_(theMapping), debug_(debug), famos_(famos), nbMaxXtals_(nbMaxXtals), tpInfoPrintout_(tpInfoPrintout) {
   linearizer_.resize(nbMaxXtals_);
   for (int i = 0; i < nbMaxXtals_; i++)
     linearizer_[i] = new EcalFenixLinearizer(famos_);
   adder_ = new EcalFenixEtStrip();
-  amplitude_filter_ = new EcalFenixAmplitudeFilter(TPinfoPrintout);
-  oddAmplitude_filter_ = new EcalFenixOddAmplitudeFilter(TPinfoPrintout);
+  amplitude_filter_ = new EcalFenixAmplitudeFilter(tpInfoPrintout);
+  oddAmplitude_filter_ = new EcalFenixOddAmplitudeFilter(tpInfoPrintout);
   peak_finder_ = new EcalFenixPeakFinder();
   fenixFormatterEB_ = new EcalFenixStripFormatEB();
   fenixFormatterEE_ = new EcalFenixStripFormatEE();
@@ -63,7 +64,7 @@ EcalFenixStrip::~EcalFenixStrip() {
 void EcalFenixStrip::process(std::vector<EBDataFrame> &samples, int nrXtals, std::vector<int> &out) {
   // now call processing
   if (samples.empty()) {
-    std::cout << " Warning: 0 size vector found in EcalFenixStripProcess!!!!!" << std::endl;
+    edm::LogWarning("EcalTPG") << "Warning: 0 size vector found in EcalFenixStripProcess!!!!!";
     return;
   }
   const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(samples[0].id());
