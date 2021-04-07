@@ -46,6 +46,7 @@ private:
   edm::EDGetTokenT<unsigned int> bunchSpacing_;
 
   const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+  const EcalReadoutTools::ESGetTokens ecalReadoutToolsESGetTokens_;
 
   std::vector<std::string> condnames_mean_;
   std::vector<std::string> condnames_sigma_;
