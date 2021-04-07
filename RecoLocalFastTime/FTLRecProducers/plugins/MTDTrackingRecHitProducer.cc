@@ -53,7 +53,7 @@ MTDTrackingRecHitProducer::MTDTrackingRecHitProducer(const edm::ParameterSet& ps
       ftleClusters_(consumes<FTLClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusters"))) {
   produces<MTDTrackingDetSetVector>();
   mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
-  cpeToken_ = esConsumes<MTDClusterParameterEstimator, MTDCPERecord>(edm::ESInputTag{"MTDCPEBase"});
+  cpeToken_ = esConsumes<MTDClusterParameterEstimator, MTDCPERecord>(edm::ESInputTag("","MTDCPEBase"));
 }
 
 // Configuration descriptions
