@@ -119,10 +119,10 @@ bool TrackVertexArbitration<VTX>::trackFilterArbitrator(const reco::TransientTra
   return true;
 }
 
-float trackWeight(const reco::Vertex &sv, const reco::TransientTrack &track) {
+inline float trackWeight(const reco::Vertex &sv, const reco::TransientTrack &track) {
   return sv.trackWeight(track.trackBaseRef());
 }
-float trackWeight(const reco::VertexCompositePtrCandidate &sv, const reco::TransientTrack &tt) {
+inline float trackWeight(const reco::VertexCompositePtrCandidate &sv, const reco::TransientTrack &tt) {
   const reco::CandidatePtrTransientTrack *cptt =
       dynamic_cast<const reco::CandidatePtrTransientTrack *>(tt.basicTransientTrack());
   if (cptt == nullptr)

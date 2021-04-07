@@ -66,7 +66,7 @@ private:
   double minMinMass_;
 };
 
-reco::CATopJetProperties CATopJetHelperUser::operator()(reco::Jet const& ihardJet) const {
+inline reco::CATopJetProperties CATopJetHelperUser::operator()(reco::Jet const& ihardJet) const {
   reco::CATopJetProperties properties;
   // Get subjets
   reco::Jet::Constituents subjets = ihardJet.getJetConstituents();

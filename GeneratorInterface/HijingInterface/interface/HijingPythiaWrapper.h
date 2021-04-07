@@ -50,7 +50,7 @@ extern "C" {
 }
 */
 
-float ranff_(unsigned int* iseed) {
+inline float ranff_(unsigned int* iseed) {
   (*iseed) = (69069 * (*iseed) + 1) & 0xffffffffUL;
   return (*iseed) / 4294967296.0;
 }

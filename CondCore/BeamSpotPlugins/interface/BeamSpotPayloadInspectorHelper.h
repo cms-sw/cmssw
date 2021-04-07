@@ -20,7 +20,7 @@
 
 namespace BeamSpotPI {
 
-  std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
+  inline std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
     auto kLowMask = 0XFFFFFFFF;
     auto run = (since >> 32);
     auto lumi = (since & kLowMask);
@@ -46,7 +46,7 @@ namespace BeamSpotPI {
   };
 
   /************************************************/
-  std::string getStringFromParamEnum(const parameters& parameter) {
+  inline std::string getStringFromParamEnum(const parameters& parameter) {
     switch (parameter) {
       case X:
         return "X";

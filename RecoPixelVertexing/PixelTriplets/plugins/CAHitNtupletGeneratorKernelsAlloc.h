@@ -6,7 +6,7 @@ template <>
 #ifdef __CUDACC__
 void CAHitNtupletGeneratorKernelsGPU::allocateOnGPU(cudaStream_t stream) {
 #else
-void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cudaStream_t stream) {
+inline void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(cudaStream_t stream) {
 #endif
   //////////////////////////////////////////////////////////
   // ALLOCATIONS FOR THE INTERMEDIATE RESULTS (STAYS ON WORKER)

@@ -65,7 +65,7 @@ namespace {
     iEvent.put(std::move(valMap), label);
   }
 
-  auto getMVAEstimators(const edm::VParameterSet& vConfig) {
+  inline auto getMVAEstimators(const edm::VParameterSet& vConfig) {
     std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators;
 
     // Loop over the list of MVA configurations passed here from python and
@@ -85,7 +85,7 @@ namespace {
     return mvaEstimators;
   }
 
-  std::vector<std::string> getValueMapNames(const edm::VParameterSet& vConfig, std::string&& suffix) {
+  inline std::vector<std::string> getValueMapNames(const edm::VParameterSet& vConfig, std::string&& suffix) {
     std::vector<std::string> names;
     for (auto& imva : vConfig) {
       names.push_back(imva.getParameter<std::string>("mvaName") + imva.getParameter<std::string>("mvaTag") + suffix);

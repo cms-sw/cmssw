@@ -102,7 +102,7 @@ namespace gpuVertexFinder {
 #endif  // PIXVERTEX_DEBUG_PRODUCE
     ZVertexHeterogeneous vertices(cms::cuda::make_device_unique<ZVertexSoA>(stream));
 #else
-  ZVertexHeterogeneous Producer::make(TkSoA const* tksoa, float ptMin) const {
+  inline ZVertexHeterogeneous Producer::make(TkSoA const* tksoa, float ptMin) const {
 #ifdef PIXVERTEX_DEBUG_PRODUCE
     std::cout << "producing Vertices on  CPU" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE

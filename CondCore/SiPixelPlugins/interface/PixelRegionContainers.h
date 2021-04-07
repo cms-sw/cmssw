@@ -15,7 +15,7 @@
 
 namespace PixelRegions {
 
-  std::string itoa(int i) {
+  inline std::string itoa(int i) {
     char temp[20];
     sprintf(temp, "%d", i);
     return ((std::string)temp);

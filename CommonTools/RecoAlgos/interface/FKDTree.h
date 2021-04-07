@@ -21,7 +21,7 @@ namespace {
   const std::array<unsigned int, 32> MultiplyDeBruijnBitPosition{{0,  9,  1,  10, 13, 21, 2,  29, 11, 14, 16,
                                                                   18, 22, 25, 3,  30, 8,  12, 20, 28, 15, 17,
                                                                   24, 7,  19, 27, 23, 6,  26, 5,  4,  31}};
-  unsigned int ilog2(unsigned int v) {
+  inline unsigned int ilog2(unsigned int v) {
     v |= v >> 1;  // first round down to one less than a power of 2
     v |= v >> 2;
     v |= v >> 4;

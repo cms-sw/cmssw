@@ -30,7 +30,7 @@
 #include <vector>
 
 namespace {
-  std::string format_vstring(const std::vector<std::string>& v) {
+  inline std::string format_vstring(const std::vector<std::string>& v) {
     std::string retVal;
 
     retVal.append("{ ");

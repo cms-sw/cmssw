@@ -1,7 +1,7 @@
 #include "TH2F.h"
 #include "TLine.h"
 
-void DrawES(int plane, int side) {
+inline void DrawES(int plane, int side) {
   int ixF[172] = {
       2,  2,  3,  3,  4,  4,  5,  5,  6,  6,  7,  7,  8,  8,  10, 10, 11, 11, 14, 14,     // external upper crown (44)
       16, 16, 26, 26, 28, 28, 31, 31, 32, 32, 34, 34, 35, 35, 36, 36, 37, 37, 38, 38,     // external upper crown

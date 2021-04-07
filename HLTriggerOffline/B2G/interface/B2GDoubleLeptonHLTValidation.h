@@ -118,7 +118,7 @@ inline void B2GDoubleLeptonHLTValidation::triggerBinLabels(const std::vector<std
 //
 // constructors and destructor
 //
-B2GDoubleLeptonHLTValidation::B2GDoubleLeptonHLTValidation(const edm::ParameterSet &iConfig)
+inline B2GDoubleLeptonHLTValidation::B2GDoubleLeptonHLTValidation(const edm::ParameterSet &iConfig)
     : sDir_(iConfig.getUntrackedParameter<std::string>("sDir", "HLTValidation/B2G/Efficiencies/")),
       sElectrons_(iConfig.getUntrackedParameter<std::string>("sElectrons", "gsfElectrons")),
       ptElectrons_(iConfig.getUntrackedParameter<double>("ptElectrons", 0.)),
@@ -143,7 +143,7 @@ B2GDoubleLeptonHLTValidation::B2GDoubleLeptonHLTValidation(const edm::ParameterS
   tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "HLT"));
 }
 
-B2GDoubleLeptonHLTValidation::~B2GDoubleLeptonHLTValidation() {
+inline B2GDoubleLeptonHLTValidation::~B2GDoubleLeptonHLTValidation() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }

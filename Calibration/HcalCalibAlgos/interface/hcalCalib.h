@@ -206,7 +206,7 @@ public:
 #endif
 
 #ifdef hcalCalib_cxx
-void hcalCalib::Init(TTree *tree) {
+inline void hcalCalib::Init(TTree *tree) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -250,7 +250,7 @@ void hcalCalib::Init(TTree *tree) {
   fChain->SetBranchAddress("probeJetP4", &probeJetP4, &b_probeJetP4);
 }
 
-Bool_t hcalCalib::Notify() {
+inline Bool_t hcalCalib::Notify() {
   // The Notify() function is called when a new file is opened. This
   // can be either for a new TTree in a TChain or when when a new TTree
   // is started when using PROOF. It is normaly not necessary to make changes

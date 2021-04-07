@@ -126,13 +126,13 @@ namespace {
 #define PRINT LogTrace("")
 #endif
 
-  Trajectory KFFittingSmoother::fitOne(const Trajectory& t, fitType type) const {
+  inline Trajectory KFFittingSmoother::fitOne(const Trajectory& t, fitType type) const {
     if (!t.isValid())
       return Trajectory();
     return smoothingStep(theFitter->fitOne(t, type));
   }
 
-  bool KFFittingSmoother::checkForNans(const Trajectory& theTraj) {
+  inline bool KFFittingSmoother::checkForNans(const Trajectory& theTraj) {
     if (edm::isNotFinite(theTraj.chiSquared()))
       return false;
     auto const& vtm = theTraj.measurements();
@@ -162,10 +162,10 @@ namespace {
     }
   }  // namespace
 
-  Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
-                                       const RecHitContainer& hits,
-                                       const TrajectoryStateOnSurface& firstPredTsos,
-                                       fitType type) const {
+  inline Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
+                                              const RecHitContainer& hits,
+                                              const TrajectoryStateOnSurface& firstPredTsos,
+                                              fitType type) const {
     LogDebug("TrackFitters") << "In KFFittingSmoother::fit";
 
     print("firstPred ", firstPredTsos);
@@ -413,7 +413,9 @@ namespace {
     return smoothed;
   }
 
-  Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed, const RecHitContainer& hits, fitType type) const {
+  inline Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
+                                              const RecHitContainer& hits,
+                                              fitType type) const {
     throw cms::Exception("TrackFitters",
                          "KFFittingSmoother::fit(TrajectorySeed, <TransientTrackingRecHit>) not implemented");
 

@@ -4,7 +4,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include <vector>
 
-void removeCPFromPU(const std::vector<CaloParticle>& caloParticles, std::vector<size_t>& cPIndices) {
+inline void removeCPFromPU(const std::vector<CaloParticle>& caloParticles, std::vector<size_t>& cPIndices) {
   //Consider CaloParticles coming from the hard scatterer
   //excluding the PU contribution and save the indices.
   for (unsigned int cpId = 0; cpId < caloParticles.size(); ++cpId) {

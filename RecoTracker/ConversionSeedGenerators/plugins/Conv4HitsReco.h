@@ -96,7 +96,7 @@ public:
 #endif
 
 #ifdef Conv4HitsReco_cxx
-Conv4HitsReco::Conv4HitsReco(TVector3 &vPhotVertex, TVector3 &h1, TVector3 &h2, TVector3 &h3, TVector3 &h4) {
+inline Conv4HitsReco::Conv4HitsReco(TVector3 &vPhotVertex, TVector3 &h1, TVector3 &h2, TVector3 &h3, TVector3 &h4) {
   vV = vPhotVertex;
   hit4 = h4;
   hit3 = h3;
@@ -142,7 +142,7 @@ Conv4HitsReco::Conv4HitsReco(TVector3 &vPhotVertex, TVector3 &h1, TVector3 &h2, 
   SetMaxVtxDistance(20.);
 }
 
-Conv4HitsReco::~Conv4HitsReco() {
+inline Conv4HitsReco::~Conv4HitsReco() {
   //  std::cout << " Bye..." << std::endl;
 }
 

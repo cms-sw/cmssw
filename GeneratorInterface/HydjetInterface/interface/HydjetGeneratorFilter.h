@@ -7,7 +7,7 @@
 
 namespace edm {
   template <>
-  GeneratorFilter<gen::HydjetHadronizer, gen::ExternalDecayDriver>::GeneratorFilter(ParameterSet const& ps)
+  inline GeneratorFilter<gen::HydjetHadronizer, gen::ExternalDecayDriver>::GeneratorFilter(ParameterSet const& ps)
       : hadronizer_(ps, consumesCollector()) {
     init(ps);
   }

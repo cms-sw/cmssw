@@ -248,10 +248,10 @@ void TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup) {
 }
 
 template <>
-void TtEvtBuilder<TtFullHadronicEvent>::fillSpecific(TtFullHadronicEvent& ttEvent, const edm::Event& evt) {}
+inline void TtEvtBuilder<TtFullHadronicEvent>::fillSpecific(TtFullHadronicEvent& ttEvent, const edm::Event& evt) {}
 
 template <>
-void TtEvtBuilder<TtFullLeptonicEvent>::fillSpecific(TtFullLeptonicEvent& ttEvent, const edm::Event& evt) {
+inline void TtEvtBuilder<TtFullLeptonicEvent>::fillSpecific(TtFullLeptonicEvent& ttEvent, const edm::Event& evt) {
   // set kKinSolution extras
   if (ttEvent.isHypoAvailable(TtEvent::kKinSolution)) {
     edm::Handle<std::vector<double> > solWeight;
@@ -265,7 +265,7 @@ void TtEvtBuilder<TtFullLeptonicEvent>::fillSpecific(TtFullLeptonicEvent& ttEven
 }
 
 template <>
-void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent& ttEvent, const edm::Event& evt) {
+inline void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent& ttEvent, const edm::Event& evt) {
   EventHypoIntToken hKey = hypKeyTokens_.begin();
   EventHypoIntToken hNeutr = hypNeutrTokens_.begin();
   EventHypoIntToken hJet = hypJetTokens_.begin();
