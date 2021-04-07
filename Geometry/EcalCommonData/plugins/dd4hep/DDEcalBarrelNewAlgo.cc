@@ -2759,8 +2759,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         if (0 != dryAirTube.here) {
           string dryAirTubName(dryAirTube.name + std::to_string(iMod + 1));
 
-          Solid dryAirTubeSolid =
-              Tube(dryAirTubName, dryAirTube.innDiam * 0.5, dryAirTube.outDiam * 0.5, pipeLength * 0.5, 0._deg, 360._deg);
+          Solid dryAirTubeSolid = Tube(
+              dryAirTubName, dryAirTube.innDiam * 0.5, dryAirTube.outDiam * 0.5, pipeLength * 0.5, 0._deg, 360._deg);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("EBGeom") << dryAirTubName << " Tubs " << cms::convert2mm(pipeLength * 0.5) << ":"
                                      << cms::convert2mm(dryAirTube.innDiam * 0.5) << ":"
