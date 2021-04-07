@@ -69,21 +69,6 @@ void EcalFenixStrip::process(std::vector<EBDataFrame> &samples, int nrXtals, std
   const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(samples[0].id());
   uint32_t stripid = elId.rawId() & 0xfffffff8;  // from Pascal
 
-  // by RK
-  if (false) {
-    const EBDetId &id = samples[0].id();
-    const EcalTrigTowerDetId towid = id.tower();
-    for (int cryst = 0; cryst < nrXtals; cryst++) {
-      //" EcalFenixStrip.h::stripid nsamples, tower eta, phi, xtal eta phi, 10 samples:  "
-      std::cout << stripid << " " << samples.size() << " " << towid.ieta() << " " << towid.iphi() << "  " << id.iphi()
-                << " " << id.ieta();  // add to TPinfo
-      for (int i = 0; i < samples[cryst].size(); i++) {
-        std::cout << " " << std::dec << samples[cryst][i].adc();
-      }
-      std::cout << std::endl;
-    }
-  }
-
   identif_ = getFGVB()->getMissedStripFlag();
 
   process_part1(identif_,

@@ -1,5 +1,5 @@
-#ifndef ECAL_FENIX_ODD_AMPLITUDE_FILTER_H
-#define ECAL_FENIX_ODD_AMPLITUDE_FILTER_H
+#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXODDAMPLITUDEFILTER_H
+#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXODDAMPLITUDEFILTER_H
 
 #include <cstdint>
 #include <vector>
@@ -20,12 +20,12 @@ class EcalFenixOddAmplitudeFilter {
 private:
   int peakFlag_[5];
   int inputsAlreadyIn_;
-  uint32_t stripid_;  // by RK
+  uint32_t stripid_;
   int buffer_[5];
   int weights_[5];
   int shift_;
   bool debug_;
-  bool TPinfoPrintout_;
+  bool tpInfoPrintout_;
   int setInput(int input);
   void process();
 

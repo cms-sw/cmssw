@@ -92,7 +92,7 @@ private:
   bool tcpFormat_;
   bool debug_;
   bool famos_;
-  bool TPinfoPrintout_;
+  bool tpInfoPrintout_;
   edm::EDGetTokenT<EBDigiCollection> tokenEB_;
   edm::EDGetTokenT<EEDigiCollection> tokenEE_;
 
@@ -141,7 +141,7 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet &iConfig)
       tcpFormat_(iConfig.getParameter<bool>("TcpOutput")),
       debug_(iConfig.getParameter<bool>("Debug")),
       famos_(iConfig.getParameter<bool>("Famos")),
-      TPinfoPrintout_(iConfig.getParameter<bool>("TPinfoPrintout")),
+      tpInfoPrintout_(iConfig.getParameter<bool>("TPinfoPrintout")),
       tokenEB_(consumes<EBDigiCollection>(
           edm::InputTag(iConfig.getParameter<std::string>("Label"), iConfig.getParameter<std::string>("InstanceEB")))),
       tokenEE_(consumes<EEDigiCollection>(
@@ -226,12 +226,12 @@ void EcalTrigPrimProducer::beginRun(edm::Run const &run, edm::EventSetup const &
   auto const &ecalmapping = setup.getData(tokenEcalMapping_);
   if (barrelOnly_) {
     algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(
-        &ecalmapping, binOfMaximum_, tcpFormat_, debug_, famos_, TPinfoPrintout_);
+        &ecalmapping, binOfMaximum_, tcpFormat_, debug_, famos_, tpInfoPrintout_);
   } else {
     auto const &endcapGeometry = setup.getData(tokenEndcapGeom_);
     auto const &eTTmap = setup.getData(tokenETTMap_);
     algo_ = std::make_unique<EcalTrigPrimFunctionalAlgo>(
-        &eTTmap, &endcapGeometry, &ecalmapping, binOfMaximum_, tcpFormat_, debug_, famos_, TPinfoPrintout_);
+        &eTTmap, &endcapGeometry, &ecalmapping, binOfMaximum_, tcpFormat_, debug_, famos_, tpInfoPrintout_);
   }
 }
 

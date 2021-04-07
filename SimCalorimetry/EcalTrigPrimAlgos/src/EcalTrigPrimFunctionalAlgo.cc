@@ -56,7 +56,7 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const EcalTrigTowerConsti
                                                        bool tcpFormat,
                                                        bool debug,
                                                        bool famos,
-                                                       bool TPinfoPrintout)
+                                                       bool tpInfoPrintout)
     : eTTmap_(eTTmap),
       theEndcapGeometry_(endcapGeometry),
       theMapping_(theMapping),
@@ -65,7 +65,7 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const EcalTrigTowerConsti
       barrelOnly_(true),
       debug_(debug),
       famos_(famos),
-      TPinfoPrintout_(TPinfoPrintout)
+      tpInfoPrintout_(tpInfoPrintout)
 
 {
   if (famos_)
@@ -76,14 +76,14 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const EcalTrigTowerConsti
 }
 
 EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(
-    const EcalElectronicsMapping *theMapping, int binofmax, bool tcpFormat, bool debug, bool famos, bool TPinfoPrintout)
+    const EcalElectronicsMapping *theMapping, int binofmax, bool tcpFormat, bool debug, bool famos, bool tpInfoPrintout)
     : theMapping_(theMapping),
       binOfMaximum_(binofmax),
       tcpFormat_(tcpFormat),
       barrelOnly_(true),
       debug_(debug),
       famos_(famos),
-      TPinfoPrintout_(TPinfoPrintout)
+      tpInfoPrintout_(tpInfoPrintout)
 
 {
   if (famos_)
@@ -96,9 +96,9 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(
 //----------------------------------------------------------------------
 void EcalTrigPrimFunctionalAlgo::init() {
   // create main sub algos
-  estrip_ = std::make_unique<EcalFenixStrip>(theMapping_, debug_, famos_, maxNrSamples_, nbMaxXtals_, TPinfoPrintout_);
+  estrip_ = std::make_unique<EcalFenixStrip>(theMapping_, debug_, famos_, maxNrSamples_, nbMaxXtals_, tpInfoPrintout_);
   etcp_ = std::make_unique<EcalFenixTcp>(
-      tcpFormat_, debug_, famos_, binOfMaximum_, maxNrSamples_, nbMaxStrips_, TPinfoPrintout_);
+      tcpFormat_, debug_, famos_, binOfMaximum_, maxNrSamples_, nbMaxStrips_, tpInfoPrintout_);
 
   // initialise data structures
   initStructures(towerMapEB_);

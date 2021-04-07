@@ -5,8 +5,8 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
 #include <iostream>
 
-EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter(bool TPinfoPrintout)
-    : inputsAlreadyIn_(0), stripid_{0}, shift_(6), TPinfoPrintout_(TPinfoPrintout) {}
+EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter(bool tpInfoPrintout)
+    : inputsAlreadyIn_(0), stripid_{0}, shift_(6), tpInfoPrintout_(tpInfoPrintout) {}
 
 EcalFenixAmplitudeFilter::~EcalFenixAmplitudeFilter() {}
 
@@ -44,9 +44,8 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
 
   for (unsigned int i = 0; i < addout.size(); i++) {
     // Only save TP info for Clock i >= 4 (from 0-9) because first 5 digis required to produce first ET value
-    if (i >= 4) {
-      if (TPinfoPrintout_)
-        std::cout << i << std::dec;
+    if (i >= 4 && tpInfoPrintout_) {
+      std::cout << i << std::dec;
     }
     setInput(addout[i], fgvbIn[i]);
     process();
@@ -86,8 +85,8 @@ void EcalFenixAmplitudeFilter::process() {
     output = 0X3FFFF;
   processedOutput_ = output;
   processedFgvbOutput_ = fgvbInt;
-  // by RK
-  if (TPinfoPrintout_) {
+
+  if (tpInfoPrintout_) {
     std::cout << " " << stripid_;
     for (int i = 0; i < 5; i++) {
       std::cout << " " << weights_[i] << std::dec;
@@ -107,7 +106,7 @@ void EcalFenixAmplitudeFilter::process() {
 void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,
                                              const EcalTPGWeightIdMap *ecaltpgWeightMap,
                                              const EcalTPGWeightGroup *ecaltpgWeightGroup) {
-  stripid_ = raw;  // by RK
+  stripid_ = raw;
   uint32_t params_[5];
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgWeightGroup->getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(raw);
@@ -117,18 +116,9 @@ void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,
     EcalTPGWeightIdMap::EcalTPGWeightMapItr itw = weightmap.find(weightid);
     (*itw).second.getValues(params_[0], params_[1], params_[2], params_[3], params_[4]);
 
-    // we have to transform negative coded in 7 bits into negative coded in 32
-    // bits maybe this should go into the getValue method??
-    // std::cout << "peak flag settings" << std::endl;
     for (int i = 0; i < 5; ++i) {
       weights_[i] = (params_[i] & 0x40) ? (int)(params_[i] | 0xffffffc0) : (int)(params_[i]);
-
-      // Construct the peakFlag for sFGVB processing
-      // peakFlag_[i] = ((params_[i] & 0x80) > 0x0) ? 1 : 0;
-      // std::cout << " " << params_[i] << std::endl;
-      // std::cout << " " << peakFlag_[i] << std::endl;
     }
-    // std::cout << std::endl;
   } else
     edm::LogWarning("EcalTPG") << " could not find EcalTPGGroupsMap entry for " << raw;
 }

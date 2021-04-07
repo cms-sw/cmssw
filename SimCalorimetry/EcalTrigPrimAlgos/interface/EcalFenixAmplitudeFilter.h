@@ -1,5 +1,5 @@
-#ifndef ECAL_FENIX_AMPLITUDE_FILTER_H
-#define ECAL_FENIX_AMPLITUDE_FILTER_H
+#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXAMPLITUDEFILTER_H
+#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXAMPLITUDEFILTER_H
 
 #include <cstdint>
 #include <vector>
@@ -18,14 +18,14 @@ class EcalFenixAmplitudeFilter {
 private:
   int peakFlag_[5];
   int inputsAlreadyIn_;
-  uint32_t stripid_;  // by RK
+  uint32_t stripid_;
   int buffer_[5];
   int fgvbBuffer_[5];
   int weights_[5];
   int shift_;
   int setInput(int input, int fgvb);
   void process();
-  bool TPinfoPrintout_;
+  bool tpInfoPrintout_;
 
   int processedOutput_;
   int processedFgvbOutput_;

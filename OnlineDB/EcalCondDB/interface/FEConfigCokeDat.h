@@ -1,5 +1,5 @@
-#ifndef FECONFCOKEDAT_H
-#define FECONFCOKEDAT_H
+#ifndef ONLINEDB_ECALCONDDB_FECONFIGCOKEDAT_H
+#define ONLINEDB_ECALCONDDB_FECONFIGCOKEDAT_H
 
 #include <vector>
 #include <stdexcept>

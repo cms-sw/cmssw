@@ -109,7 +109,6 @@ void EcalFenixStripFormatEE::process(std::vector<int> &fgvbout,
   }
 
   for (unsigned int i = 0; i < filtout_even.size(); i++) {
-    // std::cout << "Clock: " << i << std::endl;
     setInput(filtout_even[i], peakout_even[i], filtout_odd[i], peakout_odd[i], fgvbout[i]);
     output[i] = process();
   }

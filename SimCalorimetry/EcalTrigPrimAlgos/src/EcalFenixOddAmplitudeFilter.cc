@@ -7,8 +7,8 @@
 #include <string>
 #include <fstream>
 
-EcalFenixOddAmplitudeFilter::EcalFenixOddAmplitudeFilter(bool TPinfoPrintout)
-    : inputsAlreadyIn_(0), stripid_{0}, shift_(6), TPinfoPrintout_(TPinfoPrintout) {}
+EcalFenixOddAmplitudeFilter::EcalFenixOddAmplitudeFilter(bool tpInfoPrintout)
+    : inputsAlreadyIn_(0), stripid_{0}, shift_(6), tpInfoPrintout_(tpInfoPrintout) {}
 
 EcalFenixOddAmplitudeFilter::~EcalFenixOddAmplitudeFilter() {}
 
@@ -39,9 +39,8 @@ void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout, std::vector<
 
   for (unsigned int i = 0; i < addout.size(); i++) {
     // Only save TP info for Clock i >= 4 (from 0-9) because first 5 digis required to produce first ET value
-    if (i >= 4) {
-      if (TPinfoPrintout_)
-        std::cout << i << std::dec;
+    if (i >= 4 && tpInfoPrintout_) {
+      std::cout << i << std::dec;
     }
     setInput(addout[i]);
     process();  // This should probably be renamed to something meaningful and not the same as the very function it's being called in...
@@ -75,8 +74,7 @@ void EcalFenixOddAmplitudeFilter::process() {
     output = 0X3FFFF;
   processedOutput_ = output;
 
-  // by RK
-  if (TPinfoPrintout_) {
+  if (tpInfoPrintout_) {
     std::cout << " " << stripid_;
     for (int i = 0; i < 5; i++) {
       std::cout << " " << weights_[i] << std::dec;
@@ -96,7 +94,7 @@ void EcalFenixOddAmplitudeFilter::process() {
 void EcalFenixOddAmplitudeFilter::setParameters(uint32_t raw,
                                                 const EcalTPGOddWeightIdMap *ecaltpgOddWeightMap,
                                                 const EcalTPGOddWeightGroup *ecaltpgOddWeightGroup) {
-  stripid_ = raw;  // by RK
+  stripid_ = raw;
   uint32_t params_[5];
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgOddWeightGroup->getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(raw);
@@ -106,19 +104,9 @@ void EcalFenixOddAmplitudeFilter::setParameters(uint32_t raw,
     EcalTPGOddWeightIdMap::EcalTPGWeightMapItr itw = weightmap.find(weightid);
     (*itw).second.getValues(params_[0], params_[1], params_[2], params_[3], params_[4]);
 
-    // we have to transform negative coded in 7 bits into negative coded in 32
-    // bits maybe this should go into the getValue method??
-    // std::cout << "peak flag settings" << std::endl;
-
     for (int i = 0; i < 5; ++i) {
       weights_[i] = (params_[i] & 0x40) ? (int)(params_[i] | 0xffffffc0) : (int)(params_[i]);
-      //std::cout << "ODD weight: "<<  std::dec << params_[i] << " --> " << std::dec << weights_[i] << std::endl;
-      // Construct the peakFlag for sFGVB processing
-      // peakFlag_[i] = ((params_[i] & 0x80) > 0x0) ? 1 : 0;
-      // std::cout << " " << params_[i] << std::endl;
-      // std::cout << " " << peakFlag_[i] << std::endl;
     }
-    // std::cout << std::endl;
   } else
     edm::LogWarning("EcalTPG") << " could not find EcalTPGGroupsMap entry for " << raw;
 }
