@@ -7,10 +7,8 @@ hfQIE10Reco = _mod.hosimplereco.clone(
     Subdetector = 'HFQIE10',
     correctForPhaseContainment = False,
     correctForTimeslew = False,
-    dropZSmarkedPassed = True,
     firstSample = 2,
-    samplesToAdd = 1,
-    tsFromDB = True
+    samplesToAdd = 1
 )
 
 
