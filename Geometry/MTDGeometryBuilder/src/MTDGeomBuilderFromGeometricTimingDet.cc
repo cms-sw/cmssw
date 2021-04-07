@@ -106,10 +106,10 @@ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(
   int GAPxInterpad(0), GAPxBorder(0), GAPyInterpad(0), GAPyBorder(0);
   switch (det) {
     case GeomDetType::SubDetector::TimingBarrel:
-      GAPxInterpad = ptp.vitems_[0].vpars_[0];
-      GAPxBorder = ptp.vitems_[0].vpars_[1];
-      GAPyInterpad = ptp.vitems_[0].vpars_[2];
-      GAPyBorder = ptp.vitems_[0].vpars_[3];
+      GAPxInterpad = ptp.vitems_[0].vpars_[0]; // Value given in microns
+      GAPxBorder = ptp.vitems_[0].vpars_[1]; // Value given in microns
+      GAPyInterpad = ptp.vitems_[0].vpars_[2]; // Value given in microns
+      GAPyBorder = ptp.vitems_[0].vpars_[3]; // Value given in microns
       ROCrows = ptp.vitems_[0].vpars_[8];
       ROCcols = ptp.vitems_[0].vpars_[9];
       ROCSx = ptp.vitems_[0].vpars_[10];

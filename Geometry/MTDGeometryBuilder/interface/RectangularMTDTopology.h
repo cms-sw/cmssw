@@ -47,10 +47,10 @@ public:
                          int COLS_PER_ROC,  // Num of Cols per ROC
                          int ROCS_X,
                          int ROCS_Y,
-                         float GAPxInterpad,
-                         float GAPxBorder,
-                         float GAPyInterpad,
-                         float GAPyBorder)
+                         float GAPxInterpad, // Value given in cm
+                         float GAPxBorder, // Value given in cm
+                         float GAPyInterpad, // Value given in cm
+                         float GAPyBorder) // Value given in cm
       : m_pitchx(pitchx),
         m_pitchy(pitchy),
         m_nrows(nrows),
@@ -159,10 +159,10 @@ public:
   int colsperroc() const override { return m_COLS_PER_ROC; }
   float xoffset() const { return m_xoffset; }
   float yoffset() const { return m_yoffset; }
-  float gapxInterpad() const { return m_GAPxInterpad; }
-  float gapyInterpad() const { return m_GAPyInterpad; }
-  float gapxBorder() const { return m_GAPxBorder; }
-  float gapyBorder() const { return m_GAPyBorder; }
+  float gapxInterpad() const { return m_GAPxInterpad; } // Value returned in cm
+  float gapyInterpad() const { return m_GAPyInterpad; } // Value returned in cm
+  float gapxBorder() const { return m_GAPxBorder; } // Value returned in cm
+  float gapyBorder() const { return m_GAPyBorder; } // Value returned in cm
   float gapxInterpadFrac() const { return m_GAPxInterpadFrac; }
   float gapyInterpadFrac() const { return m_GAPyInterpadFrac; }
   float gapxBorderFrac() const { return m_GAPxBorderFrac; }
