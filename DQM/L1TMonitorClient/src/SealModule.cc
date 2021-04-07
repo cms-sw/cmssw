@@ -12,6 +12,9 @@ DEFINE_FWK_MODULE(L1TRPCTFClient);
 #include "DQM/L1TMonitorClient/interface/L1TdeGEMTPGClient.h"
 DEFINE_FWK_MODULE(L1TdeGEMTPGClient);
 
+#include "DQM/L1TMonitorClient/interface/L1TdeCSCTPGClient.h"
+DEFINE_FWK_MODULE(L1TdeCSCTPGClient);
+
 #include "DQM/L1TMonitorClient/interface/L1TCSCTFClient.h"
 DEFINE_FWK_MODULE(L1TCSCTFClient);
 
