@@ -151,6 +151,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         isPFcand = Var("isPFMuon",bool,doc="muon is PF candidate"),
         isGlobal = Var("isGlobalMuon",bool,doc="muon is global muon"),
         isTracker = Var("isTrackerMuon",bool,doc="muon is tracker muon"),
+        isStandalone = Var("isStandAloneMuon",bool,doc="muon is a standalone muon"),
         mediumId = Var("passed('CutBasedIdMedium')",bool,doc="cut-based ID, medium WP"),
         mediumPromptId = Var("passed('CutBasedIdMediumPrompt')",bool,doc="cut-based ID, medium prompt WP"),
         tightId = Var("passed('CutBasedIdTight')",bool,doc="cut-based ID, tight WP"),
@@ -182,6 +183,7 @@ for modifier in  run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XM
 
 run2_nanoAOD_102Xv1.toModify(muonTable.variables, puppiIsoId = None)
 
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(muonTable.variables, isStandalone = None)
 
 muonsMCMatchForTable = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = muonTable.src,                         # final reco collection
