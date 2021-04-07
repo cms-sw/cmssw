@@ -49,7 +49,7 @@ private:
 using cms_rounding::roundIfNear0, cms_rounding::roundVecIfNear0;
 
 MTDDigiGeometryAnalyzer::MTDDigiGeometryAnalyzer(const edm::ParameterSet& iConfig) {
-  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>(edm::ESInputTag{});
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
 }
 
 // ------------ method called to produce the data  ------------

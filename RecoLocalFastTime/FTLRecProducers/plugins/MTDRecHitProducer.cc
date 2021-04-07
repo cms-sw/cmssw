@@ -49,7 +49,7 @@ MTDRecHitProducer::MTDRecHitProducer(const edm::ParameterSet& ps)
   produces<FTLRecHitCollection>(ftleInstance_);
 
   auto sumes = consumesCollector();
-  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>(edm::ESInputTag{});
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
 
   const edm::ParameterSet& barrel = ps.getParameterSet("barrel");
   const std::string& barrelAlgo = barrel.getParameter<std::string>("algoName");
