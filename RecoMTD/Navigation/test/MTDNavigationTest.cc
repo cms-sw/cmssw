@@ -24,9 +24,9 @@
 class MTDNavigationTest : public edm::EDAnalyzer {
 public:
   explicit MTDNavigationTest(const edm::ParameterSet&);
-  ~MTDNavigationTest();
+  ~MTDNavigationTest() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
 };
