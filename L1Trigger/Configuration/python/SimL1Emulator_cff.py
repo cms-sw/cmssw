@@ -119,6 +119,7 @@ _phase2_siml1emulator.add(L1TkIsoElectronsHGC)
 _phase2_siml1emulator.add(L1TkPhotonsHGC)
 
 _phase2_siml1emulator.add( L1TkMuons )
+_phase2_siml1emulator.add( L1TkGlbMuons )
 
 # Tracker Objects
 # ########################################################################
