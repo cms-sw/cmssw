@@ -1,5 +1,5 @@
-#ifndef ALLFECONFIG
-#define ALLFECONFIG
+#ifndef ONLINEDB_ECALCONDDB_ALL_FE_CONFIG_TYPES_H
+#define ONLINEDB_ECALCONDDB_ALL_FE_CONFIG_TYPES_H
 
 #include "OnlineDB/EcalCondDB/interface/FEConfigBadStripDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigBadStripInfo.h"

@@ -1,5 +1,5 @@
-#ifndef ECAL_FENIXSTRIP_H
-#define ECAL_FENIXSTRIP_H
+#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXSTRIP_H
+#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXSTRIP_H
 
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixOddAmplitudeFilter.h>
@@ -73,7 +73,6 @@ private:
   // Data formats for odd filter, as data path is duplicated for odd filter
   std::vector<int> odd_filt_out_;
   std::vector<int> odd_peak_out_;
-  // std::vector<int> odd_format_out_;
 
   std::vector<int> format_out_;
   std::vector<int> fgvb_out_;

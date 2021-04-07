@@ -153,7 +153,7 @@ private:
   bool barrelOnly_;
   bool debug_;
   bool famos_;
-  bool TPinfoPrintout_;
+  bool tpInfoPrintout_;
 
   static const unsigned int nrSamples_;        // nr samples to write, should not be changed since by
                                                // convention the size means that it is coming from simulation
@@ -166,7 +166,6 @@ private:
 
   // data structures kept during the whole run
   std::vector<std::vector<int>> striptp_;
-  // std::vector<std::vector<int>> odd_striptp_; // duplicate data path for odd filter
   std::vector<std::vector<std::pair<int, std::vector<EBDataFrame>>>> towerMapEB_;
   std::vector<std::vector<std::pair<int, std::vector<EEDataFrame>>>> towerMapEE_;
   std::vector<std::pair<int, EcalTrigTowerDetId>> hitTowers_;
@@ -200,7 +199,7 @@ void EcalTrigPrimFunctionalAlgo::run_part2(
   estrip_->getFGVB()->setbadStripMissing(false);
 
   for (int itow = 0; itow < nrTowers_; ++itow) {
-    if (TPinfoPrintout_) {
+    if (tpInfoPrintout_) {
       std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
       std::cout << "on Tower " << itow << " of " << nrTowers_ << std::endl;
     }
@@ -214,7 +213,7 @@ void EcalTrigPrimFunctionalAlgo::run_part2(
                                                             // size; nr of crystals/strip
 
       if ((towerMap[index])[i].first > 0) {
-        if (TPinfoPrintout_) {
+        if (tpInfoPrintout_) {
           std::cout << "-------------------------------------------------" << std::endl;
           std::cout << "on Strip index " << i << std::endl;
         }

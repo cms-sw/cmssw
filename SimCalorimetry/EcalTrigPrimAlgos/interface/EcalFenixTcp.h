@@ -1,5 +1,5 @@
-#ifndef ECAL_FENIX_TCP_H
-#define ECAL_FENIX_TCP_H
+#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXTCP_H
+#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXTCP_H
 
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixBypassLin.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixEtTot.h>
@@ -34,7 +34,7 @@ class EcalFenixTcp {
 private:
   bool debug_;
   int nbMaxStrips_;
-  bool TPinfoPrintout_;
+  bool tpInfoPrintout_;
 
   EcalFenixMaxof2 *maxOf2_;
   std::vector<EcalFenixBypassLin *> bypasslin_;
