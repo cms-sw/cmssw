@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-  <ConstantsSection label="esalgo.xml" eval="true">
-    <Constant name="mum"         value="1.e-3*mm"/>
-  </ConstantsSection>
   <SolidSection label="esalgo.xml">
     <Polycone name="SF" startPhi="0" deltaPhi="360*deg">
       <ZSection z="-[escon:PRESH_Z_TOTAL]/2." rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
