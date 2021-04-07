@@ -65,10 +65,6 @@ void FEConfigOddWeightModeDat::writeDB(const EcalLogicID* ecid,
   if (!iconfID) {
     throw(std::runtime_error("FEConfigOddWeightModeDat::writeDB:  ICONF not in DB"));
   }
-  /* no need for the logic id in this table
-     int logicID = ecid->getLogicID();
-     if (!logicID) { throw(std::runtime_error("FEConfigOddWeightModeDat::writeDB:  Bad EcalLogicID")); }
-  */
 
   try {
     m_writeStmt->setInt(1, iconfID);
