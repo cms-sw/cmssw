@@ -20,8 +20,7 @@
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 
-#include "RecoHGCal/TICL/plugins/PatternRecognitionAlgoBase.h"
-#include "RecoHGCal/TICL/plugins/GlobalCache.h"
+#include "RecoHGCal/TICL/interface/PatternRecognitionPluginFactory.h"
 #include "PatternRecognitionbyCA.h"
 #include "PatternRecognitionbyMultiClusters.h"
 
@@ -81,8 +80,6 @@ void TrackstersProducer::globalEndJob(TrackstersCache* cache) {
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
-      myAlgo_(std::make_unique<PatternRecognitionbyCA<TICLLayerTiles>>(ps, cache, consumesCollector())),
-      myAlgoHFNose_(std::make_unique<PatternRecognitionbyCA<TICLLayerTilesHFNose>>(ps, cache, consumesCollector())),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
       original_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"))),
@@ -92,9 +89,11 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
           consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
       itername_(ps.getParameter<std::string>("itername")) {
   if (doNose_) {
+    myAlgoHFNose_ = PatternRecognitionHFNoseFactory::get()->create(ps.getParameter<std::string>("patternRecognitionAlgo"), ps, cache, consumesCollector());
     layer_clusters_tiles_hfnose_token_ =
         consumes<TICLLayerTilesHFNose>(ps.getParameter<edm::InputTag>("layer_clusters_hfnose_tiles"));
   } else {
+    myAlgo_ = PatternRecognitionFactory::get()->create(ps.getParameter<std::string>("patternRecognitionAlgo"), ps, cache, consumesCollector());
     layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
   }
 
@@ -142,6 +141,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<int>("max_out_in_hops", 10);
   desc.add<bool>("oneTracksterPerTrackSeed", false);
   desc.add<bool>("promoteEmptyRegionToTrackster", false);
+  desc.add<std::string>("patternRecognitionAlgo", "CA");
   desc.add<std::string>("eid_graph_path", "RecoHGCal/TICL/data/tf_models/energy_id_v0.pb");
   desc.add<std::string>("eid_input_name", "input");
   desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
