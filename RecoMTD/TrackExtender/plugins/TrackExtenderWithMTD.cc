@@ -467,13 +467,13 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   sigmatmtdOrigTrkToken = produces<edm::ValueMap<float>>("generalTracksigmatmtd");
   assocOrigTrkToken = produces<edm::ValueMap<int>>("generalTrackassoc");
 
-  builderToken_ = esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("",transientTrackBuilder_));
+  builderToken_ = esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", transientTrackBuilder_));
   hitbuilderToken_ =
-      esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("",mtdRecHitBuilder_));
+      esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", mtdRecHitBuilder_));
   gtgToken_ = esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>();
   dlgeoToken_ = esConsumes<MTDDetLayerGeometry, MTDRecoGeometryRecord>();
   magfldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  propToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("",propagator_));
+  propToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", propagator_));
   ttopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
 
   produces<edm::OwnVector<TrackingRecHit>>();
