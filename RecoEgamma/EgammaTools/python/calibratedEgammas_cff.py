@@ -18,8 +18,8 @@ from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 
 from Configuration.Eras.Modifier_run2_egamma_2016_cff import run2_egamma_2016
 from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
-(run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016ULpreVFP)
-(run2_egamma_2016 & ~tracker_apv_vfp30_2016).toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016ULpostVFP)
+(run2_miniAOD_devel & run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016ULpreVFP)
+(run2_miniAOD_devel & run2_egamma_2016 & ~tracker_apv_vfp30_2016).toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016ULpostVFP)
 
 from Configuration.Eras.Modifier_run2_egamma_2017_cff import run2_egamma_2017
 (run2_miniAOD_UL & run2_egamma_2017).toModify(calibratedEgammaSettings,correctionFile = _correctionFile2017UL)
