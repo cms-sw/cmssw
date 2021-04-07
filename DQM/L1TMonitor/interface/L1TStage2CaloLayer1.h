@@ -266,6 +266,16 @@ private:
   // Input and config info
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecd_;
   std::string ecalTPSourceRecdLabel_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecdBx1_;
+  std::string ecalTPSourceRecdBx1Label_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecdBx2_;
+  std::string ecalTPSourceRecdBx2Label_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecdBx3_;
+  std::string ecalTPSourceRecdBx3Label_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecdBx4_;
+  std::string ecalTPSourceRecdBx4Label_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceRecdBx5_;
+  std::string ecalTPSourceRecdBx5Label_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSourceRecd_;
   std::string hcalTPSourceRecdLabel_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSourceSent_;

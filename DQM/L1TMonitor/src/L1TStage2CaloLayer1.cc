@@ -21,6 +21,16 @@
 L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet& ps)
     : ecalTPSourceRecd_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecd"))),
       ecalTPSourceRecdLabel_(ps.getParameter<edm::InputTag>("ecalTPSourceRecd").label()),
+      ecalTPSourceRecdBx1_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx1"))),
+      ecalTPSourceRecdBx1Label_(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx1").label()),
+      ecalTPSourceRecdBx2_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx2"))),
+      ecalTPSourceRecdBx2Label_(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx2").label()),
+      ecalTPSourceRecdBx3_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx3"))),
+      ecalTPSourceRecdBx3Label_(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx3").label()),
+      ecalTPSourceRecdBx4_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx4"))),
+      ecalTPSourceRecdBx4Label_(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx4").label()),
+      ecalTPSourceRecdBx5_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx5"))),
+      ecalTPSourceRecdBx5Label_(ps.getParameter<edm::InputTag>("ecalTPSourceRecdBx5").label()),
       hcalTPSourceRecd_(consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalTPSourceRecd"))),
       hcalTPSourceRecdLabel_(ps.getParameter<edm::InputTag>("hcalTPSourceRecd").label()),
       ecalTPSourceSent_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalTPSourceSent"))),
@@ -193,6 +203,19 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
 
   if (nEcalMismatch > streamCache(event.streamID())->streamNumMaxEvtMismatchECAL)
     streamCache(event.streamID())->streamNumMaxEvtMismatchECAL = nEcalMismatch;
+
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx1;
+  event.getByToken(ecalTPSourceRecdBx1_, ecalTPsRecdBx1);
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx2;
+  event.getByToken(ecalTPSourceRecdBx2_, ecalTPsRecdBx2);
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx3;
+  event.getByToken(ecalTPSourceRecdBx3_, ecalTPsRecdBx3);
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx4;
+  event.getByToken(ecalTPSourceRecdBx4_, ecalTPsRecdBx4);
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx5;
+  event.getByToken(ecalTPSourceRecdBx5_, ecalTPsRecdBx5);
+
+  ///////
 
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPsSent;
   event.getByToken(hcalTPSourceSent_, hcalTPsSent);
