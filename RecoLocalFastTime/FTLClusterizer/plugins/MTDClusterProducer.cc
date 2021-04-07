@@ -31,7 +31,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -62,6 +61,8 @@ private:
 
   const MTDGeometry* geom_;
   const MTDTopology* topo_;
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
 };
 
 //---------------------------------------------------------------------------
@@ -78,6 +79,9 @@ MTDClusterProducer::MTDClusterProducer(edm::ParameterSet const& conf)
   //--- Declare to the EDM what kind of collections we will be making.
   produces<FTLClusterCollection>(ftlbInstance_);
   produces<FTLClusterCollection>(ftleInstance_);
+
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>(edm::ESInputTag{});
+  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>(edm::ESInputTag{});
 
   //--- Make the algorithm(s) according to what the user specified
   //--- in the ParameterSet.
@@ -114,12 +118,10 @@ void MTDClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(etlHits_, inputEndcap);
 
   // Step A.2: get event setup
-  edm::ESHandle<MTDGeometry> geom;
-  es.get<MTDDigiGeometryRecord>().get(geom);
+  auto geom = es.getTransientHandle(mtdgeoToken_);
   geom_ = geom.product();
 
-  edm::ESHandle<MTDTopology> mtdTopo;
-  es.get<MTDTopologyRcd>().get(mtdTopo);
+  auto mtdTopo = es.getTransientHandle(mtdtopoToken_);
   topo_ = mtdTopo.product();
 
   // Step B: create the final output collection
