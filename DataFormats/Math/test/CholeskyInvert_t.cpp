@@ -15,7 +15,6 @@
 
 #include "DataFormats/Math/interface/choleskyInversion.h"
 
-
 constexpr int stride() { return 5 * 1024; }
 template <int DIM>
 using MXN = Eigen::Matrix<double, DIM, DIM>;
@@ -108,6 +107,9 @@ void go(bool soa) {
     else
 #ifdef USE_VECTORIZATION_PRAGMA
 #pragma GCC ivdep
+#ifdef __clang__
+#pragma clang loop vectorize(enable) interleave(enable)
+#endif
 #endif
       for (auto& m : mm) {
         math::cholesky::invert(m, m);
