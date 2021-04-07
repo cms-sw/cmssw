@@ -30,12 +30,10 @@ int EcalFenixOddAmplitudeFilter::setInput(int input) {
 }
 
 void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout, std::vector<int> &output) {
-  // test
   inputsAlreadyIn_ = 0;
   for (unsigned int i = 0; i < 5; i++) {
-    buffer_[i] = 0;  // FIXME: 5
+    buffer_[i] = 0;
   }
-  // test end
 
   for (unsigned int i = 0; i < addout.size(); i++) {
     // Only save TP info for Clock i >= 4 (from 0-9) because first 5 digis required to produce first ET value
@@ -58,7 +56,6 @@ void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout, std::vector<
 }
 
 void EcalFenixOddAmplitudeFilter::process() {
-  // UB FIXME: 5
   processedOutput_ = 0;
   if (inputsAlreadyIn_ < 5)
     return;
