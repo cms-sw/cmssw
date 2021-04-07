@@ -12,7 +12,9 @@ namespace {
 }  // namespace
 
 PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet &conf, edm::ConsumesCollector &&cc)
-    : ecalClusterToolsESGetTokens_{std::move(cc)}, calibrator_(new PFEnergyCalibration) {
+    : ecalClusterToolsESGetTokens_{std::move(cc)},
+      ecalReadoutToolsESGetTokens_{conf, std::move(cc)},
+      calibrator_(new PFEnergyCalibration) {
   applyCrackCorrections_ = conf.getParameter<bool>("applyCrackCorrections");
   applyMVACorrections_ = conf.getParameter<bool>("applyMVACorrections");
   srfAwareCorrection_ = conf.getParameter<bool>("srfAwareCorrection");
@@ -149,7 +151,7 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
 
   // Common objects for SRF-aware and old style corrections
   EcalClusterLazyTools lazyTool(evt, ecalClusterToolsESGetTokens_.get(es), recHitsEB_, recHitsEE_);
-  EcalReadoutTools readoutTool(evt, es);
+  EcalReadoutTools readoutTool(evt, es, ecalReadoutToolsESGetTokens_);
 
   if (!srfAwareCorrection_) {
     int bunchspacing = 450;
