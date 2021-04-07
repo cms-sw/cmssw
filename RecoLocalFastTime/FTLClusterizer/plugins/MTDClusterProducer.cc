@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -80,8 +81,8 @@ MTDClusterProducer::MTDClusterProducer(edm::ParameterSet const& conf)
   produces<FTLClusterCollection>(ftlbInstance_);
   produces<FTLClusterCollection>(ftleInstance_);
 
-  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>(edm::ESInputTag{});
-  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>(edm::ESInputTag{});
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 
   //--- Make the algorithm(s) according to what the user specified
   //--- in the ParameterSet.

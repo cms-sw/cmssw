@@ -74,7 +74,7 @@ private:
 // constructors and destructor
 //
 GeometricTimingDetAnalyzer::GeometricTimingDetAnalyzer(const edm::ParameterSet& iConfig) {
-  gtdToken_ = esConsumes<GeometricTimingDet, IdealGeometryRecord>(edm::ESInputTag{});
+  gtdToken_ = esConsumes<GeometricTimingDet, IdealGeometryRecord>();
 }
 
 GeometricTimingDetAnalyzer::~GeometricTimingDetAnalyzer() {

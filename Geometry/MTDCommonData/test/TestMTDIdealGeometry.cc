@@ -60,7 +60,7 @@ TestMTDIdealGeometry::TestMTDIdealGeometry(const edm::ParameterSet& iConfig)
       thisN_(),
       btlNS_(),
       etlNS_() {
-  cpvToken_ = esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{});
+  cpvToken_ = esConsumes<DDCompactView, IdealGeometryRecord>();
 }
 
 TestMTDIdealGeometry::~TestMTDIdealGeometry() {}
