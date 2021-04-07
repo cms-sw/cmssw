@@ -16,14 +16,22 @@ CSCWireDigiValidation::CSCWireDigiValidation(const edm::ParameterSet &ps, edm::C
 CSCWireDigiValidation::~CSCWireDigiValidation() {}
 
 void CSCWireDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
-  theNDigisPerEventPlot = iBooker.book1D("CSCWireDigisPerEvent", ";CSC Wire Digis per event;Entries", 100, 0, 100);
+  theNDigisPerEventPlot =
+      iBooker.book1D("CSCWireDigisPerEvent", "CSC Wire Digis per event;CSC Wire Digis per event;Entries", 100, 0, 100);
   for (int i = 1; i <= 10; ++i) {
     const std::string t1("CSCWireDigiTime_" + CSCDetId::chamberName(i));
     const std::string t2("CSCWireDigisPerLayer_" + CSCDetId::chamberName(i));
     const std::string t3("CSCWireDigiResolution_" + CSCDetId::chamberName(i));
-    theTimeBinPlots[i - 1] = iBooker.book1D(t1, t1 + ";Wire Time Bin; Entries", 16, 0, 16);
-    theNDigisPerLayerPlots[i - 1] = iBooker.book1D(t2, t2 + ";Number of Wire Digis; Entries", 100, 0, 20);
-    theResolutionPlots[i - 1] = iBooker.book1D(t3, t3 + ";Wire Y Position Resolution; Entries", 100, -10, 10);
+    theTimeBinPlots[i - 1] =
+        iBooker.book1D(t1, "Wire Time Bin " + CSCDetId::chamberName(i) + ";Wire Time Bin; Entries", 16, 0, 16);
+    theNDigisPerLayerPlots[i - 1] = iBooker.book1D(
+        t2, "Number of Wire Digis " + CSCDetId::chamberName(i) + ";Number of Wire Digis; Entries", 100, 0, 20);
+    theResolutionPlots[i - 1] = iBooker.book1D(
+        t3,
+        "Wire Y Position Resolution " + CSCDetId::chamberName(i) + ";Wire Y Position Resolution; Entries",
+        100,
+        -10,
+        10);
   }
 }
 
