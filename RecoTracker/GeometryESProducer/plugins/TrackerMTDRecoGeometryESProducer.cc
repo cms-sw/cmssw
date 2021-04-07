@@ -43,12 +43,6 @@ TrackerMTDRecoGeometryESProducer::TrackerMTDRecoGeometryESProducer(const edm::Pa
     : usePhase2Stacks_(p.getParameter<bool>("usePhase2Stacks")) {
   auto c = setWhatProduced(this);
 
-  // 08-Oct-2007 - Patrick Janot
-  // Allow several reco geometries to be created, corresponding to the labelled
-  // TrackerDigiGeometry's - that must created beforehand. Useful to handle an
-  // aligned and a misaligned geometry in the same job.
-  // The default parameter ("") makes this change transparent to the user
-  // See FastSimulation/Configuration/data/ for examples of cfi's.
   tTopToken_ = c.consumes();
   geomToken_ = c.consumes(edm::ESInputTag("", p.getUntrackedParameter<std::string>("trackerGeometryLabel")));
   mtdgeomToken_ = c.consumes();
@@ -57,12 +51,18 @@ TrackerMTDRecoGeometryESProducer::TrackerMTDRecoGeometryESProducer(const edm::Pa
 
 std::unique_ptr<GeometricSearchTracker> TrackerMTDRecoGeometryESProducer::produce(
     const TrackerRecoGeometryRecord &iRecord) {
-  TrackerGeometry const &tG = iRecord.get(geomToken_);
-  MTDGeometry const &mG = iRecord.get(mtdgeomToken_);
+  auto ptG = iRecord.getHandle(geomToken_);
+  auto pmG = iRecord.getHandle(mtdgeomToken_);
+  auto ptT = iRecord.getHandle(tTopToken_);
+  auto pmT = iRecord.getHandle(mtdTopToken_);
+
+  TrackerGeometry const &tG = *ptG;
+  MTDGeometry const &mG = *pmG;
+  TrackerTopology const &tT = *ptT;
+  MTDTopology const &mT = *pmT;
 
   GeometricSearchTrackerBuilder builder;
-  return std::unique_ptr<GeometricSearchTracker>(
-      builder.build(tG.trackerDet(), &tG, &iRecord.get(tTopToken_), &mG, &iRecord.get(mtdTopToken_), usePhase2Stacks_));
+  return std::unique_ptr<GeometricSearchTracker>(builder.build(tG.trackerDet(), &tG, &tT, &mG, &mT, usePhase2Stacks_));
 }
 
 void TrackerMTDRecoGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {

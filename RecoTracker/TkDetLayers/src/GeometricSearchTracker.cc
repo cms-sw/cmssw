@@ -79,7 +79,7 @@ GeometricSearchTracker::~GeometricSearchTracker() {
 
 const DetLayer* GeometricSearchTracker::idToLayer(const DetId& id) const {
   //If it's a tracker Det
-  if (id.det() == 1) {
+  if (id.det() == DetId::Detector::Tracker) {
     switch (id.subdetId()) {
       case StripSubdetector::TIB:
         return theTibLayers[theTrkTopo->tibLayer(id) - 1];
@@ -122,10 +122,11 @@ const DetLayer* GeometricSearchTracker::idToLayer(const DetId& id) const {
         // throw(something);
     }
     return nullptr;  //just to avoid compile warnings
-  } else {
+  } else if (id.det() == DetId::Forward && id.subdetId() == FastTime) {
     //If it's MTD
     return mtdDetLayerGeometry->idToLayer(id);
   }
+  return nullptr;  //just to avoid compile warnings
 }
 
 void GeometricSearchTracker::addDetLayerGeometry() { mtdDetLayerGeometry = new MTDDetLayerGeometry(); }
