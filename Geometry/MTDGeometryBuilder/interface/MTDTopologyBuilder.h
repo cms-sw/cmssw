@@ -18,10 +18,10 @@ public:
                        int COLS_PER_ROC,  // Num of Cols per ROC
                        int ROCS_X,
                        int ROCS_Y,
-                       int GAPxInterpad, //This value is given in microns
-                       int GAPxBorder, //This value is given in microns
-                       int GAPyInterpad, //This value is given in microns
-                       int GAPyBorder); //This value is given in microns
+                       int GAPxInterpad,  //This value is given in microns
+                       int GAPxBorder,    //This value is given in microns
+                       int GAPyInterpad,  //This value is given in microns
+                       int GAPyBorder);   //This value is given in microns
 };
 
 #endif
