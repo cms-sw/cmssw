@@ -72,13 +72,10 @@ namespace cms {
         assert(view.contentStorage);
         assert(view.contentSize > 0);
       }
-      auto nOnes = Assoc::ctNOnes();
       if constexpr (Assoc::ctNOnes() < 0) {
         assert(view.offStorage);
         assert(view.offSize > 0);
-        nOnes = view.offSize;
       }
-      assert(nOnes > 0);
 #ifdef __CUDACC__
       auto nthreads = 1024;
       auto nblocks = 1;  // MUST BE ONE as memory is initialize in thread 0 (alternative is two kernels);
