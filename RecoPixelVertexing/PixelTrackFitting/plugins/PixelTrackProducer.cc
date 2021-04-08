@@ -21,7 +21,9 @@
 using namespace pixeltrackfitting;
 using edm::ParameterSet;
 
-PixelTrackProducer::PixelTrackProducer(const ParameterSet& cfg) : theReconstruction(cfg, consumesCollector()) {
+PixelTrackProducer::PixelTrackProducer(const ParameterSet& cfg)
+    : theReconstruction(cfg, consumesCollector()),
+      htTopoToken_(esConsumes()) {
   edm::LogInfo("PixelTrackProducer") << " construction...";
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -44,9 +46,8 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
 
   TracksWithTTRHs tracks;
   theReconstruction.run(tracks, ev, es);
-  edm::ESHandle<TrackerTopology> httopo;
-  es.get<TrackerTopologyRcd>().get(httopo);
+  auto htTopo = es.getData(htTopoToken_);
 
   // store tracks
-  storeTracks(ev, tracks, *httopo);
+  storeTracks(ev, tracks, htTopo);
 }

@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 namespace edm {
   class Event;
@@ -24,6 +25,7 @@ public:
 
 private:
   PixelTrackReconstruction theReconstruction;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> htTopoToken_;
 };
 
 #endif  // RecoPixelVertexing_PixelTrackFitting_plugins_PixelTrackProducer_h
