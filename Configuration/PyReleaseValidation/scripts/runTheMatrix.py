@@ -24,10 +24,13 @@ def runSelected(opt):
 
     # test for wrong input workflows
     if opt.testList:
-        definedSet = set([dwf.numId for dwf in mrd.workFlows])
+        definedWf = [dwf.numId for dwf in mrd.workFlows]
+        definedSet = set(definedWf)
         testSet = set(opt.testList)
         undefSet = testSet - definedSet
         if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
+        duplicates = [wf for wf in testSet if definedWf.count(wf)>1 ]
+        if len(duplicates)>0: raise ValueError('Duplicated workflows: '+', '.join(map(str,list(duplicates))))
 
     ret = 0
     if opt.show:
@@ -175,7 +178,7 @@ if __name__ == '__main__':
                       default=None
                       )
     parser.add_option('-w','--what',
-                      help='Specify the set to be used. Argument must be the name of the set (standard, pileup,...)',
+                      help='Specify the set to be used. Argument must be the name of a set (standard, pileup,...) or multiple sets separated by commas (--what standard,pileup )',
                       dest='what',
                       default='all'
                       )
