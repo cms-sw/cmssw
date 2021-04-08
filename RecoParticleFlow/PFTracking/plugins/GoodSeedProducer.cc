@@ -158,6 +158,11 @@ private:
   std::unique_ptr<PFResolutionMap> resMapEtaECAL_;
   std::unique_ptr<PFResolutionMap> resMapPhiECAL_;
 
+  const edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> fitterToken_;
+  const edm::ESGetToken<TrajectorySmoother, TrajectoryFitter::Record> smootherToken_;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> trackerRecHitBuilderToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+
   ///TRACK QUALITY
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;
@@ -182,7 +187,11 @@ using namespace std;
 using namespace reco;
 
 GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig, const goodseedhelpers::HeavyObjectCache*)
-    : pfTransformer_(nullptr), conf_(iConfig), resMapEtaECAL_(nullptr), resMapPhiECAL_(nullptr) {
+    : pfTransformer_(nullptr), conf_(iConfig), resMapEtaECAL_(nullptr), resMapPhiECAL_(nullptr),
+      fitterToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("Fitter")))),
+      smootherToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("Smoother")))),
+      trackerRecHitBuilderToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("TTRHBuilder")))),
+      magneticFieldToken_(esConsumes())  {
   LogInfo("GoodSeedProducer") << "Electron PreIdentification started  ";
 
   //now do what ever initialization is needed
@@ -283,15 +292,13 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
   //Tracking Tools
   if (!disablePreId_) {
-    edm::ESHandle<TrajectoryFitter> aFitter;
-    edm::ESHandle<TrajectorySmoother> aSmoother;
-    iSetup.get<TrajectoryFitter::Record>().get(fitterName_, aFitter);
-    iSetup.get<TrajectoryFitter::Record>().get(smootherName_, aSmoother);
+    auto const& aFitter = &iSetup.getData(fitterToken_);
+    auto const& aSmoother = &iSetup.getData(smootherToken_);
+
     smoother.reset(aSmoother->clone());
     fitter = aFitter->clone();
-    edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-    iSetup.get<TransientRecHitRecord>().get(trackerRecHitBuilderName_, theTrackerRecHitBuilder);
-    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product())->cloner();
+    auto const& theTrackerRecHitBuilder = &iSetup.getData(trackerRecHitBuilderToken_);
+    hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder)->cloner();
     fitter->setHitCloner(&hitCloner);
     smoother->setHitCloner(&hitCloner);
   }
@@ -300,8 +307,7 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   refMap_.clear();
 
   //Magnetic Field
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  auto const& magneticField = &iSetup.getData(magneticFieldToken_);
 
   //Handle input collections
   //ECAL clusters

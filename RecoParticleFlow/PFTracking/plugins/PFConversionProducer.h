@@ -10,6 +10,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
 class PFTrackTransformer;
 class PFConversionProducer : public edm::stream::EDProducer<> {
 public:
@@ -30,5 +35,8 @@ private:
   PFTrackTransformer *pfTransformer_;
   edm::EDGetTokenT<reco::ConversionCollection> pfConversionContainer_;
   edm::EDGetTokenT<reco::VertexCollection> vtx_h;
+  
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 };
 #endif
