@@ -24,7 +24,6 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   cms::cuda::launchZero(tuples_d, cudaStream);
 
   auto nhits = hh.nHits();
-  assert(nhits <= pixelGPUConstants::maxNumberOfHits);
 
 #ifdef NTUPLE_DEBUG
   std::cout << "start tuple building. N hits " << nhits << std::endl;
