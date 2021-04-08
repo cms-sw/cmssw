@@ -13,6 +13,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 /**\class PFDisplacedVertexCandidateProducer 
 \brief Producer for DisplacedVertices 
 
@@ -39,6 +42,8 @@ private:
   /// Input tag for main vertex to cut of dxy of secondary tracks
   edm::EDGetTokenT<reco::VertexCollection> inputTagMainVertex_;
   edm::EDGetTokenT<reco::BeamSpot> inputTagBeamSpot_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 
   /// verbose ?
   bool verbose_;

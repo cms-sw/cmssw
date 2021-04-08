@@ -8,15 +8,13 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include <set>
 
 using namespace std;
 using namespace edm;
 
-PFDisplacedVertexCandidateProducer::PFDisplacedVertexCandidateProducer(const edm::ParameterSet& iConfig) {
+PFDisplacedVertexCandidateProducer::PFDisplacedVertexCandidateProducer(const edm::ParameterSet& iConfig) :
+    magneticFieldToken_(esConsumes()) {
   // --- Setup input collection names --- //
   inputTagTracks_ = consumes<reco::TrackCollection>(iConfig.getParameter<InputTag>("trackCollection"));
 
@@ -58,9 +56,7 @@ void PFDisplacedVertexCandidateProducer::produce(Event& iEvent, const EventSetup
       << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run() << endl;
 
   // Prepare and fill useful event information for the Finder
-  edm::ESHandle<MagneticField> magField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magField);
-  const MagneticField* theMagField = magField.product();
+  auto const& theMagField = &iSetup.getData(magneticFieldToken_);
 
   Handle<reco::TrackCollection> trackCollection;
   iEvent.getByToken(inputTagTracks_, trackCollection);

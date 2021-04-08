@@ -17,7 +17,7 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 PFTrackProducer::PFTrackProducer(const ParameterSet& iConfig)
-    : transientTrackToken_(esConsumes()), magneticFieldToken_(esConsumes()), pfTransformer_() {
+    : transientTrackToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()), pfTransformer_() {
   produces<reco::PFRecTrackCollection>();
 
   std::vector<InputTag> tags = iConfig.getParameter<vector<InputTag> >("TkColList");

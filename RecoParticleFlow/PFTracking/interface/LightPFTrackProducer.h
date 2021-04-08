@@ -9,6 +9,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 class PFTrackTransformer;
 class LightPFTrackProducer : public edm::stream::EDProducer<> {
 public:
@@ -28,6 +31,8 @@ private:
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_;
   std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
+  
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
   ///TRACK QUALITY
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;
