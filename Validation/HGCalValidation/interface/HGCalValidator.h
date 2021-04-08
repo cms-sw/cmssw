@@ -60,6 +60,7 @@ public:
                                 std::unordered_map<DetId, const HGCRecHit*> const&) const;
 
 protected:
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   edm::InputTag label_lcl;
   std::vector<edm::InputTag> label_mcl;
   edm::InputTag associator_;
