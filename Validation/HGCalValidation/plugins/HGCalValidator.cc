@@ -9,7 +9,8 @@ using namespace std;
 using namespace edm;
 
 HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
-    : label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
+    : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
       label_mcl(pset.getParameter<std::vector<edm::InputTag>>("label_mcl")),
       associator_(pset.getUntrackedParameter<edm::InputTag>("associator")),
       associatorSim_(pset.getUntrackedParameter<edm::InputTag>("associatorSim")),
@@ -241,8 +242,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(label_cp_effic, caloParticleHandle);
   std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
 
-  edm::ESHandle<CaloGeometry> geom;
-  setup.get<CaloGeometryRecord>().get(geom);
+  edm::ESHandle<CaloGeometry> geom = setup.getHandle(caloGeomToken_);
   tools_->setGeometry(*geom);
   histoProducerAlgo_->setRecHitTools(tools_);
 
