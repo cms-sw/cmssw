@@ -535,9 +535,9 @@ namespace brokenline {
 
   /*!
     \brief Helix fit by three step:
-    -fast pre-fit (see Fast_fit() for further info); \n
-    -circle fit of the hits projected in the transverse plane by Broken Line algorithm (see BL_Circle_fit() for further info); \n
-    -line fit of the hits projected on the (pre-fitted) cilinder surface by Broken Line algorithm (see BL_Line_fit() for further info); \n
+    -fast pre-fit (see fastFit() for further info); \n
+    -circle fit of the hits projected in the transverse plane by Broken Line algorithm (see circleFit() for further info); \n
+    -line fit of the hits projected on the (pre-fitted) cilinder surface by Broken Line algorithm (see lineFit() for further info); \n
     Points must be passed ordered (from inner to outer layer).
     
     \param hits Matrix3xNd hits coordinates in this form: \n
@@ -561,9 +561,9 @@ namespace brokenline {
     |(x1,z4)|(x2,z4)|(x3,z4)|(x4,z4)|.|(y1,z4)|(y2,z4)|(y3,z4)|(y4,z4)|.|(z1,z4)|(z2,z4)|(z3,z4)|(z4,z4)|
     \param bField magnetic field in the center of the detector in Gev/cm/c, in order to perform the p_t calculation.
     
-    \warning see BL_Circle_fit(), BL_Line_fit() and Fast_fit() warnings.
+    \warning see circleFit(), lineFit() and fastFit() warnings.
     
-    \bug see BL_Circle_fit(), BL_Line_fit() and Fast_fit() bugs.
+    \bug see circleFit(), lineFit() and fastFit() bugs.
     
     \return (phi,Tip,p_t,cot(theta)),Zip), their covariance matrix and the chi2's of the circle and line fits.
   */
