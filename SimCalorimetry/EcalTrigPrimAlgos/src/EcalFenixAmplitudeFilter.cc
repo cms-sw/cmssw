@@ -12,7 +12,7 @@ EcalFenixAmplitudeFilter::~EcalFenixAmplitudeFilter() {}
 
 int EcalFenixAmplitudeFilter::setInput(int input, int fgvb) {
   if (input > 0X3FFFF) {
-    std::cout << "ERROR IN INPUT OF AMPLITUDE FILTER" << std::endl;
+    edm::LogError("EcalTPG") << "ERROR IN INPUT OF EVEN AMPLITUDE FILTER";
     return -1;
   }
   if (inputsAlreadyIn_ < 5) {
@@ -37,7 +37,7 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
   // test
   inputsAlreadyIn_ = 0;
   for (unsigned int i = 0; i < 5; i++) {
-    buffer_[i] = 0;  // FIXME: 5
+    buffer_[i] = 0;
     fgvbBuffer_[i] = 0;
   }
   // test end

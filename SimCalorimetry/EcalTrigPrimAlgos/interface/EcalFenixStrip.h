@@ -45,7 +45,7 @@ private:
   bool debug_;
   bool famos_;
   int nbMaxXtals_;
-  bool TPinfoPrintout_;
+  bool tpInfoPrintout_;
 
   std::vector<EcalFenixLinearizer *> linearizer_;
 
