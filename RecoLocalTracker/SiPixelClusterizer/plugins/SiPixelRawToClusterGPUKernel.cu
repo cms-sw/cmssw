@@ -501,11 +501,6 @@ namespace pixelgpudetails {
     }
 #endif
 
-    // avoid overflow
-    auto constexpr maxNumClusters = gpuClustering::maxNumClusters;
-    for (int i = first, iend = gpuClustering::maxNumModules + 1; i < iend; i += blockDim.x) {
-      moduleStart[i] = std::clamp(moduleStart[i], 0U, maxNumClusters);
-    }
   }
 
   // Interface to outside
