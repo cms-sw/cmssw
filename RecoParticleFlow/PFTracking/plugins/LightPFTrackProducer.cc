@@ -9,8 +9,8 @@
 
 using namespace std;
 using namespace edm;
-LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig) : pfTransformer_(nullptr),
-    magneticFieldToken_(esConsumes<edm::Transition::BeginRun>())  {
+LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig)
+    : pfTransformer_(nullptr), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFRecTrackCollection>();
 
   std::vector<InputTag> tags = iConfig.getParameter<vector<InputTag> >("TkColList");

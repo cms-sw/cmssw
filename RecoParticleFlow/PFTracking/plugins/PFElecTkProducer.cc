@@ -177,9 +177,9 @@ using namespace reco;
 
 PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig, const convbremhelpers::HeavyObjectCache*)
     : conf_(iConfig),
-      magFieldToken_(esConsumes<edm::Transition::BeginRun>()), 
+      magFieldToken_(esConsumes<edm::Transition::BeginRun>()),
       tkerGeomToken_(esConsumes<edm::Transition::BeginRun>()),
-      transientTrackToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "TransientTrackBuilder")))  {
+      transientTrackToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "TransientTrackBuilder"))) {
   gsfTrackLabel_ = consumes<reco::GsfTrackCollection>(iConfig.getParameter<InputTag>("GsfTrackModuleLabel"));
 
   pfTrackLabel_ = consumes<reco::PFRecTrackCollection>(iConfig.getParameter<InputTag>("PFRecTrackLabel"));

@@ -16,11 +16,11 @@
 using namespace std;
 using namespace edm;
 
-PFDisplacedVertexProducer::PFDisplacedVertexProducer(const edm::ParameterSet& iConfig) :
-    magFieldToken_(esConsumes()),
-    globTkGeomToken_(esConsumes()),
-    tkerTopoToken_(esConsumes()),
-    tkerGeomToken_(esConsumes())   {
+PFDisplacedVertexProducer::PFDisplacedVertexProducer(const edm::ParameterSet& iConfig)
+    : magFieldToken_(esConsumes()),
+      globTkGeomToken_(esConsumes()),
+      tkerTopoToken_(esConsumes()),
+      tkerGeomToken_(esConsumes()) {
   // --- Setup input collection names --- //
 
   inputTagVertexCandidates_ =
@@ -102,8 +102,7 @@ void PFDisplacedVertexProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByToken(inputTagBeamSpot_, beamSpotHandle);
 
   // Fill useful event information for the Finder
-  pfDisplacedVertexFinder_.setEdmParameters(
-      theMagField, globTkGeom, tkerTopo, tkerGeom);
+  pfDisplacedVertexFinder_.setEdmParameters(theMagField, globTkGeom, tkerTopo, tkerGeom);
   pfDisplacedVertexFinder_.setPrimaryVertex(mainVertexHandle, beamSpotHandle);
   pfDisplacedVertexFinder_.setInput(vertexCandidates);
 

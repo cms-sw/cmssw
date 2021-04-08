@@ -7,8 +7,7 @@
 using namespace std;
 using namespace edm;
 PFDisplacedTrackerVertexProducer::PFDisplacedTrackerVertexProducer(const ParameterSet& iConfig)
-    : pfTransformer_(nullptr),
-      magneticFieldToken_(esConsumes<edm::Transition::BeginRun>())  {
+    : pfTransformer_(nullptr), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFDisplacedTrackerVertexCollection>();
 

@@ -6,8 +6,8 @@
 
 using namespace std;
 using namespace edm;
-PFNuclearProducer::PFNuclearProducer(const ParameterSet& iConfig) : pfTransformer_(nullptr),
-    magneticFieldToken_(esConsumes<edm::Transition::BeginRun>())  {
+PFNuclearProducer::PFNuclearProducer(const ParameterSet& iConfig)
+    : pfTransformer_(nullptr), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFNuclearInteractionCollection>();
 

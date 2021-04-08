@@ -31,7 +31,7 @@ private:
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_;
   std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
-  
+
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
   ///TRACK QUALITY
   bool useQuality_;
