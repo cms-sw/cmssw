@@ -6,7 +6,7 @@
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/VertexReco"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>

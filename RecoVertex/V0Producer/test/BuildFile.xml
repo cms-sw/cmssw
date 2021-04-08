@@ -9,7 +9,7 @@
 <use name="SimDataFormats/Vertex"/>
 <use name="root"/>
 <use name="TrackingTools/TrajectoryState"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="TrackingTools/TransientTrack"/>

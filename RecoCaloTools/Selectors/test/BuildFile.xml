@@ -1,6 +1,6 @@
 <use name="boost"/>
 <use name="DataFormats/HcalRecHit"/>
-<use name="RecoCaloTools/Selectors"/>
+<use name="RecoCaloTools/Selectors" source_only="1"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>

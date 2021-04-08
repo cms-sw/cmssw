@@ -5,7 +5,7 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/Records"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="SimDataFormats/CaloHit"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="SimDataFormats/Track"/>

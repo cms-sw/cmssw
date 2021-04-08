@@ -4,7 +4,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/TrackerRecHit2D"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="RecoLocalTracker/Phase2TrackerRecHits"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
