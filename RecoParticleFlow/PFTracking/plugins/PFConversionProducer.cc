@@ -4,21 +4,18 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-//#include "MagneticField/Engine/interface/MagneticField.h"
-//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-//#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-//#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 
 typedef std::multimap<unsigned, std::vector<unsigned> > BlockMap;
 using namespace std;
 using namespace edm;
 
-PFConversionProducer::PFConversionProducer(const ParameterSet& iConfig) : pfTransformer_(nullptr),
-    transientTrackToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))), 
-    magneticFieldToken_(esConsumes<edm::Transition::BeginRun>())  {
+PFConversionProducer::PFConversionProducer(const ParameterSet& iConfig)
+    : pfTransformer_(nullptr),
+      transientTrackToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFConversionCollection>();
 
@@ -35,7 +32,7 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   auto pfRecTrackColl = std::make_unique<reco::PFRecTrackCollection>();
 
   TransientTrackBuilder const& thebuilder = iSetup.getData(transientTrackToken_);
-  
+
   reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
   Handle<reco::ConversionCollection> convCollH;
   iEvent.getByToken(pfConversionContainer_, convCollH);

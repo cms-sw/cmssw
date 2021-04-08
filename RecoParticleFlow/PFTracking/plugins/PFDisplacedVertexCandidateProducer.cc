@@ -13,8 +13,8 @@
 using namespace std;
 using namespace edm;
 
-PFDisplacedVertexCandidateProducer::PFDisplacedVertexCandidateProducer(const edm::ParameterSet& iConfig) :
-    magneticFieldToken_(esConsumes()) {
+PFDisplacedVertexCandidateProducer::PFDisplacedVertexCandidateProducer(const edm::ParameterSet& iConfig)
+    : magneticFieldToken_(esConsumes()) {
   // --- Setup input collection names --- //
   inputTagTracks_ = consumes<reco::TrackCollection>(iConfig.getParameter<InputTag>("trackCollection"));
 

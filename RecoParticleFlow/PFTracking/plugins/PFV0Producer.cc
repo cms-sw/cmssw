@@ -10,8 +10,8 @@
 using namespace std;
 using namespace edm;
 using namespace reco;
-PFV0Producer::PFV0Producer(const ParameterSet& iConfig) : pfTransformer_(nullptr),
-    magneticFieldToken_(esConsumes<edm::Transition::BeginRun>())  {
+PFV0Producer::PFV0Producer(const ParameterSet& iConfig)
+    : pfTransformer_(nullptr), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFV0Collection>();
   produces<reco::PFRecTrackCollection>();
 

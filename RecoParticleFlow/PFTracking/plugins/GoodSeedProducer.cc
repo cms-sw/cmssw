@@ -187,11 +187,14 @@ using namespace std;
 using namespace reco;
 
 GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig, const goodseedhelpers::HeavyObjectCache*)
-    : pfTransformer_(nullptr), conf_(iConfig), resMapEtaECAL_(nullptr), resMapPhiECAL_(nullptr),
+    : pfTransformer_(nullptr),
+      conf_(iConfig),
+      resMapEtaECAL_(nullptr),
+      resMapPhiECAL_(nullptr),
       fitterToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("Fitter")))),
       smootherToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("Smoother")))),
       trackerRecHitBuilderToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("TTRHBuilder")))),
-      magneticFieldToken_(esConsumes())  {
+      magneticFieldToken_(esConsumes()) {
   LogInfo("GoodSeedProducer") << "Electron PreIdentification started  ";
 
   //now do what ever initialization is needed

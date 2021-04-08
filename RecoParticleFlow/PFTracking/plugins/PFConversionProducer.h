@@ -35,7 +35,7 @@ private:
   PFTrackTransformer *pfTransformer_;
   edm::EDGetTokenT<reco::ConversionCollection> pfConversionContainer_;
   edm::EDGetTokenT<reco::VertexCollection> vtx_h;
-  
+
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 };

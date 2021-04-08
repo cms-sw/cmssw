@@ -66,8 +66,9 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkerGeomToken_;
   const MagneticField* bField_;
   const TrackerGeometry* tkGeom_;
-  std::array<std::string, 1> hgc_names_;                       // 3 --> 1; extrapolate to hgcee only
-  std::array<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>, 1> hgcGeometryTokens_;  // 3 --> 1; extrapolate to hgcee only
+  std::array<std::string, 1> hgc_names_;  // 3 --> 1; extrapolate to hgcee only
+  std::array<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>, 1>
+      hgcGeometryTokens_;                              // 3 --> 1; extrapolate to hgcee only
   std::array<const HGCalGeometry*, 1> hgcGeometries_;  // 3 --> 1; extrapolate to hgcee only
   std::array<std::vector<ReferenceCountingPointer<BoundDisk> >, 1> plusSurface_,
       minusSurface_;  // 3 --> 1; extrapolate to hgcee only
@@ -86,8 +87,7 @@ HGCalTrackCollectionProducer::HGCalTrackCollectionProducer(const edm::ParameterS
       NHitCut_(iConfig.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
       useIterTracking_(iConfig.getParameter<bool>("useIterativeTracking")),
       magneticFieldToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
-      tkerGeomToken_(esConsumes<edm::Transition::BeginLuminosityBlock>())
-      {
+      tkerGeomToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
   LogDebug("HGCalTrackCollectionProducer")
       << " HGCalTrackCollectionProducer::HGCalTrackCollectionProducer " << std::endl;
 
