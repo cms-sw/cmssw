@@ -28,6 +28,9 @@ process.MessageLogger = cms.Service("MessageLogger",
         MTDDigiGeometryAnalyzer = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
+        DD4hep_TestBTLPixelTopology = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
         enable = cms.untracked.bool(True),
         enableStatistics = cms.untracked.bool(True),
         noLineBreaks = cms.untracked.bool(True),
@@ -83,5 +86,8 @@ process.mtdGeometry.applyAlignment = cms.bool(False)
 process.Timing = cms.Service("Timing")
 
 process.prod = cms.EDAnalyzer("MTDDigiGeometryAnalyzer")
+process.prod1 = cms.EDAnalyzer("DD4hep_TestBTLPixelTopology",
+    DDDetector = cms.ESInputTag('',''),
+)
 
-process.p1 = cms.Path(process.prod)
+process.p1 = cms.Path(process.prod+process.prod1)
