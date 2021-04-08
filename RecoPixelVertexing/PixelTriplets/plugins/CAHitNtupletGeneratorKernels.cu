@@ -3,7 +3,7 @@
 template <>
 void CAHitNtupletGeneratorKernelsGPU::fillHitDetIndices(HitsView const *hv, TkSoA *tracks_d, cudaStream_t cudaStream) {
   auto blockSize = 128;
-  auto numberOfBlocks = (HitContainer::capacity() + blockSize - 1) / blockSize;
+  auto numberOfBlocks = (HitContainer::ctCapacity() + blockSize - 1) / blockSize;
 
   kernel_fillHitDetIndices<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
       &tracks_d->hitIndices, hv, &tracks_d->detIndices);
@@ -26,8 +26,11 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   auto nhits = hh.nHits();
   assert(nhits <= pixelGPUConstants::maxNumberOfHits);
 
-  // std::cout << "N hits " << nhits << std::endl;
-  // if (nhits<2) std::cout << "too few hits " << nhits << std::endl;
+#ifdef NTUPLE_DEBUG
+  std::cout << "start tuple building. N hits " << nhits << std::endl;
+  if (nhits < 2)
+    std::cout << "too few hits " << nhits << std::endl;
+#endif
 
   //
   // applying conbinatoric cleaning such as fishbone at this stage is too expensive
@@ -95,7 +98,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
 #endif
 
   blockSize = 128;
-  numberOfBlocks = (HitContainer::totbins() + blockSize - 1) / blockSize;
+  numberOfBlocks = (HitContainer::ctNOnes() + blockSize - 1) / blockSize;
   cms::cuda::finalizeBulk<<<numberOfBlocks, blockSize, 0, cudaStream>>>(device_hitTuple_apc_, tuples_d);
 
   // remove duplicates (tracks that share a doublet)
@@ -136,7 +139,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
 
 template <>
 void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStream_t stream) {
-  auto nhits = hh.nHits();
+  int32_t nhits = hh.nHits();
 
 #ifdef NTUPLE_DEBUG
   std::cout << "building Doublets out of " << nhits << " Hits" << std::endl;
@@ -148,7 +151,7 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
 #endif
 
   // in principle we can use "nhits" to heuristically dimension the workspace...
-  device_isOuterHitOfCell_ = cms::cuda::make_device_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U, nhits), stream);
+  device_isOuterHitOfCell_ = cms::cuda::make_device_unique<GPUCACell::OuterHitOfCell[]>(std::max(1, nhits), stream);
   assert(device_isOuterHitOfCell_.get());
 
   cellStorage_ = cms::cuda::make_device_unique<unsigned char[]>(
@@ -162,7 +165,7 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
   {
     int threadsPerBlock = 128;
     // at least one block!
-    int blocks = (std::max(1U, nhits) + threadsPerBlock - 1) / threadsPerBlock;
+    int blocks = (std::max(1, nhits) + threadsPerBlock - 1) / threadsPerBlock;
     gpuPixelDoublets::initDoublets<<<blocks, threadsPerBlock, 0, stream>>>(device_isOuterHitOfCell_.get(),
                                                                            nhits,
                                                                            device_theCellNeighbors_.get(),
@@ -225,6 +228,8 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   auto const *tuples_d = &tracks_d->hitIndices;
   auto *quality_d = tracks_d->qualityData();
 
+  int32_t nhits = hh.nHits();
+
   auto blockSize = 64;
 
   // classify tracks based on kinematics
@@ -245,29 +250,37 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   kernel_fastDuplicateRemover<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
       device_theCells_.get(), device_nCells_, tuples_d, tracks_d);
   cudaCheck(cudaGetLastError());
+#ifdef GPU_DEBUG
+  cudaCheck(cudaDeviceSynchronize());
+#endif
 
   if (params_.minHitsPerNtuplet_ < 4 || params_.doStats_) {
     // fill hit->track "map"
+    assert(hitToTupleView_.offSize > nhits);
     numberOfBlocks = nQuadrupletBlocks(blockSize);
     kernel_countHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
         tuples_d, quality_d, device_hitToTuple_.get());
     cudaCheck(cudaGetLastError());
-    cms::cuda::launchFinalize(device_hitToTuple_.get(), cudaStream);
+    assert((hitToTupleView_.assoc == device_hitToTuple_.get()) &&
+           (hitToTupleView_.offStorage == device_hitToTupleStorage_.get()) && (hitToTupleView_.offSize > 0));
+    cms::cuda::launchFinalize(hitToTupleView_, cudaStream);
     cudaCheck(cudaGetLastError());
     kernel_fillHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, quality_d, device_hitToTuple_.get());
     cudaCheck(cudaGetLastError());
+#ifdef GPU_DEBUG
+    cudaCheck(cudaDeviceSynchronize());
+#endif
   }
   if (params_.minHitsPerNtuplet_ < 4) {
     // remove duplicates (tracks that share a hit)
-    numberOfBlocks = (HitToTuple::capacity() + blockSize - 1) / blockSize;
+    numberOfBlocks = (hitToTupleView_.offSize + blockSize - 1) / blockSize;
     kernel_tripletCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
         hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get());
     cudaCheck(cudaGetLastError());
   }
 
   if (params_.doStats_) {
-    auto nhits = hh.nHits();
-    numberOfBlocks = (std::max(nhits, params_.maxNumberOfDoublets_) + blockSize - 1) / blockSize;
+    numberOfBlocks = (std::max(nhits, int(params_.maxNumberOfDoublets_)) + blockSize - 1) / blockSize;
     kernel_checkOverflows<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d,
                                                                         device_tupleMultiplicity_.get(),
                                                                         device_hitToTuple_.get(),
@@ -285,7 +298,7 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
 
   if (params_.doStats_) {
     // counters (add flag???)
-    numberOfBlocks = (HitToTuple::capacity() + blockSize - 1) / blockSize;
+    numberOfBlocks = (hitToTupleView_.offSize + blockSize - 1) / blockSize;
     kernel_doStatsForHitInTracks<<<numberOfBlocks, blockSize, 0, cudaStream>>>(device_hitToTuple_.get(), counters_);
     cudaCheck(cudaGetLastError());
     numberOfBlocks = (3 * caConstants::maxNumberOfQuadruplets / 4 + blockSize - 1) / blockSize;

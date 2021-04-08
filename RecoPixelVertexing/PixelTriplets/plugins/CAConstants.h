@@ -74,8 +74,7 @@ namespace caConstants {
 
   using OuterHitOfCell = cms::cuda::VecArray<uint32_t, maxCellsPerHit>;
   using TuplesContainer = cms::cuda::OneToManyAssoc<hindex_type, maxTuples, 5 * maxTuples>;
-  using HitToTuple =
-      cms::cuda::OneToManyAssoc<tindex_type, pixelGPUConstants::maxNumberOfHits, 4 * maxTuples>;  // 3.5 should be enough
+  using HitToTuple = cms::cuda::OneToManyAssoc<tindex_type, -1, 4 * maxTuples>;  // 3.5 should be enough
   using TupleMultiplicity = cms::cuda::OneToManyAssoc<tindex_type, 8, maxTuples>;
 
 }  // namespace caConstants
