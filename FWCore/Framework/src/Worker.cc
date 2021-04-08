@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-
+#include "FWCore/Concurrency/interface/include_first_syncWait.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -10,10 +10,10 @@
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
-#include "FWCore/Framework/src/esTaskArenas.h"
 #include "tbb/global_control.h"
 
 namespace edm {
@@ -201,15 +201,17 @@ namespace edm {
     return true;
   }
 
-  void Worker::prePrefetchSelectionAsync(WaitingTask* successTask,
+  void Worker::prePrefetchSelectionAsync(tbb::task_group& group,
+                                         WaitingTask* successTask,
                                          ServiceToken const& token,
                                          StreamID id,
                                          EventPrincipal const* iPrincipal) {
     successTask->increment_ref_count();
 
-    auto choiceTask = edm::make_waiting_task(
-        tbb::task::allocate_root(), [id, successTask, iPrincipal, this, token](std::exception_ptr const*) {
-          ServiceRegistry::Operate guard(token);
+    ServiceWeakToken weakToken = token;
+    auto choiceTask =
+        edm::make_waiting_task([id, successTask, iPrincipal, this, weakToken, &group](std::exception_ptr const*) {
+          ServiceRegistry::Operate guard(weakToken.lock());
           // There is no reasonable place to rethrow, and implDoPrePrefetchSelection() should not throw in the first place.
           CMS_SA_ALLOW try {
             if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
@@ -218,18 +220,21 @@ namespace edm {
               waitingTasks_.doneWaiting(nullptr);
               //TBB requires that destroyed tasks have count 0
               if (0 == successTask->decrement_ref_count()) {
-                tbb::task::destroy(*successTask);
+                TaskSentry s(successTask);
               }
               return;
             }
           } catch (...) {
           }
           if (0 == successTask->decrement_ref_count()) {
-            tbb::task::spawn(*successTask);
+            group.run([successTask]() {
+              TaskSentry s(successTask);
+              successTask->execute();
+            });
           }
         });
 
-    WaitingTaskHolder choiceHolder{choiceTask};
+    WaitingTaskHolder choiceHolder{group, choiceTask};
 
     std::vector<ProductResolverIndexAndSkipBit> items;
     itemsToGetForSelection(items);
@@ -238,13 +243,14 @@ namespace edm {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
       bool skipCurrentProcess = item.skipCurrentProcess();
       if (productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal->prefetchAsync(choiceTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+        iPrincipal->prefetchAsync(
+            choiceHolder, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
       }
     }
     choiceHolder.doneWaiting(std::exception_ptr{});
   }
 
-  void Worker::esPrefetchAsync(WaitingTask* iTask,
+  void Worker::esPrefetchAsync(WaitingTaskHolder iTask,
                                EventSetupImpl const& iImpl,
                                Transition iTrans,
                                ServiceToken const& iToken) {
@@ -265,57 +271,49 @@ namespace edm {
     // will work.
 
     if UNLIKELY (tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism) == 1) {
-      //We spawn this first so that the other ES tasks are before it in the TBB queue
-      tbb::task_arena edArena(tbb::task_arena::attach{});
-      tbb::task::spawn(
-          *make_functor_task(tbb::task::allocate_root(),
-                             [this, task = edm::WaitingTaskHolder(iTask), iTrans, &iImpl, iToken, edArena]() mutable {
-                               esTaskArena().execute([this, iTrans, &iImpl, iToken, task = std::move(task), edArena]() {
-                                 auto waitTask = edm::make_empty_waiting_task();
-                                 auto const& recs = esRecordsToGetFrom(iTrans);
-                                 auto const& items = esItemsToGetFrom(iTrans);
-                                 waitTask->set_ref_count(2);
-                                 for (size_t i = 0; i != items.size(); ++i) {
-                                   if (recs[i] != ESRecordIndex{}) {
-                                     auto rec = iImpl.findImpl(recs[i]);
-                                     if (rec) {
-                                       rec->prefetchAsync(waitTask.get(), items[i], &iImpl, iToken);
-                                     }
-                                   }
-                                 }
-                                 waitTask->decrement_ref_count();
-                                 waitTask->wait_for_all();
-
-                                 auto exPtr = waitTask->exceptionPtr();
-                                 tbb::task_arena(edArena).execute([task, exPtr]() {
-                                   auto t = task;
-                                   if (exPtr) {
-                                     t.doneWaiting(*exPtr);
-                                   } else {
-                                     t.doneWaiting(std::exception_ptr{});
-                                   }
-                                 });
-                               });
-                             }));
+      auto taskGroup = iTask.group();
+      ServiceWeakToken weakToken = iToken;
+      taskGroup->run([this, task = std::move(iTask), iTrans, &iImpl, weakToken]() {
+        std::exception_ptr exceptPtr{};
+        iImpl.taskArena()->execute([this, iTrans, &iImpl, weakToken, &exceptPtr]() {
+          exceptPtr = syncWait([&](WaitingTaskHolder&& iHolder) {
+            auto const& recs = esRecordsToGetFrom(iTrans);
+            auto const& items = esItemsToGetFrom(iTrans);
+            auto hWaitTask = std::move(iHolder);
+            auto token = weakToken.lock();
+            for (size_t i = 0; i != items.size(); ++i) {
+              if (recs[i] != ESRecordIndex{}) {
+                auto rec = iImpl.findImpl(recs[i]);
+                if (rec) {
+                  rec->prefetchAsync(hWaitTask, items[i], &iImpl, token, ESParentContext(&moduleCallingContext_));
+                }
+              }
+            }
+          });  //syncWait
+        });    //esTaskArena().execute
+        //note use of a copy gets around declaring the lambda as mutable
+        auto tempTask = task;
+        tempTask.doneWaiting(exceptPtr);
+      });  //group.run
     } else {
+      auto group = iTask.group();
       //We need iTask to run in the default arena since it is not an ES task
-      auto task =
-          make_waiting_task(tbb::task::allocate_root(),
-                            [holder = WaitingTaskWithArenaHolder{iTask}](std::exception_ptr const* iExcept) mutable {
-                              if (iExcept) {
-                                holder.doneWaiting(*iExcept);
-                              } else {
-                                holder.doneWaiting(std::exception_ptr{});
-                              }
-                            });
+      auto task = make_waiting_task(
+          [holder = WaitingTaskWithArenaHolder(std::move(iTask))](std::exception_ptr const* iExcept) mutable {
+            if (iExcept) {
+              holder.doneWaiting(*iExcept);
+            } else {
+              holder.doneWaiting(std::exception_ptr{});
+            }
+          });
 
-      WaitingTaskHolder tempH(task);
-      esTaskArena().execute([&]() {
+      WaitingTaskHolder tempH(*group, task);
+      iImpl.taskArena()->execute([&]() {
         for (size_t i = 0; i != items.size(); ++i) {
           if (recs[i] != ESRecordIndex{}) {
             auto rec = iImpl.findImpl(recs[i]);
             if (rec) {
-              rec->prefetchAsync(task, items[i], &iImpl, iToken);
+              rec->prefetchAsync(tempH, items[i], &iImpl, iToken, ESParentContext(&moduleCallingContext_));
             }
           }
         }
@@ -323,7 +321,7 @@ namespace edm {
     }
   }
 
-  void Worker::edPrefetchAsync(WaitingTask* iTask, ServiceToken const& token, Principal const& iPrincipal) const {
+  void Worker::edPrefetchAsync(WaitingTaskHolder iTask, ServiceToken const& token, Principal const& iPrincipal) const {
     // Prefetch products the module declares it consumes
     std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
 
@@ -506,20 +504,16 @@ namespace edm {
   }
 
   Worker::HandleExternalWorkExceptionTask::HandleExternalWorkExceptionTask(Worker* worker,
+                                                                           tbb::task_group* group,
                                                                            WaitingTask* runModuleTask,
                                                                            ParentContext const& parentContext)
-      : m_worker(worker), m_runModuleTask(runModuleTask), m_parentContext(parentContext) {}
+      : m_worker(worker), m_runModuleTask(runModuleTask), m_group(group), m_parentContext(parentContext) {}
 
-  tbb::task* Worker::HandleExternalWorkExceptionTask::execute() {
+  void Worker::HandleExternalWorkExceptionTask::execute() {
     auto excptr = exceptionPtr();
+    WaitingTaskHolder holder(*m_group, m_runModuleTask);
     if (excptr) {
-      // increment the ref count so the holder will not spawn it
-      m_runModuleTask->set_ref_count(1);
-      WaitingTaskHolder holder(m_runModuleTask);
       holder.doneWaiting(m_worker->handleExternalWorkException(excptr, m_parentContext));
     }
-    m_runModuleTask->set_ref_count(0);
-    // Depend on TBB Scheduler Bypass to run the next task
-    return m_runModuleTask;
   }
 }  // namespace edm

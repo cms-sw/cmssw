@@ -1,6 +1,7 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/DetId"/>
+<use name="FWCore/Utilities"/>
 <use name="rootmath"/>
 <use name="eigen"/>
 <export>

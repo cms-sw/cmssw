@@ -14,6 +14,8 @@ namespace trklet {
   class MemoryBase;
   class AllStubsMemory;
   class StubPairsMemory;
+  class VarInv;
+  class VarBase;
 
   class TrackletCalculator : public TrackletCalculatorBase {
   public:
@@ -33,6 +35,9 @@ namespace trklet {
     std::vector<AllStubsMemory*> innerallstubs_;
     std::vector<AllStubsMemory*> outerallstubs_;
     std::vector<StubPairsMemory*> stubpairs_;
+
+    void writeInvTable(void (*writeLUT)(const VarInv&, const std::string&));
+    void writeFirmwareDesign(void (*writeDesign)(const std::vector<VarBase*>&, const std::string&));
   };
 };  // namespace trklet
 #endif

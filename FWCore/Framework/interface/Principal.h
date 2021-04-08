@@ -26,6 +26,7 @@ pointer to a ProductResolver, when queried.
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
@@ -46,8 +47,6 @@ namespace edm {
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class SharedResourcesAcquirer;
-  class InputProductResolver;
-  class WaitingTask;
   class UnscheduledConfigurator;
 
   struct FilledProductPtr {
@@ -126,7 +125,7 @@ namespace edm {
                            SharedResourcesAcquirer* sra,
                            ModuleCallingContext const* mcc) const;
 
-    void prefetchAsync(WaitingTask* waitTask,
+    void prefetchAsync(WaitingTaskHolder waitTask,
                        ProductResolverIndex index,
                        bool skipCurrentProcess,
                        ServiceToken const& token,
@@ -172,7 +171,8 @@ namespace edm {
       return boost::make_filter_iterator<FilledProductPtr>(productResolvers_.end(), productResolvers_.end());
     }
 
-    Provenance getProvenance(BranchID const& bid, ModuleCallingContext const* mcc) const;
+    Provenance const& getProvenance(BranchID const& bid) const;
+    StableProvenance const& getStableProvenance(BranchID const& bid) const;
 
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
@@ -208,7 +208,7 @@ namespace edm {
     ProductResolverBase const* getExistingProduct(BranchID const& branchID) const;
     ProductResolverBase const* getExistingProduct(ProductResolverBase const& phb) const;
 
-    void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
+    void put_(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     //F must take an argument of type ProductResolverBase*
     template <typename F>
@@ -224,7 +224,8 @@ namespace edm {
 
     void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addSourceProduct(std::shared_ptr<BranchDescription const> bd);
-    void addInputProduct(std::shared_ptr<BranchDescription const> bd);
+    void addDelayedReaderInputProduct(std::shared_ptr<BranchDescription const> bd);
+    void addPutOnReadInputProduct(std::shared_ptr<BranchDescription const> bd);
     void addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addAliasedProduct(std::shared_ptr<BranchDescription const> bd);
     void addSwitchProducerProduct(std::shared_ptr<BranchDescription const> bd);
@@ -263,7 +264,7 @@ namespace edm {
                                           SharedResourcesAcquirer* sra,
                                           ModuleCallingContext const* mcc) const;
 
-    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;
+    void put_(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;
 
     std::shared_ptr<ProcessHistory const> processHistoryPtr_;
 

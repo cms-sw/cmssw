@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // this doesn't actually import anything,
 // but rather applies time stamps to tracks after they are all inserted

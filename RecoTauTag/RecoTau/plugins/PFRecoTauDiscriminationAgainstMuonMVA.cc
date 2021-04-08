@@ -27,7 +27,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 

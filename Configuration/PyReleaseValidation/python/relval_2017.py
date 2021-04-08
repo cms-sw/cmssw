@@ -24,17 +24,21 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (HE collapse: TTbar, TTbar PU, TTbar design)
 #        (ParkingBPH: TTbar)
 #        (TTbar PU with JME NanoAOD)
-#        (Patatrack pixel-only: ZMM - on CPU, on GPU, both, auto)
-#        (Patatrack pixel-only: TTbar - on CPU, on GPU, both, auto)
-#        (Patatrack ECAL-only: TTbar - on CPU, on GPU, both, auto)
-#        (Patatrack HCAL-only: TTbar - on CPU, on GPU, both, auto)
-#   2021 (ZMM, TTbar, ZEE, MinBias, TTbar PU, TTbar PU premix, ZEE PU, TTbar design)
-#        (TTbar trackingOnly, pixelTrackingOnly, trackingMkFit)
-#        (Patatrack pixel-only: ZMM - on CPU, on GPU, both, auto)
-#        (Patatrack pixel-only: TTbar - on CPU, on GPU, both, auto)
-#        (Patatrack ECAL-only: TTbar - on CPU, on GPU, both, auto)
-#        (Patatrack HCAL-only: TTbar - on CPU, on GPU, both, auto)
+#        (Patatrack pixel-only: ZMM - on CPU)
+#        (Patatrack pixel-only: TTbar - on CPU)
+#        (Patatrack ECAL-only: TTbar - on CPU)
+#        (Patatrack HCAL-only: TTbar - on CPU)
+#   2021 (DD4HEP: TTbar, ZMM)
+#        (ele guns 10, 35, 1000; pho guns 10, 35; mu guns 1, 10, 100, 1000, QCD 3TeV, QCD Flat)
+#        (ZMM, TTbar, ZEE, MinBias, TTbar PU, TTbar PU premix, ZEE PU, TTbar design, GluGluTo2Jets, GluGluTo2Jets PU)
+#        (TTbar trackingOnly, pixelTrackingOnly, trackingMkFit, trackdnn)
+#        (Patatrack pixel-only: ZMM - on CPU)
+#        (Patatrack pixel-only: TTbar - on CPU)
+#        (Patatrack ECAL-only: TTbar - on CPU)
+#        (Patatrack HCAL-only: TTbar - on CPU)
 #        (TTbar 0T, TTbar PU 0T)
+#        (TTbar PU MLPF)
+#        (QCD 1.8TeV DeepCore)
 #   2023 (TTbar, TTbar PU, TTbar PU premix)
 #   2024 (TTbar, TTbar PU, TTbar PU premix)
 numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009.0,10059.0,10071.0,
@@ -47,20 +51,23 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            10824.6,11024.6,11224.6,
            10824.8,
            11024.15,
-           10842.501,10842.502, # 10842.503,10842.504,
-           10824.501,10824.502, # 10824.503,10824.504,
-           10824.511,10824.512, # 10824.513,10824.514,
-           10824.521,10824.522, # 10824.523,10824.524,
-           11624.911, 11642.911,
-           11650.0,11634.0,11646.0,11640.0,11834.0,11834.99,11846.0,12024.0,
-           11634.1,11634.5,11634.7,
-           11650.501,11650.502, # 11650.503,11650.504,
-           11634.501,11634.502, # 11634.503,11634.504,
-           11634.511,11634.512, # 11634.513,11634.514,
-           11634.521,11634.522, # 11634.523,11634.524
+           10842.501,
+           10824.501,
+           10824.511,
+           10824.521,
+           11634.911, 11650.911,
+           11601.0,11602.0,11603.0,11604.0,11605.0,11606.0,11607.0,11608.0,11609.0,11630.0,11643.0,
+           11650.0,11634.0,11646.0,11640.0,11834.0,11834.99,11846.0,12034.0,11725.0,11925.0,
+           11634.1,11634.5,11634.7,11634.91,
+           11650.501,
+           11634.501,
+           11634.511,
+           11634.521,
            11634.24,11834.24,
+           11834.13,
+           11723.17,
            12434.0,12634.0,12634.99,
-           12834.0,13034.0,13034.99]
+           12834.0,13034.0,13034.99,]
 for numWF in numWFIB:
     if not numWF in _upgrade_workflows: continue
     workflows[numWF] = _upgrade_workflows[numWF]

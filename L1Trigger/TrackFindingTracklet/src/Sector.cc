@@ -18,6 +18,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TrackFitMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/CleanTrackMemory.h"
 
+#include "L1Trigger/TrackFindingTracklet/interface/VMRouterCM.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMRouter.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletEngine.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletEngineDisplaced.h"
@@ -92,33 +93,33 @@ bool Sector::addStub(L1TStub stub, string dtc) {
 
 void Sector::addMem(string memType, string memName) {
   if (memType == "InputLink:") {
-    addMemToVec(IL_, new InputLinkMemory(memName, settings_, isector_, phimin_, phimax_), memName);
+    addMemToVec(IL_, memName, settings_, isector_, phimin_, phimax_);
   } else if (memType == "AllStubs:") {
-    addMemToVec(AS_, new AllStubsMemory(memName, settings_, isector_), memName);
+    addMemToVec(AS_, memName, settings_, isector_);
   } else if (memType == "VMStubsTE:") {
-    addMemToVec(VMSTE_, new VMStubsTEMemory(memName, settings_, isector_), memName);
+    addMemToVec(VMSTE_, memName, settings_, isector_);
   } else if (memType == "VMStubsME:") {
-    addMemToVec(VMSME_, new VMStubsMEMemory(memName, settings_, isector_), memName);
+    addMemToVec(VMSME_, memName, settings_, isector_);
   } else if (memType == "StubPairs:" || memType == "StubPairsDisplaced:") {
-    addMemToVec(SP_, new StubPairsMemory(memName, settings_, isector_), memName);
+    addMemToVec(SP_, memName, settings_, isector_);
   } else if (memType == "StubTriplets:") {
-    addMemToVec(ST_, new StubTripletsMemory(memName, settings_, isector_), memName);
+    addMemToVec(ST_, memName, settings_, isector_);
   } else if (memType == "TrackletParameters:") {
-    addMemToVec(TPAR_, new TrackletParametersMemory(memName, settings_, isector_), memName);
+    addMemToVec(TPAR_, memName, settings_, isector_);
   } else if (memType == "TrackletProjections:") {
-    addMemToVec(TPROJ_, new TrackletProjectionsMemory(memName, settings_, isector_), memName);
+    addMemToVec(TPROJ_, memName, settings_, isector_);
   } else if (memType == "AllProj:") {
-    addMemToVec(AP_, new AllProjectionsMemory(memName, settings_, isector_), memName);
+    addMemToVec(AP_, memName, settings_, isector_);
   } else if (memType == "VMProjections:") {
-    addMemToVec(VMPROJ_, new VMProjectionsMemory(memName, settings_, isector_), memName);
+    addMemToVec(VMPROJ_, memName, settings_, isector_);
   } else if (memType == "CandidateMatch:") {
-    addMemToVec(CM_, new CandidateMatchMemory(memName, settings_, isector_), memName);
+    addMemToVec(CM_, memName, settings_, isector_);
   } else if (memType == "FullMatch:") {
-    addMemToVec(FM_, new FullMatchMemory(memName, settings_, isector_), memName);
+    addMemToVec(FM_, memName, settings_, isector_);
   } else if (memType == "TrackFit:") {
-    addMemToVec(TF_, new TrackFitMemory(memName, settings_, isector_, phimin_, phimax_), memName);
+    addMemToVec(TF_, memName, settings_, isector_, phimin_, phimax_);
   } else if (memType == "CleanTrack:") {
-    addMemToVec(CT_, new CleanTrackMemory(memName, settings_, isector_, phimin_, phimax_), memName);
+    addMemToVec(CT_, memName, settings_, isector_, phimin_, phimax_);
   } else {
     edm::LogPrint("Tracklet") << "Don't know of memory type: " << memType;
     exit(0);
@@ -127,32 +128,34 @@ void Sector::addMem(string memType, string memName) {
 
 void Sector::addProc(string procType, string procName) {
   if (procType == "VMRouter:") {
-    addProcToVec(VMR_, new VMRouter(procName, settings_, globals_, isector_), procName);
+    addProcToVec(VMR_, procName, settings_, globals_, isector_);
+  } else if (procType == "VMRouterCM:") {
+    addProcToVec(VMRCM_, procName, settings_, globals_, isector_);
   } else if (procType == "TrackletEngine:") {
-    addProcToVec(TE_, new TrackletEngine(procName, settings_, globals_, isector_), procName);
+    addProcToVec(TE_, procName, settings_, globals_, isector_);
   } else if (procType == "TrackletEngineDisplaced:") {
-    addProcToVec(TED_, new TrackletEngineDisplaced(procName, settings_, globals_, isector_), procName);
+    addProcToVec(TED_, procName, settings_, globals_, isector_);
   } else if (procType == "TripletEngine:") {
-    addProcToVec(TRE_, new TripletEngine(procName, settings_, globals_, isector_), procName);
+    addProcToVec(TRE_, procName, settings_, globals_, isector_);
   } else if (procType == "TrackletCalculator:") {
-    addProcToVec(TC_, new TrackletCalculator(procName, settings_, globals_, isector_), procName);
+    addProcToVec(TC_, procName, settings_, globals_, isector_);
   } else if (procType == "TrackletProcessor:") {
-    addProcToVec(TP_, new TrackletProcessor(procName, settings_, globals_, isector_), procName);
+    addProcToVec(TP_, procName, settings_, globals_, isector_);
   } else if (procType == "TrackletCalculatorDisplaced:") {
-    addProcToVec(TCD_, new TrackletCalculatorDisplaced(procName, settings_, globals_, isector_), procName);
+    addProcToVec(TCD_, procName, settings_, globals_, isector_);
   } else if (procType == "ProjectionRouter:") {
-    addProcToVec(PR_, new ProjectionRouter(procName, settings_, globals_, isector_), procName);
+    addProcToVec(PR_, procName, settings_, globals_, isector_);
   } else if (procType == "MatchEngine:") {
-    addProcToVec(ME_, new MatchEngine(procName, settings_, globals_, isector_), procName);
+    addProcToVec(ME_, procName, settings_, globals_, isector_);
   } else if (procType == "MatchCalculator:" ||
              procType == "DiskMatchCalculator:") {  //TODO should not be used in configurations
-    addProcToVec(MC_, new MatchCalculator(procName, settings_, globals_, isector_), procName);
+    addProcToVec(MC_, procName, settings_, globals_, isector_);
   } else if (procType == "MatchProcessor:") {
-    addProcToVec(MP_, new MatchProcessor(procName, settings_, globals_, isector_), procName);
+    addProcToVec(MP_, procName, settings_, globals_, isector_);
   } else if (procType == "FitTrack:") {
-    addProcToVec(FT_, new FitTrack(procName, settings_, globals_, isector_), procName);
+    addProcToVec(FT_, procName, settings_, globals_, isector_);
   } else if (procType == "PurgeDuplicate:") {
-    addProcToVec(PD_, new PurgeDuplicate(procName, settings_, globals_, isector_), procName);
+    addProcToVec(PD_, procName, settings_, globals_, isector_);
   } else {
     edm::LogPrint("Tracklet") << "Don't know of processing type: " << procType;
     exit(0);
@@ -187,9 +190,9 @@ ProcessBase* Sector::getProc(string procName) {
   auto it = Processes_.find(procName);
 
   if (it != Processes_.end()) {
-    return it->second.get();
+    return it->second;
   }
-  throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find process : " << procName;
+  throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find process : " << procName << endl;
   return nullptr;
 }
 
@@ -197,7 +200,7 @@ MemoryBase* Sector::getMem(string memName) {
   auto it = Memories_.find(memName);
 
   if (it != Memories_.end()) {
-    return it->second.get();
+    return it->second;
   }
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find memory : " << memName;
   return nullptr;
@@ -313,6 +316,9 @@ void Sector::executeVMR() {
   for (auto& i : VMR_) {
     i->execute();
   }
+  for (auto& i : VMRCM_) {
+    i->execute();
+  }
 }
 
 void Sector::executeTE() {
@@ -396,7 +402,7 @@ void Sector::executePD(std::vector<Track*>& tracks) {
 
 std::vector<Tracklet*> Sector::getAllTracklets() const {
   std::vector<Tracklet*> tmp;
-  for (auto tpar : TPAR_) {
+  for (auto& tpar : TPAR_) {
     for (unsigned int j = 0; j < tpar->nTracklets(); j++) {
       tmp.push_back(tpar->getTracklet(j));
     }
@@ -407,7 +413,7 @@ std::vector<Tracklet*> Sector::getAllTracklets() const {
 std::vector<const Stub*> Sector::getStubs() const {
   std::vector<const Stub*> tmp;
 
-  for (auto imem : IL_) {
+  for (auto& imem : IL_) {
     for (unsigned int istub = 0; istub < imem->nStubs(); istub++) {
       tmp.push_back(imem->getStub(istub));
     }
@@ -418,7 +424,7 @@ std::vector<const Stub*> Sector::getStubs() const {
 
 std::unordered_set<int> Sector::seedMatch(int itp) const {
   std::unordered_set<int> tmpSeeds;
-  for (auto i : TPAR_) {
+  for (auto& i : TPAR_) {
     unsigned int nTracklet = i->nTracklets();
     for (unsigned int j = 0; j < nTracklet; j++) {
       if (i->getTracklet(j)->tpseed() == itp) {

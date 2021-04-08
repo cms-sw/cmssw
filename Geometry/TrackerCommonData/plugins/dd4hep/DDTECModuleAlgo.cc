@@ -1,12 +1,13 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include <DD4hep/DD4hepUnits.h>
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -216,7 +217,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     xpos = -0.5 * topFrameBotWidth + bl2 * cos(detTilt) + dz * sin(fabs(thet) + detTilt) / cos(fabs(thet));
     xpos = -xpos;
     zpos = topFrameEndZ - topFrame2LHeight - 0.5 * sin(detTilt) * (topFrameBotWidth - topFrame2Width) -
-           dz * cos(detTilt + fabs(thet)) / cos(fabs(thet)) + bl2 * sin(detTilt) - 0.1_mm;
+           dz * cos(detTilt + fabs(thet)) / cos(fabs(thet)) + bl2 * sin(detTilt) - 0.1 * dd4hep::mm;
   }
   //position
   mother.placeVolume(
@@ -252,7 +253,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     xpos = 0.5 * topFrameBotWidth - bl2 * cos(detTilt) - dz * sin(fabs(detTilt - fabs(thet))) / cos(fabs(thet));
     xpos = -xpos;
     zpos = topFrameEndZ - topFrame2RHeight + 0.5 * sin(detTilt) * (topFrameBotWidth - topFrame2Width) -
-           dz * cos(detTilt - fabs(thet)) / cos(fabs(thet)) - bl2 * sin(detTilt) - 0.1_mm;
+           dz * cos(detTilt - fabs(thet)) / cos(fabs(thet)) - bl2 * sin(detTilt) - 0.1 * dd4hep::mm;
   }
   //position it
   mother.placeVolume(

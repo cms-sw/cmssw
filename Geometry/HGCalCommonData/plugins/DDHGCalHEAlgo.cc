@@ -3,7 +3,7 @@
 // Description: Geometry factory class for HGCal (Mix)
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -27,7 +27,7 @@
 #include <vector>
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
 class DDHGCalHEAlgo : public DDAlgorithm {
 public:
@@ -369,7 +369,7 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
       ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at " << r1 << " with " << rot;
+                                    << module.name() << " at " << r1 << " with no rotation";
 #endif
       zz += hthick;
     }  // End of loop over layers in a block
@@ -420,7 +420,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog1.name() << " number 1 positioned in " << glog.name()
-                                << " at " << tran << " with " << rot;
+                                << " at " << tran << " with no rotation";
 #endif
   double thickTot(0), zpos(-hthick);
   for (unsigned int ly = 0; ly < layerTypeTop_.size(); ++ly) {
@@ -450,7 +450,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     cpv.position(glog2, glog1, copy, r1, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Position " << glog2.name() << " number " << copy << " in "
-                                  << glog1.name() << " at " << r1 << " with " << rot;
+                                  << glog1.name() << " at " << r1 << " with no rotation";
 #endif
     ++copyNumberTop_[ii];
     zpos += hthickl;
@@ -476,7 +476,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   cpv.position(glog1, glog, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog1.name() << " number 1 positioned in " << glog.name()
-                                << " at " << tran << " with " << rot;
+                                << " at " << tran << " with no rotation";
 #endif
   thickTot = 0;
   zpos = -hthick;
@@ -507,7 +507,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     cpv.position(glog2, glog1, copy, r1, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Position " << glog2.name() << " number " << copy << " in "
-                                  << glog1.name() << " at " << r1 << " with " << rot;
+                                  << glog1.name() << " at " << r1 << " with no rotation";
 #endif
     if (layerSenseBot_[ly] != 0) {
 #ifdef EDM_ML_DEBUG
@@ -565,6 +565,8 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog,
       if (corner.first > 0) {
         int type = waferType_->getType(xpos, ypos, zpos);
         int copy = HGCalTypes::packTypeUV(type, u, v);
+        if (layertype > 1)
+          type += 3;
 #ifdef EDM_ML_DEBUG
         if (iu > ium)
           ium = iu;
@@ -584,14 +586,12 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog,
 #endif
           DDTranslation tran(xpos, ypos, 0.0);
           DDRotation rotation;
-          if (layertype > 1)
-            type += 3;
           DDName name = DDName(DDSplit(wafers_[type]).first, DDSplit(wafers_[type]).second);
           cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
           ++ntype[type];
           edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << name << " number " << copy << " positioned in "
-                                        << glog.ddname() << " at " << tran << " with " << rotation;
+                                        << glog.ddname() << " at " << tran << " with no rotation";
 #endif
         }
       }

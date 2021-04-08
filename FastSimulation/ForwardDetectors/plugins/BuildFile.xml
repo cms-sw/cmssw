@@ -6,6 +6,7 @@
   <use name="root"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/HcalDetId"/>
+  <use name="DataFormats/Candidate"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 

@@ -1,0 +1,432 @@
+#!/bin/bash
+
+# defaults
+USEDOCKER=""
+GPU=""
+VERBOSE=""
+VERBOSE_ARGS="--log-verbose=1 --log-error=1 --log-info=1"
+WTIME=120
+SERVER=triton_server_instance
+RETRIES=3
+REPOS=()
+MODELS=()
+FORCE=""
+CLEANUP=true
+TMPDIR=""
+DRYRUN=""
+PARENTPID=""
+BASEPORT=8000
+AUTOPORT=""
+NPORTS=3
+IMAGE=fastml/triton-torchgeo:20.09-py3-geometric
+SANDBOX=/cvmfs/unpacked.cern.ch/registry.hub.docker.com/${IMAGE}
+
+usage() {
+	ECHO="echo -e"
+	$ECHO "cmsTriton [options] [start|stop]"
+	$ECHO
+	$ECHO "Options:"
+	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
+	$ECHO "-D          \t dry run: print container commands rather than executing them"
+	$ECHO "-d          \t use Docker instead of Singularity"
+	$ECHO "-f          \t force reuse of (possibly) existing container instance"
+	$ECHO "-g          \t use GPU instead of CPU"
+	$ECHO "-i [name]   \t server image name (default: ${IMAGE})"
+	$ECHO "-M [dir]    \t model repository (can be given more than once)"
+	$ECHO "-m [dir]    \t specific model directory (can be given more than one)"
+	$ECHO "-n [name]   \t name of container instance, also used for default hidden temporary dir (default: ${SERVER})"
+	$ECHO "-P [port]   \t base port number for services (-1: automatically find an unused port range) (default: ${BASEPORT})"
+	$ECHO "-p [pid]    \t automatically shut down server when process w/ specified PID ends (-1: use parent process PID)"
+	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
+	$ECHO "-s [dir]    \t Singularity sandbox directory (default: ${SANDBOX})"
+	$ECHO "-t [dir]    \t non-default hidden temporary dir"
+	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
+	$ECHO "-w [time]   \t maximum time to wait for server to start (default: ${WTIME} seconds)"
+	$ECHO "-h          \t print this message and exit"
+	$ECHO
+	$ECHO "Operations:"
+	$ECHO "start       \t start server"
+	$ECHO "stop        \t stop server"
+	exit $1
+}
+
+# check shm locations
+SHM=/dev/shm
+if [ -e /run/shm ]; then
+	SHM=/run/shm
+fi
+
+while getopts "cDdfgi:M:m:n:P:p:r:s:t:vw:h" opt; do
+	case "$opt" in
+		c) CLEANUP=""
+		;;
+		D) DRYRUN=echo
+		;;
+		d) USEDOCKER=true
+		;;
+		f) FORCE=true
+		;;
+		g) GPU=true
+		;;
+		i) IMAGE="$OPTARG"
+		;;
+		M) REPOS+=("$OPTARG")
+		;;
+		m) MODELS+=("$OPTARG")
+		;;
+		n) SERVER="$OPTARG"
+		;;
+		P) if [ "$OPTARG" -eq -1 ]; then AUTOPORT=true; else BASEPORT="$OPTARG"; fi
+		;;
+		p) if [ "$OPTARG" -eq -1 ]; then PARENTPID="$PPID"; else PARENTPID="$OPTARG"; fi
+		;;
+		r) RETRIES="$OPTARG"
+		;;
+		s) SANDBOX="$OPTARG"
+		;;
+		t) TMPDIR="$OPTARG"
+		;;
+		v) VERBOSE="$VERBOSE_ARGS"
+		;;
+		w) WTIME="$OPTARG"
+		;;
+		h) usage 0
+		;;
+	esac
+done
+
+shift $(($OPTIND - 1))
+OP=$1
+
+if [ "$OP" != start ] && [ "$OP" != stop ]; then
+	usage 1
+fi
+
+if [ "$RETRIES" -le 0 ]; then
+	RETRIES=1
+fi
+
+
+TOPDIR=$PWD
+if [ -z "$TMPDIR" ]; then
+	TMPDIR="${TOPDIR}/.${SERVER}"
+else
+	TMPDIR=$(readlink -f $TMPDIR)
+fi
+
+SANDBOX=$(readlink -f ${SANDBOX})
+DOCKER="sudo docker"
+LOG="log_${SERVER}.log"
+STOPLOG="log_stop_${SERVER}.log"
+LIB=lib
+STARTED_INDICATOR="Started GRPCInferenceService"
+SEGFAULT_INDICATOR="Address already in use"
+EXTRA=""
+
+compute_ports(){
+	# compute derived port numbers
+	export HTTPPORT=$BASEPORT
+	export GRPCPORT=$((BASEPORT+1))
+	export METRPORT=$((BASEPORT+2))
+}
+
+check_port(){
+	# success on this command means the port is in use
+	if 2>/dev/null >"/dev/tcp/0.0.0.0/$1"; then
+		return 1
+	else
+		return 0
+	fi
+}
+
+check_ports(){
+	if check_port $HTTPPORT && check_port $GRPCPORT && check_port $METRPORT; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+find_ports(){
+	while ! check_ports; do
+		BASEPORT=$((BASEPORT+NPORTS))
+		compute_ports
+	done
+	echo "CMS_TRITON_GRPC_PORT: $GRPCPORT"
+}
+
+handle_ports(){
+	# handle ports
+	compute_ports
+	if [ -n "$AUTOPORT" ]; then
+		find_ports
+	elif ! check_ports; then
+		echo "Error: requested port in use"
+		return 1
+	fi
+	export PORTARGS="--http-port=${HTTPPORT} --grpc-port=${GRPCPORT} --metrics-port=${METRPORT}"
+}
+
+start_docker(){
+	# mount all model repositories
+	MOUNTARGS=""
+	REPOARGS=""
+	for REPO in ${REPOS[@]}; do
+		MOUNTARGS="$MOUNTARGS -v$REPO:$REPO"
+		REPOARGS="$REPOARGS --model-repository=${REPO}"
+	done
+
+	$DRYRUN $DOCKER run -d --name ${SERVER} \
+		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
+		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
+		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
+}
+
+start_singularity(){
+	# triton server image may need to modify contents of opt/tritonserver/lib/
+	# but cvmfs is read-only
+	# -> make a writable local directory with the same contents
+	$DRYRUN mkdir ${LIB}
+	$DRYRUN ln -s ${SANDBOX}/opt/tritonserver/lib/* ${LIB}/
+
+	# mount all model repositories
+	MOUNTARGS=""
+	REPOARGS=""
+	for REPO in ${REPOS[@]}; do
+		MOUNTARGS="$MOUNTARGS -B $REPO"
+		REPOARGS="$REPOARGS --model-repository=${REPO}"
+	done
+
+	# start instance
+	# need to bind /cvmfs for above symlinks to work inside container
+	$DRYRUN singularity instance start \
+		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $MOUNTARGS $EXTRA \
+		${SANDBOX} ${SERVER}
+
+	START_EXIT=$?
+	if [ "$START_EXIT" -ne 0 ]; then
+		rm -rf ${LIB}
+		return "$START_EXIT"
+	fi
+
+	# run the actual server
+	if [ -z "$DRYRUN" ]; then
+		REDIR="$LOG"
+	else
+		REDIR=/dev/stdout
+	fi
+	$DRYRUN singularity run instance://${SERVER} \
+		tritonserver $PORTARGS $REPOARGS $VERBOSE >& ${REDIR} &
+	[ -z "$DRYRUN" ] || wait
+}
+
+stop_docker(){
+	# keep log
+	if [ -z "$DRYRUN" ]; then
+		if [ -n "$VERBOSE" ]; then $DOCKER logs ${SERVER} >& "$LOG"; fi
+	fi
+
+	$DRYRUN $DOCKER stop ${SERVER}
+	$DRYRUN $DOCKER rm ${SERVER}
+}
+
+stop_singularity(){
+	$DRYRUN singularity instance stop ${SERVER}
+}
+
+test_docker(){
+	# docker logs print to stderr
+	${DOCKER} logs ${SERVER} |& grep "$1"
+}
+
+test_singularity(){
+	grep "$1" $LOG
+}
+
+wait_server(){
+	if [ -n "$DRYRUN" ]; then
+		return
+	fi
+
+	COUNT=0
+	while ! $TEST_FN "$STARTED_INDICATOR" >& /dev/null; do
+		if $TEST_FN "$SEGFAULT_INDICATOR" >& /dev/null; then
+			handle_ports
+			PORT_EXIT=$?
+			# port exit is zero if it found a new, good port; so retry
+			if [ "$PORT_EXIT" -ne 0 ]; then
+				auto_stop true
+				exit $PORT_EXIT
+			else
+				return 1
+			fi
+		elif [ "$COUNT" -gt "$WTIME" ]; then
+			echo "timed out waiting for server to start"
+			auto_stop true
+			exit 1
+		else
+			COUNT=$(($COUNT + 1))
+			sleep 1
+		fi
+	done
+
+	echo "server is ready!"
+}
+
+list_models(){
+	# make list of model repositories
+	for MODEL in ${MODELS[@]}; do
+		# check if file was provided rather than directory
+		if [ -f "$MODEL" ]; then
+			MODEL="$(dirname "$MODEL")"
+		fi
+		REPOS+=("$(dirname "$MODEL")")
+	done
+	for ((r=0; r < ${#REPOS[@]}; r++)); do
+		# avoid issues w/ multiple levels of symlinks
+		REPOS[$r]=$(readlink -f ${REPOS[$r]})
+	done
+	# make unique list
+	read -a REPOS <<< "$(printf "%s\n" "${REPOS[@]}" | sort -u | tr '\n' ' ')"
+}
+
+auto_stop(){
+	# allow enabling verbosity here even if disabled at top level
+	# but otherwise use top-level setting
+	if [ -n "$1" ]; then VERBOSE="$VERBOSE_ARGS"; fi
+	PARENTPID="$2"
+
+	if [ -n "$PARENTPID" ]; then
+		if [ -n "$VERBOSE" ]; then
+			echo "watching PID $PARENTPID"
+			ps
+		fi
+		PCOUNTER=0
+		PMAX=5
+		while [ "$PCOUNTER" -le "$PMAX" ]; do
+			if ! kill -0 $PARENTPID >& /dev/null; then
+				PCOUNTER=$((PCOUNTER+1))
+				if [ -n "$VERBOSE" ]; then
+					echo "trigger $PCOUNTER:"
+					ps
+				fi
+			else
+				# must get N in a row, otherwise reset
+				if [ "$PCOUNTER" -gt 0 ] && [ -n "$VERBOSE" ]; then
+					echo "reset:"
+					ps
+				fi
+				PCOUNTER=0
+			fi
+			sleep 1
+		done
+	fi
+	$STOP_FN
+
+	# move logs out of tmp dir
+	if [ -z "$DRYRUN" ]; then
+		if [ -n "$VERBOSE" ]; then
+			mv "$LOG" "$TOPDIR"
+			# only keep non-empty log
+			if [ -s "$STOPLOG" ]; then
+				mv "$STOPLOG" "$TOPDIR"
+			fi
+		fi
+	fi
+
+	if [ -n "$CLEANUP" ]; then
+		$DRYRUN cd "$TOPDIR"
+		$DRYRUN rm -rf "$TMPDIR"
+	fi
+}
+
+make_tmp(){
+	# make sure everything happens in tmp dir
+	$DRYRUN mkdir "$TMPDIR"
+	MKDIR_EXIT=$?
+	if [ "$MKDIR_EXIT" -ne 0 ]; then
+		echo "Could not create temp dir: $TMPDIR"
+		exit "$MKDIR_EXIT"
+	fi
+	$DRYRUN cd "$TMPDIR"
+}
+
+if [ -n "$USEDOCKER" ]; then
+	if [ -n "$GPU" ]; then
+		EXTRA="--gpus all"
+	fi
+	START_FN=start_docker
+	TEST_FN=test_docker
+	STOP_FN=stop_docker
+	PROG_NAME=Docker
+else
+	if [ -n "$GPU" ]; then
+		EXTRA="--nv"
+	fi
+	START_FN=start_singularity
+	TEST_FN=test_singularity
+	STOP_FN=stop_singularity
+	PROG_NAME=Singularity
+fi
+
+if [ "$OP" == start ]; then
+	# handle cleaning up
+	if [ -n "$FORCE" ]; then
+		auto_stop
+	elif [ -d "$TMPDIR" ]; then
+		echo "Error: this container may already exist (override with -f)"
+		exit 1
+	fi
+
+	handle_ports
+	PORT_EXIT=$?
+	if [ "$PORT_EXIT" -ne 0 ]; then exit $PORT_EXIT; fi
+
+	list_models
+
+	make_tmp
+
+	# if parent PID is provided, automatically stop server when finished
+	# do this before actually trying to start the server in case of ctrl+c
+	if [ -n "$PARENTPID" ]; then
+		auto_stop "" "$PARENTPID" >& "$STOPLOG" &
+	fi
+
+	START_EXIT=0
+	for ((counter=0; counter < ${RETRIES}; counter++)); do
+		if [ "$START_EXIT" -ne 0 ]; then make_tmp; fi
+
+		$START_FN
+		START_EXIT=$?
+		if [ "$START_EXIT" -eq 0 ]; then
+			wait_server
+			WAIT_EXIT=$?
+			if [ "$WAIT_EXIT" -eq 0 ]; then
+				break
+			else
+				# allow to keep retrying if there was a port issue
+				counter=$((counter-1))
+				START_EXIT="$WAIT_EXIT"
+			fi
+		fi
+
+		if [ "$START_EXIT" -ne 0 ]; then
+			auto_stop
+			echo "Retrying after container issue..."
+		fi
+	done
+	if [ "$START_EXIT" -ne 0 ]; then
+		echo "Error from $PROG_NAME"
+		exit "$START_EXIT"
+	fi
+else
+	# check for tmp dir
+	if [ -d "$TMPDIR" ] || [ -n "$DRYRUN" ]; then
+		$DRYRUN cd "$TMPDIR"
+	elif [ -z "$FORCE" ]; then
+		echo "Error: attempt to stop unknown container $SERVER"
+		exit 1
+	fi
+
+	auto_stop
+fi

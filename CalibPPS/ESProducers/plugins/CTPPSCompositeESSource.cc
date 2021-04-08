@@ -55,9 +55,13 @@ public:
 
   std::unique_ptr<LHCInfo> produceLhcInfo(const LHCInfoRcd &);
   std::unique_ptr<LHCOpticalFunctionsSetCollection> produceOptics(const CTPPSOpticsRcd &);
+  std::unique_ptr<PPSDirectSimulationData> produceDirectSimuData(const PPSDirectSimulationDataRcd &);
+
+  std::shared_ptr<CTPPSRPAlignmentCorrectionsData> produceRealAlignments(const RPRealAlignmentRecord &);
+  std::shared_ptr<CTPPSRPAlignmentCorrectionsData> produceMisalignedAlignments(const RPMisalignedAlignmentRecord &);
+
   std::shared_ptr<CTPPSGeometry> produceRealTG(const VeryForwardRealGeometryRecord &);
   std::shared_ptr<CTPPSGeometry> produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &);
-  std::unique_ptr<PPSDirectSimulationData> produceDirectSimuData(const PPSDirectSimulationDataRcd &);
 
 private:
   // config parameters
@@ -110,8 +114,18 @@ private:
   void buildLHCInfo(const edm::ParameterSet &profile, ProfileData &pData);
   void buildOptics(const edm::ParameterSet &profile, ProfileData &pData);
   void buildAlignment(const edm::ParameterSet &profile, ProfileData &pData);
-  void buildGeometry(const DDCompactView &cpv);
   void buildDirectSimuData(const edm::ParameterSet &profile, ProfileData &pData);
+
+  // flag whether the geometry (for all profiles) has been built
+  bool geometryBuilt_;
+
+  // this build method is different from all others - it is only called at the first
+  // geometry request since the ideal geometry must be obtained from ES;
+  // this method updates all profiles and builds all flavours of geometries
+  void buildGeometry(const DDCompactView &cpv);
+
+  // event id for which method "setIntervalFor" set new profile
+  edm::EventID previously_set_eventID_;
 
   // method set IOV (common to all products)
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
@@ -128,7 +142,8 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
       generateEveryNEvents_(conf.getUntrackedParameter<unsigned int>("generateEveryNEvents")),
       verbosity_(conf.getUntrackedParameter<unsigned int>("verbosity")),
       isRun2_(conf.getParameter<bool>("isRun2")),
-      m_engine_(new CLHEP::HepJamesRandom(conf.getParameter<unsigned int>("seed"))) {
+      m_engine_(new CLHEP::HepJamesRandom(conf.getParameter<unsigned int>("seed"))),
+      geometryBuilt_(false) {
   double l_int_sum = 0;
 
   for (const auto &cfg : conf.getParameter<std::vector<edm::ParameterSet>>("periods")) {
@@ -166,6 +181,10 @@ CTPPSCompositeESSource::CTPPSCompositeESSource(const edm::ParameterSet &conf)
   findingRecord<LHCInfoRcd>();
   findingRecord<CTPPSOpticsRcd>();
   findingRecord<PPSDirectSimulationDataRcd>();
+  findingRecord<RPRealAlignmentRecord>();
+  findingRecord<RPMisalignedAlignmentRecord>();
+  findingRecord<VeryForwardRealGeometryRecord>();
+  findingRecord<VeryForwardMisalignedGeometryRecord>();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -230,9 +249,12 @@ void CTPPSCompositeESSource::fillDescriptions(edm::ConfigurationDescriptions &de
   desc_profile_ctppsDirectSimuData.add<std::string>("timeResolutionDiamonds45");
   desc_profile_ctppsDirectSimuData.add<std::string>("timeResolutionDiamonds56");
 
-  desc_profile_ctppsDirectSimuData.add<std::string>("effTimePath");
-  desc_profile_ctppsDirectSimuData.add<std::string>("effTimeObject45");
-  desc_profile_ctppsDirectSimuData.add<std::string>("effTimeObject56");
+  edm::ParameterSetDescription eps_desc;
+  eps_desc.add<unsigned int>("rpId")->setComment("RP id");
+  eps_desc.add<std::string>("file")->setComment("file name");
+  eps_desc.add<std::string>("object")->setComment("path to the efficiency histogram");
+  desc_profile_ctppsDirectSimuData.addVPSet("efficienciesPerRP", eps_desc, std::vector<edm::ParameterSet>());
+  desc_profile_ctppsDirectSimuData.addVPSet("efficienciesPerPlane", eps_desc, std::vector<edm::ParameterSet>());
 
   desc_profile.add<edm::ParameterSetDescription>("ctppsDirectSimuData", desc_profile_ctppsDirectSimuData);
 
@@ -254,9 +276,19 @@ void CTPPSCompositeESSource::buildDirectSimuData(const edm::ParameterSet &profil
   pData.directSimuData.setTimeResolutionDiamonds56(
       ctppsDirectSimuData.getParameter<std::string>("timeResolutionDiamonds56"));
 
-  pData.directSimuData.setEffTimePath(ctppsDirectSimuData.getParameter<std::string>("effTimePath"));
-  pData.directSimuData.setEffTimeObject45(ctppsDirectSimuData.getParameter<std::string>("effTimeObject45"));
-  pData.directSimuData.setEffTimeObject56(ctppsDirectSimuData.getParameter<std::string>("effTimeObject56"));
+  for (const auto &ps : ctppsDirectSimuData.getParameterSetVector("efficienciesPerRP")) {
+    const auto rpId = ps.getParameter<unsigned int>("rpId");
+    const auto &file = ps.getParameter<std::string>("file");
+    const auto &object = ps.getParameter<std::string>("object");
+    pData.directSimuData.getEfficienciesPerRP()[rpId] = {file, object};
+  }
+
+  for (const auto &ps : ctppsDirectSimuData.getParameterSetVector("efficienciesPerPlane")) {
+    const auto rpId = ps.getParameter<unsigned int>("rpId");
+    const auto &file = ps.getParameter<std::string>("file");
+    const auto &object = ps.getParameter<std::string>("object");
+    pData.directSimuData.getEfficienciesPerPlane()[rpId] = {file, object};
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -273,6 +305,8 @@ void CTPPSCompositeESSource::buildGeometry(const DDCompactView &cpv) {
     p.realGD = CTPPSGeometryESCommon::applyAlignments(*(idealGD), p.acReal.get());
     p.realTG = std::make_shared<CTPPSGeometry>(p.realGD.get(), verbosity_);
   }
+
+  geometryBuilt_ = true;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -398,6 +432,13 @@ void CTPPSCompositeESSource::setIntervalFor(const edm::eventsetup::EventSetupRec
   edm::EventID endEvent(beginEvent.run(), beginEvent.luminosityBlock(), beginEvent.event() + generateEveryNEvents_);
   oValidity = edm::ValidityInterval(edm::IOVSyncValue(beginEvent), edm::IOVSyncValue(endEvent));
 
+  // stop if new profile has already been generated
+  if (beginEvent.run() == previously_set_eventID_.run() &&
+      beginEvent.luminosityBlock() == previously_set_eventID_.luminosityBlock())
+    return;
+
+  previously_set_eventID_ = beginEvent;
+
   // randomly pick the next profile
   const double u = CLHEP::RandFlat::shoot(m_engine_.get(), 0., 1.);
 
@@ -411,11 +452,23 @@ void CTPPSCompositeESSource::setIntervalFor(const edm::eventsetup::EventSetupRec
 
 //----------------------------------------------------------------------------------------------------
 
+std::shared_ptr<CTPPSRPAlignmentCorrectionsData> CTPPSCompositeESSource::produceRealAlignments(
+    const RPRealAlignmentRecord &) {
+  return currentProfile_->acReal;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+std::shared_ptr<CTPPSRPAlignmentCorrectionsData> CTPPSCompositeESSource::produceMisalignedAlignments(
+    const RPMisalignedAlignmentRecord &) {
+  return currentProfile_->acMisaligned;
+}
+
+//----------------------------------------------------------------------------------------------------
+
 std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceRealTG(const VeryForwardRealGeometryRecord &iRecord) {
-  if (currentProfile_->realTG == nullptr) {
-    auto const &cpv = iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewReal_);
-    buildGeometry(cpv);
-  }
+  if (!geometryBuilt_)
+    buildGeometry(iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewReal_));
 
   return currentProfile_->realTG;
 }
@@ -424,10 +477,9 @@ std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceRealTG(const VeryF
 
 std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceMisalignedTG(
     const VeryForwardMisalignedGeometryRecord &iRecord) {
-  if (currentProfile_->misalignedTG == nullptr) {
-    auto const &cpv = iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewMisaligned_);
-    buildGeometry(cpv);
-  }
+  if (!geometryBuilt_)
+    buildGeometry(iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewMisaligned_));
+
   return currentProfile_->misalignedTG;
 }
 

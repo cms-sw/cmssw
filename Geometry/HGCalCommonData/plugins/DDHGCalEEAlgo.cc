@@ -3,7 +3,7 @@
 // Description: Geometry factory class for HGCal (EE and HESil)
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -27,7 +27,7 @@
 #include <vector>
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 class DDHGCalEEAlgo : public DDAlgorithm {
 public:
@@ -325,7 +325,7 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
       ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at " << r1 << " with " << rot;
+                                    << module.name() << " at " << r1 << " with no rotation";
 #endif
       zz += hthick;
     }  // End of loop over layers in a block
@@ -384,6 +384,8 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
       if (corner.first > 0) {
         int type = waferType_->getType(xpos, ypos, zpos);
         int copy = HGCalTypes::packTypeUV(type, u, v);
+        if (layertype > 1)
+          type += 3;
 #ifdef EDM_ML_DEBUG
         if (iu > ium)
           ium = iu;
@@ -403,14 +405,12 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
 #endif
           DDTranslation tran(xpos, ypos, 0.0);
           DDRotation rotation;
-          if (layertype > 1)
-            type += 3;
           DDName name = DDName(DDSplit(wafers_[type]).first, DDSplit(wafers_[type]).second);
           cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
           ++ntype[type];
           edm::LogVerbatim("HGCalGeom") << " DDHGCalEEAlgo: " << name << " number " << copy << " positioned in "
-                                        << glog.ddname() << " at " << tran << " with " << rotation;
+                                        << glog.ddname() << " at " << tran << " with no rotation";
 #endif
         }
       }

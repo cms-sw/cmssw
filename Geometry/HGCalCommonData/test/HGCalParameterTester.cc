@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTileIndex.h"
@@ -15,6 +17,7 @@ class HGCalParameterTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalParameterTester(const edm::ParameterSet&);
   ~HGCalParameterTester() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -36,9 +39,16 @@ private:
 };
 
 HGCalParameterTester::HGCalParameterTester(const edm::ParameterSet& ic)
-    : name_(ic.getUntrackedParameter<std::string>("Name")),
+    : name_(ic.getParameter<std::string>("Name")),
       token_(esConsumes<HGCalParameters, IdealGeometryRecord>(edm::ESInputTag{"", name_})),
-      mode_(ic.getUntrackedParameter<int>("Mode")) {}
+      mode_(ic.getParameter<int>("Mode")) {}
+
+void HGCalParameterTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("Name", "HGCalEESensitive");
+  desc.add<int>("Mode", 1);
+  descriptions.add("hgcParameterTesterEE", desc);
+}
 
 void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::LogVerbatim("HGCalGeomr") << "HGCalParameter::Here I am";
@@ -280,9 +290,9 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
       for (; itr != phgp->tileInfoMap_.end(); ++itr, ++kk)
         std::cout << "[" << kk << "] " << itr->first << "[" << HGCalTileIndex::tileLayer(itr->first) << ", "
                   << HGCalTileIndex::tileRing(itr->first) << ", " << HGCalTileIndex::tilePhi(itr->first) << "] ("
-                  << (itr->second).type << ", " << (itr->second).sipm << std::hex << ", " << (itr->second).hex1 << ", "
-                  << (itr->second).hex2 << ", " << (itr->second).hex3 << ", " << (itr->second).hex4 << ")" << std::dec
-                  << std::endl;
+                  << (itr->second).type << ", " << (itr->second).sipm << std::hex << ", " << (itr->second).hex[0]
+                  << ", " << (itr->second).hex[1] << ", " << (itr->second).hex[2] << ", " << (itr->second).hex[3] << ")"
+                  << std::dec << std::endl;
     }
   }
 

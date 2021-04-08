@@ -10,6 +10,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DD4hep/Filter.h"
+
 #include <string>
 #include <vector>
 
@@ -43,6 +45,7 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
 }
 
 void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
+  constexpr int32_t addLevel = 0;
   if (fillHistos_) {
     std::string attribute = "ReadOutName";
     std::string value = "HcalHits";
@@ -66,7 +69,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
                                            << value << " has " << hfNames_.size() << " elements";
     for (unsigned int i = 0; i < hfNames_.size(); i++) {
       int level = static_cast<int>(temp[i]);
-      hfLevels_.push_back(level);
+      hfLevels_.push_back(level + addLevel);
       edm::LogVerbatim("MaterialBudgetFull")
           << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
     }
@@ -90,6 +93,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
 }
 
 void MaterialBudgetHcalHistos::fillBeginJob(const cms::DDCompactView& cpv) {
+  constexpr int32_t addLevel = 1;
   if (fillHistos_) {
     std::string attribute = "ReadOutName";
     std::string value = "HcalHits";
@@ -110,7 +114,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const cms::DDCompactView& cpv) {
     edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
                                            << value << " has " << hfNames_.size() << " elements";
     for (unsigned int i = 0; i < hfNames_.size(); i++) {
-      hfLevels_.push_back(temp[i]);
+      hfLevels_.push_back(temp[i] + addLevel);
       edm::LogVerbatim("MaterialBudgetFull")
           << "MaterialBudgetHcalHistos:  HF[" << i << "] = " << hfNames_[i] << " at level " << hfLevels_[i];
     }
@@ -171,8 +175,8 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 
   int idOld = id_;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  std::string name = touch->GetVolume(0)->GetName();
-  const std::string& matName = material->GetName();
+  std::string name = (static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(0)->GetName())));
+  std::string matName = (static_cast<std::string>(dd4hep::dd::noNamespace(material->GetName())));
   if (printSum_) {
     bool found = false;
     for (unsigned int ii = 0; ii < matList_.size(); ii++) {
@@ -272,9 +276,10 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
     if (id_ == 21) {
       if (!isItHF(aStep->GetPostStepPoint()->GetTouchable())) {
         if ((abseta >= etaMinP_) && (abseta <= etaMaxP_))
-          edm::LogVerbatim("MaterialBudget")
-              << "MaterialBudgetHcalHistos: After HF in " << name << ":"
-              << aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName() << " calls fillHisto with " << id_;
+          edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: After HF in " << name << ":"
+                                             << static_cast<std::string>(dd4hep::dd::noNamespace(
+                                                    aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName()))
+                                             << " calls fillHisto with " << id_;
         fillHisto(idOld);
         ++id_;
         layer_ = 0;
@@ -541,8 +546,18 @@ std::vector<std::string> MaterialBudgetHcalHistos::getNames(DDFilteredView& fv) 
 
 std::vector<std::string> MaterialBudgetHcalHistos::getNames(cms::DDFilteredView& fv) {
   std::vector<std::string> tmp;
-  const std::vector<std::string> notIn = {
-      "CALO", "HCal", "MBBTL", "MBBTR", "MBBTC", "MBAT", "MBBT_R1M", "MBBT_R1P", "VCAL", "HVQF"};
+  const std::vector<std::string> notIn = {"CALO",
+                                          "HCal",
+                                          "MBBTL",
+                                          "MBBTR",
+                                          "MBBTC",
+                                          "MBAT",
+                                          "MBBT_R1M",
+                                          "MBBT_R1P",
+                                          "MBBT_R1MX",
+                                          "MBBT_R1PX",
+                                          "VCAL",
+                                          "HVQF"};
   while (fv.firstChild()) {
     const std::string n{fv.name().data(), fv.name().size()};
     if (std::find(notIn.begin(), notIn.end(), n) == notIn.end()) {
@@ -585,7 +600,8 @@ bool MaterialBudgetHcalHistos::isItHF(const G4VTouchable* touch) {
   int levels = ((touch->GetHistoryDepth()) + 1);
   for (unsigned int it = 0; it < hfNames_.size(); it++) {
     if (levels >= hfLevels_[it]) {
-      std::string name = touch->GetVolume(levels - hfLevels_[it])->GetName();
+      std::string name =
+          (static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(levels - hfLevels_[it])->GetName())));
       if (name == hfNames_[it]) {
         return true;
       }

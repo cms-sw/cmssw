@@ -20,6 +20,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQM/TrackerRemapper/interface/Phase1PixelROCMaps.h"
 
 #include <memory>
 #include <sstream>
@@ -99,6 +100,7 @@ namespace {
 
       //=========================
       TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
+      SiPixelPI::displayNotSupported(canvas, 0);
       canvas.cd();
       canvas.SetBottomMargin(0.11);
       canvas.SetLeftMargin(0.13);
@@ -159,57 +161,17 @@ namespace {
       auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
 
-      static const int n_layers = 4;
-      int nlad_list[n_layers] = {6, 14, 22, 32};
-      int divide_roc = 1;
-
-      // ---------------------    BOOK HISTOGRAMS
-      std::array<TH2D*, n_layers> h_bpix_occ;
-
-      for (unsigned int lay = 1; lay <= 4; lay++) {
-        int nlad = nlad_list[lay - 1];
-
-        std::string name = "occ_Layer_" + std::to_string(lay);
-        std::string title = "; Module # ; Ladder #";
-        h_bpix_occ[lay - 1] = new TH2D(name.c_str(),
-                                       title.c_str(),
-                                       72 * divide_roc,
-                                       -4.5,
-                                       4.5,
-                                       (nlad * 4 + 2) * divide_roc,
-                                       -nlad - 0.5,
-                                       nlad + 0.5);
-      }
+      Phase1PixelROCMaps theBPixMap("");
 
       auto theDisabledModules = payload->getBadComponentList();
       for (const auto& mod : theDisabledModules) {
-        int coded_badRocs = mod.BadRocs;
         int subid = DetId(mod.DetID).subdetId();
-        std::bitset<16> bad_rocs(coded_badRocs);
+        std::bitset<16> bad_rocs(mod.BadRocs);
         if (subid == PixelSubdetector::PixelBarrel) {
-          auto layer = m_trackerTopo.pxbLayer(DetId(mod.DetID));
-          auto s_ladder = SiPixelPI::signed_ladder(DetId(mod.DetID), m_trackerTopo, true);
-          auto s_module = SiPixelPI::signed_module(DetId(mod.DetID), m_trackerTopo, true);
-
-          bool isFlipped = SiPixelPI::isBPixOuterLadder(DetId(mod.DetID), m_trackerTopo, false);
-          if ((layer > 1 && s_module < 0))
-            isFlipped = !isFlipped;
-
-          auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
-          auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
-          COUT << "layer:" << layer << " ladder:" << ladder << " module:" << module << " signed ladder: " << s_ladder
-               << " signed module: " << s_module << std::endl;
-
           if (payload->IsModuleBad(mod.DetID)) {
-            auto rocsToMask = SiPixelPI::maskedBarrelRocsToBins(layer, s_ladder, s_module);
-            for (const auto& bin : rocsToMask) {
-              h_bpix_occ[layer - 1]->SetBinContent(bin.first, bin.second, 1);
-            }
+            theBPixMap.fillWholeModule(mod.DetID, 1.);
           } else {
-            auto rocsToMask = SiPixelPI::maskedBarrelRocsToBins(layer, s_ladder, s_module, bad_rocs, isFlipped);
-            for (const auto& bin : rocsToMask) {
-              h_bpix_occ[layer - 1]->SetBinContent(std::get<0>(bin), std::get<1>(bin), 1);
-            }
+            theBPixMap.fillSelectedRocs(mod.DetID, bad_rocs, 1.);
           }
         }
       }
@@ -217,15 +179,7 @@ namespace {
       gStyle->SetOptStat(0);
       //=========================
       TCanvas canvas("Summary", "Summary", 1200, 1200);
-      canvas.Divide(2, 2);
-      canvas.SetBottomMargin(0.11);
-      canvas.SetLeftMargin(0.13);
-      canvas.SetRightMargin(0.05);
-      canvas.Modified();
-
-      for (unsigned int lay = 1; lay <= 4; lay++) {
-        SiPixelPI::dress_occup_plot(canvas, h_bpix_occ[lay - 1], lay, 0, 1);
-      }
+      theBPixMap.drawBarrelMaps(canvas);
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
@@ -274,48 +228,17 @@ namespace {
       auto iov = tag.iovs.front();
       std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
 
-      static const int n_rings = 2;
-      std::array<TH2D*, n_rings> h_fpix_occ;
-      int divide_roc = 1;
-
-      // ---------------------    BOOK HISTOGRAMS
-      for (unsigned int ring = 1; ring <= n_rings; ring++) {
-        int n = ring == 1 ? 92 : 140;
-        float y = ring == 1 ? 11.5 : 17.5;
-        std::string name = "occ_ring_" + std::to_string(ring);
-        std::string title = "; Disk # ; Blade/Panel #";
-
-        h_fpix_occ[ring - 1] = new TH2D(name.c_str(), title.c_str(), 56 * divide_roc, -3.5, 3.5, n * divide_roc, -y, y);
-      }
+      Phase1PixelROCMaps theFPixMap("");
 
       auto theDisabledModules = payload->getBadComponentList();
       for (const auto& mod : theDisabledModules) {
-        int coded_badRocs = mod.BadRocs;
         int subid = DetId(mod.DetID).subdetId();
-        std::bitset<16> bad_rocs(coded_badRocs);
+        std::bitset<16> bad_rocs(mod.BadRocs);
         if (subid == PixelSubdetector::PixelEndcap) {
-          auto ring = SiPixelPI::ring(DetId(mod.DetID), m_trackerTopo, true);
-          auto s_blade = SiPixelPI::signed_blade(DetId(mod.DetID), m_trackerTopo, true);
-          auto s_disk = SiPixelPI::signed_disk(DetId(mod.DetID), m_trackerTopo, true);
-          auto s_blade_panel = SiPixelPI::signed_blade_panel(DetId(mod.DetID), m_trackerTopo, true);
-          auto panel = m_trackerTopo.pxfPanel(mod.DetID);
-
-          //bool isFlipped = (s_disk > 0) ? (std::abs(s_blade)%2==0) : (std::abs(s_blade)%2==1);
-          bool isFlipped = (s_disk > 0) ? (panel == 1) : (panel == 2);
-
-          COUT << "ring:" << ring << " blade: " << s_blade << " panel: " << panel
-               << " signed blade/panel: " << s_blade_panel << " disk: " << s_disk << std::endl;
-
           if (payload->IsModuleBad(mod.DetID)) {
-            auto rocsToMask = SiPixelPI::maskedForwardRocsToBins(ring, s_blade, panel, s_disk);
-            for (const auto& bin : rocsToMask) {
-              h_fpix_occ[ring - 1]->SetBinContent(bin.first, bin.second, 1);
-            }
+            theFPixMap.fillWholeModule(mod.DetID, 1.);
           } else {
-            auto rocsToMask = SiPixelPI::maskedForwardRocsToBins(ring, s_blade, panel, s_disk, bad_rocs, isFlipped);
-            for (const auto& bin : rocsToMask) {
-              h_fpix_occ[ring - 1]->SetBinContent(std::get<0>(bin), std::get<1>(bin), 1);
-            }
+            theFPixMap.fillSelectedRocs(mod.DetID, bad_rocs, 1.);
           }
         }  // if it's endcap
       }    // loop on disable moduels
@@ -323,19 +246,11 @@ namespace {
       gStyle->SetOptStat(0);
       //=========================
       TCanvas canvas("Summary", "Summary", 1200, 600);
-      canvas.Divide(2, 1);
-      canvas.SetBottomMargin(0.11);
-      canvas.SetLeftMargin(0.13);
-      canvas.SetRightMargin(0.05);
-      canvas.Modified();
-
-      for (unsigned int ring = 1; ring <= n_rings; ring++) {
-        SiPixelPI::dress_occup_plot(canvas, h_fpix_occ[ring - 1], 0, ring, 1);
-      }
+      theFPixMap.drawForwardMaps(canvas);
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
-      for (unsigned int ring = 1; ring <= n_rings; ring++) {
+      for (unsigned int ring = 1; ring <= 2; ring++) {
         canvas.cd(ring);
         auto ltx = TLatex();
         ltx.SetTextFont(62);

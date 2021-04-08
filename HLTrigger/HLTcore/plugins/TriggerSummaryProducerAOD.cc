@@ -628,9 +628,10 @@ void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent
     } else {
       auto itOffset = offset.find(pid);
       if (itOffset == offset.end()) {
-        const string& label(iEvent.getProvenance(pid).moduleLabel());
-        const string& instance(iEvent.getProvenance(pid).productInstanceName());
-        const string& process(iEvent.getProvenance(pid).processName());
+        const auto& prov = iEvent.getStableProvenance(pid);
+        const string& label(prov.moduleLabel());
+        const string& instance(prov.productInstanceName());
+        const string& process(prov.processName());
         std::ostringstream ost;
         ost << "Uunknown pid: " << pid << " FilterTag / Key: " << tag.encode() << " / " << i << "of" << n
             << " CollectionTag / Key: " << InputTag(label, instance, process).encode() << " / " << refs[i].key()

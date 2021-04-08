@@ -27,7 +27,8 @@ void EcalMEFormatter::fillDescriptions(edm::ConfigurationDescriptions &_descs) {
 void EcalMEFormatter::dqmEndLuminosityBlock(DQMStore::IBooker &,
                                             DQMStore::IGetter &_igetter,
                                             edm::LuminosityBlock const &,
-                                            edm::EventSetup const &) {
+                                            edm::EventSetup const &_es) {
+  setSetupObjects(_es);
   format_(_igetter, true);
 }
 
@@ -40,7 +41,7 @@ void EcalMEFormatter::format_(DQMStore::IGetter &_igetter, bool _checkLumi) {
     if (_checkLumi && !mItr.second->getLumiFlag())
       continue;
     mItr.second->clear();
-    if (!mItr.second->retrieve(_igetter, &failedPath)) {
+    if (!mItr.second->retrieve(GetElectronicsMap(), _igetter, &failedPath)) {
       if (verbosity_ > 0)
         edm::LogWarning("EcalDQM") << "Could not find ME " << mItr.first << "@" << failedPath;
       continue;

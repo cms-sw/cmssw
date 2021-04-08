@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/src/ProductDeletedException.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -189,7 +190,7 @@ namespace edm {
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
     // ProductResolver assumes ownership
-    phb->putProduct(std::move(edp));
+    dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(edp));
   }
 
   void EventPrincipal::put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp, ParentageID parentage) const {
@@ -204,7 +205,7 @@ namespace edm {
 
     assert(phb);
     // ProductResolver assumes ownership
-    phb->putProduct(std::move(edp));
+    dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(edp));
   }
 
   void EventPrincipal::putOnRead(BranchDescription const& bd,
@@ -217,7 +218,7 @@ namespace edm {
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
     // ProductResolver assumes ownership
-    phb->putProduct(std::move(edp));
+    dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(edp));
   }
 
   BranchID EventPrincipal::pidToBid(ProductID const& pid) const {
@@ -351,9 +352,14 @@ namespace edm {
     }
   }
 
-  Provenance EventPrincipal::getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const {
+  Provenance const& EventPrincipal::getProvenance(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
-    return getProvenance(bid, mcc);
+    return getProvenance(bid);
+  }
+
+  StableProvenance const& EventPrincipal::getStableProvenance(ProductID const& pid) const {
+    BranchID bid = pidToBid(pid);
+    return getStableProvenance(bid);
   }
 
   EventSelectionIDVector const& EventPrincipal::eventSelectionIDs() const { return eventSelectionIDs_; }

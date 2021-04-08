@@ -1,19 +1,23 @@
 from FWCore.ParameterSet.VarParsing import VarParsing
 import FWCore.ParameterSet.Config as cms
-import os, sys, json
+import os, sys, json, six
 
 options = VarParsing("analysis")
-options.register("address", "0.0.0.0", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("serverName", "default", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("address", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("port", 8001, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("timeout", 30, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("params", "", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("threads", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.register("streams", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register("batchSize", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int)
-options.register("producer", "TritonImageProducer", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("modules", "TritonImageProducer", VarParsing.multiplicity.list, VarParsing.varType.string)
 options.register("modelName","resnet50_netdef", VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("mode","PseudoAsync", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("mode","Async", VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("verbose", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("unittest", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("device","auto", VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("docker", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register("tries", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int)
 options.parseArguments()
 
 if len(options.params)>0:
@@ -23,48 +27,94 @@ if len(options.params)>0:
     options.port = int(pdict["port"])
     print("server = "+options.address+":"+str(options.port))
 
-# check producer/model
-models = {
-  "TritonImageProducer": "resnet50_netdef",
-  "TritonGraphProducer": "gat_test",
-}
+# check devices
+options.device = options.device.lower()
+allowed_devices = ["auto","cpu","gpu"]
+if options.device not in allowed_devices:
+	raise ValueError("Unknown device: "+options.device)
 
-if options.producer not in models:
-    raise ValueError("Unknown producer: "+options.producer)
+from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
+process = cms.Process('tritonTest',enableSonicTriton)
 
-process = cms.Process('tritonTest')
+process.load("HeterogeneousCore.SonicTriton.TritonService_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("EmptySource")
 
-process.TritonProducer = cms.EDProducer(options.producer,
-    Client = cms.PSet(
-        mode = cms.string(options.mode),
-        batchSize = cms.untracked.uint32(options.batchSize),
-        address = cms.untracked.string(options.address),
-        port = cms.untracked.uint32(options.port),
-        timeout = cms.untracked.uint32(options.timeout),
-        modelName = cms.string(models[options.producer]),
-        modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(options.verbose),
-        allowedTries = cms.untracked.uint32(0),
+process.TritonService.verbose = options.verbose
+process.TritonService.fallback.verbose = options.verbose
+process.TritonService.fallback.useDocker = options.docker
+if options.device != "auto":
+    process.TritonService.fallback.useGPU = options.device=="gpu"
+if len(options.address)>0:
+    process.TritonService.servers.append(
+        cms.PSet(
+            name = cms.untracked.string(options.serverName),
+            address = cms.untracked.string(options.address),
+            port = cms.untracked.uint32(options.port),
+        )
     )
-)
-if options.producer=="TritonImageProducer":
-    process.TritonProducer.topN = cms.uint32(5)
-    process.TritonProducer.imageList = cms.string("../data/models/resnet50_netdef/resnet50_labels.txt")
 
 # Let it run
-process.p = cms.Path(
-    process.TritonProducer
-)
+process.p = cms.Path()
+
+# check module/model
+models = {
+    "TritonImageProducer": "resnet50_netdef",
+    "TritonGraphProducer": "gat_test",
+    "TritonGraphFilter": "gat_test",
+    "TritonGraphAnalyzer": "gat_test",
+}
+
+modules = {
+    "Producer": cms.EDProducer,
+    "Filter": cms.EDFilter,
+    "Analyzer": cms.EDAnalyzer,
+}
+
+keepMsgs = ['TritonClient','TritonService']
+for module in options.modules:
+    if module not in models:
+        raise ValueError("Unknown module: "+module)
+    Module = [obj for name,obj in six.iteritems(modules) if name in module][0]
+    setattr(process, module,
+        Module(module,
+            Client = cms.PSet(
+                mode = cms.string(options.mode),
+                preferredServer = cms.untracked.string(""),
+                timeout = cms.untracked.uint32(options.timeout),
+                modelName = cms.string(models[module]),
+                modelVersion = cms.string(""),
+                modelConfigPath = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/{}/config.pbtxt".format(models[module])),
+                verbose = cms.untracked.bool(options.verbose),
+                allowedTries = cms.untracked.uint32(options.tries),
+            )
+        )
+    )
+    processModule = getattr(process, module)
+    if module=="TritonImageProducer":
+        processModule.batchSize = cms.uint32(1)
+        processModule.topN = cms.uint32(5)
+        processModule.imageList = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/resnet50_netdef/resnet50_labels.txt")
+    elif "TritonGraph" in module:
+        if options.unittest:
+            # reduce input size for unit test
+            processModule.nodeMin = cms.uint32(1)
+            processModule.nodeMax = cms.uint32(10)
+            processModule.edgeMin = cms.uint32(20)
+            processModule.edgeMax = cms.uint32(40)
+        else:
+            processModule.nodeMin = cms.uint32(100)
+            processModule.nodeMax = cms.uint32(4000)
+            processModule.edgeMin = cms.uint32(8000)
+            processModule.edgeMax = cms.uint32(15000)
+    process.p += processModule
+    keepMsgs.extend([module,module+':TritonClient'])
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
-keep_msgs = [options.producer,options.producer+':TritonClient','TritonClient']
-for msg in keep_msgs:
-    
+for msg in keepMsgs:
     setattr(process.MessageLogger.cerr,msg,
         cms.untracked.PSet(
             limit = cms.untracked.int32(10000000),

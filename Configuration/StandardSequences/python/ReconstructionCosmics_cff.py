@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 #
 # luminosity
 #
-from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 # no bunchspacing in cosmics
 bunchSpacingProducer.overrideBunchSpacing= cms.bool(True)
@@ -53,9 +52,9 @@ caloCosmics_HcalNZS = cms.Sequence(caloCosmics_HcalNZSTask)
 muonsLocalRecoCosmicsTask = cms.Task(muonlocalrecoTask,muonlocalrecoT0SegTask)
 muonsLocalRecoCosmics = cms.Sequence(muonsLocalRecoCosmicsTask)
 
-localReconstructionCosmicsTask         = cms.Task(bunchSpacingProducer,trackerCosmicsTask,caloCosmicsTask,muonsLocalRecoCosmicsTask,vertexrecoCosmicsTask,lumiProducer)
+localReconstructionCosmicsTask         = cms.Task(bunchSpacingProducer,trackerCosmicsTask,caloCosmicsTask,muonsLocalRecoCosmicsTask,vertexrecoCosmicsTask)
 localReconstructionCosmics         = cms.Sequence(localReconstructionCosmicsTask)
-localReconstructionCosmics_HcalNZSTask = cms.Task(bunchSpacingProducer,trackerCosmicsTask,caloCosmics_HcalNZSTask,muonsLocalRecoCosmicsTask,vertexrecoCosmicsTask,lumiProducer)
+localReconstructionCosmics_HcalNZSTask = cms.Task(bunchSpacingProducer,trackerCosmicsTask,caloCosmics_HcalNZSTask,muonsLocalRecoCosmicsTask,vertexrecoCosmicsTask)
 localReconstructionCosmics_HcalNZS = cms.Sequence(localReconstructionCosmics_HcalNZSTask)
 
 

@@ -54,18 +54,7 @@ namespace edm {
      * \param[in] iAction Must be a functor that takes no arguments and return no values.
      */
     template <typename T>
-    void push(T&& iAction);
-
-    /// synchronously pushes functor iAction into queue
-    /**
-     * The function will wait until iAction has completed before returning.
-     * If another task is already running on the queue, the system is allowed
-     * to find another TBB task to execute while waiting for the iAction to finish.
-     * In that way the core is not idled while waiting.
-     * \param[in] iAction Must be a functor that takes no arguments and return no values.
-     */
-    template <typename T>
-    void pushAndWait(T&& iAction);
+    void push(tbb::task_group& iGroup, T&& iAction);
 
     unsigned long outstandingTasks() const { return m_outstandingTasks; }
     std::size_t numberOfQueues() const { return m_queues.size(); }
@@ -76,61 +65,35 @@ namespace edm {
     std::atomic<unsigned long> m_outstandingTasks{0};
 
     template <typename T>
-    void passDownChain(unsigned int iIndex, T&& iAction);
+    void passDownChain(unsigned int iIndex, tbb::task_group& iGroup, T&& iAction);
 
     template <typename T>
     void actionToRun(T&& iAction);
   };
 
   template <typename T>
-  void SerialTaskQueueChain::push(T&& iAction) {
+  void SerialTaskQueueChain::push(tbb::task_group& iGroup, T&& iAction) {
     ++m_outstandingTasks;
     if (m_queues.size() == 1) {
-      m_queues[0]->push([this, iAction]() mutable { this->actionToRun(iAction); });
+      m_queues[0]->push(iGroup, [this, iAction]() mutable { this->actionToRun(iAction); });
     } else {
       assert(!m_queues.empty());
-      m_queues[0]->push([this, iAction]() mutable { this->passDownChain(1, iAction); });
+      m_queues[0]->push(iGroup, [this, &iGroup, iAction]() mutable { this->passDownChain(1, iGroup, iAction); });
     }
   }
 
   template <typename T>
-  void SerialTaskQueueChain::pushAndWait(T&& iAction) {
-    auto destry = [](tbb::task* iTask) { tbb::task::destroy(*iTask); };
-
-    std::unique_ptr<tbb::task, decltype(destry)> waitTask(new (tbb::task::allocate_root()) tbb::empty_task, destry);
-    waitTask->set_ref_count(3);
-
-    std::exception_ptr ptr;
-    auto waitTaskPtr = waitTask.get();
-    push([waitTaskPtr, iAction, &ptr]() {
-      //must wait until exception ptr would be set
-      auto dec = [](tbb::task* iTask) { iTask->decrement_ref_count(); };
-      std::unique_ptr<tbb::task, decltype(dec)> sentry(waitTaskPtr, dec);
-      // Caught exception is rethrown further below.
-      CMS_SA_ALLOW try { iAction(); } catch (...) {
-        ptr = std::current_exception();
-      }
-    });
-
-    waitTask->decrement_ref_count();
-    waitTask->wait_for_all();
-
-    if (ptr) {
-      std::rethrow_exception(ptr);
-    }
-  }
-
-  template <typename T>
-  void SerialTaskQueueChain::passDownChain(unsigned int iQueueIndex, T&& iAction) {
+  void SerialTaskQueueChain::passDownChain(unsigned int iQueueIndex, tbb::task_group& iGroup, T&& iAction) {
     //Have to be sure the queue associated to this running task
     // does not attempt to start another task
     m_queues[iQueueIndex - 1]->pause();
     //is this the last queue?
     if (iQueueIndex + 1 == m_queues.size()) {
-      m_queues[iQueueIndex]->push([this, iAction]() mutable { this->actionToRun(iAction); });
+      m_queues[iQueueIndex]->push(iGroup, [this, iAction]() mutable { this->actionToRun(iAction); });
     } else {
       auto nextQueue = iQueueIndex + 1;
-      m_queues[iQueueIndex]->push([this, nextQueue, iAction]() mutable { this->passDownChain(nextQueue, iAction); });
+      m_queues[iQueueIndex]->push(
+          iGroup, [this, nextQueue, &iGroup, iAction]() mutable { this->passDownChain(nextQueue, iGroup, iAction); });
     }
   }
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingGlobal
+from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingGlobal, ticlSeedingGlobalHFNose
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer as _ticlLayerTileProducer
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer as _trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
@@ -44,3 +44,32 @@ ticlHADStepTask = cms.Task(ticlSeedingGlobal
     ,ticlTrackstersHAD
     ,ticlMultiClustersFromTrackstersHAD)
 
+filteredLayerClustersHFNoseHAD = _filteredLayerClustersProducer.clone(
+    min_cluster_size = 2, # inclusive
+    algo_number = 9,
+    iteration_label = "HADn",
+    LayerClusters = 'hgcalLayerClustersHFNose',
+    LayerClustersInputMask = "hgcalLayerClustersHFNose:InitialLayerClustersMask"
+)
+
+ticlTrackstersHFNoseHAD = _trackstersProducer.clone(
+    detector = "HFNose",
+    layer_clusters = "hgcalLayerClustersHFNose",
+    layer_clusters_hfnose_tiles = "ticlLayerTileHFNose",
+    original_mask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
+    filtered_mask = "filteredLayerClustersHFNoseHAD:HADn",
+    seeding_regions = "ticlSeedingGlobalHFNose",
+    time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    # For the moment we mask everything w/o requirements since we are last
+    pid_threshold = 0.,
+    skip_layers = 1,
+    min_layers_per_trackster = 5,
+    min_cos_theta = 0.866,    # ~30 degrees
+    min_cos_pointing = 0.819, # ~35 degrees
+    max_delta_time = -1,
+    itername = "HADRONIC"
+    )
+
+ticlHFNoseHADStepTask = cms.Task(ticlSeedingGlobalHFNose
+                                 ,filteredLayerClustersHFNoseHAD
+                                 ,ticlTrackstersHFNoseHAD)

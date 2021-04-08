@@ -49,6 +49,16 @@ public:
                             HGCalParameters& php,
                             const std::string& sdTag1,
                             int firstLayer);
+  void loadGeometryHexagonModule(const DDCompactView* cpv,
+                                 HGCalParameters& php,
+                                 const std::string& sdTag1,
+                                 const std::string& sdTag2,
+                                 int firstLayer);
+  void loadGeometryHexagonModule(const cms::DDCompactView* cpv,
+                                 HGCalParameters& php,
+                                 const std::string& sdTag1,
+                                 const std::string& sdTag2,
+                                 int firstLayer);
   void loadSpecParsHexagon(const DDFilteredView& fv,
                            HGCalParameters& php,
                            const DDCompactView* cpv,
@@ -109,14 +119,11 @@ private:
   void loadSpecParsHexagon8(HGCalParameters& php);
   void loadSpecParsHexagon8(HGCalParameters& php,
                             const std::vector<int>& waferIndex,
-                            const std::vector<int>& waferTypes,
-                            const std::vector<int>& waferParts,
-                            const std::vector<int>& waferOrien);
+                            const std::vector<int>& waferProperties);
   void loadSpecParsTrapezoid(HGCalParameters& php);
   void loadSpecParsTrapezoid(HGCalParameters& php,
-                             const std::vector<int>& tileIndx,
-                             const std::vector<int>& tileType,
-                             const std::vector<int>& tileSiPM,
+                             const std::vector<int>& tileIndex,
+                             const std::vector<int>& tileProperty,
                              const std::vector<int>& tileHEX1,
                              const std::vector<int>& tileHEX2,
                              const std::vector<int>& tileHEX3,

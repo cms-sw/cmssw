@@ -10,7 +10,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -27,7 +27,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
-using namespace geant_units::operators;
+using namespace angle_units::operators;
 
 class DDHGCalModule : public DDAlgorithm {
 public:
@@ -85,7 +85,7 @@ void DDHGCalModule::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << wafer_.size() << " wafers";
   for (unsigned int i = 0; i < wafer_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Wafer_[" << i << "] " << wafer_[i];
+    edm::LogVerbatim("HGCalGeom") << "Wafer[" << i << "] " << wafer_[i];
 #endif
   materials_ = vsArgs["MaterialNames"];
   names_ = vsArgs["VolumeNames"];
@@ -189,7 +189,7 @@ void DDHGCalModule::constructLayers(const DDLogicalPart& module, DDCompactView& 
       DDMaterial matter(matName);
       DDLogicalPart glog;
       if (layerSense_[ly] == 0) {
-        double alpha = geant_units::piRadians / sectors_;
+        double alpha = 1._pi / sectors_;
         double rmax = routF * cos(alpha) - tol;
         std::vector<double> pgonZ, pgonRin, pgonRout;
         pgonZ.emplace_back(-0.5 * thick_[ii]);
@@ -198,8 +198,8 @@ void DDHGCalModule::constructLayers(const DDLogicalPart& module, DDCompactView& 
         pgonRin.emplace_back(rinB);
         pgonRout.emplace_back(rmax);
         pgonRout.emplace_back(rmax);
-        DDSolid solid = DDSolidFactory::polyhedra(
-            DDName(name, idNameSpace_), sectors_, -alpha, 2 * geant_units::piRadians, pgonZ, pgonRin, pgonRout);
+        DDSolid solid =
+            DDSolidFactory::polyhedra(DDName(name, idNameSpace_), sectors_, -alpha, 2._pi, pgonZ, pgonRin, pgonRout);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << solid.name() << " polyhedra of " << sectors_
@@ -209,8 +209,7 @@ void DDHGCalModule::constructLayers(const DDLogicalPart& module, DDCompactView& 
           edm::LogVerbatim("HGCalGeom") << "[" << k << "] z " << pgonZ[k] << " R " << pgonRin[k] << ":" << pgonRout[k];
 #endif
       } else {
-        DDSolid solid = DDSolidFactory::tubs(
-            DDName(name, idNameSpace_), 0.5 * thick_[ii], rinB, routF, 0.0, 2 * geant_units::piRadians);
+        DDSolid solid = DDSolidFactory::tubs(DDName(name, idNameSpace_), 0.5 * thick_[ii], rinB, routF, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << solid.name() << " Tubs made of " << matName

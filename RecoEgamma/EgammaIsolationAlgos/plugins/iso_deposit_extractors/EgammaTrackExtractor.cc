@@ -141,18 +141,12 @@ IsoDeposit EgammaTrackExtractor::deposit(const Event& event,
   reco::TrackBase::Point beamPoint(0, 0, 0);
   if (theBeamlineOption == "BeamSpotFromEvent") {
     //pick beamSpot
-    reco::BeamSpot beamSpot;
-    edm::Handle<reco::BeamSpot> beamSpotH;
-
-    event.getByToken(theBeamSpotToken, beamSpotH);
+    auto beamSpotH = event.getHandle(theBeamSpotToken);
 
     if (beamSpotH.isValid()) {
       beamPoint = beamSpotH->position();
     }
   }
-
-  Handle<View<Track> > tracksH;
-  event.getByToken(theTrackCollectionToken, tracksH);
 
   if (candTk.isElectron()) {
     const reco::GsfElectron* elec = dynamic_cast<const reco::GsfElectron*>(&candTk);
@@ -165,59 +159,57 @@ IsoDeposit EgammaTrackExtractor::deposit(const Event& event,
   deposit.setVeto(veto(candDir));
   deposit.addCandEnergy(candTk.et());
 
-  View<Track>::const_iterator itrTr = tracksH->begin();
-  View<Track>::const_iterator trEnd = tracksH->end();
-  for (itrTr = tracksH->begin(); itrTr != trEnd; ++itrTr) {
-    if (candDir.deltaR(reco::isodeposit::Direction(itrTr->eta(), itrTr->phi())) > theDR_Max)
+  for (auto const& itrTr : event.get(theTrackCollectionToken)) {
+    if (candDir.deltaR(reco::isodeposit::Direction(itrTr.eta(), itrTr.phi())) > theDR_Max)
       continue;
 
-    if (itrTr->normalizedChi2() > theChi2Ndof_Max)
+    if (itrTr.normalizedChi2() > theChi2Ndof_Max)
       continue;
 
-    if (itrTr->pt() < thePt_Min)
+    if (itrTr.pt() < thePt_Min)
       continue;
 
-    if (theChi2Prob_Min > 0 && ChiSquaredProbability(itrTr->chi2(), itrTr->ndof()) < theChi2Prob_Min)
+    if (theChi2Prob_Min > 0 && ChiSquaredProbability(itrTr.chi2(), itrTr.ndof()) < theChi2Prob_Min)
       continue;
 
-    if (theNHits_Min > 0 && itrTr->numberOfValidHits() < theNHits_Min)
+    if (theNHits_Min > 0 && itrTr.numberOfValidHits() < theNHits_Min)
       continue;
 
     if (candTk.isElectron()) {
       const reco::GsfElectron* elec = dynamic_cast<const reco::GsfElectron*>(&candTk);
       switch (dzOption) {
         case EgammaTrackSelector::dz:
-          dzCut = elec->gsfTrack()->dz() - itrTr->dz();
+          dzCut = elec->gsfTrack()->dz() - itrTr.dz();
           break;
         case EgammaTrackSelector::vz:
-          dzCut = elec->gsfTrack()->vz() - itrTr->vz();
+          dzCut = elec->gsfTrack()->vz() - itrTr.vz();
           break;
         case EgammaTrackSelector::bs:
-          dzCut = elec->gsfTrack()->dz(beamPoint) - itrTr->dz(beamPoint);
+          dzCut = elec->gsfTrack()->dz(beamPoint) - itrTr.dz(beamPoint);
           break;
         case EgammaTrackSelector::vtx:
-          dzCut = itrTr->dz(elec->gsfTrack()->vertex());
+          dzCut = itrTr.dz(elec->gsfTrack()->vertex());
           break;
         default:
-          dzCut = elec->gsfTrack()->vz() - itrTr->vz();
+          dzCut = elec->gsfTrack()->vz() - itrTr.vz();
           break;
       }
     } else {
       switch (dzOption) {
         case EgammaTrackSelector::dz:
-          dzCut = (*itrTr).dz() - candTk.vertex().z();
+          dzCut = itrTr.dz() - candTk.vertex().z();
           break;
         case EgammaTrackSelector::vz:
-          dzCut = (*itrTr).vz() - candTk.vertex().z();
+          dzCut = itrTr.vz() - candTk.vertex().z();
           break;
         case EgammaTrackSelector::bs:
-          dzCut = (*itrTr).dz(beamPoint) - candTk.vertex().z();
+          dzCut = itrTr.dz(beamPoint) - candTk.vertex().z();
           break;
         case EgammaTrackSelector::vtx:
-          dzCut = (*itrTr).dz(candTk.vertex());
+          dzCut = itrTr.dz(candTk.vertex());
           break;
         default:
-          dzCut = (*itrTr).vz() - candTk.vertex().z();
+          dzCut = itrTr.vz() - candTk.vertex().z();
           break;
       }
     }
@@ -225,10 +217,10 @@ IsoDeposit EgammaTrackExtractor::deposit(const Event& event,
     if (fabs(dzCut) > theDiff_z)
       continue;
 
-    if (fabs(itrTr->dxy(beamPoint)) > theDiff_r)
+    if (fabs(itrTr.dxy(beamPoint)) > theDiff_r)
       continue;
 
-    deposit.addDeposit(reco::isodeposit::Direction(itrTr->eta(), itrTr->phi()), itrTr->pt());
+    deposit.addDeposit(reco::isodeposit::Direction(itrTr.eta(), itrTr.phi()), itrTr.pt());
   }
 
   return deposit;

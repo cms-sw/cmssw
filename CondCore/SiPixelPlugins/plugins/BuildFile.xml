@@ -2,6 +2,7 @@
   <use name="CondCore/SiPixelPlugins"/>
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
+  <use name="DQM/TrackerRemapper"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
@@ -10,12 +11,14 @@
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="DQM/TrackerRemapper"/>
 </library>
 
 <library file="SiPixelGainCalibrationOffline_PayloadInspector.cc" name="SiPixelGainCalibrationOffline_PayloadInspector">
   <use name="CondCore/SiPixelPlugins"/>
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
+  <use name="DQM/TrackerRemapper"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
@@ -23,10 +26,19 @@
   <use name="CondCore/SiPixelPlugins"/>
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
+  <use name="DQM/TrackerRemapper"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
 </library>
 
 <library file="SiPixelTemplateDBObject_PayloadInspector.cc" name="SiPixelTemplateDBObject_PayloadInspector">
+  <use name="CondCore/SiPixelPlugins"/>
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CondFormats/SiPixelTransient"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+</library>
+
+<library file="SiPixel2DTemplateDBObject_PayloadInspector.cc" name="SiPixel2DTemplateDBObject_PayloadInspector">
   <use name="CondCore/SiPixelPlugins"/>
   <use name="CondCore/Utilities"/>
   <use name="CondCore/CondDB"/>
@@ -47,6 +59,20 @@
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/SiPixelTransient"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="DQM/TrackerRemapper"/>
+</library>
+
+<library file="SiPixelQualityProbabilities_PayloadInspector.cc" name="SiPixelQualityProbabilities_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+</library>
+
+<library file="SiPixelFEDChannelContainer_PayloadInspector.cc" name="SiPixelFEDChannelContainer_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+  <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="DQM/TrackerRemapper"/>
 </library>
 
 <library file="plugin.cc" name="CondCoreSiPixelPluginsPlugin">

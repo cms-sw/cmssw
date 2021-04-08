@@ -9,6 +9,7 @@
 <use name="SimDataFormats/Track"/>
 <use name="DQMServices/Core"/>
 <use name="rootcore"/>
+<use name="rooteg"/>
 <export>
   <lib name="1"/>
 </export>

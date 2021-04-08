@@ -49,6 +49,8 @@ RunOne "2017" "Run2_2017"
 
 RunOne "2018" "Run2_2018"
 
+RunOne "2021" "Run3"
+
 rc=0
 for pid in $pids
 do

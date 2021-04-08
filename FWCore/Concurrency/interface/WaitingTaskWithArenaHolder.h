@@ -23,6 +23,9 @@
 #include <memory>
 
 #include "tbb/task_arena.h"
+#include "tbb/task_group.h"
+
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
   class WaitingTask;
@@ -35,7 +38,11 @@ namespace edm {
     // Note that the arena will be the one containing the thread
     // that runs this constructor. This is the arena where you
     // eventually intend for the task to be spawned.
-    explicit WaitingTaskWithArenaHolder(WaitingTask* iTask);
+    explicit WaitingTaskWithArenaHolder(tbb::task_group&, WaitingTask* iTask);
+
+    // Takes ownership of the underlying task and uses the current
+    // arena.
+    explicit WaitingTaskWithArenaHolder(WaitingTaskHolder&& iTask);
 
     ~WaitingTaskWithArenaHolder();
 
@@ -66,9 +73,19 @@ namespace edm {
     // the problem quickly).
     WaitingTaskHolder makeWaitingTaskHolderAndRelease();
 
+    bool taskHasFailed() const noexcept;
+
+    bool hasTask() const noexcept;
+
+    /** since tbb::task_group is thread safe, we can return it non-const from here since
+        the object is not really part of the state of the holder
+     */
+    CMS_SA_ALLOW tbb::task_group* group() const { return m_group; }
+
   private:
     // ---------- member data --------------------------------
     WaitingTask* m_task;
+    tbb::task_group* m_group;
     std::shared_ptr<tbb::task_arena> m_arena;
   };
 
@@ -83,10 +100,9 @@ namespace edm {
     };
   }
 
-  template <typename ALLOC, typename F>
-  auto make_waiting_task_with_holder(ALLOC&& iAlloc, WaitingTaskWithArenaHolder h, F&& f) {
+  template <typename F>
+  auto make_waiting_task_with_holder(WaitingTaskWithArenaHolder h, F&& f) {
     return make_waiting_task(
-        std::forward<ALLOC>(iAlloc),
         [holder = h, func = make_lambda_with_holder(h, std::forward<F>(f))](std::exception_ptr const* excptr) mutable {
           if (excptr) {
             holder.doneWaiting(*excptr);

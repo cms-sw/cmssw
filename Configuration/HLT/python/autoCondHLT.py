@@ -39,13 +39,13 @@ hltGTs = {
     'run3_mc_PIon'           : ('phase1_2021_realistic'   ,l1Menus['PIon']),
     'run3_mc_PRef'           : ('phase1_2021_realistic'   ,l1Menus['PRef']),
 
-    'run1_hlt_Fake'          : ('run1_hlt'                ,l1Menus['Fake']),
+    'run1_hlt_Fake'          : ('run1_hlt_relval'         ,l1Menus['Fake']),
     'run2_hlt_Fake'          : ('run2_hlt_relval'         ,l1Menus['Fake']),
     'run2_hlt_Fake1'         : ('run2_hlt_relval'         ,l1Menus['Fake1']),
     'run2_hlt_Fake2'         : ('run2_hlt_relval'         ,l1Menus['Fake2']),
     'run3_hlt_FULL'          : ('run2_hlt_relval'         ,l1Menus['FULL']),
     'run3_hlt_GRun'          : ('run2_hlt_relval'         ,l1Menus['GRun']),
-    'run3_hlt_HIon'          : ('run2_hlt_relval_hi'      ,l1Menus['HIon']),
+    'run3_hlt_HIon'          : ('run2_hlt_relval'         ,l1Menus['HIon']),
     'run3_hlt_PIon'          : ('run2_hlt_relval'         ,l1Menus['PIon']),
     'run3_hlt_PRef'          : ('run2_hlt_relval'         ,l1Menus['PRef']),
 

@@ -51,6 +51,7 @@
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -114,6 +115,7 @@ protected:
   std::shared_ptr<TrackerGeometry> trackerGeometry_;
   edm::ESHandle<DTGeometry> muonDTGeometry_;
   edm::ESHandle<CSCGeometry> muonCSCGeometry_;
+  edm::ESHandle<GEMGeometry> muonGEMGeometry_;
   const bool doTracker_, doMuon_, useExtras_;
 
   /// Map with tracks/trajectories

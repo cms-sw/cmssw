@@ -21,6 +21,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
+#include "RecoEgamma/EgammaTools/interface/EgammaLocalCovParamDefaults.h"
 
 using namespace reco;
 
@@ -207,12 +208,13 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd0.add<bool>("isFiducial", false);
     psd0.add<bool>("seedFromTEC", true);
     psd0.add<double>("maxTIP", 999999999.0);
+    psd0.add<double>("multThresEB", EgammaLocalCovParamDefaults::kMultThresEB);
+    psd0.add<double>("multThresEE", EgammaLocalCovParamDefaults::kMultThresEE);
     // preselection parameters
     desc.add<edm::ParameterSetDescription>("preselection", psd0);
   }
 
   // Corrections
-  desc.add<std::string>("superClusterErrorFunction", "EcalClusterEnergyUncertaintyObjectSpecific");
   desc.add<std::string>("crackCorrectionFunction", "EcalClusterCrackCorrection");
 
   desc.add<bool>("ecalWeightsFromDB", true);
@@ -273,6 +275,8 @@ namespace {
         .isFiducial = pset.getParameter<bool>("isFiducial"),
         .maxTIP = pset.getParameter<double>("maxTIP"),
         .seedFromTEC = pset.getParameter<bool>("seedFromTEC"),
+        .multThresEB = pset.getParameter<double>("multThresEB"),
+        .multThresEE = pset.getParameter<double>("multThresEE"),
     };
   }
 };  // namespace
@@ -375,7 +379,6 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       hcalCfg_,
       isoCfg,
       recHitsCfg,
-      EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("superClusterErrorFunction"), cfg),
       EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("crackCorrectionFunction"), cfg),
       regressionCfg,
       cfg.getParameter<edm::ParameterSet>("trkIsol03Cfg"),
@@ -547,7 +550,7 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
           << "Cannot check consistency of parameters with ecal seeding ones,"
           << " because the original collection of seeds is not any more available.";
     } else {
-      checkEcalSeedingParameters(edm::parameterSet(*seeds.provenance(), event.processHistory()));
+      checkEcalSeedingParameters(edm::parameterSet(seeds.provenance()->stable(), event.processHistory()));
     }
   }
 

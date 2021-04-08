@@ -46,16 +46,19 @@ private:
 
   std::unique_ptr<AlignableMuon> alignableMuon_;
   std::string leaders_, blank_, filled_;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
 };
 
 void TestMuonHierarchy::analyze(const edm::Event&, const edm::EventSetup& setup) {
   edm::LogInfo("MuonHierarchy") << "Starting!";
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  setup.get<MuonGeometryRecord>().get(dtGeometry);
-  setup.get<MuonGeometryRecord>().get(cscGeometry);
+  edm::ESHandle<DTGeometry> dtGeometry = setup.getHandle(esTokenDT_);
+  edm::ESHandle<CSCGeometry> cscGeometry = setup.getHandle(esTokenCSC_);
+  edm::ESHandle<GEMGeometry> gemGeometry = setup.getHandle(esTokenGEM_);
 
-  alignableMuon_ = std::make_unique<AlignableMuon>(&(*dtGeometry), &(*cscGeometry));
+  alignableMuon_ = std::make_unique<AlignableMuon>(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 
   leaders_ = "";
   blank_ = "   ";   // These two...

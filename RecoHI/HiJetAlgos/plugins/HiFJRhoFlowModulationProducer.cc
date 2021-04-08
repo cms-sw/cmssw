@@ -11,7 +11,6 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -72,8 +71,8 @@ HiFJRhoFlowModulationProducer::HiFJRhoFlowModulationProducer(const edm::Paramete
       evtPlaneToken_(consumes<reco::EvtPlaneCollection>(iConfig.getParameter<edm::InputTag>("EvtPlane"))) {
   produces<std::vector<double>>("rhoFlowFitParams");
   TMinuitMinimizer::UseStaticMinuit(false);
-  lineFit_p_ = std::unique_ptr<TF1>(new TF1("lineFit", lineFunction, -TMath::Pi(), TMath::Pi()));
-  flowFit_p_ = std::unique_ptr<TF1>(new TF1("flowFit", flowFunction, -TMath::Pi(), TMath::Pi()));
+  lineFit_p_ = std::make_unique<TF1>("lineFit", lineFunction, -TMath::Pi(), TMath::Pi());
+  flowFit_p_ = std::make_unique<TF1>("flowFit", flowFunction, -TMath::Pi(), TMath::Pi());
 }
 
 // ------------ method called to produce the data  ------------

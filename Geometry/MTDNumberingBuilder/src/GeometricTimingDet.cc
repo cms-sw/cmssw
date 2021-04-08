@@ -4,8 +4,8 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include <DD4hep/DD4hepUnits.h>
 
 #include <cfloat>
 #include <vector>
@@ -90,10 +90,8 @@ GeometricTimingDet::GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumTy
   ddd_ = nav_type(nt.begin(), nt.end());
 }
 
-using namespace geant_units::operators;
-
 GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingEnumType type)
-    : trans_(fv->translation()),
+    : trans_(fv->translation() / dd4hep::mm),
       rot_(fv->rotation()),
       shape_(fv->shape()),
       ddname_(fv->name()),
@@ -107,14 +105,10 @@ GeometricTimingDet::GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingE
       pixROCy_(fv->get<double>("PixelROC_Y")),
       stereo_(fv->get<std::string_view>("TrackerStereoDetectors") == strue),
       siliconAPVNum_(fv->get<double>("SiliconAPVNumber")) {
-  //
-  // Translate DD4hep lenghts from cm to mm
-  //
-  trans_.SetCoordinates(convertCmToMm(trans_.X()), convertCmToMm(trans_.Y()), convertCmToMm(trans_.Z()));
   phi_ = trans_.Phi();
   rho_ = trans_.Rho();
   for (size_t pit = 0; pit < params_.size(); pit++) {
-    params_[pit] = convertCmToMm(params_[pit]);
+    params_[pit] = params_[pit] / dd4hep::mm;
   }
   //
   // Not navPos(), as not properly working for DD4hep and not used
@@ -235,7 +229,9 @@ void GeometricTimingDet::deleteComponents() {
 }
 
 GeometricTimingDet::Position GeometricTimingDet::positionBounds() const {
-  Position pos(float(trans_.x() / cm), float(trans_.y() / cm), float(trans_.z() / cm));
+  Position pos(geant_units::operators::convertMmToCm(trans_.x()),
+               geant_units::operators::convertMmToCm(trans_.y()),
+               geant_units::operators::convertMmToCm(trans_.z()));
   return pos;
 }
 

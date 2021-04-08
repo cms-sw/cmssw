@@ -31,10 +31,10 @@ def checkEnvironment():
 
 def getTrackerRecoMaterialCopy(filename):
     tracker_reco_material = os.path.join(os.environ['CMSSW_BASE'],
-                                         'src/Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml')
+                                         'src/Geometry/TrackerRecoData/data/PhaseI/v1/trackerRecoMaterial.xml')
     if not os.path.exists(tracker_reco_material):
       tracker_reco_material = os.path.join(os.environ['CMSSW_RELEASE_BASE'],
-                                           'src/Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml')
+                                           'src/Geometry/TrackerRecoData/data/PhaseI/v1/trackerRecoMaterial.xml')
       if not os.path.exists(tracker_reco_material):
           print('Something is wrong with the CMSSW installation. The file %s is missing. Quitting.\n' % tracker_reco_material)
           sys.exit(TRACKER_MATERIAL_FILE_MISSING)

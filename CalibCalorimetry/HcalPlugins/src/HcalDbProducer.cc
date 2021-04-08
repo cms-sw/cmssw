@@ -23,7 +23,6 @@
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"

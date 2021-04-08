@@ -247,4 +247,4 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   algo->reset();
 }
 
-#endif
+#endif  //__RecoLocalCalo_HGCRecProducers_HGCalLayerClusterProducer_H__

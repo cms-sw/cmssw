@@ -204,6 +204,9 @@ bool PythiaFilterMultiAncestor::filter(edm::StreamID, edm::Event& iEvent, const 
             accepted = false;
         }
       }
+      // only need to satisfy the conditions _once_
+      if (accepted)
+        break;
     }
 
   } else {

@@ -69,10 +69,8 @@ bool ConversionTools::matchesConversion(const reco::GsfElectron &ele,
              ele.reco::GsfElectron::closestCtfTrackRef().key() == it->key())
       return true;
     if (allowAmbiguousGsfMatch) {
-      for (reco::GsfTrackRefVector::const_iterator tk = ele.ambiguousGsfTracksBegin();
-           tk != ele.ambiguousGsfTracksEnd();
-           ++tk) {
-        if (tk->isNonnull() && tk->id() == it->id() && tk->key() == it->key())
+      for (auto const &tk : ele.ambiguousGsfTracks()) {
+        if (tk.isNonnull() && tk.id() == it->id() && tk.key() == it->key())
           return true;
       }
     }

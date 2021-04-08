@@ -18,12 +18,10 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-//#include "FWCore/Utilities/interface/EDGetToken.h"  // not needed
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"

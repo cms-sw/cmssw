@@ -101,67 +101,16 @@ SiPixelDigiSource::~SiPixelDigiSource() {
   LogInfo("PixelDQM") << "SiPixelDigiSource::~SiPixelDigiSource: Destructor" << endl;
 }
 
-void SiPixelDigiSource::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
-  int thisls = lb.id().luminosityBlock();
-
-  if (modOn && thisls % 10 == 0 && averageDigiOccupancy) {
-    nBPIXDigis = 0;
-    nFPIXDigis = 0;
-    for (int i = 0; i != 40; i++)
-      nDigisPerFed[i] = 0;
-  }
-  if (!modOn && averageDigiOccupancy) {
-    nBPIXDigis = 0;
-    nFPIXDigis = 0;
-    for (int i = 0; i != 40; i++)
-      nDigisPerFed[i] = 0;
-  }
-
-  if (modOn && thisls % 10 == 0) {
-    ROCMapToReset = true;  //the ROC map is reset each 10 lumisections
-
-    for (int i = 0; i < 2; i++)
-      NzeroROCs[i] = 0;
-    for (int i = 0; i < 2; i++)
-      NloEffROCs[i] = 0;  //resetting also Zero and low eff. ROC counters
-
-    NzeroROCs[1] = -672;
-    NloEffROCs[1] =
-        -672;  //this magic number derives by the way the endcap occupancy is filled, there are always 672 empty bins by construction
-
-    //these bools are needed to count zero occupancy plots in the substructure only once each 10 LS
-    DoZeroRocsBMO1 = true;
-    DoZeroRocsBMO2 = true;
-    DoZeroRocsBMO3 = true;
-
-    DoZeroRocsBMI1 = true;
-    DoZeroRocsBMI2 = true;
-    DoZeroRocsBMI3 = true;
-
-    DoZeroRocsBPO1 = true;
-    DoZeroRocsBPO2 = true;
-    DoZeroRocsBPO3 = true;
-
-    DoZeroRocsBPI1 = true;
-    DoZeroRocsBPI2 = true;
-    DoZeroRocsBPI3 = true;
-
-    DoZeroRocsFPO1 = true;
-    DoZeroRocsFPO2 = true;
-
-    DoZeroRocsFMO1 = true;
-    DoZeroRocsFMO2 = true;
-
-    DoZeroRocsFPI1 = true;
-    DoZeroRocsFPI2 = true;
-
-    DoZeroRocsFMI1 = true;
-    DoZeroRocsFMI2 = true;
-  }
+std::shared_ptr<bool> SiPixelDigiSource::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                    const edm::EventSetup& iSetup) const {
+  unsigned int currentLS = lumi.id().luminosityBlock();
+  bool resetCounters = (currentLS % 10 == 0) ? true : false;
+  return std::make_shared<bool>(resetCounters);
 }
 
-void SiPixelDigiSource::dqmEndLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
+void SiPixelDigiSource::globalEndLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
   int thisls = lb.id().luminosityBlock();
+  const bool resetCounters = luminosityBlockCache(lb.index());
 
   float averageBPIXFed = float(nBPIXDigis) / 32.;
   float averageFPIXFed = float(nFPIXDigis) / 8.;
@@ -201,6 +150,64 @@ void SiPixelDigiSource::dqmEndLuminosityBlock(const edm::LuminosityBlock& lb, ed
       avgEndcapFedOccvsLumi->setBinContent(
           int(thisls / 10), averageFPIXFed);  //<NDigis> vs lumisection for endcap, filled every 10 lumi sections
     }
+  }
+
+  //reset counters
+
+  if (modOn && resetCounters && averageDigiOccupancy) {
+    nBPIXDigis = 0;
+    nFPIXDigis = 0;
+    for (int i = 0; i != 40; i++)
+      nDigisPerFed[i] = 0;
+  }
+
+  if (!modOn && averageDigiOccupancy) {
+    nBPIXDigis = 0;
+    nFPIXDigis = 0;
+    for (int i = 0; i != 40; i++)
+      nDigisPerFed[i] = 0;
+  }
+
+  if (modOn && resetCounters) {
+    ROCMapToReset = true;  //the ROC map is reset each 10 lumisections
+
+    for (int i = 0; i < 2; i++)
+      NzeroROCs[i] = 0;
+    for (int i = 0; i < 2; i++)
+      NloEffROCs[i] = 0;  //resetting also Zero and low eff. ROC counters
+
+    NzeroROCs[1] = -672;
+    NloEffROCs[1] =
+        -672;  //this magic number derives by the way the endcap occupancy is filled, there are always 672 empty bins by construction
+
+    //these bools are needed to count zero occupancy plots in the substructure only once each 10 LS
+    DoZeroRocsBMO1 = true;
+    DoZeroRocsBMO2 = true;
+    DoZeroRocsBMO3 = true;
+
+    DoZeroRocsBMI1 = true;
+    DoZeroRocsBMI2 = true;
+    DoZeroRocsBMI3 = true;
+
+    DoZeroRocsBPO1 = true;
+    DoZeroRocsBPO2 = true;
+    DoZeroRocsBPO3 = true;
+
+    DoZeroRocsBPI1 = true;
+    DoZeroRocsBPI2 = true;
+    DoZeroRocsBPI3 = true;
+
+    DoZeroRocsFPO1 = true;
+    DoZeroRocsFPO2 = true;
+
+    DoZeroRocsFMO1 = true;
+    DoZeroRocsFMO2 = true;
+
+    DoZeroRocsFPI1 = true;
+    DoZeroRocsFPI2 = true;
+
+    DoZeroRocsFMI1 = true;
+    DoZeroRocsFMI2 = true;
   }
 }
 

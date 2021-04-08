@@ -104,7 +104,7 @@ HGCalRecHit = cms.EDProducer(
     #With the new regional em factors there are 7 different factors used. 
     #Six of them are for silicon and one for scint. For silicon it is in the following order
     # CE_E_120um, CE_E_200um, CE_E_300um, CE_H_120um, CE_H_200um, CE_H_300um
-    thicknessCorrection = cms.vdouble(1.132,1.092,1.084, 1.0, 1.0, 1.0), # 100, 200, 300 um
+    thicknessCorrection = cms.vdouble(1.132,1.092,1.084,1.0,1.0,1.0),
     deltasi_index_regemfac = cms.int32(3),
     #One factor for scint 
     sciThicknessCorrection = cms.double(1.0),
