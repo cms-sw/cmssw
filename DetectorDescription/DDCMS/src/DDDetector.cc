@@ -21,6 +21,8 @@ namespace cms {
     m_description->addExtension<cms::DDVectorsMap>(&m_vectors);
     m_description->addExtension<dd4hep::PartSelectionMap>(&m_partsels);
     m_description->addExtension<dd4hep::SpecParRegistry>(&m_specpars);
+    m_description->setStdConditions("NTP");
+    edm::LogVerbatim("Geometry") << "DDDetector::ctor Setting DD4hep STD conditions to NTP";
     if (bigXML)
       processXML(fileName);
     else
