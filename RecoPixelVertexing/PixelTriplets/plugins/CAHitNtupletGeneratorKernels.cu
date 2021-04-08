@@ -258,14 +258,13 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     cudaCheck(cudaGetLastError());
   }
 
-  if (params_.doSharedHitCut_)
-  {
-     // remove duplicates (tracks that share a hit)
-     numberOfBlocks = (HitToTuple::capacity() + blockSize - 1) / blockSize;
+  if (params_.doSharedHitCut_) {
+    // remove duplicates (tracks that share a hit)
+    numberOfBlocks = (HitToTuple::capacity() + blockSize - 1) / blockSize;
     kernel_sharedHitCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
         hh.view(), tuples_d, tracks_d, quality_d, params_.minHitsForSharingCut_, device_hitToTuple_.get());
-     cudaCheck(cudaGetLastError());
-   }
+    cudaCheck(cudaGetLastError());
+  }
 
   if (params_.doStats_) {
     auto nhits = hh.nHits();

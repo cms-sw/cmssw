@@ -119,7 +119,6 @@ namespace cAHitNtupletGenerator {
     const float dcaCutInnerTriplet_;
     const float dcaCutOuterTriplet_;
 
-
     // quality cuts
     QualityCuts cuts_{// polynomial coefficients for the pT-dependent chi2 cut
                       {0.68177776, 0.74609577, -0.08035491, 0.00315399},
