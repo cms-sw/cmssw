@@ -473,10 +473,11 @@ __global__ void kernel_doStatsForHitInTracks(CAHitNtupletGeneratorKernelsGPU::Hi
   }
 }
 
-__global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
+__global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
                                       HitContainer const *__restrict__ ptuples,
                                       TkSoA const *__restrict__ ptracks,
                                       Quality *__restrict__ quality,
+                                      uint16_t nmin,
                                       CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
   constexpr auto bad = pixelTrack::Quality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
@@ -485,6 +486,9 @@ __global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict_
   auto &hitToTuple = *phitToTuple;
   auto const &foundNtuplets = *ptuples;
   auto const &tracks = *ptracks;
+
+  auto const & hh = *hhp;
+  int l1end = hh.hitsLayerStart()[1];
 
   int first = blockDim.x * blockIdx.x + threadIdx.x;
   for (int idx = first, ntot = hitToTuple.nbins(); idx < ntot; idx += gridDim.x * blockDim.x) {
@@ -503,6 +507,10 @@ __global__ void kernel_tripletCleaner(TrackingRecHit2DSOAView const *__restrict_
     // kill all tracks shorter than maxHn (only triplets???)
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
       uint32_t nh = foundNtuplets.size(*it);
+
+      //checking if shared hit is on bpix1 and if the tuple is short enough
+      if (idx<l1end and nh>nmin) continue;
+
       if (maxNh != nh)
         quality[*it] = dup;
     }
