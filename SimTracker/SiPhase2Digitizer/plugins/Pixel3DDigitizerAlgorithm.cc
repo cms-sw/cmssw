@@ -126,10 +126,10 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
 
   // Check the group is near the edge of the pixel, so diffusion will
   // be relevant in order to migrate between pixel cells
-  if (std::abs(pos.x() - hpitches.first) < max_migration_radius) {
+  if (hpitches.first - std::abs(pos.x()) < max_migration_radius) {
     displ_ind = 0;
     pitch = hpitches.first;
-  } else if (std::abs(pos.y() - hpitches.second) < max_migration_radius) {
+  } else if (hpitches.second - std::abs(pos.y()) < max_migration_radius) {
     displ_ind = 1;
     pitch = hpitches.second;
   } else {
@@ -175,12 +175,12 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   float distance_edge = 0.0_um;
   do {
     std::transform(pos_moving.begin(), pos_moving.end(), do_step(i).begin(), pos_moving.begin(), std::plus<float>());
-    distance_edge = std::abs(pos_moving[displ_ind] - pitch);
+    distance_edge = pitch - std::abs(pos_moving[displ_ind]);
     // current diffusion value
     double sigma = std::sqrt(i * diffusion_step / distance0) * (distance0 / thickness) * sigma0;
     // Get the amount of charge on the neighbor pixel: note the
     // transformation to a Normal
-    float migrated_e = current_carriers * (1.0 - std::erf(distance_edge / sigma));
+    float migrated_e = current_carriers * 0.5 * (1.0 - std::erf(distance_edge / sigma));
 
     LogDebug("(super-)charge diffusion") << "step-" << i << ", Initial Ne= " << ncarriers << ", "
                                          << "r=(" << pos_moving[0] * 1.0_um_inv << ", " << pos_moving[1] * 1.0_um_inv
@@ -206,7 +206,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     }
     // Next step
     ++i;
-  } while (std::abs(distance_edge) < max_migration_radius);
+  } while (std::abs(distance_edge) < max_migration_radius && current_carriers > 0.5 * ncarriers);
 
   return migrated_charge;
 }
@@ -338,6 +338,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
                                                      << "****************";
         // Drift this charges on the other pixel
         auto mig_colpoints = drift(hit, pixdet, bfield, migrated_charges, false);
+        collection_points.insert(std::end(collection_points), mig_colpoints.begin(), mig_colpoints.end());
         LogDebug("Pixel3DDigitizerAlgorithm::drift") << "*****************"
                                                      << "DOME MIGRATION"
                                                      << "****************";

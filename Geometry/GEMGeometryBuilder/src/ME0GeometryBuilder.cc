@@ -434,10 +434,10 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const Mu
 ME0Chamber* ME0GeometryBuilder::buildChamber(cms::DDFilteredView& fv, ME0DetId detId) const {
   std::vector<double> dpar = fv.parameters();
 
-  double L = dpar[3];
-  double T = dpar[2];
-  double b = dpar[0];
-  double B = dpar[1];
+  double L = k_ScaleFromDD4Hep * dpar[3];
+  double T = k_ScaleFromDD4Hep * dpar[2];
+  double b = k_ScaleFromDD4Hep * dpar[0];
+  double B = k_ScaleFromDD4Hep * dpar[1];
   bool isOdd = false;
   ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b, B, L, T), isOdd));
   ME0Chamber* chamber = new ME0Chamber(detId.chamberId(), surf);
@@ -448,10 +448,10 @@ ME0Chamber* ME0GeometryBuilder::buildChamber(cms::DDFilteredView& fv, ME0DetId d
 ME0Layer* ME0GeometryBuilder::buildLayer(cms::DDFilteredView& fv, ME0DetId detId) const {
   std::vector<double> dpar = fv.parameters();
 
-  double L = dpar[3];
-  double t = dpar[2];
-  double b = dpar[0];
-  double B = dpar[1];
+  double L = k_ScaleFromDD4Hep * dpar[3];
+  double t = k_ScaleFromDD4Hep * dpar[2];
+  double b = k_ScaleFromDD4Hep * dpar[0];
+  double B = k_ScaleFromDD4Hep * dpar[1];
   bool isOdd = false;
   ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b, B, L, t), isOdd));
   ME0Layer* layer = new ME0Layer(detId.layerId(), surf);
@@ -468,10 +468,10 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, 
 
   std::vector<double> dpar = fv.parameters();
 
-  double b = dpar[0];
-  double B = dpar[1];
-  double L = dpar[3];
-  double t = dpar[2];
+  double b = k_ScaleFromDD4Hep * dpar[0];
+  double B = k_ScaleFromDD4Hep * dpar[1];
+  double L = k_ScaleFromDD4Hep * dpar[3];
+  double t = k_ScaleFromDD4Hep * dpar[2];
 
   const std::vector<float> pars{float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads)};
 
@@ -492,7 +492,8 @@ ME0GeometryBuilder::ME0BoundPlane ME0GeometryBuilder::boundPlane(const cms::DDFi
                                                                  bool isOddChamber) const {
   // extract the position
   const Double_t* trans = fv.trans();
-  Surface::PositionType posResult(trans[0], trans[1], trans[2]);
+  Surface::PositionType posResult(
+      k_ScaleFromDD4Hep * trans[0], k_ScaleFromDD4Hep * trans[1], k_ScaleFromDD4Hep * trans[2]);
 
   // now the rotation
   DDRotationMatrix rotation;

@@ -15,10 +15,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
 #include <random>
+#include <algorithm>
+#include <atomic>
+
+namespace {
+  std::atomic<unsigned int> badFilesSkipped_{0};
+  auto operator"" _uz(unsigned long long i) -> std::size_t { return std::size_t{i}; }  // uz will be in C++23
+}  // namespace
 
 namespace edm {
   class EventPrincipal;
@@ -43,7 +51,8 @@ namespace edm {
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
         treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize)),
         enablePrefetching_(false),
-        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName", false)) {
+        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName", false)),
+        maxFileSkips_(pset.getUntrackedParameter<unsigned int>("maxFileSkips", std::min(3_uz, numberOfFiles()))) {
     if (noFiles()) {
       throw Exception(errors::NoSecondaryFiles)
           << "RootEmbeddedFileSequence no input files specified for secondary input source.\n";
@@ -92,17 +101,21 @@ namespace edm {
       unsigned int seed;
       f.read(reinterpret_cast<char*>(&seed), sizeof(seed));
       std::default_random_engine dre(seed);
-      size_t count = numberOfFiles();
-      std::uniform_int_distribution<int> distribution(0, count - 1);
-      while (!rootFile() && count != 0) {
-        --count;
+      std::uniform_int_distribution<int> distribution(0, numberOfFiles() - 1);
+      while (!rootFile() && badFilesSkipped_ < maxFileSkips_) {
         int offset = distribution(dre);
         setAtFileSequenceNumber(offset);
         initFile(input_.skipBadFiles());
+        if (not rootFile()) {
+          ++badFilesSkipped_;
+        }
       }
     }
     if (rootFile()) {
       input_.productRegistryUpdate().updateFromInput(rootFile()->productRegistry()->productList());
+    } else {
+      throw Exception(errors::FileOpenError) << "RootEmbeddedFileSequence::RootEmbeddedFileSequence(): "
+                                             << " input file retries exhausted.\n";
     }
   }
 
@@ -161,8 +174,10 @@ namespace edm {
   bool RootEmbeddedFileSequence::readOneSequential(
       EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const*, bool recycleFiles) {
     assert(rootFile());
-    rootFile()->nextEventEntry();
-    bool found = rootFile()->readCurrentEvent(cache);
+    bool found = rootFile()->nextEventEntry();
+    if (found) {
+      found = rootFile()->readCurrentEvent(cache);
+    }
     if (!found) {
       setAtNextFile();
       if (noMoreFiles()) {
@@ -229,7 +244,7 @@ namespace edm {
     if (!found) {
       throw Exception(errors::NotFound) << "RootEmbeddedFileSequence::readOneSpecified(): Secondary Input files"
                                         << " do not contain specified event:\n"
-                                        << id << "\n";
+                                        << id << " in file id " << idx.fileNameHash() << "\n";
     }
     assert(rootFile());
     found = rootFile()->readCurrentEvent(cache);
@@ -246,16 +261,36 @@ namespace edm {
     assert(engine);
     unsigned int currentSeqNumber = sequenceNumberOfFile();
     while (eventsRemainingInFile_ == 0) {
-      unsigned int newSeqNumber = CLHEP::RandFlat::shootInt(engine, fileCatalogItems().size());
-      setAtFileSequenceNumber(newSeqNumber);
-      if (newSeqNumber != currentSeqNumber) {
-        initFile(false);
-        currentSeqNumber = newSeqNumber;
+      bool opened{false};
+      while (!opened && badFilesSkipped_ < maxFileSkips_) {
+        unsigned int newSeqNumber = CLHEP::RandFlat::shootInt(engine, fileCatalogItems().size());
+        setAtFileSequenceNumber(newSeqNumber);
+        if (newSeqNumber != currentSeqNumber) {
+          initFile(input_.skipBadFiles());
+          currentSeqNumber = newSeqNumber;
+        }
+        if (rootFile()) {
+          eventsRemainingInFile_ = rootFile()->eventTree().entries();
+          if (eventsRemainingInFile_ == 0) {
+            if (!input_.skipBadFiles()) {
+              throw Exception(errors::NotFound) << "RootEmbeddedFileSequence::readOneRandom(): Secondary Input file "
+                                                << fileNames()[0] << " contains no events.\n";
+            }
+            LogWarning("RootEmbeddedFileSequence") << "RootEmbeddedFileSequence::readOneRandom(): Secondary Input file "
+                                                   << fileNames()[0] << " contains no events and will be skipped.\n";
+            ++badFilesSkipped_;
+          } else {
+            opened = true;
+          }
+        } else {
+          if (newSeqNumber != currentSeqNumber) {
+            ++badFilesSkipped_;
+          }
+        }
       }
-      eventsRemainingInFile_ = rootFile()->eventTree().entries();
-      if (eventsRemainingInFile_ == 0) {
-        throw Exception(errors::NotFound) << "RootEmbeddedFileSequence::readOneRandom(): Secondary Input file "
-                                          << fileNames()[0] << " contains no events.\n";
+      if (not opened) {
+        throw Exception(errors::FileOpenError) << "RootEmbeddedFileSequence::readOneRandom(): "
+                                               << " input file retries exhausted.\n";
       }
       rootFile()->setAtEventEntry(CLHEP::RandFlat::shootInt(engine, eventsRemainingInFile_) - 1);
     }
@@ -336,6 +371,10 @@ namespace edm {
     desc.addUntracked<unsigned int>("skipEvents", 0U)
         ->setComment(
             "Skip the first 'skipEvents' events. Used only if 'sequential' is True and 'sameLumiBlock' is False");
+    desc.addUntracked<unsigned int>("maxFileSkips")
+        ->setComment(
+            "How many files to try if 'sequential' is False and 'skipBadFiles' is True.\n"
+            "Defaults to 3 (or # of files if smaller).");
     desc.addUntracked<unsigned int>("cacheSize", roottree::defaultCacheSize)
         ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
     desc.addUntracked<bool>("enforceGUIDInFileName", false)

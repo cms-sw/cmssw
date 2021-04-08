@@ -20,6 +20,7 @@
 #include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelectorBase.h"
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
 #include "CommonTools/Utils/interface/DynArray.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -52,6 +53,13 @@ public:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
 
 protected:
+  // ES Tokens
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoEsToken;
+
+  std::string parametersDefiner;
+  const edm::ESGetToken<ParametersDefinerForTP, TrackAssociatorRecord> tpDefinerEsToken;
+  const bool parametersDefinerIsCosmic_;
+
   //these are used by MTVGenPs
   // MTV-specific data members
   std::vector<edm::InputTag> associators;
@@ -72,9 +80,6 @@ protected:
   edm::EDGetTokenT<edm::ValueMap<reco::DeDxData>> m_dEdx1Tag;
   edm::EDGetTokenT<edm::ValueMap<reco::DeDxData>> m_dEdx2Tag;
 
-  std::string parametersDefiner;
-
-  const bool parametersDefinerIsCosmic_;
   const bool ignoremissingtkcollection_;
   const bool useAssociators_;
   const bool calculateDrSingleCollection_;

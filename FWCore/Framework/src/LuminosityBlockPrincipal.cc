@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-
+#include "FWCore/Framework/src/ProductPutterBase.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 namespace edm {
@@ -19,12 +19,12 @@ namespace edm {
   }
 
   void LuminosityBlockPrincipal::put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const {
-    putOrMerge(bd, std::move(edp));
+    put_(bd, std::move(edp));
   }
 
   void LuminosityBlockPrincipal::put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const {
     auto phb = getProductResolverByIndex(index);
-    phb->putOrMergeProduct(std::move(edp));
+    dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(edp));
   }
 
   unsigned int LuminosityBlockPrincipal::transitionIndex_() const { return index().value(); }

@@ -7,7 +7,10 @@
 
 class ApvTimingHistosUsingDb : public CommissioningHistosUsingDb, public ApvTimingHistograms {
 public:
-  ApvTimingHistosUsingDb(const edm::ParameterSet& pset, DQMStore*, SiStripConfigDb* const);
+  ApvTimingHistosUsingDb(const edm::ParameterSet& pset,
+                         DQMStore*,
+                         SiStripConfigDb* const,
+                         edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken);
 
   ~ApvTimingHistosUsingDb() override;
 

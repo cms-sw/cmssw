@@ -12,6 +12,7 @@
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "DD4hep/DD4hepUnits.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -61,6 +62,8 @@ private:
   ME0Layer* buildLayer(cms::DDFilteredView& fv, ME0DetId detId) const;
 
   ME0EtaPartition* buildEtaPartition(cms::DDFilteredView& fv, ME0DetId detId) const;
+
+  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
 };
 
 #endif

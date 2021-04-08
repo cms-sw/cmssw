@@ -24,7 +24,8 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();
 
-    me_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "copad", "CoPad");
+    if (detail_plot_)
+      me_detail_occ_zr_[region_id] = bookZROccupancy(booker, region_id, "copad", "CoPad");
 
     for (const auto& station : region->stations()) {
       Int_t station_id = station->station();
@@ -50,8 +51,6 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
       Int_t num_pads = etaPartitionVec[0]->npads();
       ME2IdsKey key2{region_id, station_id};
 
-      me_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "copad", "CoPad");
-
       if (detail_plot_) {
         me_detail_occ_xy_[key2] = bookXYOccupancy(booker, key2, "copad", "CoPad");
 
@@ -70,6 +69,8 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
         me_detail_occ_pad_[key2] = bookHist1D(
             booker, key2, "copad_occ_pad", "CoPad Ocupancy per pad number", num_pads, 0.5, num_pads + 0.5, "Pad number");
+
+        me_detail_occ_det_[key2] = bookDetectorOccupancy(booker, key2, station, "copad", "CoPad");
       }
     }  // station loop
   }    // region loop
@@ -104,15 +105,16 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSe
   }
 
   // GEMCoPadDigiCollection::DigiRangeIterator
-  for (auto range_iter = copad_collection->begin(); range_iter != copad_collection->end(); range_iter++) {
-    GEMDetId gemid = (*range_iter).first;
-    const GEMCoPadDigiCollection::Range& range = (*range_iter).second;
+  for (const auto& copad_pair : *copad_collection) {
+    GEMDetId gemid = copad_pair.first;
+    const auto& range = copad_pair.second;
 
     Int_t region_id = gemid.region();
     Int_t station_id = gemid.station();
     Int_t ring_id = gemid.ring();
     Int_t layer_id = gemid.layer();
     Int_t chamber_id = gemid.chamber();
+    Int_t num_layers = gemid.nlayers();
 
     ME2IdsKey key2{region_id, station_id};
 
@@ -184,16 +186,16 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& event, const edm::EventSe
       Float_t g_y = gp1.y();
 
       // Fill normal plots.
-      me_occ_zr_[region_id]->Fill(std::fabs(g_z1), g_r1);
-      me_occ_zr_[region_id]->Fill(std::fabs(g_z2), g_r2);
 
-      Int_t bin_x = getDetOccBinX(chamber_id, layer_id);
-      me_occ_det_[key2]->Fill(bin_x, roll_id);
-      me_occ_det_[key2]->Fill(bin_x + 1, roll_id);
+      Int_t bin_x = getDetOccBinX(num_layers, chamber_id, layer_id);
 
       // Fill detail plots.
       if (detail_plot_) {
+        me_detail_occ_zr_[region_id]->Fill(std::fabs(g_z1), g_r1);
+        me_detail_occ_zr_[region_id]->Fill(std::fabs(g_z2), g_r2);
         me_detail_occ_xy_[key2]->Fill(g_x, g_y);
+        me_detail_occ_det_[key2]->Fill(bin_x, roll_id);
+        me_detail_occ_det_[key2]->Fill(bin_x + 1, roll_id);
         me_detail_occ_phi_pad_[key2]->Fill(g_phi, pad1);
         me_detail_occ_pad_[key2]->Fill(pad1);
         me_detail_bx_[key2]->Fill(bx1);

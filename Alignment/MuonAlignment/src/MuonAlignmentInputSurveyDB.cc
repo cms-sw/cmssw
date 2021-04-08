@@ -68,8 +68,10 @@ MuonAlignmentInputSurveyDB::~MuonAlignmentInputSurveyDB() {}
 AlignableMuon* MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetup& iSetup) const {
   edm::ESHandle<DTGeometry> dtGeometry;
   edm::ESHandle<CSCGeometry> cscGeometry;
+  edm::ESHandle<GEMGeometry> gemGeometry;
   iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, dtGeometry);
   iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, cscGeometry);
+  iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, gemGeometry);
 
   edm::ESHandle<Alignments> dtSurvey;
   edm::ESHandle<SurveyErrors> dtSurveyError;
@@ -80,7 +82,7 @@ AlignableMuon* MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetu
   iSetup.get<CSCSurveyRcd>().get(m_cscLabel, cscSurvey);
   iSetup.get<CSCSurveyErrorExtendedRcd>().get(m_cscLabel, cscSurveyError);
 
-  AlignableMuon* output = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
+  AlignableMuon* output = new AlignableMuon(&(*dtGeometry), &(*cscGeometry), &(*gemGeometry));
 
   unsigned int theSurveyIndex = 0;
   const Alignments* theSurveyValues = &*dtSurvey;

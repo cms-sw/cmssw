@@ -1,10 +1,13 @@
 #include "CondCore/CondDB/interface/Logger.h"
-#include "CondCore/CondDB/interface/ConnectionPool.h"
+#include "CondCore/CondDB/interface/Auth.h"
 #include "CondCore/CondDB/interface/Exception.h"
 //
 #include "DbCore.h"
+#include "CoralMsgReporter.h"
 #include "RelationalAccess/ITransaction.h"
 //
+#include "RelationalAccess/ConnectionService.h"
+#include "RelationalAccess/ISessionProxy.h"
 #include <boost/date_time/posix_time/posix_time_io.hpp>
 #include <fstream>
 //
@@ -45,7 +48,6 @@ namespace cond {
     Logger::Logger(const std::string& jobName)
         : m_jobName(jobName),
           m_connectionString(""),
-          m_sharedConnectionPool(nullptr),
           m_started(false),
           m_startTime(),
           m_endTime(),
@@ -53,12 +55,15 @@ namespace cond {
           m_log() {}
 
     //
-    Logger::~Logger() {}
-
-    void Logger::setDbDestination(const std::string& connectionString, ConnectionPool& connectionPool) {
-      m_connectionString = connectionString;
-      m_sharedConnectionPool = &connectionPool;
+    Logger::~Logger() {
+      auto dispatcher = m_dispatcher.lock();
+      if (dispatcher.get())
+        dispatcher->unsubscribe();
     }
+
+    void Logger::subscribeCoralMessages(const std::weak_ptr<MsgDispatcher>& dispatcher) { m_dispatcher = dispatcher; }
+
+    void Logger::setDbDestination(const std::string& connectionString) { m_connectionString = connectionString; }
 
     //
     void Logger::start() {
@@ -114,13 +119,12 @@ namespace cond {
     //
     void Logger::saveOnDb() {
       if (!m_log.str().empty()) {
-        if (m_sharedConnectionPool == nullptr) {
-          throwException("Connection pool handle has not been provided.", "Logger::saveOnDb");
-        }
         if (m_connectionString.empty()) {
           throwException("Connection string for destination database has not been provided.", "Logger::saveOnDb");
         }
-        auto coralSession = m_sharedConnectionPool->createCoralSession(m_connectionString, true);
+        coral::ConnectionService connServ;
+        std::unique_ptr<coral::ISessionProxy> coralSession(
+            connServ.connect(m_connectionString, auth::COND_WRITER_ROLE, coral::Update));
         coralSession->transaction().start(false);
         try {
           O2O_RUN::Table destinationTable(coralSession->nominalSchema());

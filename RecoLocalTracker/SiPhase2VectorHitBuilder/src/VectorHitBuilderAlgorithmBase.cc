@@ -7,6 +7,8 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 VectorHitBuilderAlgorithmBase::VectorHitBuilderAlgorithmBase(
     const edm::ParameterSet& conf,
     const TrackerGeometry* tkGeomProd,

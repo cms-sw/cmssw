@@ -36,12 +36,14 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCalNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalNumberingTester(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -86,6 +88,19 @@ HGCalNumberingTester::HGCalNumberingTester(const edm::ParameterSet& iC) {
   for (unsigned int k = 0; k < positionX_.size(); ++k)
     std::cout << "Position[" << k << "] " << positionX_[k] << " " << unit << ", " << positionY_[k] << " " << unit
               << std::endl;
+}
+
+void HGCalNumberingTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  std::vector<double> vecxy;
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("NameSense", "HGCalEESensitive");
+  desc.add<std::string>("NameDevice", "HGCal EE");
+  desc.add<std::vector<double> >("LocalPositionX", vecxy);
+  desc.add<std::vector<double> >("LocalPositionY", vecxy);
+  desc.add<int>("Increment", 19);
+  desc.add<int>("DetType", 2);
+  desc.add<bool>("Reco", false);
+  descriptions.add("hgcalNumberingTesterEE", desc);
 }
 
 // ------------ method called to produce the data  ------------

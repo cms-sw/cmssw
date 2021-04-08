@@ -29,8 +29,10 @@ private:
 
   MonitorElement *DaqFraction_;
   MonitorElement *DaqMap_;
-  MonitorElement *daqWheelFractions[5];
-  MonitorElement *daqDiskFractions[10];
+  constexpr static int kNWheels = 5;
+  MonitorElement *daqWheelFractions[kNWheels];
+  constexpr static int kNDisks = 10;
+  MonitorElement *daqDiskFractions[kNDisks];
 
   std::pair<int, int> FEDRange_;
 

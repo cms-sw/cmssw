@@ -23,7 +23,7 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
-
+#include <memory>
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"

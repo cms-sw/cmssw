@@ -6,6 +6,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/TrackerModule.h"
+#include "L1Trigger/TrackFindingTMTT/interface/Array2D.h"
 
 #include <vector>
 #include <map>
@@ -41,9 +42,9 @@ namespace tmtt {
     // Book & fill all histograms.
     virtual void book();
     virtual void fill(const InputData& inputData,
-                      const matrix<std::unique_ptr<Sector>>& mSectors,
-                      const matrix<std::unique_ptr<HTrphi>>& mHtPhis,
-                      const matrix<std::unique_ptr<Make3Dtracks>>& mGet3Dtrks,
+                      const Array2D<std::unique_ptr<Sector>>& mSectors,
+                      const Array2D<std::unique_ptr<HTrphi>>& mHtPhis,
+                      const Array2D<std::unique_ptr<Make3Dtracks>>& mGet3Dtrks,
                       const std::map<std::string, std::list<const L1fittedTrack*>>& mapFinalTracks);
 
     // Print tracking performance summary & make tracking efficiency histograms.
@@ -69,11 +70,11 @@ namespace tmtt {
 
     // Fill histograms for specific topics.
     virtual void fillInputData(const InputData& inputData);
-    virtual void fillEtaPhiSectors(const InputData& inputData, const matrix<std::unique_ptr<Sector>>& mSectors);
-    virtual void fillRphiHT(const matrix<std::unique_ptr<HTrphi>>& mHtRphis);
-    virtual void fillRZfilters(const matrix<std::unique_ptr<Make3Dtracks>>& mMake3Dtrks);
+    virtual void fillEtaPhiSectors(const InputData& inputData, const Array2D<std::unique_ptr<Sector>>& mSectors);
+    virtual void fillRphiHT(const Array2D<std::unique_ptr<HTrphi>>& mHtRphis);
+    virtual void fillRZfilters(const Array2D<std::unique_ptr<Make3Dtracks>>& mMake3Dtrks);
     virtual void fillTrackCands(const InputData& inputData,
-                                const matrix<std::unique_ptr<Make3Dtracks>>& mMake3Dtrks,
+                                const Array2D<std::unique_ptr<Make3Dtracks>>& mMake3Dtrks,
                                 const std::string& tName);
     virtual void fillTrackCands(const InputData& inputData,
                                 const std::vector<L1track3D>& tracks,

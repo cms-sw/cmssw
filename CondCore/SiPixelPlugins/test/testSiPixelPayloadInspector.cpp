@@ -8,6 +8,7 @@
 #include "CondCore/SiPixelPlugins/plugins/SiPixelGenErrorDBObject_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelVCal_PayloadInspector.cc"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondCore/SiPixelPlugins/plugins/SiPixelQualityProbabilities_PayloadInspector.cc"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
@@ -85,11 +86,11 @@ int main(int argc, char** argv) {
   edm::LogPrint("testSiPixelPayloadInspector") << "## Exercising SiPixelQuality plots " << std::endl;
 
   SiPixelBPixQualityMap histo8;
-  histo8.process(connectionString, PI::mk_input(tag, start, start));
+  histo8.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo8.data() << std::endl;
 
   SiPixelFPixQualityMap histo9;
-  histo9.process(connectionString, PI::mk_input(tag, start, start));
+  histo9.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo9.data() << std::endl;
 
   // SiPixelGainCalibrationOffline
@@ -101,19 +102,19 @@ int main(int argc, char** argv) {
   edm::LogPrint("testSiPixelPayloadInspector") << "## Exercising SiPixelGainCalibrationOffline plots " << std::endl;
 
   SiPixelGainCalibrationOfflineGainsValues histo10;
-  histo10.process(connectionString, PI::mk_input(tag, start, start));
+  histo10.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo10.data() << std::endl;
 
   SiPixelGainCalibrationOfflinePedestalsValues histo11;
-  histo11.process(connectionString, PI::mk_input(tag, start, start));
+  histo11.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo11.data() << std::endl;
 
   SiPixelGainCalibrationOfflineGainsByPart histo12;
-  histo12.process(connectionString, PI::mk_input(tag, start, start));
+  histo12.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo12.data() << std::endl;
 
   SiPixelGainCalibrationOfflinePedestalsByPart histo13;
-  histo13.process(connectionString, PI::mk_input(tag, start, start));
+  histo13.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo13.data() << std::endl;
 
   end = boost::lexical_cast<unsigned long long>(326851);
@@ -147,11 +148,11 @@ int main(int argc, char** argv) {
   edm::LogPrint("testSiPixelPayloadInspector") << "## Exercising SiPixelTemplates plots " << std::endl;
 
   SiPixelTemplateIDsBPixMap histo18;
-  histo18.process(connectionString, PI::mk_input(tag, end, end));
+  histo18.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo18.data() << std::endl;
 
   SiPixelTemplateLAFPixMap histo19;
-  histo19.process(connectionString, PI::mk_input(tag, end, end));
+  histo19.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo19.data() << std::endl;
 
   // SiPixelVCal
@@ -181,12 +182,24 @@ int main(int argc, char** argv) {
   edm::LogPrint("testSiPixelPayloadInspector") << "## Exercising SiPixelGenErrors plots " << std::endl;
 
   SiPixelGenErrorHeaderTable histo23;
-  histo23.process(connectionString, PI::mk_input(tag, end, end));
+  histo23.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo23.data() << std::endl;
 
   SiPixelGenErrorIDsBPixMap histo24;
-  histo24.process(connectionString, PI::mk_input(tag, end, end));
+  histo24.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo24.data() << std::endl;
+
+  // SiPixelQualityProbabilities
+
+  tag = "SiPixelQualityProbabilities_UltraLegacy2018_v0_mc";
+  start = boost::lexical_cast<unsigned long long>(1);
+  end = boost::lexical_cast<unsigned long long>(1);
+
+  std::cout << "## Exercising SiPixelQualityProbabilities plots " << std::endl;
+
+  SiPixelQualityProbabilitiesScenariosCount histo25;
+  histo25.process(connectionString, PI::mk_input(tag, start, end));
+  std::cout << histo25.data() << std::endl;
 
   inputs.clear();
 #if PY_MAJOR_VERSION >= 3

@@ -10,22 +10,26 @@ from RecoHI.HiTracking.hiJetCoreRegionalStep_cff import hiJetsForCoreTracking
 hiCaloTowerForTrkPreSplitting = hiCaloTowerForTrk.clone()
 hiAkPu4CaloJetsForTrkPreSplitting = akPu4CaloJetsForTrk.clone(
     src = 'hiCaloTowerForTrkPreSplitting',
-    srcPVs = 'hiSelectedVertexPreSplitting')
+    srcPVs = 'hiSelectedVertexPreSplitting'
+)
 hiAkPu4CaloJetsCorrectedPreSplitting = akPu4CaloJetsCorrected.clone(
-    src = 'hiAkPu4CaloJetsForTrkPreSplitting')
+    src = 'hiAkPu4CaloJetsForTrkPreSplitting'
+)
 hiAkPu4CaloJetsSelectedPreSplitting = akPu4CaloJetsSelected.clone(
-    src = 'hiAkPu4CaloJetsCorrectedPreSplitting')
+    src = 'hiAkPu4CaloJetsCorrectedPreSplitting'
+)
 hiJetsForCoreTrackingPreSplitting = hiJetsForCoreTracking.clone(
-    src = 'hiAkPu4CaloJetsSelectedPreSplitting')
+    src = 'hiAkPu4CaloJetsSelectedPreSplitting'
+)
 
 
 from RecoLocalTracker.SubCollectionProducers.jetCoreClusterSplitter_cfi import jetCoreClusterSplitter
 siPixelClusters = jetCoreClusterSplitter.clone(
-    pixelClusters = cms.InputTag('siPixelClustersPreSplitting'),
+    pixelClusters = 'siPixelClustersPreSplitting',
     vertices      = 'hiSelectedVertexPreSplitting',
     cores         = 'hiJetsForCoreTrackingPreSplitting',
-    deltaRmax     = cms.double(0.1),
-    ptMin = cms.double(50)
+    deltaRmax     = 0.1,
+    ptMin         = 50
 )
 
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import siPixelRecHits

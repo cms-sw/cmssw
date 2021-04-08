@@ -14,3 +14,9 @@ def _addCUDAServices(process):
 
 from Configuration.ProcessModifiers.gpu_cff import gpu
 modifyConfigurationStandardSequencesServicesAddCUDAServices_ = gpu.makeProcessModifier(_addCUDAServices)
+
+# load TritonService when SONIC workflow is enabled
+def _addTritonService(process):
+	process.load("HeterogeneousCore.SonicTriton.TritonService_cff")
+from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
+modifyConfigurationStandardSequencesServicesAddTritonService_ = enableSonicTriton.makeProcessModifier(_addTritonService)

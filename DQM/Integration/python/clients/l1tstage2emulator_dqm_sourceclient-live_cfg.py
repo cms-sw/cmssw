@@ -51,13 +51,12 @@ process.dqmEndPath = cms.EndPath(
 #--------------------------------------------------
 # Standard Unpacking Path
 
-process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
 # remove unneeded unpackers
 process.RawToDigi.remove(process.ecalDigis)
 process.RawToDigi.remove(process.ecalPreshowerDigis)
 process.RawToDigi.remove(process.hcalDigis)
-process.RawToDigi.remove(process.muonCSCDigis)
 process.RawToDigi.remove(process.muonDTDigis)
 process.RawToDigi.remove(process.siPixelDigis)
 process.RawToDigi.remove(process.siStripDigis)
@@ -137,7 +136,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.muonGEMDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.tcdsDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataRepacker")
@@ -168,7 +167,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 #--------------------------------------------------
 # L1T Emulator Online DQM Schedule
 
-process.schedule = cms.Schedule( 
+process.schedule = cms.Schedule(
     process.rawToDigiPath,
     process.l1tEmulatorMonitorPath,
     process.l1tStage2EmulatorMonitorClientPath,

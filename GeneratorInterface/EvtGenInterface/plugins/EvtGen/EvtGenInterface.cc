@@ -363,7 +363,7 @@ void EvtGenInterface::init() {
 
   if (fPSet->exists("user_decay_embedded")) {
     std::vector<std::string> user_decay_lines = fPSet->getParameter<std::vector<std::string> >("user_decay_embedded");
-    char user_decay_tmp[] = "/tmp/user_decay_tmpfileXXXXXX";
+    char user_decay_tmp[] = "user_decay_tmpfileXXXXXX";
     int tmp_creation = mkstemp(user_decay_tmp);
     FILE* tmpf = std::fopen(user_decay_tmp, "w");
     if (!tmpf || (tmp_creation == -1)) {

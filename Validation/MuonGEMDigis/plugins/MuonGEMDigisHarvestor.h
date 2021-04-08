@@ -14,6 +14,7 @@ public:
 
 private:
   std::vector<Int_t> region_ids_, station_ids_, layer_ids_;
+  Bool_t detail_plot_;
 };
 
 #endif  // Validation_MuonGEMDigis_MuonGEMDigisHarvestor_h

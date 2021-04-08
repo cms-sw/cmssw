@@ -10,7 +10,7 @@
 // Author: Jonas Rembser
 //--------------------------------------------------------------------------------------------------
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <memory>

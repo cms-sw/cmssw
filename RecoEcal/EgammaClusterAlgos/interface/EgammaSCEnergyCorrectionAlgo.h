@@ -1,27 +1,26 @@
 #ifndef RecoECAL_ECALClusters_EgammaSCEnergyCorrectionAlgo_h_
 #define RecoECAL_ECALClusters_EgammaSCEnergyCorrectionAlgo_h_
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 
+#include <functional>
 #include <map>
 #include <string>
 
 class EgammaSCEnergyCorrectionAlgo {
 public:
+  using BasicClusterFunction = std::function<float(reco::BasicCluster const&, EcalRecHitCollection const&)>;
+
   // public member functions
-  EgammaSCEnergyCorrectionAlgo(float noise, reco::CaloCluster::AlgoId theAlgo, const edm::ParameterSet& pset);
-  ~EgammaSCEnergyCorrectionAlgo() {}
+  EgammaSCEnergyCorrectionAlgo(float noise);
 
   // take a SuperCluster and return a corrected SuperCluster
   reco::SuperCluster applyCorrection(const reco::SuperCluster& cl,
@@ -34,13 +33,13 @@ public:
                                      int modeEE_);
 
   // take a SuperCluster and return a crack-corrected SuperCluster
-  reco::SuperCluster applyCrackCorrection(const reco::SuperCluster& cl,
-                                          EcalClusterFunctionBaseClass* crackCorrectionFunction);
+  static reco::SuperCluster applyCrackCorrection(const reco::SuperCluster& cl,
+                                                 EcalClusterFunctionBaseClass* crackCorrectionFunction);
 
   // take a SuperCluster and return a local containment corrected SuperCluster
 
-  reco::SuperCluster applyLocalContCorrection(const reco::SuperCluster& cl,
-                                              EcalClusterFunctionBaseClass* localContCorrectionFunction);
+  static reco::SuperCluster applyLocalContCorrection(const reco::SuperCluster& cl,
+                                                     BasicClusterFunction localContCorrectionFunction);
 
 private:
   // correction factor as a function of number of crystals,
@@ -52,8 +51,6 @@ private:
   int nCrystalsGT2Sigma(reco::BasicCluster const& seed, EcalRecHitCollection const& rhc) const;
 
   float sigmaElectronicNoise_;
-
-  reco::CaloCluster::AlgoId theAlgo_;
 };
 
 #endif /*RecoECAL_ECALClusters_EgammaSCEnergyCorrectionAlgo_h_*/

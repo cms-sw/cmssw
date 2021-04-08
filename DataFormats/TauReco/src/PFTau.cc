@@ -2,7 +2,6 @@
 
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //using namespace std;
 namespace reco {

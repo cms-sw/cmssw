@@ -2,6 +2,7 @@
 #define TTUTRACKINGALG_H 1
 
 // Include files
+#include <memory>
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTULogic.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUInput.h"
 

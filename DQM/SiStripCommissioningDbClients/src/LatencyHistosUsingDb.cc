@@ -12,9 +12,12 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-LatencyHistosUsingDb::LatencyHistosUsingDb(const edm::ParameterSet& pset, DQMStore* bei, SiStripConfigDb* const db)
+LatencyHistosUsingDb::LatencyHistosUsingDb(const edm::ParameterSet& pset,
+                                           DQMStore* bei,
+                                           SiStripConfigDb* const db,
+                                           edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("LatencyParameters"), bei, sistrip::APV_LATENCY),
-      CommissioningHistosUsingDb(db, sistrip::APV_LATENCY),
+      CommissioningHistosUsingDb(db, tTopoToken, sistrip::APV_LATENCY),
       SamplingHistograms(pset.getParameter<edm::ParameterSet>("LatencyParameters"), bei, sistrip::APV_LATENCY) {
   LogTrace(mlDqmClient_) << "[LatencyHistosUsingDb::" << __func__ << "]"
                          << " Constructing object...";

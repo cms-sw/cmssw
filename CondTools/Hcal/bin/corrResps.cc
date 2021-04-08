@@ -6,7 +6,6 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -24,20 +23,20 @@ private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
   std::string fileIn, fileOut, fileCorr;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
 };
 
 corrResps::corrResps(const edm::ParameterSet& iConfig) {
   fileIn = iConfig.getUntrackedParameter<std::string>("FileIn");
   fileOut = iConfig.getUntrackedParameter<std::string>("FileOut");
   fileCorr = iConfig.getUntrackedParameter<std::string>("FileCorr");
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
 }
 
 corrResps::~corrResps() {}
 
 void corrResps::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  HcalTopology topo = (*htopo);
+  HcalTopology topo = iSetup.getData(tok_htopo_);
 
   HcalRespCorrs respIn(&topo);
   std::ifstream inStream(fileIn.c_str());

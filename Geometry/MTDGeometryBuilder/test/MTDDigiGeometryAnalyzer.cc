@@ -13,9 +13,10 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
-#include "Geometry/Records/interface/MTDTopologyRcd.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 
+#include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
@@ -47,9 +48,6 @@ using cms_rounding::roundIfNear0, cms_rounding::roundVecIfNear0;
 
 // ------------ method called to produce the data  ------------
 void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<MTDTopology> mtdTopo;
-  iSetup.get<MTDTopologyRcd>().get(mtdTopo);
-
   //
   // get the MTDGeometry
   //
@@ -67,10 +65,22 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   for (auto const& it : pDD->detUnits()) {
     if (dynamic_cast<const MTDGeomDetUnit*>((it)) != nullptr) {
       const BoundPlane& p = (dynamic_cast<const MTDGeomDetUnit*>((it)))->specificSurface();
+      const MTDDetId mtdId(it->geographicalId());
+      std::stringstream moduleLabel;
+      if (mtdId.mtdSubDetector() == 1) {
+        moduleLabel << " BTL side " << mtdId.mtdSide() << " Rod " << mtdId.mtdRR() << " mod "
+                    << (static_cast<const BTLDetId>(mtdId)).module();
+      } else if (mtdId.mtdSubDetector() == 2) {
+        const ETLDetId etlId(it->geographicalId());
+        moduleLabel << " ETL side " << mtdId.mtdSide() << " Disc/Side/Sector " << etlId.nDisc() << " "
+                    << etlId.discSide() << " " << etlId.sector();
+      } else {
+        edm::LogWarning("MTDDigiGeometryanalyzer") << (it->geographicalId()).rawId() << " unknown MTD subdetector!";
+      }
       edm::LogVerbatim("MTDDigiGeometryAnalyzer")
           << "---------------------------------------------------------- \n"
-          << mtdTopo->print(it->geographicalId()) << " RadLeng Pixel " << p.mediumProperties().radLen() << " Xi Pixel "
-          << p.mediumProperties().xi();
+          << it->geographicalId().rawId() << moduleLabel.str() << " RadLeng Pixel " << p.mediumProperties().radLen()
+          << " Xi Pixel " << p.mediumProperties().xi();
 
       const GeomDetUnit theDet = *(dynamic_cast<const MTDGeomDetUnit*>(it));
       analyseRectangle(theDet);

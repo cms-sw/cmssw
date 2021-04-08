@@ -144,8 +144,9 @@ namespace ecaldqm {
                                                        : nullptr);
     MESet const& sPNIntegrity(sources_.at("PNIntegrity"));
 
-    MESet::iterator qEnd(meQualitySummary.end());
-    for (MESet::iterator qItr(meQualitySummary.beginChannel()); qItr != qEnd; qItr.toNextChannel()) {
+    MESet::iterator qEnd(meQualitySummary.end(GetElectronicsMap()));
+    for (MESet::iterator qItr(meQualitySummary.beginChannel(GetElectronicsMap())); qItr != qEnd;
+         qItr.toNextChannel(GetElectronicsMap())) {
       DetId id(qItr->getId());
 
       int status(kGood);
@@ -153,7 +154,7 @@ namespace ecaldqm {
       if (status == kGood && sLaser) {
         for (map<int, unsigned>::iterator wlItr(laserWlToME_.begin()); wlItr != laserWlToME_.end(); ++wlItr) {
           sLaser->use(wlItr->second);
-          if (sLaser->getBinContent(id) == kBad) {
+          if (sLaser->getBinContent(getEcalDQMSetupObjects(), id) == kBad) {
             status = kBad;
             break;
           }
@@ -165,7 +166,7 @@ namespace ecaldqm {
         if (id.subdetId() == EcalEndcap) {
           for (map<int, unsigned>::iterator wlItr(ledWlToME_.begin()); wlItr != ledWlToME_.end(); ++wlItr) {
             sLed->use(wlItr->second);
-            if (sLed->getBinContent(id) == kBad) {
+            if (sLed->getBinContent(getEcalDQMSetupObjects(), id) == kBad) {
               status = kBad;
               break;
             }
@@ -176,7 +177,7 @@ namespace ecaldqm {
       if (status == kGood && sTestPulse) {
         for (map<int, unsigned>::iterator gainItr(tpGainToME_.begin()); gainItr != tpGainToME_.end(); ++gainItr) {
           sTestPulse->use(gainItr->second);
-          if (sTestPulse->getBinContent(id) == kBad) {
+          if (sTestPulse->getBinContent(getEcalDQMSetupObjects(), id) == kBad) {
             status = kBad;
             break;
           }
@@ -186,7 +187,7 @@ namespace ecaldqm {
       if (status == kGood && sPedestal) {
         for (map<int, unsigned>::iterator gainItr(pedGainToME_.begin()); gainItr != pedGainToME_.end(); ++gainItr) {
           sPedestal->use(gainItr->second);
-          if (sPedestal->getBinContent(id) == kBad) {
+          if (sPedestal->getBinContent(getEcalDQMSetupObjects(), id) == kBad) {
             status = kBad;
             break;
           }
@@ -210,13 +211,13 @@ namespace ecaldqm {
 
         int status(kGood);
 
-        if (sPNIntegrity.getBinContent(id) == kBad)
+        if (sPNIntegrity.getBinContent(getEcalDQMSetupObjects(), id) == kBad)
           status = kBad;
 
         if (status == kGood && sLaserPN) {
           for (map<int, unsigned>::iterator wlItr(laserWlToME_.begin()); wlItr != laserWlToME_.end(); ++wlItr) {
             sLaserPN->use(wlItr->second);
-            if (sLaserPN->getBinContent(id) == kBad) {
+            if (sLaserPN->getBinContent(getEcalDQMSetupObjects(), id) == kBad) {
               status = kBad;
               break;
             }
@@ -226,7 +227,7 @@ namespace ecaldqm {
         if (status == kGood && sLedPN) {
           for (map<int, unsigned>::iterator wlItr(ledWlToME_.begin()); wlItr != ledWlToME_.end(); ++wlItr) {
             sLedPN->use(wlItr->second);
-            if (sLedPN->getBinContent(id) == kBad) {
+            if (sLedPN->getBinContent(getEcalDQMSetupObjects(), id) == kBad) {
               status = kBad;
               break;
             }
@@ -236,7 +237,7 @@ namespace ecaldqm {
         if (status == kGood && sTestPulsePN) {
           for (map<int, unsigned>::iterator gainItr(tpPNGainToME_.begin()); gainItr != tpPNGainToME_.end(); ++gainItr) {
             sTestPulsePN->use(gainItr->second);
-            if (sTestPulsePN->getBinContent(id) == kBad) {
+            if (sTestPulsePN->getBinContent(getEcalDQMSetupObjects(), id) == kBad) {
               status = kBad;
               break;
             }
@@ -247,14 +248,14 @@ namespace ecaldqm {
           for (map<int, unsigned>::iterator gainItr(pedPNGainToME_.begin()); gainItr != pedPNGainToME_.end();
                ++gainItr) {
             sPedestalPN->use(gainItr->second);
-            if (sPedestalPN->getBinContent(id) == kBad) {
+            if (sPedestalPN->getBinContent(getEcalDQMSetupObjects(), id) == kBad) {
               status = kBad;
               break;
             }
           }
         }
 
-        mePNQualitySummary.setBinContent(id, status);
+        mePNQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, status);
       }
     }
   }

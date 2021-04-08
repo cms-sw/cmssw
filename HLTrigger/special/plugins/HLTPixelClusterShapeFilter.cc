@@ -1,10 +1,22 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 //
 // class declaration
@@ -17,6 +29,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const trackerDigiGeometryRecordToken_;
   edm::EDGetTokenT<SiPixelRecHitCollection> inputToken_;
   edm::InputTag inputTag_;  // input tag identifying product containing pixel clusters
   double minZ_;             // beginning z-vertex position
@@ -39,29 +52,13 @@ private:
   int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi) const;
 };
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
 //
 // constructors and destructor
 //
 
 HLTPixelClusterShapeFilter::HLTPixelClusterShapeFilter(const edm::ParameterSet &config)
     : HLTFilter(config),
+      trackerDigiGeometryRecordToken_(esConsumes()),
       inputTag_(config.getParameter<edm::InputTag>("inputTag")),
       minZ_(config.getParameter<double>("minZ")),
       maxZ_(config.getParameter<double>("maxZ")),
@@ -114,8 +111,8 @@ bool HLTPixelClusterShapeFilter::hltFilter(edm::Event &event,
 
   // get tracker geometry
   if (hRecHits.isValid()) {
-    edm::ESHandle<TrackerGeometry> trackerHandle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+    auto const &trackerHandle = iSetup.getHandle(trackerDigiGeometryRecordToken_);
+
     const TrackerGeometry *tgeo = trackerHandle.product();
     const SiPixelRecHitCollection *hits = hRecHits.product();
 

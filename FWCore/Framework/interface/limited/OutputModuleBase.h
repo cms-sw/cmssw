@@ -41,6 +41,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 // forward declarations
 namespace edm {
@@ -50,7 +51,6 @@ namespace edm {
   class PreallocationConfiguration;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
 
   template <typename T>
   class OutputModuleCommunicatorT;
@@ -133,8 +133,9 @@ namespace edm {
 
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask*, ModuleCallingContext const&, Principal const&) const {
-      }
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
+                                                    ModuleCallingContext const&,
+                                                    Principal const&) const {}
 
       void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}

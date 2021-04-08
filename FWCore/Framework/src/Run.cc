@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/Framework/src/ProductPutterBase.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -26,8 +27,10 @@ namespace edm {
 
   RunPrincipal const& Run::runPrincipal() const { return dynamic_cast<RunPrincipal const&>(provRecorder_.principal()); }
 
-  Provenance Run::getProvenance(BranchID const& bid) const {
-    return runPrincipal().getProvenance(bid, moduleCallingContext_);
+  Provenance const& Run::getProvenance(BranchID const& bid) const { return runPrincipal().getProvenance(bid); }
+
+  StableProvenance const& Run::getStableProvenance(BranchID const& bid) const {
+    return runPrincipal().getStableProvenance(bid);
   }
 
   void Run::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
@@ -96,7 +99,7 @@ namespace edm {
         auto resolver = p.getProductResolverByIndex(index);
         if (not resolver->productResolved() and isEndTransition(provRecorder_.transition()) ==
                                                     resolver->branchDescription().availableOnlyAtEndTransition()) {
-          resolver->putProduct(std::unique_ptr<WrapperBase>());
+          dynamic_cast<ProductPutterBase const*>(resolver)->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
     }

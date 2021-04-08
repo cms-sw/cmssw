@@ -668,7 +668,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
       {
         const edm::Provenance* prov = antimu.provenance();
         const std::vector<edm::ParameterSet> psetsFromProvenance =
-            edm::parameterSet(*prov, iEvent.processHistory())
+            edm::parameterSet(prov->stable(), iEvent.processHistory())
                 .getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
         for (uint i = 0; i < psetsFromProvenance.size(); i++) {
           if (psetsFromProvenance[i].getParameter<std::string>("IDname") == AntiMuWP_)
@@ -678,7 +678,8 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
       {
         const edm::Provenance* prov = antiele.provenance();
         const std::vector<std::string> psetsFromProvenance =
-            edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<std::string>>("workingPoints");
+            edm::parameterSet(prov->stable(), iEvent.processHistory())
+                .getParameter<std::vector<std::string>>("workingPoints");
         for (uint i = 0; i < psetsFromProvenance.size(); i++) {
           if (psetsFromProvenance[i] == AntiEleWP_)
             AntiEleWPIndex_ = i;
@@ -687,7 +688,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
       {
         const edm::Provenance* prov = comb3T.provenance();
         const std::vector<edm::ParameterSet> psetsFromProvenance =
-            edm::parameterSet(*prov, iEvent.processHistory())
+            edm::parameterSet(prov->stable(), iEvent.processHistory())
                 .getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
         for (uint i = 0; i < psetsFromProvenance.size(); i++) {
           if (psetsFromProvenance[i].getParameter<std::string>("IDname") == comb3TWP_)

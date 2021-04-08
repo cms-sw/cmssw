@@ -1,0 +1,20 @@
+<lcgdict>
+    <class name="cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::ViewStoragePolicy>>" persistent="false"/>
+    <class name="cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::DevStoragePolicy>>" persistent="false"/>
+    <class name="edm::Wrapper<cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::ViewStoragePolicy>>>" persistent="false"/>
+    <class name="edm::Wrapper<cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::DevStoragePolicy>>>" persistent="false"/>
+                
+    <class name="cms::cuda::Product<ecal::RecHit<calo::common::ViewStoragePolicy>>" persistent="false"/>
+    <class name="cms::cuda::Product<ecal::RecHit<calo::common::DevStoragePolicy>>" persistent="false"/>
+    <class name="edm::Wrapper<cms::cuda::Product<ecal::RecHit<calo::common::ViewStoragePolicy>>>" persistent="false"/>
+    <class name="edm::Wrapper<cms::cuda::Product<ecal::RecHit<calo::common::DevStoragePolicy>>>" persistent="false"/>
+        
+    <class name="ecal::UncalibratedRecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>" persistent="false"/>
+    <class name="edm::Wrapper<ecal::UncalibratedRecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>>" persistent="false"/>
+    <class name="ecal::RecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>" persistent="false"/>
+    <class name="edm::Wrapper<ecal::RecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>>" persistent="false"/>
+    <class name="ecal::UncalibratedRecHit<calo::common::VecStoragePolicy<std::allocator>>" persistent="false"/>
+    <class name="edm::Wrapper<ecal::UncalibratedRecHit<calo::common::VecStoragePolicy<std::allocator>>>" persistent="false"/>
+    <class name="ecal::RecHit<calo::common::VecStoragePolicy<std::allocator>>" persistent="false"/>
+    <class name="edm::Wrapper<ecal::RecHit<calo::common::VecStoragePolicy<std::allocator>>>" persistent="false"/>
+</lcgdict>

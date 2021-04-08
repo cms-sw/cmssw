@@ -425,6 +425,7 @@ void AlignmentProducerBase::createGeometries(const edm::EventSetup& iSetup, cons
   if (doMuon_) {
     iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonDTGeometry_);
     iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonCSCGeometry_);
+    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonGEMGeometry_);
   }
 }
 
@@ -452,6 +453,9 @@ void AlignmentProducerBase::applyAlignmentsToDB(const edm::EventSetup& setup) {
 
       applyDB<CSCGeometry, CSCAlignmentRcd, CSCAlignmentErrorExtendedRcd>(
           &*muonCSCGeometry_, setup, align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
+
+      applyDB<GEMGeometry, GEMAlignmentRcd, GEMAlignmentErrorExtendedRcd>(
+          &*muonGEMGeometry_, setup, align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
     }
   }
 }
@@ -468,9 +472,9 @@ void AlignmentProducerBase::createAlignables(const TrackerTopology* tTopo, bool 
 
   if (doMuon_) {
     if (update) {
-      alignableMuon_->update(&*muonDTGeometry_, &*muonCSCGeometry_);
+      alignableMuon_->update(&*muonDTGeometry_, &*muonCSCGeometry_, &*muonGEMGeometry_);
     } else {
-      alignableMuon_ = std::make_unique<AlignableMuon>(&*muonDTGeometry_, &*muonCSCGeometry_);
+      alignableMuon_ = std::make_unique<AlignableMuon>(&*muonDTGeometry_, &*muonCSCGeometry_, &*muonGEMGeometry_);
     }
   }
 
@@ -646,12 +650,15 @@ void AlignmentProducerBase::applyAlignmentsToGeometry() {
 
     std::unique_ptr<Alignments> dtAlignments{alignableMuon_->dtAlignments()};
     std::unique_ptr<Alignments> cscAlignments{alignableMuon_->cscAlignments()};
+    std::unique_ptr<Alignments> gemAlignments{alignableMuon_->gemAlignments()};
 
     std::unique_ptr<AlignmentErrorsExtended> dtAlignmentErrExt{alignableMuon_->dtAlignmentErrorsExtended()};
     std::unique_ptr<AlignmentErrorsExtended> cscAlignmentErrExt{alignableMuon_->cscAlignmentErrorsExtended()};
+    std::unique_ptr<AlignmentErrorsExtended> gemAlignmentErrExt{alignableMuon_->gemAlignmentErrorsExtended()};
 
     aligner.applyAlignments(&*muonDTGeometry_, dtAlignments.get(), dtAlignmentErrExt.get(), AlignTransform());
     aligner.applyAlignments(&*muonCSCGeometry_, cscAlignments.get(), cscAlignmentErrExt.get(), AlignTransform());
+    aligner.applyAlignments(&*muonGEMGeometry_, gemAlignments.get(), gemAlignmentErrExt.get(), AlignTransform());
   }
 }
 

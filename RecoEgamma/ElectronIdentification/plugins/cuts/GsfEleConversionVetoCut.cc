@@ -3,6 +3,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "CommonTools/Egamma/interface/ConversionTools.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class GsfEleConversionVetoCut : public CutApplicatorWithEventContentBase {
 public:

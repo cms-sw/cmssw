@@ -31,14 +31,14 @@ namespace trklet {
     //Empty buffer is write ptr is same as read ptr
     bool empty() const { return wptr_ == rptr_; }
 
-    T read() {
+    const T& read() {
       assert(!empty());
       unsigned int oldrptr = rptr_;
       rptr_ = (rptr_ + 1) % size_;
       return buffer_[oldrptr];
     }
 
-    T peek() const {
+    const T& peek() const {
       assert(!empty());
       return buffer_[rptr_];
     }

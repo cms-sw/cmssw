@@ -2,6 +2,7 @@
 #define COND_XMLAUTHENTITACTIONSERVICE_H
 
 #include "CondCore/CondDB/interface/CredentialStore.h"
+#include "CondCore/CondDB/src/IDbAuthentication.h"
 //
 #include "RelationalAccess/IAuthenticationService.h"
 #include "CoralKernel/Service.h"
@@ -23,7 +24,9 @@ namespace cond {
 
     /**
      */
-    class RelationalAuthenticationService : public coral::Service, virtual public coral::IAuthenticationService {
+    class RelationalAuthenticationService : public coral::Service,
+                                            virtual public coral::IAuthenticationService,
+                                            virtual public persistency::IDbAuthentication {
     public:
       /// Standard Constructor
       explicit RelationalAuthenticationService(const std::string& name);
@@ -48,6 +51,8 @@ namespace cond {
        */
       const coral::IAuthenticationCredentials& credentials(const std::string& connectionString,
                                                            const std::string& role) const override;
+
+      std::string principalName() override;
 
     private:
       /// The input file with the data

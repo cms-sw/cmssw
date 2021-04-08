@@ -10,9 +10,10 @@
 
 class CSCStripDigiValidation : public CSCBaseValidation {
 public:
-  CSCStripDigiValidation(const edm::InputTag &inputTag, edm::ConsumesCollector &&iC);
+  CSCStripDigiValidation(const edm::ParameterSet &ps, edm::ConsumesCollector &&iC);
   ~CSCStripDigiValidation() override;
-  void bookHistograms(DQMStore::IBooker &, bool doSim);
+
+  void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event &e, const edm::EventSetup &) override;
   void setGeometry(const CSCGeometry *geom) { theCSCGeometry = geom; }
   void plotResolution(const PSimHit &hit, int strip, const CSCLayer *layer, int chamberType);
@@ -22,6 +23,7 @@ private:
   void fillSignalPlots(const CSCStripDigi &digi);
 
   edm::EDGetTokenT<CSCStripDigiCollection> strips_Token_;
+  edm::InputTag inputTag_;
   float thePedestalSum;
   float thePedestalCovarianceSum;
   int thePedestalCount;

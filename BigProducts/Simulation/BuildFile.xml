@@ -1,10 +1,13 @@
 <use name="SimG4CMS/Calo"/>
+<use name="SimG4CMS/CherenkovAnalysis"/>
 <use name="SimG4CMS/EcalTestBeam"/>
 <use name="SimG4CMS/FP420"/>
 <use name="SimG4CMS/Forward"/>
-<use name="SimG4CMS/HcalTestBeam"/>
 <use name="SimG4CMS/HGCalTestBeam"/>
+<use name="SimG4CMS/HcalTestBeam"/>
 <use name="SimG4CMS/Muon"/>
+<use name="SimG4CMS/PPS"/>
+<use name="SimG4CMS/ShowerLibraryProducer"/>
 <use name="SimG4CMS/Tracker"/>
 <use name="SimG4Core/Application"/>
 <use name="SimG4Core/CustomPhysics"/>

@@ -56,7 +56,7 @@
 #include <atomic>
 #include <cassert>
 
-#include "tbb/task.h"
+#include "tbb/task_group.h"
 #include "tbb/concurrent_queue.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -116,53 +116,33 @@ namespace edm {
        * \param[in] iAction Must be a functor that takes no arguments and return no values.
        */
     template <typename T>
-    void push(const T& iAction);
-
-    /// synchronously pushes functor iAction into queue
-    /**
-       * The function will wait until iAction has completed before returning.
-       * If another task is already running on the queue, the system is allowed
-       * to find another TBB task to execute while waiting for the iAction to finish.
-       * In that way the core is not idled while waiting.
-       * \param[in] iAction Must be a functor that takes no arguments and return no values.
-       */
-    template <typename T>
-    void pushAndWait(const T& iAction);
-
-    /// asynchronously pushes functor iAction into queue and finds next task to execute
-    /**
-       * This function is useful if you are accessing the SerialTaskQueue for the execute()
-       * method of a TBB task and want to efficiently schedule the next task from the queue.
-       * In that case you can take the return value and return it directly from your execute() method.
-       * The function will return immediately and not wait for iAction to run.
-       * \param[in] iAction Must be a functor that takes no arguments and return no values.
-       * \return Returns either the next task that the user must schedule with TBB or a nullptr.
-       */
-    template <typename T>
-    tbb::task* pushAndGetNextTaskToRun(const T& iAction);
+    void push(tbb::task_group&, const T& iAction);
 
   private:
     /** Base class for all tasks held by the SerialTaskQueue */
-    class TaskBase : public tbb::task {
+    class TaskBase {
       friend class SerialTaskQueue;
-      TaskBase() : m_queue(nullptr) {}
+
+      tbb::task_group* group() { return m_group; }
+      virtual void execute() = 0;
+
+    public:
+      virtual ~TaskBase() = default;
 
     protected:
-      tbb::task* finishedTask();
+      explicit TaskBase(tbb::task_group* iGroup) : m_group(iGroup) {}
 
     private:
-      void setQueue(SerialTaskQueue* iQueue) { m_queue = iQueue; }
-
-      SerialTaskQueue* m_queue;
+      tbb::task_group* m_group;
     };
 
     template <typename T>
     class QueuedTask : public TaskBase {
     public:
-      QueuedTask(const T& iAction) : m_action(iAction) {}
+      QueuedTask(tbb::task_group& iGroup, const T& iAction) : TaskBase(&iGroup), m_action(iAction) {}
 
     private:
-      tbb::task* execute() override;
+      void execute() final;
 
       T m_action;
     };
@@ -170,12 +150,12 @@ namespace edm {
     friend class TaskBase;
 
     void pushTask(TaskBase*);
-    tbb::task* pushAndGetNextTask(TaskBase*);
-    tbb::task* finishedTask();
+    TaskBase* pushAndGetNextTask(TaskBase*);
+    TaskBase* finishedTask();
     //returns nullptr if a task is already being processed
     TaskBase* pickNextTask();
 
-    void pushAndWait(tbb::empty_task* iWait, TaskBase*);
+    void spawn(TaskBase&);
 
     // ---------- member data --------------------------------
     tbb::concurrent_queue<TaskBase*> m_tasks;
@@ -184,36 +164,16 @@ namespace edm {
   };
 
   template <typename T>
-  void SerialTaskQueue::push(const T& iAction) {
-    QueuedTask<T>* pTask{new (tbb::task::allocate_root()) QueuedTask<T>{iAction}};
-    pTask->setQueue(this);
+  void SerialTaskQueue::push(tbb::task_group& iGroup, const T& iAction) {
+    QueuedTask<T>* pTask{new QueuedTask<T>{iGroup, iAction}};
     pushTask(pTask);
   }
 
   template <typename T>
-  void SerialTaskQueue::pushAndWait(const T& iAction) {
-    tbb::empty_task* waitTask = new (tbb::task::allocate_root()) tbb::empty_task;
-    waitTask->set_ref_count(2);
-    QueuedTask<T>* pTask{new (waitTask->allocate_child()) QueuedTask<T>{iAction}};
-    pTask->setQueue(this);
-    pushAndWait(waitTask, pTask);
-  }
-
-  template <typename T>
-  tbb::task* SerialTaskQueue::pushAndGetNextTaskToRun(const T& iAction) {
-    QueuedTask<T>* pTask{new (tbb::task::allocate_root()) QueuedTask<T>{iAction}};
-    pTask->setQueue(this);
-    return pushAndGetNextTask(pTask);
-  }
-
-  inline tbb::task* SerialTaskQueue::TaskBase::finishedTask() { return m_queue->finishedTask(); }
-
-  template <typename T>
-  tbb::task* SerialTaskQueue::QueuedTask<T>::execute() {
+  void SerialTaskQueue::QueuedTask<T>::execute() {
     // Exception has to swallowed in order to avoid throwing from execute(). The user of SerialTaskQueue should handle exceptions within m_action().
     CMS_SA_ALLOW try { this->m_action(); } catch (...) {
     }
-    return this->finishedTask();
   }
 
 }  // namespace edm

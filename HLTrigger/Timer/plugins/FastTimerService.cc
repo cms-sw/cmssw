@@ -34,6 +34,7 @@ using json = nlohmann::json;
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "HLTrigger/Timer/interface/memory_usage.h"
 #include "HLTrigger/Timer/interface/processor_model.h"
@@ -382,30 +383,29 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
   std::string y_title_ms = fmt::sprintf("events / %.1f ms", ranges.time_resolution);
   std::string y_title_kB = fmt::sprintf("events / %.1f kB", ranges.memory_resolution);
 
-  // to enable underflows and overflows in the computation of mean and rms
-  // use getTH1()->SetStatOverflows(TH1::kConsider)
+  // MonitorElement::setStatOverflows(kTRUE) includes underflows and overflows in the computation of mean and RMS
   time_thread_ =
       booker.book1D(name + " time_thread", title + " processing time (cpu)", time_bins, 0., ranges.time_range);
   time_thread_->setXTitle("processing time [ms]");
   time_thread_->setYTitle(y_title_ms);
-  time_thread_->getTH1()->SetStatOverflows(TH1::kConsider);
+  time_thread_->setStatOverflows(kTRUE);
 
   time_real_ = booker.book1D(name + " time_real", title + " processing time (real)", time_bins, 0., ranges.time_range);
   time_real_->setXTitle("processing time [ms]");
   time_real_->setYTitle(y_title_ms);
-  time_real_->getTH1()->SetStatOverflows(TH1::kConsider);
+  time_real_->setStatOverflows(kTRUE);
 
   if (memory_usage::is_available()) {
     allocated_ = booker.book1D(name + " allocated", title + " allocated memory", mem_bins, 0., ranges.memory_range);
     allocated_->setXTitle("memory [kB]");
     allocated_->setYTitle(y_title_kB);
-    allocated_->getTH1()->SetStatOverflows(TH1::kConsider);
+    allocated_->setStatOverflows(kTRUE);
 
     deallocated_ =
         booker.book1D(name + " deallocated", title + " deallocated memory", mem_bins, 0., ranges.memory_range);
     deallocated_->setXTitle("memory [kB]");
     deallocated_->setYTitle(y_title_kB);
-    deallocated_->getTH1()->SetStatOverflows(TH1::kConsider);
+    deallocated_->setStatOverflows(kTRUE);
   }
 
   if (not byls)
@@ -422,7 +422,7 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
                                          " ");
   time_thread_byls_->setXTitle("lumisection");
   time_thread_byls_->setYTitle("processing time [ms]");
-  time_thread_byls_->getTProfile()->SetStatOverflows(TH1::kConsider);
+  time_thread_byls_->setStatOverflows(kTRUE);
 
   time_real_byls_ = booker.bookProfile(name + " time_real_byls",
                                        title + " processing time (real) vs. lumisection",
@@ -435,7 +435,7 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
                                        " ");
   time_real_byls_->setXTitle("lumisection");
   time_real_byls_->setYTitle("processing time [ms]");
-  time_real_byls_->getTProfile()->SetStatOverflows(TH1::kConsider);
+  time_real_byls_->setStatOverflows(kTRUE);
 
   if (memory_usage::is_available()) {
     allocated_byls_ = booker.bookProfile(name + " allocated_byls",
@@ -449,7 +449,7 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
                                          " ");
     allocated_byls_->setXTitle("lumisection");
     allocated_byls_->setYTitle("memory [kB]");
-    allocated_byls_->getTProfile()->SetStatOverflows(TH1::kConsider);
+    allocated_byls_->setStatOverflows(kTRUE);
 
     deallocated_byls_ = booker.bookProfile(name + " deallocated_byls",
                                            title + " deallocated memory vs. lumisection",
@@ -462,7 +462,7 @@ void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::IBooker& booke
                                            " ");
     deallocated_byls_->setXTitle("lumisection");
     deallocated_byls_->setYTitle("memory [kB]");
-    deallocated_byls_->getTProfile()->SetStatOverflows(TH1::kConsider);
+    deallocated_byls_->setStatOverflows(kTRUE);
   }
 }
 
@@ -569,29 +569,28 @@ void FastTimerService::PlotsPerPath::book(dqm::reco::DQMStore::IBooker& booker,
 
   total_.book(booker, "path", path.name_, ranges, lumisections, byls);
 
-  // to enable underflows and overflows in the computation of mean and rms
-  // use getTH1()->SetStatOverflows(TH1::kConsider)
+  // MonitorElement::setStatOverflows(kTRUE) includes underflows and overflows in the computation of mean and RMS
   unsigned int bins = path.modules_and_dependencies_.size();
   module_counter_ = booker.book1DD("module_counter", "module counter", bins + 1, -0.5, bins + 0.5);
   module_counter_->setYTitle("events");
-  module_counter_->getTH1()->SetStatOverflows(TH1::kConsider);
+  module_counter_->setStatOverflows(kTRUE);
   module_time_thread_total_ =
       booker.book1DD("module_time_thread_total", "total module time (cpu)", bins, -0.5, bins - 0.5);
   module_time_thread_total_->setYTitle("processing time [ms]");
-  module_time_thread_total_->getTH1()->SetStatOverflows(TH1::kConsider);
+  module_time_thread_total_->setStatOverflows(kTRUE);
   module_time_real_total_ =
       booker.book1DD("module_time_real_total", "total module time (real)", bins, -0.5, bins - 0.5);
   module_time_real_total_->setYTitle("processing time [ms]");
-  module_time_real_total_->getTH1()->SetStatOverflows(TH1::kConsider);
+  module_time_real_total_->setStatOverflows(kTRUE);
   if (memory_usage::is_available()) {
     module_allocated_total_ =
         booker.book1DD("module_allocated_total", "total allocated memory", bins, -0.5, bins - 0.5);
     module_allocated_total_->setYTitle("memory [kB]");
-    module_allocated_total_->getTH1()->SetStatOverflows(TH1::kConsider);
+    module_allocated_total_->setStatOverflows(kTRUE);
     module_deallocated_total_ =
         booker.book1DD("module_deallocated_total", "total deallocated memory", bins, -0.5, bins - 0.5);
     module_deallocated_total_->setYTitle("memory [kB]");
-    module_deallocated_total_->getTH1()->SetStatOverflows(TH1::kConsider);
+    module_deallocated_total_->setStatOverflows(kTRUE);
   }
   for (unsigned int bin : boost::irange(0u, bins)) {
     auto const& module = job[path.modules_and_dependencies_[bin]];
@@ -768,7 +767,8 @@ void FastTimerService::PlotsPerJob::fill_lumi(AtomicResources const& data, unsig
 ///////////////////////////////////////////////////////////////////////////////
 
 FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::ActivityRegistry& registry)
-    :  // configuration
+    : tbb::task_scheduler_observer(true),
+      // configuration
       callgraph_(),
       // job configuration
       concurrent_lumis_(0),
@@ -1101,6 +1101,9 @@ void FastTimerService::postSourceLumi(edm::LuminosityBlockIndex index) {
 }
 
 void FastTimerService::postEndJob() {
+  // stop observing to avoid potential race conditions at exit
+  tbb::task_scheduler_observer::observe(false);
+  guard_.finalize();
   if (print_job_summary_) {
     edm::LogVerbatim out("FastReport");
     printSummary(out, job_summary_, "Job");
@@ -1664,17 +1667,68 @@ void FastTimerService::postModuleStreamEndLumi(edm::StreamContext const& sc, edm
   thread().measure_and_accumulate(lumi_transition_[index]);
 }
 
+FastTimerService::ThreadGuard::ThreadGuard() {
+  auto err = ::pthread_key_create(&key_, retire_thread);
+  if (err) {
+    throw cms::Exception("FastTimerService") << "ThreadGuard key creation failed: " << ::strerror(err);
+  }
+}
+
+// If this is a new thread, register it and return true
+bool FastTimerService::ThreadGuard::register_thread(FastTimerService::AtomicResources& r) {
+  auto ptr = ::pthread_getspecific(key_);
+
+  if (not ptr) {
+    auto p = thread_resources_.emplace_back(std::make_shared<specific_t>(r));
+    auto pp = new std::shared_ptr<specific_t>(*p);
+    auto err = ::pthread_setspecific(key_, pp);
+    if (err) {
+      throw cms::Exception("FastTimerService") << "ThreadGuard pthread_setspecific failed: " << ::strerror(err);
+    }
+    return true;
+  }
+  return false;
+}
+
+std::shared_ptr<FastTimerService::ThreadGuard::specific_t>* FastTimerService::ThreadGuard::ptr(void* p) {
+  return static_cast<std::shared_ptr<specific_t>*>(p);
+}
+
+// called when a thread exits
+void FastTimerService::ThreadGuard::retire_thread(void* p) {
+  auto ps = ptr(p);
+  auto expected = true;
+  if ((*ps)->live_.compare_exchange_strong(expected, false)) {
+    // account any resources used or freed by the thread before leaving the TBB pool
+    (*ps)->measurement_.measure_and_accumulate((*ps)->resource_);
+  }
+  delete ps;
+}
+
+// finalize all threads that have not retired
+void FastTimerService::ThreadGuard::finalize() {
+  for (auto& p : thread_resources_) {
+    auto expected = true;
+    if (p->live_.compare_exchange_strong(expected, false)) {
+      p->measurement_.measure_and_accumulate(p->resource_);
+    }
+  }
+}
+
+FastTimerService::Measurement& FastTimerService::ThreadGuard::thread() {
+  return (*ptr(::pthread_getspecific(key_)))->measurement_;
+}
+
 void FastTimerService::on_scheduler_entry(bool worker) {
-  // initialise the measurement point for a thread that has newly joining the TBB pool
-  thread().measure();
+  if (guard_.register_thread(overhead_)) {
+    // initialise the measurement point for a thread that has newly joined the TBB pool
+    thread().measure();
+  }
 }
 
-void FastTimerService::on_scheduler_exit(bool worker) {
-  // account any resources used or freed by the thread before leaving the TBB pool
-  thread().measure_and_accumulate(overhead_);
-}
+void FastTimerService::on_scheduler_exit(bool worker) {}
 
-FastTimerService::Measurement& FastTimerService::thread() { return threads_.local(); }
+FastTimerService::Measurement& FastTimerService::thread() { return guard_.thread(); }
 
 // describe the module's configuration
 void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

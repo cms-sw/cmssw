@@ -20,43 +20,61 @@
 
 // system include files
 #include <cassert>
+#include "tbb/task_group.h"
 
 // user include files
 #include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 
 namespace edm {
   class WaitingTaskHolder {
   public:
-    WaitingTaskHolder() : m_task(nullptr) {}
+    friend class WaitingTaskList;
+    friend class WaitingTaskWithArenaHolder;
 
-    explicit WaitingTaskHolder(edm::WaitingTask* iTask) : m_task(iTask) { m_task->increment_ref_count(); }
+    WaitingTaskHolder() : m_task(nullptr), m_group(nullptr) {}
+
+    explicit WaitingTaskHolder(tbb::task_group& iGroup, edm::WaitingTask* iTask) : m_task(iTask), m_group(&iGroup) {
+      m_task->increment_ref_count();
+    }
     ~WaitingTaskHolder() {
       if (m_task) {
         doneWaiting(std::exception_ptr{});
       }
     }
 
-    WaitingTaskHolder(const WaitingTaskHolder& iHolder) : m_task(iHolder.m_task) { m_task->increment_ref_count(); }
+    WaitingTaskHolder(const WaitingTaskHolder& iHolder) : m_task(iHolder.m_task), m_group(iHolder.m_group) {
+      m_task->increment_ref_count();
+    }
 
-    WaitingTaskHolder(WaitingTaskHolder&& iOther) : m_task(iOther.m_task) { iOther.m_task = nullptr; }
+    WaitingTaskHolder(WaitingTaskHolder&& iOther) : m_task(iOther.m_task), m_group(iOther.m_group) {
+      iOther.m_task = nullptr;
+    }
 
     WaitingTaskHolder& operator=(const WaitingTaskHolder& iRHS) {
       WaitingTaskHolder tmp(iRHS);
       std::swap(m_task, tmp.m_task);
+      std::swap(m_group, tmp.m_group);
       return *this;
     }
 
     WaitingTaskHolder& operator=(WaitingTaskHolder&& iRHS) {
       WaitingTaskHolder tmp(std::move(iRHS));
       std::swap(m_task, tmp.m_task);
+      std::swap(m_group, tmp.m_group);
       return *this;
     }
 
     // ---------- const member functions ---------------------
-    bool taskHasFailed() const { return m_task->exceptionPtr() != nullptr; }
+    bool taskHasFailed() const noexcept { return m_task->exceptionPtr() != nullptr; }
 
+    bool hasTask() const noexcept { return m_task != nullptr; }
+    /** since tbb::task_group is thread safe, we can return it non-const from here since
+        the object is not really part of the state of the holder
+     */
+    CMS_SA_ALLOW tbb::task_group* group() const noexcept { return m_group; }
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
@@ -76,20 +94,29 @@ namespace edm {
       if (iExcept) {
         m_task->dependentTaskFailed(iExcept);
       }
-      //spawn can run the task before we finish
+      //task_group::run can run the task before we finish
       // doneWaiting and some other thread might
       // try to reuse this object. Resetting
       // before spawn avoids problems
       auto task = m_task;
       m_task = nullptr;
       if (0 == task->decrement_ref_count()) {
-        tbb::task::spawn(*task);
+        m_group->run([task]() {
+          TaskSentry s{task};
+          task->execute();
+        });
       }
     }
 
   private:
+    WaitingTask* release_no_decrement() noexcept {
+      auto t = m_task;
+      m_task = nullptr;
+      return t;
+    }
     // ---------- member data --------------------------------
     WaitingTask* m_task;
+    tbb::task_group* m_group;
   };
 }  // namespace edm
 

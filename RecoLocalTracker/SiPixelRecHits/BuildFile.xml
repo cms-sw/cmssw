@@ -1,12 +1,14 @@
-<use name="FWCore/ParameterSet"/>
-<use name="CondFormats/SiPixelObjects"/>
+<use name="boost"/>
+<use name="cuda"/>
+<use name="vdt_headers"/>
 <use name="CalibTracker/SiPixelESProducers"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="CondFormats/SiPixelTransient"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/TrackerRecHit2D"/>
-<use name="CondFormats/SiPixelTransient"/>
+<use name="FWCore/ParameterSet"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
-<use name="boost"/>
-<use name="vdt_headers"/>
 <export>
   <lib name="1"/>
 </export>

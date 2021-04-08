@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
@@ -41,7 +42,8 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
-#include "Geometry/VeryForwardGeometry/interface/CTPPSPixelTopology.h"
+#include "CondFormats/PPSObjects/interface/PPSPixelTopology.h"
+#include "CondFormats/DataRecord/interface/PPSPixelTopologyRcd.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -76,6 +78,7 @@ private:
                      const CTPPSGeometry &geometry,
                      const LHCInfo &lhcInfo,
                      const CTPPSBeamParameters &beamParameters,
+                     const PPSPixelTopology &ppt,
                      const LHCInterpolatedOpticalFunctionsSetCollection &opticalFunctions,
                      CLHEP::HepRandomEngine *rndEngine,
 
@@ -94,6 +97,7 @@ private:
   // conditions
   edm::ESGetToken<LHCInfo, LHCInfoRcd> tokenLHCInfo_;
   edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> tokenBeamParameters_;
+  edm::ESGetToken<PPSPixelTopology, PPSPixelTopologyRcd> pixelTopologyToken_;
   edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> tokenOpticalFunctions_;
   edm::ESGetToken<CTPPSGeometry, VeryForwardMisalignedGeometryRecord> tokenGeometry_;
   edm::ESGetToken<PPSDirectSimulationData, PPSDirectSimulationDataRcd> tokenDirectSimuData_;
@@ -112,11 +116,17 @@ private:
   std::unique_ptr<TF2> empiricalAperture45_;
   std::unique_ptr<TF2> empiricalAperture56_;
 
-  // timing-RP efficiency
-  bool useTimingRPEfficiency_;
-  std::unique_ptr<TH2F> effTimeMap45_;
-  std::unique_ptr<TH2F> effTimeMap56_;
+  // efficiency flags
+  bool useTrackingEfficiencyPerRP_;
+  bool useTimingEfficiencyPerRP_;
+  bool useTrackingEfficiencyPerPlane_;
+  bool useTimingEfficiencyPerPlane_;
 
+  // efficiency maps
+  std::map<unsigned int, std::unique_ptr<TH2F>> efficiencyMapsPerRP_;
+  std::map<unsigned int, std::unique_ptr<TH2F>> efficiencyMapsPerPlane_;
+
+  // other parameters
   bool produceHitsRelativeToBeam_;
   bool roundToPitch_;
   bool checkIsHit_;
@@ -142,6 +152,7 @@ private:
 CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet &iConfig)
     : tokenLHCInfo_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("lhcInfoLabel")})),
       tokenBeamParameters_(esConsumes()),
+      pixelTopologyToken_(esConsumes()),
       tokenOpticalFunctions_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("opticsLabel")})),
       tokenGeometry_(esConsumes()),
       tokenDirectSimuData_(esConsumes()),
@@ -152,7 +163,11 @@ CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet
       produceRecHits_(iConfig.getParameter<bool>("produceRecHits")),
 
       useEmpiricalApertures_(iConfig.getParameter<bool>("useEmpiricalApertures")),
-      useTimingRPEfficiency_(iConfig.getParameter<bool>("useTimingRPEfficiency")),
+
+      useTrackingEfficiencyPerRP_(iConfig.getParameter<bool>("useTrackingEfficiencyPerRP")),
+      useTimingEfficiencyPerRP_(iConfig.getParameter<bool>("useTimingEfficiencyPerRP")),
+      useTrackingEfficiencyPerPlane_(iConfig.getParameter<bool>("useTrackingEfficiencyPerPlane")),
+      useTimingEfficiencyPerPlane_(iConfig.getParameter<bool>("useTimingEfficiencyPerPlane")),
 
       produceHitsRelativeToBeam_(iConfig.getParameter<bool>("produceHitsRelativeToBeam")),
       roundToPitch_(iConfig.getParameter<bool>("roundToPitch")),
@@ -178,6 +193,15 @@ CTPPSDirectProtonSimulation::CTPPSDirectProtonSimulation(const edm::ParameterSet
     produces<std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>>();
   }
 
+  // check user input
+  if (useTrackingEfficiencyPerRP_ && useTrackingEfficiencyPerPlane_)
+    throw cms::Exception("PPS")
+        << "useTrackingEfficiencyPerRP and useTrackingEfficiencyPerPlane should not be simultaneously set true.";
+
+  if (useTimingEfficiencyPerRP_ && useTimingEfficiencyPerPlane_)
+    throw cms::Exception("PPS")
+        << "useTimingEfficiencyPerRP and useTimingEfficiencyPerPlane should not be simultaneously set true.";
+
   // v position of strip 0
   stripZeroPosition_ = RPTopology::last_strip_to_border_dist_ + (RPTopology::no_of_strips_ - 1) * RPTopology::pitch_ -
                        RPTopology::y_width_ / 2.;
@@ -198,7 +222,12 @@ void CTPPSDirectProtonSimulation::fillDescriptions(edm::ConfigurationDescription
   desc.add<bool>("produceRecHits", true);
 
   desc.add<bool>("useEmpiricalApertures", true);
-  desc.add<bool>("useTimingRPEfficiency", false);
+
+  desc.add<bool>("useTrackingEfficiencyPerRP", false);
+  desc.add<bool>("useTimingEfficiencyPerRP", false);
+  desc.add<bool>("useTrackingEfficiencyPerPlane", false);
+  desc.add<bool>("useTimingEfficiencyPerPlane", false);
+
   desc.add<bool>("produceHitsRelativeToBeam", true);
   desc.add<bool>("roundToPitch", true);
   desc.add<bool>("checkIsHit", true);
@@ -221,6 +250,7 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
   // get conditions
   auto const &lhcInfo = iSetup.getData(tokenLHCInfo_);
   auto const &beamParameters = iSetup.getData(tokenBeamParameters_);
+  auto const &ppt = iSetup.getData(pixelTopologyToken_);
   auto const &opticalFunctions = iSetup.getData(tokenOpticalFunctions_);
   auto const &geometry = iSetup.getData(tokenGeometry_);
   auto const &directSimuData = iSetup.getData(tokenDirectSimuData_);
@@ -236,15 +266,11 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
     empiricalAperture56_ =
         std::make_unique<TF2>(TF2("empiricalAperture56", directSimuData.getEmpiricalAperture56().c_str()));
 
-    if (useTimingRPEfficiency_) {
-      edm::FileInPath fip(directSimuData.getEffTimePath().c_str());
-      std::unique_ptr<TFile> f_in(TFile::Open(fip.fullPath().c_str()));
-      effTimeMap45_ = std::unique_ptr<TH2F>((TH2F *)f_in->Get(directSimuData.getEffTimeObject45().c_str()));
-      effTimeMap56_ = std::unique_ptr<TH2F>((TH2F *)f_in->Get(directSimuData.getEffTimeObject56().c_str()));
-      effTimeMap45_->SetDirectory(nullptr);
-      effTimeMap56_->SetDirectory(nullptr);
-      f_in->Close();
-    }
+    // load the efficiency maps
+    if (useTrackingEfficiencyPerRP_ || useTimingEfficiencyPerRP_)
+      efficiencyMapsPerRP_ = directSimuData.loadEffeciencyHistogramsPerRP();
+    if (useTrackingEfficiencyPerPlane_ || useTimingEfficiencyPerPlane_)
+      efficiencyMapsPerPlane_ = directSimuData.loadEffeciencyHistogramsPerPlane();
   }
 
   // prepare outputs
@@ -283,6 +309,7 @@ void CTPPSDirectProtonSimulation::produce(edm::Event &iEvent, const edm::EventSe
                     geometry,
                     lhcInfo,
                     beamParameters,
+                    ppt,
                     opticalFunctions,
                     engine,
                     *pTracks,
@@ -317,6 +344,7 @@ void CTPPSDirectProtonSimulation::processProton(
     const CTPPSGeometry &geometry,
     const LHCInfo &lhcInfo,
     const CTPPSBeamParameters &beamParameters,
+    const PPSPixelTopology &ppt,
     const LHCInterpolatedOpticalFunctionsSetCollection &opticalFunctions,
     CLHEP::HepRandomEngine *rndEngine,
     std::vector<CTPPSLocalTrackLite> &out_tracks,
@@ -439,6 +467,27 @@ void CTPPSDirectProtonSimulation::processProton(
             << " mm, b_y = " << b_y << " mm, z = " << z_scoringPlane << " mm" << std::endl;
     }
 
+    // RP type
+    const bool isTrackingRP =
+        (rpId.subdetId() == CTPPSDetId::sdTrackingStrip || rpId.subdetId() == CTPPSDetId::sdTrackingPixel);
+    const bool isTimingRP = (rpId.subdetId() == CTPPSDetId::sdTimingDiamond);
+
+    // apply per-RP efficiency
+    if ((useTimingEfficiencyPerRP_ && isTimingRP) || (useTrackingEfficiencyPerRP_ && isTrackingRP)) {
+      const auto it = efficiencyMapsPerRP_.find(rpId);
+
+      if (it != efficiencyMapsPerRP_.end()) {
+        const double r = CLHEP::RandFlat::shoot(rndEngine, 0., 1.);
+        auto *effMap = it->second.get();
+        const double eff = effMap->GetBinContent(effMap->FindBin(b_x, b_y));
+        if (r > eff) {
+          if (verbosity_)
+            ssLog << "    stop due to per-RP efficiency" << std::endl;
+          continue;
+        }
+      }
+    }
+
     // save scoring plane hit
     if (produceScoringPlaneHits_)
       out_tracks.emplace_back(
@@ -458,9 +507,7 @@ void CTPPSDirectProtonSimulation::processProton(
       const auto &gl_a1 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(1, 0, 0)) - gl_o;
       const auto &gl_a2 = geometry.localToGlobal(detId, CTPPSGeometry::Vector(0, 1, 0)) - gl_o;
 
-      double gl_o_z = gl_o.z();
-      if (detId.subdetId() == CTPPSDetId::sdTimingDiamond)
-        gl_o_z = -gl_o_z;  // fix bug in diamond geometry
+      const double gl_o_z = gl_o.z();
 
       TMatrixD A(3, 3);
       TVectorD B(3);
@@ -496,6 +543,22 @@ void CTPPSDirectProtonSimulation::processProton(
               << std::endl;
       }
 
+      // apply per-plane efficiency
+      if ((useTimingEfficiencyPerPlane_ && isTimingRP) || (useTrackingEfficiencyPerPlane_ && isTrackingRP)) {
+        const auto it = efficiencyMapsPerPlane_.find(detId);
+
+        if (it != efficiencyMapsPerPlane_.end()) {
+          const double r = CLHEP::RandFlat::shoot(rndEngine, 0., 1.);
+          auto *effMap = it->second.get();
+          const double eff = effMap->GetBinContent(effMap->FindBin(h_glo.x(), h_glo.y()));
+          if (r > eff) {
+            if (verbosity_)
+              ssLog << "    stop due to per-plane efficiency" << std::endl;
+            continue;
+          }
+        }
+      }
+
       // strips
       if (detId.subdetId() == CTPPSDetId::sdTrackingStrip) {
         double u = h_loc.x();
@@ -528,23 +591,16 @@ void CTPPSDirectProtonSimulation::processProton(
           ssLog << " | m=" << v << ", sigma=" << sigma << std::endl;
 
         edm::DetSet<TotemRPRecHit> &hits = out_strip_hits.find_or_insert(detId);
-        hits.push_back(TotemRPRecHit(v, sigma));
+        hits.emplace_back(v, sigma);
 
         edm::DetSet<TotemRPRecHit> &hits_per_particle =
             out_strip_hits_per_particle[in_trk->barcode()].find_or_insert(detId);
-        hits_per_particle.push_back(TotemRPRecHit(v, sigma));
+        hits_per_particle.emplace_back(v, sigma);
       }
 
       // diamonds
       if (detId.subdetId() == CTPPSDetId::sdTimingDiamond) {
         CTPPSDiamondDetId diamondDetId(detIdInt);
-
-        //efficiency
-        if (useTimingRPEfficiency_) {
-          TH2F *effMap = (diamondDetId.arm() == 0) ? effTimeMap45_.get() : effTimeMap56_.get();
-          if (CLHEP::RandFlat::shoot(rndEngine, 0., 1.) > effMap->GetBinContent(effMap->FindBin(h_glo.x(), h_glo.y())))
-            continue;
-        }
 
         // check acceptance
         const auto *dg = geometry.sensor(detIdInt);
@@ -599,7 +655,7 @@ void CTPPSDirectProtonSimulation::processProton(
         }
 
         bool module3By2 = (geometry.sensor(detIdInt)->sensorType() != DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2);
-        if (checkIsHit_ && !CTPPSPixelTopology::isPixelHit(h_loc.x(), h_loc.y(), module3By2))
+        if (checkIsHit_ && !ppt.isPixelHit(h_loc.x(), h_loc.y(), module3By2))
           continue;
 
         if (roundToPitch_) {
@@ -617,11 +673,11 @@ void CTPPSDirectProtonSimulation::processProton(
         const LocalError le(sigmaHor, 0., sigmaVer);
 
         edm::DetSet<CTPPSPixelRecHit> &hits = out_pixel_hits.find_or_insert(detId);
-        hits.push_back(CTPPSPixelRecHit(lp, le));
+        hits.emplace_back(lp, le);
 
         edm::DetSet<CTPPSPixelRecHit> &hits_per_particle =
             out_pixel_hits_per_particle[in_trk->barcode()].find_or_insert(detId);
-        hits_per_particle.push_back(CTPPSPixelRecHit(lp, le));
+        hits_per_particle.emplace_back(lp, le);
       }
     }
   }

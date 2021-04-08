@@ -275,8 +275,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<std::string>("title", ";Number of clusters per event;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.0);
-    psd0.add<int>("NxBins", 50);
+    psd0.add<double>("xmax", 350000.0);
+    psd0.add<int>("NxBins", 150);
     desc.add<edm::ParameterSetDescription>("GlobalNClusters", psd0);
   }
   {
@@ -338,8 +338,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<std::string>("name", "NumberOfClustersLayerP");
     psd0.add<std::string>("title", ";Number of clusters per event(macro pixel sensor);");
     psd0.add<double>("xmin", 0.0);
-    psd0.add<double>("xmax", 0.0);
-    psd0.add<int>("NxBins", 50);
+    psd0.add<double>("xmax", 28000.0);
+    psd0.add<int>("NxBins", 150);
     psd0.add<bool>("switch", true);
     desc.add<edm::ParameterSetDescription>("NClustersLayer_P", psd0);
   }
@@ -348,8 +348,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<std::string>("name", "NumberOfClustersLayerS");
     psd0.add<std::string>("title", ";Number of clusters per event(strip sensor);");
     psd0.add<double>("xmin", 0.0);
-    psd0.add<double>("xmax", 0.0);
-    psd0.add<int>("NxBins", 50);
+    psd0.add<double>("xmax", 28000.0);
+    psd0.add<int>("NxBins", 150);
     psd0.add<bool>("switch", true);
     desc.add<edm::ParameterSetDescription>("NClustersLayer_S", psd0);
   }

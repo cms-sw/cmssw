@@ -6,6 +6,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestHistoManager.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
 #include <iostream>

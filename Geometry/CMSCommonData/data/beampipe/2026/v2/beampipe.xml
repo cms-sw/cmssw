@@ -4,7 +4,6 @@
   <Constant name="BeampipeThickness1" value="0.8*mm"/>
   <Constant name="BeampipeThickness2" value="1.0*mm"/>
   <Constant name="BeampipeThickness3" value="1.5*mm"/>
-  <Constant name="BeampipeThickness4" value="2.0*mm"/>
   <Constant name="BeampipeThickness4" value="2.5*mm"/>
   <Constant name="BeampipeSlope1"     value="0.797*deg"/>
   <Constant name="BeampipeSlope2"     value="30.*deg"/>

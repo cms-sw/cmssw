@@ -20,7 +20,6 @@
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -150,8 +149,9 @@ private:
   static void writeIniFile(L1TriggerJSONMonitoringData::run const&, unsigned int, std::vector<std::string> const&);
 
   // configuration
-  const edm::InputTag level1Results_;                                    // InputTag for L1 trigge results
-  const edm::EDGetTokenT<GlobalAlgBlkBxCollection> level1ResultsToken_;  // Token for L1 trigge results
+  const edm::InputTag level1Results_;                                    // InputTag for L1 trigger results
+  const edm::EDGetTokenT<GlobalAlgBlkBxCollection> level1ResultsToken_;  // Token for L1 trigger results
+  const edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> l1tUtmTriggerMenuRcdToken_;
 };
 
 // instantiate static data members
@@ -160,7 +160,8 @@ constexpr const std::array<const char*, 16> L1TriggerJSONMonitoring::tcdsTrigger
 // constructor
 L1TriggerJSONMonitoring::L1TriggerJSONMonitoring(edm::ParameterSet const& config)
     : level1Results_(config.getParameter<edm::InputTag>("L1Results")),
-      level1ResultsToken_(consumes<GlobalAlgBlkBxCollection>(level1Results_)) {}
+      level1ResultsToken_(consumes<GlobalAlgBlkBxCollection>(level1Results_)),
+      l1tUtmTriggerMenuRcdToken_(esConsumes()) {}
 
 // validate the configuration and optionally fill the default values
 void L1TriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -193,8 +194,7 @@ std::shared_ptr<L1TriggerJSONMonitoringData::run> L1TriggerJSONMonitoring::globa
 
   // read the L1 trigger names from the EventSetup
   std::vector<std::string> triggerNames(GlobalAlgBlk::maxPhysicsTriggers, ""s);
-  edm::ESHandle<L1TUtmTriggerMenu> menuHandle;
-  setup.get<L1TUtmTriggerMenuRcd>().get(menuHandle);
+  auto const& menuHandle = setup.getHandle(l1tUtmTriggerMenuRcdToken_);
   if (menuHandle.isValid()) {
     for (auto const& algo : menuHandle->getAlgorithmMap())
       triggerNames[algo.second.getIndex()] = algo.first;
