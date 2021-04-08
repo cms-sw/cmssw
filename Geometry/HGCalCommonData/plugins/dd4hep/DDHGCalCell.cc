@@ -52,8 +52,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << cms::convert2mm(waferSize) << " T "
                                 << cms::convert2mm(waferT) << " Cell T " << cms::convert2mm(cellT) << " Cells/Wafer "
-                                << nCells << " Material " << material << "Sensitive Position " << posSens << " NameSpace " << ns.name()
-                                << " Full Cell: " << fullCN << ":" << fullSensN;
+                                << nCells << " Material " << material << "Sensitive Position " << posSens
+                                << " NameSpace " << ns.name() << " Full Cell: " << fullCN << ":" << fullSensN;
   for (int k = 0; k < 3; ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Truncated Cell[" << k << "] " << truncCN[k] << ":" << truncSensN[k];
   for (int k = 0; k < 3; ++k)

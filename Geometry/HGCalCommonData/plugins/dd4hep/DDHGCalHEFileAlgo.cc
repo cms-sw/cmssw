@@ -483,7 +483,11 @@ struct HGCalHEFileAlgo {
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
     std::vector<int> ntype(6, 0);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << glog.name() << " rin:rout " << cms::convert2mm(rin) << ":" << cms::convert2mm(rout) << " zpos " << cms::convert2mm(zpos) << " N " << N << " for maximum u, v Offset; Shift " << cms::convert2mm(xyoff.first) << ":" << cms::convert2mm(xyoff.second) << " WaferSize " << cms::convert2mm((waferSize_ + waferSepar_));
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: " << glog.name() << " rin:rout " << cms::convert2mm(rin) << ":"
+                                  << cms::convert2mm(rout) << " zpos " << cms::convert2mm(zpos) << " N " << N
+                                  << " for maximum u, v Offset; Shift " << cms::convert2mm(xyoff.first) << ":"
+                                  << cms::convert2mm(xyoff.second) << " WaferSize "
+                                  << cms::convert2mm((waferSize_ + waferSepar_));
 #endif
     for (int u = -N; u <= N; ++u) {
       for (int v = -N; v <= N; ++v) {
@@ -503,10 +507,12 @@ struct HGCalHEFileAlgo {
         int type = HGCalWaferType::getType(indx, waferIndex_, waferProperty_);
         if (corner.first > 0 && type >= 0) {
           int copy = HGCalTypes::packTypeUV(type, u, v);
-	  if (layertype > 1)
-	    type += 3;
+          if (layertype > 1)
+            type += 3;
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << waferNames_[type] << " number " << copy << " type " << type << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v << ":" << indx;
+          edm::LogVerbatim("HGCalGeom") << " DDHGCalHEFileAlgo: " << waferNames_[type] << " number " << copy << " type "
+                                        << type << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v
+                                        << ":" << indx;
           if (iu > ium)
             ium = iu;
           if (iv > ivm)
@@ -528,7 +534,9 @@ struct HGCalHEFileAlgo {
 #ifdef EDM_ML_DEBUG
             ++ntype[type];
             edm::LogVerbatim("HGCalGeom")
-                << "DDHGCalHEFileAlgo: " << waferNames_[type] << " number " << copy << " type " << layertype << ":" << type << " positioned in " << glog.name() << " at (" << cms::convert2mm(xpos) << ", " << cms::convert2mm(ypos) << ", 0) with no rotation";
+                << "DDHGCalHEFileAlgo: " << waferNames_[type] << " number " << copy << " type " << layertype << ":"
+                << type << " positioned in " << glog.name() << " at (" << cms::convert2mm(xpos) << ", "
+                << cms::convert2mm(ypos) << ", 0) with no rotation";
 #endif
           }
         }
