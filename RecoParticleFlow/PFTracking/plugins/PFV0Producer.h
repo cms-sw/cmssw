@@ -9,6 +9,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 class PFTrackTransformer;
 class PFV0Producer : public edm::stream::EDProducer<> {
 public:
@@ -28,5 +31,7 @@ private:
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_;
   std::vector<edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> > V0list_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 };
 #endif
