@@ -53,14 +53,16 @@ void DDHGCalWafer8::initialize(const DDNumericArguments& nArgs,
   cellNames_ = vsArgs["CellNames"];
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Wafer 2r " << waferSize_ << " T " << waferT_ << " Half Separation " << waferSepar_ << " Cells/Wafer " << nCells_ << " Cell Type " << cellType_ << " Material " << material_ << " Names " << parent().name() << " NameSpace " << nameSpace_ << ": # of cells " << cellNames_.size();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Wafer 2r " << waferSize_ << " T " << waferT_ << " Half Separation "
+                                << waferSepar_ << " Cells/Wafer " << nCells_ << " Cell Type " << cellType_
+                                << " Material " << material_ << " Names " << parent().name() << " NameSpace "
+                                << nameSpace_ << ": # of cells " << cellNames_.size();
   for (unsigned int k = 0; k < cellNames_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Cell[" << k << "] " << cellNames_[k];
 #endif
 }
 
 void DDHGCalWafer8::execute(DDCompactView& cpv) {
-
   static const double sqrt3 = std::sqrt(3.0);
   double rM = 0.5 * (waferSize_ + waferSepar_);
   double RM2 = rM / sqrt3;

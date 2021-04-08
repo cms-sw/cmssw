@@ -88,7 +88,6 @@ void DDHGCalCell::initialize(const DDNumericArguments& nArgs,
 }
 
 void DDHGCalCell::execute(DDCompactView& cpv) {
-
   DDName matName(DDSplit(material_).first, DDSplit(material_).second);
   DDMaterial matter(matName);
 #ifdef EDM_ML_DEBUG

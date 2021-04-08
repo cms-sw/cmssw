@@ -286,7 +286,10 @@ void DDHGCalEEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactVi
         DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rins, routs, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matName << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs << ", " << hthick << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":" << layerCenter_[copy - firstLayer_];
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalEEFileAlgo: " << solid.name() << " Tubs made of " << matName
+                                      << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs
+                                      << ", " << hthick << ", 0.0, 360.0 and position " << glog.name() << " number "
+                                      << copy << ":" << layerCenter_[copy - firstLayer_];
 #endif
         positionSensitive(glog, rins, routs, zz, layerSense_[ly], (copy - firstLayer_), cpv);
       }
