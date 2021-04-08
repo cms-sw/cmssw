@@ -106,6 +106,10 @@ run2_nanoAOD_94XMiniAODv2.toModify(calibratedPatPhotonsNano,
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc")
 )
 
+run2_miniAOD_80XLegacy.toModify(calibratedPatPhotonsNano,
+    correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc")
+)
+
 slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     src = cms.InputTag("slimmedPhotons"),
     userFloats = cms.PSet(
@@ -325,6 +329,14 @@ photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPhotonIsolation
 from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
 ###UL to be done first
+_withUL16preVFPScale_sequence = photonSequence.copy()
+ _withUL16preVFPScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsNano  + slimmedPhotonsWithUserData)
+ (run2_egamma_2016 & tracker_apv_vfp30_2016).toReplaceWith(photonSequence, _withUL16preVFPScale_sequence)
+
+ _withUL16postVFPScale_sequence = photonSequence.copy()
+ _withUL16postVFPScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsNano  + slimmedPhotonsWithUserData)
+ (run2_egamma_2016 & ~tracker_apv_vfp30_2016).toReplaceWith(photonSequence, _withUL16postVFPScale_sequence)
+
 _withUL17Scale_sequence = photonSequence.copy()
 _withUL17Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsNano  + slimmedPhotonsWithUserData)
 run2_egamma_2017.toReplaceWith(photonSequence, _withUL17Scale_sequence)
