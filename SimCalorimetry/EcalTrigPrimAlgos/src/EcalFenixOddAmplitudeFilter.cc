@@ -14,7 +14,7 @@ EcalFenixOddAmplitudeFilter::~EcalFenixOddAmplitudeFilter() {}
 
 int EcalFenixOddAmplitudeFilter::setInput(int input) {
   if (input > 0X3FFFF) {
-    std::cout << "ERROR IN INPUT OF AMPLITUDE FILTER" << std::endl;
+    edm::LogError("EcalTPG") << "ERROR IN INPUT OF ODD AMPLITUDE FILTER";
     return -1;
   }
   if (inputsAlreadyIn_ < 5) {
@@ -41,7 +41,7 @@ void EcalFenixOddAmplitudeFilter::process(std::vector<int> &addout, std::vector<
       std::cout << i << std::dec;
     }
     setInput(addout[i]);
-    process();  // This should probably be renamed to something meaningful and not the same as the very function it's being called in...
+    process();
     output[i] = processedOutput_;
   }
   // shift the result by 1!

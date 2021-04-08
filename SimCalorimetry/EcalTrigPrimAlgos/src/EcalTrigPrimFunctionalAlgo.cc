@@ -38,8 +38,6 @@
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
 
-#include <TMath.h>
-#include <TTree.h>
 #include <string>
 
 const unsigned int EcalTrigPrimFunctionalAlgo::nrSamples_ = 5;  // to be written
