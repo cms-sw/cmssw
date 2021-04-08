@@ -330,12 +330,12 @@ from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import egmPho
 from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
 ###UL to be done first
 _withUL16preVFPScale_sequence = photonSequence.copy()
- _withUL16preVFPScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsNano  + slimmedPhotonsWithUserData)
- (run2_egamma_2016 & tracker_apv_vfp30_2016).toReplaceWith(photonSequence, _withUL16preVFPScale_sequence)
+_withUL16preVFPScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsNano  + slimmedPhotonsWithUserData)
+(run2_egamma_2016 & tracker_apv_vfp30_2016).toReplaceWith(photonSequence, _withUL16preVFPScale_sequence)
 
- _withUL16postVFPScale_sequence = photonSequence.copy()
- _withUL16postVFPScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsNano  + slimmedPhotonsWithUserData)
- (run2_egamma_2016 & ~tracker_apv_vfp30_2016).toReplaceWith(photonSequence, _withUL16postVFPScale_sequence)
+_withUL16postVFPScale_sequence = photonSequence.copy()
+_withUL16postVFPScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsNano  + slimmedPhotonsWithUserData)
+(run2_egamma_2016 & ~tracker_apv_vfp30_2016).toReplaceWith(photonSequence, _withUL16postVFPScale_sequence)
 
 _withUL17Scale_sequence = photonSequence.copy()
 _withUL17Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotonsNano  + slimmedPhotonsWithUserData)
