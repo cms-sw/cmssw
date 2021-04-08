@@ -93,7 +93,7 @@ namespace riemannFit {
     for (uint k = 0; k < n; ++k) {
       for (uint l = k; l < n; ++l) {
         for (uint i = 0; i < std::min(k, l); ++i) {
-          tmp(k + n, l + n) += std::abs(s_values(k) - s_values(i)) * std::abs(s_values(l) - s_values(i)) * sig2_S(i);
+          tmp(k + n, l + n) += std::abs((s_values(k) - s_values(i)) * (s_values(l) - s_values(i))) * sig2_S(i);
         }
         tmp(l + n, k + n) = tmp(k + n, l + n);
       }
