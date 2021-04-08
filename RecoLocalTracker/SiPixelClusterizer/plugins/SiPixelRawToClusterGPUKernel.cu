@@ -500,7 +500,6 @@ namespace pixelgpudetails {
         printf("moduleStart %d %d\n", i, moduleStart[i]);
     }
 #endif
-
   }
 
   // Interface to outside
