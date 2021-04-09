@@ -125,7 +125,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
       chamberHistos[type]["clct_quality_emul"]->Fill(clct->getQuality());
       chamberHistos[type]["clct_halfstrip_emul"]->Fill(clct->getKeyStrip());
       chamberHistos[type]["clct_bend_emul"]->Fill(clct->getBend());
-      chamberHistos[type]["clct_bx_emul"]->Fill(clct->getBX());
+      chamberHistos[type]["clct_bx_emul"]->Fill(clct->getBXData());
     }
   }
 
@@ -151,7 +151,7 @@ void L1TdeCSCTPG::analyze(const edm::Event& e, const edm::EventSetup& c) {
       chamberHistos[type]["lct_wiregroup_emul"]->Fill(lct->getKeyWG());
       chamberHistos[type]["lct_halfstrip_emul"]->Fill(lct->getStrip());
       chamberHistos[type]["lct_bend_emul"]->Fill(lct->getBend());
-      chamberHistos[type]["lct_bx_emul"]->Fill(lct->getBX());
+      chamberHistos[type]["lct_bx_emul"]->Fill(lct->getBXData());
     }
   }
 }
