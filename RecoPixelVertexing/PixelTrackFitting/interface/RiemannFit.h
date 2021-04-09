@@ -127,7 +127,7 @@ namespace riemannFit {
     constexpr uint n = N;
     const double p_t = std::min(20., fast_fit(2) * B);  // limit pt to avoid too small error!!!
     // fast_fit(3) = tan(theta) =>
-    // 1 / sqr(sin(theta)) = (sqr(sin(theta) + sqr(cos(theta))) / sqr(sin(theta))
+    // 1 / sqr(sin(theta)) = (sqr(sin(theta)) + sqr(cos(theta))) / sqr(sin(theta))
     //                     = 1 + 1 / sqr(tan(theta))
     //                     = 1 + 1 / sqr(fast_fit(3))
     const double invSqrSinTheta = 1. + 1. / sqr(fast_fit(3));
