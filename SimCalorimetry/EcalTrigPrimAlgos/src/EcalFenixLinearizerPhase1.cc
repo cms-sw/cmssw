@@ -1,4 +1,4 @@
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizerPhase1.h>
 
 #include <CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h>
@@ -6,9 +6,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalFenixLinearizer::EcalFenixLinearizer(bool famos) : famos_(famos), init_(false) {}
+EcalFenixLinearizerPhase1::EcalFenixLinearizerPhase1(bool famos) : famos_(famos), init_(false) {}
 
-EcalFenixLinearizer::~EcalFenixLinearizer() {
+EcalFenixLinearizerPhase1::~EcalFenixLinearizerPhase1() {
   if (init_) {
     for (int i = 0; i < (int)vectorbadXStatus_.size(); i++) {
       delete vectorbadXStatus_[i];
@@ -16,7 +16,7 @@ EcalFenixLinearizer::~EcalFenixLinearizer() {
   }
 }
 
-void EcalFenixLinearizer::setParameters(uint32_t raw,
+void EcalFenixLinearizerPhase1::setParameters(uint32_t raw,
                                         const EcalTPGPedestals *ecaltpPed,
                                         const EcalTPGLinearizationConst *ecaltpLin,
                                         const EcalTPGCrystalStatus *ecaltpBadX) {
@@ -47,7 +47,7 @@ void EcalFenixLinearizer::setParameters(uint32_t raw,
   }
 }
 
-int EcalFenixLinearizer::process() {
+int EcalFenixLinearizerPhase1::process() {
   int output = (uncorrectedSample_ - base_);  // Substract base
   if (famos_ || output < 0)
     return 0;
@@ -60,7 +60,7 @@ int EcalFenixLinearizer::process() {
   return output;
 }
 
-int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam) {
+int EcalFenixLinearizerPhase1::setInput(const EcalMGPASample &RawSam) {
   if (RawSam.raw() > 0X3FFF) {
     LogDebug("EcalTPG") << "ERROR IN INPUT SAMPLE OF FENIX LINEARIZER";
     return -1;

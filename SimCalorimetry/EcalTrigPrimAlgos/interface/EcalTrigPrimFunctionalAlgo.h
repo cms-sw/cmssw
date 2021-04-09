@@ -1,5 +1,5 @@
-#ifndef EcalTrigPrimFunctionalAlgo_h
-#define EcalTrigPrimFunctionalAlgo_h
+#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALTRIGPRIMFUNCTIONALALG0_H
+#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALTRIGPRIMFUNCTIONALALG0_H
 /** \class EcalTrigPrimFunctionalAlgo
  *
  * EcalTrigPrimFunctionalAlgo is the main algorithm class for TPG
@@ -7,11 +7,12 @@
  * Structure is as close as possible to electronics
  *
  *
- * \author Ursula Berthon, Stephanie Baffioni, LLR Palaiseau
+ * \author Ursula Berthon, Stephanie Baffioni, LLR Palaiseau, Davide Valsecchi, Abraham Tishelman Charny 
  *
  * \version   1st Version may 2006
  * \version   2nd Version jul 2006
  * \version   3rd Version sep 2007  introducing new Records closer to the db
+ * \version   4rd Version Apr 2021  New double weights mechanis
 
  *
  ************************************************************/

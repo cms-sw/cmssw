@@ -2,15 +2,16 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixEvenAmplitudeFilter.h>
 #include <iostream>
 
-EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter(bool tpInfoPrintout)
-    : inputsAlreadyIn_(0), stripid_{0}, shift_(6), tpInfoPrintout_(tpInfoPrintout) {}
+EcalFenixEvenAmplitudeFilter::EcalFenixEvenAmplitudeFilter(bool tpInfoPrintout)
+    : inputsAlreadyIn_(0), stripid_{0}, shift_(6), tpInfoPrintout_(tpInfoPrintout) {
+    }
 
-EcalFenixAmplitudeFilter::~EcalFenixAmplitudeFilter() {}
+EcalFenixEvenAmplitudeFilter::~EcalFenixEvenAmplitudeFilter() {}
 
-int EcalFenixAmplitudeFilter::setInput(int input, int fgvb) {
+int EcalFenixEvenAmplitudeFilter::setInput(int input, int fgvb) {
   if (input > 0X3FFFF) {
     edm::LogError("EcalTPG") << "ERROR IN INPUT OF EVEN AMPLITUDE FILTER";
     return -1;
@@ -30,18 +31,15 @@ int EcalFenixAmplitudeFilter::setInput(int input, int fgvb) {
   return 1;
 }
 
-void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
+void EcalFenixEvenAmplitudeFilter::process(std::vector<int> &addout,
                                        std::vector<int> &output,
                                        std::vector<int> &fgvbIn,
                                        std::vector<int> &fgvbOut) {
-  // test
   inputsAlreadyIn_ = 0;
   for (unsigned int i = 0; i < 5; i++) {
     buffer_[i] = 0;
     fgvbBuffer_[i] = 0;
   }
-  // test end
-
   for (unsigned int i = 0; i < addout.size(); i++) {
     // Only save TP info for Clock i >= 4 (from 0-9) because first 5 digis required to produce first ET value
     if (i >= 4 && tpInfoPrintout_) {
@@ -65,7 +63,7 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
   return;
 }
 
-void EcalFenixAmplitudeFilter::process() {
+void EcalFenixEvenAmplitudeFilter::process() {
   // UB FIXME: 5
   processedOutput_ = 0;
   processedFgvbOutput_ = 0;
@@ -103,7 +101,7 @@ void EcalFenixAmplitudeFilter::process() {
   }
 }
 
-void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,
+void EcalFenixEvenAmplitudeFilter::setParameters(uint32_t raw,
                                              const EcalTPGWeightIdMap *ecaltpgWeightMap,
                                              const EcalTPGWeightGroup *ecaltpgWeightGroup) {
   stripid_ = raw;

@@ -1,13 +1,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGTPMode.h>
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEB.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEBPhase1.h>
 
-EcalFenixStripFormatEB::EcalFenixStripFormatEB() : shift_(0) {}
+EcalFenixStripFormatEBPhase1::EcalFenixStripFormatEBPhase1() : shift_(0) {}
 
-EcalFenixStripFormatEB::~EcalFenixStripFormatEB() {}
+EcalFenixStripFormatEBPhase1::~EcalFenixStripFormatEBPhase1() {}
 
-int EcalFenixStripFormatEB::setInput(
+int EcalFenixStripFormatEBPhase1::setInput(
     int input_even, int inputEvenPeak, int input_odd, int inputOddPeak, int inputsFGVB) {
   inputsFGVB_ = inputsFGVB;
   inputEvenPeak_ = inputEvenPeak;
@@ -17,7 +17,7 @@ int EcalFenixStripFormatEB::setInput(
   return 0;
 }
 
-int EcalFenixStripFormatEB::process() {
+int EcalFenixStripFormatEBPhase1::process() {
   int even_output = 0;
   int odd_output = 0;
 
@@ -80,7 +80,7 @@ int EcalFenixStripFormatEB::process() {
   return output;
 }
 
-void EcalFenixStripFormatEB::process(std::vector<int> &sFGVBout,
+void EcalFenixStripFormatEBPhase1::process(std::vector<int> &sFGVBout,
                                      std::vector<int> &peakout_even,
                                      std::vector<int> &filtout_even,
                                      std::vector<int> &peakout_odd,
@@ -88,7 +88,7 @@ void EcalFenixStripFormatEB::process(std::vector<int> &sFGVBout,
                                      std::vector<int> &output) {
   if (peakout_even.size() != filtout_even.size() || sFGVBout.size() != filtout_even.size() ||
       peakout_odd.size() != filtout_odd.size() || filtout_odd.size() != filtout_even.size()) {
-    edm::LogWarning("EcalTPG") << " problem in EcalFenixStripFormatEB: sfgvb_out, peak_out and "
+    edm::LogWarning("EcalTPG") << " problem in EcalFenixStripFormatEBPhase1: sfgvb_out, peak_out and "
                                   "filt_out don't have the same size";
   }
   for (unsigned int i = 0; i < filtout_even.size(); i++) {
@@ -98,7 +98,7 @@ void EcalFenixStripFormatEB::process(std::vector<int> &sFGVBout,
   return;
 }
 
-void EcalFenixStripFormatEB::setParameters(uint32_t &id,
+void EcalFenixStripFormatEBPhase1::setParameters(uint32_t &id,
                                            const EcalTPGSlidingWindow *&slWin,
                                            const EcalTPGTPMode *ecaltptTPMode) {
   // TP mode contains options for the formatter (odd/even filters config)
