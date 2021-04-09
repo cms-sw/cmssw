@@ -166,11 +166,13 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   float current_carriers = ncarriers;
   std::vector<float> newpos({pos_moving[0], pos_moving[1], pos_moving[2]});
   float distance_edge = 0.0_um;
+  // Current diffusion value
+  const float sigma = 0.4_um;
+  
   for (int i = 1;; ++i) {
     std::transform(pos_moving.begin(), pos_moving.end(), do_step(i).begin(), pos_moving.begin(), std::plus<float>());
     distance_edge = pitch - std::abs(pos_moving[displ_ind]);
-    // Current diffusion value
-    const double sigma = 0.4_um;
+
     // Get the amount of charge on the neighbor pixel: note the
     // transformation to a Normal
     float migrated_e = current_carriers * 0.5 * (1.0 - std::erf(distance_edge / (sigma * std::sqrt(2.0))));
@@ -193,6 +195,7 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     // is created in the same position as its "parent carriers"
     // except the direction of migration
     std::vector<float> newpos(pos_moving);
+    
     // Let's create the new charge carriers around 3 sigmas away
     newpos[displ_ind] += std::copysign(N_SIGMA * sigma, newpos[displ_ind]);
     migrated_charge.push_back(DigitizerUtility::EnergyDepositUnit(migrated_e, newpos[0], newpos[1], newpos[2]));
