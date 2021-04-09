@@ -5,7 +5,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGTPMode.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormatEB.h>
-
+#include <iostream>
 using namespace std;
 
 EcalFenixTcpFormatEB::EcalFenixTcpFormatEB(bool tcpFormat, bool debug, bool famos, int binOfMax)
@@ -31,7 +31,7 @@ void EcalFenixTcpFormatEB::process(std::vector<int> &Et_even_sum,
   if (famos_) {
     for (unsigned int i = 0; i < out.size(); ++i) {
       if (i == binOfMax_ - 1) {
-        myEt = Et_even_sum[0] >> eTTotShift;
+        myEt = Et_even_sum[i] >> eTTotShift;
         if (myEt > 0x3ff)
           myEt = 0x3ff;
 
