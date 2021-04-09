@@ -196,7 +196,7 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig, const goodseedhe
       smootherToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("Smoother")))),
       trackerRecHitBuilderToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("TTRHBuilder")))),
       magneticFieldToken_(esConsumes()),
-      magneticFieldTokenBeginRun_(esConsumes<edm::Transition::BeginRun>()){
+      magneticFieldTokenBeginRun_(esConsumes<edm::Transition::BeginRun>()) {
   LogInfo("GoodSeedProducer") << "Electron PreIdentification started  ";
 
   //now do what ever initialization is needed

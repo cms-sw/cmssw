@@ -4,18 +4,16 @@
 // Tracks with bad pt resolution (suspected fakes) are dropped and not in either collection
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
-
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-//#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -35,11 +33,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
 #include <memory>
-
 #include <unordered_map>
 
 class HGCalTrackCollectionProducer : public edm::stream::EDProducer<> {
