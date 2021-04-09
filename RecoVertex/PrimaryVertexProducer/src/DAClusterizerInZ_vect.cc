@@ -452,7 +452,7 @@ unsigned int DAClusterizerInZ_vect::thermalize(
     std::cout << "DAClusterizerInZ_vect.thermalize niter = " << niter << " at T = " << 1 / beta
               << "  nv = " << v.getSize() << std::endl;
     if (DEBUGLEVEL > 2)
-      dump(beta, v, tks, 0);
+      dump(beta, v, tks, 0, rho0);
   }
 #endif
 
@@ -487,7 +487,7 @@ bool DAClusterizerInZ_vect::merge(vertex_t& y, track_t& tks, double& beta) const
 #ifdef DEBUG
     assert((k + 1) < nv);
     if (DEBUGLEVEL > 1) {
-      std::cout << "merging " << fixed << setprecision(4) << y.zvtx[k + 1] << " and " << y.zvtx[k] << "  Tc = " << Tc
+      std::cout << "merging " << fixed << setprecision(4) << y.zvtx[k + 1] << " and " << y.zvtx[k]
                 << "  sw = " << y.sw[k] + y.sw[k + 1] << std::endl;
     }
 #endif
@@ -854,7 +854,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
               << "merging with outlier rejection at T=" << 1 / beta << std::endl;
   }
   if (DEBUGLEVEL > 2)
-    dump(beta, y, tks, 2);
+    dump(beta, y, tks, 2, rho0);
 #endif
 
   // merge again  (some cluster split by outliers collapse here)
@@ -870,7 +870,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
               << "after merging with outlier rejection at T=" << 1 / beta << std::endl;
   }
   if (DEBUGLEVEL > 2)
-    dump(beta, y, tks, 2);
+    dump(beta, y, tks, 2, rho0);
 #endif
 
   // go down to the purging temperature (if it is lower than tmin)
@@ -913,7 +913,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
               << "stop cooling at T=" << 1 / beta << std::endl;
   }
   if (DEBUGLEVEL > 2)
-    dump(beta, y, tks, 2);
+    dump(beta, y, tks, 2, rho0);
 #endif
 
   // select significant tracks and use a TransientVertex as a container
@@ -1014,10 +1014,15 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZ_vect::clusterize(
   return clusters;
 }
 
-void DAClusterizerInZ_vect::dump(const double beta, const vertex_t& y, const track_t& tks, int verbosity) const {
+void DAClusterizerInZ_vect::dump(
+    const double beta, const vertex_t& y, const track_t& tks, const int verbosity, const double rho0) const {
 #ifdef DEBUG
   const unsigned int nv = y.getSize();
   const unsigned int nt = tks.getSize();
+  // make a local copies of clusters and tracks to update Tc  [ = y_local.swE / y_local.sw ]
+  vertex_t y_local = y;
+  track_t tks_local = tks;
+  update(beta, tks_local, y_local, rho0, true);
 
   std::vector<unsigned int> iz;
   for (unsigned int j = 0; j < nt; j++) {
@@ -1045,7 +1050,7 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t& y, const tra
             << "                             Tc= ";
   for (unsigned int ivertex = 0; ivertex < nv; ++ivertex) {
     if (std::fabs(y.zvtx[ivertex] - zdumpcenter_) < zdumpwidth_) {
-      double Tc = 2 * y.swE[ivertex] / y.sw[ivertex];
+      double Tc = 2 * y_local.swE[ivertex] / y_local.sw[ivertex];
       std::cout << setw(8) << fixed << setprecision(1) << Tc;
     }
   }
