@@ -15,15 +15,14 @@ MEtoEDMConvertPPSTimingCalib = cms.EDProducer('MEtoEDMConverter',
 ctppsDiamondUncalibRecHits = _ctppsDiamondRecHits.clone(
     applyCalibration = False
 )
+# this task will be updated to include tracking based on the last
+# calibration values to extract per-channel timing precision estimation
 recoDiamondUncalibLocalReconstructionTask = cms.Task(
     ctppsDiamondUncalibRecHits,
 )
-# this sequence will be updated to include tracking based on the last
-# calibration values to extract per-channel timing precision estimation
-recoDiamond = cms.Sequence(recoDiamondUncalibLocalReconstructionTask)
 
 taskALCARECOPPSTimingCalib = cms.Task(
-    recoDiamond *
-    ppsTimingCalibrationPCLWorker *
+    recoDiamondUncalibLocalReconstructionTask,
+    ppsTimingCalibrationPCLWorker,
     MEtoEDMConvertPPSTimingCalib
 )
