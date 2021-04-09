@@ -1179,7 +1179,7 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
   }
 }
 
-void PlotThisHist(TH1D *hist, const std::string& text, int save) {
+void PlotThisHist(TH1D *hist, const std::string &text, int save) {
   char namep[120];
   sprintf(namep, "c_%s", hist->GetName());
   TCanvas *pad = new TCanvas(namep, namep, 700, 500);
@@ -1198,13 +1198,13 @@ void PlotThisHist(TH1D *hist, const std::string& text, int save) {
   pad->Modified();
   pad->Update();
   TPaveStats *st1 = (TPaveStats *)hist->GetListOfFunctions()->FindObject("stats");
-  TPaveText* txt0 = new TPaveText(0.12, 0.91, 0.49, 0.96, "blNDC");
+  TPaveText *txt0 = new TPaveText(0.12, 0.91, 0.49, 0.96, "blNDC");
   txt0->SetFillColor(0);
   char txt[100];
   sprintf(txt, "CMS Simulation Preliminary");
   txt0->AddText(txt);
   txt0->Draw("same");
-  TPaveText* txt1 = new TPaveText(0.51, 0.91, 0.90, 0.96, "blNDC");
+  TPaveText *txt1 = new TPaveText(0.51, 0.91, 0.90, 0.96, "blNDC");
   txt1->SetFillColor(0);
   sprintf(txt, "%s", text.c_str());
   txt1->AddText(txt);
@@ -1227,7 +1227,7 @@ void PlotThisHist(TH1D *hist, const std::string& text, int save) {
 
 void PlotHist(const char *hisFileName,
               const std::string &prefix = "",
-	      const std::string &text = "",
+              const std::string &text = "",
               int flagC = 111,
               int etalo = 0,
               int etahi = 30,
@@ -1407,8 +1407,9 @@ void PlotHist(const char *hisFileName,
         sprintf(name, "%senergyER%d%d", prefix.c_str(), k, j);
         hist = (TH1D *)(file->FindObjectAny(name));
         if (hist != nullptr) {
-	  std::cout << name << " Mean " << hist->GetMean() << " +- " << hist->GetMeanError() << " Entries " << hist->GetEntries() << " RMS " << hist->GetRMS() << std::endl;
-	}
+          std::cout << name << " Mean " << hist->GetMean() << " +- " << hist->GetMeanError() << " Entries "
+                    << hist->GetEntries() << " RMS " << hist->GetRMS() << std::endl;
+        }
       }
     }
 

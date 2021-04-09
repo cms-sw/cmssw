@@ -1181,16 +1181,16 @@ void PlotHist(const char* infile,
 }
 
 void PlotHistEta(const char* infile,
-		 std::string prefix,
-		 std::string text,
-		 int iene = 3,
-		 int numb = 50,
-		 int ieta = 0,
-		 double lumi = 0,
-		 double ener = 13.0,
-		 bool dataMC = false,
-		 bool drawStatBox = true,
-		 int save = 0) {
+                 std::string prefix,
+                 std::string text,
+                 int iene = 3,
+                 int numb = 50,
+                 int ieta = 0,
+                 double lumi = 0,
+                 double ener = 13.0,
+                 bool dataMC = false,
+                 bool drawStatBox = true,
+                 int save = 0) {
   std::string name0 = "ratio";
   std::string title[5] = {"10:20", "20:30", "30:40", "40:60", "60:100"};
   std::string xtitl = "E_{HCAL}/(p-E_{ECAL})";
@@ -1209,9 +1209,11 @@ void PlotHistEta(const char* infile,
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
   }
-  if (iene < 0 || iene >= 5) iene = 3; 
+  if (iene < 0 || iene >= 5)
+    iene = 3;
   int numb2 = numb / 2;
-  if (ieta < -numb2 || ieta > numb2) ieta = 0;
+  if (ieta < -numb2 || ieta > numb2)
+    ieta = 0;
   int ietaMin = ((ieta == 0) ? 1 : ((ieta > 0) ? (numb2 + ieta) : (numb2 + ieta + 1)));
   int ietaMax = (ieta == 0) ? numb : ietaMin;
   TFile* file = new TFile(infile);
@@ -1242,7 +1244,7 @@ void PlotHistEta(const char* infile,
       pad->Update();
       TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
       if (st1 != nullptr) {
-	ymin = 0.70;
+        ymin = 0.70;
         st1->SetY1NDC(ymin);
         st1->SetY2NDC(0.90);
         st1->SetX1NDC(0.65);
@@ -1263,9 +1265,9 @@ void PlotHistEta(const char* infile,
       TPaveText* txt1 = new TPaveText(xmi, ymi, xmx, ymx, "blNDC");
       txt1->SetFillColor(0);
       if (text == "") {
-	sprintf(txt, "Tracks with p = %s GeV at i#eta = %d", title[iene].c_str(), eta);
+        sprintf(txt, "Tracks with p = %s GeV at i#eta = %d", title[iene].c_str(), eta);
       } else {
-	sprintf(txt, "Tracks with p = %s GeV at i#eta = %d (%s)", title[iene].c_str(), eta, text.c_str());
+        sprintf(txt, "Tracks with p = %s GeV at i#eta = %d (%s)", title[iene].c_str(), eta, text.c_str());
       }
       txt1->AddText(txt);
       txt1->Draw("same");
@@ -2920,9 +2922,9 @@ void PlotPUCorrHists(std::string infile = "corrfac.root",
             if (save > 0) {
               sprintf(name, "%s.pdf", pad->GetName());
               pad->Print(name);
-	    } else if (save < 0) {
-	      sprintf(name, "%s.C", pad->GetName());
-	      pad->Print(name);
+            } else if (save < 0) {
+              sprintf(name, "%s.C", pad->GetName());
+              pad->Print(name);
             }
           }
         }
@@ -3135,9 +3137,9 @@ void PlotPropertyHist(const char* infile,
         if (save > 0) {
           sprintf(name, "%s.pdf", pad->GetName());
           pad->Print(name);
-	} else if (save < 0) {
-	  sprintf(name, "%s.C", pad->GetName());
-	  pad->Print(name);
+        } else if (save < 0) {
+          sprintf(name, "%s.C", pad->GetName());
+          pad->Print(name);
         }
       }
     }
@@ -3224,20 +3226,21 @@ void PlotPropertyHist(const char* infile,
         if (save > 0) {
           sprintf(name, "%s.pdf", pad->GetName());
           pad->Print(name);
-	} else if (save < 0) {
-	  sprintf(name, "%s.C", pad->GetName());
-	  pad->Print(name);
+        } else if (save < 0) {
+          sprintf(name, "%s.C", pad->GetName());
+          pad->Print(name);
         }
       }
     }
   }
 }
 
-void PlotMeanError(const std::string infilest, int reg=3, bool resol=false, int save=0, bool debug=false) {
+void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, int save = 0, bool debug = false) {
   bool ok(false);
   const int ntypmx = 3;
   const int nregmx = 4;
-  if (reg < 0 || reg >= nregmx) reg = nregmx - 1;
+  if (reg < 0 || reg >= nregmx)
+    reg = nregmx - 1;
   int nEner(0), nType(0), nPts(0);
   std::vector<double> energy[ntypmx], denergy[ntypmx], value[ntypmx], dvalue[ntypmx];
   // First read the data
@@ -3259,20 +3262,22 @@ void PlotMeanError(const std::string infilest, int reg=3, bool resol=false, int 
       energy[type].push_back(ener);
       denergy[type].push_back(dene);
       if (resol) {
-	value[type].push_back(v2[reg]);	
-	dvalue[type].push_back(e2[reg]);
+        value[type].push_back(v2[reg]);
+        dvalue[type].push_back(e2[reg]);
       } else {
-	value[type].push_back(v1[reg]);	
-	dvalue[type].push_back(e1[reg]);
+        value[type].push_back(v1[reg]);
+        dvalue[type].push_back(e1[reg]);
       }
     }
     fInput.close();
-    std::cout << "Reads " << (nmax + 1) << " cards from " << infilest << " with measurements for " << nEner << " energies and " << nType << " types" << std::endl;
+    std::cout << "Reads " << (nmax + 1) << " cards from " << infilest << " with measurements for " << nEner
+              << " energies and " << nType << " types" << std::endl;
     if (debug) {
       for (int n = 0; n < nType; ++n) {
-	std::cout << "Type " << n << " with " << energy[n].size() << " points\n";
-	for (unsigned int k = 0; k < energy[n].size(); ++k)
-	  std::cout << " [" << k << "] " << energy[n][k] << " +- " << denergy[n][k] << " Value " << value[n][k] << " +- " << dvalue[n][k] << std::endl;
+        std::cout << "Type " << n << " with " << energy[n].size() << " points\n";
+        for (unsigned int k = 0; k < energy[n].size(); ++k)
+          std::cout << " [" << k << "] " << energy[n][k] << " +- " << denergy[n][k] << " Value " << value[n][k]
+                    << " +- " << dvalue[n][k] << std::endl;
       }
     }
   }
@@ -3288,14 +3293,20 @@ void PlotMeanError(const std::string infilest, int reg=3, bool resol=false, int 
     int mtype[ntypmx] = {20, 21, 22};
     double ymin[2] = {0.65, 0.10};
     double ymax[2] = {1.30, 0.50};
-    gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
-    gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
-    gStyle->SetOptTitle(kFALSE);    gStyle->SetPadBorderMode(0);
-    gStyle->SetCanvasBorderMode(0); gStyle->SetOptStat(0);
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetCanvasColor(kWhite);
+    gStyle->SetPadColor(kWhite);
+    gStyle->SetFillColor(kWhite);
+    gStyle->SetOptTitle(kFALSE);
+    gStyle->SetPadBorderMode(0);
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetOptStat(0);
     TCanvas* canvas = new TCanvas(cname, cname, 500, 500);
-    canvas->SetTopMargin(0.05);       canvas->SetBottomMargin(0.14);
-    canvas->SetLeftMargin(0.15);      canvas->SetRightMargin(0.10);
-    TH1F *vFrame = canvas->DrawFrame(0.0, ymin[mvsres], 120.0, ymax[mvsres]);
+    canvas->SetTopMargin(0.05);
+    canvas->SetBottomMargin(0.14);
+    canvas->SetLeftMargin(0.15);
+    canvas->SetRightMargin(0.10);
+    TH1F* vFrame = canvas->DrawFrame(0.0, ymin[mvsres], 120.0, ymax[mvsres]);
     vFrame->GetXaxis()->SetRangeUser(0.0, 120.0);
     vFrame->GetYaxis()->SetRangeUser(ymin[mvsres], ymax[mvsres]);
     vFrame->GetXaxis()->SetLabelSize(0.04);
@@ -3311,19 +3322,19 @@ void PlotMeanError(const std::string infilest, int reg=3, bool resol=false, int 
     } else {
       vFrame->GetYaxis()->SetTitle("MPV(E_{HCAL}/(p-E_{ECAL}))");
     }
-    TLegend*  legend = new TLegend(0.70, 0.80, 0.90, 0.94);
+    TLegend* legend = new TLegend(0.70, 0.80, 0.90, 0.94);
     legend->SetFillColor(kWhite);
     std::string nameg[ntypmx] = {"MAHI", "M0", "M2"};
     for (int n = 0; n < nType; ++n) {
       unsigned int nmax0 = energy[n].size();
       double mom[nmax0], dmom[nmax0], mean[nmax0], dmean[nmax0];
-      for (unsigned int k = 0;  k < nmax0; ++k) {
-	mom[k] = energy[n][k];
-	dmom[k] = denergy[n][k];
-	mean[k] = value[n][k];
-	dmean[k] = dvalue[n][k];
+      for (unsigned int k = 0; k < nmax0; ++k) {
+        mom[k] = energy[n][k];
+        dmom[k] = denergy[n][k];
+        mean[k] = value[n][k];
+        dmean[k] = dvalue[n][k];
       }
-      TGraphErrors *graph = new TGraphErrors(nmax0, mom, mean, dmom, dmean);
+      TGraphErrors* graph = new TGraphErrors(nmax0, mom, mean, dmom, dmean);
       graph->SetMarkerStyle(mtype[n]);
       graph->SetMarkerColor(color[n]);
       graph->SetMarkerSize(1.4);
@@ -3335,7 +3346,7 @@ void PlotMeanError(const std::string infilest, int reg=3, bool resol=false, int 
     }
     legend->Draw("same");
     std::string regions[nregmx] = {"20118B Barrel", "2018B Transition", "2018B Endcap", "2018B"};
-    sprintf (cname, "%s", regions[reg].c_str());
+    sprintf(cname, "%s", regions[reg].c_str());
     TPaveText* txt0 = new TPaveText(0.16, 0.90, 0.40, 0.94, "blNDC");
     txt0->SetFillColor(0);
     txt0->AddText(cname);
