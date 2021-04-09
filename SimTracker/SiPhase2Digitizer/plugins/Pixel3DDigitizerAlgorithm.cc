@@ -171,7 +171,6 @@ std::vector<DigitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
   for (int i = 1;; ++i) {
     std::transform(pos_moving.begin(), pos_moving.end(), do_step(i).begin(), pos_moving.begin(), std::plus<float>());
     distance_edge = pitch - std::abs(pos_moving[displ_ind]);
-    
     // Get the amount of charge on the neighbor pixel: note the
     // transformation to a Normal
     float migrated_e = current_carriers * 0.5 * (1.0 - std::erf(distance_edge / (sigma * std::sqrt(2.0))));
