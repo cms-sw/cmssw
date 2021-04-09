@@ -1,6 +1,5 @@
-#ifndef SimCalorimetry_HGCalAssociatorProducers_AssociatorTools_h
-#define SimCalorimetry_HGCalAssociatorProducers_AssociatorTools_h
-
+#if !defined(SimCalorimetry_HGCalAssociatorProducers_interface_AssociatorTools_h)
+#define SimCalorimetry_HGCalAssociatorProducers_interface_AssociatorTools_h
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include <vector>
