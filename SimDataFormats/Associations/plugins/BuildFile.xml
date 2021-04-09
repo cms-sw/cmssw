@@ -1,6 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="clhep"/>
+<use name="DataFormats/ParticleFlowReco"/>
 <library name="CPLCAssociation_plugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>
