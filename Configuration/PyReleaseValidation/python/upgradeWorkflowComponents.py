@@ -48,6 +48,8 @@ upgradeKeys[2026] = [
     '2026D80PU',
     '2026D81',
     '2026D81PU',
+    '2026D82',
+    '2026D82PU',
 ]
 
 # pre-generation of WF numbers
@@ -1216,6 +1218,13 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T26',
         'Era' : 'Phase2C11I13T26M9', # customized for square pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D82' : {
+        'Geom' : 'Extended2026D82',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }
