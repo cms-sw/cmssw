@@ -102,7 +102,14 @@ public:
   /// return the slope
   uint16_t getSlope() const;
 
+  /// slope in number of half-strips/layer
+  /// negative means left-bending
+  /// positive means right-bending
+  float getFractionalSlope() const;
+
   /// return left/right bending
+  /// 0: left-bending (negative delta-strip / delta layer)
+  /// 1: right-bending (positive delta-strip / delta layer)
   uint16_t getBend() const { return bend; }
 
   /// return BX
