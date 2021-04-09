@@ -238,7 +238,7 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
         // If the fraction is zero or the hit does not belong to any calo
         // particle, set the caloParticleId for the hit to -1 and this will
         // contribute to the number of noise hits
-        if (rhFraction == 0.) { // this could be a real hit that has been marked as halo
+        if (rhFraction == 0.) {  // this could be a real hit that has been marked as halo
           hitsToCaloParticleId[hitId] = -2;
           numberOfHaloHitsInMCL++;
         }
@@ -471,9 +471,8 @@ hgcal::association MultiClusterAssociatorByEnergyScoreImpl::makeConnections(
           }
           mcPair.second.second += (mcFraction - cpFraction) * (mcFraction - cpFraction) * hitEnergyWeight;
 #ifdef EDM_ML_DEBUG
-          LogDebug("HGCalValidator") << "multiClusterId:\t" << multiClusterId
-                                     << "\tmcfraction,cpfraction:\t" << mcFraction << ", " << cpFraction
-                                     << "\thitEnergyWeight:\t" << hitEnergyWeight
+          LogDebug("HGCalValidator") << "multiClusterId:\t" << multiClusterId << "\tmcfraction,cpfraction:\t"
+                                     << mcFraction << ", " << cpFraction << "\thitEnergyWeight:\t" << hitEnergyWeight
                                      << "\tcurrent score numerator:\t" << mcPair.second.second << "\n";
 #endif
         }  // End of loop over MultiClusters linked to hits of this CaloParticle
