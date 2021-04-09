@@ -125,10 +125,13 @@ namespace riemannFit {
                                                          VectorNd<N> const& rad,
                                                          double B) {
     constexpr uint n = N;
-    double p_t = std::min(20., fast_fit(2) * B);  // limit pt to avoid too small error!!!
-    double p_2 = p_t * p_t * (1. + 1. / sqr(fast_fit(3)));
-    double theta = atan(fast_fit(3));
-    theta = theta < 0. ? theta + M_PI : theta;
+    const double p_t = std::min(20., fast_fit(2) * B);  // limit pt to avoid too small error!!!
+    // fast_fit(3) = tan(theta) =>
+    // 1 / sqr(sin(theta)) = (sqr(sin(theta) + sqr(cos(theta))) / sqr(sin(theta))
+    //                     = 1 + 1 / sqr(tan(theta))
+    //                     = 1 + 1 / sqr(fast_fit(3))
+    const double invSqrSinTheta = 1. + 1. / sqr(fast_fit(3));
+    const double p_2 = sqr(p_t) * invSqrSinTheta;
     VectorNd<N> s_values;
     VectorNd<N> rad_lengths;
     const Vector2d oVec(fast_fit(0), fast_fit(1));
@@ -141,10 +144,10 @@ namespace riemannFit {
       const double tempAtan2 = atan2(cross, dot);
       s_values(i) = std::abs(tempAtan2 * fast_fit(2));
     }
-    computeRadLenUniformMaterial(s_values * sqrt(1. + 1. / sqr(fast_fit(3))), rad_lengths);
+    computeRadLenUniformMaterial(s_values * sqrt(invSqrSinTheta), rad_lengths);
     MatrixNd<N> scatter_cov_rad = MatrixNd<N>::Zero();
     VectorNd<N> sig2 = (1. + 0.038 * rad_lengths.array().log()).abs2() * rad_lengths.array();
-    sig2 *= 0.000225 / (p_2 * sqr(sin(theta)));
+    sig2 *= 0.000225 / p_2 * invSqrSinTheta;
     for (uint k = 0; k < n; ++k) {
       for (uint l = k; l < n; ++l) {
         for (uint i = 0; i < std::min(k, l); ++i) {
