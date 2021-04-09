@@ -22,7 +22,7 @@ recoDiamondUncalibLocalReconstructionTask = cms.Task(
 # calibration values to extract per-channel timing precision estimation
 recoDiamond = cms.Sequence(recoDiamondUncalibLocalReconstructionTask)
 
-seqALCARECOPPSTimingCalib = cms.Sequence(
+taskALCARECOPPSTimingCalib = cms.Task(
     recoDiamond *
     ppsTimingCalibrationPCLWorker *
     MEtoEDMConvertPPSTimingCalib

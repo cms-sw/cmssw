@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import copy
 
 OutALCARECOPPSTimingCalib_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
@@ -10,5 +9,5 @@ OutALCARECOPPSTimingCalib_noDrop = cms.PSet(
     )
 )
 
-OutALCARECOPPSTimingCalib = copy.deepcopy(OutALCARECOPPSTimingCalib_noDrop)
+OutALCARECOPPSTimingCalib = OutALCARECOPPSTimingCalib_noDrop.clone()
 OutALCARECOPPSTimingCalib.outputCommands.insert(0, 'drop *')
