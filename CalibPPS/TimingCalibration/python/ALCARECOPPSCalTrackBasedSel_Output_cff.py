@@ -11,6 +11,5 @@ OutALCARECOPPSCalTrackBasedSel_noDrop = cms.PSet(
     )
 )
 
-import copy
-OutALCARECOPPSCalTrackBasedSel = copy.deepcopy(OutALCARECOPPSCalTrackBasedSel_noDrop)
+OutALCARECOPPSCalTrackBasedSel = OutALCARECOPPSCalTrackBasedSel_noDrop.clone()
 OutALCARECOPPSCalTrackBasedSel.outputCommands.insert(0, 'drop *')
