@@ -69,6 +69,7 @@ private:
 
   // ----------member data ---------------------------
   std::string nameDetector_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   edm::EDGetToken recHitSource_;
   bool ifHCAL_;
   int verbosity_;
@@ -88,6 +89,7 @@ private:
 
 HGCalRecHitValidation::HGCalRecHitValidation(const edm::ParameterSet& iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
+      caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       ifHCAL_(iConfig.getParameter<bool>("ifHCAL")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       firstLayer_(1) {
@@ -123,8 +125,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   bool ok(true);
   unsigned int ntot(0), nused(0);
   if (nameDetector_ == "HCal") {
-    edm::ESHandle<CaloGeometry> geom;
-    iSetup.get<CaloGeometryRecord>().get(geom);
+    edm::ESHandle<CaloGeometry> geom = iSetup.getHandle(caloGeomToken_);
     if (!geom.isValid()) {
       edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
                                           << "Object for " << nameDetector_;
