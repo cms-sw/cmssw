@@ -78,7 +78,7 @@ void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> &selecte
       if (fPSet_.getParameter<bool>("OutputCumulativeSummaryAtLayerLevelAsImage")) {
         TCanvas c2("c2");
         selME.SummaryOfCumulDistr->getTH1()->Draw();
-        std::string name2(selME.SummaryOfCumulDistr->getTH1()->GetTitle());
+        std::string name2(selME.SummaryOfCumulDistr->getTitle());
         name2 += ".png";
         c2.Print(name2.c_str());
       }
@@ -97,7 +97,7 @@ void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> &selecte
           fPSet_.getParameter<bool>("OutputCumulativeSummaryAtLayerLevelAsImage")) {
         TCanvas c1("c1");
         selME.SummaryOfCumulDistr->getTH1()->Draw();
-        std::string name(selME.SummaryOfCumulDistr->getTH1()->GetTitle());
+        std::string name(selME.SummaryOfCumulDistr->getTitle());
         name += ".png";
         c1.Print(name.c_str());
       }
