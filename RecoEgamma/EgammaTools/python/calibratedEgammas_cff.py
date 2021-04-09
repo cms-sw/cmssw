@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-_correctionFile2016Legacy = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc"
-_correctionFile2017Nov17 = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"
-_correctionFile2017UL    = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_24Feb2020_runEtaR9Gain_v2"
-_correctionFile2018UL    = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_29Sep2020_RunFineEtaR9Gain"
+_correctionFile2016Legacy    = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc"
+_correctionFile2017Nov17     = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"
+_correctionFile2016ULpreVFP  = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain"
+_correctionFile2016ULpostVFP = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain"
+_correctionFile2017UL        = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_24Feb2020_runEtaR9Gain_v2"
+_correctionFile2018UL        = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_29Sep2020_RunFineEtaR9Gain"
 
 calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
                                     semiDeterministic = cms.bool(True),
@@ -12,6 +14,14 @@ calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
                                     recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
                                     produceCalibratedObjs = cms.bool(True)
                                    )
+
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+
+from Configuration.Eras.Modifier_run2_egamma_2016_cff import run2_egamma_2016
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016
+(run2_miniAOD_devel & run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016ULpreVFP)
+(run2_miniAOD_devel & run2_egamma_2016 & ~tracker_apv_vfp30_2016).toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016ULpostVFP)
+
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 
 from Configuration.Eras.Modifier_run2_egamma_2017_cff import run2_egamma_2017
