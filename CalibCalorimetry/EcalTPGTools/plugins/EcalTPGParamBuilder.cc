@@ -1,6 +1,5 @@
 #include "EcalTPGParamBuilder.h"
-
-#include "CalibCalorimetry/EcalTPGTools/plugins/EcalTPGDBApp.h"
+#include "EcalTPGDBApp.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -30,18 +29,15 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <ctime>
 
 #include <TF1.h>
 #include <TH2F.h>
 #include <TFile.h>
 #include <TNtuple.h>
+#include <ctime>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -381,11 +377,11 @@ int EcalTPGParamBuilder::getEtaSlice(int tccId, int towerInTCC) {
   else {
     if (tccId >= 1 && tccId <= 18)
       etaSlice += 21;  // inner -
-    if (tccId >= 19 && tccId <= 36)
+    else if (tccId >= 19 && tccId <= 36)
       etaSlice += 17;  // outer -
-    if (tccId >= 91 && tccId <= 108)
+    else if (tccId >= 91 && tccId <= 108)
       etaSlice += 21;  // inner +
-    if (tccId >= 73 && tccId <= 90)
+    else if (tccId >= 73 && tccId <= 90)
       etaSlice += 17;  // outer +
   }
   return etaSlice;
@@ -1109,13 +1105,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
               pedDB.setPedMeanG12(itLin->second.pedestal_[i]);
               linDB.setMultX12(itLin->second.mult_[i]);
               linDB.setShift12(itLin->second.shift_[i]);
-            }
-            if (i == 1) {
+            } else if (i == 1) {
               pedDB.setPedMeanG6(itLin->second.pedestal_[i]);
               linDB.setMultX6(itLin->second.mult_[i]);
               linDB.setShift6(itLin->second.shift_[i]);
-            }
-            if (i == 2) {
+            } else if (i == 2) {
               pedDB.setPedMeanG1(itLin->second.pedestal_[i]);
               linDB.setMultX1(itLin->second.mult_[i]);
               linDB.setShift1(itLin->second.shift_[i]);
@@ -1134,6 +1128,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       // general case
       linStruc lin;
       int forceBase12 = 0;
+      double invSinTheta = 1. / sin(theta);
       for (int i = 0; i < 3; i++) {
         int mult, shift;
         bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult, shift);
@@ -1149,12 +1144,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
           //    if (i==2) {mult = 0xc0 ; shift = 0x0 ;}
           //  }
           //PP end
-          double base = coeff.pedestals_[i];
           if (forcedPedestalValue_ == -3 && i == 0) {
             double G = mult * pow(2.0, -(shift + 2));
-            double g = G / sin(theta);
-            // int pedestal = coeff.pedestals_[i] ;
-            base = double(coeff.pedestals_[i]) - pedestal_offset_ / g;
+            double g = G * invSinTheta;
+            double base = double(coeff.pedestals_[i]) - pedestal_offset_ / g;
             if (base < 0.)
               base = 0;
             forceBase12 = int(base);
@@ -1175,7 +1168,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       bool ok(true);
       if (forcedPedestalValue_ == -2)
         ok = realignBaseline(lin, 0);
-      if (forcedPedestalValue_ == -3)
+      else if (forcedPedestalValue_ == -3)
         ok = realignBaseline(lin, forceBase12);
       if (!ok)
         ss << "SM=" << id.ism() << " xt=" << id.ic() << " " << dec << id.rawId() << "\n";
@@ -1189,13 +1182,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
             pedDB.setPedMeanG12(lin.pedestal_[i]);
             linDB.setMultX12(lin.mult_[i]);
             linDB.setShift12(lin.shift_[i]);
-          }
-          if (i == 1) {
+          } else if (i == 1) {
             pedDB.setPedMeanG6(lin.pedestal_[i]);
             linDB.setMultX6(lin.mult_[i]);
             linDB.setShift6(lin.shift_[i]);
-          }
-          if (i == 2) {
+          } else if (i == 2) {
             pedDB.setPedMeanG1(lin.pedestal_[i]);
             linDB.setMultX1(lin.mult_[i]);
             linDB.setShift1(lin.shift_[i]);
@@ -1209,7 +1200,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
                           factor);
         }
         double G = lin.mult_[i] * pow(2.0, -(lin.shift_[i] + 2));
-        double g = G / sin(theta);
+        double g = G * invSinTheta;
         float val[] = {float(i),
                        float(theta),
                        float(G),
@@ -1454,13 +1445,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
               pedDB.setPedMeanG12(itLin->second.pedestal_[i]);
               linDB.setMultX12(itLin->second.mult_[i]);
               linDB.setShift12(itLin->second.shift_[i]);
-            }
-            if (i == 1) {
+            } else if (i == 1) {
               pedDB.setPedMeanG6(itLin->second.pedestal_[i]);
               linDB.setMultX6(itLin->second.mult_[i]);
               linDB.setShift6(itLin->second.shift_[i]);
-            }
-            if (i == 2) {
+            } else if (i == 2) {
               pedDB.setPedMeanG1(itLin->second.pedestal_[i]);
               linDB.setMultX1(itLin->second.mult_[i]);
               linDB.setShift1(itLin->second.shift_[i]);
@@ -1508,13 +1497,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
             pedDB.setPedMeanG12(lin.pedestal_[i]);
             linDB.setMultX12(lin.mult_[i]);
             linDB.setShift12(lin.shift_[i]);
-          }
-          if (i == 1) {
+          } else if (i == 1) {
             pedDB.setPedMeanG6(lin.pedestal_[i]);
             linDB.setMultX6(lin.mult_[i]);
             linDB.setShift6(lin.shift_[i]);
-          }
-          if (i == 2) {
+          } else if (i == 2) {
             pedDB.setPedMeanG1(lin.pedestal_[i]);
             linDB.setMultX1(lin.mult_[i]);
             linDB.setShift1(lin.shift_[i]);
