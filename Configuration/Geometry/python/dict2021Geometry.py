@@ -1784,7 +1784,7 @@ caloDict = {
     "default" : 1,
     "C1" : {
         1 : [
-            'Geometry/EcalCommonData/data/ebcon.xml',
+            'Geometry/EcalCommonData/data/ebcon/2021/v1/ebcon.xml',
             'Geometry/EcalCommonData/data/eecon.xml',
             'Geometry/EcalCommonData/data/escon.xml',
             'Geometry/EcalCommonData/data/eregalgo/2017/v1/eregalgo.xml',
