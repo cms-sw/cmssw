@@ -432,7 +432,7 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     string regionEta = activeRegionEtaPattern.to_string<char,std::string::traits_type,std::string::allocator_type>();
     string regionPhi = activeRegionPhiPattern.to_string<char,std::string::traits_type,std::string::allocator_type>();
-    if(regionEta == "010" || regionPhi == "010" || regionEta == "110" || regionPhi == "110" || regionEta == "011" || regionPhi == "011" ) bJetCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kCentral));
+    if(abs(eta) < 2.5 && (regionEta == "010" || regionPhi == "010" || regionEta == "110" || regionPhi == "110" || regionEta == "011" || regionPhi == "011") ) bJetCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kCentral));
   }
   const UCTObject* et = summaryCard->getET();
   pt = ((double) et->et()) * caloScaleFactor;
