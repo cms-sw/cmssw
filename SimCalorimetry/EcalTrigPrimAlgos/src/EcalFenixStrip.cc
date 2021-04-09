@@ -1,7 +1,7 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStrip.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFgvbEE.h>
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEB.h>
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEE.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEBPhase1.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEEPhase1.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGTPMode.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -21,13 +21,13 @@ EcalFenixStrip::EcalFenixStrip(const EcalElectronicsMapping *theMapping,
     : theMapping_(theMapping), debug_(debug), famos_(famos), nbMaxXtals_(nbMaxXtals), tpInfoPrintout_(tpInfoPrintout) {
   linearizer_.resize(nbMaxXtals_);
   for (int i = 0; i < nbMaxXtals_; i++)
-    linearizer_[i] = new EcalFenixLinearizer(famos_);
+    linearizer_[i] = new EcalFenixLinearizerPhase1(famos_);
   adder_ = new EcalFenixEtStrip();
-  amplitude_filter_ = new EcalFenixAmplitudeFilter(tpInfoPrintout);
+  amplitude_filter_ = new EcalFenixEvenAmplitudeFilter(tpInfoPrintout);
   oddAmplitude_filter_ = new EcalFenixOddAmplitudeFilter(tpInfoPrintout);
-  peak_finder_ = new EcalFenixPeakFinder();
-  fenixFormatterEB_ = new EcalFenixStripFormatEB();
-  fenixFormatterEE_ = new EcalFenixStripFormatEE();
+  peak_finder_ = new EcalFenixPeakFinderPhase1();
+  fenixFormatterEB_ = new EcalFenixStripFormatEBPhase1();
+  fenixFormatterEE_ = new EcalFenixStripFormatEEPhase1();
   fgvbEE_ = new EcalFenixStripFgvbEE();
 
   // prepare data storage for all events
@@ -191,13 +191,20 @@ void EcalFenixStrip::process_part1(int identif,
   }
 
   if (famos_) {
-    even_filt_out_[0] = add_out_[0];
-    even_peak_out_[0] = add_out_[0];
+    for(unsigned int ix = 0; ix < add_out_.size(); ix++){
+      even_filt_out_[ix] = add_out_[ix];
+      odd_filt_out_ [ix] = add_out_[ix]; 
+    }
+    if (debug_){
+      std::cout << "Famos mode: only even filter output" << std::endl;
+    }
     return;
   } else {
-    // This is where the amplitude filters are called
-    // the TPmode flag will determine which are called and if the peak finder is called.
-    // Call even amplitude filter
+
+    if (debug_){
+      std::cout << "About to call the even filter" << std::endl;
+    }
+
     this->getEvenFilter()->setParameters(stripid, ecaltpgWeightMap, ecaltpgWeightGroup);
     this->getEvenFilter()->process(add_out_, even_filt_out_, fgvb_out_temp_, fgvb_out_);
 
@@ -228,7 +235,14 @@ void EcalFenixStrip::process_part1(int identif,
       std::cout << std::endl;
     }
 
-    //  Run the odd filter
+
+    if (debug_){
+      std::cout << "About to call the odd filter" << std::endl;
+    }
+    // This is where the amplitude filters are called
+    // the TPmode flag will determine which are called and if the peak finder is called.
+    // Call even amplitude filter
+        //  Run the odd filter
     this->getOddFilter()->setParameters(stripid, ecaltpgOddWeightMap, ecaltpgOddWeightGroup);
     this->getOddFilter()->process(add_out_, odd_filt_out_);
 

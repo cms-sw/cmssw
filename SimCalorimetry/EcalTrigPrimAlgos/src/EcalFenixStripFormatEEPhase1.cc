@@ -1,20 +1,20 @@
 #include <CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGStripStatus.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGTPMode.h>
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEE.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEEPhase1.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 //-----------------------------------------------------------------------------------------
-EcalFenixStripFormatEE::EcalFenixStripFormatEE() : shift_(0) {}
+EcalFenixStripFormatEEPhase1::EcalFenixStripFormatEEPhase1() : shift_(0) {}
 //------------------------------------------------------------------------------------------
 
-EcalFenixStripFormatEE::~EcalFenixStripFormatEE() {}
+EcalFenixStripFormatEEPhase1::~EcalFenixStripFormatEEPhase1() {}
 
 //-----------------------------------------------------------------------------------------
 
-int EcalFenixStripFormatEE::setInput(int input_even, int inputEvenPeak, int input_odd, int inputOddPeak, int fgvb) {
+int EcalFenixStripFormatEEPhase1::setInput(int input_even, int inputEvenPeak, int input_odd, int inputOddPeak, int fgvb) {
   inputEvenPeak_ = inputEvenPeak;
   input_even_ = input_even;
   inputOddPeak_ = inputOddPeak;
@@ -24,7 +24,7 @@ int EcalFenixStripFormatEE::setInput(int input_even, int inputEvenPeak, int inpu
 }
 //-----------------------------------------------------------------------------------------
 
-int EcalFenixStripFormatEE::process() {
+int EcalFenixStripFormatEEPhase1::process() {
   // Bad strip - zero everything
   if (stripStatus_ != 0)
     return 0;
@@ -94,7 +94,7 @@ int EcalFenixStripFormatEE::process() {
 }
 //------------------------------------------------------------------------------------------
 
-void EcalFenixStripFormatEE::process(std::vector<int> &fgvbout,
+void EcalFenixStripFormatEEPhase1::process(std::vector<int> &fgvbout,
                                      std::vector<int> &peakout_even,
                                      std::vector<int> &filtout_even,
                                      std::vector<int> &peakout_odd,
@@ -102,7 +102,7 @@ void EcalFenixStripFormatEE::process(std::vector<int> &fgvbout,
                                      std::vector<int> &output) {
   if (peakout_even.size() != filtout_even.size() || fgvbout.size() != filtout_even.size() ||
       peakout_odd.size() != filtout_odd.size() || filtout_odd.size() != filtout_even.size()) {
-    edm::LogWarning("EcalTPG") << " problem in EcalFenixStripFormatEE: peak_out and filt_out don't "
+    edm::LogWarning("EcalTPG") << " problem in EcalFenixStripFormatEEPhase1: peak_out and filt_out don't "
                                   "have the same size";
     std::cout << " Size peak_out" << peakout_even.size() << ", size filt_out:" << filtout_even.size() << std::flush
               << std::endl;
@@ -116,7 +116,7 @@ void EcalFenixStripFormatEE::process(std::vector<int> &fgvbout,
 }
 //-----------------------------------------------------------------------------------------
 
-void EcalFenixStripFormatEE::setParameters(uint32_t id,
+void EcalFenixStripFormatEEPhase1::setParameters(uint32_t id,
                                            const EcalTPGSlidingWindow *&slWin,
                                            const EcalTPGStripStatus *stripStatus,
                                            const EcalTPGTPMode *ecaltpgTPMode) {

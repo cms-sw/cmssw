@@ -1,11 +1,11 @@
 #ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXSTRIP_H
 #define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXSTRIP_H
 
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixEvenAmplitudeFilter.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixOddAmplitudeFilter.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixEtStrip.h>
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h>
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixPeakFinder.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizerPhase1.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixPeakFinderPhase1.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFgvbEE.h>
 
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
@@ -19,8 +19,8 @@ class EcalTriggerPrimitiveSample;
 class EcalTPGSlidingWindow;
 class EcalTPGFineGrainStripEE;
 class EcalFenixStripFgvbEE;
-class EcalFenixStripFormatEB;
-class EcalFenixStripFormatEE;
+class EcalFenixStripFormatEBPhase1;
+class EcalFenixStripFormatEEPhase1;
 class EcalTPGStripStatus;
 class EcalTPGTPMode;
 
@@ -47,16 +47,16 @@ private:
   int nbMaxXtals_;
   bool tpInfoPrintout_;
 
-  std::vector<EcalFenixLinearizer *> linearizer_;
+  std::vector<EcalFenixLinearizerPhase1 *> linearizer_;
 
-  EcalFenixAmplitudeFilter *amplitude_filter_;
+  EcalFenixEvenAmplitudeFilter *amplitude_filter_;
   EcalFenixOddAmplitudeFilter *oddAmplitude_filter_;
 
-  EcalFenixPeakFinder *peak_finder_;
+  EcalFenixPeakFinderPhase1 *peak_finder_;
 
-  EcalFenixStripFormatEB *fenixFormatterEB_;
+  EcalFenixStripFormatEBPhase1 *fenixFormatterEB_;
 
-  EcalFenixStripFormatEE *fenixFormatterEE_;
+  EcalFenixStripFormatEEPhase1 *fenixFormatterEE_;
 
   EcalFenixEtStrip *adder_;
 
@@ -147,14 +147,14 @@ public:
 
   // getters for the algorithms  ;
 
-  EcalFenixLinearizer *getLinearizer(int i) const { return linearizer_[i]; }
+  EcalFenixLinearizerPhase1 *getLinearizer(int i) const { return linearizer_[i]; }
   EcalFenixEtStrip *getAdder() const { return adder_; }
-  EcalFenixAmplitudeFilter *getEvenFilter() const { return amplitude_filter_; }
+  EcalFenixEvenAmplitudeFilter *getEvenFilter() const { return amplitude_filter_; }
   EcalFenixOddAmplitudeFilter *getOddFilter() const { return oddAmplitude_filter_; }
-  EcalFenixPeakFinder *getPeakFinder() const { return peak_finder_; }
+  EcalFenixPeakFinderPhase1 *getPeakFinder() const { return peak_finder_; }
 
-  EcalFenixStripFormatEB *getFormatterEB() const { return fenixFormatterEB_; }
-  EcalFenixStripFormatEE *getFormatterEE() const { return fenixFormatterEE_; }
+  EcalFenixStripFormatEBPhase1 *getFormatterEB() const { return fenixFormatterEB_; }
+  EcalFenixStripFormatEEPhase1 *getFormatterEE() const { return fenixFormatterEE_; }
 
   EcalFenixStripFgvbEE *getFGVB() const { return fgvbEE_; }
 
