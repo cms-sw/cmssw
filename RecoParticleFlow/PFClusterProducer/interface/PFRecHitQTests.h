@@ -110,6 +110,9 @@ public:
       } else if (flag == "HFShort") {
         flags_.push_back(1 << HcalCaloFlagLabels::HFLongShort);
         depths_.push_back(2);
+      } else if (flag == "HFSignalAsymmetry") {
+        flags_.push_back(1 << 5);
+        depths_.push_back(-1);
       } else {
         flags_.push_back(-1);
         depths_.push_back(-1);
