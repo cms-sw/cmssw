@@ -59,6 +59,7 @@ Calorimeters:
 * C12: HGCal (as in C11) + HFNose with corrected wafer size + Phase2 HCAL and EB
 * C13: HGCal (reading the constants of the flat file and made provision to be used downstream) + Phase2 HCAL and EB
 * C14: HGCal (reading the constants of the flat file and use it to create geometry) + Phase2 HCAL and EB
+* C15: HGCal (as in C14) + HFNose with corrected wafer size  + Phase2 HCAL and EB
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -83,6 +84,7 @@ The script also handles the common and forward elements of the geometry:
 * F4: same as F2 but with modifications needed to forward shield
 * F5: same as F4 but changes due to HFNose
 * F6: same as F4 with modifications needed for BRM and forward shield
+* F7: same as F6 with modifications needed for HFNose
 
 Several detector combinations have been generated:
 * D49 = T15+C9+M4+I10+O4+F2 (HLT TDR baseline)
@@ -95,3 +97,4 @@ Several detector combinations have been generated:
 * D79 = T23+C14+M9+I13+O7+F6
 * D80 = T25+C14+M9+I13+O7+F6
 * D81 = T26+C14+M9+I13+O7+F6
+* D82 = T21+C15+M9+I13+O7+F7
