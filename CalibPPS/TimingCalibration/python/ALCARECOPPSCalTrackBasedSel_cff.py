@@ -40,7 +40,7 @@ hltPPSPerPotTrackFilter = _filter.clone(
     )
 )
 
-seqALCARECOPPSCalTrackBasedSel = cms.Task(
+seqALCARECOPPSCalTrackBasedSel = cms.Sequence(
     ctppsRawToDigi ,
     recoCTPPS ,
     ALCARECOPPSCalTrackBasedSelHLT ,
