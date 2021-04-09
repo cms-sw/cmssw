@@ -15,6 +15,9 @@
   <class name="hgcal::LayerClusterToSimClusterAssociator" persistent="false"/>
   <class name="edm::Wrapper<hgcal::LayerClusterToSimClusterAssociator>" persistent="false"/>
 
+  <class name="hgcal::MultiClusterToCaloParticleAssociator" persistent="false"/>
+  <class name="edm::Wrapper<hgcal::MultiClusterToCaloParticleAssociator>" persistent="false"/>
+
   <class name="reco::VertexSimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
   </class>
@@ -23,6 +26,7 @@
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="edm::Wrapper<reco::VertexRecoToSimCollection>" />
+
 
   <class name="hgcal::SimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
@@ -38,6 +42,7 @@
   <class name="map<unsigned int,vector<pair<unsigned int,pair<float,float> > > >" />
   <class name="vector<pair<unsigned int,pair<float,float> > >" />
 
+
   <class name="hgcal::SimToRecoCollectionWithSimClusters" >
    <field name="transientMap_" transient="true"/>
   </class>
@@ -50,8 +55,21 @@
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<SimCluster> >,edm::RefProd<vector<reco::CaloCluster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<SimCluster> > >" />
 
-  <class name="TTTrackTruthPair<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" /> 
-  <class name="std::vector<TTTrackTruthPair<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" /> 
+  <class name="hgcal::SimToRecoCollectionWithMultiClusters" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::SimToRecoCollectionWithMultiClusters>" />
+  <class name="hgcal::RecoToSimCollectionWithMultiClusters" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::RecoToSimCollectionWithMultiClusters>" />
+
+  <class name="edm::RefProd<vector<reco::HGCalMultiCluster> >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<CaloParticle> >,edm::RefProd<vector<reco::HGCalMultiCluster> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::HGCalMultiCluster> >,edm::RefProd<vector<CaloParticle> > >" />
+
+  <class name="TTTrackTruthPair<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
+  <class name="std::vector<TTTrackTruthPair<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
   <class name="edm::Ref<std::vector<TTTrackTruthPair<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > >" />
   <class name="edm::Wrapper<std::vector<TTTrackTruthPair<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > >" />
 </lcgdict>
