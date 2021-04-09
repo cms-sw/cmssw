@@ -257,7 +257,7 @@ namespace riemannFit {
         const double tan_c = -y2 / x2;
         const double tan_c2 = sqr(tan_c);
         cov_rad(i) =
-            1. / (1. + tan_c2) * (cov_cart(i, i) + cov_cart(i + n, i + n) * tan_c2 + 2 * cov_cart(i, i + n) * tan_c);
+            (cov_cart(i, i) + cov_cart(i + n, i + n) * tan_c2 + 2 * cov_cart(i, i + n) * tan_c) / (1. + tan_c2) ;
       }
     }
     return cov_rad;
@@ -517,7 +517,7 @@ namespace riemannFit {
 
     // scale
     const double tempQ = mc.squaredNorm();
-    const double tempS = sqrt(n * 1. / tempQ);  // scaling factor
+    const double tempS = sqrt(n / tempQ);  // scaling factor
     p3D *= tempS;
 
     // project on paraboloid
@@ -911,13 +911,14 @@ namespace riemannFit {
     // We need now to transfer back the results in the original s-z plane
     const auto sinTheta = sin(theta);
     const auto cosTheta = cos(theta);
-    auto common_factor = 1. / (sinTheta - sol(1, 0) * cosTheta);
+    const auto common_factor = 1. / (sinTheta - sol(1, 0) * cosTheta);
+    const auto sqr_common_factor = sqr(common_factor);
     Eigen::Matrix<double, 2, 2> jMat;
-    jMat << 0., common_factor * common_factor, common_factor, sol(0, 0) * cosTheta * common_factor * common_factor;
+    jMat << 0., sqr_common_factor, common_factor, sol(0, 0) * cosTheta * sqr_common_factor;
 
-    double tempM = common_factor * (sol(1, 0) * sinTheta + cosTheta);
-    double tempQ = common_factor * sol(0, 0);
-    auto cov_mq = jMat * covParamsMat * jMat.transpose();
+    const double tempM = common_factor * (sol(1, 0) * sinTheta + cosTheta);
+    const double tempQ = common_factor * sol(0, 0);
+    const auto cov_mq = jMat * covParamsMat * jMat.transpose();
 
     VectorNd<N> res = p2D_rot.row(1).transpose() - aMat.transpose() * sol;
     double chi2 = res.transpose() * vyInvMat * res;
