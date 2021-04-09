@@ -47,7 +47,8 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
     wallCopy = baseNumber.getCopyNumber(3);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << nLevels << " off: " << off << " cryType: " << cryType << " wallCopy: " << wallCopy << " hawCopy: " << hawCopy << " fawCopy: " << fawCopy << " supmCopy: " << supmCopy;
+  edm::LogVerbatim("EcalGeom") << nLevels << " off: " << off << " cryType: " << cryType << " wallCopy: " << wallCopy
+                               << " hawCopy: " << hawCopy << " fawCopy: " << fawCopy << " supmCopy: " << supmCopy;
 #endif
   // error checking
 
