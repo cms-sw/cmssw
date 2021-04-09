@@ -162,6 +162,7 @@ private:
   const edm::ESGetToken<TrajectorySmoother, TrajectoryFitter::Record> smootherToken_;
   const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> trackerRecHitBuilderToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldTokenBeginRun_;
 
   ///TRACK QUALITY
   bool useQuality_;
@@ -194,7 +195,8 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig, const goodseedhe
       fitterToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("Fitter")))),
       smootherToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<string>("Smoother")))),
       trackerRecHitBuilderToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("TTRHBuilder")))),
-      magneticFieldToken_(esConsumes()) {
+      magneticFieldToken_(esConsumes()),
+      magneticFieldTokenBeginRun_(esConsumes<edm::Transition::BeginRun>()){
   LogInfo("GoodSeedProducer") << "Electron PreIdentification started  ";
 
   //now do what ever initialization is needed
@@ -616,8 +618,7 @@ namespace goodseedhelpers {
 // ------------ method called once each job just before starting event loop  ------------
 void GoodSeedProducer::beginRun(const edm::Run& run, const EventSetup& es) {
   //Magnetic Field
-  ESHandle<MagneticField> magneticField;
-  es.get<IdealMagneticFieldRecord>().get(magneticField);
+  auto const& magneticField = &es.getData(magneticFieldTokenBeginRun_);
   B_ = magneticField->inTesla(GlobalPoint(0, 0, 0));
 
   pfTransformer_ = std::make_unique<PFTrackTransformer>(B_);
