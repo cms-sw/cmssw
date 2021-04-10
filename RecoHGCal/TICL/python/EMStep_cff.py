@@ -35,7 +35,6 @@ ticlTrackstersEM = _trackstersProducer.clone(
     max_delta_time = 3.,
     itername = "EM",
     algo_verbosity = 0,
-    patternRecognitionAlgo = "CLUE3D"
 )
 
 ticlEMStepTask = cms.Task(ticlSeedingGlobal
