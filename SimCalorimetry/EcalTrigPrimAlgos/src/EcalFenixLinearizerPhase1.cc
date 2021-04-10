@@ -17,9 +17,9 @@ EcalFenixLinearizerPhase1::~EcalFenixLinearizerPhase1() {
 }
 
 void EcalFenixLinearizerPhase1::setParameters(uint32_t raw,
-                                        const EcalTPGPedestals *ecaltpPed,
-                                        const EcalTPGLinearizationConst *ecaltpLin,
-                                        const EcalTPGCrystalStatus *ecaltpBadX) {
+                                              const EcalTPGPedestals *ecaltpPed,
+                                              const EcalTPGLinearizationConst *ecaltpLin,
+                                              const EcalTPGCrystalStatus *ecaltpBadX) {
   const EcalTPGLinearizationConstMap &linMap = ecaltpLin->getMap();
   EcalTPGLinearizationConstMapIterator it = linMap.find(raw);
   if (it != linMap.end()) {

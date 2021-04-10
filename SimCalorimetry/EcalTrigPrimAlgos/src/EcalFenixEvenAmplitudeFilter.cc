@@ -6,8 +6,7 @@
 #include <iostream>
 
 EcalFenixEvenAmplitudeFilter::EcalFenixEvenAmplitudeFilter(bool tpInfoPrintout)
-    : inputsAlreadyIn_(0), stripid_{0}, shift_(6), tpInfoPrintout_(tpInfoPrintout) {
-    }
+    : inputsAlreadyIn_(0), stripid_{0}, shift_(6), tpInfoPrintout_(tpInfoPrintout) {}
 
 EcalFenixEvenAmplitudeFilter::~EcalFenixEvenAmplitudeFilter() {}
 
@@ -32,9 +31,9 @@ int EcalFenixEvenAmplitudeFilter::setInput(int input, int fgvb) {
 }
 
 void EcalFenixEvenAmplitudeFilter::process(std::vector<int> &addout,
-                                       std::vector<int> &output,
-                                       std::vector<int> &fgvbIn,
-                                       std::vector<int> &fgvbOut) {
+                                           std::vector<int> &output,
+                                           std::vector<int> &fgvbIn,
+                                           std::vector<int> &fgvbOut) {
   inputsAlreadyIn_ = 0;
   for (unsigned int i = 0; i < 5; i++) {
     buffer_[i] = 0;
@@ -102,8 +101,8 @@ void EcalFenixEvenAmplitudeFilter::process() {
 }
 
 void EcalFenixEvenAmplitudeFilter::setParameters(uint32_t raw,
-                                             const EcalTPGWeightIdMap *ecaltpgWeightMap,
-                                             const EcalTPGWeightGroup *ecaltpgWeightGroup) {
+                                                 const EcalTPGWeightIdMap *ecaltpgWeightMap,
+                                                 const EcalTPGWeightGroup *ecaltpgWeightGroup) {
   stripid_ = raw;
   uint32_t params_[5];
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgWeightGroup->getMap();

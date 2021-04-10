@@ -14,7 +14,7 @@
  *  ----> do we really need caloVShape?
  */
 
-class EcalFenixPeakFinderPhase1{
+class EcalFenixPeakFinderPhase1 {
 private:
   bool disabled;
   int setInput(int input);

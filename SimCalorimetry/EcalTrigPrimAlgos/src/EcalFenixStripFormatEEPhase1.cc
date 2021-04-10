@@ -14,7 +14,8 @@ EcalFenixStripFormatEEPhase1::~EcalFenixStripFormatEEPhase1() {}
 
 //-----------------------------------------------------------------------------------------
 
-int EcalFenixStripFormatEEPhase1::setInput(int input_even, int inputEvenPeak, int input_odd, int inputOddPeak, int fgvb) {
+int EcalFenixStripFormatEEPhase1::setInput(
+    int input_even, int inputEvenPeak, int input_odd, int inputOddPeak, int fgvb) {
   inputEvenPeak_ = inputEvenPeak;
   input_even_ = input_even;
   inputOddPeak_ = inputOddPeak;
@@ -95,11 +96,11 @@ int EcalFenixStripFormatEEPhase1::process() {
 //------------------------------------------------------------------------------------------
 
 void EcalFenixStripFormatEEPhase1::process(std::vector<int> &fgvbout,
-                                     std::vector<int> &peakout_even,
-                                     std::vector<int> &filtout_even,
-                                     std::vector<int> &peakout_odd,
-                                     std::vector<int> &filtout_odd,
-                                     std::vector<int> &output) {
+                                           std::vector<int> &peakout_even,
+                                           std::vector<int> &filtout_even,
+                                           std::vector<int> &peakout_odd,
+                                           std::vector<int> &filtout_odd,
+                                           std::vector<int> &output) {
   if (peakout_even.size() != filtout_even.size() || fgvbout.size() != filtout_even.size() ||
       peakout_odd.size() != filtout_odd.size() || filtout_odd.size() != filtout_even.size()) {
     edm::LogWarning("EcalTPG") << " problem in EcalFenixStripFormatEEPhase1: peak_out and filt_out don't "
@@ -117,9 +118,9 @@ void EcalFenixStripFormatEEPhase1::process(std::vector<int> &fgvbout,
 //-----------------------------------------------------------------------------------------
 
 void EcalFenixStripFormatEEPhase1::setParameters(uint32_t id,
-                                           const EcalTPGSlidingWindow *&slWin,
-                                           const EcalTPGStripStatus *stripStatus,
-                                           const EcalTPGTPMode *ecaltpgTPMode) {
+                                                 const EcalTPGSlidingWindow *&slWin,
+                                                 const EcalTPGStripStatus *stripStatus,
+                                                 const EcalTPGTPMode *ecaltpgTPMode) {
   // TP mode contains options for the formatter (odd/even filters config)
   ecaltpgTPMode_ = ecaltpgTPMode;
   const EcalTPGSlidingWindowMap &slwinmap = slWin->getMap();
