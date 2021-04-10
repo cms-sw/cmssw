@@ -16,13 +16,12 @@ CSCALCTDigiValidation::CSCALCTDigiValidation(const edm::ParameterSet &ps, edm::C
 CSCALCTDigiValidation::~CSCALCTDigiValidation() {}
 
 void CSCALCTDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
-  theNDigisPerEventPlot =
-      iBooker.book1D("CSCALCTDigisPerEvent", "ALCT Digis per event; Number of ALCTs; Entries", 4, 0, 4);
+  theNDigisPerEventPlot = iBooker.book1D(
+      "CSCALCTDigisPerEvent", "ALCT trigger primitives per event; Number of ALCTs; Entries", 100, 0, 100);
   for (int i = 1; i <= 10; ++i) {
     const std::string t1("CSCALCTDigiTime_" + CSCDetId::chamberName(i));
     const std::string t2("CSCALCTDigisPerChamber_" + CSCDetId::chamberName(i));
-    theTimeBinPlots[i - 1] =
-        iBooker.book1D(t1, "Wire Time Bin " + CSCDetId::chamberName(i) + ";Wire Time Bin; Entries", 16, 0, 16);
+    theTimeBinPlots[i - 1] = iBooker.book1D(t1, "ALCT BX " + CSCDetId::chamberName(i) + ";ALCT BX; Entries", 16, 0, 16);
     theNDigisPerChamberPlots[i - 1] = iBooker.book1D(
         t2, "Number of ALCTs per chamber " + CSCDetId::chamberName(i) + ";Number of ALCTs per chamber;Entries", 4, 0, 4);
   }
