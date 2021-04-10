@@ -5,7 +5,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGTPMode.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormatEB.h>
-#include <iostream>
 using namespace std;
 
 EcalFenixTcpFormatEB::EcalFenixTcpFormatEB(bool tcpFormat, bool debug, bool famos, int binOfMax)
