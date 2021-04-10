@@ -191,17 +191,16 @@ void EcalFenixStrip::process_part1(int identif,
   }
 
   if (famos_) {
-    for(unsigned int ix = 0; ix < add_out_.size(); ix++){
+    for (unsigned int ix = 0; ix < add_out_.size(); ix++) {
       even_filt_out_[ix] = add_out_[ix];
-      odd_filt_out_ [ix] = add_out_[ix]; 
+      odd_filt_out_[ix] = add_out_[ix];
     }
-    if (debug_){
+    if (debug_) {
       std::cout << "Famos mode: only even filter output" << std::endl;
     }
     return;
   } else {
-
-    if (debug_){
+    if (debug_) {
       std::cout << "About to call the even filter" << std::endl;
     }
 
@@ -235,14 +234,13 @@ void EcalFenixStrip::process_part1(int identif,
       std::cout << std::endl;
     }
 
-
-    if (debug_){
+    if (debug_) {
       std::cout << "About to call the odd filter" << std::endl;
     }
     // This is where the amplitude filters are called
     // the TPmode flag will determine which are called and if the peak finder is called.
     // Call even amplitude filter
-        //  Run the odd filter
+    //  Run the odd filter
     this->getOddFilter()->setParameters(stripid, ecaltpgOddWeightMap, ecaltpgOddWeightGroup);
     this->getOddFilter()->process(add_out_, odd_filt_out_);
 

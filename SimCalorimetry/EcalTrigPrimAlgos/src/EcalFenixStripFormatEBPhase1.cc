@@ -81,11 +81,11 @@ int EcalFenixStripFormatEBPhase1::process() {
 }
 
 void EcalFenixStripFormatEBPhase1::process(std::vector<int> &sFGVBout,
-                                     std::vector<int> &peakout_even,
-                                     std::vector<int> &filtout_even,
-                                     std::vector<int> &peakout_odd,
-                                     std::vector<int> &filtout_odd,
-                                     std::vector<int> &output) {
+                                           std::vector<int> &peakout_even,
+                                           std::vector<int> &filtout_even,
+                                           std::vector<int> &peakout_odd,
+                                           std::vector<int> &filtout_odd,
+                                           std::vector<int> &output) {
   if (peakout_even.size() != filtout_even.size() || sFGVBout.size() != filtout_even.size() ||
       peakout_odd.size() != filtout_odd.size() || filtout_odd.size() != filtout_even.size()) {
     edm::LogWarning("EcalTPG") << " problem in EcalFenixStripFormatEBPhase1: sfgvb_out, peak_out and "
@@ -99,8 +99,8 @@ void EcalFenixStripFormatEBPhase1::process(std::vector<int> &sFGVBout,
 }
 
 void EcalFenixStripFormatEBPhase1::setParameters(uint32_t &id,
-                                           const EcalTPGSlidingWindow *&slWin,
-                                           const EcalTPGTPMode *ecaltptTPMode) {
+                                                 const EcalTPGSlidingWindow *&slWin,
+                                                 const EcalTPGTPMode *ecaltptTPMode) {
   // TP mode contains options for the formatter (odd/even filters config)
   ecaltpgTPMode_ = ecaltptTPMode;
   const EcalTPGSlidingWindowMap &slwinmap = slWin->getMap();
