@@ -33,10 +33,10 @@ namespace ticl {
       std::vector<float> rho;
 
       std::vector<float> delta;
-      std::vector<std::pair<int,int>> nearestHigher;
+      std::vector<std::pair<int, int>> nearestHigher;
       std::vector<int> clusterIndex;
       std::vector<unsigned int> layerClusterOriginalIdx;
-      std::vector<std::vector<std::pair<int,int>>> followers;
+      std::vector<std::vector<std::pair<int, int>>> followers;
       std::vector<bool> isSeed;
 
       void clear() {
@@ -80,12 +80,10 @@ namespace ticl {
         c.shrink_to_fit();
       }
     }
-    void calculateLocalDensity(const TILES&, const unsigned int layerId, const
-        std::vector<std::pair<int, int>> &);
-    void calculateDistanceToHigher(const TILES&, const unsigned int layerId, const
-        std::vector<std::pair<int, int>> &);
-    int findAndAssignTracksters(const TILES&, const std::vector<std::pair<int, int>> &);
-    void dumpClusters(const std::vector<std::pair<int, int>> & layerIdx2layerandSoa) const;
+    void calculateLocalDensity(const TILES&, const unsigned int layerId, const std::vector<std::pair<int, int>>&);
+    void calculateDistanceToHigher(const TILES&, const unsigned int layerId, const std::vector<std::pair<int, int>>&);
+    int findAndAssignTracksters(const TILES&, const std::vector<std::pair<int, int>>&);
+    void dumpClusters(const std::vector<std::pair<int, int>>& layerIdx2layerandSoa) const;
     void dumpTiles(const TILES&) const;
 
     std::vector<ClustersOnLayer> clusters_;
