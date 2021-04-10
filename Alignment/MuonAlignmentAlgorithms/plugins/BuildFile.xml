@@ -3,7 +3,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <library name="CSCOverlapsAlignmentAlgorithm" file="CSCOverlapsAlignmentAlgorithm.cc,CSCOverlapsTrackPreparation.cc,CSCOverlapsBeamSplashCut.cc,CSCPairResidualsConstraint.cc,CSCChamberFitter.cc,CSCAlignmentCorrections.cc">
-  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/CSCGeometry"/>
   <use name="MagneticField/Engine"/>
@@ -38,7 +38,7 @@
   <use name="CommonTools/UtilAlgos"/>
   <use name="DataFormats/MuonDetId"/>
   <use name="DataFormats/TrackReco"/>
-  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
   <use name="Geometry/Records"/>
   <use name="TrackingTools/PatternTools"/>
   <use name="root"/>
@@ -55,7 +55,7 @@
 </library>
 
 <library name="MuonMillepedeAlgorithm" file="MuonMillepedeAlgorithm.cc,MuonMillepedeTrackRefitter.cc">
-  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
   <use name="DataFormats/GeometrySurface"/>

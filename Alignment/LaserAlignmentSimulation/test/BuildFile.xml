@@ -2,7 +2,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/DetId"/>
 <use name="SimDataFormats/TrackingHit"/>

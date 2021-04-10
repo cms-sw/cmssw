@@ -9,7 +9,7 @@
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/Records"/>
 <use name="TrackingTools/PatternTools"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Alignment/MuonAlignment"/>
 <use name="Alignment/MuonAlignmentAlgorithms"/>
 <use name="root"/>
