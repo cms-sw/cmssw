@@ -1,5 +1,5 @@
-#ifndef ECAL_FENIX_TCP_FORMAT_H
-#define ECAL_FENIX_TCP_FORMAT_H
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBFenixTcpFormat_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBFenixTcpFormat_h
 
 #include "DataFormats/EcalDigi/interface/EcalEBTriggerPrimitiveSample.h"
 #include <vector>
@@ -10,7 +10,7 @@ class EcalTPGTowerStatus;
 class EcalTPGSpike;
 
 /** 
-    \class EcalFenixStripFormat
+    \class EcalEBFenixTcpFormat
     \brief Formatting for Fenix Tcp
     *  input 10 bits from Ettot 
     *         1 bit from fgvb
@@ -19,10 +19,10 @@ class EcalTPGSpike;
     *  simple formatting
     *  
     */
-class EcalFenixTcpFormat {
+class EcalEBFenixTcpFormat {
 public:
-  EcalFenixTcpFormat(bool tccFormat, bool debug, bool famos, int binOfMax);
-  virtual ~EcalFenixTcpFormat();
+  EcalEBFenixTcpFormat(bool tccFormat, bool debug, bool famos, int binOfMax);
+  virtual ~EcalEBFenixTcpFormat();
 
   void process(std::vector<int> &, std::vector<int> &);
   void process(std::vector<int> &Et,

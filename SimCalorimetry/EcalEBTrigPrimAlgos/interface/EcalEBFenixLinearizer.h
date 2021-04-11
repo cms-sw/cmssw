@@ -1,5 +1,5 @@
-#ifndef ECAL_FENIX_LINEARIZER_H
-#define ECAL_FENIX_LINEARIZER_H
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBFenixLinearizer_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBFenixLinearizer_h
 
 #include <DataFormats/EcalDigi/interface/EcalMGPASample.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGPedestals.h>
@@ -9,14 +9,14 @@
 #include <vector>
 
 /** 
-   \class EcalFenixLinearizer
+   \class EcalEBFenixLinearizer
    \brief Linearisation for Fenix strip
    *  input: 16 bits  corresponding to input EBDataFrame
    *  output: 18 bits 
    *  
    */
 
-class EcalFenixLinearizer {
+class EcalEBFenixLinearizer {
 private:
   bool famos_;
   int uncorrectedSample_;
@@ -37,8 +37,8 @@ private:
   int process();
 
 public:
-  EcalFenixLinearizer(bool famos);
-  virtual ~EcalFenixLinearizer();
+  EcalEBFenixLinearizer(bool famos);
+  virtual ~EcalEBFenixLinearizer();
 
   template <class T>
   void process(const T &, std::vector<int> &);
@@ -49,7 +49,7 @@ public:
 };
 
 template <class T>
-void EcalFenixLinearizer::process(const T &df, std::vector<int> &output_percry) {
+void EcalEBFenixLinearizer::process(const T &df, std::vector<int> &output_percry) {
   //We know a tower numbering is:
   // S1 S2 S3 S4 S5
   //
@@ -59,7 +59,7 @@ void EcalFenixLinearizer::process(const T &df, std::vector<int> &output_percry) 
   // 1  8  11 18 21
   // 0  9  10 19 20
 
-  //std::cout << " EcalFenixLinearizer::process(const  .. DataFrame " << std::endl;
+  //std::cout << " EcalEBFenixLinearizer::process(const  .. DataFrame " << std::endl;
   for (int i = 0; i < df.size(); i++) {
     //std::cout <<  df[i] << " ";
   }
@@ -69,7 +69,7 @@ void EcalFenixLinearizer::process(const T &df, std::vector<int> &output_percry) 
     output_percry[i] = process();
   }
 
-  //std::cout << " EcalFenixLinearizer::process(const  .. Final output " << std::endl;
+  //std::cout << " EcalEBFenixLinearizer::process(const  .. Final output " << std::endl;
   for (int i = 0; i < df.size(); i++) {
     //std::cout << " output_percry " << output_percry[i]<< " ";
   }
