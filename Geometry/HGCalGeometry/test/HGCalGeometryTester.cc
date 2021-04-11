@@ -177,14 +177,14 @@ void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom, DetId::Detector
     for (int layer : layers) {
       int type = geom->topology().dddConstants().getTypeTrap(layer);
       for (int ieta : ietas) {
-	std::pair<int, int> typm = geom->topology().dddConstants().tileType(layer, ieta, 0);
+        std::pair<int, int> typm = geom->topology().dddConstants().tileType(layer, ieta, 0);
         for (int iphi : iphis) {
-	  HGCScintillatorDetId detId(type, layer, zside * ieta, iphi);
-	  if (typm.first >= 0) {
-	    detId.setType(typm.first);
-	    detId.setSiPM(typm.second);
-	  }
-	  DetId id1 = static_cast<DetId>(detId);
+          HGCScintillatorDetId detId(type, layer, zside * ieta, iphi);
+          if (typm.first >= 0) {
+            detId.setType(typm.first);
+            detId.setSiPM(typm.second);
+          }
+          DetId id1 = static_cast<DetId>(detId);
           if (geom->topology().valid(id1)) {
             auto icell1 = geom->getGeometry(id1);
             GlobalPoint global1 = geom->getPosition(id1);
