@@ -52,6 +52,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ_vect.h"
@@ -267,6 +268,13 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry = iSetup.getHandle(trackingGeomToken_);
 
   //=======================================================
+  // Retrieve tracker topology from geometry
+  //=======================================================
+
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  //=======================================================
   // Retrieve geometry information
   //=======================================================
 
@@ -274,81 +282,55 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(geomToken_);
   edm::LogInfo("tracker geometry read") << "There are: " << pDD->dets().size() << " detectors";
 
-  // switch on the phase2
-  if ((pDD->isThere(GeomDetEnumerators::P2PXB)) || (pDD->isThere(GeomDetEnumerators::P2PXEC))) {
-    phase_ = PVValHelper::phase2;
-    nLadders_ = 12;
-    nModZ_ = 9;
+  PixelTopologyMap PTMap = PixelTopologyMap(pDD.product(), tTopo);
+  nLadders_ = PTMap.getPXBLadders(1);
+  nModZ_ = PTMap.getPXBModules(1);
 
-    if (h_dxy_ladderOverlap_.size() != nLadders_) {
-      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderOverlap_, nLadders_);
-      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderNoOverlap_, nLadders_);
-      PVValHelper::shrinkHistVectorToFit(h_dxy_ladder_, nLadders_);
-      PVValHelper::shrinkHistVectorToFit(h_dz_ladder_, nLadders_);
-      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_ladder_, nLadders_);
-      PVValHelper::shrinkHistVectorToFit(h_norm_dz_ladder_, nLadders_);
+  //=======================================================
+  // shrink to fit
+  //=======================================================
 
-      if (debug_) {
-        edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_ladder_.size() << std::endl;
-      }
+  if (h_dxy_ladderOverlap_.size() != nLadders_) {
+    PVValHelper::shrinkHistVectorToFit(h_dxy_ladderOverlap_, nLadders_);
+    PVValHelper::shrinkHistVectorToFit(h_dxy_ladderNoOverlap_, nLadders_);
+    PVValHelper::shrinkHistVectorToFit(h_dxy_ladder_, nLadders_);
+    PVValHelper::shrinkHistVectorToFit(h_dz_ladder_, nLadders_);
+    PVValHelper::shrinkHistVectorToFit(h_norm_dxy_ladder_, nLadders_);
+    PVValHelper::shrinkHistVectorToFit(h_norm_dz_ladder_, nLadders_);
+
+    if (debug_) {
+      edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_ladder_.size() << std::endl;
     }
+  }
 
+  if (h_dxy_modZ_.size() != nModZ_) {
+    PVValHelper::shrinkHistVectorToFit(h_dxy_modZ_, nModZ_);
+    PVValHelper::shrinkHistVectorToFit(h_dz_modZ_, nModZ_);
+    PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
+    PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
+
+    if (debug_) {
+      edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_modZ_.size() << std::endl;
+    }
+  }
+
+  if ((pDD->isThere(GeomDetEnumerators::P2PXB)) || (pDD->isThere(GeomDetEnumerators::P2PXEC))) {
+    // switch on the phase-2
+    phase_ = PVValHelper::phase2;
     if (debug_) {
       edm::LogInfo("PrimaryVertexValidation")
           << " pixel phase2 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
     }
 
   } else if ((pDD->isThere(GeomDetEnumerators::P1PXB)) || (pDD->isThere(GeomDetEnumerators::P1PXEC))) {
-    // switch on the phase1
-    phase_ = PVValHelper::phase1;
-    nLadders_ = 12;
-    nModZ_ = 8;
-
-    if (h_dxy_ladderOverlap_.size() != nLadders_) {
-      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderOverlap_, nLadders_);
-      PVValHelper::shrinkHistVectorToFit(h_dxy_ladderNoOverlap_, nLadders_);
-      PVValHelper::shrinkHistVectorToFit(h_dxy_ladder_, nLadders_);
-      PVValHelper::shrinkHistVectorToFit(h_dz_ladder_, nLadders_);
-      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_ladder_, nLadders_);
-      PVValHelper::shrinkHistVectorToFit(h_norm_dz_ladder_, nLadders_);
-
-      if (debug_) {
-        edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_ladder_.size() << std::endl;
-      }
-    }
-
-    if (h_dxy_modZ_.size() != nModZ_) {
-      PVValHelper::shrinkHistVectorToFit(h_dxy_modZ_, nModZ_);
-      PVValHelper::shrinkHistVectorToFit(h_dz_modZ_, nModZ_);
-      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
-      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
-
-      if (debug_) {
-        edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_modZ_.size() << std::endl;
-      }
-    }
-
+    // switch on the phase-1
     if (debug_) {
       edm::LogInfo("PrimaryVertexValidation")
           << " pixel phase1 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
     }
-
   } else {
+    // switch on the phase-0
     phase_ = PVValHelper::phase0;
-    nLadders_ = 20;
-    nModZ_ = 8;
-
-    if (h_dxy_modZ_.size() != nModZ_) {
-      PVValHelper::shrinkHistVectorToFit(h_dxy_modZ_, nModZ_);
-      PVValHelper::shrinkHistVectorToFit(h_dz_modZ_, nModZ_);
-      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
-      PVValHelper::shrinkHistVectorToFit(h_norm_dxy_modZ_, nModZ_);
-
-      if (debug_) {
-        edm::LogInfo("PrimaryVertexValidation") << "checking size:" << h_dxy_modZ_.size() << std::endl;
-      }
-    }
-
     if (debug_) {
       edm::LogInfo("PrimaryVertexValidation")
           << " pixel phase0 setup, nLadders: " << nLadders_ << " nModules:" << nModZ_;
@@ -395,13 +377,6 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
   if (!trackCollectionHandle.isValid())
     return;
   auto const& tracks = *trackCollectionHandle;
-
-  //=======================================================
-  // Retrieve tracker topology from geometry
-  //=======================================================
-
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //=======================================================
   // Retrieve offline vartex information (only for reco)
