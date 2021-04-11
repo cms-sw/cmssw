@@ -1,5 +1,5 @@
-#ifndef ECAL_FENIX_STRIP_FORMAT_EB_H
-#define ECAL_FENIX_STRIP_FORMAT_EB_H
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBFenixStripFormatEB_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBFenixStripFormatEB_h
 
 #include <vector>
 #include <cstdint>
@@ -7,7 +7,7 @@
 class EcalTPGSlidingWindow;
 
 /** 
-    \class EcalFenixStripFormatEB
+    \class EcalEBFenixStripFormatEB
    \brief Formatting for Fenix strip
   *  input: 18 bits + 3x 1bit (fgvb, gapflagbit, output from peakfinder)
    *  output:16 bits
@@ -15,7 +15,7 @@ class EcalTPGSlidingWindow;
    *  --- not really a calodataframe no?
    */
 
-class EcalFenixStripFormatEB {
+class EcalEBFenixStripFormatEB {
 private:
   int inputsFGVB_;
   int inputPeak_;
@@ -27,8 +27,8 @@ private:
   int process();
 
 public:
-  EcalFenixStripFormatEB();
-  virtual ~EcalFenixStripFormatEB();
+  EcalEBFenixStripFormatEB();
+  virtual ~EcalEBFenixStripFormatEB();
   virtual void process(std::vector<int> &, std::vector<int> &, std::vector<int> &, std::vector<int> &);
   void setParameters(uint32_t &, const EcalTPGSlidingWindow *&);
 };

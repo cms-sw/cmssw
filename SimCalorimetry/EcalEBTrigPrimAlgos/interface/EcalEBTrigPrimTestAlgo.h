@@ -1,5 +1,5 @@
-#ifndef EcalEBTrigPrimTestAlgo_h
-#define EcalEBTrigPrimTestAlgo_h
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBTrigPrimTestAlgo_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBTrigPrimTestAlgo_h
 /** \class EcalEBTrigPrimTestAlgo
 \author N. Marinelli - Univ. of Notre Dame
  * forPhase II 
@@ -25,11 +25,11 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixLinearizer.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixPeakFinder.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixStripFormatEB.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixLinearizer.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixAmplitudeFilter.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixPeakFinder.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixStripFormatEB.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixTcpFormat.h>
 
 #include <map>
 #include <utility>
@@ -129,11 +129,11 @@ private:
 
   const EcalElectronicsMapping *theMapping_;
 
-  std::vector<EcalFenixLinearizer *> linearizer_;
-  EcalFenixAmplitudeFilter *amplitude_filter_;
-  EcalFenixPeakFinder *peak_finder_;
-  EcalFenixStripFormatEB *fenixFormatterEB_;
-  EcalFenixTcpFormat *fenixTcpFormat_;
+  std::vector<EcalEBFenixLinearizer *> linearizer_;
+  EcalEBFenixAmplitudeFilter *amplitude_filter_;
+  EcalEBFenixPeakFinder *peak_finder_;
+  EcalEBFenixStripFormatEB *fenixFormatterEB_;
+  EcalEBFenixTcpFormat *fenixTcpFormat_;
 
   //
   const EcalTPGPedestals *ecaltpPed_;
@@ -147,10 +147,10 @@ private:
   const EcalTPGTowerStatus *ecaltpgBadTT_;
   const EcalTPGSpike *ecaltpgSpike_;
 
-  EcalFenixLinearizer *getLinearizer(int i) const { return linearizer_[i]; }
+  EcalEBFenixLinearizer *getLinearizer(int i) const { return linearizer_[i]; }
   std::vector<std::vector<int> > lin_out_;
   //
-  EcalFenixAmplitudeFilter *getFilter() const { return amplitude_filter_; }
+  EcalEBFenixAmplitudeFilter *getFilter() const { return amplitude_filter_; }
   std::vector<int> filt_out_;
   std::vector<int> peak_out_;
   std::vector<int> format_out_;
@@ -159,10 +159,10 @@ private:
   std::vector<int> fgvb_out_temp_;
 
   //
-  EcalFenixPeakFinder *getPeakFinder() const { return peak_finder_; }
-  EcalFenixStripFormatEB *getFormatterEB() const { return fenixFormatterEB_; }
+  EcalEBFenixPeakFinder *getPeakFinder() const { return peak_finder_; }
+  EcalEBFenixStripFormatEB *getFormatterEB() const { return fenixFormatterEB_; }
   //
-  EcalFenixTcpFormat *getFormatter() const { return fenixTcpFormat_; }
+  EcalEBFenixTcpFormat *getFormatter() const { return fenixTcpFormat_; }
   std::vector<int> tcpformat_out_;
 };
 

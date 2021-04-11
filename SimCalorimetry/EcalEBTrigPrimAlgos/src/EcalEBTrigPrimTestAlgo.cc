@@ -68,7 +68,7 @@ void EcalEBTrigPrimTestAlgo::init(const edm::EventSetup &setup) {
 
   linearizer_.resize(nbMaxXtals_);
   for (int i = 0; i < nbMaxXtals_; i++)
-    linearizer_[i] = new EcalFenixLinearizer(famos_);
+    linearizer_[i] = new EcalEBFenixLinearizer(famos_);
 
   //
   std::vector<int> v;
@@ -77,18 +77,18 @@ void EcalEBTrigPrimTestAlgo::init(const edm::EventSetup &setup) {
   for (int i = 0; i < 5; i++)
     lin_out_[i] = v;
   //
-  amplitude_filter_ = new EcalFenixAmplitudeFilter();
+  amplitude_filter_ = new EcalEBFenixAmplitudeFilter();
   filt_out_.resize(maxNrSamples_);
   peak_out_.resize(maxNrSamples_);
   // these two are dummy
   fgvb_out_.resize(maxNrSamples_);
   fgvb_out_temp_.resize(maxNrSamples_);
   //
-  peak_finder_ = new EcalFenixPeakFinder();
-  fenixFormatterEB_ = new EcalFenixStripFormatEB();
+  peak_finder_ = new EcalEBFenixPeakFinder();
+  fenixFormatterEB_ = new EcalEBFenixStripFormatEB();
   format_out_.resize(maxNrSamples_);
   //
-  fenixTcpFormat_ = new EcalFenixTcpFormat(tcpFormat_, debug_, famos_, binOfMaximum_);
+  fenixTcpFormat_ = new EcalEBFenixTcpFormat(tcpFormat_, debug_, famos_, binOfMaximum_);
   tcpformat_out_.resize(maxNrSamples_);
 }
 //----------------------------------------------------------------------
