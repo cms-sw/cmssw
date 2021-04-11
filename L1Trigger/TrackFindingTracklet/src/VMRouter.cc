@@ -13,8 +13,8 @@
 using namespace std;
 using namespace trklet;
 
-VMRouter::VMRouter(string name, Settings const& settings, Globals* global, unsigned int iSector)
-    : ProcessBase(name, settings, global, iSector), vmrtable_(settings) {
+VMRouter::VMRouter(string name, Settings const& settings, Globals* global)
+    : ProcessBase(name, settings, global), vmrtable_(settings) {
   layerdisk_ = initLayerDisk(4);
 
   vmstubsMEPHI_.resize(settings_.nvmme(layerdisk_), nullptr);
@@ -22,7 +22,7 @@ VMRouter::VMRouter(string name, Settings const& settings, Globals* global, unsig
   overlapbits_ = 7;
   nextrabits_ = overlapbits_ - (settings_.nbitsallstubs(layerdisk_) + settings_.nbitsvmme(layerdisk_));
 
-  vmrtable_.init(layerdisk_, getName());
+  vmrtable_.init(layerdisk_, name);
 
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk_);
   nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk_);
@@ -136,7 +136,17 @@ void VMRouter::addInput(MemoryBase* memory, string input) {
     InputLinkMemory* tmp1 = dynamic_cast<InputLinkMemory*>(memory);
     assert(tmp1 != nullptr);
     if (tmp1 != nullptr) {
-      stubinputs_.push_back(tmp1);
+      if (layerdisk_ > N_LAYER && tmp1->getName().find("2S_") != string::npos) {
+        stubinputdisk2stmp_.push_back(tmp1);
+      } else {
+        stubinputtmp_.push_back(tmp1);
+      }
+    }
+    //This gymnastic is done to ensure that in the disks the PS stubs are processed before
+    //the 2S stubs. This is needed by the current HLS implemenation of the VM router.
+    stubinputs_ = stubinputtmp_;
+    for (auto& mem : stubinputdisk2stmp_) {
+      stubinputs_.push_back(mem);
     }
     return;
   }
@@ -149,7 +159,7 @@ void VMRouter::execute() {
   //Loop over the input stubs
   for (auto& stubinput : stubinputs_) {
     for (unsigned int i = 0; i < stubinput->nStubs(); i++) {
-      if (allStubCounter > settings_.maxStep("VMR"))
+      if (allStubCounter >= settings_.maxStep("VMR"))
         continue;
       if (allStubCounter > 127)
         continue;
@@ -235,10 +245,18 @@ void VMRouter::execute() {
 
       assert(vmstubsMEPHI_[ivmPlus] != nullptr);
       vmstubsMEPHI_[ivmPlus]->addStub(vmstub, vmbin);
+      if (settings_.debugTracklet()) {
+        edm::LogVerbatim("Tracklet") << getName() << " adding stub to " << vmstubsMEPHI_[ivmPlus]->getName()
+                                     << " ivmPlus" << ivmPlus << " bin=" << vmbin;
+      }
 
       if (ivmMinus != ivmPlus) {
         assert(vmstubsMEPHI_[ivmMinus] != nullptr);
         vmstubsMEPHI_[ivmMinus]->addStub(vmstub, vmbin);
+        if (settings_.debugTracklet()) {
+          edm::LogVerbatim("Tracklet") << getName() << " adding stub to " << vmstubsMEPHI_[ivmMinus]->getName()
+                                       << " ivmMinus" << ivmMinus << " bin=" << vmbin;
+        }
       }
 
       //Fill the TE VM memories

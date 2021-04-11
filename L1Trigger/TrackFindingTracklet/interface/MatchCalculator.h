@@ -20,14 +20,14 @@ namespace trklet {
 
   class MatchCalculator : public ProcessBase {
   public:
-    MatchCalculator(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
+    MatchCalculator(std::string name, Settings const& settings, Globals* global);
 
     ~MatchCalculator() override = default;
 
     void addOutput(MemoryBase* memory, std::string output) override;
     void addInput(MemoryBase* memory, std::string input) override;
 
-    void execute();
+    void execute(double phioffset);
 
     std::vector<std::pair<std::pair<Tracklet*, int>, const Stub*> > mergeMatches(
         std::vector<CandidateMatchMemory*>& candmatch);
@@ -40,7 +40,6 @@ namespace trklet {
     int icorrshift_;
     int icorzshift_;
     int phi0shift_;
-    double phioffset_;
 
     unsigned int phimatchcut_[N_SEED];
     unsigned int zmatchcut_[N_SEED];

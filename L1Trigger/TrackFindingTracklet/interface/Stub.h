@@ -13,11 +13,13 @@
 
 namespace trklet {
 
+  class Globals;
+
   class Stub {
   public:
     Stub(Settings const& settings);
 
-    Stub(L1TStub& stub, Settings const& settings, double phiminsec, double phimaxsec);
+    Stub(L1TStub& stub, Settings const& settings, Globals& globals);
 
     ~Stub() = default;
 
@@ -30,12 +32,21 @@ namespace trklet {
         if (isPSmodule()) {
           return r_.str() + "|" + z_.str() + "|" + phi_.str() + "|" + bend_.str();
         } else {
-          return "000" + r_.str() + "|" + z_.str() + "|" + phi_.str() + "|" + alphanew_.str() + "|" + bend_.str();
+          return "000" + r_.str() + "|" + z_.str() + "|" + phi_.str() + "|" + alpha_.str() + "|" + bend_.str();
         }
       }
     }
 
     std::string strbare() const { return bend_.str() + r_.str() + z_.str() + phi_.str(); }
+
+    std::string strinner() const {
+      unsigned int nbitsfinephi = 8;
+      FPGAWord finephi(
+          phicorr_.bits(phicorr_.nbits() - nbitsfinephi, nbitsfinephi), nbitsfinephi, true, __LINE__, __FILE__);
+      return str() + "|" + stubindex_.str() + "|" + finephi.str();
+    }
+
+    FPGAWord allStubIndex() const { return stubindex_; }
 
     unsigned int phiregionaddress() const;
     std::string phiregionaddressstr() const;
@@ -50,17 +61,14 @@ namespace trklet {
     const FPGAWord& z() const { return z_; }
     const FPGAWord& phi() const { return phi_; }
     const FPGAWord& phicorr() const { return phicorr_; }
-    const FPGAWord& alphanew() const { return alphanew_; }
+    const FPGAWord& alpha() const { return alpha_; }
 
     const FPGAWord& stubindex() const { return stubindex_; }
     const FPGAWord& layer() const { return layer_; }
     const FPGAWord& disk() const { return disk_; }
     unsigned int layerdisk() const;
 
-    bool isBarrel() const { return layer_.value() != -1; }
-    bool isDisk() const { return disk_.value() != 0; }
-
-    bool isPSmodule() const { return isBarrel() ? (layer_.value() < (int)N_PSLAYER) : (r_.value() > 10); }
+    bool isPSmodule() const { return (layerdisk_ < N_LAYER) ? (layerdisk_ < N_PSLAYER) : (r_.value() > 10); }
 
     double rapprox() const;
     double zapprox() const;
@@ -70,13 +78,17 @@ namespace trklet {
     const L1TStub* l1tstub() const { return l1tstub_; }
     void setl1tstub(L1TStub* l1tstub) { l1tstub_ = l1tstub; }
 
+    bool isBarrel() const { return layerdisk_ < N_LAYER; }
+
   private:
+    unsigned int layerdisk_;
+
     FPGAWord layer_;
     FPGAWord disk_;
     FPGAWord r_;
     FPGAWord z_;
     FPGAWord phi_;
-    FPGAWord alphanew_;
+    FPGAWord alpha_;
 
     FPGAWord bend_;
 
