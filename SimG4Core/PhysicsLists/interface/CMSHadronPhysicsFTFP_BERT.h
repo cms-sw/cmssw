@@ -4,7 +4,7 @@
 //
 // Hadron physics for the new CMS physics list FTFP_BERT_EMM_TRK.
 // The hadron physics of FTFP_BERT has the transition between Bertini
-// (BERT) intra-nuclear cascade model and Fritiof (FTF) string model 
+// (BERT) intra-nuclear cascade model and Fritiof (FTF) string model
 // optimized for CMS.
 //---------------------------------------------------------------------------
 //
@@ -26,8 +26,7 @@ public:
 
   // copy constructor and hide assignment operator
   CMSHadronPhysicsFTFP_BERT(CMSHadronPhysicsFTFP_BERT &) = delete;
-  CMSHadronPhysicsFTFP_BERT & operator = (const CMSHadronPhysicsFTFP_BERT &right) = delete;
-
+  CMSHadronPhysicsFTFP_BERT &operator=(const CMSHadronPhysicsFTFP_BERT &right) = delete;
 };
 
 #endif

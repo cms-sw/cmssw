@@ -4,10 +4,10 @@
 #include "G4Threading.hh"
 
 CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int)
-  : CMSHadronPhysicsFTFP_BERT(3.*CLHEP::GeV, 6.*CLHEP::GeV, 12*CLHEP::GeV) {}
+    : CMSHadronPhysicsFTFP_BERT(3. * CLHEP::GeV, 6. * CLHEP::GeV, 12 * CLHEP::GeV) {}
 
 CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2, G4double e3)
-  : G4HadronPhysicsFTFP_BERT("hInelastic FTFP_BERT", false) {
+    : G4HadronPhysicsFTFP_BERT("hInelastic FTFP_BERT", false) {
   minFTFP_pion = e1;
   maxBERT_pion = e3;
   minFTFP_kaon = e1;

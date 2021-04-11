@@ -43,8 +43,8 @@
 #include "G4Region.hh"
 #include <string>
 
-CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p) 
-: G4VPhysicsConstructor("CMSEmStandard_emm"), verbose(ver) {
+CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p)
+    : G4VPhysicsConstructor("CMSEmStandard_emm"), verbose(ver) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(verbose);
@@ -56,11 +56,15 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p
   fRangeFactor = p.getParameter<double>("G4MscRangeFactor");
   fGeomFactor = p.getParameter<double>("G4MscGeomFactor");
   fSafetyFactor = p.getParameter<double>("G4MscSafetyFactor");
-  fLambdaLimit = p.getParameter<double>("G4MscLambdaLimit")*CLHEP::mm;
-  std::string msc =  p.getParameter<std::string>("G4MscStepLimit");
+  fLambdaLimit = p.getParameter<double>("G4MscLambdaLimit") * CLHEP::mm;
+  std::string msc = p.getParameter<std::string>("G4MscStepLimit");
   fStepLimitType = fUseSafety;
-  if(msc == "UseSafetyPlus") { fStepLimitType = fUseSafetyPlus; }
-  if(msc == "Minimal") { fStepLimitType = fMinimal; }
+  if (msc == "UseSafetyPlus") {
+    fStepLimitType = fUseSafetyPlus;
+  }
+  if (msc == "Minimal") {
+    fStepLimitType = fMinimal;
+  }
 }
 
 CMSEmStandardPhysics::~CMSEmStandardPhysics() {}
@@ -88,10 +92,8 @@ void CMSEmStandardPhysics::ConstructProcess() {
   // high energy limit for e+- scattering models and bremsstrahlung
   G4double highEnergyLimit = G4EmParameters::Instance()->MscEnergyLimit();
 
-  const G4Region* aRegion = 
-      G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
-  const G4Region* bRegion = 
-      G4RegionStore::GetInstance()->GetRegion("HGCalRegion", false);
+  const G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
+  const G4Region* bRegion = G4RegionStore::GetInstance()->GetRegion("HGCalRegion", false);
 
   // Add gamma EM Processes
   G4ParticleDefinition* particle = G4Gamma::Gamma();
@@ -99,7 +101,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
   G4PhotoElectricEffect* pee = new G4PhotoElectricEffect();
   pee->SetEmModel(new G4LivermorePhotoElectricModel());
 
-  if(G4EmParameters::Instance()->GeneralProcessActive()) {
+  if (G4EmParameters::Instance()->GeneralProcessActive()) {
     G4GammaGeneralProcess* sp = new G4GammaGeneralProcess();
     sp->AddEmProcess(pee);
     sp->AddEmProcess(new G4ComptonScattering());
@@ -140,9 +142,9 @@ void CMSEmStandardPhysics::ConstructProcess() {
     msc->AddEmModel(-1, msc3, bRegion);
   }
 
-  G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel(); 
+  G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
   G4CoulombScattering* ss = new G4CoulombScattering();
-  ss->SetEmModel(ssm); 
+  ss->SetEmModel(ssm);
   ss->SetMinKinEnergy(highEnergyLimit);
   ssm->SetLowEnergyLimit(highEnergyLimit);
   ssm->SetActivationLowEnergyLimit(highEnergyLimit);
@@ -178,9 +180,9 @@ void CMSEmStandardPhysics::ConstructProcess() {
     msc->AddEmModel(-1, msc3, bRegion);
   }
 
-  ssm = new G4eCoulombScatteringModel(); 
+  ssm = new G4eCoulombScatteringModel();
   ss = new G4CoulombScattering();
-  ss->SetEmModel(ssm); 
+  ss->SetEmModel(ssm);
   ss->SetMinKinEnergy(highEnergyLimit);
   ssm->SetLowEnergyLimit(highEnergyLimit);
   ssm->SetActivationLowEnergyLimit(highEnergyLimit);
