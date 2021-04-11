@@ -33,25 +33,19 @@ void VMRouterPhiCorrTable::init(int layer, int bendbits, int rbits) {
   }
 
   if (settings_.writeTable()) {
-    if (not std::filesystem::exists(settings_.tablePath())) {
-      int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
-      if (fail)
-        throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
-                                       << settings_.tablePath();
-    }
-
-    writeVMTable(settings_.tablePath() + "VMPhiCorrL" + std::to_string(layer_) + ".tab", false);
+    writeVMTable(settings_.tablePath(), "VMPhiCorrL" + std::to_string(layer_) + ".tab", false);
   }
 }
 
 int VMRouterPhiCorrTable::getphiCorrValue(int ibend, int irbin) const {
-  double bend = trklet::benddecode(ibend, layer_ <= (int)N_PSLAYER);
+  assert(layer_ > 0.0 && layer_ <= (int)N_LAYER);
+  double bend = -settings_.benddecode(ibend, layer_ - 1, layer_ <= (int)N_PSLAYER);
 
   //for the rbin - calculate the distance to the nominal layer radius
   double Delta = (irbin + 0.5) * dr_ - settings_.drmax();
 
   //calculate the phi correction - this is a somewhat approximate formula
-  double dphi = (Delta / 0.18) * (bend * settings_.stripPitch(false)) / rmean_;
+  double dphi = (Delta / 0.18) * (bend * settings_.stripPitch(layer_ <= (int)N_PSLAYER)) / rmean_;
 
   int idphi = 0;
 

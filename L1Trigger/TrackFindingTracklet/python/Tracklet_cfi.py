@@ -3,11 +3,11 @@ from L1Trigger.TrackTrigger.TrackQualityParams_cfi import *
 
 TTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                TTStubSource = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
+                                               InputTagTTDTC       = cms.InputTag  ( "TrackerDTCProducer", "StubAccepted" ), 
                                                readMoreMcTruth = cms.bool(True),
                                                MCTruthClusterInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
                                                MCTruthStubInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
                                                TrackingParticleInputTag = cms.InputTag("mix", "MergedTrackTruth"),
-                                               TrackingVertexInputTag = cms.InputTag("mix", "MergedTrackTruth"),
                                                BeamSpotSource = cms.InputTag("offlineBeamSpot"),
                                                asciiFileName = cms.untracked.string(""),
                                                # (if running on CRAB use "../../fitpattern.txt" etc instead)
@@ -17,9 +17,6 @@ TTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                memoryModulesFile  = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/memorymodules_hourglass.dat'),
                                                processingModulesFile  = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/processingmodules_hourglass.dat'),
                                                wiresFile  = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/wires_hourglass.dat'),
-                                               DTCLinkFile  = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/calcNumDTCLinks.txt'),
-                                               DTCLinkLayerDiskFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/dtclinklayerdisk.dat'),
-                                               moduleCablingFile  = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/modules_T5v3_27SP_nonant_tracklet.dat'),
                                                # Quality Flag and Quality params
                                                TrackQuality =cms.bool(True),
                                                TrackQualityPSet = cms.PSet(TrackQualityParams)
