@@ -18,11 +18,12 @@ namespace trklet {
   class Globals;
   class MemoryBase;
   class AllStubsMemory;
+  class AllInnerStubsMemory;
   class VMStubsTEMemory;
 
   class TrackletProcessor : public TrackletCalculatorBase {
   public:
-    TrackletProcessor(std::string name, Settings const& settings, Globals* globals, unsigned int iSector);
+    TrackletProcessor(std::string name, Settings const& settings, Globals* globals);
 
     ~TrackletProcessor() override = default;
 
@@ -32,7 +33,7 @@ namespace trklet {
 
     void addInput(MemoryBase* memory, std::string input) override;
 
-    void execute();
+    void execute(unsigned int iSector, double phimin, double phimax);
 
     void writeTETable();
 
@@ -42,18 +43,16 @@ namespace trklet {
     int iTC_;
     int iAllStub_;
 
+    unsigned int maxStep_;
+
     VMStubsTEMemory* outervmstubs_;
 
-    // The use of a std::tuple here is awkward and should be fixed. This code is slotted for a significant
-    // overhaul to allign with the HLS implementation. At that point the use fo the tuple should be
-    // eliminated
-    //                                               istub          imem        start imem    end imem
-    std::vector<std::tuple<CircularBuffer<TEData>, unsigned int, unsigned int, unsigned int, unsigned int> >
-        tedatabuffers_;
+    //                                 istub          imem          start imem    end imem
+    std::tuple<CircularBuffer<TEData>, unsigned int, unsigned int, unsigned int, unsigned int> tebuffer_;
 
     std::vector<TrackletEngineUnit> teunits_;
 
-    std::vector<AllStubsMemory*> innerallstubs_;
+    std::vector<AllInnerStubsMemory*> innerallstubs_;
     std::vector<AllStubsMemory*> outerallstubs_;
 
     std::map<unsigned int, std::vector<bool> > pttableinner_;
@@ -62,7 +61,7 @@ namespace trklet {
     std::vector<bool> pttableinnernew_;
     std::vector<bool> pttableouternew_;
 
-    std::vector<std::vector<bool> > useregion_;
+    std::vector<unsigned int> useregion_;
 
     int nbitsfinephi_;
     int nbitsfinephidiff_;

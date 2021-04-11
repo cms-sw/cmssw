@@ -10,8 +10,8 @@
 using namespace std;
 using namespace trklet;
 
-ProjectionRouter::ProjectionRouter(string name, Settings const& settings, Globals* global, unsigned int iSector)
-    : ProcessBase(name, settings, global, iSector) {
+ProjectionRouter::ProjectionRouter(string name, Settings const& settings, Globals* global)
+    : ProcessBase(name, settings, global) {
   layerdisk_ = initLayerDisk(3);
 
   vmprojs_.resize(settings_.nvmme(layerdisk_), nullptr);
@@ -81,7 +81,7 @@ void ProjectionRouter::execute() {
 
   for (auto& iproj : inputproj_) {
     for (unsigned int i = 0; i < iproj->nTracklets(); i++) {
-      if (allprojcount > settings_.maxStep("PR"))
+      if (allprojcount >= settings_.maxStep("PR"))
         continue;
 
       Tracklet* tracklet = iproj->getTracklet(i);
@@ -89,29 +89,30 @@ void ProjectionRouter::execute() {
       FPGAWord fpgaphi;
 
       if (layerdisk_ < N_LAYER) {
-        fpgaphi = tracklet->fpgaphiproj(layerdisk_ + 1);
+        fpgaphi = tracklet->proj(layerdisk_).fpgaphiproj();
       } else {
         int disk = layerdisk_ - (N_LAYER - 1);
-        fpgaphi = tracklet->fpgaphiprojdisk(disk);
+
+        Projection& proj = tracklet->proj(layerdisk_);
+        fpgaphi = proj.fpgaphiproj();
 
         //The next lines looks up the predicted bend based on:
         // 1 - r projections
         // 2 - phi derivative
         // 3 - the sign - i.e. if track is forward or backward
-        int rindex = (tracklet->fpgarprojdisk(disk).value() >> (tracklet->fpgarprojdisk(disk).nbits() - nrbits_)) &
-                     ((1 << nrbits_) - 1);
 
-        int phiderindex = (tracklet->fpgaphiprojderdisk(disk).value() >>
-                           (tracklet->fpgaphiprojderdisk(disk).nbits() - nphiderbits_)) &
+        int rindex = (proj.fpgarzproj().value() >> (proj.fpgarzproj().nbits() - nrbits_)) & ((1 << nrbits_) - 1);
+
+        int phiderindex = (proj.fpgaphiprojder().value() >> (proj.fpgaphiprojder().nbits() - nphiderbits_)) &
                           ((1 << nphiderbits_) - 1);
 
-        int signindex = (tracklet->fpgarprojderdisk(disk).value() < 0);
+        int signindex = (proj.fpgarzprojder().value() < 0);
 
         int bendindex = (signindex << (nphiderbits_ + nrbits_)) + (rindex << (nphiderbits_)) + phiderindex;
 
         int ibendproj = globals_->projectionRouterBendTable()->bendLoookup(disk - 1, bendindex);
 
-        tracklet->setBendIndex(ibendproj, disk);
+        proj.setBendIndex(ibendproj);
       }
 
       unsigned int iphivm =
@@ -128,6 +129,11 @@ void ProjectionRouter::execute() {
       allproj_->addTracklet(tracklet);
 
       vmprojs_[iphivm]->addTracklet(tracklet, allprojcount);
+
+      if (settings_.debugTracklet()) {
+        edm::LogVerbatim("Tracklet") << getName() << " projection to " << vmprojs_[iphivm]->getName() << " iphivm "
+                                     << iphivm;
+      }
 
       allprojcount++;
     }

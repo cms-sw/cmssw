@@ -75,7 +75,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
     double alpha = L1stubptr->alpha(settings_.stripPitch(psmodule));
     bool isTilted = L1stubptr->isTilted();
 
-    bool isBarrel = trackstublist[k]->isBarrel();
+    bool isBarrel = trackstublist[k]->layerdisk() < N_LAYER;
     int kflayer;
 
     if (isBarrel) {  // Barrel-specific

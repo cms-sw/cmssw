@@ -1,8 +1,8 @@
-
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessor.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 #include "L1Trigger/TrackFindingTracklet/interface/AllStubsMemory.h"
+#include "L1Trigger/TrackFindingTracklet/interface/AllInnerStubsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
 
@@ -16,8 +16,10 @@
 using namespace std;
 using namespace trklet;
 
-TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Globals* globals, unsigned int iSector)
-    : TrackletCalculatorBase(name, settings, globals, iSector), vmrtable_(settings) {
+TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Globals* globals)
+    : TrackletCalculatorBase(name, settings, globals),
+      tebuffer_(CircularBuffer<TEData>(3), 0, 0, 0, 0),
+      vmrtable_(settings) {
   iAllStub_ = -1;
 
   for (unsigned int ilayer = 0; ilayer < N_LAYER; ilayer++) {
@@ -37,9 +39,9 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
   nbitszfinebintable_ = settings_.vmrlutzbits(layerdisk1_);
   nbitsrfinebintable_ = settings_.vmrlutrbits(layerdisk1_);
 
-  vmrtable_.init(layerdisk1_, getName());
+  vmrtable_.init(layerdisk1_);
 
-  nbitsrzbin_ = NFINERZBITS;
+  nbitsrzbin_ = N_RZBITS;
   if (iSeed_ == 4 || iSeed_ == 5)
     nbitsrzbin_ = 2;
 
@@ -52,6 +54,8 @@ TrackletProcessor::TrackletProcessor(string name, Settings const& settings, Glob
 
   TCIndex_ = (iSeed_ << 4) + iTC_;
   assert(TCIndex_ >= 0 && TCIndex_ <= (int)settings_.ntrackletmax());
+
+  maxStep_ = settings_.maxStep("TP");
 }
 
 void TrackletProcessor::addOutputProjection(TrackletProjectionsMemory*& outputProj, MemoryBase* memory) {
@@ -128,6 +132,7 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
 
     TrackletEngineUnit teunit(&settings_,
                               nbitsfinephi_,
+                              layerdisk1_,
                               layerdisk2_,
                               iSeed_,
                               nbitsfinephidiff_,
@@ -135,13 +140,14 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
                               pttableinnernew_,
                               pttableouternew_,
                               outervmstubs_);
-    teunits_.resize(6, teunit);
+
+    teunits_.resize(settings_.teunits(iSeed_), teunit);
 
     return;
   }
 
   if (input == "innerallstubin") {
-    auto* tmp = dynamic_cast<AllStubsMemory*>(memory);
+    auto* tmp = dynamic_cast<AllInnerStubsMemory*>(memory);
     assert(tmp != nullptr);
     if (innerallstubs_.size() == 2) {  //FIXME this should be done with better logic with reading the input stubs
       innerallstubs_.insert(innerallstubs_.begin(), tmp);
@@ -150,13 +156,8 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
     }
 
     //FIXME should be done once after all inputs are added
-    tedatabuffers_.clear();
-    CircularBuffer<TEData> tedatabuffertmp(5);
-    tedatabuffertmp.reset();
-
-    tedatabuffers_.emplace_back(tedatabuffertmp, 0, 0, 0, (innerallstubs_.size() + 1) / 2);
-    tedatabuffers_.emplace_back(
-        tedatabuffertmp, 0, (innerallstubs_.size() + 1) / 2, (innerallstubs_.size() + 1) / 2, innerallstubs_.size());
+    tebuffer_ = tuple<CircularBuffer<TEData>, unsigned int, unsigned int, unsigned int, unsigned int>(
+        CircularBuffer<TEData>(3), 0, 0, 0, innerallstubs_.size());
 
     return;
   }
@@ -169,9 +170,19 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find input : " << input;
 }
 
-void TrackletProcessor::execute() {
+void TrackletProcessor::execute(unsigned int iSector, double phimin, double phimax) {
+  bool print = (iSector == 3) && (getName() == "TP_L1L2D");
+  print = false;
+
+  phimin_ = phimin;
+  phimax_ = phimax;
+  iSector_ = iSector;
+
   if (!settings_.useSeed(iSeed_))
     return;
+
+  //Not most elegant solution; but works
+  int donecount = 0;
 
   //Consistency checks
   assert(iAllStub_ >= 0);
@@ -191,152 +202,58 @@ void TrackletProcessor::execute() {
 
   //Actual implemenation starts here
 
-  //Reset the tebuffers
-  for (auto& tebuffer : tedatabuffers_) {
-    std::get<0>(tebuffer).reset();
-    std::get<1>(tebuffer) = 0;
-    std::get<2>(tebuffer) = std::get<3>(tebuffer);
-  }
+  //Reset the tebuffer
+  std::get<0>(tebuffer_).reset();
+  std::get<1>(tebuffer_) = 0;
+  std::get<2>(tebuffer_) = std::get<3>(tebuffer_);
 
   //Reset the teunits
   for (auto& teunit : teunits_) {
     teunit.reset();
   }
 
-  for (unsigned int istep = 0; istep < settings_.maxStep("TP"); istep++) {
-    for (auto& tebuffer : tedatabuffers_) {
-      CircularBuffer<TEData>& tedatabuffer = std::get<0>(tebuffer);
-      unsigned int& istub = std::get<1>(tebuffer);
-      unsigned int& imem = std::get<2>(tebuffer);
-      unsigned int imemend = std::get<4>(tebuffer);
+  TEData tedata;
+  TEData tedata__;
+  TEData tedata___;
+  bool goodtedata = false;
+  bool goodtedata__ = false;
+  bool goodtedata___ = false;
 
-      if ((!tedatabuffer.full()) && imem < imemend && istub < innerallstubs_[imem]->nStubs()) {
-        ninnerstubs++;
+  bool tebuffernearfull;
 
-        const Stub* stub = innerallstubs_[imem]->getStub(istub);
-
-        bool negdisk = (stub->disk().value() < 0);  //FIXME stub needs to contain bit for +/- z disk
-
-        FPGAWord phicorr = stub->phicorr();
-        int innerfinephi = phicorr.bits(phicorr.nbits() - nbitsfinephi_, nbitsfinephi_);
-        FPGAWord innerbend = stub->bend();
-
-        //Take the top nbitszfinebintable_ bits of the z coordinate
-        int indexz =
-            (((1 << (stub->z().nbits() - 1)) + stub->z().value()) >> (stub->z().nbits() - nbitszfinebintable_));
-        int indexr = -1;
-        if (layerdisk1_ > (N_LAYER - 1)) {
-          if (negdisk) {
-            indexz = (1 << nbitszfinebintable_) - indexz;
-          }
-          indexr = stub->r().value();
-          if (stub->isPSmodule()) {
-            indexr = stub->r().value() >> (stub->r().nbits() - nbitsrfinebintable_);
-          }
-        } else {
-          //Take the top nbitsfinebintable_ bits of the z coordinate
-          indexr = (((1 << (stub->r().nbits() - 1)) + stub->r().value()) >> (stub->r().nbits() - nbitsrfinebintable_));
-        }
-
-        int lutval = -1;
-        if (iSeed_ < 6) {  //FIXME should only be one table...
-          lutval = vmrtable_.lookupinner(indexz, indexr);
-        } else {
-          lutval = vmrtable_.lookupinneroverlap(indexz, indexr);
-        }
-
-        if (lutval != -1) {
-          unsigned int lutwidth = settings_.lutwidthtab(0, iSeed_);
-          FPGAWord lookupbits(lutval, lutwidth, true, __LINE__, __FILE__);
-
-          int rzfinebinfirst = lookupbits.bits(0, 3);  //finephi
-          int next = lookupbits.bits(3, 1);            //next r/z bin
-          int start = lookupbits.bits(4, nbitsrzbin_);
-          int rzdiffmax = lookupbits.bits(lookupbits.nbits() - 3, 3);
-
-          if ((iSeed_ == 4 || iSeed_ == 5) && negdisk) {  //TODO - need to store negative disk
-            start += 4;
-          }
-          int last = start + next;
-
-          int nbins = 8;
-
-          unsigned int useregindex = (innerfinephi << innerbend.nbits()) + innerbend.value();
-          if (iSeed_ >= 4) {
-            //FIXME If the lookupbits were rationally organized this would be much simpler
-            int ir = ((start & 3) << 1) + (rzfinebinfirst >> 2);
-            useregindex = (useregindex << 3) + ir;
-          }
-
-          assert(useregindex < useregion_.size());
-          vector<bool> usereg = useregion_[useregindex];
-
-          TEData tedata;
-          tedata.stub_ = stub;
-          tedata.rzbinfirst_ = rzfinebinfirst;
-          tedata.start_ = start;
-          tedata.innerfinephi_ = innerfinephi;
-          tedata.rzdiffmax_ = rzdiffmax;
-          tedata.innerbend_ = innerbend;
-
-          for (unsigned int ireg = 0; ireg < settings_.nvmte(1, iSeed_); ireg++) {
-            assert(ireg < usereg.size());
-            if (!usereg[ireg])
-              continue;
-
-            for (int ibin = start; ibin <= last; ibin++) {
-              if (settings_.debugTracklet()) {
-                edm::LogVerbatim("Tracklet") << getName() << " looking for matching stub in bin " << ibin << " with "
-                                             << outervmstubs_->nVMStubsBinned(ireg * nbins + ibin) << " stubs";
-              }
-              assert(ireg * nbins + ibin < outervmstubs_->nBin());
-              int nstubs = outervmstubs_->nVMStubsBinned(ireg * nbins + ibin);
-              if (nstubs > 0) {
-                tedata.regions_.emplace_back(tuple<int, int, int>(ibin - start, ireg, nstubs));
-                countteall += nstubs;
-              }
-            }
-          }
-
-          if (!tedata.regions_.empty()) {
-            ntedata++;
-            //cout << getName() << " adding TE data" << endl;
-            tedatabuffer.store(tedata);
-          }
-        }
-        istub++;
-        if (istub >= innerallstubs_[imem]->nStubs()) {
-          istub = 0;
-          imem++;
-        }
+  for (unsigned int istep = 0; istep < maxStep_; istep++) {
+    if (print) {
+      CircularBuffer<TEData>& tedatabuffer = std::get<0>(tebuffer_);
+      unsigned int& istub = std::get<1>(tebuffer_);
+      unsigned int& imem = std::get<2>(tebuffer_);
+      cout << "istep=" << istep << " TEBuffer: " << istub << " " << imem << " " << tedatabuffer.rptr() << " "
+           << tedatabuffer.wptr();
+      int k = -1;
+      for (auto& teunit : teunits_) {
+        k++;
+        cout << " [" << k << " " << teunit.rptr() << " " << teunit.wptr() << " " << teunit.idle() << "]";
       }
+      cout << endl;
     }
 
-    bool tedatabuffersdone = true;
-    for (auto& tebuffer : tedatabuffers_) {
-      CircularBuffer<TEData>& tedatabuffer = std::get<0>(tebuffer);
-      tedatabuffersdone &= tedatabuffer.empty();                              //buffer empty
-      tedatabuffersdone &= (std::get<2>(tebuffer) == std::get<4>(tebuffer));  //buffer processed all stubs
-      if (!tedatabuffer.empty()) {
-        for (auto& teunit : teunits_) {
-          if (teunit.empty() && teunit.idle()) {
-            teunit.init(tedatabuffer.read());
-            break;
-          }
-        }
-      }
-    }
+    CircularBuffer<TEData>& tedatabuffer = std::get<0>(tebuffer_);
+    tebuffernearfull = tedatabuffer.nearfull();
 
-    bool teunitsdone = true;
+    //
+    // First block here checks if there is a teunit with data that should should be used
+    // to calculate the tracklet parameters
+    //
+
     TrackletEngineUnit* teunitptr = nullptr;
+
+    int iTE = 0;
+    int icount = -1;
     for (auto& teunit : teunits_) {
-      if (!teunit.idle()) {
-        teunit.step();
-        teunitsdone = false;
-      }
+      teunit.setNearFull();
+      icount++;
       if (!teunit.empty()) {
         teunitptr = &teunit;
-        teunitsdone = false;
+        iTE = icount;
       }
     }
 
@@ -362,6 +279,8 @@ void TrackletProcessor::execute() {
       bool accept = false;
 
       if (iSeed_ < 4) {
+        if (print)
+          cout << "istep=" << istep << " TEUnit read iTE=" << iTE << endl;
         accept = barrelSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
       } else if (iSeed_ < 6) {
         accept = diskSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
@@ -374,6 +293,7 @@ void TrackletProcessor::execute() {
 
       if (trackletpars_->nTracklets() >= settings_.ntrackletmax()) {
         edm::LogVerbatim("Tracklet") << "Will break on number of tracklets in " << getName();
+        assert(0);
         break;
       }
 
@@ -382,43 +302,198 @@ void TrackletProcessor::execute() {
       }
     }
 
-    if (settings_.writeMonitorData("TP")) {
-      globals_->ofstream("trackletprocessor.txt") << getName() << " " << ninnerstubs   //# inner stubs
-                                                  << " " << outervmstubs_->nVMStubs()  //# outer stubs
-                                                  << " " << countteall                 //# pairs tried in TE
-                                                  << " " << stubpairs                  //# stubs pairs
-                                                  << " " << countsel                   //# tracklets found
-                                                  << endl;
+    //
+    // The second block fills the teunit if data in buffer and process TEUnit step
+    //
+    //
+
+    bool notemptytebuffer = !tedatabuffer.empty();
+
+    int ite = -1;
+    for (auto& teunit : teunits_) {
+      ite++;
+      if (teunit.idle()) {
+        if (notemptytebuffer) {
+          teunit.init(std::get<0>(tebuffer_).read());
+          if (print)
+            std::cout << "istep=" << istep << " TEUnit init iTE inner : " << ite << " "
+                      << teunit.innerStub()->allStubIndex().value() << std::endl;
+          notemptytebuffer = false;  //prevent initialzing another TE unit
+        }
+      }
+      teunit.step(print, istep, ite);
     }
 
-    if (teunitsdone && tedatabuffersdone) {
+    //
+    // The third block here checks if we have input stubs to process
+    //
+    //
+
+    if (goodtedata___)
+      tedatabuffer.store(tedata___);
+
+    goodtedata = false;
+
+    unsigned int& istub = std::get<1>(tebuffer_);
+    unsigned int& imem = std::get<2>(tebuffer_);
+    unsigned int imemend = std::get<4>(tebuffer_);
+
+    if ((!tebuffernearfull) && imem < imemend && istub < innerallstubs_[imem]->nStubs()) {
+      ninnerstubs++;
+
+      const Stub* stub = innerallstubs_[imem]->getStub(istub);
+
+      if (settings_.debugTracklet()) {
+        edm::LogVerbatim("Tracklet") << getName() << " Have stub in " << innerallstubs_[imem]->getName();
+      }
+
+      bool negdisk = (stub->disk().value() < 0);  //FIXME stub needs to contain bit for +/- z disk
+
+      FPGAWord phicorr = stub->phicorr();
+      int innerfinephi = phicorr.bits(phicorr.nbits() - nbitsfinephi_, nbitsfinephi_);
+      FPGAWord innerbend = stub->bend();
+
+      //Take the top nbitszfinebintable_ bits of the z coordinate
+      int indexz = (stub->z().value() >> (stub->z().nbits() - nbitszfinebintable_)) & ((1 << nbitszfinebintable_) - 1);
+      int indexr = -1;
+      if (layerdisk1_ > (N_LAYER - 1)) {
+        if (negdisk) {
+          indexz = ((1 << nbitszfinebintable_) - 1) - indexz;
+        }
+        indexr = stub->r().value() >> (stub->r().nbits() - nbitsrfinebintable_);
+      } else {  //Take the top nbitsfinebintable_ bits of the z coordinate
+        indexr = (stub->r().value() >> (stub->r().nbits() - nbitsrfinebintable_)) & ((1 << nbitsrfinebintable_) - 1);
+      }
+
+      int lutval = -1;
+      if (iSeed_ < 6) {  //FIXME should only be one table - but will need coordination with HLS code.
+        lutval = vmrtable_.lookupinner(indexz, indexr);
+      } else {
+        lutval = vmrtable_.lookupinneroverlap(indexz, indexr);
+      }
+
+      if (lutval != -1) {
+        unsigned int lutwidth = settings_.lutwidthtab(0, iSeed_);
+        FPGAWord lookupbits(lutval, lutwidth, true, __LINE__, __FILE__);
+
+        int rzfinebinfirst = lookupbits.bits(0, NFINERZBITS);       //finerz
+        int next = lookupbits.bits(NFINERZBITS, 1);                 //use next r/z bin
+        int start = lookupbits.bits(NFINERZBITS + 1, nbitsrzbin_);  //rz bin
+        int rzdiffmax = lookupbits.bits(NFINERZBITS + 1 + nbitsrzbin_, NFINERZBITS);
+
+        if ((iSeed_ == 4 || iSeed_ == 5) && negdisk) {  //TODO - need to store negative disk
+          start += (1 << nbitsrzbin_);
+        }
+        int last = start + next;
+
+        int nbins = (1 << N_RZBITS);
+
+        unsigned int useregindex = (innerfinephi << innerbend.nbits()) + innerbend.value();
+        if (iSeed_ >= 4) {
+          //FIXME If the lookupbits were rationally organized this would be much simpler
+          unsigned int nrbits = 3;
+          int ir = ((start & ((1 << (nrbits - 1)) - 1)) << 1) + (rzfinebinfirst >> (NFINERZBITS - 1));
+          useregindex = (useregindex << nrbits) + ir;
+        }
+
+        assert(useregindex < useregion_.size());
+        unsigned int usereg = useregion_[useregindex];
+
+        tedata.regions_.clear();
+        tedata.stub_ = stub;
+        tedata.rzbinfirst_ = rzfinebinfirst;
+        tedata.start_ = start;
+        tedata.innerfinephi_ = innerfinephi;
+        tedata.rzdiffmax_ = rzdiffmax;
+        tedata.innerbend_ = innerbend;
+
+        std::string mask = "";
+
+        for (int ibin = start; ibin <= last; ibin++) {
+          for (unsigned int ireg = 0; ireg < settings_.nvmte(1, iSeed_); ireg++) {
+            if (!(usereg & (1 << ireg))) {
+              mask = "0" + mask;
+              continue;
+            }
+
+            if (settings_.debugTracklet()) {
+              edm::LogVerbatim("Tracklet") << getName() << " looking for matching stub in bin " << ibin << " with "
+                                           << outervmstubs_->nVMStubsBinned(ireg * nbins + ibin) << " stubs";
+            }
+            assert(ireg * nbins + ibin < outervmstubs_->nBin());
+            int nstubs = outervmstubs_->nVMStubsBinned(ireg * nbins + ibin);
+
+            if (print)
+              cout << "Add to TEBuffer stub ibin ireg nstubs: " << stub->allStubIndex().value() << " " << ibin << " "
+                   << ireg << " " << nstubs << endl;
+
+            if (nstubs > 0) {
+              mask = "1" + mask;
+              tedata.regions_.emplace_back(tuple<int, int, int>(ibin - start, ireg, nstubs));
+              countteall += nstubs;
+            } else {
+              mask = "0" + mask;
+            }
+          }
+        }
+
+        if (tedata.regions_.size() > 0) {
+          ntedata++;
+          goodtedata = true;
+        }
+      }
+      istub++;
+      if (istub >= innerallstubs_[imem]->nStubs()) {
+        istub = 0;
+        imem++;
+      }
+    } else if ((!tebuffernearfull) && imem < imemend && istub == 0) {
+      imem++;
+    }
+
+    goodtedata___ = goodtedata__;
+    goodtedata__ = goodtedata;
+
+    tedata___ = tedata__;
+    tedata__ = tedata;
+
+    //
+    // stop looping over istep if done
+    //
+
+    bool done = true;
+
+    if (imem < imemend || (!tedatabuffer.empty())) {
+      done = false;
+    }
+
+    for (auto& teunit : teunits_) {
+      if (!(teunit.idle() && teunit.empty()))
+        done = false;
+    }
+
+    if (done) {
+      donecount++;
+    }
+
+    //FIXME This should be done cleaner... Not too hard, but need to check fully the TEBuffer and TEUnit buffer.
+    if (donecount > 4) {
       break;
     }
   }
-}
 
-void TrackletProcessor::writeTETable() {
-  ofstream outstubptinnercut;
-  outstubptinnercut.open(getName() + "_stubptinnercut.tab");
-  outstubptinnercut << "{" << endl;
-  // the below is outcommented as the writing of these tables are currently not implemented, to be adressed
-  //for(unsigned int i=0;i<pttableinner_.size();i++){
-  //  if (i!=0) outstubptinnercut<<","<<endl;
-  //  outstubptinnercut << pttableinner_[i];
-  //}
-  outstubptinnercut << endl << "};" << endl;
-  outstubptinnercut.close();
+  //
+  // Done with processing - collect performance statistics
+  //
 
-  ofstream outstubptoutercut;
-  outstubptoutercut.open(getName() + "_stubptoutercut.tab");
-  outstubptoutercut << "{" << endl;
-  // the below is outcommented as the writing of these tables are currently not implemented, to be adressed
-  //for(unsigned int i=0;i<pttableouter_.size();i++){
-  //  if (i!=0) outstubptoutercut<<","<<endl;
-  //  outstubptoutercut << pttableouter_[i];
-  //}
-  outstubptoutercut << endl << "};" << endl;
-  outstubptoutercut.close();
+  if (settings_.writeMonitorData("TP")) {
+    globals_->ofstream("trackletprocessor.txt") << getName() << " " << ninnerstubs   //# inner stubs
+                                                << " " << outervmstubs_->nVMStubs()  //# outer stubs
+                                                << " " << countteall                 //# pairs tried in TE
+                                                << " " << stubpairs                  //# stubs pairs
+                                                << " " << countsel                   //# tracklets found
+                                                << endl;
+  }
 }
 
 void TrackletProcessor::buildLUT() {
@@ -437,7 +512,8 @@ void TrackletProcessor::buildLUT() {
     if (iSeed_ > 5) {
       if (iSeed_ == 6) {
         rmax = settings_.rmaxdiskl1overlapvm();
-      } else if (iSeed_ == 7) {
+      }
+      if (iSeed_ == 7) {
         rmax = settings_.rmaxdiskvm();
       }
       rmin = settings_.rmean(layerdisk1_);
@@ -508,12 +584,12 @@ void TrackletProcessor::buildLUT() {
           } else {
             rinner = settings_.rmean(layerdisk1_);
           }
-          double rinv1 = rinv(0.0, dphi[i2], rinner, router[i3]);
+          double rinv1 = rinv(0.0, -dphi[i2], rinner, router[i3]);
           double pitchinner = (rinner < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
           double pitchouter =
               (router[i3] < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
-          double abendinner = -bend(rinner, rinv1, pitchinner);
-          double abendouter = -bend(router[i3], rinv1, pitchouter);
+          double abendinner = bendstrip(rinner, rinv1, pitchinner);
+          double abendouter = bendstrip(router[i3], rinv1, pitchouter);
           if (abendinner < bendinnermin)
             bendinnermin = abendinner;
           if (abendinner > bendinnermax)
@@ -531,18 +607,18 @@ void TrackletProcessor::buildLUT() {
       bool passptcut = rinvmin < settings_.rinvcutte();
 
       for (int ibend = 0; ibend < (1 << nbendbitsinner); ibend++) {
-        double bend = benddecode(ibend, nbendbitsinner == 3);
+        double bend = settings_.benddecode(ibend, layerdisk1_, nbendbitsinner == 3);
 
-        bool passinner = bend - bendinnermin > -settings_.bendcutte(0, iSeed_) &&
-                         bend - bendinnermax < settings_.bendcutte(0, iSeed_);
+        bool passinner = bend <= bendinnermax + settings_.bendcutte(ibend, layerdisk1_, nbendbitsinner == 3) &&
+                         bend >= bendinnermin - settings_.bendcutte(ibend, layerdisk1_, nbendbitsinner == 3);
         pttableinnernew_.push_back(passinner && passptcut);
       }
 
       for (int ibend = 0; ibend < (1 << nbendbitsouter); ibend++) {
-        double bend = benddecode(ibend, nbendbitsouter == 3);
+        double bend = settings_.benddecode(ibend, layerdisk2_, nbendbitsouter == 3);
 
-        bool passouter = bend - bendoutermin > -settings_.bendcutte(1, iSeed_) &&
-                         bend - bendoutermax < settings_.bendcutte(1, iSeed_);
+        bool passouter = bend <= bendoutermax + settings_.bendcutte(ibend, layerdisk2_, nbendbitsouter == 3) &&
+                         bend >= bendoutermin - settings_.bendcutte(ibend, layerdisk2_, nbendbitsouter == 3);
         pttableouternew_.push_back(passouter && passptcut);
       }
     }
@@ -558,7 +634,7 @@ void TrackletProcessor::buildLUT() {
     for (int innerbend = 0; innerbend < (1 << nbendbitsinner); innerbend++) {
       for (int ir = 0; ir < (1 << nirbits); ir++) {
         int nreg = 0;
-        vector<bool> usereg;
+        unsigned int usereg = 0;
         for (unsigned int ireg = 0; ireg < settings_.nvmte(1, iSeed_); ireg++) {
           bool match = false;
           for (int ifinephiouter = 0; ifinephiouter < (1 << settings_.nfinephi(1, iSeed_)); ifinephiouter++) {
@@ -576,7 +652,9 @@ void TrackletProcessor::buildLUT() {
           }
           if (match && ir < 3)
             nreg++;
-          usereg.push_back(match);
+          if (match) {
+            usereg = usereg | (1 << ireg);
+          }
         }
 
         useregion_.push_back(usereg);
@@ -584,5 +662,42 @@ void TrackletProcessor::buildLUT() {
           nregmax = nreg;
       }
     }
+  }
+
+  if (settings_.writeTable()) {
+    ofstream out;
+    out.open(settings_.tablePath() + getName() + "_usereg.tab");
+
+    out << "{" << endl;
+    for (unsigned int i = 0; i < useregion_.size(); i++) {
+      if (i != 0) {
+        out << "," << endl;
+      }
+      out << useregion_[i];
+    }
+    out << endl << "};" << endl;
+    out.close();
+
+    ofstream outstubptinnercut;
+    outstubptinnercut.open(settings_.tablePath() + getName() + "_stubptinnercut.tab");
+    outstubptinnercut << "{" << endl;
+    for (unsigned int i = 0; i < pttableinnernew_.size(); i++) {
+      if (i != 0)
+        outstubptinnercut << "," << endl;
+      outstubptinnercut << pttableinnernew_[i];
+    }
+    outstubptinnercut << endl << "};" << endl;
+    outstubptinnercut.close();
+
+    ofstream outstubptoutercut;
+    outstubptoutercut.open(settings_.tablePath() + getName() + "_stubptoutercut.tab");
+    outstubptoutercut << "{" << endl;
+    for (unsigned int i = 0; i < pttableouternew_.size(); i++) {
+      if (i != 0)
+        outstubptoutercut << "," << endl;
+      outstubptoutercut << pttableouternew_[i];
+    }
+    outstubptoutercut << endl << "};" << endl;
+    outstubptoutercut.close();
   }
 }

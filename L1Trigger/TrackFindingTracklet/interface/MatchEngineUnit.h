@@ -17,16 +17,22 @@ namespace trklet {
 
   class MatchEngineUnit {
   public:
-    MatchEngineUnit(bool barrel, std::vector<bool> table, std::vector<bool> tablePS, std::vector<bool> table2S);
+    MatchEngineUnit(bool barrel, unsigned int layerdisk, std::vector<bool> table);
 
     ~MatchEngineUnit() = default;
 
     void init(VMStubsMEMemory* vmstubsmemory,
-              unsigned int slot,
+              unsigned int nrzbin,
+              unsigned int rzbin,
+              unsigned int iphi,
+              int shift,
               int projrinv,
               int projfinerz,
               int projfinephi,
-              bool usesecond,
+              bool usefirstMinus,
+              bool usefirstPlus,
+              bool usesecondMinus,
+              bool usesecondPlus,
               bool isPSseed,
               Tracklet* proj);
 
@@ -42,34 +48,36 @@ namespace trklet {
 
     void reset();
 
-    void step();
+    void step(bool print);
 
   private:
     VMStubsMEMemory* vmstubsmemory_;
 
-    //unsigned int memory slot
-    unsigned int slot_;
+    unsigned int nrzbins_;
+    unsigned int rzbin_;
+    unsigned int phibin_;
+    int shift_;
+
     unsigned int istub_;
+    unsigned int iuse_;
 
     bool barrel_;
     int projrinv_;
     int projfinerz_;
     int projfinephi_;
-    bool usesecond_;
+    std::vector<std::pair<unsigned int, unsigned int>> use_;
     bool isPSseed_;
     Tracklet* proj_;
 
     bool idle_;
 
-    //used in the layers
+    unsigned int layerdisk_;
+
+    //used for bend consistency with rinv
     std::vector<bool> table_;
 
-    //used in the disks
-    std::vector<bool> tablePS_;
-    std::vector<bool> table2S_;
-
     //save the candidate matches
-    CircularBuffer<std::pair<Tracklet*, const Stub*> > candmatches_;
+    CircularBuffer<std::pair<Tracklet*, const Stub*>> candmatches_;
   };
 
 };  // namespace trklet

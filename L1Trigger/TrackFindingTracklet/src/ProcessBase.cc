@@ -11,20 +11,8 @@
 using namespace trklet;
 using namespace std;
 
-ProcessBase::ProcessBase(string name, Settings const& settings, Globals* global, unsigned int iSector)
-    : name_(name), settings_(settings), globals_(global) {
-  iSector_ = iSector;
-  double dphi = 2 * M_PI / N_SECTOR;
-  double dphiHG = 0.5 * settings_.dphisectorHG() - M_PI / N_SECTOR;
-  phimin_ = iSector_ * dphi - dphiHG;
-  phimax_ = phimin_ + dphi + 2 * dphiHG;
-  phimin_ -= M_PI / N_SECTOR;
-  phimax_ -= M_PI / N_SECTOR;
-  if (phimin_ > M_PI) {
-    phimin_ -= 2 * M_PI;
-    phimax_ -= 2 * M_PI;
-  }
-}
+ProcessBase::ProcessBase(string name, Settings const& settings, Globals* global)
+    : name_(name), settings_(settings), globals_(global) {}
 
 unsigned int ProcessBase::nbits(unsigned int power) {
   if (power == 2)

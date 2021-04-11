@@ -6,10 +6,11 @@
 using namespace std;
 using namespace trklet;
 
-VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings, unsigned int iSector)
-    : MemoryBase(name, settings, iSector) {
+VMStubsTEMemory::VMStubsTEMemory(string name, Settings const& settings) : MemoryBase(name, settings) {
   //set the layer or disk that the memory is in
   initLayerDisk(6, layer_, disk_);
+
+  layerdisk_ = initLayerDisk(6);
 
   //Pointer to other VMStub memory for creating stub pairs
   other_ = nullptr;
@@ -71,8 +72,10 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
     if (negdisk)
       bin += 4;
     assert(bin < (int)stubsbinnedvm_.size());
-    stubsbinnedvm_[bin].push_back(vmstub);
-    stubsvm_.push_back(vmstub);
+    if (stubsbinnedvm_[bin].size() < N_VMSTUBSMAX) {
+      stubsbinnedvm_[bin].push_back(vmstub);
+      stubsvm_.push_back(vmstub);
+    }
     return true;
   }
 
@@ -81,7 +84,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
   if (!pass) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << getName() << " Stub failed bend cut. bend = "
-                                   << benddecode(vmstub.bend().value(), vmstub.isPSmodule());
+                                   << settings_.benddecode(vmstub.bend().value(), layerdisk_, vmstub.isPSmodule());
     return false;
   }
 
@@ -103,7 +106,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub, int bin) {
       stubsbinnedvm_[bin].push_back(vmstub);
     }
   } else {
-    if (vmstub.stub()->isBarrel()) {
+    if (vmstub.stub()->layerdisk() < N_LAYER) {
       if (!isinner_) {
         if (stubsbinnedvm_[bin].size() >= settings_.maxStubsPerBin())
           return false;
@@ -143,7 +146,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
   if (!pass) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << getName() << " Stub failed bend cut. bend = "
-                                   << benddecode(vmstub.bend().value(), vmstub.isPSmodule());
+                                   << settings_.benddecode(vmstub.bend().value(), layerdisk_, vmstub.isPSmodule());
     return false;
   }
 
@@ -162,7 +165,7 @@ bool VMStubsTEMemory::addVMStub(VMStubTE vmstub) {
         }
       }
     } else {
-      if (vmstub.stub()->isBarrel()) {
+      if (vmstub.stub()->layerdisk() < N_LAYER) {
         if (!isinner_) {
           stubsbinnedvm_[bin].push_back(vmstub);
         }
@@ -214,7 +217,8 @@ void VMStubsTEMemory::clean() {
   }
 }
 
-void VMStubsTEMemory::writeStubs(bool first) {
+void VMStubsTEMemory::writeStubs(bool first, unsigned int iSector) {
+  iSector_ = iSector;
   const string dirVM = settings_.memPath() + "VMStubsTE/";
   openFile(first, dirVM, "VMStubs_");
 
@@ -227,7 +231,7 @@ void VMStubsTEMemory::writeStubs(bool first) {
       out_ << " " << stub << " " << trklet::hexFormat(stub) << endl;
     }
   } else {  // outer VM for TE purpose
-    for (unsigned int i = 0; i < settings_.NLONGVMBINS(); i++) {
+    for (unsigned int i = 0; i < stubsbinnedvm_.size(); i++) {
       for (unsigned int j = 0; j < stubsbinnedvm_[i].size(); j++) {
         string stub = stubsbinnedvm_[i][j].str();
         out_ << hex << i << " " << j << dec << " " << stub << " " << trklet::hexFormat(stub) << endl;
@@ -273,22 +277,12 @@ void VMStubsTEMemory::setbendtable(std::vector<bool> vmbendtable) {
     vmbendtable_[i] = vmbendtable[i];
   }
 
-  if (iSector_ == 0 && settings_.writeTable())
+  if (settings_.writeTable())
     writeVMBendTable();
 }
 
 void VMStubsTEMemory::writeVMBendTable() {
-  if (not std::filesystem::exists(settings_.tablePath())) {
-    int fail = system((string("mkdir -p ") + settings_.tablePath()).c_str());
-    if (fail)
-      throw cms::Exception("BadDir") << __FILE__ << " " << __LINE__ << " could not create directory "
-                                     << settings_.tablePath();
-  }
-
-  const string fname = settings_.tablePath() + getName() + "_vmbendcut.tab";
-  ofstream outvmbendcut(fname);
-  if (outvmbendcut.fail())
-    throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << fname;
+  ofstream outvmbendcut = openfile(settings_.tablePath(), getName() + "_vmbendcut.tab", __FILE__, __LINE__);
 
   outvmbendcut << "{" << endl;
   unsigned int vmbendtableSize = vmbendtable_.size();

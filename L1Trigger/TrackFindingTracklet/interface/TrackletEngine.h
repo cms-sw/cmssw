@@ -16,7 +16,7 @@ namespace trklet {
 
   class TrackletEngine : public ProcessBase {
   public:
-    TrackletEngine(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
+    TrackletEngine(std::string name, Settings const& settings, Globals* global);
 
     ~TrackletEngine() override = default;
 

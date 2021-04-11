@@ -19,7 +19,7 @@ namespace trklet {
 
   class TrackletCalculator : public TrackletCalculatorBase {
   public:
-    TrackletCalculator(std::string name, Settings const& settings, Globals* globals, unsigned int iSector);
+    TrackletCalculator(std::string name, Settings const& settings, Globals* globals);
 
     ~TrackletCalculator() override = default;
 
@@ -27,7 +27,7 @@ namespace trklet {
     void addOutput(MemoryBase* memory, std::string output) override;
     void addInput(MemoryBase* memory, std::string input) override;
 
-    void execute();
+    void execute(unsigned int iSector, double phimin, double phimax);
 
   private:
     int iTC_;
