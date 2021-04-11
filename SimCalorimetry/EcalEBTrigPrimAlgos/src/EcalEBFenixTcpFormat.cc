@@ -47,12 +47,12 @@ void EcalEBFenixTcpFormat::process(std::vector<int> &Etin, std::vector<int> &Eto
 }
 
 void EcalEBFenixTcpFormat::process(std::vector<int> &Et,
-                                 std::vector<int> &fgvb,
-                                 std::vector<int> &sfgvb,
-                                 int eTTotShift,
-                                 std::vector<EcalEBTriggerPrimitiveSample> &out,
-                                 std::vector<EcalEBTriggerPrimitiveSample> &out2,
-                                 bool isInInnerRings) {
+                                   std::vector<int> &fgvb,
+                                   std::vector<int> &sfgvb,
+                                   int eTTotShift,
+                                   std::vector<EcalEBTriggerPrimitiveSample> &out,
+                                   std::vector<EcalEBTriggerPrimitiveSample> &out2,
+                                   bool isInInnerRings) {
   // put TP-s in the output
   // on request also in TcpFormat
   // for famos version we have to write dummies except for the middle
@@ -129,10 +129,10 @@ void EcalEBFenixTcpFormat::process(std::vector<int> &Et,
 }
 
 void EcalEBFenixTcpFormat::setParameters(uint32_t towid,
-                                       const EcalTPGLutGroup *ecaltpgLutGroup,
-                                       const EcalTPGLutIdMap *ecaltpgLut,
-                                       const EcalTPGTowerStatus *ecaltpgbadTT,
-                                       const EcalTPGSpike *ecaltpgSpike) {
+                                         const EcalTPGLutGroup *ecaltpgLutGroup,
+                                         const EcalTPGLutIdMap *ecaltpgLut,
+                                         const EcalTPGTowerStatus *ecaltpgbadTT,
+                                         const EcalTPGSpike *ecaltpgSpike) {
   // Get TP zeroing threshold - defaut to 1023 for old data (no record found or EE)
   spikeZeroThresh_ = 1023;
   if (ecaltpgSpike != nullptr) {

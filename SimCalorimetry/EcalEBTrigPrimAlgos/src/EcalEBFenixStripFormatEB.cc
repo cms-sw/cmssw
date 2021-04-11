@@ -31,9 +31,9 @@ int EcalEBFenixStripFormatEB::process() {
 }
 
 void EcalEBFenixStripFormatEB::process(std::vector<int> &sFGVBout,
-                                     std::vector<int> &peakout,
-                                     std::vector<int> &filtout,
-                                     std::vector<int> &output) {
+                                       std::vector<int> &peakout,
+                                       std::vector<int> &filtout,
+                                       std::vector<int> &output) {
   if (peakout.size() != filtout.size() || sFGVBout.size() != filtout.size()) {
     edm::LogWarning("EcalTPG")
         << " problem in EcalEBFenixStripFormatEB: sfgvb_out, peak_out and filt_out don't have the same size";
