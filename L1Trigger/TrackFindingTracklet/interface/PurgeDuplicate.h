@@ -19,14 +19,14 @@ namespace trklet {
 
   class PurgeDuplicate : public ProcessBase {
   public:
-    PurgeDuplicate(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
+    PurgeDuplicate(std::string name, Settings const& settings, Globals* global);
 
     ~PurgeDuplicate() override = default;
 
     void addOutput(MemoryBase* memory, std::string output) override;
     void addInput(MemoryBase* memory, std::string input) override;
 
-    void execute(std::vector<Track*>& outputtracks_);
+    void execute(std::vector<Track>& outputtracks_, unsigned int iSector);
 
   private:
     double getPhiRes(Tracklet* curTracklet, const Stub* curStub);

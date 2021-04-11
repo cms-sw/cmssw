@@ -18,6 +18,11 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
+############################################################
+# L1 tracking: remake stubs?
+############################################################
+process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
+
 
 # ----------------------------------------------------------------------------------
 # input
@@ -27,8 +32,6 @@ Source_Files = cms.untracked.vstring(
 )
 process.source = cms.Source("PoolSource", fileNames = Source_Files)
 
-
-# ----------------------------------------------------------------------------------
 # L1 tracking => hybrid emulation 
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 
@@ -44,6 +47,26 @@ process.TTTracksEmulationWithTruth = cms.Path(process.L1HybridTracksWithAssociat
 #process.TTTracksEmulation = cms.Path(process.L1PromptExtendedHybridTracks)
 #process.TTTracksEmulationWithTruth = cms.Path(process.L1PromptExtendedHybridTracksWithAssociators)
 
+# -----------------------------------------------------------------------------------
+# DTC Emulations
+process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
+process.load( 'L1Trigger.TrackerDTC.ProducerES_cff' )
+
+#--- Load code that produces DTCStubs
+
+# load Track Trigger Configuration
+process.load( 'L1Trigger.TrackerDTC.ProducerES_cff' )
+# load code that produces DTCStubs
+process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
+# load code that analyzes DTCStubs
+process.load( 'L1Trigger.TrackerDTC.Analyzer_cff' )
+
+process.dtc = cms.Path( process.TrackerDTCProducer )
+
+
+
+# ----------------------------------------------------------------------------------
+
 
 # ----------------------------------------------------------------------------------
 # output module
@@ -58,5 +81,5 @@ process.FEVToutput_step = cms.EndPath(process.out)
 
   
 #process.schedule = cms.Schedule(process.TTTracksEmulation,process.FEVToutput_step)
-process.schedule = cms.Schedule(process.TTTracksEmulationWithTruth,process.FEVToutput_step)
+process.schedule = cms.Schedule(process.dtc,process.TTTracksEmulationWithTruth,process.FEVToutput_step)
 
