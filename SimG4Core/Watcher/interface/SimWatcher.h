@@ -29,7 +29,7 @@ public:
   SimWatcher() {}
   virtual ~SimWatcher() {}
 
-  SimWatcher(const SimWatcher &) = delete; 
+  SimWatcher(const SimWatcher &) = delete;
   const SimWatcher &operator=(const SimWatcher &) = delete;
 };
 
