@@ -1,16 +1,15 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TETableBase.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 
 using namespace std;
 using namespace trklet;
 
 TETableBase::TETableBase(Settings const& settings) : settings_(settings) {}
 
-void TETableBase::writeVMTable(std::string name, bool positive) {
+void TETableBase::writeVMTable(const std::string& dir, const std::string& name, bool positive) {
   // Write LUT table.
 
-  ofstream out(name);
-  if (out.fail())
-    throw cms::Exception("BadFile") << __FILE__ << " " << __LINE__ << " could not create file " << name;
+  ofstream out = openfile(dir, name, __FILE__, __LINE__);
 
   out << "{" << endl;
   for (unsigned int i = 0; i < table_.size(); i++) {

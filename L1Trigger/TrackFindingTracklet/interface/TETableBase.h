@@ -2,6 +2,7 @@
 #define L1Trigger_TrackFindingTracklet_interface_TETableBase_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 
 #include <iostream>
 #include <fstream>
@@ -21,7 +22,7 @@ namespace trklet {
 
     virtual void lookup(int, int) {}
 
-    void writeVMTable(std::string name, bool positive = true);
+    void writeVMTable(const std::string& dir, const std::string& name, bool positive = true);
 
   protected:
     Settings const& settings_;
