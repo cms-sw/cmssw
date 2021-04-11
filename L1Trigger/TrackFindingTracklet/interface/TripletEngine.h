@@ -17,7 +17,7 @@ namespace trklet {
 
   class TripletEngine : public ProcessBase {
   public:
-    TripletEngine(std::string name, Settings const& settings, Globals* global, unsigned int iSector);
+    TripletEngine(std::string name, Settings const& settings, Globals* global);
 
     ~TripletEngine() override;
 

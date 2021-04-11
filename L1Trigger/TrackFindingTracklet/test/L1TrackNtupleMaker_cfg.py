@@ -28,8 +28,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.L1track=dict()
-process.MessageLogger.Tracklet = cms.untracked.PSet(limit = cms.untracked.int32(-1))
+process.MessageLogger.L1track = dict(limit = -1)
+process.MessageLogger.Tracklet = dict(limit = -1)
 
 if GEOMETRY == "D49": 
     print "using geometry " + GEOMETRY + " (tilted)"
@@ -72,6 +72,8 @@ if GEOMETRY == "D49":
 
   # Or read specified .root file:
   inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v3_2026D49PU200-v1/00000/001edbad-174e-46af-932a-6ce8e04aee1c.root"] 
+  #inputMC = ["/store/relval/CMSSW_11_2_0_pre8/RelValSingleMuPt10/GEN-SIM-RECO/112X_mcRun4_realistic_v3_2026D49noPU-v1/00000/007d817e-9c59-4dec-959b-0f227942cdf0.root"]
+  #inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValSingleMuPt10/GEN-SIM-DIGI-RAW/113X_mcRun4_realistic_v3_2026D49noPU-v1/00000/04514913-efc7-49fc-8df4-90efe43ca047.root"]
 
 else:
   print "this is not a valid geometry!!!"    
@@ -86,7 +88,7 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 # L1 tracking: remake stubs?
 ############################################################
 
-#process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
+process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 #from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
 #process.load("SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff")
 
@@ -95,6 +97,7 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
 #process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
 #process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs) 
+
 
 ############################################################
 # L1 tracking
@@ -189,6 +192,23 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
 
 process.ana = cms.Path(process.L1TrackNtuple)
 
+process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
+process.load( 'L1Trigger.TrackerDTC.ProducerES_cff' )
+
+#--- Load code that produces DTCStubs
+# load Track Trigger Configuration
+process.load( 'L1Trigger.TrackerDTC.ProducerES_cff' )
+# load code that produces DTCStubs
+process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
+# load code that analyzes DTCStubs
+process.load( 'L1Trigger.TrackerDTC.Analyzer_cff' )
+#process.TrackTriggerSetup.FrontEnd.BendCut=5.0
+#process.TrackTriggerSetup.Hybrid.MinPt=1.0
+process.dtc = cms.Path( process.TrackerDTCProducer )#* process.TrackerDTCAnalyzer )
+
+
+
+
 # use this if you want to re-run the stub making
 # process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.TTTracksEmulationWithTruth,process.ana)
 
@@ -196,7 +216,7 @@ process.ana = cms.Path(process.L1TrackNtuple)
 # process.schedule = cms.Schedule(process.TTClusterStubTruth,process.TTTracksEmulationWithTruth,process.ana)
 
 # use this to only run tracking + track associator
-process.schedule = cms.Schedule(process.TTTracksEmulationWithTruth,process.ana)
+process.schedule = cms.Schedule(process.dtc,process.TTTracksEmulationWithTruth,process.ana)
 
 
 ############################################################

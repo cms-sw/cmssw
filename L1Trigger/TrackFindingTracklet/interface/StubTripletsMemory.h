@@ -13,7 +13,7 @@ namespace trklet {
 
   class StubTripletsMemory : public MemoryBase {
   public:
-    StubTripletsMemory(std::string name, Settings const& settings, unsigned int iSector);
+    StubTripletsMemory(std::string name, Settings const& settings);
 
     ~StubTripletsMemory() override = default;
 
@@ -35,7 +35,7 @@ namespace trklet {
       stubs3_.clear();
     }
 
-    void writeST(bool first);
+    void writeST(bool first, unsigned int iSector);
 
   private:
     std::vector<const Stub*> stubs1_;
