@@ -411,7 +411,7 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::list<UCTObject*> boostedJetObjs = summaryCard->getBoostedJetObjs();
   for(std::list<UCTObject*>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end(); i++) {
     const UCTObject* object = *i;
-    pt = ((double) object->et()) * caloScaleFactor;
+    pt = ((double) object->et()) * caloScaleFactor * 1.2;
     eta = g.getUCTTowerEta(object->iEta());
     phi = g.getUCTTowerPhi(object->iPhi());
     bitset<3> activeRegionEtaPattern = 0;
