@@ -8,7 +8,7 @@ class EcalTPGWeightIdMap;
 class EcalTPGWeightGroup;
 
 /**
- \ class EcalFeninEvenAmplitudeFilter
+ \ class EcalFenixEvenAmplitudeFilter
  \brief calculates .... for Fenix strip, barrel
  *  input: 18 bits
  *  output: 18 bits
