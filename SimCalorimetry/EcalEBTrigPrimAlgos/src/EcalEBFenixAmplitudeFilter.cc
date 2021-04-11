@@ -32,9 +32,9 @@ int EcalEBFenixAmplitudeFilter::setInput(int input, int fgvb) {
 }
 
 void EcalEBFenixAmplitudeFilter::process(std::vector<int> &addout,
-                                       std::vector<int> &output,
-                                       std::vector<int> &fgvbIn,
-                                       std::vector<int> &fgvbOut) {
+                                         std::vector<int> &output,
+                                         std::vector<int> &fgvbIn,
+                                         std::vector<int> &fgvbOut) {
   // test
 
   inputsAlreadyIn_ = 0;
@@ -93,8 +93,8 @@ void EcalEBFenixAmplitudeFilter::process() {
 }
 
 void EcalEBFenixAmplitudeFilter::setParameters(uint32_t raw,
-                                             const EcalTPGWeightIdMap *ecaltpgWeightMap,
-                                             const EcalTPGWeightGroup *ecaltpgWeightGroup) {
+                                               const EcalTPGWeightIdMap *ecaltpgWeightMap,
+                                               const EcalTPGWeightGroup *ecaltpgWeightGroup) {
   uint32_t params_[5];
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgWeightGroup->getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(raw);
