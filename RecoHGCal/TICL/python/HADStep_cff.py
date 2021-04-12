@@ -30,7 +30,7 @@ ticlTrackstersHAD = _trackstersProducer.clone(
     min_cos_theta = 0.866,    # ~30 degrees
     min_cos_pointing = 0.819, # ~35 degrees
     max_delta_time = -1,
-    itername = "HADRONIC"
+    itername = "HAD"
     )
 
 # MULTICLUSTERS

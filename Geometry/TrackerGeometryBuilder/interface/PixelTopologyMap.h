@@ -47,7 +47,7 @@ private:
   std::map<unsigned, std::pair<unsigned, unsigned>> m_pxfMap;
 };
 
-std::ostream& operator<<(std::ostream& os, PixelTopologyMap map) {
+inline std::ostream& operator<<(std::ostream& os, PixelTopologyMap map) {
   std::stringstream ss;
   map.printAll(ss);
   os << ss.str();

@@ -62,7 +62,7 @@ public:
   unsigned get_csc_max_wire(int station, int ring) const;
   unsigned get_csc_max_halfstrip(int station, int ring) const;
   unsigned get_csc_max_quartstrip(int station, int ring) const;
-  unsigned get_csc_max_eightstrip(int station, int ring) const;
+  unsigned get_csc_max_eighthstrip(int station, int ring) const;
 
   // slope values
   std::pair<int, int> get_csc_clct_min_max_slope() const;

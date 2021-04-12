@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="TMultiDimFet"/>
+  <class name="LHCOpticsApproximator"/>
+  <class name="LHCApertureApproximator"/>
+  <class name="std::vector<LHCOpticsApproximator>"/>
+  <class name="std::vector<LHCApertureApproximator>"/>
+</lcgdict>

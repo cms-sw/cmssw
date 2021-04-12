@@ -395,8 +395,16 @@ private:
   std::unique_ptr<MeasurementEstimator> theEstimator;
   std::unique_ptr<TrackTransformer> theTransformer;
   edm::ESHandle<TransientTrackBuilder> builder_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> builderToken_;
   edm::ESHandle<TransientTrackingRecHitBuilder> hitbuilder_;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> hitbuilderToken_;
   edm::ESHandle<GlobalTrackingGeometry> gtg_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> gtgToken_;
+
+  edm::ESGetToken<MTDDetLayerGeometry, MTDRecoGeometryRecord> dlgeoToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfldToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
 
   const float estMaxChi2_;
   const float estMaxNSigma_;
@@ -458,6 +466,15 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   tmtdOrigTrkToken = produces<edm::ValueMap<float>>("generalTracktmtd");
   sigmatmtdOrigTrkToken = produces<edm::ValueMap<float>>("generalTracksigmatmtd");
   assocOrigTrkToken = produces<edm::ValueMap<int>>("generalTrackassoc");
+
+  builderToken_ = esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", transientTrackBuilder_));
+  hitbuilderToken_ =
+      esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", mtdRecHitBuilder_));
+  gtgToken_ = esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>();
+  dlgeoToken_ = esConsumes<MTDDetLayerGeometry, MTDRecoGeometryRecord>();
+  magfldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  propToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", propagator_));
+  ttopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
 
   produces<edm::OwnVector<TrackingRecHit>>();
   produces<reco::TrackExtraCollection>();
@@ -526,23 +543,19 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   TrackingRecHitRefProd hitsRefProd = ev.getRefBeforePut<TrackingRecHitCollection>();
   reco::TrackExtraRefProd extrasRefProd = ev.getRefBeforePut<reco::TrackExtraCollection>();
 
-  es.get<GlobalTrackingGeometryRecord>().get(gtg_);
+  gtg_ = es.getHandle(gtgToken_);
 
-  edm::ESHandle<MTDDetLayerGeometry> geo;
-  es.get<MTDRecoGeometryRecord>().get(geo);
+  auto geo = es.getTransientHandle(dlgeoToken_);
 
-  edm::ESHandle<MagneticField> magfield;
-  es.get<IdealMagneticFieldRecord>().get(magfield);
+  auto magfield = es.getTransientHandle(magfldToken_);
 
-  es.get<TransientTrackRecord>().get(transientTrackBuilder_, builder_);
-  es.get<TransientRecHitRecord>().get(mtdRecHitBuilder_, hitbuilder_);
+  builder_ = es.getHandle(builderToken_);
+  hitbuilder_ = es.getHandle(hitbuilderToken_);
 
-  edm::ESHandle<Propagator> propH;
-  es.get<TrackingComponentsRecord>().get(propagator_, propH);
+  auto propH = es.getTransientHandle(propToken_);
   const Propagator* prop = propH.product();
 
-  edm::ESHandle<TrackerTopology> httopo;
-  es.get<TrackerTopologyRcd>().get(httopo);
+  auto httopo = es.getTransientHandle(ttopoToken_);
   const TrackerTopology& ttopo = *httopo;
 
   auto output = std::make_unique<TrackCollection>();

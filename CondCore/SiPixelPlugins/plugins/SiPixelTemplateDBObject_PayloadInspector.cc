@@ -12,9 +12,8 @@
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
-#include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelTemplateHelper.h"
-
+#include "DQM/TrackerRemapper/interface/Phase1PixelMaps.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 // the data format of the condition to be inspected
@@ -29,7 +28,6 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
-#include <boost/range/adaptor/indexed.hpp>
 
 // include ROOT
 #include "TH2.h"
@@ -172,7 +170,12 @@ namespace {
         }
 
         // Book the TH2Poly
-        Phase1PixelMaps theMaps("COLZ L");
+        Phase1PixelMaps theMaps("");
+        if (myType == SiPixelPI::t_all) {
+          theMaps.resetOption("COLZA L");
+        } else {
+          theMaps.resetOption("COLZL");
+        }
 
         if (myType == SiPixelPI::t_barrel) {
           theMaps.bookBarrelHistograms("templateLABarrel", "#muH", "#mu_{H} [1/T]");
@@ -180,6 +183,15 @@ namespace {
         } else if (myType == SiPixelPI::t_forward) {
           theMaps.bookForwardHistograms("templateLAForward", "#muH", "#mu_{H} [1/T]");
           theMaps.bookForwardBins("templateLAForward");
+        } else if (myType == SiPixelPI::t_all) {
+          theMaps.bookBarrelHistograms("templateLA", "#muH", "#mu_{H} [1/T]");
+          theMaps.bookBarrelBins("templateLA");
+          theMaps.bookForwardHistograms("templateLA", "#muH", "#mu_{H} [1/T]");
+          theMaps.bookForwardBins("templateLA");
+        } else {
+          edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
+              << " un-recognized detector type " << myType << std::endl;
+          return false;
         }
 
         std::map<unsigned int, short> templMap = payload->getTemplateIDs();
@@ -210,7 +222,14 @@ namespace {
                << " B-field: " << theInfos[entry.second].Bfield << std::endl;
 
           auto detid = DetId(entry.first);
-          if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == SiPixelPI::t_barrel)) {
+          if (myType == SiPixelPI::t_all) {
+            if ((detid.subdetId() == PixelSubdetector::PixelBarrel)) {
+              theMaps.fillBarrelBin("templateLA", entry.first, uH);
+            }
+            if ((detid.subdetId() == PixelSubdetector::PixelEndcap)) {
+              theMaps.fillForwardBin("templateLA", entry.first, uH);
+            }
+          } else if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == SiPixelPI::t_barrel)) {
             theMaps.fillBarrelBin("templateLABarrel", entry.first, uH);
           } else if ((detid.subdetId() == PixelSubdetector::PixelEndcap) && (myType == SiPixelPI::t_forward)) {
             theMaps.fillForwardBin("templateLAForward", entry.first, uH);
@@ -221,9 +240,11 @@ namespace {
 
         TCanvas canvas("Canv", "Canv", (myType == SiPixelPI::t_barrel) ? 1200 : 1600, 1000);
         if (myType == SiPixelPI::t_barrel) {
-          theMaps.DrawBarrelMaps("templateLABarrel", canvas);
+          theMaps.drawBarrelMaps("templateLABarrel", canvas);
         } else if (myType == SiPixelPI::t_forward) {
-          theMaps.DrawForwardMaps("templateLAForward", canvas);
+          theMaps.drawForwardMaps("templateLAForward", canvas);
+        } else if (myType == SiPixelPI::t_all) {
+          theMaps.drawSummaryMaps("templateLA", canvas);
         }
 
         canvas.cd();
@@ -236,12 +257,19 @@ namespace {
 
   using SiPixelTemplateLABPixMap = SiPixelTemplateLA<SiPixelPI::t_barrel>;
   using SiPixelTemplateLAFPixMap = SiPixelTemplateLA<SiPixelPI::t_forward>;
+  using SiPixelTemplateLAMap = SiPixelTemplateLA<SiPixelPI::t_all>;
 
   using namespace templateHelper;
 
   //************************************************
+  // Full Pixel Tracker Map of Template IDs
+  // ***********************************************/
+  using SiPixelTemplateIDsFullPixelMap =
+      SiPixelFullPixelIDMap<SiPixelTemplateDBObject, SiPixelTemplateStore, SiPixelTemplate>;
+
+  //************************************************
   // Display of Template Titles
-  // *************************************************/
+  // **********************************************/
   using SiPixelTemplateTitles_Display =
       SiPixelTitles_Display<SiPixelTemplateDBObject, SiPixelTemplateStore, SiPixelTemplate>;
 
@@ -255,16 +283,20 @@ namespace {
   //***********************************************/
   using SiPixelTemplateIDsBPixMap = SiPixelIDs<SiPixelTemplateDBObject, SiPixelPI::t_barrel>;
   using SiPixelTemplateIDsFPixMap = SiPixelIDs<SiPixelTemplateDBObject, SiPixelPI::t_forward>;
+  using SiPixelTemplateIDsMap = SiPixelIDs<SiPixelTemplateDBObject, SiPixelPI::t_all>;
 
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiPixelTemplateDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateDBObjectTest);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsFullPixelMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateTitles_Display);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateHeaderTable);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsBPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLAMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLABPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLAFPixMap);
 }

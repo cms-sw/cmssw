@@ -19,6 +19,7 @@
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="DQM/TrackerRemapper"/>
   <use name="roothistpainter"/>
 </library>
 
@@ -28,6 +29,7 @@
   <use name="CondFormats/SiStripObjects"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="DQM/TrackerRemapper"/>
   <use name="roothistpainter"/>
 </library>
 
