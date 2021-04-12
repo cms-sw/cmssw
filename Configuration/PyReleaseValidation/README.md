@@ -31,6 +31,14 @@ The offsets currently in use are:
 * 0.3: 0.1 + 0.2
 * 0.4: LowPU tracking era, `Run2_2017_trackingLowPU`
 * 0.5: Pixel tracking only + 0.1
+* 0.501: Patatrack, pixel only quadruplets, on CPU
+* 0.502: Patatrack, pixel only quadruplets, on GPU
+* 0.505: Patatrack, pixel only triplets, on CPU
+* 0.506: Patatrack, pixel only triplets, on GPU
+* 0.511: Patatrack, ECAL only CPU
+* 0.512: Patatrack, ECAL only GPU
+* 0.521: Patatrack, HCAL only CPU
+* 0.522: Patatrack, HCAL only GPU
 * 0.6: HE Collapse (old depth segmentation for 2018)
 * 0.7: trackingMkFit modifier
 * 0.8: BPH Parking (Run-2)
@@ -52,10 +60,4 @@ The offsets currently in use are:
 * 0.911: DD4Hep
 * 0.101: Phase-2 aging, 1000fb-1
 * 0.103: Phase-2 aging, 3000fb-1
-* 0.501: Patatrack, pixel only CPU
-* 0.502: Patatrack, pixel only GPU
-* 0.511: Patatrack, ECAL only CPU
-* 0.512: Patatrack, ECAL only GPU
-* 0.521: Patatrack, HCAL only CPU
-* 0.522: Patatrack, HCAL only GPU
 * 0.9001: Sonic Triton
