@@ -147,13 +147,11 @@ void NearbyPixelClustersAnalyzer::analyze(const edm::Event& iEvent, const edm::E
   const PixelClusterParameterEstimator* pixelCPE_ = &iSetup.getData(pixelCPEEsToken_);
 
   // get the muon track collection
-  edm::Handle<edm::View<reco::Track>> muonTrackCollectionHandle;
-  iEvent.getByToken(muonTracksToken_, muonTrackCollectionHandle);
+  const auto& muonTrackCollectionHandle = iEvent.getHandle(muonTracksToken_);
   auto const& muonTracks = *muonTrackCollectionHandle;
 
   // get the track distances
-  edm::Handle<edm::ValueMap<std::vector<float>>> distancesToTrack;
-  iEvent.getByToken(distanceToken_, distancesToTrack);
+  const auto& distancesToTrack = iEvent.getHandle(distanceToken_);
 
   unsigned int nMuons = muonTracks.size();
   for (unsigned int ij = 0; ij < nMuons; ij++) {
