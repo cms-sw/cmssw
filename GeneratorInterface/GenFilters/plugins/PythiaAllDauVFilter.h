@@ -1,5 +1,5 @@
 #ifndef PYTHIAALLDAUVFILTER_h
-#define PYTHIAAllDAUVFILTER_h
+#define PYTHIAALLDAUVFILTER_h
 // -*- C++ -*-
 //
 // Package:    PythiaAllDauVFilter
