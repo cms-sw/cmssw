@@ -145,13 +145,11 @@ void NearbyPixelClustersProducer::produce(edm::Event& iEvent, const edm::EventSe
   const auto& SiPixelBadModule_ = &iSetup.getData(badModuleToken_);
 
   // get cluster collection
-  edm::Handle<SiPixelClusterCollectionNew> clusterCollectionHandle;
-  iEvent.getByToken(clustersToken_, clusterCollectionHandle);
+  const auto& clusterCollectionHandle = iEvent.getHandle(clustersToken_);
   const SiPixelClusterCollectionNew& clusterCollection = *clusterCollectionHandle;
 
   // get Traj-Track Collection
-  edm::Handle<TrajTrackAssociationCollection> trajTrackCollectionHandle;
-  iEvent.getByToken(trajTrackCollectionToken_, trajTrackCollectionHandle);
+  const auto& trajTrackCollectionHandle = iEvent.getHandle(trajTrackCollectionToken_);
   if (!trajTrackCollectionHandle.isValid())
     return;
 
@@ -399,7 +397,7 @@ TrajectoryStateOnSurface NearbyPixelClustersProducer::getTrajectoryStateOnSurfac
     const TrajectoryMeasurement& measurement)
 /*--------------------------------------------------------------------*/
 {
-  static TrajectoryStateCombiner trajStateCombiner;
+  const static TrajectoryStateCombiner trajStateCombiner;
 
   const auto& forwardPredictedState = measurement.forwardPredictedState();
   const auto& backwardPredictedState = measurement.backwardPredictedState();

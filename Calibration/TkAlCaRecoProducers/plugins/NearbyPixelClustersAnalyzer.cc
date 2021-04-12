@@ -142,8 +142,7 @@ void NearbyPixelClustersAnalyzer::analyze(const edm::Event& iEvent, const edm::E
   const PixelClusterParameterEstimator* pixelCPE_ = &iSetup.getData(pixelCPEEsToken_);
 
   // Get cluster collection
-  edm::Handle<SiPixelClusterCollectionNew> clusterCollectionHandle;
-  iEvent.getByToken(clustersToken_, clusterCollectionHandle);
+  const auto& clusterCollectionHandle = iEvent.getHandle(clustersToken_);
 
   unsigned int nClusGlobal = 0;
   countClusters(clusterCollectionHandle, nClusGlobal);
@@ -152,8 +151,7 @@ void NearbyPixelClustersAnalyzer::analyze(const edm::Event& iEvent, const edm::E
   edm::LogInfo("NearbyPixelClustersAnalyzer") << "total ALCARECO clusters: " << nClusGlobal << std::endl;
 
   // Get nearby cluster collection
-  edm::Handle<SiPixelClusterCollectionNew> nearByClusterCollectionHandle;
-  iEvent.getByToken(nearByClustersToken_, /*trackerGeometry_,*/ nearByClusterCollectionHandle);
+  const auto& nearByClusterCollectionHandle = iEvent.getHandle(nearByClustersToken_);
 
   unsigned int nNearByClusGlobal = 0;
   countClusters(nearByClusterCollectionHandle, /*trackerGeometry_,*/ nNearByClusGlobal);
@@ -165,8 +163,7 @@ void NearbyPixelClustersAnalyzer::analyze(const edm::Event& iEvent, const edm::E
   fillClusterFrames(nearByClusterCollectionHandle);
 
   // Get Traj-Track Collection
-  edm::Handle<TrajTrackAssociationCollection> trajTrackCollectionHandle;
-  iEvent.getByToken(trajTrackCollectionToken_, trajTrackCollectionHandle);
+  const auto& trajTrackCollectionHandle = iEvent.getHandle(trajTrackCollectionToken_);
 
   if (!trajTrackCollectionHandle.isValid())
     return;
@@ -278,7 +275,7 @@ TrajectoryStateOnSurface NearbyPixelClustersAnalyzer::getTrajectoryStateOnSurfac
     const TrajectoryMeasurement& measurement)
 /*--------------------------------------------------------------------*/
 {
-  static TrajectoryStateCombiner trajStateCombiner;
+  const static TrajectoryStateCombiner trajStateCombiner;
 
   const auto& forwardPredictedState = measurement.forwardPredictedState();
   const auto& backwardPredictedState = measurement.backwardPredictedState();
