@@ -18,8 +18,8 @@ class CSCCLCTDigi {
 public:
   typedef std::vector<std::vector<uint16_t>> ComparatorContainer;
 
-  enum CLCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0x1f };
-  enum CLCTKeyStripShifts { kEightStripShift = 6, kQuartStripShift = 5, kHalfStripShift = 0 };
+  enum CLCTKeyStripMasks { kEighthStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0x1f };
+  enum CLCTKeyStripShifts { kEighthStripShift = 6, kQuartStripShift = 5, kHalfStripShift = 0 };
   // temporary to facilitate CCLUT-EMTF/OMTF integration studies
   enum CLCTPatternMasks { kRun3SlopeMask = 0xf, kRun3PatternMask = 0x7, kLegacyPatternMask = 0xf };
   enum CLCTPatternShifts { kRun3SlopeShift = 7, kRun3PatternShift = 4, kLegacyPatternShift = 0 };
@@ -105,11 +105,11 @@ public:
   /// get single quart strip bit
   bool getQuartStrip() const;
 
-  /// set single eight strip bit
-  void setEightStrip(const bool eightStrip);
+  /// set single eighth strip bit
+  void setEighthStrip(const bool eighthStrip);
 
-  /// get single eight strip bit
-  bool getEightStrip() const;
+  /// get single eighth strip bit
+  bool getEighthStrip() const;
 
   /// return Key CFEB ID
   uint16_t getCFEB() const { return cfeb_; }
@@ -133,7 +133,7 @@ public:
   /// (32 halfstrips). There are 5 cfebs.  The "strip_" variable is one
   /// of 32 halfstrips on the keylayer of a single CFEB, so that
   /// Halfstrip = (cfeb*32 + strip).
-  /// This function can also return the quartstrip or eightstrip
+  /// This function can also return the quartstrip or eighthstrip
   /// when the comparator code has been set
   uint16_t getKeyStrip(const uint16_t n = 2) const;
 
