@@ -1,19 +1,33 @@
 import FWCore.ParameterSet.Config as cms
 
 # beam optics
+from CondCore.CondDB.CondDB_cfi import *
 from CalibPPS.ESProducers.ctppsBeamParametersFromLHCInfoESSource_cfi import *
 from CalibPPS.ESProducers.ctppsInterpolatedOpticalFunctionsESSource_cfi import *
 ctppsInterpolatedOpticalFunctionsESSource.lhcInfoLabel = ""
 
-
-# For optical functions from root file, when they are not yet in the database, use the definitino below
 """
-from SimTransport.PPSProtonTransport.OpticalFunctionsConfig_cfi import *
+# For optical functions and LHCinfo not yet in a GT, use the definitino below
+ppsTransportESSource = cms.ESSource("PoolDBESSource")
 
-_opticsConfig = cms.PSet(
-                    defaultCrossingAngle=cms.double(0.0),
-                    es_source = cms.PSet()
-                )
+_ppsESSource2021 = cms.ESSource("PoolDBESSource",
+     connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+     timetype = cms.untracked.string('runnumber'),
+     toGet = cms.VPSet(
+                 cms.PSet(
+                     record = cms.string('LHCInfoRcd'),
+                     tag = cms.string("LHCInfo_2021_mc_v1")
+                 ),
+                 cms.PSet(
+                     record = cms.string('CTPPSOpticsRcd'),
+                     tag = cms.string("PPSOpticalFunctions_2021_mc_v1")
+                 )
+     )
+)
+
+from Configuration.Eras.Modifier_ctpps_2021_cff import ctpps_2021
+ctpps_2021.toReplaceWith(ppsTransportESSource,_ppsESSource2021)
+del _ppsESSource2021
 
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 ctpps_2016.toReplaceWith(_opticsConfig, opticalfunctionsTransportSetup_2016.opticalFunctionConfig)
