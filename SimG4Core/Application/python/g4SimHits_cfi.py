@@ -170,7 +170,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         G4MscStepLimit = cms.string("UseSafety"), 
         G4GeneralProcess = cms.bool(False), 
         ReadMuonData = cms.bool(False), 
-        Verbosity = cms.untracked.int32(1),
+        Verbosity = cms.untracked.int32(0),
         # 1 will print cuts as they get set from DD
         # 2 will do as 1 + will dump Geant4 table of cuts
         MonopoleCharge       = cms.untracked.int32(1),
