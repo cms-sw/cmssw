@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,7 +35,7 @@
 // class declaration
 //
 
-class TrackDistanceValueMapProducer : public edm::stream::EDProducer<> {
+class TrackDistanceValueMapProducer : public edm::global::EDProducer<> {
 public:
   explicit TrackDistanceValueMapProducer(const edm::ParameterSet&);
   ~TrackDistanceValueMapProducer() override = default;
@@ -43,7 +43,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
   // edToken
@@ -67,15 +67,16 @@ TrackDistanceValueMapProducer::TrackDistanceValueMapProducer(const edm::Paramete
 //
 
 // ------------ method called to produce the data  ------------
-void TrackDistanceValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void TrackDistanceValueMapProducer::produce(edm::StreamID streamID,
+                                            edm::Event& iEvent,
+                                            const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   //=======================================================
   // Retrieve the muon Track information
   //=======================================================
 
-  edm::Handle<edm::View<reco::Track>> muonTrackCollectionHandle;
-  iEvent.getByToken(muonTracksToken_, muonTrackCollectionHandle);
+  const auto& muonTrackCollectionHandle = iEvent.getHandle(muonTracksToken_);
   if (!muonTrackCollectionHandle.isValid())
     return;
   auto const& muonTracks = *muonTrackCollectionHandle;
@@ -84,8 +85,7 @@ void TrackDistanceValueMapProducer::produce(edm::Event& iEvent, const edm::Event
   // Retrieve the general Track information
   //=======================================================
 
-  edm::Handle<edm::View<reco::Track>> allTrackCollectionHandle;
-  iEvent.getByToken(otherTracksToken_, allTrackCollectionHandle);
+  const auto& allTrackCollectionHandle = iEvent.getHandle(otherTracksToken_);
   if (!allTrackCollectionHandle.isValid())
     return;
   auto const& allTracks = *allTrackCollectionHandle;
