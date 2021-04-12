@@ -148,6 +148,11 @@ bool PythiaAllDauVFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::E
         for (unsigned int i = 0; i < dauCollection->size(); ++i) {
           if ((*des)->pdg_id() != dauCollection->at(i))
             continue;
+
+          // possible to have more than one daughter of same pdgID and same/different kinematic constraints
+          if (foundDaughter[i])
+            continue;
+
           if (fVerbose > 5) {
             edm::LogInfo("PythiaAllDauVFilter")
                 << "\t\t checking cuts of , daughter i = " << i << " pT = " << (*des)->momentum().perp()
