@@ -232,7 +232,8 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
           charge = hitCluster.strip->charge();
           saturation = std::any_of(ampls.begin(), ampls.end(), [](uint8_t amp) { return amp >= 254; });
 
-          overlapping = (((firstStrip % 128) == 0) || ((firstStrip / 128) != ((firstStrip + int(nStrips)) / 128)) ||
+          overlapping = (((firstStrip % 128) == 0) ||
+                         (((firstStrip / 128) != ((firstStrip + int(nStrips)) / 128)) && ((firstStrip / 128) < 5)) ||
                          (((firstStrip + int(nStrips)) % 128) == 127));
         } else if (hitCluster.pixel) {
           const auto& ampls = hitCluster.pixel->pixelADC();
