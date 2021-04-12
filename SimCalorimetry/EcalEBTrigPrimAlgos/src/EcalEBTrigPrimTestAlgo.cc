@@ -39,29 +39,44 @@ const unsigned int EcalEBTrigPrimTestAlgo::nrSamples_ = 5;
 const unsigned int EcalEBTrigPrimTestAlgo::maxNrTowers_ = 2448;
 const unsigned int EcalEBTrigPrimTestAlgo::maxNrSamplesOut_ = 10;
 
-EcalEBTrigPrimTestAlgo::EcalEBTrigPrimTestAlgo(
-    const edm::EventSetup &setup, int nSam, int binofmax, bool tcpFormat, bool barrelOnly, bool debug, bool famos)
-    : nSamples_(nSam),
+// not BarrelOnly
+EcalEBTrigPrimTestAlgo::EcalEBTrigPrimTestAlgo(const EcalTrigTowerConstituentsMap *eTTmap,
+                                               const CaloGeometry *theGeometry,
+                                               int nSam,
+                                               int binofmax,
+                                               bool tcpFormat,
+                                               bool debug,
+                                               bool famos)
+    : eTTmap_(eTTmap),
+      theGeometry_(theGeometry),
+      nSamples_(nSam),
       binOfMaximum_(binofmax),
       tcpFormat_(tcpFormat),
-      barrelOnly_(barrelOnly),
+      barrelOnly_(false),
       debug_(debug),
       famos_(famos)
 
 {
   maxNrSamples_ = 10;
-  this->init(setup);
+  this->init();
+}
+
+//barrel only
+EcalEBTrigPrimTestAlgo::EcalEBTrigPrimTestAlgo(int nSam, int binofmax, bool tcpFormat, bool debug, bool famos)
+    : nSamples_(nSam),
+      binOfMaximum_(binofmax),
+      tcpFormat_(tcpFormat),
+      barrelOnly_(true),
+      debug_(debug),
+      famos_(famos)
+
+{
+  maxNrSamples_ = 10;
+  this->init();
 }
 
 //----------------------------------------------------------------------
-void EcalEBTrigPrimTestAlgo::init(const edm::EventSetup &setup) {
-  if (!barrelOnly_) {
-    //edm::ESHandle<CaloGeometry> theGeometry;
-    //    edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
-    setup.get<CaloGeometryRecord>().get(theGeometry);
-    setup.get<IdealGeometryRecord>().get(eTTmap_);
-  }
-
+void EcalEBTrigPrimTestAlgo::init() {
   // initialise data structures
   initStructures(towerMapEB_);
   hitTowers_.resize(maxNrTowers_);
@@ -102,8 +117,7 @@ EcalEBTrigPrimTestAlgo::~EcalEBTrigPrimTestAlgo() {
   delete fenixTcpFormat_;
 }
 
-void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup &setup,
-                                 EBDigiCollection const *digi,
+void EcalEBTrigPrimTestAlgo::run(EBDigiCollection const *digi,
                                  EcalEBTrigPrimDigiCollection &result,
                                  EcalEBTrigPrimDigiCollection &resultTcp) {
   //typedef typename Coll::Digi Digi;
