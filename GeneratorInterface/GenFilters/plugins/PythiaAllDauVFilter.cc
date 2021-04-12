@@ -10,7 +10,7 @@ using namespace Pythia8;
 PythiaAllDauVFilter::PythiaAllDauVFilter(const edm::ParameterSet& iConfig)
     : fVerbose(iConfig.getUntrackedParameter("verbose", 0)),
       token_(consumes<edm::HepMCProduct>(
-//          edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
+          //          edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
           edm::InputTag(iConfig.getUntrackedParameter("moduleLabel", std::string("generator"))))),
       particleID(iConfig.getUntrackedParameter("ParticleID", 0)),
       motherID(iConfig.getUntrackedParameter("MotherID", 0)),
@@ -31,48 +31,44 @@ PythiaAllDauVFilter::PythiaAllDauVFilter(const edm::ParameterSet& iConfig)
   defmaxetacut.push_back(10.);
   maxetacut = iConfig.getUntrackedParameter<vector<double> >("MaxEta", defmaxetacut);
 
- // create pythia8 instance to access particle data
+  // create pythia8 instance to access particle data
   edm::LogInfo("PythiaAllDauVFilter") << "Creating pythia8 instance for particle properties" << endl;
   if (!fLookupGen.get())
     fLookupGen.reset(new Pythia());
 
+  if (chargeconju) {
+    antiParticleID = -particleID;
+    if (!(fLookupGen->particleData.isParticle(antiParticleID)))
+      antiParticleID = particleID;
 
-  if(chargeconju)
-  { 
-	antiParticleID=-particleID;
-	if (!(fLookupGen->particleData.isParticle(antiParticleID)))
-              antiParticleID = particleID;
+    int antiId;
+    for (size_t i = 0; i < dauIDs.size(); i++) {
+      antiId = -dauIDs[i];
+      if (!(fLookupGen->particleData.isParticle(antiId)))
+        antiId = dauIDs[i];
 
-	int antiId;
-       for(size_t i=0;i<dauIDs.size();i++)
-	{
-		antiId=-dauIDs[i];
-		if (!(fLookupGen->particleData.isParticle(antiId)))
-                  antiId=dauIDs[i];
-             
-                antiDauIDs.push_back(antiId);
-	}
+      antiDauIDs.push_back(antiId);
+    }
   }
 
-  edm::LogInfo("PythiaAllDauVFilter") << "----------------------------------------------------------------------" << endl;
+  edm::LogInfo("PythiaAllDauVFilter") << "----------------------------------------------------------------------"
+                                      << endl;
   edm::LogInfo("PythiaAllDauVFilter") << "--- PythiaAllDauVFilter" << endl;
   for (unsigned int i = 0; i < dauIDs.size(); ++i) {
     edm::LogInfo("PythiaAllDauVFilter") << "ID: " << dauIDs[i] << " pT > " << minptcut[i] << " " << minetacut[i]
-                                     << " eta < " << maxetacut[i] << endl;
+                                        << " eta < " << maxetacut[i] << endl;
   }
-  if(chargeconju)
-  for (unsigned int i = 0; i < antiDauIDs.size(); ++i) {
-    edm::LogInfo("PythiaAllDauVFilter") << "ID: " << antiDauIDs[i] << " pT > " << minptcut[i] << " " << minetacut[i]
-                                     << " eta < " << maxetacut[i] << endl;
-  }
-edm::LogInfo("PythiaAllDauVFilter") << "maxptcut   = " << maxptcut << endl;
+  if (chargeconju)
+    for (unsigned int i = 0; i < antiDauIDs.size(); ++i) {
+      edm::LogInfo("PythiaAllDauVFilter") << "ID: " << antiDauIDs[i] << " pT > " << minptcut[i] << " " << minetacut[i]
+                                          << " eta < " << maxetacut[i] << endl;
+    }
+  edm::LogInfo("PythiaAllDauVFilter") << "maxptcut   = " << maxptcut << endl;
   edm::LogInfo("PythiaAllDauVFilter") << "particleID = " << particleID << endl;
-  if(chargeconju)
-  edm::LogInfo("PythiaAllDauVFilter") << "antiParticleID = " << antiParticleID << endl;
+  if (chargeconju)
+    edm::LogInfo("PythiaAllDauVFilter") << "antiParticleID = " << antiParticleID << endl;
 
   edm::LogInfo("PythiaAllDauVFilter") << "motherID   = " << motherID << endl;
-
-  
 }
 
 PythiaAllDauVFilter::~PythiaAllDauVFilter() {
@@ -93,27 +89,22 @@ bool PythiaAllDauVFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::E
 
   int OK(1);
   vector<int> vparticles;
-  vector<bool> foundDaughter(dauIDs.size(),false);
+  vector<bool> foundDaughter(dauIDs.size(), false);
   auto dauCollection = &dauIDs;
-    
-HepMC::GenEvent* myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+
+  HepMC::GenEvent* myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
 
   if (fVerbose > 5) {
     edm::LogInfo("PythiaAllDauVFilter") << "looking for " << particleID << endl;
   }
 
   for (HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p) {
-    if( (*p)->pdg_id() == particleID)
-    {
-	dauCollection = &(dauIDs);
-    }
-    else if(chargeconju and ( (*p)->pdg_id()  == antiParticleID ) )
-    {
-	dauCollection = &(antiDauIDs);
-    }
-    else
-    {
-	continue;
+    if ((*p)->pdg_id() == particleID) {
+      dauCollection = &(dauIDs);
+    } else if (chargeconju and ((*p)->pdg_id() == antiParticleID)) {
+      dauCollection = &(antiDauIDs);
+    } else {
+      continue;
     }
 
     // -- Check for mother of this particle
@@ -124,7 +115,7 @@ HepMC::GenEvent* myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
            ++des) {
         if (fVerbose > 10) {
           edm::LogInfo("PythiaAllDauVFilter") << "mother: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp()
-                                           << " eta: " << (*des)->momentum().eta() << endl;
+                                              << " eta: " << (*des)->momentum().eta() << endl;
         }
         if (abs(motherID) == abs((*des)->pdg_id())) {
           OK = 1;
@@ -138,11 +129,11 @@ HepMC::GenEvent* myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
     // -- check for daugthers
     int ndau = 0;
     for (unsigned int i = 0; i < foundDaughter.size(); ++i) {
-	foundDaughter[i]=false;
- } 
-   if (fVerbose > 5) {
+      foundDaughter[i] = false;
+    }
+    if (fVerbose > 5) {
       edm::LogInfo("PythiaAllDauVFilter") << "found ID: " << (*p)->pdg_id() << " pT: " << (*p)->momentum().perp()
-                                       << " eta: " << (*p)->momentum().eta() << endl;
+                                          << " eta: " << (*p)->momentum().eta() << endl;
     }
     if ((*p)->end_vertex()) {
       for (HepMC::GenVertex::particle_iterator des = (*p)->end_vertex()->particles_begin(HepMC::children);
@@ -150,19 +141,21 @@ HepMC::GenEvent* myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
            ++des) {
         ++ndau;
         if (fVerbose > 5) {
-          edm::LogInfo("PythiaAllDauVFilter") << "\t daughter : ID: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp()
-                                           << " eta: " << (*des)->momentum().eta() << endl;
+          edm::LogInfo("PythiaAllDauVFilter")
+              << "\t daughter : ID: " << (*des)->pdg_id() << " pT: " << (*des)->momentum().perp()
+              << " eta: " << (*des)->momentum().eta() << endl;
         }
         for (unsigned int i = 0; i < dauCollection->size(); ++i) {
           if ((*des)->pdg_id() != dauCollection->at(i))
             continue;
           if (fVerbose > 5) {
-            edm::LogInfo("PythiaAllDauVFilter") << "\t\t checking cuts of , daughter i = " << i << " pT = " << (*des)->momentum().perp()
-                                             << " eta = " << (*des)->momentum().eta() << endl;
+            edm::LogInfo("PythiaAllDauVFilter")
+                << "\t\t checking cuts of , daughter i = " << i << " pT = " << (*des)->momentum().perp()
+                << " eta = " << (*des)->momentum().eta() << endl;
           }
           if ((*des)->momentum().perp() > minptcut[i] && (*des)->momentum().perp() < maxptcut &&
               (*des)->momentum().eta() > minetacut[i] && (*des)->momentum().eta() < maxetacut[i]) {
-	    foundDaughter[i]=true;
+            foundDaughter[i] = true;
             vparticles.push_back((*des)->pdg_id());
             if (fVerbose > 2) {
               edm::LogInfo("PythiaAllDauVFilter")
@@ -178,23 +171,22 @@ HepMC::GenEvent* myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
     // -- ( number of daughtrs == daughters passing cut ) and ( all daughters specified are found)
     if (ndau == ndaughters) {
       accepted = true;
-        for (unsigned int i = 0; i < foundDaughter.size(); ++i) {
-	if(!foundDaughter[i])
-		{
-			accepted=false;
-		}
+      for (unsigned int i = 0; i < foundDaughter.size(); ++i) {
+        if (!foundDaughter[i]) {
+          accepted = false;
         }
+      }
       if (accepted and (fVerbose > 0)) {
-        edm::LogInfo("PythiaAllDauVFilter") << "  accepted this decay from "<<(*p)->pdg_id();
+        edm::LogInfo("PythiaAllDauVFilter") << "  accepted this decay from " << (*p)->pdg_id();
         for (unsigned int iv = 0; iv < vparticles.size(); ++iv)
           edm::LogInfo("PythiaAllDauVFilter") << vparticles[iv] << " ";
         edm::LogInfo("PythiaAllDauVFilter") << " from mother = " << motherID << endl;
       }
     }
 
-      if(accepted) break;    
-  
-        }
+    if (accepted)
+      break;
+  }
 
   delete myGenEvent;
   return accepted;

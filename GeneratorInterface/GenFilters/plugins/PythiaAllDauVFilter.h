@@ -15,7 +15,7 @@
 */
 //
 // Original Author:  Daniele Pedrini, PythiaDauVFilter
-//                   Aravind T S    ,   Updated and Modified to PythiaAllDauVFilter  
+//                   Aravind T S    ,   Updated and Modified to PythiaAllDauVFilter
 //         Created:  Apr 29 2008
 //                   Apr 12 2021
 //
@@ -52,7 +52,7 @@ public:
 private:
   const int fVerbose;
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
-  std::vector<int> dauIDs,antiDauIDs;
+  std::vector<int> dauIDs, antiDauIDs;
   const int particleID;
   int antiParticleID;
   const int motherID;
