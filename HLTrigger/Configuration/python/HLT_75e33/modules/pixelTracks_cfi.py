@@ -5,8 +5,6 @@ pixelTracks = cms.EDProducer("PixelTrackProducer",
     Filter = cms.InputTag("pixelTrackFilterByKinematics"),
     Fitter = cms.InputTag("pixelFitterByHelixProjections"),
     SeedingHitSets = cms.InputTag("pixelTracksHitSeeds"),
-    mightGet = cms.untracked.vstring(
-        'RegionsSeedingHitSets_pixelTracksHitSeeds__HLTX',
-    ),
+    mightGet = cms.optional.untracked.vstring,
     passLabel = cms.string('pixelTracks')
 )

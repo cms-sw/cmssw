@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..sequences.l1tReconstructionSeq_cfi import *
+from ..tasks.l1tReconstructionTask_cfi import *
 
-l1tReconstructionPath = cms.Path(l1tReconstructionSeq)
+l1tReconstructionPath = cms.Path(l1tReconstructionTask)

@@ -20,8 +20,6 @@ pixelTracksHitSeeds = cms.EDProducer("CAHitQuadrupletEDProducer",
         value1 = cms.double(200.0),
         value2 = cms.double(50.0)
     ),
-    mightGet = cms.untracked.vstring(
-        'IntermediateHitDoublets_pixelTracksHitDoublets__HLTX'
-    ),
+    mightGet = cms.optional.untracked.vstring,
     useBendingCorrection = cms.bool(True)
 )

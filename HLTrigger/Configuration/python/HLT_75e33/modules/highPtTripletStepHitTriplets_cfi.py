@@ -18,8 +18,6 @@ highPtTripletStepHitTriplets = cms.EDProducer("CAHitTripletEDProducer",
         value1 = cms.double(100),
         value2 = cms.double(6)
     ),
-    mightGet = cms.untracked.vstring(
-        'IntermediateHitDoublets_highPtTripletStepHitDoublets__HLTX',
-    ),
+    mightGet = cms.optional.untracked.vstring,
     useBendingCorrection = cms.bool(True)
 )

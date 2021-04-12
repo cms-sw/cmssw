@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..sequences.particleFlowReco_cfi import *
+from ..tasks.highlevelrecoTask_cfi import *
 
-highlevelreco = cms.Sequence(particleFlowReco)
+highlevelreco = cms.Sequence(highlevelrecoTask)
