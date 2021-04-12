@@ -72,7 +72,7 @@ void CSCCorrelatedLCTDigi::clear() {
 uint16_t CSCCorrelatedLCTDigi::getStrip(const uint16_t n) const {
   // all 10 bits
   if (n == 8) {
-    return 2 * getStrip(4) + getEightStrip();
+    return 2 * getStrip(4) + getEighthStrip();
   }
   // lowest 9 bits
   else if (n == 4) {
@@ -90,10 +90,10 @@ void CSCCorrelatedLCTDigi::setQuartStrip(const bool quartStrip) {
   setDataWord(quartStrip, strip, kQuartStripShift, kQuartStripMask);
 }
 
-void CSCCorrelatedLCTDigi::setEightStrip(const bool eightStrip) {
+void CSCCorrelatedLCTDigi::setEighthStrip(const bool eighthStrip) {
   if (!isRun3())
     return;
-  setDataWord(eightStrip, strip, kEightStripShift, kEightStripMask);
+  setDataWord(eighthStrip, strip, kEighthStripShift, kEighthStripMask);
 }
 
 bool CSCCorrelatedLCTDigi::getQuartStrip() const {
@@ -102,10 +102,10 @@ bool CSCCorrelatedLCTDigi::getQuartStrip() const {
   return getDataWord(strip, kQuartStripShift, kQuartStripMask);
 }
 
-bool CSCCorrelatedLCTDigi::getEightStrip() const {
+bool CSCCorrelatedLCTDigi::getEighthStrip() const {
   if (!isRun3())
     return false;
-  return getDataWord(strip, kEightStripShift, kEightStripMask);
+  return getDataWord(strip, kEighthStripShift, kEighthStripMask);
 }
 
 uint16_t CSCCorrelatedLCTDigi::getSlope() const {
@@ -118,6 +118,19 @@ void CSCCorrelatedLCTDigi::setSlope(const uint16_t slope) {
   if (!isRun3())
     return;
   setDataWord(slope, pattern, kRun3SlopeShift, kRun3SlopeMask);
+}
+
+// slope in number of half-strips/layer
+float CSCCorrelatedLCTDigi::getFractionalSlope() const {
+  if (isRun3()) {
+    // 4-bit slope
+    float slope[17] = {
+        0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 2.0, 2.5};
+    return (2 * getBend() - 1) * slope[getSlope()];
+  } else {
+    int slope[11] = {0, 0, -8, 8, -6, 6, -4, 4, -2, 2, 0};
+    return float(slope[getPattern()] / 5.);
+  }
 }
 
 /// return the fractional strip

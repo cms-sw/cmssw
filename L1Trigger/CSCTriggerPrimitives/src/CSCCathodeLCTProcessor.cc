@@ -1353,7 +1353,7 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
     strm << "+                  Before CCCLUT algorithm:                       +\n";
     strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
     strm << " Old CLCT digi " << digi << "\n";
-    strm << " 1/4 strip bit " << digi.getQuartStrip() << " 1/8 strip bit " << digi.getEightStrip() << "\n";
+    strm << " 1/4 strip bit " << digi.getQuartStrip() << " 1/8 strip bit " << digi.getEighthStrip() << "\n";
     strm << " 1/4 strip number " << digi.getKeyStrip(4) << " 1/8 strip number " << digi.getKeyStrip(8) << "\n";
     strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
     LogDebug("CSCCathodeLCTProcessor") << strm.str();
@@ -1430,7 +1430,7 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
   // store the new 1/2, 1/4 and 1/8 strip positions
   digi.setStrip(halfstrip - digi.getCFEB() * CSCConstants::NUM_HALF_STRIPS_PER_CFEB);
   digi.setQuartStrip(std::get<1>(stripoffset));
-  digi.setEightStrip(std::get<2>(stripoffset));
+  digi.setEighthStrip(std::get<2>(stripoffset));
 
   // store the bending angle value in the pattern data member
   digi.setSlope(slopeCCValue);
@@ -1446,7 +1446,7 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
     strm << "+                  CCCLUT algorithm results:                       +\n";
     strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
     strm << " New CLCT digi " << digi << "\n";
-    strm << " 1/4 strip bit " << digi.getQuartStrip() << " 1/8 strip bit " << digi.getEightStrip() << "\n";
+    strm << " 1/4 strip bit " << digi.getQuartStrip() << " 1/8 strip bit " << digi.getEighthStrip() << "\n";
     strm << " 1/4 strip number " << digi.getKeyStrip(4) << " 1/8 strip number " << digi.getKeyStrip(8) << "\n";
     strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
     LogDebug("CSCCathodeLCTProcessor") << strm.str();
@@ -1454,7 +1454,7 @@ void CSCCathodeLCTProcessor::runCCLUT(CSCCLCTDigi& digi) const {
 }
 
 unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(const unsigned slope) const {
-  const unsigned slopeList[32] = {10, 10, 8, 8, 8, 8, 6, 6, 6, 6, 4, 4, 4, 2, 2, 2,
-                                  10, 10, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3, 3};
+  const unsigned slopeList[32] = {10, 10, 10, 8, 8, 8, 6, 6, 6, 6, 4, 4, 2, 2, 2, 2,
+                                  10, 10, 10, 9, 9, 9, 7, 7, 7, 7, 5, 5, 3, 3, 3, 3};
   return slopeList[slope];
 }

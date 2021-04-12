@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 CaloParticleSelectionForEfficiency = cms.PSet(
     ptMinCP = cms.double(0.5),
-    ptMaxCP = cms.double(250.),
+    ptMaxCP = cms.double(300.),
     minRapidityCP = cms.double(-3.1),
     maxRapidityCP = cms.double(3.1),
     #--z position of the origin vertex less than lipCP

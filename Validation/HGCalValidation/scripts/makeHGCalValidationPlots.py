@@ -13,8 +13,7 @@ simClustersIters = ["ClusterLevel","ticlTrackstersTrkEM","ticlTrackstersEM","tic
 
 trackstersIters = ["ticlMultiClustersFromTrackstersMerge", "ticlMultiClustersFromTrackstersMIP",
                    "ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersTrkEM",
-                   "ticlMultiClustersFromTrackstersEM", "ticlMultiClustersFromTrackstersHAD",
-                   "ticlMultiClustersFromTrackstersDummy"]
+                   "ticlMultiClustersFromTrackstersEM", "ticlMultiClustersFromTrackstersHAD"]
 
 simClustersGeneralLabel = 'simClusters'
 layerClustersGeneralLabel = 'hgcalLayerClusters'
@@ -74,6 +73,11 @@ def main(opts):
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
+        # TICLTrackstersEdges plots
+        for i_iter in trackstersIters :
+            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
+            hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection, tracksterCollection)]
+            val.doPlots(hgctracksters, plotterDrawArgs=drawArgs)
     elif (opts.collection == caloParticlesLabel):
         particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
                          "muon-": "-13", "muon+":"13", 
@@ -135,6 +139,11 @@ def main(opts):
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
+        #TICLTrackstersEdges plots
+        for i_iter in trackstersIters :
+            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
+            hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection, tracksterCollection)]
+            val.doPlots(hgctracksters, plotterDrawArgs=drawArgs)
 
 
     if opts.no_html:

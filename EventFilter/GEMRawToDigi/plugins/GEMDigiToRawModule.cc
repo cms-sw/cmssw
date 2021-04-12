@@ -127,11 +127,11 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     uint32_t amc13EvtLength = 0;
     std::unique_ptr<AMC13Event> amc13Event = std::make_unique<AMC13Event>();
 
-    for (uint8_t amcNum = 0; amcNum < GEMeMap::maxAMCs_; ++amcNum) {
+    for (uint8_t amcNum = 0; amcNum <= GEMeMap::maxAMCs_; ++amcNum) {
       uint32_t amcSize = 0;
       std::unique_ptr<AMCdata> amcData = std::make_unique<AMCdata>();
 
-      for (uint8_t gebId = 0; gebId < GEMeMap::maxGEBs_; ++gebId) {
+      for (uint8_t gebId = 0; gebId <= GEMeMap::maxGEBs_; ++gebId) {
         std::unique_ptr<GEBdata> gebData = std::make_unique<GEBdata>();
         GEMROMapping::chamEC geb_ec{fedId, amcNum, gebId};
 
