@@ -253,6 +253,10 @@ foreach gtag ( MC DATA )
       continue
     endif
 
+    ## Force CTPPSRun2Geometry if running on Run-2 data using Run3 modifier
+    if ( $gtag == DATA && ( $Era == $EraRun3HI || $Era == $EraRun3pp) ) then
+      set Custom = "HLTrigger/Configuration/CustomConfigs.CTPPSRun2Geometry"
+    endif
 
     if ( $gtag == DATA ) then
 
