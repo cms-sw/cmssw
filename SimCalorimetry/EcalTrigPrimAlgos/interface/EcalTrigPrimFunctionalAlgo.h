@@ -1,5 +1,5 @@
-#ifndef EcalTrigPrimFunctionalAlgo_h
-#define EcalTrigPrimFunctionalAlgo_h
+#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALTRIGPRIMFUNCTIONALALGO_h
+#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALTRIGPRIMFUNCTIONALALGO_h
 /** \class EcalTrigPrimFunctionalAlgo
  *
  * EcalTrigPrimFunctionalAlgo is the main algorithm class for TPG
