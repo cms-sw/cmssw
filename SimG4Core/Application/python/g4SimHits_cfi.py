@@ -224,8 +224,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EnergyRMSE      = cms.vdouble(0.0,0.0),
         MinStepLimit              = cms.double(1.0),
         ModifyTransportation      = cms.bool(False),
-        ThresholdWarningEnergy    = cms.untracked.double(100.0),
-        ThresholdImportantEnergy  = cms.untracked.double(250.0),
+        ThresholdWarningEnergy    = cms.untracked.double(100.0), #in MeV
+        ThresholdImportantEnergy  = cms.untracked.double(250.0), #in MeV
         ThresholdTrials           = cms.untracked.int32(10)
     ),
     Generator = cms.PSet(
