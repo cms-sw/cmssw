@@ -2,38 +2,40 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGTPMode.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormatEB.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
 #include <iostream>
+
 using namespace std;
 
-EcalFenixTcpFormatEB::EcalFenixTcpFormatEB(bool tcpFormat, bool debug, bool famos, int binOfMax)
+EcalFenixTcpFormat::EcalFenixTcpFormat(bool tcpFormat, bool debug, bool famos, int binOfMax)
     : tcpFormat_(tcpFormat), debug_(debug), famos_(famos), binOfMax_(binOfMax) {
   status_ = 0;
   badTTStatus_ = &status_;
 }
 
-EcalFenixTcpFormatEB::~EcalFenixTcpFormatEB() {}
+EcalFenixTcpFormat::~EcalFenixTcpFormat() {}
 
-void EcalFenixTcpFormatEB::process(std::vector<int> &Et_even_sum,
-                                   std::vector<int> &Et_odd_sum,
-                                   std::vector<int> &fgvb,
-                                   std::vector<int> &sfgvb,
-                                   int eTTotShift,
-                                   std::vector<EcalTriggerPrimitiveSample> &out,
-                                   std::vector<EcalTriggerPrimitiveSample> &out2) {
+void EcalFenixTcpFormat::process(std::vector<int> &Et,
+                                 std::vector<int> &fgvb,
+                                 std::vector<int> &sfgvb,
+                                 int eTTotShift,
+                                 std::vector<EcalTriggerPrimitiveSample> &out,
+                                 std::vector<EcalTriggerPrimitiveSample> &out2,
+                                 bool isInInnerRings) {
   // put TP-s in the output
   // on request also in TcpFormat
   // for famos version we have to write dummies except for the middle
 
-  int myEt = 0;
+  int myEt;
   if (famos_) {
     for (unsigned int i = 0; i < out.size(); ++i) {
       if (i == binOfMax_ - 1) {
-        myEt = Et_even_sum[i] >> eTTotShift;
+        myEt = Et[0] >> eTTotShift;
         if (myEt > 0x3ff)
           myEt = 0x3ff;
+        if (isInInnerRings)
+          myEt = myEt / 2;
 
         // badTTStatus_ ==0 if the TT works
         // badTTStatus_ !=0 if there are some problems
@@ -50,48 +52,24 @@ void EcalFenixTcpFormatEB::process(std::vector<int> &Et_even_sum,
         out[i] = EcalTriggerPrimitiveSample();
     }
   } else {
-    for (unsigned int i = 0; i < Et_even_sum.size(); ++i) {
+    for (unsigned int i = 0; i < Et.size(); ++i) {
       int myFgvb = fgvb[i];
       int mysFgvb = sfgvb[i];
-      bool is_odd_larger = false;
+      // myEt=Et[i]>>eTTotShift;
+      // if (myEt>0x3ff) myEt=0x3ff ;
+      // if (isInInnerRings) myEt = myEt /2 ;
 
-      // Check if odd sum is larger than even sum, in case flag_EB_odd_even_tcp is used
-      if (Et_odd_sum[i] > Et_even_sum[i]) {
-        is_odd_larger = true;
-      }
-
-      switch (ecaltpgTPMode_->EBFenixTcpOutput) {
-        case 0:  //output even sum
-          myEt = Et_even_sum[i];
-          break;
-        case 1:  // output larger of odd and even
-          if (Et_odd_sum[i] > Et_even_sum[i]) {
-            myEt = Et_odd_sum[i];
-          } else {
-            myEt = Et_even_sum[i];
-          }
-          break;
-        case 2:  // output even+odd
-          myEt = Et_even_sum[i] + Et_odd_sum[i];
-          break;
-        default:
-          // In case of unknown configuration switch to default
-          myEt = Et_even_sum[i];
-          break;
-      }
-
-      // check TPmode config to decide to output the FGVB or the odd>even flag
-      int infobit1 = myFgvb;
-      if (ecaltpgTPMode_->EBFenixTcpInfobit1)
-        infobit1 = is_odd_larger;
-
+      // bug fix 091009:
+      myEt = Et[i];
       if (myEt > 0xfff)
         myEt = 0xfff;
+      if (isInInnerRings)
+        myEt = myEt / 2;
       myEt >>= eTTotShift;
       if (myEt > 0x3ff)
         myEt = 0x3ff;
 
-      // Spike killer
+      // Spike killing
       if ((myEt > spikeZeroThresh_) && (mysFgvb == 0)) {
         myEt = 0;
       }
@@ -104,20 +82,19 @@ void EcalFenixTcpFormatEB::process(std::vector<int> &Et_even_sum,
 
       int ttFlag = (lut_out & 0x700) >> 8;
       if (tcpFormat_) {
-        out2[i] = EcalTriggerPrimitiveSample(((ttFlag & 0x7) << 11) | ((infobit1 & 0x1) << 10) | (myEt & 0x3ff));
+        out2[i] = EcalTriggerPrimitiveSample(((ttFlag & 0x7) << 11) | ((myFgvb & 0x1) << 10) | (myEt & 0x3ff));
       }
       myEt = lut_out & 0xff;
-      out[i] = EcalTriggerPrimitiveSample(myEt, infobit1, mysFgvb, ttFlag);
+      out[i] = EcalTriggerPrimitiveSample(myEt, myFgvb, mysFgvb, ttFlag);
     }
   }
 }
 
-void EcalFenixTcpFormatEB::setParameters(uint32_t towid,
-                                         const EcalTPGLutGroup *ecaltpgLutGroup,
-                                         const EcalTPGLutIdMap *ecaltpgLut,
-                                         const EcalTPGTowerStatus *ecaltpgbadTT,
-                                         const EcalTPGSpike *ecaltpgSpike,
-                                         const EcalTPGTPMode *ecaltpgTPMode) {
+void EcalFenixTcpFormat::setParameters(uint32_t towid,
+                                       const EcalTPGLutGroup *ecaltpgLutGroup,
+                                       const EcalTPGLutIdMap *ecaltpgLut,
+                                       const EcalTPGTowerStatus *ecaltpgbadTT,
+                                       const EcalTPGSpike *ecaltpgSpike) {
   // Get TP zeroing threshold - defaut to 1023 for old data (no record found or
   // EE)
   spikeZeroThresh_ = 1023;
@@ -148,6 +125,4 @@ void EcalFenixTcpFormatEB::setParameters(uint32_t towid,
   if (itbadTT != badTTMap.end()) {
     badTTStatus_ = &(*itbadTT).second;
   }
-
-  ecaltpgTPMode_ = ecaltpgTPMode;
 }

@@ -1,5 +1,5 @@
-#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXEVENAMPLITUDEFILTER_H
-#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXEVENAMPLITUDEFILTER_H
+#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXAMPLITUDEFILTER_H
+#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXAMPLITUDEFILTER_H
 
 #include <cstdint>
 #include <vector>
@@ -8,14 +8,13 @@ class EcalTPGWeightIdMap;
 class EcalTPGWeightGroup;
 
 /**
- \ class EcalFenixEvenAmplitudeFilter
+ \ class EcalFenixAmplitudeFilter
  \brief calculates .... for Fenix strip, barrel
  *  input: 18 bits
  *  output: 18 bits
- *  
- * Renamed to avoid clashes with the Phase2 replicated class. (D.Valsecchi 04/2021)
+ *
  */
-class EcalFenixEvenAmplitudeFilter {
+class EcalFenixAmplitudeFilter {
 private:
   int peakFlag_[5];
   int inputsAlreadyIn_;
@@ -32,9 +31,9 @@ private:
   int processedFgvbOutput_;
 
 public:
-  EcalFenixEvenAmplitudeFilter();
-  EcalFenixEvenAmplitudeFilter(bool TPinfoPrintout);
-  virtual ~EcalFenixEvenAmplitudeFilter();
+  EcalFenixAmplitudeFilter();
+  EcalFenixAmplitudeFilter(bool TPinfoPrintout);
+  virtual ~EcalFenixAmplitudeFilter();
   virtual void process(std::vector<int> &addout,
                        std::vector<int> &output,
                        std::vector<int> &fgvbIn,

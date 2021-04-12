@@ -1,5 +1,5 @@
-#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS__ECALFENIXLINEARIZERPhase1PHASE1_H
-#define SIMCALORIMETRY_ECALTRIGPRIMALGOS__ECALFENIXLINEARIZERPhase1PHASE1_H
+#ifndef ECAL_FENIX_LINEARIZER_H
+#define ECAL_FENIX_LINEARIZER_H
 
 #include <CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h>
@@ -9,14 +9,14 @@
 #include <vector>
 
 /**
- \class EcalFenixLinearizerPhase1
+ \class EcalFenixLinearizer
  \brief Linearisation for Fenix strip
  *  input: 16 bits  corresponding to input EBDataFrame
  *  output: 18 bits
  *
  */
 
-class EcalFenixLinearizerPhase1 {
+class EcalFenixLinearizer {
 private:
   bool famos_;
   int uncorrectedSample_;
@@ -37,8 +37,8 @@ private:
   int process();
 
 public:
-  EcalFenixLinearizerPhase1(bool famos);
-  virtual ~EcalFenixLinearizerPhase1();
+  EcalFenixLinearizer(bool famos);
+  virtual ~EcalFenixLinearizer();
 
   template <class T>
   void process(const T &, std::vector<int> &);
@@ -49,7 +49,7 @@ public:
 };
 
 template <class T>
-void EcalFenixLinearizerPhase1::process(const T &df, std::vector<int> &output_percry) {
+void EcalFenixLinearizer::process(const T &df, std::vector<int> &output_percry) {
   // We know a tower numbering is:
   // S1 S2 S3 S4 S5
   //

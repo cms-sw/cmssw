@@ -1,5 +1,5 @@
-#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXETTOT_H
-#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXETTOT_H
+#ifndef ECAL_FENIX_ET_TOT_H
+#define ECAL_FENIX_ET_TOT_H
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include <vector>
