@@ -1,10 +1,10 @@
-#ifndef SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXPEAKFINDERPHASE1_H
-#define SIMCALORIMETRY_ECALTRIGPRIMALGOS_ECALFENIXPEAKFINDERPHASE1_H
+#ifndef ECAL_FENIX_PEAKFINDER_H
+#define ECAL_FENIX_PEAKFINDER_H
 
 #include <vector>
 
 /**
- \ class EcalFenixPeakFinderPhase1
+ \ class EcalFenixPeakFinder
  \brief calculates the peak for Fenix strip, barrel
  *  input : 18 bits
  *  output: boolean
@@ -14,7 +14,7 @@
  *  ----> do we really need caloVShape?
  */
 
-class EcalFenixPeakFinderPhase1 {
+class EcalFenixPeakFinder {
 private:
   bool disabled;
   int setInput(int input);
@@ -24,8 +24,8 @@ private:
   int buffer_[3];
 
 public:
-  EcalFenixPeakFinderPhase1();
-  virtual ~EcalFenixPeakFinderPhase1();
+  EcalFenixPeakFinder();
+  virtual ~EcalFenixPeakFinder();
   virtual std::vector<int> process(std::vector<int> &filtout, std::vector<int> &output);
   // from CaloVShape
   //  virtual double operator()(double) const {return 0.;}

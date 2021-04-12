@@ -1,4 +1,4 @@
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizerPhase1.h>
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h>
 
 #include <CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h>
@@ -6,9 +6,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalFenixLinearizerPhase1::EcalFenixLinearizerPhase1(bool famos) : famos_(famos), init_(false) {}
+EcalFenixLinearizer::EcalFenixLinearizer(bool famos) : famos_(famos), init_(false) {}
 
-EcalFenixLinearizerPhase1::~EcalFenixLinearizerPhase1() {
+EcalFenixLinearizer::~EcalFenixLinearizer() {
   if (init_) {
     for (int i = 0; i < (int)vectorbadXStatus_.size(); i++) {
       delete vectorbadXStatus_[i];
@@ -16,10 +16,10 @@ EcalFenixLinearizerPhase1::~EcalFenixLinearizerPhase1() {
   }
 }
 
-void EcalFenixLinearizerPhase1::setParameters(uint32_t raw,
-                                              const EcalTPGPedestals *ecaltpPed,
-                                              const EcalTPGLinearizationConst *ecaltpLin,
-                                              const EcalTPGCrystalStatus *ecaltpBadX) {
+void EcalFenixLinearizer::setParameters(uint32_t raw,
+                                        const EcalTPGPedestals *ecaltpPed,
+                                        const EcalTPGLinearizationConst *ecaltpLin,
+                                        const EcalTPGCrystalStatus *ecaltpBadX) {
   const EcalTPGLinearizationConstMap &linMap = ecaltpLin->getMap();
   EcalTPGLinearizationConstMapIterator it = linMap.find(raw);
   if (it != linMap.end()) {
@@ -47,7 +47,7 @@ void EcalFenixLinearizerPhase1::setParameters(uint32_t raw,
   }
 }
 
-int EcalFenixLinearizerPhase1::process() {
+int EcalFenixLinearizer::process() {
   int output = (uncorrectedSample_ - base_);  // Substract base
   if (famos_ || output < 0)
     return 0;
@@ -60,7 +60,7 @@ int EcalFenixLinearizerPhase1::process() {
   return output;
 }
 
-int EcalFenixLinearizerPhase1::setInput(const EcalMGPASample &RawSam) {
+int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam) {
   if (RawSam.raw() > 0X3FFF) {
     LogDebug("EcalTPG") << "ERROR IN INPUT SAMPLE OF FENIX LINEARIZER";
     return -1;
