@@ -1,6 +1,6 @@
 //#define EDM_ML_DEBUG
 
-#include "BTLDetLayerGeometryBuilder.h"
+#include "RecoMTD/DetLayers/interface/BTLDetLayerGeometryBuilder.h"
 
 #include <DataFormats/ForwardDetId/interface/BTLDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
