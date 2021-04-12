@@ -51,7 +51,7 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
       for (int phi = 0; phi < nPhiBin; phi++) {
         int iphi = ((phi % nPhiBin + nPhiBin) % nPhiBin);
         if (!tiles[layer][offset + iphi].empty()) {
-          LogDebug("PatternRecogntionbyCLUE3D") << "Layer: " << layer << " ieta: " << ieta << " phi: " << phi << " "
+          edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Layer: " << layer << " ieta: " << ieta << " phi: " << phi << " "
                                                 << tiles[layer][offset + iphi].size();
         }
       }
@@ -63,56 +63,56 @@ template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(
     const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) const {
   for (unsigned int layer = 0; layer < clusters_.size(); layer++) {
-    LogDebug("PatternRecogntionbyCLUE3D") << "On Layer " << layer;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "On Layer " << layer;
     auto const &thisLayer = clusters_[layer];
-    LogDebug("PatternRecogntionbyCLUE3D") << "X: ";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "X: ";
     for (auto v : thisLayer.x)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
-    LogDebug("PatternRecogntionbyCLUE3D") << "Y: ";
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Y: ";
     for (auto v : thisLayer.y)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
-    LogDebug("PatternRecogntionbyCLUE3D") << "Eta: ";
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Eta: ";
     for (auto v : thisLayer.eta)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
-    LogDebug("PatternRecogntionbyCLUE3D") << "Phi: ";
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Phi: ";
     for (auto v : thisLayer.phi)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
-    LogDebug("PatternRecogntionbyCLUE3D") << "Cells: ";
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Cells: ";
     for (auto v : thisLayer.cells)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
-    LogDebug("PatternRecogntionbyCLUE3D") << "Energy: ";
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Energy: ";
     for (auto v : thisLayer.energy)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
-    LogDebug("PatternRecogntionbyCLUE3D") << "Radius: ";
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Radius: ";
     for (auto v : thisLayer.radius)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
-    LogDebug("PatternRecogntionbyCLUE3D") << "Rho: ";
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Rho: ";
     for (auto v : thisLayer.rho)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
-    LogDebug("PatternRecogntionbyCLUE3D") << "Delta: ";
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Delta: ";
     for (auto v : thisLayer.delta)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
-    LogDebug("PatternRecogntionbyCLUE3D") << "ClusterIdx: ";
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "ClusterIdx: ";
     for (auto v : thisLayer.clusterIndex)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
-    LogDebug("PatternRecogntionbyCLUE3D") << "LayerClusterOriginalIdx: ";
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "LayerClusterOriginalIdx: ";
     for (auto v : thisLayer.layerClusterOriginalIdx)
-      LogDebug("PatternRecogntionbyCLUE3D") << v << ",";
-    LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
   }
   for (unsigned int lcIdx = 0; lcIdx < layerIdx2layerandSoa.size(); lcIdx++) {
     auto const &layerandSoa = layerIdx2layerandSoa[lcIdx];
-    LogDebug("PatternRecogntionbyCLUE3D")
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D")
         << "lcIdx: " << lcIdx << " on Layer: " << layerandSoa.first << " SOA: " << layerandSoa.second;
   }
 }
@@ -189,11 +189,13 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   //    tbb::parallel_for(size_t(0), size_t(104), [&](size_t i) { //FIXME(rovere): layer limits
   for (unsigned int i = 0; i < 104; i++) {
     calculateLocalDensity(input.tiles, i, layerIdx2layerandSoa);
+  }
+  for (unsigned int i = 0; i < 104; i++) {
     calculateDistanceToHigher(input.tiles, i, layerIdx2layerandSoa);
   }
 
   auto nTracksters = findAndAssignTracksters(input.tiles, layerIdx2layerandSoa);
-  LogDebug("PatternRecogntionbyCLUE3D") << "Reconstructed " << nTracksters << " tracksters" << std::endl;
+  edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Reconstructed " << nTracksters << " tracksters" << std::endl;
   dumpClusters(layerIdx2layerandSoa);
   //    );
   //  });
@@ -204,11 +206,11 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   assert(clusters_.size() == 104);
   for (unsigned int layer = 0; layer < clusters_.size(); ++layer) {
     const auto &thisLayer = clusters_[layer];
-    LogDebug("PatternRecogntionbyCLUE3D") << "Examining Layer: " << layer;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Examining Layer: " << layer;
     for (unsigned int lc = 0; lc < thisLayer.x.size(); ++lc) {
-      LogDebug("PatternRecogntionbyCLUE3D") << "Trackster " << thisLayer.clusterIndex[lc];
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Trackster " << thisLayer.clusterIndex[lc];
       if (thisLayer.clusterIndex[lc] >= 0) {
-        LogDebug("PatternRecogntionbyCLUE3D") << " adding lcIdx: " << thisLayer.layerClusterOriginalIdx[lc];
+        edm::LogVerbatim("PatternRecogntionbyCLUE3D") << " adding lcIdx: " << thisLayer.layerClusterOriginalIdx[lc];
         result[thisLayer.clusterIndex[lc]].vertices().push_back(thisLayer.layerClusterOriginalIdx[lc]);
         result[thisLayer.clusterIndex[lc]].vertex_multiplicity().push_back(1);
       }
@@ -223,15 +225,15 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   // run energy regression and ID
   energyRegressionAndID(input.layerClusters, result);
   for (auto const &t : result) {
-    LogDebug("PatternRecogntionbyCLUE3D") << "Barycenter: " << t.barycenter();
-    LogDebug("PatternRecogntionbyCLUE3D") << "LCs: " << t.vertices().size();
-    LogDebug("PatternRecogntionbyCLUE3D") << "Energy: " << t.raw_energy();
-    LogDebug("PatternRecogntionbyCLUE3D") << "Regressed: " << t.regressed_energy();
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Barycenter: " << t.barycenter();
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "LCs: " << t.vertices().size();
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Energy: " << t.raw_energy();
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Regressed: " << t.regressed_energy();
   }
 
   // Reset internal clusters_ structure of array for next event
   reset();
-  LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
+  edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
 }
 
 template <typename TILES>
@@ -383,7 +385,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
   unsigned int numberOfClusters = clustersOnLayer.x.size();
 
   auto isReachable = [](float x1, float x2, float y1, float y2, float delta_sqr) -> bool {
-    LogDebug("PatternRecogntionbyCLUE3D")
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D")
         << ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) << " vs " << delta_sqr << "["
         << ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) < delta_sqr) << "]\n";
     return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) < delta_sqr;
@@ -393,35 +395,35 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
     unsigned int minLayer = std::max((int)layerId - 1, 0);
     unsigned int maxLayer = std::min((int)layerId + 1, 103);
     for (unsigned int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
-      LogDebug("PatternRecogntionbyCLUE3D") << "RefLayer: " << layerId << " SoaIDX: " << i;
-      LogDebug("PatternRecogntionbyCLUE3D") << "NextLayer: " << currentLayer;
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "RefLayer: " << layerId << " SoaIDX: " << i;
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "NextLayer: " << currentLayer;
       const auto &tileOnLayer = tiles[currentLayer];
       bool onSameLayer = (currentLayer == layerId);
-      LogDebug("PatternRecogntionbyCLUE3D") << "onSameLayer: " << onSameLayer;
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "onSameLayer: " << onSameLayer;
       int etaWindow = onSameLayer ? 2 : 1;
       int phiWindow = onSameLayer ? 2 : 1;
       int etaBinMin = std::max(tileOnLayer.etaBin(clustersOnLayer.eta[i]) - etaWindow, 0);
       int etaBinMax = std::min(tileOnLayer.etaBin(clustersOnLayer.eta[i]) + etaWindow, nEtaBin);
       int phiBinMin = tileOnLayer.phiBin(clustersOnLayer.phi[i]) - phiWindow;
       int phiBinMax = tileOnLayer.phiBin(clustersOnLayer.phi[i]) + phiWindow;
-      LogDebug("PatternRecogntionbyCLUE3D") << "eta: " << clustersOnLayer.eta[i];
-      LogDebug("PatternRecogntionbyCLUE3D") << "phi: " << clustersOnLayer.phi[i];
-      LogDebug("PatternRecogntionbyCLUE3D") << "etaBinMin: " << etaBinMin << ", etaBinMax: " << etaBinMax;
-      LogDebug("PatternRecogntionbyCLUE3D") << "phiBinMin: " << phiBinMin << ", phiBinMax: " << phiBinMax;
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "eta: " << clustersOnLayer.eta[i];
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "phi: " << clustersOnLayer.phi[i];
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "etaBinMin: " << etaBinMin << ", etaBinMax: " << etaBinMax;
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "phiBinMin: " << phiBinMin << ", phiBinMax: " << phiBinMax;
       for (int ieta = etaBinMin; ieta < etaBinMax; ++ieta) {
         auto offset = ieta * nPhiBin;
-        LogDebug("PatternRecogntionbyCLUE3D") << "offset: " << offset;
+        edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "offset: " << offset;
         for (int iphi_it = phiBinMin; iphi_it < phiBinMax; ++iphi_it) {
           int iphi = ((iphi_it % nPhiBin + nPhiBin) % nPhiBin);
-          LogDebug("PatternRecogntionbyCLUE3D") << "iphi: " << iphi;
-          LogDebug("PatternRecogntionbyCLUE3D") << "Entries in tileBin: " << tileOnLayer[offset + iphi].size();
+          edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "iphi: " << iphi;
+          edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Entries in tileBin: " << tileOnLayer[offset + iphi].size();
           for (auto otherClusterIdx : tileOnLayer[offset + iphi]) {
             auto const &layerandSoa = layerIdx2layerandSoa[otherClusterIdx];
-            LogDebug("PatternRecogntionbyCLUE3D")
+            edm::LogVerbatim("PatternRecogntionbyCLUE3D")
                 << "OtherLayer: " << layerandSoa.first << " SoaIDX: " << layerandSoa.second;
-            LogDebug("PatternRecogntionbyCLUE3D")
+            edm::LogVerbatim("PatternRecogntionbyCLUE3D")
                 << "OtherEta: " << clusters_[layerandSoa.first].eta[layerandSoa.second];
-            LogDebug("PatternRecogntionbyCLUE3D")
+            edm::LogVerbatim("PatternRecogntionbyCLUE3D")
                 << "OtherPhi: " << clusters_[layerandSoa.first].phi[layerandSoa.second];
             float delta = clustersOnLayer.radius[i] + clusters_[layerandSoa.first].radius[layerandSoa.second] +
                           2.6;  // 26 mm, roughly 2 cells, more wrt sum of radii
@@ -449,7 +451,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
       }
     }
   }
-  LogDebug("PatternRecogntionbyCLUE3D") << std::endl;
+  edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
 }
 
 template <typename TILES>
@@ -466,6 +468,10 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
   };
 
   for (unsigned int i = 0; i < numberOfClusters; i++) {
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Starting searching nearestHigher on " << layerId
+      << " with rho: " << clustersOnLayer.rho[i]
+      << " at eta, phi: " << tiles[layerId].etaBin(clustersOnLayer.eta[i]) << ", "
+      << tiles[layerId].etaBin(clustersOnLayer.phi[i]);
     unsigned int minLayer = std::max((int)layerId - 1, 0);
     unsigned int maxLayer = std::min((int)layerId + 1, 103);
     //FIXME(rovere): implement wrapping between +Z and -Z to avoid mixing last
@@ -481,13 +487,18 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
       int etaBinMax = std::min(tileOnLayer.etaBin(clustersOnLayer.eta[i]) + etaWindow, nEtaBin);
       int phiBinMin = tileOnLayer.phiBin(clustersOnLayer.phi[i]) - phiWindow;
       int phiBinMax = tileOnLayer.phiBin(clustersOnLayer.phi[i]) + phiWindow;
-      for (int ieta = etaBinMin; ieta < etaBinMax; ++ieta) {
+      for (int ieta = etaBinMin; ieta <= etaBinMax; ++ieta) {
         auto offset = ieta * nPhiBin;
-        for (int iphi_it = phiBinMin; iphi_it < phiBinMax; ++iphi_it) {
+        for (int iphi_it = phiBinMin; iphi_it <= phiBinMax; ++iphi_it) {
           int iphi = ((iphi_it % nPhiBin + nPhiBin) % nPhiBin);
-          for (auto otherClusterIdx : tileOnLayer[offset + iphi]) {
+          edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Searching nearestHigher on " << currentLayer
+            << " eta, phi: " << ieta << ", " << iphi_it;
+           for (auto otherClusterIdx : tileOnLayer[offset + iphi]) {
             auto const &layerandSoa = layerIdx2layerandSoa[otherClusterIdx];
-            auto &clustersOnOtherLayer = clusters_[layerandSoa.first];
+            auto const &clustersOnOtherLayer = clusters_[layerandSoa.first];
+            edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Searching nearestHigher on " << currentLayer
+              << " with rho: " << clustersOnOtherLayer.rho[layerandSoa.second]
+              << " on layerIdxInSOA: " << layerandSoa.first << ", " << layerandSoa.second;
             float dist = distance(clustersOnLayer.eta[i],
                                   clustersOnOtherLayer.eta[layerandSoa.second],
                                   clustersOnLayer.phi[i],
@@ -508,7 +519,9 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
     }
 
     bool foundNearestHigherInEtaPhiCylinder = (i_delta <= 0.05);
-    LogDebug("PatternRecogntionbyCLUE3D") << "i_delta: " << i_delta << " passed: " << (i_delta <= 0.05);
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "i_delta: "
+      << i_delta << " passed: " << foundNearestHigherInEtaPhiCylinder
+      << " " << i_nearestHigher.first << " " << i_nearestHigher.second;
     if (foundNearestHigherInEtaPhiCylinder) {
       clustersOnLayer.delta[i] = i_delta;
       clustersOnLayer.nearestHigher[i] = i_nearestHigher;
@@ -533,7 +546,7 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
     auto &clustersOnLayer = clusters_[layer];
     unsigned int numberOfClusters = clustersOnLayer.x.size();
     for (unsigned int i = 0; i < numberOfClusters; i++) {
-      float rho_c = 8.25f;
+      float rho_c = 8.f;
       float delta = 0.1;
       float outlierDeltaFactor = 1.1;
 
