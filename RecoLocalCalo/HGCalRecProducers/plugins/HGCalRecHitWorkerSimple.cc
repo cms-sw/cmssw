@@ -11,7 +11,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
-HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, edm::ConsumesCollector iC) : HGCalRecHitWorkerBaseClass(ps, iC) {
+HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
+    : HGCalRecHitWorkerBaseClass(ps, iC) {
   rechitMaker_ = std::make_unique<HGCalRecHitSimpleAlgo>();
   tools_ = std::make_unique<hgcal::RecHitTools>();
   constexpr float keV2GeV = 1e-6;

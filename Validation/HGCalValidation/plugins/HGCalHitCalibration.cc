@@ -82,7 +82,9 @@ private:
 };
 
 HGCalHitCalibration::HGCalHitCalibration(const edm::ParameterSet& iConfig)
-    : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()), rawRecHits_(iConfig.getParameter<bool>("rawRecHits")), debug_(iConfig.getParameter<int>("debug")) {
+    : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      rawRecHits_(iConfig.getParameter<bool>("rawRecHits")),
+      debug_(iConfig.getParameter<int>("debug")) {
   auto detector = iConfig.getParameter<std::string>("detector");
   auto recHitsEE = iConfig.getParameter<edm::InputTag>("recHitsEE");
   auto recHitsFH = iConfig.getParameter<edm::InputTag>("recHitsFH");

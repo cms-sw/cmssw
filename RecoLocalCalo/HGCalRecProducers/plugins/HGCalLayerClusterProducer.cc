@@ -90,7 +90,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
     algo = HGCalLayerClusterAlgoFactory::get()->create("HFNoseCLUE", pluginPSet, consumesCollector());
     algo->setAlgoId(algoId, true);
   } else {
-    algo = HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet, consumesCollector());
+    algo = HGCalLayerClusterAlgoFactory::get()->create(
+        pluginPSet.getParameter<std::string>("type"), pluginPSet, consumesCollector());
     algo->setAlgoId(algoId);
   }
 
