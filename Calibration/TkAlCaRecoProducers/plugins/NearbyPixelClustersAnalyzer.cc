@@ -95,6 +95,8 @@ private:
   edm::EDGetTokenT<SiPixelClusterCollectionNew> clustersToken_;
   edm::EDGetTokenT<SiPixelClusterCollectionNew> nearByClustersToken_;
   edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackCollectionToken_;
+  edm::EDGetTokenT<edm::ValueMap<std::vector<float>>> distanceToken_;
+  edm::EDGetTokenT<edm::View<reco::Track>> muonTracksToken_;
 
   edm::Service<TFileService> fs;
 
@@ -103,6 +105,7 @@ private:
   TH1F* h_distClosestValid;
   TH1F* h_distClosestMissing;
   TH1F* h_distClosestInactive;
+  TH1F* h_distClosestTrack;
 
   SiPixelDetInfoFileReader reader_;
   std::map<std::string, TFileDirectory> outputFolders_;
@@ -123,6 +126,8 @@ NearbyPixelClustersAnalyzer::NearbyPixelClustersAnalyzer(const edm::ParameterSet
           consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("nearByClusterCollection"))),
       trajTrackCollectionToken_(
           consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryInput"))),
+      distanceToken_(consumes<edm::ValueMap<std::vector<float>>>(iConfig.getParameter<edm::InputTag>("distToTrack"))),
+      muonTracksToken_(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("muonTracks"))),
       reader_(edm::FileInPath(iConfig.getParameter<std::string>("skimmedGeometryPath")).fullPath()) {
   usesResource(TFileService::kSharedResource);
 }
@@ -140,6 +145,36 @@ void NearbyPixelClustersAnalyzer::analyze(const edm::Event& iEvent, const edm::E
 
   // get the Pixel CPE from event setup
   const PixelClusterParameterEstimator* pixelCPE_ = &iSetup.getData(pixelCPEEsToken_);
+
+  // get the muon track collection
+  edm::Handle<edm::View<reco::Track>> muonTrackCollectionHandle;
+  iEvent.getByToken(muonTracksToken_, muonTrackCollectionHandle);
+  auto const& muonTracks = *muonTrackCollectionHandle;
+
+  // get the track distances
+  edm::Handle<edm::ValueMap<std::vector<float>>> distancesToTrack;
+  iEvent.getByToken(distanceToken_, distancesToTrack);
+
+  unsigned int nMuons = muonTracks.size();
+  for (unsigned int ij = 0; ij < nMuons; ij++) {
+    auto muon = muonTrackCollectionHandle->ptrAt(ij);
+    edm::RefToBase<reco::Track> trackRef = muonTrackCollectionHandle->refAt(ij);
+    const auto& distances = (*distancesToTrack)[trackRef];
+
+    LogDebug("NearbyPixelClustersAnalyzer") << "distances size: " << distances.size() << std::endl;
+
+    unsigned counter = 0;
+    double closestDR = 999.;
+    for (const auto& distance : distances) {
+      counter++;
+      LogDebug("NearbyPixelClustersAnalyzer") << "track: " << counter << " distance:" << distance << std::endl;
+      if (distance < closestDR && distance > 0) {
+        closestDR = distance;
+      }
+    }
+
+    h_distClosestTrack->Fill(std::sqrt(closestDR));
+  }
 
   // Get cluster collection
   const auto& clusterCollectionHandle = iEvent.getHandle(clustersToken_);
@@ -250,6 +285,14 @@ void NearbyPixelClustersAnalyzer::beginJob() {
       110,
       -0.105,
       0.995);
+
+  TFileDirectory TkDistances = fs->mkdir("OtherTrackDistance");
+  h_distClosestTrack = TkDistances.make<TH1F>(
+      "h_distClosestTrack",
+      "#DeltaR Distance of Closest track to the muon trajectory;#DeltaR distance; muon trajectories",
+      100,
+      0.,
+      5.);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -505,6 +548,8 @@ void NearbyPixelClustersAnalyzer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("clusterCollection", edm::InputTag("ALCARECOSiPixelCalSingleMuonTight"));
   desc.add<edm::InputTag>("nearByClusterCollection", edm::InputTag("closebyPixelClusters"));
   desc.add<edm::InputTag>("trajectoryInput", edm::InputTag("refittedTracks"));
+  desc.add<edm::InputTag>("muonTracks", edm::InputTag("ALCARECOSiPixelCalSingleMuonTight"));
+  desc.add<edm::InputTag>("distToTrack", edm::InputTag("trackDistances"));
   desc.add<std::string>("skimmedGeometryPath",
                         "SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt");
   descriptions.addWithDefaultLabel(desc);
