@@ -16,7 +16,7 @@
 using namespace ticl;
 
 template <typename TILES>
-PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf, const CacheBase *cache)
+PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf, const CacheBase *cache, edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, cache),
       theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
@@ -52,6 +52,7 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
     throw cms::Exception("MissingGraphDef")
         << "PatternRecognitionbyCA received an empty graph definition from the global cache";
   }
+  caloGeomToken_ = iC.esConsumes<CaloGeometry, CaloGeometryRecord>();
   eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
 }
 
@@ -67,9 +68,8 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   if (input.regions.empty())
     return;
 
-  edm::ESHandle<CaloGeometry> geom;
   edm::EventSetup const &es = input.es;
-  es.get<CaloGeometryRecord>().get(geom);
+  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
   rhtools_.setGeometry(*geom);
 
   theGraph_->setVerbosity(PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_);
