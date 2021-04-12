@@ -60,7 +60,7 @@ ALCARECOSiPixelCalSingleMuonTight.TwoBodyDecaySelector.applyAcoplanarityFilter =
 # Track refitter
 ##################################################################
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
-from RecoTracker.Configuration.RecoTrackerP5_cff import *
+#from RecoTracker.Configuration.RecoTrackerP5_cff import *
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 
 ALCARECOSiPixelCalSingleMuonTightTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOSiPixelCalSingleMuonTight"),
@@ -81,6 +81,12 @@ ALCARECOSiPixelCalSingleMuonTightOffTrackClusters = cms.Sequence(ALCARECOSiPixel
                                                                  closebyPixelClusters)
 
 ##################################################################
+# Producer of distances value map
+##################################################################
+import Calibration.TkAlCaRecoProducers.TrackDistanceValueMapProducer_cfi as TrackDistanceValueMap 
+trackDistances = TrackDistanceValueMap.TrackDistanceValueMapProducer.clone(muonTracks = 'ALCARECOSiPixelCalSingleMuonTight')
+
+##################################################################
 # Final Tight sequence
 ##################################################################
 seqALCARECOSiPixelCalSingleMuonTight = cms.Sequence(offlineBeamSpot+
@@ -89,4 +95,5 @@ seqALCARECOSiPixelCalSingleMuonTight = cms.Sequence(offlineBeamSpot+
                                                     ALCARECOSiPixelCalSingleMuonTightGoodMuons+
                                                     ALCARECOSiPixelCalSingleMuonTightRelCombIsoMuons+
                                                     ALCARECOSiPixelCalSingleMuonTight+
+                                                    trackDistances +
                                                     ALCARECOSiPixelCalSingleMuonTightOffTrackClusters)
