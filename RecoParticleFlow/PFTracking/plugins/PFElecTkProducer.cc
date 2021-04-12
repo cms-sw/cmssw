@@ -132,6 +132,10 @@ private:
   double detaCutGsfClean_;
   double dphiCutGsfClean_;
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkerGeomToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
+
   ///PFTrackTransformer
   std::unique_ptr<PFTrackTransformer> pfTransformer_;
   MultiTrajectoryStateTransform mtsTransform_;
@@ -172,7 +176,10 @@ using namespace edm;
 using namespace reco;
 
 PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig, const convbremhelpers::HeavyObjectCache*)
-    : conf_(iConfig) {
+    : conf_(iConfig),
+      magFieldToken_(esConsumes<edm::Transition::BeginRun>()),
+      tkerGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      transientTrackToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "TransientTrackBuilder"))) {
   gsfTrackLabel_ = consumes<reco::GsfTrackCollection>(iConfig.getParameter<InputTag>("GsfTrackModuleLabel"));
 
   pfTrackLabel_ = consumes<reco::PFRecTrackCollection>(iConfig.getParameter<InputTag>("PFRecTrackLabel"));
@@ -1104,19 +1111,14 @@ bool PFElecTkProducer::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrac
 
 // ------------ method called once each job just before starting event loop  ------------
 void PFElecTkProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  auto const& magneticField = &iSetup.getData(magFieldToken_);
+  auto const& tracker = &iSetup.getData(tkerGeomToken_);
 
-  ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-
-  mtsTransform_ = MultiTrajectoryStateTransform(tracker.product(), magneticField.product());
+  mtsTransform_ = MultiTrajectoryStateTransform(tracker, magneticField);
 
   pfTransformer_ = std::make_unique<PFTrackTransformer>(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
 
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  TransientTrackBuilder thebuilder = *(builder.product());
+  TransientTrackBuilder thebuilder = iSetup.getData(transientTrackToken_);
 
   convBremFinder_ = std::make_unique<ConvBremPFTrackFinder>(thebuilder,
                                                             mvaConvBremFinderIDBarrelLowPt_,
