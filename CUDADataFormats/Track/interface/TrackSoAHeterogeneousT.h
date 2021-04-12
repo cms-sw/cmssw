@@ -31,8 +31,8 @@ public:
   constexpr auto chi2(int32_t i) const { return chi2_(i); }
 
   // stateAtBS accessors
-  constexpr auto & stateAtBS() { return stateAtBS_; }
-  constexpr auto stateAtBS() const { return stateAtBS_; }
+  constexpr TrajectoryStateSoAT<S> & stateAtBS() { return stateAtBS_; }
+  constexpr TrajectoryStateSoAT<S> const & stateAtBS() const { return stateAtBS_; }
   // eta accessors
   constexpr auto & eta(int32_t i) { return eta_(i); }
   constexpr auto eta(int32_t i) const { return eta_(i); }
