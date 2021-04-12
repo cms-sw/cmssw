@@ -5,6 +5,7 @@ from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 import PhysicsTools.PatAlgos.tools.helpers as configtools
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
+import CommonTools.CandAlgos.candPtrProjector_cfi as _mod
 
 
 def isValidInputTag(input):
@@ -833,17 +834,17 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not hasattr(process, "pfCandsForUnclusteredUnc"+postfix):
 
             #Jet projection ==
-            pfCandsNoJets = cms.EDProducer("CandPtrProjector",
+            pfCandsNoJets = _mod.candPtrProjector.clone( 
                                            src = pfCandCollection,
-                                           veto = copy.copy(jetCollection),
+                                           veto = jetCollection,
                                            )
             addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
             metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
 
             #electron projection ==
-            pfCandsNoJetsNoEle = cms.EDProducer("CandPtrProjector",
-                                                src = cms.InputTag("pfCandsNoJets"+postfix),
-                                                veto = copy.copy(electronCollection),
+            pfCandsNoJetsNoEle = _mod.candPtrProjector.clone(
+                                                src = "pfCandsNoJets"+postfix,
+                                                veto = electronCollection,
                                                 )
             if not self.getvalue("onMiniAOD"):
               pfCandsNoJetsNoEle.veto = "pfeGammaToCandidate:electrons"
@@ -851,25 +852,25 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             metUncSequence += getattr(process, "pfCandsNoJetsNoEle"+postfix)
 
             #muon projection ==
-            pfCandsNoJetsNoEleNoMu = cms.EDProducer("CandPtrProjector",
-                                              src = cms.InputTag("pfCandsNoJetsNoEle"+postfix),
-                                              veto = copy.copy(muonCollection),
+            pfCandsNoJetsNoEleNoMu = _mod.candPtrProjector.clone(
+                                              src = "pfCandsNoJetsNoEle"+postfix,
+                                              veto = muonCollection,
                                               )
             addToProcessAndTask("pfCandsNoJetsNoEleNoMu"+postfix, pfCandsNoJetsNoEleNoMu, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMu"+postfix)
 
             #tau projection ==
-            pfCandsNoJetsNoEleNoMuNoTau = cms.EDProducer("CandPtrProjector",
-                                              src = cms.InputTag("pfCandsNoJetsNoEleNoMu"+postfix),
-                                              veto = copy.copy(tauCollection),
+            pfCandsNoJetsNoEleNoMuNoTau = _mod.candPtrProjector.clone(
+                                              src = "pfCandsNoJetsNoEleNoMu"+postfix,
+                                              veto = tauCollection,
                                               )
             addToProcessAndTask("pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix)
 
             #photon projection ==
-            pfCandsForUnclusteredUnc = cms.EDProducer("CandPtrProjector",
-                                              src = cms.InputTag("pfCandsNoJetsNoEleNoMuNoTau"+postfix),
-                                              veto = copy.copy(photonCollection),
+            pfCandsForUnclusteredUnc = _mod.candPtrProjector.clone(
+                                              src = "pfCandsNoJetsNoEleNoMuNoTau"+postfix,
+                                              veto = photonCollection,
                                               )
             if not self.getvalue("onMiniAOD"):
               pfCandsForUnclusteredUnc.veto = "pfeGammaToCandidate:photons"
@@ -1350,9 +1351,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         pfCandCollection = self._parameters["pfCandCollection"].value
 
         #top projection on jets
-        pfCandsNotInJets = cms.EDProducer("CandPtrProjector",
+        pfCandsNotInJets = _mod.candPtrProjector.clone(
                                           src = pfCandCollection,
-                                          veto = cms.InputTag("ak4PFJets")
+                                          veto = "ak4PFJets"
                                           )
         setattr(process, "pfCandsNotInJetsUnclusteredEn"+var+postfix, pfCandsNotInJets)
         metUncSequence += getattr(process,"pfCandsNotInJetsUnclusteredEn"+var+postfix)
@@ -1922,9 +1923,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         )
         addToProcessAndTask("pfcandidateClustered"+postfix, pfcandidateClustered, process, task)
         patMetModuleSequence += getattr(process,"pfcandidateClustered"+postfix)
-        pfcandidateForUnclusteredUnc = cms.EDProducer("CandPtrProjector",
+        pfcandidateForUnclusteredUnc = _mod.candPtrProjector.clone(
             src  = cands,
-            veto = cms.InputTag("pfcandidateClustered"+postfix),
+            veto = "pfcandidateClustered"+postfix,
         )
         addToProcessAndTask("pfcandidateForUnclusteredUnc"+postfix, pfcandidateForUnclusteredUnc, process, task)
         patMetModuleSequence += getattr(process,"pfcandidateForUnclusteredUnc"+postfix)
@@ -1947,9 +1948,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         )
         addToProcessAndTask("superbad"+postfix, superbad, process, task)
         patMetModuleSequence += getattr(process,"superbad"+postfix)
-        pfCandidatesGoodEE2017 = cms.EDProducer("CandPtrProjector",
+        pfCandidatesGoodEE2017 = _mod.candPtrProjector.clone(
             src  = cands,
-            veto = cms.InputTag("superbad"+postfix),
+            veto = "superbad"+postfix,
         )
         addToProcessAndTask("pfCandidatesGoodEE2017"+postfix, pfCandidatesGoodEE2017, process, task)
         patMetModuleSequence += getattr(process,"pfCandidatesGoodEE2017"+postfix)
