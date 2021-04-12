@@ -30,7 +30,7 @@
 
 class MTDDigiGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit MTDDigiGeometryAnalyzer(const edm::ParameterSet&) {}
+  explicit MTDDigiGeometryAnalyzer(const edm::ParameterSet&);
   ~MTDDigiGeometryAnalyzer() override = default;
 
   void beginJob() override {}
@@ -42,17 +42,22 @@ private:
   void checkRotation(const GeomDetUnit& det);
 
   std::stringstream sunitt;
+
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
 };
 
 using cms_rounding::roundIfNear0, cms_rounding::roundVecIfNear0;
+
+MTDDigiGeometryAnalyzer::MTDDigiGeometryAnalyzer(const edm::ParameterSet& iConfig) {
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+}
 
 // ------------ method called to produce the data  ------------
 void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //
   // get the MTDGeometry
   //
-  edm::ESHandle<MTDGeometry> pDD;
-  iSetup.get<MTDDigiGeometryRecord>().get(pDD);
+  auto pDD = iSetup.getTransientHandle(mtdgeoToken_);
   edm::LogInfo("MTDDigiGeometryAnalyzer")
       << "Geometry node for MTDGeom is  " << &(*pDD) << "\n"
       << " # detectors = " << pDD->detUnits().size() << "\n"

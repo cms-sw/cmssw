@@ -1,24 +1,23 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "SimFastTiming/FastTimingCommon/interface/ETLDeviceSim.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
-ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset)
-    : geom_(nullptr),
+ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
+    : geomToken_(iC.esConsumes()),
+      geom_(nullptr),
       MIPPerMeV_(1.0 / pset.getParameter<double>("meVPerMIP")),
       bxTime_(pset.getParameter<double>("bxTime")),
       tofDelay_(pset.getParameter<double>("tofDelay")) {}
 
-void ETLDeviceSim::getEventSetup(const edm::EventSetup& evs) {
-  edm::ESHandle<MTDGeometry> geom;
-  evs.get<MTDDigiGeometryRecord>().get(geom);
-  geom_ = geom.product();
-}
+void ETLDeviceSim::getEventSetup(const edm::EventSetup& evs) { geom_ = &evs.getData(geomToken_); }
 
 void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, float> >& hitRefs,
                                    const edm::Handle<edm::PSimHitContainer>& hits,
