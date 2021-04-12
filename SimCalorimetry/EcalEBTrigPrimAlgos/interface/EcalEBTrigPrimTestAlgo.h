@@ -14,15 +14,10 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
-//#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixLinearizer.h>
@@ -37,21 +32,24 @@
 class EcalTrigTowerDetId;
 class ETPCoherenceTest;
 class EcalEBTriggerPrimitiveSample;
-class CaloSubdetectorGeometry;
 class EBDataFrame;
 
 class EcalEBTrigPrimTestAlgo {
 public:
-  explicit EcalEBTrigPrimTestAlgo(
-      const edm::EventSetup &setup, int nSamples, int binofmax, bool tcpFormat, bool barrelOnly, bool debug, bool famos);
+  // not BarrelOnly
+  explicit EcalEBTrigPrimTestAlgo(const EcalTrigTowerConstituentsMap *eTTmap,
+                                  const CaloGeometry *theGeometry,
+                                  int nSamples,
+                                  int binofmax,
+                                  bool tcpFormat,
+                                  bool debug,
+                                  bool famos);
+  //barrel only
+  explicit EcalEBTrigPrimTestAlgo(int nSamples, int binofmax, bool tcpFormat, bool debug, bool famos);
 
   virtual ~EcalEBTrigPrimTestAlgo();
 
-  //  void run(const edm::EventSetup &, const EcalRecHitCollection *col, EcalEBTrigPrimDigiCollection & result, EcalEBTrigPrimDigiCollection & resultTcp);
-  void run(const edm::EventSetup &,
-           const EBDigiCollection *col,
-           EcalEBTrigPrimDigiCollection &result,
-           EcalEBTrigPrimDigiCollection &resultTcp);
+  void run(const EBDigiCollection *col, EcalEBTrigPrimDigiCollection &result, EcalEBTrigPrimDigiCollection &resultTcp);
 
   void setPointers(const EcalTPGLinearizationConst *ecaltpLin,
                    const EcalTPGPedestals *ecaltpPed,
@@ -76,7 +74,7 @@ public:
   }
 
 private:
-  void init(const edm::EventSetup &);
+  void init();
   template <class T>
   void initStructures(std::vector<std::vector<std::pair<int, std::vector<T> > > > &towMap);
   template <class T>
@@ -97,9 +95,8 @@ private:
     return ind;
   }
 
-  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
-  //  const CaloSubdetectorGeometry *theEndcapGeometry;
-  edm::ESHandle<CaloGeometry> theGeometry;
+  const EcalTrigTowerConstituentsMap *eTTmap_ = nullptr;
+  const CaloGeometry *theGeometry_ = nullptr;
 
   float threshold;
   int nSamples_;
