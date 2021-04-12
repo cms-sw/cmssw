@@ -29,7 +29,6 @@ FTFPCMS_BERT_EMM::FTFPCMS_BERT_EMM(const edm::ParameterSet& p) : PhysicsList(p) 
 
   if (emPhys) {
     // EM Physics
-    //RegisterPhysics(new CMSEmStandardPhysics(ver));
     RegisterPhysics(new CMSEmStandardPhysicsLPM(ver));
 
     // Synchroton Radiation & GN Physics
@@ -47,7 +46,7 @@ FTFPCMS_BERT_EMM::FTFPCMS_BERT_EMM(const edm::ParameterSet& p) : PhysicsList(p) 
     RegisterPhysics(new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(new CMSHadronPhysicsFTFP_BERT(minFTFP, maxBERT, maxBERTpi));
+    RegisterPhysics(new CMSHadronPhysicsFTFP_BERT106(minFTFP, maxBERT, maxBERTpi));
 
     // Stopping Physics
     RegisterPhysics(new G4StoppingPhysics(ver));
