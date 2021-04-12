@@ -1,6 +1,7 @@
 #include "PythiaAllDauVFilter.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
+#include <memory>
 #include <vector>
 
 using namespace edm;
@@ -34,7 +35,7 @@ PythiaAllDauVFilter::PythiaAllDauVFilter(const edm::ParameterSet& iConfig)
   // create pythia8 instance to access particle data
   edm::LogInfo("PythiaAllDauVFilter") << "Creating pythia8 instance for particle properties" << endl;
   if (!fLookupGen.get())
-    fLookupGen.reset(new Pythia());
+    fLookupGen = std::make_unique<Pythia>();
 
   if (chargeconju) {
     antiParticleID = -particleID;
