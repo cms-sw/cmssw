@@ -9,7 +9,8 @@ OutALCARECOSiPixelCalSingleMuonTight_noDrop = cms.PSet(
         'keep *_muons__*',
         'keep *_offlinePrimaryVertices_*_*',
         'keep *_*riggerResults_*_HLT',
-        'keep *_*closebyPixelClusters*_*_*'
+        'keep *_*closebyPixelClusters*_*_*',
+        'keep *_*trackDistances*_*_*',
      )
 )
 OutALCARECOSiPixelCalSingleMuonTight=OutALCARECOSiPixelCalSingleMuonTight_noDrop.clone()

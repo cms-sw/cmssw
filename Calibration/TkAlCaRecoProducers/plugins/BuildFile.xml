@@ -53,3 +53,8 @@
   <use name="CalibTracker/SiPixelESProducers"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="TrackDistanceValueMapProducer.cc" name="TrackDistanceValueMapProducer">
+  <use name="DataFormats/TrackReco"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
