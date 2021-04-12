@@ -42,7 +42,7 @@ class MTDRecoGeometryAnalyzer : public EDAnalyzer {
 public:
   MTDRecoGeometryAnalyzer(const ParameterSet& pset);
 
-  virtual void analyze(const Event& ev, const EventSetup& es);
+  void analyze(const Event& ev, const EventSetup& es) override;
 
   void testBTLLayers(const MTDDetLayerGeometry*, const MagneticField* field);
   void testETLLayers(const MTDDetLayerGeometry*, const MagneticField* field);
@@ -169,7 +169,7 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
                                 << comp.second.globalPosition().z();
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
-    if (compDets.size()) {
+    if (!compDets.empty()) {
       LogVerbatim("MTDLayerDump") << "compatibleDets: " << std::setw(14) << compDets.size() << "\n"
                                   << "  final state pos: " << std::setw(14) << compDets.front().second.globalPosition()
                                   << "\n"
@@ -226,7 +226,7 @@ void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo, cons
                                 << comp.second.globalPosition().z();
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
-    if (compDets.size()) {
+    if (!compDets.empty()) {
       LogVerbatim("MTDLayerDump") << "compatibleDets: " << std::setw(14) << compDets.size() << "\n"
                                   << "  final state pos: " << std::setw(14) << compDets.front().second.globalPosition()
                                   << "\n"
@@ -312,7 +312,7 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
                                 << comp.second.globalPosition().z();
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
-    if (compDets.size()) {
+    if (!compDets.empty()) {
       LogVerbatim("MTDLayerDump")
           << std::fixed << "compatibleDets: " << std::setw(14) << compDets.size() << "\n"
           << "  final state pos: " << compDets.front().second.globalPosition() << "\n"
@@ -335,9 +335,9 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
 string MTDRecoGeometryAnalyzer::dumpLayer(const DetLayer* layer) const {
   stringstream output;
 
-  const BoundSurface* sur = 0;
-  const BoundCylinder* bc = 0;
-  const BoundDisk* bd = 0;
+  const BoundSurface* sur = nullptr;
+  const BoundCylinder* bc = nullptr;
+  const BoundDisk* bd = nullptr;
 
   sur = &(layer->surface());
   if ((bc = dynamic_cast<const BoundCylinder*>(sur))) {

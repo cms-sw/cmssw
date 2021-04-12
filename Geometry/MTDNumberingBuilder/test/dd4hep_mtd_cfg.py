@@ -79,10 +79,6 @@ process.load("Geometry.MTDGeometryBuilder.mtdParameters_cff")
 
 process.prod = cms.EDAnalyzer("GeometricTimingDetAnalyzer")
 
-process.prod1 = cms.EDAnalyzer("DD4hep_MTDTopologyAnalyzer",
-                               DDDetector = cms.ESInputTag('',''),
-)
-
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.prod+process.prod1)
+process.p1 = cms.Path(process.prod)
