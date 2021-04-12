@@ -54,6 +54,9 @@ private:
 
   edm::EDGetTokenT<BTLDigiCollection> btlDigiHitsToken_;
 
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+
   // --- histograms declaration
 
   MonitorElement* meNhits_[2];
@@ -89,6 +92,8 @@ BtlDigiHitsValidation::BtlDigiHitsValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")) {
   btlDigiHitsToken_ = consumes<BTLDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
 
 BtlDigiHitsValidation::~BtlDigiHitsValidation() {}
@@ -97,12 +102,10 @@ BtlDigiHitsValidation::~BtlDigiHitsValidation() {}
 void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<MTDGeometry> geometryHandle;
-  iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
+  auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  edm::ESHandle<MTDTopology> topologyHandle;
-  iSetup.get<MTDTopologyRcd>().get(topologyHandle);
+  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
 
   auto btlDigiHitsHandle = makeValid(iEvent.getHandle(btlDigiHitsToken_));

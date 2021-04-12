@@ -1,5 +1,6 @@
 #include "SimFastTiming/FastTimingCommon/interface/BTLElectronicsSim.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -7,7 +8,7 @@
 
 using namespace mtd;
 
-BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset)
+BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
     : debug_(pset.getUntrackedParameter<bool>("debug", false)),
       bxTime_(pset.getParameter<double>("bxTime")),
       testBeamMIPTimeRes_(pset.getParameter<double>("TestBeamMIPTimeRes")),

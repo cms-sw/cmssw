@@ -20,7 +20,7 @@ namespace CLHEP {
 
 class ETLDeviceSim {
 public:
-  ETLDeviceSim(const edm::ParameterSet& pset);
+  ETLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC);
 
   void getEvent(const edm::Event& evt) {}
 
@@ -32,6 +32,7 @@ public:
                        CLHEP::HepRandomEngine* hre);
 
 private:
+  const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
   const MTDGeometry* geom_;
 
   float MIPPerMeV_;
