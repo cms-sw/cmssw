@@ -56,6 +56,7 @@ namespace cAHitNtupletGenerator {
     Params(bool onGPU,
            uint32_t minHitsPerNtuplet,
            uint32_t maxNumberOfDoublets,
+           uint16_t minHitsForSharingCuts,
            bool useRiemannFit,
            bool fit5as4,
            bool includeJumpingForwardDoublets,
@@ -66,16 +67,19 @@ namespace cAHitNtupletGenerator {
            bool doClusterCut,
            bool doZ0Cut,
            bool doPtCut,
+           bool doSharedHitCut,
            float ptmin,
            float CAThetaCutBarrel,
            float CAThetaCutForward,
            float hardCurvCut,
            float dcaCutInnerTriplet,
            float dcaCutOuterTriplet,
+
            QualityCuts const& cuts)
         : onGPU_(onGPU),
           minHitsPerNtuplet_(minHitsPerNtuplet),
           maxNumberOfDoublets_(maxNumberOfDoublets),
+          minHitsForSharingCut_(minHitsForSharingCuts),
           useRiemannFit_(useRiemannFit),
           fit5as4_(fit5as4),
           includeJumpingForwardDoublets_(includeJumpingForwardDoublets),
@@ -86,6 +90,7 @@ namespace cAHitNtupletGenerator {
           doClusterCut_(doClusterCut),
           doZ0Cut_(doZ0Cut),
           doPtCut_(doPtCut),
+          doSharedHitCut_(doSharedHitCut),
           ptmin_(ptmin),
           CAThetaCutBarrel_(CAThetaCutBarrel),
           CAThetaCutForward_(CAThetaCutForward),
@@ -97,6 +102,7 @@ namespace cAHitNtupletGenerator {
     const bool onGPU_;
     const uint32_t minHitsPerNtuplet_;
     const uint32_t maxNumberOfDoublets_;
+    const uint16_t minHitsForSharingCut_;
     const bool useRiemannFit_;
     const bool fit5as4_;
     const bool includeJumpingForwardDoublets_;
@@ -107,6 +113,7 @@ namespace cAHitNtupletGenerator {
     const bool doClusterCut_;
     const bool doZ0Cut_;
     const bool doPtCut_;
+    const bool doSharedHitCut_;
     const float ptmin_;
     const float CAThetaCutBarrel_;
     const float CAThetaCutForward_;

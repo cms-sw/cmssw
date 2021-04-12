@@ -54,7 +54,7 @@ void SiStripQualityDQM::fillSummaryMEs(const std::vector<uint32_t> &selectedDetI
         fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")) {
       TCanvas c1("c1");
       selME.SummaryDistr->getTH1()->Draw();
-      std::string name(selME.SummaryDistr->getTH1()->GetTitle());
+      std::string name(selME.SummaryDistr->getTitle());
       name += ".png";
       c1.Print(name.c_str());
     }
@@ -126,7 +126,7 @@ void SiStripQualityDQM::fillMEsForLayer(
       if (fr > 20) {
         char c[9];
         sprintf(c, "%d", sameLayerDetIds_[i]);
-        selME_.SummaryDistr->getTH1()->GetXaxis()->SetBinLabel(i + 1, c);
+        selME_.SummaryDistr->setBinLabel(i + 1, c);
       }
 
       // Fill the TkHistoMap with Quality output :
@@ -325,7 +325,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs() {
 
     for (int j = 0; j < 4; j++) {
       ME[j]->Fill(i, NBadComponent[0][i][j]);
-      ME[j]->getTH1()->GetXaxis()->SetBinLabel(i, binlabel.str().c_str());
+      ME[j]->setBinLabel(i, binlabel.str());
     }
   }
   ss << "\n";
@@ -337,7 +337,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs() {
 
     for (int j = 0; j < 4; j++) {
       ME[j]->Fill(i + 4, NBadComponent[1][i][j]);
-      ME[j]->getTH1()->GetXaxis()->SetBinLabel(i + 4, binlabel.str().c_str());
+      ME[j]->setBinLabel(i + 4, binlabel.str());
     }
   }
   for (int i = 4; i < 7; ++i) {
@@ -348,7 +348,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs() {
 
     for (int j = 0; j < 4; j++) {
       ME[j]->Fill(i + 4, NBadComponent[1][i][j]);
-      ME[j]->getTH1()->GetXaxis()->SetBinLabel(i + 4, binlabel.str().c_str());
+      ME[j]->setBinLabel(i + 4, binlabel.str());
     }
   }
   ss << "\n";
@@ -360,7 +360,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs() {
 
     for (int j = 0; j < 4; j++) {
       ME[j]->Fill(i + 10, NBadComponent[2][i][j]);
-      ME[j]->getTH1()->GetXaxis()->SetBinLabel(i + 10, binlabel.str().c_str());
+      ME[j]->setBinLabel(i + 10, binlabel.str());
     }
   }
   ss << "\n";
@@ -372,7 +372,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs() {
 
     for (int j = 0; j < 4; j++) {
       ME[j]->Fill(i + 16, NBadComponent[3][i][j]);
-      ME[j]->getTH1()->GetXaxis()->SetBinLabel(i + 16, binlabel.str().c_str());
+      ME[j]->setBinLabel(i + 16, binlabel.str());
     }
   }
   for (int i = 10; i < 19; ++i) {
@@ -383,7 +383,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs() {
 
     for (int j = 0; j < 4; j++) {
       ME[j]->Fill(i + 16, NBadComponent[3][i][j]);
-      ME[j]->getTH1()->GetXaxis()->SetBinLabel(i + 16, binlabel.str().c_str());
+      ME[j]->setBinLabel(i + 16, binlabel.str());
     }
   }
   ss << "\n";
@@ -413,7 +413,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs() {
   for (int i = 0; i < 4; i++) {
     TCanvas c1("c1");
     ME[i]->getTH1()->Draw();
-    std::string name(ME[i]->getTH1()->GetTitle());
+    std::string name(ME[i]->getTitle());
     name += ".png";
     c1.Print(name.c_str());
   }

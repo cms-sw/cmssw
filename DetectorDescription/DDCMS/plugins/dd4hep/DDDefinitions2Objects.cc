@@ -556,6 +556,8 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
     }
 
     mix->AddElement(elt, 1.0);
+    mix->SetTemperature(ns.context()->description.stdConditions().temperature);
+    mix->SetPressure(ns.context()->description.stdConditions().pressure);
 
     /// Create medium from the material
     TGeoMedium* medium = mgr.GetMedium(matname);
@@ -621,6 +623,8 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
       ns.context()->unresolvedMaterials[nam].emplace_back(
           cms::DDParsingContext::CompositeMaterial(ns.prepend(fracname), fraction));
     }
+    mix->SetTemperature(ns.context()->description.stdConditions().temperature);
+    mix->SetPressure(ns.context()->description.stdConditions().pressure);
     mix->SetRadLen(0e0);
     /// Create medium from the material
     TGeoMedium* medium = mgr.GetMedium(matname);

@@ -504,6 +504,7 @@ namespace pixelgpudetails {
 
   // Interface to outside
   void SiPixelRawToClusterGPUKernel::makeClustersAsync(bool isRun2,
+                                                       const SiPixelClusterThresholds clusterThresholds,
                                                        const SiPixelROCsStatusAndMapping *cablingMap,
                                                        const unsigned char *modToUnp,
                                                        const SiPixelGainForHLTonGPU *gains,
@@ -629,7 +630,8 @@ namespace pixelgpudetails {
 #endif
 
       // apply charge cut
-      clusterChargeCut<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
+      clusterChargeCut<<<blocks, threadsPerBlock, 0, stream>>>(clusterThresholds,
+                                                               digis_d.moduleInd(),
                                                                digis_d.adc(),
                                                                clusters_d.moduleStart(),
                                                                clusters_d.clusInModule(),

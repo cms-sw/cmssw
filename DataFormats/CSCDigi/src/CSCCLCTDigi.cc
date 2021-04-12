@@ -116,14 +116,12 @@ void CSCCLCTDigi::setSlope(const uint16_t slope) {
 }
 
 // slope in number of half-strips/layer
-float CSCCLCTDigi::getFractionalSlope(const uint16_t nBits) const {
+float CSCCLCTDigi::getFractionalSlope() const {
   if (isRun3()) {
-    const float minSlope = 0;
-    const float maxSlope = 2.5;
-    const int range = pow(2, nBits);
-    const float deltaSlope = (maxSlope - minSlope) / range;
-    const float slopeValue = minSlope + deltaSlope * getSlope();
-    return (2 * getBend() - 1) * slopeValue;
+    // 4-bit slope
+    float slope[17] = {
+        0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 2.0, 2.5};
+    return (2 * getBend() - 1) * slope[getSlope()];
   } else {
     int slope[11] = {0, 0, -8, 8, -6, 6, -4, 4, -2, 2, 0};
     return float(slope[getPattern()] / 5.);
@@ -133,7 +131,7 @@ float CSCCLCTDigi::getFractionalSlope(const uint16_t nBits) const {
 uint16_t CSCCLCTDigi::getKeyStrip(const uint16_t n) const {
   // 10-bit case for strip data word
   if (compCode_ != -1 and n == 8) {
-    return getKeyStrip(4) * 2 + getEightStrip();
+    return getKeyStrip(4) * 2 + getEighthStrip();
   }
   // 9-bit case for strip data word
   else if (compCode_ != -1 and n == 4) {
@@ -164,10 +162,10 @@ bool CSCCLCTDigi::getQuartStrip() const {
   return getDataWord(strip_, kQuartStripShift, kQuartStripMask);
 }
 
-bool CSCCLCTDigi::getEightStrip() const {
+bool CSCCLCTDigi::getEighthStrip() const {
   if (!isRun3())
     return false;
-  return getDataWord(strip_, kEightStripShift, kEightStripMask);
+  return getDataWord(strip_, kEighthStripShift, kEighthStripMask);
 }
 
 void CSCCLCTDigi::setQuartStrip(const bool quartStrip) {
@@ -176,10 +174,10 @@ void CSCCLCTDigi::setQuartStrip(const bool quartStrip) {
   setDataWord(quartStrip, strip_, kQuartStripShift, kQuartStripMask);
 }
 
-void CSCCLCTDigi::setEightStrip(const bool eightStrip) {
+void CSCCLCTDigi::setEighthStrip(const bool eighthStrip) {
   if (!isRun3())
     return;
-  setDataWord(eightStrip, strip_, kEightStripShift, kEightStripMask);
+  setDataWord(eighthStrip, strip_, kEighthStripShift, kEighthStripMask);
 }
 
 void CSCCLCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Version::Run3 : Version::Legacy; }

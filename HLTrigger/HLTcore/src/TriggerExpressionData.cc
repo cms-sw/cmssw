@@ -1,5 +1,3 @@
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -9,8 +7,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 namespace triggerExpression {
@@ -37,7 +33,7 @@ namespace triggerExpression {
       if (m_l1tCacheID == l1tCacheID) {
         m_l1tUpdated = false;
       } else {
-        m_l1tMenu = &edm::get<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>(setup);
+        m_l1tMenu = &setup.getData(m_l1tUtmTriggerMenuToken);
         m_l1tCacheID = l1tCacheID;
         m_l1tUpdated = true;
       }

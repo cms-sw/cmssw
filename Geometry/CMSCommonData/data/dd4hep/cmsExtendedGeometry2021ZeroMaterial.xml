@@ -212,7 +212,7 @@
     <Include ref='SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI/v1/trackingMaterialGroups_ForPhaseI.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseI/trackerProdCuts.xml'/>
     <Include ref='Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/ebcon.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/ebcon/2021/v1/ebcon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eecon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/escon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eregalgo/2017/v1/eregalgo.xml'/>

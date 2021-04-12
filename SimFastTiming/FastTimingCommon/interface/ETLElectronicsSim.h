@@ -24,7 +24,7 @@ namespace CLHEP {
 
 class ETLElectronicsSim {
 public:
-  ETLElectronicsSim(const edm::ParameterSet& pset);
+  ETLElectronicsSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC);
 
   void getEvent(const edm::Event& evt) {}
 
@@ -43,6 +43,7 @@ public:
   static constexpr int dfSIZE = 5;
 
 private:
+  const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
   const MTDGeometry* geom_;
 
   const bool debug_;
