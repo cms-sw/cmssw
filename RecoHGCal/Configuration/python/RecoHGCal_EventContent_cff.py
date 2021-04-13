@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 #AOD content
 TICL_AOD = cms.PSet(
-  # MultiClusters will be deprecated soon
+  # 13/04/2021 Felice: MultiClusters will be deprecated soon
     outputCommands = cms.untracked.vstring(
       'keep *_ticlMultiClustersFromTrackstersEM_*_*',
       'keep *_ticlMultiClustersFromTrackstersHAD_*_*',
