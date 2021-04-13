@@ -99,8 +99,6 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
 
     if (recordName == "SiStripBadModuleRcd") {
       productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadModuleRcd>(cc, tagName));
-    } else if (recordName == "SiStripBadModuleFedErrRcd") {
-      productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadModuleFedErrRcd>(cc, tagName));
     } else if (recordName == "SiStripBadFiberRcd") {
       productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadFiberRcd>(cc, tagName));
     } else if (recordName == "SiStripBadChannelRcd") {
