@@ -1745,32 +1745,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibo
         ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
     tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #eta", 1);
     tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #phi", 2);
-    /*
 
-    histname = "TkEtaPhi_Ratio_byFoldingmap_" + histTag;
-    tkmes.TkEtaPhi_Ratio_byFoldingmap =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #phi", 2);
-
-    histname = "TkEtaPhi_Ratio_byFoldingmap_op_" + histTag;
-    tkmes.TkEtaPhi_Ratio_byFoldingmap_op =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #phi", 2);
-    
-    histname = "TkEtaPhi_RelativeDifference_byFoldingmap_" + histTag;
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #phi", 2);
-
-    histname = "TkEtaPhi_RelativeDifference_byFoldingmap_op_" + histTag;
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #phi", 2);
-    */
     histname = "TrackQoverP_" + histTag;
     tkmes.TrackQoverP = ibooker.book1D(histname, histname, 10 * TrackQBin, TrackQMin, TrackQMax);
     tkmes.TrackQoverP->setAxisTitle("Track QoverP", 1);
@@ -1944,7 +1919,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
   //get the kinematic parameters
   double p, px, py, pz, pt, theta, phi, eta, q;
   double pxerror, pyerror, pzerror, pterror, perror, phierror, etaerror;
-  
+
   std::string Folder = TopFolder_.substr(0, 2);
 
   auto phiIn = track.innerPosition().phi();
