@@ -87,7 +87,6 @@ bool UCTSummaryCard::process() {
 	  processRegion(regionIndex);
 	  const UCTRegion* uctRegion = uctLayer1->getRegion(regionIndex);
 	  if(uctRegion == 0) {
-	    std::cerr << "getRegion() returned 0 for (iEta, iPhi) = (" << iEta << ", " << iPhi << ")" << std::endl;
 	    continue;
 	  }
 	  et = uctRegion->et();
@@ -159,7 +158,6 @@ bool UCTSummaryCard::processRegion(UCTRegionIndex center) {
 
   const UCTRegion* cRegion(uctLayer1->getRegion(center));
   if(cRegion == nullptr) {
-    std::cerr << "getRegion() returned 0 for (rEta, rPhi) = (" << center.first << ", " << center.second << ")" << std::endl;
     return false;
   }
 
@@ -358,19 +356,6 @@ bool UCTSummaryCard::processRegion(UCTRegionIndex center) {
     boostedJet->setBoostedJetRegionET(boostedJetRegionET);
     boostedJet->setBoostedJetRegionTauVeto(boostedJetRegionTauVeto);
     boostedJetObjs.push_back(boostedJet);
-
-    //if(jetET > 150) {
-    //  std::cout << "Jet (ET, eta, phi) = (" << std::dec << jetET << ", " << hitCaloEta << ", " << hitCaloPhi << ")" << std::endl;
-    //  std::cout << "Center " << *cRegion;
-    //  if(northRegion != nullptr) std::cout << "North " << *northRegion;
-    //  if(southRegion != nullptr) std::cout << "South " << *southRegion;
-    //  if(westRegion != nullptr) std::cout << "West " << *westRegion;
-    //  if(eastRegion != nullptr) std::cout << "East " << *eastRegion;
-    //  if(neRegion != nullptr) std::cout << "NE " << *neRegion;
-    //  if(nwRegion != nullptr) std::cout << "NW " << *nwRegion;
-    //  if(seRegion != nullptr) std::cout << "SE " << *seRegion;
-    //  if(swRegion != nullptr) std::cout << "SW " << *swRegion;
-    //}
   }
     
   // tau Object - a single region or a 2-region sum, where the neighbor with lower ET is located using matching hit calo towers
@@ -415,12 +400,8 @@ bool UCTSummaryCard::processRegion(UCTRegionIndex center) {
       else if(g.areNeighbors(centralHitTower, eastHitTower) && eastIsTauLike && centralET <= eastET){
 	tauET = 0;
       }
-      if(neighborMatchCount == 2) {
-	std::cerr << "Triple-region Tau - yuck :(" << std::endl;
-      }
-      else if(neighborMatchCount > 2) {
-	std::cerr << "Too many neighbor matches :( ; Not Tau" << std::endl;
-	tauET = 0;
+      if(neighborMatchCount > 2) {
+        tauET = 0;
       }
     }
     if(tauET != 0) {
@@ -477,12 +458,8 @@ bool UCTSummaryCard::processRegion(UCTRegionIndex center) {
       else if(g.areNeighbors(centralHitTower, eastHitTower) && eastIsEGammaLike && centralET <= eastET){
         eGammaET = 0;
       }
-      if(neighborMatchCount == 2) {
-	std::cerr << "Triple-region eGamma - yuck :(" << std::endl;
-      }
-      else if(neighborMatchCount > 2) {
-	std::cerr << "Too many neighbor matches :( ; Not eGamma" << std::endl;
-	eGammaET = 0;
+      if(neighborMatchCount > 2) {
+        eGammaET = 0;
       }
     }
     if(eGammaET != 0) {
