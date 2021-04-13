@@ -12,7 +12,7 @@ csc2DRecHits = _mod.configWireTimeWindow.clone(
     #    Data and MC parameters are (still) different
     #    Needs tuning
     #
-    #cscRecHitDParameters, # drop this due to identical values in cfipython _mod
+    cscRecHitDParameters,
     #
     #    Parameters for strip hits
     #
