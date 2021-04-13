@@ -76,6 +76,7 @@ private:
   std::vector<unsigned int> linkToGraphMap_;
 
   double zeroSuppresionThreshold_;
+  bool bitShiftNormalization_;
   bool saveEncodedValues_;
   bool preserveModuleSum_;
 
