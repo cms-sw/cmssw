@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
@@ -59,10 +60,12 @@ pixelTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     )
 )
 
-pixelTracks = _pixelTracks.clone(
-    SeedingHitSets = "pixelTracksHitQuadruplets"
+pixelTracks = SwitchProducerCUDA(
+    cpu = _pixelTracks.clone(
+        SeedingHitSets = "pixelTracksHitQuadruplets"
+    )
 )
-trackingLowPU.toModify(pixelTracks, SeedingHitSets = "pixelTracksHitTriplets")
+trackingLowPU.toModify(pixelTracks.cpu, SeedingHitSets = "pixelTracksHitTriplets")
 
 pixelTracksTask = cms.Task(
     pixelTracksTrackingRegions,
@@ -79,7 +82,7 @@ trackingLowPU.toReplaceWith(pixelTracksTask, _pixelTracksTask_lowPU)
 
 # Use ntuple fit and substitute previous Fitter producer with the ntuple one
 from Configuration.ProcessModifiers.pixelNtupleFit_cff import pixelNtupleFit as ntupleFit
-ntupleFit.toModify(pixelTracks, Fitter = "pixelNtupletsFitter")
+ntupleFit.toModify(pixelTracks.cpu, Fitter = "pixelNtupletsFitter")
 _pixelTracksTask_ntupleFit = pixelTracksTask.copy()
 _pixelTracksTask_ntupleFit.replace(pixelFitterByHelixProjections, pixelNtupletsFitter)
 ntupleFit.toReplaceWith(pixelTracksTask, _pixelTracksTask_ntupleFit)
@@ -88,15 +91,20 @@ ntupleFit.toReplaceWith(pixelTracksTask, _pixelTracksTask_ntupleFit)
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from RecoPixelVertexing.PixelTriplets.caHitNtupletCUDA_cfi import caHitNtupletCUDA
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackSoA_cfi import pixelTrackSoA
-from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as _pixelTrackFromSoA
-_pixelTracksGPUTask = cms.Task(
-  caHitNtupletCUDA,
-  pixelTrackSoA,
-  pixelTracks # FromSoA
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as pixelTrackFromSoA
+_pixelTracksTask_gpu = pixelTracksTask.copy()
+_pixelTracksTask_gpu.add(caHitNtupletCUDA, pixelTrackSoA, pixelTrackFromSoA)
+# this is needed (instead of simply using pixelTracks.cuda = pixelTrackFromSoA.clone()) because
+# the PixelTrackProducerFromSoA produces an additional 'ushorts' collection
+gpu.toModify(pixelTracks,
+    cuda = cms.EDAlias(
+        pixelTrackFromSoA = cms.VPSet(
+            cms.PSet(type = cms.string("recoTracks")),
+            cms.PSet(type = cms.string("recoTrackExtras")),
+            cms.PSet(type = cms.string("TrackingRecHitsOwned"))
+        )
+    )
 )
-
-gpu.toReplaceWith(pixelTracksTask, _pixelTracksGPUTask)
-gpu.toReplaceWith(pixelTracks,_pixelTrackFromSoA)
-
+gpu.toReplaceWith(pixelTracksTask, _pixelTracksTask_gpu)
 
 pixelTracksSequence = cms.Sequence(pixelTracksTask)
