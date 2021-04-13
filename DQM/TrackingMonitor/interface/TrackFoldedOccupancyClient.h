@@ -5,7 +5,7 @@
 // Package:    TrackingMonitor
 // Class  :    TrackFoldedOccupancyClient
 //
-//DQM class to plot occupancy in eta phi 
+//DQM class to plot occupancy in eta phi
 
 #include <string>
 
@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-
 
 class TrackFoldedOccupancyClient : public DQMEDHarvester {
 public:
