@@ -78,11 +78,12 @@ process.siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
-                             TkMapFileName = cms.untracked.string('MergedBadComponentsTkMap.png'),
-                             dataLabel = cms.untracked.string(''),
-                             AddBadComponentsFromFedErrors = cms.untracked.bool(True),
-                             FedErrorBadComponentsCutoff = cms.untracked.double(0.8)
-                             )
+        TkMapFileName = cms.untracked.string('MergedBadComponentsTkMap.png'),
+        dataLabel = cms.untracked.string(''),
+        BadComponentsFromFedErrors = cms.untracked.PSet(
+            Add = cms.untracked.bool(True),
+            Cutoff = cms.untracked.double(0.8)
+            ))
 #### Add these lines to produce a tracker map
 process.load("DQM.SiStripCommon.TkHistoMap_cff")
 

@@ -44,10 +44,11 @@ process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
-                             dataLabel = cms.untracked.string(''),
-                             AddBadComponentsFromFedErrors = cms.untracked.bool(True),
-                             FedErrorBadComponentsCutoff = cms.untracked.double(0.8)
-                             )
+        dataLabel = cms.untracked.string(''),
+        BadComponentsFromFedErrors = cms.untracked.PSet(
+            Add = cms.untracked.bool(True),
+            Cutoff = cms.untracked.double(0.8)
+            ))
 
 process.p = cms.Path(process.stat)
 
