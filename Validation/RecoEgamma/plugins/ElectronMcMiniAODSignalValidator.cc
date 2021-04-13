@@ -486,8 +486,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
       << "Treating event " << iEvent.id() << " with " << electrons.product()->size() << " electrons";
   edm::LogInfo("ElectronMcSignalValidatorMiniAOD::analyze")
       << "Treating event " << iEvent.id() << " with " << electrons_endcaps.product()->size() << " multi slimmed electrons";
-  std::cout << "Treating event " << iEvent.id() << " with " << electrons.product()->size() << " electrons";
-  std::cout << " and with " << electrons_endcaps.product()->size() << " multi slimmed electrons" << std::endl;
   h1_recEleNum->Fill((*electrons).size());
 
   //===============================================
@@ -589,11 +587,8 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     for (unsigned i_elec=0; i_elec<2; ++i_elec) {
       mergedElectrons = (i_elec==0) ? electrons:electrons_endcaps ;
 
-      //std::cout << i << "/" << i_elec << std::endl;
-      //int j_elec = 0;
       for (const pat::Electron& el : *mergedElectrons) { // *electrons
         if (i_elec==0 && !el.isEB()) continue;
-        //std::cout << i << "/" << i_elec << "/" << j_elec << std::endl;
         double dphi = el.phi() - (*genParticles)[i].phi();
         if (std::abs(dphi) > CLHEP::pi) {
           dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
@@ -610,8 +605,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
               pt_ = elePtr->pt();
 
               okGsfFound = true;
-              //std::cout << "     " << i << "/" << i_elec << "/" << j_elec<< " : " << "found best Electron" << std::endl;
-              //std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl;
 
               if (i_elec==0) {
                 sumChargedHadronPt_recomp = (*pfSumChargedHadronPtTmp)[elePtr];
@@ -626,10 +619,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
             }
           }
         }
-        //j_elec++;
       }
-      //std::cout << " : there is " << j_elec << " electrons" << std::endl;
-      //std::cout << std::endl;
     } // end loop i_elec
 
       if (okGsfFound) {
@@ -717,5 +707,5 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
         }
       }
     //} // end loop i_elec
-  }  // fendin loop size_t i
+  }  // end loop size_t i
 }
