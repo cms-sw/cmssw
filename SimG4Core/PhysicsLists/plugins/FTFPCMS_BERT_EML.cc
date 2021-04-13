@@ -1,5 +1,4 @@
 #include "FTFPCMS_BERT_EML.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
 #include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -10,6 +9,7 @@
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 #include "G4HadronicProcessStore.hh"
+#include "G4EmStandardPhysics_option1.hh"
 
 FTFPCMS_BERT_EML::FTFPCMS_BERT_EML(const edm::ParameterSet& p) : PhysicsList(p) {
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
@@ -28,7 +28,7 @@ FTFPCMS_BERT_EML::FTFPCMS_BERT_EML(const edm::ParameterSet& p) : PhysicsList(p) 
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new CMSEmStandardPhysicsLPM(ver));
+    RegisterPhysics(new G4EmStandardPhysics_option1(ver));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
