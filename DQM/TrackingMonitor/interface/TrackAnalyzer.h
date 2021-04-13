@@ -57,7 +57,6 @@ namespace tadqm {
     void setNumberOfGoodVertices(const edm::Event&);
     void setBX(const edm::Event&);
     void setLumi(const edm::Event&, const edm::EventSetup& iSetup);
-
   private:
     void initHistos();
     void fillHistosForState(const edm::EventSetup& iSetup, const reco::Track& track, std::string sname);
@@ -270,10 +269,6 @@ namespace tadqm {
       MonitorElement* TrackEtaPhi = nullptr;
       MonitorElement* TrackEtaPhiInverted = nullptr;
       MonitorElement* TrackEtaPhiInvertedoutofphase = nullptr;
-      MonitorElement* TkEtaPhi_Ratio_byFoldingmap = nullptr;
-      MonitorElement* TkEtaPhi_Ratio_byFoldingmap_op = nullptr;
-      MonitorElement* TkEtaPhi_RelativeDifference_byFoldingmap = nullptr;
-      MonitorElement* TkEtaPhi_RelativeDifference_byFoldingmap_op = nullptr;
       MonitorElement* TrackEtaPhiInner = nullptr;
       MonitorElement* TrackEtaPhiOuter = nullptr;
 
