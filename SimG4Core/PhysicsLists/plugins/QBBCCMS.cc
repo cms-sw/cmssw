@@ -1,6 +1,6 @@
 #include "QBBCCMS.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 
 #include "G4EmStandardPhysics.hh"
 #include "G4DecayPhysics.hh"
@@ -26,7 +26,7 @@ QBBCCMS::QBBCCMS(const edm::ParameterSet& p) : PhysicsList(p) {
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new CMSEmStandardPhysicsLPM(ver));
+    RegisterPhysics(new CMSEmStandardPhysics(ver, p));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);

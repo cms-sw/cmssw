@@ -66,13 +66,20 @@ G4ThreadLocal ParametrisedEMPhysics::TLSmod* ParametrisedEMPhysics::m_tpmod = nu
 
 ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm::ParameterSet& p)
     : G4VPhysicsConstructor(name), theParSet(p) {
-  // bremsstrahlung threshold and EM verbosity
   G4EmParameters* param = G4EmParameters::Instance();
   G4int verb = theParSet.getUntrackedParameter<int>("Verbosity", 0);
   param->SetVerbose(verb);
 
-  G4double bremth = theParSet.getParameter<double>("G4BremsstrahlungThreshold") * GeV;
+  G4double bremth = theParSet.getParameter<double>("G4BremsstrahlungThreshold") * CLHEP::GeV;
   param->SetBremsstrahlungTh(bremth);
+  G4double mubrth = theParSet.getParameter<double>("G4MuonBremsstrahlungThreshold") * CLHEP::GeV;
+  param->SetMuHadBremsstrahlungTh(mubrth);
+
+  bool genp = theParSet.getParameter<bool>("G4GeneralProcess");
+  param->SetGeneralProcessActive(genp);
+
+  bool mudat = theParSet.getParameter<bool>("ReadMuonData");
+  param->SetRetrieveMuDataFromFile(mudat);
 
   bool fluo = theParSet.getParameter<bool>("FlagFluo");
   param->SetFluo(fluo);
