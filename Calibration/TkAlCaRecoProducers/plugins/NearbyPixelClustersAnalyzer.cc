@@ -165,7 +165,8 @@ void NearbyPixelClustersAnalyzer::analyze(const edm::Event& iEvent, const edm::E
     double closestDR = 999.;
     for (const auto& distance : distances) {
       counter++;
-      LogDebug("NearbyPixelClustersAnalyzer") << "track: " << counter << " distance:" << distance << std::endl;
+      LogDebug("NearbyPixelClustersAnalyzer")
+          << "track: " << counter << " distance:" << std::sqrt(distance) << std::endl;
       if (distance < closestDR && distance > 0) {
         closestDR = distance;
       }
