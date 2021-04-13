@@ -618,12 +618,12 @@ void CalibMonitor::Init(TChain *tree, const char *dupFileName, const char *comFi
   for (int i = 0; i < 4; ++i)
     ietas_.push_back(ietas[i]);
   int nxbin(100);
-  double xlow(0.25), xhigh(5.25);
+  double xlow(0.0), xhigh(5.0);
   if (coarseBin_ == 1) {
+    xlow = 0.25;
+    xhigh = 5.25;
     nxbin = 50;
   } else if (coarseBin_ > 1) {
-    xlow = 0.0;
-    xhigh = 5.0;
     if (coarseBin_ == 2)
       nxbin = 500;
     else
