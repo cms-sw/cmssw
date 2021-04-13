@@ -209,6 +209,7 @@ autoEncoder_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorP
                                  modelFiles = cms.VPSet([autoEncoder_training_2eLinks, autoEncoder_training_3eLinks, autoEncoder_training_4eLinks, autoEncoder_training_5eLinks]),
                                  linkToGraphMap = cms.vuint32(linkToGraphMapping),
                                  zeroSuppresionThreshold = cms.double(0.1),
+                                 bitShiftNormalization = cms.bool(True),
                                  saveEncodedValues = cms.bool(False),
                                  preserveModuleSum = cms.bool(True),
                                  threshold_silicon = cms.double(2.), # MipT
