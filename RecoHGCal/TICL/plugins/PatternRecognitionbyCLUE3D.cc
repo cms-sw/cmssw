@@ -105,6 +105,10 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(
     for (auto v : thisLayer.clusterIndex)
       edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "isSeed: ";
+    for (auto v : thisLayer.isSeed)
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "LayerClusterOriginalIdx: ";
     for (auto v : thisLayer.layerClusterOriginalIdx)
       edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
@@ -125,6 +129,8 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   // Protect from events with no seeding regions
   if (input.regions.empty())
     return;
+
+  edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "New Event";
 
   edm::ESHandle<CaloGeometry> geom;
   edm::EventSetup const &es = input.es;
@@ -496,10 +502,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
            for (auto otherClusterIdx : tileOnLayer[offset + iphi]) {
             auto const &layerandSoa = layerIdx2layerandSoa[otherClusterIdx];
             auto const &clustersOnOtherLayer = clusters_[layerandSoa.first];
-            edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Searching nearestHigher on " << currentLayer
-              << " with rho: " << clustersOnOtherLayer.rho[layerandSoa.second]
-              << " on layerIdxInSOA: " << layerandSoa.first << ", " << layerandSoa.second;
-            float dist = distance(clustersOnLayer.eta[i],
+           float dist = distance(clustersOnLayer.eta[i],
                                   clustersOnOtherLayer.eta[layerandSoa.second],
                                   clustersOnLayer.phi[i],
                                   clustersOnOtherLayer.phi[layerandSoa.second]);
@@ -507,7 +510,11 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
                                (clustersOnOtherLayer.rho[layerandSoa.second] == clustersOnLayer.rho[i] &&
                                 clustersOnOtherLayer.layerClusterOriginalIdx[layerandSoa.second] >
                                     clustersOnLayer.layerClusterOriginalIdx[i]);
-            if (foundHigher && dist <= i_delta) {
+            edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Searching nearestHigher on " << currentLayer
+              << " with rho: " << clustersOnOtherLayer.rho[layerandSoa.second]
+              << " on layerIdxInSOA: " << layerandSoa.first << ", " << layerandSoa.second
+              << " with distance: " << dist << " foundHigher: " << foundHigher;
+             if (foundHigher && dist <= i_delta) {
               // update i_delta
               i_delta = dist;
               // update i_nearestHigher
@@ -555,14 +562,21 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
       bool isSeed = (clustersOnLayer.delta[i] > delta) && (clustersOnLayer.rho[i] >= rho_c);
       bool isOutlier = (clustersOnLayer.delta[i] > outlierDeltaFactor * delta) && (clustersOnLayer.rho[i] < rho_c);
       if (isSeed) {
+        edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Found seed on Layer " << layer
+          << " SOAidx: " << i << " assigned ClusterIdx: " << nTracksters;
         clustersOnLayer.clusterIndex[i] = nTracksters++;
         clustersOnLayer.isSeed[i] = true;
         localStack.emplace_back(layer, i);
-
-      } else if (!isOutlier) {
+     } else if (!isOutlier) {
         auto [lyrIdx, soaIdx] = clustersOnLayer.nearestHigher[i];
+        edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Found follower on Layer " << layer
+          << " SOAidx: " << i << " attached to cluster on layer: " << lyrIdx
+          << " SOAidx: " << soaIdx;
         clusters_[lyrIdx].followers[soaIdx].emplace_back(layer, i);
-        //        clustersOnLayer.followers[clustersOnLayer.nearestHigher[i]].push_back(i);
+      } else {
+        edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Found Outlier on Layer " << layer
+          << " SOAidx: " << i << " with rho: " << clustersOnLayer.rho[i]
+          << " and delta: " << clustersOnLayer.delta[i];;
       }
     }
   }
