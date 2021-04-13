@@ -47,7 +47,7 @@ void storeTracks(Ev& ev, const TWH& tracksWithHits, const TrackerTopology& ttopo
     reco::TrackExtra theTrackExtra{};
 
     //fill the TrackExtra with TrackingRecHitRef
-    unsigned int nHits = tracks->at(k).numberOfValidHits();
+    unsigned int nHits = (*tracks)[k].numberOfValidHits();
     theTrackExtra.setHits(hitCollProd, cc, nHits);
     cc += nHits;
     AlgebraicVector5 v = AlgebraicVector5(0, 0, 0, 0, 0);
@@ -63,7 +63,7 @@ void storeTracks(Ev& ev, const TWH& tracksWithHits, const TrackerTopology& ttopo
 
   for (int k = 0; k < nTracks; k++) {
     const reco::TrackExtraRef theTrackExtraRef(ohTE, k);
-    (tracks->at(k)).setExtra(theTrackExtraRef);
+    (*tracks)[k].setExtra(theTrackExtraRef);
   }
 
   ev.put(std::move(tracks));
