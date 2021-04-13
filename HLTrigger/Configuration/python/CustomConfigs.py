@@ -204,4 +204,4 @@ def L1XML(process,xmlFile=None):
 def CTPPSRun2Geometry(process):
     if hasattr(process,'ctppsGeometryESModule')
         process.ctppsGeometryESModule.isRun2 = True
-
+    return(process)
