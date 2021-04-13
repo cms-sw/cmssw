@@ -66,11 +66,11 @@
     <Include ref='Geometry/HGCalCommonData/data/hgcalHEmix/v14/hgcalHEmix.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalCons/v14/hgcalCons.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalConsData/v13/hgcalConsData.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/hfnose/v3/hfnose.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/hfnose/v4/hfnose.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/hfnoseCell/v1/hfnoseCell.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/hfnoseWafer/v1/hfnoseWafer.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/hfnoseLayer/v1/hfnoseLayer.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/hfnoseCons/v1/hfnoseCons.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/hfnoseLayer/v2/hfnoseLayer.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/hfnoseCons/v1m/hfnoseCons.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml'/>
