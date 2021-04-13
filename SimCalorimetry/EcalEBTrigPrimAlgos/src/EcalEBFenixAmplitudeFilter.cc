@@ -1,28 +1,28 @@
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixAmplitudeFilter.h>
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter() : inputsAlreadyIn_(0), shift_(6) {}
+EcalEBFenixAmplitudeFilter::EcalEBFenixAmplitudeFilter() : inputsAlreadyIn_(0), shift_(6) {}
 
-EcalFenixAmplitudeFilter::~EcalFenixAmplitudeFilter() {}
+EcalEBFenixAmplitudeFilter::~EcalEBFenixAmplitudeFilter() {}
 
-int EcalFenixAmplitudeFilter::setInput(int input, int fgvb) {
+int EcalEBFenixAmplitudeFilter::setInput(int input, int fgvb) {
   if (input > 0X3FFFF) {
     std::cout << "ERROR IN INPUT OF AMPLITUDE FILTER" << std::endl;
     return -1;
   }
   if (inputsAlreadyIn_ < 5) {
-    //std::cout << " EcalFenixAmplitudeFilter::setInput inputsAlreadyIn_<5 input " << input << std::endl;
+    //std::cout << " EcalEBFenixAmplitudeFilter::setInput inputsAlreadyIn_<5 input " << input << std::endl;
     buffer_[inputsAlreadyIn_] = input;
     fgvbBuffer_[inputsAlreadyIn_] = fgvb;
     inputsAlreadyIn_++;
   } else {
     for (int i = 0; i < 4; i++) {
       buffer_[i] = buffer_[i + 1];
-      //std::cout << " EcalFenixAmplitudeFilter::setInput inputsAlreadyIn buffer " << buffer_[i] << std::endl;
+      //std::cout << " EcalEBFenixAmplitudeFilter::setInput inputsAlreadyIn buffer " << buffer_[i] << std::endl;
       fgvbBuffer_[i] = fgvbBuffer_[i + 1];
     }
     buffer_[4] = input;
@@ -31,10 +31,10 @@ int EcalFenixAmplitudeFilter::setInput(int input, int fgvb) {
   return 1;
 }
 
-void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
-                                       std::vector<int> &output,
-                                       std::vector<int> &fgvbIn,
-                                       std::vector<int> &fgvbOut) {
+void EcalEBFenixAmplitudeFilter::process(std::vector<int> &addout,
+                                         std::vector<int> &output,
+                                         std::vector<int> &fgvbIn,
+                                         std::vector<int> &fgvbOut) {
   // test
 
   inputsAlreadyIn_ = 0;
@@ -45,7 +45,7 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
 
   // test end
 
-  //std::cout << "  EcalFenixAmplitudeFilter::process(std::vector<int> &addout size  " << addout.size() << std::endl;
+  //std::cout << "  EcalEBFenixAmplitudeFilter::process(std::vector<int> &addout size  " << addout.size() << std::endl;
   for (unsigned int i = 0; i < addout.size(); i++) {
     setInput(addout[i], fgvbIn[i]);
     for (unsigned int i = 0; i < 5; i++) {
@@ -69,7 +69,7 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,
   return;
 }
 
-void EcalFenixAmplitudeFilter::process() {
+void EcalEBFenixAmplitudeFilter::process() {
   //UB FIXME: 5
   processedOutput_ = 0;
   processedFgvbOutput_ = 0;
@@ -92,9 +92,9 @@ void EcalFenixAmplitudeFilter::process() {
   processedFgvbOutput_ = fgvbInt;
 }
 
-void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,
-                                             const EcalTPGWeightIdMap *ecaltpgWeightMap,
-                                             const EcalTPGWeightGroup *ecaltpgWeightGroup) {
+void EcalEBFenixAmplitudeFilter::setParameters(uint32_t raw,
+                                               const EcalTPGWeightIdMap *ecaltpgWeightMap,
+                                               const EcalTPGWeightGroup *ecaltpgWeightGroup) {
   uint32_t params_[5];
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgWeightGroup->getMap();
   EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(raw);

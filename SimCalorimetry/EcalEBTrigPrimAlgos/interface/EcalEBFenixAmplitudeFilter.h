@@ -1,5 +1,5 @@
-#ifndef ECAL_FENIX_AMPLITUDE_FILTER_H
-#define ECAL_FENIX_AMPLITUDE_FILTER_H
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBFenixAmplitudeFilter_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBFenixAmplitudeFilter_h
 
 #include <vector>
 #include <cstdint>
@@ -8,13 +8,13 @@ class EcalTPGWeightIdMap;
 class EcalTPGWeightGroup;
 
 /** 
-   \ class EcalFenixAmplitudeFilter
+   \ class EcalEBFenixAmplitudeFilter
    \brief calculates .... for Fenix strip, barrel
    *  input: 18 bits
    *  output: 18 bits
    *  
    */
-class EcalFenixAmplitudeFilter {
+class EcalEBFenixAmplitudeFilter {
 private:
   int peakFlag_[5];
   int inputsAlreadyIn_;
@@ -29,8 +29,8 @@ private:
   int processedFgvbOutput_;
 
 public:
-  EcalFenixAmplitudeFilter();
-  virtual ~EcalFenixAmplitudeFilter();
+  EcalEBFenixAmplitudeFilter();
+  virtual ~EcalEBFenixAmplitudeFilter();
   virtual void process(std::vector<int> &addout,
                        std::vector<int> &output,
                        std::vector<int> &fgvbIn,
