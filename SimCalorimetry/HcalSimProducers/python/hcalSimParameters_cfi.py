@@ -181,10 +181,12 @@ run3_common.toModify( hcalSimParameters,
                binOfMaximum     = cms.int32(6)
               ),
     hf1 = dict( samplingFactor = 0.37,
-                timePhase = 9.0 
+                timePhase = 9.0,
+                threshold_currentTDC = cms.double(3.),
                ),
     hf2 = dict( samplingFactor = 0.37,
-                timePhase = 8.0
+                timePhase = 8.0,
+                threshold_currentTDC = cms.double(3.)
                )
 ) 
 
