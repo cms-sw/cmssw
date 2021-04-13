@@ -19,6 +19,8 @@ ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::Pa
       iConfig.getParameter<edm::InputTag>("mcTruthCollection"));  // prunedGenParticles
   electronToken_ =
       consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"));  // slimmedElectrons
+  electronTokenEndcaps_ =
+      consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons_endcaps"));  // slimmedElectrons
 
   edm::ParameterSet histosSet = iConfig.getParameter<edm::ParameterSet>("histosCfg");
   edm::ParameterSet isolationSet = iConfig.getParameter<edm::ParameterSet>("isolationCfg");
@@ -462,8 +464,13 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   edm::Handle<pat::ElectronCollection> electrons;
   iEvent.getByToken(electronToken_, electrons);
 
+  edm::Handle<pat::ElectronCollection> electrons_endcaps;
+  iEvent.getByToken(electronTokenEndcaps_, electrons_endcaps);
+
   edm::Handle<edm::View<reco::GenParticle> > genParticles;
   iEvent.getByToken(mcTruthCollection_, genParticles);
+
+  edm::Handle<pat::ElectronCollection> mergedElectrons;
 
   //recomp
   edm::Handle<edm::ValueMap<float> > pfSumChargedHadronPtTmp;
@@ -477,6 +484,10 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
 
   edm::LogInfo("ElectronMcSignalValidatorMiniAOD::analyze")
       << "Treating event " << iEvent.id() << " with " << electrons.product()->size() << " electrons";
+  edm::LogInfo("ElectronMcSignalValidatorMiniAOD::analyze")
+      << "Treating event " << iEvent.id() << " with " << electrons_endcaps.product()->size() << " multi slimmed electrons";
+  std::cout << "Treating event " << iEvent.id() << " with " << electrons.product()->size() << " electrons";
+  std::cout << " and with " << electrons_endcaps.product()->size() << " multi slimmed electrons" << std::endl;
   h1_recEleNum->Fill((*electrons).size());
 
   //===============================================
@@ -512,10 +523,10 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
 
   for (size_t i = 0; i < genParticles->size(); i++) {
     /*                // DEBUG LINES - KEEP IT !
-        std::cout << "\nevt ID = " << iEvent.id() ; 
-        std::cout << ",  mcIter position : " << i << std::endl; 
-        std::cout << "pdgID : " << (*genParticles)[i].pdgId() << ", Pt : " << (*genParticles)[i].pt() ; 
-        std::cout << ", eta : " << (*genParticles)[i].eta() << ", phi : " << (*genParticles)[i].phi() << std::endl; 
+        std::cout << "\nevt ID = " << iEvent.id() ;
+        std::cout << ",  mcIter position : " << i << std::endl;
+        std::cout << "pdgID : " << (*genParticles)[i].pdgId() << ", Pt : " << (*genParticles)[i].pt() ;
+        std::cout << ", eta : " << (*genParticles)[i].eta() << ", phi : " << (*genParticles)[i].phi() << std::endl;
                 // DEBUG LINES - KEEP IT !  */
 
     // number of mc particles
@@ -532,14 +543,14 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     matchingMotherID = false;
     for (unsigned int ii = 0; ii < matchingMotherIDs_.size(); ii++) {
       /*                // DEBUG LINES - KEEP IT !
-                std::cout << "Matching : matchingMotherID[" << ii << "] : "<< matchingMotherIDs_[ii]  << ", evt ID = " << iEvent.id() << ", mother : "  << mother ; 
-                if (mother != 0) { 
-			        std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ; 
-                    std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl; 
+                std::cout << "Matching : matchingMotherID[" << ii << "] : "<< matchingMotherIDs_[ii]  << ", evt ID = " << iEvent.id() << ", mother : "  << mother ;
+                if (mother != 0) {
+			        std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ;
+                    std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl;
                 }
-                else { 
-                    std::cout << std::endl; 
-                } 
+                else {
+                    std::cout << std::endl;
+                }
                 // DEBUG LINES - KEEP IT !  */
 
       if (mother == nullptr) {
@@ -553,10 +564,10 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
       }  // end of mother if test
 
       /*                // DEBUG LINES - KEEP IT !
-            if (mother != 0) { 
-                std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ; 
-                std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl; 
-            } 
+            if (mother != 0) {
+                std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ;
+                std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl;
+            }
                 // DEBUG LINES - KEEP IT !  */
     }  // end of for loop
     if (!matchingMotherID) {
@@ -574,132 +585,137 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     bool passMiniAODSelection = true;
     double gsfOkRatio = 999999.;
     pat::Electron bestGsfElectron;
-    for (const pat::Electron& el : *electrons) {
-      double dphi = el.phi() - (*genParticles)[i].phi();
-      if (std::abs(dphi) > CLHEP::pi) {
-        dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-      }
-      double deltaR2 = (el.eta() - (*genParticles)[i].eta()) * (el.eta() - (*genParticles)[i].eta()) + dphi * dphi;
-      if (deltaR2 < deltaR2_) {
-        if ((((*genParticles)[i].pdgId() == 11) && (el.charge() < 0.)) ||
-            (((*genParticles)[i].pdgId() == -11) && (el.charge() > 0.))) {
-          double tmpGsfRatio = el.p() / (*genParticles)[i].p();
-          if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
-            gsfOkRatio = tmpGsfRatio;
-            bestGsfElectron = el;
-            PatElectronPtr elePtr(electrons, &el - &(*electrons)[0]);
-            pt_ = elePtr->pt();
-            sumChargedHadronPt_recomp = (*pfSumChargedHadronPtTmp)[elePtr];
-            relisoChargedHadronPt_recomp = sumChargedHadronPt_recomp / pt_;
 
-            sumNeutralHadronPt_recomp = (*pfSumNeutralHadronEtTmp)[elePtr];
-            relisoNeutralHadronPt_recomp = sumNeutralHadronPt_recomp / pt_;
+    for (unsigned i_elec=0; i_elec<2; ++i_elec) {
+      mergedElectrons = (i_elec==0) ? electrons:electrons_endcaps ;
 
-            sumPhotonPt_recomp = (*pfSumPhotonEtTmp)[elePtr];
-            relisoPhotonPt_recomp = sumPhotonPt_recomp / pt_;
+      //std::cout << i << "/" << i_elec << std::endl;
+      //int j_elec = 0;
+      for (const pat::Electron& el : *mergedElectrons) { // *electrons
+        if (i_elec==0 && !el.isEB()) continue;
+        //std::cout << i << "/" << i_elec << "/" << j_elec << std::endl;
+        double dphi = el.phi() - (*genParticles)[i].phi();
+        if (std::abs(dphi) > CLHEP::pi) {
+          dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
+        }
+        double deltaR2 = (el.eta() - (*genParticles)[i].eta()) * (el.eta() - (*genParticles)[i].eta()) + dphi * dphi;
+        if (deltaR2 < deltaR2_) {
+          if ((((*genParticles)[i].pdgId() == 11) && (el.charge() < 0.)) ||
+              (((*genParticles)[i].pdgId() == -11) && (el.charge() > 0.))) {
+            double tmpGsfRatio = el.p() / (*genParticles)[i].p();
+            if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
+              gsfOkRatio = tmpGsfRatio;
+              bestGsfElectron = el;
+              PatElectronPtr elePtr(electrons, &el - &(*electrons)[0]);
+              pt_ = elePtr->pt();
 
-            okGsfFound = true;
+              okGsfFound = true;
+              //std::cout << "     " << i << "/" << i_elec << "/" << j_elec<< " : " << "found best Electron" << std::endl;
+              //std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl;
 
-            // DEBUG LINES - KEEP IT !
-            //        std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl;
-            // DEBUG LINES - KEEP IT !  /**/
+              if (i_elec==0) {
+                sumChargedHadronPt_recomp = (*pfSumChargedHadronPtTmp)[elePtr];
+              relisoChargedHadronPt_recomp = sumChargedHadronPt_recomp / pt_;
+
+              sumNeutralHadronPt_recomp = (*pfSumNeutralHadronEtTmp)[elePtr];
+              relisoNeutralHadronPt_recomp = sumNeutralHadronPt_recomp / pt_;
+
+              sumPhotonPt_recomp = (*pfSumPhotonEtTmp)[elePtr];
+              relisoPhotonPt_recomp = sumPhotonPt_recomp / pt_;/**/
+              }
+            }
           }
         }
+        //j_elec++;
       }
-    }
+      //std::cout << " : there is " << j_elec << " electrons" << std::endl;
+      //std::cout << std::endl;
+    } // end loop i_elec
 
-    if (!okGsfFound)
-      continue;
+      if (okGsfFound) {
 
-    //------------------------------------
-    // analysis when the mc track is found
-    //------------------------------------
-    passMiniAODSelection = bestGsfElectron.pt() >= 5.;
+        //------------------------------------
+        // analysis when the mc track is found
+        //------------------------------------
+        passMiniAODSelection = bestGsfElectron.pt() >= 5.;
+        double one_over_pt = 1. / bestGsfElectron.pt();
 
-    // electron related distributions
-    h1_ele_vertexPt->Fill(bestGsfElectron.pt());
-    h1_ele_vertexEta->Fill(bestGsfElectron.eta());
-    if ((bestGsfElectron.scSigmaIEtaIEta() == 0.) && (bestGsfElectron.fbrem() == 0.))
-      h1_ele_vertexPt_nocut->Fill(bestGsfElectron.pt());
+        // electron related distributions
+        h1_ele_vertexPt->Fill(bestGsfElectron.pt());
+        h1_ele_vertexEta->Fill(bestGsfElectron.eta());
+        if ((bestGsfElectron.scSigmaIEtaIEta() == 0.) && (bestGsfElectron.fbrem() == 0.))
+          h1_ele_vertexPt_nocut->Fill(bestGsfElectron.pt());
+        // track related distributions
+        h2_ele_foundHitsVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
 
-    // generated distributions for matched electrons
-    h2_ele_PoPtrueVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / (*genParticles)[i].p());
-    if (passMiniAODSelection) {  // Pt > 5.
-      h2_ele_sigmaIetaIetaVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.scSigmaIEtaIEta());
-    }
+        // generated distributions for matched electrons
+        h2_ele_PoPtrueVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.p() / (*genParticles)[i].p());
 
-    // supercluster related distributions
-    if (passMiniAODSelection) {  // Pt > 5.
-      h1_scl_SigIEtaIEta_mAOD->Fill(bestGsfElectron.scSigmaIEtaIEta());
-      h1_ele_dEtaSc_propVtx_mAOD->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-      h1_ele_dPhiCl_propOut_mAOD->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-      if (bestGsfElectron.isEB()) {
-        h1_scl_SigIEtaIEta_mAOD_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
-        h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-        h1_ele_dPhiCl_propOut_mAOD_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-      }
-      if (bestGsfElectron.isEE()) {
-        h1_scl_SigIEtaIEta_mAOD_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
-        h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-        h1_ele_dPhiCl_propOut_mAOD_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-      }
-    }
+        if (passMiniAODSelection) {  // Pt > 5.
+          h2_ele_sigmaIetaIetaVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.scSigmaIEtaIEta());
 
-    // track related distributions
-    h2_ele_foundHitsVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
-    if (passMiniAODSelection) {  // Pt > 5.
-      h2_ele_foundHitsVsEta_mAOD->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
-    }
+          // supercluster related distributions
+          h1_scl_SigIEtaIEta_mAOD->Fill(bestGsfElectron.scSigmaIEtaIEta());
+          h1_ele_dEtaSc_propVtx_mAOD->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          h1_ele_dPhiCl_propOut_mAOD->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
 
-    // match distributions
-    if (passMiniAODSelection) {  // Pt > 5.
-      h1_ele_HoE_mAOD->Fill(bestGsfElectron.hcalOverEcal());
-      if (bestGsfElectron.isEB())
-        h1_ele_HoE_mAOD_barrel->Fill(bestGsfElectron.hcalOverEcal());
-      if (bestGsfElectron.isEE())
-        h1_ele_HoE_mAOD_endcaps->Fill(bestGsfElectron.hcalOverEcal());
-    }
+          // track related distributions
+          h2_ele_foundHitsVsEta_mAOD->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
 
-    // fbrem
+          // match distributions
+          h1_ele_HoE_mAOD->Fill(bestGsfElectron.hcalOverEcal());
 
-    //    double fbrem_mode =  bestGsfElectron.fbrem();
-    if (passMiniAODSelection) {  // Pt > 5.
-      h1_ele_fbrem_mAOD->Fill(bestGsfElectron.fbrem());
-      if (bestGsfElectron.isEB())
-        h1_ele_fbrem_mAOD_barrel->Fill(bestGsfElectron.fbrem());
-      if (bestGsfElectron.isEE())
-        h1_ele_fbrem_mAOD_endcaps->Fill(bestGsfElectron.fbrem());
+          // fbrem
+          h1_ele_fbrem_mAOD->Fill(bestGsfElectron.fbrem());
 
-      // -- pflow over pT
-      double one_over_pt = 1. / bestGsfElectron.pt();
+          // -- pflow over pT
 
-      h1_ele_chargedHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt *
+          h1_ele_chargedHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt *
                                                  one_over_pt);
-      h1_ele_neutralHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt *
+          h1_ele_neutralHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt *
                                                  one_over_pt);
-      h1_ele_photonRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt);
+          h1_ele_photonRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt);
 
-      if (bestGsfElectron.isEB()) {
-        h1_ele_chargedHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt *
+          if (bestGsfElectron.isEB()) {
+            // supercluster related distributions
+            h1_scl_SigIEtaIEta_mAOD_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
+            h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+            h1_ele_dPhiCl_propOut_mAOD_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+            // match distributions
+            h1_ele_HoE_mAOD_barrel->Fill(bestGsfElectron.hcalOverEcal());
+            // fbrem
+            h1_ele_fbrem_mAOD_barrel->Fill(bestGsfElectron.fbrem());
+
+            h1_ele_chargedHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt *
                                                           one_over_pt);
-        h1_ele_neutralHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt *
+            h1_ele_neutralHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt *
                                                           one_over_pt);
-        h1_ele_photonRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt);
-      }
+            h1_ele_photonRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt);
+          }
 
-      if (bestGsfElectron.isEE()) {
-        h1_ele_chargedHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt *
+          // supercluster related distributions
+          if (bestGsfElectron.isEE()) {
+            h1_scl_SigIEtaIEta_mAOD_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
+            h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+            h1_ele_dPhiCl_propOut_mAOD_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+            // match distributions
+            h1_ele_HoE_mAOD_endcaps->Fill(bestGsfElectron.hcalOverEcal());
+            // fbrem
+            h1_ele_fbrem_mAOD_endcaps->Fill(bestGsfElectron.fbrem());
+            h1_ele_chargedHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt *
                                                            one_over_pt);
-        h1_ele_neutralHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt *
+            h1_ele_neutralHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt *
                                                            one_over_pt);
-        h1_ele_photonRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt);
+            h1_ele_photonRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt);
+          }
+          //if (i_elec==0){
+            // -- recomputed pflow over pT
+            h1_ele_chargedHadronRelativeIso_mAOD_recomp->Fill(relisoChargedHadronPt_recomp);
+            h1_ele_neutralHadronRelativeIso_mAOD_recomp->Fill(relisoNeutralHadronPt_recomp);
+            h1_ele_photonRelativeIso_mAOD_recomp->Fill(relisoPhotonPt_recomp);
+          //} /**/
+        }
       }
-
-      // -- recomputed pflow over pT
-      h1_ele_chargedHadronRelativeIso_mAOD_recomp->Fill(relisoChargedHadronPt_recomp);
-      h1_ele_neutralHadronRelativeIso_mAOD_recomp->Fill(relisoNeutralHadronPt_recomp);
-      h1_ele_photonRelativeIso_mAOD_recomp->Fill(relisoPhotonPt_recomp); /**/
-    }
-
-  }  // fin boucle size_t i
+    //} // end loop i_elec
+  }  // fendin loop size_t i
 }
