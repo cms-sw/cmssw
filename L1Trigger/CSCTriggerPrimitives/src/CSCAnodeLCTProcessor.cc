@@ -247,9 +247,9 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
   }
 
   // Get wire digis in this chamber from wire digi collection.
-  bool noDigis = getDigis(wiredc);
+  bool hasDigis = getDigis(wiredc);
 
-  if (!noDigis) {
+  if (hasDigis) {
     // First get wire times from the wire digis.
     std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
     readWireDigis(wire);
@@ -369,7 +369,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
 
 bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
   // Routine for getting digis and filling digiV vector.
-  bool noDigis = true;
+  bool hasDigis = false;
 
   // Loop over layers and save wire digis on each one into digiV[layer].
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
@@ -385,7 +385,7 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
     }
 
     if (!digiV[i_layer].empty()) {
-      noDigis = false;
+      hasDigis = true;
       if (infoV > 1) {
         LogTrace("CSCAnodeLCTProcessor") << "found " << digiV[i_layer].size() << " wire digi(s) in layer " << i_layer
                                          << " of " << theCSCName_ << " (trig. sector " << theSector << " subsector "
@@ -397,7 +397,7 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
     }
   }
 
-  return noDigis;
+  return hasDigis;
 }
 
 void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc, const CSCDetId& id) {
