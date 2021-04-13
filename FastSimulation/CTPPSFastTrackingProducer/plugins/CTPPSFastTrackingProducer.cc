@@ -320,7 +320,6 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,
                                             double& X2d,
                                             double& Y2d) {
   // Given 1 hit in Tracker1 and 1 hit in Tracker2 try to make a track with Hector
-  double theta = 0.;
   xi = 0;
   t = 0;
   partP = 0;
@@ -361,8 +360,7 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,
   thx *= -Direction;                                                      //  invert to the CMS ref frame
 
   // Protect for unphysical results
-  if (std::isnan(eloss) || std::isinf(eloss) || std::isnan(thx) || std::isinf(thx) || std::isnan(thy) ||
-      std::isinf(thy))
+  if (edm::isNotFinite(eloss) || edm::isNotFinite(thx) || edm::isNotFinite(thy))
     return false;
   //
 
@@ -379,18 +377,17 @@ bool CTPPSFastTrackingProducer::SearchTrack(int i,
     return false;
   //
   // Calculate the reconstructed track parameters
-  theta = sqrt(thx * thx + thy * thy) * urad;
+  double theta = sqrt(thx * thx + thy * thy) * urad;
   xi = eloss / fBeamEnergy;
   double energy = fBeamEnergy * (1. - xi);
   partP = sqrt(energy * energy - PPSTools::ProtonMassSQ);
   t = -2. * (PPSTools::ProtonMassSQ - fBeamEnergy * energy + fBeamMomentum * partP * cos(theta));
-  pt = sqrt(pow(partP * thx * urad, 2) + pow(partP * thy * urad, 2));
+  pt = partP * theta;
   if (xi < 0. || xi > 1. || t < 0. || t > 10. || pt <= 0.) {
     xi = 0.;
     t = 0.;
     partP = 0.;
     pt = 0.;
-    theta = 0.;
     x0 = 0.;
     y0 = 0.;
     return false;  // unphysical values
