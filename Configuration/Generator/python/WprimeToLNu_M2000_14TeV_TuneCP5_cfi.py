@@ -1,26 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
-from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
+from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
-                         pythiaPylistVerbosity = cms.untracked.int32(0),
-                         filterEfficiency = cms.untracked.double(1.0),
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
-                         crossSection = cms.untracked.double(51360.0), # 17120.0 x 3
-                         comEnergy = cms.double(14000.0),
                          maxEventsToPrint = cms.untracked.int32(0),
+                         pythiaPylistVerbosity = cms.untracked.int32(1),
+                         filterEfficiency = cms.untracked.double(1.),
+                         crossSection = cms.untracked.double(1.),
+                         comEnergy = cms.double(14000.0),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
-        pythia8CUEP8M1SettingsBlock,
+        pythia8CP5SettingsBlock,
         processParameters = cms.vstring(
-            'WeakSingleBoson:ffbar2W = on',
-            '24:onMode = off',
-            '24:onIfAny = 11 12',
-            '24:onIfAny = 13 14',
-            '24:onIfAny = 15 16',
+            'NewGaugeBoson:ffbar2Wprime = on',
+            '34:m0 = 2000 ',
+            '34:onMode = off',
+            '34:onIfAny = 11 12',
+            '34:onIfAny = 13 14',
+            '34:onIfAny = 15 16',
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
-                                    'pythia8CUEP8M1Settings',
+                                    'pythia8CP5Settings',
                                     'processParameters',
                                 )
                          )
