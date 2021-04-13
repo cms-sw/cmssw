@@ -17,7 +17,7 @@ public:
 
   using Quality = pixelTrack::Quality;
   using hindex_type = uint32_t;
-  using HitContainer = cms::cuda::OneToManyAssoc<hindex_type, S, 5 * S>;
+  using HitContainer = cms::cuda::OneToManyAssoc<hindex_type, S+1, 5 * S>;
 
   // Always check quality is at least loose!
   // CUDA does not support enums  in __lgc ...
