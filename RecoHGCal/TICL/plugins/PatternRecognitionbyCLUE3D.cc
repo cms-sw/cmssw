@@ -178,7 +178,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].phi.emplace_back(lc.phi());
     clusters_[layer].cells.push_back(lc.hitsAndFractions().size());
     clusters_[layer].energy.emplace_back(lc.energy());
-    clusters_[layer].isSeed.push_back(-1);
+    clusters_[layer].isSeed.push_back(false);
     clusters_[layer].clusterIndex.emplace_back(-1);
     clusters_[layer].layerClusterOriginalIdx.emplace_back(layerIdx++);
     clusters_[layer].nearestHigher.emplace_back(-1, -1);
