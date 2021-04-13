@@ -50,6 +50,9 @@ private:
   edm::EDGetTokenT<edm::View<reco::Track>> muonTracksToken_;
   edm::EDGetTokenT<edm::View<reco::Track>> otherTracksToken_;
 
+  // save in the event only up to the n-th closest
+  unsigned int nthClosestTrack_;
+
   // putToken
   edm::EDPutTokenT<edm::ValueMap<std::vector<float>>> distancesPutToken_;
 };
@@ -60,6 +63,7 @@ private:
 TrackDistanceValueMapProducer::TrackDistanceValueMapProducer(const edm::ParameterSet& iConfig)
     : muonTracksToken_(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("muonTracks"))),
       otherTracksToken_(consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>("allTracks"))),
+      nthClosestTrack_(iConfig.getParameter<unsigned int>("saveUpToNthClosest")),
       distancesPutToken_(produces<edm::ValueMap<std::vector<float>>>()) {}
 
 //
@@ -106,9 +110,18 @@ void TrackDistanceValueMapProducer::produce(edm::StreamID streamID,
     for (unsigned int iAll = 0; iAll < Nall; iAll++) {
       const auto& recotrack = allTracks.ptrAt(iAll);
       const float dR2 = ::deltaR2(*muontrack, *recotrack);
-      v_dR2.push_back(dR2);
+      if (dR2 != 0.f) {  // exclude the track itself
+        v_dR2.push_back(dR2);
+      }
     }
-    v2_dR2.push_back(v_dR2);
+
+    // sort the tracks in ascending order of distance
+    std::sort(v_dR2.begin(), v_dR2.end(), [](const float& lhs, const float& rhs) { return lhs < rhs; });
+
+    // just copy the first nth
+    std::vector<float> reduced_vdR2;
+    std::copy(v_dR2.begin(), v_dR2.begin() + nthClosestTrack_, std::back_inserter(reduced_vdR2));
+    v2_dR2.push_back(reduced_vdR2);
   }
 
   //=======================================================
@@ -129,6 +142,7 @@ void TrackDistanceValueMapProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("muonTracks", edm::InputTag("ALCARECOSiPixelCalSingleMuonTight"))
       ->setComment("the probe muon tracks");
   desc.add<edm::InputTag>("allTracks", edm::InputTag("generalTracks"))->setComment("all tracks in the event");
+  desc.add<unsigned int>("saveUpToNthClosest", 1)->setComment("save the distance only for the nth closest tracks");
   descriptions.addWithDefaultLabel(desc);
 }
 
