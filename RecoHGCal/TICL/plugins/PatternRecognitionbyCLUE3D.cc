@@ -553,8 +553,8 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
     auto &clustersOnLayer = clusters_[layer];
     unsigned int numberOfClusters = clustersOnLayer.x.size();
     for (unsigned int i = 0; i < numberOfClusters; i++) {
-      float rho_c = 8.f;
-      float delta = 0.1;
+      float rho_c = 5.f;
+      float delta = 0.04;
       float outlierDeltaFactor = 1.1;
 
       // initialize clusterIndex
