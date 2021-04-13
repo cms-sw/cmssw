@@ -1,4 +1,4 @@
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixLinearizer.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixLinearizer.h>
 
 #include <CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGPedestals.h>
@@ -6,10 +6,10 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalFenixLinearizer::EcalFenixLinearizer(bool famos)
+EcalEBFenixLinearizer::EcalEBFenixLinearizer(bool famos)
     : famos_(famos), init_(false), linConsts_(nullptr), peds_(nullptr), badXStatus_(nullptr) {}
 
-EcalFenixLinearizer::~EcalFenixLinearizer() {
+EcalEBFenixLinearizer::~EcalEBFenixLinearizer() {
   if (init_) {
     for (int i = 0; i < (int)vectorbadXStatus_.size(); i++) {
       delete vectorbadXStatus_[i];
@@ -17,10 +17,10 @@ EcalFenixLinearizer::~EcalFenixLinearizer() {
   }
 }
 
-void EcalFenixLinearizer::setParameters(uint32_t raw,
-                                        const EcalTPGPedestals *ecaltpPed,
-                                        const EcalTPGLinearizationConst *ecaltpLin,
-                                        const EcalTPGCrystalStatus *ecaltpBadX) {
+void EcalEBFenixLinearizer::setParameters(uint32_t raw,
+                                          const EcalTPGPedestals *ecaltpPed,
+                                          const EcalTPGLinearizationConst *ecaltpLin,
+                                          const EcalTPGCrystalStatus *ecaltpBadX) {
   const EcalTPGLinearizationConstMap &linMap = ecaltpLin->getMap();
   EcalTPGLinearizationConstMapIterator it = linMap.find(raw);
 
@@ -48,24 +48,24 @@ void EcalFenixLinearizer::setParameters(uint32_t raw,
   }
 }
 
-int EcalFenixLinearizer::process() {
+int EcalEBFenixLinearizer::process() {
   int output = (uncorrectedSample_ - base_);  //Substract base
-  //std::cout << " EcalFenixLinearizer::process() output non bit shifted " << output << std::endl;
+  //std::cout << " EcalEBFenixLinearizer::process() output non bit shifted " << output << std::endl;
   if (famos_ || output < 0)
     return 0;
 
   if (output < 0)
     return shift_ << 12;                      // FENIX bug(!)
   output = (output * mult_) >> (shift_ + 2);  //Apply multiplicative factor
-  //std::cout << " EcalFenixLinearizer::process() output 2nd step " << output << std::endl;
+  //std::cout << " EcalEBFenixLinearizer::process() output 2nd step " << output << std::endl;
   if (output > 0X3FFFF)
     output = 0X3FFFF;  //Saturation if too high
-  //std::cout << " EcalFenixLinearizer::process() output 3rd step " << output << std::endl;
+  //std::cout << " EcalEBFenixLinearizer::process() output 3rd step " << output << std::endl;
   return output;
 }
 
-int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam) {
-  //std::cout << "  EcalFenixLinearizer::setInput RawSam.raw() " << RawSam.raw() << std::endl;
+int EcalEBFenixLinearizer::setInput(const EcalMGPASample &RawSam) {
+  //std::cout << "  EcalEBFenixLinearizer::setInput RawSam.raw() " << RawSam.raw() << std::endl;
   if (RawSam.raw() > 0X3FFF) {
     LogDebug("EcalTPG") << "ERROR IN INPUT SAMPLE OF FENIX LINEARIZER";
     return -1;
@@ -118,7 +118,7 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam) {
     }
   }
 
-  //std::cout << "  EcalFenixLinearizer::setInput   uncorrectedSample_ " << RawSam.adc() << " gainID " << gainID_ << " baseline " << base_ << std::endl;
+  //std::cout << "  EcalEBFenixLinearizer::setInput   uncorrectedSample_ " << RawSam.adc() << " gainID " << gainID_ << " baseline " << base_ << std::endl;
 
   if (famos_)
     base_ = 200;  //FIXME by preparing a correct TPG.txt for Famos
