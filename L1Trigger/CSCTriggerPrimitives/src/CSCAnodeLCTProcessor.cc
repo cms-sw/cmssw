@@ -81,6 +81,13 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
 
   // quality control of stubs
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
+
+  const auto& shower = showerParams_.getParameterSet("anodeShower");
+  thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
+  showerMinInTBin_ = shower.getParameter<unsigned>("showerMinInTBin");
+  showerMaxInTBin_ = shower.getParameter<unsigned>("showerMaxInTBin");
+  showerMinOutTBin_ = shower.getParameter<unsigned>("showerMinOutTBin");
+  showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
 }
 
 CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() : CSCBaseboard() {
@@ -195,6 +202,8 @@ void CSCAnodeLCTProcessor::clear() {
     secondALCT[bx].clear();
   }
   lct_list.clear();
+  inTimeHMT_ = 0;
+  outTimeHMT_ = 0;
 }
 
 void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
@@ -273,6 +282,9 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
     }
     if (layersHit >= min_layers)
       run(wire);
+
+    // Get the high multiplicity bits in this chamber
+    encodeHighMultiplicityBits(wire);
   }
 
   // Return vector of all found ALCTs.
@@ -1326,6 +1338,9 @@ CSCALCTDigi CSCAnodeLCTProcessor::getBestALCT(int bx) const { return bestALCT[bx
 
 CSCALCTDigi CSCAnodeLCTProcessor::getSecondALCT(int bx) const { return secondALCT[bx]; }
 
+/** Returns shower bits */
+CSCShowerDigi CSCAnodeLCTProcessor::readoutShower() const { return shower_; }
+
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////Test Routines///////////////////////////////
 
@@ -1382,4 +1397,44 @@ void CSCAnodeLCTProcessor::setWireContainer(CSCALCTDigi& alct, CSCALCTDigi::Wire
 
   // set the hit container
   alct.setHits(wireHits);
+}
+
+void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(
+    const std::vector<int> wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+  inTimeHMT_ = 0;
+  outTimeHMT_ = 0;
+
+  auto inTime = [=](unsigned time) { return time >= showerMinInTBin_ and time <= showerMaxInTBin_; };
+  auto outTime = [=](unsigned time) { return time >= showerMinOutTBin_ and time <= showerMaxOutTBin_; };
+
+  unsigned hitsInTime = 0;
+  unsigned hitsOutTime = 0;
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
+      auto times = wires[i_layer][i_hstrip];
+      // count the wires in-time and out-time
+      hitsInTime += std::count_if(times.begin(), times.end(), inTime);
+      hitsOutTime += std::count_if(times.begin(), times.end(), outTime);
+    }
+  }
+
+  // convert station and ring number to index
+  // index runs from 2 to 10, subtract 2
+  unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
+
+  // loose, nominal and tight
+  std::vector<unsigned> station_thresholds = {
+      thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
+
+  for (unsigned i = 0; i < station_thresholds.size(); i++) {
+    if (hitsInTime >= station_thresholds[i]) {
+      inTimeHMT_ = i + 1;
+    }
+    if (hitsOutTime >= station_thresholds[i]) {
+      outTimeHMT_ = i + 1;
+    }
+  }
+
+  // create a new object
+  shower_ = CSCShowerDigi(inTimeHMT_, outTimeHMT_, theTrigChamber);
 }

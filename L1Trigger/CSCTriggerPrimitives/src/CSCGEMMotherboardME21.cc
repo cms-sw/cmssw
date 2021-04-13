@@ -43,8 +43,7 @@ void CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   CSCGEMMotherboard::clear();
 
   // encode high multiplicity bits
-  unsigned alctBits = alctProc->getHighMultiplictyBits();
-  encodeHighMultiplicityBits(alctBits);
+  encodeHighMultiplicityBits();
 
   if (gem_g != nullptr) {
     if (infoV >= 0)

@@ -98,6 +98,13 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     }
   }
 
+  const auto& shower = showerParams_.getParameterSet("cathodeShower");
+  thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
+  showerMinInTBin_ = shower.getParameter<unsigned>("showerMinInTBin");
+  showerMaxInTBin_ = shower.getParameter<unsigned>("showerMaxInTBin");
+  showerMinOutTBin_ = shower.getParameter<unsigned>("showerMinOutTBin");
+  showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
+
   thePreTriggerDigis.clear();
 
   // quality control of stubs
@@ -206,6 +213,8 @@ void CSCCathodeLCTProcessor::clear() {
     bestCLCT[bx].clear();
     secondCLCT[bx].clear();
   }
+  inTimeHMT_ = 0;
+  outTimeHMT_ = 0;
 }
 
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
@@ -324,6 +333,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
     // strip read-out conditions in DigiToRaw.)
     if (layersHit >= nplanes_hit_pretrig)
       run(halfstrip);
+
+    // Get the high multiplicity bits in this chamber
+    encodeHighMultiplicityBits(halfstrip);
   }
 
   // Return vector of CLCTs.
@@ -1457,4 +1469,41 @@ unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(const unsigned slope)
   const unsigned slopeList[32] = {10, 10, 10, 8, 8, 8, 6, 6, 6, 6, 4, 4, 2, 2, 2, 2,
                                   10, 10, 10, 9, 9, 9, 7, 7, 7, 7, 5, 5, 3, 3, 3, 3};
   return slopeList[slope];
+}
+
+void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
+    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
+  inTimeHMT_ = 0;
+  outTimeHMT_ = 0;
+
+  auto inTime = [=](unsigned time) { return time >= showerMinInTBin_ and time <= showerMaxInTBin_; };
+  auto outTime = [=](unsigned time) { return time >= showerMinOutTBin_ and time <= showerMaxOutTBin_; };
+
+  unsigned hitsInTime = 0;
+  unsigned hitsOutTime = 0;
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
+      auto times = halfstrip[i_layer][i_hstrip];
+      // count the half-strips in-time and out-time
+      hitsInTime += std::count_if(times.begin(), times.end(), inTime);
+      hitsOutTime += std::count_if(times.begin(), times.end(), outTime);
+    }
+  }
+
+  // convert station and ring number to index
+  // index runs from 2 to 10, subtract 2
+  unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
+
+  // loose, nominal and tight
+  std::vector<unsigned> station_thresholds = {
+      thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
+
+  for (unsigned i = 0; i < station_thresholds.size(); i++) {
+    if (hitsInTime >= station_thresholds[i]) {
+      inTimeHMT_ = i + 1;
+    }
+    if (hitsOutTime >= station_thresholds[i]) {
+      outTimeHMT_ = i + 1;
+    }
+  }
 }
