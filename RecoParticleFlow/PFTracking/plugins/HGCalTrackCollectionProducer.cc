@@ -133,8 +133,6 @@ void HGCalTrackCollectionProducer::beginLuminosityBlock(const edm::LuminosityBlo
 }
 
 void HGCalTrackCollectionProducer::produce(edm::Event& evt, const edm::EventSetup& iSetup) {
-  edm::ESHandle<MagneticField> bField_ = iSetup.getHandle(bFieldToken_);
-  edm::ESHandle<TrackerGeometry> tkGeom_ = iSetup.getHandle(trkGeomToken_);
   edm::Handle<edm::View<reco::PFRecTrack> > trackHandle;
   evt.getByToken(src_, trackHandle);
   const auto& tracks = *trackHandle;
