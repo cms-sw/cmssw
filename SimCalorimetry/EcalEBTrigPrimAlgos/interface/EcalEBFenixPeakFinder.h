@@ -1,10 +1,10 @@
-#ifndef ECAL_FENIX_PEAKFINDER_H
-#define ECAL_FENIX_PEAKFINDER_H
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBFenixPeakFinder_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBFenixPeakFinder_h
 
 #include <vector>
 
 /** 
-   \ class EcalFenixPeakFinder
+   \ class EcalEBFenixPeakFinder
    \brief calculates the peak for Fenix strip, barrel
    *  input : 18 bits
    *  output: boolean
@@ -13,7 +13,7 @@
    *  ----> do we really need caloVShape?
    */
 
-class EcalFenixPeakFinder {
+class EcalEBFenixPeakFinder {
 private:
   bool disabled;
   int setInput(int input);
@@ -23,8 +23,8 @@ private:
   int buffer_[3];
 
 public:
-  EcalFenixPeakFinder();
-  virtual ~EcalFenixPeakFinder();
+  EcalEBFenixPeakFinder();
+  virtual ~EcalEBFenixPeakFinder();
   virtual std::vector<int> process(std::vector<int>& filtout, std::vector<int>& output);
   // from CaloVShape
   //  virtual double operator()(double) const {return 0.;}
