@@ -17,6 +17,7 @@ HGCalConcentratorAutoEncoderImpl::HGCalConcentratorAutoEncoderImpl(const edm::Pa
       modelFilePaths_(conf.getParameter<std::vector<edm::ParameterSet>>("modelFiles")),
       linkToGraphMap_(conf.getParameter<std::vector<unsigned int>>("linkToGraphMap")),
       zeroSuppresionThreshold_(conf.getParameter<double>("zeroSuppresionThreshold")),
+      bitShiftNormalization_(conf.getParameter<bool>("bitShiftNormalization")),
       saveEncodedValues_(conf.getParameter<bool>("saveEncodedValues")),
       preserveModuleSum_(conf.getParameter<bool>("preserveModuleSum")) {
   // find total size of the expected input shape
@@ -173,6 +174,13 @@ void HGCalConcentratorAutoEncoderImpl::select(unsigned nLinks,
   }
 
   if (modSum > 0) {
+    //Use a bit shift normalization like will be implemented in ECON, rather than floating point sum
+    //Normalizes to the MSB value of the module sum
+    if (bitShiftNormalization_) {
+      int msb = int(log2(modSum));
+      modSum = pow(2, msb);
+    }
+
     //normalize inputs to module sum
     for (uint i = 0; i < nInputs_; i++) {
       int remapIndex = cellRemap_[i];
