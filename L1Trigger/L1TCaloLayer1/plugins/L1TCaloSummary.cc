@@ -116,6 +116,7 @@ private:
   float tauIsolationFactor;
   uint32_t eGammaSeed;
   double eGammaIsolationFactor;
+  double boostedJetPtFactor;
 
   bool verbose;
   int fwVersion;
@@ -157,6 +158,7 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig) :
   tauIsolationFactor(iConfig.getParameter<double>("tauIsolationFactor")),
   eGammaSeed(iConfig.getParameter<unsigned int>("eGammaSeed")),
   eGammaIsolationFactor(iConfig.getParameter<double>("eGammaIsolationFactor")),
+  boostedJetPtFactor(iConfig.getParameter<double>("boostedJetPtFactor")),
   verbose(iConfig.getParameter<bool>("verbose")),
   fwVersion(iConfig.getParameter<int>("firmwareVersion"))
 {
@@ -176,16 +178,7 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig) :
 		  << "; Will use what is provided :(" << std::endl;
     }
   }
-  produces< L1CaloRegionCollection >();
-  produces< L1EmParticleCollection >( "Isolated" ) ;
-  produces< L1EmParticleCollection >( "NonIsolated" ) ;
-  produces< L1JetParticleCollection >( "Central" ) ;
-  produces< L1JetParticleCollection >( "Forward" ) ;
   produces< L1JetParticleCollection >( "Boosted" ) ;
-  produces< L1JetParticleCollection >( "Tau" ) ;
-  produces< L1JetParticleCollection >( "IsoTau" ) ;
-  produces< L1EtMissParticleCollection >( "MET" ) ;
-  produces< L1EtMissParticleCollection >( "MHT" ) ;
   layer1 = new UCTLayer1(fwVersion);
   summaryCard = new UCTSummaryCard(layer1, &pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
   vector<UCTCrate*> crates = layer1->getCrates();
@@ -223,16 +216,7 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
   iEvent.getByToken(hcalTPSource, hcalTPs);
 
-  std::unique_ptr<L1CaloRegionCollection> rgnCollection (new L1CaloRegionCollection);
-  std::unique_ptr<L1EmParticleCollection> iEGCands(new L1EmParticleCollection);
-  std::unique_ptr<L1EmParticleCollection> nEGCands(new L1EmParticleCollection);
-  std::unique_ptr<L1JetParticleCollection> iTauCands(new L1JetParticleCollection);
-  std::unique_ptr<L1JetParticleCollection> nTauCands(new L1JetParticleCollection);
-  std::unique_ptr<L1JetParticleCollection> cJetCands(new L1JetParticleCollection);
-  std::unique_ptr<L1JetParticleCollection> fJetCands(new L1JetParticleCollection);
   std::unique_ptr<L1JetParticleCollection> bJetCands(new L1JetParticleCollection);
-  std::unique_ptr<L1EtMissParticleCollection> metCands(new L1EtMissParticleCollection);
-  std::unique_ptr<L1EtMissParticleCollection> mhtCands(new L1EtMissParticleCollection);
 
   uint32_t expectedTotalET = 0;
 
@@ -312,43 +296,6 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
   UCTGeometry g;
 
-  vector<UCTCrate*> crates = layer1->getCrates();
-  for(uint32_t crt = 0; crt < crates.size(); crt++) {
-    vector<UCTCard*> cards = crates[crt]->getCards();
-    for(uint32_t crd = 0; crd < cards.size(); crd++) {
-      vector<UCTRegion*> regions = cards[crd]->getRegions();
-      for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
-	uint32_t rawData = regions[rgn]->rawData();
-	uint32_t regionData = rawData & 0x0000FFFF;
-	uint32_t crate = regions[rgn]->getCrate();
-	uint32_t card = regions[rgn]->getCard();
-	uint32_t region = regions[rgn]->getRegion();
-	bool negativeEta = regions[rgn]->isNegativeEta();
-	uint32_t rPhi = g.getUCTRegionPhiIndex(crate, card);
-	// We want to reuse L1CaloRegion and L1CaloRegionDetID
-	// We do not want to change those classes too much
-	// We want comparison to legacy for Barrel and Endcap to work transparently
-	// Noting that rEta is packed in 5 bits of L1CaloRegionDetID, we have a scheme!
-	// We store the Barrel and Endcap regions in the same location as done for RCT
-	// HF has changed in the upgrade, 6x2 HF regions instead of 4x2 in case of RCT
-	// Note that for upgrade region numbers range 0-6 for Barrel/Endcap and 7-12 for HF
-	// So, the scheme used for rEta for upgrade is:
-	// rEta= 0- 3 for -HF regions 7-10
-	// rEta= 4-10 for -B/E regions 0-6
-	// rEta=11-17 for +B/E regions 0-6
-	// rEta=18-23 for +HF regions 7-12
-	// rEta=30 for -HF region 11
-	// rEta=31 for -HF region 12
-	uint32_t rEta = 10 - region;
-	if(negativeEta && region == 11) rEta = 30;
-	if(negativeEta && region == 12) rEta = 31;
-	if(!negativeEta) rEta = 11 + region; // Positive eta portion is offset by 11
-	rgnCollection->push_back(L1CaloRegion((uint16_t) regionData, (unsigned) rEta, (unsigned) rPhi, (int16_t) 0));
-      }
-    }
-  }  
-  iEvent.put(std::move(rgnCollection), "");
-
   if(!summaryCard->process()) {
     std::cerr << "UCT: Failed to process summary card" << std::endl;
     exit(1);      
@@ -358,60 +305,11 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double eta = -999.;
   double phi = -999.;
   double mass = 0;
-  double caloScaleFactor = 0.5;
   
-  std::list<UCTObject*> emObjs = summaryCard->getEMObjs();
-  for(std::list<UCTObject*>::const_iterator i = emObjs.begin(); i != emObjs.end(); i++) {
-    const UCTObject* object = *i;
-    pt = ((double) object->et()) * caloScaleFactor;
-    eta = g.getUCTTowerEta(object->iEta());
-    phi = g.getUCTTowerPhi(object->iPhi());
-    nEGCands->push_back(L1EmParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1EmParticle::kNonIsolated));
-  }
-  std::list<UCTObject*> isoEMObjs = summaryCard->getIsoEMObjs();
-  for(std::list<UCTObject*>::const_iterator i = isoEMObjs.begin(); i != isoEMObjs.end(); i++) {
-    const UCTObject* object = *i;
-    pt = ((double) object->et()) * caloScaleFactor;
-    eta = g.getUCTTowerEta(object->iEta());
-    phi = g.getUCTTowerPhi(object->iPhi());
-    iEGCands->push_back(L1EmParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1EmParticle::kIsolated));
-  }
-  std::list<UCTObject*> tauObjs = summaryCard->getTauObjs();
-  for(std::list<UCTObject*>::const_iterator i = tauObjs.begin(); i != tauObjs.end(); i++) {
-    const UCTObject* object = *i;
-    pt = ((double) object->et()) * caloScaleFactor;
-    eta = g.getUCTTowerEta(object->iEta());
-    phi = g.getUCTTowerPhi(object->iPhi());
-    nTauCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kTau));
-  }
-  std::list<UCTObject*> isoTauObjs = summaryCard->getIsoTauObjs();
-  for(std::list<UCTObject*>::const_iterator i = isoTauObjs.begin(); i != isoTauObjs.end(); i++) {
-    const UCTObject* object = *i;
-    pt = ((double) object->et()) * caloScaleFactor;
-    eta = g.getUCTTowerEta(object->iEta());
-    phi = g.getUCTTowerPhi(object->iPhi());
-    iTauCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kTau));
-  }
-  std::list<UCTObject*> centralJetObjs = summaryCard->getCentralJetObjs();
-  for(std::list<UCTObject*>::const_iterator i = centralJetObjs.begin(); i != centralJetObjs.end(); i++) {
-    const UCTObject* object = *i;
-    pt = ((double) object->et()) * caloScaleFactor;
-    eta = g.getUCTTowerEta(object->iEta());
-    phi = g.getUCTTowerPhi(object->iPhi());
-    cJetCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kCentral));
-  }
-  std::list<UCTObject*> forwardJetObjs = summaryCard->getForwardJetObjs();
-  for(std::list<UCTObject*>::const_iterator i = forwardJetObjs.begin(); i != forwardJetObjs.end(); i++) {
-    const UCTObject* object = *i;
-    pt = ((double) object->et()) * caloScaleFactor;
-    eta = g.getUCTTowerEta(object->iEta());
-    phi = g.getUCTTowerPhi(object->iPhi());
-    fJetCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kForward));
-  }
   std::list<UCTObject*> boostedJetObjs = summaryCard->getBoostedJetObjs();
   for(std::list<UCTObject*>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end(); i++) {
     const UCTObject* object = *i;
-    pt = ((double) object->et()) * caloScaleFactor * 1.2;
+    pt = ((double) object->et()) * caloScaleFactor * boostedJetPtFactor;
     eta = g.getUCTTowerEta(object->iEta());
     phi = g.getUCTTowerPhi(object->iPhi());
     bitset<3> activeRegionEtaPattern = 0;
@@ -434,33 +332,8 @@ L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     string regionPhi = activeRegionPhiPattern.to_string<char,std::string::traits_type,std::string::allocator_type>();
     if(abs(eta) < 2.5 && (regionEta == "010" || regionPhi == "010" || regionEta == "110" || regionPhi == "110" || regionEta == "011" || regionPhi == "011") ) bJetCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kCentral));
   }
-  const UCTObject* et = summaryCard->getET();
-  pt = ((double) et->et()) * caloScaleFactor;
-  double totET = pt;
-  const UCTObject* met = summaryCard->getMET();
-  pt = ((double) met->et()) * caloScaleFactor;
-  eta = g.getUCTTowerEta(met->iEta());
-  phi = g.getUCTTowerPhi(met->iPhi());
-  metCands->push_back(L1EtMissParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1EtMissParticle::kMET, totET));
-  const UCTObject* ht = summaryCard->getHT();
-  pt = ((double) ht->et()) * caloScaleFactor;
-  double totHT = pt;
-  const UCTObject* mht = summaryCard->getMHT();
-  pt = ((double) mht->et()) * caloScaleFactor;
-  eta = g.getUCTTowerEta(mht->iEta());
-  phi = g.getUCTTowerPhi(mht->iPhi());
-  mhtCands->push_back(L1EtMissParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1EtMissParticle::kMHT, totHT));
-  
-  iEvent.put(std::move(iEGCands), "Isolated");
-  iEvent.put(std::move(nEGCands), "NonIsolated");
-  iEvent.put(std::move(iTauCands), "IsoTau");
-  iEvent.put(std::move(nTauCands), "Tau");
-  iEvent.put(std::move(cJetCands), "Central");
-  iEvent.put(std::move(fJetCands), "Forward");
-  iEvent.put(std::move(bJetCands), "Boosted");
-  iEvent.put(std::move(metCands), "MET");
-  iEvent.put(std::move(mhtCands), "MHT");
 
+  iEvent.put(std::move(bJetCands), "Boosted");
 }
 
 void L1TCaloSummary::print() {
