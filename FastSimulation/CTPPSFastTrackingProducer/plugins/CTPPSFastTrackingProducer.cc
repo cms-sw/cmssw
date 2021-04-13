@@ -28,6 +28,7 @@ Implementation:
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHit.h"
 #include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHitContainer.h"
@@ -416,7 +417,7 @@ void CTPPSFastTrackingProducer::ReconstructArm(
   y2 *= mm_to_um;
   pps_station->setPositions(x1, y1, x2, y2);
   double energy = pps_station->getE(AM);  // dummy call needed to calculate some Hector internal parameter
-  if (std::isnan(energy) || std::isinf(energy))
+  if (edm::isNotFinite(energy))
     return;
   tx = pps_station->getTXIP();  // change orientation to CMS
   ty = pps_station->getTYIP();
