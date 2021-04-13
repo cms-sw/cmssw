@@ -179,7 +179,9 @@ run3_common.toModify( hcalSimParameters,
     he = dict(
                readoutFrameSize = cms.int32(10), 
                binOfMaximum     = cms.int32(6)
-              )
+              ),
+    hf1 = dict( threshold_currentTDC = cms.double(18.7) ),
+    hf2 = dict( threshold_currentTDC = cms.double(18.7) ),
 ) 
 
 

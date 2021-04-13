@@ -30,7 +30,7 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, cons
       theMinBunch(-10),
       theMaxBunch(10),
       thePhaseShift_(1.),
-      storePrecise(false),
+      storePrecise(true),
       ignoreTime(false) {}
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, const CaloShapes *shapes)
@@ -45,7 +45,7 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap *parametersMap, cons
       theMinBunch(-10),
       theMaxBunch(10),
       thePhaseShift_(1.),
-      storePrecise(false),
+      storePrecise(true),
       ignoreTime(false) {}
 
 CaloHitResponse::~CaloHitResponse() {}
@@ -127,13 +127,13 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit &hit, CLHEP::HepRan
   if (storePrecise) {
     result.resetPrecise();
     int sampleBin(0);
-    // use 1ns binning for precise sample
-    for (int bin = 0; bin < result.size() * BUNCHSPACE; bin++) {
-      sampleBin = bin / BUNCHSPACE;
+    // use 0.5ns binning for precise sample
+    for (int bin = 0; bin < result.size() * BUNCHSPACE * invdt; bin++) {
+      sampleBin = bin / (BUNCHSPACE * invdt);
       double pulseBit = (*shape)(binTime)*signal;
       result[sampleBin] += pulseBit;
       result.preciseAtMod(bin) += pulseBit;
-      binTime += 1.0;
+      binTime += dt;
     }
   } else {
     for (int bin = 0; bin < result.size(); bin++) {
@@ -174,11 +174,13 @@ CaloSamples *CaloHitResponse::findSignal(const DetId &detId) {
 
 CaloSamples CaloHitResponse::makeBlankSignal(const DetId &detId) const {
   const CaloSimParameters &parameters = theParameterMap->simParameters(detId);
-  int preciseSize(storePrecise ? parameters.readoutFrameSize() * BUNCHSPACE : 0);
+  int preciseSize(storePrecise ? parameters.readoutFrameSize() * BUNCHSPACE * invdt : 0);
   CaloSamples result(detId, parameters.readoutFrameSize(), preciseSize);
   result.setPresamples(parameters.binOfMaximum() - 1);
-  if (storePrecise)
-    result.setPrecise(result.presamples() * BUNCHSPACE, 1.0);
+  if (storePrecise){
+    result.setPreciseSize(preciseSize);
+    result.setPrecise(result.presamples() * BUNCHSPACE * invdt, dt);
+  }
   return result;
 }
 
