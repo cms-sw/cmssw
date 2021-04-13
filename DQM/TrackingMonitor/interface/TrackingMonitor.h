@@ -59,7 +59,7 @@ class VertexMonitor;
 class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
-#include<iostream>
+
 class TrackingMonitor : public DQMEDAnalyzer {
 public:
   using MVACollection = std::vector<float>;
@@ -74,6 +74,7 @@ public:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
 private:
   void doProfileX(TH2* th2, MonitorElement* me);
   void doProfileX(MonitorElement* th2m, MonitorElement* me);

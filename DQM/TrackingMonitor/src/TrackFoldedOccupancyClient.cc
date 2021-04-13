@@ -55,25 +55,27 @@ void TrackFoldedOccupancyClient::bookMEs(DQMStore::IBooker& ibooker)
 
   // use the AlgoName and Quality Name
   std::string histname = "TkEtaPhi_RelativeDifference_byFoldingmap_ImpactPoint_" + algoName_;
-  TkEtaPhi_RelativeDifference_byFoldingmap = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+  TkEtaPhi_RelativeDifference_byFoldingmap =
+      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
   TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #eta", 1);
   TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #phi", 2);
 
   histname = "TkEtaPhi_RelativeDifference_byFoldingmap_op_ImpactPoint_" + algoName_;
-  TkEtaPhi_RelativeDifference_byFoldingmap_op = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+  TkEtaPhi_RelativeDifference_byFoldingmap_op =
+      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
   TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #eta", 1);
   TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #phi", 2);
-  
+
   histname = "TkEtaPhi_Ratio_byFoldingmap_ImpactPoint_" + algoName_;
   TkEtaPhi_Ratio_byFoldingmap = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
   TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #eta", 1);
   TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #phi", 2);
 
   histname = "TkEtaPhi_Ratio_byFoldingmap_op_ImpactPoint_" + algoName_;
-  TkEtaPhi_Ratio_byFoldingmap_op = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+  TkEtaPhi_Ratio_byFoldingmap_op =
+      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
   TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #eta", 1);
   TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #phi", 2);
-
 }
 
 //-----------------------------------------------------------------------------------
@@ -85,21 +87,21 @@ void TrackFoldedOccupancyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore:
 
   bookMEs(ibooker);
   std::string inFolder = TopFolder_ + "/" + quality_ + "/GeneralProperties/";
-  
+
   std::string hname;
 
-  hname="TrackEtaPhi_ImpactPoint_";
+  hname = "TrackEtaPhi_ImpactPoint_";
   std::cout << "Reading>>>" << inFolder + hname + algoName_ << std::endl;
   MonitorElement* TrackEtaPhi = igetter.get(inFolder + hname + algoName_);
 
-  hname="TrackEtaPhiInverted_ImpactPoint_";
+  hname = "TrackEtaPhiInverted_ImpactPoint_";
   std::cout << "Reading>>>" << inFolder + hname + algoName_ << std::endl;
   MonitorElement* TrackEtaPhiInverted = igetter.get(inFolder + hname + algoName_);
- 
+
   hname = "TrackEtaPhiInvertedoutofphase_ImpactPoint_";
   std::cout << "Reading>>>" << inFolder + hname + algoName_ << std::endl;
   MonitorElement* TrackEtaPhiInvertedoutofphase = igetter.get(inFolder + hname + algoName_);
-  
+
   TkEtaPhi_Ratio_byFoldingmap->divide(TrackEtaPhi, TrackEtaPhiInverted, 1., 1., "");
   TkEtaPhi_Ratio_byFoldingmap_op->divide(TrackEtaPhi, TrackEtaPhiInvertedoutofphase, 1., 1., "");
 
@@ -108,25 +110,23 @@ void TrackFoldedOccupancyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore:
 
   for (int ii = 1; ii <= nx; ii++) {
     for (int jj = 1; jj <= ny; jj++) {
-      
       double Sum1 = TrackEtaPhi->getBinContent(ii, jj) + TrackEtaPhiInverted->getBinContent(ii, jj);
       double Sum2 = TrackEtaPhi->getBinContent(ii, jj) + TrackEtaPhiInvertedoutofphase->getBinContent(ii, jj);
-      
+
       double Sub1 = TrackEtaPhi->getBinContent(ii, jj) - TrackEtaPhiInverted->getBinContent(ii, jj);
       double Sub2 = TrackEtaPhi->getBinContent(ii, jj) - TrackEtaPhiInvertedoutofphase->getBinContent(ii, jj);
-      
+
       if (Sum1 == 0 || Sum2 == 0) {
-	TkEtaPhi_RelativeDifference_byFoldingmap->setBinContent(ii, jj, 1);
-	TkEtaPhi_RelativeDifference_byFoldingmap_op->setBinContent(ii, jj, 1);
+        TkEtaPhi_RelativeDifference_byFoldingmap->setBinContent(ii, jj, 1);
+        TkEtaPhi_RelativeDifference_byFoldingmap_op->setBinContent(ii, jj, 1);
       } else {
-	double ratio1 = Sub1 / Sum1;
-	double ratio2 = Sub2 / Sum2;
-	TkEtaPhi_RelativeDifference_byFoldingmap->setBinContent(ii, jj, ratio1);
-	TkEtaPhi_RelativeDifference_byFoldingmap_op->setBinContent(ii, jj, ratio2);
+        double ratio1 = Sub1 / Sum1;
+        double ratio2 = Sub2 / Sum2;
+        TkEtaPhi_RelativeDifference_byFoldingmap->setBinContent(ii, jj, ratio1);
+        TkEtaPhi_RelativeDifference_byFoldingmap_op->setBinContent(ii, jj, ratio2);
       }
     }
   }
-
 }
-    
+
 DEFINE_FWK_MODULE(TrackFoldedOccupancyClient);

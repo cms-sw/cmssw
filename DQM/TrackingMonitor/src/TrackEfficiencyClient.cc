@@ -14,13 +14,6 @@
 #include "DQM/TrackingMonitor/interface/TrackEfficiencyClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <iostream>
-#include <iomanip>
-#include <cstdio>
-#include <string>
-#include <sstream>
-#include <cmath>
-
 //-----------------------------------------------------------------------------------
 TrackEfficiencyClient::TrackEfficiencyClient(edm::ParameterSet const& iConfig)
 //-----------------------------------------------------------------------------------
