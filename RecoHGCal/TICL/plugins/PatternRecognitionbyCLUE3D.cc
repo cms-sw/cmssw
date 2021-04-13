@@ -518,7 +518,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
       }
     }
 
-    bool foundNearestHigherInEtaPhiCylinder = (i_delta <= 0.05);
+    bool foundNearestHigherInEtaPhiCylinder = (i_delta != maxDelta);
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "i_delta: "
       << i_delta << " passed: " << foundNearestHigherInEtaPhiCylinder
       << " " << i_nearestHigher.first << " " << i_nearestHigher.second;
