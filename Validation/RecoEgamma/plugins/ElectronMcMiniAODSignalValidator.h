@@ -29,7 +29,7 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<reco::GenParticle> > mcTruthCollection_;  // prunedGenParticles
   edm::EDGetTokenT<pat::ElectronCollection> electronToken_;            // slimmedElectrons
-  edm::EDGetTokenT<pat::ElectronCollection> electronTokenEndcaps_;            // slimmedElectrons
+  edm::EDGetTokenT<pat::ElectronCollection> electronTokenEndcaps_;     // slimmedElectrons
 
   edm::EDGetTokenT<edm::ValueMap<float> > pfSumChargedHadronPtTmp_;
   edm::EDGetTokenT<edm::ValueMap<float> > pfSumNeutralHadronEtTmp_;
