@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
 
 class TrackFoldedOccupancyClient : public DQMEDHarvester {

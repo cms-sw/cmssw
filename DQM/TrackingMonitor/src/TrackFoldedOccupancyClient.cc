@@ -1,13 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQM/TrackingMonitor/interface/TrackFoldedOccupancyClient.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
 //-----------------------------------------------------------------------------------
 TrackFoldedOccupancyClient::TrackFoldedOccupancyClient(edm::ParameterSet const& iConfig)
 //-----------------------------------------------------------------------------------
@@ -16,7 +10,6 @@ TrackFoldedOccupancyClient::TrackFoldedOccupancyClient(edm::ParameterSet const& 
   TopFolder_ = iConfig.getParameter<std::string>("FolderName");
   quality_ = iConfig.getParameter<std::string>("TrackQuality");
   algoName_ = iConfig.getParameter<std::string>("AlgoName");
-
   conf_ = iConfig;
 }
 
@@ -55,14 +48,12 @@ void TrackFoldedOccupancyClient::bookMEs(DQMStore::IBooker& ibooker)
 
   // use the AlgoName and Quality Name
   std::string histname = "TkEtaPhi_RelativeDifference_byFoldingmap_ImpactPoint_" + algoName_;
-  TkEtaPhi_RelativeDifference_byFoldingmap =
-      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+  TkEtaPhi_RelativeDifference_byFoldingmap = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
   TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #eta", 1);
   TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #phi", 2);
 
   histname = "TkEtaPhi_RelativeDifference_byFoldingmap_op_ImpactPoint_" + algoName_;
-  TkEtaPhi_RelativeDifference_byFoldingmap_op =
-      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+  TkEtaPhi_RelativeDifference_byFoldingmap_op = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
   TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #eta", 1);
   TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #phi", 2);
 
@@ -72,8 +63,7 @@ void TrackFoldedOccupancyClient::bookMEs(DQMStore::IBooker& ibooker)
   TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #phi", 2);
 
   histname = "TkEtaPhi_Ratio_byFoldingmap_op_ImpactPoint_" + algoName_;
-  TkEtaPhi_Ratio_byFoldingmap_op =
-      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+  TkEtaPhi_Ratio_byFoldingmap_op = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
   TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #eta", 1);
   TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #phi", 2);
 }
@@ -83,23 +73,18 @@ void TrackFoldedOccupancyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore:
 //-----------------------------------------------------------------------------------
 {
   edm::LogInfo("TrackFoldedOccupancyClient") << "TrackFoldedOccupancyClient::endLuminosityBlock";
-  std::cout << "TrackFoldedOccupancyClient::endLuminosityBlock" << std::endl;
 
   bookMEs(ibooker);
   std::string inFolder = TopFolder_ + "/" + quality_ + "/GeneralProperties/";
 
   std::string hname;
-
   hname = "TrackEtaPhi_ImpactPoint_";
-  std::cout << "Reading>>>" << inFolder + hname + algoName_ << std::endl;
   MonitorElement* TrackEtaPhi = igetter.get(inFolder + hname + algoName_);
 
   hname = "TrackEtaPhiInverted_ImpactPoint_";
-  std::cout << "Reading>>>" << inFolder + hname + algoName_ << std::endl;
   MonitorElement* TrackEtaPhiInverted = igetter.get(inFolder + hname + algoName_);
 
   hname = "TrackEtaPhiInvertedoutofphase_ImpactPoint_";
-  std::cout << "Reading>>>" << inFolder + hname + algoName_ << std::endl;
   MonitorElement* TrackEtaPhiInvertedoutofphase = igetter.get(inFolder + hname + algoName_);
 
   TkEtaPhi_Ratio_byFoldingmap->divide(TrackEtaPhi, TrackEtaPhiInverted, 1., 1., "");
