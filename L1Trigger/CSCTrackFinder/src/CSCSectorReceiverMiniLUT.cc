@@ -72,7 +72,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
 
   int eta_temp = 999, eta_min = 999, eta_max = 999;
 
-  if ((tcscid > 0) && (tcscid <= 12) && (WG < CSCConstants::MAX_NUM_WIRES)) {
+  if ((tcscid > 0) && (tcscid <= 12) && (WG < CSCConstants::MAX_NUM_WIREGROUPS)) {
     unsigned short int cscid = (tcscid > 9) ? tcscid - 9 : tcscid;
     if (station == 1) {
       unsigned short int lclPhip = 0;
@@ -113,7 +113,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
   } else {
     edm::LogWarning("CSCSectorReceiverMiniLUT")
         << "+++ Value of cscid, " << tcscid << ", is out of bounds, [1, 9] -- or --"
-        << " Value of wire group, " << WG << ", exceeds max allowed, " << CSCConstants::MAX_NUM_WIRES << " +++\n";
+        << " Value of wire group, " << WG << ", exceeds max allowed, " << CSCConstants::MAX_NUM_WIREGROUPS << " +++\n";
   }
 
   // protect from negative numbers.  If the value of eta_temp is <0, set global eta to the minimum value
