@@ -20,6 +20,7 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
                                                       const CacheBase *cache,
                                                       edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, cache),
+      caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
       promoteEmptyRegionToTrackster_(conf.getParameter<bool>("promoteEmptyRegionToTrackster")),
@@ -54,7 +55,6 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
     throw cms::Exception("MissingGraphDef")
         << "PatternRecognitionbyCA received an empty graph definition from the global cache";
   }
-  caloGeomToken_ = iC.esConsumes<CaloGeometry, CaloGeometryRecord>();
   eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
 }
 

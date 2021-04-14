@@ -12,15 +12,14 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
-    : HGCalRecHitWorkerBaseClass(ps, iC) {
+    : HGCalRecHitWorkerBaseClass(ps, iC),
+      caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      ee_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalEESensitive"))),
+      hef_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
+      hfnose_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))) {
   rechitMaker_ = std::make_unique<HGCalRecHitSimpleAlgo>();
   tools_ = std::make_unique<hgcal::RecHitTools>();
   constexpr float keV2GeV = 1e-6;
-
-  caloGeomToken_ = iC.esConsumes<CaloGeometry, CaloGeometryRecord>();
-  ee_geometry_token_ = iC.esConsumes(edm::ESInputTag("", "HGCalEESensitive"));
-  hef_geometry_token_ = iC.esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"));
-  hfnose_geometry_token_ = iC.esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"));
 
   // HGCee constants
   hgcEE_keV2DIGI_ = ps.getParameter<double>("HGCEE_keV2DIGI");
@@ -102,7 +101,7 @@ void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
   tools_->setGeometry(geom);
   rechitMaker_->set(geom);
   if (hgcEE_isSiFE_) {
-    edm::const HGCalGeometry& hgceeGeoHandle = es.getData(ee_geometry_token_);
+    const HGCalGeometry& hgceeGeoHandle = es.getData(ee_geometry_token_);
     ddds_[0] = &(hgceeGeoHandle.topology().dddConstants());
   } else {
     ddds_[0] = nullptr;

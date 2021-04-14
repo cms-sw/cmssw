@@ -87,8 +87,6 @@ public:
   bool isNose_;
 
 protected:
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
-
   // The verbosity level
   VerbosityLevel verbosity_;
 
@@ -99,6 +97,9 @@ protected:
 
   // The algo id
   reco::CaloCluster::AlgoId algoId_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+
 };
 
 #endif
