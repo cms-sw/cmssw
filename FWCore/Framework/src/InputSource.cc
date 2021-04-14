@@ -51,6 +51,7 @@ namespace edm {
         remainingLumis_(maxLumis_),
         readCount_(0),
         maxSecondsUntilRampdown_(desc.maxSecondsUntilRampdown_),
+        maxRuntime_(desc.maxRuntime_),
         processingMode_(RunsLumisAndEvents),
         moduleDescription_(desc.moduleDescription_),
         productRegistry_(desc.productRegistry_),
@@ -72,7 +73,7 @@ namespace edm {
       statusfilename << "source_" << getpid();
       statusFileName_ = statusfilename.str();
     }
-    if (maxSecondsUntilRampdown_ > 0) {
+    if (maxSecondsUntilRampdown_ > 0 || maxRuntime_ > 0) {
       processingStart_ = std::chrono::steady_clock::now();
     }
 
@@ -165,6 +166,8 @@ namespace edm {
           state_ = IsStop;
         }
       }
+    } else if (timeLimitReached()) {
+      state_ = IsStop;
     } else {
       ItemType newState = nextItemType_();
       if (newState == IsStop) {

@@ -123,7 +123,8 @@ namespace edm {
     auto common = std::make_shared<CommonParams>(
         parameterSet.getUntrackedParameterSet("maxEvents").getUntrackedParameter<int>("input"),
         parameterSet.getUntrackedParameterSet("maxLuminosityBlocks").getUntrackedParameter<int>("input"),
-        parameterSet.getUntrackedParameterSet("maxSecondsUntilRampdown").getUntrackedParameter<int>("input"));
+        parameterSet.getUntrackedParameterSet("maxSecondsUntilRampdown").getUntrackedParameter<int>("input"),
+        parameterSet.getUntrackedParameterSet("maxRuntime").getUntrackedParameter<int>("input"));
     return common;
   }
 

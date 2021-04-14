@@ -34,6 +34,7 @@ namespace edm {
                            int maxEvents,
                            int maxLumis,
                            int maxSecondsUntilRampdown,
+                           int maxRuntime,
                            PreallocationConfiguration const& allocations)
         : moduleDescription_(md),
           productRegistry_(preg),
@@ -43,6 +44,7 @@ namespace edm {
           maxEvents_(maxEvents),
           maxLumis_(maxLumis),
           maxSecondsUntilRampdown_(maxSecondsUntilRampdown),
+          maxRuntime_(maxRuntime),
           allocations_(&allocations) {}
 
     ModuleDescription moduleDescription_;
@@ -53,6 +55,7 @@ namespace edm {
     int maxEvents_;
     int maxLumis_;
     int maxSecondsUntilRampdown_;
+    int maxRuntime_;
     PreallocationConfiguration const* allocations_;
   };
 }  // namespace edm

@@ -170,6 +170,7 @@ namespace edm {
                                   common.maxEventsInput_,
                                   common.maxLumisInput_,
                                   common.maxSecondsUntilRampdown_,
+                                  common.maxRuntime_,
                                   allocations);
 
     areg->preSourceConstructionSignal_(md);
@@ -359,7 +360,7 @@ namespace edm {
     bool const hasSubProcesses = !subProcessVParameterSet.empty();
 
     // Validates the parameters in the 'options', 'maxEvents', 'maxLuminosityBlocks',
-    // and 'maxSecondsUntilRampdown' top level parameter sets. Default values are also
+    // 'maxSecondsUntilRampdown' and 'maxRuntime' top level parameter sets. Default values are also
     // set in here if the parameters were not explicitly set.
     validateTopLevelParameterSets(parameterSet.get());
 

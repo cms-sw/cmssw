@@ -384,7 +384,18 @@ namespace edm {
       }
       return false;
     }
-    bool limitReached() const { return eventLimitReached() || lumiLimitReached(); }
+    bool timeLimitReached() const {
+      if (maxRuntime_ <= 0) {
+        return false;
+      }
+      auto end = std::chrono::steady_clock::now();
+      auto elapsed = end - processingStart_;
+      if (std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() > maxRuntime_) {
+        return true;
+      }
+      return false;
+    }
+    bool limitReached() const { return eventLimitReached() || lumiLimitReached() || timeLimitReached(); }
     virtual ItemType getNextItemType() = 0;
     ItemType nextItemType_();
     virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_() = 0;
@@ -414,6 +425,7 @@ namespace edm {
     int remainingLumis_;
     int readCount_;
     int maxSecondsUntilRampdown_;
+    int maxRuntime_;
     std::chrono::time_point<std::chrono::steady_clock> processingStart_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;

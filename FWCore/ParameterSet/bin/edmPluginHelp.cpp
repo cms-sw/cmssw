@@ -195,10 +195,15 @@ namespace {
     } else if (psetName == "maxSecondsUntilRampdown") {
       os << "\nDescription of \'maxSecondsUntilRampdown\' top level ParameterSet\n\n";
       edm::fillMaxSecondsUntilRampdownDescription(description);
+
+    } else if (psetName == "maxRuntine") {
+      os << "\nDescription of \'maxRuntime\' top level ParameterSet\n\n";
+      edm::fillMaxRuntimeDescription(description);
+
     } else {
       throw cms::Exception("CommandLineArgument")
           << "Unrecognized name for top level parameter set. "
-          << "Allowed values are 'options', 'maxEvents', 'maxLuminosityBlocks', and 'maxSecondsUntilRampdown'";
+          << "Allowed values are 'options', 'maxEvents', 'maxLuminosityBlocks', 'maxSecondsUntilRampdown' and 'maxRuntime'";
     }
 
     edm::DocFormatHelper dfh;
@@ -253,7 +258,7 @@ int main(int argc, char** argv) try {
       kTopLevelCommandOpt,
       boost::program_options::value<std::string>(),
       "print only the description for the top level parameter set with this name. Allowed names are 'options', "
-      "'maxEvents', 'maxLuminosityBlocks', and 'maxSecondsUntilRampdown'.");
+      "'maxEvents', 'maxLuminosityBlocks', 'maxSecondsUntilRampdown' and 'maxRuntime'.");
 
   boost::program_options::variables_map vm;
   try {
