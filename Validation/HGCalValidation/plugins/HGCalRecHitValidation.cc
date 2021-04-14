@@ -70,6 +70,7 @@ private:
   // ----------member data ---------------------------
   std::string nameDetector_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> pHRNDCToken_;
   edm::EDGetToken recHitSource_;
   bool ifHCAL_;
   int verbosity_;
@@ -90,6 +91,7 @@ private:
 HGCalRecHitValidation::HGCalRecHitValidation(const edm::ParameterSet& iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
       caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      pHRNDCToken_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>()),
       ifHCAL_(iConfig.getParameter<bool>("ifHCAL")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       firstLayer_(1) {
@@ -272,10 +274,8 @@ void HGCalRecHitValidation::fillHitsInfo(HitsInfo& hits) {
 
 void HGCalRecHitValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   if (nameDetector_ == "HCal") {
-    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-    iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-    const HcalDDDRecConstants* hcons = &(*pHRNDC);
-    layers_ = hcons->getMaxDepth(1);
+    const HcalDDDRecConstants& hcons = iSetup.getData(pHRNDCToken_);
+    layers_ = hcons.getMaxDepth(1);
   } else {
     edm::ESHandle<HGCalDDDConstants> pHGDC;
     iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);

@@ -31,8 +31,7 @@ public:
         minClusters(min_clusters),
         realSpaceCone(real_space_cone),
         clusterTools(std::make_unique<hgcal::ClusterTools>(conf, sumes)),
-        caloGeomToken_(sumes.esConsumes<CaloGeometry, CaloGeometryRecord>()) {
-  }
+        caloGeomToken_(sumes.esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
 
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
   void getEventSetup(const edm::EventSetup& es) {

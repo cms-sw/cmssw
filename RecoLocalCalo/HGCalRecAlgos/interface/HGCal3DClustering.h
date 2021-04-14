@@ -25,8 +25,7 @@ public:
         minClusters(min_clusters),
         es(0),
         clusterTools(std::make_unique<hgcal::ClusterTools>(conf, sumes)),
-        caloGeomToken_(sumes.esConsumes<CaloGeometry, CaloGeometryRecord>()) {
-  }
+        caloGeomToken_(sumes.esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
 
   HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : HGCal3DClustering(conf,
