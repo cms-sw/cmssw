@@ -215,7 +215,26 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
   edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx5;
   event.getByToken(ecalTPSourceRecdBx5_, ecalTPsRecdBx5);
 
-  ///////
+  if (ecalTPsRecdBx1.compressedEt() > tpFillThreshold_) {
+    eventMonitors.ecalOccRecd5Bx_->Fill(1);
+    eventMonitors.ecalOccRecd5BxEtWgt_->Fill(1, ecalTPsRecdBx1.compressedEt());
+  }
+  if (ecalTPsRecdBx2.compressedEt() > tpFillThreshold_) {
+    eventMonitors.ecalOccRecd5Bx_->Fill(2);
+    eventMonitors.ecalOccRecd5BxEtWgt_->Fill(2, ecalTPsRecdBx2.compressedEt());
+  }
+  if (ecalTPsRecdBx3.compressedEt() > tpFillThreshold_) {
+    eventMonitors.ecalOccRecd5Bx_->Fill(3);
+    eventMonitors.ecalOccRecd5BxEtWgt_->Fill(3, ecalTPsRecdBx3.compressedEt());
+  }
+  if (ecalTPsRecdBx4.compressedEt() > tpFillThreshold_) {
+    eventMonitors.ecalOccRecd5Bx_->Fill(4);
+    eventMonitors.ecalOccRecd5BxEtWgt_->Fill(4, ecalTPsRecdBx4.compressedEt());
+  }
+  if (ecalTPsRecdBx5.compressedEt() > tpFillThreshold_) {
+    eventMonitors.ecalOccRecd5Bx_->Fill(5);
+    eventMonitors.ecalOccRecd5BxEtWgt_->Fill(5, ecalTPsRecdBx5.compressedEt());
+  }
 
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPsSent;
   event.getByToken(hcalTPSourceSent_, hcalTPsSent);
@@ -438,6 +457,10 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   eventMonitors.ecalTPRawEtRecd_ = bookEt("ecalTPRawEtRecd", "ECal Raw Et Layer1 Readout");
   eventMonitors.ecalTPRawEtSentAndRecd_ = bookEt("ecalTPRawEtMatch", "ECal Raw Et FULL MATCH");
   eventMonitors.ecalTPRawEtSent_ = bookEt("ecalTPRawEtSent", "ECal Raw Et TCC Readout");
+  eventMonitors.ecalOccRecd5Bx_ = ibooker.book1D(
+      "ecalOccRecd5Bx", "ECal TP Occupancies for 5BX", 5, 0, 5);
+  eventMonitors.ecalOccRecd5BxEtWgt_ = ibooker.book1D(
+      "ecalOccRecd5BxEtWgt", "Et-Weighted ECal TP Occupancies for 5BX", 5, 0, 5);
 
   ibooker.setCurrentFolder(histFolder_ + "/ECalDetail/TCCDebug");
   eventMonitors.ecalOccSentNotRecd_ =
