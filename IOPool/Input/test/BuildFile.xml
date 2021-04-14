@@ -9,5 +9,6 @@
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
   </library>
-
+ 
+ <test name="TestIOPoolInputRepeating" command="testRepeatingCachedRootSource.sh"/>
 </environment>

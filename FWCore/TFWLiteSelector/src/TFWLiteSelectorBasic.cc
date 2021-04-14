@@ -73,7 +73,7 @@ namespace edm {
 
     private:
       std::unique_ptr<WrapperBase> getTheProduct(BranchID const& k) const;
-      std::unique_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) override;
+      std::shared_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) override;
       virtual std::unique_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::unique_ptr<EventEntryDescription>();
       }
@@ -94,7 +94,7 @@ namespace edm {
       std::shared_ptr<std::unordered_map<unsigned int, BranchDescription const*>> bidToDesc_;
     };
 
-    std::unique_ptr<WrapperBase> FWLiteDelayedReader::getProduct_(BranchID const& k, EDProductGetter const* /*ep*/) {
+    std::shared_ptr<WrapperBase> FWLiteDelayedReader::getProduct_(BranchID const& k, EDProductGetter const* /*ep*/) {
       return getTheProduct(k);
     }
 

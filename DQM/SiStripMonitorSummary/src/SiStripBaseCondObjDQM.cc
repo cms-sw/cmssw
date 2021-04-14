@@ -1128,7 +1128,7 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> &selected
         fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")) {
       TCanvas c1("c1");
       selME.SummaryDistr->getTH1()->Draw();
-      std::string name(selME.SummaryDistr->getTH1()->GetTitle());
+      std::string name(selME.SummaryDistr->getTitle());
       name += ".png";
       c1.Print(name.c_str());
     }
@@ -1137,7 +1137,7 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> &selected
       if (CondObj_fillId_ == "onlyCumul" || CondObj_fillId_ == "ProfileAndCumul") {
         TCanvas c1("c1");
         selME.SummaryOfCumulDistr->getTH1()->Draw();
-        std::string name(selME.SummaryOfCumulDistr->getTH1()->GetTitle());
+        std::string name(selME.SummaryOfCumulDistr->getTitle());
         name += ".png";
         c1.Print(name.c_str());
       }

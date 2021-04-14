@@ -100,13 +100,12 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid,
       continue;
     }
 
-    std::vector<float> vCov;
     double sigmaee;
     if (EtaOrIeta_) {
-      vCov = lazyTools.localCovariances(*(recoecalcandref->superCluster()->seed()));
+      const auto& vCov = lazyTools.localCovariances(*(recoecalcandref->superCluster()->seed()));
       sigmaee = sqrt(vCov[0]);
     } else {
-      vCov = lazyTools.covariances(*(recoecalcandref->superCluster()->seed()));
+      const auto& vCov = lazyTools.covariances(*(recoecalcandref->superCluster()->seed()));
       sigmaee = sqrt(vCov[0]);
       double EtaSC = recoecalcandref->eta();
       if (EtaSC > 1.479)

@@ -60,19 +60,19 @@ _ctppsDQMOfflineHarvest = cms.Sequence(
 )
 
 # the actually used sequences must be empty for pre-PPS data
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
 
 ctppsDQMOnlineSource = cms.Sequence()
 ctppsDQMOnlineHarvest = cms.Sequence()
-ctpps_2016.toReplaceWith(ctppsDQMOnlineSource, _ctppsDQMOnlineSource)
-ctpps_2016.toReplaceWith(ctppsDQMOnlineHarvest, _ctppsDQMOnlineHarvest)
+ctpps.toReplaceWith(ctppsDQMOnlineSource, _ctppsDQMOnlineSource)
+ctpps.toReplaceWith(ctppsDQMOnlineHarvest, _ctppsDQMOnlineHarvest)
 
 ctppsDQMCalibrationSource = cms.Sequence()
 ctppsDQMCalibrationHarvest = cms.Sequence()
-ctpps_2016.toReplaceWith(ctppsDQMCalibrationSource, _ctppsDQMCalibrationSource)
-ctpps_2016.toReplaceWith(ctppsDQMCalibrationHarvest, _ctppsDQMCalibrationHarvest)
+ctpps.toReplaceWith(ctppsDQMCalibrationSource, _ctppsDQMCalibrationSource)
+ctpps.toReplaceWith(ctppsDQMCalibrationHarvest, _ctppsDQMCalibrationHarvest)
 
 ctppsDQMOfflineSource = cms.Sequence()
 ctppsDQMOfflineHarvest = cms.Sequence()
-ctpps_2016.toReplaceWith(ctppsDQMOfflineSource, _ctppsDQMOfflineSource)
-ctpps_2016.toReplaceWith(ctppsDQMOfflineHarvest, _ctppsDQMOfflineHarvest)
+ctpps.toReplaceWith(ctppsDQMOfflineSource, _ctppsDQMOfflineSource)
+ctpps.toReplaceWith(ctppsDQMOfflineHarvest, _ctppsDQMOfflineHarvest)

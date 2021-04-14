@@ -1101,6 +1101,8 @@ void FastTimerService::postSourceLumi(edm::LuminosityBlockIndex index) {
 }
 
 void FastTimerService::postEndJob() {
+  // stop observing to avoid potential race conditions at exit
+  tbb::task_scheduler_observer::observe(false);
   guard_.finalize();
   if (print_job_summary_) {
     edm::LogVerbatim out("FastReport");

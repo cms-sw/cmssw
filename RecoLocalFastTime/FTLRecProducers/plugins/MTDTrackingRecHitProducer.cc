@@ -44,12 +44,16 @@ private:
 
   const MTDGeometry* geom_;
   const MTDClusterParameterEstimator* cpe_;
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<MTDClusterParameterEstimator, MTDCPERecord> cpeToken_;
 };
 
 MTDTrackingRecHitProducer::MTDTrackingRecHitProducer(const edm::ParameterSet& ps)
     : ftlbClusters_(consumes<FTLClusterCollection>(ps.getParameter<edm::InputTag>("barrelClusters"))),
       ftleClusters_(consumes<FTLClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusters"))) {
   produces<MTDTrackingDetSetVector>();
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+  cpeToken_ = esConsumes<MTDClusterParameterEstimator, MTDCPERecord>(edm::ESInputTag("", "MTDCPEBase"));
 }
 
 // Configuration descriptions
@@ -61,12 +65,10 @@ void MTDTrackingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void MTDTrackingRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  edm::ESHandle<MTDGeometry> geom;
-  es.get<MTDDigiGeometryRecord>().get(geom);
+  auto geom = es.getTransientHandle(mtdgeoToken_);
   geom_ = geom.product();
 
-  edm::ESHandle<MTDClusterParameterEstimator> cpe;
-  es.get<MTDCPERecord>().get("MTDCPEBase", cpe);
+  auto cpe = es.getTransientHandle(cpeToken_);
   cpe_ = cpe.product();
 
   edm::Handle<FTLClusterCollection> inputBarrel;

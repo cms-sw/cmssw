@@ -64,7 +64,7 @@ void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> &selectedDe
         fPSet_.getParameter<bool>("OutputSummaryAtLayerLevelAsImage")) {
       TCanvas c1("c1");
       selME.SummaryDistr->getTH1()->Draw();
-      std::string name(selME.SummaryDistr->getTH1()->GetTitle());
+      std::string name(selME.SummaryDistr->getTitle());
       name += ".png";
       c1.Print(name.c_str());
     }

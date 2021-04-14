@@ -9,6 +9,9 @@ from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi import *
 #
 #from SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff import *
 
+# Import the records for the new odd weights from tags not yet in the GT
+from SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESDoubleWeights_cff import *
+
 #Common
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( simEcalTriggerPrimitiveDigis, BarrelOnly = cms.bool(True) )

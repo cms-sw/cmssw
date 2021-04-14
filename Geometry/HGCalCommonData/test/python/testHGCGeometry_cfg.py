@@ -15,6 +15,7 @@ process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load("Geometry.HGCalCommonData.hgcGeometryTester_cfi")
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
@@ -43,8 +44,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prod = cms.EDAnalyzer("HGCGeometryTester",
-                              SquareType = cms.untracked.bool(False),
-)
-
-process.p1 = cms.Path(process.generator*process.prod)
+process.p1 = cms.Path(process.generator*process.hgcGeometryTester)

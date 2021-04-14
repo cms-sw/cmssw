@@ -3,7 +3,7 @@ set -e
 set -x
 
 if [[ $# -eq 0 ]]; then
-    echo "Please provide a name of the clinet"
+    echo "Please provide a name of the client"
     exit 1
 fi
 

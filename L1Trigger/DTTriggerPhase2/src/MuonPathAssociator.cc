@@ -1,5 +1,5 @@
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPathAssociator.h"
-#include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyzerPerSL.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MuonPathAnalyticAnalyzer.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -10,13 +10,12 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCollector &iC) {
+MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset,
+                                       edm::ConsumesCollector &iC,
+                                       std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer) {
   // Obtention of parameters
   debug_ = pset.getUntrackedParameter<bool>("debug");
   clean_chi2_correlation_ = pset.getUntrackedParameter<bool>("clean_chi2_correlation");
-  use_LSB_ = pset.getUntrackedParameter<bool>("use_LSB");
-  tanPsi_precision_ = pset.getUntrackedParameter<double>("tanPsi_precision");
-  x_precision_ = pset.getUntrackedParameter<double>("x_precision");
   useBX_correlation_ = pset.getUntrackedParameter<bool>("useBX_correlation");
   allow_confirmation_ = pset.getUntrackedParameter<bool>("allow_confirmation");
   dT0_correlate_TP_ = pset.getUntrackedParameter<double>("dT0_correlate_TP");
@@ -24,6 +23,8 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCo
   dTanPsi_correlate_TP_ = pset.getUntrackedParameter<double>("dTanPsi_correlate_TP");
   minx_match_2digis_ = pset.getUntrackedParameter<double>("minx_match_2digis");
   chi2corTh_ = pset.getUntrackedParameter<double>("chi2corTh");
+  cmssw_for_global_ = pset.getUntrackedParameter<bool>("cmssw_for_global");
+  geometry_tag_ = pset.getUntrackedParameter<std::string>("geometry_tag");
 
   if (debug_)
     LogDebug("MuonPathAssociator") << "MuonPathAssociator: constructor";
@@ -43,6 +44,7 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset, edm::ConsumesCo
   }
 
   dtGeomH_ = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
+  globalcoordsobtainer_ = globalcoordsobtainer;
 }
 
 MuonPathAssociator::~MuonPathAssociator() {
@@ -57,8 +59,9 @@ void MuonPathAssociator::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     LogDebug("MuonPathAssociator") << "MuonPathAssociator::initialiase";
 
-  const MuonGeometryRecord &geom = iEventSetup.get<MuonGeometryRecord>();
-  dtGeo_ = &geom.get(dtGeomH_);
+  edm::ESHandle<DTGeometry> geom;
+  iEventSetup.get<MuonGeometryRecord>().get(geometry_tag_, geom);
+  dtGeo_ = &(*geom);
 }
 
 void MuonPathAssociator::run(edm::Event &iEvent,
@@ -81,11 +84,6 @@ void MuonPathAssociator::finish() {
 void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                                          std::vector<metaPrimitive> &inMPaths,
                                          std::vector<metaPrimitive> &outMPaths) {
-  int x_prec_inv = (int)(1. / (10. * x_precision_));
-  int numberOfBits = (int)(round(std::log(x_prec_inv) / std::log(2.)));
-
-  //Silvia's code for correlationg filteredMetaPrimitives
-
   if (debug_)
     LogDebug("MuonPathAssociator") << "starting correlation";
 
@@ -153,28 +151,37 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
               if (std::abs(SL1metaPrimitive->t0 - SL3metaPrimitive->t0) >= dT0_correlate_TP_)
                 continue;  //time match
             }
-            long int PosSL1 = (int)round(10 * SL1metaPrimitive->x / (10 * x_precision_));
-            long int PosSL3 = (int)round(10 * SL3metaPrimitive->x / (10 * x_precision_));
+            long int PosSL1 = (int)round(INCREASED_RES_POS_POW * 10 * SL1metaPrimitive->x);
+            long int PosSL3 = (int)round(INCREASED_RES_POS_POW * 10 * SL3metaPrimitive->x);
             double NewSlope = -999.;
-            if (use_LSB_) {
-              long int newConstant = (int)(139.5 * 4);
-              long int difPos_mm_x4 = PosSL3 - PosSL1;
-              long int tanPsi_x4096_x128 = (difPos_mm_x4)*newConstant;
-              long int tanPsi_x4096 = tanPsi_x4096_x128 / ((long int)pow(2, 5 + numberOfBits));
-              if (tanPsi_x4096 < 0 && tanPsi_x4096_x128 % ((long int)pow(2, 5 + numberOfBits)) != 0)
-                tanPsi_x4096--;
-              NewSlope = -tanPsi_x4096 * tanPsi_precision_;
+
+            long int pos = (PosSL3 + PosSL1) / 2;
+            // FW always rounds down (e.g 29.5 -> 29, -29.5 -> -30). For negative numbers, we don't do the same.
+            // Let's fix it (this also happens for the slope)
+            if (((PosSL3 + PosSL1) % 2 != 0) && (pos < 0)) {
+              pos--;
             }
+
+            long int difPos_mm_x4 = PosSL3 - PosSL1;
+            long int tanPsi_x4096_x128 = (difPos_mm_x4)*VERT_PHI1_PHI3_INV;
+            long int tanpsi = tanPsi_x4096_x128 / ((long int)pow(2, 5 + INCREASED_RES_POS));
+            if (tanpsi < 0 && tanPsi_x4096_x128 % ((long int)pow(2, 5 + INCREASED_RES_POS)) != 0)
+              tanpsi--;
+            NewSlope = -tanpsi / (double)INCREASED_RES_SLOPE_POW;
             double MeanT0 = (SL1metaPrimitive->t0 + SL3metaPrimitive->t0) / 2;
-            double MeanPos = (PosSL3 + PosSL1) / (2. / (x_precision_));
-            if (use_LSB_) {
-              MeanPos = floor(round(10. * (MeanPos / x_precision_)) * 0.1) * x_precision_;
-            }
+            double MeanPos = (PosSL3 + PosSL1) / (2. * INCREASED_RES_POS_POW * 10);
 
             DTSuperLayerId SLId1(SL1metaPrimitive->rawId);
             DTSuperLayerId SLId3(SL3metaPrimitive->rawId);
             DTWireId wireId1(SLId1, 2, 1);
             DTWireId wireId3(SLId3, 2, 1);
+
+            int shift_sl1 = int(round(shiftinfo_[wireId1.rawId()] * INCREASED_RES_POS_POW * 10));
+            int shift_sl3 = int(round(shiftinfo_[wireId3.rawId()] * INCREASED_RES_POS_POW * 10));
+            if (shift_sl1 < shift_sl3) {
+              pos -= shift_sl1;
+            } else
+              pos -= shift_sl3;
 
             int wi[8], tdc[8], lat[8];
             wi[0] = SL1metaPrimitive->wi1;
@@ -204,27 +211,26 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
             long int chi2 = 0;
 
-            long int CH_CENTER_TO_MID_SL_P = (long int)(117.5 * 4);
             long int Z_FACTOR_CORR[8] = {-6, -2, 2, 6, -6, -2, 2, 6};
 
             for (int i = 0; i < 8; i++) {
               int sign = 2 * (i / 4) - 1;
-              Z_FACTOR_CORR[i] = Z_FACTOR_CORR[i] * CELL_HEIGHT + CH_CENTER_TO_MID_SL_P * sign;
+              Z_FACTOR_CORR[i] = Z_FACTOR_CORR[i] * CELL_HEIGHT + CH_CENTER_TO_MID_SL_X2 * sign;
             }
             long int sum_A, sum_B;
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < NUM_LAYERS_2SL; i++) {
               long int shift, slTime;
-              if (i / 4 == 0) {
-                shift = round(shiftinfo_[wireId1.rawId()] / x_precision_);
+              if (i / NUM_LAYERS == 0) {  // layers 0 - 3 -> SL1
+                shift = shift_sl1;
                 slTime = SL1metaPrimitive->t0;
-              } else {
-                shift = round(shiftinfo_[wireId3.rawId()] / x_precision_);
+              } else {  // layers 4 - 7 -> SL3
+                shift = shift_sl3;
                 slTime = SL3metaPrimitive->t0;
               }
               if (wi[i] != -1) {
-                long int drift_speed_new = 889;
-                long int drift_dist_um_x4 = drift_speed_new * (((long int)tdc[i]) - slTime);
-                long int wireHorizPos_x4 = (42 * wi[i] + ((i + 1) % 2) * 21) / (10 * x_precision_);
+                long int drift_dist_um_x4 = DRIFT_SPEED_X4 * (((long int)tdc[i]) - slTime);
+                long int wireHorizPos_x4 =
+                    (CELL_LENGTH * wi[i] + ((i + 1) % 2) * CELL_SEMILENGTH) * INCREASED_RES_POS_POW;
                 long int pos_mm_x4;
 
                 if (lat[i] == 0) {
@@ -232,14 +238,14 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                 } else {
                   pos_mm_x4 = wireHorizPos_x4 + (drift_dist_um_x4 >> 10);
                 }
-                sum_A = shift + pos_mm_x4 - (long int)round(MeanPos / x_precision_);
-                sum_A = sum_A << (14 - numberOfBits);
-                sum_B = Z_FACTOR_CORR[i] * (long int)round(-NewSlope / tanPsi_precision_);
+                sum_A = shift + pos_mm_x4 - (long int)round(MeanPos * 10 * INCREASED_RES_POS_POW);
+                sum_A = sum_A << (14 - INCREASED_RES_POS);
+                sum_B = Z_FACTOR_CORR[i] * (long int)round(-NewSlope * INCREASED_RES_SLOPE_POW);
                 chi2 += ((sum_A - sum_B) * (sum_A - sum_B)) >> 2;
               }
             }
 
-            double newChi2 = (double)(chi2 >> 16) / (1024. * 100.);
+            double newChi2 = (double)(chi2 >> INCREASED_RES_POS_POW) / (1024. * 100.);
 
             if (newChi2 > chi2corTh_)
               continue;
@@ -249,29 +255,38 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             useFitSL3[sl3] = true;
 
             int quality = 0;
-            if (SL3metaPrimitive->quality <= 2 and SL1metaPrimitive->quality <= 2)
-              quality = 6;
+            if (SL3metaPrimitive->quality == LOWQ and SL1metaPrimitive->quality == LOWQ)
+              quality = LOWLOWQ;
 
-            if ((SL3metaPrimitive->quality >= 3 && SL1metaPrimitive->quality <= 2) or
-                (SL1metaPrimitive->quality >= 3 && SL3metaPrimitive->quality <= 2))
-              quality = 8;
+            if ((SL3metaPrimitive->quality == HIGHQ && SL1metaPrimitive->quality == LOWQ) or
+                (SL1metaPrimitive->quality == HIGHQ && SL3metaPrimitive->quality == LOWQ))
+              quality = HIGHLOWQ;
 
-            if (SL3metaPrimitive->quality >= 3 && SL1metaPrimitive->quality >= 3)
-              quality = 9;
+            if (SL3metaPrimitive->quality == HIGHQ && SL1metaPrimitive->quality == HIGHQ)
+              quality = HIGHHIGHQ;
 
-            double z = 0;
-            if (ChId.station() >= 3)
-              z = -1.8;
-            GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(
-                LocalPoint(MeanPos, 0., z));  //Jm_x is already extrapolated to the middle of the SL
-            int thisec = ChId.sector();
-            if (se == 13)
-              thisec = 4;
-            if (se == 14)
-              thisec = 10;
-            double phi = jm_x_cmssw_global.phi() - 0.5235988 * (thisec - 1);
-            double psi = atan(NewSlope);
-            double phiB = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi : -psi - phi;
+            double phi = -999.;
+            double phiB = -999.;
+            if (cmssw_for_global_) {
+              double z = 0;
+              if (ChId.station() >= 3)
+                z = Z_SHIFT_MB4;
+              GlobalPoint jm_x_cmssw_global = dtGeo_->chamber(ChId)->toGlobal(
+                  LocalPoint(MeanPos, 0., z));  //Jm_x is already extrapolated to the middle of the SL
+              int thisec = ChId.sector();
+              if (se == 13)
+                thisec = 4;
+              if (se == 14)
+                thisec = 10;
+              phi = jm_x_cmssw_global.phi() - PHI_CONV * (thisec - 1);
+              double psi = atan(NewSlope);
+              phiB = hasPosRF(ChId.wheel(), ChId.sector()) ? psi - phi : -psi - phi;
+            } else {
+              auto global_coords = globalcoordsobtainer_->get_global_coordinates(ChId.rawId(), 0, pos, tanpsi);
+
+              phi = global_coords[0];
+              phiB = global_coords[1];
+            }
 
             if (!clean_chi2_correlation_)
               outMPaths.emplace_back(ChId.rawId(),
@@ -357,10 +372,10 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             int best_lat = -1;
             int next_lat = -1;
             int lat = -1;
-
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
-              const DTSuperLayerId &dtSLId(dtLId);
+              // creating a new DTSuperLayerId object to compare with the required SL id
+              const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), 3);
               if (dtSLId.rawId() != sl3Id.rawId())
                 continue;
               double l_shift = 0;
@@ -372,17 +387,20 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
                 l_shift = -1 * X_POS_L3;
               else if (dtLId.layer() == 1)
                 l_shift = -1 * X_POS_L4;
-              double x_inSL3 = SL1metaPrimitive->x - SL1metaPrimitive->tanPhi * (23.5 + l_shift);
+              double x_inSL3 = SL1metaPrimitive->x - SL1metaPrimitive->tanPhi * (VERT_PHI1_PHI3 + l_shift);
               for (auto digiIt = (dtLayerId_It.second).first; digiIt != (dtLayerId_It.second).second; ++digiIt) {
                 DTWireId wireId(dtLId, (*digiIt).wire());
-                int x_wire = shiftinfo_[wireId.rawId()] + ((*digiIt).time() - SL1metaPrimitive->t0) * 0.00543;
-                int x_wire_left = shiftinfo_[wireId.rawId()] - ((*digiIt).time() - SL1metaPrimitive->t0) * 0.00543;
+                double x_wire =
+                    shiftinfo_[wireId.rawId()] + ((*digiIt).time() - SL1metaPrimitive->t0) * DRIFT_SPEED / 10.;
+                double x_wire_left =
+                    shiftinfo_[wireId.rawId()] - ((*digiIt).time() - SL1metaPrimitive->t0) * DRIFT_SPEED / 10.;
                 lat = 1;
                 if (std::abs(x_inSL3 - x_wire) > std::abs(x_inSL3 - x_wire_left)) {
                   x_wire = x_wire_left;  //choose the closest laterality
                   lat = 0;
                 }
                 if (std::abs(x_inSL3 - x_wire) < minx) {
+                  min2x = minx;
                   minx = std::abs(x_inSL3 - x_wire);
                   next_wire = best_wire;
                   next_tdc = best_tdc;
@@ -405,9 +423,9 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
               }
             }
             if (matched_digis >= 2 and best_layer != -1 and next_layer != -1) {
-              int new_quality = 7;
-              if (SL1metaPrimitive->quality <= 2)
-                new_quality = 5;
+              int new_quality = CHIGHQ;
+              if (SL1metaPrimitive->quality == LOWQ)
+                new_quality = CLOWQ;
 
               int wi1 = -1;
               int tdc1 = -1;
@@ -564,23 +582,26 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
 
             for (const auto &dtLayerId_It : *dtdigis) {
               const DTLayerId dtLId = dtLayerId_It.first;
-              const DTSuperLayerId &dtSLId(dtLId);
+              // creating a new DTSuperLayerId object to compare with the required SL id
+              const DTSuperLayerId dtSLId(dtLId.wheel(), dtLId.station(), dtLId.sector(), 1);
               if (dtSLId.rawId() != sl1Id.rawId())
                 continue;
               double l_shift = 0;
               if (dtLId.layer() == 4)
-                l_shift = 1.95;
+                l_shift = X_POS_L4;
               if (dtLId.layer() == 3)
-                l_shift = 0.65;
+                l_shift = X_POS_L3;
               if (dtLId.layer() == 2)
-                l_shift = -0.65;
+                l_shift = -1 * X_POS_L3;
               if (dtLId.layer() == 1)
-                l_shift = -1.95;
-              double x_inSL1 = SL3metaPrimitive->x + SL3metaPrimitive->tanPhi * (23.5 - l_shift);
+                l_shift = -1 * X_POS_L4;
+              double x_inSL1 = SL3metaPrimitive->x + SL3metaPrimitive->tanPhi * (VERT_PHI1_PHI3 - l_shift);
               for (auto digiIt = (dtLayerId_It.second).first; digiIt != (dtLayerId_It.second).second; ++digiIt) {
                 DTWireId wireId(dtLId, (*digiIt).wire());
-                int x_wire = shiftinfo_[wireId.rawId()] + ((*digiIt).time() - SL3metaPrimitive->t0) * 0.00543;
-                int x_wire_left = shiftinfo_[wireId.rawId()] - ((*digiIt).time() - SL3metaPrimitive->t0) * 0.00543;
+                double x_wire =
+                    shiftinfo_[wireId.rawId()] + ((*digiIt).time() - SL3metaPrimitive->t0) * DRIFT_SPEED / 10.;
+                double x_wire_left =
+                    shiftinfo_[wireId.rawId()] - ((*digiIt).time() - SL3metaPrimitive->t0) * DRIFT_SPEED / 10.;
                 lat = 1;
                 if (std::abs(x_inSL1 - x_wire) > std::abs(x_inSL1 - x_wire_left)) {
                   x_wire = x_wire_left;  //choose the closest laterality
@@ -609,9 +630,9 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
               }
             }
             if (matched_digis >= 2 and best_layer != -1 and next_layer != -1) {
-              int new_quality = 7;
-              if (SL3metaPrimitive->quality <= 2)
-                new_quality = 5;
+              int new_quality = CHIGHQ;
+              if (SL3metaPrimitive->quality == LOWQ)
+                new_quality = CLOWQ;
 
               int wi1 = -1;
               int tdc1 = -1;
@@ -889,6 +910,35 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
       }
     }
   }
+
+  //eta TP we do not correlate with other superlayer in the same chamber so we forward them all
+  std::vector<metaPrimitive> SL2metaPrimitives;
+
+  for (int wh = -2; wh <= 2; wh++) {
+    for (int st = 1; st <= 4; st++) {
+      for (int se = 1; se <= 14; se++) {
+        if (se >= 13 && st != 4)
+          continue;
+
+        DTChamberId ChId(wh, st, se);
+        DTSuperLayerId sl2Id(wh, st, se, 2);
+
+        //filterSL2 etaTP
+        for (auto metaprimitiveIt = inMPaths.begin(); metaprimitiveIt != inMPaths.end(); ++metaprimitiveIt)
+          if (metaprimitiveIt->rawId == sl2Id.rawId()) {
+            SL2metaPrimitives.push_back(*metaprimitiveIt);
+            //std::cout<<"pushing back eta metaprimitive: ";
+            printmPC(*metaprimitiveIt);
+            outMPaths.push_back(*metaprimitiveIt);
+          }
+      }
+    }
+  }
+
+  LogDebug("MuonPathAssociator") << "\t etaTP: added " << SL2metaPrimitives.size() << "to outMPaths" << std::endl;
+
+  SL2metaPrimitives.clear();
+  SL2metaPrimitives.erase(SL2metaPrimitives.begin(), SL2metaPrimitives.end());
 }
 
 void MuonPathAssociator::removeSharingFits(vector<metaPrimitive> &chamberMPaths, vector<metaPrimitive> &allMPaths) {

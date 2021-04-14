@@ -59,6 +59,7 @@ Calorimeters:
 * C12: HGCal (as in C11) + HFNose with corrected wafer size + Phase2 HCAL and EB
 * C13: HGCal (reading the constants of the flat file and made provision to be used downstream) + Phase2 HCAL and EB
 * C14: HGCal (reading the constants of the flat file and use it to create geometry) + Phase2 HCAL and EB
+* C15: HGCal (as in C14) + HFNose with corrected wafer size  + Phase2 HCAL and EB
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -83,27 +84,17 @@ The script also handles the common and forward elements of the geometry:
 * F4: same as F2 but with modifications needed to forward shield
 * F5: same as F4 but changes due to HFNose
 * F6: same as F4 with modifications needed for BRM and forward shield
+* F7: same as F6 with modifications needed for HFNose
 
 Several detector combinations have been generated:
-* D49 = T15+C9+M4+I10+O4+F2
-* D50 = T15+C9+M4+I11+O4+F2
-* D60 = T15+C10+M4+I10+O4+F3
-* D64 = T22+C11+M4+I11+O5+F4
-* D65 = T23+C11+M4+I11+O5+F4
-* D66 = T21+C11+M8+I11+O5+F4
-* D67 = T21+C11+M9+I11+O5+F4
-* D68 = T21+C11+M6+I11+O5+F4
-* D69 = T21+C12+M6+I11+O5+F5
-* D70 = T21+C13+M7+I11+O6+F6
-* D71 = T21+C14+M7+I11+O7+F6
-* D72 = T21+C11+M6+I12+O5+F4
-* D74 = T21+C14+M9+I11+O7+F6
-* D75 = T21+C14+M7+I13+O7+F6
+* D49 = T15+C9+M4+I10+O4+F2 (HLT TDR baseline)
+* D60 = T15+C10+M4+I10+O4+F3 (With HFNose)
+* D68 = T21+C11+M6+I11+O5+F4 (For HGCAL study on evolution of detector)
+* D70 = T21+C13+M7+I11+O6+F6 (For HGCAL study on evolution of detector)
 * D76 = T21+C14+M9+I13+O7+F6
 * D77 = T24+C14+M9+I13+O7+F6
 * D78 = T22+C14+M9+I13+O7+F6
 * D79 = T23+C14+M9+I13+O7+F6
 * D80 = T25+C14+M9+I13+O7+F6
 * D81 = T26+C14+M9+I13+O7+F6
-
-D49 is the HLT TDR baseline.
+* D82 = T21+C15+M9+I13+O7+F7

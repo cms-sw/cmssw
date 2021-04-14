@@ -138,7 +138,7 @@
   <use name="FWCore/Framework"/>
 </library>
 
-<library file="stubs/DummyLooper.cc,stubs/TestModuleChangeLooper.cc" name="FWCoreFrameworkTestDummyLooper">
+<library file="stubs/DummyLooper.cc,stubs/TestModuleChangeLooper.cc,stubs/IntTestLooper.cc" name="FWCoreFrameworkTestDummyLooper">
   <flags EDM_PLUGIN="1"/>
   <lib name="FWCoreFrameworkTestDummyForEventSetup"/>
   <use name="FWCore/Framework"/>

@@ -63,6 +63,18 @@ public:
   void setBstId(int x) { m_bst_id = x; }
   int getBstId() const { return m_bst_id; }
   //
+  void setCokeId(int x) { m_coke_id = x; }
+  int getCokeId() const { return m_coke_id; }
+  //
+  void setWeight2Id(int x) { m_wei2_id = x; }
+  int getWeight2Id() const { return m_wei2_id; }
+  //
+  void setWei2Id(int x) { m_wei2_id = x; }
+  int getWei2Id() const { return m_wei2_id; }
+  //
+  void setOddWeiId(int x) { m_wei2_id = x; }
+  int getOddWeiId() const { return m_wei2_id; }
+  //
   inline void setVersion(int id) { m_version = id; }
   inline int getVersion() const { return m_version; }
 
@@ -84,6 +96,8 @@ private:
   int m_bst_id;
   int m_tim_id;
   int m_spi_id;
+  int m_coke_id;
+  int m_wei2_id;
   int m_version;
   Tm m_db_time;
   std::string m_description;

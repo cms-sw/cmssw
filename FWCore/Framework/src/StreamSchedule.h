@@ -386,8 +386,9 @@ namespace edm {
     T::setStreamContext(streamContext_, principal);
 
     auto id = principal.id();
-    auto doneTask =
-        make_waiting_task([this, iHolder, id, cleaningUpAfterException, token](std::exception_ptr const* iPtr) mutable {
+    ServiceWeakToken weakToken = token;
+    auto doneTask = make_waiting_task(
+        [this, iHolder, id, cleaningUpAfterException, weakToken](std::exception_ptr const* iPtr) mutable {
           std::exception_ptr excpt;
           if (iPtr) {
             excpt = *iPtr;
@@ -400,17 +401,17 @@ namespace edm {
               if (ex.context().empty()) {
                 ost << "Processing " << T::transitionName() << " " << id;
               }
-              ServiceRegistry::Operate op(token);
+              ServiceRegistry::Operate op(weakToken.lock());
               addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
               excpt = std::current_exception();
             }
 
-            ServiceRegistry::Operate op(token);
+            ServiceRegistry::Operate op(weakToken.lock());
             actReg_->preStreamEarlyTerminationSignal_(streamContext_, TerminationOrigin::ExceptionFromThisContext);
           }
           // Caught exception is propagated via WaitingTaskHolder
           CMS_SA_ALLOW try {
-            ServiceRegistry::Operate op(token);
+            ServiceRegistry::Operate op(weakToken.lock());
             T::postScheduleSignal(actReg_.get(), &streamContext_);
           } catch (...) {
             if (not excpt) {
@@ -421,7 +422,8 @@ namespace edm {
         });
 
     auto task = make_functor_task(
-        [this, h = WaitingTaskHolder(*iHolder.group(), doneTask), info = transitionInfo, token]() mutable {
+        [this, h = WaitingTaskHolder(*iHolder.group(), doneTask), info = transitionInfo, weakToken]() mutable {
+          auto token = weakToken.lock();
           ServiceRegistry::Operate op(token);
           // Caught exception is propagated via WaitingTaskHolder
           CMS_SA_ALLOW try {

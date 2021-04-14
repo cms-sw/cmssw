@@ -90,7 +90,7 @@ void HGCalGeometryTester::doTest(const HGCalGeometry* geom, ForwardSubdetector s
       for (int layer : layers) {
         for (int cell : cells) {
           DetId id1;
-          id1 = (DetId)(HGCalDetId(subdet, zside, layer, type, sector, cell));
+          id1 = static_cast<DetId>(HGCalDetId(subdet, zside, layer, type, sector, cell));
           if (geom->topology().valid(id1)) {
             auto icell1 = geom->getGeometry(id1);
             GlobalPoint global1 = geom->getPosition(id1);
@@ -135,7 +135,7 @@ void HGCalGeometryTester::doTestWafer(const HGCalGeometry* geom, DetId::Detector
           for (int cellU : cells) {
             for (int cellV : cells) {
               std::cout << "det " << det << " cell " << cellU << ":" << cellV << std::endl;
-              DetId id1 = (DetId)(HGCSiliconDetId(det, zside, type, layer, waferU, waferV, cellU, cellV));
+              DetId id1 = static_cast<DetId>(HGCSiliconDetId(det, zside, type, layer, waferU, waferV, cellU, cellV));
               std::cout << HGCSiliconDetId(id1) << std::endl;
               if (geom->topology().valid(id1)) {
                 auto icell1 = geom->getGeometry(id1);
@@ -177,8 +177,14 @@ void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom, DetId::Detector
     for (int layer : layers) {
       int type = geom->topology().dddConstants().getTypeTrap(layer);
       for (int ieta : ietas) {
+        std::pair<int, int> typm = geom->topology().dddConstants().tileType(layer, ieta, 0);
         for (int iphi : iphis) {
-          DetId id1 = (DetId)(HGCScintillatorDetId(type, layer, zside * ieta, iphi));
+          HGCScintillatorDetId detId(type, layer, zside * ieta, iphi);
+          if (typm.first >= 0) {
+            detId.setType(typm.first);
+            detId.setSiPM(typm.second);
+          }
+          DetId id1 = static_cast<DetId>(detId);
           if (geom->topology().valid(id1)) {
             auto icell1 = geom->getGeometry(id1);
             GlobalPoint global1 = geom->getPosition(id1);

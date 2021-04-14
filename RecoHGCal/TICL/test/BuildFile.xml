@@ -4,9 +4,6 @@
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/Math"/>
 <use name="SimDataFormats/CaloAnalysis"/>
-<use name="Geometry/HcalTowerAlgo"/>
-<use name="Geometry/HGCalGeometry"/>
-<use name="Geometry/Records"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <flags EDM_PLUGIN="1"/>
 <library   file="*.cc" name="testRecoHGCalTICL"> </library>
