@@ -5,6 +5,7 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/L1TMuon/interface/CSCConstants.h"
 #include <vector>
 #include <iosfwd>
 #include <strings.h>

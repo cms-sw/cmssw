@@ -17,7 +17,7 @@ CSCAnodeData2006::CSCAnodeData2006(const CSCALCTHeader &header)  ///for digi->ra
   bzero(theDataFrames, sizeInWords() * 2);
   for (int afeb = 0; afeb < nAFEBs_; ++afeb) {
     for (int tbin = 0; tbin < nTimeBins_; ++tbin) {
-      for (int layer = 1; layer <= 6; ++layer) {
+      for (int layer = CSCDetId::minLayerId(); layer <= CSCDetId::maxLayerId(); ++layer) {
         for (int halfLayer = 0; halfLayer < 2; ++halfLayer) {
           theDataFrames[index(afeb, tbin, layer) + halfLayer] = CSCAnodeDataFrame2006(afeb, tbin, 0).frame();
         }

@@ -27,7 +27,7 @@ CSCUpgradeAnodeLCTProcessor::CSCUpgradeAnodeLCTProcessor() : CSCAnodeLCTProcesso
 }
 
 void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic() {
-  int ghost_cleared[CSCConstants::MAX_NUM_WIRES][2];
+  int ghost_cleared[CSCConstants::MAX_NUM_WIREGROUPS][2];
 
   for (int key_wire = 0; key_wire < numWireGroups; key_wire++) {
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
