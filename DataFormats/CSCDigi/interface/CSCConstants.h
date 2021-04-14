@@ -26,9 +26,20 @@ public:
 
   enum FPGA_Latency { CLCT_EMUL_TIME_OFFSET = 3, ALCT_EMUL_TIME_OFFSET = 6 };
 
+  // Numbers obtained from https://twiki.cern.ch/twiki/pub/CMS/CSCDPGGeometry/table_of_csc_properties_150730.pdf
   enum WG_Info {
-    MAX_NUM_WIREGROUPS = 119,
     NUM_WIREGROUPS_ME11 = 48,
+    NUM_WIREGROUPS_ME12 = 64,
+    NUM_WIREGROUPS_ME13 = 32,
+    NUM_WIREGROUPS_ME21 = 112,
+    NUM_WIREGROUPS_ME22 = 64,
+    NUM_WIREGROUPS_ME31 = 96,
+    NUM_WIREGROUPS_ME32 = 64,
+    NUM_WIREGROUPS_ME41 = 96,
+    NUM_WIREGROUPS_ME42 = 64,
+    // this number should really be 112, but has always been 119 since the
+    // CSC trigger was developed in 2006. Probably it would not hurt to change it to 112
+    MAX_NUM_WIREGROUPS = 119
   };
 
   // distrips, strips, half-strips
