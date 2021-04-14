@@ -4,4 +4,5 @@
 <use name="CondFormats/SiPixelTransient"/>
 <use name="CalibTracker/SiPixelESProducers"/>
 <bin file="testSiPixelPayloadInspector.cpp" name="testPixelPayloadInspector">
+  <use name="DQM/TrackerRemapper"/>
 </bin>

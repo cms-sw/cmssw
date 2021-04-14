@@ -20,19 +20,32 @@ CSCStripDigiValidation::~CSCStripDigiValidation() {}
 
 void CSCStripDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
   thePedestalPlot = iBooker.book1D("CSCPedestal", "CSC Pedestal;ADC Counts;Entries", 400, 550, 650);
-  theAmplitudePlot = iBooker.book1D("CSCStripAmplitude", ";CSC Strip Amplitude;Entries", 200, 0, 2000);
+  theAmplitudePlot = iBooker.book1D("CSCStripAmplitude", "CSC Strip Amplitude;Strip Amplitude;Entries", 200, 0, 2000);
   theRatio4to5Plot = iBooker.book1D("CSCStrip4to5", "CSC Strip Ratio tbin 4 to tbin 5;Strip Ratio;Entries", 100, 0, 1);
   theRatio6to5Plot =
       iBooker.book1D("CSCStrip6to5", "CSC Strip Ratio tbin 6 to tbin 5;Strip Ratio;Entries", 120, 0, 1.2);
   theNDigisPerLayerPlot =
-      iBooker.book1D("CSCStripDigisPerLayer", ";Number of CSC Strip Digis per layer;Entries", 48, 0, 48);
+      iBooker.book1D("CSCStripDigisPerLayer",
+                     "Number of CSC Strip Digis per layer;Number of CSC Strip Digis per layer;Entries",
+                     48,
+                     0,
+                     48);
   theNDigisPerEventPlot =
-      iBooker.book1D("CSCStripDigisPerEvent", ";Number of CSC Strip Digis per event;Entries", 100, 0, 500);
+      iBooker.book1D("CSCStripDigisPerEvent",
+                     "Number of CSC Strip Digis per event;Number of CSC Strip Digis per event;Entries",
+                     100,
+                     0,
+                     500);
 
   if (doSim_) {
     for (int i = 1; i <= 10; ++i) {
       const std::string t1("CSCStripPosResolution_" + CSCDetId::chamberName(i));
-      theResolutionPlots[i - 1] = iBooker.book1D(t1, t1 + ";Strip X Position Resolution; Entries", 100, -5, 5);
+      theResolutionPlots[i - 1] = iBooker.book1D(
+          t1,
+          "Strip X Position Resolution " + CSCDetId::chamberName(i) + ";Strip X Position Resolution; Entries",
+          100,
+          -5,
+          5);
     }
   }
 }

@@ -4,7 +4,6 @@
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/Framework"/>
-    <use name="HeterogeneousCore/SonicCore"/>
     <use name="HeterogeneousCore/SonicTriton"/>
   </library>
 </environment>

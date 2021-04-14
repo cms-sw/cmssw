@@ -6,10 +6,7 @@
 class MTDRecHitAlgo : public MTDRecHitAlgoBase {
 public:
   /// Constructor
-  MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : MTDRecHitAlgoBase(conf, sumes),
-        thresholdToKeep_(conf.getParameter<double>("thresholdToKeep")),
-        calibration_(conf.getParameter<double>("calibrationConstant")) {}
+  MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes);
 
   /// Destructor
   ~MTDRecHitAlgo() override {}
@@ -24,11 +21,18 @@ public:
 private:
   double thresholdToKeep_, calibration_;
   const MTDTimeCalib* time_calib_;
+  edm::ESGetToken<MTDTimeCalib, MTDTimeCalibRecord> tcToken_;
 };
 
+MTDRecHitAlgo::MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+    : MTDRecHitAlgoBase(conf, sumes),
+      thresholdToKeep_(conf.getParameter<double>("thresholdToKeep")),
+      calibration_(conf.getParameter<double>("calibrationConstant")) {
+  tcToken_ = sumes.esConsumes<MTDTimeCalib, MTDTimeCalibRecord>(edm::ESInputTag("", "MTDTimeCalib"));
+}
+
 void MTDRecHitAlgo::getEventSetup(const edm::EventSetup& es) {
-  edm::ESHandle<MTDTimeCalib> pTC;
-  es.get<MTDTimeCalibRecord>().get("MTDTimeCalib", pTC);
+  auto pTC = es.getHandle(tcToken_);
   time_calib_ = pTC.product();
 }
 

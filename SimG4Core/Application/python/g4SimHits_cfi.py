@@ -162,6 +162,14 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         CutsOnProton  = cms.bool(True),
         DefaultCutValue = cms.double(1.0), ## cuts in cm
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
+        G4MuonBremsstrahlungThreshold = cms.double(10000.), ## cut in GeV
+        G4MscRangeFactor = cms.double(0.04),
+        G4MscGeomFactor = cms.double(2.5), 
+        G4MscSafetyFactor = cms.double(0.6), 
+        G4MscLambdaLimit = cms.double(1.0), # mm 
+        G4MscStepLimit = cms.string("UseSafety"), 
+        G4GeneralProcess = cms.bool(False), 
+        ReadMuonData = cms.bool(False), 
         Verbosity = cms.untracked.int32(0),
         # 1 will print cuts as they get set from DD
         # 2 will do as 1 + will dump Geant4 table of cuts
@@ -188,7 +196,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EmaxFTFP    = cms.double(25.), # in GeV
         EmaxBERTpi  = cms.double(12.), # in GeV
         LowEnergyGflashEcal = cms.bool(False),
-        LowEnergyGflashEcalEmax = cms.double(100),
+        LowEnergyGflashEcalEmax = cms.double(0.02), # in GeV
         GflashEcal    = cms.bool(False),
         GflashHcal    = cms.bool(False),
         GflashEcalHad = cms.bool(False),
@@ -216,8 +224,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EnergyRMSE      = cms.vdouble(0.0,0.0),
         MinStepLimit              = cms.double(1.0),
         ModifyTransportation      = cms.bool(False),
-        ThresholdWarningEnergy    = cms.untracked.double(100.0),
-        ThresholdImportantEnergy  = cms.untracked.double(250.0),
+        ThresholdWarningEnergy    = cms.untracked.double(100.0), #in MeV
+        ThresholdImportantEnergy  = cms.untracked.double(250.0), #in MeV
         ThresholdTrials           = cms.untracked.int32(10)
     ),
     Generator = cms.PSet(

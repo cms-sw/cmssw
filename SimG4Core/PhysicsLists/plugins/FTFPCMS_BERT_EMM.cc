@@ -1,6 +1,8 @@
 #include "FTFPCMS_BERT_EMM.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
 #include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT.h"
+#include "SimG4Core/PhysicsLists/interface/CMSHadronPhysicsFTFP_BERT106.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -45,7 +47,7 @@ FTFPCMS_BERT_EMM::FTFPCMS_BERT_EMM(const edm::ParameterSet& p) : PhysicsList(p) 
     RegisterPhysics(new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(new CMSHadronPhysicsFTFP_BERT(minFTFP, maxBERT, maxBERTpi));
+    RegisterPhysics(new CMSHadronPhysicsFTFP_BERT106(minFTFP, maxBERT, maxBERTpi));
 
     // Stopping Physics
     RegisterPhysics(new G4StoppingPhysics(ver));

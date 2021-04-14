@@ -34,6 +34,12 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="PixelTopologyMapTest.cc" name="PixelTopologyMapTest">
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <bin file="phase1PixelTopology_t.cpp"/>
 
 <bin file="runTests.cpp" name="GeometryTrackerGeometryBuilderTestDriver">

@@ -206,7 +206,7 @@ std::vector<float> SCEnergyCorrectorSemiParm::getRegDataECALV1(const reco::Super
   const double raw_energy = sc.rawEnergy();
   const int numberOfClusters = sc.clusters().size();
 
-  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster, recHits, caloTopo_);
+  const auto& localCovariances = EcalClusterTools::localCovariances(seedCluster, recHits, caloTopo_);
 
   const float eLeft = EcalClusterTools::eLeft(seedCluster, recHits, caloTopo_);
   const float eRight = EcalClusterTools::eRight(seedCluster, recHits, caloTopo_);

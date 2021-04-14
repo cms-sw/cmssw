@@ -64,6 +64,7 @@ namespace edm {
 
   protected:
     void setProduct(std::unique_ptr<WrapperBase> edp) const;
+    void setProduct(std::shared_ptr<WrapperBase> edp) const;
     ProductStatus status() const { return theStatus_; }
     ProductStatus defaultStatus() const { return defaultStatus_; }
     void setFailedStatus() const { theStatus_ = ProductStatus::ResolveFailed; }
@@ -107,11 +108,11 @@ namespace edm {
         : DataManagingProductResolver(bd, iDefaultStatus) {}
 
   protected:
-    void setOrMergeProduct(std::unique_ptr<WrapperBase> prod,
+    void setOrMergeProduct(std::shared_ptr<WrapperBase> prod,
                            MergeableRunProductMetadata const* mergeableRunProductMetadata) const;
 
     // merges the product with the pre-existing product
-    void mergeProduct(std::unique_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const;
+    void mergeProduct(std::shared_ptr<WrapperBase> edp, MergeableRunProductMetadata const*) const;
   };
 
   class DelayedReaderInputProductResolver : public MergeableInputProductResolver {

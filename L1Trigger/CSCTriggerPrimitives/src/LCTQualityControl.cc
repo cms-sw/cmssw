@@ -115,13 +115,13 @@ void LCTQualityControl::checkValid(const CSCCLCTDigi& clct, unsigned max_stubs) 
     checkRange(clct.getCompCode(), 0, std::pow(2, 12) - 1, "CSCCLCTDigi with invalid comparator code: ", errors);
 
     const unsigned max_quartstrip = get_csc_max_quartstrip(theStation, theRing);
-    const unsigned max_eightstrip = get_csc_max_eightstrip(theStation, theRing);
+    const unsigned max_eighthstrip = get_csc_max_eighthstrip(theStation, theRing);
 
     // CLCT key quart-strip must be within bounds
     checkRange(clct.getKeyStrip(4), 0, max_quartstrip - 1, "CSCCLCTDigi with invalid key quart-strip: ", errors);
 
-    // CLCT key eight-strip must be within bounds
-    checkRange(clct.getKeyStrip(8), 0, max_eightstrip - 1, "CSCCLCTDigi with invalid key quart-strip: ", errors);
+    // CLCT key eighth-strip must be within bounds
+    checkRange(clct.getKeyStrip(8), 0, max_eighthstrip - 1, "CSCCLCTDigi with invalid key quart-strip: ", errors);
   }
 
   reportErrors(clct, errors);
@@ -132,7 +132,7 @@ void LCTQualityControl::checkValid(const CSCCorrelatedLCTDigi& lct) const { chec
 void LCTQualityControl::checkValid(const CSCCorrelatedLCTDigi& lct, const unsigned station, const unsigned ring) const {
   const unsigned max_strip = get_csc_max_halfstrip(station, ring);
   const unsigned max_quartstrip = get_csc_max_quartstrip(station, ring);
-  const unsigned max_eightstrip = get_csc_max_eightstrip(station, ring);
+  const unsigned max_eighthstrip = get_csc_max_eighthstrip(station, ring);
   const unsigned max_wire = get_csc_max_wire(station, ring);
   const auto& [min_pattern, max_pattern] = get_csc_lct_min_max_pattern();
   const unsigned max_quality = get_csc_lct_max_quality();
@@ -154,8 +154,8 @@ void LCTQualityControl::checkValid(const CSCCorrelatedLCTDigi& lct, const unsign
   // LCT key quart-strip must be within bounds
   checkRange(lct.getStrip(4), 0, max_quartstrip - 1, "CSCCorrelatedLCTDigi with invalid key quart-strip: ", errors);
 
-  // LCT key eight-strip must be within bounds
-  checkRange(lct.getStrip(8), 0, max_eightstrip - 1, "CSCCorrelatedLCTDigi with invalid key eight-strip: ", errors);
+  // LCT key eighth-strip must be within bounds
+  checkRange(lct.getStrip(8), 0, max_eighthstrip - 1, "CSCCorrelatedLCTDigi with invalid key eighth-strip: ", errors);
 
   // LCT key wire-group must be within bounds
   checkRange(lct.getKeyWG(), 0, max_wire - 1, "CSCCorrelatedLCTDigi with invalid wire-group: ", errors);
@@ -306,7 +306,7 @@ unsigned LCTQualityControl::get_csc_max_quartstrip(int station, int ring) const 
   return get_csc_max_halfstrip(station, ring) * 2;
 }
 
-unsigned LCTQualityControl::get_csc_max_eightstrip(int station, int ring) const {
+unsigned LCTQualityControl::get_csc_max_eighthstrip(int station, int ring) const {
   return get_csc_max_halfstrip(station, ring) * 4;
 }
 
