@@ -50,9 +50,8 @@ public:
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 
   HGCalClusteringAlgoBase(VerbosityLevel v, reco::CaloCluster::AlgoId algo, edm::ConsumesCollector iC)
-      : verbosity_(v), algoId_(algo) {
-    caloGeomToken_ = iC.esConsumes<CaloGeometry, CaloGeometryRecord>();
-  };
+      : verbosity_(v), algoId_(algo),
+        caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
   virtual ~HGCalClusteringAlgoBase() {}
 
   virtual void populate(const HGCRecHitCollection &hits) = 0;
