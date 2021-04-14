@@ -38,23 +38,17 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prodEE = cms.EDAnalyzer("HGCalNumberingTester",
-                                NameSense     = cms.string("HGCalEESensitive"),
-                                NameDevice    = cms.string("HGCal EE"),
-                                LocalPositionX= cms.vdouble(500.0,350.0,800.0,1400.0),
-                                LocalPositionY= cms.vdouble(500.0,0.0,0.0,0.0),
-                                Increment     = cms.int32(19),
-                                DetType       = cms.int32(2),
-                                Reco          = cms.bool(False)
-)
+process.load("Geometry.HGCalCommonData.hgcalNumberingTesterEE_cfi")
+process.hgcalNumberingTesterEE.LocalPositionX= [500.0,350.0,800.0,1400.0]
+process.hgcalNumberingTesterEE.LocalPositionY= [500.0,0.0,0.0,0.0]
 
-process.prodHEF = process.prodEE.clone(
+process.hgcalNumberingTesterHEF = process.hgcalNumberingTesterEE.clone(
     NameSense  = "HGCalHESiliconSensitive",
     NameDevice = "HGCal HE Front",
     Increment  = 9
 )
  
-process.prodHEB = process.prodEE.clone(
+process.hgcalNumberingTesterHEB = process.hgcalNumberingTesterEE.clone(
     NameSense  = "HGCalHEScintillatorSensitive",
     NameDevice = "HGCal HE Back",
     Increment  = 9,
@@ -63,4 +57,4 @@ process.prodHEB = process.prodEE.clone(
     DetType    = 0
 )
  
-process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)
+process.p1 = cms.Path(process.generator*process.hgcalNumberingTesterEE*process.hgcalNumberingTesterHEF*process.hgcalNumberingTesterHEB)

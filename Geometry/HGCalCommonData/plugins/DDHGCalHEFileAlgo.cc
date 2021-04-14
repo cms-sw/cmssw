@@ -248,7 +248,7 @@ void DDHGCalHEFileAlgo::initialize(const DDNumericArguments& nArgs,
 #endif
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: NameSpace " << nameSpace_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: NameSpace " << nameSpace_ << ":";
 #endif
 }
 
@@ -274,9 +274,6 @@ void DDHGCalHEFileAlgo::execute(DDCompactView& cpv) {
 }
 
 void DDHGCalHEFileAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& cpv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalHEFileAlgo: \t\tInside Layers";
-#endif
   double zi(zMinBlock_);
   int laymin(0);
   for (unsigned int i = 0; i < layers_.size(); i++) {

@@ -2,8 +2,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/Application/interface/LowEnergyFastSimModel.h"
+#include "SimG4Core/Application/interface/TrackingAction.h"
 
 #include "G4VFastSimulationModel.hh"
+#include "G4EventManager.hh"
 #include "G4Electron.hh"
 #include "GFlashHitMaker.hh"
 #include "G4Region.hh"
@@ -12,16 +14,23 @@
 constexpr double twomass = 2 * CLHEP::electron_mass_c2;
 
 LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* region, const edm::ParameterSet& parSet)
-    : G4VFastSimulationModel(name, region),
-      fEmax(parSet.getParameter<double>("LowEnergyGflashEcalEmax")),
-      fRegion(region) {}
+    : G4VFastSimulationModel(name, region), fRegion(region), fTrackingAction(nullptr) {
+  fEmax = parSet.getParameter<double>("LowEnergyGflashEcalEmax") * CLHEP::GeV;
+}
 
 G4bool LowEnergyFastSimModel::IsApplicable(const G4ParticleDefinition& particle) {
   return (11 == std::abs(particle.GetPDGEncoding()));
 }
 
 G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
-  G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+  const G4Track* track = fastTrack.GetPrimaryTrack();
+  if (nullptr == fTrackingAction) {
+    fTrackingAction = static_cast<const TrackingAction*>(G4EventManager::GetEventManager()->GetUserTrackingAction());
+  }
+  int pdgMother = std::abs(fTrackingAction->geant4Track()->GetDefinition()->GetPDGEncoding());
+  if (pdgMother == 11 || pdgMother == 22)
+    return false;
+  G4double energy = track->GetKineticEnergy();
   return energy < fEmax && fRegion == fastTrack.GetEnvelope();
 }
 

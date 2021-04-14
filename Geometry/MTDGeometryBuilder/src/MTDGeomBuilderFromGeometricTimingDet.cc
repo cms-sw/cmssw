@@ -103,14 +103,23 @@ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(
 
   // this is a hack while we put things into the DDD
   int ROCrows(0), ROCcols(0), ROCSx(0), ROCSy(0);
+  int GAPxInterpad(0), GAPxBorder(0), GAPyInterpad(0), GAPyBorder(0);
   switch (det) {
     case GeomDetType::SubDetector::TimingBarrel:
+      GAPxInterpad = ptp.vitems_[0].vpars_[0];  // Value given in microns
+      GAPxBorder = ptp.vitems_[0].vpars_[1];    // Value given in microns
+      GAPyInterpad = ptp.vitems_[0].vpars_[2];  // Value given in microns
+      GAPyBorder = ptp.vitems_[0].vpars_[3];    // Value given in microns
       ROCrows = ptp.vitems_[0].vpars_[8];
       ROCcols = ptp.vitems_[0].vpars_[9];
       ROCSx = ptp.vitems_[0].vpars_[10];
       ROCSy = ptp.vitems_[0].vpars_[11];
       break;
     case GeomDetType::SubDetector::TimingEndcap:
+      GAPxInterpad = ptp.vitems_[1].vpars_[0];
+      GAPxBorder = ptp.vitems_[1].vpars_[1];
+      GAPyInterpad = ptp.vitems_[1].vpars_[2];
+      GAPyBorder = ptp.vitems_[1].vpars_[3];
       ROCrows = ptp.vitems_[1].vpars_[8];
       ROCcols = ptp.vitems_[1].vpars_[9];
       ROCSx = ptp.vitems_[1].vpars_[10];
@@ -137,14 +146,8 @@ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(
     if (theMTDDetTypeMap.find(detName) == theMTDDetTypeMap.end()) {
       std::unique_ptr<const Bounds> bounds(i->bounds());
 
-      PixelTopology* t = MTDTopologyBuilder().build(&*bounds,
-                                                    true,
-                                                    ROCrows,
-                                                    ROCcols,
-                                                    0,
-                                                    0,  // these are BIG_PIX_XXXXX
-                                                    ROCSx,
-                                                    ROCSy);
+      PixelTopology* t = MTDTopologyBuilder().build(
+          &*bounds, ROCrows, ROCcols, ROCSx, ROCSy, GAPxInterpad, GAPxBorder, GAPyInterpad, GAPyBorder);
 
       theMTDDetTypeMap[detName] = new MTDGeomDetType(t, detName, det);
       tracker->addType(theMTDDetTypeMap[detName]);

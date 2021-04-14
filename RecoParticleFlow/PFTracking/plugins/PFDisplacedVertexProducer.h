@@ -5,11 +5,15 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexFinder.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 /**\class PFDisplacedVertexProducer 
 \brief Producer for DisplacedVertices 
@@ -39,6 +43,11 @@ private:
 
   edm::EDGetTokenT<reco::VertexCollection> inputTagMainVertex_;
   edm::EDGetTokenT<reco::BeamSpot> inputTagBeamSpot_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globTkGeomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkerTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkerGeomToken_;
 
   /// verbose ?
   bool verbose_;

@@ -556,6 +556,8 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
     }
 
     mix->AddElement(elt, 1.0);
+    mix->SetTemperature(ns.context()->description.stdConditions().temperature);
+    mix->SetPressure(ns.context()->description.stdConditions().pressure);
 
     /// Create medium from the material
     TGeoMedium* medium = mgr.GetMedium(matname);
@@ -621,6 +623,8 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
       ns.context()->unresolvedMaterials[nam].emplace_back(
           cms::DDParsingContext::CompositeMaterial(ns.prepend(fracname), fraction));
     }
+    mix->SetTemperature(ns.context()->description.stdConditions().temperature);
+    mix->SetPressure(ns.context()->description.stdConditions().pressure);
     mix->SetRadLen(0e0);
     /// Create medium from the material
     TGeoMedium* medium = mgr.GetMedium(matname);
@@ -2059,8 +2063,6 @@ static long load_dddefinition(Detector& det, xml_h element) {
     ns.addConstantNS("world_z", "450*m", "number");
     ns.addConstantNS("Air", "materials:Air", "string");
     ns.addConstantNS("Vacuum", "materials:Vacuum", "string");
-    ns.addConstantNS("fm", "1e-12*m", "number");
-    ns.addConstantNS("mum", "1e-6*m", "number");
 
     string fname = xml::DocumentHandler::system_path(element);
     bool open_geometry = dddef.hasChild(DD_CMU(open_geometry)) ? dddef.child(DD_CMU(open_geometry)) : true;

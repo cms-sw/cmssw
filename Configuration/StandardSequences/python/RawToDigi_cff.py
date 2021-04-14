@@ -92,15 +92,15 @@ phase2_tracker.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([siPixe
 
 
 # add CTPPS 2016 raw-to-digi modules
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
 
-_ctpps_2016_RawToDigiTask = RawToDigiTask.copy()
-_ctpps_2016_RawToDigiTask.add(ctppsRawToDigiTask)
-ctpps_2016.toReplaceWith(RawToDigiTask, _ctpps_2016_RawToDigiTask)
+_ctpps_RawToDigiTask = RawToDigiTask.copy()
+_ctpps_RawToDigiTask.add(ctppsRawToDigiTask)
+ctpps.toReplaceWith(RawToDigiTask, _ctpps_RawToDigiTask)
 
-_ctpps_2016_RawToDigiTask_noTk = RawToDigiTask_noTk.copy()
-_ctpps_2016_RawToDigiTask_noTk.add(ctppsRawToDigiTask)
-ctpps_2016.toReplaceWith(RawToDigiTask_noTk, _ctpps_2016_RawToDigiTask_noTk)
+_ctpps_RawToDigiTask_noTk = RawToDigiTask_noTk.copy()
+_ctpps_RawToDigiTask_noTk.add(ctppsRawToDigiTask)
+ctpps.toReplaceWith(RawToDigiTask_noTk, _ctpps_RawToDigiTask_noTk)
 
 # GEM settings
 _gem_RawToDigiTask = RawToDigiTask.copy()

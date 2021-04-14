@@ -18,12 +18,14 @@ class CSCCLCTDigi {
 public:
   typedef std::vector<std::vector<uint16_t>> ComparatorContainer;
 
-  enum CLCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0x1f };
-  enum CLCTKeyStripShifts { kEightStripShift = 6, kQuartStripShift = 5, kHalfStripShift = 0 };
+  enum CLCTKeyStripMasks { kEighthStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0x1f };
+  enum CLCTKeyStripShifts { kEighthStripShift = 6, kQuartStripShift = 5, kHalfStripShift = 0 };
   // temporary to facilitate CCLUT-EMTF/OMTF integration studies
   enum CLCTPatternMasks { kRun3SlopeMask = 0xf, kRun3PatternMask = 0x7, kLegacyPatternMask = 0xf };
   enum CLCTPatternShifts { kRun3SlopeShift = 7, kRun3PatternShift = 4, kLegacyPatternShift = 0 };
   enum class Version { Legacy = 0, Run3 };
+  // for data vs emulator studies
+  enum CLCTBXMask { kBXDataMask = 0x3 };
 
   /// Constructors
   CSCCLCTDigi(const uint16_t valid,
@@ -75,7 +77,9 @@ public:
   void setSlope(const uint16_t slope);
 
   /// slope in number of half-strips/layer
-  float getFractionalSlope(const uint16_t slope = 4) const;
+  /// negative means left-bending
+  /// positive means right-bending
+  float getFractionalSlope() const;
 
   /// return striptype
   uint16_t getStripType() const { return striptype_; }
@@ -84,8 +88,8 @@ public:
   void setStripType(const uint16_t stripType) { striptype_ = stripType; }
 
   /// return bending
-  /// 0: left-bending (negative delta-strip)
-  /// 1: right-bending (positive delta-strip)
+  /// 0: left-bending (negative delta-strip / delta layer)
+  /// 1: right-bending (positive delta-strip / delta layer)
   uint16_t getBend() const { return bend_; }
 
   /// set bend
@@ -103,11 +107,11 @@ public:
   /// get single quart strip bit
   bool getQuartStrip() const;
 
-  /// set single eight strip bit
-  void setEightStrip(const bool eightStrip);
+  /// set single eighth strip bit
+  void setEighthStrip(const bool eighthStrip);
 
-  /// get single eight strip bit
-  bool getEightStrip() const;
+  /// get single eighth strip bit
+  bool getEighthStrip() const;
 
   /// return Key CFEB ID
   uint16_t getCFEB() const { return cfeb_; }
@@ -117,6 +121,9 @@ public:
 
   /// return BX
   uint16_t getBX() const { return bx_; }
+
+  /// return 2-bit BX as in data
+  uint16_t getBXData() const { return bx_ & kBXDataMask; }
 
   /// set bx
   void setBX(const uint16_t bx) { bx_ = bx; }
@@ -128,7 +135,7 @@ public:
   /// (32 halfstrips). There are 5 cfebs.  The "strip_" variable is one
   /// of 32 halfstrips on the keylayer of a single CFEB, so that
   /// Halfstrip = (cfeb*32 + strip).
-  /// This function can also return the quartstrip or eightstrip
+  /// This function can also return the quartstrip or eighthstrip
   /// when the comparator code has been set
   uint16_t getKeyStrip(const uint16_t n = 2) const;
 

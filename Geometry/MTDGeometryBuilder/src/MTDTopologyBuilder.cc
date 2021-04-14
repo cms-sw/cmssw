@@ -10,13 +10,14 @@
 MTDTopologyBuilder::MTDTopologyBuilder(void) {}
 
 PixelTopology* MTDTopologyBuilder::build(const Bounds* bs,
-                                         bool upgradeGeometry,
-                                         int pixelROCRows,       // Num of Rows per ROC
-                                         int pixelROCCols,       // Num of Cols per ROC
-                                         int BIG_PIX_PER_ROC_X,  // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
-                                         int BIG_PIX_PER_ROC_Y,  // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+                                         int pixelROCRows,  // Num of Rows per ROC
+                                         int pixelROCCols,  // Num of Cols per ROC
                                          int pixelROCsInX,
-                                         int pixelROCsInY) {
+                                         int pixelROCsInY,
+                                         int GAPxInterpad,
+                                         int GAPxBorder,
+                                         int GAPyInterpad,
+                                         int GAPyBorder) {
   float width = bs->width();    // module width = Xsize
   float length = bs->length();  // module length = Ysize
 
@@ -24,11 +25,14 @@ PixelTopology* MTDTopologyBuilder::build(const Bounds* bs,
   int nrows = pixelROCRows * pixelROCsInX;
   int ncols = pixelROCCols * pixelROCsInY;
 
-  // Take into account the large edge pixles
-  // 1 big pixel per ROC
-  float pitchX = width / (nrows + pixelROCsInX * BIG_PIX_PER_ROC_X);
-  // 2 big pixels per ROC
-  float pitchY = length / (ncols + pixelROCsInY * BIG_PIX_PER_ROC_Y);
+  float pitchX = width / nrows;
+  float pitchY = length / ncols;
+
+  float micronsTocm = 1e-4;
+  float gapxinterpad = float(GAPxInterpad) * micronsTocm;  //Convert to cm
+  float gapyinterpad = float(GAPyInterpad) * micronsTocm;  //Convert to cm
+  float gapxborder = float(GAPxBorder) * micronsTocm;      //Convert to cm
+  float gapyborder = float(GAPyBorder) * micronsTocm;      //Convert to cm
 
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDTopologyBuilder") << std::fixed << "Building topology for module of width(X) = " << std::setw(10)
@@ -40,18 +44,23 @@ PixelTopology* MTDTopologyBuilder::build(const Bounds* bs,
                                      << "\n # pixel rows X = " << std::setw(10) << nrows
                                      << " # pixel cols Y = " << std::setw(10) << ncols
                                      << "\n pitch in X     = " << std::setw(10) << pitchX
-                                     << " # pitch in Y   = " << std::setw(10) << pitchY;
+                                     << " # pitch in Y   = " << std::setw(10) << pitchY
+                                     << "\n Interpad gap in X   = " << std::setw(10) << gapxinterpad
+                                     << " # Interpad gap in Y   = " << std::setw(10) << gapyinterpad
+                                     << "\n Border gap in X   = " << std::setw(10) << gapxborder
+                                     << " # Border gap in Y   = " << std::setw(10) << gapyborder;
 #endif
 
   return (new RectangularMTDTopology(nrows,
                                      ncols,
                                      pitchX,
                                      pitchY,
-                                     upgradeGeometry,
                                      pixelROCRows,  // (int)rocRow
                                      pixelROCCols,  // (int)rocCol
-                                     BIG_PIX_PER_ROC_X,
-                                     BIG_PIX_PER_ROC_Y,
                                      pixelROCsInX,
-                                     pixelROCsInY));  // (int)rocInX, (int)rocInY
+                                     pixelROCsInY,
+                                     gapxinterpad,
+                                     gapxborder,
+                                     gapyinterpad,
+                                     gapyborder));
 }

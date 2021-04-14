@@ -174,8 +174,10 @@ namespace edm {
   bool RootEmbeddedFileSequence::readOneSequential(
       EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const*, bool recycleFiles) {
     assert(rootFile());
-    rootFile()->nextEventEntry();
-    bool found = rootFile()->readCurrentEvent(cache);
+    bool found = rootFile()->nextEventEntry();
+    if (found) {
+      found = rootFile()->readCurrentEvent(cache);
+    }
     if (!found) {
       setAtNextFile();
       if (noMoreFiles()) {

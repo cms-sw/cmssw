@@ -161,7 +161,7 @@ class TauIDEmbedder(object):
                 PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
                 loadMVAfromDB = cms.bool(True),
-                mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
+                mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1"),
                 mvaOpt = cms.string("DBoldDMwLTwGJ"),
                 verbosity = cms.int32(0)
             ))
@@ -234,7 +234,7 @@ class TauIDEmbedder(object):
                 PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
                 loadMVAfromDB = cms.bool(True),
-                mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
+                mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v2"),
                 mvaOpt = cms.string("DBoldDMwLTwGJ"),
                 verbosity = cms.int32(0)
             ))
@@ -307,7 +307,7 @@ class TauIDEmbedder(object):
                 PATTauProducer = self.originalTauName,
                 Prediscriminants = noPrediscriminants,
                 loadMVAfromDB = cms.bool(True),
-                mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
+                mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2"),
                 mvaOpt = cms.string("DBnewDMwLTwGJ"),
                 verbosity = cms.int32(0)
             ))
@@ -436,7 +436,7 @@ class TauIDEmbedder(object):
         #     PATTauProducer = self.originalTauName,
         #     Prediscriminants = noPrediscriminants,
         #     loadMVAfromDB = cms.bool(True),
-        #     mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v2"),#RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1 writeTauIdDiscrMVAs
+        #     mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v2"),
         #     mvaOpt = cms.string("DBoldDMwLTwGJ"),
         #     verbosity = cms.int32(0)
         # )

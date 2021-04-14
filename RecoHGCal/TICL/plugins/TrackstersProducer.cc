@@ -55,6 +55,7 @@ private:
   edm::EDGetTokenT<TICLLayerTilesHFNose> layer_clusters_tiles_hfnose_token_;
   const edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
   const std::string itername_;
+  ticl::Trackster::IterationIndex iterIndex_;
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 
@@ -96,6 +97,18 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
   } else {
     layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
   }
+
+  if (itername_ == "TrkEM")
+    iterIndex_ = ticl::Trackster::TRKEM;
+  else if (itername_ == "EM")
+    iterIndex_ = ticl::Trackster::EM;
+  else if (itername_ == "Trk")
+    iterIndex_ = ticl::Trackster::TRKHAD;
+  else if (itername_ == "HAD")
+    iterIndex_ = ticl::Trackster::HAD;
+  else if (itername_ == "MIP")
+    iterIndex_ = ticl::Trackster::MIP;
+
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration
 }
@@ -179,8 +192,9 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   std::copy(
       std::begin(original_layerclusters_mask), std::end(original_layerclusters_mask), std::back_inserter(*output_mask));
 
-  // Mask the used elements, accordingly
-  for (auto const& trackster : *result) {
+  for (auto& trackster : *result) {
+    trackster.setIteration(iterIndex_);
+    // Mask the used elements, accordingly
     for (auto const v : trackster.vertices()) {
       // TODO(rovere): for the moment we mask the layer cluster completely. In
       // the future, properly compute the fraction of usage.
