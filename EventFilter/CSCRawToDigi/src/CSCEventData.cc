@@ -1,13 +1,13 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/CSCRawToDigi/interface/cscPackerCompare.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <iterator>
-#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/L1TMuon/interface/CSCConstants.h"
 
 #ifdef LOCAL_UNPACK
 bool CSCEventData::debug = false;

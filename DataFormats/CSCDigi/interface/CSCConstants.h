@@ -1,12 +1,11 @@
-#ifndef DataFormats_L1TMuon_CSCConstants_h
-#define DataFormats_L1TMuon_CSCConstants_h
+#ifndef DataFormats_CSCDigi_CSCConstants_h
+#define DataFormats_CSCDigi_CSCConstants_h
 
 /**
  * \class CSCConstants
  *
  * Static interface to basic chamber constants.
  */
-#include <cmath>
 
 class CSCConstants {
 public:

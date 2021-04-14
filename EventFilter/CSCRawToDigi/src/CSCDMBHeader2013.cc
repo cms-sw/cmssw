@@ -1,5 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader2013.h"
-#include "DataFormats/L1TMuon/interface/CSCConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include <iostream>
 
 CSCDMBHeader2013::CSCDMBHeader2013() {
