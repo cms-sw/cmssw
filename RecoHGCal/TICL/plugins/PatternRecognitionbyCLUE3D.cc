@@ -62,57 +62,26 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(
     const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) const {
+  edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "[x, y, eta, phi, cells, energy, radius, rho, delta, isSeed, clusterIdx, layerClusterOriginalIdx";
   for (unsigned int layer = 0; layer < clusters_.size(); layer++) {
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "On Layer " << layer;
     auto const &thisLayer = clusters_[layer];
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "X: ";
-    for (auto v : thisLayer.x)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Y: ";
-    for (auto v : thisLayer.y)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Eta: ";
-    for (auto v : thisLayer.eta)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Phi: ";
-    for (auto v : thisLayer.phi)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Cells: ";
-    for (auto v : thisLayer.cells)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Energy: ";
-    for (auto v : thisLayer.energy)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Radius: ";
-    for (auto v : thisLayer.radius)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Rho: ";
-    for (auto v : thisLayer.rho)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Delta: ";
-    for (auto v : thisLayer.delta)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "ClusterIdx: ";
-    for (auto v : thisLayer.clusterIndex)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "isSeed: ";
-    for (auto v : thisLayer.isSeed)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "LayerClusterOriginalIdx: ";
-    for (auto v : thisLayer.layerClusterOriginalIdx)
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << v << ",";
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << std::endl;
+    int num = 0;
+    for (auto v : thisLayer.x) {
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "ClusterInfo: " << v << ", "
+        << thisLayer.y[num] << ", "
+        << thisLayer.eta[num] << ", "
+        << thisLayer.phi[num] << ", "
+        << thisLayer.cells[num] << ", "
+        << thisLayer.energy[num] << ", "
+        << thisLayer.radius[num] << ", "
+        << thisLayer.rho[num] << ", "
+        << thisLayer.delta[num] << ", "
+        << thisLayer.isSeed[num] << ", "
+        << thisLayer.clusterIndex[num] << ", "
+        << thisLayer.layerClusterOriginalIdx[num];
+      ++num;
+    }
   }
   for (unsigned int lcIdx = 0; lcIdx < layerIdx2layerandSoa.size(); lcIdx++) {
     auto const &layerandSoa = layerIdx2layerandSoa[lcIdx];
@@ -397,9 +366,10 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
     return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) < delta_sqr;
   };
 
+  const int siblingLayers = 1;
   for (unsigned int i = 0; i < numberOfClusters; i++) {
-    unsigned int minLayer = std::max((int)layerId - 1, 0);
-    unsigned int maxLayer = std::min((int)layerId + 1, 103);
+    unsigned int minLayer = std::max((int)layerId - siblingLayers, 0);
+    unsigned int maxLayer = std::min((int)layerId + siblingLayers, 103);
     for (unsigned int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
       edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "RefLayer: " << layerId << " SoaIDX: " << i;
       edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "NextLayer: " << currentLayer;
