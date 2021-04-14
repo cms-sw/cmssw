@@ -243,7 +243,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
         if (!disableME1a_ && theRing == 1 && gangedME1a_)
           numStrips_ = CSCConstants::MAX_NUM_STRIPS;
         if (disableME1a_ && theRing == 1)
-          numStrips_ = CSCConstants::MAX_NUM_STRIPS_ME1B;
+          numStrips_ = CSCConstants::NUM_STRIPS_ME1B;
       }
 
       numHalfStrips_ = 2 * numStrips_ + 1;
@@ -437,14 +437,14 @@ void CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc,
   for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first; digiIt != rcompd.second; ++digiIt) {
     const unsigned int origStrip = digiIt->getStrip();
     const unsigned int maxStripsME1a =
-        gangedME1a_ ? CSCConstants::MAX_NUM_STRIPS_ME1A_GANGED : CSCConstants::MAX_NUM_STRIPS_ME1A_UNGANGED;
+        gangedME1a_ ? CSCConstants::NUM_STRIPS_ME1A_GANGED : CSCConstants::NUM_STRIPS_ME1A_UNGANGED;
     // this special case can only be reached in MC
     // in real data, the comparator digis have always ring==1
     if (me1a && origStrip <= maxStripsME1a && !disableME1a_) {
       // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
       // been done already.
       CSCComparatorDigi digi_corr(
-          origStrip + CSCConstants::MAX_NUM_STRIPS_ME1B, digiIt->getComparator(), digiIt->getTimeBinWord());
+          origStrip + CSCConstants::NUM_STRIPS_ME1B, digiIt->getComparator(), digiIt->getTimeBinWord());
       digiV[id.layer() - 1].push_back(digi_corr);
     } else {
       digiV[id.layer() - 1].push_back(*digiIt);

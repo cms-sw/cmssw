@@ -95,7 +95,7 @@ void CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts) {
 
     // get the comparator digis in this chamber
     std::vector<CSCComparatorDigiContainer> comps;
-    for (int ilayer = 1; ilayer <= 6; ilayer++) {
+    for (int ilayer = CSCDetId::minLayerId(); ilayer <= CSCDetId::maxLayerId(); ilayer++) {
       CSCDetId layerid(ch_id.endcap(), ch_id.station(), ring, ch_id.chamber(), ilayer);
       comps.push_back(cscDigiMatcher_->comparatorDigisInDetId(layerid));
     }
@@ -640,7 +640,7 @@ GlobalPoint CSCStubMatcher::getGlobalPosition(unsigned int rawId, const CSCCorre
   float fractional_strip = lct.getFractionalStrip();
   // case ME1/a
   if (cscId.station() == 1 and cscId.ring() == 4 and lct.getStrip() > CSCConstants::MAX_HALF_STRIP_ME1B) {
-    fractional_strip -= CSCConstants::MAX_NUM_STRIPS_ME1B;
+    fractional_strip -= CSCConstants::NUM_STRIPS_ME1B;
   }
   // regular cases
   const auto& chamber = cscGeometry_->chamber(cscId);

@@ -26,7 +26,7 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader &header, const unsigned short *bu
 
 std::vector<std::vector<CSCWireDigi> > CSCAnodeData::wireDigis() const {
   std::vector<std::vector<CSCWireDigi> > result;
-  for (int layer = 1; layer <= 6; ++layer) {
+  for (int layer = CSCDetId::minLayerId(); layer <= CSCDetId::maxLayerId(); ++layer) {
     result.push_back(wireDigis(layer));
   }
   return result;

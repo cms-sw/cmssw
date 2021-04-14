@@ -536,7 +536,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
 
             /// fill cfeb status digi
             if (unpackStatusDigis) {
-              for (icfeb = 0; icfeb < 7; ++icfeb)  ///loop over status digis
+              for (icfeb = 0; icfeb < CSCConstants::MAX_CFEBS_RUN2; ++icfeb)  ///loop over status digis
               {
                 if (cscData[iCSC].cfebData(icfeb) != nullptr)
                   cfebStatusProduct->insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
@@ -554,7 +554,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
             }
 
             /// fill wire, strip and comparator digis...
-            for (int ilayer = 1; ilayer <= 6; ++ilayer) {
+            for (int ilayer = CSCDetId::minLayerId(); ilayer <= CSCDetId::maxLayerId(); ++ilayer) {
               /// set layer, dmb and vme are valid because already checked in line 240
               // (You have to be kidding. Line 240 in whose universe?)
 
@@ -565,7 +565,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
                 wireProduct->move(std::make_pair(wireDigis.begin(), wireDigis.end()), layer);
               }
 
-              for (icfeb = 0; icfeb < 7; ++icfeb) {
+              for (icfeb = 0; icfeb < CSCConstants::MAX_CFEBS_RUN2; ++icfeb) {
                 layer = pcrate->detId(vmecrate, dmb, icfeb, ilayer);
                 if (cscData[iCSC].cfebData(icfeb) && cscData[iCSC].cfebData(icfeb)->check()) {
                   std::vector<CSCStripDigi> stripDigis;

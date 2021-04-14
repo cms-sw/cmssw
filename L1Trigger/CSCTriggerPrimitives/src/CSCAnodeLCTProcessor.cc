@@ -100,7 +100,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() : CSCBaseboard() {
     config_dumped = true;
   }
 
-  numWireGroups = CSCConstants::MAX_NUM_WIRES;
+  numWireGroups = CSCConstants::MAX_NUM_WIREGROUPS;
   MESelection = (theStation < 3) ? 0 : 1;
 
   // Load pattern mask.
@@ -216,14 +216,14 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
 
   // Get the number of wire groups for the given chamber.  Do it only once
   // per chamber.
-  if (numWireGroups <= 0 or numWireGroups > CSCConstants::MAX_NUM_WIRES) {
+  if (numWireGroups <= 0 or numWireGroups > CSCConstants::MAX_NUM_WIREGROUPS) {
     if (cscChamber_) {
       numWireGroups = cscChamber_->layer(1)->geometry()->numberOfWireGroups();
-      if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {
+      if (numWireGroups > CSCConstants::MAX_NUM_WIREGROUPS) {
         edm::LogError("CSCAnodeLCTProcessor|SetupError")
             << "+++ Number of wire groups, " << numWireGroups << " found in " << theCSCName_ << " (sector " << theSector
             << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
-            << " exceeds max expected, " << CSCConstants::MAX_NUM_WIRES << " +++\n"
+            << " exceeds max expected, " << CSCConstants::MAX_NUM_WIREGROUPS << " +++\n"
             << "+++ CSC geometry looks garbled; no emulation possible +++\n";
         numWireGroups = -1;
       }
@@ -251,7 +251,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
 
   if (!noDigis) {
     // First get wire times from the wire digis.
-    std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
+    std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS];
     readWireDigis(wire);
 
     // Pass an array of wire times on to another run() doing the LCT search.
@@ -279,7 +279,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
   return getALCTs();
 }
 
-void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   bool trigger = false;
 
   // Check if there are any in-time hits and do the pulse extension.
@@ -407,7 +407,8 @@ void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc, const C
   }
 }
 
-void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+void CSCAnodeLCTProcessor::readWireDigis(
+    std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   // Loop over all 6 layers.
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     // Loop over all digis in the layer and find the wireGroup and bx
@@ -464,7 +465,7 @@ void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM
 }
 
 bool CSCAnodeLCTProcessor::pulseExtension(
-    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   bool chamber_empty = true;
   int i_wire, i_layer, digi_num;
   const unsigned int bits_in_pulse = 8 * sizeof(pulse[0][0]);
@@ -740,7 +741,7 @@ bool CSCAnodeLCTProcessor::patternDetection(
 }
 
 void CSCAnodeLCTProcessor::ghostCancellationLogic() {
-  int ghost_cleared[CSCConstants::MAX_NUM_WIRES][2];
+  int ghost_cleared[CSCConstants::MAX_NUM_WIREGROUPS][2];
 
   for (int key_wire = 0; key_wire < numWireGroups; key_wire++) {
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
@@ -1203,7 +1204,7 @@ void CSCAnodeLCTProcessor::dumpConfigParams() const {
 
 // Dump of digis on wire groups.
 void CSCAnodeLCTProcessor::dumpDigis(
-    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const {
+    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) const {
   LogDebug("CSCAnodeLCTProcessor") << theCSCName_ << " nWiregroups " << numWireGroups;
 
   std::ostringstream strstrm;
