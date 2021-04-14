@@ -21,10 +21,9 @@ namespace btagbtvdeep {
   const float catch_infs(const float in, const float replace_value) {
     if (edm::isNotFinite(in))
       return replace_value;
-    else if (in < -1e32 || in > 1e32)
+    if (in < -1e32 || in > 1e32)
       return replace_value;
     return in;
-    return replace_value;
   }
 
   // remove infs/NaN and bound (adapted from DeepNTuples)
