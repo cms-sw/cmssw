@@ -48,12 +48,14 @@ void TrackFoldedOccupancyClient::bookMEs(DQMStore::IBooker& ibooker)
 
   // use the AlgoName and Quality Name
   std::string histname = "TkEtaPhi_RelativeDifference_byFoldingmap_ImpactPoint_" + algoName_;
-  TkEtaPhi_RelativeDifference_byFoldingmap = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+  TkEtaPhi_RelativeDifference_byFoldingmap =
+      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
   TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #eta", 1);
   TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #phi", 2);
 
   histname = "TkEtaPhi_RelativeDifference_byFoldingmap_op_ImpactPoint_" + algoName_;
-  TkEtaPhi_RelativeDifference_byFoldingmap_op = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+  TkEtaPhi_RelativeDifference_byFoldingmap_op =
+      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
   TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #eta", 1);
   TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #phi", 2);
 
@@ -63,7 +65,8 @@ void TrackFoldedOccupancyClient::bookMEs(DQMStore::IBooker& ibooker)
   TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #phi", 2);
 
   histname = "TkEtaPhi_Ratio_byFoldingmap_op_ImpactPoint_" + algoName_;
-  TkEtaPhi_Ratio_byFoldingmap_op = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+  TkEtaPhi_Ratio_byFoldingmap_op =
+      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
   TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #eta", 1);
   TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #phi", 2);
 }
