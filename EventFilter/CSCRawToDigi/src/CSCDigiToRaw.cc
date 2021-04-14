@@ -5,7 +5,7 @@
  */
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/L1TMuon/interface/CSCConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDigiToRaw.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"

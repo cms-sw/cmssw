@@ -3,7 +3,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCBadCFEBTimeSlice.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
-#include "DataFormats/L1TMuon/interface/CSCConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>

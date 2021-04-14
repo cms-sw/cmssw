@@ -1,5 +1,5 @@
 #include "Validation/MuonCSCDigis/interface/CSCStubMatcher.h"
-#include "DataFormats/L1TMuon/interface/CSCConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include <algorithm>
 
 using namespace std;
