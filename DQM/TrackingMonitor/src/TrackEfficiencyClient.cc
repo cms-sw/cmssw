@@ -9,7 +9,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DQM/TrackingMonitor/interface/TrackEfficiencyClient.h"
 
-
 //-----------------------------------------------------------------------------------
 TrackEfficiencyClient::TrackEfficiencyClient(edm::ParameterSet const& iConfig)
 //-----------------------------------------------------------------------------------
