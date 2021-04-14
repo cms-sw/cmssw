@@ -12,9 +12,7 @@
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
-#include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelTemplateHelper.h"
-
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 // the data format of the condition to be inspected
@@ -29,7 +27,6 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
-#include <boost/range/adaptor/indexed.hpp>
 
 // include ROOT
 #include "TH2.h"
@@ -66,6 +63,13 @@ namespace {
   //***********************************************/
   using SiPixelGenErrorIDsBPixMap = SiPixelIDs<SiPixelGenErrorDBObject, SiPixelPI::t_barrel>;
   using SiPixelGenErrorIDsFPixMap = SiPixelIDs<SiPixelGenErrorDBObject, SiPixelPI::t_forward>;
+  using SiPixelGenErrorIDsMap = SiPixelIDs<SiPixelGenErrorDBObject, SiPixelPI::t_all>;
+
+  //************************************************
+  // Full Pixel Tracker Map of Template IDs
+  // ***********************************************/
+  using SiPixelGenErrorIDsFullPixelMap =
+      SiPixelFullPixelIDMap<SiPixelGenErrorDBObject, SiPixelGenErrorStore, SiPixelGenError>;
 
 }  // namespace
 
@@ -75,4 +79,6 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelGenErrorDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorHeaderTable);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsBPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelGenErrorIDsFullPixelMap);
 }

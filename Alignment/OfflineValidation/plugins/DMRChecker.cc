@@ -53,7 +53,7 @@
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
-#include "CondCore/SiPixelPlugins/interface/Phase1PixelMaps.h"
+#include "DQM/TrackerRemapper/interface/Phase1PixelMaps.h"
 #include "CondCore/SiPixelPlugins/interface/PixelRegionContainers.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -98,7 +98,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -1676,19 +1675,19 @@ private:
       pixelmap->beautifyAllHistograms();
 
       TCanvas cBX("CanvXBarrel", "CanvXBarrel", 1200, 1000);
-      pixelmap->DrawBarrelMaps("DMRsX", cBX);
+      pixelmap->drawBarrelMaps("DMRsX", cBX);
       cBX.SaveAs("pixelBarrelDMR_x.png");
 
       TCanvas cFX("CanvXForward", "CanvXForward", 1600, 1000);
-      pixelmap->DrawForwardMaps("DMRsX", cFX);
+      pixelmap->drawForwardMaps("DMRsX", cFX);
       cFX.SaveAs("pixelForwardDMR_x.png");
 
       TCanvas cBY("CanvYBarrel", "CanvYBarrel", 1200, 1000);
-      pixelmap->DrawBarrelMaps("DMRsY", cBY);
+      pixelmap->drawBarrelMaps("DMRsY", cBY);
       cBY.SaveAs("pixelBarrelDMR_y.png");
 
       TCanvas cFY("CanvXForward", "CanvXForward", 1600, 1000);
-      pixelmap->DrawForwardMaps("DMRsY", cFY);
+      pixelmap->drawForwardMaps("DMRsY", cFY);
       cFY.SaveAs("pixelForwardDMR_y.png");
     }
 

@@ -984,7 +984,7 @@ namespace {
           edm::LogWarning("LogicError") << "Unknown estimator: " << est;
           break;
       }
-
+      return 0.;
     }  // payload
   };
 

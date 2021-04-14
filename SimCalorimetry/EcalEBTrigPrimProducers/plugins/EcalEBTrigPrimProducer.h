@@ -39,6 +39,9 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 class EcalEBTrigPrimTestAlgo;
 
@@ -72,6 +75,9 @@ private:
   edm::ESGetToken<EcalTPGLutIdMap, EcalTPGLutIdMapRcd> theEcalTPGLutIdMap_Token_;
   edm::ESGetToken<EcalTPGTowerStatus, EcalTPGTowerStatusRcd> theEcalTPGTowerStatus_Token_;
   edm::ESGetToken<EcalTPGSpike, EcalTPGSpikeRcd> theEcalTPGSpike_Token_;
+  //these are only used if we also handle the endcap
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmapToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theGeometryToken_;
 
   int binOfMaximum_;
   bool fillBinOfMaximumFromHistory_;

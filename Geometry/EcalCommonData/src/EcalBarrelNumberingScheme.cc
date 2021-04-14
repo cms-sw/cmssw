@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include <sstream>
 
 //#define EDM_ML_DEBUG
 
@@ -19,9 +20,12 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
   const uint32_t nLevels(baseNumber.getLevels());
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << "ECalBarrelNumberingScheme geometry levels = " << nLevels;
+  std::ostringstream st1;
+  for (uint32_t k = 0; k < nLevels; ++k)
+    st1 << ", " << baseNumber.getLevelName(k) << ":" << baseNumber.getCopyNumber(k);
+  edm::LogVerbatim("EcalGeom") << "ECalBarrelNumberingScheme geometry levels = " << nLevels << st1.str();
 #endif
-  if (12 > nLevels) {
+  if (11 > nLevels) {
     edm::LogWarning("EcalGeom") << "ECalBarrelNumberingScheme::getUnitID(): "
                                 << "Not enough levels found in EcalBaseNumber ( " << nLevels << ") Returning 0";
     return 0;
@@ -31,25 +35,20 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
 
   const int cryType(::atoi(cryName.c_str() + 5));
 
+  uint32_t wallCopy(0), hawCopy(0), fawCopy(0), supmCopy(0);
   const int off(13 < nLevels ? 3 : 0);
 
-  const uint32_t wallCopy(baseNumber.getCopyNumber(3 + off));
-  const uint32_t hawCopy(baseNumber.getCopyNumber(4 + off));
-  const uint32_t fawCopy(baseNumber.getCopyNumber(5 + off));
-  const uint32_t supmCopy(baseNumber.getCopyNumber(6 + off));
+  if (nLevels != 11) {
+    wallCopy = baseNumber.getCopyNumber(3 + off);
+    hawCopy = baseNumber.getCopyNumber(4 + off);
+    fawCopy = baseNumber.getCopyNumber(5 + off);
+    supmCopy = baseNumber.getCopyNumber(6 + off);
+  } else {
+    wallCopy = baseNumber.getCopyNumber(3);
+  }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << nLevels << ", " << off << ", " << cryType << ", " << baseNumber.getLevelName(0) << ":"
-                               << baseNumber.getCopyNumber(0) << ", " << baseNumber.getLevelName(1) << ":"
-                               << baseNumber.getCopyNumber(1) << ", " << baseNumber.getLevelName(2) << ":"
-                               << baseNumber.getCopyNumber(2) << ", " << baseNumber.getLevelName(3) << ":"
-                               << baseNumber.getCopyNumber(3) << ", " << baseNumber.getLevelName(4) << ":"
-                               << baseNumber.getCopyNumber(4) << ", " << baseNumber.getLevelName(5) << ":"
-                               << baseNumber.getCopyNumber(5) << ", " << baseNumber.getLevelName(6) << ":"
-                               << baseNumber.getCopyNumber(6) << ", " << baseNumber.getLevelName(7) << ":"
-                               << baseNumber.getCopyNumber(7) << ", " << baseNumber.getLevelName(8) << ":"
-                               << baseNumber.getCopyNumber(8) << ", " << baseNumber.getLevelName(9) << ":"
-                               << baseNumber.getCopyNumber(9) << ", " << baseNumber.getLevelName(10) << ":"
-                               << baseNumber.getCopyNumber(10);
+  edm::LogVerbatim("EcalGeom") << nLevels << " off: " << off << " cryType: " << cryType << " wallCopy: " << wallCopy
+                               << " hawCopy: " << hawCopy << " fawCopy: " << fawCopy << " supmCopy: " << supmCopy;
 #endif
   // error checking
 

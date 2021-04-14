@@ -187,7 +187,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d) {
         // Filling of digi occupancy
         Int_t nIdxVFAT = getVFATNumberByStrip(gid.station(), rId.roll(), d->strip());
-        mapTotalDigi_layer_.Fill(key3, gid.chamber(), nIdxVFAT);
+        mapTotalDigi_layer_.Fill(key3, gid.chamber(), nIdxVFAT + 1);
 
         // Filling of strip
         mapStripOcc_ieta_.Fill(key3, rId.roll());  // Roll

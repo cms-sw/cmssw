@@ -17,18 +17,33 @@ CSCComparatorDigiValidation::CSCComparatorDigiValidation(const edm::ParameterSet
 CSCComparatorDigiValidation::~CSCComparatorDigiValidation() {}
 
 void CSCComparatorDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
-  theNDigisPerEventPlot =
-      iBooker.book1D("CSCComparatorDigisPerEvent", ";CSC Comparator Digis per event;Entries", 100, 0, 100);
+  theNDigisPerEventPlot = iBooker.book1D("CSCComparatorDigisPerEvent",
+                                         "CSC Comparator Digis per event;CSC Comparator Digis per event;Entries",
+                                         100,
+                                         0,
+                                         100);
   // 10 chamber types, if you consider ME1/a and ME1/b separate
   for (int i = 1; i <= 10; ++i) {
     const std::string t1("CSCComparatorDigiTime_" + CSCDetId::chamberName(i));
     const std::string t2("CSCComparatorDigisPerLayer_" + CSCDetId::chamberName(i));
     const std::string t3("CSCComparatorStripAmplitude_" + CSCDetId::chamberName(i));
     const std::string t4("CSCComparator3StripAmplitude_" + CSCDetId::chamberName(i));
-    theTimeBinPlots[i - 1] = iBooker.book1D(t1, t1 + ";Comparator Time Bin; Entries", 16, 0, 16);
-    theNDigisPerLayerPlots[i - 1] = iBooker.book1D(t2, t2 + ";Number of Comparator Digis; Entries", 100, 0, 20);
-    theStripDigiPlots[i - 1] = iBooker.book1D(t3, t3 + ";Comparator Amplitude; Entries", 100, 0, 1000);
-    the3StripPlots[i - 1] = iBooker.book1D(t4, t4 + ";Comparator-triplet Amplitude; Entries", 100, 0, 1000);
+    theTimeBinPlots[i - 1] = iBooker.book1D(
+        t1, "Comparator Time Bin " + CSCDetId::chamberName(i) + " ;Comparator Time Bin; Entries", 16, 0, 16);
+    theNDigisPerLayerPlots[i - 1] = iBooker.book1D(
+        t2,
+        "Number of Comparator Digis " + CSCDetId::chamberName(i) + " ;Number of Comparator Digis; Entries",
+        100,
+        0,
+        20);
+    theStripDigiPlots[i - 1] = iBooker.book1D(
+        t3, "Comparator Amplitude " + CSCDetId::chamberName(i) + " ;Comparator Amplitude; Entries", 100, 0, 1000);
+    the3StripPlots[i - 1] = iBooker.book1D(
+        t4,
+        "Comparator-triplet Amplitude " + CSCDetId::chamberName(i) + " ;Comparator-triplet Amplitude; Entries",
+        100,
+        0,
+        1000);
   }
 }
 

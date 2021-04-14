@@ -1967,10 +1967,11 @@ class Plot:
             if self._fit:
                 st.SetOptFit(0o010)
                 st.SetOptStat(1001)
+            st.SetOptStat(1110)
             st.SetX1NDC(startingX)
             st.SetX2NDC(startingX+0.3)
             st.SetY1NDC(startingY+dy)
-            st.SetY2NDC(startingY+dy+0.15)
+            st.SetY2NDC(startingY+dy+0.12)
             st.SetTextColor(col)
 
         dy = 0.0
@@ -1979,7 +1980,7 @@ class Plot:
                 dy += self._statyadjust[i]
 
             _doStats(h, _plotStylesColor[i], dy)
-            dy -= 0.19
+            dy -= 0.16
 
     def _normalize(self):
         """Normalise histograms to unit area"""

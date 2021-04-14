@@ -1,11 +1,11 @@
 /** \class EcalTrigPrimFunctionalAlgo
  *
  * EcalTrigPrimFunctionalAlgo is the main algorithm class for TPG
- * It coordinates all the aother algorithms
+ * It coordinates all the other algorithms
  * Structure is very close to electronics
  *
  *
- * \author Ursula Berthon, Stephanie Baffioni,  LLR Palaiseau
+ * \author Ursula Berthon, Stephanie Baffioni, LLR Palaiseau
  *
  * \version   1st Version may 2006
  * \version   2nd Version jul 2006
@@ -38,8 +38,7 @@
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
 
-#include <TMath.h>
-#include <TTree.h>
+#include <string>
 
 const unsigned int EcalTrigPrimFunctionalAlgo::nrSamples_ = 5;  // to be written
 const unsigned int EcalTrigPrimFunctionalAlgo::maxNrSamplesOut_ = 10;
@@ -54,7 +53,8 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const EcalTrigTowerConsti
                                                        int binofmax,
                                                        bool tcpFormat,
                                                        bool debug,
-                                                       bool famos)
+                                                       bool famos,
+                                                       bool tpInfoPrintout)
     : eTTmap_(eTTmap),
       theEndcapGeometry_(endcapGeometry),
       theMapping_(theMapping),
@@ -62,7 +62,8 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const EcalTrigTowerConsti
       tcpFormat_(tcpFormat),
       barrelOnly_(true),
       debug_(debug),
-      famos_(famos)
+      famos_(famos),
+      tpInfoPrintout_(tpInfoPrintout)
 
 {
   if (famos_)
@@ -73,13 +74,14 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const EcalTrigTowerConsti
 }
 
 EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(
-    const EcalElectronicsMapping *theMapping, int binofmax, bool tcpFormat, bool debug, bool famos)
+    const EcalElectronicsMapping *theMapping, int binofmax, bool tcpFormat, bool debug, bool famos, bool tpInfoPrintout)
     : theMapping_(theMapping),
       binOfMaximum_(binofmax),
       tcpFormat_(tcpFormat),
       barrelOnly_(true),
       debug_(debug),
-      famos_(famos)
+      famos_(famos),
+      tpInfoPrintout_(tpInfoPrintout)
 
 {
   if (famos_)
@@ -92,8 +94,9 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(
 //----------------------------------------------------------------------
 void EcalTrigPrimFunctionalAlgo::init() {
   // create main sub algos
-  estrip_ = std::make_unique<EcalFenixStrip>(theMapping_, debug_, famos_, maxNrSamples_, nbMaxXtals_);
-  etcp_ = std::make_unique<EcalFenixTcp>(tcpFormat_, debug_, famos_, binOfMaximum_, maxNrSamples_, nbMaxStrips_);
+  estrip_ = std::make_unique<EcalFenixStrip>(theMapping_, debug_, famos_, maxNrSamples_, nbMaxXtals_, tpInfoPrintout_);
+  etcp_ = std::make_unique<EcalFenixTcp>(
+      tcpFormat_, debug_, famos_, binOfMaximum_, maxNrSamples_, nbMaxStrips_, tpInfoPrintout_);
 
   // initialise data structures
   initStructures(towerMapEB_);
