@@ -98,13 +98,12 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, ed
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
-  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
-  es.get<CaloGeometryRecord>().get(geom);
-  tools_->setGeometry(*geom);
-  rechitMaker_->set(*geom);
+  const CaloGeometry& geom = es.getData(caloGeomToken_);
+  tools_->setGeometry(geom);
+  rechitMaker_->set(geom);
   if (hgcEE_isSiFE_) {
-    edm::ESHandle<HGCalGeometry> hgceeGeoHandle = es.getHandle(ee_geometry_token_);
-    ddds_[0] = &(hgceeGeoHandle->topology().dddConstants());
+    edm::const HGCalGeometry& hgceeGeoHandle = es.getData(ee_geometry_token_);
+    ddds_[0] = &(hgceeGeoHandle.topology().dddConstants());
   } else {
     ddds_[0] = nullptr;
   }

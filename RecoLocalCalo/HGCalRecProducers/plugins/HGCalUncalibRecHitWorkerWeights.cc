@@ -58,10 +58,10 @@ void configureIt(const edm::ParameterSet& conf, HGCalUncalibRecHitRecWeightsAlgo
 }
 
 HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
-    : HGCalUncalibRecHitWorkerBaseClass(ps, iC) {
-  ee_geometry_token_ = iC.esConsumes(edm::ESInputTag("", "HGCalEESensitive"));
-  hef_geometry_token_ = iC.esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"));
-  hfnose_geometry_token_ = iC.esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"));
+    : HGCalUncalibRecHitWorkerBaseClass(ps, iC),
+  ee_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalEESensitive"))),
+  hef_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
+  hfnose_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))) {
   const edm::ParameterSet& ee_cfg = ps.getParameterSet("HGCEEConfig");
   const edm::ParameterSet& hef_cfg = ps.getParameterSet("HGCHEFConfig");
   const edm::ParameterSet& heb_cfg = ps.getParameterSet("HGCHEBConfig");
@@ -74,8 +74,8 @@ HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::Para
 
 void HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es) {
   if (uncalibMaker_ee_.isSiFESim()) {
-    edm::ESHandle<HGCalGeometry> hgceeGeoHandle = es.getHandle(ee_geometry_token_);
-    uncalibMaker_ee_.setGeometry(hgceeGeoHandle.product());
+    const HGCalGeometry& hgceeGeo = es.getData(ee_geometry_token_);
+    uncalibMaker_ee_.setGeometry(hgceeGeo);
   }
   if (uncalibMaker_hef_.isSiFESim()) {
     edm::ESHandle<HGCalGeometry> hgchefGeoHandle = es.getHandle(hef_geometry_token_);

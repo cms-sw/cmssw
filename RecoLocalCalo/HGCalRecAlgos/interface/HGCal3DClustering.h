@@ -24,8 +24,8 @@ public:
       : radii(radii_in),
         minClusters(min_clusters),
         es(0),
-        clusterTools(std::make_unique<hgcal::ClusterTools>(conf, sumes)) {
-    caloGeomToken_ = sumes.esConsumes<CaloGeometry, CaloGeometryRecord>();
+        clusterTools(std::make_unique<hgcal::ClusterTools>(conf, sumes)),
+        caloGeomToken_(sumes.esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   }
 
   HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
@@ -37,8 +37,8 @@ public:
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
   void getEventSetup(const edm::EventSetup& es) {
     clusterTools->getEventSetup(es);
-    edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
-    rhtools_.setGeometry(*geom);
+    const CaloGeometry& geom = es.getData(caloGeomToken_);
+    rhtools_.setGeometry(geom);
     maxlayer = rhtools_.lastLayerBH();
     points.clear();
     minpos.clear();
