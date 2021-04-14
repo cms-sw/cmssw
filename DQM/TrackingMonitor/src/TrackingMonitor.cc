@@ -747,15 +747,13 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   std::string Folder = MEFolderName.substr(0, 2);
   float lumi = -1.;
   if (forceSCAL_) {
-    edm::Handle<LumiScalersCollection> lumiScalers;
-    iEvent.getByToken(lumiscalersToken_, lumiScalers);
+    edm::Handle<LumiScalersCollection> lumiScalers = iEvent.getHandle(lumiscalersToken_);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
       LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
       lumi = scalit->instantLumi();
     }
   } else {
-    edm::Handle<OnlineLuminosityRecord> metaData;
-    iEvent.getByToken(metaDataToken_, metaData);
+    edm::Handle<OnlineLuminosityRecord> metaData = iEvent.getHandle(metaDataToken_);
     if (metaData.isValid())
       lumi = metaData->instLumi();
   }
@@ -772,12 +770,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     NumberEventsOfVsBX->Fill(bx);
 
   // get the track collection
-  edm::Handle<edm::View<reco::Track> > trackHandle;
-  iEvent.getByToken(trackToken_, trackHandle);
+  edm::Handle<edm::View<reco::Track> > trackHandle = iEvent.getHandle(trackToken_);
 
   int numberOfTracks_den = 0;
-  edm::Handle<edm::View<reco::Track> > allTrackHandle;
-  iEvent.getByToken(allTrackToken_, allTrackHandle);
+  edm::Handle<edm::View<reco::Track> > allTrackHandle = iEvent.getHandle(allTrackToken_);
   if (allTrackHandle.isValid()) {
     for (edm::View<reco::Track>::const_iterator track = allTrackHandle->begin(); track != allTrackHandle->end();
          ++track) {
@@ -786,8 +782,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     }
   }
 
-  edm::Handle<reco::VertexCollection> pvHandle;
-  iEvent.getByToken(pvSrcToken_, pvHandle);
+  edm::Handle<reco::VertexCollection> pvHandle = iEvent.getHandle(pvSrcToken_);
   reco::Vertex const* pv0 = nullptr;
   if (pvHandle.isValid()) {
     pv0 = &pvHandle->front();
@@ -894,21 +889,18 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       MagneticField const& theMF = iSetup.getData(magneticFieldToken_);
 
       // get the candidate collection
-      edm::Handle<TrackCandidateCollection> theTCHandle;
-      iEvent.getByToken(trackCandidateToken_, theTCHandle);
+      edm::Handle<TrackCandidateCollection> theTCHandle = iEvent.getHandle(trackCandidateToken_);
       const TrackCandidateCollection& theTCCollection = *theTCHandle;
 
       if (theTCHandle.isValid()) {
         // get the beam spot
-        edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-        iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle);
+        edm::Handle<reco::BeamSpot> recoBeamSpotHandle = iEvent.getHandle(bsSrcToken_);
         const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
         NumberOfTrackCandidates->Fill(theTCCollection.size());
 
         // get the seed collection
-        edm::Handle<edm::View<TrajectorySeed> > seedHandle;
-        iEvent.getByToken(seedToken_, seedHandle);
+        edm::Handle<edm::View<TrajectorySeed> > seedHandle = iEvent.getHandle(seedToken_);
         const edm::View<TrajectorySeed>& seedCollection = *seedHandle;
         if (seedHandle.isValid() && !seedCollection.empty())
           FractionCandidatesOverSeeds->Fill(double(theTCCollection.size()) / double(seedCollection.size()));
@@ -927,15 +919,13 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         std::vector<const MVACollection*> mvaCollections;
         std::vector<const QualityMaskCollection*> qualityMaskCollections;
 
-        edm::Handle<edm::View<reco::Track> > htracks;
-        iEvent.getByToken(mvaTrackToken_, htracks);
+        edm::Handle<edm::View<reco::Track> > htracks = iEvent.getHandle(mvaTrackToken_);
 
         edm::Handle<MVACollection> hmva;
         edm::Handle<QualityMaskCollection> hqual;
         for (const auto& tokenTpl : mvaQualityTokens_) {
-          iEvent.getByToken(std::get<0>(tokenTpl), hmva);
-          iEvent.getByToken(std::get<1>(tokenTpl), hqual);
-
+          hmva = iEvent.getHandle(std::get<0>(tokenTpl));
+          hqual = iEvent.getHandle(std::get<1>(tokenTpl));
           mvaCollections.push_back(hmva.product());
           qualityMaskCollections.push_back(hqual.product());
         }
@@ -947,8 +937,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     if (doAllSeedPlots || doSeedNumberPlot || doSeedVsClusterPlot || runTrackBuildingAnalyzerForSeed) {
       // get the seed collection
-      edm::Handle<edm::View<TrajectorySeed> > seedHandle;
-      iEvent.getByToken(seedToken_, seedHandle);
+      edm::Handle<edm::View<TrajectorySeed> > seedHandle = iEvent.getHandle(seedToken_);
 
       // fill the seed info
       if (seedHandle.isValid()) {
@@ -969,8 +958,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
 
         if (doAllSeedPlots || runTrackBuildingAnalyzerForSeed) {
-          edm::Handle<std::vector<SeedStopInfo> > stopHandle;
-          iEvent.getByToken(seedStopInfoToken_, stopHandle);
+          edm::Handle<std::vector<SeedStopInfo> > stopHandle = iEvent.getHandle(seedStopInfoToken_);
           const auto& seedStopInfo = *stopHandle;
 
           if (seedStopInfo.size() == seedCollection.size()) {
@@ -979,8 +967,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
             MagneticField const& theMF = iSetup.getData(magneticFieldToken_);
 
             // get the beam spot
-            edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-            iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle);
+            edm::Handle<reco::BeamSpot> recoBeamSpotHandle = iEvent.getHandle(bsSrcToken_);
             const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
             TransientTrackingRecHitBuilder const& theTTRHBuilder = iSetup.getData(transientTrackingRecHitBuilderToken_);
@@ -1004,15 +991,13 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     // plots for tracking regions
     if (doRegionPlots) {
       if (!regionToken_.isUninitialized()) {
-        edm::Handle<edm::OwnVector<TrackingRegion> > hregions;
-        iEvent.getByToken(regionToken_, hregions);
+        edm::Handle<edm::OwnVector<TrackingRegion> > hregions = iEvent.getHandle(regionToken_);
         const auto& regions = *hregions;
         NumberOfTrackingRegions->Fill(regions.size());
 
         theTrackBuildingAnalyzer->analyze(regions);
       } else if (!regionLayerSetsToken_.isUninitialized()) {
-        edm::Handle<TrackingRegionsSeedingLayerSets> hregions;
-        iEvent.getByToken(regionLayerSetsToken_, hregions);
+        edm::Handle<TrackingRegionsSeedingLayerSets> hregions = iEvent.getHandle(regionLayerSetsToken_);
         const auto& regions = *hregions;
         NumberOfTrackingRegions->Fill(regions.regionsSize());
 
@@ -1020,8 +1005,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
 
       if (doRegionCandidatePlots) {
-        edm::Handle<reco::CandidateView> hcandidates;
-        iEvent.getByToken(regionCandidateToken_, hcandidates);
+        edm::Handle<reco::CandidateView> hcandidates = iEvent.getHandle(regionCandidateToken_);
         theTrackBuildingAnalyzer->analyze(*hcandidates);
       }
     }
@@ -1155,10 +1139,8 @@ void TrackingMonitor::setNclus(const edm::Event& iEvent, std::vector<int>& array
   int ncluster_pix = -1;
   int ncluster_strip = -1;
 
-  edm::Handle<edmNew::DetSetVector<SiStripCluster> > strip_clusters;
-  iEvent.getByToken(stripClustersToken_, strip_clusters);
-  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixel_clusters;
-  iEvent.getByToken(pixelClustersToken_, pixel_clusters);
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > strip_clusters = iEvent.getHandle(stripClustersToken_);
+  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixel_clusters = iEvent.getHandle(pixelClustersToken_);
 
   if (strip_clusters.isValid() && pixel_clusters.isValid()) {
     ncluster_pix = (*pixel_clusters).dataSize();
