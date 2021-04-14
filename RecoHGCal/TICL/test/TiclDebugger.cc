@@ -65,9 +65,9 @@ TiclDebugger::TiclDebugger(const edm::ParameterSet& iConfig)
     : trackstersMerge_(iConfig.getParameter<edm::InputTag>("trackstersMerge")),
       tracks_(iConfig.getParameter<edm::InputTag>("tracks")),
       caloParticles_(iConfig.getParameter<edm::InputTag>("caloParticles")),
-      layerClusters_(iConfig.getParameter<edm::InputTag>("layerClusters")) {
+      layerClusters_(iConfig.getParameter<edm::InputTag>("layerClusters")),
+      caloGeometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()) {
   edm::ConsumesCollector&& iC = consumesCollector();
-  caloGeometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
   trackstersMergeToken_ = iC.consumes<std::vector<ticl::Trackster>>(trackstersMerge_);
   tracksToken_ = iC.consumes<std::vector<reco::Track>>(tracks_);
   caloParticlesToken_ = iC.consumes<std::vector<CaloParticle>>(caloParticles_);
@@ -211,7 +211,7 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 void TiclDebugger::beginRun(edm::Run const&, edm::EventSetup const& es) {
-  const CaloGeometry& geom = es.getHandle(caloGeometry_token_);
+  const CaloGeometry& geom = es.getData(caloGeometry_token_);
   rhtools_.setGeometry(geom);
 }
 

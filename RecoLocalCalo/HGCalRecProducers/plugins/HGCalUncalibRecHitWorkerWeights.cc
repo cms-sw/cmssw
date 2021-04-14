@@ -74,17 +74,14 @@ HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::Para
 
 void HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es) {
   if (uncalibMaker_ee_.isSiFESim()) {
-    const HGCalGeometry& hgceeGeo = es.getData(ee_geometry_token_);
-    uncalibMaker_ee_.setGeometry(hgceeGeo);
+    uncalibMaker_ee_.setGeometry(&es.getData(ee_geometry_token_));
   }
   if (uncalibMaker_hef_.isSiFESim()) {
-    edm::ESHandle<HGCalGeometry> hgchefGeoHandle = es.getHandle(hef_geometry_token_);
-    uncalibMaker_hef_.setGeometry(hgchefGeoHandle.product());
+    uncalibMaker_hef_.setGeometry(&es.getData(hef_geometry_token_));
   }
   uncalibMaker_heb_.setGeometry(nullptr);
   if (uncalibMaker_hfnose_.isSiFESim()) {
-    edm::ESHandle<HGCalGeometry> hgchfnoseGeoHandle = es.getHandle(hfnose_geometry_token_);
-    uncalibMaker_hfnose_.setGeometry(hgchfnoseGeoHandle.product());
+    uncalibMaker_hfnose_.setGeometry(&es.getData(hfnose_geometry_token_));
   }
 }
 

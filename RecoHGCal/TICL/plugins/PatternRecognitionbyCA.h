@@ -27,11 +27,11 @@ namespace ticl {
                                      const edm::ProductID& collectionID) const;
 
   private:
-    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     void mergeTrackstersTRK(const std::vector<Trackster>&,
                             const std::vector<reco::CaloCluster>&,
                             std::vector<Trackster>&,
                             std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const std::unique_ptr<HGCGraphT<TILES>> theGraph_;
     const bool oneTracksterPerTrackSeed_;
     const bool promoteEmptyRegionToTrackster_;
