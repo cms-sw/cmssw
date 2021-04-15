@@ -401,8 +401,8 @@ void CSCCathodeLCTAnalyzer::setGeometry(const CSCGeometry* geom) { geom_ = geom;
 double CSCCathodeLCTAnalyzer::getStripPhi(const CSCDetId& layerId, const float strip) {
   // Returns phi position of a given strip.
   if (strip < 0. || strip >= CSCConstants::NUM_STRIPS_5CFEBS) {
-    edm::LogWarning("L1CSCTPEmulatorWrongInput")
-        << "+++ Warning: strip, " << strip << ", is not in [0-" << CSCConstants::NUM_STRIPS_5CFEBS << ") interval +++\n";
+    edm::LogWarning("L1CSCTPEmulatorWrongInput") << "+++ Warning: strip, " << strip << ", is not in [0-"
+                                                 << CSCConstants::NUM_STRIPS_5CFEBS << ") interval +++\n";
   }
 
   const CSCLayer* csclayer = geom_->layer(layerId);

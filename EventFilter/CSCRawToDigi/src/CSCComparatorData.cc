@@ -195,8 +195,8 @@ std::vector<CSCComparatorDigi> CSCComparatorData::comparatorDigis(int layer) {
 void CSCComparatorData::add(const CSCComparatorDigi& digi, int layer) {
   int strip = digi.getStrip();
   int halfstrip = digi.getHalfStrip();
-  int cfeb = (strip - 1) / CSCConstants::NUM_STRIPS_PER_CFEB;
-  int distrip = ((strip - 1) % CSCConstants::NUM_STRIPS_PER_CFEB) / 2;
+  int cfeb = digi.getCFEB();
+  int distrip = digi.getDiStrip();
 
   // Check the distrip and half-strip number
   assert(cfeb < CSCConstants::MAX_CFEBS);
@@ -234,8 +234,8 @@ void CSCComparatorData::add(const CSCComparatorDigi& digi, const CSCDetId& cid) 
 
   int strip = digi.getStrip();
   int halfstrip = digi.getHalfStrip();
-  int cfeb = (strip - 1) / CSCConstants::NUM_STRIPS_PER_CFEB;
-  int distrip = ((strip - 1) % CSCConstants::NUM_STRIPS_PER_CFEB) / 2;
+  int cfeb = digi.getCFEB();
+  int distrip = digi.getDiStrip();
   int bit2 = (strip - 1) % 2;
   int bit3 = digi.getComparator();
 

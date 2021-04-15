@@ -19,6 +19,10 @@ bool CSCStripDigi::operator==(const CSCStripDigi& digi) const {
   return true;
 }
 
+/// Get the CFEB number. Counts from 0.
+// originally defined in EventFilter/CSCRawToDigi/src/CSCComparatorData.cc
+int CSCStripDigi::getCFEB() const { return (strip - 1) / CSCConstants::NUM_STRIPS_PER_CFEB; }
+
 void CSCStripDigi::setADCCounts(const std::vector<int>& vADCCounts) {
   bool badVal = false;
   for (int i = 0; i < (int)vADCCounts.size(); i++) {
