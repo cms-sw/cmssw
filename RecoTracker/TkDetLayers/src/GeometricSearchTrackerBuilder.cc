@@ -42,52 +42,52 @@ GeometricSearchTracker *GeometricSearchTrackerBuilder::build(const GeometricDet 
   bool useBrothers = !usePhase2Stacks;
 
   auto const &theGeometricDetLayers = theGeometricTracker->components();
-  for (auto const *theGeomDetLayer : theGeometricDetLayers) {
+  for (auto const &theGeomDetLayer : theGeometricDetLayers) {
     if (theGeomDetLayer->type() == GeometricDet::PixelBarrel) {
       auto const &thePxlBarGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : thePxlBarGeometricDetLayers) {
+      for (auto const &thisGeomDet : thePxlBarGeometricDetLayers) {
         thePxlBarLayers.push_back(aPixelBarrelLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
       }
     }
 
     if (theGeomDetLayer->type() == GeometricDet::PixelPhase1Barrel) {
       auto const &thePxlBarGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : thePxlBarGeometricDetLayers) {
+      for (auto const &thisGeomDet : thePxlBarGeometricDetLayers) {
         thePxlBarLayers.push_back(aPixelBarrelLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
       }
     }
 
     if (theGeomDetLayer->type() == GeometricDet::PixelPhase2Barrel) {
       auto const &thePxlBarGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : thePxlBarGeometricDetLayers) {
+      for (auto const &thisGeomDet : thePxlBarGeometricDetLayers) {
         thePxlBarLayers.push_back(aPixelBarrelLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
       }
     }
 
     if (theGeomDetLayer->type() == GeometricDet::TIB) {
       auto const &theTIBGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : theTIBGeometricDetLayers) {
+      for (auto const &thisGeomDet : theTIBGeometricDetLayers) {
         theTIBLayers.push_back(aTIBLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
       }
     }
 
     if (theGeomDetLayer->type() == GeometricDet::TOB) {
       auto const &theTOBGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : theTOBGeometricDetLayers) {
+      for (auto const &thisGeomDet : theTOBGeometricDetLayers) {
         theTOBLayers.push_back(aTOBLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
       }
     }
 
     if (theGeomDetLayer->type() == GeometricDet::OTPhase2Barrel) {
       auto const &theTOBGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : theTOBGeometricDetLayers) {
+      for (auto const &thisGeomDet : theTOBGeometricDetLayers) {
         theTOBLayers.push_back(aPhase2OTBarrelLayerBuilder.build(thisGeomDet, theGeomDetGeometry, useBrothers));
       }
     }
 
     if (theGeomDetLayer->type() == GeometricDet::PixelEndCap) {
       auto const &thePxlFwdGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : thePxlFwdGeometricDetLayers) {
+      for (auto const &thisGeomDet : thePxlFwdGeometricDetLayers) {
         if (thisGeomDet->positionBounds().z() < 0)
           theNegPxlFwdLayers.push_back(aPixelForwardLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
         else
@@ -97,7 +97,7 @@ GeometricSearchTracker *GeometricSearchTrackerBuilder::build(const GeometricDet 
 
     if (theGeomDetLayer->type() == GeometricDet::PixelPhase1EndCap) {
       auto const &thePxlFwdGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : thePxlFwdGeometricDetLayers) {
+      for (auto const &thisGeomDet : thePxlFwdGeometricDetLayers) {
         if (thisGeomDet->positionBounds().z() < 0)
           theNegPxlFwdLayers.push_back(aPhase1PixelForwardLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
         else
@@ -107,7 +107,7 @@ GeometricSearchTracker *GeometricSearchTrackerBuilder::build(const GeometricDet 
 
     if (theGeomDetLayer->type() == GeometricDet::PixelPhase2EndCap) {
       auto const &thePxlFwdGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : thePxlFwdGeometricDetLayers) {
+      for (auto const &thisGeomDet : thePxlFwdGeometricDetLayers) {
         //FIXME: this is just to keep the compatibility with the PixelPhase1 extension layout
         //hopefully we can get rid of it soon
         if (thisGeomDet->positionBounds().z() < 0) {
@@ -131,7 +131,7 @@ GeometricSearchTracker *GeometricSearchTrackerBuilder::build(const GeometricDet 
 
     if (theGeomDetLayer->type() == GeometricDet::TID) {
       auto const &theTIDGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : theTIDGeometricDetLayers) {
+      for (auto const &thisGeomDet : theTIDGeometricDetLayers) {
         if (thisGeomDet->positionBounds().z() < 0)
           theNegTIDLayers.push_back(aTIDLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
         else
@@ -141,7 +141,7 @@ GeometricSearchTracker *GeometricSearchTrackerBuilder::build(const GeometricDet 
 
     if (theGeomDetLayer->type() == GeometricDet::OTPhase2EndCap) {
       auto const &theTIDGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : theTIDGeometricDetLayers) {
+      for (auto const &thisGeomDet : theTIDGeometricDetLayers) {
         if (thisGeomDet->positionBounds().z() < 0)
           theNegTIDLayers.push_back(aPhase2EndcapLayerBuilder.build(thisGeomDet, theGeomDetGeometry, useBrothers));
         else
@@ -151,7 +151,7 @@ GeometricSearchTracker *GeometricSearchTrackerBuilder::build(const GeometricDet 
 
     if (theGeomDetLayer->type() == GeometricDet::TEC) {
       auto const &theTECGeometricDetLayers = theGeomDetLayer->components();
-      for (auto const *thisGeomDet : theTECGeometricDetLayers) {
+      for (auto const &thisGeomDet : theTECGeometricDetLayers) {
         if (thisGeomDet->positionBounds().z() < 0)
           theNegTECLayers.push_back(aTECLayerBuilder.build(thisGeomDet, theGeomDetGeometry));
         else
