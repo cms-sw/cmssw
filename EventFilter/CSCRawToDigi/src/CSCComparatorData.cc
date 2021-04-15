@@ -199,7 +199,7 @@ void CSCComparatorData::add(const CSCComparatorDigi& digi, int layer) {
   int distrip = ((strip - 1) % CSCConstants::NUM_STRIPS_PER_CFEB) / 2;
 
   // Check the distrip and half-strip number
-  assert(cfeb <= CSCConstants::MAX_CFEBS);
+  assert(cfeb < CSCConstants::MAX_CFEBS);
   assert(distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB);
   // note that half-strips are not staggered in the packer
   assert(halfstrip < CSCConstants::MAX_NUM_HALF_STRIPS_5CFEBS);
@@ -241,12 +241,12 @@ void CSCComparatorData::add(const CSCComparatorDigi& digi, const CSCDetId& cid) 
 
   // Check the distrip and half-strip number
   if (theFirmwareVersion >= 2013) {
-    assert(cfeb <= CSCConstants::MAX_CFEBS_RUN2);
+    assert(cfeb < CSCConstants::MAX_CFEBS_RUN2);
     assert(distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB);
     // note that half-strips are not staggered in the packer
     assert(halfstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS);
   } else {
-    assert(cfeb <= CSCConstants::MAX_CFEBS);
+    assert(cfeb < CSCConstants::MAX_CFEBS);
     assert(distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB);
     // note that half-strips are not staggered in the packer
     assert(halfstrip < CSCConstants::NUM_HALF_STRIPS_5CFEBS);
