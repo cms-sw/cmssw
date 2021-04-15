@@ -3,7 +3,7 @@ from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
-                         #pythiaHepMCVerbosity = cms.untracked.bool(False),
+                         pythiaHepMCVerbosity = cms.untracked.bool(False),
                          comEnergy = cms.double(14000.0),
                          maxEventsToPrint = cms.untracked.int32(0),
                          pythiaPylistVerbosity = cms.untracked.int32(1),
@@ -15,6 +15,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         processParameters = cms.vstring(
             'HiggsSM:ff2Hff(t:ZZ) = on',
             'HiggsSM:ff2Hff(t:WW) = on',
+            '25:m0 = 125',
             '25:onMode = off',
             '25:onIfMatch = 23 23',
             '23:onMode = off',
