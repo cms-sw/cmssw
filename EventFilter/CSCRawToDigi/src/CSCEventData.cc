@@ -506,6 +506,8 @@ void CSCEventData::add(const std::vector<CSCCorrelatedLCTDigi>& digis) {
   theTMBData->tmbHeader()->add(digis);
 }
 
+void CSCEventData::add(const std::vector<CSCShowerDigi>& digis) { checkTMBClasses(); }
+
 void CSCEventData::add(const std::vector<GEMPadDigiCluster>& clusters, const GEMDetId&) { checkTMBClasses(); }
 
 std::ostream& operator<<(std::ostream& os, const CSCEventData& evt) {

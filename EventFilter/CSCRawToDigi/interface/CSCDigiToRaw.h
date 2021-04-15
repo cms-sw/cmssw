@@ -15,6 +15,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,6 +38,7 @@ public:
                         const CSCCLCTPreTriggerCollection* preTriggers,
                         const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
                         const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
+                        const CSCShowerDigiCollection* showerDigis,
                         const GEMPadDigiClusterCollection* padDigiClusters,
                         FEDRawDataCollection& fed_buffers,
                         const CSCChamberMap* theMapping,
@@ -72,6 +74,7 @@ private:
   void add(const CSCALCTDigiCollection& alctDigis, FindEventDataInfo&) const;
   void add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo&) const;
   void add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindEventDataInfo&) const;
+  void add(const CSCShowerDigiCollection& cscShowerDigis, FindEventDataInfo&) const;
   void add(const GEMPadDigiClusterCollection& gemPadClusters, FindEventDataInfo&) const;
   /// pick out the correct data object for this chamber
   CSCEventData& findEventData(const CSCDetId& cscDetId, FindEventDataInfo&) const;
