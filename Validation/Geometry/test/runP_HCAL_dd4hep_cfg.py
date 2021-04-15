@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('PROD',Run3)
+from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+process = cms.Process('PROD',Run3_dd4hep)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2021_cff")
+process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('matbdgHCAL_run3.root')
+    fileName = cms.string('matbdgHCAL_run3_dd4hep.root')
 )
 
 process.p1 = cms.Path(process.g4SimHits)
@@ -48,10 +48,6 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         EtaHigh      = cms.untracked.double(5.2),
         EtaMinP      = cms.untracked.double(5.2),
         EtaMaxP      = cms.untracked.double(0.0),
-#       EtaMinP      = cms.untracked.double(1.39),
-#       EtaMaxP      = cms.untracked.double(1.42),
-#       EtaMinP      = cms.untracked.double(2.90),
-#       EtaMaxP      = cms.untracked.double(3.00),
         EtaLowMin    = cms.untracked.double(0.783),
         EtaLowMax    = cms.untracked.double(0.870),
         EtaMidMin    = cms.untracked.double(2.650),
@@ -60,7 +56,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         EtaHighMax   = cms.untracked.double(3.000),
         RMax         = cms.untracked.double(5.0),
         ZMax         = cms.untracked.double(14.0),
-        Fromdd4hep   = cms.untracked.bool(False)
+        Fromdd4hep   = cms.untracked.bool(True)
     ),
     type = cms.string('MaterialBudgetHcal')
 ))
