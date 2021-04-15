@@ -310,8 +310,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
 
   if (hasDigis) {
     // Get halfstrip times from comparator digis.
-    std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS];
-    readComparatorDigis(halfstrip);
+    std::vector<int> halfStripTimes[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+    readComparatorDigis(halfStripTimes);
 
     // Pass arrays of halfstrips on to another run() doing the
     // LCT search.
@@ -322,7 +322,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
     unsigned int layersHit = 0;
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
       for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
-        if (!halfstrip[i_layer][i_hstrip].empty()) {
+        if (!halfStripTimes[i_layer][i_hstrip].empty()) {
           layersHit++;
           break;
         }
@@ -332,10 +332,10 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
     // to fire is not null.  (Pre-trigger decisions are used for the
     // strip read-out conditions in DigiToRaw.)
     if (layersHit >= nplanes_hit_pretrig)
-      run(halfstrip);
+      run(halfStripTimes);
 
     // Get the high multiplicity bits in this chamber
-    encodeHighMultiplicityBits(halfstrip);
+    encodeHighMultiplicityBits(halfStripTimes);
   }
 
   // Return vector of CLCTs.
@@ -1476,15 +1476,16 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
   inTimeHMT_ = 0;
   outTimeHMT_ = 0;
 
+  // functions for in-time and out-of-time
   auto inTime = [=](unsigned time) { return time >= showerMinInTBin_ and time <= showerMaxInTBin_; };
   auto outTime = [=](unsigned time) { return time >= showerMinOutTBin_ and time <= showerMaxOutTBin_; };
 
+  // count the half-strips in-time and out-time
   unsigned hitsInTime = 0;
   unsigned hitsOutTime = 0;
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
       auto times = halfstrip[i_layer][i_hstrip];
-      // count the half-strips in-time and out-time
       hitsInTime += std::count_if(times.begin(), times.end(), inTime);
       hitsOutTime += std::count_if(times.begin(), times.end(), outTime);
     }
@@ -1498,6 +1499,7 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
   std::vector<unsigned> station_thresholds = {
       thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
 
+  // assign the bits
   for (unsigned i = 0; i < station_thresholds.size(); i++) {
     if (hitsInTime >= station_thresholds[i]) {
       inTimeHMT_ = i + 1;
@@ -1506,4 +1508,8 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
       outTimeHMT_ = i + 1;
     }
   }
+
+  // no shower object is created here. that is done at a later stage
+  // in the motherboar, where potentially the trigger decisions from
+  // anode hit counters and cathode hit counters are combined
 }
