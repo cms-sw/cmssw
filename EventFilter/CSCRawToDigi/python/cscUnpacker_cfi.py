@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # Import from the generic cfi file for CSC unpacking
-import EventFilter.CSCRawToDigi.muonCSCDCCUnpacker_cfi
+from EventFilter.CSCRawToDigi.muonCSCDCCUnpacker_cfi import muonCSCDCCUnpacker
+muonCSCDigis = muonCSCDCCUnpacker.clone()
 
-muonCSCDigis = EventFilter.CSCRawToDigi.muonCSCDCCUnpacker_cfi.muonCSCDCCUnpacker.clone()
 # Define input to the unpacker
 muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
 # Use CSC examiner to check for corrupt or semi-corrupt data & avoid unpacker crashes

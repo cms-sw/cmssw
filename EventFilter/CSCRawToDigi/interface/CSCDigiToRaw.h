@@ -1,5 +1,5 @@
-#ifndef EventFilter_CSCDigiToRaw_h
-#define EventFilter_CSCDigiToRaw_h
+#ifndef EventFilter_CSCRawToDigi_CSCDigiToRaw_h
+#define EventFilter_CSCRawToDigi_CSCDigiToRaw_h
 
 /** \class CSCDigiToRaw
  *
@@ -13,6 +13,7 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
@@ -34,6 +35,7 @@ public:
                         const CSCALCTDigiCollection& alctDigis,
                         const CSCCLCTDigiCollection& clctDigis,
                         const CSCCLCTPreTriggerCollection* preTriggers,
+                        const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
                         const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
                         const GEMPadDigiClusterCollection* padDigiClusters,
                         FEDRawDataCollection& fed_buffers,
@@ -55,6 +57,7 @@ private:
   // specialized because it reverses strip direction
   void add(const CSCStripDigiCollection& stripDigis,
            const CSCCLCTPreTriggerCollection* preTriggers,
+           const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
            FindEventDataInfo&,
            bool packEverything) const;
   void add(const CSCWireDigiCollection& wireDigis,
