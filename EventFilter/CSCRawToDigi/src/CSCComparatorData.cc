@@ -202,7 +202,7 @@ void CSCComparatorData::add(const CSCComparatorDigi& digi, int layer) {
   assert(cfeb < CSCConstants::MAX_CFEBS);
   assert(distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB);
   // note that half-strips are not staggered in the packer
-  assert(halfstrip < CSCConstants::MAX_NUM_HALF_STRIPS_5CFEBS);
+  assert(halfstrip < CSCConstants::NUM_HALF_STRIPS_5CFEBS);
 
   std::vector<int> timeBinsOn = digi.getTimeBinsOn();
   for (std::vector<int>::const_iterator tbinItr = timeBinsOn.begin(); tbinItr != timeBinsOn.end(); ++tbinItr) {
