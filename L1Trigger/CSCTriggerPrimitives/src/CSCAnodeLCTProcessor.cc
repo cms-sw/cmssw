@@ -259,9 +259,9 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
   bool hasDigis = getDigis(wiredc);
 
   if (hasDigis) {
-    // First get wire times from the wire digis.
-    std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
-    readWireDigis(wire);
+    // First get wiregroup times from the wire digis.
+    std::vector<int> wireGroupTimes[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
+    readWireDigis(wireGroupTimes);
 
     // Pass an array of wire times on to another run() doing the LCT search.
     // If the number of layers containing digis is smaller than that
@@ -274,17 +274,16 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
     unsigned int layersHit = 0;
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
       for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
-        if (!wire[i_layer][i_wire].empty()) {
+        if (!wireGroupTimes[i_layer][i_wire].empty()) {
           layersHit++;
           break;
         }
       }
     }
     if (layersHit >= min_layers)
-      run(wire);
-
+      run(wireGroupTimes);
     // Get the high multiplicity bits in this chamber
-    encodeHighMultiplicityBits(wire);
+    encodeHighMultiplicityBits(wireGroupTimes);
   }
 
   // Return vector of all found ALCTs.
@@ -298,7 +297,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
   bool chamber_empty = pulseExtension(wire);
 
   // define a new pattern map
-  // for each key half wire, and for each pattern, store the 2D collection of fired wire digis
+  // for each key wiregroup, and for each pattern, store the 2D collection of fired wiregroup digis
   std::map<int, std::map<int, CSCALCTDigi::WireContainer>> hits_in_patterns;
   hits_in_patterns.clear();
 
@@ -1400,19 +1399,20 @@ void CSCAnodeLCTProcessor::setWireContainer(CSCALCTDigi& alct, CSCALCTDigi::Wire
 }
 
 void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(
-    const std::vector<int> wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+                                                      const std::vector<int> wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
   inTimeHMT_ = 0;
   outTimeHMT_ = 0;
 
+  // functions for in-time and out-of-time
   auto inTime = [=](unsigned time) { return time >= showerMinInTBin_ and time <= showerMaxInTBin_; };
   auto outTime = [=](unsigned time) { return time >= showerMinOutTBin_ and time <= showerMaxOutTBin_; };
 
+  // count the wires in-time and out-time
   unsigned hitsInTime = 0;
   unsigned hitsOutTime = 0;
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
-      auto times = wires[i_layer][i_hstrip];
-      // count the wires in-time and out-time
+    for (int i_wire = 0; i_wire < CSCConstants::MAX_NUM_WIRES; i_wire++) {
+      auto times = wires[i_layer][i_wire];
       hitsInTime += std::count_if(times.begin(), times.end(), inTime);
       hitsOutTime += std::count_if(times.begin(), times.end(), outTime);
     }
@@ -1426,6 +1426,7 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(
   std::vector<unsigned> station_thresholds = {
       thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
 
+  // assign the bits
   for (unsigned i = 0; i < station_thresholds.size(); i++) {
     if (hitsInTime >= station_thresholds[i]) {
       inTimeHMT_ = i + 1;

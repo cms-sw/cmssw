@@ -708,12 +708,14 @@ CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
 }
 
 void CSCMotherboard::encodeHighMultiplicityBits() {
-  // get the hmt bits
+  // get the high multiplicity
+  // for anode this reflects what is already in the anode CSCShowerDigi object
   unsigned cathodeInTime = clctProc->getInTimeHMT();
   unsigned cathodeOutTime = clctProc->getOutTimeHMT();
   unsigned anodeInTime = alctProc->getInTimeHMT();
   unsigned anodeOutTime = alctProc->getOutTimeHMT();
 
+  // assign the bits
   unsigned inTimeHMT_;
   unsigned outTimeHMT_;
 
