@@ -119,7 +119,6 @@ private:
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_tm_phiOut_Token;
   edm::EDGetTokenT<L1MuDTChambThContainer> m_tm_theta_Token;
   edm::EDGetTokenT<L1Phase2MuDTPhContainer> m_ab7_phi_Token;
-
 };
 
 #endif
