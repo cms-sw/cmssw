@@ -215,25 +215,35 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
   edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecdBx5;
   event.getByToken(ecalTPSourceRecdBx5_, ecalTPsRecdBx5);
 
-  if (ecalTPsRecdBx1.compressedEt() > tpFillThreshold_) {
-    eventMonitors.ecalOccRecd5Bx_->Fill(1);
-    eventMonitors.ecalOccRecd5BxEtWgt_->Fill(1, ecalTPsRecdBx1.compressedEt());
+  for (const auto& tp : (*ecalTPsRecdBx1)) {
+    if (tp.compressedEt() > tpFillThreshold_) {
+      eventMonitors.ecalOccRecd5Bx_->Fill(1);
+      eventMonitors.ecalOccRecd5BxEtWgt_->Fill(1, tp.compressedEt());
+    }
   }
-  if (ecalTPsRecdBx2.compressedEt() > tpFillThreshold_) {
-    eventMonitors.ecalOccRecd5Bx_->Fill(2);
-    eventMonitors.ecalOccRecd5BxEtWgt_->Fill(2, ecalTPsRecdBx2.compressedEt());
+  for (const auto& tp : (*ecalTPsRecdBx2)) {
+    if (tp.compressedEt() > tpFillThreshold_) {
+      eventMonitors.ecalOccRecd5Bx_->Fill(2);
+      eventMonitors.ecalOccRecd5BxEtWgt_->Fill(2, tp.compressedEt());
+    }
   }
-  if (ecalTPsRecdBx3.compressedEt() > tpFillThreshold_) {
-    eventMonitors.ecalOccRecd5Bx_->Fill(3);
-    eventMonitors.ecalOccRecd5BxEtWgt_->Fill(3, ecalTPsRecdBx3.compressedEt());
+  for (const auto& tp : (*ecalTPsRecdBx3)) {
+    if (tp.compressedEt() > tpFillThreshold_) {
+      eventMonitors.ecalOccRecd5Bx_->Fill(3);
+      eventMonitors.ecalOccRecd5BxEtWgt_->Fill(3, tp.compressedEt());
+    }
   }
-  if (ecalTPsRecdBx4.compressedEt() > tpFillThreshold_) {
-    eventMonitors.ecalOccRecd5Bx_->Fill(4);
-    eventMonitors.ecalOccRecd5BxEtWgt_->Fill(4, ecalTPsRecdBx4.compressedEt());
+  for (const auto& tp : (*ecalTPsRecdBx4)) {
+    if (tp.compressedEt() > tpFillThreshold_) {
+      eventMonitors.ecalOccRecd5Bx_->Fill(4);
+      eventMonitors.ecalOccRecd5BxEtWgt_->Fill(4, tp.compressedEt());
+    }
   }
-  if (ecalTPsRecdBx5.compressedEt() > tpFillThreshold_) {
-    eventMonitors.ecalOccRecd5Bx_->Fill(5);
-    eventMonitors.ecalOccRecd5BxEtWgt_->Fill(5, ecalTPsRecdBx5.compressedEt());
+  for (const auto& tp : (*ecalTPsRecdBx5)) {
+    if (tp.compressedEt() > tpFillThreshold_) {
+      eventMonitors.ecalOccRecd5Bx_->Fill(5);
+      eventMonitors.ecalOccRecd5BxEtWgt_->Fill(5, tp.compressedEt());
+    }
   }
 
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPsSent;
