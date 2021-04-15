@@ -166,6 +166,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	// so do not change their status code.  
         status = 2;
       }
+      if(std::abs(pdg) == 9900015) status = 3;
 
       // Particles which are not decayed by generator
       if (status == 1) {
@@ -263,6 +264,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	  << " has status=2 but has no decay vertex, so will be fully tracked by Geant4";
 	status = 1; 
       }
+      // heavy neutrino should not be propagated by Geant4
+      if(std::abs(pdg) == 9900015) status = 3;
 
       double x2 = x1;
       double y2 = y1;
