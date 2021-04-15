@@ -9,7 +9,7 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 
 filteredLayerClustersCLUE3D = _filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterByAlgoAndSize",
-    min_cluster_size = 1, # inclusive
+    min_cluster_size = 2, # inclusive
     algo_number = 8,
     iteration_label = "CLUE3D"
 )

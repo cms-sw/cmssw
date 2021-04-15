@@ -7,6 +7,7 @@
 #include "tbb/task_arena.h"
 #include "tbb/tbb.h"
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "PatternRecognitionbyCLUE3D.h"
@@ -61,14 +62,17 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
 
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(
-    const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) const {
-  edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "[x, y, eta, phi, cells, energy, radius, rho, delta, isSeed, clusterIdx, layerClusterOriginalIdx";
+    const std::vector<std::pair<int, int>> &layerIdx2layerandSoa,
+    const int eventNumber) const {
+  edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "[evt, x, y, eta, phi, cells, energy, radius, rho, delta, isSeed, clusterIdx, layerClusterOriginalIdx";
   for (unsigned int layer = 0; layer < clusters_.size(); layer++) {
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "On Layer " << layer;
     auto const &thisLayer = clusters_[layer];
     int num = 0;
     for (auto v : thisLayer.x) {
-      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "ClusterInfo: " << v << ", "
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "ClusterInfo: "
+        << eventNumber << ", "
+        << v << ", "
         << thisLayer.y[num] << ", "
         << thisLayer.eta[num] << ", "
         << thisLayer.phi[num] << ", "
@@ -85,6 +89,9 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(
   }
   for (unsigned int lcIdx = 0; lcIdx < layerIdx2layerandSoa.size(); lcIdx++) {
     auto const &layerandSoa = layerIdx2layerandSoa[lcIdx];
+    // Skip masked layer clusters
+    if ((layerandSoa.first == -1) && (layerandSoa.second == -1))
+      continue;
     edm::LogVerbatim("PatternRecogntionbyCLUE3D")
         << "lcIdx: " << lcIdx << " on Layer: " << layerandSoa.first << " SOA: " << layerandSoa.second;
   }
@@ -99,6 +106,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   if (input.regions.empty())
     return;
 
+  const int eventNumber = input.ev.eventAuxiliary().event();
   edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "New Event";
 
   edm::ESHandle<CaloGeometry> geom;
@@ -108,11 +116,17 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
 
   clusters_.clear();
   clusters_.resize(104);  // FIXME(rovere): Get it from template type or via rechittools
-  std::vector<std::pair<int, int>> layerIdx2layerandSoa;
+  std::vector<std::pair<int, int>> layerIdx2layerandSoa; //used everywhere also to propagate cluster masking
 
   layerIdx2layerandSoa.reserve(input.layerClusters.size());
   unsigned int layerIdx = 0;
   for (auto const &lc : input.layerClusters) {
+    if (input.mask[layerIdx] == 0.) {
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Skipping masked clustrer: " << layerIdx;
+      layerIdx2layerandSoa.emplace_back(-1, -1);
+      layerIdx++;
+      continue;
+    }
     const auto firstHitDetId = lc.hitsAndFractions()[0].first;
     int layer = rhtools_.getLayerWithOffset(firstHitDetId) - 1 +
                 rhtools_.lastLayer(false) * ((rhtools_.zside(firstHitDetId) + 1) >> 1);
@@ -171,7 +185,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
 
   auto nTracksters = findAndAssignTracksters(input.tiles, layerIdx2layerandSoa);
   edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Reconstructed " << nTracksters << " tracksters" << std::endl;
-  dumpClusters(layerIdx2layerandSoa);
+  dumpClusters(layerIdx2layerandSoa, eventNumber);
   //    );
   //  });
 
@@ -395,6 +409,9 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
           edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Entries in tileBin: " << tileOnLayer[offset + iphi].size();
           for (auto otherClusterIdx : tileOnLayer[offset + iphi]) {
             auto const &layerandSoa = layerIdx2layerandSoa[otherClusterIdx];
+            // Skip masked layer clusters
+            if ((layerandSoa.first == -1) && (layerandSoa.second == -1))
+              continue;
             edm::LogVerbatim("PatternRecogntionbyCLUE3D")
                 << "OtherLayer: " << layerandSoa.first << " SoaIDX: " << layerandSoa.second;
             edm::LogVerbatim("PatternRecogntionbyCLUE3D")
@@ -471,6 +488,9 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
             << " eta, phi: " << ieta << ", " << iphi_it;
            for (auto otherClusterIdx : tileOnLayer[offset + iphi]) {
             auto const &layerandSoa = layerIdx2layerandSoa[otherClusterIdx];
+            // Skip masked layer clusters
+            if ((layerandSoa.first == -1) && (layerandSoa.second == -1))
+              continue;
             auto const &clustersOnOtherLayer = clusters_[layerandSoa.first];
            float dist = distance(clustersOnLayer.eta[i],
                                   clustersOnOtherLayer.eta[layerandSoa.second],
