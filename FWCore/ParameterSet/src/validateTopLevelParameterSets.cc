@@ -97,7 +97,8 @@ namespace edm {
   void validateTopLevelParameterSets(ParameterSet* processParameterSet) {
     std::string processName = processParameterSet->getParameter<std::string>("@process_name");
 
-    std::vector<std::string> psetNames{"options", "maxEvents", "maxLuminosityBlocks", "maxSecondsUntilRampdown", "maxRuntime"};
+    std::vector<std::string> psetNames{
+        "options", "maxEvents", "maxLuminosityBlocks", "maxSecondsUntilRampdown", "maxRuntime"};
 
     for (auto const& psetName : psetNames) {
       bool isTracked{false};

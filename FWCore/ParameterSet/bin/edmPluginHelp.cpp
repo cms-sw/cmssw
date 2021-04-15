@@ -203,7 +203,8 @@ namespace {
     } else {
       throw cms::Exception("CommandLineArgument")
           << "Unrecognized name for top level parameter set. "
-          << "Allowed values are 'options', 'maxEvents', 'maxLuminosityBlocks', 'maxSecondsUntilRampdown' and 'maxRuntime'";
+          << "Allowed values are 'options', 'maxEvents', 'maxLuminosityBlocks', 'maxSecondsUntilRampdown' and "
+             "'maxRuntime'";
     }
 
     edm::DocFormatHelper dfh;
