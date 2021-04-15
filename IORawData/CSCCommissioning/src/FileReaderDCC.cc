@@ -1,11 +1,11 @@
 #include "FileReaderDCC.h"
-#include <iostream>     // cerr
-#include <errno.h>      // errno
-#include <string.h>     // bzero, memcpy
-#include <stdlib.h>     // exit
-#include <sys/types.h>  // open
-#include <sys/stat.h>   // open
+#include <cerrno>       // errno
+#include <cstdlib>      // exit
+#include <cstring>      // bzero, memcpy
 #include <fcntl.h>      // open
+#include <iostream>     // cerr
+#include <sys/stat.h>   // open
+#include <sys/types.h>  // open
 #include <unistd.h>     // read, close
 
 #ifndef O_LARGEFILE  //for OSX
@@ -55,7 +55,7 @@ size_t FileReaderDCC::read(const unsigned short *&buf) {
 
   eventStatus = 0;
   size_t dccWordCount = 0;
-  end = 0;
+  end = nullptr;
 
   while (!end && dccWordCount < 50000 * 40) {
     unsigned long long *dccWord = start;

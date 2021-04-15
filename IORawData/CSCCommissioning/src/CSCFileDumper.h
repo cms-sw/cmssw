@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 class CSCFileDumper : public edm::EDAnalyzer {
 public:
@@ -21,9 +21,9 @@ public:
   //	int fedID_first, fedID_last;
 
   CSCFileDumper(const edm::ParameterSet& pset);
-  virtual ~CSCFileDumper(void);
+  ~CSCFileDumper(void) override;
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   std::vector<unsigned int> cscFEDids;

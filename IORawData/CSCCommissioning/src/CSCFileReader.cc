@@ -1,7 +1,7 @@
 #include "CSCFileReader.h"
 
-#include <errno.h>
-#include <stdlib.h>
+#include <cerrno>
+#include <cstdlib>
 #include <cstring>
 
 #include <IORawData/CSCCommissioning/src/CSCFileReader.h>
@@ -154,17 +154,17 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet &pset) {
   // For efficiency reasons create this big chunk of data only once
   tmpBuf = new unsigned short[200000 * nRUIs + 4 * 4];
   // Event buffer and its length for every FU
-  fuEvent[0] = 0;
+  fuEvent[0] = nullptr;
   fuEventSize[0] = 0;
-  fuEvent[1] = 0;
+  fuEvent[1] = nullptr;
   fuEventSize[1] = 0;
-  fuEvent[2] = 0;
+  fuEvent[2] = nullptr;
   fuEventSize[2] = 0;
-  fuEvent[3] = 0;
+  fuEvent[3] = nullptr;
   fuEventSize[3] = 0;
   // Event buffer and its length for every RU
   for (int rui = 0; rui < nRUIs; rui++) {
-    ruBuf[rui] = 0;
+    ruBuf[rui] = nullptr;
     ruBufSize[rui] = 0;
   }
   LogDebug("CSCFileReader|ctor") << "... and finished";
@@ -182,7 +182,7 @@ int CSCFileReader::readRUI(int rui, const unsigned short *&buf, size_t &length) 
   do {
     try {
       length = RUI[rui].next(buf);
-    } catch (std::runtime_error & err) {
+    } catch (std::runtime_error &err) {
       throw cms::Exception("CSCFileReader|reading") << "EndOfStream: " << err.what() << " (errno=" << errno << ")";
     }
     if (length == 0)  // end of file, try next one
@@ -330,7 +330,7 @@ int CSCFileReader::nextEventFromFUs(FEDRawDataCollection *data) {
 
   // Compose event from DDC record striped of Track-Finder DDU and a separate TF DDU event
   unsigned long long *start = (unsigned long long *)fuEvent[readyToGo];
-  unsigned long long *end = 0;
+  unsigned long long *end = nullptr;
   enum { Header = 1, Trailer = 2 };
   unsigned int eventStatus = 0;
   for (int dduRecord = 0; dduRecord <= tfDDUnumber; dduRecord++) {

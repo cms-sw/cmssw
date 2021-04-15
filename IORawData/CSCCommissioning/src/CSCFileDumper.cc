@@ -16,9 +16,9 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <cstdio>
 #include <iostream>
 #include <sstream>
-#include <stdio.h>
 
 CSCFileDumper::CSCFileDumper(const edm::ParameterSet &pset) {
   i_token = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("source"));
@@ -46,7 +46,7 @@ CSCFileDumper::CSCFileDumper(const edm::ParameterSet &pset) {
    */
 
   if (events.length()) {
-    for (size_t pos1 = 0, pos2 = events.find(",");; pos1 = pos2 + 1, pos2 = events.find(",", pos2 + 1)) {
+    for (size_t pos1 = 0, pos2 = events.find(',');; pos1 = pos2 + 1, pos2 = events.find(',', pos2 + 1)) {
       if (pos2 != std::string::npos) {
         long event = 0;
         if (sscanf(events.substr(pos1, pos2 - pos1).c_str(), "%ld", &event) == 1 && event >= 0)
@@ -100,7 +100,7 @@ void CSCFileDumper::analyze(const edm::Event &e, const edm::EventSetup &c) {
         std::ostringstream name;
         name << output << "_FED" << id << ".raw" << std::ends;
         FILE *file;
-        if ((file = fopen(name.str().c_str(), "wt")) == NULL) {
+        if ((file = fopen(name.str().c_str(), "wt")) == nullptr) {
           edm::LogError("CSCFileDumper") << "Cannot open the file: " << name.str();
           continue;
         } else
