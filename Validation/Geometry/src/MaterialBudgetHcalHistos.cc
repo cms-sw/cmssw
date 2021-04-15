@@ -40,7 +40,8 @@ MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet& p) {
                                      << " (Eta limit " << etaLow_ << ":" << etaHigh_ << ")"
                                      << " Eta range (" << etaLowMin_ << ":" << etaLowMax_ << "), (" << etaMidMin_ << ":"
                                      << etaMidMax_ << "), (" << etaHighMin_ << ":" << etaHighMax_
-                                     << ") Debug for eta range " << etaMinP_ << ":" << etaMaxP_ << "  FromDD4Hep " << fromdd4hep_;
+                                     << ") Debug for eta range " << etaMinP_ << ":" << etaMaxP_ << "  FromDD4Hep "
+                                     << fromdd4hep_;
   if (fillHistos_)
     book();
 }
@@ -53,14 +54,14 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
     DDSpecificsMatchesValueFilter filter1{DDValue(attribute, value, 0)};
     DDFilteredView fv1(cpv, filter1);
     std::vector<std::string> names = getNames(fv1);
-    for (auto & name : names) {
-      std::string namx = (name.find("_") == std::string::npos) ? name : name.substr(0, name.find("_"));
+    for (auto& name : names) {
+      std::string namx = (name.find('_') == std::string::npos) ? name : name.substr(0, name.find('_'));
       if (std::find(sensitives_.begin(), sensitives_.end(), namx) == sensitives_.end())
-	sensitives_ .emplace_back(namx);
+        sensitives_.emplace_back(namx);
     }
     edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
                                            << value << " has " << sensitives_.size() << " elements";
-    for (unsigned int i = 0; i < sensitives_.size(); i++) 
+    for (unsigned int i = 0; i < sensitives_.size(); i++)
       edm::LogVerbatim("MaterialBudgetFull")
           << "MaterialBudgetHcalHistos: sensitives[" << i << "] = " << sensitives_[i];
     attribute = "Volume";
@@ -90,9 +91,9 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView& cpv) {
       edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute
                                              << " = " << value << " has " << senstmp.size() << " elements";
       for (unsigned int i = 0; i < senstmp.size(); i++) {
-	std::string name = senstmp[i].substr(0, 4);
-	if (std::find(sensitiveEC_.begin(), sensitiveEC_.end(), name) == sensitiveEC_.end())
-	  sensitiveEC_.push_back(name);
+        std::string name = senstmp[i].substr(0, 4);
+        if (std::find(sensitiveEC_.begin(), sensitiveEC_.end(), name) == sensitiveEC_.end())
+          sensitiveEC_.push_back(name);
       }
     }
     for (unsigned int i = 0; i < sensitiveEC_.size(); i++)
@@ -109,10 +110,10 @@ void MaterialBudgetHcalHistos::fillBeginJob(const cms::DDCompactView& cpv) {
     const cms::DDFilter filter1(attribute, value);
     cms::DDFilteredView fv1(cpv, filter1);
     std::vector<std::string> names = getNames(fv1);
-    for (auto & name : names) {
-      std::string namx = (name.find("_") == std::string::npos) ? name : name.substr(0, name.find("_"));
+    for (auto& name : names) {
+      std::string namx = (name.find('_') == std::string::npos) ? name : name.substr(0, name.find('_'));
       if (std::find(sensitives_.begin(), sensitives_.end(), namx) == sensitives_.end())
-	sensitives_ .emplace_back(namx);
+        sensitives_.emplace_back(namx);
     }
     edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute << " = "
                                            << value << " has " << sensitives_.size() << " elements";
@@ -143,9 +144,9 @@ void MaterialBudgetHcalHistos::fillBeginJob(const cms::DDCompactView& cpv) {
       edm::LogVerbatim("MaterialBudgetFull") << "MaterialBudgetHcalHistos: Names to be tested for " << attribute
                                              << " = " << value << " has " << senstmp.size() << " elements";
       for (unsigned int i = 0; i < senstmp.size(); i++) {
-	std::string name = senstmp[i].substr(0, 4);
-	if (std::find(sensitiveEC_.begin(), sensitiveEC_.end(), name) == sensitiveEC_.end())
-	  sensitiveEC_.push_back(name);
+        std::string name = senstmp[i].substr(0, 4);
+        if (std::find(sensitiveEC_.begin(), sensitiveEC_.end(), name) == sensitiveEC_.end())
+          sensitiveEC_.push_back(name);
       }
     }
     for (unsigned int i = 0; i < sensitiveEC_.size(); i++)
@@ -218,7 +219,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
                                          << intLen_;
   } else {
     if ((std::abs(eta_) >= etaMinP_) && (std::abs(eta_) <= etaMaxP_))
-       edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name << " id " << id_ << ":"
+      edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcalHistos: Step at " << name << " id " << id_ << ":"
                                          << idOld << " Length " << step << " in " << matName << " of density "
                                          << density << " g/cc; Radiation Length " << radl << " mm; Interaction Length "
                                          << intl << " mm\n                          Position "
@@ -231,8 +232,12 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   int det = 0, lay = 0;
   double abseta = std::abs(eta_);
   if (fillHistos_) {
-    edm::LogVerbatim("MaterialBudgetFull") << "Volume " << name << ":" << matName << " EC:Sensitive:HF " << isItEC(name) << ":" << isSensitive(name) << ":" << isItHF(touch) << " Eta " << abseta << " HC " << ((touch->GetReplicaNumber(1)) / 1000) << ":" << ((touch->GetReplicaNumber(0) / 10) % 100 + 3) << " X0 " << (radLen_ + (step / radl)) << " Lambda " << (intLen_ + (step / intl));
-; 
+    edm::LogVerbatim("MaterialBudgetFull")
+        << "Volume " << name << ":" << matName << " EC:Sensitive:HF " << isItEC(name) << ":" << isSensitive(name) << ":"
+        << isItHF(touch) << " Eta " << abseta << " HC " << ((touch->GetReplicaNumber(1)) / 1000) << ":"
+        << ((touch->GetReplicaNumber(0) / 10) % 100 + 3) << " X0 " << (radLen_ + (step / radl)) << " Lambda "
+        << (intLen_ + (step / intl));
+    ;
     if (isItEC(name)) {
       det = 1;
       lay = 1;
@@ -317,7 +322,8 @@ void MaterialBudgetHcalHistos::fillEndTrack() {
   }
   if (printSum_) {
     for (unsigned int ii = 0; ii < matList_.size(); ii++) {
-      edm::LogVerbatim("MaterialBudget") << matList_[ii] << "\t" << stepLength_[ii] << "\t" << radLength_[ii] << "\t" << intLength_[ii];
+      edm::LogVerbatim("MaterialBudget") << matList_[ii] << "\t" << stepLength_[ii] << "\t" << radLength_[ii] << "\t"
+                                         << intLength_[ii];
     }
   }
 }
@@ -564,17 +570,8 @@ std::vector<std::string> MaterialBudgetHcalHistos::getNames(DDFilteredView& fv) 
 
 std::vector<std::string> MaterialBudgetHcalHistos::getNames(cms::DDFilteredView& fv) {
   std::vector<std::string> tmp;
-  const std::vector<std::string> notIn = {"CALO",
-                                          "HCal",
-                                          "MBBTL",
-                                          "MBBTR",
-                                          "MBBTC",
-                                          "MBAT",
-                                          "MBBT_R1M",
-                                          "MBBT_R1P",
-                                          "MBBT_R1MX",
-                                          "MBBT_R1PX",
-                                          "VCAL"};
+  const std::vector<std::string> notIn = {
+      "CALO", "HCal", "MBBTL", "MBBTR", "MBBTC", "MBAT", "MBBT_R1M", "MBBT_R1P", "MBBT_R1MX", "MBBT_R1PX", "VCAL"};
   while (fv.firstChild()) {
     const std::string n{fv.name().data(), fv.name().size()};
     if (std::find(notIn.begin(), notIn.end(), n) == notIn.end()) {
@@ -604,10 +601,10 @@ std::vector<double> MaterialBudgetHcalHistos::getDDDArray(const std::string& str
   }
 }
 
-bool MaterialBudgetHcalHistos::isSensitive(const std::string & name) {
+bool MaterialBudgetHcalHistos::isSensitive(const std::string& name) {
   std::vector<std::string>::const_iterator it = sensitives_.begin();
   std::vector<std::string>::const_iterator itEnd = sensitives_.end();
-  std::string namx = (name.find("_") == std::string::npos) ? name : name.substr(0, name.find("_"));
+  std::string namx = (name.find('_') == std::string::npos) ? name : name.substr(0, name.find('_'));
   for (; it != itEnd; ++it)
     if (namx == *it)
       return true;
@@ -618,7 +615,9 @@ bool MaterialBudgetHcalHistos::isItHF(const G4VTouchable* touch) {
   int levels = ((touch->GetHistoryDepth()) + 1);
   for (unsigned int it = 0; it < hfNames_.size(); it++) {
     if (levels >= hfLevels_[it]) {
-      std::string name = (static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(levels - hfLevels_[it])->GetName()))).substr(0, 4);
+      std::string name =
+          (static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(levels - hfLevels_[it])->GetName())))
+              .substr(0, 4);
       if (name == hfNames_[it]) {
         return true;
       }
@@ -627,7 +626,7 @@ bool MaterialBudgetHcalHistos::isItHF(const G4VTouchable* touch) {
   return false;
 }
 
-bool MaterialBudgetHcalHistos::isItEC(const std::string & name) {
+bool MaterialBudgetHcalHistos::isItEC(const std::string& name) {
   std::vector<std::string>::const_iterator it = sensitiveEC_.begin();
   std::vector<std::string>::const_iterator itEnd = sensitiveEC_.end();
   for (; it != itEnd; ++it)
