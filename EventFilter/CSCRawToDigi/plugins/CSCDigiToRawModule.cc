@@ -30,6 +30,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 
 namespace edm {
@@ -54,6 +55,7 @@ private:
   bool usePreTriggers;            // Select if to use Pre-Triigers CLCT digis
   bool packEverything_;           // bypass all cuts and (pre)trigger requirements
   bool useGEMs_;
+  bool useCSCShowers_;
 
   std::unique_ptr<const CSCDigiToRaw> packer_;
 
@@ -65,6 +67,7 @@ private:
   edm::EDGetTokenT<CSCCLCTPreTriggerCollection> pr_token;
   edm::EDGetTokenT<CSCCLCTPreTriggerDigiCollection> prdigi_token;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> co_token;
+  edm::EDGetTokenT<CSCShowerDigiCollection> shower_token;
   edm::ESGetToken<CSCChamberMap, CSCChamberMapRcd> cham_token;
   edm::EDGetTokenT<GEMPadDigiClusterCollection> gem_token;
 
@@ -78,6 +81,7 @@ CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet& pset) : packer_(
                                                                 // overrides usePreTriggers
 
   useGEMs_ = pset.getParameter<bool>("useGEMs");
+  useCSCShowers_ = pset.getParameter<bool>("useCSCShowers");
   wd_token = consumes<CSCWireDigiCollection>(pset.getParameter<edm::InputTag>("wireDigiTag"));
   sd_token = consumes<CSCStripDigiCollection>(pset.getParameter<edm::InputTag>("stripDigiTag"));
   cd_token = consumes<CSCComparatorDigiCollection>(pset.getParameter<edm::InputTag>("comparatorDigiTag"));
@@ -92,6 +96,9 @@ CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet& pset) : packer_(
   if (useGEMs_) {
     gem_token = consumes<GEMPadDigiClusterCollection>(pset.getParameter<edm::InputTag>("padDigiClusterTag"));
   }
+  if (useCSCShowers_) {
+    shower_token = consumes<CSCShowerDigiCollection>(pset.getParameter<edm::InputTag>("showerDigiTag"));
+  }
   put_token_ = produces<FEDRawDataCollection>("CSCRawData");
 }
 
@@ -104,6 +111,7 @@ void CSCDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("packEverything", false)
       ->setComment("Set to true to disable trigger-related constraints on readout data");
   desc.add<bool>("useGEMs", false)->setComment("Pack GEM trigger data");
+  desc.add<bool>("useCSCShowers", false)->setComment("Pack CSC shower trigger data");
 
   desc.add<edm::InputTag>("wireDigiTag", edm::InputTag("simMuonCSCDigis", "MuonCSCWireDigi"));
   desc.add<edm::InputTag>("stripDigiTag", edm::InputTag("simMuonCSCDigis", "MuonCSCStripDigi"));
@@ -114,6 +122,7 @@ void CSCDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("preTriggerDigiTag", edm::InputTag("simCscTriggerPrimitiveDigis"));
   desc.add<edm::InputTag>("correlatedLCTDigiTag", edm::InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED"));
   desc.add<edm::InputTag>("padDigiClusterTag", edm::InputTag("simMuonGEMPadDigiClusters"));
+  desc.add<edm::InputTag>("showerDigiTag", edm::InputTag("simCscTriggerPrimitiveDigis"));
 
   desc.add<int32_t>("alctWindowMin", -3)->setComment("If min parameter = -999 always accept");
   desc.add<int32_t>("alctWindowMax", 3);
@@ -163,6 +172,13 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
   if (useGEMs_) {
     padDigiClustersPtr = &e.get(gem_token);
   }
+
+  // packing of CSC shower digis
+  const CSCShowerDigiCollection* cscShowerDigisPtr = nullptr;
+  if (useCSCShowers_) {
+    cscShowerDigisPtr = &e.get(shower_token);
+  }
+
   // Create the packed data
   packer_->createFedBuffers(*stripDigis,
                             *wireDigis,
@@ -172,6 +188,7 @@ void CSCDigiToRawModule::produce(edm::StreamID, edm::Event& e, const edm::EventS
                             preTriggersPtr,
                             preTriggerDigisPtr,
                             *correlatedLCTDigis,
+                            cscShowerDigisPtr,
                             padDigiClustersPtr,
                             fed_buffers,
                             theMapping,

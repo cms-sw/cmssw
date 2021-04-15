@@ -333,6 +333,15 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindE
   }
 }
 
+void CSCDigiToRaw::add(const CSCShowerDigiCollection& cscShowerDigis, FindEventDataInfo& fedInfo) const {
+  for (const auto& shower : cscShowerDigis) {
+    const CSCDetId& cscDetId = shower.first;
+    CSCEventData& cscData = findEventData(cscDetId, fedInfo);
+
+    cscData.add(std::vector<CSCShowerDigi>(shower.second.first, shower.second.second));
+  }
+}
+
 void CSCDigiToRaw::add(const GEMPadDigiClusterCollection& gemPadClusters, FindEventDataInfo& fedInfo) const {
   for (const auto& jclus : gemPadClusters) {
     const GEMDetId& gemDetId = jclus.first;
@@ -353,6 +362,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCCLCTPreTriggerCollection* preTriggers,
                                     const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
                                     const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
+                                    const CSCShowerDigiCollection* cscShowerDigis,
                                     const GEMPadDigiClusterCollection* gemPadDigiClusters,
                                     FEDRawDataCollection& fed_buffers,
                                     const CSCChamberMap* mapping,
@@ -368,6 +378,12 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   add(wireDigis, alctDigis, fedInfo, packEverything);
   add(comparatorDigis, clctDigis, fedInfo, packEverything);
   add(correlatedLCTDigis, fedInfo);
+
+  // Starting Run-3, the CSC DAQ will pack/unpack CSC showers
+  if (cscShowerDigis) {
+    add(*cscShowerDigis, fedInfo);
+  }
+
   // Starting Run-3, the CSC DAQ will pack/unpack GEM clusters
   if (gemPadDigiClusters) {
     add(*gemPadDigiClusters, fedInfo);
