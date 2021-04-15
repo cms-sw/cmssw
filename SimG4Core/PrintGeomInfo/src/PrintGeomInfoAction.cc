@@ -73,7 +73,8 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
          << " Touchable " << dumpTouch_ << " for names (0-" << nchar_ << ") = " << name_
          << "\n                                                        "
          << " Sensitive " << dumpSense_ << " Files " << fileMat_ << ":" << fileSolid_ << ":" << fileLV_ << ":"
-         << filePV_ << ":" << fileTouch_ << " FileDetail " << fileDetail_ << "\n                                                        for " << names_.size() << " names:";
+         << filePV_ << ":" << fileTouch_ << " FileDetail " << fileDetail_
+         << "\n                                                        for " << names_.size() << " names:";
   for (unsigned int i = 0; i < names_.size(); i++)
     G4cout << " " << names_[i];
   G4cout << G4endl;
@@ -433,10 +434,11 @@ void PrintGeomInfoAction::dumpInFile() {
       const G4MaterialTable *matTab = G4Material::GetMaterialTable();
       std::ofstream fout(fileMat_.c_str());
       for (std::vector<G4Material *>::const_iterator matite = matTab->begin(); matite != matTab->end(); matite++) {
-	if (!fileDetail_)
-	  fout << (*matite)->GetName() << "\n";
-	else
-	  fout << (*matite)->GetName() << " " << (*matite)->GetRadlen() << " " << (*matite)->GetNuclearInterLength() << "\n";
+        if (!fileDetail_)
+          fout << (*matite)->GetName() << "\n";
+        else
+          fout << (*matite)->GetName() << " " << (*matite)->GetRadlen() << " " << (*matite)->GetNuclearInterLength()
+               << "\n";
       }
       fout.close();
     }
@@ -444,36 +446,38 @@ void PrintGeomInfoAction::dumpInFile() {
     if (!fileSolid_.empty()) {
       std::ofstream fout(fileSolid_.c_str());
       for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
-	if (!fileDetail_)
-	  fout << (*lvcite)->GetSolid()->GetName() << "\n";
-	else 
-	  fout << (*lvcite)->GetSolid()->GetName() << "  " << (*lvcite)->GetSolid()->GetCubicVolume() << "\n";
+        if (!fileDetail_)
+          fout << (*lvcite)->GetSolid()->GetName() << "\n";
+        else
+          fout << (*lvcite)->GetSolid()->GetName() << "  " << (*lvcite)->GetSolid()->GetCubicVolume() << "\n";
       fout.close();
     }
     if (!fileLV_.empty()) {
       std::ofstream fout(fileLV_.c_str());
       for (std::vector<G4LogicalVolume *>::const_iterator lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++)
-	if (!fileDetail_)
-	  fout << (*lvcite)->GetName() << "\n";
-	else
-	  fout << (*lvcite)->GetName() << "  " << (*lvcite)->GetMass(false,false) << "\n";
+        if (!fileDetail_)
+          fout << (*lvcite)->GetName() << "\n";
+        else
+          fout << (*lvcite)->GetName() << "  " << (*lvcite)->GetMass(false, false) << "\n";
       fout.close();
     }
     if (!filePV_.empty()) {
       const G4PhysicalVolumeStore *pvs = G4PhysicalVolumeStore::GetInstance();
       std::ofstream fout(filePV_.c_str());
       for (std::vector<G4VPhysicalVolume *>::const_iterator pvcite = pvs->begin(); pvcite != pvs->end(); pvcite++) {
-	if (fileDetail_) {
-	  if (dd4hep_)
-	    fout << (*pvcite)->GetName() << " " << (*pvcite)->GetTranslation().x() << " " << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << "\n";
-	  else
-	    fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << " " << (*pvcite)->GetTranslation().x() << " " << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << "\n";
-	} else {
-	  if (dd4hep_)
-	    fout << (*pvcite)->GetName() << "\n";
-	  else
-	    fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << "\n";
-	}
+        if (fileDetail_) {
+          if (dd4hep_)
+            fout << (*pvcite)->GetName() << " " << (*pvcite)->GetTranslation().x() << " "
+                 << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << "\n";
+          else
+            fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << " " << (*pvcite)->GetTranslation().x()
+                 << " " << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << "\n";
+        } else {
+          if (dd4hep_)
+            fout << (*pvcite)->GetName() << "\n";
+          else
+            fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << "\n";
+        }
       }
       fout.close();
     }
