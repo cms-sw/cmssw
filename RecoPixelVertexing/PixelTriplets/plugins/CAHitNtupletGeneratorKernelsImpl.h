@@ -13,6 +13,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CAConstants.h"
 #include "CAHitNtupletGeneratorKernels.h"
@@ -359,11 +360,11 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
       continue;
 
     // if the fit has any invalid parameters, mark it as bad
-    bool isNaN = false;
+    bool isNotFinite = false;
     for (int i = 0; i < 5; ++i) {
-      isNaN |= std::isnan(tracks->stateAtBS().state(it)(i));
+      isNotFinite |= edm::isNotFinite(tracks->stateAtBS().state(it)(i));
     }
-    if (isNaN) {
+    if (isNotFinite) {
 #ifdef NTUPLE_DEBUG
       printf("NaN in fit %d size %d chi2 %f\n", it, tuples->size(it), tracks->chi2(it));
 #endif
