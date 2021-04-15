@@ -460,7 +460,7 @@ void CSCEventData::checkTMBClasses() {
 
 void CSCEventData::add(const CSCStripDigi& digi, int layer) {
   //@@ need special logic here for ME11
-  unsigned cfeb = (digi.getStrip() - 1) / CSCConstants::NUM_STRIPS_PER_CFEB;
+  unsigned cfeb = digi.getCFEB();
   bool sixteenSamples = false;
   if (digi.getADCCounts().size() == 16)
     sixteenSamples = true;
