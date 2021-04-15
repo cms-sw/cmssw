@@ -66,10 +66,10 @@ private:
                      const CSCDetId& layerId,
                      const CSCComparatorDigiCollection* compdc,
                      std::vector<CSCComparatorDigi>& digiMap,
-                     int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],
-                     int time[CSCConstants::MAX_NUM_STRIPS],
-                     int comp[CSCConstants::MAX_NUM_STRIPS],
-                     int digiNum[CSCConstants::MAX_NUM_STRIPS]);
+                     int hfstripDigis[CSCConstants::MAX_NUM_HALF_STRIPS_5CFEBS],
+                     int time[CSCConstants::NUM_STRIPS_5CFEBS],
+                     int comp[CSCConstants::NUM_STRIPS_5CFEBS],
+                     int digiNum[CSCConstants::NUM_STRIPS_5CFEBS]);
 
   /* Find SimHits closest to each ComparatorDigi on CLCT. */
   void digiSimHitAssociator(CSCCathodeLayerInfo& info, const edm::PSimHitContainer* allSimHits);

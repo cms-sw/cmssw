@@ -24,7 +24,7 @@ lclphidat CSCSectorReceiverMiniLUT::calcLocalPhiMini(unsigned theadd, const bool
   unsigned short int pattern = ((theadd >> 8) & 0xf);
   unsigned short int strip = (theadd & 0xff);
 
-  if (strip < 2 * (CSCConstants::MAX_NUM_STRIPS * 7 / 5) &&
+  if (strip < 2 * (CSCConstants::NUM_STRIPS_5CFEBS * 7 / 5) &&
       pattern <
           CSCConstants::
               NUM_CLCT_PATTERNS) {  // MDG, DA and RW, for ME1 we have 7CFEBs and not just 5, so the num_strips can go up to 16 * 7 but only for ME1
@@ -33,7 +33,7 @@ lclphidat CSCSectorReceiverMiniLUT::calcLocalPhiMini(unsigned theadd, const bool
     //DA and MDG, rescale range of local phi so ME1/1b fits in 0-511
   } else
     edm::LogWarning("CSCSectorReceiverMiniLUT") << "+++ Value of strip, " << strip << ", exceeds max allowed, "
-                                                << 2 * CSCConstants::MAX_NUM_STRIPS - 1 << " +++\n";
+                                                << 2 * CSCConstants::NUM_STRIPS_5CFEBS - 1 << " +++\n";
 
   if (data.phi_local >= maxPhiL)
     edm::LogWarning("CSCSectorReceiverMiniLUT")
@@ -158,7 +158,7 @@ global_phi_data CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(unsigned short end
 
   // 12/11/09
   // GP et DA: how to identify the strip number and isolate and shift the localPhi value
-  const double binPhiL = static_cast<double>(maxPhiL) / (2 * CSCConstants::MAX_NUM_STRIPS);
+  const double binPhiL = static_cast<double>(maxPhiL) / (2 * CSCConstants::NUM_STRIPS_5CFEBS);
 
   int strip = static_cast<int>(lclPhi / binPhiL);
   if (station == 1 && (cscid <= 3) &&

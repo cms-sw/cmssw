@@ -69,7 +69,7 @@ public:
 
   /** Called in test mode and by the run(compdc) function; does the actual LCT
       finding. */
-  void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+  void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS]);
 
   /** Returns vector of CLCTs in the read-out time window, if any. */
   std::vector<CSCCLCTDigi> readoutCLCTs(int nMaxCLCTs = CSCConstants::MAX_CLCTS_READOUT) const;
@@ -113,19 +113,19 @@ protected:
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
-  typedef unsigned int PulseArray[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+  typedef unsigned int PulseArray[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS];
 
   //---------------- Methods common to all firmware versions ------------------
   // Single-argument version for TMB07 (halfstrip-only) firmware.
   // Takes the comparator & time info and stuffs it into halfstrip vector.
   // Multiple hits on the same strip are allowed.
-  void readComparatorDigis(std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
-  void pulseExtension(const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+  void readComparatorDigis(std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS]);
+  void pulseExtension(const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS],
                       PulseArray pulse);
 
   //--------------- Functions for post-2007 version of the firmware -----------
   virtual std::vector<CSCCLCTDigi> findLCTs(
-      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS]);
 
   /* Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern */
   virtual bool preTrigger(const PulseArray pulse, const int start_bx, int& first_bx);
@@ -141,14 +141,14 @@ protected:
   void cleanComparatorContainer(CSCCLCTDigi& lct) const;
 
   /* Mark the half-strips around the best half-strip as busy */
-  void markBusyKeys(const int best_hstrip, const int best_patid, int quality[CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+  void markBusyKeys(const int best_hstrip, const int best_patid, int quality[CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS]);
 
   //--------------------------- Auxiliary methods -----------------------------
   /** Dump CLCT configuration parameters. */
   void dumpConfigParams() const;
 
   /** Dump half-strip digis */
-  void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) const;
+  void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS]) const;
 
   // --------Functions for the comparator code algorith for Run-3 ---------//
   //calculates the id based on location of hits
@@ -164,15 +164,15 @@ protected:
   //--------------------------- Member variables -----------------------------
 
   /* best pattern Id for a given half-strip */
-  unsigned int best_pid[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+  unsigned int best_pid[CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS];
 
   /* number of layers hit on a given half-strip */
-  unsigned int nhits[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+  unsigned int nhits[CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS];
 
-  int first_bx_corrected[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+  int first_bx_corrected[CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS];
 
   /* does a given half-strip have a pre-trigger? */
-  bool ispretrig[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+  bool ispretrig[CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS];
 
   // actual LUT used
   CSCPatternBank::LCTPatterns clct_pattern_ = {};
