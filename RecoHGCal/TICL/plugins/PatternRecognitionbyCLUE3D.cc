@@ -64,7 +64,7 @@ template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(
     const std::vector<std::pair<int, int>> &layerIdx2layerandSoa,
     const int eventNumber) const {
-  edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "[evt, x, y, eta, phi, cells, energy, radius, rho, delta, isSeed, clusterIdx, layerClusterOriginalIdx";
+  edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "[evt, layer, x, y, eta, phi, cells, energy, radius, rho, delta, isSeed, clusterIdx, layerClusterOriginalIdx";
   for (unsigned int layer = 0; layer < clusters_.size(); layer++) {
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "On Layer " << layer;
     auto const &thisLayer = clusters_[layer];
@@ -72,6 +72,7 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(
     for (auto v : thisLayer.x) {
       edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "ClusterInfo: "
         << eventNumber << ", "
+        << layer << ", "
         << v << ", "
         << thisLayer.y[num] << ", "
         << thisLayer.eta[num] << ", "
@@ -380,7 +381,8 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
     return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) < delta_sqr;
   };
 
-  const int siblingLayers = 1;
+  const int siblingLayers = 3;
+  const float delta_eta_phi_sqr = 0.0009;
   for (unsigned int i = 0; i < numberOfClusters; i++) {
     unsigned int minLayer = std::max((int)layerId - siblingLayers, 0);
     unsigned int maxLayer = std::min((int)layerId + siblingLayers, 103);
@@ -420,13 +422,13 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
                 << "OtherPhi: " << clusters_[layerandSoa.first].phi[layerandSoa.second];
             float delta = clustersOnLayer.radius[i] + clusters_[layerandSoa.first].radius[layerandSoa.second] +
                           2.6;  // 26 mm, roughly 2 cells, more wrt sum of radii
-            if (onSameLayer) {
+            if (false && onSameLayer) {
               if (isReachable(clustersOnLayer.x[i],
                               clusters_[layerandSoa.first].x[layerandSoa.second],
                               clustersOnLayer.y[i],
                               clusters_[layerandSoa.first].y[layerandSoa.second],
                               delta * delta)) {
-                clustersOnLayer.rho[i] += (clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx ? 1.f : 0.5f) *
+                clustersOnLayer.rho[i] += (clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx ? 1.f : 0.2f) *
                                           clusters_[layerandSoa.first].energy[layerandSoa.second];
               }
             } else {
@@ -434,7 +436,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
                               clusters_[layerandSoa.first].eta[layerandSoa.second],
                               clustersOnLayer.phi[i],
                               clusters_[layerandSoa.first].phi[layerandSoa.second],
-                              0.0025)) {
+                              delta_eta_phi_sqr)) {
                 clustersOnLayer.rho[i] += (clustersOnLayer.layerClusterOriginalIdx[i] == otherClusterIdx ? 1.f : 0.5f) *
                                           clusters_[layerandSoa.first].energy[layerandSoa.second];
               }
@@ -460,13 +462,14 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
     return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
   };
 
+  const int siblingLayers = 2;
   for (unsigned int i = 0; i < numberOfClusters; i++) {
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Starting searching nearestHigher on " << layerId
       << " with rho: " << clustersOnLayer.rho[i]
       << " at eta, phi: " << tiles[layerId].etaBin(clustersOnLayer.eta[i]) << ", "
       << tiles[layerId].etaBin(clustersOnLayer.phi[i]);
-    unsigned int minLayer = std::max((int)layerId - 1, 0);
-    unsigned int maxLayer = std::min((int)layerId + 1, 103);
+    unsigned int minLayer = std::max((int)layerId - siblingLayers, 0);
+    unsigned int maxLayer = std::min((int)layerId + siblingLayers, 103);
     //FIXME(rovere): implement wrapping between +Z and -Z to avoid mixing last
     //of one with first of the other
     float maxDelta = std::numeric_limits<float>::max();
@@ -543,9 +546,9 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
     auto &clustersOnLayer = clusters_[layer];
     unsigned int numberOfClusters = clustersOnLayer.x.size();
     for (unsigned int i = 0; i < numberOfClusters; i++) {
-      float rho_c = 5.f;
+      float rho_c = 8.f;
       float delta = 0.04;
-      float outlierDeltaFactor = 1.1;
+      float outlierDeltaFactor = 3.;
 
       // initialize clusterIndex
       clustersOnLayer.clusterIndex[i] = -1;
