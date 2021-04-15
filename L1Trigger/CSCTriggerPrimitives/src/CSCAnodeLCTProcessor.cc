@@ -1399,7 +1399,7 @@ void CSCAnodeLCTProcessor::setWireContainer(CSCALCTDigi& alct, CSCALCTDigi::Wire
 }
 
 void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(
-                                                      const std::vector<int> wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+    const std::vector<int> wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
   inTimeHMT_ = 0;
   outTimeHMT_ = 0;
 
