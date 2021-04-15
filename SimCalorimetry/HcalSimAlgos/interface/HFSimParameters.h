@@ -23,10 +23,12 @@ public:
   double fCtoGeV(const DetId& detId) const;
 
   double samplingFactor() const;
+  double threshold_currentTDC() const { return threshold_currentTDC_; }
 
 private:
   const HcalDbService* theDbService;
   double theSamplingFactor;
+  double threshold_currentTDC_;
 };
 
 #endif

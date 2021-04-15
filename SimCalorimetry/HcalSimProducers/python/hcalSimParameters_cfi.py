@@ -18,7 +18,7 @@ hcalSimParameters = cms.PSet(
         photoelectronsToAnalog = cms.double(2.79),
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(14.0),
+        timePhase = cms.double(10.0),
         doSiPMSmearing = cms.bool(False),
         sipmTau = cms.double(0.),
         threshold_currentTDC = cms.double(-999.),
@@ -32,7 +32,7 @@ hcalSimParameters = cms.PSet(
         photoelectronsToAnalog = cms.double(1.843),
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(13.0),
+        timePhase = cms.double(9.0),
         doSiPMSmearing = cms.bool(False),
         sipmTau = cms.double(0.),
         threshold_currentTDC = cms.double(-999.),
@@ -180,8 +180,8 @@ run3_common.toModify( hcalSimParameters,
                readoutFrameSize = cms.int32(10), 
                binOfMaximum     = cms.int32(6)
               ),
-    hf1 = dict( threshold_currentTDC = cms.double(18.7) ),
-    hf2 = dict( threshold_currentTDC = cms.double(18.7) ),
+    hf1 = dict( threshold_currentTDC = cms.double(3.) ),
+    hf2 = dict( threshold_currentTDC = cms.double(3.) ),
 ) 
 
 
