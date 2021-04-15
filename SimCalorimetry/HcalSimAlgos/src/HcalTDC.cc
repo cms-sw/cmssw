@@ -39,7 +39,6 @@ std::vector<int> HcalTDC::leadingEdgeTDC(const CaloSamples& lf) const {
   bool risingReady(true);
   int tdcBins = theTDCParameters.nbins();
   bool hasTDCValues = true;
-  std::cout << "preciseSize=" << lf.preciseSize() << " lfSize=" << lf.size() << std::endl;
   if (lf.preciseSize() == 0)
     hasTDCValues = false;
 
