@@ -133,7 +133,7 @@ void DTDigiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run,
     ibooker.setCurrentFolder(topFolder());
     for (int wh = -2; wh <= 2; ++wh) {  // loop over wheels
       if (sliceTestMode && wh != 2)
-	continue;
+        continue;
 
       if (doAllHitsOccupancies)
         bookHistos(ibooker, wh, string("Occupancies"), "OccupancyAllHits");
@@ -153,8 +153,8 @@ void DTDigiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run,
           if ((sect == 13 || sect == 14) && st != 4)
             continue;
 
-	  if (sliceTestMode && (sect != 12 || wh != 2))
-	    continue;
+          if (sliceTestMode && (sect != 12 || wh != 2))
+            continue;
 
           // Get the chamber ID
           const DTChamberId dtChId(wh, st, sect);
@@ -215,7 +215,7 @@ void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
           if (sliceTestMode && (sect != 12 || wh != 2)) {
             continue;
           }
-	  if ((sect == 13 || sect == 14) && st != 4) {
+          if ((sect == 13 || sect == 14) && st != 4) {
             continue;
           }
           const DTChamberId dtChId(wh, st, sect);
@@ -270,15 +270,18 @@ void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& dt
     string histoTitle = histoName + " (TDC Counts)";
 
     if (!readTTrigDB) {
-      (digiHistos[histoTag])[dtSL.rawId()] =
-          ibooker.book1D(histoName, histoTitle, maxTTMounts / timeBoxGranularity, tdcPedestal, maxTTMounts + tdcPedestal);
+      (digiHistos[histoTag])[dtSL.rawId()] = ibooker.book1D(
+          histoName, histoTitle, maxTTMounts / timeBoxGranularity, tdcPedestal, maxTTMounts + tdcPedestal);
       if (doLayerTimeBoxes) {  // Book TimeBoxes per layer
         for (int layer = 1; layer != 5; ++layer) {
           DTLayerId layerId(dtSL, layer);
           stringstream layerHistoName;
           layerHistoName << histoName << "_L" << layer;
-          (digiHistos[histoTag])[layerId.rawId()] = ibooker.book1D(
-              layerHistoName.str(), layerHistoName.str(), maxTTMounts / timeBoxGranularity, tdcPedestal, maxTTMounts + tdcPedestal);
+          (digiHistos[histoTag])[layerId.rawId()] = ibooker.book1D(layerHistoName.str(),
+                                                                   layerHistoName.str(),
+                                                                   maxTTMounts / timeBoxGranularity,
+                                                                   tdcPedestal,
+                                                                   maxTTMounts + tdcPedestal);
         }
       }
     } else {

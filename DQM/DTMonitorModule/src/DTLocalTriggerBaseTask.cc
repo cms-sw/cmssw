@@ -88,7 +88,7 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps)
 
 DTLocalTriggerBaseTask::~DTLocalTriggerBaseTask() {
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-    << "[DTLocalTriggerBaseTask]: analyzed " << m_nEvents << " events" << endl;
+      << "[DTLocalTriggerBaseTask]: analyzed " << m_nEvents << " events" << endl;
   if (m_trigGeomUtils)
     delete m_trigGeomUtils;
 }
@@ -113,25 +113,23 @@ void DTLocalTriggerBaseTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg
   int resetCycle = m_params.getUntrackedParameter<int>("ResetCycle");
 
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-    << "[DTLocalTriggerBaseTask]: Begin of LS transition" << endl;
+      << "[DTLocalTriggerBaseTask]: Begin of LS transition" << endl;
 
   if (m_nLumis % resetCycle == 0)
-    for (auto & histosInChamb : m_chamberHistos)
-      for (auto & histo : histosInChamb.second)
+    for (auto& histosInChamb : m_chamberHistos)
+      for (auto& histo : histosInChamb.second)
         histo.second->Reset();
 }
 
 void DTLocalTriggerBaseTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-    << "[DTLocalTriggerBaseTask]: End of LS transition" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask") << "[DTLocalTriggerBaseTask]: End of LS transition" << endl;
 
-  for (auto & trendHisto : m_trendHistos)
+  for (auto& trendHisto : m_trendHistos)
     trendHisto.second->updateTimeSlot(lumiSeg.luminosityBlock(), m_nEventsInLS);
 }
 
 void DTLocalTriggerBaseTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
-  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-    << "[DTLocalTriggerBaseTask]: BeginRun" << endl;
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask") << "[DTLocalTriggerBaseTask]: BeginRun" << endl;
 
   ESHandle<DTGeometry> geom;
   context.get<MuonGeometryRecord>().get(geom);
@@ -160,7 +158,7 @@ void DTLocalTriggerBaseTask::analyze(const edm::Event& e, const edm::EventSetup&
       runTMAnalysis(phiInTrigsTM->getContainer(), phiOutTrigsTM->getContainer(), thetaTrigsTM->getContainer());
     } else {
       LogVerbatim("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-	<< "[DTLocalTriggerBaseTask]: one or more TM tokens not valid!" << endl;
+          << "[DTLocalTriggerBaseTask]: one or more TM tokens not valid!" << endl;
       return;
     }
   }
@@ -168,11 +166,11 @@ void DTLocalTriggerBaseTask::analyze(const edm::Event& e, const edm::EventSetup&
   if (m_processAB7) {
     e.getByToken(m_ab7_phi_Token, phiTrigsAB7);
 
-    if (phiTrigsAB7.isValid()){
+    if (phiTrigsAB7.isValid()) {
       runAB7Analysis(phiTrigsAB7->getContainer());
     } else {
       LogVerbatim("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-        << "[DTLocalTriggerBaseTask]: AB7 token not valid!" << endl;
+          << "[DTLocalTriggerBaseTask]: AB7 token not valid!" << endl;
     }
   }
 }
@@ -198,10 +196,10 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker& ibooker, const DTCham
   string chTag = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
   string labelInOut = "";
 
-  for (auto type : m_types) {
+  for (const auto& type : m_types) {
     LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
-      << "[DTLocalTriggerBaseTask]: booking histos for " << topFolder(type) << "Wheel" << wheel.str()
-      << "/Sector" << sector.str() << "/Station" << station.str() << endl;
+        << "[DTLocalTriggerBaseTask]: booking histos for " << topFolder(type) << "Wheel" << wheel.str() << "/Sector"
+        << sector.str() << "/Station" << station.str() << endl;
 
     if (type == "AB7" && (dtCh.wheel() != 2 || dtCh.sector() != 12))
       continue;
@@ -224,42 +222,39 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker& ibooker, const DTCham
       // Book Phi View Related Plots
 
       auto plotLabel = plotLabels.at(iLabel);
-      ibooker.setCurrentFolder(topFolder(type)
-			       + "Wheel" + wheel.str()
-			       + "/Sector" + sector.str()
-			       + "/Station" + station.str()
-			       + folderLabels.at(iLabel));
+      ibooker.setCurrentFolder(topFolder(type) + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" +
+                               station.str() + folderLabels.at(iLabel));
 
       int nQualities = type == "AB7" ? 11 : 7;
 
       string histoTag = type + "_BXvsQual" + plotLabel;
       m_chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag + chTag,
-							"BX vs trigger quality",
-							nQualities,
-							-0.5,
-							nQualities - 0.5,
-							(int)(maxBX[type] - minBX[type] + 1),
-							minBX[type] - .5,
-							maxBX[type] + .5);
+                                                        "BX vs trigger quality",
+                                                        nQualities,
+                                                        -0.5,
+                                                        nQualities - 0.5,
+                                                        (int)(maxBX[type] - minBX[type] + 1),
+                                                        minBX[type] - .5,
+                                                        maxBX[type] + .5);
       if (type == "AB7")
-	setQLabelsPh2((m_chamberHistos[rawId])[histoTag], 1);
+        setQLabelsPh2((m_chamberHistos[rawId])[histoTag], 1);
       else
-	setQLabels((m_chamberHistos[rawId])[histoTag], 1);
+        setQLabels((m_chamberHistos[rawId])[histoTag], 1);
 
       if (!m_tpMode && !(type == "AB7")) {
-	histoTag = type + "_BestQual" + plotLabel;
+        histoTag = type + "_BestQual" + plotLabel;
         m_chamberHistos[rawId][histoTag] =
-	  ibooker.book1D(histoTag + chTag, "Trigger quality of best primitives", 7, -0.5, 6.5);
+            ibooker.book1D(histoTag + chTag, "Trigger quality of best primitives", 7, -0.5, 6.5);
         setQLabels(m_chamberHistos[rawId][histoTag], 1);
 
-	histoTag = type + "_Flag1stvsQual" + plotLabel;
+        histoTag = type + "_Flag1stvsQual" + plotLabel;
         m_chamberHistos[dtCh.rawId()][histoTag] =
-	  ibooker.book2D(histoTag + chTag, "1st/2nd trig flag vs quality", 7, -0.5, 6.5, 2, -0.5, 1.5);
+            ibooker.book2D(histoTag + chTag, "1st/2nd trig flag vs quality", 7, -0.5, 6.5, 2, -0.5, 1.5);
         setQLabels(m_chamberHistos[rawId][histoTag], 1);
 
-	histoTag = type + "_FlagUpDownvsQual" + plotLabel;
+        histoTag = type + "_FlagUpDownvsQual" + plotLabel;
         m_chamberHistos[dtCh.rawId()][histoTag] =
-	  ibooker.book2D(histoTag + chTag, "Up/Down trig flag vs quality", 7, -0.5, 6.5, 2, -0.5, 1.5);
+            ibooker.book2D(histoTag + chTag, "Up/Down trig flag vs quality", 7, -0.5, 6.5, 2, -0.5, 1.5);
         setQLabels(m_chamberHistos[rawId][histoTag], 1);
       }
 
@@ -268,20 +263,20 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker& ibooker, const DTCham
         int nBinsPh;
         m_trigGeomUtils->phiRange(dtCh, minPh, maxPh, nBinsPh);
 
-	histoTag = type + "_QualvsPhirad" + plotLabel;
+        histoTag = type + "_QualvsPhirad" + plotLabel;
         m_chamberHistos[rawId][histoTag] =
             ibooker.book2D(histoTag + chTag, "Trigger quality vs local position", nBinsPh, minPh, maxPh, 7, -0.5, 6.5);
         setQLabels(m_chamberHistos[rawId][histoTag], 2);
 
         if (plotLabel == "_Out" && !m_tpMode) {
-	  histoTag = type + "_RPCBitvsQual" + plotLabel;
+          histoTag = type + "_RPCBitvsQual" + plotLabel;
           m_chamberHistos[rawId][histoTag] =
-	    ibooker.book2D(histoTag + chTag, "RPC bit vs DT trigger quality", 9, -1.5, 7.5, 3, -0.5, 2.5);
+              ibooker.book2D(histoTag + chTag, "RPC bit vs DT trigger quality", 9, -1.5, 7.5, 3, -0.5, 2.5);
           //setQLabels((m_chamberHistos[dtCh.rawId()])[histoTag], 2);
         }
 
         if (m_detailedAnalysis && !m_tpMode) {
-	  histoTag = type + "_QualvsPhibend" + plotLabel;
+          histoTag = type + "_QualvsPhibend" + plotLabel;
           m_chamberHistos[rawId][histoTag] =
               ibooker.book2D(histoTag + chTag, "Trigger quality vs local direction", 200, -40., 40., 7, -0.5, 6.5);
           setQLabels((m_chamberHistos[dtCh.rawId()])[histoTag], 2);
@@ -297,32 +292,26 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker& ibooker, const DTCham
     if (type == "TM" && dtCh.station() != 4) {
       histoTag = type + "_PositionvsBX";
       m_chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag + chTag,
-							"Theta trigger position vs BX",
-							(int)(maxBX[type] - minBX[type] + 1),
-							minBX[type] - .5,
-							maxBX[type] + .5,
-							7,
-							-0.5,
-							6.5);
+                                                        "Theta trigger position vs BX",
+                                                        (int)(maxBX[type] - minBX[type] + 1),
+                                                        minBX[type] - .5,
+                                                        maxBX[type] + .5,
+                                                        7,
+                                                        -0.5,
+                                                        6.5);
       histoTag = type + "_PositionvsQual";
-      m_chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag + chTag,
-							"Theta trigger position vs quality",
-							3,
-							0.5,
-							3.5,
-							7,
-							-0.5,
-							6.5);
+      m_chamberHistos[rawId][histoTag] =
+          ibooker.book2D(histoTag + chTag, "Theta trigger position vs quality", 3, 0.5, 3.5, 7, -0.5, 6.5);
       setQLabelsTheta(m_chamberHistos[rawId][histoTag], 1);
       histoTag = type + "_ThetaBXvsQual";
       m_chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag + chTag,
-							"BX vs trigger quality",
-							3,
-							0.5,
-							3.5,
-							(int)(maxBX[type] - minBX[type] + 1),
-							minBX[type] - .5,
-							maxBX[type] + .5);
+                                                        "BX vs trigger quality",
+                                                        3,
+                                                        0.5,
+                                                        3.5,
+                                                        (int)(maxBX[type] - minBX[type] + 1),
+                                                        minBX[type] - .5,
+                                                        maxBX[type] + .5);
       setQLabelsTheta(m_chamberHistos[rawId][histoTag], 1);
     }
   }
@@ -405,7 +394,6 @@ void DTLocalTriggerBaseTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const*
       innerME["TM_Flag1stvsQual_Out"]->Fill(qual, is1st);      // SM Qual 1st/2nd track flag Phi view
       innerME["TM_FlagUpDownvsQual_Out"]->Fill(qual, updown);  // SM Qual Up/Down track flag Phi view
 
-
       if (!is1st)
         innerME["TM_QualvsPhirad_Out"]->Fill(pos, qual);  // SM Qual vs radial angle Phi view ONLY for 1st tracks
       if (m_detailedAnalysis) {
@@ -425,12 +413,11 @@ void DTLocalTriggerBaseTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const*
 
     int thcode[7];
 
-    for (int pos = 0; pos < 7; pos++)
-      {
-	thcode[pos] = ith->code(pos);
-	if (ith->position(pos) == 0 && ith->quality(pos) == 1)
-	  thcode[pos] = 3;
-      }
+    for (int pos = 0; pos < 7; pos++) {
+      thcode[pos] = ith->code(pos);
+      if (ith->position(pos) == 0 && ith->quality(pos) == 1)
+        thcode[pos] = 3;
+    }
 
     DTChamberId dtChId(wh, st, sec);
     uint32_t rawId = dtChId.rawId();
@@ -446,7 +433,7 @@ void DTLocalTriggerBaseTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const*
   }
   // Fill Quality plots with best TM triggers (phi view In)
   if (!m_tpMode) {
-    for (auto & comp : m_compMapIn) {
+    for (auto& comp : m_compMapIn) {
       int bestQual = comp.second.qualTM();
       if (bestQual > -1)
         m_chamberHistos[comp.first]["TM_BestQual_In"]->Fill(bestQual);  // SM Best Qual Trigger Phi view
@@ -455,7 +442,7 @@ void DTLocalTriggerBaseTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const*
 
   // Fill Quality plots with best TM triggers (phi view Out)
   if (!m_tpMode) {
-    for (auto & comp : m_compMapOut) {
+    for (auto& comp : m_compMapOut) {
       int bestQual = comp.second.qualTM();
       if (bestQual > -1)
         m_chamberHistos[comp.first]["TM_BestQual_Out"]->Fill(bestQual);  // SM Best Qual Trigger Phi view
@@ -463,23 +450,21 @@ void DTLocalTriggerBaseTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const*
   }
 }
 
-void DTLocalTriggerBaseTask::runAB7Analysis( std::vector<L1Phase2MuDTPhDigi> const* phTrigs)
-{
-  vector<L1Phase2MuDTPhDigi>::const_iterator iph  = phTrigs->begin();
+void DTLocalTriggerBaseTask::runAB7Analysis(std::vector<L1Phase2MuDTPhDigi> const* phTrigs) {
+  vector<L1Phase2MuDTPhDigi>::const_iterator iph = phTrigs->begin();
   vector<L1Phase2MuDTPhDigi>::const_iterator iphe = phTrigs->end();
-  for(; iph !=iphe ; ++iph) {
+  for (; iph != iphe; ++iph) {
+    int wh = iph->whNum();
+    int sec = iph->scNum() + 1;  // B(O)MTF->DT Convention
+    int st = iph->stNum();
+    int qual = iph->quality();
+    int bx = iph->bxNum();
 
-    int wh    = iph->whNum();
-    int sec   = iph->scNum() + 1; // B(O)MTF->DT Convention
-    int st    = iph->stNum();
-    int qual  = iph->quality();
-    int bx    = iph->bxNum();
-
-    DTChamberId dtChId(wh,st,sec);
+    DTChamberId dtChId(wh, st, sec);
     uint32_t rawId = dtChId.rawId();
 
-    map<string, MonitorElement*> &innerME = m_chamberHistos[rawId];
-    innerME["AB7_BXvsQual"]->Fill(qual,bx);
+    map<string, MonitorElement*>& innerME = m_chamberHistos[rawId];
+    innerME["AB7_BXvsQual"]->Fill(qual, bx);
   }
 }
 
@@ -518,12 +503,11 @@ void DTLocalTriggerBaseTask::setQLabelsTheta(MonitorElement* me, short int iaxis
   if (!axis)
     return;
 
-  string labels[3] = {"L","H", "err"};
-  int istart = axis->GetXmin()<-1 ? 2 : 1;
-  for (int i=0;i<3;i++) {
-    axis->SetBinLabel(i+istart,labels[i].c_str());
+  string labels[3] = {"L", "H", "err"};
+  int istart = axis->GetXmin() < -1 ? 2 : 1;
+  for (int i = 0; i < 3; i++) {
+    axis->SetBinLabel(i + istart, labels[i].c_str());
   }
-
 }
 
 void DTLocalTriggerBaseTask::setQLabelsPh2(MonitorElement* me, short int iaxis) {
