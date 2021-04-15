@@ -22,7 +22,6 @@
 <use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<use name="HeterogeneousCore/CUDACore"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="MagneticField/UniformEngine"/>
