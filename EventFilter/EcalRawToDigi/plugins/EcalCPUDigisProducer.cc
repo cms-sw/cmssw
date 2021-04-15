@@ -1,4 +1,5 @@
 #include <iostream>
+#include <utility>
 
 #include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
 #include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
@@ -23,12 +24,18 @@
 class EcalCPUDigisProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit EcalCPUDigisProducer(edm::ParameterSet const& ps);
-  ~EcalCPUDigisProducer() override;
+  ~EcalCPUDigisProducer() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   void acquire(edm::Event const&, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder) override;
   void produce(edm::Event&, edm::EventSetup const&) override;
+
+  template <typename ProductType, typename... ARGS>
+  edm::EDPutTokenT<ProductType> dummyProduces(ARGS&&... args) {
+    return (produceDummyIntegrityCollections_) ? produces<ProductType>(std::forward<ARGS>(args)...)
+                                               : edm::EDPutTokenT<ProductType>{};
+  }
 
 private:
   // input digi collections in GPU-friendly format
@@ -43,7 +50,7 @@ private:
   // whether to produce dummy integrity collections
   bool produceDummyIntegrityCollections_;
 
-  // dummy SRP collections
+  // dummy producer collections
   edm::EDPutTokenT<EBSrFlagCollection> ebSrFlagToken_;
   edm::EDPutTokenT<EESrFlagCollection> eeSrFlagToken_;
 
@@ -59,7 +66,14 @@ private:
 
   // dummy integrity errors
   edm::EDPutTokenT<EcalElectronicsIdCollection> integrityTTIdErrorsToken_;
+  edm::EDPutTokenT<EcalElectronicsIdCollection> integrityZSXtalIdErrorsToken_;
   edm::EDPutTokenT<EcalElectronicsIdCollection> integrityBlockSizeErrorsToken_;
+
+  edm::EDPutTokenT<EcalPnDiodeDigiCollection> pnDiodeDigisToken_;
+
+  // dummy TCC collections
+  edm::EDPutTokenT<EcalTrigPrimDigiCollection> ecalTriggerPrimitivesToken_;
+  edm::EDPutTokenT<EcalPSInputDigiCollection> ecalPseudoStripInputsToken_;
 
   // FIXME better way to pass pointers from acquire to produce?
   std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> idsebtmp, idseetmp;
@@ -84,45 +98,41 @@ EcalCPUDigisProducer::EcalCPUDigisProducer(const edm::ParameterSet& ps)
     :  // input digi collections in GPU-friendly format
       digisInEBToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisInLabelEB"))},
       digisInEEToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisInLabelEE"))},
+
       // output digi collections in legacy format
       digisOutEBToken_{produces<EBDigiCollection>(ps.getParameter<std::string>("digisOutLabelEB"))},
       digisOutEEToken_{produces<EEDigiCollection>(ps.getParameter<std::string>("digisOutLabelEE"))},
+
       // whether to produce dummy integrity collections
       produceDummyIntegrityCollections_{ps.getParameter<bool>("produceDummyIntegrityCollections")},
-      // dummy SRP collections
-      ebSrFlagToken_{produceDummyIntegrityCollections_ ? produces<EBSrFlagCollection>()
-                                                       : edm::EDPutTokenT<EBSrFlagCollection>{}},
-      eeSrFlagToken_{produceDummyIntegrityCollections_ ? produces<EESrFlagCollection>()
-                                                       : edm::EDPutTokenT<EESrFlagCollection>{}},
-      // dummy integrity for xtal data
-      ebIntegrityGainErrorsToken_{produceDummyIntegrityCollections_
-                                      ? produces<EBDetIdCollection>("EcalIntegrityGainErrors")
-                                      : edm::EDPutTokenT<EBDetIdCollection>{}},
-      ebIntegrityGainSwitchErrorsToken_{produceDummyIntegrityCollections_
-                                            ? produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors")
-                                            : edm::EDPutTokenT<EBDetIdCollection>{}},
-      ebIntegrityChIdErrorsToken_{produceDummyIntegrityCollections_
-                                      ? produces<EBDetIdCollection>("EcalIntegrityChIdErrors")
-                                      : edm::EDPutTokenT<EBDetIdCollection>{}},
-      // dummy integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
-      eeIntegrityGainErrorsToken_{produceDummyIntegrityCollections_
-                                      ? produces<EEDetIdCollection>("EcalIntegrityGainErrors")
-                                      : edm::EDPutTokenT<EEDetIdCollection>{}},
-      eeIntegrityGainSwitchErrorsToken_{produceDummyIntegrityCollections_
-                                            ? produces<EEDetIdCollection>("EcalIntegrityGainSwitchErrors")
-                                            : edm::EDPutTokenT<EEDetIdCollection>{}},
-      eeIntegrityChIdErrorsToken_{produceDummyIntegrityCollections_
-                                      ? produces<EEDetIdCollection>("EcalIntegrityChIdErrors")
-                                      : edm::EDPutTokenT<EEDetIdCollection>{}},
-      // dummy integrity errors
-      integrityTTIdErrorsToken_{produceDummyIntegrityCollections_
-                                    ? produces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors")
-                                    : edm::EDPutTokenT<EcalElectronicsIdCollection>{}},
-      integrityBlockSizeErrorsToken_{produceDummyIntegrityCollections_
-                                         ? produces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors")
-                                         : edm::EDPutTokenT<EcalElectronicsIdCollection>{}} {}
 
-EcalCPUDigisProducer::~EcalCPUDigisProducer() {}
+      // dummy collections
+      ebSrFlagToken_{dummyProduces<EBSrFlagCollection>()},
+      eeSrFlagToken_{dummyProduces<EESrFlagCollection>()},
+
+      // dummy integrity for xtal data
+      ebIntegrityGainErrorsToken_{dummyProduces<EBDetIdCollection>("EcalIntegrityGainErrors")},
+      ebIntegrityGainSwitchErrorsToken_{dummyProduces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors")},
+      ebIntegrityChIdErrorsToken_{dummyProduces<EBDetIdCollection>("EcalIntegrityChIdErrors")},
+
+      // dummy integrity for xtal data - EE specific (to be rivisited towards EB+EE common collection)
+      eeIntegrityGainErrorsToken_{dummyProduces<EEDetIdCollection>("EcalIntegrityGainErrors")},
+      eeIntegrityGainSwitchErrorsToken_{dummyProduces<EEDetIdCollection>("EcalIntegrityGainSwitchErrors")},
+      eeIntegrityChIdErrorsToken_{dummyProduces<EEDetIdCollection>("EcalIntegrityChIdErrors")},
+
+      // dummy integrity errors
+      integrityTTIdErrorsToken_{dummyProduces<EcalElectronicsIdCollection>("EcalIntegrityTTIdErrors")},
+      integrityZSXtalIdErrorsToken_{dummyProduces<EcalElectronicsIdCollection>("EcalIntegrityZSXtalIdErrors")},
+      integrityBlockSizeErrorsToken_{dummyProduces<EcalElectronicsIdCollection>("EcalIntegrityBlockSizeErrors")},
+
+      //
+      pnDiodeDigisToken_{dummyProduces<EcalPnDiodeDigiCollection>()},
+
+      // dummy TCC collections
+      ecalTriggerPrimitivesToken_{dummyProduces<EcalTrigPrimDigiCollection>("EcalTriggerPrimitives")},
+      ecalPseudoStripInputsToken_{dummyProduces<EcalPSInputDigiCollection>("EcalPseudoStripInputs")}
+// constructor body
+{}
 
 void EcalCPUDigisProducer::acquire(edm::Event const& event,
                                    edm::EventSetup const& setup,
@@ -176,7 +186,7 @@ void EcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& set
   event.put(digisOutEEToken_, std::move(digisEE));
 
   if (produceDummyIntegrityCollections_) {
-    // dummy SRP collections
+    // dummy collections
     event.emplace(ebSrFlagToken_);
     event.emplace(eeSrFlagToken_);
     // dummy integrity for xtal data
@@ -189,7 +199,13 @@ void EcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& set
     event.emplace(eeIntegrityChIdErrorsToken_);
     // dummy integrity errors
     event.emplace(integrityTTIdErrorsToken_);
+    event.emplace(integrityZSXtalIdErrorsToken_);
     event.emplace(integrityBlockSizeErrorsToken_);
+    //
+    event.emplace(pnDiodeDigisToken_);
+    // dummy TCC collections
+    event.emplace(ecalTriggerPrimitivesToken_);
+    event.emplace(ecalPseudoStripInputsToken_);
   }
 }
 

@@ -75,7 +75,7 @@ RawToDigi_hcalOnly = cms.Sequence(RawToDigiTask_hcalOnly)
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 siPixelDigis.cpu.InputLabel = 'rawDataCollector'
-(~gpu).toModify(ecalDigis, InputLabel='rawDataCollector')
+ecalDigis.cpu.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'
