@@ -70,6 +70,9 @@ private:
   // ----------member data ---------------------------
   std::string nameDetector_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> ee_geometry_token_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hesil_geometry_token_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hesci_geometry_token_;
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> pHRNDCToken_;
   edm::EDGetToken recHitSource_;
   bool ifHCAL_;
@@ -91,6 +94,9 @@ private:
 HGCalRecHitValidation::HGCalRecHitValidation(const edm::ParameterSet& iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
       caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      ee_geometry_token_(esConsumes(edm::ESInputTag("", "HGCalEESensitive"))),
+      hesil_geometry_token_(esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
+      hesci_geometry_token_(esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))),
       pHRNDCToken_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>()),
       ifHCAL_(iConfig.getParameter<bool>("ifHCAL")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
@@ -174,13 +180,21 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
   } else {
+    edm::ESHandle<HGCalGeometry> geomHandle;
+    if (nameDetector_ == "HGCalEESensitive"){
+      geomHandle = iSetup.getHandle(ee_geometry_token_);
+    } else if ( nameDetector_ == "HGCalHESiliconSensitive" ) {
+      geomHandle = iSetup.getHandle(hesil_geometry_token_);
+    } else if ( nameDetector_ == "HGCalHEScintillatorSensitive" ) {
+      geomHandle = iSetup.getHandle(hesci_geometry_token_);
+    }
     edm::ESHandle<HGCalGeometry> geom;
     iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
-    if (!geom.isValid()) {
+    if (!geomHandle.isValid()) {
       edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
                                           << "Object for " << nameDetector_;
     } else {
-      const HGCalGeometry* geom0 = geom.product();
+      const HGCalGeometry* geom0 = geomHandle.product();
       int geomType = ((geom0->topology().waferHexagon8()) ? 1 : ((geom0->topology().tileTrapezoid()) ? 2 : 0));
 
       edm::Handle<HGCRecHitCollection> theRecHitContainers;
