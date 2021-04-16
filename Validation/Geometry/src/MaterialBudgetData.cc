@@ -199,7 +199,8 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
   LogDebug("MaterialBudget") << "MaterialBudgetData: Material " << materialName << " steplen " << steplen << " radlen "
                              << radlen << " mb " << steplen / radlen;
 
-  G4String volumeName = static_cast<std::string>(dd4hep::dd::noNamespace(aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume()->GetName()));
+  G4String volumeName = static_cast<std::string>(
+      dd4hep::dd::noNamespace(aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume()->GetName()));
 
   LogDebug("MaterialBudget") << "MaterialBudgetData: Volume " << volumeName << " Material " << materialName;
 
@@ -227,7 +228,7 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
         theOtherFractionMB = 1.f;
         theOtherFractionIL = 1.f;
         edm::LogVerbatim("MaterialBudget") << "MaterialBudgetData: Material forced to 'Other': " << materialName
-                                          << " in volume " << volumeName << ". Check Categorization.";
+                                           << " in volume " << volumeName << ". Check Categorization.";
       }
     } else {
       theSupportFractionMB = myMaterialBudgetCategorizer->x0fraction(materialName)[0];
@@ -264,7 +265,7 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
       theOtherFractionIL = 1.f;
 
       edm::LogVerbatim("MaterialBudget") << "MaterialBudgetData: Material forced to 'Other': " << materialName
-                                        << " in volume " << volumeName;
+                                         << " in volume " << volumeName;
     } else {
       theAirFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[0];
       theCablesFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[1];
@@ -302,7 +303,7 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
 
       if (theOtherFractionIL != 0)
         edm::LogVerbatim("MaterialBudget") << "MaterialBudgetData: Material found with no category " << materialName
-                                          << " in volume " << volumeName << std::endl;
+                                           << " in volume " << volumeName << std::endl;
     }
   }
 
