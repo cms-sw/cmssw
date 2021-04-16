@@ -64,13 +64,23 @@ class MatrixInjector(object):
         self.batchTime = str(int(time.time()))
         if(opt.batchName):
             self.batchName = '__'+opt.batchName+'-'+self.batchTime
-        #GPU tuff
-        self.gpuClass = opt.gpuClass
-        self.gpuDriverVersion = opt.gpuDriverVersion
-        self.gpuRuntime = opt.gpuRuntime
-        self.gpuMemory = opt.gpuMemory
-        self.gpuRuntimeVersion = opt.gpuRuntimeVersion
-
+        
+        ####################################
+        # Checking and setting up GPU attributes
+        ####################################
+        # require
+        self.RequiresGPU = opt.RequiresGPU
+        if self.RequiresGPU not in (0,1,2):
+            print('RequiresGPU should be 0,1,2. Now, reset to 0.')
+            self.RequiresGPU = 0 #reset if number is not 0,1,2 
+        self.GPUMemory = opt.GPUMemory
+        self.CUDACapabilities = opt.CUDACapabilities.split(',')
+        self.CUDARuntime = opt.CUDARuntime
+        # optional
+        self.GPUName = opt.GPUName
+        self.CUDADriverVersion = opt.CUDADriverVersion
+        self.CUDARuntimeVersion = opt.CUDARuntimeVersion
+        
         # WMagent url
         if not self.wmagent:
             # Overwrite with env variable
@@ -138,11 +148,6 @@ class MatrixInjector(object):
             "Memory" : 3000,
             "SizePerEvent" : 1234,
             "TimePerEvent" : 10,
-            "GPUClass": None,
-            "GPUDriverVersion": None, 
-            "GPURuntime": None, 
-            "GPUMemory": None, 
-            "GPURuntimeVersion": None,
             "PrepID": os.getenv('CMSSW_VERSION')
             }
 
@@ -191,7 +196,17 @@ class MatrixInjector(object):
             "nowmIO": {},
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "EventStreams": self.numberOfStreams,
-            "KeepOutput" : False
+            "KeepOutput" : False,
+            "RequiresGPU" : 0,
+            "GPUParams": {None}
+            }
+        self.defaultGPUParams={
+            "GPUMemory": self.GPUMemory,
+            "CUDACapabilities": self.CUDACapabilities,
+            "CUDARuntime": self.CUDARuntime,
+            "GPUName": self.GPUName,
+            "CUDADriverVersion": self.CUDADriverVersion,
+            "CUDARuntimeVersion": self.CUDARuntimeVersion
             }
 
         self.chainDicts={}
@@ -332,16 +347,6 @@ class MatrixInjector(object):
         for (n,dir) in directories.items():
             chainDict=copy.deepcopy(self.defaultChain)
             print("inspecting",dir)
-            if self.gpuClass:
-                chainDict['GPUClass'] = self.gpuClass
-            if self.gpuDriverVersion:
-                chainDict['GPUDriverVersion'] =self.gpuDriverVersion
-            if self.gpuRuntime:
-                chainDict['GPURuntime'] =self.gpuRuntime
-            if self.gpuMemory:
-                chainDict['GPUMemory'] =self.gpuMemory
-            if self.gpuRuntimeVersion:
-                chainDict['GPURuntimeVersion'] =self.gpuRuntimeVersion
             nextHasDSInput=None
             for (x,s) in mReader.workFlowSteps.items():
                 #x has the format (num, prefix)
@@ -441,6 +446,9 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
                                 if step in wmsplit:
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=wmsplit[step]
+                                if 'GPU' in step and (self.RequiresGPU == 1 or self.RequiresGPU == 2):
+                                    chainDict['nowmTasklist'][-1]['RequiresGPU'] = self.RequiresGPU
+                                    chainDict['nowmTasklist'][-1]['GPUParams']=self.defaultGPUParams 
 
                             # change LumisPerJob for Hadronizer steps. 
                             if 'Hadronizer' in step: 
