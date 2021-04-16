@@ -131,7 +131,7 @@ void CompareFiles(const char* fileDDD, const char* fileDD4Hep, int type, int mod
   char buffer[100];
   std::string name;
   std::ifstream fInput1(fileDDD);
-  unsigned int sizeDDD, sizeDD4Hep;
+  unsigned int sizeDDD(0), sizeDD4Hep(0);
   if (!fInput1.good()) {
     std::cout << "Cannot open file " << fileDDD << std::endl;
   } else {
