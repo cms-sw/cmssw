@@ -74,6 +74,9 @@ private:
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hesil_geometry_token_;
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hesci_geometry_token_;
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> pHRNDCToken_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> ee_geometry_beginRun_token_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hesil_geometry_beginRun_token_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hesci_geometry_beginRun_token_;
   edm::EDGetToken recHitSource_;
   bool ifHCAL_;
   int verbosity_;
@@ -98,6 +101,12 @@ HGCalRecHitValidation::HGCalRecHitValidation(const edm::ParameterSet& iConfig)
       hesil_geometry_token_(esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
       hesci_geometry_token_(esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))),
       pHRNDCToken_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>()),
+      ee_geometry_beginRun_token_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", "HGCalEESensitive"))),
+      hesil_geometry_beginRun_token_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", "HGCalHESiliconSensitive"))),
+      hesci_geometry_beginRun_token_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", "HGCalHFNoseSensitive"))),
       ifHCAL_(iConfig.getParameter<bool>("ifHCAL")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       firstLayer_(1) {
@@ -181,15 +190,13 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     }
   } else {
     edm::ESHandle<HGCalGeometry> geomHandle;
-    if (nameDetector_ == "HGCalEESensitive"){
+    if (nameDetector_ == "HGCalEESensitive") {
       geomHandle = iSetup.getHandle(ee_geometry_token_);
-    } else if ( nameDetector_ == "HGCalHESiliconSensitive" ) {
+    } else if (nameDetector_ == "HGCalHESiliconSensitive") {
       geomHandle = iSetup.getHandle(hesil_geometry_token_);
-    } else if ( nameDetector_ == "HGCalHEScintillatorSensitive" ) {
+    } else if (nameDetector_ == "HGCalHEScintillatorSensitive") {
       geomHandle = iSetup.getHandle(hesci_geometry_token_);
     }
-    edm::ESHandle<HGCalGeometry> geom;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
     if (!geomHandle.isValid()) {
       edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
                                           << "Object for " << nameDetector_;
@@ -291,11 +298,23 @@ void HGCalRecHitValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup& 
     const HcalDDDRecConstants& hcons = iSetup.getData(pHRNDCToken_);
     layers_ = hcons.getMaxDepth(1);
   } else {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
-    const HGCalDDDConstants& hgcons_ = (*pHGDC);
-    layers_ = hgcons_.layers(true);
-    firstLayer_ = hgcons_.firstLayer();
+    edm::ESHandle<HGCalGeometry> geomHandle;
+    if (nameDetector_ == "HGCalEESensitive") {
+      geomHandle = iSetup.getHandle(ee_geometry_beginRun_token_);
+    } else if (nameDetector_ == "HGCalHESiliconSensitive") {
+      geomHandle = iSetup.getHandle(hesil_geometry_beginRun_token_);
+    } else if (nameDetector_ == "HGCalHEScintillatorSensitive") {
+      geomHandle = iSetup.getHandle(hesci_geometry_beginRun_token_);
+    }
+    if (!geomHandle.isValid()) {
+      edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
+                                          << "Object for " << nameDetector_;
+    } else {
+      const HGCalGeometry* geom = geomHandle.product();
+      const HGCalDDDConstants& hgcons_ = geom->topology().dddConstants();
+      layers_ = hgcons_.layers(true);
+      firstLayer_ = hgcons_.firstLayer();
+    }
   }
 }
 
