@@ -30,7 +30,7 @@
 
 class MTDDigiGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit MTDDigiGeometryAnalyzer(const edm::ParameterSet&) {}
+  explicit MTDDigiGeometryAnalyzer(const edm::ParameterSet&);
   ~MTDDigiGeometryAnalyzer() override = default;
 
   void beginJob() override {}
@@ -40,19 +40,25 @@ public:
 private:
   void analyseRectangle(const GeomDetUnit& det);
   void checkRotation(const GeomDetUnit& det);
+  void checkRectangularMTDTopology(const RectangularMTDTopology&);
 
   std::stringstream sunitt;
+
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
 };
 
 using cms_rounding::roundIfNear0, cms_rounding::roundVecIfNear0;
+
+MTDDigiGeometryAnalyzer::MTDDigiGeometryAnalyzer(const edm::ParameterSet& iConfig) {
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+}
 
 // ------------ method called to produce the data  ------------
 void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //
   // get the MTDGeometry
   //
-  edm::ESHandle<MTDGeometry> pDD;
-  iSetup.get<MTDDigiGeometryRecord>().get(pDD);
+  auto pDD = iSetup.getTransientHandle(mtdgeoToken_);
   edm::LogInfo("MTDDigiGeometryAnalyzer")
       << "Geometry node for MTDGeom is  " << &(*pDD) << "\n"
       << " # detectors = " << pDD->detUnits().size() << "\n"
@@ -91,13 +97,21 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     if (dynamic_cast<const MTDGeomDetType*>((it)) != nullptr) {
       const PixelTopology& p = (dynamic_cast<const MTDGeomDetType*>((it)))->specificTopology();
       const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(p);
+      auto pitchval = topo.pitch();
       edm::LogVerbatim("MTDDigiGeometryAnalyzer")
           << "\n Subdetector " << it->subDetector() << " MTD Det " << it->name() << "\n"
           << " Rows     " << topo.nrows() << " Columns " << topo.ncolumns() << " ROCS X   " << topo.rocsX()
-          << " ROCS Y  " << topo.rocsY() << " Rows/ROC " << topo.rowsperroc() << " Cols/ROC " << topo.colsperroc();
+          << " ROCS Y  " << topo.rocsY() << " Rows/ROC " << topo.rowsperroc() << " Cols/ROC " << topo.colsperroc()
+          << " Pitch X " << pitchval.first << " Pitch Y " << pitchval.second << " Sensor Interpad X "
+          << topo.gapxInterpad() << " Sensor Interpad Y " << topo.gapyInterpad() << " Sensor Border X "
+          << topo.gapxBorder() << " Sensor Border Y " << topo.gapyBorder();
       sunitt << std::fixed << std::setw(7) << it->subDetector() << std::setw(4) << topo.nrows() << std::setw(4)
              << topo.ncolumns() << std::setw(4) << std::setw(4) << topo.rocsX() << std::setw(4) << topo.rocsY()
-             << std::setw(4) << topo.rowsperroc() << std::setw(4) << topo.colsperroc() << "\n";
+             << std::setw(4) << topo.rowsperroc() << std::setw(4) << topo.colsperroc() << std::setw(10)
+             << pitchval.first << std::setw(10) << pitchval.second << std::setw(10) << topo.gapxInterpad()
+             << std::setw(10) << topo.gapyInterpad() << std::setw(10) << topo.gapxBorder() << std::setw(10)
+             << topo.gapyBorder() << "\n";
+      checkRectangularMTDTopology(topo);
     }
   }
 
@@ -110,6 +124,19 @@ void MTDDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
          << pDD->detIds().size() << "\n";
 
   edm::LogVerbatim("MTDUnitTest") << sunitt.str();
+}
+
+void MTDDigiGeometryAnalyzer::checkRectangularMTDTopology(const RectangularMTDTopology& topo) {
+  std::stringstream pixelinfo;
+  pixelinfo << "Pixel center location:\n";
+  LocalPoint center(0, 0, 0);
+  for (int r = 0; r < topo.nrows(); r++) {
+    for (int c = 0; c < topo.ncolumns(); c++) {
+      sunitt << r << " " << c << " " << topo.pixelToModuleLocalPoint(center, r, c) << "\n";
+      pixelinfo << r << " " << c << " " << topo.pixelToModuleLocalPoint(center, r, c) << "\n";
+    }
+  }
+  edm::LogVerbatim("MTDDigiGeometryAnalyzer") << pixelinfo.str();
 }
 
 void MTDDigiGeometryAnalyzer::analyseRectangle(const GeomDetUnit& det) {

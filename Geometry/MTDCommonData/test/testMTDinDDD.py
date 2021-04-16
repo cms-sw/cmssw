@@ -64,13 +64,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
 
 process.testBTL = cms.EDAnalyzer("TestMTDIdealGeometry",
-                               label = cms.untracked.string(''),
                                ddTopNodeName = cms.untracked.string('BarrelTimingLayer'),
                                theLayout = cms.untracked.uint32(4)
                                )
 
 process.testETL = cms.EDAnalyzer("TestMTDIdealGeometry",
-                               label = cms.untracked.string(''),
                                ddTopNodeName = cms.untracked.string('EndcapTimingLayer'),
                                theLayout = cms.untracked.uint32(4)
                                )

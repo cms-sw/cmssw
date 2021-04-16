@@ -11,10 +11,18 @@
 namespace cms {
 
   DDDetector::DDDetector(const std::string& tag, const std::string& fileName, bool bigXML) : m_tag(tag) {
+    //We do not want to use any previously created TGeoManager but we do want to reset after we are done.
+    auto oldGeoManager = gGeoManager;
+    gGeoManager = nullptr;
+    auto resetManager = [oldGeoManager](TGeoManager*) { gGeoManager = oldGeoManager; };
+    std::unique_ptr<TGeoManager, decltype(resetManager)> sentry(oldGeoManager, resetManager);
+
     m_description = &dd4hep::Detector::getInstance(tag);
     m_description->addExtension<cms::DDVectorsMap>(&m_vectors);
     m_description->addExtension<dd4hep::PartSelectionMap>(&m_partsels);
     m_description->addExtension<dd4hep::SpecParRegistry>(&m_specpars);
+    m_description->setStdConditions("NTP");
+    edm::LogVerbatim("Geometry") << "DDDetector::ctor Setting DD4hep STD conditions to NTP";
     if (bigXML)
       processXML(fileName);
     else

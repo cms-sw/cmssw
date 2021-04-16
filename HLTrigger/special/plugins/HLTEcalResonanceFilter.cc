@@ -1,11 +1,15 @@
 #include "HLTEcalResonanceFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "TLorentzVector.h"
 
 using namespace std;
 using namespace edm;
 
-HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet &iConfig) {
+HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet &iConfig)
+    : caloTopologyRecordToken_(esConsumes()),
+      ecalChannelStatusRcdToken_(esConsumes()),
+      caloGeometryRecordToken_(esConsumes()) {
   barrelHits_ = iConfig.getParameter<edm::InputTag>("barrelHits");
   barrelClusters_ = iConfig.getParameter<edm::InputTag>("barrelClusters");
   barrelHitsToken_ = consumes<EBRecHitCollection>(barrelHits_);
@@ -202,13 +206,11 @@ bool HLTEcalResonanceFilter::filter(edm::Event &iEvent, const edm::EventSetup &i
   vector<DetId> selectedEBDetIds;
   vector<DetId> selectedEEDetIds;
 
-  edm::ESHandle<CaloTopology> pTopology;
-  iSetup.get<CaloTopologyRecord>().get(pTopology);
+  auto const &pTopology = iSetup.getHandle(caloTopologyRecordToken_);
   const CaloSubdetectorTopology *topology_eb = pTopology->getSubdetectorTopology(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorTopology *topology_ee = pTopology->getSubdetectorTopology(DetId::Ecal, EcalEndcap);
 
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
+  auto const &geoHandle = iSetup.getHandle(caloGeometryRecordToken_);
   const CaloSubdetectorGeometry *geometry_es = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   std::unique_ptr<CaloSubdetectorTopology> topology_es;
   if (geometry_es) {
@@ -220,7 +222,7 @@ bool HLTEcalResonanceFilter::filter(edm::Event &iEvent, const edm::EventSetup &i
   ///get status from DB
   edm::ESHandle<EcalChannelStatus> csHandle;
   if (useDBStatus_)
-    iSetup.get<EcalChannelStatusRcd>().get(csHandle);
+    csHandle = iSetup.getHandle(ecalChannelStatusRcdToken_);
   const EcalChannelStatus &channelStatus = *csHandle;
 
   ///==============Start to process barrel part==================///

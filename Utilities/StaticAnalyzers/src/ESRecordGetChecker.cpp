@@ -53,13 +53,18 @@ namespace clangcms {
         QualType QT = (*I)->getType();
         std::string qtname = QT.getAsString();
         os << "' with argument of type '" << qtname;
-        PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-        BugType *BT = new BugType(Checker, "EventSetupRecord::get function called", "ThreadSafety");
-        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
-        R->addRange(CE->getSourceRange());
-        BR.emitReport(std::move(R));
       }
       os << "'";
+      os << ". Direct call of function EventSetupRecord::get(ESHandle&) is deprecated and should be replaced with a "
+            "call to EventSetup::getHandle(ESGetToken&). To use ESGetToken see "
+            "https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToGetDataFromES#In_ED_module To get data with "
+            "the token see "
+            "https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToGetDataFromES#Getting_data_from_EventSetup_wit";
+      PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
+      BugType *BT = new BugType(Checker, "EventSetupRecord::get function called", "ThreadSafety");
+      std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
+      R->addRange(CE->getSourceRange());
+      BR.emitReport(std::move(R));
     }
   }
 

@@ -9,6 +9,7 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TracksterToSimClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/TTTrackTruthPair.h"
 
 namespace SimDataFormats_Associations {
@@ -23,6 +24,8 @@ namespace SimDataFormats_Associations {
     edm::Wrapper<hgcal::LayerClusterToCaloParticleAssociator> dummy5;
 
     edm::Wrapper<hgcal::LayerClusterToSimClusterAssociator> dummy6;
+
+    edm::Wrapper<hgcal::TracksterToSimClusterAssociator> dummy7;
 
     reco::VertexSimToRecoCollection vstrc;
     reco::VertexSimToRecoCollection::const_iterator vstrci;

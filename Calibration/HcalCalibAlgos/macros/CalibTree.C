@@ -42,7 +42,7 @@
 //                              -1 loose, -2 flexible, > 0 for systematic
 //  puCorr          (int)     = PU correction to be applied or not: 0 no
 //                              correction; < 0 use eDelta; > 0 rho dependent
-//                              correction (-2)
+//                              correction (-5: 2018 version)
 //  applyL1Cut      (int)     = Flag to see if closeness to L1 object to be
 //                              applied: 0 no check; 1 only to events with
 //                              datatype not equal to 1; 2 to all (1)
@@ -124,7 +124,7 @@ void Run(const char *inFileName = "Silver.root",
          int ietaMax = 25,
          int ietaTrack = -1,
          int sysmode = -1,
-         int puCorr = -2,
+         int puCorr = -5,
          int applyL1Cut = 1,
          double l1Cut = 0.5,
          int truncateFlag = 0,
@@ -339,7 +339,7 @@ void doIt(const char *infile, const char *dup) {
         25,
         -1,
         -1,
-        -2,
+        -5,
         1,
         0.5,
         0,

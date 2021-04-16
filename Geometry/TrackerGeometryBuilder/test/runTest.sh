@@ -19,6 +19,9 @@ do
   (cmsRun $entry) || die "Failure using cmsRun $entry" $?
 done
 
+cmsRun ${LOCAL_TEST_DIR}/python/testPixelTopologyMapTest_cfg.py runNumber=300000  || die "Failure using cmsRun testPixelTopologyMapTest_cfg.py runNumber=300000" $?
+cmsRun ${LOCAL_TEST_DIR}/python/testPixelTopologyMapTest_cfg.py globalTag=auto:phase2_realistic_T15  || die "Failure using cmsRun testPixelTopologyMapTest_cfg.py globalTag=auto:phase2_realistic_T15" $?
+
 FILE1=trackerParametersDD4hep.log
 FILE2=trackerParametersDDD.log
 FILE3=diff.log

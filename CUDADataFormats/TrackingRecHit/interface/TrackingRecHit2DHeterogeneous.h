@@ -34,6 +34,7 @@ public:
   auto hitsModuleStart() const { return m_hitsModuleStart; }
   auto hitsLayerStart() { return m_hitsLayerStart; }
   auto phiBinner() { return m_phiBinner; }
+  auto phiBinnerStorage() { return m_phiBinnerStorage; }
   auto iphi() { return m_iphi; }
 
   // only the local coord and detector index
@@ -42,7 +43,7 @@ public:
 
 private:
   static constexpr uint32_t n16 = 4;                 // number of elements in m_store16
-  static constexpr uint32_t n32 = 9;                 // number of elements in m_store32
+  static constexpr uint32_t n32 = 10;                // number of elements in m_store32
   static_assert(sizeof(uint32_t) == sizeof(float));  // just stating the obvious
 
   unique_ptr<uint16_t[]> m_store16;  //!
@@ -59,6 +60,7 @@ private:
 
   // needed as kernel params...
   PhiBinner* m_phiBinner;
+  PhiBinner::index_type* m_phiBinnerStorage;
   uint32_t* m_hitsLayerStart;
   int16_t* m_iphi;
 };
@@ -97,14 +99,20 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
   // this will break 1to1 correspondence with cluster and module locality
   // so unless proven VERY inefficient we keep it ordered as generated
   m_store16 = Traits::template make_device_unique<uint16_t[]>(nHits * n16, stream);
-  m_store32 = Traits::template make_device_unique<float[]>(nHits * n32 + 11, stream);
+  m_store32 =
+      Traits::template make_device_unique<float[]>(nHits * n32 + phase1PixelTopology::numberOfLayers + 1, stream);
   m_PhiBinnerStore = Traits::template make_device_unique<TrackingRecHit2DSOAView::PhiBinner>(stream);
+
+  static_assert(sizeof(TrackingRecHit2DSOAView::hindex_type) == sizeof(float));
+  static_assert(sizeof(TrackingRecHit2DSOAView::hindex_type) == sizeof(TrackingRecHit2DSOAView::PhiBinner::index_type));
 
   auto get16 = [&](int i) { return m_store16.get() + i * nHits; };
   auto get32 = [&](int i) { return m_store32.get() + i * nHits; };
 
   // copy all the pointers
   m_phiBinner = view->m_phiBinner = m_PhiBinnerStore.get();
+  m_phiBinnerStorage = view->m_phiBinnerStorage =
+      reinterpret_cast<TrackingRecHit2DSOAView::PhiBinner::index_type*>(get32(9));
 
   view->m_xl = get32(0);
   view->m_yl = get32(1);

@@ -3,6 +3,12 @@
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "TH1.h"
+#include "TKey.h"
+
 using namespace pat;
 
 // constructor with path; default should not be used
@@ -11,9 +17,10 @@ ObjectResolutionCalc::ObjectResolutionCalc(const TString& resopath, bool useNN =
       << ("ObjectResolutionCalc") << "=== Constructing a TopObjectResolutionCalc...";
   resoFile_ = new TFile(resopath);
   if (!resoFile_)
-    edm::LogError("ObjectResolutionCalc") << "No resolutions fits for this file available: " << resopath << "...";
-  TString resObsName[8] = {"_ares", "_bres", "_cres", "_dres", "_thres", "_phres", "_etres", "_etares"};
+    throw edm::Exception(edm::errors::LogicError)
+        << "ObjectResolutionCalc: no resolutions fits for this file available: " << resopath << "...";
 
+  TString resObsName[8] = {"_ares", "_bres", "_cres", "_dres", "_thres", "_phres", "_etres", "_etares"};
   TList* keys = resoFile_->GetListOfKeys();
   TIter nextitem(keys);
   TKey* key = nullptr;
@@ -70,8 +77,10 @@ int ObjectResolutionCalc::etaBin(float eta) {
   int nrEtaBins = etaBinVals_.size() - 1;
   int bin = nrEtaBins - 1;
   for (int i = 0; i < nrEtaBins; i++) {
-    if (fabs(eta) > etaBinVals_[i] && fabs(eta) < etaBinVals_[i + 1])
+    if (fabs(eta) > etaBinVals_[i] && fabs(eta) < etaBinVals_[i + 1]) {
       bin = i;
+      break;
+    }
   }
   return bin;
 }

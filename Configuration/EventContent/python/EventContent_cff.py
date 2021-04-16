@@ -212,7 +212,7 @@ RECOEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
@@ -223,7 +223,7 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import *
 from RecoMTD.Configuration.RecoMTD_EventContent_cff import *
 
-ctpps_2016.toModify(RECOEventContent, 
+ctpps.toModify(RECOEventContent, 
     outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
 phase2_hgcal.toModify(RECOEventContent,
     outputCommands = RECOEventContent.outputCommands + TICL_RECO.outputCommands)
@@ -276,7 +276,7 @@ AODEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 AODEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
-ctpps_2016.toModify(AODEventContent, 
+ctpps.toModify(AODEventContent, 
     outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
 phase2_hgcal.toModify(AODEventContent,
     outputCommands = AODEventContent.outputCommands + TICL_AOD.outputCommands)
@@ -486,7 +486,7 @@ FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
-ctpps_2016.toModify(FEVTEventContent, 
+ctpps.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
 phase2_hgcal.toModify(FEVTEventContent,
     outputCommands = FEVTEventContent.outputCommands + TICL_FEVT.outputCommands)

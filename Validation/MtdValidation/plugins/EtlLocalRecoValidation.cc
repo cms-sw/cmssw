@@ -22,15 +22,28 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Common/interface/ValidHandle.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
 #include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
+
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
+
+struct MTDHit {
+  float energy;
+  float time;
+  float x_local;
+  float y_local;
+  float z_local;
+};
 
 class EtlLocalRecoValidation : public DQMEDAnalyzer {
 public:
@@ -49,17 +62,27 @@ private:
   const std::string folder_;
   const float hitMinEnergy1Dis_;
   const float hitMinEnergy2Dis_;
+  const bool LocalPosDebug_;
 
   edm::EDGetTokenT<FTLRecHitCollection> etlRecHitsToken_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > etlSimHitsToken_;
   edm::EDGetTokenT<FTLClusterCollection> etlRecCluToken_;
+
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
 
   // --- histograms declaration
 
   MonitorElement* meNhits_[4];
   MonitorElement* meHitEnergy_[4];
   MonitorElement* meHitTime_[4];
+  MonitorElement* meHitTimeError_[4];
 
   MonitorElement* meOccupancy_[4];
+
+  MonitorElement* meLocalOccupancy_[2];
+  MonitorElement* meHitXlocal_[2];
+  MonitorElement* meHitYlocal_[2];
 
   MonitorElement* meHitX_[4];
   MonitorElement* meHitY_[4];
@@ -74,20 +97,30 @@ private:
   MonitorElement* meHitTvsEta_[4];
 
   MonitorElement* meCluTime_[4];
+  MonitorElement* meCluTimeError_[4];
   MonitorElement* meCluEnergy_[4];
   MonitorElement* meCluPhi_[4];
   MonitorElement* meCluEta_[4];
   MonitorElement* meCluHits_[4];
   MonitorElement* meCluOccupancy_[4];
+
+  MonitorElement* meTimeRes_;
+  MonitorElement* meEnergyRes_;
+  MonitorElement* meTPullvsE_;
+  MonitorElement* meTPullvsEta_;
 };
 
 // ------------ constructor and destructor --------------
 EtlLocalRecoValidation::EtlLocalRecoValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy1Dis_(iConfig.getParameter<double>("hitMinimumEnergy1Dis")),
-      hitMinEnergy2Dis_(iConfig.getParameter<double>("hitMinimumEnergy2Dis")) {
+      hitMinEnergy2Dis_(iConfig.getParameter<double>("hitMinimumEnergy2Dis")),
+      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")) {
   etlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsTag"));
+  etlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("simHitsTag"));
   etlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
 
 EtlLocalRecoValidation::~EtlLocalRecoValidation() {}
@@ -96,8 +129,12 @@ EtlLocalRecoValidation::~EtlLocalRecoValidation() {}
 void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace std;
-  edm::ESHandle<MTDTopology> topologyHandle;
-  iSetup.get<MTDTopologyRcd>().get(topologyHandle);
+  using namespace geant_units::operators;
+
+  auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
+  const MTDGeometry* geom = geometryHandle.product();
+
+  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
 
   bool topo1Dis = false;
@@ -109,15 +146,51 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     topo2Dis = true;
   }
 
-  edm::ESHandle<MTDGeometry> geometryHandle;
-  iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
-  const MTDGeometry* geom = geometryHandle.product();
-
   auto etlRecHitsHandle = makeValid(iEvent.getHandle(etlRecHitsToken_));
+  auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
   auto etlRecCluHandle = makeValid(iEvent.getHandle(etlRecCluToken_));
+  MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
+
+  // --- Loop over the ETL SIM hits
+  std::unordered_map<uint32_t, MTDHit> m_etlSimHits[4];
+  for (auto const& simHit : etlSimHits) {
+    // --- Use only hits compatible with the in-time bunch-crossing
+    if (simHit.tof() < 0 || simHit.tof() > 25.)
+      continue;
+
+    ETLDetId id = simHit.detUnitId();
+
+    int idet = -1;
+
+    if ((id.zside() == -1) && (id.nDisc() == 1))
+      idet = 0;
+    else if ((id.zside() == -1) && (id.nDisc() == 2))
+      idet = 1;
+    else if ((id.zside() == 1) && (id.nDisc() == 1))
+      idet = 2;
+    else if ((id.zside() == 1) && (id.nDisc() == 2))
+      idet = 3;
+    else
+      continue;
+
+    auto simHitIt = m_etlSimHits[idet].emplace(id.rawId(), MTDHit()).first;
+
+    // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
+    (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
+
+    // --- Get the time of the first SIM hit in the cell
+    if ((simHitIt->second).time == 0 || simHit.tof() < (simHitIt->second).time) {
+      (simHitIt->second).time = simHit.tof();
+
+      auto hit_pos = simHit.entryPoint();
+      (simHitIt->second).x_local = hit_pos.x();
+      (simHitIt->second).y_local = hit_pos.y();
+      (simHitIt->second).z_local = hit_pos.z();
+    }
+
+  }  // simHit loop
 
   // --- Loop over the ELT RECO hits
-
   unsigned int n_reco_etl[4] = {0, 0, 0, 0};
   for (const auto& recHit : *etlRecHitsHandle) {
     double weight = 1.0;
@@ -165,8 +238,22 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     meHitEnergy_[idet]->Fill(recHit.energy());
     meHitTime_[idet]->Fill(recHit.time());
+    meHitTimeError_[idet]->Fill(recHit.timeError());
 
     meOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
+
+    if (LocalPosDebug_) {
+      if ((idet == 0) || (idet == 1)) {
+        meLocalOccupancy_[0]->Fill(local_point.x(), local_point.y());
+        meHitXlocal_[0]->Fill(local_point.x());
+        meHitYlocal_[0]->Fill(local_point.y());
+      }
+      if ((idet == 2) || (idet == 3)) {
+        meLocalOccupancy_[1]->Fill(local_point.x(), local_point.y());
+        meHitXlocal_[1]->Fill(local_point.x());
+        meHitYlocal_[1]->Fill(local_point.y());
+      }
+    }
     meHitX_[idet]->Fill(global_point.x());
     meHitY_[idet]->Fill(global_point.y());
     meHitZ_[idet]->Fill(global_point.z());
@@ -177,6 +264,21 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     meHitEvsEta_[idet]->Fill(global_point.eta(), recHit.energy());
     meHitTvsPhi_[idet]->Fill(global_point.phi(), recHit.time());
     meHitTvsEta_[idet]->Fill(global_point.eta(), recHit.time());
+
+    // Resolution histograms
+    if (m_etlSimHits[idet].count(detId.rawId()) == 1) {
+      if ((topo1Dis && m_etlSimHits[idet][detId.rawId()].energy > hitMinEnergy1Dis_) ||
+          (topo2Dis && m_etlSimHits[idet][detId.rawId()].energy > hitMinEnergy2Dis_)) {
+        float time_res = recHit.time() - m_etlSimHits[idet][detId.rawId()].time;
+        float energy_res = recHit.energy() - m_etlSimHits[idet][detId.rawId()].energy;
+
+        meTimeRes_->Fill(time_res);
+        meEnergyRes_->Fill(energy_res);
+
+        meTPullvsEta_->Fill(std::abs(global_point.eta()), time_res / recHit.timeError());
+        meTPullvsE_->Fill(m_etlSimHits[idet][detId.rawId()].energy, time_res / recHit.timeError());
+      }
+    }
 
     n_reco_etl[idet]++;
   }  // recHit loop
@@ -248,6 +350,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       meCluEnergy_[idet]->Fill(cluster.energy());
       meCluTime_[idet]->Fill(cluster.time());
+      meCluTimeError_[idet]->Fill(cluster.timeError());
       meCluPhi_[idet]->Fill(global_point.phi());
       meCluEta_[idet]->Fill(global_point.eta());
       meCluOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
@@ -284,6 +387,22 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitTime_[2] = ibook.book1D(
       "EtlHitTimeZposD1", "ETL RECO hits ToA (+Z, Single(topo1D)/First(topo2D) disk);ToA_{RECO} [ns]", 100, 0., 25.);
   meHitTime_[3] = ibook.book1D("EtlHitTimeZposD2", "ETL RECO hits ToA (+Z, Second disk);ToA_{RECO} [ns]", 100, 0., 25.);
+  meHitTimeError_[0] =
+      ibook.book1D("EtlHitTimeErrorZnegD1",
+                   "ETL RECO hits ToA error (-Z, Single(topo1D)/First(topo2D) disk);#sigma^{ToA}_{RECO} [ns]",
+                   50,
+                   0.,
+                   0.1);
+  meHitTimeError_[1] = ibook.book1D(
+      "EtlHitTimeErrorZnegD2", "ETL RECO hits ToA error(-Z, Second disk);#sigma^{ToA}_{RECO} [ns]", 50, 0., 0.1);
+  meHitTimeError_[2] =
+      ibook.book1D("EtlHitTimeErrorZposD1",
+                   "ETL RECO hits ToA error (+Z, Single(topo1D)/First(topo2D) disk);#sigma^{ToA}_{RECO} [ns]",
+                   50,
+                   0.,
+                   0.1);
+  meHitTimeError_[3] = ibook.book1D(
+      "EtlHitTimeErrorZposD2", "ETL RECO hits ToA error(+Z, Second disk);#sigma^{ToA}_{RECO} [ns]", 50, 0., 0.1);
 
   meOccupancy_[0] =
       ibook.book2D("EtlOccupancyZnegD1",
@@ -319,7 +438,28 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                  135,
                                  -135.,
                                  135.);
-
+  if (LocalPosDebug_) {
+    meLocalOccupancy_[0] = ibook.book2D("EtlLocalOccupancyZneg",
+                                        "ETL RECO hits local occupancy (-Z);X_{RECO} [cm];Y_{RECO} [cm]",
+                                        100,
+                                        -2.2,
+                                        2.2,
+                                        50,
+                                        -1.1,
+                                        1.1);
+    meLocalOccupancy_[1] = ibook.book2D("EtlLocalOccupancyZpos",
+                                        "ETL RECO hits local occupancy (+Z);X_{RECO} [cm];Y_{RECO} [cm]",
+                                        100,
+                                        -2.2,
+                                        2.2,
+                                        50,
+                                        -1.1,
+                                        1.1);
+    meHitXlocal_[0] = ibook.book1D("EtlHitXlocalZneg", "ETL RECO local X (-Z);X_{RECO}^{LOC} [cm]", 100, -2.2, 2.2);
+    meHitXlocal_[1] = ibook.book1D("EtlHitXlocalZpos", "ETL RECO local X (+Z);X_{RECO}^{LOC} [cm]", 100, -2.2, 2.2);
+    meHitYlocal_[0] = ibook.book1D("EtlHitYlocalZneg", "ETL RECO local Y (-Z);Y_{RECO}^{LOC} [cm]", 50, -1.1, 1.1);
+    meHitYlocal_[1] = ibook.book1D("EtlHitYlocalZpos", "ETL RECO local Y (-Z);Y_{RECO}^{LOC} [cm]", 50, -1.1, 1.1);
+  }
   meHitX_[0] = ibook.book1D(
       "EtlHitXZnegD1", "ETL RECO hits X (-Z, Single(topo1D)/First(topo2D) Disk);X_{RECO} [cm]", 100, -130., 130.);
   meHitX_[1] = ibook.book1D("EtlHitXZnegD2", "ETL RECO hits X (-Z, Second Disk);X_{RECO} [cm]", 100, -130., 130.);
@@ -352,7 +492,8 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitEta_[2] = ibook.book1D(
       "EtlHitEtaZposD1", "ETL RECO hits #eta (+Z, Single(topo1D)/First(topo2D) Disk);#eta_{RECO}", 100, 1.56, 3.2);
   meHitEta_[3] = ibook.book1D("EtlHitEtaZposD2", "ETL RECO hits #eta (+Z, Second Disk);#eta_{RECO}", 100, 1.56, 3.2);
-
+  meTimeRes_ = ibook.book1D("EtlTimeRes", "ETL time resolution;T_{RECO}-T_{SIM}", 100, -0.5, 0.5);
+  meEnergyRes_ = ibook.book1D("EtlEnergyRes", "ETL energy resolution;E_{RECO}-E_{SIM}", 100, -0.5, 0.5);
   meHitTvsE_[0] = ibook.bookProfile(
       "EtlHitTvsEZnegD1",
       "ETL RECO time vs energy (-Z, Single(topo1D)/First(topo2D) Disk);E_{RECO} [MeV];ToA_{RECO} [ns]",
@@ -503,12 +644,36 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                       3.2,
                                       0.,
                                       100.);
+  meTPullvsE_ = ibook.bookProfile(
+      "EtlTPullvsE", "ETL time pull vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}", 20, 0., 2., -5., 5., "S");
+  meTPullvsEta_ = ibook.bookProfile("EtlTPullvsEta",
+                                    "ETL time pull vs #eta;|#eta_{RECO}|;T_{RECO}-T_{SIM}/#sigma_{T_{RECO}}",
+                                    26,
+                                    1.65,
+                                    3.0,
+                                    -5.,
+                                    5.,
+                                    "S");
   meCluTime_[0] =
       ibook.book1D("EtlCluTimeZnegD1", "ETL cluster ToA (-Z, Single(topo1D)/First(topo2D) Disk);ToA [ns]", 250, 0, 25);
   meCluTime_[1] = ibook.book1D("EtlCluTimeZnegD2", "ETL cluster ToA (-Z, Second Disk);ToA [ns]", 250, 0, 25);
   meCluTime_[2] =
       ibook.book1D("EtlCluTimeZposD1", "ETL cluster ToA (+Z, Single(topo1D)/First(topo2D) Disk);ToA [ns]", 250, 0, 25);
   meCluTime_[3] = ibook.book1D("EtlCluTimeZposD2", "ETL cluster ToA (+Z, Second Disk);ToA [ns]", 250, 0, 25);
+  meCluTimeError_[0] = ibook.book1D("EtlCluTimeErrosZnegD1",
+                                    "ETL cluster time error (-Z, Single(topo1D)/First(topo2D) Disk);#sigma_{t} [ns]",
+                                    100,
+                                    0,
+                                    0.1);
+  meCluTimeError_[1] =
+      ibook.book1D("EtlCluTimeErrorZnegD2", "ETL cluster time error (-Z, Second Disk);#sigma_{t} [ns]", 100, 0, 0.1);
+  meCluTimeError_[2] = ibook.book1D("EtlCluTimeErrorZposD1",
+                                    "ETL cluster time error (+Z, Single(topo1D)/First(topo2D) Disk);#sigma_{t} [ns]",
+                                    100,
+                                    0,
+                                    0.1);
+  meCluTimeError_[3] =
+      ibook.book1D("EtlCluTimeErrorZposD2", "ETL cluster time error (+Z, Second Disk);#sigma_{t} [ns]", 100, 0, 0.1);
   meCluEnergy_[0] = ibook.book1D(
       "EtlCluEnergyZnegD1", "ETL cluster energy (-Z, Single(topo1D)/First(topo2D) Disk);E_{RECO} [MeV]", 100, 0, 10);
   meCluEnergy_[1] =
@@ -581,9 +746,11 @@ void EtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
 
   desc.add<std::string>("folder", "MTD/ETL/LocalReco");
   desc.add<edm::InputTag>("recHitsTag", edm::InputTag("mtdRecHits", "FTLEndcap"));
+  desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
   desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLEndcap"));
   desc.add<double>("hitMinimumEnergy1Dis", 1.);     // [MeV]
   desc.add<double>("hitMinimumEnergy2Dis", 0.001);  // [MeV]
+  desc.add<bool>("LocalPositionDebug", false);
 
   descriptions.add("etlLocalReco", desc);
 }

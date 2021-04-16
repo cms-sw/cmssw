@@ -122,14 +122,15 @@ public:
   }
 
   bool tileTrapezoid() const {
-    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile));
+    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) ||
+            (mode_ == HGCalGeometryMode::TrapezoidModule));
   }
   bool waferHexagon6() const {
     return ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull));
   }
   bool waferHexagon8() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) ||
-            (mode_ == HGCalGeometryMode::Hexagon8File));
+            (mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module));
   }
 
 private:

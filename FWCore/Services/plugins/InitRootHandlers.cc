@@ -771,6 +771,11 @@ namespace edm {
 
       if (not threadTracker_) {
         threadTracker_ = std::make_unique<ThreadTracker>();
+        iReg.watchPostEndJob([]() {
+          if (threadTracker_) {
+            threadTracker_->observe(false);
+          }
+        });
       }
 
       if (unloadSigHandler_) {

@@ -500,16 +500,11 @@ namespace pixelgpudetails {
         printf("moduleStart %d %d\n", i, moduleStart[i]);
     }
 #endif
-
-    // avoid overflow
-    auto constexpr maxNumClusters = gpuClustering::maxNumClusters;
-    for (int i = first, iend = gpuClustering::maxNumModules + 1; i < iend; i += blockDim.x) {
-      moduleStart[i] = std::clamp(moduleStart[i], 0U, maxNumClusters);
-    }
   }
 
   // Interface to outside
   void SiPixelRawToClusterGPUKernel::makeClustersAsync(bool isRun2,
+                                                       const SiPixelClusterThresholds clusterThresholds,
                                                        const SiPixelROCsStatusAndMapping *cablingMap,
                                                        const unsigned char *modToUnp,
                                                        const SiPixelGainForHLTonGPU *gains,
@@ -635,7 +630,8 @@ namespace pixelgpudetails {
 #endif
 
       // apply charge cut
-      clusterChargeCut<<<blocks, threadsPerBlock, 0, stream>>>(digis_d.moduleInd(),
+      clusterChargeCut<<<blocks, threadsPerBlock, 0, stream>>>(clusterThresholds,
+                                                               digis_d.moduleInd(),
                                                                digis_d.adc(),
                                                                clusters_d.moduleStart(),
                                                                clusters_d.clusInModule(),

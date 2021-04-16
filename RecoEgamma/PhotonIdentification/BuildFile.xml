@@ -1,8 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
-<use name="CommonTools/Utils"/>
-<use name="CondFormats/DataRecord"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>

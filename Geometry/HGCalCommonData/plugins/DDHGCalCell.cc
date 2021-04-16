@@ -18,8 +18,7 @@
 class DDHGCalCell : public DDAlgorithm {
 public:
   // Constructor and Destructor
-  DDHGCalCell();
-  ~DDHGCalCell() override;
+  DDHGCalCell() {}
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -41,14 +40,6 @@ private:
   std::vector<std::string> cornrCN_, cornrSensN_;  // Names of corner    cells
   std::string nameSpace_;                          // Namespace to be used
 };
-
-DDHGCalCell::DDHGCalCell() {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Creating an instance";
-#endif
-}
-
-DDHGCalCell::~DDHGCalCell() {}
 
 void DDHGCalCell::initialize(const DDNumericArguments& nArgs,
                              const DDVectorArguments&,
@@ -84,7 +75,7 @@ void DDHGCalCell::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << waferSize_ << " T " << waferT_ << " Cell T " << cellT_
                                 << " Cells/Wafer " << nCells_ << " Material " << material_ << "Sensitive Position "
-                                << posSens_ << " NameSpace " << nameSpace_ << " Full Cell: " << fullCN_ << ":"
+                                << posSens_ << " NameSpace " << nameSpace_ << ": Full Cell: " << fullCN_ << ":"
                                 << fullSensN_;
   for (unsigned int k = 0; k < truncCN_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Truncated Cell[" << k << "] " << truncCN_[k] << ":"
@@ -97,14 +88,10 @@ void DDHGCalCell::initialize(const DDNumericArguments& nArgs,
 }
 
 void DDHGCalCell::execute(DDCompactView& cpv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalCell...";
-#endif
-
   DDName matName(DDSplit(material_).first, DDSplit(material_).second);
   DDMaterial matter(matName);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << matName << " initialized at " << &matter;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << matName << " initialized";
 #endif
   DDLogicalPart glog1, glog2;
 
@@ -153,7 +140,7 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
   cpv.position(glog2, glog1, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name() << " at "
-                                << tran << " with " << rot;
+                                << tran << " with no rotation";
 #endif
 
   static constexpr int ir0[] = {0, 1, 0};
@@ -178,8 +165,8 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
     glog2 = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << matName
-                                  << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
-                                  << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
+                                  << " z|x|y|s (0) " << zc[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
+                                  << " z|x|y|s (1) " << zc[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
                                   << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << xw[k] << ":" << yw[k];
@@ -187,7 +174,7 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
     cpv.position(glog2, glog1, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
-                                  << " at " << tran << " with " << rot;
+                                  << " at " << tran << " with no rotation";
 #endif
   }
 
@@ -213,8 +200,8 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
     glog2 = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << matName
-                                  << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
-                                  << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
+                                  << " z|x|y|s (0) " << zc[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
+                                  << " z|x|y|s (1) " << zc[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
                                   << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << xw[k] << ":" << yw[k];
@@ -222,7 +209,7 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
     cpv.position(glog2, glog1, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
-                                  << " at " << tran << " with " << rot;
+                                  << " at " << tran << " with no rotation";
 #endif
   }
 
@@ -248,8 +235,8 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
     glog2 = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << matName
-                                  << " z|x|y|s (0) " << zw[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
-                                  << " z|x|y|s (1) " << zw[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
+                                  << " z|x|y|s (0) " << zc[0] << ":" << zx[0] << ":" << zy[0] << ":" << scale[0]
+                                  << " z|x|y|s (1) " << zc[1] << ":" << zx[1] << ":" << zy[1] << ":" << scale[1]
                                   << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << xw[k] << ":" << yw[k];
@@ -257,7 +244,7 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
     cpv.position(glog2, glog1, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
-                                  << " at " << tran << " with " << rot;
+                                  << " at " << tran << " with no rotation";
 #endif
   }
 }

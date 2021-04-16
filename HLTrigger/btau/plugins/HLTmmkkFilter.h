@@ -18,16 +18,19 @@
 // Last Modification: 13.02.2007
 //
 
-// system include files
 #include <memory>
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 namespace edm {
   class ConfigurationDescriptions;
 }
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-// ----------------------------------------------------------------------
 
 namespace reco {
   class Candidate;
@@ -52,6 +55,9 @@ private:
 
   static int overlap(const reco::Candidate &, const reco::Candidate &);
   static FreeTrajectoryState initialFreeState(const reco::Track &, const MagneticField *);
+
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackRecordToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldRecordToken_;
 
   edm::InputTag muCandTag_;
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muCandToken_;

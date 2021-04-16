@@ -375,6 +375,7 @@ def miniAOD_customizeCommon(process):
     import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
     tauIdEmbedder = tauIdConfig.TauIDEmbedder(
         process, debug = False,
+        originalTauName = _noUpdatedTauName,
         updatedTauName = _updatedTauName,
         toKeep = ['deepTau2017v2p1']
     )
@@ -384,20 +385,9 @@ def miniAOD_customizeCommon(process):
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')
-    process.deepTau2017v2p1.taus = _noUpdatedTauName
-    process.slimmedTaus = getattr(process, _updatedTauName).clone(
-        src = _noUpdatedTauName
-    )
-    process.deepTauIDTask = cms.Task(process.deepTau2017v2p1, process.slimmedTaus)
-    task.add(process.deepTauIDTask)
-    if 'newDMPhase2v1' in tauIdEmbedder.toKeep:
-        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2raw.PATTauProducer=_noUpdatedTauName
-        process.rerunDiscriminationByIsolationMVADBnewDMwLTPhase2.PATTauProducer=_noUpdatedTauName
-        task.add(process.rerunIsolationMVADBnewDMwLTPhase2Task)
-    if 'againstElePhase2v1' in tauIdEmbedder.toKeep:
-        process.patTauDiscriminationByElectronRejectionMVA6Phase2v1Raw.PATTauProducer=_noUpdatedTauName
-        process.patTauDiscriminationByElectronRejectionMVA6Phase2v1.PATTauProducer=_noUpdatedTauName
-        task.add(process.patTauDiscriminationByElectronRejectionMVA6Phase2v1Task)
+    process.slimmedTaus = getattr(process, _updatedTauName).clone()
+    process.rerunMvaIsolationTask.add(process.slimmedTaus)
+    task.add(process.rerunMvaIsolationTask)
 
     #-- Rerun tauID against dead ECal towers to taus for the various re-MiniAOD eras
     # to enable default behoviour with leading track extrapolation to ECAL
@@ -628,9 +618,9 @@ def miniAOD_customizeData(process):
     process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
     process.load('L1Trigger.L1TGlobal.simGtExtFakeProd_cfi')
     task = getPatAlgosToolsTask(process)
-    from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-    ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
-    ctpps_2016.toModify(task, func=lambda t: t.add(process.ctppsProtons))
+    from Configuration.Eras.Modifier_ctpps_cff import ctpps
+    ctpps.toModify(task, func=lambda t: t.add(process.ctppsLocalTrackLiteProducer))
+    ctpps.toModify(task, func=lambda t: t.add(process.ctppsProtons))
     from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     run2_miniAOD_UL.toModify(task, func=lambda t: t.add(process.simGtExtUnprefireable))
 

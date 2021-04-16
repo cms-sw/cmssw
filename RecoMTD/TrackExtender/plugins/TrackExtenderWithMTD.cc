@@ -54,6 +54,7 @@
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "DataFormats/Math/interface/Rounding.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -394,8 +395,16 @@ private:
   std::unique_ptr<MeasurementEstimator> theEstimator;
   std::unique_ptr<TrackTransformer> theTransformer;
   edm::ESHandle<TransientTrackBuilder> builder_;
+  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> builderToken_;
   edm::ESHandle<TransientTrackingRecHitBuilder> hitbuilder_;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> hitbuilderToken_;
   edm::ESHandle<GlobalTrackingGeometry> gtg_;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> gtgToken_;
+
+  edm::ESGetToken<MTDDetLayerGeometry, MTDRecoGeometryRecord> dlgeoToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfldToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
 
   const float estMaxChi2_;
   const float estMaxNSigma_;
@@ -457,6 +466,15 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
   tmtdOrigTrkToken = produces<edm::ValueMap<float>>("generalTracktmtd");
   sigmatmtdOrigTrkToken = produces<edm::ValueMap<float>>("generalTracksigmatmtd");
   assocOrigTrkToken = produces<edm::ValueMap<int>>("generalTrackassoc");
+
+  builderToken_ = esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", transientTrackBuilder_));
+  hitbuilderToken_ =
+      esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", mtdRecHitBuilder_));
+  gtgToken_ = esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>();
+  dlgeoToken_ = esConsumes<MTDDetLayerGeometry, MTDRecoGeometryRecord>();
+  magfldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  propToken_ = esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", propagator_));
+  ttopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
 
   produces<edm::OwnVector<TrackingRecHit>>();
   produces<reco::TrackExtraCollection>();
@@ -525,23 +543,19 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   TrackingRecHitRefProd hitsRefProd = ev.getRefBeforePut<TrackingRecHitCollection>();
   reco::TrackExtraRefProd extrasRefProd = ev.getRefBeforePut<reco::TrackExtraCollection>();
 
-  es.get<GlobalTrackingGeometryRecord>().get(gtg_);
+  gtg_ = es.getHandle(gtgToken_);
 
-  edm::ESHandle<MTDDetLayerGeometry> geo;
-  es.get<MTDRecoGeometryRecord>().get(geo);
+  auto geo = es.getTransientHandle(dlgeoToken_);
 
-  edm::ESHandle<MagneticField> magfield;
-  es.get<IdealMagneticFieldRecord>().get(magfield);
+  auto magfield = es.getTransientHandle(magfldToken_);
 
-  es.get<TransientTrackRecord>().get(transientTrackBuilder_, builder_);
-  es.get<TransientRecHitRecord>().get(mtdRecHitBuilder_, hitbuilder_);
+  builder_ = es.getHandle(builderToken_);
+  hitbuilder_ = es.getHandle(hitbuilderToken_);
 
-  edm::ESHandle<Propagator> propH;
-  es.get<TrackingComponentsRecord>().get(propagator_, propH);
+  auto propH = es.getTransientHandle(propToken_);
   const Propagator* prop = propH.product();
 
-  edm::ESHandle<TrackerTopology> httopo;
-  es.get<TrackerTopologyRcd>().get(httopo);
+  auto httopo = es.getTransientHandle(ttopoToken_);
   const TrackerTopology& ttopo = *httopo;
 
   auto output = std::make_unique<TrackCollection>();
@@ -987,6 +1001,21 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
   double betaOut = 0.;
   double covbetabeta = -1.;
 
+  auto routput = [&]() {
+    return reco::Track(traj.chiSquared(),
+                       int(ndof),
+                       pos,
+                       mom,
+                       tscbl.trackStateAtPCA().charge(),
+                       tscbl.trackStateAtPCA().curvilinearError(),
+                       orig.algo(),
+                       reco::TrackBase::undefQuality,
+                       t0,
+                       betaOut,
+                       covt0t0,
+                       covbetabeta);
+  };
+
   //compute path length for time backpropagation, using first MTD hit for the momentum
   if (hasMTD) {
     double pathlength;
@@ -995,17 +1024,72 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     double thiterror = -1.;
     bool validmtd = false;
 
-    //need to better handle the cases with >1 hit in MTD
+    if (!validpropagation) {
+      return routput();
+    }
+
+    size_t ihitcount(0), ietlcount(0);
     for (auto const& hit : trajWithMtd.measurements()) {
-      bool ismtd = hit.recHit()->geographicalId().det() == DetId::Forward &&
-                   ForwardSubdetector(hit.recHit()->geographicalId().subdetId()) == FastTime;
-      if (ismtd) {
-        const MTDTrackingRecHit* mtdhit = static_cast<const MTDTrackingRecHit*>(hit.recHit()->hit());
-        thit = mtdhit->time();
-        thiterror = mtdhit->timeError();
-        validmtd = true;
-        break;
+      if (hit.recHit()->geographicalId().det() == DetId::Forward &&
+          ForwardSubdetector(hit.recHit()->geographicalId().subdetId()) == FastTime) {
+        ihitcount++;
+        if (MTDDetId(hit.recHit()->geographicalId()).mtdSubDetector() == MTDDetId::MTDType::ETL) {
+          ietlcount++;
+        }
       }
+    }
+
+    auto ihit1 = trajWithMtd.measurements().cbegin();
+    if (ihitcount == 1) {
+      const MTDTrackingRecHit* mtdhit = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
+      thit = mtdhit->time();
+      thiterror = mtdhit->timeError();
+      validmtd = true;
+    } else if (ihitcount == 2 && ietlcount == 2) {
+      const auto& propresult =
+          thePropagator->propagateWithPath(ihit1->updatedState(), (ihit1 + 1)->updatedState().surface());
+      double etlpathlength = std::abs(propresult.second);
+      //
+      // The information of the two ETL hits is combined and attributed to the innermost hit
+      //
+      if (etlpathlength == 0.) {
+        validpropagation = false;
+      } else {
+        pathlength -= etlpathlength;
+        const MTDTrackingRecHit* mtdhit1 = static_cast<const MTDTrackingRecHit*>((*ihit1).recHit()->hit());
+        const MTDTrackingRecHit* mtdhit2 = static_cast<const MTDTrackingRecHit*>((*(ihit1 + 1)).recHit()->hit());
+        TrackTofPidInfo tofInfo =
+            computeTrackTofPidInfo(p.mag2(), etlpathlength, mtdhit1->time(), mtdhit1->timeError(), 0., 0., true);
+        //
+        // Protect against incompatible times
+        //
+        double err1 = tofInfo.dterror * tofInfo.dterror;
+        double err2 = mtdhit2->timeError() * mtdhit2->timeError();
+        if (cms_rounding::roundIfNear0(err1) == 0. || cms_rounding::roundIfNear0(err2) == 0.) {
+          edm::LogError("TrackExtenderWithMTD")
+              << "MTD tracking hits with zero time uncertainty: " << err1 << " " << err2;
+        } else {
+          if ((tofInfo.dt - mtdhit2->time()) * (tofInfo.dt - mtdhit2->time()) < (err1 + err2) * etlTimeChi2Cut_) {
+            //
+            // Subtract the ETL time of flight from the outermost measurement, and combine it in a weighted average with the innermost
+            // the mass ambiguity related uncertainty on the time of flight is added as an additional uncertainty
+            //
+            err1 = 1. / err1;
+            err2 = 1. / err2;
+            thiterror = 1. / (err1 + err2);
+            thit = (tofInfo.dt * err1 + mtdhit2->time() * err2) * thiterror;
+            thiterror = std::sqrt(thiterror);
+            LogDebug("TrackExtenderWithMTD") << "p trk = " << p.mag() << " ETL hits times/errors: " << mtdhit1->time()
+                                             << " +/- " << mtdhit1->timeError() << " , " << mtdhit2->time() << " +/- "
+                                             << mtdhit2->timeError() << " extrapolated time1: " << tofInfo.dt << " +/- "
+                                             << tofInfo.dterror << " average = " << thit << " +/- " << thiterror;
+            validmtd = true;
+          }
+        }
+      }
+    } else {
+      edm::LogInfo("TrackExtenderWithMTD")
+          << "MTD hits #" << ihitcount << "ETL hits #" << ietlcount << " anomalous pattern, skipping...";
     }
 
     if (validmtd && validpropagation) {
@@ -1021,18 +1105,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
     }
   }
 
-  return reco::Track(traj.chiSquared(),
-                     int(ndof),
-                     pos,
-                     mom,
-                     tscbl.trackStateAtPCA().charge(),
-                     tscbl.trackStateAtPCA().curvilinearError(),
-                     orig.algo(),
-                     reco::TrackBase::undefQuality,
-                     t0,
-                     betaOut,
-                     covt0t0,
-                     covbetabeta);
+  return routput();
 }
 
 template <class TrackCollection>
