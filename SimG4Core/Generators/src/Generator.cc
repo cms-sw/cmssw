@@ -108,7 +108,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
   HepMC::GenEvent *evt=new HepMC::GenEvent(*evt_orig);
 
 
-  /*// debugging done on the gen particles only 
+  /* //debugging done on the gen particles only 
   for ( HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
 
     if (abs((*p)->pdg_id()) == 9900015 || abs((*p)->pdg_id()) == 443){
@@ -201,19 +201,12 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       // 3:  particles are decayed by generator but do not need to be propagated by GEANT
       
       // HNL was decayed by generator
-      if( (*pitr)->pdg_id()==9900015 && (*pitr)->status()==2 ) // reassign the status of the HNL
-        (*pitr)->set_status(3);
-
+      //if( (*pitr)->pdg_id()==9900015 && (*pitr)->status()==2 ) // reassign the status of the HNL
+      //  (*pitr)->set_status(3);
 
       int status = (*pitr)->status();
       int pdg = (*pitr)->pdg_id();
       
-      //if (abs(pdg) == 13 or abs(pdg)==211 or abs(pdg)==443 or abs(pdg)==9900015 or abs(pdg)==521) {
-      //  std::cout << "vertex, x=" << (*vitr)->position().x()*mm << " y=" << (*vitr)->position().y()*mm  << " z=" << (*vitr)->position().z()*mm << " orphan=" << ((*vitr)->parent_event() == nullptr) << " barcode=" << (*vitr)->barcode() << std::endl;
-      //  std::cout << "        associated particle, pdgID=" << pdg << " mom=" << (*pitr)->momentum().rho()  << " status=" << (*pitr)->status() << " st=" << status << " orphan=" << ((*pitr)->parent_event() == nullptr) << " barcode=" << (*pitr)->barcode()  << std::endl;
-      //}
-
-
       if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg)))) {
         // In Pythia 8, there are many status codes besides 1, 2, 3.
         // By setting the status to 2 for exotic particles, they will be checked:
@@ -222,6 +215,17 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	// so do not change their status code.  
         status = 2;
       }
+
+      if(std::abs(pdg) == 9900015) {
+        status = 3;
+      }
+
+      //if (abs(pdg) == 13 or abs(pdg)==211 or abs(pdg)==443 or abs(pdg)==9900015 or abs(pdg)==521) {
+        //std::cout << "vertex, x=" << (*vitr)->position().x()*mm << " y=" << (*vitr)->position().y()*mm  << " z=" << (*vitr)->position().z()*mm << " orphan=" << ((*vitr)->parent_event() == nullptr) << " barcode=" << (*vitr)->barcode() << std::endl;
+        //std::cout << "        associated particle, pdgID=" << pdg << " mom=" << (*pitr)->momentum().rho()  << " status=" << (*pitr)->status() << " st=" << status << " orphan=" << ((*pitr)->parent_event() == nullptr) << " barcode=" << (*pitr)->barcode()  << std::endl;
+      //}
+
+
 
       // Particles which are not decayed by generator
       if (status == 1) {
@@ -235,7 +239,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
         if (verbose > 2) LogDebug("SimG4CoreGenerator") 
 	  << "GenVertex barcode = " << (*vitr)->barcode() 
 	  << " selected for GenParticle barcode = " << (*pitr)->barcode();
-        //MG//break;
+        break;
       }  
       // The selection is made considering if the partcile with status = 2 
       // have the end_vertex with a radius greater than the radius of beampipe 
@@ -251,13 +255,13 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	      << "GenVertex barcode = " << (*vitr)->barcode() 
 	      << " selected for GenParticle barcode = " 
 	      << (*pitr)->barcode() << " radius = " << std::sqrt(r_dd);
-            //MG//break;
+            break;
           }
         } else {
 	  // particles with status 2 without end_vertex are 
 	  // equivalent to stable
 	  qvtx = true;
-	  //MG//break;
+	  break;
 	}
       }
     }
@@ -321,6 +325,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	  << " has status=2 but has no decay vertex, so will be fully tracked by Geant4";
 	status = 1; 
       }
+
+      // heavy neutrino should not be propagated by Geant4
+      if(std::abs(pdg) == 9900015) status = 3;
 
       double x2 = x1;
       double y2 = y1;
@@ -443,7 +450,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       if(toBeAdded){
 
         //std::cout << nHEPvtx << " TOBEadded particle pdgId=" << pdg << " mom="<< (*pitr)->momentum().rho() <<  " status=" << (*pitr)->status() 
-          //                   << " st=" << status << " orphan=" << ((*pitr)->parent_event() == nullptr) << " barcode=" << (*pitr)->barcode() << " decayL=" << decay_length << std::endl;
+        //                     << " st=" << status << " orphan=" << ((*pitr)->parent_event() == nullptr) << " barcode=" << (*pitr)->barcode() << " decayL=" << decay_length << std::endl;
 
         G4PrimaryParticle* g4prim= 
           new G4PrimaryParticle(pdg, px*GeV, py*GeV, pz*GeV);
