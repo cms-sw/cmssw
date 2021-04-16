@@ -11,7 +11,7 @@ TrackFoldedOccupancyClient::TrackFoldedOccupancyClient(edm::ParameterSet const& 
   quality_ = iConfig.getParameter<std::string>("TrackQuality");
   algoName_ = iConfig.getParameter<std::string>("AlgoName");
   state_ = iConfig.getParameter<std::string>("MeasurementState");
-  histTag_ = (state_ == "default") ? algoName_ : state_ +  "_" + algoName_;
+  histTag_ = (state_ == "default") ? algoName_ : state_ + "_" + algoName_;
   conf_ = iConfig;
 }
 
