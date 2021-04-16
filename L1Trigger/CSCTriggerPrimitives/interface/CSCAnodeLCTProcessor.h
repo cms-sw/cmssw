@@ -130,7 +130,8 @@ protected:
   std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
 
   /* data members for high multiplicity triggers */
-  void encodeHighMultiplicityBits(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
+  void encodeHighMultiplicityBits(
+      const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
   unsigned inTimeHMT_;
   unsigned outTimeHMT_;
   std::vector<unsigned> thresholds_;
