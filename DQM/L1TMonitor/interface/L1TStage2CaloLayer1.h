@@ -157,6 +157,11 @@ namespace CaloL1Information {
 
     dqm::reco::MonitorElement *ecalOccRecd5Bx_;
     dqm::reco::MonitorElement *ecalOccRecd5BxEtWgt_;
+    dqm::reco::MonitorElement *ecalOccRecdBx1_;
+    dqm::reco::MonitorElement *ecalOccRecdBx2_;
+    dqm::reco::MonitorElement *ecalOccRecdBx3_;
+    dqm::reco::MonitorElement *ecalOccRecdBx4_;
+    dqm::reco::MonitorElement *ecalOccRecdBx5_;
 
     std::vector<std::tuple<edm::RunID, edm::LuminosityBlockID, edm::EventID, int>> runMismatchList;
   };

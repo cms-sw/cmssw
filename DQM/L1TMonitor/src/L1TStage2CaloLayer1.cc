@@ -217,30 +217,45 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
 
   for (const auto& tp : (*ecalTPsRecdBx1)) {
     if (tp.compressedEt() > tpFillThreshold_) {
+      const int ieta = tp.id().ieta();
+      const int iphi = tp.id().iphi();
+      eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(1);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(1, tp.compressedEt());
     }
   }
   for (const auto& tp : (*ecalTPsRecdBx2)) {
     if (tp.compressedEt() > tpFillThreshold_) {
+      const int ieta = tp.id().ieta();
+      const int iphi = tp.id().iphi();
+      eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(2);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(2, tp.compressedEt());
     }
   }
   for (const auto& tp : (*ecalTPsRecdBx3)) {
     if (tp.compressedEt() > tpFillThreshold_) {
+      const int ieta = tp.id().ieta();
+      const int iphi = tp.id().iphi();
+      eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(3);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(3, tp.compressedEt());
     }
   }
   for (const auto& tp : (*ecalTPsRecdBx4)) {
     if (tp.compressedEt() > tpFillThreshold_) {
+      const int ieta = tp.id().ieta();
+      const int iphi = tp.id().iphi();
+      eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(4);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(4, tp.compressedEt());
     }
   }
   for (const auto& tp : (*ecalTPsRecdBx5)) {
     if (tp.compressedEt() > tpFillThreshold_) {
+      const int ieta = tp.id().ieta();
+      const int iphi = tp.id().iphi();
+      eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(5);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(5, tp.compressedEt());
     }
@@ -470,7 +485,12 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   eventMonitors.ecalOccRecd5Bx_ = ibooker.book1D(
       "ecalOccRecd5Bx", "ECal TP Occupancies for 5BX", 5, 0, 5);
   eventMonitors.ecalOccRecd5BxEtWgt_ = ibooker.book1D(
-      "ecalOccRecd5BxEtWgt", "Et-Weighted ECal TP Occupancies for 5BX", 5, 0, 5);
+      "ecalOccRecd5BxEtWgt", "ECal TP ET-weighted Occupancies for 5BX", 5, 0, 5);
+  eventMonitors.ecalOccRecdBx1_ = bookEcalOccupancy("ecalOccRecdBx1", "ECal TP Occupancy for BX1");
+  eventMonitors.ecalOccRecdBx2_ = bookEcalOccupancy("ecalOccRecdBx2", "ECal TP Occupancy for BX2");
+  eventMonitors.ecalOccRecdBx3_ = bookEcalOccupancy("ecalOccRecdBx3", "ECal TP Occupancy for BX3");
+  eventMonitors.ecalOccRecdBx4_ = bookEcalOccupancy("ecalOccRecdBx4", "ECal TP Occupancy for BX4");
+  eventMonitors.ecalOccRecdBx5_ = bookEcalOccupancy("ecalOccRecdBx5", "ECal TP Occupancy for BX5");
 
   ibooker.setCurrentFolder(histFolder_ + "/ECalDetail/TCCDebug");
   eventMonitors.ecalOccSentNotRecd_ =
