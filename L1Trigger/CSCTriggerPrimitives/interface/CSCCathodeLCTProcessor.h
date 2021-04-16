@@ -209,7 +209,7 @@ protected:
 
   /* data members for high multiplicity triggers */
   void encodeHighMultiplicityBits(
-      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS]);
   unsigned inTimeHMT_;
   unsigned outTimeHMT_;
   std::vector<unsigned> thresholds_;
