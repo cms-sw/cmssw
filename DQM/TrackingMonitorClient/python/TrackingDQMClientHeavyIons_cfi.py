@@ -5,5 +5,10 @@ hiTrackingDqmClientHI = DQMEDHarvester("TrackingDQMClientHeavyIons",
                                               FolderName = cms.string('Tracking/TrackParameters/GeneralProperties')
                                               )
 
-from DQM.TrackingMonitor.TrackFoldedOccupancyClient_cfi import TrackerMapFoldedClient_heavyionTk
+from DQM.TrackingMonitor.TrackFoldedOccupancyClient_cfi import TrackerMapFoldedClient
+
+TrackerMapFoldedClient_heavyionTk=TrackerMapFoldedClient.clone(
+    AlgoName = cms.string('HeavyIonTk'),
+    TrackQuality = cms.string('')
+)
 hiTrackingDqmClientHeavyIons=cms.Sequence(hiTrackingDqmClientHI*TrackerMapFoldedClient_heavyionTk)
