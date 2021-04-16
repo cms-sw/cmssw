@@ -5,6 +5,7 @@ TrackerMapFoldedClient = DQMEDHarvester("TrackFoldedOccupancyClient",
     FolderName = cms.string('Tracking/TrackParameters'),
     AlgoName = cms.string('GenTk'),
     TrackQuality = cms.string('generalTracks'),
+    MeasurementState = cms.string('ImpactPoint'),
     PhiMax = cms.double(3.141592654),
     PhiMin = cms.double(-3.141592654),
     EtaMax = cms.double(2.5),
@@ -31,6 +32,21 @@ TrackerMapFoldedClient_highpurity_pt1=TrackerMapFoldedClient.clone(
 )
 
 foldedMapClientSeq=cms.Sequence(TrackerMapFoldedClient*TrackerMapFoldedClient_highpurity_dzPV0p1*TrackerMapFoldedClient_highpurity_pt0to1*TrackerMapFoldedClient_highpurity_pt1)
+
+##Heavy Ions
+#pre run3 
+TrackerMapFoldedClient_heavyionTk=TrackerMapFoldedClient.clone(
+    AlgoName = cms.string('HeavyIonTk'),
+    TrackQuality = cms.string('')
+)
+#run3
+TrackerMapFoldedClient_hiConformalPixelTracks=TrackerMapFoldedClient.clone(
+    TrackQuality = cms.string('hiConformalPixelTracks')
+)
+
+folded_with_conformalpixtkclient= cms.Sequence(TrackerMapFoldedClient_hiConformalPixelTracks+foldedMapClientSeq.copy())
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toReplaceWith(foldedMapClientSeq, folded_with_conformalpixtkclient)
 
 ####cosmics
 TrackerMapFoldedClient_CKFTk=TrackerMapFoldedClient.clone(
