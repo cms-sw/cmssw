@@ -91,7 +91,6 @@ TrackEffClient.AlgoName   = 'CKFTk'
 
 from DQM.TrackingMonitor.TrackFoldedOccupancyClient_cfi import *
 
-
 TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient*foldedMapClientSeq)
 
 TrackingOfflineDQMClientZeroBias = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPatternZeroBias*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient*foldedMapClientSeq)
