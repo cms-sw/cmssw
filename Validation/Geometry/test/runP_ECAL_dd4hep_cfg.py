@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('PROD',Run3)
+from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+process = cms.Process('PROD',Run3_dd4hep)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
 #
-process.load("Configuration.Geometry.GeometryExtended2021_cff")
+process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
 
 #Magnetic Field
 #
@@ -45,14 +45,14 @@ process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('MaterialBudgetAction'),
     MaterialBudgetAction = cms.PSet(
-        HistosFile = cms.string('matbdg_ECAL_DDD.root'),
+        HistosFile = cms.string('matbdg_ECAL_DD4HEP.root'),
         AllStepsToTree = cms.bool(False),
         HistogramList = cms.string('ECAL'),
         SelectedVolumes = cms.vstring('ECAL'),
         # string TextFile = "None"          # "None" means this option 
         TreeFile = cms.string('None'),
         StopAfterProcess = cms.string('None'),
-        TextFile = cms.string('matbdg_ECAL_DDD.txt')
+        TextFile = cms.string('matbdg_ECAL_DD4HEP.txt')
     )
 ))
 

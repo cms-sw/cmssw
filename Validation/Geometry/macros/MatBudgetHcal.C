@@ -13,6 +13,12 @@
 // tag      (string)   Tag to be added to the name of the canvas ("Run")
 // debug    (bool)     print or not the debug information (false)
 //
+// etaPhiPlotComp(fileName1, fileName2, plot, lay, ifEta, maxEta, tag1, 
+//                tag2, debug)
+//      Make superimposed plors of integrated interaction/radiation/step 
+//      lengths from 2 files produced through 2 sources of geometry as a
+//      function of eta or phi
+//
 // etaPhiPlotHO(fileName, plot, drawLeg, ifEta, maxEta, tag)
 //      Make the same plots as *etaPhiPlot* for HO with same parameter meanings
 //
@@ -32,7 +38,7 @@
 //      the same meanings as those of *etaPhiPlot*
 //
 // etaSlicePlot(fileName, plot, ifirst, ilast, ietaRange, drawLeg, tag, debug);
-//      Plot phi distributions of integrated interaction/radiation/step
+//      Plot phi distributions of integrated interaction/radiation/step 
 //      length for a given ietaRange (0 -> 28; 1 --> 29; 2 --> 9)
 //
 // printTable(fileName, outputFileName, inputFileName)
@@ -86,6 +92,15 @@ void etaPhiPlot(TString fileName = "matbdg_HCAL.root",
                 double maxEta = -1,
                 std::string tag = "Run",
                 bool debug = false);
+void etaPhiPlotComp(TString fileName1 = "matbdgHCAL_run3.root",
+		    TString fileName2 = "matbdgHCAL_run3_dd4hep.root",
+		    std::string plot = "IntLen",
+		    int lay = 2,
+		    bool ifEta = true,
+		    double maxEta = -1,
+		    std::string tag1 = "DDD",
+		    std::string tag2 = "DD4HEP",
+		    bool debug = false);
 void etaPhiPlotHO(TString fileName = "matbdg_HCAL.root",
                   TString plot = "IntLen",
                   int drawLeg = 1,
@@ -111,13 +126,13 @@ void etaPhi2DPlot(TString fileName = "matbdg_HCAL.root",
                   int drawLeg = 1,
                   std::string tag = "Run");
 void etaSlicePlot(TString fileName = "matbdg_HCAL.root",
-                  TString plot = "IntLen",
-                  int ifirst = 0,
-                  int ilast = 19,
-                  int ietaRange = 0,
-                  int drawLeg = 1,
-                  std::string tag = "Run",
-                  bool debug = false);
+		  TString plot = "IntLen",
+		  int ifirst = 0,
+		  int ilast = 19,
+		  int ietaRange = 0,
+		  int drawLeg = 1,
+		  std::string tag = "Run",
+		  bool debug = false);
 void etaPhi2DPlot(int nslice,
                   int kslice,
                   TString fileName = "matbdg_HCAL.root",
@@ -255,13 +270,13 @@ void etaPhiPlot(TString fileName,
       double xmin = prof[0]->GetXaxis()->GetXmin();
       double xmax = prof[0]->GetXaxis()->GetXmax();
       double dx = (xmax - xmin) / nbinX;
-      cout << "Hist " << ii;
+      std::cout << "Hist " << ii;
       for (int ibx = 0; ibx < nbinX; ibx++) {
         double xx1 = xmin + ibx * dx;
         double cont = prof[0]->GetBinContent(ibx + 1);
-        cout << " | " << ibx << "(" << xx1 << ":" << (xx1 + dx) << ") " << cont;
+	std::cout << " | " << ibx << "(" << xx1 << ":" << (xx1 + dx) << ") " << cont;
       }
-      cout << "\n";
+      std::cout << "\n";
     }
   }
 
@@ -277,6 +292,132 @@ void etaPhiPlot(TString fileName,
     prof[i]->Draw("h sames");
   if (drawLeg > 0)
     leg->Draw("sames");
+}
+
+void etaPhiPlotComp(TString fileName1,
+		    TString fileName2,
+		    std::string plot,
+		    int lay,
+		    bool ifEta,
+		    double maxEta,
+		    std::string tag1,
+		    std::string tag2,
+		    bool debug) {
+  setStyle();
+  TFile *file1 = new TFile(fileName1);
+  TFile *file2 = new TFile(fileName2);
+  if (lay < 0) 
+    lay = 0;
+  else if (lay > 21)
+    lay = 21;
+  if ((file1 != nullptr) && (file2 != nullptr)) {
+    TDirectory *dir1 = (TDirectory *)(file1->FindObjectAny("g4SimHits"));
+    TDirectory *dir2 = (TDirectory *)(file2->FindObjectAny("g4SimHits"));
+    
+    TString xtit = TString("#eta");
+    std::string ztit("eta");
+    std::string ytit("none");
+    int ymin = 0, ymax = 20, istart = 200;
+    double xh = 0.90;
+    std::string plot1("L");
+    if (plot == "RadLen") {
+      ytit = "Radiation Length";
+      ymin = 0;
+      ymax = 200;
+      istart = 100;
+      plot1 = "X";
+    } else if (plot == "StepLen") {
+      ytit = "Step Length";
+      ymin = 0;
+      ymax = 15000;
+      istart = 300;
+      xh = 0.70;
+      plot1 = "S";
+    } else {
+      ytit = "Interaction Length";
+      ymin = 0;
+      ymax = 20;
+      istart = 200;
+    }
+    if (!ifEta) {
+      istart += 400;
+      xtit = TString("#phi");
+      ztit = "phi";
+    }
+    double fac[23] = {0.05, 0.1, 0.3, 0.3, 0.3, 0.3, 0.3, 0.4, 0.4, 0.4,
+		      0.5, 0.5, 0.5, 0.5, 0.6, 0.6, 0.7, 0.8, 0.8, 0.9,
+		      1.0, 1.0, 1.0};
+    ymax *= fac[lay];
+
+    TLegend *leg = new TLegend(xh - 0.13, 0.80, xh, 0.90);
+    leg->SetFillColor(kWhite);
+    leg->SetBorderSize(1);
+    leg->SetMargin(0.25);
+
+    TProfile *prof[2];
+    int color[2] = {2, 4};
+    char hname[10], title[50], cname[100];
+    if (lay > 1 && lay < 21) {
+      sprintf(title, "%s (Layer %d)", ytit.c_str(), lay-1);
+    } else if (lay == 1) {
+      sprintf(title, "%s (After Crystal)", ytit.c_str());
+    } else if (lay > 20) {
+      sprintf(title, "%s (After HF)", ytit.c_str());
+    } else {
+      sprintf(title, "%s (Before Crystal)", ytit.c_str());
+    }
+    sprintf(hname, "%i", istart + lay);
+    dir1->GetObject(hname, prof[0]);
+    dir2->GetObject(hname, prof[1]);
+    if ((prof[0] != nullptr) && (prof[1] != nullptr)) {
+      for (int k = 0; k < 2; ++k) {
+	prof[k]->GetXaxis()->SetTitle(xtit);
+	prof[k]->GetYaxis()->SetTitle(title);
+	prof[k]->GetYaxis()->SetRangeUser(ymin, ymax);
+	prof[k]->SetLineColor(color[k]);
+	prof[k]->SetLineWidth(2);
+	if (ifEta && maxEta > 0)
+	  prof[k]->GetXaxis()->SetRangeUser(-maxEta, maxEta);
+	if (xh < 0.8)
+	  prof[k]->GetYaxis()->SetTitleOffset(1.7);
+	else
+	  prof[k]->GetYaxis()->SetTitleOffset(1.0);
+	if (k == 0)
+	  leg->AddEntry(prof[k], tag1.c_str(), "lf");
+	else
+	  leg->AddEntry(prof[k], tag2.c_str(), "lf");
+      }
+
+      sprintf (cname, "c_%sLay%d%s%s%s", plot1.c_str(), lay, ztit.c_str(), tag1.c_str(), tag2.c_str());
+      TCanvas *cc1 = new TCanvas(cname, cname, 700, 600);
+      if (xh < 0.8) {
+	cc1->SetLeftMargin(0.15);
+	cc1->SetRightMargin(0.05);
+      }
+
+      prof[0]->Draw("h");
+      prof[1]->Draw("h sames");
+      leg->Draw("sames");
+
+      if (debug) {
+	int nbinX = prof[0]->GetNbinsX();
+	double xmin = prof[0]->GetXaxis()->GetXmin();
+	double xmax = prof[0]->GetXaxis()->GetXmax();
+	double dx = (xmax - xmin) / nbinX;
+	for (int ibx = 0; ibx < nbinX; ibx++) {
+	  double xx1 = xmin + ibx * dx;
+	  if (xx1 >= -1.5 && xx1 < 1.5) {
+	    double cont1 = prof[0]->GetBinContent(ibx + 1);
+	    double cont2 = prof[1]->GetBinContent(ibx + 1);
+	    if ((cont1 + cont2) > 0.01) {
+	    double frac = 2.0 * (cont1 - cont2) / (cont1 + cont2);
+	    std::cout << ibx << "(" << xx1 << ":" << (xx1 + dx) << ") " << cont1 << ":" << cont2 << ":" << frac << std::endl;
+	    }
+	  }
+	}
+      }
+    }
+  }
 }
 
 void etaPhiPlotHO(TString fileName, TString plot, int drawLeg, bool ifEta, double maxEta, std::string tag) {
@@ -785,8 +926,14 @@ void etaPhi2DPlot(
   }
 }
 
-void etaSlicePlot(
-    TString fileName, TString plot, int ifirst, int ilast, int ietaRange, int drawLeg, std::string tag, bool debug) {
+void etaSlicePlot(TString fileName,
+		  TString plot,
+		  int ifirst,
+		  int ilast,
+		  int ietaRange,
+		  int drawLeg,
+		  std::string tag,
+		  bool debug) {
   TFile *hcalFile = new TFile(fileName);
   hcalFile->cd("g4SimHits");
   setStyle();
