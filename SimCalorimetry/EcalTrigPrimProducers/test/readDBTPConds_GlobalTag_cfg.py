@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TPDBAn")
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 
@@ -17,13 +17,28 @@ process.source = cms.Source("EmptySource",
 #    firstRun = cms.untracked.uint32(135175)
 )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.prefer("GlobalTag")
-process.GlobalTag.globaltag = 'GR10_P_V5::All'
+process.GlobalTag.globaltag = '112X_dataRun3_HLT_v3'
 
 
 process.tpDBAnalyzer = cms.EDAnalyzer("EcalTPCondAnalyzer")
+
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        EcalTPCondAnalyzer = cms.untracked.PSet(
+            limit = cms.untracked.int32(100000000)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    debugModules = cms.untracked.vstring('tpDBAnalyzer')
+)
 
 process.p = cms.Path(process.tpDBAnalyzer)
