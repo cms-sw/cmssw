@@ -10,6 +10,7 @@
 
 #include "TFile.h"
 #include <ROOT/RNTuple.hxx>
+using ROOT::Experimental::RCollectionNTuple;
 using ROOT::Experimental::RNTupleWriter;
 
 #include "RNTupleFieldPtr.h"
@@ -44,11 +45,18 @@ public:
   void fill(edm::pset::Registry* pset, TFile& file);
   void finalizeWrite();
 private:
-  using PSetType = std::pair<std::string, std::string>;
-  //using PSetType = std::pair<edm::ParameterSetID, edm::ParameterSetBlob>;
+  // TODO blocked on RNTuple std::pair support
+  // using PSetType = std::pair<edm::ParameterSetID, edm::ParameterSetBlob>;
+  // RNTupleFieldPtr<PSetType> m_pset;
   void createFields(TFile& file);
+  // TODO blocked on RNTuple typedef member field support:
+  // https://github.com/root-project/root/issues/7861
+  // RNTupleFieldPtr<edm::ParameterSetID> m_psetId;
+  // RNTupleFieldPtr<edm::ParameterSetBlob> m_psetBlob;
+  std::shared_ptr<RCollectionNTuple> m_collection;
+  RNTupleFieldPtr<std::string> m_psetId;
+  RNTupleFieldPtr<std::string> m_psetBlob;
   std::unique_ptr<RNTupleWriter> m_ntuple;
-  RNTupleFieldPtr<PSetType> m_pset;
 };
 
 #endif

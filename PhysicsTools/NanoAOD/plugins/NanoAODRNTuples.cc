@@ -63,8 +63,13 @@ void RunNTuple::finalizeWrite() {
 }
 
 void PSetNTuple::createFields(TFile& file) {
+  // use a collection to emulate std::pair
+  auto pairModel = RNTupleModel::Create();
+  m_psetId = RNTupleFieldPtr<std::string>("first", *pairModel);
+  m_psetBlob = RNTupleFieldPtr<std::string>("second", *pairModel);
   auto model = RNTupleModel::Create();
-  m_pset = RNTupleFieldPtr<PSetType>(edm::poolNames::idToParameterSetBlobsBranchName(), *model);
+  m_collection = model->MakeCollection(
+    edm::poolNames::idToParameterSetBlobsBranchName(), std::move(pairModel));
   // TODO use Append when we bump our RNTuple version
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
@@ -80,16 +85,12 @@ void PSetNTuple::fill(edm::pset::Registry* pset, TFile& file) {
   if (!m_ntuple) {
     createFields(file);
   }
-  PSetType entry;
   for (const auto& ps: *pset) {
-    // TODO fix string pair hack
-    //entry.first = ps.first;
-    //entry.second.pset() = ps.second.toString();
     std::ostringstream oss;
     oss << ps.first;
-    entry.first = oss.str();
-    entry.second = ps.second.toString();
-    m_pset.fill(entry);
+    m_psetId.fill(oss.str());
+    m_psetBlob.fill(ps.second.toString());
+    m_collection->Fill();
     m_ntuple->Fill();
   }
 }

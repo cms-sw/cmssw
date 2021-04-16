@@ -279,6 +279,11 @@ void NanoAODRNTupleOutputModule::reallyCloseFile() {
   run_ntuple->PrintInfo();
   run_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
 
+  auto pset_ntuple = ROOT::Experimental::RNTupleReader::Open(
+    edm::poolNames::parameterSetsTreeName(), m_fileName);
+  pset_ntuple->PrintInfo();
+  pset_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
+
   edm::Service<edm::JobReport> jr;
   jr->outputFileClosed(m_jrToken);
 }
