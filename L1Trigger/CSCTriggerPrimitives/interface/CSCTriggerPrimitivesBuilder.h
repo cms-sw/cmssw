@@ -27,6 +27,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -76,6 +77,8 @@ public:
              CSCCLCTPreTriggerCollection& oc_pretrig,
              CSCCorrelatedLCTDigiCollection& oc_lct,
              CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
+             CSCShowerDigiCollection& oc_shower,
+             CSCShowerDigiCollection& oc_shower_anode,
              GEMCoPadDigiCollection& oc_gemcopad);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
