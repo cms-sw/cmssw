@@ -43,6 +43,8 @@ private:
   edm::ParameterSet conf_;
   std::string algoName_;
   std::string quality_;
+  std::string state_;
+  std::string histTag_;
   std::string TopFolder_;
 
   MonitorElement* TkEtaPhi_RelativeDifference_byFoldingmap = nullptr;
