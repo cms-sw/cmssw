@@ -63,7 +63,8 @@ void MaterialBudget::update(const BeginOfRun*) {
 
   for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
     for (unsigned int ii = 0; ii < detNames.size(); ++ii) {
-      if (strcmp(detNames[ii].c_str(), static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())).c_str()) == 0) {
+      if (strcmp(detNames[ii].c_str(),
+                 static_cast<std::string>(dd4hep::dd::noNamespace((*lvcite)->GetName())).c_str()) == 0) {
         logVolumes[ii] = (*lvcite);
         kount--;
         break;
@@ -146,7 +147,8 @@ void MaterialBudget::update(const G4Step* aStep) {
   radLen[indx] += (step / radl);
   intLen[indx] += (step / intl);
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("MaterialBudget") << "MaterialBudget::Step in " << dd4hep::dd::noNamespace(touch->GetVolume(0)->GetLogicalVolume()->GetName())
+  edm::LogInfo("MaterialBudget") << "MaterialBudget::Step in "
+                                 << dd4hep::dd::noNamespace(touch->GetVolume(0)->GetLogicalVolume()->GetName())
                                  << " Index " << indx << " Step " << step << " RadL " << step / radl << " IntL "
                                  << step / intl;
 #endif

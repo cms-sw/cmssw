@@ -137,7 +137,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) {
   storeDecay = m_Anal.getUntrackedParameter<bool>("storeDecay", false);
   Ekin = m_Anal.getUntrackedParameter<double>("EminDecayProd", 1000.0);  // MeV
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction: decay products steps are stored (" << storeDecay
-                                 << ") if their kinetic energy is greater than " << Ekin << " MeV";
+                                     << ") if their kinetic energy is greater than " << Ekin << " MeV";
   firstParticle = false;
 }
 
@@ -341,7 +341,7 @@ bool MaterialBudgetAction::StopAfterProcess(const G4Step* aStep) {
     return false;
   if (aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == theProcessToStop) {
     edm::LogVerbatim("MaterialBudget") << "MaterialBudgetAction :"
-                                   << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
+                                       << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
     return true;
   } else {
     return false;
