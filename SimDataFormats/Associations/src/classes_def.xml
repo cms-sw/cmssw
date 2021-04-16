@@ -15,6 +15,9 @@
   <class name="hgcal::LayerClusterToSimClusterAssociator" persistent="false"/>
   <class name="edm::Wrapper<hgcal::LayerClusterToSimClusterAssociator>" persistent="false"/>
 
+  <class name="hgcal::TracksterToSimClusterAssociator" persistent="false"/>
+  <class name="edm::Wrapper<hgcal::TracksterToSimClusterAssociator>" persistent="false"/>
+
   <class name="reco::VertexSimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
   </class>
@@ -46,6 +49,19 @@
    <field name="transientMap_" transient="true"/>
   </class>
   <class name="edm::Wrapper<hgcal::RecoToSimCollectionWithSimClusters>" />
+
+  <class name="edm::RefProd<vector<ticl::Trackster> >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<SimCluster> >, edm::RefProd<vector<ticl::Trackster> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<ticl::Trackster> >, edm::RefProd<vector<SimCluster> > >" />
+
+  <class name="hgcal::SimToRecoCollectionTracksters" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::SimToRecoCollectionTracksters>" />
+  <class name="hgcal::RecoToSimCollectionTracksters" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<hgcal::RecoToSimCollectionTracksters>" />
 
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<SimCluster> >,edm::RefProd<vector<reco::CaloCluster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<SimCluster> > >" />

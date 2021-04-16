@@ -37,6 +37,7 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
@@ -88,8 +89,12 @@ public:
   CSCALCTDigi getBestALCT(int bx) const;
   CSCALCTDigi getSecondALCT(int bx) const;
 
-  /* encode special bits for high multiplicity triggers */
-  unsigned getHighMultiplictyBits() const { return highMultiplicityBits_; }
+  /* get special bits for high multiplicity triggers */
+  unsigned getInTimeHMT() const { return inTimeHMT_; }
+  unsigned getOutTimeHMT() const { return outTimeHMT_; }
+
+  /** Returns shower bits */
+  CSCShowerDigi readoutShower() const;
 
 protected:
   /** Best LCTs in this chamber, as found by the processor.
@@ -104,6 +109,8 @@ protected:
 
   /** LCTs in this chamber, as found by the processor. */
   std::vector<std::vector<CSCALCTDigi> > ALCTContainer_;
+
+  CSCShowerDigi shower_;
 
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
@@ -123,8 +130,14 @@ protected:
   std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
 
   /* data members for high multiplicity triggers */
-  void encodeHighMultiplicityBits();
-  unsigned int highMultiplicityBits_;
+  void encodeHighMultiplicityBits(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  unsigned inTimeHMT_;
+  unsigned outTimeHMT_;
+  std::vector<unsigned> thresholds_;
+  unsigned showerMinInTBin_;
+  unsigned showerMaxInTBin_;
+  unsigned showerMinOutTBin_;
+  unsigned showerMaxOutTBin_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;
