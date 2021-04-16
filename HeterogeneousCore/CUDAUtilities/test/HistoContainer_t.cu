@@ -28,8 +28,10 @@ void go() {
 
   using Hist = HistoContainer<T, 128, N, 8 * sizeof(T), uint32_t, nParts>;
   std::cout << "HistoContainer " << (int)(offsetof(Hist, off)) << ' ' << Hist::nbins() << ' ' << Hist::totbins() << ' '
-            << Hist::capacity() << ' ' << offsetof(Hist, bins) - offsetof(Hist, off) << ' '
+            << Hist::ctCapacity() << ' ' << offsetof(Hist, content) - offsetof(Hist, off) << ' '
             << (std::numeric_limits<T>::max() - std::numeric_limits<T>::min()) / Hist::nbins() << std::endl;
+
+  assert(Hist::totbins() == Hist::ctNOnes());
 
   Hist h;
   auto h_d = make_device_unique<Hist[]>(1, nullptr);
@@ -55,6 +57,7 @@ void go() {
       offsets[8] = 256 * 11 + offsets[7];
       offsets[9] = 44 + offsets[8];
       offsets[10] = 3297 + offsets[9];
+      assert(offsets[10] <= N);
     }
 
     cudaCheck(cudaMemcpy(off_d.get(), offsets, 4 * (nParts + 1), cudaMemcpyHostToDevice));
@@ -69,7 +72,7 @@ void go() {
 
     cudaCheck(cudaMemcpy(v_d.get(), v, N * sizeof(T), cudaMemcpyHostToDevice));
 
-    fillManyFromVector(h_d.get(), nParts, v_d.get(), off_d.get(), offsets[10], 256, 0);
+    fillManyFromVector(h_d.get(), nParts, v_d.get(), off_d.get(), offsets[10], 256, nullptr, 0);
     cudaCheck(cudaMemcpy(&h, h_d.get(), sizeof(Hist), cudaMemcpyDeviceToHost));
     assert(0 == h.off[0]);
     assert(offsets[10] == h.size());

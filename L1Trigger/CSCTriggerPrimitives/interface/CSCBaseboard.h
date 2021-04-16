@@ -77,6 +77,9 @@ protected:
   // CLCT Processor parameters:
   edm::ParameterSet clctParams_;
 
+  // Shower Trigger parameters:
+  edm::ParameterSet showerParams_;
+
   // chamber name, e.g. ME+1/1/9
   std::string theCSCName_;
 

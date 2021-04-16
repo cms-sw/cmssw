@@ -23,6 +23,8 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 // Configuration via EventSetup
@@ -44,6 +46,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   writeOutAllCLCTs_ = conf.getParameter<bool>("writeOutAllCLCTs");
   writeOutAllALCTs_ = conf.getParameter<bool>("writeOutAllALCTs");
   savePreTriggers_ = conf.getParameter<bool>("savePreTriggers");
+  writeOutShowers_ = conf.getParameter<bool>("writeOutShowers");
 
   // check whether you need to run the integrated local triggers
   const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
@@ -75,6 +78,10 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   }
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
+  if (writeOutShowers_) {
+    produces<CSCShowerDigiCollection>();
+    produces<CSCShowerDigiCollection>("Anode");
+  }
   if (runME11ILT_ or runME21ILT_)
     produces<GEMCoPadDigiCollection>();
 
@@ -139,6 +146,8 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
+  std::unique_ptr<CSCShowerDigiCollection> oc_shower(new CSCShowerDigiCollection);
+  std::unique_ptr<CSCShowerDigiCollection> oc_shower_anode(new CSCShowerDigiCollection);
   std::unique_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
 
   if (!wireDigis.isValid()) {
@@ -169,6 +178,8 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
                     *oc_pretrig,
                     *oc_lct,
                     *oc_sorted_lct,
+                    *oc_shower,
+                    *oc_shower_anode,
                     *oc_gemcopad);
     if (!checkBadChambers_)
       delete temp;
@@ -190,6 +201,10 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
   ev.put(std::move(oc_pretrig));
   ev.put(std::move(oc_lct));
   ev.put(std::move(oc_sorted_lct), "MPCSORTED");
+  if (writeOutShowers_) {
+    ev.put(std::move(oc_shower));
+    ev.put(std::move(oc_shower_anode), "Anode");
+  }
   // only put GEM copad collections in the event when the
   // integrated local triggers are running
   if (runME11ILT_ or runME21ILT_)

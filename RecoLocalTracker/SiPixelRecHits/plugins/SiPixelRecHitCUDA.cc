@@ -78,12 +78,6 @@ void SiPixelRecHitCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, cons
   iEvent.getByToken(tBeamSpot, hbs);
   auto const& bs = ctx.get(*hbs);
 
-  auto nHits = clusters.nClusters();
-  if (nHits >= TrackingRecHit2DSOAView::maxHits()) {
-    edm::LogWarning("PixelRecHitGPUKernel")
-        << "Clusters/Hits Overflow " << nHits << " >= " << TrackingRecHit2DSOAView::maxHits();
-  }
-
   ctx.emplace(iEvent,
               tokenHit_,
               gpuAlgo_.makeHitsAsync(digis, clusters, bs, fcpe->getGPUProductAsync(ctx.stream()), ctx.stream()));
