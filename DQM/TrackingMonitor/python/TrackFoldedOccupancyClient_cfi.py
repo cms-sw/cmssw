@@ -31,3 +31,18 @@ TrackerMapFoldedClient_highpurity_pt1=TrackerMapFoldedClient.clone(
 )
 
 foldedMapClientSeq=cms.Sequence(TrackerMapFoldedClient*TrackerMapFoldedClient_highpurity_dzPV0p1*TrackerMapFoldedClient_highpurity_pt0to1*TrackerMapFoldedClient_highpurity_pt1)
+
+####cosmics
+TrackerMapFoldedClient_CKFTk=TrackerMapFoldedClient.clone(
+    AlgoName = cms.string('CKFTk'),
+    MeasurementState = cms.string('default'),
+    TrackQuality = cms.string('')
+)
+
+TrackerMapFoldedClient_CosmicTk=TrackerMapFoldedClient.clone(
+    AlgoName = cms.string('CosmicTk'),
+    MeasurementState = cms.string('default'),
+    TrackQuality = cms.string('')
+)
+
+foldedMapClientSeq_cosmics=cms.Sequence(TrackerMapFoldedClient_CKFTk*TrackerMapFoldedClient_CosmicTk)
