@@ -72,8 +72,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
     return;
 
   // encode high multiplicity bits
-  unsigned alctBits = alctProc->getHighMultiplictyBits();
-  encodeHighMultiplicityBits(alctBits);
+  encodeHighMultiplicityBits();
 
   int used_alct_mask[20];
   int used_clct_mask[20];
