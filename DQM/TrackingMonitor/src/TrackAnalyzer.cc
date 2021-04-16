@@ -1105,8 +1105,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
 void TrackAnalyzer::setNumberOfGoodVertices(const edm::Event& iEvent) {
   good_vertices_ = 0;
 
-  edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle;
-  iEvent.getByToken(pvToken_, recoPrimaryVerticesHandle);
+  edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle = iEvent.getHandle(pvToken_);
   if (recoPrimaryVerticesHandle.isValid())
     if (!recoPrimaryVerticesHandle->empty())
       for (const auto& v : *recoPrimaryVerticesHandle)
@@ -1120,24 +1119,21 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
   // as done by pixelLumi http://cmslxr.fnal.gov/source/DQM/PixelLumi/plugins/PixelLumiDQM.cc
 
   if (forceSCAL_) {
-    edm::Handle<LumiScalersCollection> lumiScalers;
-    iEvent.getByToken(lumiscalersToken_, lumiScalers);
+    edm::Handle<LumiScalersCollection> lumiScalers = iEvent.getHandle(lumiscalersToken_);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
       LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
       scal_lumi_ = scalit->instantLumi();
     } else
       scal_lumi_ = -1;
   } else {
-    edm::Handle<OnlineLuminosityRecord> metaData;
-    iEvent.getByToken(metaDataToken_, metaData);
+    edm::Handle<OnlineLuminosityRecord> metaData = iEvent.getHandle(metaDataToken_);
     if (metaData.isValid())
       scal_lumi_ = metaData->instLumi();
     else
       scal_lumi_ = -1;
   }
 
-  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
-  iEvent.getByToken(pixelClustersToken_, pixelClusters);
+  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters = iEvent.getHandle(pixelClustersToken_);
   if (pixelClusters.isValid()) {
     TrackerTopology const& tTopo = iSetup.getData(trackerTopologyToken_);
 
@@ -1285,8 +1281,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   if (doDCAPlots_ || doBSPlots_ || doSIPPlots_ || doAllPlots_) {
-    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    iEvent.getByToken(beamSpotToken_, recoBeamSpotHandle);
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle = iEvent.getHandle(beamSpotToken_);
     const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
     DistanceOfClosestApproachError->Fill(track.dxyError());
@@ -1321,8 +1316,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   if (doDCAPlots_ || doPVPlots_ || doSIPPlots_ || doAllPlots_) {
-    edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle;
-    iEvent.getByToken(pvToken_, recoPrimaryVerticesHandle);
+    edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle = iEvent.getHandle(pvToken_);
     if (recoPrimaryVerticesHandle.isValid() && !recoPrimaryVerticesHandle->empty()) {
       const reco::Vertex& pv = (*recoPrimaryVerticesHandle)[0];
 
