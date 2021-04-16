@@ -166,7 +166,6 @@ namespace gpuPixelRecHits {
       for (int ic = threadIdx.x; ic < nClusInIter; ic += blockDim.x) {
         auto h = first + ic;  // output index in global memory
 
-        assert(h < TrackingRecHit2DSOAView::maxHits());
         assert(h < hits.nHits());
         assert(h < clusters.clusModuleStart(me + 1));
 

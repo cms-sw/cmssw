@@ -146,8 +146,6 @@ void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& e
       if (clust.originalId() >= nhits)
         continue;
       auto ij = jnd(clust.originalId());
-      if (ij >= TrackingRecHit2DSOAView::maxHits())
-        continue;  // overflow...
       LocalPoint lp(xl[ij], yl[ij]);
       LocalError le(xe[ij], 0, ye[ij]);
       SiPixelRecHitQuality::QualWordType rqw = 0;
