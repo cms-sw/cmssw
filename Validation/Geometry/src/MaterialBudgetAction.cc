@@ -325,7 +325,8 @@ void MaterialBudgetAction::update(const EndOfRun*) {
 bool MaterialBudgetAction::CheckTouchableInSelectedVolumes(const G4VTouchable* touch) {
   size_t volh = touch->GetHistoryDepth();
   for (int ii = volh; ii >= 0; ii--) {
-    if (std::find(theVolumeList.begin(), theVolumeList.end(), static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(ii)->GetName()))) != theVolumeList.end())
+    G4String name = static_cast<std::string>(dd4hep::dd::noNamespace(touch->GetVolume(ii)->GetName()));
+    if (std::find(theVolumeList.begin(), theVolumeList.end(), name) != theVolumeList.end())
       return true;
   }
   return false;
