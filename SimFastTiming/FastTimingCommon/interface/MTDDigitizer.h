@@ -9,14 +9,13 @@
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
@@ -136,9 +135,10 @@ namespace mtd_digitizer {
 
     MTDDigitizer(const edm::ParameterSet& config, edm::ProducesCollector producesCollector, edm::ConsumesCollector& iC)
         : MTDDigitizerBase(config, producesCollector, iC),
+          geomToken_(iC.esConsumes()),
           geom_(nullptr),
-          deviceSim_(config.getParameterSet("DeviceSimulation")),
-          electronicsSim_(config.getParameterSet("ElectronicsSimulation")),
+          deviceSim_(config.getParameterSet("DeviceSimulation"), iC),
+          electronicsSim_(config.getParameterSet("ElectronicsSimulation"), iC),
           maxSimHitsAccTime_(config.getParameter<uint32_t>("maxSimHitsAccTime")) {}
 
     ~MTDDigitizer() override {}
@@ -160,15 +160,10 @@ namespace mtd_digitizer {
     void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
     void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) override;
 
-    /**
-       @short actions at the start/end of run
-    */
-    void beginRun(const edm::EventSetup& es) override;
-    void endRun() override {}
-
   private:
     void resetSimHitDataAccumulator() { MTDSimHitDataAccumulator().swap(simHitAccumulator_); }
 
+    const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
     const MTDGeometry* geom_;
 
     // implementations
@@ -234,9 +229,13 @@ namespace mtd_digitizer {
 
   template <class Traits>
   void MTDDigitizer<Traits>::initializeEvent(edm::Event const& e, edm::EventSetup const& c) {
+    geom_ = &c.getData(geomToken_);
+
     deviceSim_.getEvent(e);
+    deviceSim_.getEventSetup(c);
     if (not premixStage1_) {
       electronicsSim_.getEvent(e);
+      electronicsSim_.getEventSetup(c);
     }
   }
 
@@ -254,18 +253,6 @@ namespace mtd_digitizer {
 
     //release memory for next event
     resetSimHitDataAccumulator();
-  }
-
-  template <class Traits>
-  void MTDDigitizer<Traits>::beginRun(const edm::EventSetup& es) {
-    edm::ESHandle<MTDGeometry> geom;
-    es.get<MTDDigiGeometryRecord>().get(geom);
-    geom_ = geom.product();
-
-    deviceSim_.getEventSetup(es);
-    if (not premixStage1_) {
-      electronicsSim_.getEventSetup(es);
-    }
   }
 }  // namespace mtd_digitizer
 

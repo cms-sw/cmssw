@@ -149,6 +149,7 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_numMerge_multicl_phi;
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_multicl2caloparticle;
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2multicl;
+  std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2multicl_assoc;
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_multicl2caloparticle_vs_eta;
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_multicl2caloparticle_vs_phi;
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2multicl_vs_eta;

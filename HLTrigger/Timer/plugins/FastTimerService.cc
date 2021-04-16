@@ -34,6 +34,7 @@ using json = nlohmann::json;
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "HLTrigger/Timer/interface/memory_usage.h"
 #include "HLTrigger/Timer/interface/processor_model.h"
@@ -766,7 +767,8 @@ void FastTimerService::PlotsPerJob::fill_lumi(AtomicResources const& data, unsig
 ///////////////////////////////////////////////////////////////////////////////
 
 FastTimerService::FastTimerService(const edm::ParameterSet& config, edm::ActivityRegistry& registry)
-    :  // configuration
+    : tbb::task_scheduler_observer(true),
+      // configuration
       callgraph_(),
       // job configuration
       concurrent_lumis_(0),
@@ -1099,6 +1101,9 @@ void FastTimerService::postSourceLumi(edm::LuminosityBlockIndex index) {
 }
 
 void FastTimerService::postEndJob() {
+  // stop observing to avoid potential race conditions at exit
+  tbb::task_scheduler_observer::observe(false);
+  guard_.finalize();
   if (print_job_summary_) {
     edm::LogVerbatim out("FastReport");
     printSummary(out, job_summary_, "Job");
@@ -1662,17 +1667,68 @@ void FastTimerService::postModuleStreamEndLumi(edm::StreamContext const& sc, edm
   thread().measure_and_accumulate(lumi_transition_[index]);
 }
 
+FastTimerService::ThreadGuard::ThreadGuard() {
+  auto err = ::pthread_key_create(&key_, retire_thread);
+  if (err) {
+    throw cms::Exception("FastTimerService") << "ThreadGuard key creation failed: " << ::strerror(err);
+  }
+}
+
+// If this is a new thread, register it and return true
+bool FastTimerService::ThreadGuard::register_thread(FastTimerService::AtomicResources& r) {
+  auto ptr = ::pthread_getspecific(key_);
+
+  if (not ptr) {
+    auto p = thread_resources_.emplace_back(std::make_shared<specific_t>(r));
+    auto pp = new std::shared_ptr<specific_t>(*p);
+    auto err = ::pthread_setspecific(key_, pp);
+    if (err) {
+      throw cms::Exception("FastTimerService") << "ThreadGuard pthread_setspecific failed: " << ::strerror(err);
+    }
+    return true;
+  }
+  return false;
+}
+
+std::shared_ptr<FastTimerService::ThreadGuard::specific_t>* FastTimerService::ThreadGuard::ptr(void* p) {
+  return static_cast<std::shared_ptr<specific_t>*>(p);
+}
+
+// called when a thread exits
+void FastTimerService::ThreadGuard::retire_thread(void* p) {
+  auto ps = ptr(p);
+  auto expected = true;
+  if ((*ps)->live_.compare_exchange_strong(expected, false)) {
+    // account any resources used or freed by the thread before leaving the TBB pool
+    (*ps)->measurement_.measure_and_accumulate((*ps)->resource_);
+  }
+  delete ps;
+}
+
+// finalize all threads that have not retired
+void FastTimerService::ThreadGuard::finalize() {
+  for (auto& p : thread_resources_) {
+    auto expected = true;
+    if (p->live_.compare_exchange_strong(expected, false)) {
+      p->measurement_.measure_and_accumulate(p->resource_);
+    }
+  }
+}
+
+FastTimerService::Measurement& FastTimerService::ThreadGuard::thread() {
+  return (*ptr(::pthread_getspecific(key_)))->measurement_;
+}
+
 void FastTimerService::on_scheduler_entry(bool worker) {
-  // initialise the measurement point for a thread that has newly joining the TBB pool
-  thread().measure();
+  if (guard_.register_thread(overhead_)) {
+    // initialise the measurement point for a thread that has newly joined the TBB pool
+    thread().measure();
+  }
 }
 
-void FastTimerService::on_scheduler_exit(bool worker) {
-  // account any resources used or freed by the thread before leaving the TBB pool
-  thread().measure_and_accumulate(overhead_);
-}
+void FastTimerService::on_scheduler_exit(bool worker) {}
 
-FastTimerService::Measurement& FastTimerService::thread() { return threads_.local(); }
+FastTimerService::Measurement& FastTimerService::thread() { return guard_.thread(); }
 
 // describe the module's configuration
 void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -159,7 +159,7 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
     cpv.position(glogs[i], glogM, copyNumber_[i], tran0, rot);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << glogs[i].name() << " number " << copyNumber_[i]
-                                  << " positioned in " << glogM.name() << " at " << tran0 << " with " << rot;
+                                  << " positioned in " << glogM.name() << " at " << tran0 << " with no rotation";
 #endif
     ++copyNumber_[i];
     zi += layerThick_[i];
@@ -200,8 +200,9 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
             int copy = HGCalTypes::packCellTypeUV(cellType_, u, v);
             cpv.position(DDName(cellNames_[cell]), glogs[i], copy, tran, rot);
 #ifdef EDM_ML_DEBUG
-            edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: " << cellNames_[cell] << " number " << copy
-                                          << " positioned in " << glogs[i].name() << " at " << tran << " with " << rot;
+            edm::LogVerbatim("HGCalGeom")
+                << "DDHGCalWaferF: " << cellNames_[cell] << " number " << copy << " positioned in " << glogs[i].name()
+                << " at " << tran << " with no rotation";
 #endif
           }
         }

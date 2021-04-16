@@ -13,7 +13,6 @@
 #include <map>
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -26,7 +25,7 @@ using namespace std;
 //
 // constructors and destructor
 //
-HLTGetDigi::HLTGetDigi(const edm::ParameterSet& ps) {
+HLTGetDigi::HLTGetDigi(const edm::ParameterSet& ps) : l1GtParamsToken_(esConsumes()) {
   EBdigiCollection_ = ps.getParameter<edm::InputTag>("EBdigiCollection");
   EEdigiCollection_ = ps.getParameter<edm::InputTag>("EEdigiCollection");
   ESdigiCollection_ = ps.getParameter<edm::InputTag>("ESdigiCollection");
@@ -295,9 +294,8 @@ void HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<L1GlobalTriggerObjectMapRecord> gtMap;
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRR;
 
-  edm::ESHandle<L1GtParameters> l1GtPar;
-  iSetup.get<L1GtParametersRcd>().get(l1GtPar);
-  int nBx = l1GtPar->gtTotalBxInEvent();
+  auto const& l1GtParamsHandle = iSetup.getHandle(l1GtParamsToken_);
+  auto const nBx = l1GtParamsHandle->gtTotalBxInEvent();
 
   std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> newGtEvm(new L1GlobalTriggerEvmReadoutRecord(nBx));
   std::unique_ptr<L1GlobalTriggerObjectMapRecord> newGtMap(new L1GlobalTriggerObjectMapRecord());

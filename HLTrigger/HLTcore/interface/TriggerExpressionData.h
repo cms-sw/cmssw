@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -14,8 +16,6 @@ namespace edm {
   class EventSetup;
   class TriggerNames;
 }  // namespace edm
-
-class L1TUtmTriggerMenu;
 
 namespace triggerExpression {
 
@@ -28,6 +28,7 @@ namespace triggerExpression {
           m_hltResultsToken(),
           m_l1tResultsTag(""),
           m_l1tResultsToken(),
+          m_l1tUtmTriggerMenuToken(),
           m_l1tIgnoreMaskAndPrescale(false),
           m_throw(true),
           // l1 values and status
@@ -50,6 +51,7 @@ namespace triggerExpression {
           m_hltResultsToken(),
           m_l1tResultsTag(config.getParameter<edm::InputTag>("l1tResults")),
           m_l1tResultsToken(),
+          m_l1tUtmTriggerMenuToken(iC.esConsumes()),
           m_l1tIgnoreMaskAndPrescale(config.getParameter<bool>("l1tIgnoreMaskAndPrescale")),
           m_throw(config.getParameter<bool>("throw")),
           // l1 values and status
@@ -81,6 +83,7 @@ namespace triggerExpression {
           m_hltResultsToken(),
           m_l1tResultsTag(l1tResultsTag),
           m_l1tResultsToken(),
+          m_l1tUtmTriggerMenuToken(iC.esConsumes()),
           m_l1tIgnoreMaskAndPrescale(l1tIgnoreMaskAndPrescale),
           m_throw(doThrow),
           // l1 values and status
@@ -147,6 +150,7 @@ namespace triggerExpression {
     edm::EDGetTokenT<edm::TriggerResults> m_hltResultsToken;
     edm::InputTag m_l1tResultsTag;
     edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1tResultsToken;
+    edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> const m_l1tUtmTriggerMenuToken;
     bool m_l1tIgnoreMaskAndPrescale;
     bool m_throw;
 

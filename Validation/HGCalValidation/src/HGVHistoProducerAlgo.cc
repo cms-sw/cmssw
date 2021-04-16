@@ -17,7 +17,7 @@ const double ScoreCutCPtoLC_ = 0.1;
 const double ScoreCutLCtoSC_ = 0.1;
 const double ScoreCutSCtoLC_ = 0.1;
 const double ScoreCutMCLtoCPFakeMerge_ = 0.6;
-const double ScoreCutCPtoMCLDup_ = 0.2;
+const double ScoreCutCPtoMCLEffDup_ = 0.2;
 
 HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
     :  //parameters for eta
@@ -1030,6 +1030,12 @@ void HGVHistoProducerAlgo::bookMultiClusterHistos(DQMStore::IBooker& ibook,
                    nintSharedEneFrac_,
                    minMCLSharedEneFrac_,
                    maxMCLSharedEneFrac_));
+  histograms.h_sharedenergy_caloparticle2multicl_assoc.push_back(
+      ibook.book1D("SharedEnergy_caloparticle2multicl_assoc",
+                   "Shared Energy of Associated CaloParticle per Multi Cluster",
+                   nintSharedEneFrac_,
+                   minMCLSharedEneFrac_,
+                   maxMCLSharedEneFrac_));
   histograms.h_sharedenergy_caloparticle2multicl_vs_eta.push_back(
       ibook.bookProfile("SharedEnergy_caloparticle2multicl_vs_eta",
                         "Shared Energy of CaloParticle vs #eta per best Multi Cluster",
@@ -1250,13 +1256,13 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     std::map<int, double> totenergy_layer;
 
     for (auto const& sc : caloparticle.simClusters()) {
+      LogDebug("HGCalValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and "
+                                 << sc->energy() << " energy. " << std::endl;
       simHits += sc->hits_and_fractions().size();
-
       for (auto const& h_and_f : sc->hits_and_fractions()) {
         const auto hitDetId = h_and_f.first;
         int layerId =
             recHitTools_->getLayerWithOffset(hitDetId) + layers * ((recHitTools_->zside(hitDetId) + 1) >> 1) - 1;
-
         // set to 0 if matched RecHit not found
         int layerId_matched_min = 999;
         int layerId_matched_max = 0;
@@ -1279,6 +1285,8 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
           if (caloparticle.simClusters().size() == 1)
             histograms.h_caloparticle_nHits_matched_energy_layer_1SimCl.at(pdgid)->Fill(layerId,
                                                                                         hit->energy() * h_and_f.second);
+        } else {
+          LogDebug("HGCalValidator") << "   matched to RecHit NOT found !" << std::endl;
         }
 
         minLayerId = std::min(minLayerId, layerId);
@@ -1286,6 +1294,7 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
         minLayerId_matched = std::min(minLayerId_matched, layerId_matched_min);
         maxLayerId_matched = std::max(maxLayerId_matched, layerId_matched_max);
       }
+      LogDebug("HGCalValidator") << std::endl;
     }
     histograms.h_caloparticle_firstlayer.at(pdgid)->Fill(minLayerId);
     histograms.h_caloparticle_lastlayer.at(pdgid)->Fill(maxLayerId);
@@ -2803,7 +2812,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
                                                                      mclsharedenergyfrac[cpId][mclId]);
     }  //end of loop through multiclusters
 
-    auto is_assoc = [&](const auto& v) -> bool { return v < ScoreCutCPtoMCLDup_; };
+    auto is_assoc = [&](const auto& v) -> bool { return v < ScoreCutCPtoMCLEffDup_; };
 
     auto assocDup = std::count_if(std::begin(score3d[cpId]), std::end(score3d[cpId]), is_assoc);
 
@@ -2817,6 +2826,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
                                                                          multiClusters[bestmclId].energy() / CPenergy);
       histograms.h_sharedenergy_caloparticle2multicl_vs_phi[count]->Fill(cP[cpId].g4Tracks()[0].momentum().phi(),
                                                                          multiClusters[bestmclId].energy() / CPenergy);
+      histograms.h_sharedenergy_caloparticle2multicl_assoc[count]->Fill(mclsharedenergyfrac[cpId][bestmclId]);
     }
     if (assocDup >= 2) {
       auto match = std::find_if(std::begin(score3d[cpId]), std::end(score3d[cpId]), is_assoc);

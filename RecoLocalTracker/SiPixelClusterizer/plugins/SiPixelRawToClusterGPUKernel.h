@@ -14,6 +14,9 @@
 #include "DataFormats/SiPixelRawData/interface/SiPixelErrorCompact.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelFormatterErrors.h"
 
+// local include(s)
+#include "SiPixelClusterThresholds.h"
+
 struct SiPixelROCsStatusAndMapping;
 class SiPixelGainForHLTonGPU;
 
@@ -170,6 +173,7 @@ namespace pixelgpudetails {
     SiPixelRawToClusterGPUKernel& operator=(SiPixelRawToClusterGPUKernel&&) = delete;
 
     void makeClustersAsync(bool isRun2,
+                           const SiPixelClusterThresholds clusterThresholds,
                            const SiPixelROCsStatusAndMapping* cablingMap,
                            const unsigned char* modToUnp,
                            const SiPixelGainForHLTonGPU* gains,

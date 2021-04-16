@@ -16,13 +16,14 @@ CSCCLCTDigiValidation::CSCCLCTDigiValidation(const edm::ParameterSet &ps, edm::C
 CSCCLCTDigiValidation::~CSCCLCTDigiValidation() {}
 
 void CSCCLCTDigiValidation::bookHistograms(DQMStore::IBooker &iBooker) {
-  theNDigisPerEventPlot =
-      iBooker.book1D("CSCCLCTDigisPerEvent", "CLCT Digis per event; Number of CLCTs; Entries", 4, 0, 4);
+  theNDigisPerEventPlot = iBooker.book1D(
+      "CSCCLCTDigisPerEvent", "CLCT trigger primitives per event; Number of CLCTs; Entries", 100, 0, 100);
   for (int i = 1; i <= 10; ++i) {
     const std::string t1("CSCCLCTDigiTime_" + CSCDetId::chamberName(i));
     const std::string t2("CSCCLCTDigisPerChamber_" + CSCDetId::chamberName(i));
-    theTimeBinPlots[i - 1] = iBooker.book1D(t1, t1 + ";Comparator Time Bin; Entries", 16, 0, 16);
-    theNDigisPerChamberPlots[i - 1] = iBooker.book1D(t2, t2 + ";Number of CLCTs per chamber;Entries", 4, 0, 4);
+    theTimeBinPlots[i - 1] = iBooker.book1D(t1, "CLCT BX " + CSCDetId::chamberName(i) + ";CLCT BX; Entries", 16, 0, 16);
+    theNDigisPerChamberPlots[i - 1] = iBooker.book1D(
+        t2, "Number of CLCTs per chamber " + CSCDetId::chamberName(i) + ";Number of CLCTs per chamber;Entries", 4, 0, 4);
   }
 }
 

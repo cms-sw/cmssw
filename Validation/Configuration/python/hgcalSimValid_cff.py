@@ -10,12 +10,16 @@ from Validation.HGCalValidation.simhitValidation_cff    import *
 from Validation.HGCalValidation.digiValidation_cff      import *
 from Validation.HGCalValidation.rechitValidation_cff    import *
 from Validation.HGCalValidation.hgcalHitValidation_cfi  import *
+from RecoHGCal.TICL.SimTracksters_cff import *
 
 from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 from Validation.RecoParticleFlow.PFJetValidation_cff import pfJetValidation1 as _hgcalPFJetValidation
 
 from Validation.HGCalValidation.ticlPFValidation_cfi import ticlPFValidation
 hgcalTiclPFValidation = cms.Sequence(ticlPFValidation)
+
+from Validation.HGCalValidation.ticlTrackstersEdgesValidation_cfi import ticlTrackstersEdgesValidation
+hgcalTiclTrackstersEdgesValidationSequence = cms.Sequence(ticlTrackstersEdgesValidation)
 
 hgcalValidatorSequence = cms.Sequence(hgcalValidator)
 hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValidation/HGCAlCompWithGenJet',
@@ -38,6 +42,8 @@ hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalHitValidationSequence
                                + hgcalValidatorSequence
                                + hgcalTiclPFValidation
+                               #Currently commented out until trackster edges are saved
+#                               + hgcalTiclTrackstersEdgesValidationSequence
                                + hgcalPFJetValidation)
 
 _hfnose_hgcalAssociatorsTask = hgcalAssociators.copy()

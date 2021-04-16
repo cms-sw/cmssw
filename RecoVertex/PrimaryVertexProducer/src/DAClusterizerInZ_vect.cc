@@ -452,7 +452,7 @@ unsigned int DAClusterizerInZ_vect::thermalize(
     std::cout << "DAClusterizerInZ_vect.thermalize niter = " << niter << " at T = " << 1 / beta
               << "  nv = " << v.getSize() << std::endl;
     if (DEBUGLEVEL > 2)
-      dump(beta, v, tks, 0);
+      dump(beta, v, tks, 0, rho0);
   }
 #endif
 
@@ -483,31 +483,26 @@ bool DAClusterizerInZ_vect::merge(vertex_t& y, track_t& tks, double& beta) const
   for (unsigned int ik = 0; ik < critical.size(); ik++) {
     unsigned int k = critical[ik].second;
     double rho = y.rho[k] + y.rho[k + 1];
-    double swE = y.swE[k] + y.swE[k + 1] - y.rho[k] * y.rho[k + 1] / rho * std::pow(y.zvtx[k + 1] - y.zvtx[k], 2);
-    double Tc = 2 * swE / (y.sw[k] + y.sw[k + 1]);
 
-    if (Tc * beta < 1) {
 #ifdef DEBUG
-      assert((k + 1) < nv);
-      if (DEBUGLEVEL > 1) {
-        std::cout << "merging " << fixed << setprecision(4) << y.zvtx[k + 1] << " and " << y.zvtx[k] << "  Tc = " << Tc
-                  << "  sw = " << y.sw[k] + y.sw[k + 1] << std::endl;
-      }
+    assert((k + 1) < nv);
+    if (DEBUGLEVEL > 1) {
+      std::cout << "merging " << fixed << setprecision(4) << y.zvtx[k + 1] << " and " << y.zvtx[k]
+                << "  sw = " << y.sw[k] + y.sw[k + 1] << std::endl;
+    }
 #endif
 
-      if (rho > 0) {
-        y.zvtx[k] = (y.rho[k] * y.zvtx[k] + y.rho[k + 1] * y.zvtx[k + 1]) / rho;
-      } else {
-        y.zvtx[k] = 0.5 * (y.zvtx[k] + y.zvtx[k + 1]);
-      }
-      y.rho[k] = rho;
-      y.sw[k] += y.sw[k + 1];
-      y.swE[k] = swE;
-      y.removeItem(k + 1, tks);
-      set_vtx_range(beta, tks, y);
-      y.extractRaw();
-      return true;
+    if (rho > 0) {
+      y.zvtx[k] = (y.rho[k] * y.zvtx[k] + y.rho[k + 1] * y.zvtx[k + 1]) / rho;
+    } else {
+      y.zvtx[k] = 0.5 * (y.zvtx[k] + y.zvtx[k + 1]);
     }
+    y.rho[k] = rho;
+    y.sw[k] += y.sw[k + 1];
+    y.removeItem(k + 1, tks);
+    set_vtx_range(beta, tks, y);
+    y.extractRaw();
+    return true;
   }
 
   return false;
@@ -645,8 +640,10 @@ double DAClusterizerInZ_vect::beta0(double betamax, track_t const& tks, vertex_t
 
 bool DAClusterizerInZ_vect::split(const double beta, track_t& tks, vertex_t& y, double threshold) const {
   // split only critical vertices (Tc >~ T=1/beta   <==>   beta*Tc>~1)
-  // an update must have been made just before doing this (same beta, no merging)
   // returns true if at least one cluster was split
+
+  // update the sums needed for Tc, rho0 is never non-zero while splitting is still active
+  update(beta, tks, y, 0., true);  // the "true" flag enables Tc evaluation
 
   constexpr double epsilon = 1e-3;  // minimum split size
   unsigned int nv = y.getSize();
@@ -794,9 +791,8 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
   double betafreeze = betamax_ * sqrt(coolingFactor_);
 
   while (beta < betafreeze) {
-    update(beta, tks, y, rho0, true);
     while (merge(y, tks, beta)) {
-      update(beta, tks, y, rho0, true);
+      update(beta, tks, y, rho0, false);
     }
     split(beta, tks, y);
 
@@ -814,20 +810,19 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
 #endif
 
   set_vtx_range(beta, tks, y);
-  update(beta, tks, y, rho0, true);  // merge() and split() use Tc
+  update(beta, tks, y, rho0, false);
 
   while (merge(y, tks, beta)) {
     set_vtx_range(beta, tks, y);
-    update(beta, tks, y, rho0, true);
+    update(beta, tks, y, rho0, false);
   }
 
   unsigned int ntry = 0;
   double threshold = 1.0;
   while (split(beta, tks, y, threshold) && (ntry++ < 10)) {
     thermalize(beta, tks, y, delta_highT_, rho0);  // rho0 = 0. here
-    update(beta, tks, y, rho0, true);
     while (merge(y, tks, beta)) {
-      update(beta, tks, y, rho0, true);
+      update(beta, tks, y, rho0, false);
     }
 
     // relax splitting a bit to reduce multiple split-merge cycles of the same cluster
@@ -842,16 +837,15 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
   }
 #endif
 
-  // switch on outlier rejection at T=Tmin, doesn't do much at high PU
+  // switch on outlier rejection at T=Tmin
   if (dzCutOff_ > 0) {
-    rho0 = 1. / nt;
+    rho0 = y.getSize() > 1 ? 1. / y.getSize() : 1.;
     for (unsigned int a = 0; a < 5; a++) {
       update(beta, tks, y, a * rho0 / 5.);  // adiabatic turn-on
     }
   }
 
   thermalize(beta, tks, y, delta_lowT_, rho0);
-  update(beta, tks, y, rho0, true);
 
 #ifdef DEBUG
   verify(y, tks);
@@ -860,13 +854,13 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
               << "merging with outlier rejection at T=" << 1 / beta << std::endl;
   }
   if (DEBUGLEVEL > 2)
-    dump(beta, y, tks, 2);
+    dump(beta, y, tks, 2, rho0);
 #endif
 
   // merge again  (some cluster split by outliers collapse here)
   while (merge(y, tks, beta)) {
     set_vtx_range(beta, tks, y);
-    update(beta, tks, y, rho0, true);
+    update(beta, tks, y, rho0, false);
   }
 
 #ifdef DEBUG
@@ -876,7 +870,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
               << "after merging with outlier rejection at T=" << 1 / beta << std::endl;
   }
   if (DEBUGLEVEL > 2)
-    dump(beta, y, tks, 2);
+    dump(beta, y, tks, 2, rho0);
 #endif
 
   // go down to the purging temperature (if it is lower than tmin)
@@ -919,7 +913,7 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices(const vector<reco::Trans
               << "stop cooling at T=" << 1 / beta << std::endl;
   }
   if (DEBUGLEVEL > 2)
-    dump(beta, y, tks, 2);
+    dump(beta, y, tks, 2, rho0);
 #endif
 
   // select significant tracks and use a TransientVertex as a container
@@ -1020,10 +1014,15 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZ_vect::clusterize(
   return clusters;
 }
 
-void DAClusterizerInZ_vect::dump(const double beta, const vertex_t& y, const track_t& tks, int verbosity) const {
+void DAClusterizerInZ_vect::dump(
+    const double beta, const vertex_t& y, const track_t& tks, const int verbosity, const double rho0) const {
 #ifdef DEBUG
   const unsigned int nv = y.getSize();
   const unsigned int nt = tks.getSize();
+  // make a local copies of clusters and tracks to update Tc  [ = y_local.swE / y_local.sw ]
+  vertex_t y_local = y;
+  track_t tks_local = tks;
+  update(beta, tks_local, y_local, rho0, true);
 
   std::vector<unsigned int> iz;
   for (unsigned int j = 0; j < nt; j++) {
@@ -1051,7 +1050,7 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t& y, const tra
             << "                             Tc= ";
   for (unsigned int ivertex = 0; ivertex < nv; ++ivertex) {
     if (std::fabs(y.zvtx[ivertex] - zdumpcenter_) < zdumpwidth_) {
-      double Tc = 2 * y.swE[ivertex] / y.sw[ivertex];
+      double Tc = 2 * y_local.swE[ivertex] / y_local.sw[ivertex];
       std::cout << setw(8) << fixed << setprecision(1) << Tc;
     }
   }

@@ -24,7 +24,7 @@ public:
   ReturnType produce(const IdealGeometryRecord&);
 
 private:
-  std::string name_, name2_, namew_, namec_, namet_;
+  std::string name_, name2_, namew_, namec_, namet_, namex_;
   bool fromDD4Hep_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4Hep_;
@@ -36,12 +36,13 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
   namew_ = iC.getParameter<std::string>("nameW");
   namec_ = iC.getParameter<std::string>("nameC");
   namet_ = iC.getParameter<std::string>("nameT");
+  namex_ = iC.getParameter<std::string>("nameX");
   fromDD4Hep_ = iC.getParameter<bool>("fromDD4Hep");
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":" << namec_ << ":"
                                 << namet_ << " and fromDD4Hep flag " << fromDD4Hep_;
 #endif
-  auto cc = setWhatProduced(this, name_);
+  auto cc = setWhatProduced(this, namex_);
   cpvTokenDDD_ = cc.consumes<DDCompactView>(edm::ESInputTag());
   cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 }
@@ -53,6 +54,7 @@ void HGCalParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<std::string>("nameW", "HGCalEEWafer");
   desc.add<std::string>("nameC", "HGCalEECell");
   desc.add<std::string>("nameT", "HGCal");
+  desc.add<std::string>("nameX", "HGCalEESensitive");
   desc.add<bool>("fromDD4Hep", false);
   descriptions.add("hgcalEEParametersInitialize", desc);
 }

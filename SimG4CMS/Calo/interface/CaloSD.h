@@ -117,6 +117,7 @@ protected:
   }
 
   inline void setNumberCheckedHits(int val) { nCheckedHits = val; }
+  void printDetectorLevels(const G4VTouchable*) const;
 
 private:
   void storeHit(CaloG4Hit*);

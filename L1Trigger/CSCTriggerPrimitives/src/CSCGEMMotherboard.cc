@@ -150,7 +150,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
       // 4-bit slope value derived with the CCLUT algorithm
       thisLCT.setSlope(clct.getSlope());
       thisLCT.setQuartStrip(clct.getQuartStrip());
-      thisLCT.setEightStrip(clct.getEightStrip());
+      thisLCT.setEighthStrip(clct.getEighthStrip());
       thisLCT.setRun3Pattern(clct.getRun3Pattern());
     }
   } else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
@@ -175,7 +175,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
       // 4-bit slope value derived with the CCLUT algorithm
       thisLCT.setSlope(clct.getSlope());
       thisLCT.setQuartStrip(clct.getQuartStrip());
-      thisLCT.setEightStrip(clct.getEightStrip());
+      thisLCT.setEighthStrip(clct.getEighthStrip());
       thisLCT.setRun3Pattern(clct.getRun3Pattern());
     }
   } else if (alct.isValid() and gem2.isValid() and not clct.isValid()) {
@@ -249,7 +249,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
       // 4-bit slope value derived with the CCLUT algorithm
       thisLCT.setSlope(clct.getSlope());
       thisLCT.setQuartStrip(clct.getQuartStrip());
-      thisLCT.setEightStrip(clct.getEightStrip());
+      thisLCT.setEighthStrip(clct.getEighthStrip());
       thisLCT.setRun3Pattern(clct.getRun3Pattern());
     }
   }

@@ -110,7 +110,8 @@ public:
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
   int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
   bool tileTrapezoid() const {
-    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile));
+    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) ||
+            (mode_ == HGCalGeometryMode::TrapezoidModule));
   }
   std::pair<int, int> tileType(int layer, int ring, int phi) const {
     int indx = HGCalTileIndex::tileIndex(layer, ring, phi);
@@ -140,7 +141,7 @@ public:
   }
   bool waferHexagon8() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) ||
-            (mode_ == HGCalGeometryMode::Hexagon8File));
+            (mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module));
   }
   bool waferInLayer(int wafer, int lay, bool reco) const;
   bool waferFullInLayer(int wafer, int lay, bool reco) const;

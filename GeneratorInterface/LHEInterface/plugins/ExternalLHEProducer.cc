@@ -65,7 +65,7 @@ Implementation:
 // class declaration
 //
 
-class ExternalLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer, edm::EndRunProducer> {
+class ExternalLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer, edm::one::WatchRuns> {
 public:
   explicit ExternalLHEProducer(const edm::ParameterSet& iConfig);
 
@@ -74,7 +74,8 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
-  void endRunProduce(edm::Run&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void preallocThreads(unsigned int) override;
 
   std::vector<std::string> makeArgs(uint32_t nEvents, unsigned int nThreads, std::uint32_t seed) const;
@@ -82,6 +83,7 @@ private:
   void executeScript(std::vector<std::string> const& args, int id) const;
 
   void nextEvent();
+  std::unique_ptr<LHERunInfoProduct> generateRunInfo(std::vector<std::string> const& files) const;
 
   // ----------member data ---------------------------
   std::string scriptName_;
@@ -98,12 +100,12 @@ private:
   std::map<unsigned, std::pair<unsigned, unsigned>> nPartonMapping_{};
 
   std::unique_ptr<lhef::LHEReader> reader_;
-  std::shared_ptr<lhef::LHERunInfo> runInfoLast_;
-  std::shared_ptr<lhef::LHERunInfo> runInfo_;
   std::shared_ptr<lhef::LHEEvent> partonLevel_;
-  std::deque<std::unique_ptr<LHERunInfoProduct>> runInfoProducts_;
-  bool wasMerged;
+  bool wasMerged_;
 
+  edm::EDPutTokenT<LHEXMLStringProduct> xmlPutToken_;
+  edm::EDPutTokenT<LHEEventProduct> eventPutToken_;
+  edm::EDPutTokenT<LHERunInfoProduct> beginRunPutToken_;
   class FileCloseSentry {
   public:
     explicit FileCloseSentry(int fd) : fd_(fd){};
@@ -155,11 +157,10 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig)
     }
   }
 
-  produces<LHEXMLStringProduct, edm::Transition::BeginRun>("LHEScriptOutput");
+  xmlPutToken_ = produces<LHEXMLStringProduct, edm::Transition::BeginRun>("LHEScriptOutput");
 
-  produces<LHEEventProduct>();
-  produces<LHERunInfoProduct, edm::Transition::BeginRun>();
-  produces<LHERunInfoProduct, edm::Transition::EndRun>();
+  eventPutToken_ = produces<LHEEventProduct>();
+  beginRunPutToken_ = produces<LHERunInfoProduct, edm::Transition::BeginRun>();
 }
 
 //
@@ -223,28 +224,7 @@ void ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                 partonLevel_->getComments().end(),
                 std::bind(&LHEEventProduct::addComment, product.get(), std::placeholders::_1));
 
-  iEvent.put(std::move(product));
-
-  if (runInfo_) {
-    std::unique_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo_->getHEPRUP()));
-    std::for_each(runInfo_->getHeaders().begin(),
-                  runInfo_->getHeaders().end(),
-                  std::bind(&LHERunInfoProduct::addHeader, product.get(), std::placeholders::_1));
-    std::for_each(runInfo_->getComments().begin(),
-                  runInfo_->getComments().end(),
-                  std::bind(&LHERunInfoProduct::addComment, product.get(), std::placeholders::_1));
-
-    if (!runInfoProducts_.empty()) {
-      runInfoProducts_.front()->mergeProduct(*product);
-      if (!wasMerged) {
-        runInfoProducts_.pop_front();
-        runInfoProducts_.emplace_front(product.release());
-        wasMerged = true;
-      }
-    }
-
-    runInfo_.reset();
-  }
+  iEvent.put(eventPutToken_, std::move(product));
 
   partonLevel_.reset();
   return;
@@ -329,44 +309,25 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
     p->fillCompressedContent(instream, 0.25 * insize);
     instream.close();
   }
-  run.put(std::move(p), "LHEScriptOutput");
+  run.put(xmlPutToken_, std::move(p));
+
+  //Read the beginning of each file to get the run info in order to do the merge
+  auto runInfo = generateRunInfo(infiles);
+  if (runInfo) {
+    run.put(beginRunPutToken_, std::move(runInfo));
+  }
 
   // LHE C++ classes translation
   // (read back uncompressed file from disk in streaming mode again to save memory)
-
   unsigned int skip = 0;
   reader_ = std::make_unique<lhef::LHEReader>(infiles, skip);
 
   nextEvent();
-  if (runInfoLast_) {
-    runInfo_ = runInfoLast_;
-
-    std::unique_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo_->getHEPRUP()));
-    std::for_each(runInfo_->getHeaders().begin(),
-                  runInfo_->getHeaders().end(),
-                  std::bind(&LHERunInfoProduct::addHeader, product.get(), std::placeholders::_1));
-    std::for_each(runInfo_->getComments().begin(),
-                  runInfo_->getComments().end(),
-                  std::bind(&LHERunInfoProduct::addComment, product.get(), std::placeholders::_1));
-
-    // keep a copy around in case of merging
-    runInfoProducts_.emplace_back(new LHERunInfoProduct(*product));
-    wasMerged = false;
-
-    run.put(std::move(product));
-
-    runInfo_.reset();
-  }
 }
 
+void ExternalLHEProducer::beginRun(edm::Run const& run, edm::EventSetup const& es) {}
 // ------------ method called when ending the processing of a run  ------------
-void ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es) {
-  if (!runInfoProducts_.empty()) {
-    std::unique_ptr<LHERunInfoProduct> product(runInfoProducts_.front().release());
-    runInfoProducts_.pop_front();
-    run.put(std::move(product));
-  }
-
+void ExternalLHEProducer::endRun(edm::Run const& run, edm::EventSetup const& es) {
   nextEvent();
   if (partonLevel_) {
     throw edm::Exception(edm::errors::EventGenerationFailure)
@@ -574,6 +535,36 @@ void ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.addDefault(desc);
 }
 
+std::unique_ptr<LHERunInfoProduct> ExternalLHEProducer::generateRunInfo(std::vector<std::string> const& iFiles) const {
+  std::unique_ptr<LHERunInfoProduct> retValue;
+  //read each file in turn and only get the header info
+  for (auto const& file : iFiles) {
+    unsigned int skip = 0;
+    std::vector<std::string> infiles(1, file);
+    auto reader = std::make_unique<lhef::LHEReader>(infiles, skip);
+    auto parton = reader->next();
+    if (!parton) {
+      break;
+    }
+    auto runInfo = parton->getRunInfo();
+    LHERunInfoProduct product(*runInfo->getHEPRUP());
+
+    std::for_each(runInfo->getHeaders().begin(),
+                  runInfo->getHeaders().end(),
+                  std::bind(&LHERunInfoProduct::addHeader, product, std::placeholders::_1));
+    std::for_each(runInfo->getComments().begin(),
+                  runInfo->getComments().end(),
+                  std::bind(&LHERunInfoProduct::addComment, product, std::placeholders::_1));
+    if (not retValue) {
+      retValue = std::make_unique<LHERunInfoProduct>(std::move(product));
+    } else {
+      retValue->mergeProduct(product);
+    }
+  }
+
+  return retValue;
+}
+
 void ExternalLHEProducer::nextEvent() {
   if (partonLevel_)
     return;
@@ -590,14 +581,6 @@ void ExternalLHEProducer::nextEvent() {
       newFileOpened = false;
       partonLevel_ = reader_->next(&newFileOpened);
     } while (newFileOpened && !partonLevel_);
-  }
-  if (!partonLevel_)
-    return;
-
-  std::shared_ptr<lhef::LHERunInfo> runInfoThis = partonLevel_->getRunInfo();
-  if (runInfoThis != runInfoLast_) {
-    runInfo_ = runInfoThis;
-    runInfoLast_ = runInfoThis;
   }
 }
 

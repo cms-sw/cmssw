@@ -85,6 +85,8 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(EcalCondTowerObjectContainer<EcalDQMStatusCode>);
   PAYLOAD_2XML_CLASS(EcalFunParams);
   PAYLOAD_2XML_CLASS(EcalLaserAPDPNRatios);
+  PAYLOAD_2XML_CLASS(EcalMustacheSCParameters);
+  PAYLOAD_2XML_CLASS(EcalSCDynamicDPhiParameters);
   PAYLOAD_2XML_CLASS(EcalSRSettings);
   PAYLOAD_2XML_CLASS(EcalSampleMask);
   PAYLOAD_2XML_CLASS(EcalSamplesCorrelation);
@@ -103,6 +105,9 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(EcalTPGTowerStatus);
   PAYLOAD_2XML_CLASS(EcalTPGWeightGroup);
   PAYLOAD_2XML_CLASS(EcalTPGWeightIdMap);
+  PAYLOAD_2XML_CLASS(EcalTPGOddWeightGroup);
+  PAYLOAD_2XML_CLASS(EcalTPGOddWeightIdMap);
+  PAYLOAD_2XML_CLASS(EcalTPGTPMode);
   PAYLOAD_2XML_CLASS(EcalTimeBiasCorrections);
   PAYLOAD_2XML_CLASS(EcalTimeDependentCorrections);
   PAYLOAD_2XML_CLASS(EcalTimeOffsetConstant);

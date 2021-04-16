@@ -974,9 +974,17 @@ PixelVertexAssociatorByPositionAndTracks = VertexAssociatorByPositionAndTracks.c
     trackAssociation = "trackingParticlePixelTrackAsssociation"
 )
 
+_pixelTracksCustom = dict(
+    src = "pixelTracks",
+    vertexTag = "pixelVertices",
+)
+pixelTracksPt09 = generalTracksPt09.clone(quality = ["undefQuality"], **_pixelTracksCustom)
+pixelTracksFromPV = generalTracksFromPV.clone(quality = "undefQuality", **_pixelTracksCustom)
+pixelTracksFromPVPt09 = pixelTracksPt09.clone(src = "pixelTracksFromPV")
+
 trackValidatorPixelTrackingOnly = trackValidator.clone(
     dirName = "Tracking/PixelTrack/",
-    label = ["pixelTracks"],
+    label = ["pixelTracks", "pixelTracksPt09"],
     doResolutionPlotsForLabels = [],
     trackCollectionForDrCalculation = "pixelTracks",
     associators = ["trackingParticlePixelTrackAsssociation"],
@@ -985,13 +993,54 @@ trackValidatorPixelTrackingOnly = trackValidator.clone(
     dodEdxPlots = False,
     cores = cms.InputTag(""),
 )
+trackValidatorFromPVPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
+    dirName = "Tracking/PixelTrackFromPV/",
+    label = ["pixelTracksFromPV", "pixelTracksFromPVPt09"],
+    label_tp_effic = "trackingParticlesSignal",
+    label_tp_fake = "trackingParticlesSignal",
+    label_tp_effic_refvector = True,
+    label_tp_fake_refvector = True,
+    trackCollectionForDrCalculation = "pixelTracksFromPV",
+    doPlotsOnlyForTruePV = True,
+    doPVAssociationPlots = False,
+    doResolutionPlotsForLabels = ["disabled"],
+)
+trackValidatorFromPVAllTPPixelTrackingOnly = trackValidatorFromPVPixelTrackingOnly.clone(
+    dirName = "Tracking/PixelTrackFromPVAllTP/",
+    label_tp_effic = trackValidatorPixelTrackingOnly.label_tp_effic.value(),
+    label_tp_fake = trackValidatorPixelTrackingOnly.label_tp_fake.value(),
+    label_tp_effic_refvector = False,
+    label_tp_fake_refvector = False,
+    doSimPlots = False,
+    doSimTrackPlots = False,
+)
+trackValidatorBHadronPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
+    dirName = "Tracking/PixelTrackBHadron/",
+    label_tp_effic = "trackingParticlesBHadron",
+    label_tp_effic_refvector = True,
+    doSimPlots = True,
+    doRecoTrackPlots = False, # Fake rate is defined wrt. all TPs, and that is already included in trackValidator
+    dodEdxPlots = False,
+)
 
 tracksValidationTruthPixelTrackingOnly = tracksValidationTruth.copy()
 tracksValidationTruthPixelTrackingOnly.replace(trackingParticleRecoTrackAsssociation, trackingParticlePixelTrackAsssociation)
 tracksValidationTruthPixelTrackingOnly.replace(VertexAssociatorByPositionAndTracks, PixelVertexAssociatorByPositionAndTracks)
+tracksValidationTruthPixelTrackingOnly.add(trackingParticlesBHadron)
+
+tracksPreValidationPixelTrackingOnly = cms.Task(
+    tracksValidationTruthPixelTrackingOnly,
+    trackingParticlesSignal,
+    pixelTracksPt09,
+    pixelTracksFromPV,
+    pixelTracksFromPVPt09,
+)
 tracksValidationPixelTrackingOnly = cms.Sequence(
-    trackValidatorPixelTrackingOnly,
-    tracksValidationTruthPixelTrackingOnly
+    trackValidatorPixelTrackingOnly +
+    trackValidatorFromPVPixelTrackingOnly +
+    trackValidatorFromPVAllTPPixelTrackingOnly +
+    trackValidatorBHadronPixelTrackingOnly,
+    tracksPreValidationPixelTrackingOnly
 )
 
 

@@ -25,7 +25,7 @@ public:
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMpath,
-           std::vector<cmsdt::metaPrimitive> &metaPrimitives) override {}
+           std::vector<cmsdt::metaPrimitive> &metaPrimitives) override{};
   void run(edm::Event &iEvent,
            const edm::EventSetup &iEventSetup,
            MuonPathPtrs &inMpath,
@@ -38,7 +38,7 @@ public:
   void setMinHits4Fit(int h) { minHits4Fit_ = h; };
   void setChiSquareThreshold(float ch2Thr) { chiSquareThreshold_ = ch2Thr; };
   void setMinimumQuality(cmsdt::MP_QUALITY q) {
-    if (minQuality_ >= cmsdt::LOWQGHOST)
+    if (minQuality_ >= cmsdt::LOWQ)
       minQuality_ = q;
   };
 

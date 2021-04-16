@@ -1182,8 +1182,8 @@ class ROC:
 
 
 # Plot styles
-_plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3]
-_plotStylesMarker = [21, 20, 22, 34, 33]
+_plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3, ROOT.kGreen+2]
+_plotStylesMarker = [21, 20, 22, 34, 33, 23]
 
 def _drawFrame(pad, bounds, zmax=None, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ybinlabels=None, suffix=""):
     """Function to draw a frame
@@ -1967,10 +1967,11 @@ class Plot:
             if self._fit:
                 st.SetOptFit(0o010)
                 st.SetOptStat(1001)
+            st.SetOptStat(1110)
             st.SetX1NDC(startingX)
             st.SetX2NDC(startingX+0.3)
             st.SetY1NDC(startingY+dy)
-            st.SetY2NDC(startingY+dy+0.15)
+            st.SetY2NDC(startingY+dy+0.12)
             st.SetTextColor(col)
 
         dy = 0.0
@@ -1979,7 +1980,7 @@ class Plot:
                 dy += self._statyadjust[i]
 
             _doStats(h, _plotStylesColor[i], dy)
-            dy -= 0.19
+            dy -= 0.16
 
     def _normalize(self):
         """Normalise histograms to unit area"""

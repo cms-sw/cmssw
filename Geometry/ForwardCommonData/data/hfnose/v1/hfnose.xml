@@ -178,6 +178,7 @@
       0, 0, 0, 0, 0, 0, 0, 0</Vector>
     <Numeric name="FirstLayer"       value="1"/>
     <Numeric name="AbsorberMode"     value="0"/>
+    <Numeric name="SensitiveMode"    value="0"/>
     <Numeric name="WaferCentering"   value="0"/>
     <Numeric name="zMinBlock"        value="[HFNoseZ1]"/>
     <Vector name="rad100to200" type="numeric" nEntries="5">

@@ -45,10 +45,7 @@ process.hgcalEEParametersInitialize.fromDD4Hep = cms.bool(True)
 process.hgcalHESiParametersInitialize.fromDD4Hep = cms.bool(True)
 process.hgcalHEScParametersInitialize.fromDD4Hep = cms.bool(True)
 
-process.testEE = cms.EDAnalyzer("HGCalParameterTester",
-                                Name = cms.untracked.string("HGCalEESensitive"),
-                                Mode = cms.untracked.int32(0)
-)
-
+process.load("Geometry.HGCalCommonData.hgcParameterTesterEE_cfi")
+process.hgcParameterTesterEE.Mode = 0
  
-process.p1 = cms.Path(process.generator*process.testEE)
+process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE)

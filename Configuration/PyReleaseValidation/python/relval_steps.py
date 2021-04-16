@@ -2129,7 +2129,7 @@ steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           },dataReco])
 
 steps['RECOCOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['RECOCOSD']])
-steps['RECOCOSDRUN3']=merge([{'--conditions':'auto:run3_data_promptlike','--era':'Run3'},steps['RECOCOSD']])
+steps['RECOCOSDRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3'},steps['RECOCOSD']])
 steps['RECOCOSDEXPRUN3']=merge([{'--conditions':'auto:run3_data_express','--era':'Run3'},steps['RECOCOSD']])
 
 # step1 gensim for HI mixing
@@ -2186,8 +2186,11 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                   '--era'          :'Run2_2016'
                   }
 
-step3_pixelNtupleFit = {
-    '--procModifiers': 'pixelNtupleFit',
+step3_pixel_ntuplet_cpu = {
+    '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksSoAonCPU'
+}
+step3_pixel_triplets = {
+    '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksForTriplets'
 }
 step3_gpu = {
     '--procModifiers': 'gpu',
@@ -2320,8 +2323,11 @@ steps['RECODR2_2017reHLTSiPixelCalZeroBias_Prompt']=merge([{'--conditions':'auto
 steps['RECODR2_2018reHLT_Prompt']=merge([{'--conditions':'auto:run2_data'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_ZBPrompt']=merge([{'--conditions':'auto:run2_data','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@rerecoZeroBias+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']=merge([{'-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,DQM:@pixelTrackingOnlyDQM'},steps['RECODR2_2018reHLT_Prompt']])
-steps['RECODR2_2018reHLT_Patatrack_PixelOnlyCPU']=merge([step3_pixelNtupleFit, steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']])
+steps['RECODR2_2018reHLT_Patatrack_PixelOnlyCPU']=merge([step3_pixel_ntuplet_cpu, steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']])
 steps['RECODR2_2018reHLT_Patatrack_PixelOnlyGPU']=merge([step3_gpu, steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']])
+steps['RECODR2_2018reHLT_Patatrack_PixelOnlyTripletsCPU']=merge([step3_pixel_ntuplet_cpu, step3_pixel_triplets, steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']])
+steps['RECODR2_2018reHLT_Patatrack_PixelOnlyTripletsGPU']=merge([step3_gpu, step3_pixel_triplets, steps['RECODR2_2018reHLT_Prompt_pixelTrackingOnly']])
+
 steps['RECODR2_2018reHLT_ECALOnlyCPU']=merge([{'-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,DQM:@ecalOnly'},steps['RECODR2_2018reHLT_Prompt']])
 steps['RECODR2_2018reHLT_ECALOnlyGPU']=merge([step3_gpu, steps['RECODR2_2018reHLT_ECALOnlyCPU']])
 steps['RECODR2_2018reHLT_HCALOnlyCPU']=merge([{'-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,DQM:@hcalOnly+@hcal2Only'},steps['RECODR2_2018reHLT_Prompt']])
@@ -2539,7 +2545,7 @@ steps['ALCACOSD']={'--conditions':'auto:run1_data',
 
 steps['ALCACOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
 
-steps['ALCACOSDRUN3']=merge([{'--conditions':'auto:run3_data_promptlike','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
+steps['ALCACOSDRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
 steps['ALCACOSDEXPRUN3']=merge([{'--conditions':'auto:run3_data_express','--era':'Run3','-s':'ALCA:SiPixelCalCosmics+TkAlCosmics0T+SiStripCalCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM'},steps['ALCACOSD']])
 
 steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
@@ -2761,7 +2767,7 @@ steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvestingFakeHLT',
 
 steps['HARVESTDCRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['HARVESTDC']])
 
-steps['HARVESTDCRUN3']=merge([{'--conditions':'auto:run3_data_promptlike','--era':'Run3'},steps['HARVESTDC']])
+steps['HARVESTDCRUN3']=merge([{'--conditions':'auto:run3_data_prompt','--era':'Run3'},steps['HARVESTDC']])
 steps['HARVESTDCEXPRUN3']=merge([{'--conditions':'auto:run3_data_express','--era':'Run3'},steps['HARVESTDC']])
 
 steps['HARVESTDR2_REMINIAOD_data2016']=merge([{'--data':'', '-s':'HARVESTING:@miniAODDQM','--era':'Run2_2016,run2_miniAOD_80XLegacy'},steps['HARVESTDR2']])
@@ -3221,15 +3227,15 @@ steps['NanoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 # imported from above, only non-empty values should be provided here
-defaultDataSets['2017']='CMSSW_11_2_0_pre8-112X_mc2017_realistic_v3-v'
-defaultDataSets['2017Design']='CMSSW_11_2_0_pre8-112X_mc2017_design_v1-v'
-defaultDataSets['2018']='CMSSW_11_2_0_pre8-112X_upgrade2018_realistic_v4-v'
-defaultDataSets['2018Design']='CMSSW_11_2_0_pre8-112X_upgrade2018_design_v3-v'
-defaultDataSets['2021']='CMSSW_11_2_0_pre8-112X_mcRun3_2021_realistic_v10-v'
-defaultDataSets['2021Design']='CMSSW_11_2_0_pre8-112X_mcRun3_2021_design_v10-v'
-defaultDataSets['2023']='CMSSW_11_2_0_pre8-112X_mcRun3_2023_realistic_v10-v'
-defaultDataSets['2024']='CMSSW_11_2_0_pre8-112X_mcRun3_2024_realistic_v10-v'
-defaultDataSets['2026D49']='CMSSW_11_2_0_pre8-112X_mcRun4_realistic_v3_2026D49noPU-v'
+defaultDataSets['2017']='CMSSW_11_3_0_pre4-113X_mc2017_realistic_v4-v'
+defaultDataSets['2017Design']='CMSSW_11_3_0_pre4-113X_mc2017_design_v4-v'
+defaultDataSets['2018']='CMSSW_11_3_0_pre4-113X_upgrade2018_realistic_v4-v'
+defaultDataSets['2018Design']='CMSSW_11_3_0_pre4-113X_upgrade2018_design_v4-v'
+defaultDataSets['2021']='CMSSW_11_3_0_pre4-113X_mcRun3_2021_realistic_v7-v'
+defaultDataSets['2021Design']='CMSSW_11_3_0_pre4-113X_mcRun3_2021_design_v5-v'
+defaultDataSets['2023']='CMSSW_11_3_0_pre4-113X_mcRun3_2023_realistic_v5-v'
+defaultDataSets['2024']='CMSSW_11_3_0_pre4-113X_mcRun3_2024_realistic_v5-v'
+defaultDataSets['2026D49']='CMSSW_11_3_0_pre4-113X_mcRun4_realistic_v4_2026D49noPU_rsb-v'
 defaultDataSets['2026D76']='CMSSW_11_3_0_pre3-113X_mcRun4_realistic_v3_2026D76noPU-v'
 
 puDataSets = {}

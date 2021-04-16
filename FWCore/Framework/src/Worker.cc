@@ -208,9 +208,10 @@ namespace edm {
                                          EventPrincipal const* iPrincipal) {
     successTask->increment_ref_count();
 
+    ServiceWeakToken weakToken = token;
     auto choiceTask =
-        edm::make_waiting_task([id, successTask, iPrincipal, this, token, &group](std::exception_ptr const*) {
-          ServiceRegistry::Operate guard(token);
+        edm::make_waiting_task([id, successTask, iPrincipal, this, weakToken, &group](std::exception_ptr const*) {
+          ServiceRegistry::Operate guard(weakToken.lock());
           // There is no reasonable place to rethrow, and implDoPrePrefetchSelection() should not throw in the first place.
           CMS_SA_ALLOW try {
             if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
@@ -271,18 +272,20 @@ namespace edm {
 
     if UNLIKELY (tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism) == 1) {
       auto taskGroup = iTask.group();
-      taskGroup->run([this, task = std::move(iTask), iTrans, &iImpl, iToken]() {
+      ServiceWeakToken weakToken = iToken;
+      taskGroup->run([this, task = std::move(iTask), iTrans, &iImpl, weakToken]() {
         std::exception_ptr exceptPtr{};
-        iImpl.taskArena()->execute([this, iTrans, &iImpl, iToken, &exceptPtr]() {
+        iImpl.taskArena()->execute([this, iTrans, &iImpl, weakToken, &exceptPtr]() {
           exceptPtr = syncWait([&](WaitingTaskHolder&& iHolder) {
             auto const& recs = esRecordsToGetFrom(iTrans);
             auto const& items = esItemsToGetFrom(iTrans);
             auto hWaitTask = std::move(iHolder);
+            auto token = weakToken.lock();
             for (size_t i = 0; i != items.size(); ++i) {
               if (recs[i] != ESRecordIndex{}) {
                 auto rec = iImpl.findImpl(recs[i]);
                 if (rec) {
-                  rec->prefetchAsync(hWaitTask, items[i], &iImpl, iToken, ESParentContext(&moduleCallingContext_));
+                  rec->prefetchAsync(hWaitTask, items[i], &iImpl, token, ESParentContext(&moduleCallingContext_));
                 }
               }
             }

@@ -15,8 +15,8 @@
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavour.h"
+#include "DataFormats/JetMatching/interface/JetFlavourMatching.h"
 
 class printGenJetRatio : public edm::EDAnalyzer {
 public:

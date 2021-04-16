@@ -24,9 +24,7 @@ public:
   PreMixingMTDWorker(const PreMixingMTDWorker&) = delete;
   PreMixingMTDWorker& operator=(const PreMixingMTDWorker&) = delete;
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& ES) override;
-  void endRun() override;
-  void initializeEvent(const edm::Event& e, const edm::EventSetup& ES) override {}
+  void initializeEvent(const edm::Event& e, const edm::EventSetup& ES) override;
   void addSignals(const edm::Event& e, const edm::EventSetup& ES) override;
   void addPileups(const PileUpEventPrincipal&, const edm::EventSetup& ES) override;
   void put(edm::Event& e, const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) override;
@@ -47,9 +45,9 @@ PreMixingMTDWorker::PreMixingMTDWorker(const edm::ParameterSet& ps,
       digitizer_(MTDDigitizerFactory::get()->create(
           ps.getParameter<std::string>("digitizerName"), ps, producesCollector, iC)) {}
 
-void PreMixingMTDWorker::beginRun(const edm::Run& run, const edm::EventSetup& ES) { digitizer_->beginRun(ES); }
-
-void PreMixingMTDWorker::endRun() { digitizer_->endRun(); }
+void PreMixingMTDWorker::initializeEvent(const edm::Event& e, const edm::EventSetup& ES) {
+  digitizer_->initializeEvent(e, ES);
+}
 
 void PreMixingMTDWorker::addSignals(const edm::Event& e, const edm::EventSetup& ES) {
   edm::Handle<PMTDSimAccumulator> handle;

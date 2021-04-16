@@ -8,8 +8,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Common.h"
-
 class EcalUncalibRecHitConvertGPU2CPUFormat : public edm::stream::EDProducer<> {
 public:
   explicit EcalUncalibRecHitConvertGPU2CPUFormat(edm::ParameterSet const& ps);

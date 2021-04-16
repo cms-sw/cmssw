@@ -19,6 +19,7 @@
 
 #include "L1Trigger/DTTriggerPhase2/interface/MuonPath.h"
 #include "L1Trigger/DTTriggerPhase2/interface/constants.h"
+#include "L1Trigger/DTTriggerPhase2/interface/GlobalCoordsObtainer.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"

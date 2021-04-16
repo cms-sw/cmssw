@@ -12,8 +12,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfo.h"
+#include "DataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/NanoAOD/interface/FlatTable.h"

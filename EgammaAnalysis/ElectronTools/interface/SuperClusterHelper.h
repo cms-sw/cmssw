@@ -107,7 +107,6 @@ private:
   /// cached variables
   /// covariance matrix
   bool covComputed_;
-  std::vector<float> vCov_;
   float spp_;
   float sep_;
   /// local coordinates

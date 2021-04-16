@@ -47,7 +47,6 @@ namespace edm {
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class SharedResourcesAcquirer;
-  class InputProductResolver;
   class UnscheduledConfigurator;
 
   struct FilledProductPtr {
@@ -209,7 +208,7 @@ namespace edm {
     ProductResolverBase const* getExistingProduct(BranchID const& branchID) const;
     ProductResolverBase const* getExistingProduct(ProductResolverBase const& phb) const;
 
-    void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
+    void put_(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     //F must take an argument of type ProductResolverBase*
     template <typename F>
@@ -225,7 +224,8 @@ namespace edm {
 
     void addScheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addSourceProduct(std::shared_ptr<BranchDescription const> bd);
-    void addInputProduct(std::shared_ptr<BranchDescription const> bd);
+    void addDelayedReaderInputProduct(std::shared_ptr<BranchDescription const> bd);
+    void addPutOnReadInputProduct(std::shared_ptr<BranchDescription const> bd);
     void addUnscheduledProduct(std::shared_ptr<BranchDescription const> bd);
     void addAliasedProduct(std::shared_ptr<BranchDescription const> bd);
     void addSwitchProducerProduct(std::shared_ptr<BranchDescription const> bd);
@@ -264,7 +264,7 @@ namespace edm {
                                           SharedResourcesAcquirer* sra,
                                           ModuleCallingContext const* mcc) const;
 
-    void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;
+    void put_(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;
 
     std::shared_ptr<ProcessHistory const> processHistoryPtr_;
 

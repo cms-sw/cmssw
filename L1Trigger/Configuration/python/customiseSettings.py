@@ -10,6 +10,10 @@ def L1TSettingsToCaloParams_2018_v1_4(process):
     process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_4_cfi")
     return process
 
+def L1TSettingsToCaloParams_2018_v1_3(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_3_cfi")
+    return process
+
 def L1TSettingsToCaloParams_2018_v1_2(process):
     process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_2_cfi")
     return process

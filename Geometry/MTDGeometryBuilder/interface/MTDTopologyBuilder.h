@@ -14,13 +14,14 @@ public:
   MTDTopologyBuilder();
 
   PixelTopology* build(const Bounds* bounds,
-                       bool upgradeGeometry,
-                       int ROWS_PER_ROC,       // Num of Rows per ROC
-                       int COLS_PER_ROC,       // Num of Cols per ROC
-                       int BIG_PIX_PER_ROC_X,  // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
-                       int BIG_PIX_PER_ROC_Y,  // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+                       int ROWS_PER_ROC,  // Num of Rows per ROC
+                       int COLS_PER_ROC,  // Num of Cols per ROC
                        int ROCS_X,
-                       int ROCS_Y);
+                       int ROCS_Y,
+                       int GAPxInterpad,  //This value is given in microns
+                       int GAPxBorder,    //This value is given in microns
+                       int GAPyInterpad,  //This value is given in microns
+                       int GAPyBorder);   //This value is given in microns
 };
 
 #endif

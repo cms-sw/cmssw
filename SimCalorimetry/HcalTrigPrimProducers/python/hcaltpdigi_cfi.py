@@ -81,6 +81,8 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
         cms.InputTag('simHcalUnsuppressedDigis:HBHEQIE11DigiCollection'),
         cms.InputTag('simHcalUnsuppressedDigis:HFQIE10DigiCollection')),
     InputTagFEDRaw = cms.InputTag("rawDataCollector"),
+    overrideDBweightsAndFilterHB = cms.bool(False),
+    overrideDBweightsAndFilterHE = cms.bool(False),
     RunZS = cms.bool(False),
     FrontEndFormatError = cms.bool(False), # Front End Format Error, for real data only
     PeakFinderAlgorithm = cms.int32(2),

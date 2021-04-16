@@ -4,9 +4,9 @@
 #include <vector>
 
 #include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
+#include "CondFormats/EcalObjects/interface/ElectronicsMappingGPU.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h"
-#include "EventFilter/EcalRawToDigi/interface/ElectronicsMappingGPU.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
