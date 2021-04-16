@@ -310,7 +310,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
 
   if (hasDigis) {
     // Get halfstrip times from comparator digis.
-    std::vector<int> halfStripTimes[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS];
+    std::vector<int> halfStripTimes[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS];
     readComparatorDigis(halfStripTimes);
 
     // Pass arrays of halfstrips on to another run() doing the
@@ -321,7 +321,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
     // to the number of planes required to pre-trigger.)
     unsigned int layersHit = 0;
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-      for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
+      for (int i_hstrip = 0; i_hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
         if (!halfStripTimes[i_layer][i_hstrip].empty()) {
           layersHit++;
           break;
@@ -1472,7 +1472,7 @@ unsigned CSCCathodeLCTProcessor::convertSlopeToRun2Pattern(const unsigned slope)
 }
 
 void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
-    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
+    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS]) {
   inTimeHMT_ = 0;
   outTimeHMT_ = 0;
 
@@ -1484,7 +1484,7 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(
   unsigned hitsInTime = 0;
   unsigned hitsOutTime = 0;
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    for (int i_hstrip = 0; i_hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
+    for (int i_hstrip = 0; i_hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS; i_hstrip++) {
       auto times = halfstrip[i_layer][i_hstrip];
       hitsInTime += std::count_if(times.begin(), times.end(), inTime);
       hitsOutTime += std::count_if(times.begin(), times.end(), outTime);
