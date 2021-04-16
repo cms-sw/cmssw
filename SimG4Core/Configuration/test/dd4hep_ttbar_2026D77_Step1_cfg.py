@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C9_dd4hep_cff import Phase2C9_dd4hep
+from Configuration.Eras.Era_Phase2C11_dd4hep_cff import Phase2C11_dd4hep
 
-process = cms.Process('SIM',Phase2C9_dd4hep)
+process = cms.Process('SIM',Phase2C11_dd4hep)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,7 +10,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryDD4hepExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryDD4hepExtended2026D77_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -22,6 +22,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.cerr.Geometry=dict()
     process.MessageLogger.cerr.SimG4CoreApplication=dict()
+    process.MessageLogger.cerr.HGCalGeom=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10),
@@ -85,7 +86,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     PythiaParameters = cms.PSet(
