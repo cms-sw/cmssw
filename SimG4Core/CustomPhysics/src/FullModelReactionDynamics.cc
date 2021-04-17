@@ -404,9 +404,8 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
               delete vec[i];
             vecLen = 0;
             G4ExceptionDescription ed;
-	    ed << "FullModelReactionDynamics::GenerateXandPt : a pion has been counted as a backward nucleon";
-	    G4Exception("FullModelReactionDynamics::GenerateXandPt", "had064", 
-                        FatalException, ed);
+            ed << "FullModelReactionDynamics::GenerateXandPt : a pion has been counted as a backward nucleon";
+            G4Exception("FullModelReactionDynamics::GenerateXandPt", "had064", FatalException, ed);
           }
           vec[i]->SetSide(-3);
           ++backwardNucleonCount;
@@ -1339,8 +1338,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
       vecLen = 0;
       G4ExceptionDescription ed;
       ed << "Negative number of particles";
-      G4Exception("FullModelReactionDynamics::TwoCluster", "had064", 
-		  FatalException, ed);
+      G4Exception("FullModelReactionDynamics::TwoCluster", "had064", FatalException, ed);
     }
     delete vec[vecLen - 1];
     delete vec[vecLen - 2];

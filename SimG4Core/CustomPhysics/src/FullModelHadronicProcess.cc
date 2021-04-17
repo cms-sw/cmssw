@@ -597,8 +597,7 @@ void FullModelHadronicProcess::CalculateMomenta(
     } catch (G4HadronicException& aR) {
       G4ExceptionDescription ed;
       aR.Report(ed);
-      G4Exception("FullModelHadronicProcess::CalculateMomenta", "had066", 
-                  FatalException, ed);
+      G4Exception("FullModelHadronicProcess::CalculateMomenta", "had066", FatalException, ed);
     }
   }
   if (finishedTwoClu) {

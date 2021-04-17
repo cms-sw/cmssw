@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------
 //
-// 15.04.2021 V.Ivanchenko Hadron inelastic physics based on 
-//                         QGSP_FTFP_BERT of CMS migrated to Geant4 10.7  
+// 15.04.2021 V.Ivanchenko Hadron inelastic physics based on
+//                         QGSP_FTFP_BERT of CMS migrated to Geant4 10.7
 //
 //--------------------------------------------------------------------
 
@@ -23,8 +23,7 @@ public:
 
   // copy constructor and hide assignment operator
   HadronPhysicsQGSPCMS_FTFP_BERT(HadronPhysicsQGSPCMS_FTFP_BERT &) = delete;
-  HadronPhysicsQGSPCMS_FTFP_BERT &operator=
-  (const HadronPhysicsQGSPCMS_FTFP_BERT &right) = delete;
+  HadronPhysicsQGSPCMS_FTFP_BERT &operator=(const HadronPhysicsQGSPCMS_FTFP_BERT &right) = delete;
 };
 
 #endif

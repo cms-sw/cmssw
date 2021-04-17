@@ -15,16 +15,13 @@ DummyChargeFlipProcess::DummyChargeFlipProcess(const G4String& pname) : G4Hadron
   fPartChange = new G4ParticleChange();
 }
 
-DummyChargeFlipProcess::~DummyChargeFlipProcess() {
-  delete fPartChange;
-}
+DummyChargeFlipProcess::~DummyChargeFlipProcess() { delete fPartChange; }
 
 G4bool DummyChargeFlipProcess::IsApplicable(const G4ParticleDefinition& aParticleType) {
   return (aParticleType.GetParticleType() == "rhadron");
 }
 
 G4VParticleChange* DummyChargeFlipProcess::PostStepDoIt(const G4Track& aTrack, const G4Step&) {
-
   fPartChange->Initialize(aTrack);
   const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
 
