@@ -40,7 +40,6 @@ public:
   G4ProcessHelper& operator=(const G4ProcessHelper&) = delete;
 
 private:
-
   G4double Regge(const double boost);
   G4double Pom(const double boost);
 
