@@ -182,13 +182,20 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       // return tracks->chi2(it);  //chi2
     };
 
+    // find maxQual
+    auto maxQual = loose;
+    for (auto it : thisCell.tracks()) {
+     if (tracks->quality(it) > maxQual) maxQual = tracks->quality(it);
+    }
+
     // find min score
     for (auto it : thisCell.tracks()) {
-      if (tracks->quality(it) >= loose && score(it) < mc) {
+      if (tracks->quality(it) == maxQual && score(it) < mc) {
         mc = score(it);
         im = it;
       }
     }
+
     // mark all other duplicates
     for (auto it : thisCell.tracks()) {
       if (tracks->quality(it) != bad && it != im)
