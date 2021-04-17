@@ -55,6 +55,7 @@ private:
   std::string name_;
   int nchar_;
   std::string fileMat_, fileSolid_, fileLV_, filePV_, fileTouch_;
+  bool fileDetail_;
   std::vector<std::string> names_;
   G4VPhysicalVolume* theTopPV_;
   G4NavigationHistory fHistory_;
