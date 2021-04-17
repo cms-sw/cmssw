@@ -1,11 +1,9 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="CondFormats/RPCObjects"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/DataRecord"/>
-<use name="L1Trigger/RPCTrigger"/>
-<use name="DataFormats/RPCDigi"/>
+<use name="Geometry/RPCGeometry"/>
 <library file="RPCConeConnectionsAna.cc" name="RPCConeConnectionsAna">
   <flags EDM_PLUGIN="1"/>
 </library>

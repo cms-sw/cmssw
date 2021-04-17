@@ -40,18 +40,41 @@ namespace magneticfield {
     void referencePlane(const cms::DDFilteredView& fv);
 
     // Build the surfaces for a box
-    void buildBox();
+    void buildBox(double halfX, double halfY, double halfZ);
     // Build the surfaces for a trapezoid
-    void buildTrap();
+    void buildTrap(double x1,
+                   double x2,
+                   double x3,
+                   double x4,
+                   double y1,
+                   double y2,
+                   double theta,
+                   double phi,
+                   double halfZ,
+                   double alpha1,
+                   double alpha2);
     // Build the surfaces for a ddtubs shape
-    void buildTubs();
+    void buildTubs(double zhalf, double rIn, double rOut, double startPhi, double deltaPhi);
     // Build the surfaces for a ddcons shape
-    void buildCons();
+    void buildCons(double zhalf,
+                   double rInMinusZ,
+                   double rOutMinusZ,
+                   double rInPlusZ,
+                   double rOutPlusZ,
+                   double startPhi,
+                   double deltaPhi);
     // Build the surfaces for a ddpseudotrap. This is not a supported
     // shape in DD4hep; it is handled here to cope with legacy geometries.
     void buildPseudoTrap(double x1, double x2, double y1, double y2, double halfZ, double radius, bool atMinusZ);
     // Build the surfaces for a ddtrunctubs shape
-    void buildTruncTubs();
+    void buildTruncTubs(double zhalf,
+                        double rIn,
+                        double rOut,
+                        double startPhi,
+                        double deltaPhi,
+                        double cutAtStart,
+                        double cutAtDelta,
+                        bool cutInside);
 
     // Shape at initialization
     const DDSolidShape theShape;

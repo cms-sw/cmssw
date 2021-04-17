@@ -10,6 +10,8 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <memory>
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboardME11.h"
 
 CSCMotherboardME11::CSCMotherboardME11(unsigned endcap,
@@ -19,20 +21,24 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap,
                                        unsigned chamber,
                                        const edm::ParameterSet& conf)
     : CSCUpgradeMotherboard(endcap, station, sector, subsector, chamber, conf) {
-  if (!isSLHC_)
-    edm::LogError("CSCMotherboardME11|ConfigError")
-        << "+++ Upgrade CSCMotherboardME11 constructed while isSLHC_ is not set! +++\n";
+  if (!runPhase2_)
+    edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while runPhase2_ is not set! +++\n";
 
-  cscTmbLUT_.reset(new CSCMotherboardLUTME11());
+  if (!runME11Up_)
+    edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
+
+  cscTmbLUT_ = std::make_unique<CSCMotherboardLUTME11>();
 
   // ignore unphysical ALCT-CLCT matches
   ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
 }
 
 CSCMotherboardME11::CSCMotherboardME11() : CSCUpgradeMotherboard() {
-  if (!isSLHC_)
-    edm::LogError("CSCMotherboardME11|ConfigError")
-        << "+++ Upgrade CSCMotherboardME11 constructed while isSLHC_ is not set! +++\n";
+  if (!runPhase2_)
+    edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while runPhase2_ is not set! +++\n";
+
+  if (!runME11Up_)
+    edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
 }
 
 CSCMotherboardME11::~CSCMotherboardME11() {}
@@ -50,9 +56,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
   clear();
 
   // Check for existing processors
-  if (!(alctProc && clctProc && isSLHC_)) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboardME11|SetupError") << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
+  if (!(alctProc && clctProc)) {
+    edm::LogError("CSCMotherboardME11|SetupError") << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
 
@@ -67,8 +72,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
     return;
 
   // encode high multiplicity bits
-  unsigned alctBits = alctProc->getHighMultiplictyBits();
-  encodeHighMultiplicityBits(alctBits);
+  encodeHighMultiplicityBits();
 
   int used_alct_mask[20];
   int used_clct_mask[20];
@@ -80,8 +84,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
     for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_TBINS; bx_clct++) {
       if (clctProc->getBestCLCT(bx_clct).isValid()) {
         bool is_matched = false;
-        const int bx_alct_start = bx_clct - match_trig_window_size / 2 + alctClctOffset_;
-        const int bx_alct_stop = bx_clct + match_trig_window_size / 2 + alctClctOffset_;
+        const int bx_alct_start = bx_clct - match_trig_window_size / 2 + CSCConstants::ALCT_CLCT_OFFSET;
+        const int bx_alct_stop = bx_clct + match_trig_window_size / 2 + CSCConstants::ALCT_CLCT_OFFSET;
         for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
           if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
             continue;
@@ -120,8 +124,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
   } else {
     for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
       if (alctProc->getBestALCT(bx_alct).isValid()) {
-        const int bx_clct_start = bx_alct - match_trig_window_size / 2 - alctClctOffset_;
-        const int bx_clct_stop = bx_alct + match_trig_window_size / 2 - alctClctOffset_;
+        const int bx_clct_start = bx_alct - match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET;
+        const int bx_clct_stop = bx_alct + match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET;
 
         // matching in ME11
         bool is_matched = false;
@@ -273,6 +277,13 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab) con
     } else
       tmpV.push_back(*plct);
   }
+
+  // do a final check on the LCTs in readout
+  qualityControl_->checkMultiplicityBX(tmpV);
+  for (const auto& lct : tmpV) {
+    qualityControl_->checkValid(lct);
+  }
+
   return tmpV;
 }
 

@@ -40,6 +40,9 @@
   <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="bool fittable" target="fittable_">
   <![CDATA[fittable_ = onfile.fittable;]]>
   </ioread>
+  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="TotemRPUVPattern::ProjectionType projection" target="projection_">
+  <![CDATA[projection_ = onfile.projection;]]>
+  </ioread>
   <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="edm::DetSetVector<TotemRPRecHit> hits" target="hits_">
   <![CDATA[hits_ = onfile.hits;]]>
   </ioread>

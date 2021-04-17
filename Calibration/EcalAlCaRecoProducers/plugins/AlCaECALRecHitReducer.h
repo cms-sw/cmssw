@@ -26,16 +26,18 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -44,14 +46,14 @@
 //! class declaration
 //!
 
-class AlCaECALRecHitReducer : public edm::EDProducer {
+class AlCaECALRecHitReducer : public edm::global::EDProducer<> {
 public:
   //! ctor
   explicit AlCaECALRecHitReducer(const edm::ParameterSet&);
   ~AlCaECALRecHitReducer() override;
 
   //! producer
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   // ----------member data ---------------------------
@@ -64,6 +66,7 @@ private:
 
   edm::EDGetTokenT<reco::PhotonCollection> photonToken_;
   edm::EDGetTokenT<reco::SuperClusterCollection> EESuperClusterToken_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
   std::string alcaBarrelHitsCollection_;
   std::string alcaEndcapHitsCollection_;
   std::string alcaPreshowerHitsCollection_;
@@ -81,7 +84,7 @@ private:
 
   void AddMiniRecHitCollection(const reco::SuperCluster& sc,
                                std::set<DetId>& reducedRecHitMap,
-                               const CaloTopology* caloTopology);
+                               const CaloTopology* caloTopology) const;
 };
 
 #endif

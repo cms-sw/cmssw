@@ -6,6 +6,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -56,6 +57,10 @@ std::unique_ptr<Phase2TrackerRecHit1D> TkClonerImpl::operator()(Phase2TrackerRec
   return std::make_unique<Phase2TrackerRecHit1D>(params.first, params.second, *hit.det(), hit.cluster());
 }
 
+std::unique_ptr<VectorHit> TkClonerImpl::operator()(VectorHit const& hit, TrajectoryStateOnSurface const& tsos) const {
+  return std::make_unique<VectorHit>(hit);
+}
+
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiPixelRecHit const& hit,
                                                             TrajectoryStateOnSurface const& tsos) const {
   // std::cout << "cloning " << typeid(hit).name() << std::endl;
@@ -90,6 +95,11 @@ TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(Phase2TrackerRecHit1
   const PixelGeomDetUnit& gdu = (const PixelGeomDetUnit&)*(hit.detUnit());
   auto&& params = phase2TrackerCPE->localParameters(clust, gdu, tsos);
   return std::make_unique<Phase2TrackerRecHit1D>(params.first, params.second, *hit.det(), hit.cluster());
+}
+
+TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(VectorHit const& hit,
+                                                            TrajectoryStateOnSurface const& tsos) const {
+  return std::make_shared<VectorHit>(hit);
 }
 
 namespace {

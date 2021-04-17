@@ -10,14 +10,13 @@
 //#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 //#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
-class RecoGeometryRecord
-    : public edm::eventsetup::DependentRecordImplementation<
-          RecoGeometryRecord,
-          boost::mpl::vector<TrackerRecoGeometryRecord, MuonRecoGeometryRecord, MTDRecoGeometryRecord
-                             //,NavigationSchoolRecord,
-                             //IdealMagneticFieldRecord
-                             > > {};
+class RecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<
+                               RecoGeometryRecord,
+                               edm::mpl::Vector<TrackerRecoGeometryRecord, MuonRecoGeometryRecord, MTDRecoGeometryRecord
+                                                //,NavigationSchoolRecord,
+                                                //IdealMagneticFieldRecord
+                                                > > {};
 
 #endif

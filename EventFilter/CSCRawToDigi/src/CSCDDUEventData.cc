@@ -1,6 +1,6 @@
 /* CSCDDUEventData.cc
- * Modified 4/21/03 to get rid of arrays and store all CSC data 
- * in vectors. 
+ * Modified 4/21/03 to get rid of arrays and store all CSC data
+ * in vectors.
  * A.Tumanov
  */
 
@@ -10,7 +10,7 @@
 #include <iostream>
 #include <cstdio>
 
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
 
 #ifdef LOCAL_UNPACK
 bool CSCDDUEventData::debug = false;

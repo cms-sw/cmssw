@@ -11,7 +11,8 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
 #include <memory>
 
-SiStripRawProcessingAlgorithms::SiStripRawProcessingAlgorithms(std::unique_ptr<SiStripPedestalsSubtractor> ped,
+SiStripRawProcessingAlgorithms::SiStripRawProcessingAlgorithms(edm::ConsumesCollector iC,
+                                                               std::unique_ptr<SiStripPedestalsSubtractor> ped,
                                                                std::unique_ptr<SiStripCommonModeNoiseSubtractor> cmn,
                                                                std::unique_ptr<SiStripFedZeroSuppression> zs,
                                                                std::unique_ptr<SiStripAPVRestorer> res,
@@ -22,7 +23,8 @@ SiStripRawProcessingAlgorithms::SiStripRawProcessingAlgorithms(std::unique_ptr<S
       suppressor(std::move(zs)),
       restorer(std::move(res)),
       doAPVRestore(doAPVRest),
-      useCMMeanMap(useCMMap) {}
+      useCMMeanMap(useCMMap),
+      tkGeomToken_(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {}
 
 void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es) {
   subtractorPed->init(es);
@@ -31,9 +33,7 @@ void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es) {
   if (restorer.get())
     restorer->init(es);
 
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-  trGeo = tracker.product();
+  trGeo = &es.getData(tkGeomToken_);
 }
 
 void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const edm::Event& e) {

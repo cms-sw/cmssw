@@ -74,22 +74,15 @@ elPFIsoValuePU03PFId = cms.EDProducer("PFCandIsolatorFromDeposits",
 
 
 
-elPFIsoValueCharged04PFId = elPFIsoValueCharged03PFId.clone()
-elPFIsoValueCharged04PFId.deposits[0].deltaR = cms.double(0.4)
+elPFIsoValueCharged04PFId = elPFIsoValueCharged03PFId.clone(deposits = {0: dict(deltaR = 0.4)})
 
+elPFIsoValueChargedAll04PFId = elPFIsoValueChargedAll03PFId.clone(deposits = {0: dict(deltaR = 0.4)})
 
-elPFIsoValueChargedAll04PFId = elPFIsoValueChargedAll03PFId.clone()
-elPFIsoValueChargedAll04PFId.deposits[0].deltaR = cms.double(0.4)
+elPFIsoValueGamma04PFId = elPFIsoValueGamma03PFId.clone(deposits = {0: dict(deltaR = 0.4)})
 
-elPFIsoValueGamma04PFId = elPFIsoValueGamma03PFId.clone()
-elPFIsoValueGamma04PFId.deposits[0].deltaR = cms.double(0.4)
+elPFIsoValueNeutral04PFId = elPFIsoValueNeutral03PFId.clone(deposits = {0: dict(deltaR = 0.4)})
 
-
-elPFIsoValueNeutral04PFId = elPFIsoValueNeutral03PFId.clone()
-elPFIsoValueNeutral04PFId.deposits[0].deltaR = cms.double(0.4)
-
-elPFIsoValuePU04PFId = elPFIsoValuePU03PFId.clone()
-elPFIsoValuePU04PFId.deposits[0].deltaR = cms.double(0.4)
+elPFIsoValuePU04PFId = elPFIsoValuePU03PFId.clone(deposits = {0: dict(deltaR = 0.4)})
 
 ##########Now the PFNoId
 elPFIsoValueCharged03NoPFId     =  elPFIsoValueCharged03PFId.clone()           

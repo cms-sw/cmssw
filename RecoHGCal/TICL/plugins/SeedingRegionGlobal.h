@@ -25,6 +25,8 @@ namespace ticl {
     void initialize(const edm::EventSetup& es) override{};
 
     void makeRegions(const edm::Event& ev, const edm::EventSetup& es, std::vector<TICLSeedingRegion>& result) override;
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc);
   };
 }  // namespace ticl
 #endif

@@ -19,7 +19,7 @@
    <Parameter name="Depth2Name" value="EATJ" eval="false"/>
   </SpecPar>
   <SpecPar name="ecal_ee">
-   <PartSelector path="//EFRY"/>
+   <PartSelector path="//EFRY.*"/>
    <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="EcalHitsEE" eval="false"/>
    <Parameter name="ncrys" value="25.0"/>

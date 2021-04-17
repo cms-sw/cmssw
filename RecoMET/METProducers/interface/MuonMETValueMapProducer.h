@@ -49,6 +49,7 @@ namespace cms {
                                  double& deltay,
                                  const reco::Muon& muon,
                                  double bfield,
+                                 const MagneticField& magneticField,
                                  edm::Event& iEvent,
                                  const edm::EventSetup& iSetup);
     reco::MuonMETCorrectionData::Type decide_correction_type(const reco::Muon& muon,

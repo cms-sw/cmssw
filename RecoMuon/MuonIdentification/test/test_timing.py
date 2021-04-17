@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 from Configuration.StandardSequences.Reconstruction_cff import *
 
@@ -44,7 +44,7 @@ process.muonAnalyzer = cms.EDAnalyzer("MuonTimingValidator",
 )
 
 process.prefer("GlobalTag")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_Prompt_v9', '')
 
 process.p = cms.Path(muontiming)

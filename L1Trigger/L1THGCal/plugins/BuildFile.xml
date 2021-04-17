@@ -1,16 +1,10 @@
 <library name="L1TriggerL1THGCalPlugins" file="*.cc">
-  <use name="Geometry/HGCalGeometry"/>
-  <use name="Geometry/HcalTowerAlgo"/>
-  <use name="Geometry/CaloTopology"/>
   <use name="L1Trigger/L1THGCal"/>
   <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="L1TriggerL1THGCalPlugins_geometries" file="geometries/*.cc">
-  <use name="Geometry/HGCalGeometry"/>
-  <use name="Geometry/HcalTowerAlgo"/>
-  <use name="Geometry/CaloTopology"/>
   <use name="L1Trigger/L1THGCal"/>
   <use name="tbb"/>
   <flags EDM_PLUGIN="1"/>
@@ -18,13 +12,9 @@
 
 <library name="L1TriggerL1THGCalPlugins_fe_be" file="veryfrontend/*.cc, concentrator/*.cc, backend/*.cc">
   <use name="CommonTools/MVAUtils"/>
-  <use name="Geometry/HGCalGeometry"/>
-  <use name="Geometry/HcalTowerAlgo"/>
-  <use name="Geometry/CaloTopology"/>
   <use name="Geometry/Records"/>
   <use name="rootcore"/>
   <use name="L1Trigger/L1THGCal"/>
   <use name="DataFormats/L1THGCal"/>
-  <use name="SimDataFormats/CaloTest"/>
   <flags EDM_PLUGIN="1"/>
 </library>

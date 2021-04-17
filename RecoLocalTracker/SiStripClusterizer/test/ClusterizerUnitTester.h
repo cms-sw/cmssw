@@ -17,15 +17,15 @@ class ClusterizerUnitTester : public edm::EDAnalyzer {
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
 
 public:
-  ClusterizerUnitTester(const PSet& conf) : testGroups(conf.getParameter<VPSet>("ClusterizerTestGroups")) {}
+  explicit ClusterizerUnitTester(const PSet& conf);
   ~ClusterizerUnitTester() {}
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&);
 
   void initializeTheGroup(const PSet&, const edm::EventSetup&);
-  void testTheGroup(const PSet&);
-  void runTheTest(const PSet&);
+  void testTheGroup(const PSet&, const StripClusterizerAlgorithm*);
+  void runTheTest(const PSet&, const StripClusterizerAlgorithm*);
 
   void constructClusters(const VPSet&, output_t&);
   void constructDigis(const VPSet&, edmNew::DetSetVector<SiStripDigi>&);
@@ -39,7 +39,7 @@ private:
   static std::string printCluster(const SiStripCluster&);
 
   VPSet testGroups;
-  std::unique_ptr<StripClusterizerAlgorithm> clusterizer;
+  std::vector<std::unique_ptr<StripClusterizerAlgorithm>> clusterizers;
   uint32_t detId;
 };
 

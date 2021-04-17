@@ -56,15 +56,15 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet& p)
 
   pset_ = p;
   auto c = setWhatProduced(this, myname);
-  c.setConsumes(magfieldToken_, magname)
-      .setConsumes(pDDToken_)
-      .setConsumes(hTTToken_)
-      .setConsumes(lorentzAngleToken_, edm::ESInputTag("", laLabel));
+  magfieldToken_ = c.consumes(magname);
+  pDDToken_ = c.consumes();
+  hTTToken_ = c.consumes();
+  lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
   if (useLAWidthFromDB_) {
-    c.setConsumes(lorentzAngleWidthToken_, edm::ESInputTag("", "forWidth"));
+    lorentzAngleWidthToken_ = c.consumes(edm::ESInputTag("", "forWidth"));
   }
   if (UseErrorsFromTemplates_) {
-    c.setConsumes(genErrorDBObjectToken_);
+    genErrorDBObjectToken_ = c.consumes();
   }
 
   //std::cout<<" ESProducer "<<myname<<" "<<useLAWidthFromDB_<<" "<<useLAAlignmentOffsets_<<" "

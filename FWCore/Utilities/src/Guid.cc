@@ -10,72 +10,43 @@
 //
 //      ====================================================================
 #include "Guid.h"
-#include <cassert>
-#include <cstdio>
 #include <cstring>
-#include <cstdlib>
-#include <string>
-#include <fmt/format.h>
-#include "uuid/uuid.h"
+#include <cassert>
 
 namespace edm {
-  constexpr char const* const fmt_Guid = "{:08X}-{:04X}-{:04X}-{:02X}{:02X}-{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}";
   /// Initialize a new Guid
-  void Guid::init() {
-    uuid_t me_;
-    ::uuid_generate_random(me_);
-    unsigned int* d1 = reinterpret_cast<unsigned int*>(me_);
-    unsigned short* d2 = reinterpret_cast<unsigned short*>(me_ + 4);
-    unsigned short* d3 = reinterpret_cast<unsigned short*>(me_ + 6);
-    Data1 = *d1;
-    Data2 = *d2;
-    Data3 = *d3;
-    for (int i = 0; i < 8; ++i) {
-      Data4[i] = me_[i + 8];
+  void Guid::init(bool usetime) {
+    if (usetime) {
+      ::uuid_generate_time(data_);
+    } else {
+      // uuid_generate() defaults to uuid_generate_random() if /dev/urandom
+      // is available; if /dev/urandom is not available, then it is better
+      // to let uuid_generate() choose the best fallback rather than forcing
+      // use of an inferior source of randomness
+      ::uuid_generate(data_);
     }
   }
 
+  std::string const Guid::toBinary() const { return std::string(reinterpret_cast<const char*>(data_), sizeof(data_)); }
+
+  Guid const& Guid::fromBinary(std::string const& source) {
+    assert(source.size() == sizeof(data_));
+    std::memcpy(data_, source.data(), sizeof(data_));
+    return *this;
+  }
+
   std::string const Guid::toString() const {
-    return fmt::format(
-        fmt_Guid, Data1, Data2, Data3, Data4[0], Data4[1], Data4[2], Data4[3], Data4[4], Data4[5], Data4[6], Data4[7]);
+    char out[UUID_STR_LEN];
+    ::uuid_unparse(data_, out);
+    return std::string(out);
   }
 
   // fromString is used only in a unit test, so performance is not critical.
   Guid const& Guid::fromString(std::string const& source) {
-    char const dash = '-';
-    size_t const iSize = 8;
-    size_t const sSize = 4;
-    size_t const cSize = 2;
-    size_t offset = 0;
-    Data1 = strtol(source.substr(offset, iSize).c_str(), nullptr, 16);
-    offset += iSize;
-    assert(dash == source[offset++]);
-    Data2 = strtol(source.substr(offset, sSize).c_str(), nullptr, 16);
-    offset += sSize;
-    assert(dash == source[offset++]);
-    Data3 = strtol(source.substr(offset, sSize).c_str(), nullptr, 16);
-    offset += sSize;
-    assert(dash == source[offset++]);
-    Data4[0] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
-    offset += cSize;
-    Data4[1] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
-    offset += cSize;
-    assert(dash == source[offset++]);
-    Data4[2] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
-    offset += cSize;
-    Data4[3] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
-    offset += cSize;
-    Data4[4] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
-    offset += cSize;
-    Data4[5] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
-    offset += cSize;
-    Data4[6] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
-    offset += cSize;
-    Data4[7] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
-    offset += cSize;
-    assert(source.size() == offset);
+    auto err = ::uuid_parse(source.c_str(), data_);
+    assert(err == 0);
     return *this;
   }
 
-  bool Guid::operator<(Guid const& g) const { return ::memcmp(&g.Data1, &Data1, 16) < 0; }
+  bool Guid::operator<(Guid const& g) const { return ::uuid_compare(data_, g.data_) < 0; }
 }  // namespace edm

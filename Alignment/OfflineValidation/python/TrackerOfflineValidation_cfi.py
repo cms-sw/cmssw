@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
+    compressionSettings       = cms.untracked.int32(-1),
     useInDqmMode              = cms.bool(False),  # Switch between Standalone tool (using TFileService) and DQM-based version (using DQMStore)
     moduleDirectoryInOutput   = cms.string(""),   # at present adopted only in DQM mode (TFileService attaches the ModuleName as directory automatically)
     Tracks                    = cms.InputTag("TrackRefitter"),

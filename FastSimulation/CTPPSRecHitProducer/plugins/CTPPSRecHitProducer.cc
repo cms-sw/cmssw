@@ -222,6 +222,7 @@ void CTPPSRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       double pos_tof = fToFInsertion * fBeamXRMS_ToF + fToFXOffset;
 
       std::vector<double> vToFCellWidth;
+      vToFCellWidth.reserve(8);
       for (int i = 0; i < 8; i++) {
         vToFCellWidth.push_back(fToFCellWidth[i]);
       }

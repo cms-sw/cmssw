@@ -14,10 +14,10 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('ForwardGeom')
-    process.MessageLogger.categories.append('ForwardSim')
-    process.MessageLogger.categories.append('CaloSim')
-#   process.MessageLogger.categories.append('SimG4CoreGeometry')
+    process.MessageLogger.ForwardGeom=dict()
+    process.MessageLogger.ForwardSim=dict()
+    process.MessageLogger.CaloSim=dict()
+#   process.MessageLogger.SimG4CoreGeometry=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

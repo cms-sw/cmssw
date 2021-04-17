@@ -3,7 +3,7 @@
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include <DD4hep/DD4hepUnits.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,8 +31,6 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
 #include "CondCore/CondDB/interface/Serialization.h"
-
-using namespace cms_units::operators;
 
 CocoaDBMgr* CocoaDBMgr::instance = nullptr;
 
@@ -186,8 +184,8 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO(OpticalObject* opto) {
     OpticalAlignParam translationXDataForDB;
     translationXDataForDB.name_ = translationX->name();
     translationXDataForDB.dim_type_ = translationX->type();
-    translationXDataForDB.value_ = centreLocal.x() * 1._m;              // m in COCOA, cm in DB
-    translationXDataForDB.error_ = GetEntryError(translationX) * 1._m;  // m in COCOA, cm in DB
+    translationXDataForDB.value_ = centreLocal.x() * dd4hep::m;              // m in COCOA, dd4hep unit in DB
+    translationXDataForDB.error_ = GetEntryError(translationX) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
     translationXDataForDB.quality_ = translationX->quality();
     data.x_ = translationXDataForDB;
 
@@ -195,8 +193,8 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO(OpticalObject* opto) {
     OpticalAlignParam translationYDataForDB;
     translationYDataForDB.name_ = translationY->name();
     translationYDataForDB.dim_type_ = translationY->type();
-    translationYDataForDB.value_ = centreLocal.y() * 1._m;              // m in COCOA, cm in DB
-    translationYDataForDB.error_ = GetEntryError(translationY) * 1._m;  // m in COCOA, cm in DB
+    translationYDataForDB.value_ = centreLocal.y() * dd4hep::m;              // m in COCOA, dd4hep unit in DB
+    translationYDataForDB.error_ = GetEntryError(translationY) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
     translationYDataForDB.quality_ = translationY->quality();
     data.y_ = translationYDataForDB;
 
@@ -204,8 +202,8 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO(OpticalObject* opto) {
     OpticalAlignParam translationZDataForDB;
     translationZDataForDB.name_ = translationZ->name();
     translationZDataForDB.dim_type_ = translationZ->type();
-    translationZDataForDB.value_ = centreLocal.z() * 1._m;              // m in COCOA, cm in DB
-    translationZDataForDB.error_ = GetEntryError(translationZ) * 1._m;  // m in COCOA, cm in DB
+    translationZDataForDB.value_ = centreLocal.z() * dd4hep::m;              // m in COCOA, dd4hep unit in DB
+    translationZDataForDB.error_ = GetEntryError(translationZ) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
     translationZDataForDB.quality_ = translationZ->quality();
     data.z_ = translationZDataForDB;
 
@@ -249,8 +247,8 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO(OpticalObject* opto) {
     extraEntry.value_ = myDBExtraEntry->value();
     extraEntry.error_ = myDBExtraEntry->sigma();
     if (extraEntry.dim_type_ == "centre" || extraEntry.dim_type_ == "length") {
-      extraEntry.value_ *= 1._m;  // m in COCOA, cm in DB
-      extraEntry.error_ *= 1._m;  // m in COCOA, cm in DB
+      extraEntry.value_ *= dd4hep::m;  // m in COCOA, dd4hep unit in DB
+      extraEntry.error_ *= dd4hep::m;  // m in COCOA, dd4hep unit in DB
     }
     extraEntry.quality_ = myDBExtraEntry->quality();
     data.extraEntries_.emplace_back(extraEntry);
@@ -365,12 +363,15 @@ AlignTransformErrorExtended* CocoaDBMgr::GetAlignInfoErrorFromOptO(OpticalObject
   CLHEP::HepMatrix errm(3, 3);
   const std::vector<Entry*>& theCoordinateEntryVector = opto->CoordinateEntryList();
   std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptOfill errm " << opto->name() << std::endl;
-  errm(0, 0) = GetEntryError(theCoordinateEntryVector[0]) * 1._m;                               // m in COCOA, cm in DB
-  errm(1, 1) = GetEntryError(theCoordinateEntryVector[1]) * 1._m;                               // m in COCOA, cm in DB
-  errm(2, 2) = GetEntryError(theCoordinateEntryVector[2]) * 1._m;                               // m in COCOA, cm in DB
-  errm(0, 1) = GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[1]) * 1._m;  // m in COCOA, cm in DB
-  errm(0, 2) = GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[2]) * 1._m;  // m in COCOA, cm in DB
-  errm(1, 2) = GetEntryError(theCoordinateEntryVector[1], theCoordinateEntryVector[2]) * 1._m;  // m in COCOA, cm in DB
+  errm(0, 0) = GetEntryError(theCoordinateEntryVector[0]) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
+  errm(1, 1) = GetEntryError(theCoordinateEntryVector[1]) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
+  errm(2, 2) = GetEntryError(theCoordinateEntryVector[2]) * dd4hep::m;  // m in COCOA, dd4hep unit in DB
+  errm(0, 1) = GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[1]) *
+               dd4hep::m;  // m in COCOA, dd4hep unit in DB
+  errm(0, 2) = GetEntryError(theCoordinateEntryVector[0], theCoordinateEntryVector[2]) *
+               dd4hep::m;  // m in COCOA, dd4hep unit in DB
+  errm(1, 2) = GetEntryError(theCoordinateEntryVector[1], theCoordinateEntryVector[2]) *
+               dd4hep::m;  // m in COCOA, dd4hep unit in DB
   //   errm(1,0) = errm(0,1);
   // errm(2,0) = errm(0,2);
   // errm(2,1) = errm(1,2);

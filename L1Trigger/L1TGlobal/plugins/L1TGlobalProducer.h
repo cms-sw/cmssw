@@ -21,13 +21,13 @@
 
 #include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h"
-#include "L1Trigger/L1TGlobal/interface/PrescalesVetosHelper.h"
+#include "L1Trigger/L1TGlobal/interface/PrescalesVetosFractHelper.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetosFract.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosFractRcd.h"
 
 class L1TGlobalParameters;
 class L1GtParameters;
@@ -91,11 +91,11 @@ private:
   unsigned long long m_l1GtBMCacheID;
 
   /// prescale factors
-  const l1t::PrescalesVetosHelper* m_l1GtPrescalesVetoes;
+  const l1t::PrescalesVetosFractHelper* m_l1GtPrescalesVetosFract;
   unsigned long long m_l1GtPfAlgoCacheID;
 
-  const std::vector<std::vector<int>>* m_prescaleFactorsAlgoTrig;
-  std::vector<std::vector<int>> m_initialPrescaleFactorsAlgoTrig;
+  const std::vector<std::vector<double>>* m_prescaleFactorsAlgoTrig;
+  std::vector<std::vector<double>> m_initialPrescaleFactorsAlgoTrig;
 
   /// CSV file for prescales
   std::string m_prescalesFile;
@@ -178,12 +178,13 @@ private:
   bool m_isDebugEnabled;
 
   bool m_getPrescaleColumnFromData;
+  bool m_requireMenuToMatchAlgoBlkInput;
   edm::InputTag m_algoblkInputTag;
   edm::EDGetToken m_algoblkInputToken;
 
   edm::ESGetToken<L1TGlobalParameters, L1TGlobalParametersRcd> m_l1GtStableParToken;
   edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1GtMenuToken;
-  edm::ESGetToken<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd> m_l1GtPrescaleVetosToken;
+  edm::ESGetToken<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd> m_l1GtPrescaleVetosToken;
 };
 
 #endif /*L1TGlobalProducer_h*/

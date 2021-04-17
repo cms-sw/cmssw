@@ -11,7 +11,7 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
 
-  explicit SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig);
+  explicit SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig, edm::ConsumesCollector&&);
   ~SiStripPopConNoisesHandlerFromDQM() override;
   // interface methods: implemented in template
   void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
@@ -26,7 +26,8 @@ private:
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
-SiStripPopConNoisesHandlerFromDQM::SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig)
+SiStripPopConNoisesHandlerFromDQM::SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig,
+                                                                     edm::ConsumesCollector&&)
     : SiStripDQMPopConSourceHandler<SiStripNoises>(iConfig),
       fp_{iConfig.getUntrackedParameter<edm::FileInPath>(
           "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))},

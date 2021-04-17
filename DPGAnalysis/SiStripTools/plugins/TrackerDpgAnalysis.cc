@@ -42,7 +42,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -130,7 +129,7 @@ protected:
   void insertMeasurement(std::multimap<const uint32_t, std::pair<std::pair<float, float>, int> >&,
                          const TrackingRecHit*,
                          int);
-  std::string toStringName(uint32_t, const TrackerTopology*);
+  std::string toStringName(uint32_t, const TrackerTopology&);
   std::string toStringId(uint32_t);
   double sumPtSquared(const reco::Vertex&);
   float delay(const SiStripEventSummary&);
@@ -160,8 +159,11 @@ private:
   std::vector<edm::EDGetTokenT<reco::TrackCollection> > trackTokens_;
   std::vector<edm::EDGetTokenT<std::vector<Trajectory> > > trajectoryTokens_;
   std::vector<edm::EDGetTokenT<TrajTrackAssociationCollection> > trajTrackAssoTokens_;
-  edm::ESHandle<SiStripFedCabling> cabling_;
-  edm::ESHandle<TrackerGeometry> tracker_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  const TrackerGeometry* tracker_;
   std::multimap<const uint32_t, const FedChannelConnection*> connections_;
   bool functionality_offtrackClusters_, functionality_ontrackClusters_, functionality_pixclusters_,
       functionality_pixvertices_, functionality_missingHits_, functionality_tracks_, functionality_vertices_,
@@ -223,7 +225,12 @@ private:
 // constructors and destructor
 //
 TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig)
-    : siStripClusterInfo_(consumesCollector(), std::string("")), hltConfig_() {
+    : siStripClusterInfo_(consumesCollector(), std::string("")),
+      magFieldToken_(esConsumes()),
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      tkGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      fedCablingToken_(esConsumes<edm::Transition::BeginRun>()),
+      hltConfig_() {
   // members
   moduleName_ = new char[256];
   moduleId_ = new char[256];
@@ -548,10 +555,7 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
     delay_ = 0.;
 
   // -- Magnetic field
-  ESHandle<MagneticField> MF;
-  iSetup.get<IdealMagneticFieldRecord>().get(MF);
-  const MagneticField* theMagneticField = MF.product();
-  fBz_ = fabs(theMagneticField->inTesla(GlobalPoint(0, 0, 0)).z());
+  fBz_ = fabs(iSetup.getData(magFieldToken_).inTesla(GlobalPoint(0, 0, 0)).z());
 
   siStripClusterInfo_.initEvent(iSetup);
 
@@ -1018,13 +1022,8 @@ void TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  //geometry
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker_);
+  const auto& tTopo = iSetup.getData(tTopoToken_);
+  tracker_ = &iSetup.getData(tkGeomToken_);
 
   //HLT names
   bool changed(true);
@@ -1044,10 +1043,10 @@ void TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& i
   TrackerMap tmap("Delays");
 
   // cabling I (readout)
-  iSetup.get<SiStripFedCablingRcd>().get(cabling_);
-  auto feds = cabling_->fedIds();
+  const auto& cabling = iSetup.getData(fedCablingToken_);
+  auto feds = cabling.fedIds();
   for (auto fedid = feds.begin(); fedid < feds.end(); ++fedid) {
-    auto connections = cabling_->fedConnections(*fedid);
+    auto connections = cabling.fedConnections(*fedid);
     for (auto conn = connections.begin(); conn < connections.end(); ++conn) {
       // Fill the "old" map to be used for lookup during analysis
       if (conn->isConnected())
@@ -1370,7 +1369,7 @@ void TrackerDpgAnalysis::insertMeasurement(
   }
 }
 
-std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopology* tTopo) {
+std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopology& tTopo) {
   SiStripDetId detid(rawid);
   std::string out;
   std::stringstream output;
@@ -1378,72 +1377,72 @@ std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopolo
     case 3: {
       output << "TIB";
 
-      output << (tTopo->tibIsZPlusSide(rawid) ? "+" : "-");
+      output << (tTopo.tibIsZPlusSide(rawid) ? "+" : "-");
       output << " layer ";
-      output << tTopo->tibLayer(rawid);
+      output << tTopo.tibLayer(rawid);
       output << ", string ";
-      output << tTopo->tibString(rawid);
-      output << (tTopo->tibIsExternalString(rawid) ? " external" : " internal");
+      output << tTopo.tibString(rawid);
+      output << (tTopo.tibIsExternalString(rawid) ? " external" : " internal");
       output << ", module ";
-      output << tTopo->tibModule(rawid);
-      if (tTopo->tibIsDoubleSide(rawid)) {
+      output << tTopo.tibModule(rawid);
+      if (tTopo.tibIsDoubleSide(rawid)) {
         output << " (double)";
       } else {
-        output << (tTopo->tibIsRPhi(rawid) ? " (rphi)" : " (stereo)");
+        output << (tTopo.tibIsRPhi(rawid) ? " (rphi)" : " (stereo)");
       }
       break;
     }
     case 4: {
       output << "TID";
 
-      output << (tTopo->tidIsZPlusSide(rawid) ? "+" : "-");
+      output << (tTopo.tidIsZPlusSide(rawid) ? "+" : "-");
       output << " disk ";
-      output << tTopo->tidWheel(rawid);
+      output << tTopo.tidWheel(rawid);
       output << ", ring ";
-      output << tTopo->tidRing(rawid);
-      output << (tTopo->tidIsFrontRing(rawid) ? " front" : " back");
+      output << tTopo.tidRing(rawid);
+      output << (tTopo.tidIsFrontRing(rawid) ? " front" : " back");
       output << ", module ";
-      output << tTopo->tidModule(rawid);
-      if (tTopo->tidIsDoubleSide(rawid)) {
+      output << tTopo.tidModule(rawid);
+      if (tTopo.tidIsDoubleSide(rawid)) {
         output << " (double)";
       } else {
-        output << (tTopo->tidIsRPhi(rawid) ? " (rphi)" : " (stereo)");
+        output << (tTopo.tidIsRPhi(rawid) ? " (rphi)" : " (stereo)");
       }
       break;
     }
     case 5: {
       output << "TOB";
 
-      output << (tTopo->tobIsZPlusSide(rawid) ? "+" : "-");
+      output << (tTopo.tobIsZPlusSide(rawid) ? "+" : "-");
       output << " layer ";
-      output << tTopo->tobLayer(rawid);
+      output << tTopo.tobLayer(rawid);
       output << ", rod ";
-      output << tTopo->tobRod(rawid);
+      output << tTopo.tobRod(rawid);
       output << ", module ";
-      output << tTopo->tobModule(rawid);
-      if (tTopo->tobIsDoubleSide(rawid)) {
+      output << tTopo.tobModule(rawid);
+      if (tTopo.tobIsDoubleSide(rawid)) {
         output << " (double)";
       } else {
-        output << (tTopo->tobIsRPhi(rawid) ? " (rphi)" : " (stereo)");
+        output << (tTopo.tobIsRPhi(rawid) ? " (rphi)" : " (stereo)");
       }
       break;
     }
     case 6: {
       output << "TEC";
 
-      output << (tTopo->tecIsZPlusSide(rawid) ? "+" : "-");
+      output << (tTopo.tecIsZPlusSide(rawid) ? "+" : "-");
       output << " disk ";
-      output << tTopo->tecWheel(rawid);
+      output << tTopo.tecWheel(rawid);
       output << " sector ";
-      output << tTopo->tecPetalNumber(rawid);
-      output << (tTopo->tecIsFrontPetal(rawid) ? " Front Petal" : " Back Petal");
+      output << tTopo.tecPetalNumber(rawid);
+      output << (tTopo.tecIsFrontPetal(rawid) ? " Front Petal" : " Back Petal");
       output << ", module ";
-      output << tTopo->tecRing(rawid);
-      output << tTopo->tecModule(rawid);
-      if (tTopo->tecIsDoubleSide(rawid)) {
+      output << tTopo.tecRing(rawid);
+      output << tTopo.tecModule(rawid);
+      if (tTopo.tecIsDoubleSide(rawid)) {
         output << " (double)";
       } else {
-        output << (tTopo->tecIsRPhi(rawid) ? " (rphi)" : " (stereo)");
+        output << (tTopo.tecIsRPhi(rawid) ? " (rphi)" : " (stereo)");
       }
       break;
     }

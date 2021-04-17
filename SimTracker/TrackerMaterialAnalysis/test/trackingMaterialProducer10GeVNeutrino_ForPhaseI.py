@@ -15,8 +15,8 @@ if not readGeometryFromDB:
 else:
 # GlobalTag and geometry via GT
   process.load('Configuration.Geometry.GeometrySimDB_cff')
-  process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-  from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+  process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+  from Configuration.AlCa.GlobalTag import GlobalTag
   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -64,24 +64,22 @@ def customizeMessageLogger(process):
     #    label for all defined python modules
     process.MessageLogger.debugModules.extend(['*'])
     # 2. Define destination and its default logging properties
-    destination = 'debugTrackingMaterialProducer'
     how_to_debug = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
                                       DEBUG = cms.untracked.PSet(limit = cms.untracked.int32(0)),
                                       default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
                                       )
     # 3. Attach destination and its logging properties to the main process
-    process.MessageLogger.destinations.extend([destination])
-    process.MessageLogger._Parameterizable__addParameter(destination, how_to_debug)
+    process.MessageLogger.files.debugTrackingMaterialProducer = how_to_debug
     # 4. Define and extend the categories we would like to monitor
     log_debug_categories = ['TrackingMaterialProducer']
-    process.MessageLogger.categories.extend(log_debug_categories)
+    
 
     # 5. Extend the configuration of the configured destination so that it
     #    will trace all messages coming from the list of specified
     #    categories.
     unlimit_debug = cms.untracked.PSet(limit = cms.untracked.int32(-1))
     for val in log_debug_categories:
-        process.MessageLogger.debugTrackingMaterialProducer._Parameterizable__addParameter(val, unlimit_debug)
+        setattr(process.MessageLogger.files.debugTrackingMaterialProducer, val, unlimit_debug)
 
     return process
 

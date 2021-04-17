@@ -32,35 +32,35 @@ std::vector<DD4hep_XHistogram::position> DD4hep_XHistogram::splitSegment(Range r
   v.clear();
   v.reserve(steps);
 
-  v.push_back(position(0., rangeX.first, rangeY.first));
+  v.emplace_back(position(0., rangeX.first, rangeY.first));
   double x, y, f;
   for (int i = min_i; i < max_i; ++i) {
     x = i * stepX;
     y = rangeY.first + (x - rangeX.first) * deltaY / deltaX;
     f = std::fabs((x - rangeX.first) / deltaX);
-    v.push_back(position(f, x, y));
+    v.emplace_back(position(f, x, y));
   }
   for (int i = min_j; i < max_j; ++i) {
     y = i * stepY;
     x = rangeX.first + (y - rangeY.first) * deltaX / deltaY;
     f = std::fabs((y - rangeY.first) / deltaY);
-    v.push_back(position(f, x, y));
+    v.emplace_back(position(f, x, y));
   }
-  v.push_back(position(1., rangeX.second, rangeY.second));
+  v.emplace_back(position(1., rangeX.second, rangeY.second));
 
   // sort by distance from the start of the segment
   std::sort(v.begin(), v.end());
 
   // filter away the fragments shorter than m_minDl, and save the center of each fragment along with its fractionary length
   std::vector<position> result;
-  result.push_back(v.front());
+  result.emplace_back(v.front());
   for (int i = 1, s = v.size(); i < s; ++i) {
     double mx = (v[i].x + v[i - 1].x) / 2.;
     double my = (v[i].y + v[i - 1].y) / 2.;
     double df = (v[i].f - v[i - 1].f);
     if (df * length < m_minDl)
       continue;
-    result.push_back(position(df, mx, my));
+    result.emplace_back(position(df, mx, my));
   }
 
   return result;

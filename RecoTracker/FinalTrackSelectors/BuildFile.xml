@@ -4,7 +4,9 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="CondFormats/GBRForest"/>
+<use name="PhysicsTools/TensorFlow"/>
+<use name="TrackingTools/PatternTools"/>
 <use name="roottmva"/>
 <use name="lwtnn"/>
 <export>

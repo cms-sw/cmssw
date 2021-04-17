@@ -23,13 +23,15 @@ DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, TrackAndECALLinker, "TrackAndECALLi
 
 bool TrackAndECALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
   bool result = false;
-  // Track-ECAL KDTree multilinks are stored to track's elem
+  // Track-ECAL KDTree multilinks are stored to ecal's elem
   switch (elem1->type()) {
     case reco::PFBlockElement::TRACK:
-      result = (elem1->isMultilinksValide() && !elem1->getMultilinks().empty());
+      result = (elem2->isMultilinksValide(elem1->type()) && !elem2->getMultilinks(elem1->type()).empty() &&
+                elem1->isMultilinksValide(elem2->type()));
       break;
     case reco::PFBlockElement::ECAL:
-      result = (elem2->isMultilinksValide() && !elem2->getMultilinks().empty());
+      result = (elem1->isMultilinksValide(elem2->type()) && !elem1->getMultilinks(elem2->type()).empty() &&
+                elem2->isMultilinksValide(elem1->type()));
     default:
       break;
   }
@@ -52,24 +54,23 @@ double TrackAndECALLinker::testLink(const reco::PFBlockElement* elem1, const rec
   const reco::PFClusterRef& clusterref = ecalelem->clusterRef();
   const reco::PFCluster::REPPoint& ecalreppos = clusterref->positionREP();
   const reco::PFTrajectoryPoint& tkAtECAL = trackref->extrapolatedPoint(ECALShowerMax);
-  const reco::PFCluster::REPPoint& tkreppos = tkAtECAL.positionREP();
 
   // Check if the linking has been done using the KDTree algo
   // Glowinski & Gouzevitch
-  if (useKDTree_ && tkelem->isMultilinksValide()) {  //KDTree Algo
-    const reco::PFMultilinksType& multilinks = tkelem->getMultilinks();
-    const double ecalphi = ecalreppos.Phi();
-    const double ecaleta = ecalreppos.Eta();
+  if (useKDTree_ && ecalelem->isMultilinksValide(tkelem->type())) {  //KDTree Algo
+    const reco::PFMultilinksType& multilinks = ecalelem->getMultilinks(tkelem->type());
+    const double tracketa = tkAtECAL.positionREP().Eta();
+    const double trackphi = tkAtECAL.positionREP().Phi();
 
     // Check if the link Track/Ecal exist
     reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
     for (; mlit != multilinks.end(); ++mlit)
-      if ((mlit->first == ecalphi) && (mlit->second == ecaleta))
+      if ((mlit->first == trackphi) && (mlit->second == tracketa))
         break;
 
     // If the link exist, we fill dist and linktest.
     if (mlit != multilinks.end()) {
-      dist = LinkByRecHit::computeDist(ecaleta, ecalphi, tkreppos.Eta(), tkreppos.Phi());
+      dist = LinkByRecHit::computeDist(ecalreppos.Eta(), ecalreppos.Phi(), tracketa, trackphi);
     }
 
   } else {  // Old algorithm

@@ -1,7 +1,6 @@
 <use name="CLHEP"/>
 <use name="root"/>
 <use name="boost"/>
-<use name="sigcpp"/>
 <bin name="testDriftTimeParam" file="testDriftTimeParam.cpp">
 </bin>
 
@@ -12,6 +11,7 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="DataFormats/MuonDetId"/>
+  <use name="DataFormats/DTRecHit"/>
   <use name="Geometry/DTGeometry"/>
   <use name="Geometry/Records"/>
   <use name="DataFormats/DTDigi"/>

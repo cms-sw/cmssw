@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/MFGeometryFileRcd.h"
@@ -68,19 +69,20 @@ DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
       confGeomXMLFiles_(iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()),
       rootDDName_(iConfig.getParameter<string>("rootDDName")),
       label_(iConfig.getParameter<string>("label")) {
+  usesResources({edm::ESSharedResourceNames::kDD4Hep});
   if (rootDDName_ == "MagneticFieldVolumes:MAGF" || rootDDName_ == "cmsMagneticField:MAGF") {
     auto c = setWhatProduced(this,
                              &DDDetectorESProducer::produceMagField,
                              edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
     if (fromDB_) {
-      c.setConsumes(mfToken_, edm::ESInputTag("", label_));
+      mfToken_ = c.consumes(edm::ESInputTag("", label_));
     }
     findingRecord<IdealMagneticFieldRecord>();
   } else {
     auto c = setWhatProduced(
         this, &DDDetectorESProducer::produceGeom, edm::es::Label(iConfig.getParameter<std::string>("@module_label")));
     if (fromDB_) {
-      c.setConsumes(geomToken_, edm::ESInputTag("", label_));
+      geomToken_ = c.consumes(edm::ESInputTag("", label_));
     }
     findingRecord<IdealGeometryRecord>();
   }

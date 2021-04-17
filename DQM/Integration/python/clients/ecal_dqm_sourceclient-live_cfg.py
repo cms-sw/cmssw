@@ -13,8 +13,11 @@ if 'unitTest=True' in sys.argv:
 
 if unitTest:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
+
 process.load("DQM.Integration.config.environment_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -107,6 +110,9 @@ process.tcdsDigis.InputLabel = cms.InputTag("rawDataCollector")
 
 process.dqmEnv.subSystemFolder = cms.untracked.string('Ecal')
 process.dqmSaver.tag = cms.untracked.string('Ecal')
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = cms.untracked.string('Ecal')
+process.dqmSaverPB.runNumber = options.runNumber
 
 process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
 process.simEcalTriggerPrimitiveDigis.InstanceEE = "eeDigis"
@@ -137,7 +143,7 @@ process.ecalMonitorPath = cms.Path(process.preScaler+process.ecalPreRecoSequence
 process.ecalClientPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
-process.dqmOutputPath = cms.EndPath(process.dqmSaver)
+process.dqmOutputPath = cms.EndPath(process.dqmSaver + process.dqmSaverPB)
 
 ### Schedule ###
 

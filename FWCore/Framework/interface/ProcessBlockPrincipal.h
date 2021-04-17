@@ -32,7 +32,7 @@ namespace edm {
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
 
     // Should only be 1 ProcessBlock needed at a time (no concurrent ProcessBlocks)
-    unsigned int index() { return 0; }
+    unsigned int index() const { return 0; }
 
   private:
     unsigned int transitionIndex_() const final;

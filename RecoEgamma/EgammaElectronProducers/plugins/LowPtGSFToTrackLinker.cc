@@ -40,7 +40,7 @@ LowPtGSFToTrackLinker::LowPtGSFToTrackLinker(const edm::ParameterSet& iConfig)
   produces<edm::Association<reco::TrackCollection> >();
 }
 
-void LowPtGSFToTrackLinker::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void LowPtGSFToTrackLinker::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
   auto gsftracks = iEvent.getHandle(gsftracks_);
   auto tracks = iEvent.getHandle(tracks_);
   auto preid = iEvent.getHandle(preid_);

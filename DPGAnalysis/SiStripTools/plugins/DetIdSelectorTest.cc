@@ -69,6 +69,9 @@ private:
   std::vector<DetIdSelector> detidsels_;
   std::unique_ptr<TkHistoMap> tkhisto_;
   TrackerMap tkmap_;
+
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
 };
 
 //
@@ -82,7 +85,8 @@ private:
 //
 // constructors and destructor
 //
-DetIdSelectorTest::DetIdSelectorTest(const edm::ParameterSet& iConfig) : detidsels_(), tkhisto_(nullptr), tkmap_() {
+DetIdSelectorTest::DetIdSelectorTest(const edm::ParameterSet& iConfig)
+    : detidsels_(), tkhisto_(nullptr), tkmap_(), tkDetMapToken_(esConsumes()), geomDetToken_(esConsumes()) {
   //now do what ever initialization is needed
 
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet> >("selections");
@@ -111,15 +115,11 @@ void DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup&
   using namespace edm;
 
   if (!tkhisto_) {
-    edm::ESHandle<TkDetMap> tkDetMapHandle;
-    iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-    tkhisto_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SelectorTest", "SelectorTest", -1);
+    tkhisto_ = std::make_unique<TkHistoMap>(&iSetup.getData(tkDetMapToken_), "SelectorTest", "SelectorTest", -1);
   }
 
   {
-    edm::ESHandle<GeometricDet> geomDetHandle;
-    iSetup.get<IdealGeometryRecord>().get(geomDetHandle);
-    const auto detids = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle);
+    const auto detids = TrackerGeometryUtils::getSiStripDetIds(iSetup.getData(geomDetToken_));
 
     for (std::vector<uint32_t>::const_iterator detid = detids.begin(); detid != detids.end(); ++detid) {
       LogDebug("DetID") << *detid;

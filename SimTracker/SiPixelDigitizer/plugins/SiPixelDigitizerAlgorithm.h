@@ -50,6 +50,7 @@ class TrackerGeometry;
 class TrackerTopology;
 class SiPixelFEDChannelContainer;
 class SiPixelQualityProbabilities;
+class SiPixelChargeReweightingAlgorithm;
 
 class SiPixelDigitizerAlgorithm {
 public:
@@ -90,28 +91,6 @@ public:
   typedef std::unordered_map<std::string, PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
   const PixelFEDChannelCollectionMap* quality_map;
 
-private:
-  //Accessing Lorentz angle from DB:
-  edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
-
-  //Accessing Dead pixel modules from DB:
-  std::string siPixelQualityLabel;
-  edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
-
-  //Accessing Map and Geom:
-  edm::ESHandle<SiPixelFedCablingMap> map_;
-  edm::ESHandle<TrackerGeometry> geom_;
-
-  // Get Dynamic Inefficiency scale factors from DB
-  edm::ESHandle<SiPixelDynamicInefficiency> SiPixelDynamicInefficiency_;
-
-  // For BadFEDChannel simulation
-  edm::ESHandle<SiPixelQualityProbabilities> scenarioProbabilityHandle;
-  edm::ESHandle<PixelFEDChannelCollectionMap> PixelFEDChannelCollectionMapHandle;
-  // Define internal classes
-
-  // definition class
-  //
   class Amplitude {
   public:
     Amplitude() : _amp(0.0) {}
@@ -164,6 +143,29 @@ private:
     std::vector<float> _frac;
     std::vector<SimHitInfoForLinks> _hitInfos;
   };  // end class Amplitude
+
+private:
+  //Accessing Lorentz angle from DB:
+  edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
+
+  //Accessing Dead pixel modules from DB:
+  std::string siPixelQualityLabel;
+  edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
+
+  //Accessing Map and Geom:
+  edm::ESHandle<SiPixelFedCablingMap> map_;
+  edm::ESHandle<TrackerGeometry> geom_;
+
+  // Get Dynamic Inefficiency scale factors from DB
+  edm::ESHandle<SiPixelDynamicInefficiency> SiPixelDynamicInefficiency_;
+
+  // For BadFEDChannel simulation
+  edm::ESHandle<SiPixelQualityProbabilities> scenarioProbabilityHandle;
+  edm::ESHandle<PixelFEDChannelCollectionMap> PixelFEDChannelCollectionMapHandle;
+  // Define internal classes
+
+  // definition class
+  //
 
   // Define a class to hold the calibration parameters per pixel
   // Internal
@@ -311,17 +313,7 @@ private:
 
   const Parameters DeadModules;
 
-  // Variables and objects for the charge reweighting using 2D templates
-  SiPixelTemplate2D templ2D;
-  std::vector<bool> xdouble;
-  std::vector<bool> ydouble;
-  std::vector<float> track;
-  int IDnum, IDden;
-
-  std::vector<SiPixelTemplateStore2D> templateStores_;
-
-  const SiPixel2DTemplateDBObject* dbobject_den;
-  const SiPixel2DTemplateDBObject* dbobject_num;
+  std::unique_ptr<SiPixelChargeReweightingAlgorithm> TheNewSiPixelChargeReweightingAlgorithmClass;
 
 private:
   // Variables
@@ -395,8 +387,6 @@ private:
   // pixel aging
   const bool AddPixelAging;
   const bool UseReweighting;
-  const bool PrintClusters;
-  const bool PrintTemplates;
 
   // The PDTable
   //HepPDTable *particleTable;
@@ -464,20 +454,6 @@ private:
   void module_killing_conf(
       uint32_t detID);  // remove dead modules using the list in the configuration file PixelDigi_cfi.py
   void module_killing_DB(uint32_t detID);  // remove dead modules uisng the list in the DB
-
-  // methods for charge reweighting in irradiated sensors
-  int PixelTempRewgt2D(int id_gen, int id_rewgt, array_2d& cluster);
-  bool hitSignalReweight(const PSimHit& hit,
-                         std::map<int, float, std::less<int> >& hit_signal,
-                         const size_t hitIndex,
-                         const unsigned int tofBin,
-                         const PixelTopology* topol,
-                         uint32_t detID,
-                         signal_map_type& theSignal,
-                         unsigned short int processType);
-  void printCluster(array_2d& cluster);
-  void printCluster(float arr[BXM2][BYM2]);
-  void printCluster(float arr[TXSIZE][TYSIZE]);
 
   PixelEfficiencies pixelEfficiencies_;
   const PixelAging pixelAging_;

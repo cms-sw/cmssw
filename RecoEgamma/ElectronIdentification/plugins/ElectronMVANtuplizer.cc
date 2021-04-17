@@ -114,6 +114,8 @@ private:
   const edm::EDGetTokenT<EcalRecHitCollection> ebRecHits_;
   const edm::EDGetTokenT<EcalRecHitCollection> eeRecHits_;
 
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
+
   // to hold ID decisions and categories
   std::vector<int> mvaPasses_;
   std::vector<float> mvaValues_;
@@ -166,6 +168,7 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
       genParticles_(consumes<edm::View<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("genParticles"))),
       ebRecHits_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection"))),
       eeRecHits_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection"))),
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       mvaPasses_(nEleMaps_),
       mvaValues_(nValMaps_),
       mvaCats_(nCats_),
@@ -249,7 +252,8 @@ void ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSet
   std::unique_ptr<noZS::EcalClusterLazyTools> lazyTools;
   if (doEnergyMatrix_) {
     // Configure Lazy Tools, which will compute 5x5 quantities
-    lazyTools = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, ebRecHits_, eeRecHits_);
+    lazyTools = std::make_unique<noZS::EcalClusterLazyTools>(
+        iEvent, ecalClusterToolsESGetTokens_.get(iSetup), ebRecHits_, eeRecHits_);
   }
 
   // Get MC only Handles, which are allowed to be non-valid

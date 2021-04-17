@@ -12,7 +12,7 @@ process.load("FWCore.MessageService.test.Services_cff")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('expect_specific')
+process.MessageLogger.expect_specific=dict()
 process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet( 
   limit = cms.untracked.int32(-1) 
 )

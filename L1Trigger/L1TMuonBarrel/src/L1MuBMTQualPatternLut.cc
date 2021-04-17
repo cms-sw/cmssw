@@ -199,7 +199,7 @@ int L1MuBMTQualPatternLut::getIgnoredLines(L1TriggerLutFile file) const {
   int skip = 0;
   while (file.good()) {
     string str = file.readString();
-    if (str.find("#") == 0)
+    if (str.find('#') == 0)
       skip += 1;
     //cout<<"here "<<str<<" found "<<str.find("#")<<endl;
     if (!file.good()) {

@@ -3,11 +3,9 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -51,29 +49,36 @@
 
 #include <memory>
 
+class RPCGeometry;
+class DTGeometry;
+class DTObjectMap;
+class CSCGeometry;
+class CSCObjectMap;
+class MuonGeometryRecord;
+class Propagator;
+class TrackingComponentsRecord;
+
 using reco::MuonCollection;
 using reco::TrackCollection;
 typedef std::vector<Trajectory> Trajectories;
 
 class TracktoRPC {
 public:
-  TracktoRPC(reco::TrackCollection const* alltracks,
-             edm::EventSetup const& iSetup,
-             bool debug,
-             const edm::ParameterSet& iConfig,
-             const edm::InputTag& tracklabel);
-  ~TracktoRPC();
-  std::unique_ptr<RPCRecHitCollection>&& thePoints() { return std::move(_ThePoints); }
+  TracktoRPC(const edm::ParameterSet& iConfig, const edm::InputTag& tracklabel, edm::ConsumesCollector iC);
+  std::unique_ptr<RPCRecHitCollection> thePoints(reco::TrackCollection const* alltracks,
+                                                 edm::EventSetup const& iSetup,
+                                                 bool debug);
 
 private:
-  bool ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::EventSetup& iSetup);
+  bool ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const RPCGeometry* rpcGeo);
 
-  std::unique_ptr<RPCRecHitCollection> _ThePoints;
-  edm::OwnVector<RPCRecHit> RPCPointVector;
-  double MaxD;
-
-  TrackTransformerBase* theTrackTransformer;
-  edm::ESHandle<Propagator> thePropagator;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeoToken_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeoToken_;
+  edm::ESGetToken<DTObjectMap, MuonGeometryRecord> dtMapToken_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeoToken_;
+  edm::ESGetToken<CSCObjectMap, MuonGeometryRecord> cscMapToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  std::unique_ptr<TrackTransformerBase> theTrackTransformer;
 };
 
 #endif

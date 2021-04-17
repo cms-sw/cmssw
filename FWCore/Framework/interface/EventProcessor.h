@@ -107,6 +107,8 @@ namespace edm {
     EventProcessor(EventProcessor const&) = delete;             // Disallow copying and moving
     EventProcessor& operator=(EventProcessor const&) = delete;  // Disallow copying and moving
 
+    void taskCleanup();
+
     /**This should be called before the first call to 'run'
        If this is not called in time, it will automatically be called
        the first time 'run' is called
@@ -156,10 +158,6 @@ namespace edm {
     /// inactive.
     bool endPathsEnabled() const;
 
-    /// Return the trigger report information on paths,
-    /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport& rep) const;
-
     /// Clears counters used by trigger report.
     void clearCounters();
 
@@ -201,6 +199,7 @@ namespace edm {
     edm::LuminosityBlockNumber_t nextLuminosityBlockID();
 
     void readFile();
+    bool fileBlockValid() { return fb_.get() != nullptr; }
     void closeInputFile(bool cleaningUpAfterException);
     void openOutputFiles();
     void closeOutputFiles();
@@ -311,6 +310,9 @@ namespace edm {
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.
 
+    //Guarantee that task group is the last to be destroyed
+    tbb::task_group taskGroup_;
+
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
@@ -366,6 +368,7 @@ namespace edm {
     ExcludedDataMap eventSetupDataToExcludeFromPrefetching_;
 
     bool printDependencies_ = false;
+    bool deleteNonConsumedUnscheduledModules_ = true;
   };  // class EventProcessor
 
   //--------------------------------------------------------------------

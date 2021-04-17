@@ -10,7 +10,7 @@ from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi impor
 # parameters
 from Alignment.CommonAlignmentAlgorithm.AlignmentParameterStore_cfi import *
 
-AlignmentProducer = cms.EDAnalyzer("AlignmentProducerAsAnalyzer",
+AlignmentProducer = cms.EDProducer("AlignmentProducerAsAnalyzer",
                     AlignmentParameterStore, # configuration of AlignmentParameterStore
                     doTracker = cms.untracked.bool(True),
                     doMuon = cms.untracked.bool(False),
@@ -91,6 +91,7 @@ CSCGeometryAlignmentProducerAsAnalyzer = cms.ESProducer("CSCGeometryESModule",
     useRealWireGeometry = cms.bool(True),
     useCentreTIOffsets = cms.bool(False),
     applyAlignment = cms.bool(False), 
-    useDDD = cms.bool(True)
+    fromDDD = cms.bool(True),
+    fromDD4hep = cms.bool(False)
 )
 

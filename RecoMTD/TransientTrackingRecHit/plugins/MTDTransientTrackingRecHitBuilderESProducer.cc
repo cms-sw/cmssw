@@ -31,16 +31,15 @@ public:
   std::unique_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord&);
 
 private:
-  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geomToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geomToken_;
 };
 
 using namespace edm;
 using namespace std;
 
 MTDTransientTrackingRecHitBuilderESProducer::MTDTransientTrackingRecHitBuilderESProducer(
-    const ParameterSet& parameterSet) {
-  setWhatProduced(this, parameterSet.getParameter<string>("ComponentName")).setConsumes(geomToken_);
-}
+    const ParameterSet& parameterSet)
+    : geomToken_(setWhatProduced(this, parameterSet.getParameter<string>("ComponentName")).consumes()) {}
 
 std::unique_ptr<TransientTrackingRecHitBuilder> MTDTransientTrackingRecHitBuilderESProducer::produce(
     const TransientRecHitRecord& iRecord) {

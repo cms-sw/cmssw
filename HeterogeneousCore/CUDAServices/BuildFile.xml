@@ -1,8 +1,8 @@
-<iftool name="cuda-gcc-support">
-  <use name="FWCore/Framework"/>
+<iftool name="cuda">
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/Utilities"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="cuda"/>
   <export>

@@ -7,8 +7,8 @@
   <library file="IOExerciser.cc" name="IOExerciser">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
-    <use name="FWCore/PluginManager"/>
     <use name="FWCore/ParameterSet"/>
   </library>
-
+ 
+ <test name="TestIOPoolInputRepeating" command="testRepeatingCachedRootSource.sh"/>
 </environment>

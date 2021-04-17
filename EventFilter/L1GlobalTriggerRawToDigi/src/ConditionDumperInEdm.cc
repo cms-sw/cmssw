@@ -33,7 +33,7 @@ std::shared_ptr<edm::ConditionsInLumiBlock> ConditionDumperInEdm::globalBeginLum
 }
 
 void ConditionDumperInEdm::endLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) {
-  lumi.emplace(lumiToken_, std::move(*luminosityBlockCache(lumi.index())));
+  lumi.emplace(lumiToken_, *luminosityBlockCache(lumi.index()));
 }
 
 std::shared_ptr<edm::ConditionsInRunBlock> ConditionDumperInEdm::globalBeginRun(edm::Run const&,
@@ -52,7 +52,7 @@ void ConditionDumperInEdm::endRunProduce(edm::Run& run, const edm::EventSetup& s
     runBlock.BAvgCurrent = sum->m_avg_current;
   }
 
-  run.emplace(runToken_, std::move(runBlock));
+  run.emplace(runToken_, runBlock);
 }
 
 // ------------ method called to produce the data  ------------

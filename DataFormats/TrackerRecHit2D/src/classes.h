@@ -12,6 +12,7 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
@@ -27,6 +28,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 #include <vector>
 
 #endif  // SISTRIPRECHIT_CLASSES_H

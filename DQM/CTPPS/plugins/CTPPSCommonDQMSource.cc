@@ -76,7 +76,8 @@ private:
     MonitorElement *h_numRPWithTrack_top = nullptr, *h_numRPWithTrack_hor = nullptr, *h_numRPWithTrack_bot = nullptr;
     MonitorElement *h_trackCorr = nullptr, *h_trackCorr_overlap = nullptr;
 
-    MonitorElement *h_proton_xi = nullptr, *h_proton_t = nullptr, *h_proton_time = nullptr;
+    MonitorElement *h_proton_xi = nullptr, *h_proton_th_x = nullptr, *h_proton_th_y = nullptr, *h_proton_t = nullptr,
+                   *h_proton_time = nullptr;
 
     struct TrackingRPPlots {
       MonitorElement *h_x, *h_y;
@@ -251,6 +252,8 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id, bo
 
   if (makeProtonRecoPlots) {
     h_proton_xi = ibooker.book1D("proton xi", title + ";xi", 100, 0., 0.3);
+    h_proton_th_x = ibooker.book1D("proton theta st x", ";#theta^{*}_{x}   (rad)", 250, -500E-6, +500E-6);
+    h_proton_th_y = ibooker.book1D("proton theta st y", ";#theta^{*}_{y}   (rad)", 250, -500E-6, +500E-6);
     h_proton_t = ibooker.book1D("proton t", title + ";|t|   GeV^{2}", 100, 0., 5.);
     h_proton_time = ibooker.book1D("proton time", title + ";time   (ns)", 100, -1., 1.);
   }
@@ -523,6 +526,8 @@ void CTPPSCommonDQMSource::analyzeProtons(edm::Event const &event, edm::EventSet
     auto &plots = armPlots[armIndex];
 
     plots.h_proton_xi->Fill(p.xi());
+    plots.h_proton_th_x->Fill(p.thetaX());
+    plots.h_proton_th_y->Fill(p.thetaY());
     plots.h_proton_t->Fill(fabs(p.t()));
     plots.h_proton_time->Fill(p.time());
   }

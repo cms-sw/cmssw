@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "boost/filesystem.hpp"
+#include <filesystem>
 
 #include <map>
 #include <unordered_set>
@@ -111,13 +111,13 @@ namespace dqmservices {
 
     /* this should be different,
    * since time between hosts might be not in sync */
-    std::time_t runPathMTime_;
+    unsigned runPathMTime_;
     std::chrono::high_resolution_clock::time_point runPathLastCollect_;
 
     /* this is for missing lumi files */
     std::chrono::high_resolution_clock::time_point lastLumiLoad_;
 
-    std::time_t mtimeHash() const;
+    unsigned mtimeHash() const;
     void collect(bool ignoreTimers);
     void monUpdateLumi(const LumiEntry& lumi);
 

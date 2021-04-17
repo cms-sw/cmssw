@@ -2,6 +2,7 @@
   <use name="CalibTracker/SiPixelESProducers"/>
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/SiPixelObjects"/>
+  <use name="CondFormats/SiPhase2TrackerObjects"/>
   <use name="SimGeneral/PreMixingModule"/>
   <use name="SimGeneral/MixingModule"/>
   <use name="SimGeneral/NoiseGenerators"/>

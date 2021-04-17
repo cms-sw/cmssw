@@ -21,22 +21,30 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring( '*' ),
-    destinations = cms.untracked.vstring('cout'),
-    categories     = cms.untracked.vstring ( '*' ),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-      noLineBreaks = cms.untracked.bool(True),
-      INFO  =  cms.untracked.PSet (limit = cms.untracked.int32(-1)),
-      DEBUG =  cms.untracked.PSet (limit = cms.untracked.int32(-1)),
-      WARNING = cms.untracked.PSet(
-        limit = cms.untracked.int32(-1)
-      ),
-      ERROR = cms.untracked.PSet(
-        limit = cms.untracked.int32(-1)
-      ),
-      threshold = cms.untracked.string('DEBUG'),
-      default =  cms.untracked.PSet (limit = cms.untracked.int32(-1))
-    )
+        DEBUG = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        ERROR = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        WARNING = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        enable = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.magfield = cms.ESSource("XMLIdealGeometryESSource",

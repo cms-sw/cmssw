@@ -5,7 +5,6 @@
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/SiPixelCluster"/>
 <use name="DataFormats/SiPixelDetId"/>
-<use name="DataFormats/SiStripCluster"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrackerRecHit2D"/>

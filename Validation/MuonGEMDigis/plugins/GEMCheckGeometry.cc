@@ -1,10 +1,7 @@
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Validation/MuonGEMDigis/plugins/GEMCheckGeometry.h"
 
 #include <iomanip>
@@ -15,18 +12,15 @@ GEMCheckGeometry::GEMCheckGeometry(const edm::ParameterSet &gc) {
   minPhi_ = gc.getUntrackedParameter<double>("minPhi", -180.);
   maxPhi_ = gc.getUntrackedParameter<double>("maxPhi", +180.);
   detailPlot_ = gc.getParameter<bool>("detailPlot");
+  geomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
 }
 
 void GEMCheckGeometry::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &Run, edm::EventSetup const &iSetup) {
   if (!detailPlot_)
     return;
-  const GEMGeometry *GEMGeometry_;
 
-  try {
-    edm::ESHandle<GEMGeometry> hGeom;
-    iSetup.get<MuonGeometryRecord>().get(hGeom);
-    GEMGeometry_ = &*hGeom;
-  } catch (edm::eventsetup::NoProxyException<GEMGeometry> &e) {
+  const GEMGeometry *GEMGeometry_ = &iSetup.getData(geomToken_);
+  if (!GEMGeometry_) {
     edm::LogError("MuonGEMGeometry") << "+++ Error : GEM geometry  is unavailable on event loop. +++\n";
     return;
   }

@@ -59,6 +59,8 @@ class _ProxyParameter(_ParameterTypeBase):
         if v is not None:
             return setattr(v,name,value)
         else:
+            if not name.startswith('_'):
+                 raise AttributeError("%r object has no attribute %r" % (self.__class__.__name__, name))
             return object.__setattr__(self, name, value)
     def __bool__(self):
         v = self.__dict__.get('_ProxyParameter__value',None)
@@ -71,7 +73,9 @@ class _ProxyParameter(_ParameterTypeBase):
         v = "cms."+self._dumpPythonName()
         if not _ParameterTypeBase.isTracked(self):
             v+=".untracked"
-        return v+'.'+self.__type.__name__
+        if hasattr(self.__type, "__name__"):
+            return v+'.'+self.__type.__name__
+        return v+'.'+self.__type.dumpPython(options)
     def validate_(self,value):
         return isinstance(value,self.__type)
     def convert_(self,value):
@@ -138,6 +142,19 @@ class _AllowedParameterTypes(object):
             raise RuntimeError("Cannot convert "+str(value)+" to 'allowed' type")
         return chosenType(value)
 
+class _PSetTemplate(object):
+    def __init__(self, *args, **kargs):
+        self._pset = PSet(*args,**kargs)
+        self.__dict__['_PSetTemplate__value'] = None
+    def __call__(self, value):
+        self.__dict__
+        return self._pset.clone(**value)
+    def dumpPython(self, options=PrintOptions()):
+        v =self.__dict__.get('_ProxyParameter__value',None)
+        if v is not None:
+            return v.dumpPython(options)
+        return "PSetTemplate(\n"+_Parameterizable.dumpPython(self._pset, options)+options.indentation()+")"
+
 
 class _ProxyParameterFactory(object):
     """Class type for ProxyParameter types to allow nice syntax"""
@@ -160,7 +177,17 @@ class _ProxyParameterFactory(object):
                     return self.type(_AllowedParameterTypes(*args))
             
             return _AllowedWrapper(self.__isUntracked, self.__type)
-        
+        if name == 'PSetTemplate':
+            class _PSetTemplateWrapper(object):
+                def __init__(self, untracked, type):
+                    self.untracked = untracked
+                    self.type = type
+                def __call__(self,*args,**kargs):
+                    if self.untracked:
+                        return untracked(self.type(_PSetTemplate(*args,**kargs)))
+                    return self.type(_PSetTemplate(*args,**kargs))
+            return _PSetTemplateWrapper(self.__isUntracked, self.__type)
+
         type = globals()[name]
         if not issubclass(type, _ParameterTypeBase):
             raise AttributeError
@@ -865,7 +892,11 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return []
     def clone(self, **params):
         myparams = self.parameters_()
+        if "allowAnyLabel_" in params:
+            raise AttributeError("Not allowed to change `allowAnyLabel_` value in call to clone")
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
+        if self._Parameterizable__validator is not None:
+            myparams["allowAnyLabel_"] = self._Parameterizable__validator
         returnValue = PSet(**myparams)
         returnValue.setIsTracked(self.isTracked())
         returnValue._isModified = False
@@ -1362,6 +1393,15 @@ class EDAlias(_ConfigureComponent,_Labelable,_Parameterizable):
     def __init__(self,*arg,**kargs):
         super(EDAlias,self).__init__(**kargs)
 
+    @staticmethod
+    def allProducts():
+        """A helper to specify that all products of a module are to be aliased for. Example usage:
+        process.someAlias = cms.EDAlias(
+            aliasForModuleLabel = cms.EDAlias.allProducts()
+        )
+        """
+        return VPSet(PSet(type = string('*')))
+
     def clone(self, *args, **params):
         returnValue = EDAlias.__new__(type(self))
         myparams = self.parameters_()
@@ -1850,6 +1890,31 @@ if __name__ == "__main__":
             self.assertEqual(p1.foo.value(),3)
             self.failIf(p1.foo.isTracked())
             self.assertRaises(ValueError,setattr,p1, 'bar', 'bad')
+            #PSetTemplate use
+            p1 = PSet(aPSet = required.PSetTemplate())
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.required.PSetTemplate(\n\n    )\n)')
+            p1.aPSet = dict()
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n\n    )\n)')
+            p1 = PSet(aPSet=required.PSetTemplate(a=required.int32))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            p1.aPSet = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n        a = cms.int32(5)\n    )\n)')
+            self.assertEqual(p1.aPSet.a.value(), 5)
+            p1 = PSet(aPSet=required.untracked.PSetTemplate(a=required.int32))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.required.untracked.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            p1.aPSet = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.untracked.PSet(\n        a = cms.int32(5)\n    )\n)')
+            self.assertEqual(p1.aPSet.a.value(), 5)
+            p1 = PSet(allowAnyLabel_=required.PSetTemplate(a=required.int32))
+            p1Clone = p1.clone()
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            self.assertEqual(p1Clone.dumpPython(), 'cms.PSet(\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            with self.assertRaises(AttributeError):
+                p1.clone(allowAnyLabel_=optional.double)
+            p1.foo = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    foo = cms.PSet(\n        a = cms.int32(5)\n    ),\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
+            self.assertEqual(p1.foo.a.value(), 5)
+
         def testOptional(self):
             p1 = PSet(anInt = optional.int32)
             self.assert_(hasattr(p1,"anInt"))
@@ -1878,6 +1943,29 @@ if __name__ == "__main__":
             self.failIf(p1.f)
             p1.f.append(3)
             self.assert_(p1.f)
+            #PSetTemplate use
+            p1 = PSet(aPSet = optional.PSetTemplate())
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.PSetTemplate(\n\n    )\n)')
+            p1.aPSet = dict()
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n\n    )\n)')
+            p1 = PSet(aPSet=optional.PSetTemplate(a=optional.int32))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            p1.aPSet = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.PSet(\n        a = cms.int32(5)\n    )\n)')
+            self.assertEqual(p1.aPSet.a.value(), 5)
+            p1 = PSet(aPSet=optional.untracked.PSetTemplate(a=optional.int32))
+            p1Clone = p1.clone()
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.untracked.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            self.assertEqual(p1Clone.dumpPython(),'cms.PSet(\n    aPSet = cms.optional.untracked.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            p1.aPSet = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aPSet = cms.untracked.PSet(\n        a = cms.int32(5)\n    )\n)')
+            self.assertEqual(p1.aPSet.a.value(), 5)
+            p1 = PSet(allowAnyLabel_=optional.PSetTemplate(a=optional.int32))
+            self.assertEqual(p1.dumpPython(), 'cms.PSet(\n    allowAnyLabel_=cms.optional.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            p1.foo = dict(a=5)
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    foo = cms.PSet(\n        a = cms.int32(5)\n    ),\n    allowAnyLabel_=cms.optional.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
+            self.assertEqual(p1.foo.a.value(), 5)
+
 
         def testAllowed(self):
             p1 = PSet(aValue = required.allowed(int32, string))
@@ -1973,6 +2061,22 @@ if __name__ == "__main__":
             self.assertFalse(hasattr(aliasfoo4, "foo2"))
             self.assertTrue(hasattr(aliasfoo4, "foo3"))
             self.assertEqual(aliasfoo4.foo3[0].type, "Foo3")
+
+            aliasfoo5 = EDAlias(foo5 = EDAlias.allProducts())
+            self.assertEqual(len(aliasfoo5.foo5), 1)
+            self.assertEqual(aliasfoo5.foo5[0].type.value(), "*")
+            self.assertFalse(hasattr(aliasfoo5.foo5[0], "fromProductInstance"))
+            self.assertFalse(hasattr(aliasfoo5.foo5[0], "toProductInstance"))
+
+            aliasfoo6 = aliasfoo5.clone(foo5 = None, foo6 = EDAlias.allProducts())
+            self.assertFalse(hasattr(aliasfoo6, "foo5"))
+            self.assertTrue(hasattr(aliasfoo6, "foo6"))
+            self.assertEqual(len(aliasfoo6.foo6), 1)
+            self.assertEqual(aliasfoo6.foo6[0].type.value(), "*")
+
+            aliasfoo7 = EDAlias(foo5 = EDAlias.allProducts(), foo6 = EDAlias.allProducts())
+            self.assertEqual(len(aliasfoo7.foo5), 1)
+            self.assertEqual(len(aliasfoo7.foo6), 1)
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")

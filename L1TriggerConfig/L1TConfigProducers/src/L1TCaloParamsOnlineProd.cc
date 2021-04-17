@@ -19,9 +19,9 @@ using namespace XERCES_CPP_NAMESPACE;
 
 class L1TCaloParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd, l1t::CaloParams> {
 private:
-  unsigned int exclusiveLayer;  // 0 - process calol1 and calol2, 1 - only calol1, 2 - only calol2
-  bool transactionSafe;
-  edm::ESGetToken<l1t::CaloParams, L1TCaloParamsRcd> baseSettings_token;
+  const edm::ESGetToken<l1t::CaloParams, L1TCaloParamsRcd> baseSettings_token;
+  const unsigned int exclusiveLayer;  // 0 - process calol1 and calol2, 1 - only calol1, 2 - only calol2
+  const bool transactionSafe;
 
   bool readCaloLayer1OnlineSettings(l1t::CaloParamsHelperO2O& paramsHelper,
                                     std::map<std::string, l1t::Parameter>& conf,
@@ -210,11 +210,10 @@ bool L1TCaloParamsOnlineProd::readCaloLayer2OnlineSettings(l1t::CaloParamsHelper
 }
 
 L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfig)
-    : L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd, l1t::CaloParams>(iConfig) {
-  wrappedSetWhatProduced(iConfig).setConsumes(baseSettings_token);
-  exclusiveLayer = iConfig.getParameter<uint32_t>("exclusiveLayer");
-  transactionSafe = iConfig.getParameter<bool>("transactionSafe");
-}
+    : L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd, l1t::CaloParams>(iConfig),
+      baseSettings_token(wrappedSetWhatProduced(iConfig).consumes()),
+      exclusiveLayer(iConfig.getParameter<uint32_t>("exclusiveLayer")),
+      transactionSafe(iConfig.getParameter<bool>("transactionSafe")) {}
 
 std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey,
                                                                           const L1TCaloParamsO2ORcd& record) {
@@ -231,8 +230,8 @@ std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const 
     }
   }
 
-  std::string tscKey = objectKey.substr(0, objectKey.find(":"));
-  std::string rsKey = objectKey.substr(objectKey.find(":") + 1, std::string::npos);
+  std::string tscKey = objectKey.substr(0, objectKey.find(':'));
+  std::string rsKey = objectKey.substr(objectKey.find(':') + 1, std::string::npos);
 
   edm::LogInfo("L1-O2O: L1TCaloParamsOnlineProd")
       << "Producing L1TCaloParamsOnlineProd with TSC key = " << tscKey << " and RS key = " << rsKey;
@@ -295,13 +294,13 @@ std::unique_ptr<const l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const 
       output << conf.second;
       output.close();
     }
-    std::ofstream output(std::string("/tmp/").append(calol2_hw_key.substr(0, calol2_hw_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(calol2_hw_key.substr(0, calol2_hw_key.find('/'))).append(".xml"));
     output << calol2_hw_payload;
     output.close();
   }
   if (exclusiveLayer == 0 || exclusiveLayer == 1) {
     std::ofstream output(
-        std::string("/tmp/").append(calol1_algo_key.substr(0, calol1_algo_key.find("/"))).append(".xml"));
+        std::string("/tmp/").append(calol1_algo_key.substr(0, calol1_algo_key.find('/'))).append(".xml"));
     output << calol1_algo_payload;
     output.close();
   }

@@ -35,6 +35,12 @@ a functor passed to the Framework with a call to callWhenNewProductsRegistered.
 // forward declarations
 namespace edm {
   class EDConsumerBase;
+  template <Transition TR>
+  class ConsumesCollectorESAdaptor;
+  template <Transition TR>
+  class ConsumesCollectorWithTagESAdaptor;
+  template <BranchType B>
+  class ConsumesCollectorAdaptor;
 
   class ConsumesCollector {
   public:
@@ -48,6 +54,11 @@ namespace edm {
     template <typename ProductType, BranchType B = InEvent>
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
       return m_consumer->consumes<ProductType, B>(tag);
+    }
+
+    template <BranchType B = InEvent>
+    [[nodiscard]] ConsumesCollectorAdaptor<B> consumes(edm::InputTag tag) {
+      return ConsumesCollectorAdaptor<B>(*this, std::move(tag));
     }
 
     EDGetToken consumes(const TypeToGet& id, edm::InputTag const& tag) { return m_consumer->consumes(id, tag); }
@@ -97,6 +108,16 @@ namespace edm {
       return m_consumer->esConsumes<ESProduct, Tr>(key, tag);
     }
 
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] constexpr auto esConsumes() noexcept {
+      return ConsumesCollectorESAdaptor<Tr>(*this);
+    }
+
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] auto esConsumes(ESInputTag tag) noexcept {
+      return ConsumesCollectorWithTagESAdaptor<Tr>(*this, std::move(tag));
+    }
+
   private:
     //only EDConsumerBase is allowed to make an instance of this class
     friend class EDConsumerBase;
@@ -106,6 +127,61 @@ namespace edm {
     // ---------- member data --------------------------------
     edm::propagate_const<EDConsumerBase*> m_consumer;
   };
+
+  template <Transition TR>
+  class ConsumesCollectorESAdaptor {
+  public:
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() {
+      return m_consumer.template esConsumes<TYPE, REC, TR>();
+    }
+
+  private:
+    //only ConsumesCollector is allowed to make an instance of this class
+    friend class ConsumesCollector;
+
+    explicit ConsumesCollectorESAdaptor(ConsumesCollector iBase) : m_consumer(std::move(iBase)) {}
+
+    ConsumesCollector m_consumer;
+  };
+
+  template <Transition TR>
+  class ConsumesCollectorWithTagESAdaptor {
+  public:
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() {
+      return m_consumer.template esConsumes<TYPE, REC, TR>(m_tag);
+    }
+
+  private:
+    //only ConsumesCollector is allowed to make an instance of this class
+    friend class ConsumesCollector;
+
+    ConsumesCollectorWithTagESAdaptor(ConsumesCollector iBase, ESInputTag iTag)
+        : m_consumer(std::move(iBase)), m_tag(std::move(iTag)) {}
+
+    ConsumesCollector m_consumer;
+    ESInputTag const m_tag;
+  };
+
+  template <BranchType B>
+  class ConsumesCollectorAdaptor {
+  public:
+    template <typename TYPE>
+    EDGetTokenT<TYPE> consumes() {
+      return m_consumer.template consumes<TYPE, B>(m_tag);
+    }
+
+  private:
+    //only ConsumesCollector is allowed to make an instance of this class
+    friend class ConsumesCollector;
+
+    ConsumesCollectorAdaptor(ConsumesCollector iBase, edm::InputTag iTag) : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
+    ConsumesCollector m_consumer;
+    edm::InputTag const m_tag;
+  };
+
 }  // namespace edm
 
 #endif

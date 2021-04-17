@@ -1,6 +1,5 @@
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/GeometryVector"/>
-<use name="DataFormats/SiStripDetId"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FastSimulation/Event"/>
@@ -14,7 +13,6 @@
 <use name="RecoTracker/TkDetLayers"/>
 <use name="TrackingTools/DetLayers"/>
 <use name="TrackingTools/GeomPropagators"/>
-<use name="TrackingTools/PatternTools"/>
 <use name="TrackingTools/TrajectoryState"/>
 <export>
   <lib name="1"/>

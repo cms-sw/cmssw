@@ -27,7 +27,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -82,9 +81,10 @@ private:
   void endJob() override;
 
   std::unique_ptr<SiStripPedestalsSubtractor> subtractorPed_;
-  edm::ESHandle<SiStripPedestals> pedestalsHandle;
+  edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> pedestalsToken_;
+  const SiStripPedestals* pedestalsHandle;
+  edm::ESWatcher<SiStripPedestalsRcd> pedestalsWatcher_;
   std::vector<int> pedestals;
-  uint32_t peds_cache_id;
 
   bool plotClusters_;
   bool plotBaseline_;
@@ -122,13 +122,14 @@ private:
 SiStripBaselineAnalyzer::SiStripBaselineAnalyzer(const edm::ParameterSet& conf) {
   usesResource("TFileService");
 
+  pedestalsToken_ = esConsumes();
   srcBaseline_ = conf.getParameter<edm::InputTag>("srcBaseline");
   srcBaselinePoints_ = conf.getParameter<edm::InputTag>("srcBaselinePoints");
   srcProcessedRawDigi_ = conf.getParameter<edm::InputTag>("srcProcessedRawDigi");
   srcDigis_ = conf.getParameter<edm::InputTag>("srcDigis");
   srcAPVCM_ = conf.getParameter<edm::InputTag>("srcAPVCM");
-  subtractorPed_ =
-      SiStripRawProcessingFactory::create_SubtractorPed(conf.getParameter<edm::ParameterSet>("Algorithms"));
+  subtractorPed_ = SiStripRawProcessingFactory::create_SubtractorPed(conf.getParameter<edm::ParameterSet>("Algorithms"),
+                                                                     consumesCollector());
   nModuletoDisplay_ = conf.getParameter<uint32_t>("nModuletoDisplay");
   plotClusters_ = conf.getParameter<bool>("plotClusters");
   plotBaseline_ = conf.getParameter<bool>("plotBaseline");
@@ -162,10 +163,8 @@ SiStripBaselineAnalyzer::~SiStripBaselineAnalyzer() {}
 void SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   using namespace edm;
   if (plotPedestals_ && actualModule_ == 0) {
-    uint32_t p_cache_id = es.get<SiStripPedestalsRcd>().cacheIdentifier();
-    if (p_cache_id != peds_cache_id) {
-      es.get<SiStripPedestalsRcd>().get(pedestalsHandle);
-      peds_cache_id = p_cache_id;
+    if (pedestalsWatcher_.check(es)) {
+      pedestalsHandle = &es.getData(pedestalsToken_);
     }
 
     std::vector<uint32_t> detIdV;

@@ -5,14 +5,14 @@
 
 DEFINE_FWK_MODULE(SiStripDetInfoFileWriter);
 
-#include "CalibTracker/SiStripCommon/interface/ShallowTree.h"
-#include "CalibTracker/SiStripCommon/interface/ShallowEventDataProducer.h"
-#include "CalibTracker/SiStripCommon/interface/ShallowDigisProducer.h"
-#include "CalibTracker/SiStripCommon/interface/ShallowTrackClustersProducer.h"
-#include "CalibTracker/SiStripCommon/interface/ShallowRechitClustersProducer.h"
-#include "CalibTracker/SiStripCommon/interface/ShallowSimhitClustersProducer.h"
-#include "CalibTracker/SiStripCommon/interface/ShallowTracksProducer.h"
-#include "CalibTracker/SiStripCommon/interface/ShallowGainCalibration.h"
+#include "ShallowTree.h"
+#include "ShallowEventDataProducer.h"
+#include "ShallowDigisProducer.h"
+#include "ShallowTrackClustersProducer.h"
+#include "ShallowRechitClustersProducer.h"
+#include "ShallowSimhitClustersProducer.h"
+#include "ShallowTracksProducer.h"
+#include "ShallowGainCalibration.h"
 #include "ShallowSimTracksProducer.h"
 
 DEFINE_FWK_MODULE(ShallowTree);

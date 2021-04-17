@@ -132,6 +132,15 @@ namespace edm {
       if (pset.exists("debugLevel")) {
         m_debugLevel = pset.getUntrackedParameter<unsigned int>("debugLevel");
       }
+      if (pset.exists("overrideUseLocalConnectString")) {
+        m_useLocalConnectString = pset.getUntrackedParameter<bool>("overrideUseLocalConnectString");
+      }
+      if (pset.exists("overrideLocalConnectPrefix")) {
+        m_localConnectPrefix = pset.getUntrackedParameter<std::string>("overrideLocalConnectPrefix");
+      }
+      if (pset.exists("overrideLocalConnectSuffix")) {
+        m_localConnectSuffix = pset.getUntrackedParameter<std::string>("overrideLocalConnectSuffix");
+      }
     }
 
     SiteLocalConfigService::~SiteLocalConfigService() {
@@ -259,6 +268,9 @@ namespace edm {
     }
 
     std::string const &SiteLocalConfigService::siteName() const { return m_siteName; }
+    bool SiteLocalConfigService::useLocalConnectString() const { return m_useLocalConnectString; }
+    std::string const &SiteLocalConfigService::localConnectPrefix() const { return m_localConnectPrefix; }
+    std::string const &SiteLocalConfigService::localConnectSuffix() const { return m_localConnectSuffix; }
 
     void SiteLocalConfigService::parse(std::string const &url) {
       tinyxml2::XMLDocument doc;
@@ -279,6 +291,9 @@ namespace edm {
       //     <frontier-connect>
       //       ... frontier-interpreted server/proxy xml ...
       //     </frontier-connect>
+      //     <local-connect>
+      //       <connectString prefix="anything1" suffix="anything2"/>
+      //     </local-connect>
       //   </calib-data>
       //   <source-config>
       //     <cache-temp-dir name="/a/b/c"/>
@@ -329,8 +344,22 @@ namespace edm {
             if (frontierConnect) {
               m_frontierConnect = _toParenString(*frontierConnect);
             }
+            auto localConnect = calibData->FirstChildElement("local-connect");
+            if (localConnect) {
+              if (frontierConnect) {
+                throw cms::Exception("Illegal site local configuration")
+                    << "It is illegal to include both frontier-connect and local-connect in the same XML file";
+              }
+              m_useLocalConnectString = true;
+              auto connectString = localConnect->FirstChildElement("connectString");
+              if (connectString) {
+                m_localConnectPrefix = safe(connectString->Attribute("prefix"));
+                m_localConnectSuffix = safe(connectString->Attribute("suffix"));
+              }
+            }
           }
         }
+
         // Parsing of the source config section
         {
           auto sourceConfig = site->FirstChildElement("source-config");
@@ -465,7 +494,9 @@ namespace edm {
           ->setComment(
               "Provide an alternate listing of statistics to send (comma separated list; current options are 'dn' or "
               "'nodn').  If left blank, all information is snet (including DNs).");
-
+      desc.addOptionalUntracked<bool>("overrideUseLocalConnectString");
+      desc.addOptionalUntracked<std::string>("overrideLocalConnectPrefix");
+      desc.addOptionalUntracked<std::string>("overrideLocalConnectSuffix");
       descriptions.add("SiteLocalConfigService", desc);
     }
   }  // namespace service

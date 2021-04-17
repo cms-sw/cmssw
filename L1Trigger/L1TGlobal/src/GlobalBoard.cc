@@ -9,7 +9,8 @@
  *
  * \author: M. Fierro            - HEPHY Vienna - ORCA version
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version
- * \author: Vladimir Rekovic - add correlation with overlap removal cases
+ * \author: Vladimir Rekovic     - add correlation with overlap removal cases
+ *                               - fractional prescales
  *
  * $Date$
  * $Revision$
@@ -830,7 +831,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
                               const int iBxInEvent,
                               const int totalBxInEvent,
                               const unsigned int numberPhysTriggers,
-                              const std::vector<int>& prescaleFactorsAlgoTrig,
+                              const std::vector<double>& prescaleFactorsAlgoTrig,
                               const std::vector<unsigned int>& triggerMaskAlgoTrig,
                               const std::vector<int>& triggerMaskVetoAlgoTrig,
                               const bool algorithmTriggersUnprescaled,
@@ -874,6 +875,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
     int inBxInEvent = totalBxInEvent / 2 + iBxInEvent;
 
     bool temp_algPrescaledOr = false;
+    bool alreadyReported = false;
     for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
       bool bitValue = m_uGtAlgBlk.getAlgoDecisionInitial(iBit);
       if (bitValue) {
@@ -895,8 +897,10 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
             temp_algPrescaledOr = true;
           }
         }  // require bit in range
-        else {
-          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= prescaleFactorsAlgoTrig.size() " << std::endl;
+        else if (!alreadyReported) {
+          alreadyReported = true;
+          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= prescaleFactorsAlgoTrig.size() in bx " << iBxInEvent
+                                       << std::endl;
         }
       }  //if algo bit is set true
     }    //loop over alg bits
@@ -915,6 +919,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
 
   if (!algorithmTriggersUnmasked) {
     bool temp_algFinalOr = false;
+    bool alreadyReported = false;
     for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
       bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm(iBit);
 
@@ -923,8 +928,10 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
         bool isMasked = false;
         if (iBit < triggerMaskAlgoTrig.size())
           isMasked = (triggerMaskAlgoTrig.at(iBit) == 0);
-        else {
-          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= triggerMaskAlgoTrig.size() " << std::endl;
+        else if (!alreadyReported) {
+          alreadyReported = true;
+          edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= triggerMaskAlgoTrig.size() in bx " << iBxInEvent
+                                       << std::endl;
         }
 
         bool passMask = (bitValue && !isMasked);

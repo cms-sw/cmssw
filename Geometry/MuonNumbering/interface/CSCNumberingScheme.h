@@ -20,7 +20,7 @@ public:
   CSCNumberingScheme(const MuonGeometryConstants& muonConstants);
   ~CSCNumberingScheme() override{};
 
-  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
+  int baseNumberToUnitNumber(const MuonBaseNumber&) const override;
 
 private:
   void initMe(const MuonGeometryConstants& muonConstants);

@@ -23,7 +23,8 @@ process.CSCGeometryAlInputDB = cms.ESProducer("CSCGeometryESModule",
     useRealWireGeometry = cms.bool(True),
     useCentreTIOffsets = cms.bool(False),
     applyAlignment = cms.bool(False), 
-    useDDD = cms.bool(True)
+    fromDDD = cms.bool(True),
+    fromDD4hep = cms.bool(False)
 )
 
 process.DTGeometryAlOutputXML = cms.ESProducer("DTGeometryESModule",
@@ -42,7 +43,8 @@ process.CSCGeometryAlOutputXML = cms.ESProducer("CSCGeometryESModule",
     useRealWireGeometry = cms.bool(True),
     useCentreTIOffsets = cms.bool(False),
     applyAlignment = cms.bool(False), 
-    useDDD = cms.bool(True)
+    fromDDD = cms.bool(True),
+    fromDD4hep = cms.bool(False)
 )
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")

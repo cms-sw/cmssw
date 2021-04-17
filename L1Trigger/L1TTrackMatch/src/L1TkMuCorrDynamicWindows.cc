@@ -1,4 +1,6 @@
 #include "L1Trigger/L1TTrackMatch/interface/L1TkMuCorrDynamicWindows.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/angle_units.h"
 
 // ROOT includes
 #include "TH1.h"
@@ -189,10 +191,10 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match(const EMTFTrackCollection&
 
       // putting everything in rad
       float emtf_theta = to_mpio2_pio2(eta_to_theta(l1muit->Eta()));
-      float emtf_phi = deg_to_rad(l1muit->Phi_glob());
+      float emtf_phi = angle_units::operators::convertDegToRad(l1muit->Phi_glob());
 
       float dtheta = std::abs(emtf_theta - trk_theta);
-      float dphi = to_mpi_pi(emtf_phi - trk_phi);
+      float dphi = reco::deltaPhi(emtf_phi, trk_phi);
       float adphi = std::abs(dphi);
 
       double sf_l;
@@ -288,10 +290,10 @@ std::vector<int> L1TkMuCorrDynamicWindows::find_match_stub(const EMTFHitCollecti
         continue;
 
       float emtf_theta = to_mpio2_pio2(eta_to_theta(l1muit->Eta_sim()));
-      float emtf_phi = deg_to_rad(l1muit->Phi_sim());
+      float emtf_phi = angle_units::operators::convertDegToRad(l1muit->Phi_sim());
 
       float dtheta = std::abs(emtf_theta - trk_theta);
-      float dphi = to_mpi_pi(emtf_phi - trk_phi);
+      float dphi = reco::deltaPhi(emtf_phi, trk_phi);
       float adphi = std::abs(dphi);
 
       double sf_l;

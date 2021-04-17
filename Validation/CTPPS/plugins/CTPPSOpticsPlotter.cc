@@ -32,7 +32,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  std::string opticsLabel_;
+  edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> opticsESToken_;
 
   unsigned int rpId_45_N_, rpId_45_F_;
   unsigned int rpId_56_N_, rpId_56_F_;
@@ -106,7 +106,7 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSOpticsPlotter::CTPPSOpticsPlotter(const edm::ParameterSet& iConfig)
-    : opticsLabel_(iConfig.getParameter<std::string>("opticsLabel")),
+    : opticsESToken_(esConsumes(ESInputTag("", iConfig.getParameter<std::string>("opticsLabel")))),
 
       rpId_45_N_(iConfig.getParameter<unsigned int>("rpId_45_N")),
       rpId_45_F_(iConfig.getParameter<unsigned int>("rpId_45_F")),
@@ -129,15 +129,14 @@ void CTPPSOpticsPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup
     return;
 
   // get conditions
-  edm::ESHandle<LHCInterpolatedOpticalFunctionsSetCollection> hOpticalFunctions;
-  iSetup.get<CTPPSInterpolatedOpticsRcd>().get(opticsLabel_, hOpticalFunctions);
+  const auto& opticalFunctions = iSetup.getData(opticsESToken_);
 
   // stop if conditions invalid
-  if (hOpticalFunctions->empty())
+  if (opticalFunctions.empty())
     return;
 
   // make per-RP plots
-  for (const auto& it : *hOpticalFunctions) {
+  for (const auto& it : opticalFunctions) {
     CTPPSDetId rpId(it.first);
     unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
 
@@ -190,7 +189,7 @@ void CTPPSOpticsPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup
     // find optics objects
     const LHCInterpolatedOpticalFunctionsSet *opt_N = nullptr, *opt_F = nullptr;
 
-    for (const auto& it : *hOpticalFunctions) {
+    for (const auto& it : opticalFunctions) {
       CTPPSDetId rpId(it.first);
       unsigned int rpDecId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();
 

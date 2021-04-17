@@ -8,4 +8,6 @@
   <use name="TrackPropagation/SteppingHelixPropagator"/>
   <use name="MagneticField/Records"/>
   <use name="MagneticField/Engine"/>
+  <use name="Geometry/MTDNumberingBuilder"/>
+  <use name="Geometry/Records"/>
 </library>

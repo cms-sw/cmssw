@@ -10,13 +10,17 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <TGraph.h>
 #include <TProfile.h>
 #include <TStyle.h>
@@ -48,11 +52,13 @@ public:
   void algoBeginJob(const edm::EventSetup &) override;
 
 private:
-  edm::ESHandle<TrackerGeometry> estracker;
-  edm::ESHandle<MagneticField> magfield_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  edm::ESGetToken<SiStripLorentzAngle, SiStripLorentzAngleRcd> lorentzAngleToken_;
 
-  const TrackerGeometry *tracker;
-  const TrackerTopology *tTopo;
+  const TrackerGeometry *tkGeom_ = nullptr;
+  const TrackerTopology *tTopo_ = nullptr;
 
   typedef std::map<std::string, TProfile *> ProfileMap;
   ProfileMap Profiles;

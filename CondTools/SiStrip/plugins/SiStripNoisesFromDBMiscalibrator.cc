@@ -68,6 +68,8 @@ private:
   const bool m_saveMaps;
   const std::vector<edm::ParameterSet> m_parameters;
   edm::FileInPath fp_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> m_noiseToken;
 
   std::unique_ptr<TrackerMap> scale_map;
   std::unique_ptr<TrackerMap> smear_map;
@@ -85,7 +87,9 @@ SiStripNoisesFromDBMiscalibrator::SiStripNoisesFromDBMiscalibrator(const edm::Pa
       m_saveMaps{iConfig.getUntrackedParameter<bool>("saveMaps", true)},
       m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")},
       fp_{iConfig.getUntrackedParameter<edm::FileInPath>(
-          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))} {
+          "file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))},
+      m_tTopoToken(esConsumes()),
+      m_noiseToken(esConsumes()) {
   //now do what ever initialization is needed
 
   scale_map = std::make_unique<TrackerMap>("scale");
@@ -125,9 +129,7 @@ SiStripNoisesFromDBMiscalibrator::~SiStripNoisesFromDBMiscalibrator() {}
 void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const auto* const tTopo = tTopoHandle.product();
+  const auto tTopo = &iSetup.getData(m_tTopoToken);
 
   std::vector<std::string> partitions;
 
@@ -156,15 +158,14 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
     mapOfSmearings[region] = params;
   }
 
-  edm::ESHandle<SiStripNoises> SiStripNoise_;
-  iSetup.get<SiStripNoisesRcd>().get(SiStripNoise_);
+  const auto& stripNoises = iSetup.getData(m_noiseToken);
 
   std::map<std::pair<uint32_t, int>, float> theMap, oldPayloadMap;
 
   std::vector<uint32_t> detid;
-  SiStripNoise_->getDetIds(detid);
+  stripNoises.getDetIds(detid);
   for (const auto& d : detid) {
-    SiStripNoises::Range range = SiStripNoise_->getRange(d);
+    SiStripNoises::Range range = stripNoises.getRange(d);
 
     auto regions = SiStripMiscalibrate::getRegionsFromDetId(tTopo, d);
 
@@ -191,7 +192,7 @@ void SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
 
     int nStrips = 0;
     for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
-      auto noise = SiStripNoise_->getNoise(it, range);
+      auto noise = stripNoises.getNoise(it, range);
       std::pair<uint32_t, int> index = std::make_pair(d, nStrips);
 
       oldPayloadMap[index] = noise;

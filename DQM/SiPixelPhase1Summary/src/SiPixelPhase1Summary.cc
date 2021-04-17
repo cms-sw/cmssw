@@ -32,9 +32,9 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
 #include <string>
@@ -46,7 +46,8 @@
 using namespace std;
 using namespace edm;
 
-SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig) : conf_(iConfig), firstLumi(true) {
+SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig)
+    : DQMEDHarvester(iConfig), conf_(iConfig), firstLumi(true) {
   LogInfo("PixelDQM") << "SiPixelPhase1Summary::SiPixelPhase1Summary: Got DQM BackEnd interface" << endl;
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   runOnEndLumi_ = conf_.getParameter<bool>("RunOnEndLumi");

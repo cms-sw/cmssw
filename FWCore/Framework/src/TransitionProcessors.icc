@@ -24,8 +24,10 @@ struct FileResources {
       if (!closingSequenceAlreadyFailed_) {
         ep_.respondToCloseInputFile();
         ep_.closeInputFile(cleaningUpAfterException_);
-        ep_.endProcessBlock(cleaningUpAfterException_, beginProcessBlockSucceeded_);
-        ep_.closeOutputFiles();
+        if (needToCloseOutputFiles_) {
+          ep_.endProcessBlock(cleaningUpAfterException_, beginProcessBlockSucceeded_);
+          ep_.closeOutputFiles();
+        }
       }
     } catch (...) {
       if (cleaningUpAfterException_ or not ep_.setDeferredException(std::current_exception())) {
@@ -42,6 +44,7 @@ struct FileResources {
   bool cleaningUpAfterException_ = true;
   bool closingSequenceAlreadyFailed_ = false;
   bool beginProcessBlockSucceeded_ = false;
+  bool needToCloseOutputFiles_ = false;
 };
 
 struct RunResources {
@@ -231,10 +234,12 @@ private:
 
   void readFirstFile(EventProcessor& iEP) {
     iEP.readFile();
+    assert(iEP.fileBlockValid());
     iEP.respondToOpenInputFile();
 
     iEP.openOutputFiles();
     filesOpen_ = std::make_unique<FileResources>(iEP);
+    filesOpen_->needToCloseOutputFiles_ = true;
 
     iEP.beginProcessBlock(filesOpen_->beginProcessBlockSucceeded_);
     iEP.inputProcessBlocks();
@@ -251,6 +256,11 @@ private:
     iEP.closeInputFile(false);
 
     iEP.readFile();
+    if (!iEP.fileBlockValid()) {
+      // handle case with last file bad and
+      // skipBadFiles true
+      return;
+    }
     iEP.respondToOpenInputFile();
 
     iEP.inputProcessBlocks();
@@ -269,15 +279,22 @@ private:
       iEP.endProcessBlock(cleaningUpAfterException, filesOpen_->beginProcessBlockSucceeded_);
       iEP.closeOutputFiles();
 
+      filesOpen_->needToCloseOutputFiles_ = false;
       filesOpen_->closingSequenceAlreadyFailed_ = false;
     }
     {
       filesOpen_->beginProcessBlockSucceeded_ = false;
 
       iEP.readFile();
+      if (!iEP.fileBlockValid()) {
+        // handle case with last file bad and
+        // skipBadFiles true
+        return;
+      }
       iEP.respondToOpenInputFile();
 
       iEP.openOutputFiles();
+      filesOpen_->needToCloseOutputFiles_ = true;
 
       iEP.beginProcessBlock(filesOpen_->beginProcessBlockSucceeded_);
     }

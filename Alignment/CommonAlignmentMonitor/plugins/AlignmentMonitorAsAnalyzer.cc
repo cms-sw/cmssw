@@ -39,6 +39,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
@@ -50,6 +51,8 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 
@@ -81,7 +84,16 @@ private:
   std::unique_ptr<AlignmentParameterStore> m_alignmentParameterStore;
 
   std::vector<std::unique_ptr<AlignmentMonitorBase>> m_monitors;
-  std::string idealGeometryLabel;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
+  edm::ESGetToken<Alignments, GlobalPositionRcd> esTokenGPR_;
+  edm::ESGetToken<Alignments, DTAlignmentRcd> esTokenDTAl_;
+  edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> esTokenDTAPE_;
+  edm::ESGetToken<Alignments, CSCAlignmentRcd> esTokenCSCAl_;
+  edm::ESGetToken<AlignmentErrorsExtended, CSCAlignmentErrorExtendedRcd> esTokenCSCAPE_;
+  edm::ESGetToken<Alignments, GEMAlignmentRcd> esTokenGEMAl_;
+  edm::ESGetToken<AlignmentErrorsExtended, GEMAlignmentErrorExtendedRcd> esTokenGEMAPE_;
   bool m_firstEvent;
 };
 
@@ -99,7 +111,9 @@ private:
 AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& iConfig)
     : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
       m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore")),
-      idealGeometryLabel("idealForAlignmentMonitorAsAnalyzer") {
+      esTokenDT_(esConsumes(edm::ESInputTag("", "idealForAlignmentMonitorAsAnalyzer"))),
+      esTokenCSC_(esConsumes(edm::ESInputTag("", "idealForAlignmentMonitorAsAnalyzer"))),
+      esTokenGEM_(esConsumes(edm::ESInputTag("", "idealForAlignmentMonitorAsAnalyzer"))) {
   std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string>>("monitors");
 
   for (auto const& mon : monitors) {
@@ -129,13 +143,11 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     TrackerGeomBuilderFromGeometricDet trackerBuilder;
     std::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet), *ptp, tTopo));
 
-    edm::ESHandle<DTGeometry> theMuonDT;
-    edm::ESHandle<CSCGeometry> theMuonCSC;
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, theMuonDT);
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, theMuonCSC);
+    edm::ESHandle<DTGeometry> theMuonDT = iSetup.getHandle(esTokenDT_);
+    edm::ESHandle<CSCGeometry> theMuonCSC = iSetup.getHandle(esTokenCSC_);
+    edm::ESHandle<GEMGeometry> theMuonGEM = iSetup.getHandle(esTokenGEM_);
 
-    edm::ESHandle<Alignments> globalPositionRcd;
-    iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
+    edm::ESHandle<Alignments> globalPositionRcd = iSetup.getHandle(esTokenGPR_);
 
     edm::ESHandle<Alignments> alignments;
     iSetup.get<TrackerAlignmentRcd>().get(alignments);
@@ -146,29 +158,33 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
                                              &(*alignmentErrors),
                                              align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 
-    edm::ESHandle<Alignments> dtAlignments;
-    iSetup.get<DTAlignmentRcd>().get(dtAlignments);
-    edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
-    iSetup.get<DTAlignmentErrorExtendedRcd>().get(dtAlignmentErrorsExtended);
+    edm::ESHandle<Alignments> dtAlignments = iSetup.getHandle(esTokenDTAl_);
+    ;
+    edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended = iSetup.getHandle(esTokenDTAPE_);
     aligner.applyAlignments<DTGeometry>(&(*theMuonDT),
                                         &(*dtAlignments),
                                         &(*dtAlignmentErrorsExtended),
                                         align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
 
-    edm::ESHandle<Alignments> cscAlignments;
-    iSetup.get<CSCAlignmentRcd>().get(cscAlignments);
-    edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
-    iSetup.get<CSCAlignmentErrorExtendedRcd>().get(cscAlignmentErrorsExtended);
+    edm::ESHandle<Alignments> cscAlignments = iSetup.getHandle(esTokenCSCAl_);
+    edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended = iSetup.getHandle(esTokenCSCAPE_);
     aligner.applyAlignments<CSCGeometry>(&(*theMuonCSC),
                                          &(*cscAlignments),
                                          &(*cscAlignmentErrorsExtended),
+                                         align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+
+    edm::ESHandle<Alignments> gemAlignments = iSetup.getHandle(esTokenGEMAl_);
+    edm::ESHandle<AlignmentErrorsExtended> gemAlignmentErrorsExtended = iSetup.getHandle(esTokenGEMAPE_);
+    aligner.applyAlignments<GEMGeometry>(&(*theMuonGEM),
+                                         &(*gemAlignments),
+                                         &(*gemAlignmentErrorsExtended),
                                          align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
 
     // within an analyzer, modules can't expect to see any selected alignables!
     align::Alignables empty_alignables;
 
     m_alignableTracker = std::make_unique<AlignableTracker>(&(*theTracker), tTopo);
-    m_alignableMuon = std::make_unique<AlignableMuon>(&(*theMuonDT), &(*theMuonCSC));
+    m_alignableMuon = std::make_unique<AlignableMuon>(&(*theMuonDT), &(*theMuonCSC), &(*theMuonGEM));
     m_alignmentParameterStore = std::make_unique<AlignmentParameterStore>(empty_alignables, m_aliParamStoreCfg);
 
     for (auto const& monitor : m_monitors) {

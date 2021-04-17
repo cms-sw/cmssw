@@ -27,7 +27,8 @@ CMSDarkPairProductionProcess::CMSDarkPairProductionProcess(G4double df, const G4
 CMSDarkPairProductionProcess::~CMSDarkPairProductionProcess() {}
 
 G4bool CMSDarkPairProductionProcess::IsApplicable(const G4ParticleDefinition& p) {
-  return (p.GetParticleType() == "darkpho");
+  G4int pdg = std::abs(p.GetPDGEncoding());
+  return (pdg == 1023 || pdg == 1072000);
 }
 
 void CMSDarkPairProductionProcess::InitialiseProcess(const G4ParticleDefinition* p) {
@@ -38,8 +39,6 @@ void CMSDarkPairProductionProcess::InitialiseProcess(const G4ParticleDefinition*
   }
 }
 
-G4double CMSDarkPairProductionProcess::MinPrimaryEnergy(const G4ParticleDefinition*, const G4Material*) {
-  return 2 * electron_mass_c2;
+G4double CMSDarkPairProductionProcess::MinPrimaryEnergy(const G4ParticleDefinition* p, const G4Material*) {
+  return std::max(2 * CLHEP::electron_mass_c2 - p->GetPDGMass(), 0.0);
 }
-
-void CMSDarkPairProductionProcess::PrintInfo() {}

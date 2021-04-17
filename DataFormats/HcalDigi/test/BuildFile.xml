@@ -2,7 +2,6 @@
   <flags EDM_PLUGIN="1"/>
   <use name="DataFormats/HcalDigi"/>
   <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
 </library>
 
 <iftool name="cuda-gcc-support">

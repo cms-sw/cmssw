@@ -1,7 +1,6 @@
 <use name="CalibFormats/HcalObjects"/>
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/HcalDetId"/>
-<use name="DetectorDescription/Core"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>

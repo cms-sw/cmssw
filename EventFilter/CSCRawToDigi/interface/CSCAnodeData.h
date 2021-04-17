@@ -1,5 +1,5 @@
-#ifndef CSCAnodeData_h
-#define CSCAnodeData_h
+#ifndef EventFilter_CSCRawToDigi_CSCAnodeData_h
+#define EventFilter_CSCRawToDigi_CSCAnodeData_h
 #include <vector>
 #include <memory>
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"

@@ -5,7 +5,7 @@
 //
 /**\class HLTScoutingCaloProducer HLTScoutingCaloProducer.cc HLTrigger/JetMET/plugins/HLTScoutingCaloProducer.cc
 
-Description: Producer for ScoutingCaloJets from reco::CaloJet objects
+Description: Producer for Run3ScoutingCaloJets from reco::CaloJet objects
 
 */
 //
@@ -31,8 +31,8 @@ Description: Producer for ScoutingCaloJets from reco::CaloJet objects
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-#include "DataFormats/Scouting/interface/ScoutingCaloJet.h"
-#include "DataFormats/Scouting/interface/ScoutingVertex.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingCaloJet.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -79,7 +79,7 @@ HLTScoutingCaloProducer::HLTScoutingCaloProducer(const edm::ParameterSet& iConfi
       doJetBTags(iConfig.getParameter<bool>("doJetBTags")),
       doJetIDTags(iConfig.getParameter<bool>("doJetIDTags")) {
   //register products
-  produces<ScoutingCaloJetCollection>();
+  produces<Run3ScoutingCaloJetCollection>();
   produces<double>("rho");
   produces<double>("caloMetPt");
   produces<double>("caloMetPhi");
@@ -93,7 +93,7 @@ void HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
 
   //get calo jets
   Handle<reco::CaloJetCollection> caloJetCollection;
-  std::unique_ptr<ScoutingCaloJetCollection> outCaloJets(new ScoutingCaloJetCollection());
+  std::unique_ptr<Run3ScoutingCaloJetCollection> outCaloJets(new Run3ScoutingCaloJetCollection());
   if (iEvent.getByToken(caloJetCollection_, caloJetCollection)) {
     //get jet tags
     Handle<reco::JetTagCollection> caloJetBTagCollection;

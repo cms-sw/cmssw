@@ -26,23 +26,31 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-        destinations =  cms.untracked.vstring('cerr'),
-        categories = cms.untracked.vstring("MagneticField", # messages on MF configuration, field query
-                                           "MagGeoBuilder", # Debug of MF geometry building (debugBuilder flag also needed for full output)
-                                           "MagGeometry",   # Debug of MF geometry search                                           
-                                           "MagGeometry_cache"), # Volume cache debug
-        cerr = cms.untracked.PSet(
-            threshold = cms.untracked.string('WARNING'), # DEBUG + set limits below
-            INFO    = cms.untracked.PSet(limit=cms.untracked.int32(0)),
-            DEBUG   = cms.untracked.PSet(limit=cms.untracked.int32(0)),
-            WARNING    = cms.untracked.PSet(limit=cms.untracked.int32(0)),
-            MagneticField = cms.untracked.PSet(limit=cms.untracked.int32(10000000)),
-            MagGeoBuilder = cms.untracked.PSet(limit=cms.untracked.int32(0)),
-            MagGeometry = cms.untracked.PSet(limit=cms.untracked.int32(0)),
-            MagGeometry_cache = cms.untracked.PSet(limit=cms.untracked.int32(0)),
-            ),
-
-        debugModules = cms.untracked.vstring('queryField')
+    cerr = cms.untracked.PSet(
+        DEBUG = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        MagGeoBuilder = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        MagGeometry = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        MagGeometry_cache = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        MagneticField = cms.untracked.PSet(
+            limit = cms.untracked.int32(10000000)
+        ),
+        WARNING = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        threshold = cms.untracked.string('WARNING')
+    ),
+    debugModules = cms.untracked.vstring('queryField')
 )
 
 

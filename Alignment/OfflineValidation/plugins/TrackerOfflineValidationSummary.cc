@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -55,13 +55,16 @@
 // class decleration
 //
 
-class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
+class TrackerOfflineValidationSummary : public edm::one::EDAnalyzer<> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   explicit TrackerOfflineValidationSummary(const edm::ParameterSet&);
   ~TrackerOfflineValidationSummary() override;
 
 private:
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+
   struct ModuleHistos {
     ModuleHistos()
         : ResHisto(), NormResHisto(), ResXprimeHisto(), NormResXprimeHisto(), ResYprimeHisto(), NormResYprimeHisto() {}
@@ -153,7 +156,9 @@ private:
 // constructors and destructor
 //
 TrackerOfflineValidationSummary::TrackerOfflineValidationSummary(const edm::ParameterSet& iConfig)
-    : parSet_(iConfig),
+    :  //geomToken_(esConsumes<edm::Transition::endJob>()), # this does not work
+      topoToken_(esConsumes()),
+      parSet_(iConfig),
       moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")),
       useFit_(parSet_.getParameter<bool>("useFit")),
       dbe_(nullptr),
@@ -180,8 +185,9 @@ void TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const ed
   // Since they do not change, it is accessed only once
   if (moduleMapsInitialized)
     return;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom_);
+  tkGeom_ = iSetup.getHandle(geomToken_);
   const TrackerGeometry* bareTkGeomPtr = &(*tkGeom_);
+
   const TrackingGeometry::DetIdContainer& detIdContainer = bareTkGeomPtr->detIds();
   std::vector<DetId>::const_iterator iDet;
   for (iDet = detIdContainer.begin(); iDet != detIdContainer.end(); ++iDet) {
@@ -215,6 +221,10 @@ void TrackerOfflineValidationSummary::endJob() {
   edm::ESHandle<TrackerTopology> tTopoHandle;
   lastSetup_->get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  // do not know how to set the transition
+  //edm::ESHandle<TrackerTopology> tTopoHandle = lastSetup_->getHandle(topoToken_);
+  //const TrackerTopology *const tTopo = tTopoHandle.product();
 
   AlignableTracker aliTracker(&(*tkGeom_), tTopo);
 

@@ -23,7 +23,7 @@ namespace edmtest {
     edm::LogWarning("cat_B") << "LogWarning was used to send this other message";
     edm::LogInfo("cat_A") << "LogInfo was used to send this message";
     edm::LogInfo("cat_B") << "LogInfo was used to send this other message";
-    edm::LogInfo("FwkJob") << "<Message>LogInfo was used to send a job report</Message>";
+    edm::LogInfo("FwkTest") << "<Message>LogInfo was used to send a job report</Message>";
 
   }  // MessageLoggerClient::analyze()
 

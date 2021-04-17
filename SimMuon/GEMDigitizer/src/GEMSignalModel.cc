@@ -1,6 +1,6 @@
 #include "SimMuon/GEMDigitizer/interface/GEMSignalModel.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CommonTopologies/interface/GEMStripTopology.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -42,7 +42,7 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll,
                               DetectorHitMap& detectorHitMap_) {
   bool digiMuon = false;
   bool digiElec = false;
-  const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  const GEMStripTopology* top(dynamic_cast<const GEMStripTopology*>(&(roll->topology())));
   for (const auto& hit : simHits) {
     if (std::abs(hit.particleType()) != muonPdgId && digitizeOnlyMuons_)
       continue;
@@ -100,7 +100,7 @@ int GEMSignalModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
                          globMiddleRol.z() * globMiddleRol.z());
   double timeCalibrationOffset_ = muRadius / cspeed;  //[ns]
 
-  const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  const GEMStripTopology* top(dynamic_cast<const GEMStripTopology*>(&(roll->topology())));
   const float halfStripLength(0.5 * top->stripLength());
   const float distanceFromEdge(halfStripLength - simHitPos.y());
 
@@ -127,7 +127,7 @@ int GEMSignalModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   return bx;
 }
 
-std::vector<std::pair<int, int> > GEMSignalModel::simulateClustering(const TrapezoidalStripTopology* top,
+std::vector<std::pair<int, int> > GEMSignalModel::simulateClustering(const GEMStripTopology* top,
                                                                      const PSimHit* simHit,
                                                                      const int bx,
                                                                      CLHEP::HepRandomEngine* engine) {

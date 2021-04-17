@@ -26,6 +26,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 namespace edm {
 
@@ -51,10 +52,13 @@ namespace edm {
     ParentContext parentContext(streamContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     Event event(eventPrincipal, moduleDescription_, &moduleCallingContext_);
+    event.setConsumer(this);
 
     Status status = kContinue;
     try {
-      const EventSetup es{esi, static_cast<unsigned int>(Transition::Event), nullptr, false};
+      ESParentContext parentC(&moduleCallingContext_);
+      const EventSetup es{
+          esi, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC, false};
       status = duringLoop(event, es, ioController);
     } catch (cms::Exception& e) {
       e.addContext("Calling the 'duringLoop' method of a looper");
@@ -69,7 +73,9 @@ namespace edm {
   }
 
   EDLooperBase::Status EDLooperBase::doEndOfLoop(const edm::EventSetupImpl& esi) {
-    const EventSetup es{esi, static_cast<unsigned int>(Transition::EndRun), nullptr, false};
+    ESParentContext parentC(&moduleCallingContext_);
+    const EventSetup es{
+        esi, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
     return endOfLoop(es, iCounter_);
   }
 
@@ -82,7 +88,12 @@ namespace edm {
   }
 
   void EDLooperBase::beginOfJob(const edm::EventSetupImpl& iImpl) {
-    beginOfJob(EventSetup{iImpl, static_cast<unsigned int>(Transition::BeginRun), nullptr, false});
+    ESParentContext parentC(&moduleCallingContext_);
+    beginOfJob(EventSetup{iImpl,
+                          static_cast<unsigned int>(Transition::BeginRun),
+                          esGetTokenIndices(Transition::BeginRun),
+                          parentC,
+                          false});
   }
   void EDLooperBase::beginOfJob(const edm::EventSetup&) { beginOfJob(); }
   void EDLooperBase::beginOfJob() {}
@@ -99,7 +110,10 @@ namespace edm {
     ParentContext parentContext(&globalContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     Run run(iRP, moduleDescription_, &moduleCallingContext_, false);
-    const EventSetup es{iES, static_cast<unsigned int>(Transition::BeginRun), nullptr, false};
+    run.setConsumer(this);
+    ESParentContext parentC(&moduleCallingContext_);
+    const EventSetup es{
+        iES, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), parentC, false};
     beginRun(run, es);
   }
 
@@ -113,7 +127,10 @@ namespace edm {
     ParentContext parentContext(&globalContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     Run run(iRP, moduleDescription_, &moduleCallingContext_, true);
-    const EventSetup es{iES, static_cast<unsigned int>(Transition::EndRun), nullptr, false};
+    run.setConsumer(this);
+    ESParentContext parentC(&moduleCallingContext_);
+    const EventSetup es{
+        iES, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), parentC, false};
     endRun(run, es);
   }
   void EDLooperBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& iLB,
@@ -128,7 +145,13 @@ namespace edm {
     ParentContext parentContext(&globalContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_, false);
-    const EventSetup es{iES, static_cast<unsigned int>(Transition::BeginLuminosityBlock), nullptr, false};
+    luminosityBlock.setConsumer(this);
+    ESParentContext parentC(&moduleCallingContext_);
+    const EventSetup es{iES,
+                        static_cast<unsigned int>(Transition::BeginLuminosityBlock),
+                        esGetTokenIndices(Transition::BeginLuminosityBlock),
+                        parentC,
+                        false};
     beginLuminosityBlock(luminosityBlock, es);
   }
   void EDLooperBase::doEndLuminosityBlock(LuminosityBlockPrincipal& iLB,
@@ -143,7 +166,13 @@ namespace edm {
     ParentContext parentContext(&globalContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_, true);
-    const EventSetup es{iES, static_cast<unsigned int>(Transition::EndLuminosityBlock), nullptr, false};
+    luminosityBlock.setConsumer(this);
+    ESParentContext parentC(&moduleCallingContext_);
+    const EventSetup es{iES,
+                        static_cast<unsigned int>(Transition::EndLuminosityBlock),
+                        esGetTokenIndices(Transition::EndLuminosityBlock),
+                        parentC,
+                        false};
     endLuminosityBlock(luminosityBlock, es);
   }
 

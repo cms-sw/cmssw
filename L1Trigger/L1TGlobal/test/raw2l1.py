@@ -61,7 +61,7 @@ if do_reco:
     process.MessageLogger.cerr.FwkReport.reportEvery = 1
 else:
     process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.MessageLogger.categories.append('L1GtTrigReport')
+process.MessageLogger.L1GtTrigReport=dict()
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(n))
 

@@ -4,7 +4,7 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include <DataFormats/L1TMuon/interface/CSCConstants.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 
 #include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiverLUT.h>

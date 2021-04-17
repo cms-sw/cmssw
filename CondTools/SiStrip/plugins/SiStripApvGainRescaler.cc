@@ -28,7 +28,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
@@ -58,13 +57,18 @@ private:
 
   // ----------member data ---------------------------
   const std::string m_Record;
+
+  // take G2_old and G1_old from the regular gain handle
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> g1g2Token_;
+  // take the additional G1_new from the Gain3Rcd (dirty trick)
+  edm::ESGetToken<SiStripApvGain, SiStripApvGain3Rcd> g3Token_;
 };
 
 //
 // constructors and destructor
 //
 SiStripApvGainRescaler::SiStripApvGainRescaler(const edm::ParameterSet& iConfig)
-    : m_Record(iConfig.getParameter<std::string>("Record")) {
+    : m_Record(iConfig.getParameter<std::string>("Record")), g1g2Token_(esConsumes()), g3Token_(esConsumes()) {
   //now do what ever initialization is needed
 }
 
@@ -81,22 +85,17 @@ SiStripApvGainRescaler::~SiStripApvGainRescaler() {
 void SiStripApvGainRescaler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  // take G2_old and G1_old from the regular gain handle
-  edm::ESHandle<SiStripGain> g1g2Handle_;
-  iSetup.get<SiStripGainRcd>().get(g1g2Handle_);
-
-  // take the additional G1_new from the Gain3Rcd (dirty trick)
-  edm::ESHandle<SiStripApvGain> g3Handle_;
-  iSetup.get<SiStripApvGain3Rcd>().get(g3Handle_);
+  const auto& g1g2 = iSetup.getData(g1g2Token_);
+  const auto& g3 = iSetup.getData(g3Token_);
 
   std::map<std::pair<uint32_t, int>, float> theMap;
 
   std::vector<uint32_t> detid;
-  g1g2Handle_->getDetIds(detid);
+  g1g2.getDetIds(detid);
   for (const auto& d : detid) {
-    SiStripApvGain::Range rangeG1_old = g1g2Handle_->getRange(d, 0);
-    SiStripApvGain::Range rangeG2_old = g1g2Handle_->getRange(d, 1);
-    SiStripApvGain::Range rangeG1_new = g3Handle_->getRange(d);
+    SiStripApvGain::Range rangeG1_old = g1g2.getRange(d, 0);
+    SiStripApvGain::Range rangeG2_old = g1g2.getRange(d, 1);
+    SiStripApvGain::Range rangeG1_new = g3.getRange(d);
 
     int nAPV = 0;
     for (int it = 0; it < rangeG1_old.second - rangeG1_old.first; it++) {
@@ -104,10 +103,10 @@ void SiStripApvGainRescaler::analyze(const edm::Event& iEvent, const edm::EventS
 
       std::pair<uint32_t, int> index = std::make_pair(d, nAPV);
 
-      float G1_old = g1g2Handle_->getApvGain(it, rangeG1_old);
-      float G2_old = g1g2Handle_->getApvGain(it, rangeG2_old);
+      float G1_old = g1g2.getApvGain(it, rangeG1_old);
+      float G2_old = g1g2.getApvGain(it, rangeG2_old);
       float G1G2_old = G1_old * G2_old;
-      float G1_new = g3Handle_->getApvGain(it, rangeG1_new);
+      float G1_new = g3.getApvGain(it, rangeG1_new);
 
       // this is based on G1_old*G2_old = G1_new * G2_new ==> G2_new = (G1_old*G2_old)/G1_new
 

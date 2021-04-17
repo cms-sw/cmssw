@@ -10,17 +10,21 @@ process = cms.Process("Reader")
 
 # Use this to have also debug info (WARNING: the resulting file is > 200MB.
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring("*"),
-    PedestalsReaderSummary = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    PedestalsReaderDebug = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('PedestalsReaderSummary', 'PedestalsReaderDebug')
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        PedestalsReaderDebug = cms.untracked.PSet(
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        PedestalsReaderSummary = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
 # Use this instead to see only the summary

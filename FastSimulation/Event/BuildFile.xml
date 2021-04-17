@@ -5,10 +5,8 @@
 <use name="FWCore/ParameterSet"/>
 <use name="CommonTools/BaseParticlePropagator"/>
 <use name="FastSimulation/Particle"/>
-<use name="FastSimulation/Utilities"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>
-<use name="SimDataFormats/GeneratorProducts"/>
 <use name="FastSimDataFormats/NuclearInteractions"/>
 <use name="SimGeneral/HepPDTRecord"/>
 <use name="hepmc"/>

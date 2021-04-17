@@ -54,7 +54,7 @@ public:
                   float rMaxI,
                   bool useRecoVertex);
 
-  void setES(const MagneticField*, const TrackerGeometry* trackerGeometry);
+  void setES(MagneticField const&, TrackerGeometry const& trackerGeometry);
 
   std::vector<SeedWithInfo> operator()(const std::vector<const TrajectorySeedCollection*>& seedsV,
                                        const GlobalPoint& xmeas,

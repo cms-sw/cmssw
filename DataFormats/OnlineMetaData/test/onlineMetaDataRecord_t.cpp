@@ -7,12 +7,11 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <string.h>
 #include <vector>
-
-#include <boost/filesystem.hpp>
 
 class TestOnlineMetaDataRecord : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestOnlineMetaDataRecord);
@@ -46,7 +45,7 @@ const unsigned char* TestOnlineMetaDataRecord::readPayload(const std::string& du
   const std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
   const std::string CMSSW_RELEASE_BASE(std::getenv("CMSSW_RELEASE_BASE"));
   const std::string dumpFilePath = "/src/DataFormats/OnlineMetaData/test/" + dumpFileName;
-  const std::string fullPath = boost::filesystem::exists((CMSSW_BASE + dumpFilePath).c_str())
+  const std::string fullPath = std::filesystem::exists((CMSSW_BASE + dumpFilePath).c_str())
                                    ? CMSSW_BASE + dumpFilePath
                                    : CMSSW_RELEASE_BASE + dumpFilePath;
 

@@ -13,6 +13,7 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_HI_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
+from DQMOffline.Muon.gem_dqm_offline_source_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorHeavyIons_cff import *
 
 DQMNone = cms.Sequence()
@@ -36,6 +37,11 @@ DQMOfflineHeavyIonsTrackerPixel = cms.Sequence( siPixelOfflineDQM_heavyions_sour
 DQMOfflineHeavyIonsMuonDPG = cms.Sequence( dtSources *
                                   rpcTier0Source *
                                   cscSources )
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+_run3_GEM_DQMOfflineHeavyIonsMuonDPG = DQMOfflineHeavyIonsMuonDPG.copy()
+_run3_GEM_DQMOfflineHeavyIonsMuonDPG += gemSources
+run3_GEM.toReplaceWith(DQMOfflineHeavyIonsMuonDPG, _run3_GEM_DQMOfflineHeavyIonsMuonDPG)
 
 DQMOfflineHeavyIonsPreDPG = cms.Sequence( DQMOfflineHeavyIonsDCS *
 					  DQMOfflineHeavyIonsL1T *

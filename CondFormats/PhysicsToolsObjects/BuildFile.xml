@@ -4,7 +4,6 @@
 <use name="boost_serialization"/>
 <use name="boost_iostreams"/>
 <use name="boost"/>
-<use name="sigcpp"/>
 <use name="root"/>
 <export>
   <lib name="1"/>

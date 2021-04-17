@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -293,6 +292,10 @@ private:
 
   std::vector<stAPVGain*> APVsCollOrdered;
   std::unordered_map<unsigned int, stAPVGain*> APVsColl;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
 };
 
 SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig)
@@ -328,6 +331,10 @@ SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig)
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
+  tTopoToken_ = esConsumes<edm::Transition::BeginRun>();
+  tkGeomToken_ = esConsumes<edm::Transition::BeginRun>();
+  gainToken_ = esConsumes<edm::Transition::BeginRun>();
+
   //if( OutputHistos!="" )
   //  dqmStore_->open(OutputHistos.c_str(), true);
 }
@@ -335,10 +342,7 @@ SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig)
 SiStripGainFromData::~SiStripGainFromData() {}
 
 void SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
 
   iSetup_ = &iSetup;
 
@@ -564,14 +568,10 @@ void SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup) {
 
   gROOT->cd();
 
-  edm::ESHandle<TrackerGeometry> tkGeom;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
-  auto const& Det = tkGeom->dets();
+  auto const& Det = iSetup.getData(tkGeomToken_).dets();
 
-  edm::ESHandle<SiStripGain> gainHandle;
   //   if(strcmp(AlgoMode.c_str(),"MultiJob")!=0 && !FirstSetOfConstants){
-  iSetup.get<SiStripGainRcd>().get(gainHandle);
-  if (!gainHandle.isValid()) {
+  if (!iSetup.getHandle(gainToken_)) {
     printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");
     exit(0);
   }
@@ -1135,9 +1135,8 @@ void SiStripGainFromData::algoEndJob() {
 }
 
 void SiStripGainFromData::algoBeginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<SiStripGain> gainHandle;
   if ((strcmp(AlgoMode.c_str(), "MultiJob") != 0 && !FirstSetOfConstants) || Validation) {
-    iSetup.get<SiStripGainRcd>().get(gainHandle);
+    const auto gainHandle = iSetup.getHandle(gainToken_);
     if (!gainHandle.isValid()) {
       printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");
       exit(0);
@@ -1400,13 +1399,12 @@ double SiStripGainFromData::ComputeChargeOverPath(const SiStripCluster* Cluster,
 bool SiStripGainFromData::IsFarFromBorder(TrajectoryStateOnSurface trajState,
                                           const uint32_t detid,
                                           const edm::EventSetup* iSetup) {
-  edm::ESHandle<TrackerGeometry> tkGeom;
-  iSetup->get<TrackerDigiGeometryRecord>().get(tkGeom);
+  const auto& tkGeom = iSetup->getData(tkGeomToken_);
 
   LocalPoint HitLocalPos = trajState.localPosition();
   LocalError HitLocalError = trajState.localError().positionError();
 
-  const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
+  const GeomDetUnit* it = tkGeom.idToDetUnit(DetId(detid));
   if (dynamic_cast<const StripGeomDetUnit*>(it) == nullptr && dynamic_cast<const PixelGeomDetUnit*>(it) == nullptr) {
     std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
     return false;

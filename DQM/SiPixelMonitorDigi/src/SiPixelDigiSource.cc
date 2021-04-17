@@ -17,6 +17,7 @@
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
 // Framework
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,17 +26,13 @@
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
 #include <string>
@@ -71,6 +68,10 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig)
   //set Token(-s)
   srcToken_ = consumes<edm::DetSetVector<PixelDigi> >(conf_.getParameter<edm::InputTag>("src"));
 
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerTopoTokenBeginRun_ = esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>();
+  trackerGeomTokenBeginRun_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();
+
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
   firstRun = true;
@@ -100,67 +101,16 @@ SiPixelDigiSource::~SiPixelDigiSource() {
   LogInfo("PixelDQM") << "SiPixelDigiSource::~SiPixelDigiSource: Destructor" << endl;
 }
 
-void SiPixelDigiSource::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
-  int thisls = lb.id().luminosityBlock();
-
-  if (modOn && thisls % 10 == 0 && averageDigiOccupancy) {
-    nBPIXDigis = 0;
-    nFPIXDigis = 0;
-    for (int i = 0; i != 40; i++)
-      nDigisPerFed[i] = 0;
-  }
-  if (!modOn && averageDigiOccupancy) {
-    nBPIXDigis = 0;
-    nFPIXDigis = 0;
-    for (int i = 0; i != 40; i++)
-      nDigisPerFed[i] = 0;
-  }
-
-  if (modOn && thisls % 10 == 0) {
-    ROCMapToReset = true;  //the ROC map is reset each 10 lumisections
-
-    for (int i = 0; i < 2; i++)
-      NzeroROCs[i] = 0;
-    for (int i = 0; i < 2; i++)
-      NloEffROCs[i] = 0;  //resetting also Zero and low eff. ROC counters
-
-    NzeroROCs[1] = -672;
-    NloEffROCs[1] =
-        -672;  //this magic number derives by the way the endcap occupancy is filled, there are always 672 empty bins by construction
-
-    //these bools are needed to count zero occupancy plots in the substructure only once each 10 LS
-    DoZeroRocsBMO1 = true;
-    DoZeroRocsBMO2 = true;
-    DoZeroRocsBMO3 = true;
-
-    DoZeroRocsBMI1 = true;
-    DoZeroRocsBMI2 = true;
-    DoZeroRocsBMI3 = true;
-
-    DoZeroRocsBPO1 = true;
-    DoZeroRocsBPO2 = true;
-    DoZeroRocsBPO3 = true;
-
-    DoZeroRocsBPI1 = true;
-    DoZeroRocsBPI2 = true;
-    DoZeroRocsBPI3 = true;
-
-    DoZeroRocsFPO1 = true;
-    DoZeroRocsFPO2 = true;
-
-    DoZeroRocsFMO1 = true;
-    DoZeroRocsFMO2 = true;
-
-    DoZeroRocsFPI1 = true;
-    DoZeroRocsFPI2 = true;
-
-    DoZeroRocsFMI1 = true;
-    DoZeroRocsFMI2 = true;
-  }
+std::shared_ptr<bool> SiPixelDigiSource::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                    const edm::EventSetup& iSetup) const {
+  unsigned int currentLS = lumi.id().luminosityBlock();
+  bool resetCounters = (currentLS % 10 == 0) ? true : false;
+  return std::make_shared<bool>(resetCounters);
 }
 
-void SiPixelDigiSource::dqmEndLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
+void SiPixelDigiSource::globalEndLuminosityBlock(const edm::LuminosityBlock& lb, edm::EventSetup const&) {
   int thisls = lb.id().luminosityBlock();
+  const bool resetCounters = luminosityBlockCache(lb.index());
 
   float averageBPIXFed = float(nBPIXDigis) / 32.;
   float averageFPIXFed = float(nFPIXDigis) / 8.;
@@ -200,6 +150,64 @@ void SiPixelDigiSource::dqmEndLuminosityBlock(const edm::LuminosityBlock& lb, ed
       avgEndcapFedOccvsLumi->setBinContent(
           int(thisls / 10), averageFPIXFed);  //<NDigis> vs lumisection for endcap, filled every 10 lumi sections
     }
+  }
+
+  //reset counters
+
+  if (modOn && resetCounters && averageDigiOccupancy) {
+    nBPIXDigis = 0;
+    nFPIXDigis = 0;
+    for (int i = 0; i != 40; i++)
+      nDigisPerFed[i] = 0;
+  }
+
+  if (!modOn && averageDigiOccupancy) {
+    nBPIXDigis = 0;
+    nFPIXDigis = 0;
+    for (int i = 0; i != 40; i++)
+      nDigisPerFed[i] = 0;
+  }
+
+  if (modOn && resetCounters) {
+    ROCMapToReset = true;  //the ROC map is reset each 10 lumisections
+
+    for (int i = 0; i < 2; i++)
+      NzeroROCs[i] = 0;
+    for (int i = 0; i < 2; i++)
+      NloEffROCs[i] = 0;  //resetting also Zero and low eff. ROC counters
+
+    NzeroROCs[1] = -672;
+    NloEffROCs[1] =
+        -672;  //this magic number derives by the way the endcap occupancy is filled, there are always 672 empty bins by construction
+
+    //these bools are needed to count zero occupancy plots in the substructure only once each 10 LS
+    DoZeroRocsBMO1 = true;
+    DoZeroRocsBMO2 = true;
+    DoZeroRocsBMO3 = true;
+
+    DoZeroRocsBMI1 = true;
+    DoZeroRocsBMI2 = true;
+    DoZeroRocsBMI3 = true;
+
+    DoZeroRocsBPO1 = true;
+    DoZeroRocsBPO2 = true;
+    DoZeroRocsBPO3 = true;
+
+    DoZeroRocsBPI1 = true;
+    DoZeroRocsBPI2 = true;
+    DoZeroRocsBPI3 = true;
+
+    DoZeroRocsFPO1 = true;
+    DoZeroRocsFPO2 = true;
+
+    DoZeroRocsFMO1 = true;
+    DoZeroRocsFMO2 = true;
+
+    DoZeroRocsFPI1 = true;
+    DoZeroRocsFPI2 = true;
+
+    DoZeroRocsFMI1 = true;
+    DoZeroRocsFMI2 = true;
   }
 }
 
@@ -316,8 +324,7 @@ void SiPixelDigiSource::bookHistograms(DQMStore::IBooker& iBooker, edm::Run cons
 // Method called for every event
 //------------------------------------------------------------------
 void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoToken_);
   const TrackerTopology* pTT = tTopoHandle.product();
 
   // get input data
@@ -343,7 +350,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   for (struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++) {
     int numberOfDigisMod = (*struct_iter)
                                .second->fill(*input,
-                                             iSetup,
+                                             pTT,
                                              meNDigisCOMBBarrel_,
                                              meNDigisCHANBarrel_,
                                              meNDigisCHANBarrelLs_,
@@ -1095,13 +1102,11 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 // Build data structure
 //------------------------------------------------------------------
 void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
   const TrackerTopology* pTT = tTopoHandle.product();
 
   LogInfo("PixelDQM") << " SiPixelDigiSource::buildStructure";
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  edm::ESHandle<TrackerGeometry> pDD = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
   LogVerbatim("PixelDQM") << " *** Geometry node for TrackerGeom is  " << &(*pDD) << std::endl;
   LogVerbatim("PixelDQM") << " *** I have " << pDD->dets().size() << " detectors" << std::endl;
@@ -1258,11 +1263,14 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
 
   SiPixelFolderOrganizer theSiPixelFolder(false);
 
+  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopoTokenBeginRun_);
+  const TrackerTopology* pTT = tTopoHandle.product();
+
   for (struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++) {
     /// Create folder tree and book histograms
     if (modOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 0, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 0, twoDimOn, hiRes, reducedSet, twoDimModOn, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 0, twoDimOn, hiRes, reducedSet, twoDimModOn, isUpgrade);
       } else {
         if (!isPIB)
           throw cms::Exception("LogicError") << "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
@@ -1270,15 +1278,14 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
     }
     if (ladOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 1, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 1, twoDimOn, hiRes, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 1, twoDimOn, hiRes, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if (layOn || twoDimOnlyLayDisk) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 2, isUpgrade)) {
-        (*struct_iter)
-            .second->book(conf_, iSetup, iBooker, 2, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 2, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
@@ -1286,29 +1293,28 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker& iBooker, const edm::EventSetu
 
     if (phiOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 3, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 3, twoDimOn, hiRes, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 3, twoDimOn, hiRes, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if (bladeOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 4, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 4, twoDimOn, hiRes, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 4, twoDimOn, hiRes, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if (diskOn || twoDimOnlyLayDisk) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 5, isUpgrade)) {
-        (*struct_iter)
-            .second->book(conf_, iSetup, iBooker, 5, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 5, twoDimOn, hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if (ringOn) {
       if (theSiPixelFolder.setModuleFolder(iBooker, (*struct_iter).first, 6, isUpgrade)) {
-        (*struct_iter).second->book(conf_, iSetup, iBooker, 6, twoDimOn, hiRes, reducedSet, isUpgrade);
+        (*struct_iter).second->book(conf_, pTT, iBooker, 6, twoDimOn, hiRes, reducedSet, isUpgrade);
       } else {
         LogDebug("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }

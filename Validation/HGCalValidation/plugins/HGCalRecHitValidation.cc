@@ -13,8 +13,6 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -180,10 +178,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
                                           << "Object for " << nameDetector_;
     } else {
       const HGCalGeometry* geom0 = geom.product();
-      HGCalGeometryMode::GeometryMode mode = geom0->topology().geomMode();
-      int geomType = (((mode == HGCalGeometryMode::Hexagon8) || (mode == HGCalGeometryMode::Hexagon8Full))
-                          ? 1
-                          : ((mode == HGCalGeometryMode::Trapezoid) ? 2 : 0));
+      int geomType = ((geom0->topology().waferHexagon8()) ? 1 : ((geom0->topology().tileTrapezoid()) ? 2 : 0));
 
       edm::Handle<HGCRecHitCollection> theRecHitContainers;
       iEvent.getByToken(recHitSource_, theRecHitContainers);

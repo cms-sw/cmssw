@@ -23,7 +23,7 @@
   <SpecPar name="HGCalEESensitive">
     <PartSelector path="//HGCalEESensitive.*"/>    
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8File" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="9"/>
@@ -34,6 +34,7 @@
     <Parameter name="LayerOffset"         value="0"/>
     <Parameter name="DetectorType"        value="1"/>
     <Parameter name="WaferMaskMode"       value="2"/>
+    <Parameter name="WaferZside"          value="-1"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
@@ -76,7 +77,7 @@
   <SpecPar name="HGCalHESiliconSensitive">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8File" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="11"/>
@@ -87,6 +88,7 @@
     <Parameter name="LayerOffset"         value="28"/>
     <Parameter name="DetectorType"        value="2"/>
     <Parameter name="WaferMaskMode"       value="3"/>
+    <Parameter name="WaferZside"          value="-1"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
@@ -129,7 +131,7 @@
   <SpecPar name="HGCalHEScintillatorSensitive">
     <PartSelector path="//HGCalHEScintillatorSensitive.*"/>
     <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Trapezoid" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::TrapezoidFile" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="11"/>
     <Parameter name="LevelTop"            value="11"/>
@@ -138,6 +140,7 @@
     <Parameter name="LayerOffset"         value="28"/>
     <Parameter name="DetectorType"        value="3"/>
     <Parameter name="WaferMaskMode"       value="4"/>
+    <Parameter name="WaferZside"          value="1"/>
     <Parameter name="WaferThickness"      value="[hgcal:ScintillatorThickness]"/>
     <Parameter name="MinimumTileSize"     value="[MinimumTileSize]"/>
     <Parameter name="NPhiBinBH"           value="360"/>

@@ -1,19 +1,16 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace std;
-using namespace dd4hep;
-using namespace cms;
-using namespace cms_units::operators;
+//#define EDM_ML_DEBUG
 
-static long algorithm(Detector& /* description */,
-                      cms::DDParsingContext& context,
-                      xml_h element,
-                      SensitiveDetector& /* sens */) {
+using namespace angle_units::operators;
+
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& context, xml_h element) {
   cms::DDNamespace ns(context, element, true);
-  DDAlgoArguments args(context, element);
+  cms::DDAlgoArguments args(context, element);
 
   int n = args.value<int>("n");
   int startCopyNo = args.find("startCopyNo") ? args.value<int>("startCopyNo") : 1;
@@ -21,40 +18,43 @@ static long algorithm(Detector& /* description */,
   float startAngle = args.value<float>("startAngle");
   float stepAngle = args.value<float>("stepAngle");
   float zoffset = args.value<float>("zoffset");
-  string rotns = args.value<string>("RotNameSpace");
-  Volume mother = ns.volume(args.parentName());
-  string childName = args.value<string>("ChildName");
+  std::string rotns = args.value<std::string>("RotNameSpace");
+  dd4hep::Volume mother = ns.volume(args.parentName());
+  std::string childName = args.value<std::string>("ChildName");
   childName = ns.prepend(childName);
-  Volume child = ns.volume(childName);
+  dd4hep::Volume child = ns.volume(childName);
 
-  LogDebug("DDAlgorithm") << "debug: Parameters for positioning:: n " << n << " Start, Step "
-                          << convertRadToDeg(startAngle) << " " << convertRadToDeg(stepAngle) << " "
-                          << ", zoffset " << zoffset << " "
-                          << ", RotNameSpace " << rotns.c_str();
-  LogDebug("DDAlgorithm") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
-                          << ns.name();
-
-  float phi = startAngle;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Parameters for positioning:: n " << n << " Start, Step "
+                               << convertRadToDeg(startAngle) << ", " << convertRadToDeg(stepAngle) << ", zoffset "
+                               << cms::convert2mm(zoffset) << ", RotNameSpace " << rotns;
+  edm::LogVerbatim("MuonGeom") << "DDMuonAngular: Parent " << mother.name() << "\tChild " << child.name()
+                               << " NameSpace " << ns.name();
+#endif
+  double phi = startAngle;
   int copyNo = startCopyNo;
 
   for (int i = 0; i < n; ++i) {
-    float phitmp = phi;
+    double phitmp = phi;
     if (phitmp >= 2._pi)
       phitmp -= 2._pi;
-    Rotation3D rotation = makeRotation3D(90._deg, phitmp, 90._deg, 90._deg + phitmp, 0., 0.);
-    string rotstr = ns.nsName(child.name()) + std::to_string(phitmp * 10.);
+    dd4hep::Rotation3D rotation = cms::makeRotation3D(90._deg, phitmp, 90._deg, 90._deg + phitmp, 0., 0.);
+    std::string rotstr = ns.nsName(child.name()) + std::to_string(phitmp * 10.);
     auto irot = context.rotations.find(ns.prepend(rotstr));
     if (irot != context.rotations.end()) {
       rotation = ns.rotation(ns.prepend(rotstr));
     }
-    Position tran(0., 0., zoffset);
-    mother.placeVolume(child, copyNo, Transform3D(rotation, tran));
-    LogDebug("DDAlgorithm") << "test " << child.name() << " number " << copyNo << " positioned in " << mother.name()
-                            << " at " << tran << " with " << rotstr << ": " << rotation;
+    dd4hep::Position tran(0., 0., zoffset);
+    mother.placeVolume(child, copyNo, dd4hep::Transform3D(rotation, tran));
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("MuonGeom") << "DDMuonAngular:" << child.name() << " number " << copyNo << " positioned in "
+                                 << mother.name() << " at (0,0," << cms::convert2mm(zoffset) << ") with " << rotstr
+                                 << ": " << rotation;
+#endif
     phi += stepAngle;
     copyNo += incrCopyNo;
   }
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

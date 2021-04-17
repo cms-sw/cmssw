@@ -101,26 +101,26 @@ VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFrom
     auto const label = closerNominalLabel(current);
     edm::LogInfo("MagneticField") << "Current :" << current
                                   << " (from valueOverride card); using map configuration with label: " << label;
-    setWhatProduced(
-        this, &VolumeBasedMagneticFieldESProducerFromDB::chooseConfigViaParameter, edm::es::Label(myConfigLabel))
-        .setConsumes(knownFromParamConfigToken_, edm::ESInputTag(""s, std::string(label)));
+    auto cc = setWhatProduced(
+        this, &VolumeBasedMagneticFieldESProducerFromDB::chooseConfigViaParameter, edm::es::Label(myConfigLabel));
+    knownFromParamConfigToken_ = cc.consumes(edm::ESInputTag(""s, std::string(label)));
   }
 
   auto const label = iConfig.getUntrackedParameter<std::string>("label");
   auto const myConfigTag = edm::ESInputTag(iConfig.getParameter<std::string>("@module_label"), myConfigLabel);
 
   //We use the MagFieldConfig created above to decide which FileBlob to use
-  setWhatProduced(this, label)
-      .setMayConsume(
-          mayConsumeBlobToken_,
-          [](auto const& iGet, edm::ESTransientHandle<MagFieldConfig> iConfig) {
-            if (iConfig->version == "parametrizedMagneticField") {
-              return iGet.nothing();
-            }
-            return iGet("", std::to_string(iConfig->geometryVersion));
-          },
-          edm::ESProductTag<MagFieldConfig, IdealMagneticFieldRecord>(myConfigTag))
-      .setConsumes(chosenConfigToken_, myConfigTag);  //Use same tag as the choice
+  auto cc = setWhatProduced(this, label);
+  cc.setMayConsume(
+      mayConsumeBlobToken_,
+      [](auto const& iGet, edm::ESTransientHandle<MagFieldConfig> iConfig) {
+        if (iConfig->version == "parametrizedMagneticField") {
+          return iGet.nothing();
+        }
+        return iGet("", std::to_string(iConfig->geometryVersion));
+      },
+      edm::ESProductTag<MagFieldConfig, IdealMagneticFieldRecord>(myConfigTag));
+  chosenConfigToken_ = cc.consumes(myConfigTag);  //Use same tag as the choice
 }
 
 std::shared_ptr<MagFieldConfig const> VolumeBasedMagneticFieldESProducerFromDB::chooseConfigAtRuntime(

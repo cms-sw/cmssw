@@ -4,7 +4,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include <vector>
 #include <numeric>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class SiStripCluster {
 public:

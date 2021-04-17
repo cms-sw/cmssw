@@ -68,6 +68,7 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
   nummu_DT = 0;
   nummu_CSC = 0;
   nummu_RPC = 0;
+  geomToken_ = esConsumes<DTGeometry, MuonGeometryRecord>();
 }
 
 MuonSimHitsValidAnalyzer::~MuonSimHitsValidAnalyzer() {}
@@ -309,15 +310,13 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent, const edm::Event
   edm::PSimHitContainer::const_iterator itHit;
 
   /// access the DT
-  /// access the DT geometry
-  edm::ESHandle<DTGeometry> theDTGeometry;
-  iSetup.get<MuonGeometryRecord>().get(theDTGeometry);
-  if (!theDTGeometry.isValid()) {
+  edm::ESHandle<DTGeometry> hGeom = iSetup.getHandle(geomToken_);
+  if (!hGeom.isValid()) {
     edm::LogWarning("MuonSimHitsValidAnalyzer::fillDT")
         << "Unable to find MuonGeometryRecord for the DTGeometry in event!";
     return;
   }
-  const DTGeometry& theDTMuon(*theDTGeometry);
+  const DTGeometry& theDTMuon(*hGeom);
 
   /// get DT information
   edm::Handle<edm::PSimHitContainer> MuonDTContainer;

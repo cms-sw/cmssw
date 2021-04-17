@@ -83,7 +83,6 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig) : Virtu
   usePruning_ = iConfig.getParameter<bool>("usePruning");
   zCut_ = iConfig.getParameter<double>("zcut");
   RcutFactor_ = iConfig.getParameter<double>("rcut_factor");
-  nFilt_ = iConfig.getParameter<int>("nFilt");
   useKtPruning_ = iConfig.getParameter<bool>("useKtPruning");
 
   useCMSBoostedTauSeedingAlgorithm_ = iConfig.getParameter<bool>("useCMSBoostedTauSeedingAlgorithm");

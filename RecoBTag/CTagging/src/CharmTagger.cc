@@ -14,11 +14,10 @@
 
 CharmTagger::Tokens::Tokens(const edm::ParameterSet &configuration, edm::ESConsumesCollector &&cc) {
   if (configuration.getParameter<bool>("useCondDB")) {
-    cc.setConsumes(gbrForest_,
-                   edm::ESInputTag{"",
-                                   configuration.existsAs<std::string>("gbrForestLabel")
-                                       ? configuration.getParameter<std::string>("gbrForestLabel")
-                                       : ""});
+    gbrForest_ = cc.consumes(edm::ESInputTag{"",
+                                             configuration.existsAs<std::string>("gbrForestLabel")
+                                                 ? configuration.getParameter<std::string>("gbrForestLabel")
+                                                 : ""});
   }
 }
 

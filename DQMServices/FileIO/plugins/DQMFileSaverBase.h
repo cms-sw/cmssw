@@ -69,6 +69,7 @@ namespace dqm {
     // members
     mutable std::mutex initial_fp_lock_;
     FileParameters initial_fp_;
+    int runNumber_;
 
   public:
     static void fillDescription(edm::ParameterSetDescription &d);

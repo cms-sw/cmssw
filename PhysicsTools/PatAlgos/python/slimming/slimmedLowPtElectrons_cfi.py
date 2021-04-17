@@ -20,7 +20,26 @@ slimmedLowPtElectrons = cms.EDProducer("PATElectronSlimmer",
    saveNonZSClusterShapes = cms.string("1"), # save additional user floats: (sigmaIetaIeta,sigmaIphiIphi,sigmaIetaIphi,r9,e1x5_over_e5x5)_NoZS 
    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
-   modifyElectrons = cms.bool(False),
-   modifierConfig = cms.PSet( modifications = cms.VPSet() )
+   modifyElectrons = cms.bool(True),
+   modifierConfig = cms.PSet( 
+        modifications = cms.VPSet(
+            cms.PSet(
+                electron_config = cms.PSet(
+                    ele2packed = cms.InputTag("lowPtGsfLinks:ele2packed"),
+                    electronSrc = cms.InputTag("selectedPatLowPtElectrons"),
+                ),
+                modifierName = cms.string('EGExtraInfoModifierFromPackedCandPtrValueMaps'),
+                photon_config = cms.PSet()
+            ),
+            cms.PSet(
+                electron_config = cms.PSet(
+                    ele2lost = cms.InputTag("lowPtGsfLinks:ele2lost"),
+                    electronSrc = cms.InputTag("selectedPatLowPtElectrons"),
+                ),
+                modifierName = cms.string('EGExtraInfoModifierFromPackedCandPtrValueMaps'),
+                photon_config = cms.PSet()
+            ),
+        )
+   )
 )
 

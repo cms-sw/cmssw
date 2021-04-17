@@ -1,3 +1,7 @@
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="HeterogeneousCore/SonicCore"/>
 <use name="triton-inference-server"/>

@@ -39,7 +39,13 @@
 // made some variables constant, removed obviously dead code and comments
 
 TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::ParameterSet& cfg)
-    : theAlignableTracker(nullptr) {
+    : geomDetToken_(esConsumes()),
+      ptpToken_(esConsumes()),
+      topoToken_(esConsumes()),
+      aliToken_(esConsumes()),
+      aliErrorToken_(esConsumes()),
+      gprToken_(esConsumes()),
+      theAlignableTracker(nullptr) {
   // use existing geometry
   m_fromDBGeom = cfg.getUntrackedParameter<bool>("fromDBGeom");
 
@@ -105,27 +111,18 @@ void TrackerSystematicMisalignments::beginJob() {}
 
 void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const GeometricDet* geom = &setup.getData(geomDetToken_);
+  const PTrackerParameters& ptp = setup.getData(ptpToken_);
+  const TrackerTopology* tTopo = &setup.getData(topoToken_);
 
-  edm::ESHandle<GeometricDet> geom;
-  setup.get<IdealGeometryRecord>().get(geom);
-  edm::ESHandle<PTrackerParameters> ptp;
-  setup.get<PTrackerParametersRcd>().get(ptp);
-  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp, tTopo);
+  TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptp, tTopo);
 
   //take geometry from DB or randomly generate geometry
   if (m_fromDBGeom) {
     //build the tracker
-    edm::ESHandle<Alignments> alignments;
-    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-
-    setup.get<TrackerAlignmentRcd>().get(alignments);
-    setup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
-
-    edm::ESHandle<Alignments> globalPositionRcd;
-    setup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
+    const Alignments* alignments = &setup.getData(aliToken_);
+    const AlignmentErrorsExtended* alignmentErrors = &setup.getData(aliErrorToken_);
+    const Alignments* globalPositionRcd = &setup.getData(gprToken_);
 
     //apply the latest alignments
     GeometryAligner aligner;

@@ -15,6 +15,7 @@ EDProducts into an Event.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include <string>
 #include <vector>
@@ -24,9 +25,7 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
-  class ProductRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
 
   namespace maker {
     template <typename T>
@@ -62,14 +61,9 @@ namespace edm {
     SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_; }
 
   private:
-    bool doEvent(EventPrincipal const& ep,
-                 EventSetupImpl const& c,
-                 ActivityRegistry* act,
-                 ModuleCallingContext const* mcc);
+    bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
     //Needed by WorkerT but not supported
-    void preActionBeforeRunEventAsync(WaitingTask* iTask,
-                                      ModuleCallingContext const& iModuleCallingContext,
-                                      Principal const& iPrincipal) const {}
+    void preActionBeforeRunEventAsync(WaitingTaskHolder, ModuleCallingContext const&, Principal const&) const {}
 
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
@@ -77,14 +71,10 @@ namespace edm {
     void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
     void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
     void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
-    void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc);
-    void doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const* mcc);
-    void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetupImpl const& c,
-                                ModuleCallingContext const* mcc);
-    void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                              EventSetupImpl const& c,
-                              ModuleCallingContext const* mcc);
+    void doBeginRun(RunTransitionInfo const&, ModuleCallingContext const*);
+    void doEndRun(RunTransitionInfo const&, ModuleCallingContext const*);
+    void doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
+    void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}

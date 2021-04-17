@@ -39,6 +39,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESGetTokenGeneric.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/SoATuple.h"
 #include "FWCore/Utilities/interface/Transition.h"
@@ -50,9 +51,16 @@
 
 namespace edm {
   class ModuleDescription;
+  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class ProductRegistry;
   class ConsumesCollector;
+  template <Transition Tr>
+  class EDConsumerBaseESAdaptor;
+  template <Transition Tr>
+  class EDConsumerBaseWithTagESAdaptor;
+  template <BranchType B>
+  class EDConsumerBaseAdaptor;
   template <typename T>
   class WillGetIfMatch;
 
@@ -62,7 +70,7 @@ namespace edm {
 
   class EDConsumerBase {
   public:
-    EDConsumerBase() : m_tokenLabels{'\0'}, frozen_(false), containsCurrentProcessAlias_(false) {}
+    EDConsumerBase();
     virtual ~EDConsumerBase() noexcept(false);
 
     // disallow copying
@@ -98,7 +106,8 @@ namespace edm {
     typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
 
-    void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+    void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modulesAll,
+                                         std::vector<ModuleProcessName>& modulesInPreviousProcesses,
                                          ProductRegistry const& preg,
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                          std::string const& processName) const;
@@ -131,6 +140,12 @@ namespace edm {
 
   protected:
     friend class ConsumesCollector;
+    template <Transition Tr>
+    friend class EDConsumerBaseESAdaptor;
+    template <Transition Tr>
+    friend class EDConsumerBaseWithTagESAdaptor;
+    template <BranchType B>
+    friend class EDConsumerBaseAdaptor;
     template <typename T>
     friend class WillGetIfMatch;
     ///Use a ConsumesCollector to gather consumes information from helper functions
@@ -140,6 +155,11 @@ namespace edm {
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
       TypeToGet tid = TypeToGet::make<ProductType>();
       return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), true)};
+    }
+
+    template <BranchType B = InEvent>
+    [[nodiscard]] EDConsumerBaseAdaptor<B> consumes(edm::InputTag tag) noexcept {
+      return EDConsumerBaseAdaptor<B>(this, std::move(tag));
     }
 
     EDGetToken consumes(const TypeToGet& id, edm::InputTag const& tag) {
@@ -195,7 +215,26 @@ namespace edm {
       return ESGetToken<ESProduct, ESRecord>{static_cast<unsigned int>(Tr), index, labelFor(index)};
     }
 
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] constexpr auto esConsumes() noexcept {
+      return EDConsumerBaseESAdaptor<Tr>(this);
+    }
+
+    template <Transition Tr = Transition::Event>
+    [[nodiscard]] auto esConsumes(ESInputTag tag) noexcept {
+      return EDConsumerBaseWithTagESAdaptor<Tr>(this, std::move(tag));
+    }
+
+    ///Used with EventSetupRecord::doGet
+    template <Transition Tr = Transition::Event>
+    ESGetTokenGeneric esConsumes(eventsetup::EventSetupRecordKey const& iRecord, eventsetup::DataKey const& iKey) {
+      return ESGetTokenGeneric(static_cast<unsigned int>(Tr),
+                               recordESConsumes(Tr, iRecord, iKey.type(), ESInputTag("", iKey.name().value())),
+                               iRecord.type());
+    }
+
   private:
+    virtual void registerLateConsumes(eventsetup::ESRecordsToProxyIndices const&) {}
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
     ESTokenIndex recordESConsumes(Transition,
                                   eventsetup::EventSetupRecordKey const&,
@@ -208,6 +247,9 @@ namespace edm {
     void throwBranchMismatch(BranchType, EDGetToken) const;
     void throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const;
     void throwConsumesCallAfterFrozen(TypeToGet const&, InputTag const&) const;
+    void throwESConsumesCallAfterFrozen(eventsetup::EventSetupRecordKey const&,
+                                        eventsetup::heterocontainer::HCTypeTag const&,
+                                        edm::ESInputTag const&) const;
     void throwESConsumesInProcessBlock() const;
 
     edm::InputTag const& checkIfEmpty(edm::InputTag const& tag);
@@ -267,6 +309,59 @@ namespace edm {
     bool frozen_;
     bool containsCurrentProcessAlias_;
   };
+
+  template <Transition TR>
+  class EDConsumerBaseESAdaptor {
+  public:
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() {
+      return m_consumer->template esConsumes<TYPE, REC, TR>();
+    }
+
+  private:
+    //only EDConsumerBase is allowed to make an instance of this class
+    friend class EDConsumerBase;
+    EDConsumerBaseESAdaptor(EDConsumerBase* iBase) : m_consumer(iBase) {}
+
+    EDConsumerBase* m_consumer;
+  };
+
+  template <Transition TR>
+  class EDConsumerBaseWithTagESAdaptor {
+  public:
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() {
+      return m_consumer->template esConsumes<TYPE, REC, TR>(m_tag);
+    }
+
+  private:
+    //only EDConsumerBase is allowed to make an instance of this class
+    friend class EDConsumerBase;
+    EDConsumerBaseWithTagESAdaptor(EDConsumerBase* iBase, ESInputTag iTag) noexcept
+        : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
+    EDConsumerBase* m_consumer;
+    ESInputTag const m_tag;
+  };
+
+  template <BranchType B>
+  class EDConsumerBaseAdaptor {
+  public:
+    template <typename TYPE>
+    EDGetTokenT<TYPE> consumes() {
+      return m_consumer->template consumes<TYPE, B>(m_tag);
+    }
+
+  private:
+    //only EDConsumerBase is allowed to make an instance of this class
+    friend class EDConsumerBase;
+    EDConsumerBaseAdaptor(EDConsumerBase* iBase, edm::InputTag iTag) noexcept
+        : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
+    EDConsumerBase* m_consumer;
+    edm::InputTag const m_tag;
+  };
+
 }  // namespace edm
 
 #endif

@@ -52,11 +52,11 @@ DD4hep_TrackingMaterialAnalyser::DD4hep_TrackingMaterialAnalyser(const edm::Para
   m_isHFNose = iPSet.getParameter<bool>("isHFNose");
   if (m_saveSummaryPlot) {
     if (m_isHGCal) {
-      m_plotter = new DD4hep_TrackingMaterialPlotter(550., 300., 10);
+      m_plotter = std::make_unique<DD4hep_TrackingMaterialPlotter>(550., 300., 10);
     } else if (m_isHFNose) {
-      m_plotter = new DD4hep_TrackingMaterialPlotter(1200., 350., 10);
+      m_plotter = std::make_unique<DD4hep_TrackingMaterialPlotter>(1200., 350., 10);
     } else {
-      m_plotter = new DD4hep_TrackingMaterialPlotter(300., 120., 10);
+      m_plotter = std::make_unique<DD4hep_TrackingMaterialPlotter>(300., 120., 10);
     }  // 10x10 points per cm2
   } else {
     m_plotter = nullptr;
@@ -64,10 +64,7 @@ DD4hep_TrackingMaterialAnalyser::DD4hep_TrackingMaterialAnalyser(const edm::Para
 }
 
 //-------------------------------------------------------------------------
-DD4hep_TrackingMaterialAnalyser::~DD4hep_TrackingMaterialAnalyser(void) {
-  if (m_plotter)
-    delete m_plotter;
-}
+DD4hep_TrackingMaterialAnalyser::~DD4hep_TrackingMaterialAnalyser(void) {}
 
 //-------------------------------------------------------------------------
 void DD4hep_TrackingMaterialAnalyser::saveParameters(const char* name) {
@@ -165,7 +162,7 @@ void DD4hep_TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm
   // over again in the eventloop, at each call of the analyze method.
   if (m_groups.empty()) {
     for (unsigned int i = 0; i < m_groupNames.size(); ++i)
-      m_groups.push_back(new DD4hep_MaterialAccountingGroup(m_groupNames[i], *hDDD));
+      m_groups.emplace_back(new DD4hep_MaterialAccountingGroup(m_groupNames[i], *hDDD));
 
     edm::LogVerbatim("TrackerMaterialAnalysis")
         << "TrackingMaterialAnalyser: List of the tracker groups: " << std::endl;

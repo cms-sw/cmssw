@@ -10,6 +10,7 @@
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 // Already included in header:
 //#include <vector>

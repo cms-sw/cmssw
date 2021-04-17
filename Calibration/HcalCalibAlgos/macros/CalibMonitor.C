@@ -246,12 +246,13 @@ public:
   TBranch *b_t_HitEnergies3;  //!
 
   struct counter {
+    static const int npsize = 4;
     counter() {
       total = 0;
-      for (int k = 0; k < 4; ++k)
+      for (int k = 0; k < npsize; ++k)
         count[k] = 0;
     };
-    unsigned int total, count[4];
+    unsigned int total, count[npsize];
   };
 
   CalibMonitor(const char *fname,
@@ -617,12 +618,12 @@ void CalibMonitor::Init(TChain *tree, const char *dupFileName, const char *comFi
   for (int i = 0; i < 4; ++i)
     ietas_.push_back(ietas[i]);
   int nxbin(100);
-  double xlow(0.25), xhigh(5.25);
+  double xlow(0.0), xhigh(5.0);
   if (coarseBin_ == 1) {
+    xlow = 0.25;
+    xhigh = 5.25;
     nxbin = 50;
   } else if (coarseBin_ > 1) {
-    xlow = 0.0;
-    xhigh = 5.0;
     if (coarseBin_ == 2)
       nxbin = 500;
     else
@@ -1092,20 +1093,20 @@ void CalibMonitor::Loop() {
       std::cout << "D1 : " << kp << ":" << kp1 << ":" << kv << ":" << kv1 << ":" << kd << ":" << kd1 << ":" << jp
                 << std::endl;
     }
-    if (goodTk && kp >= 0 && selPhi) {
+    if (goodTk && (kp >= 0) && selPhi) {
       if (p4060)
         ++kount50[13];
       if (t_eHcal < 0.01) {
         std::map<int, counter>::const_iterator itr = runEn1.find(t_Run);
         if (itr == runEn1.end()) {
           counter knt;
-          if (kp >= 0 && kp < (npsize - 1))
+          if ((kp >= 0) && (kp < counter::npsize))
             knt.count[kp] = 1;
           knt.total = 1;
           runEn1[t_Run] = knt;
         } else {
           counter knt = runEn1[t_Run];
-          if (kp >= 0 && kp < (npsize - 1))
+          if ((kp >= 0) && (kp < counter::npsize))
             ++knt.count[kp];
           ++knt.total;
           runEn1[t_Run] = knt;
@@ -1117,13 +1118,13 @@ void CalibMonitor::Loop() {
         std::map<int, counter>::const_iterator itr = runEn2.find(t_Run);
         if (itr == runEn2.end()) {
           counter knt;
-          if (kp >= 0 && kp < (npsize - 1))
+          if ((kp >= 0) && (kp < counter::npsize))
             knt.count[kp] = 1;
           knt.total = 1;
           runEn2[t_Run] = knt;
         } else {
           counter knt = runEn2[t_Run];
-          if (kp >= 0 && kp < (npsize - 1))
+          if ((kp >= 0) && (kp < counter::npsize))
             ++knt.count[kp];
           ++knt.total;
           runEn2[t_Run] = knt;
@@ -1152,13 +1153,13 @@ void CalibMonitor::Loop() {
           std::map<int, counter>::const_iterator itr = runSum.find(t_Run);
           if (itr == runSum.end()) {
             counter knt;
-            if (kp >= 0 && kp < (npsize - 1))
+            if ((kp >= 0) && (kp < counter::npsize))
               knt.count[kp] = 1;
             knt.total = 1;
             runSum[t_Run] = knt;
           } else {
             counter knt = runSum[t_Run];
-            if (kp >= 0 && kp < (npsize - 1))
+            if ((kp >= 0) && (kp < counter::npsize))
               ++knt.count[kp];
             ++knt.total;
             runSum[t_Run] = knt;
@@ -1241,7 +1242,7 @@ void CalibMonitor::Loop() {
     fileout_.close();
     std::cout << "Writes " << good << " events in the file " << outFileName_ << std::endl;
   }
-  std::cout << "Finds " << duplicate << " Duplicate events out of " << kount << " evnts in this file with p>20 Gev"
+  std::cout << "Finds " << duplicate << " Duplicate events out of " << kount << " evnts in this file with p>10 Gev"
             << std::endl;
   std::cout << "Number of selected events:" << std::endl;
   for (unsigned int k = 1; k < ps_.size(); ++k)

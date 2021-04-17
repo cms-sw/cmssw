@@ -22,6 +22,9 @@ namespace edm {
 
   class MessageLoggerQ {
   public:
+    MessageLoggerQ(MessageLoggerQ const&) = delete;
+    void operator=(MessageLoggerQ const&) = delete;
+
     // --- enumerate types of messages that can be enqueued:
     enum OpCode   // abbrev's used hereinafter
     { END_THREAD  // END
@@ -66,9 +69,9 @@ namespace edm {
     static bool handshaked(const OpCode& op);
 
     // --- special control of standAlone logging behavior
-    static void standAloneThreshold(edm::ELseverityLevel const& severity);
+    static void standAloneThreshold(edm::messagelogger::ELseverityLevel const& severity);
     static void squelch(std::string const& category);
-    static bool ignore(edm::ELseverityLevel const& severity, std::string const& category);
+    static bool ignore(edm::messagelogger::ELseverityLevel const& severity, std::string const& category);
 
   private:
     // ---  traditional birth/death, but disallowed to users:
@@ -79,13 +82,9 @@ namespace edm {
     static void simpleCommand(OpCode opcode, void* operand);
     static void handshakedCommand(OpCode opcode, void* operand, std::string const& commandMnemonic);
 
-    // --- no copying:
-    MessageLoggerQ(MessageLoggerQ const&) = delete;
-    void operator=(MessageLoggerQ const&) = delete;
-
     // --- data:
     CMS_THREAD_SAFE static std::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
-    CMS_THREAD_SAFE static edm::ELseverityLevel threshold;
+    CMS_THREAD_SAFE static edm::messagelogger::ELseverityLevel threshold;
     CMS_THREAD_SAFE static std::set<std::string> squelchSet;
 
   };  // MessageLoggerQ

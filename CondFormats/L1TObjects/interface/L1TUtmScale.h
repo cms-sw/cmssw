@@ -7,39 +7,24 @@
  * Created:     9 Nov 2015
  */
 
-/** @todo nope */
-
 #ifndef tmEventSetup_L1TUtmScale_hh
 #define tmEventSetup_L1TUtmScale_hh
 
-/*====================================================================*
- * declarations
- *====================================================================*/
-/*-----------------------------------------------------------------*
- * headers
- *-----------------------------------------------------------------*/
+#include "CondFormats/L1TObjects/interface/L1TUtmBin.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <string>
 #include <vector>
-#include "CondFormats/Serialization/interface/Serializable.h"
-
-#include "CondFormats/L1TObjects/interface/L1TUtmBin.h"
-
-/*-----------------------------------------------------------------*
- * constants
- *-----------------------------------------------------------------*/
-/* nope */
 
 /**
  *  This class implements data structure for Scale
  */
 class L1TUtmScale {
 public:
-  // ctor
   L1TUtmScale() : name_(), object_(), type_(), minimum_(), maximum_(), step_(), n_bits_(), bins_(), version(0){};
 
-  // dtor
-  virtual ~L1TUtmScale(){};
+  virtual ~L1TUtmScale() = default;
 
   /** get scale name */
   const std::string& getName() const { return name_; };
@@ -79,4 +64,3 @@ protected:
 };
 
 #endif  // tmEventSetup_L1TUtmScale_hh
-/* eof */

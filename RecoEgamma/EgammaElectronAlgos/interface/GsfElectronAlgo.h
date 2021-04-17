@@ -45,6 +45,9 @@
 #include "TrackingTools/GsfTracking/interface/GsfConstraintAtVertex.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ConversionFinder.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 
 class GsfElectronAlgo {
 public:
@@ -78,13 +81,15 @@ public:
     bool ecalDrivenEcalErrorFromClassBasedParameterization;
     bool pureTrackerDrivenEcalErrorFromSimpleParameterization;
     // ambiguity solving
-    bool applyAmbResolution;              // if not true, ambiguity solving is not applied
+    bool applyAmbResolution;  // if not true, ambiguity solving is not applied
+    bool ignoreNotPreselected;
     unsigned ambSortingStrategy;          // 0:isBetter, 1:isInnermost
     unsigned ambClustersOverlapStrategy;  // 0:sc adresses, 1:bc shared energy
     // for backward compatibility
     bool ctfTracksCheck;
     float PreSelectMVA;
     float MaxElePtForOnlyMVA;
+    bool useDefaultEnergyCorrection;
     // GED-Regression (ECAL and combination)
     bool useEcalRegression;
     bool useCombinationRegression;
@@ -136,15 +141,15 @@ public:
     bool isEndcaps;
     bool isFiducial;
 
-    // BDT output (if available)
-    double minMVA;
-    double minMvaByPassForIsolated;
-
     // transverse impact parameter wrt beam spot
     double maxTIP;
 
     // only make sense for ecal driven electrons
     bool seedFromTEC;
+
+    // noise cleaning
+    double multThresEB;
+    double multThresEE;
   };
 
   // Ecal rec hits
@@ -177,7 +182,6 @@ public:
                   const ElectronHcalHelper::Configuration& hcalCfg,
                   const IsolationConfiguration&,
                   const EcalRecHitsConfiguration&,
-                  std::unique_ptr<EcalClusterFunctionBaseClass>&& superClusterErrorFunction,
                   std::unique_ptr<EcalClusterFunctionBaseClass>&& crackCorrectionFunction,
                   const RegressionHelper::Configuration& regCfg,
                   const edm::ParameterSet& tkIsol03Cfg,
@@ -218,7 +222,10 @@ private:
                       CaloGeometry const& geometry,
                       MultiTrajectoryStateTransform const& mtsTransform,
                       double magneticFieldInTesla,
-                      const HeavyObjectCache*);
+                      const HeavyObjectCache*,
+                      egamma::conv::TrackTableView ctfTable,
+                      egamma::conv::TrackTableView gsfTable,
+                      EcalPFRecHitThresholds const& thresholds);
 
   void setCutBasedPreselectionFlag(reco::GsfElectron& ele, const reco::BeamSpot&) const;
 
@@ -227,7 +234,8 @@ private:
                                                       ElectronHcalHelper const& hcalHelper,
                                                       EventData const& eventData,
                                                       CaloTopology const& topology,
-                                                      CaloGeometry const& geometry) const;
+                                                      CaloGeometry const& geometry,
+                                                      EcalPFRecHitThresholds const& thresholds) const;
   reco::GsfElectron::SaturationInfo calculateSaturationInfo(const reco::SuperClusterRef&,
                                                             EventData const& eventData) const;
 
@@ -247,10 +255,10 @@ private:
   const edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
   const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSeveretyLevelAlgoToken_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
 
   // additional configuration and helpers
   ElectronHcalHelper hcalHelper_;
-  std::unique_ptr<EcalClusterFunctionBaseClass> superClusterErrorFunction_;
   std::unique_ptr<EcalClusterFunctionBaseClass> crackCorrectionFunction_;
   RegressionHelper regHelper_;
 };

@@ -50,7 +50,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     ETLDetId tmpId;
     ringCopy = static_cast<int>(tmpId.encodeSector(discN, sectorS, sectorN));
 
-    modtyp = (baseNumber.getLevelName(2).find("_Left") != std::string::npos) ? 2 : 1;
+    modtyp = (baseNumber.getLevelName(2).find("_Left") != std::string::npos) ? 1 : 2;
   }
 
   // Side choice: up to scenario D38 is given by level 7 (HGCal v9)
@@ -82,7 +82,8 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   }
 
   if ((preTDR && (1 > modCopy || ETLDetId::kETLv1maxModule < modCopy)) ||
-      (!preTDR && (1 > modCopy || ETLDetId::kETLv4maxModule < modCopy))) {
+      (!preTDR && (1 > modCopy ||
+                   static_cast<unsigned>(std::max(ETLDetId::kETLv4maxModule, ETLDetId::kETLv5maxModule)) < modCopy))) {
     edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                << "****************** Bad module copy = " << modCopy
                                << ", Volume Number = " << baseNumber.getCopyNumber(4);

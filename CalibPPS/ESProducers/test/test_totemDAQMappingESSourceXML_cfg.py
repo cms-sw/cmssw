@@ -4,11 +4,9 @@ process = cms.Process('test')
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
-  statistics = cms.untracked.vstring(),
-  destinations = cms.untracked.vstring('cerr'),
-  cerr = cms.untracked.PSet(
-    threshold = cms.untracked.string('WARNING')
-  )
+    cerr = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING')
+    )
 )
 
 # raw data source

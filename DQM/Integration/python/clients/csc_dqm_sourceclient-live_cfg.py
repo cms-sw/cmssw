@@ -40,12 +40,15 @@ if 'unitTest=True' in sys.argv:
 
 if unitTest:
   process.load("DQM.Integration.config.unittestinputsource_cfi")
+  from DQM.Integration.config.unittestinputsource_cfi import options
 else:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
+  from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 #----------------------------
 # DQM Environment
@@ -58,6 +61,9 @@ else:
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "CSC"
 process.dqmSaver.tag = "CSC"
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "CSC"
+process.dqmSaverPB.runNumber = options.runNumber
 
 
 #process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
@@ -166,8 +172,8 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-#process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)
-process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver)
+#process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
+process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
 
 
 process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
@@ -183,7 +189,7 @@ process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
 process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
 process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 process.cscMonitor.FEDRawDataCollectionTag = cms.InputTag("rawDataCollector")
 process.dqmCSCClient.InputObjects = cms.untracked.InputTag("rawDataCollector")
@@ -208,7 +214,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.cscMonitor.FEDRawDataCollectionTag = cms.InputTag("rawDataRepacker")
     process.dqmCSCClient.InputObjects = cms.untracked.InputTag("rawDataRepacker")

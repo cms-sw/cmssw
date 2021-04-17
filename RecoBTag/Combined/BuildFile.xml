@@ -7,6 +7,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="RecoBTau/JetTagComputer"/>
+<use name="RecoBTag/SecondaryVertex"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>

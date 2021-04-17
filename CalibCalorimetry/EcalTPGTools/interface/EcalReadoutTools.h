@@ -3,8 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
@@ -16,7 +15,14 @@ private:
   const EcalElectronicsMapping* elecMap_;
 
 public:
-  EcalReadoutTools(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  struct ESGetTokens {
+    ESGetTokens(const edm::ParameterSet&, edm::ConsumesCollector&& iC)
+        : ecalTrigTowerConstituentsMapToken{iC.esConsumes()}, ecalElectronicsMappingToken{iC.esConsumes()} {}
+    edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> const ecalTrigTowerConstituentsMapToken;
+    edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> const ecalElectronicsMappingToken;
+  };
+
+  EcalReadoutTools(const edm::Event&, const edm::EventSetup&, const ESGetTokens&);
   EcalReadoutTools(const EcalReadoutTools&) = delete;
   EcalReadoutTools& operator=(const EcalReadoutTools&) = delete;
 

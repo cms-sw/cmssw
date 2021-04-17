@@ -11,11 +11,13 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class MTDRecoGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<MTDRecoGeometryRecord,
-                                                            boost::mpl::vector<MTDDigiGeometryRecord> > {};
+                                                            edm::mpl::Vector<MTDTopologyRcd, MTDDigiGeometryRecord> > {
+};
 
 #endif

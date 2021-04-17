@@ -117,18 +117,19 @@ bool HcalSimParametersFromDD::build(const cms::DDCompactView& cpv, HcalSimulatio
     php.hfLevels_ = fv.get<std::vector<int> >("hf", "Levels");
 
     // Attenuation length
-    static const double cminv2mminv = 0.1;
     php.attenuationLength_ = fv.get<std::vector<double> >("hf", "attl");
-    std::for_each(php.attenuationLength_.begin(), php.attenuationLength_.end(), [](double& n) { n *= cminv2mminv; });
+    std::for_each(
+        php.attenuationLength_.begin(), php.attenuationLength_.end(), [](double& n) { n *= k_ScaleFromDD4HepInv; });
 
     // Limits on Lambda
     php.lambdaLimits_ = fv.get<std::vector<int> >("hf", "lambLim");
 
     // Fibre Lengths
     php.longFiberLength_ = fv.get<std::vector<double> >("hf", "LongFL");
-    std::for_each(php.longFiberLength_.begin(), php.longFiberLength_.end(), [](double& n) { n = convertCmToMm(n); });
+    std::for_each(php.longFiberLength_.begin(), php.longFiberLength_.end(), [](double& n) { n *= k_ScaleFromDD4Hep; });
     php.shortFiberLength_ = fv.get<std::vector<double> >("hf", "ShortFL");
-    std::for_each(php.shortFiberLength_.begin(), php.shortFiberLength_.end(), [](double& n) { n = convertCmToMm(n); });
+    std::for_each(
+        php.shortFiberLength_.begin(), php.shortFiberLength_.end(), [](double& n) { n *= k_ScaleFromDD4Hep; });
 
     //Parameters for the PMT
     std::vector<double> neta = fv.get<std::vector<double> >("hfpmt", "indexPMTR");
@@ -153,7 +154,7 @@ bool HcalSimParametersFromDD::build(const cms::DDCompactView& cpv, HcalSimulatio
       // idet = 3 for HB and 4 for HE (convention in the ddalgo code for HB/HE)
       int idet = (copy.size() > 1) ? (copy[1] / 1000) : 0;
       if ((idet == 3) || (idet == 4)) {
-        std::string_view matName = cms::dd::noNamespace(fv.materialName());
+        std::string_view matName = dd4hep::dd::noNamespace(fv.materialName());
         if (std::find(std::begin(php.hcalMaterialNames_), std::end(php.hcalMaterialNames_), matName) ==
             std::end(php.hcalMaterialNames_)) {
           php.hcalMaterialNames_.emplace_back(matName);

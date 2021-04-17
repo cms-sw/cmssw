@@ -10,6 +10,7 @@
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/TrackReco"/>
 <use name="CondFormats/CSCObjects"/>
+<use name="CondFormats/DataRecord"/>
 <use name="root"/>
 <use name="rootcore"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>

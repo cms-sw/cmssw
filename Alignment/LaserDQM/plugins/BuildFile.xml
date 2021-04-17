@@ -3,8 +3,6 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>
   <use name="Geometry/TrackerGeometryBuilder"/>
-  <use name="Geometry/TrackerNumberingBuilder"/>
-  <use name="Geometry/CommonTopologies"/>
   <use name="DataFormats/SiStripDetId"/>
   <use name="DataFormats/DetId"/>
   <use name="DataFormats/Common"/>

@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
                             inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
                             )
 
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.Geometry.GeometryExtended2017Reco_cff")
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
@@ -96,8 +96,8 @@ process.p0 = cms.Path( process.seqTrackRefitting
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 

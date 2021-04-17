@@ -5,10 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
-
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 
@@ -28,14 +24,18 @@ EcalUncalibRecHitWorkerRatio::EcalUncalibRecHitWorkerRatio(const edm::ParameterS
 
   EBtimeConstantTerm_ = ps.getParameter<double>("EBtimeConstantTerm");
   EEtimeConstantTerm_ = ps.getParameter<double>("EEtimeConstantTerm");
+
+  pedsToken_ = c.esConsumes<EcalPedestals, EcalPedestalsRcd>();
+  gainsToken_ = c.esConsumes<EcalGainRatios, EcalGainRatiosRcd>();
+  sampleMaskToken_ = c.esConsumes<EcalSampleMask, EcalSampleMaskRcd>();
 }
 
 void EcalUncalibRecHitWorkerRatio::set(const edm::EventSetup& es) {
   // which of the samples need be used
-  es.get<EcalSampleMaskRcd>().get(sampleMaskHand_);
+  sampleMaskHand_ = es.getHandle(sampleMaskToken_);
 
-  es.get<EcalGainRatiosRcd>().get(gains);
-  es.get<EcalPedestalsRcd>().get(peds);
+  gains = es.getHandle(gainsToken_);
+  peds = es.getHandle(pedsToken_);
 }
 
 bool EcalUncalibRecHitWorkerRatio::run(const edm::Event& evt,

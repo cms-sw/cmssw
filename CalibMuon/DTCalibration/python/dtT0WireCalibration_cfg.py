@@ -4,8 +4,7 @@ process = cms.Process("PROD")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
-process.MessageLogger.destinations = cms.untracked.vstring('cerr')
-process.MessageLogger.categories.append('resolution')
+process.MessageLogger.resolution=dict()
 process.MessageLogger.cerr =  cms.untracked.PSet(
     FwkReport = cms.untracked.PSet(
         limit = cms.untracked.int32(100),
@@ -20,7 +19,7 @@ process.MessageLogger.cerr =  cms.untracked.PSet(
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ""
 
 process.load("CondCore.CondDB.CondDB_cfi")

@@ -43,7 +43,6 @@ It does not work for EndPaths or Paths from prior processes.
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-#include <boost/spirit/include/phoenix_bind.hpp>
 #include <boost/spirit/include/qi.hpp>
 
 #include <functional>
@@ -56,7 +55,6 @@ It does not work for EndPaths or Paths from prior processes.
 
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
-namespace phoenix = boost::phoenix;
 
 namespace edm {
 
@@ -305,12 +303,12 @@ namespace edm {
     public:
       Grammar(ShuntingYardAlgorithm* algorithm) : Grammar::base_type(expression), algorithm_(algorithm) {
         // setup functors that call into shunting algorithm while parsing the logical expression
-        auto addPathName = phoenix::bind(&ShuntingYardAlgorithm::addPathName, algorithm_, qi::_1);
-        auto addOperatorNot = phoenix::bind(&ShuntingYardAlgorithm::addOperatorNot, algorithm_);
-        auto addOperatorAnd = phoenix::bind(&ShuntingYardAlgorithm::addOperatorAnd, algorithm_);
-        auto addOperatorOr = phoenix::bind(&ShuntingYardAlgorithm::addOperatorOr, algorithm_);
-        auto addBeginParenthesis = phoenix::bind(&ShuntingYardAlgorithm::addBeginParenthesis, algorithm_);
-        auto addEndParenthesis = phoenix::bind(&ShuntingYardAlgorithm::addEndParenthesis, algorithm_);
+        auto addPathName = std::bind(&ShuntingYardAlgorithm::addPathName, algorithm_, std::placeholders::_1);
+        auto addOperatorNot = std::bind(&ShuntingYardAlgorithm::addOperatorNot, algorithm_);
+        auto addOperatorAnd = std::bind(&ShuntingYardAlgorithm::addOperatorAnd, algorithm_);
+        auto addOperatorOr = std::bind(&ShuntingYardAlgorithm::addOperatorOr, algorithm_);
+        auto addBeginParenthesis = std::bind(&ShuntingYardAlgorithm::addBeginParenthesis, algorithm_);
+        auto addEndParenthesis = std::bind(&ShuntingYardAlgorithm::addEndParenthesis, algorithm_);
 
         // Define the syntax allowed in the logical expressions
         pathName = !unaryOperator >> !binaryOperatorTest >> (+qi::char_("a-zA-Z0-9_"))[addPathName];

@@ -27,4 +27,8 @@
   <class name="edm::ValueMap<reco::CaloCluster>" />
   <class name="edm::Wrapper<edm::ValueMap<reco::CaloCluster> >" />
 
+  <class name="edm::ValueMap<reco::CaloClusterPtr>" />
+  <class name="edm::ValueMap<reco::CaloClusterPtrVector>" />
+  <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> >" />
+  <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtrVector> >" />
 </lcgdict>

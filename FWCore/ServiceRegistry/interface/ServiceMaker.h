@@ -68,7 +68,9 @@ namespace edm {
     class ServiceMaker : public ServiceMakerBase {
     public:
       ServiceMaker() {}
-      //virtual ~ServiceMaker();
+
+      ServiceMaker(ServiceMaker const&) = delete;
+      ServiceMaker const& operator=(ServiceMaker const&) = delete;
 
       // ---------- const member functions ---------------------
       std::type_info const& serviceType() const override { return typeid(T); }
@@ -87,17 +89,6 @@ namespace edm {
       bool processWideService() const override {
         return service::isProcessWideService(static_cast<typename TMaker::concrete_t const*>(nullptr));
       }
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-
-    private:
-      ServiceMaker(ServiceMaker const&) = delete;  // stop default
-
-      ServiceMaker const& operator=(ServiceMaker const&) = delete;  // stop default
-
-      // ---------- member data --------------------------------
     };
   }  // namespace serviceregistry
 }  // namespace edm

@@ -26,23 +26,33 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append('L1track')
 process.MessageLogger.L1track = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 
 options = VarParsing.VarParsing ('analysis')
 
-def getTxtFile(txtFileName): 
-  return os.environ['CMSSW_BASE']+'/src/L1Trigger/TrackFindingTMTT/data/'+txtFileName
-
 #--- Specify input MC
-# MC txt files are in https://github.com/cms-data/L1Trigger-TrackFindingTMTT.
+
+#--- To use MCsamples scripts, defining functions get*data*(), 
+#--- follow instructions https://cernbox.cern.ch/index.php/s/enCnnfUZ4cpK7mT
+
+#from MCsamples.Scripts.getCMSdata_cfi import *
+#from MCsamples.Scripts.getCMSlocaldata_cfi import *
+
 if GEOMETRY == "D49":
-  inputMCtxt = getTxtFile('MCsamples/1110/RelVal/TTbar/PU200.txt')
+  # Read data from card files (defines getCMSdataFromCards()):
+  #from MCsamples.RelVal_1120.PU200_TTbar_14TeV_cfi import *
+  #inputMC = getCMSdataFromCards()
 
-# Fastest to use a local copy ...
-#inputMCtxt = getTxtFile('MCsamples/1110/RelVal/TTbar/localRAL/PU200.txt') 
+  # Or read .root files from directory on local computer:
+  #dirName = "$myDir/whatever/"
+  #inputMC=getCMSlocaldata(dirName)
 
-options.register('inputMC', inputMCtxt, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
+  # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
+  #dataName="/RelValTTbar_14TeV/CMSSW_11_2_0_pre5-PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/GEN-SIM-DIGI-RAW"
+  #inputMC=getCMSdata(dataName)
+
+  # Or read specified .root file:
+  inputMC = ["/store/relval/CMSSW_11_2_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_110X_mcRun4_realistic_v3_2026D49PU200-v1/20000/FDFA00CE-FA93-0142-B187-99CBD4A43944.root"] 
 
 #--- Specify number of events to process.
 options.register('Events',100,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,"Number of Events to analyze")
@@ -61,34 +71,16 @@ options.parseArguments()
 
 #--- input and output
 
-list = FileUtils.loadListFromFile(options.inputMC)
-readFiles = cms.untracked.vstring(*list)
-secFiles = cms.untracked.vstring()
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Events) )
 
-# Override input dataset.
-#readFiles = cms.untracked.vstring('/store/user/abhijith/DisplacedMuPlus.root')
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
 
 outputHistFile = options.histFile
-
-process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Events) )
 
 if outputHistFile != "":
   process.TFileService = cms.Service("TFileService", fileName = cms.string(outputHistFile))
 
-process.source = cms.Source ("PoolSource",
-                            fileNames = readFiles,
-                            secondaryFileNames = secFiles,
-                            duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
-                            # Following needed to read CMSSW 9 datasets with CMSSW 10
-                            inputCommands = cms.untracked.vstring(
-                              'keep *_*_*_*',
-                              'drop l1tEMTFHit2016*_*_*_*',
-                              'drop l1tEMTFTrack2016*_*_*_*'
-                            )
-                            )
-
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
 #--- Load code that produces our L1 tracks and makes corresponding histograms.

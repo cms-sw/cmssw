@@ -4,7 +4,6 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -22,20 +21,16 @@ ClusterTools::ClusterTools() {}
 ClusterTools::ClusterTools(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
     : eetok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCEEInput"))),
       fhtok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCFHInput"))),
-      bhtok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCBHInput"))) {}
+      bhtok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCBHInput"))),
+      caloGeometryToken_{sumes.esConsumes()} {}
 
 void ClusterTools::getEvent(const edm::Event& ev) {
-  rhtools_.getEvent(ev);
-  edm::Handle<HGCRecHitCollection> temp;
-  ev.getByToken(eetok, temp);
-  eerh_ = temp.product();
-  ev.getByToken(fhtok, temp);
-  fhrh_ = temp.product();
-  ev.getByToken(bhtok, temp);
-  bhrh_ = temp.product();
+  eerh_ = &ev.get(eetok);
+  fhrh_ = &ev.get(fhtok);
+  bhrh_ = &ev.get(bhtok);
 }
 
-void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.getEventSetup(es); }
+void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.setGeometry(es.getData(caloGeometryToken_)); }
 
 float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) const {
   float energy = 0.f, energyHad = 0.f;

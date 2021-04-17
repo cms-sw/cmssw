@@ -11,8 +11,8 @@ pfParticleNetTagInfos = pfDeepBoostedJetTagInfos.clone(
 
 pfParticleNetJetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetTagInfos',
-    preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/General/V00/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/General/V00/ParticleNet.onnx',
+    preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/General/V01/preprocess.json',
+    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/General/V01/particle-net.onnx',
     flav_names = ["probTbcq",  "probTbqq",  "probTbc",   "probTbq",  "probTbel", "probTbmu", "probTbta",
                   "probWcq",   "probWqq",   "probZbb",   "probZcc",  "probZqq",  "probHbb", "probHcc",
                   "probHqqqq", "probQCDbb", "probQCDcc", "probQCDb", "probQCDc", "probQCDothers"],
@@ -20,8 +20,8 @@ pfParticleNetJetTags = boostedJetONNXJetTagsProducer.clone(
 
 pfMassDecorrelatedParticleNetJetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetTagInfos',
-    preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V00/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V00/ParticleNet.onnx',
+    preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V01/preprocess.json',
+    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V01/particle-net.onnx',
     flav_names = ["probXbb", "probXcc", "probXqq", "probQCDbb", "probQCDcc",
                   "probQCDb", "probQCDc", "probQCDothers"],
 )

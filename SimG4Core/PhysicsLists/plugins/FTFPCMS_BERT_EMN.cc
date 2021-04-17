@@ -20,7 +20,7 @@ FTFPCMS_BERT_EMN::FTFPCMS_BERT_EMN(const edm::ParameterSet& p) : PhysicsList(p) 
   double minFTFP = p.getParameter<double>("EminFTFP") * CLHEP::GeV;
   double maxBERT = p.getParameter<double>("EmaxBERT") * CLHEP::GeV;
   double maxBERTpi = p.getParameter<double>("EmaxBERTpi") * CLHEP::GeV;
-  edm::LogVerbatim("PhysicsList") << "You are using the simulation engine: FTFP_BERT_EMM: \n Flags for EM Physics: "
+  edm::LogVerbatim("PhysicsList") << "You are using the simulation engine: FTFP_BERT_EMN: \n Flags for EM Physics: "
                                   << emPhys << "; Hadronic Physics: " << hadPhys << "; tracking cut: " << tracking
                                   << "; time limit(ns)= " << timeLimit / CLHEP::ns
                                   << "\n  transition energy Bertini/FTFP from " << minFTFP / CLHEP::GeV << " to "

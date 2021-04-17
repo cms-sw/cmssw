@@ -42,6 +42,7 @@ namespace pat {
   private:
     // configurables
     edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken_;
+    bool sort_;
     bool addJetCorrFactors_;
     std::vector<edm::EDGetTokenT<edm::ValueMap<JetCorrFactors> > > jetCorrFactorsTokens_;
 

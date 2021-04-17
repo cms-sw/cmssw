@@ -79,7 +79,7 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
   const HGCalDDDConstants& hgdc = geom->topology().dddConstants();
   HGCalGeometryMode::GeometryMode mode = hgdc.geomMode();
   std::cout << nameDetector_ << "\n Mode = " << mode << std::endl;
-  if ((mode == HGCalGeometryMode::Hexagon8) || (mode == HGCalGeometryMode::Hexagon8Full)) {
+  if (hgdc.waferHexagon8()) {
     double r = hgdc.waferParameters(true).first;
     double R = hgdc.waferParameters(true).second;
     std::cout << "Wafer Parameters " << r << ":" << R << std::endl << std::endl;

@@ -58,9 +58,9 @@ DD4hep_VolumeBasedMagneticFieldESProducer::DD4hep_VolumeBasedMagneticFieldESProd
   LogTrace("MagGeoBuilder") << "info:Constructing a DD4hep_VolumeBasedMagneticFieldESProducer";
 
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
-  cc.setConsumes(cpvToken_, edm::ESInputTag{"", "magfield"});
+  cpvToken_ = cc.consumes(edm::ESInputTag{"", "magfield"});
   if (useParametrizedTrackerField_) {
-    cc.setConsumes(paramFieldToken_, edm::ESInputTag{"", iConfig.getParameter<std::string>("paramLabel")});
+    paramFieldToken_ = cc.consumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("paramLabel")});
   }
 }
 

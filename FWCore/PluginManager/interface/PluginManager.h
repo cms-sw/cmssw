@@ -19,13 +19,13 @@
 //
 
 // system include files
-#include <vector>
+#include <filesystem>
 #include <map>
-#include <string>
-#include <mutex>
-
-#include <boost/filesystem/path.hpp>
 #include <memory>
+#include <mutex>
+#include <string>
+#include <vector>
+
 #include "tbb/concurrent_unordered_map.h"
 
 // user include files
@@ -39,7 +39,7 @@ namespace edmplugin {
   class PluginFactoryBase;
 
   struct PluginManagerPathHasher {
-    size_t operator()(boost::filesystem::path const& iPath) const { return std::hash<std::string>{}(iPath.native()); }
+    size_t operator()(std::filesystem::path const& iPath) const { return std::hash<std::string>{}(iPath.native()); }
   };
 
   class PluginManager {
@@ -67,12 +67,14 @@ namespace edmplugin {
       bool m_mustHaveCache = true;
     };
 
+    PluginManager(const PluginManager&) = delete;                   // stop default
+    const PluginManager& operator=(const PluginManager&) = delete;  // stop default
     ~PluginManager();
 
     // ---------- const member functions ---------------------
     const SharedLibrary& load(const std::string& iCategory, const std::string& iPlugin);
 
-    const boost::filesystem::path& loadableFor(const std::string& iCategory, const std::string& iPlugin);
+    const std::filesystem::path& loadableFor(const std::string& iCategory, const std::string& iPlugin);
 
     /**The container is ordered by category, then plugin name and then by precidence order of the plugin files.
         Therefore the first match on category and plugin name will be the proper file to load
@@ -95,15 +97,12 @@ namespace edmplugin {
     static bool isAvailable();
 
     // ---------- member functions ---------------------------
-    edm::signalslot::Signal<void(const boost::filesystem::path&)> goingToLoad_;
+    edm::signalslot::Signal<void(const std::filesystem::path&)> goingToLoad_;
     edm::signalslot::Signal<void(const SharedLibrary&)> justLoaded_;
     edm::signalslot::Signal<void(const std::string&, const std::string&)> askedToLoadCategoryWithPlugin_;
 
   private:
     PluginManager(const Config&);
-    PluginManager(const PluginManager&) = delete;  // stop default
-
-    const PluginManager& operator=(const PluginManager&) = delete;  // stop default
 
     void newFactory(const PluginFactoryBase*);
     static std::string& loadingLibraryNamed_();
@@ -111,12 +110,12 @@ namespace edmplugin {
 
     std::recursive_mutex& pluginLoadMutex() { return pluginLoadMutex_; }
 
-    const boost::filesystem::path& loadableFor_(const std::string& iCategory,
-                                                const std::string& iPlugin,
-                                                bool& ioThrowIfFailElseSucceedStatus);
+    const std::filesystem::path& loadableFor_(const std::string& iCategory,
+                                              const std::string& iPlugin,
+                                              bool& ioThrowIfFailElseSucceedStatus);
     // ---------- member data --------------------------------
     SearchPath searchPath_;
-    tbb::concurrent_unordered_map<boost::filesystem::path, std::shared_ptr<SharedLibrary>, PluginManagerPathHasher>
+    tbb::concurrent_unordered_map<std::filesystem::path, std::shared_ptr<SharedLibrary>, PluginManagerPathHasher>
         loadables_;
 
     CategoryToInfos categoryToInfos_;

@@ -897,6 +897,8 @@ c-----------------------------------------------------------------------
       endif
 
       s=puv+pdv+psv+pcv+pus+pds+pss+pcs
+c... initialize
+      i=0.0
       if(s.gt.0.)then
        r=rangen()*s
        if(r.gt.(pdv+pus+pds+pss+psv+pcv+pcs).and.puv.gt.0.)then

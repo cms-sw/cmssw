@@ -23,28 +23,27 @@ public:
   std::shared_ptr<LHCInterpolatedOpticalFunctionsSetCollection> produce(const CTPPSInterpolatedOpticsRcd &);
 
 private:
-  edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> inputOpticsToken_;
+  const edm::ESGetToken<LHCInterpolatedOpticalFunctionsSetCollection, CTPPSInterpolatedOpticsRcd> inputOpticsToken_;
 
-  std::string scenario_;
+  const std::string scenario_;
 
-  double factor_;
+  const double factor_;
 
-  unsigned int rpDecId_45_N_, rpDecId_45_F_, rpDecId_56_N_, rpDecId_56_F_;
+  const unsigned int rpDecId_45_N_, rpDecId_45_F_, rpDecId_56_N_, rpDecId_56_F_;
 };
 
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
 CTPPSModifiedOpticalFunctionsESSource::CTPPSModifiedOpticalFunctionsESSource(const edm::ParameterSet &iConfig)
-    : scenario_(iConfig.getParameter<std::string>("scenario")),
+    : inputOpticsToken_(setWhatProduced(this, iConfig.getParameter<std::string>("outputOpticsLabel"))
+                            .consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("inputOpticsLabel")))),
+      scenario_(iConfig.getParameter<std::string>("scenario")),
       factor_(iConfig.getParameter<double>("factor")),
       rpDecId_45_N_(iConfig.getParameter<unsigned int>("rpId_45_N")),
       rpDecId_45_F_(iConfig.getParameter<unsigned int>("rpId_45_F")),
       rpDecId_56_N_(iConfig.getParameter<unsigned int>("rpId_56_N")),
-      rpDecId_56_F_(iConfig.getParameter<unsigned int>("rpId_56_F")) {
-  setWhatProduced(this, iConfig.getParameter<std::string>("outputOpticsLabel"))
-      .setConsumes(inputOpticsToken_, edm::ESInputTag("", iConfig.getParameter<std::string>("inputOpticsLabel")));
-}
+      rpDecId_56_F_(iConfig.getParameter<unsigned int>("rpId_56_F")) {}
 
 //----------------------------------------------------------------------------------------------------
 

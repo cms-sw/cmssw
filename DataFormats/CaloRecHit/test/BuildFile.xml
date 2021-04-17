@@ -8,7 +8,7 @@
   <bin name="test_calo_rechit" file="test_calo_rechit.cu">
     <use name="DataFormats/CaloRecHit"/>
     <use name="DataFormats/DetId"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="cuda"/>
   </bin>
-
 </iftool>

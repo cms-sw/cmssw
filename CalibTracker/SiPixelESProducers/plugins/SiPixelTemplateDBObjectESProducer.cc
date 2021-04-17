@@ -41,32 +41,31 @@ private:
 };
 
 SiPixelTemplateDBObjectESProducer::SiPixelTemplateDBObjectESProducer(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this)
-      .setMayConsume(
-          templateToken_,
-          [](const auto& get, edm::ESTransientHandle<MagneticField> iMagfield) {
-            const GlobalPoint center(0.0, 0.0, 0.0);
-            const float theMagField = iMagfield->inTesla(center).mag();
-            if (theMagField >= -0.1 && theMagField < 1.0)
-              return get("", "0T");
-            else if (theMagField >= 1.0 && theMagField < 2.5)
-              return get("", "2T");
-            else if (theMagField >= 2.5 && theMagField < 3.25)
-              return get("", "3T");
-            else if (theMagField >= 3.25 && theMagField < 3.65)
-              return get("", "35T");
-            else if (theMagField >= 3.9 && theMagField < 4.1)
-              return get("", "4T");
-            else {
-              if (theMagField >= 4.1 || theMagField < -0.1)
-                edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixelTemplate")
-                    << "Magnetic field is " << theMagField;
-              //return get("", "3.8T");
-              return get("", "");
-            }
-          },
-          edm::ESProductTag<MagneticField, IdealMagneticFieldRecord>("", ""))
-      .setConsumes(magfieldToken_);
+  auto cc = setWhatProduced(this);
+  cc.setMayConsume(
+      templateToken_,
+      [](const auto& get, edm::ESTransientHandle<MagneticField> iMagfield) {
+        const GlobalPoint center(0.0, 0.0, 0.0);
+        const float theMagField = iMagfield->inTesla(center).mag();
+        if (theMagField >= -0.1 && theMagField < 1.0)
+          return get("", "0T");
+        else if (theMagField >= 1.0 && theMagField < 2.5)
+          return get("", "2T");
+        else if (theMagField >= 2.5 && theMagField < 3.25)
+          return get("", "3T");
+        else if (theMagField >= 3.25 && theMagField < 3.65)
+          return get("", "35T");
+        else if (theMagField >= 3.9 && theMagField < 4.1)
+          return get("", "4T");
+        else {
+          if (theMagField >= 4.1 || theMagField < -0.1)
+            edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixelTemplate") << "Magnetic field is " << theMagField;
+          //return get("", "3.8T");
+          return get("", "");
+        }
+      },
+      edm::ESProductTag<MagneticField, IdealMagneticFieldRecord>("", ""));
+  magfieldToken_ = cc.consumes();
 }
 
 std::shared_ptr<const SiPixelTemplateDBObject> SiPixelTemplateDBObjectESProducer::produce(

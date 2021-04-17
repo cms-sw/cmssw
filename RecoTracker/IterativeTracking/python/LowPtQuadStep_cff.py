@@ -4,6 +4,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 # NEW CLUSTERS (remove previously used clusters)
 lowPtQuadStepClusters = _cfg.clusterRemoverForIter('LowPtQuadStep')
@@ -29,9 +30,9 @@ from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU
 trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.35,originRadius = 0.025))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(lowPtQuadStepTrackingRegions, 
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(lowPtQuadStepTrackingRegions, 
                 _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
                     fixedError   = 0.5,
                     ptMin        = 0.49,
@@ -94,8 +95,6 @@ _fastSim_lowPtQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi
                                layerPairs = lowPtQuadStepHitDoublets.layerPairs.value()
                                )
 )
-
-_fastSim_lowPtQuadStepSeeds.seedFinderSelector.CAHitQuadrupletGeneratorFactory.SeedComparitorPSet.ComponentName = 'none'
 fastSim.toReplaceWith(lowPtQuadStepSeeds,_fastSim_lowPtQuadStepSeeds)
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -110,8 +109,7 @@ lowPtQuadStepTrajectoryFilterBase = _lowPtQuadStepTrajectoryFilterBase.clone(
 )
 trackingPhase2PU140.toReplaceWith(lowPtQuadStepTrajectoryFilterBase, _lowPtQuadStepTrajectoryFilterBase)
 
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.49)
+(pp_on_XeXe_2017 | pp_on_AA).toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.49)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
@@ -205,15 +203,15 @@ lowPtQuadStep = TrackMVAClassifierPrompt.clone(
      qualityCuts = [-0.7,-0.35,-0.15]
 )
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(lowPtQuadStep, TrackLwtnnClassifier.clone(
-    src         = 'lowPtQuadStepTracks',
-    qualityCuts = [0.2, 0.425, 0.75]
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(lowPtQuadStep, TrackTfClassifier.clone(
+    src = 'lowPtQuadStepTracks',
+    qualityCuts = qualityCutDictionary["LowPtQuadStep"]
 ))
 
 highBetaStar_2018.toModify(lowPtQuadStep,qualityCuts = [-0.9,-0.35,-0.15])
-pp_on_AA_2018.toModify(lowPtQuadStep, 
+pp_on_AA.toModify(lowPtQuadStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorLowPtQuadStep_Phase1'),
         qualityCuts = [-0.9, -0.4, 0.3],
 )

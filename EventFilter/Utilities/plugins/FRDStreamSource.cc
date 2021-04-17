@@ -64,8 +64,9 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id,
   }
 
   if (detectedFRDversion_ == 0) {
-    fin_.read((char*)&detectedFRDversion_, sizeof(uint32_t));
-    assert(detectedFRDversion_ > 0 && detectedFRDversion_ <= 5);
+    fin_.read((char*)&detectedFRDversion_, sizeof(uint16_t));
+    fin_.read((char*)&flags_, sizeof(uint16_t));
+    assert(detectedFRDversion_ > 0 && detectedFRDversion_ <= FRDHeaderMaxVersion);
     if (buffer_.size() < FRDHeaderVersionSize[detectedFRDversion_])
       buffer_.resize(FRDHeaderVersionSize[detectedFRDversion_]);
     *((uint32_t*)(&buffer_[0])) = detectedFRDversion_;

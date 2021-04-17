@@ -1,15 +1,16 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripAPVRestorer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <cmath>
 #include <iostream>
 #include <algorithm>
 
-SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf)
-    : quality_cache_id(-1),
-      noise_cache_id(-1),
-      pedestal_cache_id(-1),
+SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
+    : qualityToken_(iC.esConsumes<SiStripQuality, SiStripQualityRcd>()),
+      noiseToken_(iC.esConsumes<SiStripNoises, SiStripNoisesRcd>()),
+      pedestalToken_(iC.esConsumes<SiStripPedestals, SiStripPedestalsRcd>()),
       forceNoRestore_(conf.getParameter<bool>("ForceNoRestore")),
       inspectAlgo_(conf.getParameter<std::string>("APVInspectMode")),
       restoreAlgo_(conf.getParameter<std::string>("APVRestoreMode")),
@@ -52,28 +53,14 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf)
 }
 
 void SiStripAPVRestorer::init(const edm::EventSetup& es) {
-  uint32_t n_cache_id = es.get<SiStripNoisesRcd>().cacheIdentifier();
-  uint32_t q_cache_id = es.get<SiStripQualityRcd>().cacheIdentifier();
-  uint32_t p_cache_id = es.get<SiStripPedestalsRcd>().cacheIdentifier();
-
-  if (n_cache_id != noise_cache_id) {
-    es.get<SiStripNoisesRcd>().get(noiseHandle);
-    noise_cache_id = n_cache_id;
-  } else {
-    noise_cache_id = n_cache_id;
+  if (noiseWatcher_.check(es)) {
+    noiseHandle = &es.getData(noiseToken_);
   }
-  if (q_cache_id != quality_cache_id) {
-    es.get<SiStripQualityRcd>().get(qualityHandle);
-    quality_cache_id = q_cache_id;
-  } else {
-    quality_cache_id = q_cache_id;
+  if (qualityWatcher_.check(es)) {
+    qualityHandle = &es.getData(qualityToken_);
   }
-
-  if (p_cache_id != pedestal_cache_id) {
-    es.get<SiStripPedestalsRcd>().get(pedestalHandle);
-    pedestal_cache_id = p_cache_id;
-  } else {
-    pedestal_cache_id = p_cache_id;
+  if (pedestalWatcher_.check(es)) {
+    pedestalHandle = &es.getData(pedestalToken_);
   }
 }
 

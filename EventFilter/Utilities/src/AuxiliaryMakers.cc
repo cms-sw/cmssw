@@ -9,6 +9,7 @@ namespace evf {
     edm::EventAuxiliary makeEventAuxiliary(const tcds::Raw_v1* tcds,
                                            unsigned int runNumber,
                                            unsigned int lumiSection,
+                                           bool isRealData,
                                            const edm::EventAuxiliary::ExperimentType& eventType,
                                            const std::string& processGUID,
                                            bool verifyLumiSection) {
@@ -28,17 +29,20 @@ namespace evf {
       const uint64_t orbitnr = ((uint64_t)tcds->header.orbitHigh << 16) | tcds->header.orbitLow;
       const uint32_t recordLumiSection = tcds->header.lumiSection;
 
-      if (verifyLumiSection && recordLumiSection != lumiSection)
-        edm::LogWarning("AuxiliaryMakers")
-            << "Lumisection mismatch, external : " << lumiSection << ", record : " << recordLumiSection;
-      if ((orbitnr >> 18) + 1 != recordLumiSection)
-        edm::LogWarning("AuxiliaryMakers") << "Lumisection and orbit number mismatch, LS : " << lumiSection
-                                           << ", LS from orbit: " << ((orbitnr >> 18) + 1) << ", orbit:" << orbitnr;
+      if (isRealData) {
+        //warnings are disabled for generated data
+        if (verifyLumiSection && recordLumiSection != lumiSection)
+          edm::LogWarning("AuxiliaryMakers")
+              << "Lumisection mismatch, external : " << lumiSection << ", record : " << recordLumiSection;
+        if ((orbitnr >> 18) + 1 != recordLumiSection)
+          edm::LogWarning("AuxiliaryMakers") << "Lumisection and orbit number mismatch, LS : " << lumiSection
+                                             << ", LS from orbit: " << ((orbitnr >> 18) + 1) << ", orbit:" << orbitnr;
+      }
 
       return edm::EventAuxiliary(eventId,
                                  processGUID,
                                  edm::Timestamp(time),
-                                 true,
+                                 isRealData,
                                  eventType,
                                  (int)tcds->header.bxid,
                                  ((uint32_t)(tcds->bst.lhcFillHigh) << 16) | tcds->bst.lhcFillLow,

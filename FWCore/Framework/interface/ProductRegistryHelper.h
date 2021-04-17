@@ -49,7 +49,7 @@ namespace edm {
     };
 
     struct BranchAliasSetter {
-      BranchAliasSetter(TypeLabelItem& iItem, EDPutToken iToken) : value_(iItem), token_(std::move(iToken)) {}
+      BranchAliasSetter(TypeLabelItem& iItem, EDPutToken iToken) : value_(iItem), token_(iToken) {}
 
       BranchAliasSetter& setBranchAlias(std::string alias) {
         value_.branchAlias_ = std::move(alias);

@@ -11,17 +11,17 @@ class CmsMTDStringToEnum {
 public:
   static constexpr size_t kModStrLen = 7;
 
-  typedef std::map<std::string, GeometricTimingDet::GeometricTimingEnumType> MapEnumType;
+  using MapEnumType = std::map<std::string, GeometricTimingDet::GeometricTimingEnumType>;
 
   GeometricTimingDet::GeometricTimingEnumType type(std::string const&) const;
 
 private:
-  static MapEnumType const& map() { return m_impl._map; }
+  static MapEnumType const& map() { return m_impl.map_; }
 
   // a quick fix
   struct Impl {
     Impl();
-    MapEnumType _map;
+    MapEnumType map_;
   };
 
   static const Impl m_impl;

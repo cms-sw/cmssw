@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -25,13 +26,16 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+
 class MultiTrajectoryStateTransform;
 
 class EgammaHLTPixelMatchElectronAlgo {
 public:
   EgammaHLTPixelMatchElectronAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
-
-  ~EgammaHLTPixelMatchElectronAlgo();
 
   //disabling the ability to copy this module (lets hope nobody was actually copying it before as Bad Things (TM) would have happened)
 private:
@@ -56,12 +60,16 @@ private:
   bool useGsfTracks_;
   edm::EDGetTokenT<reco::BeamSpot> bsProducer_;
 
-  MultiTrajectoryStateTransform* mtsTransform_;
+  std::unique_ptr<MultiTrajectoryStateTransform> mtsTransform_ = nullptr;
 
   edm::ESHandle<MagneticField> magField_;
   edm::ESHandle<TrackerGeometry> trackerGeom_;
-  int unsigned long long cacheIDTDGeom_;
-  unsigned long long cacheIDMagField_;
+
+  edm::ESWatcher<IdealMagneticFieldRecord> magneticFieldWatcher_;
+  edm::ESWatcher<TrackerDigiGeometryRecord> trackerGeometryWatcher_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
 };
 
 #endif  // EgammaHLTPixelMatchElectronAlgo_H

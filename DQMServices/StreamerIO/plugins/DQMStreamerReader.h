@@ -10,7 +10,7 @@
 #include "DQMMonitoringService.h"
 #include "TriggerSelector.h"
 
-#include "boost/filesystem.hpp"
+#include <filesystem>
 
 #include <memory>
 #include <string>

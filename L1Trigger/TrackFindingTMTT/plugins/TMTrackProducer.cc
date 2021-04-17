@@ -10,12 +10,11 @@
 #include "L1Trigger/TrackFindingTMTT/interface/HTcell.h"
 #include "L1Trigger/TrackFindingTMTT/interface/MuxHToutputs.h"
 #include "L1Trigger/TrackFindingTMTT/interface/MiniHTstage.h"
+#include "L1Trigger/TrackFindingTMTT/interface/Array2D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/PrintL1trk.h"
 
 #include "FWCore/MessageService/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
-#include <boost/numeric/ublas/matrix.hpp>
 
 #include <iostream>
 #include <vector>
@@ -25,7 +24,6 @@
 #include <mutex>
 
 using namespace std;
-using boost::numeric::ublas::matrix;
 
 namespace tmtt {
 
@@ -173,13 +171,13 @@ namespace tmtt {
     const list<Stub*>& vStubs = inputData.stubs();
 
     // Creates matrix of Sector objects, which decide which stubs are in which (eta,phi) sector
-    matrix<unique_ptr<Sector>> mSectors(settings_.numPhiSectors(), settings_.numEtaRegions());
+    Array2D<unique_ptr<Sector>> mSectors(settings_.numPhiSectors(), settings_.numEtaRegions());
     // Create matrix of r-phi Hough-Transform arrays, with one-to-one correspondence to sectors.
-    matrix<unique_ptr<HTrphi>> mHtRphis(settings_.numPhiSectors(), settings_.numEtaRegions());
+    Array2D<unique_ptr<HTrphi>> mHtRphis(settings_.numPhiSectors(), settings_.numEtaRegions());
     // Create matrix of Make3Dtracks objects, to run optional r-z track filter, with one-to-one correspondence to sectors.
-    matrix<unique_ptr<Make3Dtracks>> mMake3Dtrks(settings_.numPhiSectors(), settings_.numEtaRegions());
+    Array2D<unique_ptr<Make3Dtracks>> mMake3Dtrks(settings_.numPhiSectors(), settings_.numEtaRegions());
     // Create matrix of tracks from each fitter in each sector
-    matrix<map<string, std::list<L1fittedTrack>>> mapmFitTrks(settings_.numPhiSectors(), settings_.numEtaRegions());
+    Array2D<map<string, std::list<L1fittedTrack>>> mapmFitTrks(settings_.numPhiSectors(), settings_.numEtaRegions());
     // Final tracks after duplicate removal from each track fitter in entire tracker.
     map<string, list<const L1fittedTrack*>> mapFinalTracks;
 

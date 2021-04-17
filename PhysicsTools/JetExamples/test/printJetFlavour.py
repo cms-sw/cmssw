@@ -50,9 +50,6 @@ process.printEvent = cms.EDAnalyzer("printJetFlavour",
 
 process.p = cms.Path(process.printList*process.myPartons*process.flavourByRef*process.flavourByVal*process.printEvent)
 
-process.MessageLogger.destinations = cms.untracked.vstring('cout','cerr')
-#process.MessageLogger.cout = cms.PSet(
-#    threshold = cms.untracked.string('ERROR')
-#)
+#process.MessageLogger.cout = dict(enable = True, threshold = 'ERROR')
 
 

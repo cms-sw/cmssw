@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 #include "FWCore/Framework/interface/ESProxyFactoryProducer.h"
-#include "FWCore/Framework/interface/ProxyFactoryTemplate.h"
+#include "FWCore/Framework/test/ProxyFactoryTemplate.h"
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

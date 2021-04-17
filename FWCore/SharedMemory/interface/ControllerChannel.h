@@ -39,7 +39,7 @@ namespace edm::shared_memory {
     /** iName is used as the base for the shared memory name. The full name uses iID as well as getpid() to create the value sharedMemoryName().
      iID allows multiple ControllChannels to use the same base name iName.
      */
-    ControllerChannel(std::string const& iName, int iID);
+    ControllerChannel(std::string const& iName, int iID, unsigned int iMaxWaitInSeconds);
     ~ControllerChannel();
     ControllerChannel(const ControllerChannel&) = delete;
     const ControllerChannel& operator=(const ControllerChannel&) = delete;
@@ -60,7 +60,7 @@ namespace edm::shared_memory {
       using namespace boost::posix_time;
       //std::cout << id_ << " waiting for external process" << std::endl;
 
-      if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(60))) {
+      if (not cndToMain_.timed_wait(lock, microsec_clock::universal_time() + seconds(maxWaitInSeconds_))) {
         //std::cout << id_ << " FAILED waiting for external process" << std::endl;
         throw cms::Exception("ExternalFailed");
       } else {
@@ -115,6 +115,7 @@ namespace edm::shared_memory {
 
     // ---------- member data --------------------------------
     int id_;
+    unsigned int maxWaitInSeconds_;
     std::string smName_;
     boost::interprocess::managed_shared_memory managed_sm_;
     BufferInfo* toWorkerBufferInfo_;

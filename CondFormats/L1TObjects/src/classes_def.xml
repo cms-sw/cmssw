@@ -358,6 +358,13 @@
    <field name="exp_doubles_" mapping="blob" />
   </class>
 
+  <class name="L1TGlobalPrescalesVetosFract">
+   <field name="prescale_table_" mapping="blob" />
+   <field name="bxmask_map_" mapping="blob" />
+   <field name="veto_" mapping="blob" />
+   <field name="exp_ints_" mapping="blob" />
+   <field name="exp_doubles_" mapping="blob" />
+  </class>
 
 
 </lcgdict>

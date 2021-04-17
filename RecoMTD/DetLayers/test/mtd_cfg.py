@@ -9,11 +9,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.statistics.append("debugs")
-process.MessageLogger.categories.append("MTDLayerDump")
-process.MessageLogger.categories.append("MTDDetLayers")
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.debugs = cms.untracked.PSet(
+process.MessageLogger.files.debugs = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'),
     INFO= cms.untracked.PSet(
         limit = cms.untracked.int32(0)
@@ -27,10 +24,11 @@ process.MessageLogger.debugs = cms.untracked.PSet(
     MTDDetLayers = cms.untracked.PSet(
         limit = cms.untracked.int32(-1)
     ),
+    enableStatistics = cms.untracked.bool(True)
 )
 
 # Choose Tracker Geometry
-process.load("Configuration.Geometry.GeometryExtended2026D50_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D76_cff")
 
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
 

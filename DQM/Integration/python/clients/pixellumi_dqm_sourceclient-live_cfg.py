@@ -21,12 +21,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 if unitTest:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     # for live online DQM in P5
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 ##
 #----------------------------
@@ -40,6 +43,9 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "PixelLumi"
 process.dqmSaver.tag = "PixelLumi"
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "PixelLumi"
+process.dqmSaverPB.runNumber = options.runNumber
 
 if not unitTest:
     process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*","HLT_L1AlwaysTrue*", "HLT_PAZeroBias*", "HLT_PAL1AlwaysTrue*")
@@ -73,7 +79,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #-----------------------
 # Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.IncludeErrors = True
+process.siPixelDigis.cpu.IncludeErrors = True
 
 # Local Reconstruction
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
@@ -86,13 +92,13 @@ process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 #        SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_*Cosmic*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*','HLT_HcalNZS*'))
 
 
-process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
+process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
 #--------------------------------
 # Heavy Ion Configuration Changes
 #--------------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
-    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
 
     if not unitTest:
         process.source.SelectEvents = cms.untracked.vstring('HLT_HIL1MinimumBiasHF2AND*')
@@ -128,7 +134,8 @@ process.AdaptorConfig = cms.Service("AdaptorConfig")
 process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
 process.DQMmodules = cms.Sequence(process.dqmEnv*
   process.pixel_lumi_dqm*
-  process.dqmSaver)
+  process.dqmSaver*
+  process.dqmSaverPB)
 
 process.p = cms.Path(process.Reco*process.DQMmodules)
 

@@ -20,7 +20,7 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalRefSetter.h"
+#include "TrackingTools/PatternTools/interface/ClusterRemovalRefSetter.h"
 #include "FWCore/Utilities/interface/transform.h"
 
 using namespace edm;

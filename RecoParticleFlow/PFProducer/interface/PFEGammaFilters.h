@@ -49,7 +49,7 @@ private:
   const float ele_iso_combIso_eb_;
   const float ele_iso_combIso_ee_;
   const float ele_noniso_mva_;
-  const unsigned int ele_missinghits_;
+  const int ele_missinghits_;
   const float ele_ecalDrivenHademPreselCut_;
   const float ele_maxElePtForOnlyMVAPresel_;
   float ele_maxNtracks_;

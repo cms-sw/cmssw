@@ -15,7 +15,7 @@ namespace ecaldqm {
 
     bool filterRunType(short const*) override;
 
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) override;
 
     bool analyze(void const*, Collections) override;
 

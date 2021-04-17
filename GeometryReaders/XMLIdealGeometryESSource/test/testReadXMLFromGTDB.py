@@ -35,20 +35,28 @@ process.pDB = cms.EDAnalyzer("PerfectGeometryAnalyzer",
                              )
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    readDBerrors = cms.untracked.PSet( threshold = cms.untracked.string('ERROR'),
-                                                                          extension = cms.untracked.string('.out')
-                                                                          ),
-                                    readDBdebug = cms.untracked.PSet( INFO = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-                                                                         extension = cms.untracked.string('.out'),
-                                                                         noLineBreaks = cms.untracked.bool(True),
-                                                                         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-                                                                         threshold = cms.untracked.string('DEBUG'),
-                                                                         ),
-                                    # For LogDebug/LogTrace output...
-                                    debugModules = cms.untracked.vstring('*'),
-                                    categories = cms.untracked.vstring('*'),
-                                    destinations = cms.untracked.vstring('readDBerrors','readDBdebug')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    debugModules = cms.untracked.vstring('*'),
+    files = cms.untracked.PSet(
+        readDBdebug = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            extension = cms.untracked.string('.out'),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        readDBerrors = cms.untracked.PSet(
+            extension = cms.untracked.string('.out'),
+            threshold = cms.untracked.string('ERROR')
+        )
+    )
+)
 
 process.Timing = cms.Service("Timing")
 

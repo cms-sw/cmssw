@@ -4,8 +4,7 @@
 // includes
 #include <string>
 
-#include "TClonesArray.h"
-
+class TClonesArray;
 class TFile;
 class TTree;
 

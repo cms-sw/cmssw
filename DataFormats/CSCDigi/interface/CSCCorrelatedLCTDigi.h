@@ -18,9 +18,14 @@
 
 class CSCCorrelatedLCTDigi {
 public:
-  enum LCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0xff };
-  enum LCTKeyStripShifts { kEightStripShift = 9, kQuartStripShift = 8, kHalfStripShift = 0 };
+  enum LCTKeyStripMasks { kEighthStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0xff };
+  enum LCTKeyStripShifts { kEighthStripShift = 9, kQuartStripShift = 8, kHalfStripShift = 0 };
+  // temporary to facilitate CCLUT-EMTF/OMTF integration studies
+  enum LCTPatternMasks { kRun3SlopeMask = 0xf, kRun3PatternMask = 0x7, kLegacyPatternMask = 0xf };
+  enum LCTPatternShifts { kRun3SlopeShift = 7, kRun3PatternShift = 4, kLegacyPatternShift = 0 };
   enum class Version { Legacy = 0, Run3 };
+  // for data vs emulator studies
+  enum LCTBXMask { kBXDataMask = 0x1 };
 
   /// Constructors
   CSCCorrelatedLCTDigi(const uint16_t trknmb,
@@ -64,24 +69,56 @@ public:
   /// get single quart strip bit
   bool getQuartStrip() const;
 
-  /// set single eight strip bit
-  void setEightStrip(const bool eightStrip);
+  /// set single eighth strip bit
+  void setEighthStrip(const bool eighthStrip);
 
-  /// get single eight strip bit
-  bool getEightStrip() const;
+  /// get single eighth strip bit
+  bool getEighthStrip() const;
 
-  /// return the fractional strip. counts from 0.25
+  /*
+    Strips are numbered starting from 1 in CMSSW
+    Half-strips, quarter-strips and eighth-strips are numbered starting from 0
+    The table below shows the correct numbering
+    ---------------------------------------------------------------------------------
+    strip     |               1               |                 2                   |
+    ---------------------------------------------------------------------------------
+    1/2-strip |       0       |       1       |       2         |         3         |
+    ---------------------------------------------------------------------------------
+    1/4-strip |   0   |   1   |   2   |   3   |   4   |    5    |    6    |    7    |
+    ---------------------------------------------------------------------------------
+    1/8-strip | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
+    ---------------------------------------------------------------------------------
+
+    Note: the CSC geometry also has a strip offset of +/- 0.25 strips. When comparing the
+    CLCT/LCT position with the true muon position, take the offset into account!
+   */
   float getFractionalStrip(uint16_t n = 2) const;
 
   /// Legacy: return pattern ID
   /// Run-3: return the bending angle value
-  uint16_t getPattern() const { return pattern; }
+  uint16_t getPattern() const;
+
+  /// return pattern
+  uint16_t getRun3Pattern() const;
+
+  /// return the slope
+  uint16_t getSlope() const;
+
+  /// slope in number of half-strips/layer
+  /// negative means left-bending
+  /// positive means right-bending
+  float getFractionalSlope() const;
 
   /// return left/right bending
+  /// 0: left-bending (negative delta-strip / delta layer)
+  /// 1: right-bending (positive delta-strip / delta layer)
   uint16_t getBend() const { return bend; }
 
   /// return BX
   uint16_t getBX() const { return bx; }
+
+  /// return 1-bit BX as in data
+  uint16_t getBXData() const { return bx & kBXDataMask; }
 
   /// return CLCT pattern number (in use again Feb 2011)
   /// This function should not be used for Run-3
@@ -129,7 +166,13 @@ public:
   void setStrip(const uint16_t s) { strip = s; }
 
   /// set pattern
-  void setPattern(const uint16_t p) { pattern = p; }
+  void setPattern(const uint16_t p);
+
+  /// set pattern
+  void setRun3Pattern(const uint16_t pattern);
+
+  /// set the slope
+  void setSlope(const uint16_t slope);
 
   /// set bend
   void setBend(const uint16_t b) { bend = b; }
@@ -180,6 +223,9 @@ public:
   const GEMPadDigi& getGEM2() const { return gem2_; }
 
 private:
+  void setDataWord(const uint16_t newWord, uint16_t& word, const unsigned shift, const unsigned mask);
+  uint16_t getDataWord(const uint16_t word, const unsigned shift, const unsigned mask) const;
+
   // Note: The Run-3 data format is substantially different than the
   // Run-1/2 data format. Some explanation is provided below. For
   // more information, please check "DN-20-016".

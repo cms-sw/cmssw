@@ -122,6 +122,8 @@ CSCValidation::CSCValidation(const ParameterSet& pset) {
   // setup trees to hold global position data for rechits and segments
   if (writeTreeToFile)
     histos->setupTrees();
+
+  geomToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
 }
 
 //////////////////
@@ -195,8 +197,7 @@ void CSCValidation::analyze(const Event& event, const EventSetup& eventSetup) {
   }
 
   // Get the CSC Geometry :
-  edm::ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
+  edm::ESHandle<CSCGeometry> cscGeom = eventSetup.getHandle(geomToken_);
 
   // Get the RecHits collection :
   edm::Handle<CSCRecHit2DCollection> recHits;
@@ -850,6 +851,7 @@ void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips) {
 //=======================================================
 
 void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips) {
+  constexpr float threshold = 13.3;
   for (CSCStripDigiCollection::DigiRangeIterator dPNiter = strips->begin(); dPNiter != strips->end(); dPNiter++) {
     CSCDetId id = (CSCDetId)(*dPNiter).first;
     std::vector<CSCStripDigi>::const_iterator pedIt = (*dPNiter).second.first;
@@ -858,18 +860,10 @@ void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips) 
       int myStrip = pedIt->getStrip();
       std::vector<int> myADCVals = pedIt->getADCCounts();
       float TotalADC = getSignal(*strips, id, myStrip);
-      bool thisStripFired = false;
       float thisPedestal = 0.5 * (float)(myADCVals[0] + myADCVals[1]);
       float thisSignal =
           (1. / 6) * (myADCVals[2] + myADCVals[3] + myADCVals[4] + myADCVals[5] + myADCVals[6] + myADCVals[7]);
-      float threshold = 13.3;
-      if (id.station() == 1 && id.ring() == 4) {
-        if (myStrip <= 16)
-          myStrip += 64;  // no trapping for any bizarreness
-      }
-      if (TotalADC > threshold) {
-        thisStripFired = true;
-      }
+      bool thisStripFired = TotalADC > threshold;
       if (!thisStripFired) {
         float ADC = thisSignal - thisPedestal;
         histos->fill1DHist(ADC, "hStripPed", "Pedestal Noise Distribution", 50, -25., 25., "PedestalNoise");
@@ -2624,8 +2618,6 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
     for (wiredetUnitIt = wirecltn.begin(); wiredetUnitIt != wirecltn.end(); ++wiredetUnitIt) {
       const CSCDetId id = (*wiredetUnitIt).first;
       idlayer = indexer.dbIndex(id, channel);
-      idchamber = idlayer / 10;
-      layer = id.layer();
       // looping in the layer of given CSC
       mult = 0;
       wire = 0;
@@ -3328,7 +3320,6 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   /// Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
   event.getByToken(rd_token, rawdata);
-  bool goodEvent = false;
   // If set selective unpacking mode
   // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
   // then examinerMask for CSC level errors will be used during unpacking of each CSC block
@@ -3346,12 +3337,9 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
     unsigned long length = fedData.size();
 
     if (length >= 32) {  ///if fed has data then unpack it
-      CSCDCCExaminer* examiner = nullptr;
       std::stringstream examiner_out, examiner_err;
-      goodEvent = true;
       ///examine event for integrity
-      //CSCDCCExaminer examiner;
-      examiner = new CSCDCCExaminer();
+      CSCDCCExaminer* examiner = new CSCDCCExaminer();
       if (examinerMask & 0x40000)
         examiner->crcCFEB(true);
       if (examinerMask & 0x8000)
@@ -3361,6 +3349,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
       examiner->setMask(examinerMask);
       const short unsigned int* data = (short unsigned int*)fedData.data();
 
+      bool goodEvent;
       if (examiner->check(data, long(fedData.size() / 2)) < 0) {
         goodEvent = false;
       } else {

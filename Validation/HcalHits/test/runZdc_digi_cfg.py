@@ -129,29 +129,10 @@ def customise(process):
     
     #Tweak Message logger to dump G4cout and G4cerr messages in G4msg.log
     #print process.MessageLogger.__dict__
-    process.MessageLogger.destinations=cms.untracked.vstring('cout'
-                                                             ,'cerr'
-                                                             ,'G4msg'
-                                                             )
-    process.MessageLogger.categories=cms.untracked.vstring('FwkJob'
-                                                           ,'FwkReport'
-                                                           ,'FwkSummary'
-                                                           ,'Root_NoDictionary'
-                                                           ,'TimeReport'
-                                                           ,'TimeModule'
-                                                           ,'TimeEvent'
-                                                           ,'MemoryCheck'
-                                                           ,'PhysicsList'
-                                                           ,'G4cout'
-                                                           ,'G4cerr'
-                                                           ,'CaloSim'
-                                                           ,'ForwardSim'
-    )
-                                                           
     process.MessageLogger.debugModules=cms.untracked.vstring('g4SimHits')
                                                            
     #Configuring the G4msg.log output
-    process.MessageLogger.G4msg =  cms.untracked.PSet(
+    process.MessageLogger.files.G4msg =  cms.untracked.PSet(
         noTimeStamps = cms.untracked.bool(True)
         #First eliminate unneeded output
         ,threshold = cms.untracked.string('INFO')

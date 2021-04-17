@@ -21,19 +21,14 @@ process.source = cms.Source("EmptySource",
 process.Tracer = cms.Service("Tracer")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations   = cms.untracked.vstring('cout',
-                                           'cerr'
-    ),
-    categories = cms.untracked.vstring(
-        'Tracer'
-    ),
     cout = cms.untracked.PSet(
-        default = cms.untracked.PSet (
+        Tracer = cms.untracked.PSet(
+            limit = cms.untracked.int32(100000000)
+        ),
+        default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        Tracer = cms.untracked.PSet(
-            limit=cms.untracked.int32(100000000)
-        )
+        enable = cms.untracked.bool(True)
     )
 )
 
@@ -47,12 +42,12 @@ process.two = cms.EDProducer("IntProducer",
 
 process.getOne = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(1),
-    moduleLabel = cms.untracked.string('one')
+    moduleLabel = cms.untracked.InputTag('one')
 )
 
 process.getTwo = cms.EDAnalyzer("IntTestAnalyzer",
     valueMustMatch = cms.untracked.int32(2),
-    moduleLabel = cms.untracked.string('two')
+    moduleLabel = cms.untracked.InputTag('two')
 )
 
 process.p = cms.Path(process.one*process.getOne+process.two*process.getTwo)

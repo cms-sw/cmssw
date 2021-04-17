@@ -25,6 +25,8 @@
 #include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/stream/ProducingModuleAdaptorBase.cc"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 using namespace edm::stream;
 namespace edm {
@@ -43,36 +45,38 @@ namespace edm {
     //
     EDFilterAdaptorBase::EDFilterAdaptorBase() {}
 
-    bool EDFilterAdaptorBase::doEvent(EventPrincipal const& ep,
-                                      EventSetupImpl const& ci,
+    bool EDFilterAdaptorBase::doEvent(EventTransitionInfo const& info,
                                       ActivityRegistry* act,
                                       ModuleCallingContext const* mcc) {
+      EventPrincipal const& ep = info.principal();
       assert(ep.streamID() < m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
       e.setProducer(mod, &mod->previousParentage_, &mod->gotBranchIDsFromAcquire_);
       EventSignalsSentry sentry(act, mcc);
+      ESParentContext parentC(mcc);
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), false};
+          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC, false};
       bool result = mod->filter(e, c);
       commit(e, &mod->previousParentageId_);
       return result;
     }
 
-    void EDFilterAdaptorBase::doAcquire(EventPrincipal const& ep,
-                                        EventSetupImpl const& ci,
+    void EDFilterAdaptorBase::doAcquire(EventTransitionInfo const& info,
                                         ActivityRegistry* act,
                                         ModuleCallingContext const* mcc,
                                         WaitingTaskWithArenaHolder& holder) {
+      EventPrincipal const& ep = info.principal();
       assert(ep.streamID() < m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
       e.setProducerForAcquire(mod, nullptr, mod->gotBranchIDsFromAcquire_);
       EventAcquireSignalsSentry sentry(act, mcc);
+      ESParentContext parentC(mcc);
       const EventSetup c{
-          ci, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), false};
+          info, static_cast<unsigned int>(Transition::Event), mod->esGetTokenIndices(Transition::Event), parentC, false};
       mod->doAcquire_(e, c, holder);
     }
 

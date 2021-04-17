@@ -23,7 +23,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('PhysicsList')
+    process.MessageLogger.PhysicsList=dict()
 
 process.source = cms.Source("EmptySource")
 

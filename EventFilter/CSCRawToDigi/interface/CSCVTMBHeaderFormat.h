@@ -1,5 +1,5 @@
-#ifndef CSCVTMBHeaderFormat_h
-#define CSCVTMBHeaderFormat_h
+#ifndef EventFilter_CSCRawToDigi_CSCVTMBHeaderFormat_h
+#define EventFilter_CSCRawToDigi_CSCVTMBHeaderFormat_h
 
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"

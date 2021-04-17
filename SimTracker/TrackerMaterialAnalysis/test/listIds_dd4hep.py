@@ -9,8 +9,9 @@ from Configuration.Geometry.GeometryDD4hepExtended2021_cff import *
 process = cms.Process("MaterialAnalyser")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
+
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('ListIds')
+    process.MessageLogger.ListIds=dict()
 
 process.source = cms.Source("EmptySource")
 
@@ -20,7 +21,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
     confGeomXMLFiles = cms.FileInPath(
-        'DetectorDescription/DDCMS/data/cms-geometry-2021.xml'
+        'Geometry/TrackerCommonData/data/dd4hep/cms-tracker-geometry-2021.xml'
     ),
     appendToDataLabel = cms.string('CMS')
 )

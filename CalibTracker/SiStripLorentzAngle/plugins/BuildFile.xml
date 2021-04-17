@@ -16,9 +16,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/SiStripObjects"/>
-<use name="CalibTracker/Records"/>
 <use name="CalibTracker/SiStripCommon"/>
-<use name="CalibFormats/SiStripObjects"/>
 <use name="CalibTracker/SiStripLorentzAngle"/>
 <use name="CalibTracker/StandaloneTrackerTopology"/>
 <use name="MagneticField/Engine"/>

@@ -1,27 +1,29 @@
 # SONIC TritonClient tests
 
-A test producer `TritonImageProducer` is available.
-It generates an arbitrary image for ResNet50 inference and prints the resulting classifications.
+Test modules `TritonImageProducer` and `TritonGraphProducer` (`TritonGraphFilter`, `TritonGraphAnalyzer`) are available.
+They generate arbitrary inputs for inference (with ResNet50 or Graph Attention Network, respectively) and print the resulting output.
 
-To run the tests, a local Triton server can be started using Docker.
-(This may require superuser permission.)
-
-First, the relevant data should be downloaded from Nvidia:
+First, the relevant data for ResNet50 should be downloaded from Nvidia:
 ```
 ./fetch_model.sh
 ```
 
-Execute this Docker command to launch the local server (corresponding to the client version v1.12.0):
+A local Triton server will be launched automatically when the tests run.
+The local server will use Singularity with CPU by default; if a local Nvidia GPU is available, it will be used instead.
+(This behavior can also be controlled manually using the "device" argument to [tritonTest_cfg.py](./tritonTest_cfg.py).)
+
+## Test commands
+
+Run the image test:
 ```
-docker run -d --rm --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -p8000:8000 -p8001:8001 -p8002:8002 -v${CMSSW_BASE}/src/HeterogeneousCore/SonicTriton/data/models:/models nvcr.io/nvidia/tritonserver:20.03-py3 trtserver --model-repository=/models
+cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonImageProducer
 ```
 
-If the machine has Nvidia GPUs, the flag `--gpus all` can be added to the command.
-Otherwise, the server will perform inference using the CPU (slower).
-
-The default local server address is `0.0.0.0`.
-
-Run the test:
+Run the graph test:
 ```
-cmsRun imageTest.py maxEvents=1
+cmsRun tritonTest_cfg.py maxEvents=1 modules=TritonGraphProducer
 ```
+
+## Caveats
+
+* Local CPU server requires support for AVX instructions.

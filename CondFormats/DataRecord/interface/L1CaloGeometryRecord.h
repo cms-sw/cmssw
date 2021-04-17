@@ -29,7 +29,6 @@
 /* {}; */
 class L1CaloGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<L1CaloGeometryRecord,
-                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
-};
+                                                            edm::mpl::Vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {};
 
 #endif

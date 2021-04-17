@@ -257,6 +257,12 @@
 ++++ starting: global begin run 1 : time = 1
 ++++++ starting: global begin run for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin run for module: label = 'thingWithMergeProducer' id = 5
+++++++++ starting: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ starting: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++ starting: global begin run for module: label = 'get' id = 6
+++++++ finished: global begin run for module: label = 'get' id = 6
 ++++++ starting: global begin run for module: label = 'getInt' id = 10
 ++++++ finished: global begin run for module: label = 'getInt' id = 10
 ++++++ starting: global begin run for module: label = 'noPut' id = 11
@@ -272,6 +278,12 @@
 ++++++ finished: global begin run for module: label = 'test' id = 32
 ++++++ starting: global begin run for module: label = 'testmerge' id = 33
 ++++++ finished: global begin run for module: label = 'testmerge' id = 33
+++++++++ starting: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: prefetching for esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ starting: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++++ finished: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
+++++++ starting: global begin run for module: label = 'get' id = 34
+++++++ finished: global begin run for module: label = 'get' id = 34
 ++++++ starting: global begin run for module: label = 'getInt' id = 35
 ++++++ finished: global begin run for module: label = 'getInt' id = 35
 ++++++ starting: global begin run for module: label = 'dependsOnNoPut' id = 36
@@ -283,6 +295,8 @@
 ++++++ finished: global begin run for module: label = 'test' id = 19
 ++++++ starting: global begin run for module: label = 'testmerge' id = 20
 ++++++ finished: global begin run for module: label = 'testmerge' id = 20
+++++++ starting: global begin run for module: label = 'get' id = 21
+++++++ finished: global begin run for module: label = 'get' id = 21
 ++++++ starting: global begin run for module: label = 'getInt' id = 22
 ++++++ finished: global begin run for module: label = 'getInt' id = 22
 ++++++ starting: global begin run for module: label = 'dependsOnNoPut' id = 23
@@ -299,18 +313,12 @@
 ++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: begin run: stream = 0 run = 1 time = 1
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: begin run: stream = 0 run = 1 time = 1
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: begin run: stream = 0 run = 1 time = 1
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -321,6 +329,8 @@
 ++++ starting: global begin lumi: run = 1 lumi = 1 time = 1
 ++++++ starting: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin lumi for module: label = 'get' id = 6
+++++++ finished: global begin lumi for module: label = 'get' id = 6
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 10
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 10
 ++++++ starting: global begin lumi for module: label = 'noPut' id = 11
@@ -336,6 +346,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 32
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 33
+++++++ starting: global begin lumi for module: label = 'get' id = 34
+++++++ finished: global begin lumi for module: label = 'get' id = 34
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 35
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 35
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 36
@@ -347,6 +359,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 19
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 20
+++++++ starting: global begin lumi for module: label = 'get' id = 21
+++++++ finished: global begin lumi for module: label = 'get' id = 21
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 22
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 22
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 23
@@ -363,18 +377,12 @@
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 1 time = 1
 ++++ starting: source event
 ++++ finished: source event
@@ -423,8 +431,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 5000001
@@ -484,8 +490,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -526,8 +530,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -585,8 +587,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 10000001
@@ -646,8 +646,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -688,8 +686,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -747,8 +743,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 15000001
@@ -808,8 +802,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -850,8 +842,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -909,8 +899,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 4 time = 20000001
@@ -970,8 +958,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -1012,8 +998,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -1035,18 +1019,12 @@
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 0
 ++++ starting: global end lumi: run = 1 lumi = 1 time = 1
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1
@@ -1055,6 +1033,8 @@
 ++++ starting: global end lumi: run = 1 lumi = 1 time = 1
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end lumi for module: label = 'get' id = 6
+++++++ finished: global end lumi for module: label = 'get' id = 6
 ++++++ starting: global end lumi for module: label = 'getInt' id = 10
 ++++++ finished: global end lumi for module: label = 'getInt' id = 10
 ++++++ starting: global end lumi for module: label = 'noPut' id = 11
@@ -1070,6 +1050,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
 ++++++ starting: global end lumi for module: label = 'test' id = 32
 ++++++ finished: global end lumi for module: label = 'test' id = 32
+++++++ starting: global end lumi for module: label = 'get' id = 34
+++++++ finished: global end lumi for module: label = 'get' id = 34
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -1081,6 +1063,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
 ++++++ starting: global end lumi for module: label = 'test' id = 19
 ++++++ finished: global end lumi for module: label = 'test' id = 19
+++++++ starting: global end lumi for module: label = 'get' id = 21
+++++++ finished: global end lumi for module: label = 'get' id = 21
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -1111,6 +1095,8 @@
 ++++ starting: global begin lumi: run = 1 lumi = 2 time = 25000001
 ++++++ starting: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin lumi for module: label = 'get' id = 6
+++++++ finished: global begin lumi for module: label = 'get' id = 6
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 10
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 10
 ++++++ starting: global begin lumi for module: label = 'noPut' id = 11
@@ -1126,6 +1112,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 32
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 33
+++++++ starting: global begin lumi for module: label = 'get' id = 34
+++++++ finished: global begin lumi for module: label = 'get' id = 34
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 35
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 35
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 36
@@ -1137,6 +1125,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 19
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 20
+++++++ starting: global begin lumi for module: label = 'get' id = 21
+++++++ finished: global begin lumi for module: label = 'get' id = 21
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 22
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 22
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 23
@@ -1153,18 +1143,12 @@
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 2 time = 25000001
 ++++ starting: source event
 ++++ finished: source event
@@ -1213,8 +1197,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 5 time = 25000001
@@ -1274,8 +1256,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -1316,8 +1296,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -1375,8 +1353,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 6 time = 30000001
@@ -1436,8 +1412,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -1478,8 +1452,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -1537,8 +1509,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 7 time = 35000001
@@ -1598,8 +1568,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -1640,8 +1608,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -1699,8 +1665,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 8 time = 40000001
@@ -1760,8 +1724,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -1802,8 +1764,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -1825,18 +1785,12 @@
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 0
 ++++ starting: global end lumi: run = 1 lumi = 2 time = 25000001
 ++++ finished: global end lumi: run = 1 lumi = 2 time = 25000001
@@ -1845,6 +1799,8 @@
 ++++ starting: global end lumi: run = 1 lumi = 2 time = 25000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end lumi for module: label = 'get' id = 6
+++++++ finished: global end lumi for module: label = 'get' id = 6
 ++++++ starting: global end lumi for module: label = 'getInt' id = 10
 ++++++ finished: global end lumi for module: label = 'getInt' id = 10
 ++++++ starting: global end lumi for module: label = 'noPut' id = 11
@@ -1860,6 +1816,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
 ++++++ starting: global end lumi for module: label = 'test' id = 32
 ++++++ finished: global end lumi for module: label = 'test' id = 32
+++++++ starting: global end lumi for module: label = 'get' id = 34
+++++++ finished: global end lumi for module: label = 'get' id = 34
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -1871,6 +1829,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
 ++++++ starting: global end lumi for module: label = 'test' id = 19
 ++++++ finished: global end lumi for module: label = 'test' id = 19
+++++++ starting: global end lumi for module: label = 'get' id = 21
+++++++ finished: global end lumi for module: label = 'get' id = 21
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -1901,6 +1861,8 @@
 ++++ starting: global begin lumi: run = 1 lumi = 3 time = 45000001
 ++++++ starting: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin lumi for module: label = 'get' id = 6
+++++++ finished: global begin lumi for module: label = 'get' id = 6
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 10
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 10
 ++++++ starting: global begin lumi for module: label = 'noPut' id = 11
@@ -1916,6 +1878,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 32
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 33
+++++++ starting: global begin lumi for module: label = 'get' id = 34
+++++++ finished: global begin lumi for module: label = 'get' id = 34
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 35
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 35
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 36
@@ -1927,6 +1891,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 19
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 20
+++++++ starting: global begin lumi for module: label = 'get' id = 21
+++++++ finished: global begin lumi for module: label = 'get' id = 21
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 22
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 22
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 23
@@ -1943,18 +1909,12 @@
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ starting: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin lumi: stream = 0 run = 1 lumi = 3 time = 45000001
 ++++ starting: source event
 ++++ finished: source event
@@ -2003,8 +1963,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 3 event = 9 time = 45000001
@@ -2064,8 +2022,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -2106,8 +2062,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -2165,8 +2119,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 1 lumi = 3 event = 10 time = 50000001
@@ -2226,8 +2178,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -2268,8 +2218,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -2291,18 +2239,12 @@
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 0
 ++++ starting: global end lumi: run = 1 lumi = 3 time = 45000001
 ++++ finished: global end lumi: run = 1 lumi = 3 time = 45000001
@@ -2311,6 +2253,8 @@
 ++++ starting: global end lumi: run = 1 lumi = 3 time = 45000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end lumi for module: label = 'get' id = 6
+++++++ finished: global end lumi for module: label = 'get' id = 6
 ++++++ starting: global end lumi for module: label = 'getInt' id = 10
 ++++++ finished: global end lumi for module: label = 'getInt' id = 10
 ++++++ starting: global end lumi for module: label = 'noPut' id = 11
@@ -2326,6 +2270,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
 ++++++ starting: global end lumi for module: label = 'test' id = 32
 ++++++ finished: global end lumi for module: label = 'test' id = 32
+++++++ starting: global end lumi for module: label = 'get' id = 34
+++++++ finished: global end lumi for module: label = 'get' id = 34
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -2337,6 +2283,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
 ++++++ starting: global end lumi for module: label = 'test' id = 19
 ++++++ finished: global end lumi for module: label = 'test' id = 19
+++++++ starting: global end lumi for module: label = 'get' id = 21
+++++++ finished: global end lumi for module: label = 'get' id = 21
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -2369,18 +2317,12 @@
 ++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end run for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end run for module: stream = 0 label = 'get' id = 6
-++++++ finished: end run for module: stream = 0 label = 'get' id = 6
 ++++ finished: end run: stream = 0 run = 1 time = 0
 ++++ starting: end run: stream = 0 run = 1 time = 0
 ++++ finished: end run: stream = 0 run = 1 time = 0
 ++++ starting: end run: stream = 0 run = 1 time = 0
-++++++ starting: end run for module: stream = 0 label = 'get' id = 34
-++++++ finished: end run for module: stream = 0 label = 'get' id = 34
 ++++ finished: end run: stream = 0 run = 1 time = 0
 ++++ starting: end run: stream = 0 run = 1 time = 0
-++++++ starting: end run for module: stream = 0 label = 'get' id = 21
-++++++ finished: end run for module: stream = 0 label = 'get' id = 21
 ++++ finished: end run: stream = 0 run = 1 time = 0
 ++++ starting: global end run 1 : time = 50000001
 ++++ finished: global end run 1 : time = 50000001
@@ -2389,6 +2331,8 @@
 ++++ starting: global end run 1 : time = 0
 ++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end run for module: label = 'get' id = 6
+++++++ finished: global end run for module: label = 'get' id = 6
 ++++++ starting: global end run for module: label = 'getInt' id = 10
 ++++++ finished: global end run for module: label = 'getInt' id = 10
 ++++++ starting: global end run for module: label = 'noPut' id = 11
@@ -2404,6 +2348,8 @@
 ++++++ finished: global end run for module: label = 'testmerge' id = 33
 ++++++ starting: global end run for module: label = 'test' id = 32
 ++++++ finished: global end run for module: label = 'test' id = 32
+++++++ starting: global end run for module: label = 'get' id = 34
+++++++ finished: global end run for module: label = 'get' id = 34
 ++++++ starting: global end run for module: label = 'getInt' id = 35
 ++++++ finished: global end run for module: label = 'getInt' id = 35
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 36
@@ -2415,6 +2361,8 @@
 ++++++ finished: global end run for module: label = 'testmerge' id = 20
 ++++++ starting: global end run for module: label = 'test' id = 19
 ++++++ finished: global end run for module: label = 'test' id = 19
+++++++ starting: global end run for module: label = 'get' id = 21
+++++++ finished: global end run for module: label = 'get' id = 21
 ++++++ starting: global end run for module: label = 'getInt' id = 22
 ++++++ finished: global end run for module: label = 'getInt' id = 22
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 23
@@ -2445,6 +2393,8 @@
 ++++ starting: global begin run 2 : time = 55000001
 ++++++ starting: global begin run for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin run for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin run for module: label = 'get' id = 6
+++++++ finished: global begin run for module: label = 'get' id = 6
 ++++++ starting: global begin run for module: label = 'getInt' id = 10
 ++++++ finished: global begin run for module: label = 'getInt' id = 10
 ++++++ starting: global begin run for module: label = 'noPut' id = 11
@@ -2460,6 +2410,8 @@
 ++++++ finished: global begin run for module: label = 'test' id = 32
 ++++++ starting: global begin run for module: label = 'testmerge' id = 33
 ++++++ finished: global begin run for module: label = 'testmerge' id = 33
+++++++ starting: global begin run for module: label = 'get' id = 34
+++++++ finished: global begin run for module: label = 'get' id = 34
 ++++++ starting: global begin run for module: label = 'getInt' id = 35
 ++++++ finished: global begin run for module: label = 'getInt' id = 35
 ++++++ starting: global begin run for module: label = 'dependsOnNoPut' id = 36
@@ -2471,6 +2423,8 @@
 ++++++ finished: global begin run for module: label = 'test' id = 19
 ++++++ starting: global begin run for module: label = 'testmerge' id = 20
 ++++++ finished: global begin run for module: label = 'testmerge' id = 20
+++++++ starting: global begin run for module: label = 'get' id = 21
+++++++ finished: global begin run for module: label = 'get' id = 21
 ++++++ starting: global begin run for module: label = 'getInt' id = 22
 ++++++ finished: global begin run for module: label = 'getInt' id = 22
 ++++++ starting: global begin run for module: label = 'dependsOnNoPut' id = 23
@@ -2487,18 +2441,12 @@
 ++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -2509,6 +2457,8 @@
 ++++ starting: global begin lumi: run = 2 lumi = 1 time = 55000001
 ++++++ starting: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin lumi for module: label = 'get' id = 6
+++++++ finished: global begin lumi for module: label = 'get' id = 6
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 10
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 10
 ++++++ starting: global begin lumi for module: label = 'noPut' id = 11
@@ -2524,6 +2474,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 32
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 33
+++++++ starting: global begin lumi for module: label = 'get' id = 34
+++++++ finished: global begin lumi for module: label = 'get' id = 34
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 35
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 35
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 36
@@ -2535,6 +2487,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 19
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 20
+++++++ starting: global begin lumi for module: label = 'get' id = 21
+++++++ finished: global begin lumi for module: label = 'get' id = 21
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 22
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 22
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 23
@@ -2551,18 +2505,12 @@
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 1 time = 55000001
 ++++ starting: source event
 ++++ finished: source event
@@ -2611,8 +2559,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 1 time = 55000001
@@ -2672,8 +2618,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -2714,8 +2658,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -2773,8 +2715,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 2 time = 60000001
@@ -2834,8 +2774,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -2876,8 +2814,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -2935,8 +2871,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 3 time = 65000001
@@ -2996,8 +2930,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3038,8 +2970,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -3097,8 +3027,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 4 time = 70000001
@@ -3158,8 +3086,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3200,8 +3126,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -3223,18 +3147,12 @@
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 0
 ++++ starting: global end lumi: run = 2 lumi = 1 time = 55000001
 ++++ finished: global end lumi: run = 2 lumi = 1 time = 55000001
@@ -3243,6 +3161,8 @@
 ++++ starting: global end lumi: run = 2 lumi = 1 time = 55000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end lumi for module: label = 'get' id = 6
+++++++ finished: global end lumi for module: label = 'get' id = 6
 ++++++ starting: global end lumi for module: label = 'getInt' id = 10
 ++++++ finished: global end lumi for module: label = 'getInt' id = 10
 ++++++ starting: global end lumi for module: label = 'noPut' id = 11
@@ -3258,6 +3178,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
 ++++++ starting: global end lumi for module: label = 'test' id = 32
 ++++++ finished: global end lumi for module: label = 'test' id = 32
+++++++ starting: global end lumi for module: label = 'get' id = 34
+++++++ finished: global end lumi for module: label = 'get' id = 34
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -3269,6 +3191,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
 ++++++ starting: global end lumi for module: label = 'test' id = 19
 ++++++ finished: global end lumi for module: label = 'test' id = 19
+++++++ starting: global end lumi for module: label = 'get' id = 21
+++++++ finished: global end lumi for module: label = 'get' id = 21
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -3299,6 +3223,8 @@
 ++++ starting: global begin lumi: run = 2 lumi = 2 time = 75000001
 ++++++ starting: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin lumi for module: label = 'get' id = 6
+++++++ finished: global begin lumi for module: label = 'get' id = 6
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 10
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 10
 ++++++ starting: global begin lumi for module: label = 'noPut' id = 11
@@ -3314,6 +3240,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 32
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 33
+++++++ starting: global begin lumi for module: label = 'get' id = 34
+++++++ finished: global begin lumi for module: label = 'get' id = 34
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 35
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 35
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 36
@@ -3325,6 +3253,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 19
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 20
+++++++ starting: global begin lumi for module: label = 'get' id = 21
+++++++ finished: global begin lumi for module: label = 'get' id = 21
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 22
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 22
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 23
@@ -3341,18 +3271,12 @@
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 2 time = 75000001
 ++++ starting: source event
 ++++ finished: source event
@@ -3401,8 +3325,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 5 time = 75000001
@@ -3462,8 +3384,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3504,8 +3424,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -3563,8 +3481,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 6 time = 80000001
@@ -3624,8 +3540,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3666,8 +3580,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -3725,8 +3637,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 7 time = 85000001
@@ -3786,8 +3696,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3828,8 +3736,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -3887,8 +3793,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 8 time = 90000001
@@ -3948,8 +3852,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -3990,8 +3892,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -4013,18 +3913,12 @@
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 0
 ++++ starting: global end lumi: run = 2 lumi = 2 time = 75000001
 ++++ finished: global end lumi: run = 2 lumi = 2 time = 75000001
@@ -4033,6 +3927,8 @@
 ++++ starting: global end lumi: run = 2 lumi = 2 time = 75000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end lumi for module: label = 'get' id = 6
+++++++ finished: global end lumi for module: label = 'get' id = 6
 ++++++ starting: global end lumi for module: label = 'getInt' id = 10
 ++++++ finished: global end lumi for module: label = 'getInt' id = 10
 ++++++ starting: global end lumi for module: label = 'noPut' id = 11
@@ -4048,6 +3944,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
 ++++++ starting: global end lumi for module: label = 'test' id = 32
 ++++++ finished: global end lumi for module: label = 'test' id = 32
+++++++ starting: global end lumi for module: label = 'get' id = 34
+++++++ finished: global end lumi for module: label = 'get' id = 34
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -4059,6 +3957,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
 ++++++ starting: global end lumi for module: label = 'test' id = 19
 ++++++ finished: global end lumi for module: label = 'test' id = 19
+++++++ starting: global end lumi for module: label = 'get' id = 21
+++++++ finished: global end lumi for module: label = 'get' id = 21
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -4089,6 +3989,8 @@
 ++++ starting: global begin lumi: run = 2 lumi = 3 time = 95000001
 ++++++ starting: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin lumi for module: label = 'get' id = 6
+++++++ finished: global begin lumi for module: label = 'get' id = 6
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 10
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 10
 ++++++ starting: global begin lumi for module: label = 'noPut' id = 11
@@ -4104,6 +4006,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 32
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 33
+++++++ starting: global begin lumi for module: label = 'get' id = 34
+++++++ finished: global begin lumi for module: label = 'get' id = 34
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 35
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 35
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 36
@@ -4115,6 +4019,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 19
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 20
+++++++ starting: global begin lumi for module: label = 'get' id = 21
+++++++ finished: global begin lumi for module: label = 'get' id = 21
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 22
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 22
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 23
@@ -4131,18 +4037,12 @@
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ starting: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin lumi: stream = 0 run = 2 lumi = 3 time = 95000001
 ++++ starting: source event
 ++++ finished: source event
@@ -4191,8 +4091,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 3 event = 9 time = 95000001
@@ -4252,8 +4150,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -4294,8 +4190,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -4353,8 +4247,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 2 lumi = 3 event = 10 time = 100000001
@@ -4414,8 +4306,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -4456,8 +4346,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -4479,18 +4367,12 @@
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 0
 ++++ starting: global end lumi: run = 2 lumi = 3 time = 95000001
 ++++ finished: global end lumi: run = 2 lumi = 3 time = 95000001
@@ -4499,6 +4381,8 @@
 ++++ starting: global end lumi: run = 2 lumi = 3 time = 95000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end lumi for module: label = 'get' id = 6
+++++++ finished: global end lumi for module: label = 'get' id = 6
 ++++++ starting: global end lumi for module: label = 'getInt' id = 10
 ++++++ finished: global end lumi for module: label = 'getInt' id = 10
 ++++++ starting: global end lumi for module: label = 'noPut' id = 11
@@ -4514,6 +4398,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
 ++++++ starting: global end lumi for module: label = 'test' id = 32
 ++++++ finished: global end lumi for module: label = 'test' id = 32
+++++++ starting: global end lumi for module: label = 'get' id = 34
+++++++ finished: global end lumi for module: label = 'get' id = 34
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -4525,6 +4411,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
 ++++++ starting: global end lumi for module: label = 'test' id = 19
 ++++++ finished: global end lumi for module: label = 'test' id = 19
+++++++ starting: global end lumi for module: label = 'get' id = 21
+++++++ finished: global end lumi for module: label = 'get' id = 21
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -4557,18 +4445,12 @@
 ++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end run for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end run for module: stream = 0 label = 'get' id = 6
-++++++ finished: end run for module: stream = 0 label = 'get' id = 6
 ++++ finished: end run: stream = 0 run = 2 time = 0
 ++++ starting: end run: stream = 0 run = 2 time = 0
 ++++ finished: end run: stream = 0 run = 2 time = 0
 ++++ starting: end run: stream = 0 run = 2 time = 0
-++++++ starting: end run for module: stream = 0 label = 'get' id = 34
-++++++ finished: end run for module: stream = 0 label = 'get' id = 34
 ++++ finished: end run: stream = 0 run = 2 time = 0
 ++++ starting: end run: stream = 0 run = 2 time = 0
-++++++ starting: end run for module: stream = 0 label = 'get' id = 21
-++++++ finished: end run for module: stream = 0 label = 'get' id = 21
 ++++ finished: end run: stream = 0 run = 2 time = 0
 ++++ starting: global end run 2 : time = 100000001
 ++++ finished: global end run 2 : time = 100000001
@@ -4577,6 +4459,8 @@
 ++++ starting: global end run 2 : time = 0
 ++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end run for module: label = 'get' id = 6
+++++++ finished: global end run for module: label = 'get' id = 6
 ++++++ starting: global end run for module: label = 'getInt' id = 10
 ++++++ finished: global end run for module: label = 'getInt' id = 10
 ++++++ starting: global end run for module: label = 'noPut' id = 11
@@ -4592,6 +4476,8 @@
 ++++++ finished: global end run for module: label = 'testmerge' id = 33
 ++++++ starting: global end run for module: label = 'test' id = 32
 ++++++ finished: global end run for module: label = 'test' id = 32
+++++++ starting: global end run for module: label = 'get' id = 34
+++++++ finished: global end run for module: label = 'get' id = 34
 ++++++ starting: global end run for module: label = 'getInt' id = 35
 ++++++ finished: global end run for module: label = 'getInt' id = 35
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 36
@@ -4603,6 +4489,8 @@
 ++++++ finished: global end run for module: label = 'testmerge' id = 20
 ++++++ starting: global end run for module: label = 'test' id = 19
 ++++++ finished: global end run for module: label = 'test' id = 19
+++++++ starting: global end run for module: label = 'get' id = 21
+++++++ finished: global end run for module: label = 'get' id = 21
 ++++++ starting: global end run for module: label = 'getInt' id = 22
 ++++++ finished: global end run for module: label = 'getInt' id = 22
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 23
@@ -4633,6 +4521,8 @@
 ++++ starting: global begin run 3 : time = 105000001
 ++++++ starting: global begin run for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin run for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin run for module: label = 'get' id = 6
+++++++ finished: global begin run for module: label = 'get' id = 6
 ++++++ starting: global begin run for module: label = 'getInt' id = 10
 ++++++ finished: global begin run for module: label = 'getInt' id = 10
 ++++++ starting: global begin run for module: label = 'noPut' id = 11
@@ -4648,6 +4538,8 @@
 ++++++ finished: global begin run for module: label = 'test' id = 32
 ++++++ starting: global begin run for module: label = 'testmerge' id = 33
 ++++++ finished: global begin run for module: label = 'testmerge' id = 33
+++++++ starting: global begin run for module: label = 'get' id = 34
+++++++ finished: global begin run for module: label = 'get' id = 34
 ++++++ starting: global begin run for module: label = 'getInt' id = 35
 ++++++ finished: global begin run for module: label = 'getInt' id = 35
 ++++++ starting: global begin run for module: label = 'dependsOnNoPut' id = 36
@@ -4659,6 +4551,8 @@
 ++++++ finished: global begin run for module: label = 'test' id = 19
 ++++++ starting: global begin run for module: label = 'testmerge' id = 20
 ++++++ finished: global begin run for module: label = 'testmerge' id = 20
+++++++ starting: global begin run for module: label = 'get' id = 21
+++++++ finished: global begin run for module: label = 'get' id = 21
 ++++++ starting: global begin run for module: label = 'getInt' id = 22
 ++++++ finished: global begin run for module: label = 'getInt' id = 22
 ++++++ starting: global begin run for module: label = 'dependsOnNoPut' id = 23
@@ -4675,18 +4569,12 @@
 ++++++ finished: begin run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin run for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
-++++++ starting: begin run for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin run for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -4697,6 +4585,8 @@
 ++++ starting: global begin lumi: run = 3 lumi = 1 time = 105000001
 ++++++ starting: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin lumi for module: label = 'get' id = 6
+++++++ finished: global begin lumi for module: label = 'get' id = 6
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 10
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 10
 ++++++ starting: global begin lumi for module: label = 'noPut' id = 11
@@ -4712,6 +4602,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 32
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 33
+++++++ starting: global begin lumi for module: label = 'get' id = 34
+++++++ finished: global begin lumi for module: label = 'get' id = 34
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 35
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 35
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 36
@@ -4723,6 +4615,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 19
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 20
+++++++ starting: global begin lumi for module: label = 'get' id = 21
+++++++ finished: global begin lumi for module: label = 'get' id = 21
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 22
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 22
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 23
@@ -4739,18 +4633,12 @@
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 1 time = 105000001
 ++++ starting: source event
 ++++ finished: source event
@@ -4799,8 +4687,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 1 time = 105000001
@@ -4860,8 +4746,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -4902,8 +4786,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -4961,8 +4843,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 2 time = 110000001
@@ -5022,8 +4902,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -5064,8 +4942,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -5123,8 +4999,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 3 time = 115000001
@@ -5184,8 +5058,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -5226,8 +5098,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -5285,8 +5155,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 4 time = 120000001
@@ -5346,8 +5214,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -5388,8 +5254,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -5411,18 +5275,12 @@
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 0
 ++++ starting: global end lumi: run = 3 lumi = 1 time = 105000001
 ++++ finished: global end lumi: run = 3 lumi = 1 time = 105000001
@@ -5431,6 +5289,8 @@
 ++++ starting: global end lumi: run = 3 lumi = 1 time = 105000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end lumi for module: label = 'get' id = 6
+++++++ finished: global end lumi for module: label = 'get' id = 6
 ++++++ starting: global end lumi for module: label = 'getInt' id = 10
 ++++++ finished: global end lumi for module: label = 'getInt' id = 10
 ++++++ starting: global end lumi for module: label = 'noPut' id = 11
@@ -5446,6 +5306,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
 ++++++ starting: global end lumi for module: label = 'test' id = 32
 ++++++ finished: global end lumi for module: label = 'test' id = 32
+++++++ starting: global end lumi for module: label = 'get' id = 34
+++++++ finished: global end lumi for module: label = 'get' id = 34
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -5457,6 +5319,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
 ++++++ starting: global end lumi for module: label = 'test' id = 19
 ++++++ finished: global end lumi for module: label = 'test' id = 19
+++++++ starting: global end lumi for module: label = 'get' id = 21
+++++++ finished: global end lumi for module: label = 'get' id = 21
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -5487,6 +5351,8 @@
 ++++ starting: global begin lumi: run = 3 lumi = 2 time = 125000001
 ++++++ starting: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin lumi for module: label = 'get' id = 6
+++++++ finished: global begin lumi for module: label = 'get' id = 6
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 10
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 10
 ++++++ starting: global begin lumi for module: label = 'noPut' id = 11
@@ -5502,6 +5368,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 32
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 33
+++++++ starting: global begin lumi for module: label = 'get' id = 34
+++++++ finished: global begin lumi for module: label = 'get' id = 34
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 35
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 35
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 36
@@ -5513,6 +5381,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 19
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 20
+++++++ starting: global begin lumi for module: label = 'get' id = 21
+++++++ finished: global begin lumi for module: label = 'get' id = 21
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 22
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 22
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 23
@@ -5529,18 +5399,12 @@
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 2 time = 125000001
 ++++ starting: source event
 ++++ finished: source event
@@ -5589,8 +5453,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 5 time = 125000001
@@ -5650,8 +5512,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -5692,8 +5552,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -5751,8 +5609,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 6 time = 130000001
@@ -5812,8 +5668,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -5854,8 +5708,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -5913,8 +5765,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 7 time = 135000001
@@ -5974,8 +5824,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -6016,8 +5864,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -6075,8 +5921,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 8 time = 140000001
@@ -6136,8 +5980,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -6178,8 +6020,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -6201,18 +6041,12 @@
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 0
 ++++ starting: global end lumi: run = 3 lumi = 2 time = 125000001
 ++++ finished: global end lumi: run = 3 lumi = 2 time = 125000001
@@ -6221,6 +6055,8 @@
 ++++ starting: global end lumi: run = 3 lumi = 2 time = 125000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end lumi for module: label = 'get' id = 6
+++++++ finished: global end lumi for module: label = 'get' id = 6
 ++++++ starting: global end lumi for module: label = 'getInt' id = 10
 ++++++ finished: global end lumi for module: label = 'getInt' id = 10
 ++++++ starting: global end lumi for module: label = 'noPut' id = 11
@@ -6236,6 +6072,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
 ++++++ starting: global end lumi for module: label = 'test' id = 32
 ++++++ finished: global end lumi for module: label = 'test' id = 32
+++++++ starting: global end lumi for module: label = 'get' id = 34
+++++++ finished: global end lumi for module: label = 'get' id = 34
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -6247,6 +6085,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
 ++++++ starting: global end lumi for module: label = 'test' id = 19
 ++++++ finished: global end lumi for module: label = 'test' id = 19
+++++++ starting: global end lumi for module: label = 'get' id = 21
+++++++ finished: global end lumi for module: label = 'get' id = 21
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -6277,6 +6117,8 @@
 ++++ starting: global begin lumi: run = 3 lumi = 3 time = 145000001
 ++++++ starting: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global begin lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global begin lumi for module: label = 'get' id = 6
+++++++ finished: global begin lumi for module: label = 'get' id = 6
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 10
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 10
 ++++++ starting: global begin lumi for module: label = 'noPut' id = 11
@@ -6292,6 +6134,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 32
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 33
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 33
+++++++ starting: global begin lumi for module: label = 'get' id = 34
+++++++ finished: global begin lumi for module: label = 'get' id = 34
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 35
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 35
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 36
@@ -6303,6 +6147,8 @@
 ++++++ finished: global begin lumi for module: label = 'test' id = 19
 ++++++ starting: global begin lumi for module: label = 'testmerge' id = 20
 ++++++ finished: global begin lumi for module: label = 'testmerge' id = 20
+++++++ starting: global begin lumi for module: label = 'get' id = 21
+++++++ finished: global begin lumi for module: label = 'get' id = 21
 ++++++ starting: global begin lumi for module: label = 'getInt' id = 22
 ++++++ finished: global begin lumi for module: label = 'getInt' id = 22
 ++++++ starting: global begin lumi for module: label = 'dependsOnNoPut' id = 23
@@ -6319,18 +6165,12 @@
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: begin lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: begin lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ starting: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
-++++++ starting: begin lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: begin lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: begin lumi: stream = 0 run = 3 lumi = 3 time = 145000001
 ++++ starting: source event
 ++++ finished: source event
@@ -6379,8 +6219,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 3 event = 9 time = 145000001
@@ -6440,8 +6278,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -6482,8 +6318,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -6541,8 +6375,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++++ finished: processing event for module: stream = 0 label = 'path2' id = 4
 ++++++ finished: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ finished: processing event : stream = 0 run = 3 lumi = 3 event = 10 time = 150000001
@@ -6602,8 +6434,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 16
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 12
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 24
@@ -6644,8 +6474,6 @@
 ++++++++ starting: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++++ finished: processing event for module: stream = 0 label = 'path4' id = 29
 ++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 25
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 37
@@ -6667,18 +6495,12 @@
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end lumi for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end lumi for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 6
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 6
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 34
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 34
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
-++++++ starting: end lumi for module: stream = 0 label = 'get' id = 21
-++++++ finished: end lumi for module: stream = 0 label = 'get' id = 21
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 0
 ++++ starting: global end lumi: run = 3 lumi = 3 time = 145000001
 ++++ finished: global end lumi: run = 3 lumi = 3 time = 145000001
@@ -6687,6 +6509,8 @@
 ++++ starting: global end lumi: run = 3 lumi = 3 time = 145000001
 ++++++ starting: global end lumi for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end lumi for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end lumi for module: label = 'get' id = 6
+++++++ finished: global end lumi for module: label = 'get' id = 6
 ++++++ starting: global end lumi for module: label = 'getInt' id = 10
 ++++++ finished: global end lumi for module: label = 'getInt' id = 10
 ++++++ starting: global end lumi for module: label = 'noPut' id = 11
@@ -6702,6 +6526,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 33
 ++++++ starting: global end lumi for module: label = 'test' id = 32
 ++++++ finished: global end lumi for module: label = 'test' id = 32
+++++++ starting: global end lumi for module: label = 'get' id = 34
+++++++ finished: global end lumi for module: label = 'get' id = 34
 ++++++ starting: global end lumi for module: label = 'getInt' id = 35
 ++++++ finished: global end lumi for module: label = 'getInt' id = 35
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 36
@@ -6713,6 +6539,8 @@
 ++++++ finished: global end lumi for module: label = 'testmerge' id = 20
 ++++++ starting: global end lumi for module: label = 'test' id = 19
 ++++++ finished: global end lumi for module: label = 'test' id = 19
+++++++ starting: global end lumi for module: label = 'get' id = 21
+++++++ finished: global end lumi for module: label = 'get' id = 21
 ++++++ starting: global end lumi for module: label = 'getInt' id = 22
 ++++++ finished: global end lumi for module: label = 'getInt' id = 22
 ++++++ starting: global end lumi for module: label = 'dependsOnNoPut' id = 23
@@ -6745,18 +6573,12 @@
 ++++++ finished: end run for module: stream = 0 label = 'putInt2' id = 8
 ++++++ starting: end run for module: stream = 0 label = 'putInt' id = 7
 ++++++ finished: end run for module: stream = 0 label = 'putInt' id = 7
-++++++ starting: end run for module: stream = 0 label = 'get' id = 6
-++++++ finished: end run for module: stream = 0 label = 'get' id = 6
 ++++ finished: end run: stream = 0 run = 3 time = 0
 ++++ starting: end run: stream = 0 run = 3 time = 0
 ++++ finished: end run: stream = 0 run = 3 time = 0
 ++++ starting: end run: stream = 0 run = 3 time = 0
-++++++ starting: end run for module: stream = 0 label = 'get' id = 34
-++++++ finished: end run for module: stream = 0 label = 'get' id = 34
 ++++ finished: end run: stream = 0 run = 3 time = 0
 ++++ starting: end run: stream = 0 run = 3 time = 0
-++++++ starting: end run for module: stream = 0 label = 'get' id = 21
-++++++ finished: end run for module: stream = 0 label = 'get' id = 21
 ++++ finished: end run: stream = 0 run = 3 time = 0
 ++++ starting: global end run 3 : time = 150000001
 ++++ finished: global end run 3 : time = 150000001
@@ -6765,6 +6587,8 @@
 ++++ starting: global end run 3 : time = 0
 ++++++ starting: global end run for module: label = 'thingWithMergeProducer' id = 5
 ++++++ finished: global end run for module: label = 'thingWithMergeProducer' id = 5
+++++++ starting: global end run for module: label = 'get' id = 6
+++++++ finished: global end run for module: label = 'get' id = 6
 ++++++ starting: global end run for module: label = 'getInt' id = 10
 ++++++ finished: global end run for module: label = 'getInt' id = 10
 ++++++ starting: global end run for module: label = 'noPut' id = 11
@@ -6780,6 +6604,8 @@
 ++++++ finished: global end run for module: label = 'testmerge' id = 33
 ++++++ starting: global end run for module: label = 'test' id = 32
 ++++++ finished: global end run for module: label = 'test' id = 32
+++++++ starting: global end run for module: label = 'get' id = 34
+++++++ finished: global end run for module: label = 'get' id = 34
 ++++++ starting: global end run for module: label = 'getInt' id = 35
 ++++++ finished: global end run for module: label = 'getInt' id = 35
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 36
@@ -6791,6 +6617,8 @@
 ++++++ finished: global end run for module: label = 'testmerge' id = 20
 ++++++ starting: global end run for module: label = 'test' id = 19
 ++++++ finished: global end run for module: label = 'test' id = 19
+++++++ starting: global end run for module: label = 'get' id = 21
+++++++ finished: global end run for module: label = 'get' id = 21
 ++++++ starting: global end run for module: label = 'getInt' id = 22
 ++++++ finished: global end run for module: label = 'getInt' id = 22
 ++++++ starting: global end run for module: label = 'dependsOnNoPut' id = 23

@@ -10,19 +10,11 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/types.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/Math/interface/Vector3D.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 class DD4hep_ListIds : public edm::one::EDAnalyzer<> {
 public:
@@ -59,7 +51,7 @@ void DD4hep_ListIds::analyze(const edm::Event &evt, const edm::EventSetup &setup
   std::set<std::string_view> tkdss;
 
   for (const auto &t : fv.specpars()) {
-    tkdss.insert(t->strValue(attribute));
+    tkdss.insert(t.second->strValue(attribute));
   }
 
   for (const auto &i : tkdss) {

@@ -64,7 +64,7 @@ ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segme
   int sign_time = (time > 0) ? 1 : -1;
   int nrechits = segment.nRecHits();
   std::vector<int> rolls;
-  for (auto rechit : segment.specificRecHits()) {
+  for (const auto& rechit : segment.specificRecHits()) {
     if (std::find(rolls.begin(), rolls.end(), rechit.me0Id().roll()) == rolls.end())
       rolls.push_back(rechit.me0Id().roll());
   }

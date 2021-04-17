@@ -16,7 +16,6 @@
 //
 //
 
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripQualityHelpers.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
@@ -24,7 +23,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics.h"
 
@@ -36,7 +34,12 @@ SiStripQualityStatistics::SiStripQualityStatistics(const edm::ParameterSet& iCon
       tkMap(nullptr),
       tkMapFullIOVs(nullptr),
       addBadCompFromFedErr_(iConfig.getUntrackedParameter<bool>("AddBadComponentsFromFedErrors", false)),
-      fedErrCutoff_(float(iConfig.getUntrackedParameter<double>("FedErrorBadComponentsCutoff", 0.8))) {
+      fedErrCutoff_(float(iConfig.getUntrackedParameter<double>("FedErrorBadComponentsCutoff", 0.8))),
+      tTopoToken_(esConsumes<edm::Transition::EndRun>()),
+      tkDetMapToken_(esConsumes<edm::Transition::EndRun>()),
+      stripQualityToken_(esConsumes<edm::Transition::EndRun>()),
+      fedCablingToken_(addBadCompFromFedErr_ ? decltype(fedCablingToken_){esConsumes<edm::Transition::EndRun>()}
+                                             : decltype(fedCablingToken_){}) {
   reader = new SiStripDetInfoFileReader(
       iConfig
           .getUntrackedParameter<edm::FileInPath>("file",
@@ -72,35 +75,22 @@ void SiStripQualityStatistics::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IG
 }
 
 void SiStripQualityStatistics::endRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tTopo_ = tTopoHandle.product();
+  tTopo_ = &iSetup.getData(tTopoToken_);
   if ((!tkhisto) && (!TkMapFileName_.empty())) {
-    edm::ESHandle<TkDetMap> tkDetMapHandle;
-    iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
     //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
-    tkhisto = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "BadComp", "BadComp", -1.);
+    tkhisto = std::make_unique<TkHistoMap>(&iSetup.getData(tkDetMapToken_), "BadComp", "BadComp", -1.);
   }
 
-  unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
+  if (stripQualityWatcher_.check(iSetup)) {
+    run_ = run.id();
 
-  if (m_cacheID_ == cacheID)
-    return;
-
-  m_cacheID_ = cacheID;
-  run_ = run.id();
-
-  edm::ESHandle<SiStripQuality> qualityHandle;
-  iSetup.get<SiStripQualityRcd>().get(dataLabel_, qualityHandle);
-
-  if (!addBadCompFromFedErr_) {
-    updateAndSave(qualityHandle.product());
-  } else {
-    siStripQuality_ = qualityHandle.product();
-    edm::ESHandle<SiStripFedCabling> fedCablingHandle;
-    iSetup.get<SiStripFedCablingRcd>().get(fedCablingHandle);
-    fedCabling_ = fedCablingHandle.product();
+    const auto stripQuality = &iSetup.getData(stripQualityToken_);
+    if (!addBadCompFromFedErr_) {
+      updateAndSave(stripQuality);
+    } else {
+      siStripQuality_ = stripQuality;
+      fedCabling_ = &iSetup.getData(fedCablingToken_);
+    }
   }
 }
 

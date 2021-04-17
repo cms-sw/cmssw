@@ -85,7 +85,7 @@ private:
   double activeLength(const DetId&);
   bool isGoodVertex(const reco::Vertex& vtx);
   double respCorr(const DetId& id);
-  double gainFactor(const edm::ESHandle<HcalDbService>&, const HcalDetId& id);
+  double gainFactor(const HcalDbService* dbserv, const HcalDetId& id);
   int depth16HE(int ieta, int iphi);
   bool goodCell(const HcalDetId& hcid, const reco::Track* pTrack, const CaloGeometry* geo, const MagneticField* bField);
 
@@ -105,6 +105,7 @@ private:
 
   const HcalDDDRecConstants* hdc_;
   const HcalTopology* theHBHETopology_;
+  const CaloGeometry* geo_;
   HcalRespCorrs* respCorrs_;
 
   edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
@@ -113,6 +114,16 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
   edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
   edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
+
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
+  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
 
   //////////////////////////////////////////////////////
   static const int depthMax_ = 7;
@@ -210,6 +221,16 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig)
                                  << edm::InputTag(modnam, labelMuon_, procnm);
   }
 
+  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+  tok_respcorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>();
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
+  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_chan_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
+  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
+  tok_topo_ = esConsumes<CaloTopology, CaloTopologyRecord>();
+  tok_dbservice_ = esConsumes<HcalDbService, HcalDbRecord>();
+
   if (!fileInCorr_.empty()) {
     std::ifstream infile(fileInCorr_.c_str());
     if (infile.is_open()) {
@@ -284,27 +305,11 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
   // get handles to calogeometry and calotopology
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
-
-  edm::ESHandle<MagneticField> bFieldH;
-  iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
-  const MagneticField* bField = bFieldH.product();
-
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
-  const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
-
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  const CaloTopology* caloTopology = theCaloTopology.product();
-
-  edm::ESHandle<HcalDbService> conditions;
-  iSetup.get<HcalDbRecord>().get(conditions);
+  const MagneticField* bField = &iSetup.getData(tok_magField_);
+  const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_chan_);
+  const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
+  const CaloTopology* caloTopology = &iSetup.getData(tok_topo_);
+  const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
 
   // Relevant blocks from iEvent
   edm::Handle<reco::VertexCollection> vtx;
@@ -467,7 +472,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       }
       if (RecMuon->innerTrack().isNonnull()) {
         const reco::Track* pTrack = (RecMuon->innerTrack()).get();
-        spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, (((verbosity_ / 100) % 10 > 0)));
+        spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo_, bField, (((verbosity_ / 100) % 10 > 0)));
         if ((RecMuon->p() > 10.0) && (trackID.okHCAL))
           accept = true;
 
@@ -476,7 +481,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         ehcalDetId_.push_back((trackID.detIdEHCAL)());
 
         HcalDetId check;
-        std::pair<bool, HcalDetId> info = spr::propagateHCALBack(pTrack, geo, bField, (((verbosity_ / 100) % 10 > 0)));
+        std::pair<bool, HcalDetId> info = spr::propagateHCALBack(pTrack, geo_, bField, (((verbosity_ / 100) % 10 > 0)));
         if (info.first) {
           check = info.second;
         }
@@ -488,9 +493,9 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
                                                           barrelRecHitsHandle,
                                                           endcapRecHitsHandle,
                                                           *theEcalChStatus,
-                                                          geo,
+                                                          geo_,
                                                           caloTopology,
-                                                          sevlv.product(),
+                                                          sevlv,
                                                           1,
                                                           1,
                                                           -100.0,
@@ -564,7 +569,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
                 for (const auto& ehd : ehdepth)
                   edm::LogWarning("HBHEMuon") << " " << ehd.second << ":" << ehd.first;
               } else {
-                tmpC = goodCell(hcid0, pTrack, geo, bField);
+                tmpC = goodCell(hcid0, pTrack, geo_, bField);
                 double enec(ene);
                 if (unCorrect_) {
                   double corr = (ignoreHECorr_ && (subdet0 == HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
@@ -601,7 +606,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
           }
 #endif
           HcalDetId hotCell;
-          spr::eHCALmatrix(geo, theHBHETopology_, closestCell, hbhe, 1, 1, hotCell, false, useRaw_, false);
+          spr::eHCALmatrix(geo_, theHBHETopology_, closestCell, hbhe, 1, 1, hotCell, false, useRaw_, false);
           isHot = matchId(closestCell, hotCell);
           if (hotCell != HcalDetId()) {
             subdet = HcalDetId(hotCell).subdet();
@@ -638,7 +643,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
                   for (const auto& ehd : ehdepth)
                     edm::LogWarning("HBHEMuon") << " " << ehd.second << ":" << ehd.first;
                 } else {
-                  tmpC = goodCell(hcid0, pTrack, geo, bField);
+                  tmpC = goodCell(hcid0, pTrack, geo_, bField);
                   double chg(ene), enec(ene);
                   if (unCorrect_) {
                     double corr = (ignoreHECorr_ && (subdet0 == HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
@@ -884,9 +889,7 @@ void HcalHBHEMuonAnalyzer::beginJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hdc_ = pHRNDC.product();
+  hdc_ = &iSetup.getData(tok_ddrec_);
   actHB.clear();
   actHE.clear();
   actHB = hdc_->getThickActive(0);
@@ -940,21 +943,15 @@ void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&
                               << "name HLT failed";
   }
 
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<HcalRecNumberingRecord>().get(htopo);
-  theHBHETopology_ = htopo.product();
-
-  edm::ESHandle<HcalRespCorrs> resp;
-  iSetup.get<HcalRespCorrsRcd>().get(resp);
-  respCorrs_ = new HcalRespCorrs(*resp.product());
+  theHBHETopology_ = &iSetup.getData(tok_htopo_);
+  const HcalRespCorrs* resp = &iSetup.getData(tok_respcorr_);
+  respCorrs_ = new HcalRespCorrs(*resp);
   respCorrs_->setTopo(theHBHETopology_);
+  geo_ = &iSetup.getData(tok_geom_);
 
   // Write correction factors for all HB/HE events
   if (writeRespCorr_) {
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    const CaloGeometry* geo = pG.product();
-    const HcalGeometry* gHcal = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
+    const HcalGeometry* gHcal = static_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
     const std::vector<DetId>& ids = gHcal->getValidDetIds(DetId::Hcal, 0);
     edm::LogVerbatim("HBHEMuon") << "\nTable of Correction Factors for Run " << iRun.run() << "\n";
     for (auto const& id : ids) {
@@ -1142,7 +1139,7 @@ double HcalHBHEMuonAnalyzer::respCorr(const DetId& id) {
   return cfac;
 }
 
-double HcalHBHEMuonAnalyzer::gainFactor(const edm::ESHandle<HcalDbService>& conditions, const HcalDetId& id) {
+double HcalHBHEMuonAnalyzer::gainFactor(const HcalDbService* conditions, const HcalDetId& id) {
   double gain(0.0);
   const HcalCalibrations& calibs = conditions->getHcalCalibrations(id);
   for (int capid = 0; capid < 4; ++capid)

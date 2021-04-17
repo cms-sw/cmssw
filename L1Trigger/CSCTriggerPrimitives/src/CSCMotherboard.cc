@@ -1,5 +1,6 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCMotherboard.h"
 #include <iostream>
+#include <memory>
 
 // Default values of configuration parameters.
 const unsigned int CSCMotherboard::def_mpc_block_me1a = 1;
@@ -37,17 +38,13 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
 
   clct_to_alct = tmbParams_.getParameter<bool>("clctToAlct");
 
-  // special tmb bits
-  useHighMultiplicityBits_ = tmbParams_.getParameter<bool>("useHighMultiplicityBits");
-  highMultiplicityBits_ = 0;
-
   // whether to readout only the earliest two LCTs in readout window
   readout_earliest_2 = tmbParams_.getParameter<bool>("tmbReadoutEarliest2");
 
   infoV = tmbParams_.getParameter<int>("verbosity");
 
-  alctProc.reset(new CSCAnodeLCTProcessor(endcap, station, sector, subsector, chamber, conf));
-  clctProc.reset(new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, conf));
+  alctProc = std::make_unique<CSCAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
+  clctProc = std::make_unique<CSCCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
 
   // Check and print configuration parameters.
   checkConfigParameters();
@@ -55,6 +52,12 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
     dumpConfigParams();
     config_dumped = true;
   }
+
+  // quality control of stubs
+  qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
+
+  // shower-trigger source
+  showerSource_ = showerParams_.getParameter<unsigned>("source");
 }
 
 CSCMotherboard::CSCMotherboard() : CSCBaseboard() {
@@ -63,8 +66,8 @@ CSCMotherboard::CSCMotherboard() : CSCBaseboard() {
 
   early_tbins = 4;
 
-  alctProc.reset(new CSCAnodeLCTProcessor());
-  clctProc.reset(new CSCCathodeLCTProcessor());
+  alctProc = std::make_unique<CSCAnodeLCTProcessor>();
+  clctProc = std::make_unique<CSCCathodeLCTProcessor>();
   mpc_block_me1a = def_mpc_block_me1a;
   alct_trig_enable = def_alct_trig_enable;
   clct_trig_enable = def_clct_trig_enable;
@@ -98,6 +101,9 @@ void CSCMotherboard::clear() {
     firstLCT[bx].clear();
     secondLCT[bx].clear();
   }
+
+  // reset the shower trigger
+  shower_.clear();
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
@@ -130,8 +136,7 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
 
   // Check for existing processors
   if (!(alctProc && clctProc)) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|SetupError") << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
+    edm::LogError("CSCMotherboard|SetupError") << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
 
@@ -147,8 +152,7 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
     return;
 
   // encode high multiplicity bits
-  unsigned alctBits = alctProc->getHighMultiplictyBits();
-  encodeHighMultiplicityBits(alctBits);
+  encodeHighMultiplicityBits();
 
   // CLCT-centric matching
   if (clct_to_alct) {
@@ -172,8 +176,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         // need to access "full BX" words, which are not readily
         // available.
         bool is_matched = false;
-        const int bx_alct_start = bx_clct - match_trig_window_size / 2 + alctClctOffset_;
-        const int bx_alct_stop = bx_clct + match_trig_window_size / 2 + alctClctOffset_;
+        const int bx_alct_start = bx_clct - match_trig_window_size / 2 + CSCConstants::ALCT_CLCT_OFFSET;
+        const int bx_alct_stop = bx_clct + match_trig_window_size / 2 + CSCConstants::ALCT_CLCT_OFFSET;
 
         for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
           if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS)
@@ -252,8 +256,8 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
         // need to access "full BX" words, which are not readily
         // available.
         bool is_matched = false;
-        const int bx_clct_start = bx_alct - match_trig_window_size / 2 - alctClctOffset_;
-        const int bx_clct_stop = bx_alct + match_trig_window_size / 2 - alctClctOffset_;
+        const int bx_clct_start = bx_alct - match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET;
+        const int bx_clct_stop = bx_alct + match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET;
 
         for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
           if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_TBINS)
@@ -399,6 +403,13 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
     else
       tmpV.push_back(*plct);
   }
+
+  // do a final check on the LCTs in readout
+  qualityControl_->checkMultiplicityBX(tmpV);
+  for (const auto& lct : tmpV) {
+    qualityControl_->checkValid(lct);
+  }
+
   return tmpV;
 }
 
@@ -409,14 +420,16 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() const {
   // Do not report LCTs found in ME1/A if mpc_block_me1/a is set.
   for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
     if (firstLCT[bx].isValid())
-      if (!mpc_block_me1a || (!isME11_ || firstLCT[bx].getStrip() <= 127))
+      if (!mpc_block_me1a || (!isME11_ || firstLCT[bx].getStrip() <= CSCConstants::MAX_HALF_STRIP_ME1B))
         tmpV.push_back(firstLCT[bx]);
     if (secondLCT[bx].isValid())
-      if (!mpc_block_me1a || (!isME11_ || secondLCT[bx].getStrip() <= 127))
+      if (!mpc_block_me1a || (!isME11_ || secondLCT[bx].getStrip() <= CSCConstants::MAX_HALF_STRIP_ME1B))
         tmpV.push_back(secondLCT[bx]);
   }
   return tmpV;
 }
+
+CSCShowerDigi CSCMotherboard::readoutShower() const { return shower_; }
 
 void CSCMotherboard::correlateLCTs(
     const CSCALCTDigi& bALCT, const CSCALCTDigi& sALCT, const CSCCLCTDigi& bCLCT, const CSCCLCTDigi& sCLCT, int type) {
@@ -478,10 +491,15 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    int type,
                                                    int trknmb) const {
   // CLCT pattern number
-  unsigned int pattern = use_run3_patterns_ ? 0 : encodePattern(cLCT.getPattern());
+  unsigned int pattern = encodePattern(cLCT.getPattern());
 
   // LCT quality number
-  unsigned int quality = findQuality(aLCT, cLCT);
+  unsigned int quality;
+  if (runCCLUT_) {
+    quality = static_cast<unsigned int>(findQualityRun3(aLCT, cLCT));
+  } else {
+    quality = static_cast<unsigned int>(findQuality(aLCT, cLCT));
+  }
 
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
@@ -504,11 +522,13 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                theTrigChamber);
   thisLCT.setType(type);
 
-  if (use_run3_patterns_) {
+  if (runCCLUT_) {
     thisLCT.setRun3(true);
-    // in Run-3 we plan to denote the presence of exotic signatures in the chamber
-    if (useHighMultiplicityBits_)
-      thisLCT.setHMT(highMultiplicityBits_);
+    // 4-bit slope value derived with the CCLUT algorithm
+    thisLCT.setSlope(cLCT.getSlope());
+    thisLCT.setQuartStrip(cLCT.getQuartStrip());
+    thisLCT.setEighthStrip(cLCT.getEighthStrip());
+    thisLCT.setRun3Pattern(cLCT.getRun3Pattern());
   }
 
   // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!
@@ -528,59 +548,112 @@ unsigned int CSCMotherboard::encodePattern(const int ptn) const {
 }
 
 // 4-bit LCT quality number.
-unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const {
-  unsigned int quality = 0;
-
-  // 2008 definition.
+CSCMotherboard::LCT_Quality CSCMotherboard::findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const {
+  // Either ALCT or CLCT is invalid
   if (!(aLCT.isValid()) || !(cLCT.isValid())) {
+    // No CLCT
     if (aLCT.isValid() && !(cLCT.isValid()))
-      quality = 1;  // no CLCT
+      return LCT_Quality::NO_CLCT;
+
+    // No ALCT
     else if (!(aLCT.isValid()) && cLCT.isValid())
-      quality = 2;  // no ALCT
+      return LCT_Quality::NO_ALCT;
+
+    // No ALCT and no CLCT
     else
-      quality = 0;  // both absent; should never happen.
-  } else {
-    int pattern = cLCT.getPattern();
+      return LCT_Quality::INVALID;
+  }
+  // Both ALCT and CLCT are valid
+  else {
+    const int pattern(cLCT.getPattern());
+
+    // Layer-trigger in CLCT
     if (pattern == 1)
-      quality = 3;  // layer-trigger in CLCT
+      return LCT_Quality::CLCT_LAYER_TRIGGER;
+
+    // Multi-layer pattern in CLCT
     else {
-      // CLCT quality is the number of layers hit minus 3.
+      // ALCT quality is the number of layers hit minus 3.
+      const bool a4(aLCT.getQuality() >= 1);
+
       // CLCT quality is the number of layers hit.
-      bool a4 = (aLCT.getQuality() >= 1);
-      bool c4 = (cLCT.getQuality() >= 4);
-      //              quality = 4; "reserved for low-quality muons in future"
+      const bool c4(cLCT.getQuality() >= 4);
+
+      // quality = 4; "reserved for low-quality muons in future"
+
+      // marginal anode and cathode
       if (!a4 && !c4)
-        quality = 5;  // marginal anode and cathode
+        return LCT_Quality::MARGINAL_ANODE_CATHODE;
+
+      // HQ anode, but marginal cathode
       else if (a4 && !c4)
-        quality = 6;  // HQ anode, but marginal cathode
+        return LCT_Quality::HQ_ANODE_MARGINAL_CATHODE;
+
+      // HQ cathode, but marginal anode
       else if (!a4 && c4)
-        quality = 7;  // HQ cathode, but marginal anode
+        return LCT_Quality::HQ_CATHODE_MARGINAL_ANODE;
+
+      // HQ muon, but accelerator ALCT
       else if (a4 && c4) {
         if (aLCT.getAccelerator())
-          quality = 8;  // HQ muon, but accel ALCT
+          return LCT_Quality::HQ_ACCEL_ALCT;
+
         else {
           // quality =  9; "reserved for HQ muons with future patterns
           // quality = 10; "reserved for HQ muons with future patterns
+
+          // High quality muons are determined by their CLCT pattern
           if (pattern == 2 || pattern == 3)
-            quality = 11;
+            return LCT_Quality::HQ_PATTERN_2_3;
+
           else if (pattern == 4 || pattern == 5)
-            quality = 12;
+            return LCT_Quality::HQ_PATTERN_4_5;
+
           else if (pattern == 6 || pattern == 7)
-            quality = 13;
+            return LCT_Quality::HQ_PATTERN_6_7;
+
           else if (pattern == 8 || pattern == 9)
-            quality = 14;
+            return LCT_Quality::HQ_PATTERN_8_9;
+
           else if (pattern == 10)
-            quality = 15;
+            return LCT_Quality::HQ_PATTERN_10;
+
           else {
-            if (infoV >= 0)
-              edm::LogWarning("CSCMotherboard|WrongValues")
-                  << "+++ findQuality: Unexpected CLCT pattern id = " << pattern << "+++\n";
+            edm::LogWarning("CSCMotherboard")
+                << "findQuality: Unexpected CLCT pattern id = " << pattern << " in " << theCSCName_;
+            return LCT_Quality::INVALID;
           }
         }
       }
     }
   }
-  return quality;
+  return LCT_Quality::INVALID;
+}
+
+// 2-bit LCT quality number for Run-3
+CSCMotherboard::LCT_QualityRun3 CSCMotherboard::findQualityRun3(const CSCALCTDigi& aLCT,
+                                                                const CSCCLCTDigi& cLCT) const {
+  // Run-3 definition
+  if (!(aLCT.isValid()) and !(cLCT.isValid())) {
+    return LCT_QualityRun3::INVALID;
+  }
+  // use number of layers on each as indicator
+  else {
+    bool a4 = (aLCT.getQuality() >= 1);
+    bool a5 = (aLCT.getQuality() >= 1);
+    bool a6 = (aLCT.getQuality() >= 1);
+
+    bool c4 = (cLCT.getQuality() >= 4);
+    bool c5 = (cLCT.getQuality() >= 4);
+    bool c6 = (cLCT.getQuality() >= 4);
+    if (a6 or c6)
+      return LCT_QualityRun3::HighQ;
+    else if (a5 or c5)
+      return LCT_QualityRun3::MedQ;
+    else if (a4 or c4)
+      return LCT_QualityRun3::LowQ;
+  }
+  return LCT_QualityRun3::INVALID;
 }
 
 void CSCMotherboard::checkConfigParameters() {
@@ -630,15 +703,42 @@ CSCALCTDigi CSCMotherboard::getBXShiftedALCT(const CSCALCTDigi& aLCT) const {
 
 CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
   CSCCLCTDigi cLCT_shifted = cLCT;
-  cLCT_shifted.setBX(cLCT_shifted.getBX() - alctClctOffset_);
+  cLCT_shifted.setBX(cLCT_shifted.getBX() - CSCConstants::ALCT_CLCT_OFFSET);
   return cLCT_shifted;
 }
 
-void CSCMotherboard::encodeHighMultiplicityBits(unsigned alctBits) {
-  // encode the high multiplicity bits in the (O)TMB based on
-  // the high multiplicity bits from the ALCT processor
-  // draft version: simply rellay the ALCT bits.
-  // future versions may involve also bits from the CLCT processor
-  // this depends on memory constraints in the TMB FPGA
-  highMultiplicityBits_ = alctBits;
+void CSCMotherboard::encodeHighMultiplicityBits() {
+  // get the high multiplicity
+  // for anode this reflects what is already in the anode CSCShowerDigi object
+  unsigned cathodeInTime = clctProc->getInTimeHMT();
+  unsigned cathodeOutTime = clctProc->getOutTimeHMT();
+  unsigned anodeInTime = alctProc->getInTimeHMT();
+  unsigned anodeOutTime = alctProc->getOutTimeHMT();
+
+  // assign the bits
+  unsigned inTimeHMT_;
+  unsigned outTimeHMT_;
+
+  // set the value according to source
+  switch (showerSource_) {
+    case 0:
+      inTimeHMT_ = cathodeInTime;
+      outTimeHMT_ = cathodeOutTime;
+      break;
+    case 1:
+      inTimeHMT_ = anodeInTime;
+      outTimeHMT_ = anodeOutTime;
+      break;
+    case 2:
+      inTimeHMT_ = (anodeInTime & CSCShowerDigi::kInTimeMask) | (cathodeInTime & CSCShowerDigi::kInTimeMask);
+      outTimeHMT_ = (anodeOutTime & CSCShowerDigi::kOutTimeMask) | (cathodeOutTime & CSCShowerDigi::kOutTimeMask);
+      break;
+    default:
+      inTimeHMT_ = cathodeInTime;
+      outTimeHMT_ = cathodeOutTime;
+      break;
+  };
+
+  // create a new object
+  shower_ = CSCShowerDigi(inTimeHMT_, outTimeHMT_, theTrigChamber);
 }

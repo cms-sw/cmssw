@@ -70,6 +70,7 @@ HBHEIsolatedNoiseReflagger::HBHEIsolatedNoiseReflagger(const edm::ParameterSet& 
   ecalSevToken_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
   ctcmToken_ = esConsumes<CaloTowerConstituentsMap, CaloGeometryRecord>();
   hfemapToken_ = esConsumes<HcalFrontEndMap, HcalFrontEndMapRcd>();
+  geoToken_ = esConsumes();
 
   produces<HBHERecHitCollection>();
 }
@@ -116,7 +117,8 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
   objvalidator_.setEERecHitCollection(&(*eehits_h));
 
   // organizer the hits
-  PhysicsTowerOrganizer pto(iEvent, evSetup, hbhehits_h, ebhits_h, eehits_h, trackextraps_h, objvalidator_, ctcm);
+  PhysicsTowerOrganizer pto(
+      hbhehits_h, ebhits_h, eehits_h, trackextraps_h, objvalidator_, ctcm, evSetup.getData(geoToken_));
   HBHEHitMapOrganizer organizer(hbhehits_h, objvalidator_, pto, hfemap);
 
   // get the rbxs, hpds, dihits, and monohits

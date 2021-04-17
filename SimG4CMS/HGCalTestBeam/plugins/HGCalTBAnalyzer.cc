@@ -812,7 +812,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, double zFront) {
   std::map<uint32_t, double> map_hits, map_hitn;
   std::map<uint32_t, double> map_hittime_firsthit, map_hittime_lasthit, map_hittime_15Mip;
-  std::map<int, double> map_hitDepth;
+  std::map<int, double> map_hitDepth, map_hitWafer;
   std::map<int, std::pair<uint32_t, double>> map_hitLayer, map_hitCell;
   double entot(0);
   std::map<uint32_t, double> nhits;
@@ -854,9 +854,9 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       idx = sector * 1000 + cell;
 #ifdef EDM_ML_DEBUG
       std::pair<float, float> xy = hgcons_[type]->locateCell(cell, layer, sector, false);
-      edm::LogVerbatim("HGCSim") << "detId " << std::hex << id << std::dec << " Layer:Wafer:Cell " << layer << ":"
-                                 << sector << ":" << cell << " Position " << xy.first << ":" << xy.second << ":"
-                                 << hgcons_[type]->waferZ(layer, false);
+      edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer::detId " << std::hex << id << std::dec << " Layer:Wafer:Cell "
+                                 << layer << ":" << sector << ":" << cell << " Position " << xy.first << ":"
+                                 << xy.second << ":" << hgcons_[type]->waferZ(layer, false);
 #endif
     }
 #ifdef EDM_ML_DEBUG
@@ -875,6 +875,10 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
     } else {
       map_hitLayer[layer] = std::make_pair(id, energy);
     }
+    if (map_hitWafer.count(sector) != 0)
+      map_hitWafer[sector] += energy;
+    else
+      map_hitWafer[sector] = energy;
     if (depth >= 0) {
       if (map_hitCell.count(idx) != 0) {
         double ee = energy + map_hitCell[idx].second;
@@ -912,6 +916,9 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
   }
 
   if (type < 2) {  //store only for EE and FH
+    edm::LogVerbatim("HGCSim") << "HGCalTAnalyzer:: " << map_hitWafer.size() << " wafers are hit in type " << type;
+    for (auto itr = map_hitWafer.begin(); itr != map_hitWafer.end(); ++itr)
+      edm::LogVerbatim("HGCSim") << "Wafer: " << itr->first << " Deposited Energy " << itr->second;
     ///now sort the vector of each cell hits
     for (const auto& itr : map_hitTimeEn) {
       uint32_t id = itr.first;

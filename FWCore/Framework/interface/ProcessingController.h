@@ -43,7 +43,8 @@ namespace edm {
     };
 
     ProcessingController(ForwardState forwardState, ReverseState reverseState, bool iCanRandomAccess);
-    //virtual ~ProcessingController();
+    ProcessingController(const ProcessingController&) = delete;                   // stop default
+    const ProcessingController& operator=(const ProcessingController&) = delete;  // stop default
 
     // ---------- const member functions ---------------------
 
@@ -86,10 +87,6 @@ namespace edm {
     void setLastOperationSucceeded(bool value);
 
   private:
-    ProcessingController(const ProcessingController&) = delete;  // stop default
-
-    const ProcessingController& operator=(const ProcessingController&) = delete;  // stop default
-
     // ---------- member data --------------------------------
     ForwardState forwardState_;
     ReverseState reverseState_;

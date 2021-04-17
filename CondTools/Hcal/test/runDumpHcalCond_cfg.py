@@ -79,12 +79,12 @@ if options.era:
     from Configuration.StandardSequences.Eras import eras
     process = cms.Process("DUMP",getattr(eras,options.era))
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 
 if options.globaltag:
-    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+    from Configuration.AlCa.GlobalTag import GlobalTag
     process.GlobalTag = GlobalTag(process.GlobalTag, options.globaltag, '')
 
 # extracted from Configuration/Applications/python/ConfigBuilder.py

@@ -7,6 +7,7 @@
 #include "CondCore/SiStripPlugins/plugins/SiStripThreshold_PayloadInspector.cc"
 #include "CondCore/SiStripPlugins/plugins/SiStripLatency_PayloadInspector.cc"
 #include "CondCore/SiStripPlugins/plugins/SiStripFedCabling_PayloadInspector.cc"
+#include "CondCore/SiStripPlugins/plugins/SiStripBadStrip_PayloadInspector.cc"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -140,8 +141,19 @@ int main(int argc, char** argv) {
   edm::LogPrint("testSiStripPayloadInspector") << "## Exercising Threshold plots " << std::endl;
 
   SiStripThresholdValueHigh histo14;
-  histo14.process(connectionString, PI::mk_input(tag, start, start));
+  histo14.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiStripPayloadInspector") << histo14.data() << std::endl;
+
+  // test SiStripTkMaps
+  tag = "SiStripBadComponents_startupMC_for2017_v1_mc";
+  start = boost::lexical_cast<unsigned long long>(1);
+  end = boost::lexical_cast<unsigned long long>(1);
+
+  edm::LogPrint("testSiStripPayloadInspector") << "## Exercising SiStripTkMaps plots " << std::endl;
+
+  SiStripBadStripFractionTkMap histoTkMap;
+  histoTkMap.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiStripPayloadInspector") << histoTkMap.data() << std::endl;
 
   inputs.clear();
 #if PY_MAJOR_VERSION >= 3

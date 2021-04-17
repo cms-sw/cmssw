@@ -122,7 +122,7 @@ private:
 
   unsigned int chamberId(const DetId&);
 
-  double phiOfMuonIneteractionRegion(const reco::Muon& muon) const;
+  double phiOfMuonInteractionRegion(const reco::Muon& muon) const;
 
   bool checkLinks(const reco::MuonTrackLinks*) const;
   inline bool approxEqual(const double a, const double b, const double tol = 1E-3) const {
@@ -205,9 +205,9 @@ private:
 
   // matching
   double maxAbsDx_;
-  double maxAbsPullX_;
+  double maxAbsPullX2_;
   double maxAbsDy_;
-  double maxAbsPullY_;
+  double maxAbsPullY2_;
 
   // what information to fill
   bool fillCaloCompatibility_;
@@ -245,6 +245,9 @@ private:
 
   edm::Handle<RPCRecHitCollection> rpcHitHandle_;
   edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualHandle_;
+
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomTokenRun_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
 
   MuonCaloCompatibility muonCaloCompatibility_;
   std::unique_ptr<reco::isodeposit::IsoDepositExtractor> muIsoExtractorCalo_;

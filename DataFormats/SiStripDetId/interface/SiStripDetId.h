@@ -2,7 +2,7 @@
 #define DataFormats_SiStripDetId_SiStripDetId_h
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrackerCommon/interface/SiStripEnums.h"
+#include "DataFormats/SiStripDetId/interface/SiStripEnums.h"
 #include <ostream>
 
 class SiStripDetId;

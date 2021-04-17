@@ -12,8 +12,8 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 
 #include <cstdio>
 #include <fstream>
@@ -36,23 +36,19 @@ void SiPixelTemplateDBObjectUploader::beginJob() {}
 
 void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::EventSetup& es) {
   //--- Make the POOL-ORA object to store the database object
-  SiPixelTemplateDBObject* obj = new SiPixelTemplateDBObject;
-
-  // Local variables
-  const char* tempfile;
-  int m;
+  SiPixelTemplateDBObject obj;
 
   // Set the number of templates to be passed to the dbobject
-  obj->setNumOfTempl(theTemplateCalibrations.size());
+  obj.setNumOfTempl(theTemplateCalibrations.size());
 
   // Set the version of the template dbobject - this is an external parameter
-  obj->setVersion(theVersion);
+  obj.setVersion(theVersion);
 
   // Open the template file(s)
-  for (m = 0; m < obj->numOfTempl(); ++m) {
+  for (int m = 0; m < obj.numOfTempl(); ++m) {
     edm::FileInPath file(theTemplateCalibrations[m].c_str());
-    tempfile = (file.fullPath()).c_str();
-    std::ifstream in_file(tempfile, std::ios::in);
+    auto tempfile = (file.fullPath());
+    std::ifstream in_file(tempfile.c_str(), std::ios::in);
     if (in_file.is_open()) {
       edm::LogInfo("Template Info") << "Opened Template File: " << file.fullPath().c_str();
 
@@ -60,7 +56,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
       char title_char[80], c;
       SiPixelTemplateDBObject::char2float temp;
       float tempstore;
-      int iter, j;
+      int iter, j, k;
 
       // Templates contain a header char - we must be clever about storing this
       for (iter = 0; (c = in_file.get()) != '\n'; ++iter) {
@@ -77,15 +73,27 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
         temp.c[1] = title_char[j + 1];
         temp.c[2] = title_char[j + 2];
         temp.c[3] = title_char[j + 3];
-        obj->push_back(temp.f);
-        obj->setMaxIndex(obj->maxIndex() + 1);
+        obj.push_back(temp.f);
+        obj.setMaxIndex(obj.maxIndex() + 1);
+      }
+
+      // Check if the magnetic field is the same as in the header of the input files
+      for (k = 0; k < 80; k++) {
+        if ((title_char[k] == '@') && (title_char[k - 1] == 'T')) {
+          double localMagField = (((int)title_char[k - 4]) - 48) * 10 + ((int)title_char[k - 2]) - 48;
+          if (theMagField != localMagField) {
+            std::cout << "\n -------- WARNING -------- \n Magnetic field in the cfg is " << theMagField
+                      << "T while it is " << title_char[k - 4] << title_char[k - 2] << title_char[k - 1]
+                      << " in the header \n ------------------------- \n " << std::endl;
+          }
+        }
       }
 
       // Fill the dbobject
       in_file >> tempstore;
       while (!in_file.eof()) {
-        obj->setMaxIndex(obj->maxIndex() + 1);
-        obj->push_back(tempstore);
+        obj.setMaxIndex(obj.maxIndex() + 1);
+        obj.push_back(tempstore);
         in_file >> tempstore;
       }
 
@@ -99,14 +107,21 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
   // Get the event setup
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry* tGeo = pDD.product();
 
   // Use the TrackerTopology class for layer/disk etc. number
   edm::ESHandle<TrackerTopology> tTopoHandle;
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* tTopo = tTopoHandle.product();
 
-  // This tells if we are using Phase I geometry (may be needed for commented out Phase 1 variables)
-  //bool phase = pDD->isThere(GeomDetEnumerators::P1PXB) && pDD->isThere(GeomDetEnumerators::P1PXEC);
+  // Check if we are using Phase-1 or Phase-2 geometry
+  int phase = 0;
+  if (pDD->isThere(GeomDetEnumerators::P1PXB) && pDD->isThere(GeomDetEnumerators::P1PXEC) == true) {
+    phase = 1;
+  } else if (pDD->isThere(GeomDetEnumerators::P2PXB) && pDD->isThere(GeomDetEnumerators::P2PXEC) == true) {
+    phase = 2;
+  }
+  std::cout << "Phase-" << phase << " geometry is used \n" << std::endl;
 
   //Loop over the detector elements and put template IDs in place
   for (const auto& it : pDD->detUnits()) {
@@ -121,7 +136,8 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
 
       // Now we sort them into the Barrel and Endcap:
       //Barrel Pixels first
-      if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+      if ((phase == 1 && detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
+          (phase == 2 && tGeo->geomDetSubDetector(detid.subdetId()) == GeomDetEnumerators::P2PXB)) {
         std::cout << "--- IN THE BARREL ---\n";
 
         //Get the layer, ladder, and module corresponding to this detID
@@ -162,7 +178,7 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
             thisID = (short)theBarrelTemplateIds[iter];
         }
 
-        if (thisID == 10000 || (!(*obj).putTemplateID(detid.rawId(), thisID)))
+        if (thisID == 10000 || (!obj.putTemplateID(detid.rawId(), thisID)))
           std::cout << " Could not fill barrel layer " << layer << ", module " << module << "\n";
         // ----- debug:
         std::cout << "This is a barrel element with: layer " << layer << ", ladder " << ladder << " and module "
@@ -170,7 +186,8 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
                                        // -----
       }
       //Now endcaps
-      if (detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+      else if ((phase == 1 && detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) ||
+               (phase == 2 && tGeo->geomDetSubDetector(detid.subdetId()) == GeomDetEnumerators::P2PXEC)) {
         std::cout << "--- IN AN ENDCAP ---\n";
 
         //Get the DetId's disk, blade, side, panel, and module
@@ -214,19 +231,21 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
             thisID = (short)theEndcapTemplateIds[iter];
         }
 
-        if (thisID == 10000 || (!(*obj).putTemplateID(detid.rawId(), thisID)))
+        if (thisID == 10000 || (!obj.putTemplateID(detid.rawId(), thisID)))
           std::cout << " Could not fill endcap det unit" << side << ", disk " << disk << ", blade " << blade
                     << ", and panel " << panel << ".\n";
         // ----- debug:
         std::cout << "This is an endcap element with: side " << side << ", disk " << disk << ", blade " << blade
                   << ", and panel " << panel << ".\n";  //Uncomment to read out exact position of each element.
                                                         // -----
+      } else {
+        continue;
       }
 
       //Print out the assignment of this detID
       short mapnum;
       std::cout << "checking map:\n";
-      mapnum = (*obj).getTemplateID(detid.rawId());
+      mapnum = obj.getTemplateID(detid.rawId());
       std::cout << "The DetID: " << detid.rawId() << " is mapped to the template: " << mapnum << ".\n\n";
     }
   }
@@ -236,9 +255,9 @@ void SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const ed
   if (!poolDbService.isAvailable())  // Die if not available
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   if (poolDbService->isNewTagRequest("SiPixelTemplateDBObjectRcd"))
-    poolDbService->writeOne(obj, poolDbService->beginOfTime(), "SiPixelTemplateDBObjectRcd");
+    poolDbService->writeOne(&obj, poolDbService->beginOfTime(), "SiPixelTemplateDBObjectRcd");
   else
-    poolDbService->writeOne(obj, poolDbService->currentTime(), "SiPixelTemplateDBObjectRcd");
+    poolDbService->writeOne(&obj, poolDbService->currentTime(), "SiPixelTemplateDBObjectRcd");
 }
 
 void SiPixelTemplateDBObjectUploader::endJob() {}

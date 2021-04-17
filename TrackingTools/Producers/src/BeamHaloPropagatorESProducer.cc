@@ -67,10 +67,10 @@ BeamHaloPropagatorESProducer::BeamHaloPropagatorESProducer(const ParameterSet& p
   theEndCapTrackerPropagatorName = parameterSet.getParameter<string>("EndCapTrackerPropagator");
   theCrossingTrackerPropagatorName = parameterSet.getParameter<string>("CrossingTrackerPropagator");
 
-  setWhatProduced(this, myname)
-      .setConsumes(magToken_)
-      .setConsumes(endcapToken_, edm::ESInputTag(""s, theEndCapTrackerPropagatorName))
-      .setConsumes(crossToken_, edm::ESInputTag(""s, theCrossingTrackerPropagatorName));
+  auto cc = setWhatProduced(this, myname);
+  magToken_ = cc.consumes();
+  endcapToken_ = cc.consumes(edm::ESInputTag(""s, theEndCapTrackerPropagatorName));
+  crossToken_ = cc.consumes(edm::ESInputTag(""s, theCrossingTrackerPropagatorName));
 }
 
 BeamHaloPropagatorESProducer::~BeamHaloPropagatorESProducer() {}

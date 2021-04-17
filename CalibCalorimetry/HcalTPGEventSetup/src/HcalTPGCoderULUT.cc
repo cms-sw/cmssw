@@ -23,7 +23,6 @@
 // user include files
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
@@ -58,6 +57,9 @@ private:
   edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> delayToken_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> serviceToken_;
   bool read_FGLut_, read_Ascii_, read_XML_, LUTGenerationMode_, linearLUTs_;
+  bool contain1TSHB_, contain1TSHE_;
+  double containPhaseNSHB_, containPhaseNSHE_;
+  bool overrideDBweightsAndFilterHB_, overrideDBweightsAndFilterHE_;
   double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
   std::vector<uint32_t> FG_HF_thresholds_;
@@ -80,11 +82,18 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
   read_XML_ = iConfig.getParameter<bool>("read_XML_LUTs");
   read_FGLut_ = iConfig.getParameter<bool>("read_FG_LUTs");
   fgfile_ = iConfig.getParameter<edm::FileInPath>("FGLUTs");
+  contain1TSHB_ = iConfig.getParameter<bool>("contain1TSHB");
+  contain1TSHE_ = iConfig.getParameter<bool>("contain1TSHE");
+  containPhaseNSHB_ = iConfig.getParameter<double>("containPhaseNSHB");
+  containPhaseNSHE_ = iConfig.getParameter<double>("containPhaseNSHE");
+  overrideDBweightsAndFilterHB_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHB");
+  overrideDBweightsAndFilterHE_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHE");
 
   //the following line is needed to tell the framework what
   // data is being produced
   auto cc = setWhatProduced(this);
-  cc.setConsumes(topoToken_).setConsumes(delayToken_, edm::ESInputTag{"", "HBHE"});
+  topoToken_ = cc.consumes();
+  delayToken_ = cc.consumes(edm::ESInputTag{"", "HBHE"});
 
   if (!(read_Ascii_ || read_XML_)) {
     LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
@@ -95,7 +104,7 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
     linearLSB_QIE11Overlap_ = scales.getParameter<double>("LSBQIE11Overlap");
     maskBit_ = iConfig.getParameter<int>("MaskBit");
     FG_HF_thresholds_ = iConfig.getParameter<std::vector<uint32_t> >("FG_HF_thresholds");
-    cc.setConsumes(serviceToken_);
+    serviceToken_ = cc.consumes();
   } else {
     ifilename_ = iConfig.getParameter<edm::FileInPath>("inputLUTs");
   }
@@ -104,6 +113,16 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
 void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const HcalTimeSlew* delay, HcaluLUTTPGCoder* theCoder) {
   using namespace edm::es;
   theCoder->init(topo, delay);
+
+  theCoder->setOverrideDBweightsAndFilterHB(overrideDBweightsAndFilterHB_);
+  theCoder->setOverrideDBweightsAndFilterHE(overrideDBweightsAndFilterHE_);
+
+  theCoder->set1TSContainHB(contain1TSHB_);
+  theCoder->set1TSContainHE(contain1TSHE_);
+
+  theCoder->setContainPhaseHB(containPhaseNSHB_);
+  theCoder->setContainPhaseHE(containPhaseNSHE_);
+
   if (read_Ascii_ || read_XML_) {
     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_.fullPath() << " for HcalTPGCoderULUT initialization";
     if (read_Ascii_) {

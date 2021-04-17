@@ -169,8 +169,10 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<> {
 public:
   explicit SiStripClusterizerFromRaw(const edm::ParameterSet& conf)
       : onDemand(conf.getParameter<bool>("onDemand")),
-        clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
-        rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
+        clusterizer_(StripClusterizerAlgorithmFactory::create(consumesCollector(),
+                                                              conf.getParameter<edm::ParameterSet>("Clusterizer"))),
+        rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"),
+                                                      consumesCollector())),
         doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck")
                                                                       : true),
         legacy_(conf.existsAs<bool>("LegacyUnpacker") ? conf.getParameter<bool>("LegacyUnpacker") : false),
@@ -180,8 +182,6 @@ public:
     assert(clusterizer_.get());
     assert(rawAlgos_.get());
   }
-
-  void beginRun(const edm::Run&, const edm::EventSetup& es) override { initialize(es); }
 
   void produce(edm::Event& ev, const edm::EventSetup& es) override {
     initialize(es);

@@ -21,7 +21,6 @@ def customiseWithTimeMemoryJobReport(process):
             )
 
     #Silence the final Timing service report
-    process.MessageLogger.categories.append("TimeReport")
     process.MessageLogger.cerr.TimeReport = cms.untracked.PSet(limit = cms.untracked.int32(0))
 
     return(process)

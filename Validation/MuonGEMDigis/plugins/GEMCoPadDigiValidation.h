@@ -13,8 +13,8 @@ public:
 
 private:
   //
-  MEMap1Ids me_occ_zr_;
-  MEMap2Ids me_occ_det_;
+  MEMap1Ids me_detail_occ_zr_;
+  MEMap2Ids me_detail_occ_det_;
   MEMap2Ids me_detail_occ_xy_;
   MEMap2Ids me_detail_occ_phi_pad_;
   MEMap2Ids me_detail_occ_pad_;
@@ -23,6 +23,8 @@ private:
 
   // Parameters
   edm::EDGetTokenT<GEMCoPadDigiCollection> copad_token_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 
   //
   int gem_bx_min_, gem_bx_max_;

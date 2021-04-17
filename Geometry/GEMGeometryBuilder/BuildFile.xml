@@ -1,3 +1,4 @@
+<use name="DataFormats/MuonDetId"/>
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/GEMGeometry"/>
 <use name="DetectorDescription/Core"/>

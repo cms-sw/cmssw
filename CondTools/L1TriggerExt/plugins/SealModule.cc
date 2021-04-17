@@ -41,6 +41,11 @@ REGISTER_L1_WRITER(L1TUtmTriggerMenuO2ORcd, L1TUtmTriggerMenu);
 
 REGISTER_L1_WRITER(L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos);
 
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetosFract.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosFractO2ORcd.h"
+
+REGISTER_L1_WRITER(L1TGlobalPrescalesVetosFractO2ORcd, L1TGlobalPrescalesVetosFract);
+
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
 

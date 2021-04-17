@@ -1,5 +1,4 @@
 from CRABAPI.RawCommand import crabCommand
-from CRABClient.UserUtilities import getUsernameFromSiteDB
 from CRABClient.UserUtilities import config
 from copy import deepcopy
 import os
@@ -11,10 +10,12 @@ def submit(config):
         fi.write(config.pythonise_())
 
 samples = [
-    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_0_0_patch1-110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "QCD_noPU"),
-    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "QCD_PU"),
-    #("/RelValZMM_14/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "ZMM_PU"),
-    ("/RelValNuGun/CMSSW_11_0_0_patch1-PU_110X_mcRun3_2021_realistic_v6-v1/GEN-SIM-DIGI-RAW", "NuGun_PU"),
+    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_3_0_pre1-113X_mcRun3_2021_realistic_v1-v3/GEN-SIM-DIGI-RAW", "QCD_noPU"),
+    ("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "QCD_PU"),
+f    ("/RelValZEE_14/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZEE_PU"),
+    ("/RelValZMM_14/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZMM_PU"),
+    ("/RelValTenTau_15_500/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "TenTau_PU"),
+    ("/RelValNuGun/CMSSW_11_3_0_pre1-PU_113X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "NuGun_PU"),
 ]
 
 if __name__ == "__main__":
@@ -30,11 +31,11 @@ if __name__ == "__main__":
         conf.General.workArea = 'crab_projects'
         conf.JobType.pluginName = 'Analysis'
         conf.JobType.psetName = 'step3_dump.py'
-        conf.JobType.maxJobRuntimeMin = 4*60
+        conf.JobType.maxJobRuntimeMin = 8*60
         conf.JobType.allowUndistributedCMSSW = True
         conf.JobType.outputFiles = ["step3_inMINIAODSIM.root"]
-        conf.JobType.maxMemoryMB = 5000
-        conf.JobType.numCores = 2
+        conf.JobType.maxMemoryMB = 20000
+        conf.JobType.numCores = 8
         
         conf.Data.inputDataset = dataset
         conf.Data.splitting = 'LumiBased'
@@ -45,8 +46,8 @@ if __name__ == "__main__":
         #conf.Data.ignoreLocality = True
         
         # Where the output files will be transmitted to
-        #conf.Site.storageSite = 'T3_US_Baylor'
-        conf.Site.storageSite = 'T2_US_Caltech'
+        conf.Site.storageSite = 'T3_US_Baylor'
+        #conf.Site.storageSite = 'T2_US_Caltech'
         #conf.Site.whitelist = ["T2_US_Caltech", "T2_CH_CERN"]
         
         submit(conf) 

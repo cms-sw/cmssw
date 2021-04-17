@@ -4,8 +4,7 @@ process = cms.Process("Validation")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring('')
-process.MessageLogger.destinations = cms.untracked.vstring('cerr')
-process.MessageLogger.categories.append('resolution')
+process.MessageLogger.resolution=dict()
 process.MessageLogger.cerr =  cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'),
     noLineBreaks = cms.untracked.bool(False),
@@ -14,7 +13,7 @@ process.MessageLogger.cerr =  cms.untracked.PSet(
     resolution = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 )
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ''
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")

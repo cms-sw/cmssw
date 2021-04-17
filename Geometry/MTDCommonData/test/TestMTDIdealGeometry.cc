@@ -42,10 +42,7 @@ public:
 
   void theBaseNumber(const DDGeoHistory& gh);
 
-  std::string noNSgeoHistory(const DDGeoHistory& gh);
-
 private:
-  std::string label_;
   int nNodes_;
   std::string ddTopNodeName_;
   uint32_t theLayout_;
@@ -53,15 +50,18 @@ private:
   MTDBaseNumber thisN_;
   BTLNumberingScheme btlNS_;
   ETLNumberingScheme etlNS_;
+
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
 };
 
 TestMTDIdealGeometry::TestMTDIdealGeometry(const edm::ParameterSet& iConfig)
-    : label_(iConfig.getUntrackedParameter<std::string>("label", "")),
-      ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
+    : ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
       theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
       thisN_(),
       btlNS_(),
-      etlNS_() {}
+      etlNS_() {
+  cpvToken_ = esConsumes<DDCompactView, IdealGeometryRecord>();
+}
 
 TestMTDIdealGeometry::~TestMTDIdealGeometry() {}
 
@@ -76,8 +76,7 @@ void TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::EventSet
     return;
   }
 
-  edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get(label_, pDD);
+  auto pDD = iSetup.getTransientHandle(cpvToken_);
 
   if (!pDD.isValid()) {
     edm::LogError("TestMTDIdealGeometry") << "ESTransientHandle<DDCompactView> pDD is not valid!";
@@ -130,14 +129,26 @@ void TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::EventSet
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
+    std::stringstream ss;
+    auto print_path = [&]() {
+      ss << " - OCMS[0]/";
+      for (uint i = 1; i < fv.geoHistory().size(); i++) {
+        ss << fv.geoHistory()[i].logicalPart().name().fullname();
+        ss << "[";
+        ss << std::to_string(fv.geoHistory()[i].copyno());
+        ss << "]/";
+      }
+    };
+
     if (write && fv.geoHistory()[limit - 1].logicalPart().name().name() == ddTopNodeName_) {
-      edm::LogInfo("TestMTDPath") << " - " << noNSgeoHistory(fv.geoHistory());
+      print_path();
+      edm::LogInfo("TestMTDPath") << ss.str();
 
       bool isSens = false;
 
-      if (fv.geoHistory()[num - 1].logicalPart().specifics().size() > 0) {
+      if (!fv.geoHistory()[num - 1].logicalPart().specifics().empty()) {
         for (auto vec : fv.geoHistory()[num - 1].logicalPart().specifics()) {
-          for (auto elem : *vec) {
+          for (const auto& elem : *vec) {
             if (elem.second.name() == "SensitiveDetector") {
               isSens = true;
               break;
@@ -271,22 +282,6 @@ void TestMTDIdealGeometry::theBaseNumber(const DDGeoHistory& gh) {
     edm::LogInfo("TestMTDIdealGeometry") << name << " " << copyN;
 #endif
   }
-}
-
-std::string TestMTDIdealGeometry::noNSgeoHistory(const DDGeoHistory& gh) {
-  std::string output;
-  for (uint i = 0; i < gh.size(); i++) {
-    output += gh[i].logicalPart().name().name();
-    output += "[";
-    output += std::to_string(gh[i].copyno());
-    output += "]/";
-  }
-
-#ifdef EDM_ML_DEBUG
-  edm::LogInfo("TestMTDIdealGeometry") << output;
-#endif
-
-  return output;
 }
 
 DEFINE_FWK_MODULE(TestMTDIdealGeometry);

@@ -57,7 +57,7 @@ void test_fmt_external::test_fmt()
   std::apply(print_message, args);
   fmt::memory_buffer buf;
   format_to(buf, "{}", 42);  // replaces itoa(42, buffer, 10)
-  fmt::print(buf.data());
+  fmt::print(to_string(buf));
   format_to(buf, "{:x}", 42);  // replaces itoa(42, buffer, 16)
   fmt::print(to_string(buf));
 }

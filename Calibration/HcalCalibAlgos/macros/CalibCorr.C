@@ -34,15 +34,16 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <algorithm>
-#include <map>
-#include <vector>
-#include <string>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <TROOT.h>
+#include <map>
+#include <string>
+#include <vector>
+
 #include <TChain.h>
+#include <TROOT.h>
 
 void unpackDetId(unsigned int detId, int& subdet, int& zside, int& ieta, int& iphi, int& depth) {
   // The maskings are defined in DataFormats/DetId/interface/DetId.h
@@ -138,13 +139,13 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
     int jeta = std::abs(ieta);
     double d2p = (ediff / pmom);
     const double DELTA_CUT = 0.03;
-    const int PU_IETA_3 = 25;
     if (type == 3) {  // 16pu
       const double CONST_COR_COEF[4] = {0.971, 1.008, 0.985, 1.086};
       const double LINEAR_COR_COEF[4] = {0, -0.359, -0.251, -0.535};
       const double SQUARE_COR_COEF[4] = {0, 0, 0.048, 0.143};
       const int PU_IETA_1 = 9;
       const int PU_IETA_2 = 16;
+      const int PU_IETA_3 = 25;
       unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3));
       if (d2p > DELTA_CUT)
         fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
@@ -157,20 +158,39 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
       const double SQUARE_COR_COEF[4] = {0, 0, 0.053, 0.170};
       const int PU_IETA_1 = 9;
       const int PU_IETA_2 = 18;
+      const int PU_IETA_3 = 25;
       unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3));
       if (d2p > DELTA_CUT)
         fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
       if (debug)
         std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
                   << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
-    } else {  // 18pu
+    } else if (type == 5) {  // 18pu
       const double CONST_COR_COEF[4] = {0.973, 0.998, 0.992, 0.965};
       const double LINEAR_COR_COEF[4] = {0, -0.318, -0.261, -0.406};
       const double SQUARE_COR_COEF[4] = {0, 0, 0.047, 0.089};
       const int PU_IETA_1 = 7;
       const int PU_IETA_2 = 16;
+      const int PU_IETA_3 = 25;
       unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3));
       if (d2p > DELTA_CUT)
+        fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
+      if (debug)
+        std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
+                  << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
+    } else {  // 21pu
+      const double CONST_COR_COEF[6] = {0.98913, 0.982008, 0.974011, 0.496234, 0.368110, 0.294053};
+      const double LINEAR_COR_COEF[6] = {-0.0491388, -0.124058, -0.249718, -0.0667390, -0.0770766, -0.0580492};
+      const double SQUARE_COR_COEF[6] = {0, 0, 0.0368657, 0.00656337, 0.00724508, 0.00568967};
+      const int PU_IETA_1 = 7;
+      const int PU_IETA_2 = 16;
+      const int PU_IETA_3 = 25;
+      const int PU_IETA_4 = 26;
+      const int PU_IETA_5 = 27;
+      unsigned icor = (unsigned(jeta >= PU_IETA_1) + unsigned(jeta >= PU_IETA_2) + unsigned(jeta >= PU_IETA_3) +
+                       unsigned(jeta >= PU_IETA_4) + unsigned(jeta >= PU_IETA_5));
+      double deltaCut = (icor > 2) ? 1.0 : DELTA_CUT;
+      if (d2p > deltaCut)
         fac = (CONST_COR_COEF[icor] + LINEAR_COR_COEF[icor] * d2p + SQUARE_COR_COEF[icor] * d2p * d2p);
       if (debug)
         std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"

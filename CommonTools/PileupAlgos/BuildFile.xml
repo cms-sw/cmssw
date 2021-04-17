@@ -1,7 +1,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="root"/>
 <use name="rootcore"/>
-<use name="fastjet"/>
 <export>
   <lib name="1"/>
 </export>

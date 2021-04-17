@@ -1,16 +1,14 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/CMSUnits.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 
 //#define EDM_ML_DEBUG
-using namespace cms_units::operators;
+using namespace angle_units::operators;
 
-static long algorithm(dd4hep::Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      dd4hep::SensitiveDetector& /* sens */) {
+static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
 
@@ -26,8 +24,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   edm::LogVerbatim("HGCalGeom") << childNames.size() << " children: " << childNames[0] << "; " << childNames[1]
                                 << " positioned " << positionX.size() << " times with cell size " << cellSize;
   for (unsigned int k = 0; k < positionX.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << positionX[k] << " y " << positionY[k] << " angle "
-                                  << angles[k] << " detector " << detectorType[k];
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] x " << cms::convert2mm(positionX[k]) << " y "
+                                  << cms::convert2mm(positionY[k]) << " angle " << angles[k] << " detector "
+                                  << detectorType[k];
 
   std::string idName = args.parentName();  // Name of the "parent" volume.
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo debug: Parent " << idName << " NameSpace " << ns.name();
@@ -56,7 +55,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     mother.placeVolume(ns.volume(name), copy, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferAlgo: " << name << " number " << copy << " positioned in " << idName
-                                  << " at " << tran << " with " << rotation;
+                                  << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos) << ",0) with "
+                                  << rotation;
 #endif
   }
 

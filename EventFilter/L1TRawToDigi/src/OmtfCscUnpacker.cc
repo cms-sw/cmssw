@@ -4,7 +4,7 @@
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/L1TMuon/interface/CSCConstants.h"
 
 #include "DataFormats/L1TMuon/interface/OMTF/OmtfCscDataWord64.h"
 

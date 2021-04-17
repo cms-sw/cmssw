@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 
@@ -24,6 +24,6 @@
 class VeryForwardMisalignedGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<
           VeryForwardMisalignedGeometryRecord,
-          boost::mpl::vector<IdealGeometryRecord, RPMisalignedAlignmentRecord /*, ... */> > {};
+          edm::mpl::Vector<IdealGeometryRecord, RPMisalignedAlignmentRecord /*, ... */> > {};
 
 #endif

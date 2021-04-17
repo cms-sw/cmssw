@@ -7,6 +7,7 @@
 #include "RecoMuon/TrackerSeedGenerator/plugins/TSGForOIFromL2.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <memory>
 

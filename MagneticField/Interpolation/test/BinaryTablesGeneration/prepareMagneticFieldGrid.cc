@@ -1411,7 +1411,7 @@ void prepareMagneticFieldGrid::interpolateAtPoint(double X1, double X2, double X
 void prepareMagneticFieldGrid::putCoordGetIndices(
     double X1, double X2, double X3, int &Index1, int &Index2, int &Index3) {
   double pnt[3] = {X1, X2, X3};
-  int index[3];
+  int index[3] = {0, 0, 0};
 
   if (GridType < 5) {
     for (int i = 0; i < 3; ++i) {
@@ -1477,7 +1477,7 @@ void prepareMagneticFieldGrid::putIndicesGetXAndB(
 void prepareMagneticFieldGrid::putIndCalcXReturnB(
     int Index1, int Index2, int Index3, double &X1, double &X2, double &X3, double &Bx, double &By, double &Bz) {
   int index[3] = {Index1, Index2, Index3};
-  double pnt[3];
+  double pnt[3] = {0., 0., 0.};
 
   if (GridType < 5) {
     for (int i = 0; i < 3; ++i) {

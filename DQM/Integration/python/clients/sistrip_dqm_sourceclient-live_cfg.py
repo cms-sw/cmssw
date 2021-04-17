@@ -32,11 +32,14 @@ offlineTesting=not live
 # for live online DQM in P5
 if (unitTest):
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 elif (live):
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 # for testing in lxplus
 elif(offlineTesting):
     process.load("DQM.Integration.config.fileinputsource_cfi")
+    from DQM.Integration.config.fileinputsource_cfi import options
 
 #----------------------------
 # DQM Live Environment
@@ -52,6 +55,9 @@ process.DQM.filter = '^(SiStrip|Tracking)(/[^/]+){0,5}$'
 process.dqmEnv.subSystemFolder    = "SiStrip"
 process.dqmSaver.tag = "SiStrip"
 process.dqmSaver.backupLumiCount = 30
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = "SiStrip"
+process.dqmSaverPB.runNumber = options.runNumber
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.dqmEnvTr = DQMEDAnalyzer('DQMEventInfo',
@@ -64,7 +70,7 @@ process.dqmEnvTr = DQMEDAnalyzer('DQMEventInfo',
 #-----------------------------
 # Magnetic Field
 #-----------------------------
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 #-------------------------------------------------
 # GEOMETRY
@@ -208,7 +214,7 @@ process.hltHighLevel.throw =  cms.bool(False)
 # Scheduling
 #--------------------------
 process.SiStripSources_LocalReco = cms.Sequence(process.siStripFEDMonitor*process.SiStripMonitorDigi*process.SiStripMonitorClusterReal)
-process.DQMCommon                = cms.Sequence(process.stripQTester*process.trackingQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver)
+process.DQMCommon                = cms.Sequence(process.stripQTester*process.trackingQTester*process.dqmEnv*process.dqmEnvTr*process.dqmSaver*process.dqmSaverPB)
 if (process.runType.getRunType() == process.runType.hi_run):
     process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
 else :
@@ -496,7 +502,7 @@ process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
 process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
 process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 process.siStripFEDMonitor.RawDataTag = cms.untracked.InputTag("rawDataCollector")
 #--------------------------------------------------
@@ -517,7 +523,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.siStripFEDMonitor.RawDataTag = cms.untracked.InputTag("rawDataRepacker")
 

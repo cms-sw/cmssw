@@ -16,9 +16,11 @@ process = cms.Process("L1TEmuDQMlive")
 #
 # for live online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
+from DQM.Integration.config.inputsource_cfi import options
 #
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 #----------------------------
 # DQM Environment
@@ -28,6 +30,9 @@ process.load("DQM.Integration.config.environment_cfi")
 # for local test
 process.dqmEnv.subSystemFolder = 'L1TEMUStage1'
 process.dqmSaver.tag = 'L1TEMUStage1'
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'L1TEMUStage1'
+process.dqmSaverPB.runNumber = options.runNumber
 
 #
 # no references needed
@@ -88,7 +93,7 @@ process.caloStage1LegacyFormatDigis.bxMax = cms.int32(2)
 process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
 
 #
-process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver)
+process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 
 #
 
@@ -201,7 +206,7 @@ process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
 process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
 process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 
 #--------------------------------------------------
@@ -223,7 +228,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
 
 

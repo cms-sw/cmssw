@@ -40,7 +40,10 @@ namespace l1t {
          int hwEtaAtVtx = 0,
          int hwPhiAtVtx = 0,
          double etaAtVtx = 0.,
-         double phiAtVtx = 0.);
+         double phiAtVtx = 0.,
+         int hwPtUnconstrained = 0,
+         double ptUnconstrained = 0.,
+         int dXY = 0);
 
     Muon(const PolarLorentzVector& p4,
          int pt = 0,
@@ -60,7 +63,10 @@ namespace l1t {
          int hwEtaAtVtx = 0,
          int hwPhiAtVtx = 0,
          double etaAtVtx = 0.,
-         double phiAtVtx = 0.);
+         double phiAtVtx = 0.,
+         int hwPtUnconstrained = 0,
+         double ptUnconstrained = 0.,
+         int dXY = 0);
 
     ~Muon() override;
 
@@ -80,6 +86,10 @@ namespace l1t {
     inline void setHwDEtaExtra(int dEta) { hwDEtaExtra_ = dEta; };
     inline void setHwRank(int rank) { hwRank_ = rank; };
 
+    inline void setHwPtUnconstrained(int hwPtUnconstrained) { hwPtUnconstrained_ = hwPtUnconstrained; };
+    inline void setPtUnconstrained(double ptUnconstrained) { ptUnconstrained_ = ptUnconstrained; };
+    inline void setHwDXY(int hwDXY) { hwDXY_ = hwDXY; };
+
     inline void setDebug(bool debug) { debug_ = debug; };
 
     // methods to retrieve values
@@ -97,6 +107,10 @@ namespace l1t {
     inline int hwDPhiExtra() const { return hwDPhiExtra_; };
     inline int hwDEtaExtra() const { return hwDEtaExtra_; };
     inline int hwRank() const { return hwRank_; };
+
+    inline int hwPtUnconstrained() const { return hwPtUnconstrained_; };
+    inline double ptUnconstrained() const { return ptUnconstrained_; };
+    inline int hwDXY() const { return hwDXY_; };
 
     inline bool debug() const { return debug_; };
 
@@ -122,6 +136,11 @@ namespace l1t {
     int hwPhiAtVtx_;
     double etaAtVtx_;
     double phiAtVtx_;
+
+    // displacement information
+    int hwPtUnconstrained_;
+    double ptUnconstrained_;
+    int hwDXY_;
   };
 
 }  // namespace l1t

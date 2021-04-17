@@ -5,6 +5,7 @@
 <use name="SimDataFormats/CaloHit"/>
 <use name="boost"/>
 <use name="root"/>
-<library file="AnalyzeTuples.cc" name="testAnalyzeTuples">
+<use name="clhep"/>
+<library file="*.cc" name="testShowerLibraryAnalyzer">
   <flags EDM_PLUGIN="1"/>
 </library>

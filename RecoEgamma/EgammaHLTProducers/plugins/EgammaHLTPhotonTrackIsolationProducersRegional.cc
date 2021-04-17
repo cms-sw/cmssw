@@ -111,7 +111,7 @@ void EgammaHLTPhotonTrackIsolationProducersRegional::fillDescriptions(edm::Confi
 // ------------ method called to produce the data  ------------
 void EgammaHLTPhotonTrackIsolationProducersRegional::produce(edm::StreamID sid,
                                                              edm::Event& iEvent,
-                                                             const edm::EventSetup& iSetup) const {
+                                                             const edm::EventSetup&) const {
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);

@@ -40,8 +40,9 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> inputTagEBRecHits_;
   edm::EDGetTokenT<EcalRecHitCollection> inputTagEERecHits_;
   edm::EDGetTokenT<reco::VertexCollection> inputTagVertices_;
-  edm::Handle<reco::VertexCollection> vertices;
-  edm::Handle<EcalRecHitCollection> rechitsEB, rechitsEE;
+  reco::VertexCollection const* vertices = nullptr;
+  EcalRecHitCollection const* rechitsEB = nullptr;
+  EcalRecHitCollection const* rechitsEE = nullptr;
 };
 
 typedef SCRegressionCalculator<BaselinePFSCRegression> PFSCRegressionCalc;

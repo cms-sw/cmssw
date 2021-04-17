@@ -31,5 +31,6 @@ public:
 
 private:
   uint32_t printdebug_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noisesToken_;
 };
 #endif

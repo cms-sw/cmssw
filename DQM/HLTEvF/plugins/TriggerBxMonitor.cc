@@ -3,8 +3,8 @@
 #include <iterator>
 #include <string>
 
-// boost headers
-#include <boost/format.hpp>
+// {fmt} headers
+#include <fmt/printf.h>
 
 // CMSSW headers
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -232,7 +232,7 @@ void TriggerBxMonitor::bookHistograms(DQMStore::IBooker& booker,
     auto const& l1tMenu = edm::get<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>(setup);
     for (auto const& keyval : l1tMenu.getAlgorithmMap()) {
       unsigned int bit = keyval.second.getIndex();
-      std::string const& name = (boost::format("%s (bit %d)") % keyval.first % bit).str();
+      std::string const& name = fmt::sprintf("%s (bit %d)", keyval.first, bit);
       if (m_make_1d_plots) {
         histograms.l1t_bx.at(bit) = booker.book1D(name, name, s_bx_range + 1, -0.5, s_bx_range + 0.5);
       }

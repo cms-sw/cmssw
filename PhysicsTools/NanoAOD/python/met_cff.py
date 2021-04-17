@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 
 ##################### Tables for final output and docs ##########################
 metTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -61,9 +60,17 @@ puppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(PTVars,
        sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
        ptJERUp = Var("shiftedPt('JetResUp')", float, doc="JER up pt",precision=10),
+       ptJERDown = Var("shiftedPt('JetResDown')", float, doc="JER down pt",precision=10),
        phiJERUp = Var("shiftedPhi('JetResUp')", float, doc="JER up phi",precision=10),
+       phiJERDown = Var("shiftedPhi('JetResDown')", float, doc="JER down phi",precision=10),
        ptJESUp = Var("shiftedPt('JetEnUp')", float, doc="JES up pt",precision=10),
+       ptJESDown = Var("shiftedPt('JetEnDown')", float, doc="JES down pt",precision=10),
        phiJESUp = Var("shiftedPhi('JetEnUp')", float, doc="JES up phi",precision=10),
+       phiJESDown = Var("shiftedPhi('JetEnDown')", float, doc="JES down phi",precision=10),
+       ptUnclusteredUp = Var("shiftedPt('UnclusteredEnUp')", float, doc="Unclustered up pt",precision=10),
+       ptUnclusteredDown = Var("shiftedPt('UnclusteredEnDown')", float, doc="Unclustered down pt",precision=10),
+       phiUnclusteredUp = Var("shiftedPhi('UnclusteredEnUp')", float, doc="Unclustered up phi",precision=10),
+       phiUnclusteredDown = Var("shiftedPhi('UnclusteredEnDown')", float, doc="Unclustered down phi",precision=10),
     ),
 )
 
@@ -106,6 +113,32 @@ chsMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
+deepMetResolutionTuneTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    # current deepMets are saved in slimmedMETs in MiniAOD,
+    # in the same way as chsMet/TkMET
+    src = metTable.src,
+    name = cms.string("DeepMETResolutionTune"),
+    doc = cms.string("Deep MET trained with resolution tune"),
+    singleton = cms.bool(True), # there's always exactly one MET per event
+    extension = cms.bool(False), # this is the main table for the MET
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+        pt = Var("corPt('RawDeepResolutionTune')", float, doc="DeepMET ResolutionTune pt",precision=-1),
+        phi = Var("corPhi('RawDeepResolutionTune')", float, doc="DeepmET ResolutionTune phi",precision=12),
+    ),
+)
+
+deepMetResponseTuneTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = metTable.src,
+    name = cms.string("DeepMETResponseTune"),
+    doc = cms.string("Deep MET trained with extra response tune"),
+    singleton = cms.bool(True), # there's always exactly one MET per event
+    extension = cms.bool(False), # this is the main table for the MET
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+        pt = Var("corPt('RawDeepResponseTune')", float, doc="DeepMET ResponseTune pt",precision=-1),
+        phi = Var("corPhi('RawDeepResponseTune')", float, doc="DeepMET ResponseTune phi",precision=12),
+    ),
+)
+
 metFixEE2017Table = metTable.clone()
 metFixEE2017Table.src = cms.InputTag("slimmedMETsFixEE2017")
 metFixEE2017Table.name = cms.string("METFixEE2017")
@@ -127,6 +160,7 @@ metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 
 
 metTables = cms.Sequence( metTable + rawMetTable + caloMetTable + puppiMetTable + rawPuppiMetTable+ tkMetTable + chsMetTable)
+deepMetTables = cms.Sequence( deepMetResolutionTuneTable + deepMetResponseTuneTable )
 _withFixEE2017_sequence = cms.Sequence(metTables.copy() + metFixEE2017Table)
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
     modifier.toReplaceWith(metTables,_withFixEE2017_sequence) # only in old miniAOD, the new ones will come from the UL rereco

@@ -115,21 +115,13 @@ groupsPh2 = cms.vstring(
 optPh = str(sys.argv[2])
 
 groups = None
-phXml = None
 if( optPh.lower() == "phasei"):
     groups = groupsPh1
-    phXml = ph1Xml
+    process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
 elif( optPh.lower() == "phaseii"):
     groups = groupsPh2
-    phXml = ph2Xml
 else:
     print("Valid options: PhaseI, PhaseII")
-
-process.DDDetectorESProducer = cms.ESSource(
-    "DDDetectorESProducer",
-    confGeomXMLFiles = cms.FileInPath('SimTracker/TrackerMaterialAnalysis/data/'+phXml),
-    appendToDataLabel = cms.string('CMS')
-)
 
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *
 from Geometry.EcalCommonData.ecalSimulationParameters_cff import *
@@ -143,14 +135,14 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.DDCompactViewESProducer = cms.ESProducer(
   "DDCompactViewESProducer",
-  appendToDataLabel = cms.string('CMS')
+  appendToDataLabel = cms.string('')
 )
 
 process.trackingMaterialAnalyser = cms.EDAnalyzer(
     "DD4hep_TrackingMaterialAnalyser",
     MaterialAccounting = cms.InputTag("trackingMaterialProducer"),
     SplitMode = cms.string("NearestLayer"),
-    DDDetector = cms.ESInputTag("","CMS"),
+    DDDetector = cms.ESInputTag("",""),
     SkipBeforeFirstDetector = cms.bool(False),
     SkipAfterLastDetector = cms.bool(True),
     SaveSummaryPlot = cms.bool(True),
@@ -170,7 +162,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.MessageLogger.destinations.extend(["LogTrackingMaterialAnalysis"])
-process.MessageLogger.categories.append("TrackingMaterialAnalysis")
+process.MessageLogger.files.LogTrackingMaterialAnalysis = dict()
+process.MessageLogger.TrackingMaterialAnalysis=dict()
 process.path = cms.Path(process.trackingMaterialAnalyser)
 

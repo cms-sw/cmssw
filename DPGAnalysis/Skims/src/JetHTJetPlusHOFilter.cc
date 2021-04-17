@@ -22,7 +22,7 @@ Skimming of JetHT data set for the study of HO absolute weight calculation
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +38,7 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-class JetHTJetPlusHOFilter : public edm::EDFilter {
+class JetHTJetPlusHOFilter : public edm::stream::EDFilter<> {
 public:
   explicit JetHTJetPlusHOFilter(const edm::ParameterSet&);
   ~JetHTJetPlusHOFilter() override;

@@ -39,6 +39,7 @@ namespace pat {
         slimKinkVars_, slimCaloMETCorr_, slimMatches_, segmentsMuonSelection_;
     const bool saveSegments_, modifyMuon_;
     std::unique_ptr<pat::ObjectModifier<pat::Muon>> muonModifier_;
+    std::vector<edm::EDGetTokenT<edm::Association<reco::TrackExtraCollection>>> trackExtraAssocs_;
   };
 
 }  // namespace pat
@@ -75,6 +76,12 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet &iConfig)
   if (saveSegments_) {
     produces<DTRecSegment4DCollection>();
     produces<CSCSegmentCollection>();
+  }
+
+  //associations for rekeying of TrackExtra refs in embedded tracks
+  std::vector<edm::InputTag> trackExtraAssocTags = iConfig.getParameter<std::vector<edm::InputTag>>("trackExtraAssocs");
+  for (edm::InputTag const &tag : trackExtraAssocTags) {
+    trackExtraAssocs_.push_back(consumes<edm::Association<reco::TrackExtraCollection>>(tag));
   }
 }
 
@@ -117,6 +124,11 @@ void pat::PATMuonSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
           mu2pc[refToPtr(p.muonRef())] = pfmap[reco::PFCandidateRef(pf, i)];
       }
     }
+  }
+
+  std::vector<edm::Handle<edm::Association<reco::TrackExtraCollection>>> trackExtraAssocs(trackExtraAssocs_.size());
+  for (unsigned int i = 0; i < trackExtraAssocs_.size(); ++i) {
+    iEvent.getByToken(trackExtraAssocs_[i], trackExtraAssocs[i]);
   }
 
   for (vector<pat::Muon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
@@ -215,6 +227,8 @@ void pat::PATMuonSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
         }
       }
     }
+    // rekey TrackExtra references in embedded tracks
+    mu.rekeyEmbeddedTracks(trackExtraAssocs);
   }
 
   if (saveSegments_) {
@@ -247,6 +261,7 @@ void pat::PATMuonSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       }
     }
   }
+
   iEvent.put(std::move(out));
 }
 

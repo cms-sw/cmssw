@@ -1,11 +1,12 @@
-#include "DQMMonitoringService.h"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-
 #include <ctime>
 #include <iostream>
+
+#include <fmt/printf.h>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
+#include "DQMMonitoringService.h"
 
 /*
  * This service is very similar to the FastMonitoringService in the HLT,
@@ -74,7 +75,7 @@ namespace dqmservices {
       plumi.put("rate", rate);
 
       std::time_t hkey = std::time(nullptr);
-      doc.add_child(str(boost::format("extra.lumi_stats.%d") % hkey), plumi);
+      doc.add_child(fmt::sprintf("extra.lumi_stats.%d", hkey), plumi);
     }
 
     outputUpdate(doc);

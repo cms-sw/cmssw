@@ -21,6 +21,8 @@ import socket
 import calendar
 import sqlalchemy
 
+from prettytable import PrettyTable
+
 import CondCore.Utilities.conddblib as conddb
 import CondCore.Utilities.cond2xml as cond2xml
 import CondCore.Utilities.conddb_serialization_metadata as serialization_metadata
@@ -34,6 +36,7 @@ from CondCore.Utilities.tier0 import Tier0Handler, Tier0Error, tier0Url
 # TODO: Support the old connection string syntax, e.g. sqlite_file://...
 
 maxSince = 18446744073709551615
+sizeOfTimestamp = 19
 
 # Utility functions
 
@@ -747,6 +750,38 @@ class run_to_timestamp( object ):
             newiovs[bestRunTime] =  iovs[since]
         return newiovs
 
+class timestamp_to_run( object ):
+    def __init__( self, session ):
+        self.session = session
+
+    def convertIovs( self, iovs ):
+        ks = sorted(iovs.keys())
+        logging.info('Converting %s time-based iovs to run-based' %len(iovs) )         
+        RunInfo = self.session.get_dbtype(conddb.RunInfo)
+        minTs = datetime.datetime.utcfromtimestamp( int(ks[0]) >> 32 )
+        maxTs = datetime.datetime.utcfromtimestamp( int(ks[len(ks)-1]) >> 32 )
+        firstRun = self.session.query(sqlalchemy.func.min(RunInfo.run_number)).filter(RunInfo.end_time > minTs).one()[0]
+        lastRun = self.session.query(sqlalchemy.func.max(RunInfo.run_number)).filter(RunInfo.start_time < maxTs).one()[0]
+        runs = self.session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).filter(RunInfo.run_number >= firstRun).filter(RunInfo.run_number <= lastRun ).order_by(RunInfo.run_number).all()
+        newiovs = {}
+        prevRun = None
+        for since in ks:
+            ts = datetime.datetime.utcfromtimestamp( since >> 32 )
+            run = None
+            for r in runs:
+                if ts >= r[1] and ts <= r[2]:
+                    run = r[0]
+                    break
+            if run is not None:
+                if run == prevRun:
+                    logging.info('Skipping iov with since %s, because it corresponds to an already mapped run %s' %(since,run))
+                else:
+                    prevRun = run
+                    newiovs[run] = iovs[since]
+            else:                                     
+                logging.info('Skipping iov with since %s, because no run is matching that time.'%since )
+        return newiovs
+
 def _convert_time( session, toTimeType, runNumber ):
     if toTimeType == 'Run':
         return runNumber
@@ -902,6 +937,273 @@ def listTags_(args):
     return 0
 
 
+
+def listParentTags_(args):
+    connection = connect(args)
+    session = connection.session()
+
+    IOV = session.get_dbtype(conddb.IOV)
+    Tag = session.get_dbtype(conddb.Tag)
+
+    query_result = session.query(IOV.tag_name).filter(IOV.payload_hash == args.hash_name).all()
+    tag_names = map(lambda entry : entry[0], query_result)
+
+    listOfOccur=[]
+
+    for tag in tag_names:
+        synchro = session.query(Tag.synchronization).filter(Tag.name == tag).all()
+        iovs = session.query(IOV.since).filter(IOV.tag_name == tag).filter(IOV.payload_hash == args.hash_name).all()
+        times = session.query(IOV.insertion_time).filter(IOV.tag_name == tag).filter(IOV.payload_hash == args.hash_name).all()
+
+        synchronization = [item[0] for item in synchro]
+        listOfIOVs  = [item[0] for item in iovs]
+        listOfTimes = [str(item[0]) for item in times]
+
+        for iEntry in range(0,len(listOfIOVs)):
+            listOfOccur.append({"tag": tag,
+                                "synchronization" : synchronization[0],
+                                "since" : listOfIOVs[iEntry] ,
+                                "insertion_time" : listOfTimes[iEntry] })
+
+    t = PrettyTable(['hash', 'since','tag','synch','insertion time'])
+    for element in listOfOccur:
+        t.add_row([args.hash_name,element['since'],element['tag'],element['synchronization'],element['insertion_time']])
+
+    print(t)
+
+
+
+
+def diffGlobalTagsAtRun_(args):
+    connection = connect(args)
+    session = connection.session()
+
+    IOV     = session.get_dbtype(conddb.IOV)
+    TAG     = session.get_dbtype(conddb.Tag)
+    GT      = session.get_dbtype(conddb.GlobalTag)
+    GTMAP   = session.get_dbtype(conddb.GlobalTagMap)
+    RUNINFO = session.get_dbtype(conddb.RunInfo)
+
+    ####################################
+    # Get the time info for the test run
+    ####################################
+
+    if(not args.lastIOV):
+
+        if(args.testRunNumber<0):
+            raise Exception("Run %s (default) can't be matched with an existing run in the database. \n\t\t Please specify a run with the option --run." % args.testRunNumber)
+
+        bestRun = session.query(RUNINFO.run_number, RUNINFO.start_time, RUNINFO.end_time).filter(RUNINFO.run_number == int(args.testRunNumber)).first()
+        if bestRun is None:
+            raise Exception("Run %s can't be matched with an existing run in the database." % args.testRunNumber)
+
+        print("Run",args.testRunNumber," |Start time",bestRun[1]," |End time",bestRun[2],".")
+
+    ####################################
+    # Get the Global Tag snapshots
+    ####################################
+
+    refSnap = session.query(GT.snapshot_time).\
+        filter(GT.name == args.refGT).all()[0][0]
+
+    tarSnap = session.query(GT.snapshot_time).\
+        filter(GT.name == args.tarGT).all()[0][0]
+
+    print("reference GT (",args.refGT ,") snapshot: ",refSnap," | target GT (",args.tarGT,") snapshot",tarSnap)
+
+    ####################################
+    # Get the Global Tag maps
+    ####################################
+
+    GTMap_ref = session.query(GTMAP.record, GTMAP.label, GTMAP.tag_name).\
+        filter(GTMAP.global_tag_name == args.refGT).\
+        order_by(GTMAP.record, GTMAP.label).\
+        all()
+
+    GTMap_tar = session.query(GTMAP.record, GTMAP.label, GTMAP.tag_name).\
+        filter(GTMAP.global_tag_name == args.tarGT).\
+        order_by(GTMAP.record, GTMAP.label).\
+        all()
+
+    text_file = open(("diff_%s_vs_%s.twiki") % (args.refGT,args.tarGT), "w")
+
+    differentTags = {}
+
+    for element in GTMap_ref:
+        RefRecord = element[0]
+        RefLabel  = element[1]
+        RefTag    = element[2]
+
+        for element2 in GTMap_tar:
+            if (RefRecord == element2[0] and RefLabel==element2[1]):
+                if RefTag != element2[2]:
+                    differentTags[(RefRecord,RefLabel)]=(RefTag,element2[2])
+
+    ####################################
+    ## Search for Records,Label not-found in the other list
+    ####################################
+
+    temp1 = [item for item in GTMap_ref if (item[0],item[1]) not in list(zip(list(zip(*GTMap_tar))[0],list(zip(*GTMap_tar))[1]))]
+    for elem in temp1:
+        differentTags[(elem[0],elem[1])]=(elem[2],"")
+
+    temp2 = [item for item in GTMap_tar if (item[0],item[1]) not in list(zip(list(zip(*GTMap_ref))[0],list(zip(*GTMap_ref))[1]))]
+    for elem in temp2:
+        differentTags[(elem[0],elem[1])]=("",elem[2])
+
+    text_file.write("| *Record* | *"+args.refGT+"* | *"+args.tarGT+"* | Remarks | \n")
+
+    t = PrettyTable()
+
+    if(args.isVerbose):
+        t.field_names = ['/','',args.refGT,args.tarGT,refSnap,tarSnap]
+    else:
+        t.field_names = ['/','',args.refGT,args.tarGT]
+
+    t.hrules=1
+
+    if(args.isVerbose):
+        t.add_row(['Record','label','Reference Tag','Target Tag','hash1:time1:since1','hash2:time2:since2'])
+    else:
+        t.add_row(['Record','label','Reference Tag','Target Tag'])
+
+    isDifferent=False
+
+    ####################################
+    # Loop on the difference
+    ####################################
+
+    for Rcd in sorted(differentTags):
+
+        # empty lists at the beginning
+        refTagIOVs=[]
+        tarTagIOVs=[]
+
+        if( differentTags[Rcd][0]!=""):
+            refTagIOVs = session.query(IOV.since,IOV.payload_hash,IOV.insertion_time).filter(IOV.tag_name == differentTags[Rcd][0]).all()
+            refTagInfo = session.query(TAG.synchronization,TAG.time_type).filter(TAG.name == differentTags[Rcd][0]).all()[0]
+        if( differentTags[Rcd][1]!=""):
+            tarTagIOVs = session.query(IOV.since,IOV.payload_hash,IOV.insertion_time).filter(IOV.tag_name == differentTags[Rcd][1]).all()
+            tarTagInfo = session.query(TAG.synchronization,TAG.time_type).filter(TAG.name == differentTags[Rcd][1]).all()[0]
+
+        if(differentTags[Rcd][0]!="" and differentTags[Rcd][1]!=""):
+            if(tarTagInfo[1] != refTagInfo[1]):
+                print(colors.bold_red+" *** Warning *** found mismatched time type for",Rcd,"entry. \n"+differentTags[Rcd][0],"has time type",refTagInfo[1],"while",differentTags[Rcd][1],"has time type",tarTagInfo[1]+". These need to be checked by hand. \n\n"+ colors.end)
+
+        if(args.lastIOV):
+
+            if(sorted(differentTags).index(Rcd)==0):
+                print("\n")
+                print(33 * "=")
+                print("|| COMPARING ONLY THE LAST IOV ||")
+                print(33 * "=")
+                print("\n")
+
+            lastSinceRef=-1
+            lastSinceTar=-1
+
+            hash_lastRefTagIOV = ""
+            time_lastRefTagIOV = ""
+
+            hash_lastTarTagIOV = ""
+            time_lastTarTagIOV = ""
+
+            for i in refTagIOVs:
+                if (i[0]>lastSinceRef):
+                    lastSinceRef = i[0]
+                    hash_lastRefTagIOV = i[1]
+                    time_lastRefTagIOV = str(i[2])
+
+            for j in tarTagIOVs:
+                if (j[0]>lastSinceTar):
+                    lastSinceTar = j[0]
+                    hash_lastTarTagIOV = j[1]
+                    time_lastTarTagIOV = str(j[2])
+
+            if(hash_lastRefTagIOV!=hash_lastTarTagIOV):
+                isDifferent=True
+                text_file.write("| ="+Rcd[0]+"= ("+Rcd[1]+") | =="+differentTags[Rcd][0]+"==  | =="+differentTags[Rcd][1]+"== | | \n")
+                text_file.write("|^|"+hash_lastRefTagIOV+" <br> ("+time_lastRefTagIOV+") "+ str(lastSinceRef) +" | "+hash_lastTarTagIOV+" <br> ("+time_lastTarTagIOV+") " + str(lastSinceTar)+" | ^| \n")
+
+                if(args.isVerbose):
+                    t.add_row([Rcd[0],Rcd[1],differentTags[Rcd][0],differentTags[Rcd][1],str(hash_lastRefTagIOV)+"\n"+str(time_lastRefTagIOV)+"\n"+str(lastSinceRef),str(hash_lastTarTagIOV)+"\n"+str(time_lastTarTagIOV)+"\n"+str(lastSinceTar)])
+                else:
+                    t.add_row([Rcd[0],Rcd[1],differentTags[Rcd][0]+"\n"+str(hash_lastRefTagIOV),differentTags[Rcd][1]+"\n"+str(hash_lastTarTagIOV)])
+
+        else:
+
+            ### reset all defaults
+
+            theGoodRefIOV=-1
+            theGoodTarIOV=-1
+            sinceRefTagIOV=0
+            sinceTarTagIOV=0
+
+            RefIOVtime = datetime.datetime(1970, 1, 1, 0, 0, 0)
+            TarIOVtime = datetime.datetime(1970, 1, 1, 0, 0, 0)
+
+            theRefPayload=""
+            theTarPayload=""
+            theRefTime=""
+            theTarTime=""
+
+            ### loop on the reference IOV list
+            for refIOV in refTagIOVs:
+
+                ## logic for retrieving the the last payload active on a given IOV
+                ## - the new IOV since is less than the run under consideration
+                ## - the payload insertion time is lower than the GT snapshot
+                ## - finall either:
+                ##   - the new IOV since is larger then the last saved
+                ##   - the new IOV since is equal to the last saved but it has a more recent insertion time
+
+                if ( (refIOV[0] <= int(args.testRunNumber)) and (refIOV[0]>sinceRefTagIOV) or ((refIOV[0]==sinceRefTagIOV) and (refIOV[2]>RefIOVtime)) and (refIOV[2]<=refSnap) ):
+                    sinceRefTagIOV = refIOV[0]
+                    RefIOVtime = refIOV[2]
+                    theGoodRefIOV=sinceRefTagIOV
+                    theRefPayload=refIOV[1]
+                    theRefTime=str(refIOV[2])
+
+            ### loop on the target IOV list
+            for tarIOV in tarTagIOVs:
+                if ( (tarIOV[0] <= int(args.testRunNumber)) and (tarIOV[0]>sinceTarTagIOV) or ((tarIOV[0]==sinceTarTagIOV) and (tarIOV[2]>=TarIOVtime)) and (tarIOV[2]<=tarSnap) ):
+                    sinceTarTagIOV = tarIOV[0]
+                    tarIOVtime = tarIOV[2]
+                    theGoodTarIOV=sinceTarTagIOV
+                    theTarPayload=tarIOV[1]
+                    theTarTime=str(tarIOV[2])
+
+            #print Rcd[0],theRefPayload,theTarPayload
+
+            if(theRefPayload!=theTarPayload):
+                isDifferent=True
+                text_file.write("| ="+Rcd[0]+"= ("+Rcd[1]+") | =="+differentTags[Rcd][0]+"==  | =="+differentTags[Rcd][1]+"== |\n")
+                text_file.write("|^|"+theRefPayload+" ("+theRefTime+") | "+theTarPayload+" ("+theTarTime+") |\n")
+
+                ### determinte if it is to be shown
+
+                isMatched=False
+                tokens=args.stringToMatch.split(",")
+                decisions = [bool(Rcd[0].find(x)!=-1) for x in tokens]
+                for decision in decisions:
+                    isMatched = (isMatched or decision)
+
+                if(args.isVerbose):
+                    if (args.stringToMatch=="" or isMatched):
+                        t.add_row([Rcd[0],Rcd[1],differentTags[Rcd][0],differentTags[Rcd][1],str(theRefPayload)+"\n"+str(theRefTime)+"\n"+str(theGoodRefIOV),str(theTarPayload)+"\n"+str(theTarTime)+"\n"+str(theGoodTarIOV)])
+                else:
+                    if (args.stringToMatch=="" or isMatched):
+                        t.add_row([Rcd[0],Rcd[1],differentTags[Rcd][0]+"\n"+str(theRefPayload),differentTags[Rcd][1]+"\n"+str(theTarPayload)])
+
+    if(not isDifferent):
+        if(args.isVerbose):
+            t.add_row(["None","None","None","None","None","None"])
+        else:
+            t.add_row(["None","None","None"])
+    print(t)
+
+
+
 def listGTsForTag_(args):
     connection = connect(args)
     session = connection.session()
@@ -926,17 +1228,89 @@ def listGTs_(args):
         ['GT_name', 'Description', 'Release', 'Snapshot_time', 'Insertion_time'],
     )
 
+
 def listRuns_(args):
     connection = connect(args)
     session = connection.session()
     RunInfo = session.get_dbtype(conddb.RunInfo)
-    table = session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).\
-            order_by(RunInfo.run_number).\
-            all()
+    fromRun = None
+    toRun = None
+    match = args.match
+    limit = None
+    if args.last:
+        match = session.query(sqlalchemy.func.max(RunInfo.run_number)).one()[0]
+    if match is None:
+        fromTime = getattr(args, 'from')
+        if fromTime is not None:
+            fromTime = unicode(fromTime,'utf-8')
+            fromRun = fromTime
+            start = None
+            if fromTime.isnumeric():
+                if len(fromTime) >=  sizeOfTimestamp:
+                    start = datetime.datetime.utcfromtimestamp( int(fromTime) >> 32 )
+            else:
+                start = datetime.datetime.strptime(fromTime,'%Y-%m-%d %H:%M:%S')
+            if start is not None:
+                fromRun = session.query(sqlalchemy.func.min(RunInfo.run_number)).filter(RunInfo.end_time > start).one()[0]
+                logging.debug('run lower boundary: %s (%s)'%(fromRun, start.strftime('%Y-%m-%d %H:%M:%S')))
+        toTime = getattr(args, 'to')
+        if toTime is not None:   
+            toTime = unicode(toTime,'utf-8')
+            toRun = toTime
+            end = None
+            if toTime.isnumeric():
+                if len(toTime) >=  sizeOfTimestamp:
+                    end = datetime.datetime.utcfromtimestamp( int(toTime) >> 32 )
+            else:
+                end=datetime.datetime.strptime(toTime,'%Y-%m-%d %H:%M:%S')
+            if end is not None:
+                toRun = session.query(sqlalchemy.func.max(RunInfo.run_number)).filter(RunInfo.start_time < end).one()[0]
+                logging.debug('run upper boundary: %s (%s)' %(toRun,end.strftime('%Y-%m-%d %H:%M:%S')))
+    q = session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time)
+    sel = False
+    if match is not None:
+        q = q.filter(RunInfo.run_number == match)
+    else:
+        if fromRun is not None:
+            q = q.filter(RunInfo.run_number >= fromRun)
+            sel = True
+        if toRun is not None:
+            q = q.filter(RunInfo.run_number <= toRun)
+            sel = True
+        if not sel and args.limit is not None:
+            limit = args.limit
+            q = q.order_by(RunInfo.run_number.desc())
+            q = q.limit(limit)
+            q = q.from_self()
+    table = q.order_by(RunInfo.run_number).all()
+    if len(table)==0:
+        sel = ''
+        msg = 'No Run found'
+        if args.match is not None:
+            sel = 'matching Run=%s' %args.match
+        else:
+            fromTime = getattr(args, 'from')
+            if fromTime is not None:
+                sel = "with from='%s'"%fromTime
+            if args.to is not None:
+                if len(sel):
+                    sel = sel +' and '
+                else:
+                    sel = 'with '
+                sel = sel + "to='%s'"%args.to
+        msg = msg + ' %s'%sel
+        print(msg)
+        return 1
+    else:
+        if limit is not None:
+            logging.info('Run entries limited to %s'%limit)
+        else:
+            logging.info('Found %s Run entries.'%len(table))
     for i in range(len(table)):
         table[i] = table[i] + ( (calendar.timegm( table[i][1].utctimetuple() ) << 32), (calendar.timegm( table[i][2].utctimetuple() ) << 32) )
     output_table(args, table, ['Run_number','Start_time','End_time','Start_IOV','End_IOV'],
     )
+    return 0
 
 def showFcsr_(args):
     connection = connect(args)
@@ -1272,31 +1646,53 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         destPayloadType = t['object_type']
         destTimeType = t['time_type']
         destSynchro = t['synchronization']
-    if args.convertTime:
-        if not tag['time_type']=='Run':
-            logging.error('Time conversion from %s is not supported.' %tag['time_type'])
-            raise Exception("Cannot execute the copy.")
+    if args.toTimestamp:
+        if tag['time_type'] == 'Time':
+            logging.info('Source Tag timeType=Time. Ignoring request of conversion to Timestamp')
+            args.toTimestamp = False
+        else:
+            if not tag['time_type']=='Run':
+                logging.error('Conversion from %s to Timestamp is not supported.' %tag['time_type'])
+                raise Exception("Cannot execute the copy.")
+    if args.toRun:
+        if tag['time_type'] == 'Run':
+            logging.info('Source Tag timeType=Run. Ignoring request of conversion to Run')
+            args.toRun = False
+        else:
+            if not tag['time_type']=='Time':
+                logging.error('Conversion from %s to Run is not supported.' %tag['time_type'])
+                raise Exception("Cannot execute the copy.")
     if destExists:
         logging.warning('Destination tag "%s" already exists.' %second )
         if destPayloadType != tag['object_type']:
             logging.error('Cannot copy iovs from tag %s (object type: %s) to tag %s (object type: %s), since the object types are different.' %(first,tag['object_type'],second,destPayloadType))
             raise Exception('Object type mismatch, bailing out.')
-        if destTimeType != tag['time_type']:
-            if args.convertTime:
-                if not destTimeType=='Time':
-                    logging.error('Time conversion to %s is not supported.' %destTimeType)
-                    raise Exception("Cannot execute the copy.")
+        destTimeTypeOk = (destTimeType == tag['time_type'])
+        if args.toTimestamp:
+            if not destTimeType=='Time':
+                logging.error('TimeType of target tag %s does not allow conversion to Time.' %destTimeType)
+                raise Exception("Cannot execute the copy.")
             else:
-                logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
-                raise Exception('Time type mismatch, bailing out.')
+                destTimeTypeOk = True
+        if args.toRun:
+            if not destTimeType=='Run':
+                logging.error('TimeType of target tag %s does not allow conversion to Run.' %destTimeType)
+                raise Exception("Cannot execute the copy.")
+            else:
+                destTimeTypeOk = True
+        if not destTimeTypeOk:
+            logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
+            raise Exception('Time type mismatch, bailing out.')
         if not args.yes:
             output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
             if raw_input().lower() not in ['y', 'yes']:
                 raise Exception('Aborted by the user.')
     else:
         destSynchro = 'any'
-        if args.convertTime:
+        if args.toTimestamp:
             tag['time_type'] = 'Time'
+        if args.toRun:
+            tag['time_type'] = 'Run'
         destTimeType = tag['time_type']
         dest = Tag2(**tag)
         dest.synchronization = destSynchro
@@ -1368,10 +1764,12 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
             policy_type = _get_synchro_policy( destSynchro )
             synchro_policy = policy_type( session1, session2, destTimeType, second )
             ret, iovs = synchro_policy.validate( iovs )
-        if args.convertTime:
+        if args.toTimestamp:
             converter = run_to_timestamp( conddb.getSessionOnMasterDB( session1, session2 ) )
             iovs = converter.convertIovs( iovs )
-
+        if args.toRun:
+            converter = timestamp_to_run( conddb.getSessionOnMasterDB( session1, session2 ) )
+            iovs = converter.convertIovs( iovs )            
         # making the list of the payloads to export...         
         for since in iovs.keys():
             hashes.add( iovs[since] )
@@ -1505,8 +1903,8 @@ def copy(args):
             if args.note is None or args.note=='' or args.note==' ':
                 raise Exception('Cannot run in force edit mode without to provide a non-empty editing note.')
         if args.o2oTest:
-            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.nosynchro or args.convertTime:
-                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, nosynchro, snapshot or convertTime.')
+            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.nosynchro or args.toTimestamp:
+                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, nosynchro, snapshot or toTimestamp.')
 
         try:
             ret, niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
@@ -1722,7 +2120,7 @@ def edit(args):
                     editMatch = editRe.match(line)
                     if editMatch:
                         description,synchronization,endOfValidity = editMatch.groups()
-                        if synchronization not in tuple(conddb.Synchronization):
+                        if synchronization not in conddb.synch_list:
                             raise Exception('Invalid Synchronization value set: "%s"' %synchronization )
                         if int(endOfValidity)< -1:
                             raise Exception('Invalid End Of Validity set: "%s"' %endOfValidity ) 
@@ -2154,6 +2552,19 @@ def main():
     parser_listTags = parser_subparsers.add_parser('listTags', description='Lists all the Tags available in the DB.')
     parser_listTags.set_defaults(func=listTags_)
 
+    parser_listParentTags = parser_subparsers.add_parser('listParentTags', description='Lists all the Tags available in the DB, containing the matched payload hash.')
+    parser_listParentTags.add_argument('hash_name', help="Payload hash to match.")
+    parser_listParentTags.set_defaults(func=listParentTags_)
+
+    parser_diffGlobalTagsAtRun = parser_subparsers.add_parser('diffGlobalTagsAtRun', description='Diffs two global tags, but showing only the differences relevant for a given run number.')
+    parser_diffGlobalTagsAtRun.add_argument('--last', '-L', dest='lastIOV', action='store_true', default=False, help='Diff the Global tags at the last open IOV.')
+    parser_diffGlobalTagsAtRun.add_argument('--reference', '-R', dest='refGT', help="Reference Global Tag")
+    parser_diffGlobalTagsAtRun.add_argument('--target', '-T', dest='tarGT', help="Target Global Tag")
+    parser_diffGlobalTagsAtRun.add_argument('--run', '-r', dest='testRunNumber', help="target run to compare",default=-1)
+    parser_diffGlobalTagsAtRun.add_argument('--verbose','-v',help='returns more info', dest='isVerbose',action='store_true',default=False)
+    parser_diffGlobalTagsAtRun.add_argument('--match','-m',help='print only matching',dest='stringToMatch',action='store',default='')
+    parser_diffGlobalTagsAtRun.set_defaults(func=diffGlobalTagsAtRun_)
+
     parser_listGTsForTag = parser_subparsers.add_parser('listGTsForTag', description='Lists the GTs which contain a given tag.')
     parser_listGTsForTag.add_argument('name', help="Name of the tag.")
     parser_listGTsForTag.set_defaults(func=listGTsForTag_)
@@ -2161,7 +2572,12 @@ def main():
     parser_listGTs = parser_subparsers.add_parser('listGTs', description='Lists the GTs available in the DB.')
     parser_listGTs.set_defaults(func=listGTs_)
 
-    parser_listRuns = parser_subparsers.add_parser('listRuns', description='Lists all the Runs available in the DB.')
+    parser_listRuns = parser_subparsers.add_parser('listRuns', description='Lists all the Runs available in the DB, possibly applying the optional search criteria.')
+    parser_listRuns.add_argument('--limit','-L',type=int,default=50,help='Limit on the number of Run entries returned. The returned results are the latest N Runs. Only applies when no selection is specified.')
+    parser_listRuns.add_argument('--from', '-f', type=str, help='Select items from this "Time" onwards. Supported "Time" formats: Run, encoded TimeStamp, string TimeStamp (format: YYYY-mm-dd hh24:MM:SS)')
+    parser_listRuns.add_argument('--to', '-t', type=str, help='Ignore items from this "Time" onwards. Supported "Time" formats: Run, encoded TimeStamp, string TimeStamp (format: YYYY-mm-dd hh24:MM:SS)')
+    parser_listRuns.add_argument('--match', '-m', type=int, help='Search an exact match with this Run.')
+    parser_listRuns.add_argument('--last','-l', action='store_true', help='Select the last available Run entry.')
     parser_listRuns.set_defaults(func=listRuns_)
 
     parser_diff = parser_subparsers.add_parser('diff', description='Compares the contents of two objects. For tags, their IOVs are compared to determine which ranges have different payloads. For global tags, their tag names are compared. Both objects must be of the same type. If there is more than one valid pair (ambiguity), all diffs are listed.')
@@ -2194,9 +2610,9 @@ def main():
     parser_copy.add_argument('--o2oTest', action='store_true', help='Special copy for o2o test. Copy the second to last iov of the source tag, to allow to run the o2o procedure to add the last iov. It cannot be executed with the from, to, ovveride and snapshot options.')
     parser_copy.add_argument('--synchronize',action='store_true',help='No effect, since the synchronization is applied by default for tags. The option is kept for backward compatibility') 
     parser_copy.add_argument('--nosynchro',action='store_true',help='For tags, disable the synchronization of the destination iovs. No effect for other object type copy') 
-    parser_copy.add_argument('--convertTime',action='store_true',help='For tags, triggers the convertion from run-based iovs to timestamp-based iovs. It will return an error for any combination with input tag non run-based, and existing destination tag non timestamp-based. Not supported with synchronization.') 
+    parser_copy.add_argument('--toTimestamp',action='store_true',help='For tags, triggers the conversion from run-based iovs to timestamp-based iovs. It will return an error for any combination with input tag non run-based, and existing destination tag non timestamp-based. Not supported with synchronization.') 
+    parser_copy.add_argument('--toRun',action='store_true',help='For tags, triggers the conversion from timestamp-based iovs to run-based iovs. When multiple timestamped IOVs are found matching the same run, only the first is considered. IOVs with timestamp not matching any run are skipped. It will return an error for any combination with input tag non timestamp-based, and existing destination tag non run-based. Not supported with synchronization.') 
     parser_copy.set_defaults(func=copy)
-
     parser_edit = parser_subparsers.add_parser('edit', description='Edits an object. Opens up your $EDITOR with prefilled text about the object. There you can modify the data. Save the file and quit the editor. The modified data will be written into the database. e.g. for a tag, its attributes and the list of IOVs/payloads appears and are modifiable.')
     parser_edit.add_argument('name', help="Name of the object. This can be a tag's name (edits its attributes and its IOVs/payloads), a global tag's name (edits its attributes and its mapping records <-> tags) or a payload's SHA1 hexadecimal hash (or a prefix if unique; TODO: edits its attributes). It must exactly match -- if needed, use the search command first to look for it.")
     parser_edit.add_argument('--header', default=False, action='store_true', help='Edit the header attributes of the object.')

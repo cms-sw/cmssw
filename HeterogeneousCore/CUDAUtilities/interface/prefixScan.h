@@ -3,6 +3,7 @@
 
 #include <cstdint>
 
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
@@ -13,7 +14,7 @@ __device__ void __forceinline__ warpPrefixScan(T const* __restrict__ ci, T* __re
   // ci and co may be the same
   auto x = ci[i];
   auto laneId = threadIdx.x & 0x1f;
-#pragma unroll
+  CMS_UNROLL_LOOP
   for (int offset = 1; offset < 32; offset <<= 1) {
     auto y = __shfl_up_sync(mask, x, offset);
     if (laneId >= offset)
@@ -26,7 +27,7 @@ template <typename T>
 __device__ void __forceinline__ warpPrefixScan(T* c, uint32_t i, uint32_t mask) {
   auto x = c[i];
   auto laneId = threadIdx.x & 0x1f;
-#pragma unroll
+  CMS_UNROLL_LOOP
   for (int offset = 1; offset < 32; offset <<= 1) {
     auto y = __shfl_up_sync(mask, x, offset);
     if (laneId >= offset)
@@ -41,9 +42,9 @@ namespace cms {
   namespace cuda {
 
     // limited to 32*32 elements....
-    template <typename T>
-    __host__ __device__ __forceinline__ void blockPrefixScan(T const* __restrict__ ci,
-                                                             T* __restrict__ co,
+    template <typename VT, typename T>
+    __host__ __device__ __forceinline__ void blockPrefixScan(VT const* ci,
+                                                             VT* co,
                                                              uint32_t size,
                                                              T* ws
 #ifndef __CUDA_ARCH__
@@ -138,7 +139,9 @@ namespace cms {
 
     // in principle not limited....
     template <typename T>
-    __global__ void multiBlockPrefixScan(T const* ci, T* co, int32_t size, int32_t* pc) {
+    __global__ void multiBlockPrefixScan(T const* ici, T* ico, int32_t size, int32_t* pc) {
+      volatile T const* ci = ici;
+      volatile T* co = ico;
       __shared__ T ws[32];
 #ifdef __CUDA_ARCH__
       assert(sizeof(T) * gridDim.x <= dynamic_smem_size());  // size of psum below
@@ -152,6 +155,7 @@ namespace cms {
       // count blocks that finished
       __shared__ bool isLastBlockDone;
       if (0 == threadIdx.x) {
+        __threadfence();
         auto value = atomicAdd(pc, 1);  // block counter
         isLastBlockDone = (value == (int(gridDim.x) - 1));
       }

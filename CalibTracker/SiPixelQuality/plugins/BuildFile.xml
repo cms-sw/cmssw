@@ -1,20 +1,44 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="DataFormats/DetId"/>
-<use name="Geometry/TrackerGeometryBuilder"/>
-<use name="Geometry/Records"/>
-<use name="DataFormats/SiPixelDetId"/>
-<use name="DataFormats/FEDRawData"/>
-<use name="CondFormats/DataRecord"/>
-<use name="CondFormats/RunInfo"/>
-<use name="CondFormats/SiPixelObjects"/>
-<use name="DQM/SiPixelPhase1Common"/>
-<use name="CalibTracker/SiPixelQuality"/>
-<use name="root"/>
-<library file="SiPixelStatusProducer.cc" name="SiPixelStatusProducer">
-  <flags EDM_PLUGIN="1"/>
+<library name="SiPixelStatusProducer" file="SiPixelStatusProducer.cc">
+ <use name="CalibTracker/SiPixelQuality"/>
+ <use name="CondFormats/DataRecord"/>
+ <use name="CondFormats/RunInfo"/>
+ <use name="CondFormats/SiPixelObjects"/>
+ <use name="DQM/SiPixelPhase1Common"/>
+ <use name="DataFormats/Common"/>
+ <use name="DataFormats/DetId"/>
+ <use name="DataFormats/FEDRawData"/>
+ <use name="DataFormats/SiPixelCluster"/>
+ <use name="DataFormats/SiPixelDetId"/>
+ <use name="DataFormats/SiPixelDigi"/>
+ <use name="DataFormats/TrackerCommon"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="FWCore/Utilities"/>
+ <use name="FWCore/Concurrency"/>
+ <use name="Geometry/CommonDetUnit"/>
+ <use name="Geometry/Records"/>
+ <use name="Geometry/TrackerGeometryBuilder"/>
+ <use name="rootcling"/>
+ <flags EDM_PLUGIN="1"/>
 </library>
-
-<library file="SiPixelStatusHarvester.cc" name="SiPixelStatusHarvester">
-  <flags EDM_PLUGIN="1"/>
+<library name="SiPixelStatusHarvester" file="SiPixelStatusHarvester.cc">
+ <use name="CalibTracker/SiPixelQuality"/>
+ <use name="CondCore/DBOutputService"/>
+ <use name="CondFormats/DataRecord"/>
+ <use name="CondFormats/SiPixelObjects"/>
+ <use name="DQM/SiPixelPhase1Common"/>
+ <use name="DQMServices/Core"/>
+ <use name="DataFormats/Common"/>
+ <use name="DataFormats/TrackerCommon"/>
+ <use name="FWCore/Framework"/>
+ <use name="FWCore/MessageLogger"/>
+ <use name="FWCore/ParameterSet"/>
+ <use name="FWCore/ServiceRegistry"/>
+ <use name="FWCore/Utilities"/>
+ <use name="Geometry/CommonDetUnit"/>
+ <use name="Geometry/Records"/>
+ <use name="Geometry/TrackerGeometryBuilder"/>
+ <use name="rootcling"/>
+ <flags EDM_PLUGIN="1"/>
 </library>

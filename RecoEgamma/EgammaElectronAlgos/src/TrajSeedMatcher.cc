@@ -81,13 +81,10 @@ namespace {
 };  // namespace
 
 TrajSeedMatcher::Configuration::Configuration(const edm::ParameterSet& pset, edm::ConsumesCollector&& cc)
-    : magFieldToken{cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()},
-      paramMagFieldToken{
-          cc.esConsumes<MagneticField, IdealMagneticFieldRecord>(pset.getParameter<edm::ESInputTag>("paramMagField"))},
-      navSchoolToken{
-          cc.esConsumes<NavigationSchool, NavigationSchoolRecord>(pset.getParameter<edm::ESInputTag>("navSchool"))},
-      detLayerGeomToken{
-          cc.esConsumes<DetLayerGeometry, RecoGeometryRecord>(pset.getParameter<edm::ESInputTag>("detLayerGeom"))},
+    : magFieldToken{cc.esConsumes()},
+      paramMagFieldToken{cc.esConsumes(pset.getParameter<edm::ESInputTag>("paramMagField"))},
+      navSchoolToken{cc.esConsumes(pset.getParameter<edm::ESInputTag>("navSchool"))},
+      detLayerGeomToken{cc.esConsumes(pset.getParameter<edm::ESInputTag>("detLayerGeom"))},
       useRecoVertex{pset.getParameter<bool>("useRecoVertex")},
       enableHitSkipping{pset.getParameter<bool>("enableHitSkipping")},
       requireExactMatchCount{pset.getParameter<bool>("requireExactMatchCount")},

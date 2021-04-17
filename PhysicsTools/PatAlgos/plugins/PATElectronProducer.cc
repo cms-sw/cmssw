@@ -86,6 +86,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
       reducedBarrelRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_)),
       reducedEndcapRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")),
       reducedEndcapRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_)),
+      ecalClusterToolsESGetTokens_{consumesCollector()},
       // PFCluster Isolation maps
       addPFClusterIso_(iConfig.getParameter<bool>("addPFClusterIso")),
       addPuppiIsolation_(iConfig.getParameter<bool>("addPuppiIsolation")),
@@ -251,8 +252,10 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::InputTag reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
   edm::InputTag reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
   //EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
-  EcalClusterLazyTools lazyTools(
-      iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
+  EcalClusterLazyTools lazyTools(iEvent,
+                                 ecalClusterToolsESGetTokens_.get(iSetup),
+                                 reducedBarrelRecHitCollectionToken_,
+                                 reducedEndcapRecHitCollectionToken_);
 
   // for conversion veto selection
   edm::Handle<reco::ConversionCollection> hConversions;
@@ -380,10 +383,8 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         if (itElectron->gsfTrack() == i->gsfTrackRef()) {
           Matched = true;
         } else {
-          for (reco::GsfTrackRefVector::const_iterator it = itElectron->ambiguousGsfTracksBegin();
-               it != itElectron->ambiguousGsfTracksEnd();
-               it++) {
-            MatchedToAmbiguousGsfTrack |= (bool)(i->gsfTrackRef() == (*it));
+          for (auto const& it : itElectron->ambiguousGsfTracks()) {
+            MatchedToAmbiguousGsfTrack |= (bool)(i->gsfTrackRef() == it);
           }
         }
 
@@ -449,7 +450,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
           if (addMVAVariables_) {
             // add missing mva variables
-            std::vector<float> vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
+            const auto& vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
             anElectron.setMvaVariables(vCov[1], ip3d);
           }
           // PFClusterIso
@@ -680,7 +681,7 @@ void PATElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
       if (addMVAVariables_) {
         // add mva variables
-        std::vector<float> vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
+        const auto& vCov = lazyTools.localCovariances(*(itElectron->superCluster()->seed()));
         anElectron.setMvaVariables(vCov[1], ip3d);
       }
 

@@ -3,11 +3,14 @@
 #include "CalibTracker/SiPixelESProducers/test/SiPixelFakeGainReader.h"
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 namespace cms {
   SiPixelFakeGainReader::SiPixelFakeGainReader(const edm::ParameterSet& conf)
-      : conf_(conf), SiPixelGainCalibrationService_(conf), filename_(conf.getParameter<std::string>("fileName")) {}
+      : conf_(conf),
+        trackerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+        trackerGeomTokenBeginRun_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+        SiPixelGainCalibrationService_(conf),
+        filename_(conf.getParameter<std::string>("fileName")) {}
 
   void SiPixelFakeGainReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     unsigned int nmodules = 0;
@@ -15,13 +18,8 @@ namespace cms {
     fFile->cd();
 
     // Get the Geometry
-    iSetup.get<TrackerDigiGeometryRecord>().get(tkgeom);
+    edm::ESHandle<TrackerGeometry> tkgeom = iSetup.getHandle(trackerGeomToken_);
     edm::LogInfo("SiPixelFakeGainReader") << " There are " << tkgeom->dets().size() << " detectors" << std::endl;
-
-    // Get the calibration data
-    //iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
-    //edm::LogInfo("SiPixelFakeGainReader") << "[SiPixelFakeGainReader::analyze] End Reading FakeGainects" << std::endl;
-    //SiPixelGainCalibrationService_.setESObjects(iSetup);
 
     //  for(TrackerGeometry::DetContainer::const_iterator it = tkgeom->dets().begin(); it != tkgeom->dets().end(); it++){
     //   if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
@@ -89,17 +87,14 @@ namespace cms {
       char name[128];
 
       // Get Geometry
-      iSetup.get<TrackerDigiGeometryRecord>().get(tkgeom);
+      edm::ESHandle<TrackerGeometry> tkgeom = iSetup.getHandle(trackerGeomTokenBeginRun_);
 
       // Get the calibration data
-      //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
-      //iSetup.get<SiPixelGainCalibrationRcd>().get(SiPixelGainCalibration_);
       SiPixelGainCalibrationService_.setESObjects(iSetup);
       edm::LogInfo("SiPixelFakeGainReader")
           << "[SiPixelFakeGainReader::beginJob] End Reading FakeGainects" << std::endl;
       // Get the list of DetId's
       std::vector<uint32_t> vdetId_ = SiPixelGainCalibrationService_.getDetIds();
-      //SiPixelGainCalibration_->getDetIds(vdetId_);
       // Loop over DetId's
       for (std::vector<uint32_t>::const_iterator detid_iter = vdetId_.begin(); detid_iter != vdetId_.end();
            detid_iter++) {

@@ -84,7 +84,7 @@ namespace edmtest {
         bitMask_(ps.getParameter<int>("bitMask")),
         hltbits_(0),
         expectTriggerResults_(ps.getUntrackedParameter<bool>("expectTriggerResults", true)),
-        resultsToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))) {}
+        resultsToken_(consumes(edm::InputTag("TriggerResults"))) {}
 
   TestOutputModule::~TestOutputModule() {}
 

@@ -16,7 +16,6 @@
 #include "PixelThresholdClusterizer.h"
 
 // Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 // Data Formats
@@ -54,6 +53,9 @@ SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf)
     tPixelClusters = consumes<SiPixelClusterCollectionNew>(conf.getParameter<edm::InputTag>("src"));
   else
     tPixelDigi = consumes<edm::DetSetVector<PixelDigi>>(conf.getParameter<edm::InputTag>("src"));
+
+  trackerTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
+  trackerGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
 
   const auto& payloadType = conf.getParameter<std::string>("payloadType");
   if (payloadType == "HLT")
@@ -102,11 +104,9 @@ void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     e.getByToken(tPixelDigi, inputDigi);
 
   // Step A.2: get event setup
-  edm::ESHandle<TrackerGeometry> geom;
-  es.get<TrackerDigiGeometryRecord>().get(geom);
+  edm::ESHandle<TrackerGeometry> geom = es.getHandle(trackerGeomToken_);
 
-  edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-  es.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+  edm::ESHandle<TrackerTopology> trackerTopologyHandle = es.getHandle(trackerTopoToken_);
   tTopo_ = trackerTopologyHandle.product();
 
   // Step B: create the final output collection
@@ -122,6 +122,14 @@ void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Step D: write output to file
   output->shrink_to_fit();
+
+  // set sequential identifier
+  for (auto& clusters : *output) {
+    uint16_t id = 0;
+    for (auto& cluster : clusters) {
+      cluster.setOriginalId(id++);
+    }
+  }
   e.put(tPutPixelClusters, std::move(output));
 }
 
@@ -153,15 +161,14 @@ void SiPixelClusterProducer::run(const T& input,
   int numberOfClusters = 0;
 
   // Iterate on detector units
-  typename T::const_iterator DSViter = input.begin();
-  for (; DSViter != input.end(); DSViter++) {
+  for (auto const& dsv : input) {
     ++numberOfDetUnits;
 
     //  LogDebug takes very long time, get rid off.
-    //LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << DSViter->id;
+    //LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << dsv.id;
 
     std::vector<short> badChannels;
-    DetId detIdObject(DSViter->detId());
+    DetId detIdObject(dsv.detId());
 
     // Comment: At the moment the clusterizer depends on geometry
     // to access information as the pixel topology (number of columns
@@ -177,8 +184,8 @@ void SiPixelClusterProducer::run(const T& input,
     {
       // Produce clusters for this DetUnit and store them in
       // a DetSet
-      edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(output, DSViter->detId());
-      clusterizer_->clusterizeDetUnit(*DSViter, pixDet, tTopo_, badChannels, spc);
+      edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(output, dsv.detId());
+      clusterizer_->clusterizeDetUnit(dsv, pixDet, tTopo_, badChannels, spc);
       if (spc.empty()) {
         spc.abort();
       } else {

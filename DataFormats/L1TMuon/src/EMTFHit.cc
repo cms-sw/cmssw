@@ -1,5 +1,5 @@
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "DataFormats/L1TMuon/interface/CSCConstants.h"
 
 namespace l1t {
 
@@ -40,6 +40,12 @@ namespace l1t {
     return RPCDetId(endcap, ring, station, sector_RPC, 1, subsector_RPC, roll_);
     // Layer always filled as 1, as layer 2 is only used in the barrel
   }
+
+  GEMDetId EMTFHit::CreateGEMDetId() const {
+    return GEMDetId((endcap == 1) ? 1 : -1, ring, station, layer, chamber, roll);
+  }
+
+  ME0DetId EMTFHit::CreateME0DetId() const { return ME0DetId((endcap == 1) ? 1 : -1, layer, chamber, roll); }
 
   CPPFDigi EMTFHit::CreateCPPFDigi() const {
     if (!Is_RPC())
@@ -88,5 +94,12 @@ namespace l1t {
   // RPCDigi EMTFHit::CreateRPCDigi() const {
   //   return RPCDigi( (strip_hi + strip_lo) / 2, bx + CSCConstants::LCT_CENTRAL_BX );
   // }
+
+  GEMPadDigiCluster EMTFHit::CreateGEMPadDigiCluster() const {
+    std::vector<uint16_t> pads;
+    for (int i = Pad_low(); i < Pad_hi(); ++i)
+      pads.emplace_back(static_cast<uint16_t>(i));
+    return GEMPadDigiCluster(pads, bx);
+  }
 
 }  // End namespace l1t

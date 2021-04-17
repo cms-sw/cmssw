@@ -1,21 +1,19 @@
 <library file="*.cc" name="HLTriggerJetMETPlugins">
+  <use name="CommonTools/Utils"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/HLTReco"/>
-  <use name="DataFormats/HcalRecHit"/>
   <use name="DataFormats/JetReco"/>
-  <use name="DataFormats/METReco"/>
-  <use name="DataFormats/Scouting"/>
   <use name="DataFormats/Math"/>
-  <use name="Geometry/Records"/>
-  <use name="Geometry/CaloTopology"/>
+  <use name="DataFormats/METReco"/>
+  <use name="DataFormats/Phase2TrackerCluster"/>
+  <use name="DataFormats/Scouting"/>
+  <use name="DataFormats/SiPixelCluster"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/Utilities"/>
-  <use name="RecoMET/METAlgorithms"/>
   <use name="HLTrigger/HLTcore"/>
-  <use name="RecoJets/JetProducers"/>
   <use name="TrackingTools/IPTools"/>
   <use name="TrackingTools/TransientTrack"/>
   <use name="HLTrigger/JetMET"/>

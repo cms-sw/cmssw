@@ -15,36 +15,23 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('CaloSim', 
-        'EcalGeom', 
-        'EcalSim', 
-        'HCalGeom', 
-        'HcalSim', 
-        'HcalTBSim', 
-        'SimHCalData', 
-        'VertexGenerator'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        INFO = cms.untracked.PSet(
+        CaloSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        VertexGenerator = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         EcalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         EcalSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        HCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         HcalSim = cms.untracked.PSet(
@@ -53,9 +40,17 @@ process.MessageLogger = cms.Service("MessageLogger",
         HcalTBSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
         SimHCalData = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
+        ),
+        VertexGenerator = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
     )
 )
 

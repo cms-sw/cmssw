@@ -1,6 +1,7 @@
 #ifndef FWCOre_Utilities_Guid_h
 #define FWCOre_Utilities_Guid_h
 
+#include "uuid/uuid.h"
 #include <string>
 
 /*
@@ -19,34 +20,25 @@ namespace edm {
     * @author   Zhen Xie         Include DCE implementation for linux
     * @version  1.1
     * @date     03/09/2002
+    *
+    * Simplified by Dan Riley for CMS to use standard libuuid functions
     */
   class Guid {  // size is 16
   public:
-    unsigned int Data1;
-    unsigned short Data2;
-    unsigned short Data3;
-    unsigned char Data4[8];
-
     /// Standard constructor (With initializaton)
     Guid() { init(); }
     /// Standard constructor (With initialization)
-    explicit Guid(bool) { init(); }
+    explicit Guid(bool usetime) { init(usetime); }
     /// Constructor for Guid from char*
-    explicit Guid(char const* s) { fromString(s); }
+    explicit Guid(char const* s, bool binary = false) { binary ? fromBinary(s) : fromString(s); }
     /// Constructor for Guid from string
-    explicit Guid(std::string const& s) { fromString(s); }
+    explicit Guid(std::string const& s, bool binary = false) { binary ? fromBinary(s) : fromString(s); }
     /// Copy constructor
     Guid(Guid const& c) { *this = c; }
     /// Assignment operator
     Guid& operator=(Guid const& g) {
       if (this != &g) {
-        Data1 = g.Data1;
-        Data2 = g.Data2;
-        Data3 = g.Data3;
-        unsigned int* p = reinterpret_cast<unsigned int*>(&Data4[0]);
-        unsigned int const* q = reinterpret_cast<unsigned int const*>(&g.Data4[0]);
-        *(p + 1) = *(q + 1);
-        *p = *q;
+        ::uuid_copy(data_, g.data_);
       }
       return *this;
     }
@@ -55,27 +47,25 @@ namespace edm {
     /// Equality operator
     bool operator==(Guid const& g) const {
       if (this != &g) {
-        if (Data1 != g.Data1)
-          return false;
-        if (Data2 != g.Data2)
-          return false;
-        if (Data3 != g.Data3)
-          return false;
-        unsigned int const* p = reinterpret_cast<unsigned int const*>(&Data4[0]);
-        unsigned int const* q = reinterpret_cast<unsigned int const*>(&g.Data4[0]);
-        return *p == *q && *(p + 1) == *(q + 1);
+        return ::uuid_compare(data_, g.data_) == 0;
       }
       return true;
     }
     /// Non-equality operator
     bool operator!=(Guid const& g) const { return !(this->operator==(g)); }
-    /// Automatic conversion from string reprentation
+    /// conversion to binary string reprentation
+    std::string const toBinary() const;
+    /// conversion from binary string representation
+    Guid const& fromBinary(std::string const& s);
+    /// conversion to formatted string reprentation
     std::string const toString() const;
-    /// Automatic conversion to string representation
+    /// conversion from formatted string representation
     Guid const& fromString(std::string const& s);
-    /// initialize a new Guid
+
   private:
-    void init();
+    /// initialize a new Guid
+    void init(bool usetime = false);
+    uuid_t data_;
   };
 }  // namespace edm
 #endif

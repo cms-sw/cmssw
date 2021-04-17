@@ -3446,6 +3446,9 @@ c initial definitions
       ntry=0
       iremo1=0
       jremo=0
+c... initialize
+      jrem=0.0
+      amremn=0.0
       if(ir.eq.1)then
         cremn='targ'
         jrem=1
@@ -9557,7 +9560,7 @@ c        xorptl(3,nptl)=xorptl(3,ii)
 c        xorptl(4,nptl)=t
 c        tivptl(1,nptl)=t
 c        tivptl(2,nptl)=t
-c        mm=nptl
+        mm=nptl
 c        kolp(i)=1
       else
         mm=npproj(i)
@@ -9628,7 +9631,8 @@ c        xorptl(3,nptl)=xorptl(3,jj)
 c        xorptl(4,nptl)=t
 c        tivptl(1,nptl)=t
 c        tivptl(2,nptl)=t
-c        mm=nptl
+c... initialize
+        mm=nptl
 c        kolt(j)=1
       else
         mm=nptarg(j)

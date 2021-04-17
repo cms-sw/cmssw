@@ -48,11 +48,7 @@ public:
 
   using CSCUpgradeMotherboard::readoutLCTs;
 
-  // run TMB with GEM pads as input
   using CSCUpgradeMotherboard::run;
-  virtual void run(const CSCWireDigiCollection* wiredc,
-                   const CSCComparatorDigiCollection* compdc,
-                   const GEMPadDigiCollection* gemPads) = 0;
 
   // run TMB with GEM pad clusters as input
   virtual void run(const CSCWireDigiCollection* wiredc,
@@ -184,19 +180,28 @@ protected:
       const CSCALCTDigi& alct, const CSCCLCTDigi& clct, const GEMPadDigi& gem1, const GEMCoPadDigi& gem2, int i) const;
 
   // get the pads/copads from the digi collection and store in handy containers
-  void retrieveGEMPads(const GEMPadDigiCollection* pads, unsigned id);
-  void retrieveGEMCoPads();
+  void processGEMClusters(const GEMPadDigiClusterCollection* pads);
+  void processGEMPads(const GEMPadDigiCollection* pads);
+  void processGEMCoPads();
+
+  enum LCT_QualityRun3 {
+    INVALID = 0,
+    CLCT_2GEM = 3,
+    ALCT_2GEM = 4,
+    ALCTCLCT = 5,
+    ALCTCLCT_1GEM = 6,
+    ALCTCLCT_2GEM = 7,
+  };
 
   // quality of the LCT when you take into account max 2 GEM layers
-  unsigned int findQualityGEM(const CSCALCTDigi&, const CSCCLCTDigi&, int gemlayer) const;
+  CSCMotherboard::LCT_Quality findQualityGEMv1(const CSCALCTDigi&, const CSCCLCTDigi&, int gemlayer) const;
+  LCT_QualityRun3 findQualityGEMv2(const CSCALCTDigi&, const CSCCLCTDigi&, int gemlayer) const;
 
   // print available trigger pads
   void printGEMTriggerPads(int bx_start, int bx_stop, enum CSCPart);
   void printGEMTriggerCoPads(int bx_start, int bx_stop, enum CSCPart);
 
   bool isPadInOverlap(int roll) const;
-
-  void setupGeometry();
 
   /** Chamber id (trigger-type labels). */
   unsigned gemId;
@@ -218,17 +223,11 @@ protected:
   int maxDeltaPadL1_;
   int maxDeltaPadL2_;
 
-  // send LCT old dataformat
-  bool useOldLCTDataFormat_;
-
   // promote ALCT-GEM pattern
   bool promoteALCTGEMpattern_;
 
   bool promoteALCTGEMquality_;
   bool promoteCLCTGEMquality_;
-
-  // LCT ghostbusting
-  bool doLCTGhostBustingWithGEMs_;
 
 private:
   template <class T>

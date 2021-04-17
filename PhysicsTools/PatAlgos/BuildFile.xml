@@ -1,3 +1,4 @@
+<use name="CommonTools/CandAlgos"/>
 <use name="CommonTools/MVAUtils"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/Common"/>
@@ -11,8 +12,9 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
-<use name="PhysicsTools/PatUtils"/>
 <use name="PhysicsTools/IsolationAlgos"/>
+<use name="PhysicsTools/PatUtils"/>
+<use name="PhysicsTools/TensorFlow"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>

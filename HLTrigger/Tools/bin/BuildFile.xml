@@ -7,16 +7,13 @@
   <use name="boost_program_options"/>
   <use name="DataFormats/HLTReco"/>
   <use name="FWCore/FWLite"/>
-  <use name="FWCore/Framework"/>
   <use name="rootgraphics"/>
 </bin>
 
 <bin name="hltDiff" file="hltDiff.cc">
   <use name="jemalloc"/>
   <use name="boost"/>
-  <use name="boost_filesystem"/>
   <use name="FWCore/Common"/>
-  <use name="FWCore/Framework"/>
   <use name="FWCore/Utilities"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/FWLite"/>

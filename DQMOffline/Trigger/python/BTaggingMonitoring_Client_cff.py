@@ -190,7 +190,6 @@ BTVEfficiency_TurnOnCurves = DQMEDHarvester("DQMGenericClient",
     ),
 )
 
-
 BTVEfficiency_OnlineTrackEff = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
         "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
@@ -223,6 +222,12 @@ BTVEfficiency_OnlineTrackFake = DQMEDHarvester("DQMGenericClient",
     ),
 )
 
+from DQMOffline.Trigger.TrackingMonitoring_Client_cff import TrackToTrackEfficiencies
+
+BJetTrackToTrackEfficiencies = TrackToTrackEfficiencies.clone()
+BJetTrackToTrackEfficiencies.subDirs = cms.untracked.vstring( "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*",
+                                                              "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5*",
+                                                              "HLT/BTV/HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94*")
 
 btaggingClient = cms.Sequence(
 
@@ -233,4 +238,5 @@ btaggingClient = cms.Sequence(
   + BTVEfficiency_BTagMu_Jet
   + BTVEfficiency_BTagDiMu_Jet
   + BTVEfficiency_PFJet
+  + BJetTrackToTrackEfficiencies
 )

@@ -60,6 +60,7 @@ private:
   std::string m_txtOutFile;
   double m_hgcalzfront;
   MaterialAccountingTrack m_track;
+  const G4VPhysicalVolume* m_track_volume;
   std::vector<MaterialAccountingTrack>* m_tracks;
   TFile* output_file_;
   TProfile* radLen_vs_eta_;

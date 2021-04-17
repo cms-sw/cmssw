@@ -31,7 +31,6 @@
 #include "TFile.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 
@@ -70,7 +69,7 @@ public:
     WriteDQMHistograms_ = WriteDQMHistograms;
   }
   void setTrackerGeometry(const TrackerGeometry* tkgeom) { TkGeom = tkgeom; }
-  void extractBadAPVSandStrips(SiStripQuality*, HistoMap&, edm::ESHandle<SiStripQuality>&);
+  void extractBadAPVSandStrips(SiStripQuality*, HistoMap&, const SiStripQuality*);
 
 private:
   struct Apv {
@@ -90,7 +89,7 @@ private:
                         std::vector<Apv>&,
                         std::pair<double, double>*,
                         std::vector<unsigned int>&,
-                        edm::ESHandle<SiStripQuality>&);
+                        const SiStripQuality*);
 
   void iterativeSearch(Apv&, std::vector<unsigned int>&, int);
 

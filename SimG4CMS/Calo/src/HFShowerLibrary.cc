@@ -25,10 +25,12 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                  const HcalSimulationParameters* hps,
                                  edm::ParameterSet const& p)
     : hcalConstant_(hcons), hf(nullptr), emBranch(nullptr), hadBranch(nullptr), npe(0) {
-  edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
+  edm::ParameterSet m_HF =
+      (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
   probMax = m_HF.getParameter<double>("ProbMax");
 
-  edm::ParameterSet m_HS = p.getParameter<edm::ParameterSet>("HFShowerLibrary");
+  edm::ParameterSet m_HS =
+      (p.getParameter<edm::ParameterSet>("HFShowerLibrary")).getParameter<edm::ParameterSet>("HFLibraryFileBlock");
   edm::FileInPath fp = m_HS.getParameter<edm::FileInPath>("FileName");
   std::string pTreeName = fp.fullPath();
   backProb = m_HS.getParameter<double>("BackProbability");

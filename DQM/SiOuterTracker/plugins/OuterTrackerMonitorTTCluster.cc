@@ -17,33 +17,34 @@
 //
 
 // system include files
-#include <fstream>
-#include <iostream>
 #include <memory>
 #include <numeric>
 #include <vector>
 
 // user include files
-#include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class OuterTrackerMonitorTTCluster : public DQMEDAnalyzer {
 public:
@@ -51,7 +52,7 @@ public:
   ~OuterTrackerMonitorTTCluster() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
+  void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
   // TTCluster stacks
   MonitorElement *Cluster_IMem_Barrel = nullptr;
   MonitorElement *Cluster_IMem_Endcap_Disc = nullptr;
@@ -77,12 +78,19 @@ private:
   edm::ParameterSet conf_;
   edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> tagTTClustersToken_;
   std::string topFolderName_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const TrackerGeometry *tkGeom_ = nullptr;
+  const TrackerTopology *tTopo_ = nullptr;
 };
 
 //
 // constructors and destructor
 //
-OuterTrackerMonitorTTCluster::OuterTrackerMonitorTTCluster(const edm::ParameterSet &iConfig) : conf_(iConfig) {
+OuterTrackerMonitorTTCluster::OuterTrackerMonitorTTCluster(const edm::ParameterSet &iConfig)
+    : conf_(iConfig),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+      topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()) {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   tagTTClustersToken_ = consumes<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>>(
       conf_.getParameter<edm::InputTag>("TTClusters"));
@@ -96,23 +104,16 @@ OuterTrackerMonitorTTCluster::~OuterTrackerMonitorTTCluster() {
 //
 // member functions
 //
+void OuterTrackerMonitorTTCluster::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
+  tkGeom_ = &(iSetup.getData(geomToken_));
+  tTopo_ = &(iSetup.getData(topoToken_));
+}
 
 // ------------ method called for each event  ------------
 void OuterTrackerMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   /// Track Trigger Clusters
   edm::Handle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> Phase2TrackerDigiTTClusterHandle;
   iEvent.getByToken(tagTTClustersToken_, Phase2TrackerDigiTTClusterHandle);
-
-  /// Geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  const TrackerTopology *tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  tTopo = tTopoHandle.product();
-
-  edm::ESHandle<TrackerGeometry> tGeometryHandle;
-  const TrackerGeometry *theTrackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tGeometryHandle);
-  theTrackerGeometry = tGeometryHandle.product();
 
   /// Loop over the input Clusters
   typename edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>::const_iterator inputIter;
@@ -129,12 +130,12 @@ void OuterTrackerMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::
       edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>> tempCluRef =
           edmNew::makeRefTo(Phase2TrackerDigiTTClusterHandle, contentIter);
 
-      DetId detIdClu = theTrackerGeometry->idToDet(tempCluRef->getDetId())->geographicalId();
+      DetId detIdClu = tkGeom_->idToDet(tempCluRef->getDetId())->geographicalId();
       unsigned int memberClu = tempCluRef->getStackMember();
       unsigned int widClu = tempCluRef->findWidth();
 
       MeasurementPoint mp = tempCluRef->findAverageLocalCoordinates();
-      const GeomDet *theGeomDet = theTrackerGeometry->idToDet(detIdClu);
+      const GeomDet *theGeomDet = tkGeom_->idToDet(detIdClu);
       Global3DPoint posClu = theGeomDet->surface().toGlobal(theGeomDet->topology().localPosition(mp));
 
       double r = posClu.perp();
@@ -149,9 +150,9 @@ void OuterTrackerMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::
       if (detIdClu.subdetId() == static_cast<int>(StripSubdetector::TOB))  // Phase 2 Outer Tracker Barrel
       {
         if (memberClu == 0)
-          Cluster_IMem_Barrel->Fill(tTopo->layer(detIdClu));
+          Cluster_IMem_Barrel->Fill(tTopo_->layer(detIdClu));
         else
-          Cluster_OMem_Barrel->Fill(tTopo->layer(detIdClu));
+          Cluster_OMem_Barrel->Fill(tTopo_->layer(detIdClu));
 
         Cluster_Barrel_XY->Fill(posClu.x(), posClu.y());
 
@@ -159,25 +160,25 @@ void OuterTrackerMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::
       else if (detIdClu.subdetId() == static_cast<int>(StripSubdetector::TID))  // Phase 2 Outer Tracker Endcap
       {
         if (memberClu == 0) {
-          Cluster_IMem_Endcap_Disc->Fill(tTopo->layer(detIdClu));  // returns wheel
-          Cluster_IMem_Endcap_Ring->Fill(tTopo->tidRing(detIdClu));
+          Cluster_IMem_Endcap_Disc->Fill(tTopo_->layer(detIdClu));  // returns wheel
+          Cluster_IMem_Endcap_Ring->Fill(tTopo_->tidRing(detIdClu));
         } else {
-          Cluster_OMem_Endcap_Disc->Fill(tTopo->layer(detIdClu));  // returns wheel
-          Cluster_OMem_Endcap_Ring->Fill(tTopo->tidRing(detIdClu));
+          Cluster_OMem_Endcap_Disc->Fill(tTopo_->layer(detIdClu));  // returns wheel
+          Cluster_OMem_Endcap_Ring->Fill(tTopo_->tidRing(detIdClu));
         }
 
         if (posClu.z() > 0) {
           Cluster_Endcap_Fw_XY->Fill(posClu.x(), posClu.y());
           if (memberClu == 0)
-            Cluster_IMem_Endcap_Ring_Fw[tTopo->layer(detIdClu) - 1]->Fill(tTopo->tidRing(detIdClu));
+            Cluster_IMem_Endcap_Ring_Fw[tTopo_->layer(detIdClu) - 1]->Fill(tTopo_->tidRing(detIdClu));
           else
-            Cluster_OMem_Endcap_Ring_Fw[tTopo->layer(detIdClu) - 1]->Fill(tTopo->tidRing(detIdClu));
+            Cluster_OMem_Endcap_Ring_Fw[tTopo_->layer(detIdClu) - 1]->Fill(tTopo_->tidRing(detIdClu));
         } else {
           Cluster_Endcap_Bw_XY->Fill(posClu.x(), posClu.y());
           if (memberClu == 0)
-            Cluster_IMem_Endcap_Ring_Bw[tTopo->layer(detIdClu) - 1]->Fill(tTopo->tidRing(detIdClu));
+            Cluster_IMem_Endcap_Ring_Bw[tTopo_->layer(detIdClu) - 1]->Fill(tTopo_->tidRing(detIdClu));
           else
-            Cluster_OMem_Endcap_Ring_Bw[tTopo->layer(detIdClu) - 1]->Fill(tTopo->tidRing(detIdClu));
+            Cluster_OMem_Endcap_Ring_Bw[tTopo_->layer(detIdClu) - 1]->Fill(tTopo_->tidRing(detIdClu));
         }
 
       }  // end if isEndcap

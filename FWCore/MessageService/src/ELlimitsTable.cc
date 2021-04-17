@@ -20,7 +20,7 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELlimitsTable.h"
+#include "FWCore/MessageService/src/ELlimitsTable.h"
 
 // Posible traces
 //#include <iostream>
@@ -41,7 +41,7 @@ namespace edm {
       std::cerr << "Constructor for ELlimitsTable\n";
 #endif
 
-      for (int k = 0; k < ELseverityLevel::nLevels; ++k) {
+      for (int k = 0; k < messagelogger::ELseverityLevel::nLevels; ++k) {
         severityLimits[k] = -1;  // JvR 99-06-10
         severityIntervals[k] = -1;
         severityTimespans[k] = -1;
@@ -177,7 +177,7 @@ namespace edm {
 
       wildcardLimit = -1;
       wildcardTimespan = -1;
-      for (int lev = 0; lev < ELseverityLevel::nLevels; ++lev) {
+      for (int lev = 0; lev < messagelogger::ELseverityLevel::nLevels; ++lev) {
         severityLimits[lev] = -1;
         severityIntervals[lev] = -1;
         severityTimespans[lev] = -1;
@@ -193,34 +193,38 @@ namespace edm {
         (*i).second.n = 0;
     }
 
-    void ELlimitsTable::setLimit(const ELstring& id, int n) {
+    void ELlimitsTable::setLimit(const std::string& id, int n) {
       if (id[0] == '*')
         wildcardLimit = n;
       else
         limits[id].limit = n;
     }
 
-    void ELlimitsTable::setLimit(const ELseverityLevel& sev, int n) { severityLimits[sev.getLevel()] = n; }
+    void ELlimitsTable::setLimit(const messagelogger::ELseverityLevel& sev, int n) {
+      severityLimits[sev.getLevel()] = n;
+    }
 
-    void ELlimitsTable::setInterval(const ELstring& id, int interval) {
+    void ELlimitsTable::setInterval(const std::string& id, int interval) {
       if (id[0] == '*')
         wildcardInterval = interval;
       else
         limits[id].interval = interval;
     }
 
-    void ELlimitsTable::setInterval(const ELseverityLevel& sev, int interval) {
+    void ELlimitsTable::setInterval(const messagelogger::ELseverityLevel& sev, int interval) {
       severityIntervals[sev.getLevel()] = interval;
     }
 
-    void ELlimitsTable::setTimespan(const ELstring& id, int n) {
+    void ELlimitsTable::setTimespan(const std::string& id, int n) {
       if (id[0] == '*')
         wildcardTimespan = n;
       else
         limits[id].timespan = n;
     }
 
-    void ELlimitsTable::setTimespan(const ELseverityLevel& sev, int n) { severityTimespans[sev.getLevel()] = n; }
+    void ELlimitsTable::setTimespan(const messagelogger::ELseverityLevel& sev, int n) {
+      severityTimespans[sev.getLevel()] = n;
+    }
 
     // ----------------------------------------------------------------------
     // Support for internal operations:
@@ -232,7 +236,7 @@ namespace edm {
       }
       limits = t.limits;  // The non-trivial operator= for a map!
 
-      for (int lev = 0; lev < ELseverityLevel::nLevels; ++lev) {
+      for (int lev = 0; lev < messagelogger::ELseverityLevel::nLevels; ++lev) {
         severityTimespans[lev] = t.severityTimespans[lev];
         severityTimespans[lev] = t.severityTimespans[lev];
       }

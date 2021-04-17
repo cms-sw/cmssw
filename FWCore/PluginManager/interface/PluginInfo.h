@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 // user include files
 
@@ -27,7 +27,7 @@
 namespace edmplugin {
   struct PluginInfo {
     std::string name_;
-    boost::filesystem::path loadable_;
+    std::filesystem::path loadable_;
   };
 }  // namespace edmplugin
 #endif

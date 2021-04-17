@@ -13,6 +13,7 @@
 <test name="testDownhill" command="testTheano.sh testDownhill.py"/>
 <test name="testTheano" command="testTheano.sh testTheano.py"/>
 <test name="testhep_ml" command="testTheano.sh testhep_ml.py"/>
+<test name="testCorrectionlib" command="test_correctionlib.py"/>
 
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
   <use name="rootpymva"/>
@@ -24,7 +25,7 @@
   <test name="testNumba" command="testNumba.py"/>
 </iftool>
 <iftool name="py2-llvmlite">
-  <test name="testLLVMLite" command="python -c 'import llvmlite'"/>
+  <test name="testLLVMLite" command="python3 -c 'import llvmlite'"/>
 </iftool>
 <iftool name="py2-numpy">
   <test name="testNumPy" command="python -c 'import numpy'"/>
@@ -34,7 +35,7 @@
 </iftool>
 
 <test name="import-jinja2" command="python -c 'import jinja2'"/>
-<test name="import-keras" command="python -c 'import keras'"/>
+<test name="import-keras" command="python3 -c 'import keras'"/>
 <test name="import-markupsafe" command="python -c 'import markupsafe'"/>
 <test name="import-yaml" command="python -c 'import yaml'"/>
 <test name="import-pygments" command="python -c 'import pygments'"/>
@@ -132,7 +133,7 @@
 <test name="import-sqlalchemy" command="python -c 'import sqlalchemy'"/>
 <test name="import-sympy" command="python -c 'import sympy'"/>
 <test name="import-tables" command="python -c 'import tables'"/>
-<test name="import-tensorflow" command="python -c 'import tensorflow'"/>
+<test name="import-tensorflow" command="python3 -c 'import tensorflow'"/>
 <test name="import-terminado" command="python -c 'import terminado'"/>
 <test name="import-testpath" command="python -c 'import testpath'"/>
 <test name="import-theanets" command="python -c 'import theanets'"/>
@@ -153,7 +154,8 @@
 <test name="import-lxml" command="python -c 'import lxml'"/>
 <test name="import-bs4" command="python -c 'import bs4'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
-<test name="run-ipython" command="python2 $(shell which ipython) -h"/>
-<test name="run-ipython3" command="python3 $(shell which ipython3) -h"/>
-<test name="run-pylint" command="python2 $(shell which pylint) -h"/>
-<test name="run-pylint3" command="python3 $(shell which pylint3) -h"/>
+<test name="run-ipython" command="ipython -h"/>
+<test name="run-ipython2" command="ipython2 -h"/>
+<test name="run-ipython3" command="ipython3 -h"/>
+<test name="run-pylint" command="pylint -h"/>
+<test name="run-pylint3" command="pylint3 -h"/>

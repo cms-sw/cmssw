@@ -16,14 +16,10 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('Physics', 'SimG4CoreApplication', 
-                                       'G4cout', 'G4cerr'),
-    debugModules = cms.untracked.vstring('*'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -33,13 +29,18 @@ process.MessageLogger = cms.Service("MessageLogger",
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        SimG4CoreApplication = cms.untracked.PSet(
+        INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
         Physics = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
-    )
+        ),
+        SimG4CoreApplication = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        enable = cms.untracked.bool(True)
+    ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.load("IOMC.RandomEngine.IOMC_cff")

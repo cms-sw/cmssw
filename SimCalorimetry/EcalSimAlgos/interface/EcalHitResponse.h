@@ -8,6 +8,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 #include <unordered_map>
 #include <vector>
@@ -33,11 +34,11 @@ public:
 
   typedef std::unordered_map<uint32_t, double> CalibCache;
 
-  enum { BUNCHSPACE = 25 };
-
   EcalHitResponse(const CaloVSimParameterMap* parameterMap, const CaloVShape* shape);
 
   virtual ~EcalHitResponse();
+
+  const float kSamplePeriod = ecalPh1::Samp_Period;
 
   void setBunchRange(int minBunch, int maxBunch);
 
@@ -116,7 +117,6 @@ protected:
 
   const CaloVHitFilter* hitFilter() const;
 
-private:
   const CaloVSimParameterMap* m_parameterMap;
   const CaloVShape* m_shape;
   const CaloVHitCorrection* m_hitCorrection;
@@ -125,6 +125,7 @@ private:
   const CaloSubdetectorGeometry* m_geometry;
   const EcalLaserDbService* m_lasercals;
 
+private:
   int m_minBunch;
   int m_maxBunch;
   double m_phaseShift;

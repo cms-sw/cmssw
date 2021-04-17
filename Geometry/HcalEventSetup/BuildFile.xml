@@ -1,5 +1,4 @@
 <flags EDM_PLUGIN="1"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
@@ -7,7 +6,5 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/HcalTowerAlgo"/>
-<use name="DataFormats/HcalDetId"/>
 <use name="CondFormats/Alignment"/>
-<use name="CondFormats/GeometryObjects"/>
 <use name="clhep"/>

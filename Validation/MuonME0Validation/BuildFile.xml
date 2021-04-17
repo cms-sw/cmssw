@@ -1,5 +1,4 @@
 <use name="boost"/>
-<use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/GEMDigi"/>
 <use name="DataFormats/GEMRecHit"/>
 <use name="DataFormats/Scalers"/>

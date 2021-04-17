@@ -9,8 +9,6 @@
 // Original Author:  M. Fischler
 //         Created:  Wed May 20 2009
 //
-// Change log
-//
 //
 
 // system include files
@@ -19,7 +17,7 @@
 
 // user include files
 
-#include "FWCore/MessageService/interface/MessageServicePSetValidation.h"
+#include "FWCore/MessageService/src/MessageServicePSetValidation.h"
 
 using namespace edm;
 using namespace edm::service;
@@ -29,10 +27,17 @@ namespace edm {
 
     std::string edm::service::MessageServicePSetValidation::operator()(ParameterSet const& pset) {
       messageLoggerPSet(pset);
-      return flaws.str();
+      return flaws_.str();
     }  // operator() to validate the PSet passed in
 
     void edm::service::MessageServicePSetValidation::messageLoggerPSet(ParameterSet const& pset) {
+      // See if new config API is being used
+      if (pset.exists("files") or
+          (not(pset.exists("destinations") or pset.existsAs<std::vector<std::string>>("statistics", true) or
+               pset.existsAs<std::vector<std::string>>("statistics", false) or pset.exists("categories")))) {
+        return;
+      }
+
       // Four types of material are allowed at the MessageLogger level:
       //   PSet lists (such as destinations or categories
       //   Suppression lists, such as SuppressInfo or debugModules
@@ -65,7 +70,6 @@ namespace edm {
       destinationPSets(pset);
       defaultPSet(pset);
       statisticsPSets(pset);
-      fwkJobReportPSets(pset);
       categoryPSets(pset, "MessageLogger");
 
       // No other PSets -- unless they contain optionalPSet or placeholder=True
@@ -85,93 +89,82 @@ namespace edm {
 
       // Append explanatory information if flaws were found
 
-      if (!flaws.str().empty()) {
-        flaws << "\nThe above are from MessageLogger configuration validation.\n"
-              << "In most cases, these involve lines that the logger configuration code\n"
-              << "would not process, but which the cfg creator obviously meant to have "
-              << "effect.\n";
+      if (!flaws_.str().empty()) {
+        flaws_ << "\nThe above are from MessageLogger configuration validation.\n"
+               << "In most cases, these involve lines that the logger configuration code\n"
+               << "would not process, but which the cfg creator obviously meant to have "
+               << "effect.\n";
       }
 
     }  // messageLoggerPSet
 
     void edm::service::MessageServicePSetValidation::psetLists(ParameterSet const& pset) {
-      destinations = check<vString>(pset, "MessageLogger", "destinations");
-      noDuplicates(destinations, "MessageLogger", "destinations");
-      noKeywords(destinations, "MessageLogger", "destinations");
-      noNonPSetUsage(pset, destinations, "MessageLogger", "destinations");
-      // REMOVED: noCoutCerrClash(destinations,"MessageLogger", "destinations");
+      destinations_ = check<vString>(pset, "MessageLogger", "destinations");
+      noDuplicates(destinations_, "MessageLogger", "destinations");
+      noKeywords(destinations_, "MessageLogger", "destinations");
+      noNonPSetUsage(pset, destinations_, "MessageLogger", "destinations");
+      // REMOVED: noCoutCerrClash(destinations_,"MessageLogger", "destinations");
 
-      statistics = check<vString>(pset, "MessageLogger", "statistics");
-      noDuplicates(statistics, "MessageLogger", "statistics");
-      noKeywords(statistics, "MessageLogger", "statistics");
-      noNonPSetUsage(pset, statistics, "MessageLogger", "statistics");
+      statistics_ = check<vString>(pset, "MessageLogger", "statistics");
+      noDuplicates(statistics_, "MessageLogger", "statistics");
+      noKeywords(statistics_, "MessageLogger", "statistics");
+      noNonPSetUsage(pset, statistics_, "MessageLogger", "statistics");
 
-      fwkJobReports = check<vString>(pset, "MessageLogger", "fwkJobReports");
-      noDuplicates(fwkJobReports, "MessageLogger", "fwkJobReports");
-      noKeywords(fwkJobReports, "MessageLogger", "fwkJobReports");
-      noNonPSetUsage(pset, fwkJobReports, "MessageLogger", "fwkJobReports");
-      noDuplicates(fwkJobReports, destinations, "MessageLogger", "fwkJobReports", "destinations");
-      noDuplicates(fwkJobReports, statistics, "MessageLogger", "fwkJobReports", "statistics");
-
-      categories = check<vString>(pset, "MessageLogger", "categories");
-      noDuplicates(categories, "MessageLogger", "categories");
-      noKeywords(categories, "MessageLogger", "categories");
-      noNonPSetUsage(pset, categories, "MessageLogger", "categories");
-      noDuplicates(categories, destinations, "MessageLogger", "categories", "destinations");
-      noDuplicates(categories, statistics, "MessageLogger", "categories", "statistics");
-      noDuplicates(categories, fwkJobReports, "MessageLogger", "categories", "fwkJobReports");
-
-      messageIDs = check<vString>(pset, "MessageLogger", "messageIDs");
-      noDuplicates(messageIDs, "MessageLogger", "messageIDs");
-      noKeywords(messageIDs, "MessageLogger", "messageIDs");
-      noNonPSetUsage(pset, messageIDs, "MessageLogger", "messageIDs");
-      noDuplicates(messageIDs, destinations, "MessageLogger", "messageIDs", "destinations");
-      noDuplicates(messageIDs, statistics, "MessageLogger", "messageIDs", "statistics");
-      noDuplicates(messageIDs, fwkJobReports, "MessageLogger", "messageIDs", "fwkJobReports");
-      noDuplicates(messageIDs, fwkJobReports, "MessageLogger", "messageIDs", "categories");
+      categories_ = check<vString>(pset, "MessageLogger", "categories");
+      noDuplicates(categories_, "MessageLogger", "categories");
+      noKeywords(categories_, "MessageLogger", "categories");
+      noNonPSetUsage(pset, categories_, "MessageLogger", "categories");
+      noDuplicates(categories_, destinations_, "MessageLogger", "categories", "destinations");
+      noDuplicates(categories_, statistics_, "MessageLogger", "categories", "statistics");
 
     }  // psetLists
 
     void edm::service::MessageServicePSetValidation::suppressionLists(ParameterSet const& pset) {
-      debugModules = check<vString>(pset, "MessageLogger", "debugModules");
-      bool dmStar = wildcard(debugModules);
-      if (dmStar && debugModules.size() != 1) {
-        flaws << "MessageLogger"
-              << " PSet: \n"
-              << "debugModules contains wildcard character *"
-              << " and also " << debugModules.size() - 1 << " other entries - * must be alone\n";
+      debugModules_ = check<vString>(pset, "MessageLogger", "debugModules");
+      bool dmStar = wildcard(debugModules_);
+      if (dmStar && debugModules_.size() != 1) {
+        flaws_ << "MessageLogger"
+               << " PSet: \n"
+               << "debugModules contains wildcard character *"
+               << " and also " << debugModules_.size() - 1 << " other entries - * must be alone\n";
       }
-      suppressDebug = check<vString>(pset, "MessageLogger", "suppressDebug");
-      if ((!suppressDebug.empty()) && (!dmStar)) {
-        flaws << "MessageLogger"
-              << " PSet: \n"
-              << "suppressDebug contains modules, but debugModules is not *\n"
-              << "Unless all the debugModules are enabled,\n"
-              << "suppressing specific modules is meaningless\n";
+      suppressDebug_ = check<vString>(pset, "MessageLogger", "suppressDebug");
+      if ((!suppressDebug_.empty()) && (!dmStar)) {
+        flaws_ << "MessageLogger"
+               << " PSet: \n"
+               << "suppressDebug contains modules, but debugModules is not *\n"
+               << "Unless all the debugModules are enabled,\n"
+               << "suppressing specific modules is meaningless\n";
       }
-      if (wildcard(suppressDebug)) {
-        flaws << "MessageLogger"
-              << " PSet: \n"
-              << "Use of wildcard (*) in suppressDebug is not supported\n"
-              << "By default, LogDebug is suppressed for all modules\n";
+      if (wildcard(suppressDebug_)) {
+        flaws_ << "MessageLogger"
+               << " PSet: \n"
+               << "Use of wildcard (*) in suppressDebug is not supported\n"
+               << "By default, LogDebug is suppressed for all modules\n";
       }
-      suppressInfo = check<vString>(pset, "MessageLogger", "suppressInfo");
-      if (wildcard(suppressInfo)) {
-        flaws << "MessageLogger"
-              << " PSet: \n"
-              << "Use of wildcard (*) in suppressInfo is not supported\n";
+      suppressInfo_ = check<vString>(pset, "MessageLogger", "suppressInfo");
+      if (wildcard(suppressInfo_)) {
+        flaws_ << "MessageLogger"
+               << " PSet: \n"
+               << "Use of wildcard (*) in suppressInfo is not supported\n";
       }
-      suppressWarning = check<vString>(pset, "MessageLogger", "suppressWarning");
-      if (wildcard(suppressWarning)) {
-        flaws << "MessageLogger"
-              << " PSet: \n"
-              << "Use of wildcard (*) in suppressWarning is not supported\n";
+      suppressFwkInfo_ = check<vString>(pset, "MessageLogger", "suppressFwkInfo");
+      if (wildcard(suppressFwkInfo_)) {
+        flaws_ << "MessageLogger"
+               << " PSet: \n"
+               << "Use of wildcard (*) in suppressFwkInfo is not supported\n";
       }
-      suppressError = check<vString>(pset, "MessageLogger", "suppressError");
-      if (wildcard(suppressError)) {
-        flaws << "MessageLogger"
-              << " PSet: \n"
-              << "Use of wildcard (*) in suppressError is not supported\n";
+      suppressWarning_ = check<vString>(pset, "MessageLogger", "suppressWarning");
+      if (wildcard(suppressWarning_)) {
+        flaws_ << "MessageLogger"
+               << " PSet: \n"
+               << "Use of wildcard (*) in suppressWarning is not supported\n";
+      }
+      suppressError_ = check<vString>(pset, "MessageLogger", "suppressError");
+      if (wildcard(suppressError_)) {
+        flaws_ << "MessageLogger"
+               << " PSet: \n"
+               << "Use of wildcard (*) in suppressError is not supported\n";
       }
 
     }  // suppressionLists
@@ -182,19 +175,19 @@ namespace edm {
       vString::const_iterator end = vStrings.end();
       for (vString::const_iterator i = vStrings.begin(); i != end; ++i) {
         if (!allowedVstring(*i)) {
-          flaws << "MessageLogger"
-                << " PSet: \n"
-                << (*i) << " is used as a vstring, "
-                << "but no such vstring is recognized\n";
+          flaws_ << "MessageLogger"
+                 << " PSet: \n"
+                 << (*i) << " is used as a vstring, "
+                 << "but no such vstring is recognized\n";
         }
       }
       vStrings = pset.getParameterNamesForType<vString>(true);
       end = vStrings.end();
       for (vString::const_iterator i = vStrings.begin(); i != end; ++i) {
-        flaws << "MessageLogger"
-              << " PSet: \n"
-              << (*i) << " is used as a tracked vstring: "
-              << "tracked parameters not allowed here\n";
+        flaws_ << "MessageLogger"
+               << " PSet: \n"
+               << (*i) << " is used as a tracked vstring: "
+               << "tracked parameters not allowed here\n";
       }
     }  // vStringsCheck
 
@@ -205,15 +198,13 @@ namespace edm {
         return true;
       if (s == "destinations")
         return true;
-      if (s == "fwkJobReports")
-        return true;
       if (s == "categories")
-        return true;
-      if (s == "messageIDs")
         return true;
       if (s == "debugModules")
         return true;
       if (s == "suppressInfo")
+        return true;
+      if (s == "suppressFwkInfo")
         return true;
       if (s == "suppressDebug")
         return true;
@@ -228,8 +219,8 @@ namespace edm {
                                                                        std::string const& psetName) {
       if (checkThreshold(thresh))
         return true;
-      flaws << psetName << " PSet: \n"
-            << "threshold has value " << thresh << " which is not among {DEBUG, INFO, WARNING, ERROR}\n";
+      flaws_ << psetName << " PSet: \n"
+             << "threshold has value " << thresh << " which is not among {DEBUG, INFO, FWKINFO, WARNING, ERROR}\n";
       return false;
     }  // validateThreshold
 
@@ -237,6 +228,8 @@ namespace edm {
       if (thresh == "WARNING")
         return true;
       if (thresh == "INFO")
+        return true;
+      if (thresh == "FWKINFO")
         return true;
       if (thresh == "ERROR")
         return true;
@@ -252,8 +245,8 @@ namespace edm {
       for (vString::const_iterator i = v.begin(); i != end; ++i) {
         for (vString::const_iterator j = i + 1; j != end; ++j) {
           if (*i == *j) {
-            flaws << psetName << " PSet: \n"
-                  << "in vString " << parameterLabel << " duplication of the string " << *i << "\n";
+            flaws_ << psetName << " PSet: \n"
+                   << "in vString " << parameterLabel << " duplication of the string " << *i << "\n";
           }
         }
       }
@@ -269,8 +262,8 @@ namespace edm {
       for (vString::const_iterator i = v1.begin(); i != end1; ++i) {
         for (vString::const_iterator j = v2.begin(); j != end2; ++j) {
           if (*i == *j) {
-            flaws << psetName << " PSet: \n"
-                  << "in vStrings " << p1 << " and " << p2 << " duplication of the string " << *i << "\n";
+            flaws_ << psetName << " PSet: \n"
+                   << "in vStrings " << p1 << " and " << p2 << " duplication of the string " << *i << "\n";
           }
         }
       }
@@ -289,8 +282,8 @@ namespace edm {
           cerrPresent = true;
       }
       if (coutPresent && cerrPresent) {
-        flaws << psetName << " PSet: \n"
-              << "vString " << parameterLabel << " has both cout and cerr \n";
+        flaws_ << psetName << " PSet: \n"
+               << "vString " << parameterLabel << " has both cout and cerr \n";
       }
     }  // noCoutCerrClash(v)
 
@@ -300,8 +293,8 @@ namespace edm {
       vString::const_iterator end = v.end();
       for (vString::const_iterator i = v.begin(); i != end; ++i) {
         if (!keywordCheck(*i)) {
-          flaws << psetName << " PSet: \n"
-                << "vString " << parameterLabel << " should not contain the keyword " << *i << "\n";
+          flaws_ << psetName << " PSet: \n"
+                 << "vString " << parameterLabel << " should not contain the keyword " << *i << "\n";
         }
       }
     }  // noKeywords(v)
@@ -311,10 +304,6 @@ namespace edm {
         return false;
       if (word == "categories")
         return false;
-      if (word == "messageIDs")
-        return false;
-      if (word == "fwkJobReports")
-        return false;
       if (word == "destinations")
         return false;
       if (word == "statistics")
@@ -322,6 +311,8 @@ namespace edm {
       if (word == "debugModules")
         return false;
       if (word == "suppressInfo")
+        return false;
+      if (word == "suppressFwkInfo")
         return false;
       if (word == "suppressDebug")
         return false;
@@ -334,6 +325,8 @@ namespace edm {
       if (word == "ERROR")
         return false;
       if (word == "WARNING")
+        return false;
+      if (word == "FWKINFO")
         return false;
       if (word == "INFO")
         return false;
@@ -363,6 +356,12 @@ namespace edm {
         return false;
       if (word == "optionalPSet")
         return false;
+      if (word == "enableStatistics")
+        return false;
+      if (word == "statisticsThreshold")
+        return false;
+      if (word == "resetStatistics")
+        return false;
       return true;
     }  // keywordCheck
 
@@ -376,7 +375,7 @@ namespace edm {
       disallowedParam<float>(pset, v, psetName, parameterLabel, "float");
       disallowedParam<double>(pset, v, psetName, parameterLabel, "double");
       disallowedParam<std::string>(pset, v, psetName, parameterLabel, "string");
-      disallowedParam<std::vector<std::string> >(pset, v, psetName, parameterLabel, "vstring");
+      disallowedParam<std::vector<std::string>>(pset, v, psetName, parameterLabel, "vstring");
     }  // noNonPSetUsage
 
     void edm::service::MessageServicePSetValidation::noBadParams(vString const& v,
@@ -389,9 +388,9 @@ namespace edm {
       for (vString::const_iterator i = v.begin(); i != end1; ++i) {
         for (vString::const_iterator j = params.begin(); j != end2; ++j) {
           if (*i == *j) {
-            flaws << psetName << " PSet: \n"
-                  << *i << " (listed in vstring " << parameterLabel << ")\n"
-                  << "is used as a parameter of type " << type << " instead of as a PSet \n";
+            flaws_ << psetName << " PSet: \n"
+                   << *i << " (listed in vstring " << parameterLabel << ")\n"
+                   << "is used as a parameter of type " << type << " instead of as a PSet \n";
           }
         }
       }
@@ -412,15 +411,11 @@ namespace edm {
       pset.getParameterSetNames(psnames, false);
       vString::const_iterator end = psnames.end();
       for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
-        if (lookForMatch(destinations, *i))
+        if (lookForMatch(destinations_, *i))
           continue;
-        if (lookForMatch(statistics, *i))
+        if (lookForMatch(statistics_, *i))
           continue;
-        if (lookForMatch(fwkJobReports, *i))
-          continue;
-        if (lookForMatch(categories, *i))
-          continue;
-        if (lookForMatch(messageIDs, *i))
+        if (lookForMatch(categories_, *i))
           continue;
         if ((*i) == "default")
           continue;
@@ -434,18 +429,18 @@ namespace edm {
         }
         if (ok_optionalPSet)
           continue;
-        flaws << "MessageLogger "
-              << " PSet: \n"
-              << *i << " is an unrecognized name for a PSet\n";
+        flaws_ << "MessageLogger "
+               << " PSet: \n"
+               << *i << " is an unrecognized name for a PSet\n";
       }
       psnames.clear();
       unsigned int n = pset.getParameterSetNames(psnames, true);
       if (n > 0) {
         end = psnames.end();
         for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
-          flaws << "MessageLogger "
-                << " PSet: \n"
-                << "PSet " << *i << " is tracked - not allowed\n";
+          flaws_ << "MessageLogger "
+                 << " PSet: \n"
+                 << "PSet " << *i << " is tracked - not allowed\n";
         }
       }
     }
@@ -458,8 +453,8 @@ namespace edm {
 
     void edm::service::MessageServicePSetValidation::destinationPSets(ParameterSet const& pset) {
       ParameterSet empty_PSet;
-      std::vector<std::string>::const_iterator end = destinations.end();
-      for (std::vector<std::string>::const_iterator i = destinations.begin(); i != end; ++i) {
+      std::vector<std::string>::const_iterator end = destinations_.end();
+      for (std::vector<std::string>::const_iterator i = destinations_.begin(); i != end; ++i) {
         ParameterSet const& d = pset.getUntrackedParameterSet(*i, empty_PSet);
         destinationPSet(d, *i);
       }
@@ -478,19 +473,26 @@ namespace edm {
       // General parameters
 
       check<bool>(pset, psetName, "placeholder");
+      {
+        std::string thresh = check<std::string>(pset, "psetName", "statisticsThreshold");
+        if (!thresh.empty())
+          validateThreshold(thresh, psetName);
+      }
       std::string thresh = check<std::string>(pset, "psetName", "threshold");
       if (!thresh.empty())
         validateThreshold(thresh, psetName);
       check<bool>(pset, psetName, "noLineBreaks");
       check<int>(pset, psetName, "lineLength");
       check<bool>(pset, psetName, "noTimeStamps");
+      check<bool>(pset, psetName, "enableStatistics");
+      check<bool>(pset, psetName, "resetStatistics");
       std::string s = check<std::string>(pset, "psetName", "filename");
       if ((s == "cerr") || (s == "cout")) {
-        flaws << psetName << " PSet: \n" << s << " is not allowed as a value of filename \n";
+        flaws_ << psetName << " PSet: \n" << s << " is not allowed as a value of filename \n";
       }
       s = check<std::string>(pset, "psetName", "extension");
       if ((s == "cerr") || (s == "cout")) {
-        flaws << psetName << " PSet: \n" << s << " is not allowed as a value of extension \n";
+        flaws_ << psetName << " PSet: \n" << s << " is not allowed as a value of extension \n";
       }
       s = check<std::string>(pset, "psetName", "output");
 
@@ -503,8 +505,11 @@ namespace edm {
       okbool.push_back("optionalPSet");
       okbool.push_back("noLineBreaks");
       okbool.push_back("noTimeStamps");
+      okbool.push_back("enableStatistics");
+      okbool.push_back("resetStatistics");
       noneExcept<bool>(pset, psetName, "bool", okbool);
       vString okstring;
+      okstring.push_back("statisticsThreshold");
       okstring.push_back("threshold");
       okstring.push_back("output");
       okstring.push_back("filename");
@@ -564,9 +569,9 @@ namespace edm {
 
     void edm::service::MessageServicePSetValidation::statisticsPSets(ParameterSet const& pset) {
       ParameterSet empty_PSet;
-      std::vector<std::string>::const_iterator end = statistics.end();
-      for (std::vector<std::string>::const_iterator i = statistics.begin(); i != end; ++i) {
-        if (lookForMatch(destinations, *i))
+      std::vector<std::string>::const_iterator end = statistics_.end();
+      for (std::vector<std::string>::const_iterator i = statistics_.begin(); i != end; ++i) {
+        if (lookForMatch(destinations_, *i))
           continue;
         ParameterSet const& d = pset.getUntrackedParameterSet(*i, empty_PSet);
         statisticsPSet(d, *i);
@@ -592,11 +597,11 @@ namespace edm {
       check<bool>(pset, psetName, "reset");
       std::string s = check<std::string>(pset, "psetName", "filename");
       if ((s == "cerr") || (s == "cout")) {
-        flaws << psetName << " PSet: \n" << s << " is not allowed as a value of filename \n";
+        flaws_ << psetName << " PSet: \n" << s << " is not allowed as a value of filename \n";
       }
       s = check<std::string>(pset, "psetName", "extension");
       if ((s == "cerr") || (s == "cout")) {
-        flaws << psetName << " PSet: \n" << s << " is not allowed as a value of extension \n";
+        flaws_ << psetName << " PSet: \n" << s << " is not allowed as a value of extension \n";
       }
       s = check<std::string>(pset, "psetName", "output");
 
@@ -618,69 +623,21 @@ namespace edm {
 
     }  // statisticsPSet
 
-    void edm::service::MessageServicePSetValidation::fwkJobReportPSets(ParameterSet const& pset) {
-      ParameterSet empty_PSet;
-      std::vector<std::string>::const_iterator end = fwkJobReports.end();
-      for (std::vector<std::string>::const_iterator i = fwkJobReports.begin(); i != end; ++i) {
-        ParameterSet const& d = pset.getUntrackedParameterSet(*i, empty_PSet);
-        fwkJobReportPSet(d, *i);
-      }
-    }  // fwkJobReportPSets
-
-    void edm::service::MessageServicePSetValidation::fwkJobReportPSet(ParameterSet const& pset,
-                                                                      std::string const& psetName) {
-      // Category PSets
-
-      categoryPSets(pset, psetName);
-
-      // No other PSets -- unless they contain optionalPSet or placeholder=True
-
-      noNoncategoryPsets(pset, psetName);
-
-      // General parameters
-
-      check<bool>(pset, psetName, "placeholder");
-      std::string s = check<std::string>(pset, "psetName", "filename");
-      if ((s == "cerr") || (s == "cout")) {
-        flaws << psetName << " PSet: \n" << s << " is not allowed as a value of filename \n";
-      }
-      s = check<std::string>(pset, "psetName", "extension");
-      if ((s == "cerr") || (s == "cout")) {
-        flaws << psetName << " PSet: \n" << s << " is not allowed as a value of extension \n";
-      }
-      s = check<std::string>(pset, "psetName", "output");
-
-      // No other parameters
-
-      noneExcept<int>(pset, psetName, "int");
-
-      vString okbool;
-      okbool.push_back("placeholder");
-      okbool.push_back("optionalPSet");
-      noneExcept<bool>(pset, psetName, "bool", okbool);
-      vString okstring;
-      okstring.push_back("output");
-      okstring.push_back("filename");
-      okstring.push_back("extension");
-      noneExcept<std::string>(pset, psetName, "string", okstring);
-
-    }  // fwkJobReportPSet
-
     void edm::service::MessageServicePSetValidation::noNoncategoryPsets(ParameterSet const& pset,
                                                                         std::string const& psetName) {
       vString psnames;
       pset.getParameterSetNames(psnames, false);
       vString::const_iterator end = psnames.end();
       for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
-        if (lookForMatch(categories, *i))
-          continue;
-        if (lookForMatch(messageIDs, *i))
+        if (lookForMatch(categories_, *i))
           continue;
         if ((*i) == "default")
           continue;
         if ((*i) == "ERROR")
           continue;
         if ((*i) == "WARNING")
+          continue;
+        if ((*i) == "FWKINFO")
           continue;
         if ((*i) == "INFO")
           continue;
@@ -696,15 +653,15 @@ namespace edm {
         }
         if (ok_optionalPSet)
           continue;
-        flaws << psetName << " PSet: \n" << *i << " is an unrecognized name for a PSet in this context \n";
+        flaws_ << psetName << " PSet: \n" << *i << " is an unrecognized name for a PSet in this context \n";
       }
       psnames.clear();
       unsigned int n = pset.getParameterSetNames(psnames, true);
       if (n > 0) {
         end = psnames.end();
         for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
-          flaws << psetName << " PSet: \n"
-                << "PSet " << *i << " is tracked - not allowed\n";
+          flaws_ << psetName << " PSet: \n"
+                 << "PSet " << *i << " is tracked - not allowed\n";
         }
       }
     }  // noNoncategoryPsets
@@ -713,14 +670,15 @@ namespace edm {
                                                                    std::string const& psetName) {
       categoryPSet(pset, psetName, "ERROR");
       categoryPSet(pset, psetName, "WARNING");
+      categoryPSet(pset, psetName, "FWKINFO");
       categoryPSet(pset, psetName, "INFO");
       categoryPSet(pset, psetName, "DEBUG");
       if (psetName != "MessageLogger")
         categoryPSet(pset, psetName, "default");
       // The above conditional is because default in the main level is treated
       // as a set of defaults differnt from those of a simple category.
-      std::vector<std::string>::const_iterator end = categories.end();
-      for (std::vector<std::string>::const_iterator i = categories.begin(); i != end; ++i) {
+      std::vector<std::string>::const_iterator end = categories_.end();
+      for (std::vector<std::string>::const_iterator i = categories_.begin(); i != end; ++i) {
         categoryPSet(pset, psetName, *i);
       }
     }  // categoryPSets
@@ -729,8 +687,8 @@ namespace edm {
                                                                   std::string const& OuterPsetName,
                                                                   std::string const& categoryName) {
       if (pset.existsAs<ParameterSet>(categoryName, true)) {
-        flaws << OuterPsetName << " PSet: \n"
-              << "Category PSet " << categoryName << " is tracked - not allowed\n";
+        flaws_ << OuterPsetName << " PSet: \n"
+               << "Category PSet " << categoryName << " is tracked - not allowed\n";
         return;
       }
       ParameterSet empty_PSet;
@@ -758,15 +716,15 @@ namespace edm {
           continue;
         if (*i == "timespan")
           continue;
-        flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
-              << (*i) << " is not an allowed parameter within a category PSet \n";
+        flaws_ << categoryName << " category PSet nested in " << psetName << " PSet: \n"
+               << (*i) << " is not an allowed parameter within a category PSet \n";
       }
       x = pset.getParameterNamesForType<int>(true);
       end = x.end();
       for (vString::const_iterator i = x.begin(); i != end; ++i) {
-        flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
-              << (*i) << " is used as a tracked int \n"
-              << "Tracked parameters not allowed here \n";
+        flaws_ << categoryName << " category PSet nested in " << psetName << " PSet: \n"
+               << (*i) << " is used as a tracked int \n"
+               << "Tracked parameters not allowed here \n";
       }
     }  // catInts()
 
@@ -777,19 +735,19 @@ namespace edm {
       pset.getParameterSetNames(psnames, false);
       vString::const_iterator end = psnames.end();
       for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
-        flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
-              << *i << " is used as a  PSet\n"
-              << "PSets not allowed within a category PSet\n";
+        flaws_ << categoryName << " category PSet nested in " << psetName << " PSet: \n"
+               << *i << " is used as a  PSet\n"
+               << "PSets not allowed within a category PSet\n";
       }
       psnames.clear();
       unsigned int n = pset.getParameterSetNames(psnames, true);
       if (n > 0) {
         end = psnames.end();
         for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
-          flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
-                << *i << " is used as a tracked PSet\n"
-                << "tracked parameters not permitted, and "
-                << "PSets not allowed within a category PSet\n";
+          flaws_ << categoryName << " category PSet nested in " << psetName << " PSet: \n"
+                 << *i << " is used as a tracked PSet\n"
+                 << "tracked parameters not permitted, and "
+                 << "PSets not allowed within a category PSet\n";
         }
       }
     }  // catNoPSets
@@ -803,17 +761,17 @@ namespace edm {
       for (vString::const_iterator i = x.begin(); i != end; ++i) {
         if (((*i) == "placeholder") || ((*i) == "optionalPSet"))
           continue;
-        flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
-              << (*i) << " is used as a " << type << "\n"
-              << "Usage of " << type << " is not recognized here\n";
+        flaws_ << categoryName << " category PSet nested in " << psetName << " PSet: \n"
+               << (*i) << " is used as a " << type << "\n"
+               << "Usage of " << type << " is not recognized here\n";
       }
       x = pset.getParameterNamesForType<bool>(true);
       end = x.end();
       for (vString::const_iterator i = x.begin(); i != end; ++i) {
-        flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
-              << (*i) << " is used as a tracked " << type << "\n"
-              << "Tracked parameters not allowed here, "
-              << " and even untracked it would not be recognized\n";
+        flaws_ << categoryName << " category PSet nested in " << psetName << " PSet: \n"
+               << (*i) << " is used as a tracked " << type << "\n"
+               << "Tracked parameters not allowed here, "
+               << " and even untracked it would not be recognized\n";
       }
     }  // catBoolRestriction()
 

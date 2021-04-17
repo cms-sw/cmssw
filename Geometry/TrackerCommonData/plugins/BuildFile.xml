@@ -1,6 +1,6 @@
 <library file="*.cc" name="GeometryTrackerCommonDataPlugin">
-  <use name="DetectorDescription/Parser"/>
-  <use name="FWCore/PluginManager"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="FWCore/MessageLogger"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 

@@ -1,11 +1,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "DPGAnalysis/SiStripTools/interface/APVLatency.h"
 //#include "DPGAnalysis/SiStripTools/interface/APVLatencyRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "FWCore/Utilities/interface/Exception.h"
 
@@ -38,6 +35,7 @@ EventWithHistoryFilter::EventWithHistoryFilter(const edm::ParameterSet& iConfig,
       m_partition(iConfig.getUntrackedParameter<std::string>("partitionName", "Any")),
       m_APVPhaseToken(iC.consumes<APVCyclePhaseCollection>(
           edm::InputTag(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel", "APVPhases")))),
+      m_apvLatencyToken(iC.esConsumes<SiStripLatency, SiStripLatencyRcd>()),
       m_apvmodes(iConfig.getUntrackedParameter<std::vector<int> >("apvModes", std::vector<int>())),
       m_dbxrange(iConfig.getUntrackedParameter<std::vector<int> >("dbxRange", std::vector<int>())),
       m_dbxrangelat(iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware", std::vector<int>())),
@@ -66,6 +64,7 @@ void EventWithHistoryFilter::set(const edm::ParameterSet& iConfig, edm::Consumes
   m_partition = iConfig.getUntrackedParameter<std::string>("partitionName", "Any");
   m_APVPhaseToken = iC.consumes<APVCyclePhaseCollection>(
       edm::InputTag(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel", "APVPhases")));
+  m_apvLatencyToken = iC.esConsumes<SiStripLatency, SiStripLatencyRcd>();
   m_dbxrange = iConfig.getUntrackedParameter<std::vector<int> >("dbxRange", std::vector<int>());
   m_dbxrangelat = iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware", std::vector<int>());
   m_bxrange = iConfig.getUntrackedParameter<std::vector<int> >("absBXRange", std::vector<int>());
@@ -185,9 +184,8 @@ const int EventWithHistoryFilter::getAPVLatency(const edm::EventSetup& iSetup) c
   if (isAPVLatencyNotNeeded())
     return -1;
 
-  edm::ESHandle<SiStripLatency> apvlat;
-  iSetup.get<SiStripLatencyRcd>().get(apvlat);
-  const int latency = apvlat->singleLatency() != 255 ? apvlat->singleLatency() : -1;
+  const auto& apvlat = iSetup.getData(m_apvLatencyToken);
+  const int latency = apvlat.singleLatency() != 255 ? apvlat.singleLatency() : -1;
 
   // thrown an exception if latency value is invalid
   /*
@@ -202,12 +200,11 @@ const int EventWithHistoryFilter::getAPVMode(const edm::EventSetup& iSetup) cons
   if (isAPVModeNotNeeded())
     return -1;
 
-  edm::ESHandle<SiStripLatency> apvlat;
-  iSetup.get<SiStripLatencyRcd>().get(apvlat);
+  const auto& apvlat = iSetup.getData(m_apvLatencyToken);
   int mode = -1;
-  if (apvlat->singleReadOutMode() == 1)
+  if (apvlat.singleReadOutMode() == 1)
     mode = 47;
-  if (apvlat->singleReadOutMode() == 0)
+  if (apvlat.singleReadOutMode() == 0)
     mode = 37;
 
   // thrown an exception if mode value is invalid
