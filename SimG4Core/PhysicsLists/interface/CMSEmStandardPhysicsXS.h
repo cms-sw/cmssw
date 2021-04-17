@@ -10,13 +10,13 @@
 
 #include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
+#include "G4MscStepLimitType.hh"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class CMSEmStandardPhysics : public G4VPhysicsConstructor {
+class CMSEmStandardPhysicsXS : public G4VPhysicsConstructor {
 public:
   CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSet& p);
-  CMSEmStandardPhysicsXS(G4int ver);
   ~CMSEmStandardPhysicsXS() override;
 
   void ConstructParticle() override;

@@ -1,4 +1,6 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "G4SystemOfUnits.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4LossTableManager.hh"
@@ -28,19 +30,14 @@
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
 #include "G4Generator2BS.hh"
-#include "G4Generator2BN.hh"
 #include "G4SeltzerBergerModel.hh"
 #include "G4ePairProduction.hh"
-#include "G4LivermoreIonisationModel.hh"
-#include "G4PenelopeIonisationModel.hh"
 #include "G4UniversalFluctuation.hh"
 
 #include "G4eplusAnnihilation.hh"
 
 #include "G4hIonisation.hh"
 #include "G4ionIonisation.hh"
-#include "G4IonParametrisedLossModel.hh"
-#include "G4NuclearStopping.hh"
 
 #include "G4Gamma.hh"
 #include "G4Electron.hh"
@@ -49,96 +46,8 @@
 
 #include "G4PhysicsListHelper.hh"
 #include "G4BuilderType.hh"
-#include "G4EmModelActivator.hh"
 #include "G4GammaGeneralProcess.hh"
 
---
-#include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "G4EmParameters.hh"
-#include "G4ParticleTable.hh"
-
-#include "G4ParticleDefinition.hh"
-#include "G4LossTableManager.hh"
-#include "G4EmParameters.hh"
-
-#include "G4ComptonScattering.hh"
-#include "G4GammaConversion.hh"
-#include "G4PhotoElectricEffect.hh"
-#include "G4LivermorePhotoElectricModel.hh"
-#include "G4KleinNishinaModel.hh"
-
-#include "G4hMultipleScattering.hh"
-#include "G4eMultipleScattering.hh"
-#include "G4MuMultipleScattering.hh"
-#include "G4CoulombScattering.hh"
-#include "G4eCoulombScatteringModel.hh"
-#include "G4WentzelVIModel.hh"
-#include "G4UrbanMscModel.hh"
-#include "G4GoudsmitSaundersonMscModel.hh"
-#include "G4MscStepLimitType.hh"
-
-#include "G4eIonisation.hh"
-#include "G4eBremsstrahlung.hh"
-#include "G4eplusAnnihilation.hh"
-#include "G4Generator2BS.hh"
-#include "G4SeltzerBergerModel.hh"
-
-#include "G4MuIonisation.hh"
-#include "G4MuBremsstrahlung.hh"
-#include "G4MuPairProduction.hh"
-
-#include "G4MuBremsstrahlungModel.hh"
-#include "G4MuPairProductionModel.hh"
-#include "G4hBremsstrahlungModel.hh"
-#include "G4hPairProductionModel.hh"
-#include "G4ePairProduction.hh"
-
-#include "G4hIonisation.hh"
-#include "G4ionIonisation.hh"
-#include "G4hBremsstrahlung.hh"
-#include "G4hPairProduction.hh"
-#include "G4UAtomicDeexcitation.hh"
-
-#include "G4Gamma.hh"
-#include "G4Electron.hh"
-#include "G4Positron.hh"
-#include "G4MuonPlus.hh"
-#include "G4MuonMinus.hh"
-#include "G4TauMinus.hh"
-#include "G4TauPlus.hh"
-#include "G4PionPlus.hh"
-#include "G4PionMinus.hh"
-#include "G4KaonPlus.hh"
-#include "G4KaonMinus.hh"
-#include "G4BMesonMinus.hh"
-#include "G4BMesonPlus.hh"
-#include "G4DMesonMinus.hh"
-#include "G4DMesonPlus.hh"
-#include "G4Proton.hh"
-#include "G4AntiProton.hh"
-#include "G4SigmaMinus.hh"
-#include "G4AntiSigmaMinus.hh"
-#include "G4SigmaPlus.hh"
-#include "G4AntiSigmaPlus.hh"
-#include "G4XiMinus.hh"
-#include "G4AntiXiMinus.hh"
-#include "G4OmegaMinus.hh"
-#include "G4AntiOmegaMinus.hh"
-#include "G4LambdacPlus.hh"
-#include "G4AntiLambdacPlus.hh"
-#include "G4XicPlus.hh"
-#include "G4AntiXicPlus.hh"
-#include "G4Deuteron.hh"
-#include "G4Triton.hh"
-#include "G4He3.hh"
-#include "G4Alpha.hh"
-#include "G4GenericIon.hh"
-
-#include "G4PhysicsListHelper.hh"
-#include "G4BuilderType.hh"
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
 #include "G4GammaGeneralProcess.hh"
@@ -304,11 +213,11 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   particle = G4Positron::Positron();
 
   // multiple scattering
-  G4eMultipleScattering* msc = new G4eMultipleScattering();
-  G4UrbanMscModel* msc1 = new G4UrbanMscModel();
-  G4WentzelVIModel* msc2 = new G4WentzelVIModel();
-  G4UrbanMscModel* msc4 = new G4UrbanMscModel();
-  G4GoudsmitSaundersonMscModel* msc3 = new G4GoudsmitSaundersonMscModel();
+  msc = new G4eMultipleScattering();
+  msc1 = new G4UrbanMscModel();
+  msc2 = new G4WentzelVIModel();
+  msc4 = new G4UrbanMscModel();
+  msc3 = new G4GoudsmitSaundersonMscModel();
   msc1->SetHighEnergyLimit(highEnergyLimit);
   msc2->SetLowEnergyLimit(highEnergyLimit);
   msc3->SetHighEnergyLimit(highEnergyLimit);
