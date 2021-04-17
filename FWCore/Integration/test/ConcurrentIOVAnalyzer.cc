@@ -44,8 +44,8 @@ namespace edmtest {
 
   ConcurrentIOVAnalyzer::ConcurrentIOVAnalyzer(edm::ParameterSet const& pset)
       : checkExpectedValues_{pset.getUntrackedParameter<bool>("checkExpectedValues")},
-        esTokenFromESSource_{esConsumes<IOVTestInfo, ESTestRecordI>(edm::ESInputTag("", ""))},
-        esTokenFromESProducer_{esConsumes<IOVTestInfo, ESTestRecordI>(edm::ESInputTag("", "fromESProducer"))} {}
+        esTokenFromESSource_{esConsumes(edm::ESInputTag("", ""))},
+        esTokenFromESProducer_{esConsumes(edm::ESInputTag("", "fromESProducer"))} {}
 
   void ConcurrentIOVAnalyzer::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const& eventSetup) const {
     auto lumiNumber = event.eventAuxiliary().luminosityBlock();

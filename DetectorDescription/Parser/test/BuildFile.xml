@@ -5,7 +5,6 @@
 
 <bin name="testmat" file="testmat.cpp">
   <use name="DetectorDescription/Parser"/>
-  <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSetReader"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ServiceRegistry"/>

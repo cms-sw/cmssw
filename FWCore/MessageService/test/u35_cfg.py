@@ -14,16 +14,18 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    u35_warnings = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        noTimeStamps = cms.untracked.bool(True)
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    u35_infos = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noTimeStamps = cms.untracked.bool(True)
-    ),
-    destinations = cms.untracked.vstring('u35_warnings',
-    					 'u35_infos'
+    files = cms.untracked.PSet(
+        u35_warnings = cms.untracked.PSet(
+            threshold = cms.untracked.string('WARNING'),
+            noTimeStamps = cms.untracked.bool(True)
+        ),
+        u35_infos = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO'),
+            noTimeStamps = cms.untracked.bool(True)
+        )
     )
 )
 

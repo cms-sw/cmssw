@@ -6,7 +6,6 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Utilities/interface/Exception.h>
-#include <FWCore/Framework/interface/EventProcessor.h>
 #include <FWCore/PluginManager/interface/ProblemTracker.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
@@ -52,26 +51,11 @@ public:
 
   void testRead();
 
-  int runIt(const std::string& config);
-
 private:
   const std::string myName_;
   const int dashedLineWidth;
   std::string dashedLine;
 };
-
-int testCSCMapping::runIt(const std::string& config) {
-  edm::AssertHandler ah;
-  int rc = 0;
-  try {
-    edm::EventProcessor proc(edm::getPSetFromConfig(config));
-    proc.run();
-  } catch (cms::Exception& e) {
-    std::cerr << "Exception caught:  " << e.what() << std::endl;
-    rc = 1;
-  }
-  return rc;
-}
 
 void testCSCMapping::testRead() {
   edm::FileInPath fip("CondFormats/CSCObjects/data/csc_slice_test_map.txt");

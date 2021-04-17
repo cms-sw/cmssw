@@ -29,6 +29,7 @@ Implementation:
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -48,6 +49,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   edm::EDGetTokenT<TrackCandidateCollection> label;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> trackBuilderToken;
   std::string builderName;
   double seedY;
 };
@@ -56,6 +58,8 @@ TrackCandidateTopBottomHitFilter::TrackCandidateTopBottomHitFilter(const edm::Pa
   builderName = iConfig.getParameter<std::string>("TTRHBuilder");
   label = consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("Input"));
   seedY = iConfig.getParameter<double>("SeedY");
+  trackBuilderToken = esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord, edm::Transition::BeginRun>(
+      edm::ESInputTag("", builderName));
 
   produces<TrackCandidateCollection>();
 }
@@ -97,7 +101,7 @@ void TrackCandidateTopBottomHitFilter::produce(edm::Event& iEvent, const edm::Ev
 }
 
 void TrackCandidateTopBottomHitFilter::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
+  theBuilder = iSetup.getHandle(trackBuilderToken);
 }
 
 //define this as a plug-in

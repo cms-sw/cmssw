@@ -20,7 +20,6 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/GEMDigiSimLink/interface/ME0DigiSimLink.h"
 
 #include "SimMuon/GEMDigitizer/interface/ME0DigiModelFactory.h"
@@ -40,8 +39,6 @@ namespace CLHEP {
 
 class ME0DigiProducer : public edm::stream::EDProducer<> {
 public:
-  typedef edm::DetSetVector<StripDigiSimLink> StripDigiSimLinks;
-
   typedef edm::DetSetVector<ME0DigiSimLink> ME0DigiSimLinks;
 
   explicit ME0DigiProducer(const edm::ParameterSet& ps);
@@ -64,7 +61,6 @@ ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
     : ME0DigiModel_{
           ME0DigiModelFactory::get()->create("ME0" + ps.getParameter<std::string>("digiModelString") + "Model", ps)} {
   produces<ME0DigiCollection>();
-  produces<StripDigiSimLinks>("ME0");
   produces<ME0DigiSimLinks>("ME0");
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -102,7 +98,6 @@ void ME0DigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   // Create empty output
   auto digis = std::make_unique<ME0DigiCollection>();
-  auto stripDigiSimLinks = std::make_unique<StripDigiSimLinks>();
   auto me0DigiSimLinks = std::make_unique<ME0DigiSimLinks>();
 
   // arrange the hits by eta partition
@@ -124,13 +119,11 @@ void ME0DigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
     ME0DigiModel_->simulateSignal(roll, simHits, engine);
     ME0DigiModel_->simulateNoise(roll, engine);
     ME0DigiModel_->fillDigis(rawId, *digis);
-    (*stripDigiSimLinks).insert(ME0DigiModel_->stripDigiSimLinks());
     (*me0DigiSimLinks).insert(ME0DigiModel_->me0DigiSimLinks());
   }
 
   // store them in the event
   e.put(std::move(digis));
-  e.put(std::move(stripDigiSimLinks), "ME0");
   e.put(std::move(me0DigiSimLinks), "ME0");
 }
 

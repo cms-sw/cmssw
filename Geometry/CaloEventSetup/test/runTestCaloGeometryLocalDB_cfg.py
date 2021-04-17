@@ -30,7 +30,6 @@ process.PoolDBESSourceGeometry = cms.ESSource("PoolDBESSource",
                                                                 cms.PSet(record = cms.string('CSCRecoDigiParametersRcd'),tag = cms.string('CSCRECODIGI_Geometry_TagXX')),
                                                                 cms.PSet(record = cms.string('DTRecoGeometryRcd'),       tag = cms.string('DTRECO_Geometry_TagXX')),
                                                                 cms.PSet(record = cms.string('IdealGeometryRecord'),     tag = cms.string('TKRECO_Geometry_TagXX')),
-                                                                cms.PSet(record = cms.string('PGeometricDetExtraRcd'),   tag = cms.string('TKExtra_Geometry_TagXX')),
                                                                 cms.PSet(record = cms.string('PZdcRcd'),                 tag = cms.string('ZDCRECO_Geometry_TagXX')),
                                                                 cms.PSet(record = cms.string('RPCRecoGeometryRcd'),      tag = cms.string('RPCRECO_Geometry_TagXX'))
                                                                 )

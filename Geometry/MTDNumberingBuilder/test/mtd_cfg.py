@@ -13,49 +13,52 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    statistics = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('MTDUnitTest',
-                                       'GeometricTimingDetAnalyzer',
-                                       'MTDTopologyAnalyzer'),
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        INFO = cms.untracked.PSet(
+        FWKINFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-            ),
+        ),
         GeometricTimingDetAnalyzer = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-            ),
-        MTDTopologyAnalyzer = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            ),
-        noLineBreaks = cms.untracked.bool(True)
         ),
-    mtdNumberingDDD = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        threshold = cms.untracked.string('INFO'),
-        MTDUnitTest = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
-            ),
         ),
-    destinations = cms.untracked.vstring('cout',
-                                         'mtdNumberingDDD')
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(True),
+        threshold = cms.untracked.string('INFO')
+    ),
+    files = cms.untracked.PSet(
+        mtdNumberingDDD = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            ERROR = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            FWKINFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            MTDUnitTest = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            WARNING = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
-process.load("Configuration.Geometry.GeometryExtended2026D50_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D76_cff")
 
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
 
@@ -66,7 +69,5 @@ process.Timing = cms.Service("Timing")
 
 process.prod = cms.EDAnalyzer("GeometricTimingDetAnalyzer")
 
-process.prod1 = cms.EDAnalyzer("MTDTopologyAnalyzer")
-
-process.p1 = cms.Path(process.prod+process.prod1)
+process.p1 = cms.Path(process.prod)
 

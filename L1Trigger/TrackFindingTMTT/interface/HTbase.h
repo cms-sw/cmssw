@@ -3,15 +3,12 @@
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTcell.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track2D.h"
-
-#include <boost/numeric/ublas/matrix.hpp>
+#include "L1Trigger/TrackFindingTMTT/interface/Array2D.h"
 
 #include <vector>
 #include <list>
 #include <utility>
 #include <memory>
-
-using boost::numeric::ublas::matrix;
 
 //=== Base class for Hough Transform array for a single (eta,phi) sector.
 
@@ -45,7 +42,7 @@ namespace tmtt {
 
     // Get all the cells that make up the array, which in turn give access to the stubs inside them.
     // N.B. You can use allCells().size1() and allCells().size2() to get the dimensions ofthe array.
-    virtual const matrix<std::unique_ptr<HTcell>>& allCells() const { return htArray_; }
+    virtual const Array2D<std::unique_ptr<HTcell>>& allCells() const { return htArray_; }
 
     //=== Info about track candidates found.
 
@@ -132,7 +129,7 @@ namespace tmtt {
 
     // Hough transform array.
     // This has two dimensions, representing the two track helix parameters being varied.
-    matrix<std::unique_ptr<HTcell>> htArray_;
+    Array2D<std::unique_ptr<HTcell>> htArray_;
 
     unsigned int optoLinkID_;  // ID of opto-link from HT to Track Fitter.
 

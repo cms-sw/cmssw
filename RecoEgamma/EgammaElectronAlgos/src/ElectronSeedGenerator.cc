@@ -20,8 +20,6 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -127,10 +125,14 @@ namespace {
 
 }  // namespace
 
-ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, const ElectronSeedGenerator::Tokens &ts)
+ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset,
+                                             const ElectronSeedGenerator::Tokens &ts,
+                                             edm::ConsumesCollector &&cc)
     : dynamicPhiRoad_(pset.getParameter<bool>("dynamicPhiRoad")),
       verticesTag_(ts.token_vtx),
       beamSpotTag_(ts.token_bs),
+      magFieldToken_{cc.esConsumes()},
+      trackerGeometryToken_{cc.esConsumes()},
       lowPtThresh_(pset.getParameter<double>("LowPtThreshold")),
       highPtThresh_(pset.getParameter<double>("HighPtThreshold")),
       nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
@@ -141,7 +143,6 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
       // so that deltaPhi1 = dPhi1Coef1_ + dPhi1Coef2_/clusterEnergyT
       dPhi1Coef2_(dynamicPhiRoad_ ? (deltaPhi1Low_ - deltaPhi1High_) / (1. / lowPtThresh_ - 1. / highPtThresh_) : 0.),
       dPhi1Coef1_(dynamicPhiRoad_ ? deltaPhi1Low_ - dPhi1Coef2_ / lowPtThresh_ : 0.),
-      propagator_(nullptr),
       // use of reco vertex
       useRecoVertex_(pset.getParameter<bool>("useRecoVertex")),
       // new B/F configurables
@@ -163,29 +164,12 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset, cons
                useRecoVertex_) {}
 
 void ElectronSeedGenerator::setupES(const edm::EventSetup &setup) {
-  // get records if necessary (called once per event)
-  bool tochange = false;
-
-  if (cacheIDMagField_ != setup.get<IdealMagneticFieldRecord>().cacheIdentifier()) {
-    setup.get<IdealMagneticFieldRecord>().get(magField_);
-    cacheIDMagField_ = setup.get<IdealMagneticFieldRecord>().cacheIdentifier();
-    propagator_ = std::make_unique<PropagatorWithMaterial>(alongMomentum, .000511, &(*magField_));
-    tochange = true;
-  }
-
-  if (cacheIDTrkGeom_ != setup.get<TrackerDigiGeometryRecord>().cacheIdentifier()) {
-    cacheIDTrkGeom_ = setup.get<TrackerDigiGeometryRecord>().cacheIdentifier();
-    setup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
-    tochange = true;  //FIXME
-  }
-
-  if (tochange) {
-    matcher_.setES(magField_.product(), trackerGeometry_.product());
+  if (magneticFieldWatcher_.check(setup) || trackerGeometryWatcher_.check(setup)) {
+    matcher_.setES(setup.getData(magFieldToken_), setup.getData(trackerGeometryToken_));
   }
 }
 
 void ElectronSeedGenerator::run(edm::Event &e,
-                                const edm::EventSetup &setup,
                                 const reco::SuperClusterRefVector &sclRefs,
                                 const std::vector<const TrajectorySeedCollection *> &seedsV,
                                 reco::ElectronSeedCollection &out) {

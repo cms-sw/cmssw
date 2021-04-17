@@ -204,7 +204,7 @@ _convLayerPairsLayerListPhaseI = ['BPix1+BPix2',
 _convLayerPairsLayerListPhaseI.extend(_convLayerPairsStripOnlyLayers)
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(convLayerPairs, layerList = cms.vstring(_convLayerPairsLayerListPhaseI))
+trackingPhase1.toModify(convLayerPairs, layerList = _convLayerPairsLayerListPhaseI)
 
 
 trackingPhase2PU140.toReplaceWith(convLayerPairs, cms.EDProducer('SeedingLayersEDProducer',
@@ -244,14 +244,14 @@ trackingPhase2PU140.toReplaceWith(convLayerPairs, cms.EDProducer('SeedingLayersE
     )
 )
 
-photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracks')
-photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('firstStepPrimaryVertices')
-#photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('generalTracks')
-#photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
+photonConvTrajSeedFromSingleLeg.TrackRefitter      = 'generalTracks'
+photonConvTrajSeedFromSingleLeg.primaryVerticesTag = 'firstStepPrimaryVertices'
+#photonConvTrajSeedFromQuadruplets.TrackRefitter      = 'generalTracks'
+#photonConvTrajSeedFromQuadruplets.primaryVerticesTag = 'pixelVertices'
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = 'pixelVertices')
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(photonConvTrajSeedFromSingleLeg, vtxMinDoF = 999999.)
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(photonConvTrajSeedFromSingleLeg, vtxMinDoF = 999999.)
     
 # TRACKER DATA CONTROL
 

@@ -9,6 +9,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "DD4hep/DD4hepUnits.h"
 
 class HGCalParameters {
 public:
@@ -17,9 +18,14 @@ public:
     waferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0) : type(t), part(p), orient(o){};
   };
   struct tileInfo {
-    int32_t type, sipm, hex1, hex2, hex3, hex4;
+    int32_t type, sipm, hex[4];
     tileInfo(int32_t t = 0, int32_t s = 0, int32_t h1 = 0, int32_t h2 = 0, int32_t h3 = 0, int32_t h4 = 0)
-        : type(t), sipm(s), hex1(h1), hex2(h2), hex3(h3), hex4(h4){};
+        : type(t), sipm(s) {
+      hex[0] = h1;
+      hex[1] = h2;
+      hex[2] = h3;
+      hex[3] = h4;
+    };
   };
   typedef std::vector<std::unordered_map<int32_t, int32_t> > layer_map;
   typedef std::unordered_map<int32_t, int32_t> wafer_map;
@@ -31,10 +37,10 @@ public:
   static constexpr double k_ScaleToDDD = 10.0;
   static constexpr double k_ScaleFromDDDToG4 = 1.0;
   static constexpr double k_ScaleToDDDFromG4 = 1.0;
-  static constexpr double k_ScaleFromDD4Hep = 1.0;
-  static constexpr double k_ScaleToDD4Hep = 1.0;
-  static constexpr double k_ScaleFromDD4HepToG4 = 10.0;
-  static constexpr double k_ScaleToDD4HepFromG4 = 0.1;
+  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
+  static constexpr double k_ScaleToDD4Hep = dd4hep::cm;
+  static constexpr double k_ScaleFromDD4HepToG4 = (1.0 / dd4hep::mm);
+  static constexpr double k_ScaleToDD4HepFromG4 = dd4hep::mm;
   static constexpr uint32_t k_CornerSize = 6;
   static constexpr double tol = 1.0e-12;
 
@@ -171,6 +177,7 @@ public:
   wafer_map typesInLayers_;
   waferT_map waferTypes_;
   int waferMaskMode_;
+  int waferZSide_;
   waferInfo_map waferInfoMap_;
   tileInfo_map tileInfoMap_;
   std::vector<std::pair<double, double> > tileRingR_;
@@ -179,14 +186,14 @@ public:
   COND_SERIALIZABLE;
 
 private:
-  const int kMaskZside = 0x1;
-  const int kMaskLayer = 0x7F;
-  const int kMaskSector = 0x3FF;
-  const int kMaskSubSec = 0x1;
-  const int kShiftZside = 19;
-  const int kShiftLayer = 12;
-  const int kShiftSector = 1;
-  const int kShiftSubSec = 0;
+  static constexpr int kMaskZside = 0x1;
+  static constexpr int kMaskLayer = 0x7F;
+  static constexpr int kMaskSector = 0x3FF;
+  static constexpr int kMaskSubSec = 0x1;
+  static constexpr int kShiftZside = 19;
+  static constexpr int kShiftLayer = 12;
+  static constexpr int kShiftSector = 1;
+  static constexpr int kShiftSubSec = 0;
 };
 
 #endif

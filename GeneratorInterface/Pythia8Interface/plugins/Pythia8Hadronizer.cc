@@ -424,9 +424,10 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
 
   bool biasedTauDecayer = fMasterGen->settings.flag("BiasedTauDecayer:filter");
   if (biasedTauDecayer) {
-    if (!fBiasedTauDecayer.get())
-      fBiasedTauDecayer.reset(new BiasedTauDecayer(
-          &(fMasterGen->info), &(fMasterGen->settings), &(fMasterGen->particleData), &(fMasterGen->rndm)));
+    if (!fBiasedTauDecayer.get()) {
+      Pythia8::Info localInfo = fMasterGen->info;
+      fBiasedTauDecayer.reset(new BiasedTauDecayer(&localInfo, &(fMasterGen->settings)));
+    }
     std::vector<int> handledParticles;
     handledParticles.push_back(15);
     fMasterGen->setDecayPtr(fBiasedTauDecayer, handledParticles);
@@ -566,9 +567,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
   bool biasedTauDecayer = fMasterGen->settings.flag("BiasedTauDecayer:filter");
   if (biasedTauDecayer) {
-    if (!fBiasedTauDecayer.get())
-      fBiasedTauDecayer.reset(new BiasedTauDecayer(
-          &(fMasterGen->info), &(fMasterGen->settings), &(fMasterGen->particleData), &(fMasterGen->rndm)));
+    if (!fBiasedTauDecayer.get()) {
+      Pythia8::Info localInfo = fMasterGen->info;
+      fBiasedTauDecayer.reset(new BiasedTauDecayer(&localInfo, &(fMasterGen->settings)));
+    }
     std::vector<int> handledParticles;
     handledParticles.push_back(15);
     fMasterGen->setDecayPtr(fBiasedTauDecayer, handledParticles);
@@ -893,6 +895,10 @@ bool Pythia8Hadronizer::residualDecay() {
 
 void Pythia8Hadronizer::finalizeEvent() {
   bool lhe = lheEvent() != nullptr;
+
+  // protection against empty weight container
+  if ((event()->weights()).empty())
+    (event()->weights()).push_back(1.);
 
   // now create the GenEventInfo product from the GenEvent and fill
   // the missing pieces

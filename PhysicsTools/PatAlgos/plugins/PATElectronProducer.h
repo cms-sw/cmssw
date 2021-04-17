@@ -97,6 +97,7 @@ namespace pat {
     const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
     const edm::InputTag reducedEndcapRecHitCollection_;
     const edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
+    const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
     const bool addPFClusterIso_;
     const bool addPuppiIsolation_;

@@ -19,13 +19,10 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include <fstream>
 #include <sstream>
@@ -43,6 +40,7 @@ PreshowerClusterShapeProducer::PreshowerClusterShapeProducer(const ParameterSet&
   preshHitToken_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("preshRecHitProducer"));
   endcapSClusterToken_ =
       consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("endcapSClusterProducer"));
+  caloGeometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   PreshowerClusterShapeCollectionX_ = ps.getParameter<string>("PreshowerClusterShapeCollectionX");
   PreshowerClusterShapeCollectionY_ = ps.getParameter<string>("PreshowerClusterShapeCollectionY");
@@ -76,8 +74,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   Handle<SuperClusterCollection> pSuperClusters;
 
   // get the ECAL -> Preshower geometry and topology:
-  ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  ESHandle<CaloGeometry> geoHandle = es.getHandle(caloGeometryToken_);
   const CaloSubdetectorGeometry* geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   const CaloSubdetectorGeometry*& geometry_p = geometry;
 

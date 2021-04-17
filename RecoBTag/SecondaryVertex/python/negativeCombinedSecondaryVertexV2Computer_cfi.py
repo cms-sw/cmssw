@@ -2,10 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexV2Computer_cfi import *
 
-negativeCombinedSecondaryVertexV2Computer = combinedSecondaryVertexV2Computer.clone()
-negativeCombinedSecondaryVertexV2Computer.vertexFlip = True
-negativeCombinedSecondaryVertexV2Computer.trackFlip = True
-negativeCombinedSecondaryVertexV2Computer.trackSelection.sip3dSigMax = 0
-negativeCombinedSecondaryVertexV2Computer.trackPseudoSelection.sip3dSigMax = 0
-negativeCombinedSecondaryVertexV2Computer.trackPseudoSelection.sip2dSigMin = -99999.9
-negativeCombinedSecondaryVertexV2Computer.trackPseudoSelection.sip2dSigMax = -2.0
+negativeCombinedSecondaryVertexV2Computer = combinedSecondaryVertexV2Computer.clone(
+    vertexFlip = True,
+    trackFlip  = True,
+    trackSelection = dict(sip3dSigMax = 0),
+    trackPseudoSelection = dict(sip3dSigMax = 0,
+                                sip2dSigMin = -99999.9,
+                                sip2dSigMax = -2.0)
+)

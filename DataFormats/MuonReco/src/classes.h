@@ -24,11 +24,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/MuonReco/interface/DYTInfo.h"
-#include <DataFormats/MuonReco/interface/EmulatedME0Segment.h>
-#include <DataFormats/MuonReco/interface/ME0Muon.h>
-
-#include <DataFormats/MuonReco/interface/EmulatedME0SegmentCollection.h>
-#include <DataFormats/MuonReco/interface/ME0MuonCollection.h>
 #include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 
 #include <vector>

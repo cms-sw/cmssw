@@ -329,7 +329,11 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     runNegativeVertexing = False
     runNegativeCvsLVertexing = False
     for btagInfo in requiredTagInfos:
-        if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeTagInfos' or btagInfo == 'pfNegativeDeepFlavourTagInfos':
+        if btagInfo in (
+            'pfInclusiveSecondaryVertexFinderNegativeTagInfos',
+            'pfNegativeDeepFlavourTagInfos',
+            'pfNegativeParticleNetAK4TagInfos',
+            ):
             runNegativeVertexing = True
         if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos':
             runNegativeCvsLVertexing = True
@@ -707,6 +711,40 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       pf_candidates = pfCandidates,
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
+                                      ),
+                                    process, task)
+
+            if 'ParticleNetAK4TagInfos' in btagInfo:
+                if btagInfo == 'pfNegativeParticleNetAK4TagInfos':
+                    secondary_vertices = btagPrefix + \
+                        'inclusiveCandidateNegativeSecondaryVertices' + labelName + postfix
+                    flip_ip_sign = True
+                    sip3dSigMax = 10
+                else:
+                    secondary_vertices = svSource
+                    flip_ip_sign = False
+                    sip3dSigMax = -1
+                if pfCandidates.value() == 'packedPFCandidates':
+                    # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
+                    puppi_value_map = ""
+                    vertex_associator = ""
+                elif pfCandidates.value() == 'particleFlow':
+                    raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
+                    # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
+                    puppi_value_map = "puppi"
+                    vertex_associator = "primaryVertexAssociation:original"
+                else:
+                    raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfParticleNetAK4TagInfos.clone(
+                                      jets = jetSource,
+                                      vertices = pvSource,
+                                      secondary_vertices = secondary_vertices,
+                                      pf_candidates = pfCandidates,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      flip_ip_sign = flip_ip_sign,
+                                      sip3dSigMax = sip3dSigMax,
                                       ),
                                     process, task)
 
@@ -1520,6 +1558,7 @@ class UpdateJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'groomedFatJets', cms.InputTag(''), "Groomed fat jet collection used for secondary vertex clustering", cms.InputTag)
         self.addParameter(self._defaultParameters,'algo', 'AK', "Jet algorithm of the input collection from which the new patJet collection should be created")
         self.addParameter(self._defaultParameters,'rParam', 0.4, "Jet size (distance parameter R used in jet clustering)")
+        self.addParameter(self._defaultParameters,'sortByPt', True, "Set to False to not modify incoming jet order")
         self.addParameter(self._defaultParameters,'printWarning', True, "To be use as False in production to reduce log size")
         self.addParameter(self._defaultParameters,'jetCorrections',None, "Add all relevant information about jet energy corrections that you want to be added to your new patJet \
         collection. The format has to be given in a python tuple of type: (\'AK4Calo\',[\'L2Relative\', \'L3Absolute\'], patMet). Here the first argument corresponds to the payload \
@@ -1553,7 +1592,7 @@ class UpdateJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,labelName=None,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,tightBTagNTkHits=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,printWarning=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None):
+    def __call__(self,process,labelName=None,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,tightBTagNTkHits=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,sortByPt=None,printWarning=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -1612,6 +1651,9 @@ class UpdateJetCollection(ConfigToolBase):
         if rParam is None:
             rParam=self._defaultParameters['rParam'].value
         self.setParameter('rParam', rParam)
+        if sortByPt is None:
+            sortByPt=self._defaultParameters['sortByPt'].value
+        self.setParameter('sortByPt', sortByPt)
         if printWarning is None:
             printWarning=self._defaultParameters['printWarning'].value
         self.setParameter('printWarning', printWarning)
@@ -1649,6 +1691,7 @@ class UpdateJetCollection(ConfigToolBase):
         groomedFatJets=self._parameters['groomedFatJets'].value
         algo=self._parameters['algo'].value
         rParam=self._parameters['rParam'].value
+        sortByPt=self._parameters['sortByPt'].value
         printWarning=self._parameters['printWarning'].value
         jetCorrections=self._parameters['jetCorrections'].value
         btagDiscriminators=list(self._parameters['btagDiscriminators'].value)
@@ -1681,6 +1724,8 @@ class UpdateJetCollection(ConfigToolBase):
 
         ## add new updatedPatJets to process (keep instance for later further modifications)
         from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import updatedPatJets
+        if not sortByPt: # default is True
+            updatedPatJets.sort = cms.bool(False)
         if 'updatedPatJets'+_labelName+postfix in knownModules :
             _newPatJets=getattr(process, 'updatedPatJets'+_labelName+postfix)
             _newPatJets.jetSource=jetSource
@@ -1747,9 +1792,12 @@ class UpdateJetCollection(ConfigToolBase):
             _newPatJets.addTagInfos = False
 
         ## add jet correction factors if required by user
-        if (jetCorrections != None or bTagging):
+        if (jetCorrections is not None or bTagging):
             ## check the jet corrections format
-            checkJetCorrectionsFormat(jetCorrections)
+            if jetCorrections is None and bTagging:
+                raise ValueError("Passing jetCorrections = None while running bTagging is likely not intended.")
+            else:
+                checkJetCorrectionsFormat(jetCorrections)
             ## reset MET corrrection
             if jetCorrections[2].lower() != 'none' and jetCorrections[2] != '':
                 sys.stderr.write("-------------------------------------------------------------------\n")

@@ -39,7 +39,9 @@ private:
     CHARGEVALBAD,
     QUALBAD,
     ISOBAD,
-    IDXBAD
+    IDXBAD,
+    PTUNCONSTRBAD,
+    DXYBAD
   };
   enum ratioVariables {
     RBXRANGE = 1,
@@ -54,9 +56,13 @@ private:
     RCHARGEVAL,
     RQUAL,
     RISO,
-    RIDX
+    RIDX,
+    RPTUNCONSTR,
+    RDXY
   };
-  bool incBin[RIDX + 1];
+  int numErrBins_{
+      RIDX};  // In Run-2 we didn't have the last two bins. This is incremented in source file if we configure for Run-3.
+  bool incBin[RDXY + 1];
 
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken1;
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken2;
@@ -67,6 +73,7 @@ private:
   std::vector<int> ignoreBin;
   bool verbose;
   bool enable2DComp;  // Default value is false. Set to true in the configuration file for enabling 2D eta-phi histograms
+  bool displacedQuantities_;
 
   MonitorElement* summary;
   MonitorElement* errorSummaryNum;
@@ -75,6 +82,8 @@ private:
   MonitorElement* muColl1BxRange;
   MonitorElement* muColl1nMu;
   MonitorElement* muColl1hwPt;
+  MonitorElement* muColl1hwPtUnconstrained;
+  MonitorElement* muColl1hwDXY;
   MonitorElement* muColl1hwEta;
   MonitorElement* muColl1hwPhi;
   MonitorElement* muColl1hwEtaAtVtx;
@@ -89,6 +98,8 @@ private:
   MonitorElement* muColl2BxRange;
   MonitorElement* muColl2nMu;
   MonitorElement* muColl2hwPt;
+  MonitorElement* muColl2hwPtUnconstrained;
+  MonitorElement* muColl2hwDXY;
   MonitorElement* muColl2hwEta;
   MonitorElement* muColl2hwPhi;
   MonitorElement* muColl2hwEtaAtVtx;

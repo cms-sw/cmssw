@@ -12,6 +12,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -81,6 +83,17 @@ private:
   const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusters_token_;
   const edm::EDGetTokenT<DetIdCollection> digis_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
+
+  // ES tokens
+
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::ESGetToken<StripClusterParameterEstimator, TkStripCPERecord> cpeToken_;
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> siStripQualityToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measurementTkToken_;
+  const edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> chi2MeasurementEstimatorToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
 
   edm::ParameterSet conf_;
 

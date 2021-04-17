@@ -1,5 +1,9 @@
 import TrackingTools.GsfTracking.GsfElectronMaterialEffects_cfi
-ElectronMaterialEffects_forPreId = TrackingTools.GsfTracking.GsfElectronMaterialEffects_cfi.ElectronMaterialEffects.clone()
+
+ElectronMaterialEffects_forPreId = TrackingTools.GsfTracking.GsfElectronMaterialEffects_cfi.ElectronMaterialEffects.clone(
+    ComponentName = 'ElectronMaterialEffects_forPreId',
+    BetheHeitlerParametrization = 'BetheHeitler_cdfmom_nC3_O5.par'
+)
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cfi import *
 CloseComponentsMerger_forPreId = cms.ESProducer("CloseComponentsMergerESProducer5D",
     ComponentName = cms.string('CloseComponentsMerger_forPreId'),
@@ -24,5 +28,3 @@ GsfTrajectorySmoother_forPreId = cms.ESProducer("GsfTrajectorySmootherESProducer
     RecoGeometry = cms.string('GlobalDetLayerGeometry')
 )
 
-ElectronMaterialEffects_forPreId.ComponentName = 'ElectronMaterialEffects_forPreId'
-ElectronMaterialEffects_forPreId.BetheHeitlerParametrization = 'BetheHeitler_cdfmom_nC3_O5.par'

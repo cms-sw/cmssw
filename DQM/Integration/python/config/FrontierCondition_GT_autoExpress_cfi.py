@@ -1,13 +1,14 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+from Configuration.AlCa.autoCond import autoCond
 
 # Default Express GT: it is the GT that will be used in case we are not able
 # to retrieve the one used at Tier0.
 # It should be kept in synch with Express processing at Tier0: what the url
 # https://cmsweb.cern.ch/t0wmadatasvc/prod/express_config
 # would tell you.
-GlobalTag.globaltag = "106X_dataRun3_Express_v2"
+GlobalTag.globaltag = autoCond['run3_data_express']
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
 #       This needs a valid proxy to access the cern.ch network from the .cms one.

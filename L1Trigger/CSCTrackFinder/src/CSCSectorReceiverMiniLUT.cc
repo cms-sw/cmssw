@@ -1,8 +1,7 @@
-#include <L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCFrontRearLUT.h>
+#include <L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include <DataFormats/L1TMuon/interface/CSCConstants.h>
 
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"

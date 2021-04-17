@@ -157,7 +157,6 @@ public:
   explicit TauDQMHistPlotter(const edm::ParameterSet&);
   ~TauDQMHistPlotter() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {}
   void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:

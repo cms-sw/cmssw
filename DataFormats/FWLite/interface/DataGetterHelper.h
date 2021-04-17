@@ -69,11 +69,17 @@ namespace fwlite {
     virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*, Long_t) const;
 
     edm::WrapperBase const* getByProductID(edm::ProductID const& pid, Long_t eventEntry) const;
-    edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key, Long_t eventEntry) const;
+    std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(edm::ProductID const& pid,
+                                                                                       unsigned int key,
+                                                                                       Long_t eventEntry) const;
     void getThinnedProducts(edm::ProductID const& pid,
                             std::vector<edm::WrapperBase const*>& foundContainers,
                             std::vector<unsigned int>& keys,
                             Long_t eventEntry) const;
+    edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const& parent,
+                                              unsigned int key,
+                                              edm::ProductID const& thinned,
+                                              Long_t eventEntry) const;
 
     // ---------- static member functions --------------------
 

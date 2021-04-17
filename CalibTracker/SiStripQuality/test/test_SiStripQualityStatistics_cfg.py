@@ -24,9 +24,11 @@ options.parseArguments()
 # Messages
 ###################################################################
 process.load('FWCore.MessageService.MessageLogger_cfi')   
-process.MessageLogger.categories.append("SiStripQualityStatistics")  
-process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiStripQualityStatistics=dict()  
 process.MessageLogger.cout = cms.untracked.PSet(
+    enable    = cms.untracked.bool(True),
+    enableStatistics = cms.untracked.bool(True),
     threshold = cms.untracked.string("WARNING"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
@@ -34,7 +36,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
                                    ),                                                      
     SiStripQualityStatistics = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     )
-process.MessageLogger.statistics.append('cout') 
 
 # process.MessageLogger = cms.Service("MessageLogger",
 #                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING')),
@@ -60,8 +61,8 @@ process.maxEvents = cms.untracked.PSet(
 
 # You can get the bad channel records from a GlobalTag or from specific tags using a PoolDBESSource and an ESPrefer
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")

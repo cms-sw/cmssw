@@ -12,7 +12,10 @@ using namespace edm;
 
 GlobalDetLayerGeometryESProducer::GlobalDetLayerGeometryESProducer(const edm::ParameterSet& p) {
   std::string myName = p.getParameter<std::string>("ComponentName");
-  setWhatProduced(this, myName).setConsumes(trackerToken_).setConsumes(muonToken_).setConsumes(mtdToken_);
+  auto cc = setWhatProduced(this, myName);
+  trackerToken_ = cc.consumes();
+  muonToken_ = cc.consumes();
+  mtdToken_ = cc.consumes();
 }
 
 GlobalDetLayerGeometryESProducer::~GlobalDetLayerGeometryESProducer() {}

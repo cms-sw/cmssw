@@ -33,7 +33,10 @@ private:
 
   void fill_color();
   unsigned int fill_gradient(const TColor& first, const TColor& last, unsigned int steps = 100, unsigned int index = 0);
-  unsigned int fill_gradient(unsigned int first, unsigned int last, unsigned int steps = 100, unsigned int index = 0);
+  unsigned int fill_gradient(const unsigned int& first,
+                             const unsigned int& last,
+                             const unsigned int& steps = 100,
+                             const unsigned int& index = 0);
 };
 
 #endif  //  DD4hep_TrackingMaterialPlotter_h

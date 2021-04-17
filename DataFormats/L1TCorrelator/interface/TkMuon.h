@@ -7,6 +7,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+#include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 
 namespace l1t {
   class TkMuon : public L1Candidate {
@@ -21,6 +22,11 @@ namespace l1t {
            const edm::Ptr<L1TTTrackType>& trkPtr,
            float tkisol = -999.);
 
+    TkMuon(const LorentzVector& p4,
+           const edm::Ref<l1t::EMTFTrackCollection>& emtfTrk,
+           const edm::Ptr<L1TTTrackType>& trkPtr,
+           float tkisol = -999.);
+
     //One more constructor for Tracker+ Stubs algorithm not requiring the Muon candidate
     TkMuon(const LorentzVector& p4, const edm::Ptr<L1TTTrackType>& trkPtr, float tkisol = -999.);
 
@@ -30,6 +36,7 @@ namespace l1t {
     const edm::Ptr<L1TTTrackType>& trkPtr() const { return trkPtr_; }
 
     const edm::Ref<l1t::RegionalMuonCandBxCollection>& muRef() const { return muRef_; }
+    const edm::Ref<l1t::EMTFTrackCollection>& emtfTrk() const { return emtfTrk_; }
 
     float trkIsol() const { return theIsolation; }
     float trkzVtx() const { return TrkzVtx_; }
@@ -58,6 +65,7 @@ namespace l1t {
   private:
     // used for the Naive producer
     edm::Ref<l1t::RegionalMuonCandBxCollection> muRef_;
+    edm::Ref<l1t::EMTFTrackCollection> emtfTrk_;
 
     edm::Ptr<L1TTTrackType> trkPtr_;
 

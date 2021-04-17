@@ -10,7 +10,10 @@ process.tester = cms.EDAnalyzer("SiteLocalConfigServiceTester",
                             sourceReadHint=cms.untracked.string(""),
                             sourceTTreeCacheSize=cms.untracked.uint32(0),
                             sourceNativeProtocols=cms.untracked.vstring(),
-                            sourceValuesSet=cms.untracked.bool(False)
+                            sourceValuesSet=cms.untracked.bool(False),
+                            expectedUseLocalConnectString = cms.untracked.bool(False),
+                            expectedLocalConnectPrefix = cms.untracked.string(""),
+                            expectedLocalConnectSuffix = cms.untracked.string("")
 )
 
 process.o = cms.EndPath(process.tester)

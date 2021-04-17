@@ -10,6 +10,7 @@
 #include "GeneratorInterface/GenFilters/plugins/CosmicGenFilterHelix.h"
 #include "GeneratorInterface/GenFilters/plugins/PythiaFilterIsolatedTrack.h"
 #include "GeneratorInterface/GenFilters/plugins/PythiaDauVFilterMatchID.h"
+#include "GeneratorInterface/GenFilters/plugins/PythiaFilterMotherSister.h"
 
 DEFINE_FWK_MODULE(PythiaFilter);
 DEFINE_FWK_MODULE(PythiaDauFilter);
@@ -21,3 +22,4 @@ DEFINE_FWK_MODULE(MCParticlePairFilter);
 DEFINE_FWK_MODULE(CosmicGenFilterHelix);
 DEFINE_FWK_MODULE(PythiaFilterIsolatedTrack);
 DEFINE_FWK_MODULE(PythiaDauVFilterMatchID);
+DEFINE_FWK_MODULE(PythiaFilterMotherSister);

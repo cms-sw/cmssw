@@ -8,7 +8,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.analyzer = cms.EDAnalyzer("IntTestAnalyzer",
-    moduleLabel = cms.untracked.string("intProducer"),
+    moduleLabel = cms.untracked.InputTag("intProducer"),
     valueMustMatch = cms.untracked.int32(1)
 )
 

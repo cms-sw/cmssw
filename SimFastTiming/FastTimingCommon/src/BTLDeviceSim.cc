@@ -1,9 +1,10 @@
 #include "SimFastTiming/FastTimingCommon/interface/BTLDeviceSim.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
@@ -11,8 +12,10 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset)
-    : geom_(nullptr),
+BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
+    : geomToken_(iC.esConsumes()),
+      topoToken_(iC.esConsumes()),
+      geom_(nullptr),
       topo_(nullptr),
       bxTime_(pset.getParameter<double>("bxTime")),
       LightYield_(pset.getParameter<double>("LightYield")),
@@ -22,19 +25,16 @@ BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset)
       PDE_(pset.getParameter<double>("PhotonDetectionEff")) {}
 
 void BTLDeviceSim::getEventSetup(const edm::EventSetup& evs) {
-  edm::ESHandle<MTDGeometry> geom;
-  evs.get<MTDDigiGeometryRecord>().get(geom);
-  geom_ = geom.product();
-
-  edm::ESHandle<MTDTopology> mtdTopo;
-  evs.get<MTDTopologyRcd>().get(mtdTopo);
-  topo_ = mtdTopo.product();
+  geom_ = &evs.getData(geomToken_);
+  topo_ = &evs.getData(topoToken_);
 }
 
 void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, float> >& hitRefs,
                                    const edm::Handle<edm::PSimHitContainer>& hits,
                                    mtd_digitizer::MTDSimHitDataAccumulator* simHitAccumulator,
                                    CLHEP::HepRandomEngine* hre) {
+  using namespace geant_units::operators;
+
   //loop over sorted simHits
   for (auto const& hitRef : hitRefs) {
     const int hitidx = std::get<0>(hitRef);
@@ -50,8 +50,7 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
       continue;  // to be ignored at RECO level
 
     BTLDetId btlid(detId);
-    const int boundRef = btlid.modulesPerType(MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()));
-    DetId geoId = BTLDetId(btlid.mtdSide(), btlid.mtdRR(), btlid.module() + boundRef * (btlid.modType() - 1), 0, 1);
+    DetId geoId = btlid.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom_->idToDet(geoId);
 
     if (thedet == nullptr) {
@@ -62,7 +61,7 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
     // calculate the simhit row and column
     const auto& pentry = hit.entryPoint();
-    Local3DPoint simscaled(0.1 * pentry.x(), 0.1 * pentry.y(), 0.1 * pentry.z());  // mm -> cm here is the switch
+    Local3DPoint simscaled(convertMmToCm(pentry.x()), convertMmToCm(pentry.y()), convertMmToCm(pentry.z()));
     // translate from crystal-local coordinates to module-local coordinates to get the row and column
     simscaled = topo.pixelToModuleLocalPoint(simscaled, btlid.row(topo.nrows()), btlid.column(topo.nrows()));
     const auto& thepixel = topo.pixel(simscaled);
@@ -82,11 +81,11 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
         simHitAccumulator->emplace(mtd_digitizer::MTDCellId(id, row, col), mtd_digitizer::MTDCellInfo()).first;
 
     // --- Get the simHit energy and convert it from MeV to photo-electrons
-    float Npe = 1000. * hit.energyLoss() * LightYield_ * LightCollEff_ * PDE_;
+    float Npe = convertGeVToMeV(hit.energyLoss()) * LightYield_ * LightCollEff_ * PDE_;
 
     // --- Calculate the light propagation time to the crystal bases (labeled L and R)
-    double distR = 0.5 * topo.pitch().first - 0.1 * hit.localPosition().x();
-    double distL = 0.5 * topo.pitch().first + 0.1 * hit.localPosition().x();
+    double distR = 0.5 * topo.pitch().first - convertMmToCm(hit.localPosition().x());
+    double distL = 0.5 * topo.pitch().first + convertMmToCm(hit.localPosition().x());
 
     double tR = std::get<2>(hitRef) + LightCollSlopeR_ * distR;
     double tL = std::get<2>(hitRef) + LightCollSlopeL_ * distL;

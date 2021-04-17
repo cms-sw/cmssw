@@ -1,5 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TTrackMatch/interface/L1TkMuMantra.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+
 #include "TH2.h"
 #include "TFile.h"
 
@@ -125,7 +127,7 @@ std::vector<int> L1TkMuMantra::find_match(const std::vector<track_df>& tracks, c
       if (trk.nstubs < min_nstubs)
         continue;  // require trk.nstubs >= min_nstubs
 
-      double dphi_charge = to_mpi_pi((trk.phi - mu.phi) * trk.charge);
+      double dphi_charge = reco::deltaPhi(trk.phi, mu.phi) * trk.charge;
       // sign from theta, to avoid division by 0
       double dtheta_endc = (mu.theta - trk.theta) * sign(mu.theta);
       if (sign(mu.theta) != sign(trk.theta)) {

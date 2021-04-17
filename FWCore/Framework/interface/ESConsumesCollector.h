@@ -39,6 +39,9 @@
 #include <vector>
 #include <memory>
 namespace edm {
+  class ESConsumesCollectorAdaptor;
+  class ESConsumesCollectorWithTagAdaptor;
+
   struct ESConsumesInfoEntry {
     ESConsumesInfoEntry(edm::eventsetup::EventSetupRecordKey const& iRecord,
                         edm::eventsetup::DataKey const& iProduct,
@@ -88,17 +91,8 @@ namespace edm {
       return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
     }
 
-    template <typename Product, typename Record>
-    ESConsumesCollector& setConsumes(ESGetToken<Product, Record>& token, ESInputTag const& tag) {
-      token = consumesFrom<Product, Record>(tag);
-      return *this;
-    }
-
-    template <typename Product, typename Record>
-    ESConsumesCollector& setConsumes(ESGetToken<Product, Record>& token) {
-      token = consumesFrom<Product, Record>();
-      return *this;
-    }
+    ESConsumesCollectorAdaptor consumes();
+    ESConsumesCollectorWithTagAdaptor consumes(ESInputTag tag);
 
   protected:
     explicit ESConsumesCollector(ESConsumesInfo* const iConsumer, unsigned int iTransitionID)
@@ -108,7 +102,7 @@ namespace edm {
     auto registerMayConsume(std::unique_ptr<Collector> iCollector, PTag const& productTag) {
       //NOTE: for now, just treat like standard consumes request for the product needed to
       // do the decision
-      setConsumes(iCollector->token(), productTag.inputTag());
+      iCollector->token() = consumes(productTag.inputTag());
 
       using namespace edm::eventsetup;
       ESTokenIndex index{static_cast<ESTokenIndex::Value_t>(m_consumer->size())};
@@ -138,6 +132,7 @@ namespace edm {
 
     // ---------- member functions ---------------------------
 
+    using ESConsumesCollector::consumes;
     template <typename Product>
     auto consumes(ESInputTag const& tag) {
       return consumesFrom<Product, RECORD>(tag);
@@ -169,6 +164,43 @@ namespace edm {
     explicit ESConsumesCollectorT(ESConsumesInfo* const iConsumer, unsigned int iTransitionID)
         : ESConsumesCollector(iConsumer, iTransitionID) {}
   };
+
+  class ESConsumesCollectorAdaptor {
+  public:
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() {
+      return m_consumer->template consumesFrom<TYPE, REC>();
+    }
+
+  private:
+    //only ESConsumesCollector is allowed to make an instance of this class
+    friend class ESConsumesCollector;
+    explicit ESConsumesCollectorAdaptor(ESConsumesCollector* iBase) : m_consumer(iBase) {}
+
+    ESConsumesCollector* m_consumer;
+  };
+
+  class ESConsumesCollectorWithTagAdaptor {
+  public:
+    template <typename TYPE, typename REC>
+    ESGetToken<TYPE, REC> consumes() {
+      return m_consumer->template consumesFrom<TYPE, REC>(m_tag);
+    }
+
+  private:
+    //only ESConsumesCollector is allowed to make an instance of this class
+    friend class ESConsumesCollector;
+    ESConsumesCollectorWithTagAdaptor(ESConsumesCollector* iBase, ESInputTag iTag)
+        : m_consumer(iBase), m_tag(std::move(iTag)) {}
+
+    ESConsumesCollector* m_consumer;
+    ESInputTag const m_tag;
+  };
+
+  inline ESConsumesCollectorAdaptor ESConsumesCollector::consumes() { return ESConsumesCollectorAdaptor(this); }
+  inline ESConsumesCollectorWithTagAdaptor ESConsumesCollector::consumes(ESInputTag tag) {
+    return ESConsumesCollectorWithTagAdaptor(this, std::move(tag));
+  }
 
 }  // namespace edm
 

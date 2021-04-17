@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Phase2C11_dd4hep_cff import Phase2C11_dd4hep
 
-process = cms.Process("HcalGeometryTest")
+process = cms.Process("HcalGeometryTest",Phase2C11_dd4hep)
 
 process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
@@ -18,7 +19,7 @@ process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
 process.load("Geometry.HGCalGeometry.hgcalGeometryDump_cfi")
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D41.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D71.xml'),
                                             appendToDataLabel = cms.string('')
 )
 
@@ -31,9 +32,5 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 process.Timing = cms.Service("Timing")
-
-process.hgcalEEParametersInitialize.fromDD4Hep = True
-process.hgcalHESiParametersInitialize.fromDD4Hep = True
-process.hgcalHEScParametersInitialize.fromDD4Hep = True
 
 process.p1 = cms.Path(process.hgcalGeometryDump)

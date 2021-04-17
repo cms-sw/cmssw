@@ -36,7 +36,9 @@ private:
 
 MTDTimeCalibESProducer::MTDTimeCalibESProducer(const edm::ParameterSet& p) {
   pset_ = p;
-  setWhatProduced(this, "MTDTimeCalib").setConsumes(ddToken_).setConsumes(topoToken_);
+  auto cc = setWhatProduced(this, "MTDTimeCalib");
+  ddToken_ = cc.consumes();
+  topoToken_ = cc.consumes();
 }
 
 // Configuration descriptions

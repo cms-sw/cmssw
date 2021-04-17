@@ -30,8 +30,15 @@
   <class name="BTLDetId" ClassVersion="3">
    <version ClassVersion="3" checksum="1515591716"/>
   </class>
-  <class name="ETLDetId" ClassVersion="3">
+  <class name="ETLDetId" ClassVersion="4">
+   <version ClassVersion="4" checksum="1644731879"/>
    <version ClassVersion="3" checksum="1644731879"/>
+   <ioread sourceClass = "ETLDetId" version="[-3]" targetClass="ETLDetId" source="" target="">
+    <![CDATA[
+       ETLDetId tmp(newObj->newForm(newObj->rawId()));
+        *newObj=tmp;
+    ]]>
+   </ioread>
   </class>
   <class name="HFNoseDetId" ClassVersion="0">
    <version ClassVersion="0" checksum="1469396081"/>

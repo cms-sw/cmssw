@@ -49,6 +49,7 @@ LutXml::Config::_Config() {
   formatrevision = "default_revision";
   targetfirmware = "default_revision";
   generalizedindex = -1;
+  weight = -1;
 }
 
 LutXml::LutXml() : XMLDOMBlock("CFGBrickSet", 1) { init(); }
@@ -111,6 +112,7 @@ void LutXml::addLut(LutXml::Config &_config, XMLDOMBlock *checksums_xml) {
     addParameter("LUT_TYPE", "int", _config.lut_type);
     addParameter("SLB", "int", _config.fiber);
     addParameter("SLBCHAN", "int", _config.fiberchan);
+    addParameter("WEIGHT", "int", _config.weight);
     addData(to_string(_config.lut.size()), "hex", _config.lut);
   } else if (_config.lut_type == 5) {  // channel masks
     addParameter("MASK_TYPE", "string", "TRIGGERCHANMASK");

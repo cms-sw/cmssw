@@ -5,8 +5,6 @@ process = cms.Process("TEST")
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('TtSemiLepKinFitter')
-process.MessageLogger.categories.append('KinFitter')
 process.MessageLogger.cerr.TtSemiLepKinFitter = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
 )

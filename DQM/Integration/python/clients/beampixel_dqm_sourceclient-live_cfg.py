@@ -15,10 +15,13 @@ if 'unitTest=True' in sys.argv:
 #----------------------------
 if unitTest == True:
     process.load("DQM.Integration.config.unittestinputsource_cfi")
+    from DQM.Integration.config.unittestinputsource_cfi import options
 else:
     process.load("DQM.Integration.config.inputsource_cfi")
+    from DQM.Integration.config.inputsource_cfi import options
 # Use this to run locally (for testing purposes)
 #process.load("DQM.Integration.config.fileinputsource_cfi")
+#from DQM.Integration.config.fileinputsource_cfi import options
 
 
 #----------------------------
@@ -34,7 +37,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter", SelectedTrig
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "BeamPixel"
 process.dqmSaver.tag = "BeamPixel"
-
+process.dqmSaver.runNumber = options.runNumber
+process.dqmSaverPB.tag = 'BeamPixel'
+process.dqmSaverPB.runNumber = options.runNumber
 
 #----------------------------
 # Conditions
@@ -58,7 +63,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 #----------------------------
 # Define Sequences
 #----------------------------
-process.dqmModules  = cms.Sequence(process.dqmEnv + process.dqmSaver)
+process.dqmModules  = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
 process.physTrigger = cms.Sequence(process.hltTriggerTypeFilter)
 
 
@@ -85,6 +90,8 @@ from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import 
 process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+from RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi import *
+process.pixelVertices = pixelVertices.clone()
 process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 process.pixelTracksTrackingRegions.RegionPSet.originRadius     = cms.double(0.4)
 process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = cms.double(15.)
@@ -117,7 +124,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.muonDTDigis.inputLabel           = cms.InputTag("rawDataCollector")
     process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataCollector")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataCollector")
+    process.siPixelDigis.cpu.InputLabel      = cms.InputTag("rawDataCollector")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataCollector")
 
     
@@ -170,7 +177,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel           = cms.InputTag("rawDataRepacker")
     process.muonRPCDigis.InputLabel          = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel          = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.cpu.InputLabel      = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel        = cms.InputTag("rawDataRepacker")
 
 

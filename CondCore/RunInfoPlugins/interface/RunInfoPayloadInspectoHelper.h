@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <ctime>
 #include "TH1.h"
 #include "TH2.h"
 #include "TStyle.h"
@@ -11,6 +12,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace RunInfoPI {
+
+  enum state { fake = 0, valid = 1, invalid = 2 };
 
   // values are taken from https://github.com/cms-sw/cmssw/blob/master/MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducerFromDB.cc#L74-L75
   constexpr std::array<int, 7> nominalCurrents{{-1, 0, 9558, 14416, 16819, 18268, 19262}};
@@ -26,7 +29,7 @@ namespace RunInfoPI {
     m_avg_current,           // float
     m_max_current,           // float
     m_min_current,           // float
-    m_run_intervall_micros,  // float
+    m_run_interval_seconds,  // float
     m_fedIN,                 // unsigned int
     m_BField,                // float
     END_OF_TYPES
@@ -43,6 +46,28 @@ namespace RunInfoPI {
       }
     }
     return nominalFields[i];
+  }
+
+  /************************************************/
+  float runDuration(const std::shared_ptr<RunInfo>& payload) {
+    // calculation of the run duration in seconds
+    time_t start_time = payload->m_start_time_ll;
+    ctime(&start_time);
+    time_t end_time = payload->m_stop_time_ll;
+    ctime(&end_time);
+    return difftime(end_time, start_time) / 1.0e+6;
+  }
+
+  /************************************************/
+  std::string runStartTime(const std::shared_ptr<RunInfo>& payload) {
+    const time_t start_time = payload->m_start_time_ll / 1.0e+6;
+    return std::asctime(std::gmtime(&start_time));
+  }
+
+  /************************************************/
+  std::string runEndTime(const std::shared_ptr<RunInfo>& payload) {
+    const time_t end_time = payload->m_stop_time_ll / 1.0e+6;
+    return std::asctime(std::gmtime(&end_time));
   }
 
   /************************************************/
@@ -64,8 +89,8 @@ namespace RunInfoPI {
         return "max current [A]";
       case m_min_current:
         return "min current [A]";
-      case m_run_intervall_micros:
-        return "run duration [#mus]";
+      case m_run_interval_seconds:
+        return "run duration [s]";
       case m_fedIN:
         return "n. FEDs";
       case m_BField:

@@ -8,6 +8,8 @@
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
@@ -53,6 +55,7 @@ public:
 
   // local bending in a CSC chamber
   float LocalBendingInChamber(unsigned int detid) const;
+  void fitHitsInChamber(unsigned int detid, float& mean, float& slope) const;
 
   // calculate average strip number for a provided collection of simhits
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
@@ -75,7 +78,7 @@ private:
 
   void clear();
 
-  edm::ESHandle<CSCGeometry> csc_geom_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
 };
 
 #endif

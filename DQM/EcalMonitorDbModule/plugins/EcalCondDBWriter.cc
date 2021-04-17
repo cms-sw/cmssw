@@ -119,6 +119,12 @@ EcalCondDBWriter::~EcalCondDBWriter() {
     delete workers_[iC];
 }
 
+void EcalCondDBWriter::beginRun(edm::Run const &_run, edm::EventSetup const &_es) {
+  for (unsigned iC(0); iC < nTasks; ++iC)
+    if (workers_[iC])
+      workers_[iC]->setSetupObjects(_es);
+}
+
 void EcalCondDBWriter::dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &_igetter) {
   if (executed_)
     return;

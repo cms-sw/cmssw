@@ -8,7 +8,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -19,16 +18,15 @@ using namespace std;
 using namespace cms;
 
 SiStripDetVOffFakeBuilder::SiStripDetVOffFakeBuilder(const edm::ParameterSet& iConfig)
-    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {}
+    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)), tkGeomToken_(esConsumes()) {}
 
 SiStripDetVOffFakeBuilder::~SiStripDetVOffFakeBuilder() {}
 
 void SiStripDetVOffFakeBuilder::initialize(const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
-  edm::LogInfo("SiStripDetVOffFakeBuilder") << " There are " << pDD->detUnits().size() << " detectors" << std::endl;
+  const auto& tkGeom = iSetup.getData(tkGeomToken_);
+  edm::LogInfo("SiStripDetVOffFakeBuilder") << " There are " << tkGeom.detUnits().size() << " detectors" << std::endl;
 
-  for (const auto& it : pDD->detUnits()) {
+  for (const auto& it : tkGeom.detUnits()) {
     if (dynamic_cast<StripGeomDetUnit const*>(it) != nullptr) {
       uint32_t detid = (it->geographicalId()).rawId();
       const StripTopology& p = dynamic_cast<StripGeomDetUnit const*>(it)->specificTopology();

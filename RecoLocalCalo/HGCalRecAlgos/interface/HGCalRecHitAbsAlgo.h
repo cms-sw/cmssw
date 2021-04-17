@@ -22,7 +22,7 @@ public:
   /// Destructor
   virtual ~HGCalRecHitAbsAlgo(){};
 
-  inline void set(const edm::EventSetup& es) { rhtools_.getEventSetup(es); }
+  inline void set(const CaloGeometry& geom) { rhtools_.setGeometry(geom); }
 
   /// make rechits from dataframes
   virtual void setLayerWeights(const std::vector<float>& weights){};

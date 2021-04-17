@@ -8,4 +8,5 @@
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
+<use name="RecoMTD/DetLayers"/>
 <use name="FWCore/MessageLogger"/>

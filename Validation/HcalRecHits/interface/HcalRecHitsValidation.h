@@ -2,7 +2,6 @@
 #define HcalRecHitsValidation_H
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,6 +24,9 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -83,6 +85,9 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
   edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_Geom_;
 
   // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
   int subdet_;
@@ -145,7 +150,7 @@ private:
   MonitorElement *meLog10Chi2profileHB;
   MonitorElement *meLog10Chi2profileHE;
 
-  edm::ESHandle<CaloGeometry> geometry;
+  const CaloGeometry *geometry_;
 
   // Filling vectors with essential RecHits data
   std::vector<int> csub;

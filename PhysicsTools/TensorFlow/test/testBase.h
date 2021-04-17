@@ -8,6 +8,7 @@
 #define PHYSICSTOOLS_TENSORFLOW_TEST_TESTBASE_H
 
 #include <boost/filesystem.hpp>
+#include <filesystem>
 #include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
 
@@ -29,7 +30,7 @@ void testBase::setUp() {
 
   // create the graph
   std::string testPath = cmsswPath("/src/PhysicsTools/TensorFlow/test");
-  std::string cmd = "python " + testPath + "/" + pyScript() + " " + dataPath_;
+  std::string cmd = "python3 " + testPath + "/" + pyScript() + " " + dataPath_;
   std::array<char, 128> buffer;
   std::string result;
   std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
@@ -45,8 +46,8 @@ void testBase::setUp() {
 }
 
 void testBase::tearDown() {
-  if (boost::filesystem::exists(dataPath_)) {
-    boost::filesystem::remove_all(dataPath_);
+  if (std::filesystem::exists(dataPath_)) {
+    std::filesystem::remove_all(dataPath_);
   }
 }
 
@@ -58,7 +59,7 @@ std::string testBase::cmsswPath(std::string path) {
   std::string base = std::string(std::getenv("CMSSW_BASE"));
   std::string releaseBase = std::string(std::getenv("CMSSW_RELEASE_BASE"));
 
-  return (boost::filesystem::exists(base.c_str()) ? base : releaseBase) + path;
+  return (std::filesystem::exists(base.c_str()) ? base : releaseBase) + path;
 }
 
 #endif  // PHYSICSTOOLS_TENSORFLOW_TEST_TESTBASE_H

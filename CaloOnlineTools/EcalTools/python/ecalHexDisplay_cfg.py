@@ -18,13 +18,16 @@ process.maxEvents = cms.untracked.PSet(
 process.counter = cms.OutputModule("AsciiOutputModule")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
-    ),
-    destinations = cms.untracked.vstring('cout')
+        ),
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING')
+    )
 )
 
 process.p = cms.Path(process.hexDump)

@@ -27,7 +27,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -76,6 +75,8 @@ private:
   const double etamin_, etamax_;
   const int nbinR_, nbinZ_, nbinEta_, nLayers_, verbosity_;
   const bool ifNose_, ifLayer_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hrndc_;
+  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> > tok_hgcGeom_;
   std::vector<const HGCalDDDConstants*> hgcons_;
   const HcalDDDRecConstants* hcons_;
   std::vector<bool> heRebuild_;
@@ -107,10 +108,16 @@ HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig)
   usesResource(TFileService::kSharedResource);
 
   for (auto const& name : nameDetectors_) {
-    if (name == "HCal")
+    if (name == "HCal") {
       heRebuild_.emplace_back(true);
-    else
+      tok_hrndc_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
+      tok_hgcGeom_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", "HGCalHEScintillatorSensitive"}));
+    } else {
       heRebuild_.emplace_back(false);
+      tok_hgcGeom_.emplace_back(
+          esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+    }
   }
   for (auto const& source : caloHitSources_) {
     tok_hits_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", source)));
@@ -216,8 +223,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
         h_W2_[ih]->Fill(sector2);
         h_C2_[ih]->Fill(cell2);
 
-      } else if ((hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8) ||
-                 (hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+      } else if (hgcons_[ih]->waferHexagon8()) {
         HGCSiliconDetId detId = HGCSiliconDetId(id);
         subdet = static_cast<int>(detId.det());
         cell = detId.cellU();
@@ -230,7 +236,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
         xy = hgcons_[ih]->locateCell(layer, sector, sector2, cell, cell2, false, true);
         h_W2_[ih]->Fill(sector2);
         h_C2_[ih]->Fill(cell2);
-      } else if (hgcons_[ih]->geomMode() == HGCalGeometryMode::Trapezoid) {
+      } else if (hgcons_[ih]->tileTrapezoid()) {
         HGCScintillatorDetId detId = HGCScintillatorDetId(id);
         subdet = static_cast<int>(detId.det());
         sector = detId.ieta();
@@ -325,16 +331,14 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
 void HGCalSimHitStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   for (unsigned int k = 0; k < nameDetectors_.size(); ++k) {
     if (heRebuild_[k]) {
-      edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-      iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-      hcons_ = &(*pHRNDC);
+      edm::ESHandle<HcalDDDRecConstants> pHRNDC = iSetup.getHandle(tok_hrndc_);
+      hcons_ = pHRNDC.product();
       layers_.emplace_back(hcons_->getMaxDepth(1));
       hgcons_.emplace_back(nullptr);
       layerFront_.emplace_back(40);
     } else {
-      edm::ESHandle<HGCalDDDConstants> pHGDC;
-      iSetup.get<IdealGeometryRecord>().get(nameDetectors_[k], pHGDC);
-      hgcons_.emplace_back(&(*pHGDC));
+      edm::ESHandle<HGCalDDDConstants> pHGDC = iSetup.getHandle(tok_hgcGeom_[k]);
+      hgcons_.emplace_back(pHGDC.product());
       layers_.emplace_back(hgcons_.back()->layers(false));
       if (k == 0)
         layerFront_.emplace_back(0);

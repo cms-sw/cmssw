@@ -60,9 +60,11 @@ private:
   const bool doAPVRestore;
   const bool useCMMeanMap;
 
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   const TrackerGeometry* trGeo;
 
-  SiStripRawProcessingAlgorithms(std::unique_ptr<SiStripPedestalsSubtractor> ped,
+  SiStripRawProcessingAlgorithms(edm::ConsumesCollector iC,
+                                 std::unique_ptr<SiStripPedestalsSubtractor> ped,
                                  std::unique_ptr<SiStripCommonModeNoiseSubtractor> cmn,
                                  std::unique_ptr<SiStripFedZeroSuppression> zs,
                                  std::unique_ptr<SiStripAPVRestorer> res,

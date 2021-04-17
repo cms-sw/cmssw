@@ -4,6 +4,7 @@
 // user include files
 #include "Validation/RecoEgamma/plugins/ElectronMcMiniAODSignalValidator.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // user include files
 

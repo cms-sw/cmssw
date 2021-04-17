@@ -1,19 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 
-process = cms.Process("HGCalParametersTest")
+process = cms.Process("HGCalParametersTest",Phase2C11)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-#process.load("Geometry.HGCalCommonData.testHGCV8XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D35XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D41XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D46XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D56XML_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV13XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D71XML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
 #process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
+    process.MessageLogger.HGCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -39,20 +36,17 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun        = cms.untracked.uint32(1)
 )
  
-process.testEE = cms.EDAnalyzer("HGCalParameterTester",
-                                Name = cms.untracked.string("HGCalEESensitive"),
-                                Mode = cms.untracked.int32(1)
-#                               Mode = cms.untracked.int32(0)
+process.load("Geometry.HGCalCommonData.hgcParameterTesterEE_cfi")
+#process.hgcParameterTesterEE.Mode = 0
+
+process.hgcParameterTesterHESil = process.hgcParameterTesterEE.clone(
+    Name = cms.string("HGCalHESiliconSensitive")
 )
 
-process.testHESil = process.testEE.clone(
-    Name = cms.untracked.string("HGCalHESiliconSensitive")
+process.hgcParameterTesterHESci = process.hgcParameterTesterEE.clone(
+    Name = cms.string("HGCalHEScintillatorSensitive"),
+    Mode = cms.int32(2)
 )
 
-process.testHESci = process.testEE.clone(
-    Name = cms.untracked.string("HGCalHEScintillatorSensitive"),
-    Mode = cms.untracked.int32(2)
-)
- 
-process.p1 = cms.Path(process.generator*process.testEE*process.testHESil*process.testHESci)
-#process.p1 = cms.Path(process.generator*process.testEE*process.testHESil)
+process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE*process.hgcParameterTesterHESil*process.hgcParameterTesterHESci)
+#process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE*process.hgcParameterTesterHESil)

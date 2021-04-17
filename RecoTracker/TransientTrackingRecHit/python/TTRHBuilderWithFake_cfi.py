@@ -5,10 +5,10 @@ pixelFake = cms.ESProducer("FakePixelCPEESProducer",
 )
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEESProducer_cfi import *
-StripCPEfromFake = stripCPEESProducer.clone()
-StripCPEfromFake.ComponentName = 'FakeStripCPE'
-StripCPEfromFake.ComponentType = 'FakeStripCPE'
-
+StripCPEfromFake = stripCPEESProducer.clone(
+    ComponentName = 'FakeStripCPE',
+    ComponentType = 'FakeStripCPE'
+)
 
 TTRHBuilderFake = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
     StripCPE = cms.string('FakeStripCPE'),

@@ -42,6 +42,7 @@ TrackWithHistory::TrackWithHistory(const G4Track* g4trk)
     creatorProcess_ = g4trk->GetCreatorProcess();
     storeTrack_ = extractor(g4trk).storeTrack();
     saved_ = false;
+    crossedBoundary_ = false;
     genParticleID_ = extractGenID(g4trk);
     // V.I. weight is computed in the same way as before
     // without usage of G4Track::GetWeight()

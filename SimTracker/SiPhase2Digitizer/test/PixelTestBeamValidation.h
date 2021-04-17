@@ -31,6 +31,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 // system
 #include <string>
@@ -90,6 +91,11 @@ private:
   // the "tolerance" argument is quantifying 'close enough' in a square
   //bool channel_iluminated_by_(const MeasurementPoint & localpos,int channel, double tolerance) const;
   bool channel_iluminated_by_(const PSimHit &localpos, int channel, const PixelGeomDetUnit *tkDet);
+
+  // The list of channels illuminated by the PSimHit
+  std::set<int> get_illuminated_channels_(const PSimHit &ps,
+                                          const DetId &detid,
+                                          const edm::DetSetVector<PixelDigiSimLink> *simdigis);
 
   // The list of pixels illuminated by the PSimHit
   std::set<std::pair<int, int>> get_illuminated_pixels_(const PSimHit &ps, const PixelGeomDetUnit *tkDetUnit);

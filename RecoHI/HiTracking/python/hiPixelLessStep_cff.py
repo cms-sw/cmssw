@@ -11,17 +11,17 @@ from .HIPixel3PrimTracks_cfi import *
 
 #HIClusterRemover
 from RecoHI.HiTracking.hiMixedTripletStep_cff import hiMixedTripletStepClusters
-hiPixelLessStepClusters = hiMixedTripletStepClusters.clone()
-hiPixelLessStepClusters.trajectories = cms.InputTag("hiMixedTripletStepTracks")
-hiPixelLessStepClusters.overrideTrkQuals = cms.InputTag('hiMixedTripletStepSelector','hiMixedTripletStep')
-
+hiPixelLessStepClusters = hiMixedTripletStepClusters.clone(
+    trajectories     = "hiMixedTripletStepTracks",
+    overrideTrkQuals = 'hiMixedTripletStepSelector:hiMixedTripletStep'
+)
 # SEEDING LAYERS
-pixelLessStepSeedLayers.TIB.skipClusters   = cms.InputTag('hiPixelLessStepClusters')
-pixelLessStepSeedLayers.MTIB.skipClusters   = cms.InputTag('hiPixelLessStepClusters')
-pixelLessStepSeedLayers.TID.skipClusters   = cms.InputTag('hiPixelLessStepClusters')
-pixelLessStepSeedLayers.MTID.skipClusters   = cms.InputTag('hiPixelLessStepClusters')
-pixelLessStepSeedLayers.TEC.skipClusters   = cms.InputTag('hiPixelLessStepClusters')
-pixelLessStepSeedLayers.MTEC.skipClusters   = cms.InputTag('hiPixelLessStepClusters')
+pixelLessStepSeedLayers.TIB.skipClusters   = 'hiPixelLessStepClusters'
+pixelLessStepSeedLayers.MTIB.skipClusters   = 'hiPixelLessStepClusters'
+pixelLessStepSeedLayers.TID.skipClusters   = 'hiPixelLessStepClusters'
+pixelLessStepSeedLayers.MTID.skipClusters   = 'hiPixelLessStepClusters'
+pixelLessStepSeedLayers.TEC.skipClusters   = 'hiPixelLessStepClusters'
+pixelLessStepSeedLayers.MTEC.skipClusters   = 'hiPixelLessStepClusters'
 
 # TrackingRegion
 from RecoHI.HiTracking.hiMixedTripletStep_cff import hiMixedTripletStepTrackingRegionsA as _hiMixedTripletStepTrackingRegionsA
@@ -42,7 +42,7 @@ pixelLessStepTrajectoryFilter.minimumNumberOfHits = 5
 pixelLessStepTrajectoryFilter.minPt = 0.7
 
 # MAKING OF TRACK CANDIDATES
-pixelLessStepTrackCandidates.clustersToSkip = cms.InputTag('hiPixelLessStepClusters')
+pixelLessStepTrackCandidates.clustersToSkip = 'hiPixelLessStepClusters'
 
 # TRACK FITTING
 hiPixelLessStepTracks = pixelLessStepTracks.clone()
@@ -50,41 +50,41 @@ hiPixelLessStepTracks = pixelLessStepTracks.clone()
 # Final selection
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiPixelLessStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
-    src='hiPixelLessStepTracks',
-    useAnyMVA = cms.bool(False),
-    GBRForestLabel = cms.string('HIMVASelectorIter12'),
-    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
+    src = 'hiPixelLessStepTracks',
+    useAnyMVA = False,
+    GBRForestLabel = 'HIMVASelectorIter12',
+    GBRForestVars = ['chi2perdofperlayer', 'nhits', 'nlayers', 'eta'],
     trackSelectors= cms.VPSet(
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-    name = 'hiPixelLessStepLoose',
-    applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
-    ), #end of pset
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
-    name = 'hiPixelLessStepTight',
-    preFilterName = 'hiPixelLessStepLoose',
-    applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
-    minMVA = cms.double(-0.2)
-    ),
-    RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
-    name = 'hiPixelLessStep',
-    preFilterName = 'hiPixelLessStepTight',
-    applyAdaptedPVCuts = cms.bool(False),
-    useMVA = cms.bool(False),
-    minMVA = cms.double(-0.09)
-    ),
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
+           name = 'hiPixelLessStepLoose',
+           applyAdaptedPVCuts = False,
+           useMVA = False,
+       ), #end of pset
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+           name = 'hiPixelLessStepTight',
+           preFilterName = 'hiPixelLessStepLoose',
+           applyAdaptedPVCuts = False,
+           useMVA = False,
+           minMVA = -0.2
+       ),
+       RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+           name = 'hiPixelLessStep',
+           preFilterName = 'hiPixelLessStepTight',
+           applyAdaptedPVCuts = False,
+           useMVA = False,
+           minMVA = -0.09
+       ),
     ) #end of vpset
-    ) #end of clone
+) #end of clone
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiPixelLessStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers=cms.VInputTag(cms.InputTag('hiPixelLessStepTracks')),
-    hasSelector=cms.vint32(1),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiPixelLessStepSelector","hiPixelLessStep")),
+    TrackProducers = ['hiPixelLessStepTracks'],
+    hasSelector = [1],
+    selectedTrackQuals = ["hiPixelLessStepSelector:hiPixelLessStep"],
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False),
-    )
+)
 
 hiPixelLessStepTask = cms.Task(hiPixelLessStepClusters,
                              pixelLessStepSeedLayers,

@@ -35,6 +35,7 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
+         {'Associations': ['TTTrackTruthPair']},
          {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
          {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
                                        '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},

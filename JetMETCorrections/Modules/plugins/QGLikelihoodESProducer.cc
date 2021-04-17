@@ -31,16 +31,12 @@ public:
   std::shared_ptr<const QGLikelihoodObject> produce(const QGLikelihoodRcd&);
 
 private:
-  edm::ESGetToken<QGLikelihoodObject, QGLikelihoodRcd> token_;
+  const edm::ESGetToken<QGLikelihoodObject, QGLikelihoodRcd> token_;
 };
 
-QGLikelihoodESProducer::QGLikelihoodESProducer(const edm::ParameterSet& iConfig) {
-  //the following line is needed to tell the framework what
-  // data is being produced
-  std::string label = iConfig.getParameter<std::string>("@module_label");
-  auto algo = iConfig.getParameter<std::string>("algo");
-  setWhatProduced(this, label).setConsumes(token_, edm::ESInputTag{"", algo});
-}
+QGLikelihoodESProducer::QGLikelihoodESProducer(const edm::ParameterSet& iConfig)
+    : token_(setWhatProduced(this, iConfig.getParameter<std::string>("@module_label"))
+                 .consumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("algo")})) {}
 
 // Produce the data
 std::shared_ptr<const QGLikelihoodObject> QGLikelihoodESProducer::produce(const QGLikelihoodRcd& iRecord) {

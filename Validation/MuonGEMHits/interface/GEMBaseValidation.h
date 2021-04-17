@@ -7,7 +7,6 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,6 +14,7 @@
 #include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
 #include "TMath.h"
+#include "TDatabasePDG.h"
 
 class GEMBaseValidation : public DQMEDAnalyzer {
 public:
@@ -23,9 +23,10 @@ public:
   void analyze(const edm::Event& e, const edm::EventSetup&) override = 0;
 
 protected:
-  const GEMGeometry* initGeometry(const edm::EventSetup&);
-  Int_t getDetOccBinX(Int_t chamber_id, Int_t layer_id);
+  Int_t getDetOccBinX(Int_t num_layers, Int_t chamber_id, Int_t layer_id);
   Bool_t isMuonSimHit(const PSimHit&);
+  Float_t toDegree(Float_t radian);
+  Int_t getPidIdx(Int_t pid);
 
   dqm::impl::MonitorElement* bookZROccupancy(DQMStore::IBooker& booker,
                                              Int_t region_id,
@@ -58,6 +59,9 @@ protected:
                                                    const char* title_prefix);
 
   template <typename T>
+  dqm::impl::MonitorElement* bookPIDHist(DQMStore::IBooker& booker, const T& key, const char* name, const char* title);
+
+  template <typename T>
   dqm::impl::MonitorElement* bookHist1D(DQMStore::IBooker& booker,
                                         const T& key,
                                         const char* name,
@@ -84,6 +88,7 @@ protected:
 
   // NOTE Parameters
   Int_t xy_occ_num_bins_;
+  std::vector<Int_t> pid_list_;
   std::vector<Int_t> zr_occ_num_bins_;
   std::vector<Double_t> zr_occ_range_;
   std::vector<Double_t> eta_range_;
@@ -92,6 +97,8 @@ protected:
   // NOTE Constants
   const Int_t kMuonPDGId_ = 13;
   const std::string kLogCategory_;  // see member initializer list
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomTokenBeginRun_;
 };
 
 template <typename T>
@@ -192,7 +199,7 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IB
   TAxis* x_axis = hist->GetXaxis();
   for (Int_t chamber_id = 1; chamber_id <= num_superchambers; chamber_id++) {
     for (Int_t layer_id = 1; layer_id <= num_chambers; layer_id++) {
-      Int_t bin = getDetOccBinX(chamber_id, layer_id);
+      Int_t bin = getDetOccBinX(num_chambers, chamber_id, layer_id);
       TString label = TString::Format("C%dL%d", chamber_id, layer_id);
       x_axis->SetBinLabel(bin, label);
     }
@@ -204,6 +211,29 @@ dqm::impl::MonitorElement* GEMBaseValidation::bookDetectorOccupancy(DQMStore::IB
   }
 
   return booker.book2D(name, hist);
+}
+
+template <typename T>
+dqm::impl::MonitorElement* GEMBaseValidation::bookPIDHist(DQMStore::IBooker& booker,
+                                                          const T& key,
+                                                          const char* name,
+                                                          const char* title) {
+  auto name_suffix = GEMUtils::getSuffixName(key);
+  auto title_suffix = GEMUtils::getSuffixTitle(key);
+  TString x_title = "Particle Name";
+  TString y_title = "Entries";
+  TString hist_name = TString::Format("%s%s", name, name_suffix.Data());
+  TString hist_title = TString::Format("%s :%s;%s;%s", title, title_suffix.Data(), x_title.Data(), y_title.Data());
+  Int_t nbinsx = pid_list_.size();
+  auto hist = booker.book1D(hist_name, hist_title, nbinsx + 1, 0, nbinsx + 1);
+  TDatabasePDG* pdgDB = TDatabasePDG::Instance();
+  for (Int_t idx = 0; idx < nbinsx; idx++) {
+    Int_t bin = idx + 1;
+    auto particle_name = pdgDB->GetParticle(pid_list_[idx])->GetName();
+    hist->setBinLabel(bin, particle_name);
+  }
+  hist->setBinLabel(nbinsx + 1, "others");
+  return hist;
 }
 
 template <typename T>

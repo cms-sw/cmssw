@@ -8,6 +8,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace reco::tau {
 

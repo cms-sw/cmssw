@@ -9,7 +9,7 @@ using namespace cms;
 using namespace cms_units::operators;
 
 namespace {
-  long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
+  long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
     DDNamespace ns(ctxt, e, true);
     DDAlgoArguments args(ctxt, e);
     Volume mother = ns.volume(args.parentName());

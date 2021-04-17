@@ -239,6 +239,7 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
       HLTlabel.ReplaceAll("HLT", "reHLT");
     tok_TrigRes_ = consumes<edm::TriggerResults>(edm::InputTag(prod, HLTlabel.Data(), an));
   }
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
 
 GammaJetAnalysis::~GammaJetAnalysis() {}
@@ -662,12 +663,11 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     HERE("get geometry");
 
     // Get geometry
-    edm::ESHandle<CaloGeometry> geoHandle;
-    evSetup.get<CaloGeometryRecord>().get(geoHandle);
-    const HcalGeometry* HBGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 1));
-    const HcalGeometry* HEGeom = dynamic_cast<const HcalGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Hcal, 2));
-    const CaloSubdetectorGeometry* HOGeom = geoHandle->getSubdetectorGeometry(DetId::Hcal, 3);
-    const CaloSubdetectorGeometry* HFGeom = geoHandle->getSubdetectorGeometry(DetId::Hcal, 4);
+    const CaloGeometry* geo = &evSetup.getData(tok_geom_);
+    const HcalGeometry* HBGeom = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, 1));
+    const HcalGeometry* HEGeom = dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, 2));
+    const CaloSubdetectorGeometry* HOGeom = geo->getSubdetectorGeometry(DetId::Hcal, 3);
+    const CaloSubdetectorGeometry* HFGeom = geo->getSubdetectorGeometry(DetId::Hcal, 4);
 
     HERE("work");
 

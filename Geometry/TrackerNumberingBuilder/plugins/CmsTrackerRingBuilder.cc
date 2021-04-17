@@ -13,6 +13,8 @@
 
 template <class FilteredView>
 void CmsTrackerRingBuilder<FilteredView>::buildComponent(FilteredView& fv, GeometricDet* g, const std::string& s) {
+  moduleName_ = ExtractStringFromDDD<FilteredView>::getString("TkDDDStructure", &fv);
+
   CmsDetConstruction<FilteredView> theCmsDetConstruction;
   theCmsDetConstruction.buildComponent(fv, g, s);
 }
@@ -20,7 +22,6 @@ void CmsTrackerRingBuilder<FilteredView>::buildComponent(FilteredView& fv, Geome
 template <class FilteredView>
 void CmsTrackerRingBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet* det) {
   GeometricDet::ConstGeometricDetContainer& comp = det->components();
-  fv.firstChild();
   GeometricDet::GeometricDetContainer compfw;
   GeometricDet::GeometricDetContainer compbw;
 
@@ -36,21 +37,18 @@ void CmsTrackerRingBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet*
           << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
   }
 
-  static std::string const part("TkDDDStructure");
   static std::string const TECGluedDet("TECGluedDet");
   static std::string const TECDet("TECDet");
 
-  std::string const pname = ExtractStringFromDDD<FilteredView>::getString(part, &fv);
-
   // TEC
   // Module Number: 3 bits [1,...,5 at most]
-  if (pname == TECGluedDet || pname == TECDet) {
+  if (moduleName_ == TECGluedDet || moduleName_ == TECDet) {
     // TEC-
-    if (det->translation().z() < 0 && pname == TECDet) {
+    if (det->translation().z() < 0 && moduleName_ == TECDet) {
       trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhiMirror);
     }
 
-    if (det->translation().z() < 0 && pname == TECGluedDet) {
+    if (det->translation().z() < 0 && moduleName_ == TECGluedDet) {
       trackerStablePhiSort(comp.begin(), comp.end(), CmsTrackerLevelBuilderHelper::getPhiGluedModuleMirror);
     }
 
@@ -86,8 +84,6 @@ void CmsTrackerRingBuilder<FilteredView>::sortNS(FilteredView& fv, GeometricDet*
     det->addComponents(compfw);
     det->addComponents(compbw);
   }
-
-  fv.parent();
 }
 
 template class CmsTrackerRingBuilder<DDFilteredView>;

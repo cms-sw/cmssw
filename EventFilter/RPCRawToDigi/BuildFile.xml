@@ -1,6 +1,5 @@
 <use name="FWCore/Framework"/>
 <use name="DataFormats/FEDRawData"/>
-<use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/RPCDigi"/>
 <use name="CondFormats/DataRecord"/>

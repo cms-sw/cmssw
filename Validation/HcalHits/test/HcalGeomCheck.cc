@@ -12,7 +12,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -65,6 +64,7 @@ private:
   const int nbinR_, nbinZ_, verbosity_;
   const HcalDDDRecConstants* hcons_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
 
   //histogram related stuff
   TH2D* h_RZ_;
@@ -89,6 +89,7 @@ HcalGeomCheck::HcalGeomCheck(const edm::ParameterSet& iConfig)
       verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)) {
   usesResource(TFileService::kSharedResource);
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_));
+  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
 }
 
 void HcalGeomCheck::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -188,9 +189,8 @@ void HcalGeomCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called when starting to processes a run  ------------
 void HcalGeomCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons_ = &(*pHRNDC);
+  const auto& pHRNDC = iSetup.getData(tok_HRNDC_);
+  hcons_ = &pHRNDC;
   if (verbosity_ > 0)
     edm::LogVerbatim("HcalValidation") << "Obtain HcalDDDRecConstants from Event Setup";
 }

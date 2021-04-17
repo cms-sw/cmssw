@@ -7,16 +7,12 @@
 #include <fstream>
 
 #include "CalibTracker/SiStripLorentzAngle/interface/SiStripLAProfileBooker.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -24,8 +20,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -58,33 +52,28 @@ public:
 
 //Constructor
 
-SiStripLAProfileBooker::SiStripLAProfileBooker(edm::ParameterSet const& conf) : conf_(conf) {}
+SiStripLAProfileBooker::SiStripLAProfileBooker(edm::ParameterSet const& conf)
+    : conf_(conf),
+      tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      tkGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      magFieldToken_(esConsumes<edm::Transition::BeginRun>()),
+      detCablingToken_(conf_.getParameter<bool>("UseStripCablingDB")
+                           ? decltype(detCablingToken_){esConsumes<edm::Transition::BeginRun>()}
+                           : decltype(detCablingToken_){}) {}
 
 //BeginRun
 
 void SiStripLAProfileBooker::beginRun(const edm::Run&, const edm::EventSetup& c) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  c.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  //get magnetic field and geometry from ES
-  edm::ESHandle<MagneticField> esmagfield;
-  c.get<IdealMagneticFieldRecord>().get(esmagfield);
-  const MagneticField* magfield = &(*esmagfield);
-
-  edm::ESHandle<TrackerGeometry> estracker;
-  c.get<TrackerDigiGeometryRecord>().get(estracker);
-  tracker = &(*estracker);
+  const TrackerTopology* const tTopo = &c.getData(tTopoToken_);
+  tkGeom_ = &c.getData(tkGeomToken_);
+  const auto& magField = c.getData(magFieldToken_);
 
   std::vector<uint32_t> activeDets;
-  edm::ESHandle<SiStripDetCabling> tkmechstruct = nullptr;
   if (conf_.getParameter<bool>("UseStripCablingDB")) {
-    c.get<SiStripDetCablingRcd>().get(tkmechstruct);
     activeDets.clear();
-    tkmechstruct->addActiveDetectorsRawIds(activeDets);
+    c.getData(detCablingToken_).addActiveDetectorsRawIds(activeDets);
   } else {
-    const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
+    const TrackerGeometry::DetIdContainer& Id = tkGeom_->detIds();
     TrackerGeometry::DetIdContainer::const_iterator Iditer;
     activeDets.clear();
     for (Iditer = Id.begin(); Iditer != Id.end(); Iditer++) {
@@ -187,7 +176,7 @@ void SiStripLAProfileBooker::beginRun(const edm::Run&, const edm::EventSetup& c)
       std::string hid;
       //Mono single sided detectors
       LocalPoint p;
-      auto stripdet = tracker->idToDet(subid);
+      auto stripdet = tkGeom_->idToDet(subid);
       if (!stripdet->isLeaf())
         continue;
       const StripTopology& topol = (const StripTopology&)stripdet->topology();
@@ -203,7 +192,7 @@ void SiStripLAProfileBooker::beginRun(const edm::Run&, const edm::EventSetup& c)
       param->pitch = topol.localPitch(p) * 10000;
 
       const GlobalPoint globalp = (stripdet->surface()).toGlobal(p);
-      GlobalVector globalmagdir = magfield->inTesla(globalp);
+      GlobalVector globalmagdir = magField.inTesla(globalp);
       param->magfield = (stripdet->surface()).toLocal(globalmagdir);
 
       profile->setAxisTitle("tan(#theta_{t})", 1);
@@ -260,10 +249,7 @@ SiStripLAProfileBooker::~SiStripLAProfileBooker() {
 // Analyzer: Functions that gets called by framework every event
 
 void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup& es) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &es.getData(tTopoToken_);
 
   RunNumber = e.id().run();
   EventNumber = e.id().event();
@@ -371,7 +357,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 
           if (matchedhit) {  //if matched hit...
 
-            GluedGeomDet* gdet = (GluedGeomDet*)tracker->idToDet(matchedhit->geographicalId());
+            GluedGeomDet* gdet = (GluedGeomDet*)tkGeom_->idToDet(matchedhit->geographicalId());
 
             GlobalVector gtrkdir = gdet->toGlobal(trackdirection);
 
@@ -565,7 +551,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 
             const SiStripRecHit2D::ClusterRef& cluster = hit->cluster();
 
-            GeomDetUnit* gdet = (GeomDetUnit*)tracker->idToDet(hit->geographicalId());
+            GeomDetUnit* gdet = (GeomDetUnit*)tkGeom_->idToDet(hit->geographicalId());
             const LocalPoint position = hit->localPosition();
             StripSubdetector detid = (StripSubdetector)hit->geographicalId();
             id_detector = detid.rawId();

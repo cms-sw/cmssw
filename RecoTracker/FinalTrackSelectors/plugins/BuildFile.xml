@@ -1,6 +1,7 @@
 <use name="ofast-flag"/>
 <use name="RecoTracker/FinalTrackSelectors"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/SiPixelDetId"/>
@@ -26,7 +27,8 @@
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/KalmanUpdators"/>
-<use name="CondFormats/EgammaObjects"/>
+<use name="TrackingTools/Records"/>
+<use name="CondFormats/GBRForest"/>
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/Statistics"/>
 <use name="RecoTracker/Record"/>

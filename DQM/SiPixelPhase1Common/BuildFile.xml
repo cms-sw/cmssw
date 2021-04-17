@@ -1,6 +1,5 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="DQMServices/Core"/>
 <use name="Geometry/TrackerGeometryBuilder"/>

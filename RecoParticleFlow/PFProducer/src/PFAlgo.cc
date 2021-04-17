@@ -83,8 +83,6 @@ void PFAlgo::setEGammaCollections(const edm::View<reco::PFCandidate>& pfEgammaCa
   }
 }
 
-void PFAlgo::setMuonHandle(const edm::Handle<reco::MuonCollection>& muons) { muonHandle_ = muons; }
-
 void PFAlgo::setPostHFCleaningParameters(bool postHFCleaning, const edm::ParameterSet& pfHFCleaningParams) {
   postHFCleaning_ = postHFCleaning;
   minHFCleaningPt_ = pfHFCleaningParams.getParameter<double>("minHFCleaningPt");
@@ -3160,7 +3158,7 @@ unsigned PFAlgo::reconstructTrack(const reco::PFBlockElement& elt, bool allowLoo
                                       << ", phi=" << momentum.phi();
   pfCandidates_->push_back(PFCandidate(charge, momentum, particleType));
   //Set vertex and stuff like this
-  pfCandidates_->back().setVertexSource(PFCandidate::kTrkVertex);
+  pfCandidates_->back().setVertex(trackRef->vertex());
   pfCandidates_->back().setTrackRef(trackRef);
   pfCandidates_->back().setPositionAtECALEntrance(eltTrack->positionAtECALEntrance());
   if (muonRef.isNonnull())

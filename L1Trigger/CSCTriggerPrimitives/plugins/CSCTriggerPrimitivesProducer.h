@@ -40,10 +40,11 @@
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCTriggerPrimitivesBuilder.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
 class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<> {
@@ -63,13 +64,11 @@ private:
   // input tags for input collections
   edm::InputTag compDigiProducer_;
   edm::InputTag wireDigiProducer_;
-  edm::InputTag gemPadDigiProducer_;
   edm::InputTag gemPadDigiClusterProducer_;
 
   // tokens
   edm::EDGetTokenT<CSCComparatorDigiCollection> comp_token_;
   edm::EDGetTokenT<CSCWireDigiCollection> wire_token_;
-  edm::EDGetTokenT<GEMPadDigiCollection> gem_pad_token_;
   edm::EDGetTokenT<GEMPadDigiClusterCollection> gem_pad_cluster_token_;
   edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscToken_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken_;
@@ -89,6 +88,9 @@ private:
 
   // Write out pre-triggers
   bool savePreTriggers_;
+
+  // write out showrs
+  bool writeOutShowers_;
 
   // switch to enable the integrated local triggers in ME11 and ME21
   bool runME11ILT_;

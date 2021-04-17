@@ -96,7 +96,7 @@ void testTestProcessor::addProductTest() {
   char const* kTest =
       "from FWCore.TestProcessor.TestProcess import *\n"
       "process = TestProcess()\n"
-      "process.add = cms.EDProducer('AddIntsProducer', labels=cms.vstring('in'))\n"
+      "process.add = cms.EDProducer('AddIntsProducer', labels=cms.VInputTag('in'))\n"
       "process.moduleToTest(process.add)\n";
   edm::test::TestProcessor::Config config(kTest);
   auto token = config.produces<edmtest::IntProduct>("in");
@@ -123,7 +123,7 @@ void testTestProcessor::missingProductTest() {
   char const* kTest =
       "from FWCore.TestProcessor.TestProcess import *\n"
       "process = TestProcess()\n"
-      "process.add = cms.EDProducer('AddIntsProducer', labels=cms.vstring('in'))\n"
+      "process.add = cms.EDProducer('AddIntsProducer', labels=cms.VInputTag('in'))\n"
       "process.moduleToTest(process.add)\n";
   edm::test::TestProcessor::Config config(kTest);
 
@@ -153,7 +153,7 @@ void testTestProcessor::extraProcessTest() {
   char const* kTest =
       "from FWCore.TestProcessor.TestProcess import *\n"
       "process = TestProcess()\n"
-      "process.add = cms.EDProducer('AddIntsProducer', labels=cms.vstring('in'))\n"
+      "process.add = cms.EDProducer('AddIntsProducer', labels=cms.VInputTag('in'))\n"
       "process.moduleToTest(process.add)\n";
   edm::test::TestProcessor::Config config(kTest);
   auto processToken = config.addExtraProcess("HLT");
@@ -231,8 +231,8 @@ void testTestProcessor::taskTest() {
   char const* kTest =
       "from FWCore.TestProcessor.TestProcess import *\n"
       "process = TestProcess()\n"
-      "process.mid = cms.EDProducer('AddIntsProducer', labels=cms.vstring('in'))\n"
-      "process.add = cms.EDProducer('AddIntsProducer', labels=cms.vstring('mid','in'))\n"
+      "process.mid = cms.EDProducer('AddIntsProducer', labels=cms.VInputTag('in'))\n"
+      "process.add = cms.EDProducer('AddIntsProducer', labels=cms.VInputTag('mid','in'))\n"
       "process.moduleToTest(process.add,cms.Task(process.mid))\n";
   edm::test::TestProcessor::Config config(kTest);
   auto token = config.produces<edmtest::IntProduct>("in");

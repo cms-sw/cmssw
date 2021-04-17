@@ -11,7 +11,6 @@
    <version ClassVersion="11" checksum="1793013291"/>
    <version ClassVersion="10" checksum="1793013291"/>
     <field name="posrep_" transient="true"/>
-    <field name="color_" transient="true"/>
     <field name="layer_" transient="true"/> 
   </class>
   <class name="std::vector<reco::PFCluster>"/>
@@ -75,7 +74,8 @@
 
   
 
-  <class name="reco::PFTrack" ClassVersion="10">
+  <class name="reco::PFTrack" ClassVersion="11">
+   <version ClassVersion="11" checksum="1666908047"/>
    <version ClassVersion="10" checksum="496926148"/>
   </class>
 <!--    <class name="edm::RefToBase<reco::Track>"/>
@@ -97,27 +97,26 @@
   <class name="edm::Wrapper<std::vector<reco::PFTrajectoryPoint> >"/>
 
   <class name="edm::RefVector<std::vector<reco::PFBlock>,reco::PFBlock,edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
-  <class name="reco::PFRecTrack" ClassVersion="12">
+  <class name="reco::PFRecTrack" ClassVersion="13">
+   <version ClassVersion="13" checksum="2549841209"/>
    <version ClassVersion="12" checksum="2850643502"/>
    <version ClassVersion="11" checksum="2924298092"/>
    <version ClassVersion="10" checksum="2979491836"/>
-    <!-- <field name="doPropagation_" transient="true"/> -->
-    <!-- <field name="color_" transient="true"/> -->
   </class>
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
 
-  <class name="reco::GsfPFRecTrack" ClassVersion="12">
+  <class name="reco::GsfPFRecTrack" ClassVersion="13">
+   <version ClassVersion="13" checksum="974620889"/>
    <version ClassVersion="12" checksum="2203231294"/>
    <version ClassVersion="11" checksum="2592328732"/>
    <version ClassVersion="10" checksum="3411096264"/>
-    <!-- <field name="doPropagation_" transient="true"/> -->
-    <!-- <field name="color_" transient="true"/> -->
   </class>
   <class name="std::vector<reco::GsfPFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::GsfPFRecTrack> >"/>
 
-  <class name="reco::PFBrem" ClassVersion="12">
+  <class name="reco::PFBrem" ClassVersion="13">
+   <version ClassVersion="13" checksum="1718201023"/>
    <version ClassVersion="12" checksum="3001582852"/>
    <version ClassVersion="11" checksum="1785919010"/>
    <version ClassVersion="10" checksum="3922569476"/>
@@ -125,18 +124,21 @@
   <class name="std::vector<reco::PFBrem>"/>
 
 
-  <class name="reco::PFSimParticle" ClassVersion="11">
+  <class name="reco::PFSimParticle" ClassVersion="12">
+   <version ClassVersion="12" checksum="3693440976"/>
    <version ClassVersion="11" checksum="3190131965"/>
    <version ClassVersion="10" checksum="545237333"/>
   </class>
   <class name="std::vector<reco::PFSimParticle>"/>
   <class name="edm::Wrapper<std::vector<reco::PFSimParticle> >"/>
 
-  <class name="reco::PFBlockElement" ClassVersion="13">
+  <class name="reco::PFBlockElement" ClassVersion="15">
+   <version ClassVersion="15" checksum="684943224"/>
+   <version ClassVersion="14" checksum="3982859549"/>
    <version ClassVersion="13" checksum="4257111441"/>
    <version ClassVersion="12" checksum="3101496393"/>
    <version ClassVersion="11" checksum="3944635097"/>
-    <!-- <field name="multilinkslinks_" transient="true"/> -->
+   <field name="multilinks_" transient="true"/>
    <field name="nullTrack_" transient="true"/>
    <field name="nullPFRecTrack_" transient="true"/>
    <field name="nullPFCluster_" transient="true"/>
@@ -145,11 +147,14 @@
    <field name="nullMuon_" transient="true"/>
    <field name="nullVertex_" transient="true"/>
   </class>
+  <class name="std::map<reco::PFBlockElement::Type,reco::PFMultiLinksTC>" />
   <class name="std::vector<reco::PFBlockElement *>" />
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >"/>
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
 
-  <class name="reco::PFBlockElementTrack" ClassVersion="14">
+  <class name="reco::PFBlockElementTrack" ClassVersion="16">
+   <version ClassVersion="16" checksum="700008520"/>
+   <version ClassVersion="15" checksum="1577934967"/>
    <version ClassVersion="14" checksum="3952424659"/>
    <version ClassVersion="13" checksum="1449646331"/>
    <version ClassVersion="12" checksum="417575083"/>
@@ -160,7 +165,9 @@
 -->
   </class>
 
-  <class name="reco::PFBlockElementGsfTrack" ClassVersion="13">
+  <class name="reco::PFBlockElementGsfTrack" ClassVersion="15">
+   <version ClassVersion="15" checksum="233050648"/>
+   <version ClassVersion="14" checksum="3921871079"/>
    <version ClassVersion="13" checksum="2453155267"/>
    <version ClassVersion="12" checksum="1521047275"/>
    <version ClassVersion="11" checksum="1367777435"/>
@@ -171,7 +178,9 @@
 -->
   </class>
 
-  <class name="reco::PFBlockElementBrem" ClassVersion="13">
+  <class name="reco::PFBlockElementBrem" ClassVersion="15">
+   <version ClassVersion="15" checksum="2963077707"/>
+   <version ClassVersion="14" checksum="3702597792"/>
    <version ClassVersion="13" checksum="157699540"/>
    <version ClassVersion="12" checksum="112730380"/>
    <version ClassVersion="11" checksum="2362699420"/>
@@ -183,7 +192,9 @@
   </class>
 
 
-  <class name="reco::PFBlockElementCluster" ClassVersion="14">
+  <class name="reco::PFBlockElementCluster" ClassVersion="16">
+   <version ClassVersion="16" checksum="4263698413"/>
+   <version ClassVersion="15" checksum="3252388"/>
    <version ClassVersion="14" checksum="407383072"/>
    <version ClassVersion="13" checksum="775826696"/>
    <version ClassVersion="12" checksum="1263691576"/>
@@ -261,7 +272,9 @@
   <class name="edm::Wrapper<edm::ValueMap<reco::PreIdRef> >"/>
   <class name="edm::Ref<std::vector<reco::PreId>,reco::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::PreId>,reco::PreId> >" />
 
-  <class name="reco::PFBlockElementSuperCluster" ClassVersion="14">
+  <class name="reco::PFBlockElementSuperCluster" ClassVersion="16">
+   <version ClassVersion="16" checksum="4220702137"/>
+   <version ClassVersion="15" checksum="1074027768"/>
    <version ClassVersion="14" checksum="285242772"/>
    <version ClassVersion="13" checksum="3749373244"/>
    <version ClassVersion="12" checksum="1656578540"/>

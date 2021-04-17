@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
@@ -37,6 +38,7 @@ private:
 
   edm::EDGetTokenT<ESRecHitCollection> InputRecHitES_;
   edm::EDGetTokenT<reco::SuperClusterCollection> InputSuperClusterEE_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
   std::string OutputLabelES_;
   std::vector<edm::EDGetTokenT<DetIdCollection>> interestingDetIdCollections_;
   std::vector<edm::EDGetTokenT<DetIdCollection>>

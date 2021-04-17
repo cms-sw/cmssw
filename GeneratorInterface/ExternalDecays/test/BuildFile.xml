@@ -1,4 +1,3 @@
-<use name="FWCore/Utilities"/>
 <use name="boost"/>
 <use name="hepmc"/>
 <flags EDM_PLUGIN="1"/>

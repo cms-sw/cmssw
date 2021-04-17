@@ -60,37 +60,38 @@ public:
   /// For future modifications (implement more layers)
   int nlayers() const { return int(maxLayerId); }
 
-  static const int minRegionId = -1;
-  static const int maxRegionId = 1;
+  static constexpr int minRegionId = -1;
+  static constexpr int maxRegionId = 1;
 
-  static const int minChamberId = 0;
-  static const int maxChamberId = 18;  // ME0 ring consists of 18 chambers spanning 20 degrees
+  static constexpr int minChamberId = 0;
+  static constexpr int maxChamberId = 18;  // ME0 ring consists of 18 chambers spanning 20 degrees
 
-  static const int minLayerId = 0;
-  static const int maxLayerId = 6;
+  static constexpr int minLayerId = 0;
+  static constexpr int maxLayerId = 6;
 
-  static const int minRollId = 0;
-  static const int maxRollId = 10;  // ME0 layer consists of 10 etapartitions
+  static constexpr int minRollId = 0;
+  static constexpr int maxRollId = 10;  // ME0 layer consists of 10 etapartitions
 
 private:
-  static const int RegionNumBits_ = 2;
-  static const int RegionStartBit_ = 0;
-  static const int RegionMask_ = 0X3;
+  static constexpr int RegionNumBits_ = 2;
+  static constexpr int RegionStartBit_ = 0;
+  static constexpr int RegionMask_ = 0X3;
 
-  static const int ChamberNumBits_ = 6;
-  static const int ChamberStartBit_ = RegionStartBit_ + RegionNumBits_;
-  static const unsigned int ChamberMask_ = 0X3F;
+  static constexpr int ChamberNumBits_ = 6;
+  static constexpr int ChamberStartBit_ = RegionStartBit_ + RegionNumBits_;
+  static constexpr unsigned int ChamberMask_ = 0X3F;
 
-  static const int LayerNumBits_ = 5;
-  static const int LayerStartBit_ = ChamberStartBit_ + ChamberNumBits_;
-  static const unsigned int LayerMask_ = 0X1F;
+  static constexpr int LayerNumBits_ = 5;
+  static constexpr int LayerStartBit_ = ChamberStartBit_ + ChamberNumBits_;
+  static constexpr unsigned int LayerMask_ = 0X1F;
 
-  static const int RollNumBits_ = 5;
-  static const int RollStartBit_ = LayerStartBit_ + LayerNumBits_;
-  static const unsigned int RollMask_ = 0X1F;
+  static constexpr int RollNumBits_ = 5;
+  static constexpr int RollStartBit_ = LayerStartBit_ + LayerNumBits_;
+  static constexpr unsigned int RollMask_ = 0X1F;
 
-  static const uint32_t chamberIdMask_ = ~((LayerMask_ << LayerStartBit_) | (RollMask_ << RollStartBit_));
-  static const uint32_t layerIdMask_ = ~(RollMask_ << RollStartBit_);
+public:
+  static constexpr uint32_t chamberIdMask_ = ~((LayerMask_ << LayerStartBit_) | (RollMask_ << RollStartBit_));
+  static constexpr uint32_t layerIdMask_ = ~(RollMask_ << RollStartBit_);
 
 private:
   void init(int region, int layer, int chamber, int roll);

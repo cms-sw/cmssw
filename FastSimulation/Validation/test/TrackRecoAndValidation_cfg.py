@@ -27,7 +27,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('FastSimulation.Configuration.Reconstruction_BefMix_cff')
 process.load('FastSimulation.Configuration.Digi_cff')
 process.load('FastSimulation.Configuration.Validation_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -84,7 +84,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 
 # Other statements
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Path and EndPath definitions

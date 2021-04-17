@@ -8,7 +8,6 @@ class SiStripDigi;
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include <limits>
 
 #include "RecoLocalTracker/Records/interface/SiStripClusterizerConditionsRcd.h"
@@ -33,10 +32,8 @@ public:
 
   virtual ~StripClusterizerAlgorithm() {}
 
-  void initialize(const edm::EventSetup& es) {
-    es.get<SiStripClusterizerConditionsRcd>().get(m_conditionsLabel, m_conditionsHandle);
-  }
-  const SiStripClusterizerConditions& conditions() const { return *m_conditionsHandle; }
+  void initialize(const edm::EventSetup& es) { m_conditions = &es.getData(m_conditionsToken); }
+  const SiStripClusterizerConditions& conditions() const { return *m_conditions; }
 
   //Offline DetSet interface
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
@@ -46,7 +43,7 @@ public:
   virtual void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi>&, output_t::TSFastFiller&) const {}
 
   //HLT stripByStrip interface
-  Det const& stripByStripBegin(uint32_t id) const { return m_conditionsHandle->findDetId(id); }
+  Det const& stripByStripBegin(uint32_t id) const { return m_conditions->findDetId(id); }
 
   virtual void stripByStripAdd(State& state, uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) const {}
   virtual void stripByStripEnd(State& state, std::vector<SiStripCluster>& out) const {}
@@ -60,7 +57,9 @@ public:
   };
 
 protected:
-  explicit StripClusterizerAlgorithm(const std::string& conditionsLabel = "") : m_conditionsLabel(conditionsLabel) {}
+  explicit StripClusterizerAlgorithm(
+      const edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd>& conditionsToken)
+      : m_conditionsToken(conditionsToken) {}
 
 private:
   template <class T>
@@ -73,7 +72,7 @@ private:
     }
   }
 
-  std::string m_conditionsLabel;
-  edm::ESHandle<SiStripClusterizerConditions> m_conditionsHandle;
+  edm::ESGetToken<SiStripClusterizerConditions, SiStripClusterizerConditionsRcd> m_conditionsToken;
+  const SiStripClusterizerConditions* m_conditions;
 };
 #endif

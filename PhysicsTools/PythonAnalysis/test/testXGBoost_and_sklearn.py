@@ -7,7 +7,7 @@ import xgboost as xgb
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import dump_svmlight_file
-from sklearn.externals import joblib
+import joblib
 from sklearn.metrics import precision_score
 
 iris = datasets.load_iris()

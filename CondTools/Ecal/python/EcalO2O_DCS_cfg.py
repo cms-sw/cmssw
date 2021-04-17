@@ -7,9 +7,14 @@ process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/cond
 process.CondDBCommon.connect = 'sqlite_file:EcalDCSTowerStatus.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                        debugModules = cms.untracked.vstring('*'),
-                                        destinations = cms.untracked.vstring('cout')
-                                    )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
+    debugModules = cms.untracked.vstring('*')
+)
 
 process.source = cms.Source("EmptyIOVSource",
                                 firstValue = cms.uint64(1000000),

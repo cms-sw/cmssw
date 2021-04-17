@@ -29,6 +29,11 @@ public:
       return seltks;
     }
   }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    TrackFilterForPVFinding::fillPSetDescription(desc);
+    desc.add<int>("numTracksThreshold", 0);  // HI only
+  }
 };
 
 #endif

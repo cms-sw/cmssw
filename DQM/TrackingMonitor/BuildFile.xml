@@ -5,6 +5,7 @@
 <use name="DQMServices/Core"/>
 <use name="CommonTools/TriggerUtils"/>
 <use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackCandidate"/>
 <use name="DataFormats/Luminosity"/>
 <use   name="DataFormats/OnlineMetaData"/>
 <use name="DataFormats/VertexReco"/>

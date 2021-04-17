@@ -74,10 +74,6 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   std::vector<METype> h_reco_dzpvsigcut, h_assoc_dzpvsigcut, h_assoc2_dzpvsigcut, h_simul_dzpvsigcut,
       h_simul2_dzpvsigcut, h_pileup_dzpvsigcut;
 
-  std::vector<METype> h_reco_dzpvcut_pt, h_assoc_dzpvcut_pt, h_assoc2_dzpvcut_pt, h_simul_dzpvcut_pt,
-      h_simul2_dzpvcut_pt, h_pileup_dzpvcut_pt;
-  std::vector<METype> h_reco_dzpvsigcut_pt, h_assoc_dzpvsigcut_pt, h_assoc2_dzpvsigcut_pt, h_simul_dzpvsigcut_pt,
-      h_simul2_dzpvsigcut_pt, h_pileup_dzpvsigcut_pt;
   std::vector<METype> h_reco_simpvz, h_assoc_simpvz, h_assoc2_simpvz, h_simul_simpvz, h_looper_simpvz, h_pileup_simpvz;
 
   std::vector<METype> h_reco_seedingLayerSet, h_assoc2_seedingLayerSet, h_looper_seedingLayerSet,
@@ -128,8 +124,9 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   std::vector<METype> h_assochi2, h_assochi2_prob;
 
   //chi2 and # lost hits vs eta: to be used with doProfileX
-  std::vector<METype> chi2_vs_eta, chi2_vs_pt, nlosthits_vs_eta;
-  std::vector<METype> assoc_chi2_vs_eta, assoc_chi2_vs_pt, assoc_chi2prob_vs_eta, assoc_chi2prob_vs_pt;
+  std::vector<METype> chi2_vs_eta, chi2_vs_pt, chi2_vs_drj, nlosthits_vs_eta;
+  std::vector<METype> assoc_chi2_vs_eta, assoc_chi2_vs_pt, assoc_chi2_vs_drj, assoc_chi2prob_vs_eta,
+      assoc_chi2prob_vs_pt, assoc_chi2prob_vs_drj;
 
   //resolution of track params: to be used with fitslicesytool
   std::vector<METype> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
@@ -137,6 +134,7 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
 
   //pulls of track params vs eta: to be used with fitslicesytool
   std::vector<METype> dxypull_vs_eta, ptpull_vs_eta, dzpull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
+  std::vector<METype> dxypull_vs_pt, ptpull_vs_pt, dzpull_vs_pt, phipull_vs_pt, thetapull_vs_pt;
   std::vector<METype> ptpull_vs_phi, phipull_vs_phi, thetapull_vs_phi;
 };
 

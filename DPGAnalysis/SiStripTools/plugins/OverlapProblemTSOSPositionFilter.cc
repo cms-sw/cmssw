@@ -28,7 +28,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -73,6 +72,7 @@ private:
 
   const bool m_validOnly;
   edm::EDGetTokenT<TrajTrackAssociationCollection> m_ttacollToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
 };
 
 //
@@ -89,7 +89,8 @@ private:
 OverlapProblemTSOSPositionFilter::OverlapProblemTSOSPositionFilter(const edm::ParameterSet& iConfig)
     : m_validOnly(iConfig.getParameter<bool>("onlyValidRecHit")),
       m_ttacollToken(
-          consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssoCollection")))
+          consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssoCollection"))),
+      m_tTopoToken(esConsumes())
 
 {
   //now do what ever initialization is needed
@@ -117,8 +118,7 @@ bool OverlapProblemTSOSPositionFilter::filter(edm::Event& iEvent, const edm::Eve
   Handle<TrajTrackAssociationCollection> ttac;
   iEvent.getByToken(m_ttacollToken, ttac);
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  const auto& tTopo = iSetup.getData(m_tTopoToken);
 
   for (TrajTrackAssociationCollection::const_iterator pair = ttac->begin(); pair != ttac->end(); ++pair) {
     const edm::Ref<std::vector<Trajectory> >& traj = pair->key;
@@ -141,7 +141,7 @@ bool OverlapProblemTSOSPositionFilter::filter(edm::Event& iEvent, const edm::Eve
       if (hit->geographicalId().subdetId() != StripSubdetector::TEC)
         continue;
 
-      if (tTopo->tecRing(hit->geographicalId()) != 6)
+      if (tTopo.tecRing(hit->geographicalId()) != 6)
         continue;
 
       if (tsos.localPosition().y() < 6.)

@@ -35,10 +35,6 @@ public:
            const CSCComparatorDigiCollection* compdc,
            const GEMPadDigiClusterCollection* gemPads) override;
 
-  void run(const CSCWireDigiCollection* wiredc,
-           const CSCComparatorDigiCollection* compdc,
-           const GEMPadDigiCollection* gemPads) override;
-
   /* readout the two best LCTs in this CSC */
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const override;
 

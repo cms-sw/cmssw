@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -82,7 +82,7 @@ private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   //update the cabling if necessary
-  void updateCabling(const edm::EventSetup& eventSetup);
+  void updateCabling(const SiStripFedCablingRcd& cablingRcd);
 
   static bool pairComparison(const std::pair<unsigned int, unsigned int>& pair1,
                              const std::pair<unsigned int, unsigned int>& pair2);
@@ -108,8 +108,12 @@ private:
   //print debug messages when problems are found: 1=error debug, 2=light debug, 3=full debug
   unsigned int printDebug_;
   //FED cabling
-  uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
+
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
 
   //add parameter to save computing time if TkHistoMap/Median/FeMajCheck are not enabled
   bool doTkHistoMap_;
@@ -138,7 +142,10 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
       fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms", false)),
       fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber", false)),
       printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages", 1)),
-      cablingCacheId_(0),
+      fedCablingWatcher_(this, &SiStripFEDMonitorPlugin::updateCabling),
+      fedCablingToken_(esConsumes<>()),
+      tTopoToken_(esConsumes<>()),
+      tkDetMapToken_(esConsumes<edm::Transition::BeginRun>()),
       maxFedBufferSize_(0),
       fullDebugMode_(iConfig.getUntrackedParameter<bool>("FullDebugMode", false)) {
   std::string subFolderName = iConfig.getUntrackedParameter<std::string>("HistogramFolderName", "ReadoutView");
@@ -190,13 +197,8 @@ SiStripFEDMonitorPlugin::~SiStripFEDMonitorPlugin() {}
 
 // ------------ method called to for each event  ------------
 void SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  //update cabling
-  updateCabling(iSetup);
+  const auto tTopo = &iSetup.getData(tTopoToken_);
+  fedCablingWatcher_.check(iSetup);
 
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
@@ -481,10 +483,7 @@ void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
                                              const edm::EventSetup& eSetup) {
   ibooker.setCurrentFolder(folderName_);
 
-  edm::ESHandle<TkDetMap> tkDetMapHandle;
-  eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-  const TkDetMap* tkDetMap = tkDetMapHandle.product();
-
+  const auto tkDetMap = &eSetup.getData(tkDetMapToken_);
   fedHists_.bookTopLevelHistograms(ibooker, tkDetMap);
 
   if (fillAllDetailedHistograms_)
@@ -529,14 +528,8 @@ void SiStripFEDMonitorPlugin::globalEndLuminosityBlock(const edm::LuminosityBloc
   }
 }
 
-void SiStripFEDMonitorPlugin::updateCabling(const edm::EventSetup& eventSetup) {
-  uint32_t currentCacheId = eventSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
-  if (cablingCacheId_ != currentCacheId) {
-    edm::ESHandle<SiStripFedCabling> cablingHandle;
-    eventSetup.get<SiStripFedCablingRcd>().get(cablingHandle);
-    cabling_ = cablingHandle.product();
-    cablingCacheId_ = currentCacheId;
-  }
+void SiStripFEDMonitorPlugin::updateCabling(const SiStripFedCablingRcd& cablingRcd) {
+  cabling_ = &cablingRcd.get(fedCablingToken_);
 }
 
 //

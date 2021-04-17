@@ -102,6 +102,7 @@ namespace pat {
     const float pcRefNearest_DR_;     // radius for nearest charged packed candidate
     const float pcRefNearest_pTmin_;  // min pT for nearest charged packed candidate
     const float pfneutralsum_DR_;     // pf lepton overlap radius
+    const bool useHighPurity_;
     const bool saveDeDxHitInfo_;
     StringCutObjectSelector<pat::IsolatedTrack> saveDeDxHitInfoCut_;
 
@@ -146,6 +147,7 @@ pat::PATIsolatedTrackProducer::PATIsolatedTrackProducer(const edm::ParameterSet&
       pcRefNearest_DR_(iConfig.getParameter<double>("pcRefNearest_DR")),
       pcRefNearest_pTmin_(iConfig.getParameter<double>("pcRefNearest_pTmin")),
       pfneutralsum_DR_(iConfig.getParameter<double>("pfneutralsum_DR")),
+      useHighPurity_(iConfig.getParameter<bool>("useHighPurity")),
       saveDeDxHitInfo_(iConfig.getParameter<bool>("saveDeDxHitInfo")),
       saveDeDxHitInfoCut_(iConfig.getParameter<std::string>("saveDeDxHitInfoCut")) {
   // TrackAssociator parameters
@@ -237,6 +239,9 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
   //add general tracks
   for (unsigned int igt = 0; igt < generalTracks->size(); igt++) {
     const reco::Track& gentk = (*gt_h)[igt];
+    if (useHighPurity_)
+      if (!(gentk.quality(reco::TrackBase::qualityByName("highPurity"))))
+        continue;
     reco::TrackRef tkref = reco::TrackRef(gt_h, igt);
     pat::PackedCandidateRef pcref = (*gt2pc)[tkref];
     pat::PackedCandidateRef ltref = (*gt2lt)[tkref];

@@ -2,7 +2,9 @@
 #define __L1Trigger_L1THGCal_HGCalVFECompressionImpl_h__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Exception.h"
+
+#include <unordered_map>
+#include <array>
 
 class HGCalVFECompressionImpl {
 public:
@@ -14,6 +16,7 @@ public:
 private:
   uint32_t exponentBits_;
   uint32_t mantissaBits_;
+  uint32_t truncationBits_;
   bool rounding_;
   uint32_t saturationCode_;
   uint32_t saturationValue_;

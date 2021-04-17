@@ -36,14 +36,14 @@
 
 namespace {
 
+  using namespace cond::payloadInspector;
+
   // test class
-  class SiStripConfObjectTest : public cond::payloadInspector::Histogram1D<SiStripConfObject> {
+  class SiStripConfObjectTest : public Histogram1D<SiStripConfObject, SINGLE_IOV> {
   public:
     SiStripConfObjectTest()
-        : cond::payloadInspector::Histogram1D<SiStripConfObject>(
-              "SiStrip Configuration Object test", "SiStrip Configuration Object test", 1, 0.0, 1.0) {
-      Base::setSingleIov(true);
-    }
+        : Histogram1D<SiStripConfObject, SINGLE_IOV>(
+              "SiStrip Configuration Object test", "SiStrip Configuration Object test", 1, 0.0, 1.0) {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -69,14 +69,13 @@ namespace {
   };
 
   // display class
-  class SiStripConfObjectDisplay : public cond::payloadInspector::PlotImage<SiStripConfObject> {
+  class SiStripConfObjectDisplay : public PlotImage<SiStripConfObject, SINGLE_IOV> {
   public:
-    SiStripConfObjectDisplay() : cond::payloadInspector::PlotImage<SiStripConfObject>("Display Configuration Values") {
-      setSingleIov(true);
-    }
+    SiStripConfObjectDisplay() : PlotImage<SiStripConfObject, SINGLE_IOV>("Display Configuration Values") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripConfObject> payload = fetchPayload(std::get<1>(iov));
 
       unsigned int run = std::get<0>(iov);

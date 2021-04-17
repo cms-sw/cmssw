@@ -80,7 +80,7 @@ const std::vector<std::string> HGCalElectronIDValueMapProducer::valuesProduced_ 
 };
 
 HGCalElectronIDValueMapProducer::HGCalElectronIDValueMapProducer(const edm::ParameterSet& iConfig)
-    : electronsToken_(consumes<edm::View<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
+    : electronsToken_(consumes(iConfig.getParameter<edm::InputTag>("electrons"))),
       radius_(iConfig.getParameter<double>("pcaRadius")) {
   for (const auto& key : valuesProduced_) {
     maps_[key] = {};
@@ -96,8 +96,7 @@ HGCalElectronIDValueMapProducer::~HGCalElectronIDValueMapProducer() {}
 void HGCalElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<edm::View<reco::GsfElectron>> electronsH;
-  iEvent.getByToken(electronsToken_, electronsH);
+  auto electronsH = iEvent.getHandle(electronsToken_);
 
   // Clear previous map
   for (auto&& kv : maps_) {

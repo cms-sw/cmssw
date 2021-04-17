@@ -94,6 +94,10 @@ public:
     return nullptr;
   }
 
+  /// Set the elements of the mask corresponding to the tracks that are compatable with the region.
+  /// Does not reset the elements corresponding to the tracks that are not compatible.
+  void checkTracks(reco::TrackCollection const& tracks, std::vector<bool>& mask) const override;
+
   std::unique_ptr<TrackingRegion> clone() const override { return std::make_unique<CosmicTrackingRegion>(*this); }
 
   std::string name() const override { return "CosmicTrackingRegion"; }

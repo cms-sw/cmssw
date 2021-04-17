@@ -24,6 +24,6 @@
 
 class HcalZDCLowGainFractionsRcd : public edm::eventsetup::DependentRecordImplementation<
                                        HcalZDCLowGainFractionsRcd,
-                                       boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
+                                       edm::mpl::Vector<HcalRecNumberingRecord, IdealGeometryRecord> > {};
 
 #endif

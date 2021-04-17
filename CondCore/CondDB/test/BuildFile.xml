@@ -29,7 +29,13 @@
 <bin file="testFrontier.cpp" name="testFrontier">
 </bin>
 
+<bin file="testLogger.cpp" name="testLogger">
+</bin>
+
 <bin file="testRunInfo.cpp" name="testRunInfo">
+</bin>
+
+<bin file="testRunInfo2.cpp" name="testRunInfo2">
 </bin>
 
 <bin file="testGroupSelection.cpp" name="testGroupSelection">

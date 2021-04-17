@@ -39,6 +39,7 @@
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
@@ -48,9 +49,7 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
-  class ProductRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
 
   template <typename T>
   class OutputModuleCommunicatorT;
@@ -127,34 +126,20 @@ namespace edm {
 
       void doBeginStream(StreamID id);
       void doEndStream(StreamID id);
-      void doStreamBeginRun(StreamID id, RunPrincipal& ep, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doStreamEndRun(StreamID id, RunPrincipal& ep, EventSetupImpl const& c, ModuleCallingContext const*);
-      void doStreamBeginLuminosityBlock(StreamID id,
-                                        LuminosityBlockPrincipal& ep,
-                                        EventSetupImpl const& c,
-                                        ModuleCallingContext const*);
-      void doStreamEndLuminosityBlock(StreamID id,
-                                      LuminosityBlockPrincipal& ep,
-                                      EventSetupImpl const& c,
-                                      ModuleCallingContext const*);
 
-      bool doEvent(EventPrincipal const& ep, EventSetupImpl const& c, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       //For now this is a placeholder
-      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask,
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
                                                     Principal const& iPrincipal) const {}
 
       void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
-      bool doBeginRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      bool doEndRun(RunPrincipal const& rp, EventSetupImpl const& c, ModuleCallingContext const*);
-      bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetupImpl const& c,
-                                  ModuleCallingContext const*);
-      bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetupImpl const& c,
-                                ModuleCallingContext const*);
+      bool doBeginRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      bool doEndRun(RunTransitionInfo const&, ModuleCallingContext const*);
+      bool doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
+      bool doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
 
       void setEventSelectionInfo(
           std::map<std::string, std::vector<std::pair<std::string, int>>> const& outputModulePathPositions,

@@ -91,7 +91,7 @@ _positionCalcECAL_all_nodepth = cms.PSet(
     timeResolutionCalcEndcap = _timeResolutionECALEndcap,
 )
 _positionCalcECAL_3x3_nodepth = _positionCalcECAL_all_nodepth.clone(
-    posCalcNCrystals = cms.int32(9)
+    posCalcNCrystals = 9
 )
 _positionCalcECAL_all_withdepth = cms.PSet(
     algoName = cms.string("ECAL2DPositionCalcWithDepthCorr"),

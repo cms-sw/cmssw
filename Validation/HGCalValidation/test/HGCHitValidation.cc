@@ -571,8 +571,7 @@ void HGCHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
     std::pair<float, float> xy;
     bool ok(true);
     int subdet(0), zside, layer, wafer, celltype, cell, wafer2(0), cell2(0);
-    if ((hgcCons_[idet]->geomMode() == HGCalGeometryMode::Hexagon8) ||
-        (hgcCons_[idet]->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+    if (hgcCons_[idet]->waferHexagon8()) {
       HGCSiliconDetId detId = HGCSiliconDetId(id);
       subdet = (int)(detId.det());
       cell = detId.cellU();
@@ -583,7 +582,7 @@ void HGCHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
       layer = detId.layer();
       zside = detId.zside();
       xy = hgcCons_[idet]->locateCell(layer, wafer, wafer2, cell, cell2, false, true);
-    } else if (hgcCons_[idet]->geomMode() == HGCalGeometryMode::Trapezoid) {
+    } else if (hgcCons_[idet]->tileTrapezoid()) {
       HGCScintillatorDetId detId = HGCScintillatorDetId(id);
       subdet = (int)(detId.det());
       cell = detId.ietaAbs();

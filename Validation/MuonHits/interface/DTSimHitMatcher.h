@@ -8,6 +8,8 @@
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
@@ -73,7 +75,7 @@ private:
   std::map<unsigned int, edm::PSimHitContainer> layer_to_hits_;
   std::map<unsigned int, edm::PSimHitContainer> superlayer_to_hits_;
 
-  edm::ESHandle<DTGeometry> dt_geom_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> geomToken_;
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef CondFormatsDataRecord_L1CaloHcalScaleRcd_h
 #define CondFormatsDataRecord_L1CaloHcalScaleRcd_h
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
@@ -12,6 +12,6 @@
 //class L1CaloHcalScaleRcd : public edm::eventsetup::EventSetupRecordImplementation<L1CaloHcalScaleRcd> {};
 class L1CaloHcalScaleRcd : public edm::eventsetup::DependentRecordImplementation<
                                L1CaloHcalScaleRcd,
-                               boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd, CaloGeometryRecord> > {};
+                               edm::mpl::Vector<L1TriggerKeyListRcd, L1TriggerKeyRcd, CaloGeometryRecord> > {};
 
 #endif

@@ -17,23 +17,19 @@ public:
   CandidateType candidateType() const final { return ELECTRON; }
 
 private:
-  const unsigned _maxMissingHitsEB, _maxMissingHitsEE;
+  const int _maxMissingHitsEB, _maxMissingHitsEE;
   const double _barrelCutOff;
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory, GsfEleMissingHitsCut, "GsfEleMissingHitsCut");
 
 CutApplicatorBase::result_type GsfEleMissingHitsCut::operator()(const reco::GsfElectronPtr& cand) const {
-  constexpr auto missingHitType = reco::HitPattern::MISSING_INNER_HITS;
-  const unsigned maxMissingHits =
+  auto maxMissingHits =
       (std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? _maxMissingHitsEB : _maxMissingHitsEE);
-  const unsigned mHits = cand->gsfTrack()->hitPattern().numberOfLostHits(missingHitType);
-  return mHits <= maxMissingHits;
+  return cand->gsfTrack()->missingInnerHits() <= maxMissingHits;
 }
 
 double GsfEleMissingHitsCut::value(const reco::CandidatePtr& cand) const {
-  constexpr auto missingHitType = reco::HitPattern::MISSING_INNER_HITS;
   reco::GsfElectronPtr ele(cand);
-  const unsigned mHits = ele->gsfTrack()->hitPattern().numberOfLostHits(missingHitType);
-  return mHits;
+  return ele->gsfTrack()->missingInnerHits();
 }

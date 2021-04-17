@@ -30,6 +30,8 @@
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
 #include "FWCore/Framework/interface/stream/makeGlobal.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 // forward declarations
 
 namespace edm {
@@ -47,6 +49,8 @@ namespace edm {
         typename T::GlobalCache const* dummy = nullptr;
         m_global = impl::makeGlobal<T>(iPSet, dummy);
       }
+      ProducingModuleAdaptor(const ProducingModuleAdaptor&) = delete;                   // stop default
+      const ProducingModuleAdaptor& operator=(const ProducingModuleAdaptor&) = delete;  // stop default
       ~ProducingModuleAdaptor() override {}
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions) { T::fillDescriptions(descriptions); }
@@ -155,16 +159,19 @@ namespace edm {
         }
       }
 
-      void doBeginRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) final {
+      void doBeginRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) final {
         if constexpr (T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kBeginRunProducer) {
+          RunPrincipal const& rp = info.principal();
           Run r(rp, this->moduleDescription(), mcc, false);
           r.setConsumer(this->consumer());
           r.setProducer(this->producer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
-          const EventSetup c{ci,
+          ESParentContext parentC(mcc);
+          const EventSetup c{info,
                              static_cast<unsigned int>(Transition::BeginRun),
                              this->consumer()->esGetTokenIndices(Transition::BeginRun),
+                             parentC,
                              false};
           MyGlobalRun::beginRun(cnstR, c, m_global.get(), m_runs[ri]);
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
@@ -176,17 +183,20 @@ namespace edm {
         }
       }
 
-      void doEndRun(RunPrincipal const& rp, EventSetupImpl const& ci, ModuleCallingContext const* mcc) final {
+      void doEndRun(RunTransitionInfo const& info, ModuleCallingContext const* mcc) final {
         if constexpr (T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache or T::HasAbility::kEndRunProducer) {
+          RunPrincipal const& rp = info.principal();
           Run r(rp, this->moduleDescription(), mcc, true);
           r.setConsumer(this->consumer());
           r.setProducer(this->producer());
 
           RunIndex ri = rp.index();
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
-          const EventSetup c{ci,
+          ESParentContext parentC(mcc);
+          const EventSetup c{info,
                              static_cast<unsigned int>(Transition::EndRun),
                              this->consumer()->esGetTokenIndices(Transition::EndRun),
+                             parentC,
                              false};
           MyGlobalRunSummary::globalEndRun(r, c, &rc, m_runSummaries[ri].get());
           if constexpr (T::HasAbility::kEndRunProducer) {
@@ -197,11 +207,10 @@ namespace edm {
         }
       }
 
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                  EventSetupImpl const& ci,
-                                  ModuleCallingContext const* mcc) final {
+      void doBeginLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) final {
         if constexpr (T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or
                       T::HasAbility::kBeginLuminosityBlockProducer) {
+          LuminosityBlockPrincipal const& lbp = info.principal();
           LuminosityBlock lb(lbp, this->moduleDescription(), mcc, false);
           lb.setConsumer(this->consumer());
           lb.setProducer(this->producer());
@@ -209,9 +218,11 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
-          const EventSetup c{ci,
+          ESParentContext parentC(mcc);
+          const EventSetup c{info,
                              static_cast<unsigned int>(Transition::BeginLuminosityBlock),
                              this->consumer()->esGetTokenIndices(Transition::BeginLuminosityBlock),
+                             parentC,
                              false};
 
           MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb, c, &rc, m_lumis[li]);
@@ -223,11 +234,10 @@ namespace edm {
           }
         }
       }
-      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-                                EventSetupImpl const& ci,
-                                ModuleCallingContext const* mcc) final {
+      void doEndLuminosityBlock(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) final {
         if constexpr (T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache or
                       T::HasAbility::kEndLuminosityBlockProducer) {
+          LuminosityBlockPrincipal const& lbp = info.principal();
           LuminosityBlock lb(lbp, this->moduleDescription(), mcc, true);
           lb.setConsumer(this->consumer());
           lb.setProducer(this->producer());
@@ -235,9 +245,11 @@ namespace edm {
           LuminosityBlockIndex li = lbp.index();
           RunIndex ri = lbp.runPrincipal().index();
           typename T::LuminosityBlockContext lc(m_lumis[li].get(), m_runs[ri].get(), m_global.get());
-          const EventSetup c{ci,
+          ESParentContext parentC(mcc);
+          const EventSetup c{info,
                              static_cast<unsigned int>(Transition::EndLuminosityBlock),
                              this->consumer()->esGetTokenIndices(Transition::EndLuminosityBlock),
+                             parentC,
                              false};
           MyGlobalLuminosityBlockSummary::globalEndLuminosityBlock(lb, c, &lc, m_lumiSummaries[li].get());
           if constexpr (T::HasAbility::kEndLuminosityBlockProducer) {
@@ -247,10 +259,6 @@ namespace edm {
           MyGlobalLuminosityBlock::endLuminosityBlock(lb, c, &lc);
         }
       }
-
-      ProducingModuleAdaptor(const ProducingModuleAdaptor&) = delete;  // stop default
-
-      const ProducingModuleAdaptor& operator=(const ProducingModuleAdaptor&) = delete;  // stop default
 
       // ---------- member data --------------------------------
       typename impl::choose_unique_ptr<typename T::GlobalCache>::type m_global;

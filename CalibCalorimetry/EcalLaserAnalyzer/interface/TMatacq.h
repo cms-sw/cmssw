@@ -3,10 +3,11 @@
 
 #include "TObject.h"
 
-#define NMAXSAMP 100
-#define NSPARAB 16
-
 class TMatacq : public TObject {
+public:
+  static constexpr int NMAXSAMP = 100;
+  static constexpr int NSPARAB = 16;
+
 private:
   int fNsamples;
   int fNum_samp_bef_max;

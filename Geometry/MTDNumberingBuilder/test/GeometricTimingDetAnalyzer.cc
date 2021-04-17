@@ -57,6 +57,9 @@ public:
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
   void dumpGeometricTimingDet(const GeometricTimingDet* det);
+
+private:
+  edm::ESGetToken<GeometricTimingDet, IdealGeometryRecord> gtdToken_;
 };
 
 //
@@ -71,7 +74,7 @@ public:
 // constructors and destructor
 //
 GeometricTimingDetAnalyzer::GeometricTimingDetAnalyzer(const edm::ParameterSet& iConfig) {
-  //now do what ever initialization is needed
+  gtdToken_ = esConsumes<GeometricTimingDet, IdealGeometryRecord>();
 }
 
 GeometricTimingDetAnalyzer::~GeometricTimingDetAnalyzer() {
@@ -93,11 +96,10 @@ void GeometricTimingDetAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   //
   // get the GeometricTimingDet
   //
-  edm::ESHandle<GeometricTimingDet> rDD;
-  iSetup.get<IdealGeometryRecord>().get(rDD);
+  auto rDD = iSetup.getTransientHandle(gtdToken_);
 
   if (!rDD.isValid()) {
-    edm::LogError("DD4hep_MTDTopologyAnalyzer") << "ESTransientHandle<DDCompactView> rDD is not valid!";
+    edm::LogError("GeometricTimingDetAnalyzer") << "ESTransientHandle<GeometricTimingDet> rDD is not valid!";
     return;
   }
 

@@ -63,8 +63,8 @@ TestESDummyDataAnalyzer::TestESDummyDataAnalyzer(const edm::ParameterSet& iConfi
     : m_expectedValue{iConfig.getParameter<int>("expected")},
       m_nEventsValue{iConfig.getUntrackedParameter<int>("nEvents", 0)},
       m_totalNEvents{iConfig.getUntrackedParameter<int>("totalNEvents", -1)},
-      m_esTokenBeginRun{esConsumes<edm::eventsetup::test::DummyData, edm::DefaultRecord, edm::Transition::BeginRun>()},
-      m_esToken{esConsumes<edm::eventsetup::test::DummyData, edm::DefaultRecord>()} {}
+      m_esTokenBeginRun{esConsumes<edm::Transition::BeginRun>()},
+      m_esToken{esConsumes()} {}
 
 void TestESDummyDataAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   using namespace edm;

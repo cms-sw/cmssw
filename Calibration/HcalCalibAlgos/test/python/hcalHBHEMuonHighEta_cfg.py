@@ -20,7 +20,7 @@ process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("Calibration.HcalCalibAlgos.hcalHBHEMuonHighEta_cfi")
 
 if 'MessageLogger' in process.__dict__:
-    process.MessageLogger.categories.append('HBHEMuon')
+    process.MessageLogger.HBHEMuon=dict()
 
 process.maxEvents = cms.untracked.PSet( 
     input = cms.untracked.int32(100) 

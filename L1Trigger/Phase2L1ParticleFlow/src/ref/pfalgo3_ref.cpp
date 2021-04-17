@@ -13,10 +13,6 @@
 #include <vector>
 #include <memory>
 
-int g_pfalgo3_debug_ref_ = 0;
-
-void pfalgo3_ref_set_debug(int debug) { g_pfalgo3_debug_ref_ = debug; }
-
 template <bool doPtMin, typename CO_t>
 int tk_best_match_ref(unsigned int nCAL, unsigned int dR2MAX, const CO_t calo[/*nCAL*/], const TkObj &track) {
   pt_t caloPtMin = track.hwPt - 2 * (track.hwPtErr);
@@ -58,7 +54,8 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
                     const bool isMu[/*cfg.nTRACK*/],
                     bool isEle[/*cfg.nTRACK*/],
                     PFNeutralObj outpho[/*cfg.nPHOTON*/],
-                    HadCaloObj hadcalo_out[/*cfg.nCALO*/]) {
+                    HadCaloObj hadcalo_out[/*cfg.nCALO*/],
+                    bool debug) {
   // constants
   const int DR2MAX_TE = cfg.dR2MAX_TK_EM;
   const int DR2MAX_EH = cfg.dR2MAX_EM_CALO;
@@ -75,7 +72,7 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
     if (track[it].hwPt > 0 && !isMu[it]) {
       tk2em[it] = tk_best_match_ref<false, EmCaloObj>(cfg.nEMCALO, DR2MAX_TE, emcalo, track[it]);
       if (tk2em[it] != -1) {
-        if (g_pfalgo3_debug_ref_)
+        if (debug)
           printf("FW  \t track  %3d pt %7d matched to em calo %3d pt %7d\n",
                  it,
                  int(track[it].hwPt),
@@ -88,7 +85,7 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
     }
   }
 
-  if (g_pfalgo3_debug_ref_) {
+  if (debug) {
     for (unsigned int ic = 0; ic < cfg.nEMCALO; ++ic) {
       if (emcalo[ic].hwPt > 0)
         printf("FW  \t emcalo %3d pt %7d has sumtk %7d\n", ic, int(emcalo[ic].hwPt), int(calo_sumtk[ic]));
@@ -107,7 +104,7 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
         // electron
         photonPt = 0;
         isEM[ic] = true;
-        if (g_pfalgo3_debug_ref_)
+        if (debug)
           printf("FW  \t emcalo %3d pt %7d ptdiff %7d [match window: -%.2f / +%.2f] flagged as electron\n",
                  ic,
                  int(emcalo[ic].hwPt),
@@ -118,7 +115,7 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
         // electron + photon
         photonPt = ptdiff;
         isEM[ic] = true;
-        if (g_pfalgo3_debug_ref_)
+        if (debug)
           printf(
               "FW  \t emcalo %3d pt %7d ptdiff %7d [match window: -%.2f / +%.2f] flagged as electron + photon of pt "
               "%7d\n",
@@ -132,7 +129,7 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
         // pion
         photonPt = 0;
         isEM[ic] = false;
-        if (g_pfalgo3_debug_ref_)
+        if (debug)
           printf("FW  \t emcalo %3d pt %7d ptdiff %7d [match window: -%.2f / +%.2f] flagged as pion\n",
                  ic,
                  int(emcalo[ic].hwPt),
@@ -144,7 +141,7 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
       // photon
       isEM[ic] = true;
       photonPt = emcalo[ic].hwPt;
-      if (g_pfalgo3_debug_ref_ && emcalo[ic].hwPt > 0)
+      if (debug && emcalo[ic].hwPt > 0)
         printf("FW  \t emcalo %3d pt %7d flagged as photon\n", ic, int(emcalo[ic].hwPt));
     }
     outpho[ic].hwPt = photonPt;
@@ -155,14 +152,14 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
 
   for (unsigned int it = 0; it < cfg.nTRACK; ++it) {
     isEle[it] = (tk2em[it] != -1) && isEM[tk2em[it]];
-    if (g_pfalgo3_debug_ref_ && isEle[it])
+    if (debug && isEle[it])
       printf("FW  \t track  %3d pt %7d flagged as electron.\n", it, int(track[it].hwPt));
   }
 
   std::vector<int> em2calo(cfg.nEMCALO);
   for (unsigned int ic = 0; ic < cfg.nEMCALO; ++ic) {
     em2calo[ic] = em_best_match_ref(cfg.nCALO, DR2MAX_EH, hadcalo, emcalo[ic]);
-    if (g_pfalgo3_debug_ref_ && (emcalo[ic].hwPt > 0)) {
+    if (debug && (emcalo[ic].hwPt > 0)) {
       printf("FW  \t emcalo %3d pt %7d isEM %d matched to hadcalo %7d pt %7d emPt %7d isEM %d\n",
              ic,
              int(emcalo[ic].hwPt),
@@ -188,7 +185,7 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
     }
     pt_t emdiff = hadcalo[ih].hwEmPt - sub;
     pt_t alldiff = hadcalo[ih].hwPt - sub;
-    if (g_pfalgo3_debug_ref_ && (hadcalo[ih].hwPt > 0)) {
+    if (debug && (hadcalo[ih].hwPt > 0)) {
       printf("FW  \t calo   %3d pt %7d has a subtracted pt of %7d, empt %7d -> %7d   isem %d mustkeep %d \n",
              ih,
              int(hadcalo[ih].hwPt),
@@ -201,12 +198,12 @@ void pfalgo3_em_ref(const pfalgo3_config &cfg,
     if (alldiff <= (hadcalo[ih].hwPt >> 4)) {
       hadcalo_out[ih].hwPt = 0;    // kill
       hadcalo_out[ih].hwEmPt = 0;  // kill
-      if (g_pfalgo3_debug_ref_ && (hadcalo[ih].hwPt > 0))
+      if (debug && (hadcalo[ih].hwPt > 0))
         printf("FW  \t calo   %3d pt %7d --> discarded (zero pt)\n", ih, int(hadcalo[ih].hwPt));
     } else if ((hadcalo[ih].hwIsEM && emdiff <= (hadcalo[ih].hwEmPt >> 3)) && !keep) {
       hadcalo_out[ih].hwPt = 0;    // kill
       hadcalo_out[ih].hwEmPt = 0;  // kill
-      if (g_pfalgo3_debug_ref_ && (hadcalo[ih].hwPt > 0))
+      if (debug && (hadcalo[ih].hwPt > 0))
         printf("FW  \t calo   %3d pt %7d --> discarded (zero em)\n", ih, int(hadcalo[ih].hwPt));
     } else {
       hadcalo_out[ih].hwPt = alldiff;
@@ -223,8 +220,9 @@ void pfalgo3_ref(const pfalgo3_config &cfg,
                  PFChargedObj outch[/*cfg.nTRACK*/],
                  PFNeutralObj outpho[/*cfg.nPHOTON*/],
                  PFNeutralObj outne[/*cfg.nSELCALO*/],
-                 PFChargedObj outmu[/*cfg.nMU*/]) {
-  if (g_pfalgo3_debug_ref_) {
+                 PFChargedObj outmu[/*cfg.nMU*/],
+                 bool debug) {
+  if (debug) {
 #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
     for (unsigned int i = 0; i < cfg.nTRACK; ++i) {
       if (track[i].hwPt == 0)
@@ -308,13 +306,13 @@ void pfalgo3_ref(const pfalgo3_config &cfg,
   // TK-MU Linking
   // // we can't use std::vector here because it's specialized
   std::unique_ptr<bool[]> isMu(new bool[cfg.nTRACK]);
-  pfalgo_mu_ref(cfg, track, mu, &isMu[0], outmu, g_pfalgo3_debug_ref_);
+  pfalgo_mu_ref(cfg, track, mu, &isMu[0], outmu, debug);
 
   ////////////////////////////////////////////////////
   // TK-EM Linking
   std::unique_ptr<bool[]> isEle(new bool[cfg.nTRACK]);
   std::vector<HadCaloObj> hadcalo_subem(cfg.nCALO);
-  pfalgo3_em_ref(cfg, emcalo, hadcalo, track, &isMu[0], &isEle[0], outpho, &hadcalo_subem[0]);
+  pfalgo3_em_ref(cfg, emcalo, hadcalo, track, &isMu[0], &isEle[0], outpho, &hadcalo_subem[0], debug);
 
   ////////////////////////////////////////////////////
   // TK-HAD Linking
@@ -348,7 +346,7 @@ void pfalgo3_ref(const pfalgo3_config &cfg,
       int ibest = best_match_with_pt_ref<HadCaloObj>(cfg.nCALO, DR2MAX, &hadcalo_subem[0], track[it]);
       //int  ibest = tk_best_match_ref<true,HadCaloObj>(cfg.nCALO, DR2MAX, &hadcalo_subem[0], track[it]);
       if (ibest != -1) {
-        if (g_pfalgo3_debug_ref_)
+        if (debug)
           printf("FW  \t track  %3d pt %7d matched to calo %3d pt %7d\n",
                  it,
                  int(track[it].hwPt),
@@ -366,7 +364,7 @@ void pfalgo3_ref(const pfalgo3_config &cfg,
       pt_t ptdiff = hadcalo_subem[ic].hwPt - calo_sumtk[ic];
       int sigmamult = calo_sumtkErr2
           [ic];  // before we did (calo_sumtkErr2[ic] + (calo_sumtkErr2[ic] >> 1)); to multiply by 1.5 = sqrt(1.5)^2 ~ (1.2)^2
-      if (g_pfalgo3_debug_ref_ && (hadcalo_subem[ic].hwPt > 0)) {
+      if (debug && (hadcalo_subem[ic].hwPt > 0)) {
 #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
         l1tpf_impl::CaloCluster floatcalo;
         fw2dpf::convert(hadcalo_subem[ic], floatcalo);
@@ -390,7 +388,7 @@ void pfalgo3_ref(const pfalgo3_config &cfg,
     } else {
       calo_subpt[ic] = hadcalo_subem[ic].hwPt;
     }
-    if (g_pfalgo3_debug_ref_ && (hadcalo_subem[ic].hwPt > 0))
+    if (debug && (hadcalo_subem[ic].hwPt > 0))
       printf("FW  \t calo  %3d pt %7d ---> %7d \n", ic, int(hadcalo_subem[ic].hwPt), int(calo_subpt[ic]));
   }
 
@@ -421,7 +419,7 @@ void pfalgo3_ref(const pfalgo3_config &cfg,
 
   ptsort_ref(cfg.nCALO, cfg.nSELCALO, outne_all, outne);
 
-  if (g_pfalgo3_debug_ref_) {
+  if (debug) {
 #ifdef L1Trigger_Phase2L1ParticleFlow_DiscretePFInputs_MORE
     std::vector<l1tpf_impl::PFParticle> tmp;
     for (unsigned int i = 0; i < cfg.nTRACK; ++i) {

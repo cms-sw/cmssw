@@ -96,7 +96,11 @@ _phase2_siml1emulator.add(l1EGammaEEProducer)
 
 # Tk + StandaloneObj, including L1TkPrimaryVertex
 # ########################################################################
-from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
+
+from L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi import L1TkPrimaryVertex
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsCrystal, L1TkElectronsLooseCrystal, L1TkElectronsEllipticMatchCrystal, L1TkIsoElectronsCrystal, L1TkElectronsHGC, L1TkElectronsEllipticMatchHGC, L1TkIsoElectronsHGC
+from L1Trigger.L1TTrackMatch.L1TkEmParticleProducer_cfi import L1TkPhotonsCrystal, L1TkPhotonsHGC
+from L1Trigger.L1TTrackMatch.L1TkMuonProducer_cfi import L1TkMuons
 
 _phase2_siml1emulator.add(L1TkPrimaryVertex)
 
@@ -118,19 +122,33 @@ _phase2_siml1emulator.add( L1TkMuons )
 from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
 _phase2_siml1emulator.add(l1ParticleFlowTask)
 
-# PF JetMET
+# PF Jet
+# ########################################################################
+from L1Trigger.L1CaloTrigger.Phase1L1TJets_cff import *
+# Describe here l1PFJets_a_la_Phase1 Task
+# ###############################
+l1PFJetsPhase1Task = cms.Task(Phase1L1TJetProducer , Phase1L1TJetCalibrator)
+_phase2_siml1emulator.add(l1PFJetsPhase1Task)
+
+# PF MET
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
-# Describe here l1PFJets Task
-# ###############################
-l1PFJetsTask = cms.Task(
-  ak4PFL1Calo , ak4PFL1PF , ak4PFL1Puppi ,
-  ak4PFL1CaloCorrected , ak4PFL1PFCorrected , ak4PFL1PuppiCorrected)
-_phase2_siml1emulator.add(l1PFJetsTask)
 # Describe here l1PFMets Task
 # ###############################
 l1PFMetsTask = cms.Task(l1PFMetCalo , l1PFMetPF , l1PFMetPuppi)
 _phase2_siml1emulator.add(l1PFMetsTask)
+
+# NNTaus
+# ########################################################################
+from L1Trigger.Phase2L1ParticleFlow.L1NNTauProducer_cff import *
+l1NNTauProducer = L1NNTauProducer.clone(
+  L1PFObjects = cms.InputTag("l1pfCandidates","PF")
+)
+l1NNTauProducerPuppi = L1NNTauProducerPuppi.clone(
+  L1PFObjects = cms.InputTag("l1pfCandidates","Puppi")
+)
+_phase2_siml1emulator.add(l1NNTauProducer)
+_phase2_siml1emulator.add(l1NNTauProducerPuppi)
 
 # --> add modules
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger

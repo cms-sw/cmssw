@@ -8,6 +8,9 @@ import FWCore.ParameterSet.Config as cms
 #  LHE:
 #    include pure LHE production
 #
+#  GEN:
+#    include GEN only information
+#
 #  RAW , RECO, AOD:
 #    include reconstruction content
 #
@@ -147,6 +150,20 @@ LHEEventContent = cms.PSet(
 LHEEventContent.outputCommands.extend(GeneratorInterfaceLHE.outputCommands)
 #
 #
+# GEN Data Tier definition
+# include GeneratorInterfaceLHE in case of pLHEGEN campaign
+#
+GENEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
+GENEventContent.outputCommands.extend(GeneratorInterfaceLHE.outputCommands)
+GENEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+GENEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+GENEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+GENEventContent.outputCommands.extend(IOMCRAW.outputCommands)
+#
+#
 # RAW Data Tier definition
 #
 #
@@ -195,18 +212,18 @@ RECOEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+from Configuration.Eras.Modifier_ctpps_cff import ctpps
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import *
 from RecoMTD.Configuration.RecoMTD_EventContent_cff import *
 
-ctpps_2016.toModify(RECOEventContent, 
+ctpps.toModify(RECOEventContent, 
     outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
 phase2_hgcal.toModify(RECOEventContent,
     outputCommands = RECOEventContent.outputCommands + TICL_RECO.outputCommands)
@@ -259,7 +276,7 @@ AODEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 AODEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
-ctpps_2016.toModify(AODEventContent, 
+ctpps.toModify(AODEventContent, 
     outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
 phase2_hgcal.toModify(AODEventContent,
     outputCommands = AODEventContent.outputCommands + TICL_AOD.outputCommands)
@@ -469,7 +486,7 @@ FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
-ctpps_2016.toModify(FEVTEventContent, 
+ctpps.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
 phase2_hgcal.toModify(FEVTEventContent,
     outputCommands = FEVTEventContent.outputCommands + TICL_FEVT.outputCommands)
@@ -486,7 +503,7 @@ run2_GEM_2017.toModify(FEVTEventContent,
     outputCommands = FEVTEventContent.outputCommands + ['keep *_muonGEMDigis_*_*'])
 run3_GEM.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + ['keep *_muonGEMDigis_*_*'])
-pp_on_AA_2018.toModify(FEVTEventContent, 
+pp_on_AA.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + ['keep FEDRawDataCollection_rawDataRepacker_*_*'])
 phase2_timing_layer.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoLocalFastTimeFEVT.outputCommands)

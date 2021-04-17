@@ -23,7 +23,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -126,8 +125,9 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 int ParticleTowerProducer::eta2ieta(double eta) const {
   // binary search in the array of towers eta edges
 
-  int ieta = 0;
-  while (fabs(eta) > hi::etaedge[ieta] && ieta < ietaMax - 1) {
+  int ieta = 1;
+  double xeta = fabs(eta);
+  while (xeta > hi::etaedge[ieta] && ieta < ietaMax - 1) {
     ++ieta;
   }
 

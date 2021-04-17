@@ -47,8 +47,8 @@ namespace edm::eventsetup {
   //
   // const member functions
   //
-  ESProxyIndex ESRecordsToProxyIndices::indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const
-      noexcept {
+  ESProxyIndex ESRecordsToProxyIndices::indexInRecord(EventSetupRecordKey const& iRK,
+                                                      DataKey const& iDK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
     if (it == recordKeys_.end() or *it != iRK) {
       return missingProxyIndex();
@@ -121,6 +121,17 @@ namespace edm::eventsetup {
       ++keyIndex;
     }
     return returnValue;
+  }
+
+  std::pair<std::vector<DataKey>::const_iterator, std::vector<DataKey>::const_iterator>
+  ESRecordsToProxyIndices::keysForRecord(EventSetupRecordKey const& iRK) const noexcept {
+    auto recIndex = recordIndexFor(iRK);
+    if (recIndex == missingRecordIndex()) {
+      return std::make_pair(dataKeys_.end(), dataKeys_.end());
+    }
+    auto const beginIndex = recordOffsets_[recIndex.value()];
+    auto const endIndex = recordOffsets_[recIndex.value() + 1];
+    return std::make_pair(dataKeys_.begin() + beginIndex, dataKeys_.begin() + endIndex);
   }
 
 }  // namespace edm::eventsetup

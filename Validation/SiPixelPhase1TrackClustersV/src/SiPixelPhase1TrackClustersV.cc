@@ -10,34 +10,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Validation/SiPixelPhase1TrackClustersV/interface/SiPixelPhase1TrackClustersV.h"
 
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-
 SiPixelPhase1TrackClustersV::SiPixelPhase1TrackClustersV(const edm::ParameterSet &iConfig)
     : SiPixelPhase1Base(iConfig) {
   clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("clusters"));
-  tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
 }
 
 void SiPixelPhase1TrackClustersV::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  // get geometry
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-  assert(tracker.isValid());
-
-  // get the map
-  edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByToken(tracksToken_, tracks);
-
   // get clusters
   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> clusterColl;
   iEvent.getByToken(clustersToken_, clusterColl);

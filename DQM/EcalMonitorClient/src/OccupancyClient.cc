@@ -46,9 +46,10 @@ namespace ecaldqm {
     int numCrystals[nPhiRings];  // this is static, but is easier to count now
     std::fill_n(numCrystals, nPhiRings, 0);
 
-    MESet::const_iterator dEnd(sDigi.end());
-    MESet::const_iterator rItr(sRecHitThr);
-    for (MESet::const_iterator dItr(sDigi.beginChannel()); dItr != dEnd; dItr.toNextChannel()) {
+    MESet::const_iterator dEnd(sDigi.end(GetElectronicsMap()));
+    MESet::const_iterator rItr(GetElectronicsMap(), sRecHitThr);
+    for (MESet::const_iterator dItr(sDigi.beginChannel(GetElectronicsMap())); dItr != dEnd;
+         dItr.toNextChannel(GetElectronicsMap())) {
       rItr = dItr;
 
       float entries(dItr->getBinContent());
@@ -62,7 +63,7 @@ namespace ecaldqm {
         std::vector<DetId> ids(scConstituents(EcalScDetId(id)));
         if (ids.empty())
           continue;
-        ieta = getTrigTowerMap()->towerOf(ids[0]).ieta();
+        ieta = GetTrigTowerMap()->towerOf(ids[0]).ieta();
       }
 
       unsigned index(ieta < 0 ? ieta + 28 : ieta + 27);
@@ -82,10 +83,11 @@ namespace ecaldqm {
     std::vector<float> Nrhentries(nDCC, 0.);  // (filtered) rechits
 
     // second round to find hot towers
-    for (MESet::const_iterator dItr(sDigi.beginChannel()); dItr != dEnd; dItr.toNextChannel()) {
+    for (MESet::const_iterator dItr(sDigi.beginChannel(GetElectronicsMap())); dItr != dEnd;
+         dItr.toNextChannel(GetElectronicsMap())) {
       DetId id(dItr->getId());
 
-      bool doMask(meQualitySummary.maskMatches(id, mask, statusManager_));
+      bool doMask(meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()));
 
       rItr = dItr;
 
@@ -99,7 +101,7 @@ namespace ecaldqm {
         std::vector<DetId> ids(scConstituents(EcalScDetId(id)));
         if (ids.empty())
           continue;
-        ieta = getTrigTowerMap()->towerOf(ids[0]).ieta();
+        ieta = GetTrigTowerMap()->towerOf(ids[0]).ieta();
       }
 
       unsigned index(ieta < 0 ? ieta + 28 : ieta + 27);
@@ -115,10 +117,10 @@ namespace ecaldqm {
         quality = doMask ? kMBad : kBad;
       }
 
-      meQualitySummary.setBinContent(id, double(quality));
+      meQualitySummary.setBinContent(getEcalDQMSetupObjects(), id, double(quality));
 
       // Keep count of digis & rechits for Occupancy analysis
-      unsigned iDCC(dccId(id) - 1);
+      unsigned iDCC(dccId(id, GetElectronicsMap()) - 1);
       if (entries > minHits_)
         Nentries[iDCC] += entries;
       if (rhentries > minHits_)
@@ -130,7 +132,7 @@ namespace ecaldqm {
 
     for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
-      float entries(sTPDigiThr.getBinContent(ttid));
+      float entries(sTPDigiThr.getBinContent(getEcalDQMSetupObjects(), ttid));
 
       unsigned index(ttid.ieta() < 0 ? ttid.ieta() + 28 : ttid.ieta() + 27);
 
@@ -150,7 +152,7 @@ namespace ecaldqm {
     for (unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
 
-      float entries(sTPDigiThr.getBinContent(ttid));
+      float entries(sTPDigiThr.getBinContent(getEcalDQMSetupObjects(), ttid));
 
       unsigned index(ttid.ieta() < 0 ? ttid.ieta() + 28 : ttid.ieta() + 27);
 
@@ -164,15 +166,18 @@ namespace ecaldqm {
       if (quality != kBad)
         continue;
 
-      std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
+      std::vector<DetId> ids(GetTrigTowerMap()->constituentsOf(ttid));
       for (unsigned iD(0); iD < ids.size(); ++iD) {
         DetId& id(ids[iD]);
 
-        int quality(meQualitySummary.getBinContent(id));
+        int quality(meQualitySummary.getBinContent(getEcalDQMSetupObjects(), id));
         if (quality == kMBad || quality == kBad)
           continue;
 
-        meQualitySummary.setBinContent(id, meQualitySummary.maskMatches(id, mask, statusManager_) ? kMBad : kBad);
+        meQualitySummary.setBinContent(
+            getEcalDQMSetupObjects(),
+            id,
+            meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
       }
     }
 
@@ -199,10 +204,11 @@ namespace ecaldqm {
     rmsFEDEE = sqrt(abs(rmsFEDEE - meanFEDEE * meanFEDEE));
     // Analyze FED statistics
     float meanFED(0.), rmsFED(0.), nRMS(5.);
-    for (MESet::iterator qsItr(meQualitySummary.beginChannel()); qsItr != meQualitySummary.end();
-         qsItr.toNextChannel()) {
+    for (MESet::iterator qsItr(meQualitySummary.beginChannel(GetElectronicsMap()));
+         qsItr != meQualitySummary.end(GetElectronicsMap());
+         qsItr.toNextChannel(GetElectronicsMap())) {
       DetId id(qsItr->getId());
-      unsigned iDCC(dccId(id) - 1);
+      unsigned iDCC(dccId(id, GetElectronicsMap()) - 1);
       if (iDCC >= kEBmLow && iDCC <= kEBpHigh) {
         meanFED = meanFEDEB;
         rmsFED = rmsFEDEB;
@@ -212,7 +218,10 @@ namespace ecaldqm {
       }
       float threshold(meanFED < nRMS * rmsFED ? minHits_ : meanFED - nRMS * rmsFED);
       if (meanFED > 1000. && Nrhentries[iDCC] < threshold)
-        meQualitySummary.setBinContent(id, meQualitySummary.maskMatches(id, mask, statusManager_) ? kMBad : kBad);
+        meQualitySummary.setBinContent(
+            getEcalDQMSetupObjects(),
+            id,
+            meQualitySummary.maskMatches(id, mask, statusManager_, GetTrigTowerMap()) ? kMBad : kBad);
     }
 
   }  // producePlots()

@@ -10,7 +10,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include <functional>
 
-#include <DataFormats/TrackingRecHit/interface/AlignmentPositionError.h>
+#include <DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h>
 
 SiStripRecHitMatcher::SiStripRecHitMatcher(const edm::ParameterSet& conf)
     : scale_(conf.getParameter<double>("NSigmaInside")),

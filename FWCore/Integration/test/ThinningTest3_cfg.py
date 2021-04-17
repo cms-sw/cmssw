@@ -240,6 +240,16 @@ process.out = cms.OutputModule("PoolOutputModule",
     )
 )
 
+process.outSlim = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testThinningTest3Slimming.root'),
+    outputCommands = cms.untracked.vstring(
+        'keep *',
+        'drop *_thingProducer2alias_*_*',
+        'drop *_aliasO_*_*',
+        'drop *_thinningThingProducer*_*_*',
+    )
+)
+
 process.p = cms.Path(process.thinningThingProducerE2 *
                      process.thinningThingProducerF2 *
                      process.testA *
@@ -260,4 +270,4 @@ process.p = cms.Path(process.thinningThingProducerE2 *
                      process.testO
 )
 
-process.endPath = cms.EndPath(process.out)
+process.endPath = cms.EndPath(process.out*process.outSlim)

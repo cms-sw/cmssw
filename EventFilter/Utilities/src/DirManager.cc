@@ -19,6 +19,7 @@ namespace evf {
     closedir(dir);
     return maxrun;
   }
+
   std::string DirManager::findHighestRunDir() {
     std::string retval = dir_ + "/";
     std::string tmpdir;
@@ -59,11 +60,11 @@ namespace evf {
     retval += tmpdir;
     return retval;
   }
+
   bool DirManager::checkDirEmpty(std::string &d) {
     int filecount = 0;
     DIR *dir = opendir(d.c_str());
-    struct dirent *buf;
-    while ((buf = readdir(dir))) {
+    while (readdir(dir)) {
       filecount++;
     }
     return (filecount == 0);

@@ -281,7 +281,7 @@ void popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
   unsigned int wloc[5];
   EcalTPGWeights w;
   EcalTPGWeightIdMap* weightMap = new EcalTPGWeightIdMap;
-  int ngroups, igroups;
+  int ngroups, igroups = 0;
   edm::LogInfo("EcalTPGWeightIdMapHandler") << "found " << igroups << "Weight groups";
   for (int i = 0; i < 5; i++)
     std::getline(fxml, dummyLine);  // skip first lines

@@ -143,22 +143,16 @@ void BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm:
     for (int i = 0; i < nfed_; i++) {
       lbl.clear();
       lbl += "BxOccyOneFed";
-      char *ii = new char[1000];
-      std::sprintf(ii, "%d", i);
-      lbl += ii;
+      lbl += std::to_string(i);
       hBxOccyOneFed[i] = ibooker.book1D(lbl.data(), lbl.data(), norb_ + 1, -0.5, norb_ + 0.5);
-      delete[] ii;
     }
 
     ibooker.setCurrentFolder(histFolder_);
     for (int i = 0; i < nttype_; i++) {
       lbl.clear();
       lbl += "BxOccyGtTrigType";
-      char *ii = new char[16];
-      std::sprintf(ii, "%d", i + 1);
-      lbl += ii;
+      lbl += std::to_string(i + 1);
       hBxOccyGtTrigType[i] = ibooker.book1D(lbl.data(), lbl.data(), norb_ + 1, -0.5, norb_ + 0.5);
-      delete[] ii;
     }
 
     ibooker.setCurrentFolder(histFolder_ + "/SingleBit");
@@ -168,11 +162,8 @@ void BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm:
         lbl.clear();
         lbl += SysLabel[i];
         lbl += "BxOccyGtBit";
-        char *ii = new char[1000];
-        std::sprintf(ii, "%d", listGtBits_.at(j));
-        lbl += ii;
+        lbl += std::to_string(listGtBits_.at(j));
         hBxOccyTrigBit[i][j] = ibooker.book1D(lbl.data(), lbl.data(), norb_ + 1, -0.5, norb_ + 0.5);
-        delete[] ii;
       }
     }
   }
@@ -226,22 +217,16 @@ void BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm:
     hBxOccyOneFed[i]->setAxisTitle("bx", 1);
     lbl.clear();
     lbl += " FED ";
-    char *ii = new char[1000];
-    std::sprintf(ii, "%d", i);
-    lbl += ii;
+    lbl += std::to_string(i);
     lbl += " occupancy";
     hBxOccyOneFed[i]->setAxisTitle(lbl, 2);
-    delete[] ii;
   }
   for (int i = 0; i < nttype_; i++) {
     hBxOccyGtTrigType[i]->setAxisTitle("bx", 1);
     lbl.clear();
     lbl += "GT occupancy for trigger type ";
-    char *ii = new char[16];
-    std::sprintf(ii, "%d", i + 1);
-    lbl += ii;
+    lbl += std::to_string(i + 1);
     hBxOccyGtTrigType[i]->setAxisTitle(lbl, 2);
-    delete[] ii;
   }
 
   for (int i = 0; i < NSYS; i++) {
@@ -250,11 +235,8 @@ void BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm:
       lbl.clear();
       lbl += SysLabel[i];
       lbl += " Bx occupancy for Trigger bit ";
-      char *ii = new char[10];
-      std::sprintf(ii, "%d", listGtBits_.at(j));
-      lbl += ii;
+      lbl += std::to_string(listGtBits_.at(j));
       hBxOccyTrigBit[i][j]->setAxisTitle(lbl, 2);
-      delete[] ii;
     }
   }
 }

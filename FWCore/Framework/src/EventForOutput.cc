@@ -4,11 +4,17 @@
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/src/TransitionInfoTypes.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
+
+  EventForOutput::EventForOutput(EventTransitionInfo const& info,
+                                 ModuleDescription const& md,
+                                 ModuleCallingContext const* mcc)
+      : EventForOutput(info.principal(), md, mcc) {}
 
   EventForOutput::EventForOutput(EventPrincipal const& ep,
                                  ModuleDescription const& md,

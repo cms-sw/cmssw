@@ -38,11 +38,11 @@ bool HcalTB02ParametersFromDD::build(const cms::DDCompactView* cpv, HcalTB02Para
   const cms::DDFilter filter("ReadOutName", name);
   cms::DDFilteredView fv(*cpv, filter);
   while (fv.firstChild()) {
-    std::string namx = static_cast<std::string>(cms::dd::noNamespace(fv.name()));
+    std::string namx = static_cast<std::string>(dd4hep::dd::noNamespace(fv.name()));
     const std::vector<double>& paras = fv.parameters();
     edm::LogVerbatim("HcalTBSim") << "HcalTB02ParametersFromDD (for " << name << "): Solid " << namx << " Shape "
                                   << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " Parameter 0 = " << paras[0];
-    if (fv.isATrapezoid()) {
+    if (dd4hep::isA<dd4hep::Trap>(fv.solid())) {
       double dz = 2 * k_ScaleFromDD4HepToG4 * paras[0];
       php.lengthMap_.insert(std::pair<std::string, double>(namx, dz));
     }

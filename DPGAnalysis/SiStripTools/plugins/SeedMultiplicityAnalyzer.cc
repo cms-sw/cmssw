@@ -93,7 +93,8 @@ private:
 
   // ----------member data ---------------------------
 
-  std::string _buildername;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> _magFieldToken;
+  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> _TTRHBuilderToken;
   std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> _seedcollTokens;
   std::vector<unsigned int> _seedbins;
   std::vector<double> _seedmax;
@@ -128,7 +129,8 @@ private:
 // constructors and destructor
 //
 SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iConfig)
-    : _buildername(iConfig.getParameter<std::string>("TTRHBuilder")),
+    : _magFieldToken(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("TTRHBuilder")})),
+      _TTRHBuilderToken(esConsumes()),
       _seedcollTokens(),
       _seedbins(),
       _seedmax(),
@@ -310,11 +312,8 @@ void SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   //  TrajectoryStateTransform tsTransform;
   TSCBLBuilderNoMaterial tscblBuilder;  // I could have used TSCBLBuilderWithPropagator
 
-  edm::ESHandle<MagneticField> theMF;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
-
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
-  iSetup.get<TransientRecHitRecord>().get(_buildername, theTTRHBuilder);
+  const auto theMF = &iSetup.getData(_magFieldToken);
+  const auto& theTTRHBuilder = iSetup.getData(_TTRHBuilderToken);
 
   // I need:
   // - beamspot bs POSTPONED
@@ -372,9 +371,9 @@ void SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
       if (filter->isSelected(iseed)) {
         ++nseeds;
 
-        TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().end() - 1));
+        TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder.build(&*(seed->recHits().end() - 1));
         TrajectoryStateOnSurface state =
-            trajectoryStateTransform::transientState(seed->startingState(), recHit->surface(), theMF.product());
+            trajectoryStateTransform::transientState(seed->startingState(), recHit->surface(), theMF);
         //      TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs); // here I need them BS
 
         double eta = state.globalMomentum().eta();
@@ -394,9 +393,9 @@ void SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
           if (sphit) {
             ++npixelrh;
             // compute state on recHit surface
-            TransientTrackingRecHit::RecHitPointer ttrhit = theTTRHBuilder->build(&hit);
+            TransientTrackingRecHit::RecHitPointer ttrhit = theTTRHBuilder.build(&hit);
             TrajectoryStateOnSurface tsos =
-                trajectoryStateTransform::transientState(seed->startingState(), ttrhit->surface(), theMF.product());
+                trajectoryStateTransform::transientState(seed->startingState(), ttrhit->surface(), theMF);
 
             if (sphit->geographicalId().det() == DetId::Tracker &&
                 sphit->geographicalId().subdetId() == PixelSubdetector::PixelBarrel) {

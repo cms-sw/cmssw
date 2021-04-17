@@ -12,7 +12,8 @@
 #include <memory>
 
 SiStripZeroSuppression::SiStripZeroSuppression(edm::ParameterSet const& conf)
-    : algorithms(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
+    : algorithms(
+          SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"), consumesCollector())),
       produceRawDigis(conf.getParameter<bool>("produceRawDigis")),
       storeCM(conf.getParameter<bool>("storeCM")),
       fixCM(conf.getParameter<bool>("fixCM")),

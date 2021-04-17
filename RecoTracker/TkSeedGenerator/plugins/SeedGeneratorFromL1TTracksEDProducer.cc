@@ -20,7 +20,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
@@ -61,7 +61,7 @@ private:
   const double theErrorSFHitless_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
-  const edm::ESGetToken<TrackerGeometry, TrackerRecoGeometryRecord> geomToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estToken_;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorAlongToken_;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorOppositeToken_;
@@ -76,7 +76,7 @@ SeedGeneratorFromL1TTracksEDProducer::SeedGeneratorFromL1TTracksEDProducer(const
       theMaxEtaForTOB_(cfg.getParameter<double>("maxEtaForTOB")),
       theErrorSFHitless_(cfg.getParameter<double>("errorSFHitless")),
       mfToken_{esConsumes<MagneticField, IdealMagneticFieldRecord>()},
-      geomToken_{esConsumes<TrackerGeometry, TrackerRecoGeometryRecord>()},
+      geomToken_{esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()},
       estToken_{esConsumes<Chi2MeasurementEstimatorBase, TrackingComponentsRecord>(
           edm::ESInputTag("", cfg.getParameter<std::string>("estimator")))},
       propagatorAlongToken_{esConsumes<Propagator, TrackingComponentsRecord>(

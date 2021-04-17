@@ -1,7 +1,7 @@
 #ifndef ECALMAPPINGRCD_H
 #define ECALMAPPINGRCD_H
 
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 // #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
@@ -14,6 +14,6 @@
 
 class EcalMappingRcd
     : public edm::eventsetup::DependentRecordImplementation<EcalMappingRcd,
-                                                            boost::mpl::vector<EcalMappingElectronicsRcd> > {};
+                                                            edm::mpl::Vector<EcalMappingElectronicsRcd> > {};
 
 #endif

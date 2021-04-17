@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboard.h"
 
 CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
@@ -9,20 +11,27 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
     :  // special configuration parameters for ME11 treatment
       CSCMotherboard(endcap, station, sector, subsector, chamber, conf),
       allLCTs(match_trig_window_size) {
-  if (!isSLHC_)
-    edm::LogError("CSCUpgradeMotherboard|ConfigError")
-        << "+++ Upgrade CSCUpgradeMotherboard constructed while isSLHC_ is not set! +++\n";
+  if (!runPhase2_)
+    edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runPhase2_ is not set! +++\n";
+
+  if (theRing == 1) {
+    if (theStation == 1 and !runME11Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
+    if (theStation == 2 and !runME21Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME21Up_ is not set! +++\n";
+    if (theStation == 3 and !runME31Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME31Up_ is not set! +++\n";
+    if (theStation == 4 and !runME41Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME41Up_ is not set! +++\n";
+  }
 
   theParity = theChamber % 2 == 0 ? Parity::Even : Parity::Odd;
 
-  // generate the LUTs
-  generator_.reset(new CSCUpgradeMotherboardLUTGenerator());
-
   // enable the upgrade processors
-  if (isSLHC_ and theRing == 1) {
-    clctProc.reset(new CSCUpgradeCathodeLCTProcessor(endcap, station, sector, subsector, chamber, conf));
-    if (enableAlctSLHC_) {
-      alctProc.reset(new CSCUpgradeAnodeLCTProcessor(endcap, station, sector, subsector, chamber, conf));
+  if (runPhase2_ and theRing == 1) {
+    clctProc = std::make_unique<CSCUpgradeCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
+    if (enableAlctPhase2_) {
+      alctProc = std::make_unique<CSCUpgradeAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
     }
   }
 
@@ -39,9 +48,19 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 }
 
 CSCUpgradeMotherboard::CSCUpgradeMotherboard() : CSCMotherboard(), allLCTs(match_trig_window_size) {
-  if (!isSLHC_)
-    edm::LogError("CSCUpgradeMotherboard|ConfigError")
-        << "+++ Upgrade CSCUpgradeMotherboard constructed while isSLHC_ is not set! +++\n";
+  if (!runPhase2_)
+    edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runPhase2_ is not set! +++\n";
+
+  if (theRing == 1) {
+    if (theStation == 1 and !runME11Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
+    if (theStation == 2 and !runME21Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME21Up_ is not set! +++\n";
+    if (theStation == 3 and !runME31Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME31Up_ is not set! +++\n";
+    if (theStation == 4 and !runME41Up_)
+      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME41Up_ is not set! +++\n";
+  }
 
   setPrefIndex();
 }
@@ -50,9 +69,8 @@ void CSCUpgradeMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCCo
   clear();
 
   if (!(alctProc and clctProc)) {
-    if (infoV >= 0)
-      edm::LogError("CSCUpgradeMotherboard|SetupError")
-          << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
+    edm::LogError("CSCUpgradeMotherboard|SetupError")
+        << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
 
@@ -67,8 +85,7 @@ void CSCUpgradeMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCCo
     return;
 
   // encode high multiplicity bits
-  unsigned alctBits = alctProc->getHighMultiplictyBits();
-  encodeHighMultiplicityBits(alctBits);
+  encodeHighMultiplicityBits();
 
   int used_clct_mask[20];
   for (int c = 0; c < 20; ++c)
@@ -77,8 +94,8 @@ void CSCUpgradeMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCCo
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
     if (alctProc->getBestALCT(bx_alct).isValid()) {
-      const int bx_clct_start(bx_alct - match_trig_window_size / 2 - alctClctOffset_);
-      const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - alctClctOffset_);
+      const int bx_clct_start(bx_alct - match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
+      const int bx_clct_stop(bx_alct + match_trig_window_size / 2 - CSCConstants::ALCT_CLCT_OFFSET);
 
       if (debug_matching) {
         LogTrace("CSCUpgradeMotherboard")
@@ -243,6 +260,13 @@ std::vector<CSCCorrelatedLCTDigi> CSCUpgradeMotherboard::readoutLCTs() const {
   allLCTs.getMatched(result);
   if (tmb_cross_bx_algo == 2)
     CSCUpgradeMotherboard::sortLCTs(result, CSCUpgradeMotherboard::sortLCTsByQuality);
+
+  // do a final check on the LCTs in readout
+  qualityControl_->checkMultiplicityBX(result);
+  for (const auto& lct : result) {
+    qualityControl_->checkValid(lct);
+  }
+
   return result;
 }
 
@@ -271,11 +295,6 @@ enum CSCPart CSCUpgradeMotherboard::getCSCPart(int keystrip) const {
   }
 }
 
-void CSCUpgradeMotherboard::debugLUTs() {
-  if (debug_luts)
-    generator_->generateLUTs(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
-}
-
 bool CSCUpgradeMotherboard::sortLCTsByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) {
   return lct1.getQuality() > lct2.getQuality();
 }
@@ -290,8 +309,6 @@ void CSCUpgradeMotherboard::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts,
   if (lcts.size() > max_lcts)
     lcts.erase(lcts.begin() + max_lcts, lcts.end());
 }
-
-void CSCUpgradeMotherboard::setupGeometry() { generator_->setCSCGeometry(cscGeometry_); }
 
 void CSCUpgradeMotherboard::setPrefIndex() {
   pref[0] = match_trig_window_size / 2;

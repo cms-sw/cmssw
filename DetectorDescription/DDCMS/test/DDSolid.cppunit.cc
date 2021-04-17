@@ -36,25 +36,30 @@ void testDDSolid::setUp() {
 void testDDSolid::checkDDSolid() {
   unique_ptr<DDDetector> det = make_unique<DDDetector>("DUMMY", fileName_);
   DDFilteredView fview(det.get(), det->description()->worldVolume());
+  int counter = 0;
   while (fview.next(0)) {
+    std::cout << fview.path() << "\n";
     std::string title(fview.solid()->GetTitle());
     std::string name(cms::dd::name(cms::DDSolidShapeMap, fview.shape()));
-    std::cout << fview.name() << " is a " << title << " == " << name << "\n";
+    std::cout << "#" << counter++ << ": " << fview.name() << "[" << fview.copyNum() << "]"
+              << " is a " << title << " == " << name << "\n";
     CPPUNIT_ASSERT(title.compare(name) == 0);
 
-    if (fview.isASubtraction()) {
+    if ((dd4hep::isA<dd4hep::SubtractionSolid>(fview.solid()) and
+         not dd4hep::isA<dd4hep::TruncatedTube>(fview.solid()) and
+         not dd4hep::isA<dd4hep::PseudoTrap>(fview.solid()))) {
       DDSolid solid(fview.solid());
       auto solidA = solid.solidA();
       std::cout << "Solid A is a " << solidA->GetTitle() << "\n";
       if (dd4hep::isA<dd4hep::ConeSegment>(dd4hep::Solid(solidA))) {
         cout << " is a ConeSegment:\n";
         for (auto const& i : solidA.dimensions())
-          cout << i << ", ";
+          cout << i / dd4hep::cm << " cm, ";
       }
       cout << "\n";
       DDSolid a(solidA);
       for (auto const& i : a.parameters())
-        cout << i << ", ";
+        cout << i / dd4hep::cm << " cm, ";
       cout << "\n";
 
       auto solidB = solid.solidB();
@@ -62,12 +67,12 @@ void testDDSolid::checkDDSolid() {
       if (dd4hep::isA<dd4hep::ConeSegment>(dd4hep::Solid(solidB))) {
         cout << " is a ConeSegment:\n";
         for (auto const& i : solidB.dimensions())
-          cout << i << ", ";
+          cout << i / dd4hep::cm << " cm, ";
       }
       cout << "\n";
       DDSolid b(solidB);
       for (auto const& i : b.parameters())
-        cout << i << ", ";
+        cout << i / dd4hep::cm << " cm, ";
       cout << "\n";
     }
   }

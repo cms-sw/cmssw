@@ -1,5 +1,4 @@
 <library name="DQMOfflinePFTau_plugins" file="*.cc">
-  <use name="FWCore/FWLite"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>

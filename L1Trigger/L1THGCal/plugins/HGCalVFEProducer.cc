@@ -7,7 +7,6 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
-#include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
@@ -46,7 +45,6 @@ HGCalVFEProducer::HGCalVFEProducer(const edm::ParameterSet& conf)
       HGCalVFEProcessorBaseFactory::get()->create(vfeProcessorName, vfeParamConfig)};
 
   produces<l1t::HGCalTriggerCellBxCollection>(vfeProcess_->name());
-  produces<l1t::HGCalTriggerSumsBxCollection>(vfeProcess_->name());
 }
 
 void HGCalVFEProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
@@ -55,9 +53,8 @@ void HGCalVFEProducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& 
 }
 
 void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-  // Output collections
+  // Output collection
   auto vfe_trigcell_output = std::make_unique<l1t::HGCalTriggerCellBxCollection>();
-  auto vfe_trigsums_output = std::make_unique<l1t::HGCalTriggerSumsBxCollection>();
 
   // Input collections
   edm::Handle<HGCalDigiCollection> ee_digis_h;
@@ -86,6 +83,4 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Put in the event
   e.put(std::move(vfe_trigcell_output), vfeProcess_->name());
-  // At the moment the HGCalTriggerSumsBxCollection is empty
-  e.put(std::move(vfe_trigsums_output), vfeProcess_->name());
 }

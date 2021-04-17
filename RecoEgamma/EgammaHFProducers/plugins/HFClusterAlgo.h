@@ -4,14 +4,10 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include <map>
-#include <list>
 
 /** \class HFClusterAlgo
  

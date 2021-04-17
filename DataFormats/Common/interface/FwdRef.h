@@ -113,6 +113,8 @@ FwdRef: A template for a interproduct reference to a member of a product.
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/Ref.h"
 
+#include <boost/functional.hpp>
+
 namespace edm {
 
   template <typename C,
@@ -126,7 +128,7 @@ namespace edm {
     typedef T const element_type;  //used for generic programming
     typedef F finder_type;
     typedef typename boost::binary_traits<F>::second_argument_type argument_type;
-    typedef typename boost::remove_cv<typename boost::remove_reference<argument_type>::type>::type key_type;
+    typedef typename std::remove_cv<typename std::remove_reference<argument_type>::type>::type key_type;
     /// C is the type of the collection
     /// T is the type of a member the collection
 

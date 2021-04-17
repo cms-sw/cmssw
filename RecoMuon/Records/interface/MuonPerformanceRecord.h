@@ -5,10 +5,10 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CondFormats/DataRecord/interface/PerformancePayloadRecord.h"
 #include "CondFormats/DataRecord/interface/PerformanceWPRecord.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class MuonPerformanceRecord : public edm::eventsetup::DependentRecordImplementation<
                                   MuonPerformanceRecord,
-                                  boost::mpl::vector<PerformancePayloadRecord, PerformanceWPRecord> > {};
+                                  edm::mpl::Vector<PerformancePayloadRecord, PerformanceWPRecord> > {};
 
 #endif

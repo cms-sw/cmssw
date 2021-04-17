@@ -28,11 +28,12 @@ SeededTrackingRegionsFromBeamSpotFixedZLength = cms.PSet(
     )
 )
 
-SeededTrackingRegionsFromBeamSpotSigmaZLength = SeededTrackingRegionsFromBeamSpotFixedZLength.clone()
-SeededTrackingRegionsFromBeamSpotSigmaZLength.mode = "BeamSpotSigma"
-
-SeededTrackingRegionsFromVerticesFixedZLength = SeededTrackingRegionsFromBeamSpotFixedZLength.clone()
-SeededTrackingRegionsFromVerticesFixedZLength.mode = "VerticesFixed"
-
-SeededTrackingRegionsFromVerticesSigmaZLength = SeededTrackingRegionsFromBeamSpotFixedZLength.clone()
-SeededTrackingRegionsFromVerticesSigmaZLength.mode = "VerticesSigma"
+SeededTrackingRegionsFromBeamSpotSigmaZLength = SeededTrackingRegionsFromBeamSpotFixedZLength.clone(
+    mode = "BeamSpotSigma"
+)
+SeededTrackingRegionsFromVerticesFixedZLength = SeededTrackingRegionsFromBeamSpotFixedZLength.clone(
+    mode = "VerticesFixed"
+)
+SeededTrackingRegionsFromVerticesSigmaZLength = SeededTrackingRegionsFromBeamSpotFixedZLength.clone(
+    mode = "VerticesSigma"
+)

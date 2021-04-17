@@ -1,10 +1,10 @@
 <library file="BCVEGPY/*.F,BCVEGPY/*.f" name="GeneratorInterfaceBCVEGPY">
-  <use name="GeneratorInterface/Pythia6Interface"/>
+  <use name="pythia6"/>
   <use name="f77compiler"/>
 </library>
 
 <bin file="BCVEGPY/main.cc" name="BcGenerator">
-  <use name="GeneratorInterface/Pythia6Interface"/>
+  <use name="pythia6"/>
   <use name="f77compiler"/>
   <lib name="GeneratorInterfaceBCVEGPY"/>
 </bin>

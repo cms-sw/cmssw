@@ -7,7 +7,7 @@ simGmtCaloSumDigis = cms.EDProducer('L1TMuonCaloSumProducer',
 )
 
 simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
-    barrelTFInput  = cms.InputTag("simBmtfDigis", "BMTF"),
+    barrelTFInput  = cms.InputTag("simKBmtfDigis", "BMTF"),
     overlapTFInput = cms.InputTag("simOmtfDigis", "OMTF"),
     forwardTFInput = cms.InputTag("simEmtfDigis", "EMTF"),
     #triggerTowerInput = cms.InputTag("simGmtCaloSumDigis", "TriggerTower2x2s"),
@@ -15,7 +15,8 @@ simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
     autoBxRange = cms.bool(True), # if True the output BX range is calculated from the inputs and 'bxMin' and 'bxMax' are ignored
     bxMin = cms.int32(-2),
     bxMax = cms.int32(2),
-    autoCancelMode = cms.bool(False), # if True the cancel out methods are configured depending on the FW version number and 'emtfCancelMode' is ignored
+    autoCancelMode = cms.bool(True), # if True the cancel out methods are configured depending on the FW version number and 'bmtfCancelMode' + 'emtfCancelMode' are ignored
+    bmtfCancelMode = cms.string("kftracks"), # 'tracks' or 'kftracks' (when using the Run-3 BMTF)
     emtfCancelMode = cms.string("coordinate") # 'tracks' or 'coordinate'
 )
 
@@ -30,3 +31,19 @@ l1ugmtdb = cms.ESSource("PoolDBESSource",
             )
        )
 )
+
+## Era: Run2_2016
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simBmtfDigis", "BMTF"))
+
+## Era: Run2_2017
+from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+stage2L1Trigger_2017.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simBmtfDigis", "BMTF"))
+
+### Era: Run2_2018
+from Configuration.Eras.Modifier_stage2L1Trigger_2018_cff import stage2L1Trigger_2018
+stage2L1Trigger_2018.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simBmtfDigis", "BMTF"))
+
+### Era: Run3_2021
+from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
+stage2L1Trigger_2021.toModify(simGmtStage2Digis, barrelTFInput = cms.InputTag("simKBmtfDigis", "BMTF"))

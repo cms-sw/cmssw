@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
@@ -81,7 +83,7 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
       m_EBs25notCont(params.getParameter<double>("EBs25notContainment")),
       m_EEs25notCont(params.getParameter<double>("EEs25notContainment")),
 
-      m_readoutFrameSize(params.getParameter<int>("readoutFrameSize")),
+      m_readoutFrameSize(ecalPh1::sampleSize),
       m_ParameterMap(new EcalSimParameterMap(params.getParameter<double>("simHitToPhotoelectronsBarrel"),
                                              params.getParameter<double>("simHitToPhotoelectronsEndcap"),
                                              params.getParameter<double>("photoelectronsToAnalogBarrel"),
@@ -220,47 +222,47 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
     }
   }
 
-  m_EBCorrNoise[0].reset(new CorrelatedNoisifier<EcalCorrMatrix>(ebMatrix[0]));
-  m_EECorrNoise[0].reset(new CorrelatedNoisifier<EcalCorrMatrix>(eeMatrix[0]));
-  m_EBCorrNoise[1].reset(new CorrelatedNoisifier<EcalCorrMatrix>(ebMatrix[1]));
-  m_EECorrNoise[1].reset(new CorrelatedNoisifier<EcalCorrMatrix>(eeMatrix[1]));
-  m_EBCorrNoise[2].reset(new CorrelatedNoisifier<EcalCorrMatrix>(ebMatrix[2]));
-  m_EECorrNoise[2].reset(new CorrelatedNoisifier<EcalCorrMatrix>(eeMatrix[2]));
+  m_EBCorrNoise[0] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix>>(ebMatrix[0]);
+  m_EECorrNoise[0] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix>>(eeMatrix[0]);
+  m_EBCorrNoise[1] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix>>(ebMatrix[1]);
+  m_EECorrNoise[1] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix>>(eeMatrix[1]);
+  m_EBCorrNoise[2] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix>>(ebMatrix[2]);
+  m_EECorrNoise[2] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix>>(eeMatrix[2]);
 
-  m_Coder.reset(new EcalCoder(addNoise,
-                              m_PreMix1,
-                              m_EBCorrNoise[0].get(),
-                              m_EECorrNoise[0].get(),
-                              m_EBCorrNoise[1].get(),
-                              m_EECorrNoise[1].get(),
-                              m_EBCorrNoise[2].get(),
-                              m_EECorrNoise[2].get()));
+  m_Coder = std::make_unique<EcalCoder>(addNoise,
+                                        m_PreMix1,
+                                        m_EBCorrNoise[0].get(),
+                                        m_EECorrNoise[0].get(),
+                                        m_EBCorrNoise[1].get(),
+                                        m_EECorrNoise[1].get(),
+                                        m_EBCorrNoise[2].get(),
+                                        m_EECorrNoise[2].get());
 
-  m_ElectronicsSim.reset(
-      new EcalElectronicsSim(m_ParameterMap.get(), m_Coder.get(), applyConstantTerm, rmsConstantTerm));
+  m_ElectronicsSim =
+      std::make_unique<EcalElectronicsSim_Ph1>(m_ParameterMap.get(), m_Coder.get(), applyConstantTerm, rmsConstantTerm);
 
   if (m_apdSeparateDigi) {
-    m_APDCoder.reset(new EcalCoder(false,
-                                   m_PreMix1,
-                                   m_EBCorrNoise[0].get(),
-                                   m_EECorrNoise[0].get(),
-                                   m_EBCorrNoise[1].get(),
-                                   m_EECorrNoise[1].get(),
-                                   m_EBCorrNoise[2].get(),
-                                   m_EECorrNoise[2].get()));
+    m_APDCoder = std::make_unique<EcalCoder>(false,
+                                             m_PreMix1,
+                                             m_EBCorrNoise[0].get(),
+                                             m_EECorrNoise[0].get(),
+                                             m_EBCorrNoise[1].get(),
+                                             m_EECorrNoise[1].get(),
+                                             m_EBCorrNoise[2].get(),
+                                             m_EECorrNoise[2].get());
 
-    m_APDElectronicsSim.reset(
-        new EcalElectronicsSim(m_ParameterMap.get(), m_APDCoder.get(), applyConstantTerm, rmsConstantTerm));
+    m_APDElectronicsSim = std::make_unique<EcalElectronicsSim_Ph1>(
+        m_ParameterMap.get(), m_APDCoder.get(), applyConstantTerm, rmsConstantTerm);
 
-    m_APDDigitizer.reset(new EBDigitizer(m_APDResponse.get(), m_APDElectronicsSim.get(), false));
+    m_APDDigitizer = std::make_unique<EBDigitizer>(m_APDResponse.get(), m_APDElectronicsSim.get(), false);
   }
 
   if (m_doEB) {
-    m_BarrelDigitizer.reset(new EBDigitizer(m_EBResponse.get(), m_ElectronicsSim.get(), addNoise));
+    m_BarrelDigitizer = std::make_unique<EBDigitizer>(m_EBResponse.get(), m_ElectronicsSim.get(), addNoise);
   }
 
   if (m_doEE) {
-    m_EndcapDigitizer.reset(new EEDigitizer(m_EEResponse.get(), m_ElectronicsSim.get(), addNoise));
+    m_EndcapDigitizer = std::make_unique<EEDigitizer>(m_EEResponse.get(), m_ElectronicsSim.get(), addNoise);
   }
 }
 

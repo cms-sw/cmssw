@@ -19,7 +19,7 @@
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"

@@ -7,6 +7,7 @@ RefItemGet: Free function to get pointer to a referenced item.
 
 
 ----------------------------------------------------------------------*/
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefCoreGet.h"
 
@@ -71,8 +72,8 @@ namespace edm {
           product.setProductPtr(item);
           return item;
         }
-        unsigned int thinnedKey = key;
-        prod = edm::template getThinnedProduct<C>(product, thinnedKey, getter);
+        unsigned int thinnedKey;
+        std::tie(prod, thinnedKey) = edm::template getThinnedProduct<C>(product, key, getter);
         F func;
         item = func(*prod, thinnedKey);
         product.setProductPtr(item);
@@ -114,6 +115,58 @@ namespace edm {
   template <typename C, typename KEY>
   inline bool isThinnedAvailable(RefCore const& product, KEY const& iKey) {
     return refitem::IsThinnedAvailableImpl<C, KEY>::isThinnedAvailable_(product, iKey);
+  }
+
+  /// Return a Ref to thinned collection corresponding to an element of the Ref to parent collection
+  //
+  // The thinned may point to parent collection, in which case the Ref-to-parent is returned
+  //
+  // If thinned does not contain the element of the Ref-to-parent, a Null Ref is returned.
+  //
+  // If parent collection is not thinned, or there is no thinning relation between parent and thinned,
+  // an exception is thrown
+  template <typename C, typename T, typename F>
+  Ref<C, T, F> thinnedRefFrom(Ref<C, T, F> const& parent,
+                              RefProd<C> const& thinned,
+                              edm::EDProductGetter const& prodGetter) {
+    if (parent.id() == thinned.id()) {
+      return parent;
+    }
+
+    auto thinnedKey = prodGetter.getThinnedKeyFrom(parent.id(), parent.key(), thinned.id());
+    if (std::holds_alternative<unsigned int>(thinnedKey)) {
+      return Ref<C, T, F>(thinned, std::get<unsigned int>(thinnedKey));
+    } else if (std::holds_alternative<detail::GetThinnedKeyFromExceptionFactory>(thinnedKey)) {
+      auto ex = std::get<detail::GetThinnedKeyFromExceptionFactory>(thinnedKey)();
+      ex.addContext("Calling edm::thinnedRefFrom()");
+      throw ex;
+    }
+
+    return Ref<C, T, F>();
+  }
+
+  /// Return a Ref to thinned collection corresponding to an element of the Ref to parent collection
+  //
+  // The thinned may point to parent collection, in which case the Ref-to-parent is returned
+  //
+  // If thinned does not contain the element of the Ref-to-parent, a Null Ref is returned.
+  //
+  // If parent collection is not thinned, or there is no thinning relation between parent and thinned,
+  // a Null Ref is returned
+  template <typename C, typename T, typename F>
+  Ref<C, T, F> tryThinnedRefFrom(Ref<C, T, F> const& parent,
+                                 RefProd<C> const& thinned,
+                                 edm::EDProductGetter const& prodGetter) {
+    if (parent.id() == thinned.id()) {
+      return parent;
+    }
+
+    auto thinnedKey = prodGetter.getThinnedKeyFrom(parent.id(), parent.key(), thinned.id());
+    if (std::holds_alternative<unsigned int>(thinnedKey)) {
+      return Ref<C, T, F>(thinned, std::get<unsigned int>(thinnedKey));
+    }
+
+    return Ref<C, T, F>();
   }
 }  // namespace edm
 

@@ -656,7 +656,11 @@ void MuScleFit::beginOfJobInConstructor()
     std::stringstream ss;
     ss << i;
     std::string rootFileName = ss.str() + "_" + theRootFileName_;
-    theFiles_.push_back(new TFile(rootFileName.c_str(), "RECREATE"));
+    if (theCompressionSettings_ > -1) {
+      theFiles_.push_back(new TFile(rootFileName.c_str(), "RECREATE", "", theCompressionSettings_));
+    } else {
+      theFiles_.push_back(new TFile(rootFileName.c_str(), "RECREATE"));
+    }
   }
   if (debug_ > 0)
     std::cout << "[MuScleFit]: Root file created" << std::endl;

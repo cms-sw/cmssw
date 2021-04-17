@@ -2,7 +2,9 @@
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
+
+#include <string>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -29,13 +31,14 @@ namespace {
       return nullptr;
     }
     std::set<std::string> const* statisticsInfo() const final { return nullptr; }
-    std::string const& siteName(void) const final {
-      static const std::string s_value = "TEST";
-      return s_value;
-    }
+    std::string const& siteName(void) const final { return m_emptyString; }
+    bool useLocalConnectString() const final { return false; }
+    std::string const& localConnectPrefix() const final { return m_emptyString; }
+    std::string const& localConnectSuffix() const final { return m_emptyString; }
 
   private:
     std::vector<std::string> m_catalogs;
+    std::string m_emptyString;
   };
 }  // namespace
 
@@ -43,7 +46,7 @@ TEST_CASE("FileLocator", "[filelocator]") {
   std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
   std::string CMSSW_RELEASE_BASE(std::getenv("CMSSW_RELEASE_BASE"));
   std::string file_name("/src/FWCore/Catalog/test/simple_catalog.xml");
-  std::string full_file_name = boost::filesystem::exists((CMSSW_BASE + file_name).c_str())
+  std::string full_file_name = std::filesystem::exists((CMSSW_BASE + file_name).c_str())
                                    ? CMSSW_BASE + file_name
                                    : CMSSW_RELEASE_BASE + file_name;
 
@@ -81,7 +84,7 @@ TEST_CASE("FileLocator", "[filelocator]") {
     edm::ServiceRegistry::Operate operate(tempToken);
 
     std::string override_file_name("/src/FWCore/Catalog/test/override_catalog.xml");
-    std::string override_full_file_name = boost::filesystem::exists((CMSSW_BASE + override_file_name).c_str())
+    std::string override_full_file_name = std::filesystem::exists((CMSSW_BASE + override_file_name).c_str())
                                               ? CMSSW_BASE + override_file_name
                                               : CMSSW_RELEASE_BASE + override_file_name;
 

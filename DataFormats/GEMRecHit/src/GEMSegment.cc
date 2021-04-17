@@ -36,9 +36,8 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
       theLocalDirection(direction),
       theCovMatrix(errors),
       theChi2(chi2) {
-  theTimeValue = 0.0;
-  theTimeUncrt = 0.0;
   theBX = -10.0;
+  theDeltaPhi = -10.0;
   for (unsigned int i = 0; i < proto_segment.size(); ++i)
     theGEMRecHits.push_back(*proto_segment[i]);
 }
@@ -53,10 +52,9 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
       theOrigin(origin),
       theLocalDirection(direction),
       theCovMatrix(errors),
-      theChi2(chi2) {
-  theTimeValue = 0.0;
-  theTimeUncrt = 0.0;
-  theBX = bx;
+      theChi2(chi2),
+      theBX(bx) {
+  theDeltaPhi = -10.0;
   for (unsigned int i = 0; i < proto_segment.size(); ++i)
     theGEMRecHits.push_back(*proto_segment[i]);
 }
@@ -66,16 +64,15 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
                        const LocalVector& direction,
                        const AlgebraicSymMatrix& errors,
                        double chi2,
-                       double time,
-                       double timeErr)
+                       float bx,
+                       float deltaPhi)
     : RecSegment(buildDetId(proto_segment.front()->gemId())),
       theOrigin(origin),
       theLocalDirection(direction),
       theCovMatrix(errors),
-      theChi2(chi2) {
-  theTimeValue = time;
-  theTimeUncrt = timeErr;
-  theBX = -10.0;
+      theChi2(chi2),
+      theBX(bx),
+      theDeltaPhi(deltaPhi) {
   for (unsigned int i = 0; i < proto_segment.size(); ++i)
     theGEMRecHits.push_back(*proto_segment[i]);
 }
@@ -136,8 +133,7 @@ std::ostream& operator<<(std::ostream& os, const GEMSegment& seg) {
      << "            dir = " << seg.localDirection() << " dirErr = (" << sqrt(seg.localDirectionError().xx()) << ","
      << sqrt(seg.localDirectionError().yy()) << "0,)\n"
      << "            chi2/ndf = " << ((seg.degreesOfFreedom() != 0.) ? seg.chi2() / double(seg.degreesOfFreedom()) : 0)
-     << " #rechits = " << seg.specificRecHits().size() << " bx = " << seg.bunchX() << " time = " << seg.time()
-     << " +/- " << seg.timeErr() << " ns";
+     << " #rechits = " << seg.specificRecHits().size() << " bx = " << seg.bunchX() << " deltaPhi = " << seg.deltaPhi();
 
   return os;
 }

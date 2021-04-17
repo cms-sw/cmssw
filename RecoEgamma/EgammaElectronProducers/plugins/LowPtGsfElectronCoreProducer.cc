@@ -1,3 +1,4 @@
+#include "CommonTools/Utils/interface/LazyConstructed.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +36,7 @@ LowPtGsfElectronCoreProducer::LowPtGsfElectronCoreProducer(const edm::ParameterS
       superClusterRefs_(consumes<edm::ValueMap<SuperClusterRef> >(config.getParameter<edm::InputTag>("superClusters"))),
       putToken_(produces<reco::GsfElectronCoreCollection>()) {}
 
-void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
+void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup&) const {
   // Output collection
   reco::GsfElectronCoreCollection electrons;
 
@@ -44,7 +45,7 @@ void LowPtGsfElectronCoreProducer::produce(edm::StreamID, edm::Event& event, con
   auto ctfTracksHandle = event.getHandle(ctfTracksToken_);
   auto const& superClusterRefs = event.get(superClusterRefs_);
 
-  auto ctfTrackVariables = edm::soa::makeEtaPhiTableLazy(*ctfTracksHandle);
+  auto ctfTrackVariables = makeLazy<edm::soa::EtaPhiTable>(*ctfTracksHandle);
 
   // Create ElectronCore objects
   for (size_t ipfgsf = 0; ipfgsf < gsfPfRecTracksHandle->size(); ++ipfgsf) {

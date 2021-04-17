@@ -1,5 +1,4 @@
 <library name="GeneratorInterfaceAlpgenSource" file="AlpgenSource.cc">
-  <use name="DataFormats/Math"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>

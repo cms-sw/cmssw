@@ -31,10 +31,22 @@
     <use name="SimTracker/TrackerHitAssociation"/>
     <use name="Geometry/Records"/>
     <use name="Geometry/TrackerGeometryBuilder"/>
+    <use name="TrackingTools/TransientTrack"/>
+    <use name="TrackingTools/TransientTrackingRecHit"/>
+    <use name="TrackingTools/TrajectoryState"/>
+    <use name="TrackingTools/TrackAssociator"/>
+    <use name="TrackingTools/Records"/>
+    <use name="TrackingTools/TrackFitters"/>
+    <use name="RecoTracker/TransientTrackingRecHit"/>
   </library>
 
   <bin name="testPhase2PixelNtuple" file="testPhase2PixelNtuple.cpp">
     <flags TEST_RUNNER_ARGS="/bin/bash SLHCUpgradeSimulations/Geometry/test phase2_digi_reco_pixelntuple.sh "/>
+    <use name="FWCore/Utilities"/>
+  </bin>
+
+  <bin name="testPhase2SkimmedGeometry" file="testPhase2SkimmedGeometry.cpp">
+    <flags TEST_RUNNER_ARGS="/bin/bash SLHCUpgradeSimulations/Geometry/test phase2_skimmed_geometry.sh "/>
     <use name="FWCore/Utilities"/>
   </bin>
 

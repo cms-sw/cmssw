@@ -93,8 +93,8 @@ template <class TRcd, class TData>
 edm::ESConsumesCollectorT<TRcd> L1ConfigOnlineProdBaseExt<TRcd, TData>::wrappedSetWhatProduced(
     const edm::ParameterSet& iConfig) {
   auto collector = setWhatProduced(this);
-  collector.setConsumes(keyList_token);
-  collector.setConsumes(key_token);
+  keyList_token = collector.consumes();
+  key_token = collector.consumes();
   return collector;
 }
 

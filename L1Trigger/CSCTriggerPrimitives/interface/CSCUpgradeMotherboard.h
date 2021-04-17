@@ -71,10 +71,6 @@ public:
   /** get CSCPart from HS, station, ring number **/
   enum CSCPart getCSCPart(int keystrip) const;
 
-  // functions to setup geometry and LUTs
-  void setupGeometry();
-  void debugLUTs();
-
   // run TMB with GEM pad clusters as input
   void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc) override;
 
@@ -96,8 +92,6 @@ protected:
   /** for the case when more than 2 LCTs/BX are allowed;
       maximum match window = 15 */
   LCTContainer allLCTs;
-
-  std::unique_ptr<CSCUpgradeMotherboardLUTGenerator> generator_;
 
   /** "preferential" index array in matching window for cross-BX sorting */
   int pref[CSCConstants::MAX_LCT_TBINS];

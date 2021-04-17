@@ -7,8 +7,6 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 

@@ -59,7 +59,7 @@ namespace ecaldqm {
     }
   }
 
-  void SelectiveReadoutTask::beginEvent(edm::Event const&, edm::EventSetup const&) {
+  void SelectiveReadoutTask::beginEvent(edm::Event const&, edm::EventSetup const&, bool const&, bool&) {
     flags_.assign(nRU, -1);
     suppressed_.clear();
   }
@@ -74,8 +74,8 @@ namespace ecaldqm {
     // DCC event size
     for (int iFED(601); iFED <= 654; iFED++) {
       float size(_fedRaw.FEDData(iFED).size() / 1024.);
-      meDCCSize.fill(iFED - 600, size);
-      meDCCSizeProf.fill(iFED - 600, size);
+      meDCCSize.fill(getEcalDQMSetupObjects(), iFED - 600, size);
+      meDCCSizeProf.fill(getEcalDQMSetupObjects(), iFED - 600, size);
       if (iFED - 601 <= kEEmHigh)
         eemSize += size;
       else if (iFED - 601 >= kEEpLow)
@@ -84,9 +84,9 @@ namespace ecaldqm {
         ebSize += size;
     }
 
-    meEventSize.fill(-EcalEndcap, eemSize / 9.);
-    meEventSize.fill(EcalEndcap, eepSize / 9.);
-    meEventSize.fill(EcalBarrel, ebSize / 36.);
+    meEventSize.fill(getEcalDQMSetupObjects(), -EcalEndcap, eemSize / 9.);
+    meEventSize.fill(getEcalDQMSetupObjects(), EcalEndcap, eepSize / 9.);
+    meEventSize.fill(getEcalDQMSetupObjects(), EcalBarrel, ebSize / 36.);
   }
 
   void SelectiveReadoutTask::runOnRawData(EcalRawDataCollection const& _dcchs) {
@@ -113,7 +113,7 @@ namespace ecaldqm {
       DetId const& id(srf.id());
       int flag(srf.value());
 
-      meFlagCounterMap.fill(id);
+      meFlagCounterMap.fill(getEcalDQMSetupObjects(), id);
 
       unsigned iRU(-1);
       if (id.subdetId() == EcalTriggerTower)
@@ -124,24 +124,24 @@ namespace ecaldqm {
 
       switch (flag & ~EcalSrFlag::SRF_FORCED_MASK) {
         case EcalSrFlag::SRF_FULL:
-          meFullReadoutMap.fill(id);
+          meFullReadoutMap.fill(getEcalDQMSetupObjects(), id);
           nFR += 1.;
           break;
         case EcalSrFlag::SRF_ZS1:
-          meZS1Map.fill(id);
+          meZS1Map.fill(getEcalDQMSetupObjects(), id);
           // fallthrough
         case EcalSrFlag::SRF_ZS2:
-          meZSMap.fill(id);
+          meZSMap.fill(getEcalDQMSetupObjects(), id);
           break;
         default:
           break;
       }
 
       if (flag & EcalSrFlag::SRF_FORCED_MASK)
-        meRUForcedMap.fill(id);
+        meRUForcedMap.fill(getEcalDQMSetupObjects(), id);
     });
 
-    MEs_.at("FullReadout").fill(_col == kEBSrFlag ? EcalBarrel : EcalEndcap, nFR);
+    MEs_.at("FullReadout").fill(getEcalDQMSetupObjects(), _col == kEBSrFlag ? EcalBarrel : EcalEndcap, nFR);
   }
 
   template <typename DigiCollection>
@@ -222,14 +222,14 @@ namespace ecaldqm {
       bool highInterest((flags_[iRU] & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
 
       if (highInterest) {
-        meHighIntOutput.fill(id, ZSFIRValue);
-        if (isEB || dccId(id) - 1 <= kEEmHigh)
+        meHighIntOutput.fill(getEcalDQMSetupObjects(), id, ZSFIRValue);
+        if (isEB || dccId(id, GetElectronicsMap()) - 1 <= kEEmHigh)
           nHighInt[0] += 1;
         else
           nHighInt[1] += 1;
       } else {
-        meLowIntOutput.fill(id, ZSFIRValue);
-        if (isEB || dccId(id) - 1 <= kEEmHigh)
+        meLowIntOutput.fill(getEcalDQMSetupObjects(), id, ZSFIRValue);
+        if (isEB || dccId(id, GetElectronicsMap()) - 1 <= kEEmHigh)
           nLowInt[0] += 1;
         else
           nLowInt[1] += 1;
@@ -237,13 +237,14 @@ namespace ecaldqm {
     }
 
     if (isEB) {
-      meHighIntPayload.fill(EcalBarrel, nHighInt[0] * bytesPerCrystal / 1024. / nEBDCC);
-      meLowIntPayload.fill(EcalBarrel, nLowInt[0] * bytesPerCrystal / 1024. / nEBDCC);
+      meHighIntPayload.fill(getEcalDQMSetupObjects(), EcalBarrel, nHighInt[0] * bytesPerCrystal / 1024. / nEBDCC);
+      meLowIntPayload.fill(getEcalDQMSetupObjects(), EcalBarrel, nLowInt[0] * bytesPerCrystal / 1024. / nEBDCC);
     } else {
-      meHighIntPayload.fill(-EcalEndcap, nHighInt[0] * bytesPerCrystal / 1024. / (nEEDCC / 2));
-      meHighIntPayload.fill(EcalEndcap, nHighInt[1] * bytesPerCrystal / 1024. / (nEEDCC / 2));
-      meLowIntPayload.fill(-EcalEndcap, nLowInt[0] * bytesPerCrystal / 1024. / (nEEDCC / 2));
-      meLowIntPayload.fill(EcalEndcap, nLowInt[1] * bytesPerCrystal / 1024. / (nEEDCC / 2));
+      meHighIntPayload.fill(
+          getEcalDQMSetupObjects(), -EcalEndcap, nHighInt[0] * bytesPerCrystal / 1024. / (nEEDCC / 2));
+      meHighIntPayload.fill(getEcalDQMSetupObjects(), EcalEndcap, nHighInt[1] * bytesPerCrystal / 1024. / (nEEDCC / 2));
+      meLowIntPayload.fill(getEcalDQMSetupObjects(), -EcalEndcap, nLowInt[0] * bytesPerCrystal / 1024. / (nEEDCC / 2));
+      meLowIntPayload.fill(getEcalDQMSetupObjects(), EcalEndcap, nLowInt[1] * bytesPerCrystal / 1024. / (nEEDCC / 2));
     }
 
     unsigned iRU(isEB ? 0 : EcalTrigTowerDetId::kEBTotalTowers);
@@ -256,29 +257,29 @@ namespace ecaldqm {
 
       double towerSize(sizes[iTower] * bytesPerCrystal);
 
-      meTowerSize.fill(id, towerSize);
+      meTowerSize.fill(getEcalDQMSetupObjects(), id, towerSize);
 
       if (flags_[iRU] < 0)
         continue;
 
-      int dccid(dccId(id));
-      int towerid(towerId(id));
+      int dccid(dccId(id, GetElectronicsMap()));
+      int towerid(towerId(id, GetElectronicsMap()));
 
       if (suppressed_.find(std::make_pair(dccid, towerid)) != suppressed_.end())
         continue;
 
       int flag(flags_[iRU] & ~EcalSrFlag::SRF_FORCED_MASK);
 
-      bool ruFullyReadout(sizes[iTower] == getElectronicsMap()->dccTowerConstituents(dccid, towerid).size());
+      bool ruFullyReadout(sizes[iTower] == GetElectronicsMap()->dccTowerConstituents(dccid, towerid).size());
 
       if (ruFullyReadout && (flag == EcalSrFlag::SRF_ZS1 || flag == EcalSrFlag::SRF_ZS2)) {
-        meZSFullReadoutMap.fill(id);
-        meZSFullReadout.fill(id);
+        meZSFullReadoutMap.fill(getEcalDQMSetupObjects(), id);
+        meZSFullReadout.fill(getEcalDQMSetupObjects(), id);
       }
 
       if (sizes[iTower] == 0 && flag == EcalSrFlag::SRF_FULL) {
-        meFRDroppedMap.fill(id);
-        meFRDropped.fill(id);
+        meFRDroppedMap.fill(getEcalDQMSetupObjects(), id);
+        meFRDropped.fill(getEcalDQMSetupObjects(), id);
       }
     }
   }

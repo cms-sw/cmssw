@@ -1,19 +1,21 @@
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
-#include "SiStripDigiToRaw.h"
+#include <fmt/format.h>
+
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "FWCore/Utilities/interface/CRC16.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <boost/format.hpp>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/CRC16.h"
+
+#include "SiStripDigiToRaw.h"
 
 namespace sistrip {
 
@@ -134,7 +136,7 @@ namespace sistrip {
 
           //need to construct full object to copy full header
           if (rawfedData.size() == 0)
-            warnings_.add("Invalid raw data for FED, skipping", (boost::format("id %1%") % *ifed).str());
+            warnings_.add("Invalid raw data for FED, skipping", fmt::format("id {0}", *ifed));
           const auto st_buffer = preconstructCheckFEDBuffer(rawfedData, true);
           if (FEDBufferStatusCode::SUCCESS != st_buffer) {
             edm::LogWarning("DigiToRaw") << "[sistrip::DigiToRaw::createFedBuffers_]"
@@ -148,7 +150,7 @@ namespace sistrip {
                                          << " Could not construct FEDBuffer for FED " << *ifed << std::endl;
           }
           if (fedbuffer.headerType() == sistrip::HEADER_TYPE_INVALID) {
-            warnings_.add("Invalid header type for FED, skipping", (boost::format("id %1%") % *ifed).str());
+            warnings_.add("Invalid header type for FED, skipping", fmt::format("id {0}", *ifed));
             continue;
           }
 

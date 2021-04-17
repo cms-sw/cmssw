@@ -1,6 +1,6 @@
 ///this file contains additional dynamic_bitset methods
 
-#include "EventFilter/CSCRawToDigi/src/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/interface/bitset_append.h"
 #include <iostream>
 #include <cstdio>
 

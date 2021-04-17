@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
+#include "DataFormats/Common/interface/fillCollectionForThinning.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -21,10 +22,47 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <memory>
+#include <optional>
+#include <type_traits>
 
 namespace edm {
 
   class EventSetup;
+
+  namespace detail {
+    template <typename T>
+    struct IsStdOptional {
+      static constexpr bool value = false;
+    };
+    template <typename T>
+    struct IsStdOptional<std::optional<T>> {
+      static constexpr bool value = true;
+    };
+
+    template <typename Item, typename Selector, typename Collection>
+    void fillCollectionForThinning(Item const& item,
+                                   Selector& selector,
+                                   unsigned int iIndex,
+                                   Collection& output,
+                                   ThinnedAssociation& association) {
+      using SelectorChooseReturnType = decltype(selector.choose(0U, std::declval<Item const&>()));
+      constexpr bool isSlimming = detail::IsStdOptional<SelectorChooseReturnType>::value;
+      if constexpr (isSlimming) {
+        std::optional<typename SelectorChooseReturnType::value_type> obj = selector.choose(iIndex, item);
+        if (obj.has_value()) {
+          // move to support std::unique_ptr<T> with edm::OwnVector<T> or std::vector<unique_ptr<T>>
+          output.push_back(std::move(*obj));
+          association.push_back(iIndex);
+        }
+      } else {
+        if (selector.choose(iIndex, item)) {
+          output.push_back(item);
+          association.push_back(iIndex);
+        }
+      }
+    }
+
+  }  // namespace detail
 
   template <typename Collection, typename Selector>
   class ThinningProducer : public stream::EDProducer<> {
@@ -45,6 +83,13 @@ namespace edm {
     edm::InputTag inputTag_;
     edm::EDPutTokenT<Collection> outputToken_;
     edm::EDPutTokenT<ThinnedAssociation> thinnedOutToken_;
+
+    using SelectorChooseReturnType =
+        decltype(selector_->choose(0U, std::declval<typename detail::ElementType<Collection>::type const>()));
+    static constexpr bool isSlimming = detail::IsStdOptional<SelectorChooseReturnType>::value;
+    static_assert(
+        std::is_same_v<SelectorChooseReturnType, bool> || isSlimming,
+        "Selector::choose() must return bool (for pure thinning) or std::optional<ElementType> (for slimming)");
   };
 
   template <typename Collection, typename Selector>
@@ -65,8 +110,8 @@ namespace edm {
     ParameterSetDescription desc;
     desc.setComment("Produces thinned collections and associations to them");
     desc.add<edm::InputTag>("inputTag");
-    Selector::fillDescription(desc);
-    descriptions.addDefault(desc);
+    Selector::fillPSetDescription(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   template <typename Collection, typename Selector>
@@ -81,11 +126,11 @@ namespace edm {
 
     unsigned int iIndex = 0;
     for (auto iter = inputCollection->begin(), iterEnd = inputCollection->end(); iter != iterEnd; ++iter, ++iIndex) {
-      if (selector_->choose(iIndex, *iter)) {
-        thinnedCollection.push_back(*iter);
-        thinnedAssociation.push_back(iIndex);
-      }
+      using namespace detail;
+      fillCollectionForThinning(*iter, *selector_, iIndex, thinnedCollection, thinnedAssociation);
     }
+    selector_->reset();
+
     OrphanHandle<Collection> orphanHandle = event.emplace(outputToken_, std::move(thinnedCollection));
 
     thinnedAssociation.setParentCollectionID(inputCollection.id());
@@ -143,10 +188,10 @@ namespace edm {
       // This could happen if the input collection was dropped. Go ahead and add
       // an entry and let the exception be thrown only if the module is run (when
       // it cannot find the product).
-      thinnedAssociationsHelper.addAssociation(BranchID(), associationID, thinnedCollectionID);
+      thinnedAssociationsHelper.addAssociation(BranchID(), associationID, thinnedCollectionID, isSlimming);
     } else {
       for (auto const& parentCollectionID : parentCollectionIDs) {
-        thinnedAssociationsHelper.addAssociation(parentCollectionID, associationID, thinnedCollectionID);
+        thinnedAssociationsHelper.addAssociation(parentCollectionID, associationID, thinnedCollectionID, isSlimming);
       }
     }
   }

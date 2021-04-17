@@ -54,11 +54,11 @@ private:
 
 HGCalGeometryCheck::HGCalGeometryCheck(const edm::ParameterSet& iC)
     : nameDetectors_(iC.getParameter<std::vector<std::string>>("detectorNames")),
-      geomTokens_{
-          edm::vector_transform(nameDetectors_,
-                                [this](const std::string& name) {
-                                  return esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name});
-                                })},
+      geomTokens_{edm::vector_transform(
+          nameDetectors_,
+          [this](const std::string& name) {
+            return esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
+          })},
       rmin_(iC.getUntrackedParameter<double>("rMin", 0.0)),
       rmax_(iC.getUntrackedParameter<double>("rMax", 300.0)),
       zmin_(iC.getUntrackedParameter<double>("zMin", 300.0)),
@@ -103,7 +103,6 @@ void HGCalGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
     sprintf(name, "RZ_%s", nameDetectors_[ih].c_str());
     sprintf(title, "R vs Z for %s", nameDetectors_[ih].c_str());
     h_RZ_.emplace_back(fs->make<TH2D>(name, title, nbinZ_, zmin_, zmax_, nbinR_, rmin_, rmax_));
-    HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
     unsigned int k(0);
     for (int lay = layerF; lay <= layerL; ++lay, ++k) {
       sprintf(name, "Mod_%s_L%d", nameDetectors_[ih].c_str(), lay);
@@ -112,7 +111,9 @@ void HGCalGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
 
       auto zz = geom->topology().dddConstants().waferZ(lay, true);
       auto rr = geom->topology().dddConstants().rangeR(zz, true);
-      edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " R " << rr.first << ":" << rr.second << " Z " << zz;
+      auto rr0 = geom->topology().dddConstants().rangeRLayer(lay, true);
+      edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " R " << rr.first << ":" << rr.second << " (" << rr0.first
+                                    << ":" << rr0.second << ") Z " << zz;
       double r = rr.first;
       while (r <= rr.second) {
         h_RZ_[0]->Fill(zz, r);
@@ -121,18 +122,19 @@ void HGCalGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
           double phi = 2 * k * M_PI / 100.0;
           GlobalPoint global1(r * cos(phi), r * sin(phi), zz);
           DetId id = geom->getClosestCell(global1);
+
           if (ifNose_) {
             HFNoseDetId detId = HFNoseDetId(id);
             h_Mod_.back()->Fill(detId.waferU());
             h_Mod_.back()->Fill(detId.waferV());
             if (verbose_)
               edm::LogVerbatim("HGCalGeom") << "R: " << r << " ID " << detId;
-          } else if ((mode == HGCalGeometryMode::Hexagon) || (mode == HGCalGeometryMode::HexagonFull)) {
+          } else if (geom->topology().waferHexagon6()) {
             HGCalDetId detId = HGCalDetId(id);
             h_Mod_.back()->Fill(detId.wafer());
             if (verbose_)
               edm::LogVerbatim("HGCalGeom") << "R: " << r << " ID " << detId;
-          } else if (mode == HGCalGeometryMode::Trapezoid) {
+          } else if (geom->topology().tileTrapezoid()) {
             HGCScintillatorDetId detId = HGCScintillatorDetId(id);
             h_Mod_.back()->Fill(detId.ieta());
             if (verbose_)

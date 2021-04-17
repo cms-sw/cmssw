@@ -142,7 +142,6 @@ void DQMLumiMonitor::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, e
 
 void DQMLumiMonitor::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
 
-void DQMLumiMonitor::endJob() {}
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(DQMLumiMonitor);

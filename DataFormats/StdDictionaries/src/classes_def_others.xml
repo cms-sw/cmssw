@@ -9,6 +9,7 @@
  <class name="std::bitset<7>"/>
  <class name="std::bitset<15>"/>
  <class name="std::bitset<25>"/>
+ <class name="std::bitset<27>"/>
  <class name="std::bitset<64>"/>
  <class name="std::bitset<96>"/>
  <class name="std::deque<int>"/>
@@ -21,4 +22,6 @@
  <class name="std::random_access_iterator_tag"/>
  <class name="std::set<int>"/>
  <class name="std::set<std::basic_string<char> >"/>
+ <class name="std::atomic<int>"/>
+ <class name="std::__atomic_base<int>"/>
 </lcgdict>

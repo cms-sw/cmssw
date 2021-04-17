@@ -1,7 +1,7 @@
 ######################################################################################
 # Evaluates regressor from loaded model
 # Usage:
-# python3 isotrackApplyRegressor.py -PU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root -M ./models/model1.h5 -B barrel/endcap -O corrfac1.txt
+# python3 isotrackApplyRegressor.py -PU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root -M ./models/model1.h5 -B endcap -O corrfac1.txt
 # python3 isotrackApplyRegressor.py -PU root://cmseos.fnal.gov//store/user/sghosh/ISOTRACK/DIPI_2021_PUpart.root -M ./models/model2.h5 -B barrel -O corrfac2.txt
 ######################################################################################
 # coding: utf-8

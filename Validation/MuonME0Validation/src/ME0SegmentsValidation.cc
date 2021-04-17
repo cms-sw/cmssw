@@ -18,10 +18,6 @@ ME0SegmentsValidation::ME0SegmentsValidation(const edm::ParameterSet &cfg) : ME0
 void ME0SegmentsValidation::bookHistograms(DQMStore::IBooker &ibooker,
                                            edm::Run const &Run,
                                            edm::EventSetup const &iSetup) {
-  // edm::ESHandle<ME0Geometry> hGeom;
-  // iSetup.get<MuonGeometryRecord>().get(hGeom);
-  // const ME0Geometry* ME0Geometry_ =( &*hGeom);
-
   LogDebug("MuonME0SegmentsValidation") << "Info : Loading Geometry information\n";
   ibooker.setCurrentFolder("MuonME0RecHitsV/ME0SegmentsTask");
 
@@ -109,9 +105,7 @@ void ME0SegmentsValidation::bookHistograms(DQMStore::IBooker &ibooker,
 ME0SegmentsValidation::~ME0SegmentsValidation() {}
 
 void ME0SegmentsValidation::analyze(const edm::Event &e, const edm::EventSetup &iSetup) {
-  edm::ESHandle<ME0Geometry> hGeom;
-  iSetup.get<MuonGeometryRecord>().get(hGeom);
-  const ME0Geometry *ME0Geometry_ = (&*hGeom);
+  const ME0Geometry *ME0Geometry_ = &iSetup.getData(geomToken_);
 
   edm::Handle<edm::PSimHitContainer> ME0Hits;
   e.getByToken(InputTagToken_, ME0Hits);

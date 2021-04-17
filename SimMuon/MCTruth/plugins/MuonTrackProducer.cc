@@ -3,19 +3,43 @@
 // from code by Arun Luthra:
 // UserCode/luthra/MuonTrackSelector/src/MuonTrackSelector.cc
 //
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimMuon/MCTruth/plugins/MuonTrackProducer.h"
-#include <sstream>
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <algorithm>
+#include <sstream>
+#include <memory>
+
+class MuonTrackProducer : public edm::global::EDProducer<> {
+public:
+  explicit MuonTrackProducer(const edm::ParameterSet &);
+
+private:
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
+
+  edm::EDGetTokenT<reco::MuonCollection> muonsToken;
+  edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DToken_;
+  edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
+
+  std::vector<std::string> selectionTags;
+  std::string trackType;
+  bool ignoreMissingMuonCollection;
+};
 
 MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
     : muonsToken(consumes<reco::MuonCollection>(parset.getParameter<edm::InputTag>("muonsTag"))),
@@ -23,30 +47,26 @@ MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
           consumes<DTRecSegment4DCollection>(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection"))),
       inputCSCSegmentToken_(
           consumes<CSCSegmentCollection>(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))),
+      ttopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       selectionTags(parset.getParameter<std::vector<std::string>>("selectionTags")),
       trackType(parset.getParameter<std::string>("trackType")),
-      ignoreMissingMuonCollection(parset.getUntrackedParameter<bool>("ignoreMissingMuonCollection", false)),
-      parset_(parset) {
-  edm::LogVerbatim("MuonTrackProducer") << "constructing  MuonTrackProducer" << parset_.dump();
+      ignoreMissingMuonCollection(parset.getUntrackedParameter<bool>("ignoreMissingMuonCollection", false)) {
+  edm::LogVerbatim("MuonTrackProducer") << "constructing  MuonTrackProducer" << parset.dump();
   produces<reco::TrackCollection>();
   produces<reco::TrackExtraCollection>();
   produces<TrackingRecHitCollection>();
 }
 
-MuonTrackProducer::~MuonTrackProducer() {}
-
-void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  bool muonAvailable = iEvent.getByToken(muonsToken, muonCollectionH);
-  if (ignoreMissingMuonCollection && !muonAvailable)
+void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
+  edm::Handle<reco::MuonCollection> muonCollectionH = iEvent.getHandle(muonsToken);
+  if (ignoreMissingMuonCollection && !muonCollectionH.isValid())
     edm::LogVerbatim("MuonTrackProducer") << "\n ignoring missing muon collection.";
 
   else {
-    iEvent.getByToken(inputDTRecSegment4DToken_, dtSegmentCollectionH_);
-    iEvent.getByToken(inputCSCSegmentToken_, cscSegmentCollectionH_);
+    const DTRecSegment4DCollection &dtSegmentCollection = iEvent.get(inputDTRecSegment4DToken_);
+    const CSCSegmentCollection &cscSegmentCollection = iEvent.get(inputCSCSegmentToken_);
 
-    edm::ESHandle<TrackerTopology> httopo;
-    iSetup.get<TrackerTopologyRcd>().get(httopo);
-    const TrackerTopology &ttopo = *httopo;
+    const TrackerTopology &ttopo = iSetup.getData(ttopoToken_);
 
     std::unique_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
     std::unique_ptr<reco::TrackExtraCollection> selectedTrackExtras(new reco::TrackExtraCollection());
@@ -59,10 +79,10 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
     edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
 
-    edm::LogVerbatim("MuonTrackProducer") << "\nThere are " << dtSegmentCollectionH_->size() << " DT segments.";
+    edm::LogVerbatim("MuonTrackProducer") << "\nThere are " << dtSegmentCollection.size() << " DT segments.";
     unsigned int index_dt_segment = 0;
-    for (DTRecSegment4DCollection::const_iterator segment = dtSegmentCollectionH_->begin();
-         segment != dtSegmentCollectionH_->end();
+    for (DTRecSegment4DCollection::const_iterator segment = dtSegmentCollection.begin();
+         segment != dtSegmentCollection.end();
          ++segment, index_dt_segment++) {
       LocalPoint segmentLocalPosition = segment->localPosition();
       LocalVector segmentLocalDirection = segment->localDirection();
@@ -91,10 +111,10 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
           << segmentdYdZerr << ")";
     }
 
-    edm::LogVerbatim("MuonTrackProducer") << "\nThere are " << cscSegmentCollectionH_->size() << " CSC segments.";
+    edm::LogVerbatim("MuonTrackProducer") << "\nThere are " << cscSegmentCollection.size() << " CSC segments.";
     unsigned int index_csc_segment = 0;
-    for (CSCSegmentCollection::const_iterator segment = cscSegmentCollectionH_->begin();
-         segment != cscSegmentCollectionH_->end();
+    for (CSCSegmentCollection::const_iterator segment = cscSegmentCollection.begin();
+         segment != cscSegmentCollection.end();
          ++segment, index_csc_segment++) {
       LocalPoint segmentLocalPosition = segment->localPosition();
       LocalVector segmentLocalDirection = segment->localDirection();
@@ -131,18 +151,11 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
          ++muon, muon_index++) {
       edm::LogVerbatim("MuonTrackProducer") << "\n******* muon index : " << muon_index;
 
-      std::vector<bool> isGood;
-      for (unsigned int index = 0; index < selectionTags.size(); ++index) {
-        isGood.push_back(false);
-
-        muon::SelectionType muonType = muon::selectionTypeFromString(selectionTags[index]);
-        isGood[index] = muon::isGoodMuon(*muon, muonType);
-      }
-
-      bool isGoodResult = true;
-      for (unsigned int index = 0; index < isGood.size(); ++index) {
-        isGoodResult *= isGood[index];
-      }
+      const bool isGoodResult =
+          std::all_of(selectionTags.begin(), selectionTags.end(), [&muon](const std::string &name) {
+            muon::SelectionType muonType = muon::selectionTypeFromString(name);
+            return muon::isGoodMuon(*muon, muonType);
+          });
 
       if (isGoodResult) {
         // new copy of Track
@@ -478,3 +491,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     iEvent.put(std::move(selectedTrackHits));
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+DEFINE_FWK_MODULE(MuonTrackProducer);

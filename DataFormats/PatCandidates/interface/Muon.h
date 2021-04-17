@@ -97,6 +97,8 @@ namespace pat {
     void embedStandAloneMuon();
     /// set reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
     void embedCombinedMuon();
+    // rekey TrackExtra references of embedded tracks
+    void rekeyEmbeddedTracks(std::vector<edm::Handle<edm::Association<reco::TrackExtraCollection>>> const& assocs);
 
     // ---- methods for MuonMETCorrectionData ----
     /// muon MET corrections for caloMET; returns the muon correction struct if embedded during pat tuple production or an empty element

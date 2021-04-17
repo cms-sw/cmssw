@@ -12,24 +12,24 @@
 #include "RecoLocalMuon/RPCRecHit/src/CSCStationIndex.h"
 #include "RecoLocalMuon/RPCRecHit/src/CSCObjectMap.h"
 
-CSCSegtoRPC::CSCSegtoRPC(const CSCSegmentCollection* allCSCSegments,
-                         const edm::EventSetup& iSetup,
-                         bool debug,
-                         double eyr) {
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  edm::ESHandle<CSCGeometry> cscGeo;
-  edm::ESHandle<CSCObjectMap> cscMap;
+CSCSegtoRPC::CSCSegtoRPC(edm::ConsumesCollector iC)
+    : rpcGeoToken_(iC.esConsumes()), cscGeoToken_(iC.esConsumes()), cscMapToken_(iC.esConsumes()) {}
 
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  iSetup.get<MuonGeometryRecord>().get(cscGeo);
-  iSetup.get<MuonGeometryRecord>().get(cscMap);
+std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentCollection* allCSCSegments,
+                                                            const edm::EventSetup& iSetup,
+                                                            bool debug,
+                                                            double eyr) {
+  edm::ESHandle<RPCGeometry> rpcGeo = iSetup.getHandle(rpcGeoToken_);
+  edm::ESHandle<CSCGeometry> cscGeo = iSetup.getHandle(cscGeoToken_);
+  edm::ESHandle<CSCObjectMap> cscMap = iSetup.getHandle(cscMapToken_);
 
-  MaxD = 80.;
+  double MaxD = 80.;
 
   if (debug)
     std::cout << "CSC \t Number of CSC Segments in this event = " << allCSCSegments->size() << std::endl;
 
-  _ThePoints = std::make_unique<RPCRecHitCollection>();
+  auto _ThePoints = std::make_unique<RPCRecHitCollection>();
+  edm::OwnVector<RPCRecHit> RPCPointVector;
 
   if (allCSCSegments->size() == 0) {
     if (debug)
@@ -280,6 +280,5 @@ CSCSegtoRPC::CSCSegtoRPC(const CSCSegmentCollection* allCSCSegments,
       }
     }
   }
+  return _ThePoints;
 }
-
-CSCSegtoRPC::~CSCSegtoRPC() {}

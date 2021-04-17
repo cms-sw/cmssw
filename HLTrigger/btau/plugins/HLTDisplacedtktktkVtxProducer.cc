@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -11,18 +10,13 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "HLTDisplacedtktktkVtxProducer.h"
 
 using namespace edm;
@@ -33,7 +27,8 @@ using namespace trigger;
 // constructors and destructor
 //
 HLTDisplacedtktktkVtxProducer::HLTDisplacedtktktkVtxProducer(const edm::ParameterSet& iConfig)
-    : srcTag_(iConfig.getParameter<edm::InputTag>("Src")),
+    : transientTrackRecordToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      srcTag_(iConfig.getParameter<edm::InputTag>("Src")),
       srcToken_(consumes<reco::RecoChargedCandidateCollection>(srcTag_)),
       previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
       previousCandToken_(consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
@@ -52,9 +47,7 @@ HLTDisplacedtktktkVtxProducer::HLTDisplacedtktktkVtxProducer(const edm::Paramete
       massParticle3_(iConfig.getParameter<double>("massParticle3")),
       chargeOpt_(iConfig.getParameter<int>("ChargeOpt")),
       resOpt_(iConfig.getParameter<int>("ResOpt")),
-      triggerTypeDaughters_(iConfig.getParameter<int>("triggerTypeDaughters"))
-
-{
+      triggerTypeDaughters_(iConfig.getParameter<int>("triggerTypeDaughters")) {
   produces<VertexCollection>();
 
   firstTrackMass = massParticle1_;
@@ -112,9 +105,8 @@ void HLTDisplacedtktktkVtxProducer::produce(edm::Event& iEvent, const edm::Event
   if (trackcands->size() < 3)
     return;
 
-  //get the transient track builder:
-  edm::ESHandle<TransientTrackBuilder> theB;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theB);
+  // get the transient track builder
+  auto const& theB = iSetup.getHandle(transientTrackRecordToken_);
 
   std::unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
 

@@ -79,6 +79,7 @@ private:
   edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> ecalSevToken_;
   edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> ctcmToken_;
   edm::ESGetToken<HcalFrontEndMap, HcalFrontEndMapRcd> hfemapToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geoToken_;
 };
 
 #endif

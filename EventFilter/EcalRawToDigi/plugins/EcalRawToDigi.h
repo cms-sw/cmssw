@@ -24,6 +24,9 @@
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -31,6 +34,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/ESWatcher.h>
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 #include <sys/time.h>
 
@@ -84,6 +88,8 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
   edm::EDGetTokenT<EcalListOfFEDS> fedsToken_;
+  edm::ESGetToken<EcalChannelStatusMap, EcalChannelStatusRcd> chStatusToken_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> ecalMappingToken_;
 
   // -- For regional unacking :
   bool REGIONAL_;

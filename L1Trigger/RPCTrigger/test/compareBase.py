@@ -15,7 +15,14 @@ process.source = cms.Source("PoolSource",
 
 
 process.MessageLogger = cms.Service("MessageLogger",
- destinations = cms.untracked.vstring('log.txt')
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    files = cms.untracked.PSet(
+        log = cms.untracked.PSet(
+            extension = cms.untracked.string('txt')
+        )
+    )
 )
 
 process.load("L1Trigger.HardwareValidation.L1HardwareValidation_cff")

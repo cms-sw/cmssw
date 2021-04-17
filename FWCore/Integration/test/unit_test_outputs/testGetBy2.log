@@ -294,8 +294,6 @@ PathContext: pathName = p pathID = 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 5
@@ -444,8 +442,6 @@ PathContext: pathName = p pathID = 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 5
@@ -594,8 +590,6 @@ PathContext: pathName = p pathID = 0
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 1
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 5

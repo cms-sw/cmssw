@@ -56,5 +56,5 @@ run3_HB.toModify(particleFlowRecHitHBHE,
 
 # HCALonly WF
 particleFlowRecHitHBHEOnly = particleFlowRecHitHBHE.clone(
-    producers = { 0: dict(src = cms.InputTag("hbheprereco","")) }
+    producers = { 0: dict(src = "hbheprereco:") }
 )

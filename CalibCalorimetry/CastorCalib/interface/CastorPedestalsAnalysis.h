@@ -1,7 +1,6 @@
 #ifndef CastorPedestalsAnalysis_H
 #define CastorPedestalsAnalysis_H
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -96,6 +95,9 @@ private:
   std::string XMLfilename;
   std::string XMLtag;
   std::string ZSfilename;
+
+  edm::ESGetToken<CastorDbService, CastorDbRecord> tok_cond_;
+  edm::ESGetToken<CastorElectronicsMap, CastorElectronicsMapRcd> tok_map_;
 
   TH1F *CASTORMeans;
   TH1F *CASTORWidths;

@@ -11,6 +11,7 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -22,9 +23,10 @@ MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetHcal");
   rMax_ = m_p.getUntrackedParameter<double>("RMax", 4.5) * CLHEP::m;
   zMax_ = m_p.getUntrackedParameter<double>("ZMax", 13.0) * CLHEP::m;
+  fromdd4hep_ = m_p.getUntrackedParameter<bool>("Fromdd4hep", false);
   bool doHcal = m_p.getUntrackedParameter<bool>("DoHCAL", true);
   edm::LogVerbatim("MaterialBudget") << "MaterialBudgetHcal initialized with rMax " << rMax_ << " mm and zMax " << zMax_
-                                     << " mm doHcal is set to " << doHcal;
+                                     << " mm doHcal is set to " << doHcal << " and Fromdd4hep to " << fromdd4hep_;
   if (doHcal) {
     theHistoHcal_ = std::make_unique<MaterialBudgetHcalHistos>(m_p);
     theHistoCastor_.reset(nullptr);
@@ -37,10 +39,17 @@ MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
 void MaterialBudgetHcal::update(const BeginOfJob* job) {
   //----- Check that selected volumes are indeed part of the geometry
   // Numbering From DDD
-  edm::ESTransientHandle<DDCompactView> pDD;
-  (*job)()->get<IdealGeometryRecord>().get(pDD);
-  if (theHistoHcal_)
-    theHistoHcal_->fillBeginJob((*pDD));
+  if (fromdd4hep_) {
+    edm::ESTransientHandle<cms::DDCompactView> pDD;
+    (*job)()->get<IdealGeometryRecord>().get(pDD);
+    if (theHistoHcal_)
+      theHistoHcal_->fillBeginJob((*pDD));
+  } else {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    (*job)()->get<IdealGeometryRecord>().get(pDD);
+    if (theHistoHcal_)
+      theHistoHcal_->fillBeginJob((*pDD));
+  }
 }
 
 void MaterialBudgetHcal::update(const BeginOfTrack* trk) {

@@ -5,8 +5,7 @@
 #include <numeric>
 #include <fstream>  // std::ifstream
 #include <string>
-#include <boost/tokenizer.hpp>
-#include <boost/range/adaptor/indexed.hpp>
+#include <bitset>
 
 #include "TGraph.h"
 #include "TH1.h"
@@ -24,8 +23,8 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 
 //#define MMDEBUG
 #ifdef MMDEBUG
@@ -37,9 +36,79 @@
 
 namespace SiPixelPI {
 
+  enum phase { zero = 0, one = 1, two = 2 };
+
   // size of the phase-0 pixel detID list
   static const unsigned int phase0size = 1440;
   static const unsigned int phase1size = 1856;
+  static const unsigned int phase2size = 3892;
+
+  //============================================================================
+  // struct to store info useful to construct topology based on the detid list
+  struct PhaseInfo {
+    // construct with det size
+    PhaseInfo(unsigned int size) : m_detsize(size) {}
+    // construct passing the phase
+    PhaseInfo(const phase& thePhase) {
+      switch (thePhase) {
+        case phase::zero:
+          m_detsize = phase0size;
+          break;
+        case phase::one:
+          m_detsize = phase1size;
+          break;
+        case phase::two:
+          m_detsize = phase2size;
+          break;
+        default:
+          m_detsize = 99999;
+          edm::LogError("PhaseInfo") << "undefined phase: " << thePhase;
+      }
+    }
+    virtual ~PhaseInfo() { edm::LogInfo("PhaseInfo") << "PhaseInfo::~PhaseInfo()\n"; }
+    const SiPixelPI::phase phase() const {
+      if (m_detsize == phase0size)
+        return phase::zero;
+      else if (m_detsize == phase1size)
+        return phase::one;
+      else if (m_detsize > phase1size)
+        return phase::two;
+      else {
+        throw cms::Exception("LogicError") << "this detId list size: " << m_detsize << "should not exist!";
+      }
+    }
+
+    const char* pathToTopoXML() {
+      if (m_detsize == phase0size)
+        return "Geometry/TrackerCommonData/data/trackerParameters.xml";
+      else if (m_detsize == phase1size)
+        return "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      else if (m_detsize > phase1size)
+        return "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+      else {
+        throw cms::Exception("LogicError") << "this detId list size: " << m_detsize << "should not exist!";
+      }
+    }
+
+    const bool isPhase1Comparison(const PhaseInfo& theOtherPhase) const {
+      if (phase() == phase::one || theOtherPhase.phase() == phase::one)
+        return true;
+      else
+        return false;
+    }
+
+    const bool isComparedWithPhase2(const PhaseInfo& theOtherPhase) const {
+      if ((phase() == phase::two && theOtherPhase.phase() != phase::two) ||
+          (phase() != phase::two && theOtherPhase.phase() == phase::two)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+  private:
+    size_t m_detsize;
+  };
 
   //============================================================================
   std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
@@ -158,10 +227,13 @@ namespace SiPixelPI {
 
     if (lay > 0) {
       canv.cd(lay);
-      s_title = "Barrel Pixel Layer" + std::to_string(lay);
+      s_title = "Barrel Pixel Layer " + std::to_string(lay);
     } else {
       canv.cd(ring);
-      s_title = "Forward Pixel Ring" + std::to_string(ring);
+      if (ring > 4) {
+        ring = ring - 4;
+      }
+      s_title = "Forward Pixel Ring " + std::to_string(ring);
     }
 
     gStyle->SetPadRightMargin(0.125);
@@ -499,6 +571,8 @@ namespace SiPixelPI {
     }
   }
 
+  enum DetType { t_barrel = 0, t_forward = 1, t_all = 2 };
+
   enum regions {
     BPixL1o,        //0  Barrel Pixel Layer 1 outer
     BPixL1i,        //1  Barrel Pixel Layer 1 inner
@@ -588,10 +662,11 @@ namespace SiPixelPI {
     int m_side;
     int m_ring;
     bool m_isInternal;
+    SiPixelPI::phase* m_Phase;
 
   public:
     void init();
-    void fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, bool isPhase0);
+    void fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph);
     SiPixelPI::regions filterThePartition();
     bool sanityCheck();
     void printAll();
@@ -629,16 +704,18 @@ namespace SiPixelPI {
     }
   }
   /*--------------------------------------------------------------------*/
-  void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, bool isPhase0)
+  void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph)
   /*--------------------------------------------------------------------*/
   {
+    // set the phase
+    m_Phase = const_cast<SiPixelPI::phase*>(&ph);
     unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
 
     m_rawid = detId.rawId();
     m_subdetid = subdetId;
     if (subdetId == PixelSubdetector::PixelBarrel) {
       m_layer = tTopo.pxbLayer(detId.rawId());
-      m_isInternal = !SiPixelPI::isBPixOuterLadder(detId, tTopo, isPhase0);
+      m_isInternal = !SiPixelPI::isBPixOuterLadder(detId, tTopo, (ph == SiPixelPI::phase::zero));
     } else if (subdetId == PixelSubdetector::PixelEndcap) {
       m_layer = tTopo.pxfDisk(detId.rawId());
       m_side = tTopo.pxfSide(detId.rawId());
@@ -653,6 +730,10 @@ namespace SiPixelPI {
   /*--------------------------------------------------------------------*/
   {
     SiPixelPI::regions ret = SiPixelPI::NUM_OF_REGIONS;
+
+    if (m_Phase == nullptr) {
+      throw cms::Exception("LogicError") << "Cannot call filterThePartition BEFORE filling the geometry info!";
+    }
 
     // BPix
     if (m_subdetid == 1) {
@@ -686,286 +767,14 @@ namespace SiPixelPI {
           m_side > 1 ? ret = SiPixelPI::FPixpL3 : ret = SiPixelPI::FPixmL3;
           break;
         default:
-          edm::LogWarning("LogicError") << "Unknow FPix disk: " << m_layer;
+          if (*m_Phase < SiPixelPI::phase::two) {
+            // warning message only if the phase2 is < 2
+            edm::LogWarning("LogicError") << "Unknow FPix disk: " << m_layer;
+          }
           break;
       }
     }
     return ret;
-  }
-
-  // overloaded method: mask entire module
-  /*--------------------------------------------------------------------*/
-  std::vector<std::pair<int, int>> maskedBarrelRocsToBins(int layer, int ladder, int module)
-  /*--------------------------------------------------------------------*/
-  {
-    std::vector<std::pair<int, int>> rocsToMask;
-
-    int nlad_list[4] = {6, 14, 22, 32};
-    int nlad = nlad_list[layer - 1];
-
-    int start_x = module > 0 ? ((module + 4) * 8) + 1 : ((4 - (std::abs(module))) * 8) + 1;
-    int start_y = ladder > 0 ? ((ladder + nlad) * 2) + 1 : ((nlad - (std::abs(ladder))) * 2) + 1;
-
-    int end_x = start_x + 7;
-    int end_y = start_y + 1;
-
-    COUT << "module: " << module << " start_x:" << start_x << " end_x:" << end_x << std::endl;
-    COUT << "ladder: " << ladder << " start_y:" << start_y << " end_y:" << end_y << std::endl;
-    COUT << "==================================================================" << std::endl;
-
-    for (int bin_x = 1; bin_x <= 72; bin_x++) {
-      for (int bin_y = 1; bin_y <= (nlad * 4 + 2); bin_y++) {
-        if (bin_x >= start_x && bin_x <= end_x && bin_y >= start_y && bin_y <= end_y) {
-          rocsToMask.push_back(std::make_pair(bin_x, bin_y));
-        }
-      }
-    }
-    return rocsToMask;
-  }
-
-  // overloaded method: mask single ROCs
-  /*--------------------------------------------------------------------*/
-  std::vector<std::tuple<int, int, int>> maskedBarrelRocsToBins(
-      int layer, int ladder, int module, std::bitset<16> bad_rocs, bool isFlipped)
-  /*--------------------------------------------------------------------*/
-  {
-    std::vector<std::tuple<int, int, int>> rocsToMask;
-
-    int nlad_list[4] = {6, 14, 22, 32};
-    int nlad = nlad_list[layer - 1];
-
-    int start_x = module > 0 ? ((module + 4) * 8) + 1 : ((4 - (std::abs(module))) * 8) + 1;
-    int start_y = ladder > 0 ? ((ladder + nlad) * 2) + 1 : ((nlad - (std::abs(ladder))) * 2) + 1;
-
-    int roc0_x = ((layer == 1) || (layer > 1 && module > 0)) ? start_x + 7 : start_x;
-    int roc0_y = start_y - 1;
-
-    size_t idx = 0;
-    while (idx < bad_rocs.size()) {
-      if (bad_rocs.test(idx)) {
-        //////////////////////////////////////////////////////////////////////////////////////
-        //		                          |					    //
-        // In BPix Layer1 and module>0 in L2,3,4  |   In BPix Layer 2,3,4 module > 0	    //
-        //                                        |					    //
-        // ROCs are ordered in the following      |   ROCs are ordered in the following     //
-        // fashion for unplipped modules 	  |   fashion for unplipped modules         //
-        //					  |  				            //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        //					  |  					    //
-        // if the module is flipped the ordering  |   if the module is flipped the ordering //
-        // is reveresed                           |   is reversed                           //
-        //					  |                                         //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        // | 8 | 9 |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        //////////////////////////////////////////////////////////////////////////////////////
-
-        int roc_x(0), roc_y(0);
-
-        if ((layer == 1) || (layer > 1 && module > 0)) {
-          if (!isFlipped) {
-            roc_x = idx < 8 ? roc0_x - idx : (start_x - 8) + idx;
-            roc_y = idx < 8 ? roc0_y + 1 : roc0_y + 2;
-          } else {
-            roc_x = idx < 8 ? roc0_x - idx : (start_x - 8) + idx;
-            roc_y = idx < 8 ? roc0_y + 2 : roc0_y + 1;
-          }
-        } else {
-          if (!isFlipped) {
-            roc_x = idx < 8 ? roc0_x + idx : (roc0_x + 7) - (idx - 8);
-            roc_y = idx < 8 ? roc0_y + 1 : roc0_y + 2;
-          } else {
-            roc_x = idx < 8 ? roc0_x + idx : (roc0_x + 7) - (idx - 8);
-            roc_y = idx < 8 ? roc0_y + 2 : roc0_y + 1;
-          }
-        }
-
-        COUT << bad_rocs << " : (idx)= " << idx << std::endl;
-        COUT << " layer:  " << layer << std::endl;
-        COUT << "module: " << module << " roc_x:" << roc_x << std::endl;
-        COUT << "ladder: " << ladder << " roc_y:" << roc_y << std::endl;
-        COUT << "==================================================================" << std::endl;
-
-        rocsToMask.push_back(std::make_tuple(roc_x, roc_y, idx));
-      }
-      ++idx;
-    }
-    return rocsToMask;
-  }
-
-  // overloaded method: mask entire module
-  /*--------------------------------------------------------------------*/
-  std::vector<std::pair<int, int>> maskedForwardRocsToBins(int ring, int blade, int panel, int disk)
-  /*--------------------------------------------------------------------*/
-  {
-    std::vector<std::pair<int, int>> rocsToMask;
-    int nybins_list[2] = {92, 140};
-    int nybins = nybins_list[ring - 1];
-
-    int start_x = disk > 0 ? ((disk + 3) * 8) + 1 : ((3 - (std::abs(disk))) * 8) + 1;
-    int start_y = blade > 0 ? (nybins / 2) + (blade * 4) - (panel * 2) + 3
-                            : ((nybins / 2) - (std::abs(blade) * 4) - panel * 2) + 3;
-
-    int end_x = start_x + 7;
-    int end_y = start_y + 1;
-
-    COUT << "==================================================================" << std::endl;
-    COUT << "disk:  " << disk << " start_x:" << start_x << " end_x:" << end_x << std::endl;
-    COUT << "blade: " << blade << " start_y:" << start_y << " end_y:" << end_y << std::endl;
-
-    for (int bin_x = 1; bin_x <= 56; bin_x++) {
-      for (int bin_y = 1; bin_y <= nybins; bin_y++) {
-        if (bin_x >= start_x && bin_x <= end_x && bin_y >= start_y && bin_y <= end_y) {
-          rocsToMask.push_back(std::make_pair(bin_x, bin_y));
-        }
-      }
-    }
-    return rocsToMask;
-  }
-
-  // overloaded method: mask single ROCs
-  /*--------------------------------------------------------------------*/
-  std::vector<std::tuple<int, int, int>> maskedForwardRocsToBins(
-      int ring, int blade, int panel, int disk, std::bitset<16> bad_rocs, bool isFlipped)
-  /*--------------------------------------------------------------------*/
-  {
-    std::vector<std::tuple<int, int, int>> rocsToMask;
-    int nybins_list[2] = {92, 140};
-    int nybins = nybins_list[ring - 1];
-
-    int start_x = disk > 0 ? ((disk + 3) * 8) + 1 : ((3 - (std::abs(disk))) * 8) + 1;
-    int start_y = blade > 0 ? (nybins / 2) + (blade * 4) - (panel * 2) + 3
-                            : ((nybins / 2) - (std::abs(blade) * 4) - panel * 2) + 3;
-
-    int roc0_x = disk > 0 ? start_x + 7 : start_x;
-    int roc0_y = start_y - 1;
-
-    size_t idx = 0;
-    while (idx < bad_rocs.size()) {
-      if (bad_rocs.test(idx)) {
-        int roc_x(0), roc_y(0);
-
-        //////////////////////////////////////////////////////////////////////////////////////
-        //		                          |					    //
-        // In FPix + (Disk 1,2,3)                 |   In FPix - (Disk -1,-2,-3)	            //
-        //                                        |					    //
-        // ROCs are ordered in the following      |   ROCs are ordered in the following     //
-        // fashion for unplipped modules 	  |   fashion for unplipped modules         //
-        //					  |  				            //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        //					  |  					    //
-        // if the module is flipped the ordering  |   if the module is flipped the ordering //
-        // is reveresed                           |   is reversed                           //
-        //					  |                                         //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        // | 8 | 9 |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
-        // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-        //////////////////////////////////////////////////////////////////////////////////////
-
-        if (disk > 0) {
-          if (!isFlipped) {
-            roc_x = idx < 8 ? roc0_x - idx : (start_x - 8) + idx;
-            roc_y = idx < 8 ? roc0_y + 1 : roc0_y + 2;
-          } else {
-            roc_x = idx < 8 ? roc0_x - idx : (start_x - 8) + idx;
-            roc_y = idx < 8 ? roc0_y + 2 : roc0_y + 1;
-          }
-        } else {
-          if (!isFlipped) {
-            roc_x = idx < 8 ? roc0_x + idx : (roc0_x + 7) - (idx - 8);
-            roc_y = idx < 8 ? roc0_y + 1 : roc0_y + 2;
-          } else {
-            roc_x = idx < 8 ? roc0_x + idx : (roc0_x + 7) - (idx - 8);
-            roc_y = idx < 8 ? roc0_y + 2 : roc0_y + 1;
-          }
-        }
-
-        COUT << bad_rocs << " : (idx)= " << idx << std::endl;
-        COUT << " panel: " << panel << " isFlipped: " << isFlipped << std::endl;
-        COUT << " disk:  " << disk << " roc_x:" << roc_x << std::endl;
-        COUT << " blade: " << blade << " roc_y:" << roc_y << std::endl;
-        COUT << "===============================" << std::endl;
-
-        rocsToMask.push_back(std::make_tuple(roc_x, roc_y, idx));
-      }
-      ++idx;
-    }
-    return rocsToMask;
-  }
-
-  using indexedCorners = std::map<unsigned int, std::pair<std::vector<float>, std::vector<float>>>;
-
-  /*--------------------------------------------------------------------*/
-  const indexedCorners retrieveCorners(const std::vector<edm::FileInPath>& cornerFiles, const unsigned int reads)
-  /*--------------------------------------------------------------------*/
-  {
-    indexedCorners theOutMap;
-
-    for (const auto& file : cornerFiles) {
-      auto cornerFileName = file.fullPath();
-      std::ifstream cornerFile(cornerFileName.c_str());
-      if (!cornerFile.good()) {
-        throw cms::Exception("FileError") << "Problem opening corner file: " << cornerFileName;
-      }
-      std::string line;
-      while (std::getline(cornerFile, line)) {
-        if (!line.empty()) {
-          std::istringstream iss(line);
-          unsigned int id;
-          std::string name;
-          std::vector<std::string> corners(reads, "");
-          std::vector<float> xP, yP;
-
-          iss >> id >> name;
-          for (unsigned int i = 0; i < reads; ++i) {
-            iss >> corners.at(i);
-          }
-
-          COUT << id << " : ";
-          for (unsigned int i = 0; i < reads; i++) {
-            // remove the leading and trailing " signs in the corners list
-            (corners[i]).erase(std::remove(corners[i].begin(), corners[i].end(), '"'), corners[i].end());
-            COUT << corners.at(i) << " ";
-            typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-            boost::char_separator<char> sep{","};
-            tokenizer tok{corners.at(i), sep};
-            for (const auto& t : tok | boost::adaptors::indexed(0)) {
-              if (t.index() == 0) {
-                xP.push_back(atof((t.value()).c_str()));
-              } else if (t.index() == 1) {
-                yP.push_back(atof((t.value()).c_str()));
-              } else {
-                edm::LogError("LogicError") << "There should not be any token with index " << t.index() << std::endl;
-              }
-            }
-          }
-          COUT << std::endl;
-
-          xP.push_back(xP.front());
-          yP.push_back(yP.front());
-
-          for (unsigned int i = 0; i < xP.size(); i++) {
-            COUT << "x[" << i << "]=" << xP[i] << " y[" << i << "]" << yP[i] << std::endl;
-          }
-
-          theOutMap[id] = std::make_pair(xP, yP);
-
-        }  // if line is empty
-      }    // loop on lines
-    }      // loop on files
-    return theOutMap;
   }
 
   /*--------------------------------------------------------------------*/

@@ -4,6 +4,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 #for dnn classifier
 from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 
 ###############################################
 # Low pT and detached tracks from pixel quadruplets
@@ -37,9 +38,9 @@ trackingPhase2PU140.toReplaceWith(detachedQuadStepTrackingRegions, _globalTracki
 )))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(detachedQuadStepTrackingRegions, 
+(pp_on_XeXe_2017 | pp_on_AA).toReplaceWith(detachedQuadStepTrackingRegions, 
                 _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
                     fixedError   = 3.75,
                     ptMin        = 0.9,
@@ -130,8 +131,7 @@ trackingPhase2PU140.toModify(detachedQuadStepTrajectoryFilter,
     filters = detachedQuadStepTrajectoryFilter.filters.value()+[cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
 )
 
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(detachedQuadStepTrajectoryFilterBase, minPt=0.9)
+(pp_on_XeXe_2017 | pp_on_AA).toModify(detachedQuadStepTrajectoryFilterBase, minPt=0.9)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 detachedQuadStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -212,15 +212,15 @@ detachedQuadStep = TrackMVAClassifierDetached.clone(
     qualityCuts = [-0.5,0.0,0.5]
 )
 
-from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
-from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackdnn.toReplaceWith(detachedQuadStep, TrackLwtnnClassifier.clone(
-    src         = 'detachedQuadStepTracks',
-    qualityCuts = [-0.6, 0.05, 0.7]
+from RecoTracker.FinalTrackSelectors.TrackTfClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
+trackdnn.toReplaceWith(detachedQuadStep, TrackTfClassifier.clone(
+    src = 'detachedQuadStepTracks',
+    qualityCuts = qualityCutDictionary['DetachedQuadStep']
 ))
 
 highBetaStar_2018.toModify(detachedQuadStep,qualityCuts = [-0.7,0.0,0.5])
-pp_on_AA_2018.toModify(detachedQuadStep, 
+pp_on_AA.toModify(detachedQuadStep, 
         mva         = dict(GBRForestLabel = 'HIMVASelectorDetachedQuadStep_Phase1'),
         qualityCuts = [-0.2, 0.2, 0.5],
 )

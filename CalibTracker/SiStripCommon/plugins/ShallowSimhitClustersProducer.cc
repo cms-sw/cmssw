@@ -1,14 +1,7 @@
-#include "CalibTracker/SiStripCommon/interface/ShallowSimhitClustersProducer.h"
+#include "ShallowSimhitClustersProducer.h"
 
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
-#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -17,10 +10,14 @@
 
 ShallowSimhitClustersProducer::ShallowSimhitClustersProducer(const edm::ParameterSet& iConfig)
     : clusters_token_(consumes<edmNew::DetSetVector<SiStripCluster>>(iConfig.getParameter<edm::InputTag>("Clusters"))),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      magFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      laToken_(esConsumes<SiStripLorentzAngle, SiStripLorentzAngleRcd>(
+          edm::ESInputTag{"", iConfig.getParameter<std::string>("runningMode")})),
       Prefix(iConfig.getParameter<std::string>("Prefix")),
       runningmode_(iConfig.getParameter<std::string>("runningMode")) {
   std::vector<edm::InputTag> simhits_tags = iConfig.getParameter<std::vector<edm::InputTag>>("InputTags");
-  for (auto itag : simhits_tags) {
+  for (const auto& itag : simhits_tags) {
     simhits_tokens_.push_back(consumes<std::vector<PSimHit>>(itag));
   }
 
@@ -55,12 +52,9 @@ void ShallowSimhitClustersProducer::produce(edm::Event& iEvent, const edm::Event
   auto particle = std::make_unique<std::vector<int>>(size, -500);
   auto process = std::make_unique<std::vector<unsigned short>>(size, 0);
 
-  edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-  iSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
-  edm::ESHandle<MagneticField> magfield;
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle;
-  iSetup.get<SiStripLorentzAngleRcd>().get(runningmode_, SiStripLorentzAngle);
+  edm::ESHandle<TrackerGeometry> theTrackerGeometry = iSetup.getHandle(geomToken_);
+  edm::ESHandle<MagneticField> magfield = iSetup.getHandle(magFieldToken_);
+  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle = iSetup.getHandle(laToken_);
   edm::Handle<edmNew::DetSetVector<SiStripCluster>> clusters;
   iEvent.getByLabel("siStripClusters", "", clusters);
 

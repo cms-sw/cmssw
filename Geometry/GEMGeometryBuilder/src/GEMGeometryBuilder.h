@@ -14,6 +14,8 @@
 #include <string>
 #include <map>
 #include <vector>
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DD4hep/DD4hepUnits.h"
 
 class DDCompactView;
 class DDFilteredView;
@@ -21,11 +23,8 @@ namespace cms {
   class DDFilteredView;
   class DDCompactView;
   class MuonNumbering;
-  struct DDSpecPar;
-  struct DDSpecParRegistry;
 }  // namespace cms
 class GEMGeometry;
-class GEMDetId;
 class GEMSuperChamber;
 class GEMChamber;
 class GEMEtaPartition;
@@ -65,6 +64,11 @@ private:
   GEMChamber* buildChamber(cms::DDFilteredView& fv, GEMDetId detId) const;
 
   GEMEtaPartition* buildEtaPartition(cms::DDFilteredView& fv, GEMDetId detId) const;
+
+  // Common
+  void buildRegions(GEMGeometry&, const std::vector<GEMSuperChamber*>&);
+
+  static constexpr double k_ScaleFromDD4Hep = (1.0 / dd4hep::cm);
 };
 
 #endif

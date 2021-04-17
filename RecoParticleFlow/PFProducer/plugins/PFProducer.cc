@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
@@ -54,6 +55,9 @@ private:
   std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> inputTagCleanedHF_;
   std::string electronExtraOutputCol_;
   std::string photonExtraOutputCol_;
+
+  bool vetoEndcap_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> inputTagVetoes_;
 
   // NEW EGamma Filters
   edm::EDGetTokenT<edm::ValueMap<reco::GsfElectronRef>> inputTagValueMapGedElectrons_;
@@ -120,6 +124,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   //Post cleaning of the muons
   inputTagMuons_ = consumes<reco::MuonCollection>(iConfig.getParameter<InputTag>("muons"));
   postMuonCleaning_ = iConfig.getParameter<bool>("postMuonCleaning");
+  vetoEndcap_ = iConfig.getParameter<bool>("vetoEndcap");
+  if (vetoEndcap_)
+    inputTagVetoes_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("vetoes"));
 
   if (iConfig.existsAs<bool>("useEGammaFilters")) {
     use_EGammaFilters_ = iConfig.getParameter<bool>("useEGammaFilters");
@@ -144,6 +151,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   // Reading new EGamma selection cuts
   bool useProtectionsForJetMET(false);
+
   // Reading new EGamma ubiased collections and value maps
   if (use_EGammaFilters_) {
     inputTagPFEGammaCandidates_ =
@@ -153,7 +161,14 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
     inputTagValueMapGedPhotons_ =
         consumes<edm::ValueMap<reco::PhotonRef>>(iConfig.getParameter<edm::InputTag>("GedPhotonValueMap"));
     useProtectionsForJetMET = iConfig.getParameter<bool>("useProtectionsForJetMET");
+
+    const edm::ParameterSet pfEGammaFiltersParams =
+        iConfig.getParameter<edm::ParameterSet>("PFEGammaFiltersParameters");
+    pfegamma_ = std::make_unique<PFEGammaFilters>(pfEGammaFiltersParams);
   }
+
+  // EGamma filters
+  pfAlgo_.setEGammaParameters(use_EGammaFilters_, useProtectionsForJetMET);
 
   //Secondary tracks and displaced vertices parameters
 
@@ -173,15 +188,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
 
   if (useCalibrationsFromDB_)
     calibrationsLabel_ = iConfig.getParameter<std::string>("calibrationsLabel");
-
-  // EGamma filters
-  pfAlgo_.setEGammaParameters(use_EGammaFilters_, useProtectionsForJetMET);
-
-  if (use_EGammaFilters_) {
-    const edm::ParameterSet pfEGammaFiltersParams =
-        iConfig.getParameter<edm::ParameterSet>("PFEGammaFiltersParameters");
-    pfegamma_ = std::make_unique<PFEGammaFilters>(pfEGammaFiltersParams);
-  }
 
   // Secondary tracks and displaced vertices parameters
   pfAlgo_.setDisplacedVerticesParameters(
@@ -235,9 +241,14 @@ void PFProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   auto blocks = iEvent.getHandle(inputTagBlocks_);
   assert(blocks.isValid());
 
-  // get the collection of muons
-  if (postMuonCleaning_)
+  // get and set the collection of muons (and collection of vetoes if specified)
+  if (postMuonCleaning_) {
     pfAlgo_.setMuonHandle(iEvent.getHandle(inputTagMuons_));
+    if (vetoEndcap_) {
+      auto& muAlgo = *pfAlgo_.getPFMuonAlgo();
+      muAlgo.setVetoes(iEvent.get(inputTagVetoes_));
+    }
+  }
 
   if (use_EGammaFilters_)
     pfAlgo_.setEGammaCollections(iEvent.get(inputTagPFEGammaCandidates_),
@@ -318,6 +329,12 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<edm::InputTag>("muons", edm::InputTag("muons1stStep"));
   desc.add<bool>("postMuonCleaning", true);
 
+  // vetoEndcap flag and pf candidates for vetoes
+  edm::ParameterSetDescription emptyDescription;
+  desc.ifValue(edm::ParameterDescription<bool>("vetoEndcap", false, true),
+               true >> edm::ParameterDescription<edm::InputTag>("vetoes", {"pfTICL"}, true) or
+                   false >> edm::EmptyGroupDescription());
+
   // Vertices label
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("offlinePrimaryVertices"));
   desc.add<bool>("useVerticesForNeutral", true);
@@ -349,7 +366,7 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   // For PFMuonAlgo
   edm::ParameterSetDescription psd_PFMuonAlgo;
-  PFEGammaFilters::fillPSetDescription(psd_PFMuonAlgo);
+  PFMuonAlgo::fillPSetDescription(psd_PFMuonAlgo);
   desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd_PFMuonAlgo);
 
   // Input displaced vertices

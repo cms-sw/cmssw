@@ -28,11 +28,11 @@ patDiscriminationByIsolationMVArun2v1raw = cms.EDProducer("PATTauDiscriminationB
 )
 
 patDiscriminationByIsolationMVArun2v1 = patTauDiscriminantCutMultiplexer.clone(
-    PATTauProducer = cms.InputTag('replaceMeByTauCollectionToBeUsed'), # in MiniAOD: slimmedTaus
+    PATTauProducer = 'replaceMeByTauCollectionToBeUsed', # in MiniAOD: slimmedTaus
     Prediscriminants = noPrediscriminants,
-    toMultiplex = cms.InputTag('patDiscriminationByIsolationMVArun2v1raw'),
-    loadMVAfromDB = cms.bool(True),
-    mvaOutput_normalization = cms.string("replaceMeByNormalizationToBeUsedIfAny"), # e.g. RecoTauTag_tauIdMVADBoldDMwLTv1_mvaOutput_normalization
+    toMultiplex = 'patDiscriminationByIsolationMVArun2v1raw',
+    loadMVAfromDB = True,
+    mvaOutput_normalization = "replaceMeByNormalizationToBeUsedIfAny", # e.g. RecoTauTag_tauIdMVADBoldDMwLTv1_mvaOutput_normalization
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
@@ -40,13 +40,13 @@ patDiscriminationByIsolationMVArun2v1 = patTauDiscriminantCutMultiplexer.clone(
             variable = cms.string("pt"),
         )
     ),
-    workingPoints = cms.vstring(
+    workingPoints = [
         "Eff80",
         "Eff70",
         "Eff60",
         "Eff50",
         "Eff40"
-    )
+    ]
 )
 
 mvaIsolation2TaskRun2 = cms.Task(

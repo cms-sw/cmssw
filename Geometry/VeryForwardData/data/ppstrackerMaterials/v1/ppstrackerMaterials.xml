@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  
+
+<MaterialSection label="ppstrackerMaterials.xml">
+
+  <CompositeMaterial name="FPix_Thermflow" density="0.7625*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.3787448">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.21575329">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.3239468">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.08155498">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="FPix_TPG" density="2.47*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="1.00">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="FPix_CFSkin" density="3.43511*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="1.00">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="Pix_Fwd_Bump" density="0.41391*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.00">
+      <rMaterial name="ppstrackerMaterials:FPix_TinLeadSolder"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="Pix_Fwd_ROChip" density="2.15758*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1">
+      <rMaterial name="materials:Silicon"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="Pix_Fwd_HDI" density="1.90587*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.3718">
+      <rMaterial name="ppstrackerMaterials:FPix_Kapton"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.13869">
+      <rMaterial name="ppstrackerMaterials:FPix_Epoxy"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.42221">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.00315">
+      <rMaterial name="materials:Barium_Titanate"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.00240">
+      <rMaterial name="ppstrackerMaterials:FPix_Alumina"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.04968">
+      <rMaterial name="ppstrackerMaterials:FPix_TinLeadSolder"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.01206">
+      <rMaterial name="materials:Indium"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+ 
+
+  <CompositeMaterial name="FPix_TinLeadSolder" density="8.8*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.49377422">
+      <rMaterial name="materials:Tin"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.50622577">
+      <rMaterial name="materials:Lead"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+
+
+  <CompositeMaterial name="FPix_Alumina" density="3.96*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.52924272">
+      <rMaterial name="materials:Aluminium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.47075728">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="FPix_Epoxy" density="1.1*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.7367217">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0529922">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.21028601">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+ <CompositeMaterial name="FPix_Kapton" density="1.4*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.6911352">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.026363">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.20923002">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0732717">
+      <rMaterial name="materials:Nitrogen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+</MaterialSection>
+
+</DDDefinition>

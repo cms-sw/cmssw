@@ -20,11 +20,13 @@ BeamSpotHistogramMaker::~BeamSpotHistogramMaker() { delete _currdir; }
 
 void BeamSpotHistogramMaker::book(const std::string dirname) {
   edm::Service<TFileService> tfserv;
-  TFileDirectory* currdir = &(tfserv->tFileDirectory());
+  TFileDirectory* currdir;
 
   if (!dirname.empty()) {
     currdir = new TFileDirectory(tfserv->mkdir(dirname));
     _currdir = currdir;
+  } else {
+    currdir = &(tfserv->tFileDirectory());
   }
 
   edm::LogInfo("HistogramBooking") << "BeamSpot histogram booking in directory " << dirname;

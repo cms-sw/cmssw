@@ -9,6 +9,8 @@
 // Original Author:  Chris Jones
 //         Created:  Tue, 10 Dec 2013 21:16:00 GMT
 //
+#include <memory>
+
 #include <vector>
 #include <atomic>
 #include <chrono>
@@ -86,6 +88,12 @@ ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, e
         }
       }
     });
+    iReg.watchPreModuleDestruction([this](ModuleDescription const& iMod) {
+      auto found = std::find(m_excludedModuleIds.begin(), m_excludedModuleIds.end(), iMod.id());
+      if (found != m_excludedModuleIds.end()) {
+        m_excludedModuleIds.erase(found);
+      }
+    });
     iReg.watchPreModuleEvent([this](StreamContext const&, ModuleCallingContext const& iContext) {
       if (trackModule(iContext)) {
         start();
@@ -142,7 +150,7 @@ ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, e
 
   iReg.watchPreallocate([this](edm::service::SystemBounds const& iBounds) {
     m_nTimeSums = iBounds.maxNumberOfThreads() + 1 + m_padding;
-    m_timeSums.reset(new std::atomic<std::chrono::high_resolution_clock::rep>[m_nTimeSums]);
+    m_timeSums = std::make_unique<std::atomic<std::chrono::high_resolution_clock::rep>[]>(m_nTimeSums);
     for (unsigned int i = 0; i < m_nTimeSums; ++i) {
       m_timeSums[i] = 0;
     }

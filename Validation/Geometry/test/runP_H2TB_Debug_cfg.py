@@ -18,18 +18,20 @@ process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('MaterialBudget'),
-    debugModules = cms.untracked.vstring('*'),
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
+        MaterialBudget = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        MaterialBudget = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    )
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('DEBUG')
+    ),
+    debugModules = cms.untracked.vstring('*')
 )
 
 process.common_beam_direction_parameters = cms.PSet(

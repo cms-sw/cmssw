@@ -1,4 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveMatching.h"
+#include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
 
 #include "helper.h"  // to_hex, to_binary, merge_sort3
 
@@ -409,7 +410,7 @@ void PrimitiveMatching::process_single_zone_station(int zone,
           bool operator()(const value_type& lhs, const value_type& rhs) const {
             // If different types, prefer CSC over RPC; else prefer the closer hit in dPhi
             if (lhs.second->Subsystem() != rhs.second->Subsystem())
-              return (lhs.second->Subsystem() == TriggerPrimitive::kCSC);
+              return (lhs.second->Subsystem() == L1TMuon::kCSC);
             else
               return lhs.first <= rhs.first;
           }
@@ -436,7 +437,7 @@ void PrimitiveMatching::insert_hits(hit_ptr_t conv_hit_ptr,
   EMTFHitCollection::const_iterator conv_hits_it = conv_hits.begin();
   EMTFHitCollection::const_iterator conv_hits_end = conv_hits.end();
 
-  const bool is_csc_me11 = (conv_hit_ptr->Subsystem() == TriggerPrimitive::kCSC) && (conv_hit_ptr->Station() == 1) &&
+  const bool is_csc_me11 = (conv_hit_ptr->Subsystem() == L1TMuon::kCSC) && (conv_hit_ptr->Station() == 1) &&
                            (conv_hit_ptr->Ring() == 1 || conv_hit_ptr->Ring() == 4);
 
   // Find all possible duplicated hits, insert them

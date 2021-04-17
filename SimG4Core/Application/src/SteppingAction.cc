@@ -29,7 +29,9 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet& p, const
     killBeamPipe = true;
   }
   theCriticalDensity = (p.getParameter<double>("CriticalDensity") * CLHEP::g / CLHEP::cm3);
+  maxZCentralCMS = p.getParameter<double>("MaxZCentralCMS") * CLHEP::m;
   maxTrackTime = p.getParameter<double>("MaxTrackTime") * CLHEP::ns;
+  maxTrackTimeForward = p.getParameter<double>("MaxTrackTimeForward") * CLHEP::ns;
   maxTrackTimes = p.getParameter<std::vector<double> >("MaxTrackTimes");
   maxTimeNames = p.getParameter<std::vector<std::string> >("MaxTimeNames");
   deadRegionNames = p.getParameter<std::vector<std::string> >("DeadRegions");
@@ -39,9 +41,11 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet& p, const
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "SteppingAction:: KillBeamPipe = " << killBeamPipe
-      << " CriticalDensity = " << theCriticalDensity * CLHEP::cm3 / CLHEP::g << " g/cm3;"
-      << " CriticalEnergyForVacuum = " << theCriticalEnergyForVacuum / CLHEP::MeV << " Mev;"
-      << " MaxTrackTime = " << maxTrackTime / CLHEP::ns << " ns";
+      << " CriticalDensity = " << theCriticalDensity * CLHEP::cm3 / CLHEP::g << " g/cm3\n"
+      << "                 CriticalEnergyForVacuum = " << theCriticalEnergyForVacuum / CLHEP::MeV << " Mev;"
+      << " MaxTrackTime = " << maxTrackTime / CLHEP::ns << " ns;"
+      << " MaxZCentralCMS = " << maxZCentralCMS / CLHEP::m << " m"
+      << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns";
 
   numberTimes = maxTrackTimes.size();
   if (numberTimes > 0) {
@@ -93,28 +97,34 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   G4Track* theTrack = aStep->GetTrack();
   TrackStatus tstat = (theTrack->GetTrackStatus() == fAlive) ? sAlive : sKilledByProcess;
 
-  G4StepPoint* postStep = aStep->GetPostStepPoint();
+  const G4StepPoint* preStep = aStep->GetPreStepPoint();
+  const G4StepPoint* postStep = aStep->GetPostStepPoint();
 
+  // NaN energy deposit
+  if (sAlive == tstat && edm::isNotFinite(aStep->GetTotalEnergyDeposit())) {
+    tstat = sEnergyDepNaN;
+    if (nWarnings < 20) {
+      ++nWarnings;
+      edm::LogWarning("SimG4CoreApplication")
+          << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
+          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV
+          << " is killed due to edep=NaN inside PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
+          << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
+    }
+  }
+
+  // check Z-coordinate
+  if (sAlive == tstat && std::abs(theTrack->GetPosition().z()) >= maxZCentralCMS) {
+    tstat = (theTrack->GetGlobalTime() > maxTrackTimeForward) ? sOutOfTime : sVeryForward;
+  }
+
+  // check G4Region
   if (sAlive == tstat && postStep->GetPhysicalVolume() != nullptr) {
-    G4StepPoint* preStep = aStep->GetPreStepPoint();
     const G4Region* theRegion = preStep->GetPhysicalVolume()->GetLogicalVolume()->GetRegion();
 
     // kill in dead regions
     if (isInsideDeadRegion(theRegion)) {
       tstat = sDeadRegion;
-    }
-
-    // NaN energy deposit
-    if (sAlive == tstat && edm::isNotFinite(aStep->GetTotalEnergyDeposit())) {
-      tstat = sEnergyDepNaN;
-      if (nWarnings < 20) {
-        ++nWarnings;
-        edm::LogWarning("SimG4CoreApplication")
-            << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
-            << " E(MeV)= " << preStep->GetKineticEnergy() / MeV
-            << " is killed due to edep=NaN inside PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
-            << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
-      }
     }
 
     // kill out of time
@@ -136,7 +146,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     }
 
     // check transition tracker/calo
-    if (sAlive == tstat) {
+    if (sAlive == tstat || sVeryForward == tstat) {
       if (isThisVolume(preStep->GetTouchable(), tracker) && isThisVolume(postStep->GetTouchable(), calo)) {
         math::XYZVectorD pos((preStep->GetPosition()).x(), (preStep->GetPosition()).y(), (preStep->GetPosition()).z());
 
@@ -163,22 +173,19 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 }
 
 bool SteppingAction::isLowEnergy(const G4Step* aStep) const {
-  bool flag = false;
   const G4StepPoint* sp = aStep->GetPostStepPoint();
-  G4LogicalVolume* lv = sp->GetPhysicalVolume()->GetLogicalVolume();
-  for (unsigned int i = 0; i < numberEkins; ++i) {
-    if (lv == ekinVolumes[i]) {
-      flag = true;
-      break;
-    }
-  }
-  if (flag) {
-    double ekin = sp->GetKineticEnergy();
-    int pCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
-    for (unsigned int i = 0; i < numberPart; ++i) {
-      if (pCode == ekinPDG[i]) {
-        return (ekin <= ekinMins[i]) ? true : false;
+  const G4LogicalVolume* lv = sp->GetPhysicalVolume()->GetLogicalVolume();
+  double ekin = sp->GetKineticEnergy();
+  int pCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+
+  for (auto& vol : ekinVolumes) {
+    if (lv == vol) {
+      for (unsigned int i = 0; i < numberPart; ++i) {
+        if (pCode == ekinPDG[i]) {
+          return (ekin <= ekinMins[i]);
+        }
       }
+      break;
     }
   }
   return false;
@@ -285,6 +292,9 @@ void SteppingAction::PrintKilledTrack(const G4Track* aTrack, const TrackStatus& 
       break;
     case sEnergyDepNaN:
       typ = " energy deposition is NaN ";
+      break;
+    case sVeryForward:
+      typ = " very forward track ";
       break;
     default:
       break;

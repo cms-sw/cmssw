@@ -132,7 +132,7 @@ private:
 
   std::shared_ptr<GEMSimHitMatcher> muonSimHitMatcher_;
 
-  edm::ESHandle<GEMGeometry> gem_geom_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
   const GEMGeometry* gemGeometry_;
 
   template <class T>
@@ -153,6 +153,8 @@ private:
   bool verbosePad_;
   bool verboseCluster_;
   bool verboseCoPad_;
+
+  bool matchToSimLink_;
 
   std::map<unsigned int, GEMDigiSimLinkContainer> detid_to_simLinks_;
 

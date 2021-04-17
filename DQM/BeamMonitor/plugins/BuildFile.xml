@@ -21,6 +21,10 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="OnlineBeamMonitor.cc" name="OnlineBeamMonitor">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="BeamMonitorBx.cc" name="BeamMonitorBx">
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -43,5 +47,9 @@
 </library>
 
 <library file="BeamSpotProblemMonitor.cc" name="BeamSpotProblemMonitor">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="FakeBeamMonitor.cc" name="FakeBeamMonitor">
   <flags EDM_PLUGIN="1"/>
 </library>

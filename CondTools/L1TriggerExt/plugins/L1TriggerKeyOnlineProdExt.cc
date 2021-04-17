@@ -17,7 +17,7 @@ L1TriggerKeyOnlineProdExt::L1TriggerKeyOnlineProdExt(const edm::ParameterSet& iC
     //now do what ever other initialization is needed
   }
 
-  cc.setConsumes(L1TriggerKeyExt_token, edm::ESInputTag{"", "SubsystemKeysOnly"});
+  L1TriggerKeyExt_token = cc.consumes(edm::ESInputTag{"", "SubsystemKeysOnly"});
 }
 
 L1TriggerKeyOnlineProdExt::~L1TriggerKeyOnlineProdExt() {

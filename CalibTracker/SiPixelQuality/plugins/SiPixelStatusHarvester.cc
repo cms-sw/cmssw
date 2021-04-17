@@ -98,9 +98,6 @@ SiPixelStatusHarvester::~SiPixelStatusHarvester() {}
 void SiPixelStatusHarvester::beginJob() {}
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::endJob() {}
-
-//--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::bookHistograms(DQMStore::IBooker& iBooker,
                                             edm::Run const&,
                                             edm::EventSetup const& iSetup) {

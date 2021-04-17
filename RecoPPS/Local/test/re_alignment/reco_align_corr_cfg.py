@@ -5,11 +5,13 @@ process = cms.Process('ReAlignment', eras.Run2_2018)
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
-  statistics = cms.untracked.vstring(),
-  destinations = cms.untracked.vstring("cout"),
-  cout = cms.untracked.PSet(
-    threshold = cms.untracked.string("WARNING")
-  )
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING')
+    )
 )
 
 # raw data source

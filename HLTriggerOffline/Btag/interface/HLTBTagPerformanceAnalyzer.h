@@ -27,7 +27,7 @@
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 // for gen matching
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "DataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include <Math/GenVector/VectorUtil.h>
 
 #include "FWCore/Utilities/interface/transform.h"

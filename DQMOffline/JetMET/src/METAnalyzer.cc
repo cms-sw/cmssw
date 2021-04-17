@@ -1401,10 +1401,11 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime) {
       // Integral plot & convert number of events to rate (hz)
       tMETRate = (TH1F*)tMET->Clone("METRateHist");
       for (int i = tMETRate->GetNbinsX() - 1; i >= 0; i--) {
-        mMETRate->setBinContent(i + 1, tMETRate->GetBinContent(i + 2) + tMET->GetBinContent(i + 1));
+        tMETRate->SetBinContent(i + 1, tMETRate->GetBinContent(i + 2) + tMET->GetBinContent(i + 1));
       }
       for (int i = 0; i < tMETRate->GetNbinsX(); i++) {
-        mMETRate->setBinContent(i + 1, tMETRate->GetBinContent(i + 1) / double(totltime));
+        tMETRate->SetBinContent(i + 1, tMETRate->GetBinContent(i + 1) / double(totltime));
+        mMETRate->setBinContent(i + 1, tMETRate->GetBinContent(i + 1));
       }
     }
   }

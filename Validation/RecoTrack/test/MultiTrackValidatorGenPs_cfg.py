@@ -4,7 +4,7 @@ process = cms.Process("MULTITRACKVALIDATORGENPS")
 
 # message logger
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.categories.extend(["TwoTrackMinimumDistanceLineLine"])
+
 process.MessageLogger.TwoTrackMinimumDistanceLineLine = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(1),
     limit = cms.untracked.int32( 10 )

@@ -12,15 +12,18 @@
 \date January 2007
 
  PFElecTkProducer reads the merged GsfTracks collection
- built with the TrackerDriven and EcalDriven seeds 
+ built with the TrackerDriven and EcalDriven seeds
  and transform them in PFGsfRecTracks.
 */
 
 #include <memory>
 
+#include "CommonTools/Utils/interface/KinematicTables.h"
+#include "CommonTools/Utils/interface/LazyConstructed.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
@@ -50,7 +53,11 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-#include "TMath.h"
+namespace {
+
+  constexpr float square(float x) { return x * x; };
+
+}  // namespace
 
 class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<convbremhelpers::HeavyObjectCache> > {
 public:
@@ -70,7 +77,9 @@ private:
   ///Produce the PFRecTrack collection
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  int FindPfRef(const reco::PFRecTrackCollection& PfRTkColl, const reco::GsfTrack&, bool);
+  int findPfRef(const reco::PFRecTrackCollection& pfRTkColl,
+                const reco::GsfTrack&,
+                edm::soa::EtaPhiTableView trackEtaPhiTable);
 
   bool applySelection(const reco::GsfTrack&);
 
@@ -123,6 +132,10 @@ private:
   double detaCutGsfClean_;
   double dphiCutGsfClean_;
 
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkerGeomToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
+
   ///PFTrackTransformer
   std::unique_ptr<PFTrackTransformer> pfTransformer_;
   MultiTrajectoryStateTransform mtsTransform_;
@@ -163,7 +176,10 @@ using namespace edm;
 using namespace reco;
 
 PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig, const convbremhelpers::HeavyObjectCache*)
-    : conf_(iConfig) {
+    : conf_(iConfig),
+      magFieldToken_(esConsumes<edm::Transition::BeginRun>()),
+      tkerGeomToken_(esConsumes<edm::Transition::BeginRun>()),
+      transientTrackToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "TransientTrackBuilder"))) {
   gsfTrackLabel_ = consumes<reco::GsfTrackCollection>(iConfig.getParameter<InputTag>("GsfTrackModuleLabel"));
 
   pfTrackLabel_ = consumes<reco::PFRecTrackCollection>(iConfig.getParameter<InputTag>("PFRecTrackLabel"));
@@ -230,7 +246,10 @@ void PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //read pfrectrack collection
   Handle<PFRecTrackCollection> thePfRecTrackCollection;
   iEvent.getByToken(pfTrackLabel_, thePfRecTrackCollection);
-  const PFRecTrackCollection& PfRTkColl = *(thePfRecTrackCollection.product());
+
+  // SoA structure for frequently used track information.
+  // LazyConstructed so it is only filled when needed, i.e., when there is an electron in the event.
+  auto trackEtaPhiTable = makeLazy<edm::soa::EtaPhiTable>(*thePfRecTrackCollection);
 
   // PFClusters
   Handle<PFClusterCollection> theECPfClustCollection;
@@ -282,7 +301,7 @@ void PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   for (unsigned int igsf = 0; igsf < gsftracks.size(); igsf++) {
     GsfTrackRef trackRef(gsftrackscoll, igsf);
 
-    int kf_ind = FindPfRef(PfRTkColl, gsftracks[igsf], false);
+    int kf_ind = findPfRef(*thePfRecTrackCollection, gsftracks[igsf], trackEtaPhiTable.value());
 
     if (kf_ind >= 0) {
       PFRecTrackRef kf_ref(thePfRecTrackCollection, kf_ind);
@@ -458,70 +477,66 @@ void PFElecTkProducer::createGsfPFRecTrackRef(
   return;
 }
 // ------------- method for find the corresponding kf pfrectrack ---------------------
-int PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection& PfRTkColl,
+int PFElecTkProducer::findPfRef(const reco::PFRecTrackCollection& pfRTkColl,
                                 const reco::GsfTrack& gsftk,
-                                bool otherColl) {
-  if (gsftk.seedRef().get() == nullptr)
+                                edm::soa::EtaPhiTableView trackEtaPhiTable) {
+  if (gsftk.seedRef().get() == nullptr) {
     return -1;
-  auto const& ElSeedFromRef = static_cast<ElectronSeed const&>(*(gsftk.extra()->seedRef()));
+  }
+
+  // maximum delta_r2 for matching
+  constexpr float maxDR2 = square(0.05f);
+
+  // precompute expensive trigonometry
+  float gsftkEta = gsftk.eta();
+  float gsftkPhi = gsftk.phi();
+  auto const& gsftkHits = gsftk.seedRef()->recHits();
+
+  auto const& electronSeedFromRef = static_cast<ElectronSeed const&>(*(gsftk.extra()->seedRef()));
   //CASE 1 ELECTRONSEED DOES NOT HAVE A REF TO THE CKFTRACK
-  if (ElSeedFromRef.ctfTrack().isNull()) {
-    reco::PFRecTrackCollection::const_iterator pft = PfRTkColl.begin();
-    reco::PFRecTrackCollection::const_iterator pftend = PfRTkColl.end();
+  if (electronSeedFromRef.ctfTrack().isNull()) {
     unsigned int i_pf = 0;
     int ibest = -1;
     unsigned int ish_max = 0;
-    float dr_min = 1000;
+    float dr2_min = square(1000.f);
+
     //SEARCH THE PFRECTRACK THAT SHARES HITS WITH THE ELECTRON SEED
-    // Here the cpu time can be improved.
-    for (; pft != pftend; ++pft) {
+    // Here the cpu time has been be improved.
+    for (auto const& pft : trackEtaPhiTable) {
       unsigned int ish = 0;
 
-      float dph = fabs(pft->trackRef()->phi() - gsftk.phi());
-      if (dph > TMath::Pi())
-        dph -= TMath::TwoPi();
-      float det = fabs(pft->trackRef()->eta() - gsftk.eta());
-      float dr = sqrt(dph * dph + det * det);
+      using namespace edm::soa::col;
+      const float dr2 = reco::deltaR2(pft.get<Eta>(), pft.get<Phi>(), gsftkEta, gsftkPhi);
 
-      for (auto const& hhit : pft->trackRef()->recHits()) {
-        if (!hhit->isValid())
-          continue;
-        for (auto const& hit : gsftk.seedRef()->recHits()) {
-          if (!(hit.isValid()))
+      if (dr2 <= maxDR2) {
+        for (auto const& hhit : pfRTkColl[i_pf].trackRef()->recHits()) {
+          if (!hhit->isValid())
             continue;
-          if (hhit->sharesInput(&hit, TrackingRecHit::all))
-            ish++;
-          // if((hit->geographicalId()==hhit->geographicalId())&&
-          //     ((hhit->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
+          for (auto const& hit : gsftkHits) {
+            if (hit.isValid() && hhit->sharesInput(&hit, TrackingRecHit::all))
+              ish++;
+          }
         }
-      }
 
-      if ((ish > ish_max) || ((ish == ish_max) && (dr < dr_min))) {
-        ish_max = ish;
-        dr_min = dr;
-        ibest = i_pf;
+        if ((ish > ish_max) || ((ish == ish_max) && (dr2 < dr2_min))) {
+          ish_max = ish;
+          dr2_min = dr2;
+          ibest = i_pf;
+        }
       }
 
       i_pf++;
     }
-    if (ibest < 0)
-      return -1;
 
-    if ((ish_max == 0) || (dr_min > 0.05))
-      return -1;
-    if (otherColl && (ish_max == 0))
-      return -1;
-    return ibest;
+    return ((ish_max == 0) || (dr2_min > maxDR2)) ? -1 : ibest;
   } else {
     //ELECTRON SEED HAS A REFERENCE
 
-    reco::PFRecTrackCollection::const_iterator pft = PfRTkColl.begin();
-    reco::PFRecTrackCollection::const_iterator pftend = PfRTkColl.end();
     unsigned int i_pf = 0;
 
-    for (; pft != pftend; ++pft) {
+    for (auto const& pft : pfRTkColl) {
       //REF COMPARISON
-      if (pft->trackRef() == ElSeedFromRef.ctfTrack()) {
+      if (pft.trackRef() == electronSeedFromRef.ctfTrack()) {
         return i_pf;
       }
       i_pf++;
@@ -609,13 +624,13 @@ bool PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>& GsfPF
           cout << " Entering angular superloose preselection " << endl;
 
         /* //now taken from cache below
-	TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface((*iGsfTrack));
-	GlobalVector i_innMom;
-	float iPin = iGsfTrack->pMode();
-	if(i_inTSOS.isValid()){
-	  multiTrajectoryStateMode::momentumFromModeCartesian(i_inTSOS,i_innMom);  
-	  iPin = i_innMom.mag();
-	}
+        TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface((*iGsfTrack));
+        GlobalVector i_innMom;
+        float iPin = iGsfTrack->pMode();
+        if(i_inTSOS.isValid()){
+          multiTrajectoryStateMode::momentumFromModeCartesian(i_inTSOS,i_innMom);
+          iPin = i_innMom.mag();
+        }
         */
         float iPin = gsfInnerMomentumCache_[iGsfTrack.key()];
 
@@ -760,9 +775,8 @@ bool PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>& GsfPF
             if (debugCleaning)
               cout << " Close Tracks "
                    << " feta " << feta << " fabs(fphi) " << fabs(fphi) << " minBremDphi " << minBremDphi << " nETot "
-                   << nETot << " iETot " << iETot << " nLostHits "
-                   << nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) << " iLostHits "
-                   << iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) << endl;
+                   << nETot << " iETot " << iETot << " nLostHits " << nGsfTrack->missingInnerHits() << " iLostHits "
+                   << iGsfTrack->missingInnerHits() << endl;
 
             // apply selection only if one track has lost hits
             if (applyAngularGsfClean_) {
@@ -780,9 +794,8 @@ bool PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>& GsfPF
             if (debugCleaning)
               cout << " Close Tracks and failed all the conditions "
                    << " feta " << feta << " fabs(fphi) " << fabs(fphi) << " minBremDphi " << minBremDphi << " nETot "
-                   << nETot << " iETot " << iETot << " nLostHits "
-                   << nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) << " iLostHits "
-                   << iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) << endl;
+                   << nETot << " iETot " << iETot << " nLostHits " << nGsfTrack->missingInnerHits() << " iLostHits "
+                   << iGsfTrack->missingInnerHits() << endl;
 
             if (nEcalDriven == false && nETot == 0.) {
               n_keepGsf = false;
@@ -1085,8 +1098,8 @@ bool PFElecTkProducer::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrac
                                                const reco::GsfTrackRef& iGsfTrack,
                                                bool& sameLayer) {
   // define closest using the lost hits on the expectedhitsineer
-  unsigned int nLostHits = nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
-  unsigned int iLostHits = iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  unsigned int nLostHits = nGsfTrack->missingInnerHits();
+  unsigned int iLostHits = iGsfTrack->missingInnerHits();
 
   if (nLostHits != iLostHits) {
     return (nLostHits > iLostHits);
@@ -1098,19 +1111,14 @@ bool PFElecTkProducer::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrac
 
 // ------------ method called once each job just before starting event loop  ------------
 void PFElecTkProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
-  ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  auto const& magneticField = &iSetup.getData(magFieldToken_);
+  auto const& tracker = &iSetup.getData(tkerGeomToken_);
 
-  ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-
-  mtsTransform_ = MultiTrajectoryStateTransform(tracker.product(), magneticField.product());
+  mtsTransform_ = MultiTrajectoryStateTransform(tracker, magneticField);
 
   pfTransformer_ = std::make_unique<PFTrackTransformer>(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
 
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-  TransientTrackBuilder thebuilder = *(builder.product());
+  TransientTrackBuilder thebuilder = iSetup.getData(transientTrackToken_);
 
   convBremFinder_ = std::make_unique<ConvBremPFTrackFinder>(thebuilder,
                                                             mvaConvBremFinderIDBarrelLowPt_,

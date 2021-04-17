@@ -155,7 +155,7 @@ void HLTHcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
 template <typename T1>
 void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid,
                                                     edm::Event& iEvent,
-                                                    const edm::EventSetup& iSetup) const {
+                                                    const edm::EventSetup&) const {
   edm::Handle<double> rhoHandle;
   double rho = 0.0;
   if (doRhoCorrection_) {

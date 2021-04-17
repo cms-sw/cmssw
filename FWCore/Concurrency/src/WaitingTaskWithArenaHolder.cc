@@ -18,10 +18,15 @@ namespace edm {
   // Note that the arena will be the one containing the thread
   // that runs this constructor. This is the arena where you
   // eventually intend for the task to be spawned.
-  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTask* iTask)
-      : m_task(iTask), m_arena(std::make_shared<tbb::task_arena>(tbb::task_arena::attach())) {
+  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(tbb::task_group& iGroup, WaitingTask* iTask)
+      : m_task(iTask), m_group(&iGroup), m_arena(std::make_shared<tbb::task_arena>(tbb::task_arena::attach())) {
     m_task->increment_ref_count();
   }
+
+  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskHolder&& iTask)
+      : m_task(iTask.release_no_decrement()),
+        m_group(iTask.group()),
+        m_arena(std::make_shared<tbb::task_arena>(tbb::task_arena::attach())) {}
 
   WaitingTaskWithArenaHolder::~WaitingTaskWithArenaHolder() {
     if (m_task) {
@@ -30,20 +35,21 @@ namespace edm {
   }
 
   WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder const& iHolder)
-      : m_task(iHolder.m_task), m_arena(iHolder.m_arena) {
+      : m_task(iHolder.m_task), m_group(iHolder.m_group), m_arena(iHolder.m_arena) {
     if (LIKELY(m_task != nullptr)) {
       m_task->increment_ref_count();
     }
   }
 
   WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder&& iOther)
-      : m_task(iOther.m_task), m_arena(std::move(iOther.m_arena)) {
+      : m_task(iOther.m_task), m_group(iOther.m_group), m_arena(std::move(iOther.m_arena)) {
     iOther.m_task = nullptr;
   }
 
   WaitingTaskWithArenaHolder& WaitingTaskWithArenaHolder::operator=(const WaitingTaskWithArenaHolder& iRHS) {
     WaitingTaskWithArenaHolder tmp(iRHS);
     std::swap(m_task, tmp.m_task);
+    std::swap(m_group, tmp.m_group);
     std::swap(m_arena, tmp.m_arena);
     return *this;
   }
@@ -51,6 +57,7 @@ namespace edm {
   WaitingTaskWithArenaHolder& WaitingTaskWithArenaHolder::operator=(WaitingTaskWithArenaHolder&& iRHS) {
     WaitingTaskWithArenaHolder tmp(std::move(iRHS));
     std::swap(m_task, tmp.m_task);
+    std::swap(m_group, tmp.m_group);
     std::swap(m_arena, tmp.m_arena);
     return *this;
   }
@@ -72,7 +79,12 @@ namespace edm {
     if (0 == task->decrement_ref_count()) {
       // The enqueue call will cause a worker thread to be created in
       // the arena if there is not one already.
-      m_arena->enqueue([task = task]() { tbb::task::spawn(*task); });
+      m_arena->enqueue([task = task, group = m_group]() {
+        group->run([task]() {
+          TaskSentry s(task);
+          task->execute();
+        });
+      });
     }
   }
 
@@ -89,9 +101,14 @@ namespace edm {
   // the problem quickly).
 
   WaitingTaskHolder WaitingTaskWithArenaHolder::makeWaitingTaskHolderAndRelease() {
-    WaitingTaskHolder holder(m_task);
+    WaitingTaskHolder holder(*m_group, m_task);
     m_task->decrement_ref_count();
     m_task = nullptr;
     return holder;
   }
+
+  bool WaitingTaskWithArenaHolder::taskHasFailed() const noexcept { return m_task->exceptionPtr() != nullptr; }
+
+  bool WaitingTaskWithArenaHolder::hasTask() const noexcept { return m_task != nullptr; }
+
 }  // namespace edm

@@ -24,13 +24,13 @@ public:
 
 private:
   const std::string rootDDName_;  // this must be the form namespace:name
-  edm::ESGetToken<FileBlob, GeometryFileRcd> blobToken_;
+  const edm::ESGetToken<FileBlob, GeometryFileRcd> blobToken_;
 };
 
 XMLIdealGeometryESProducer::XMLIdealGeometryESProducer(const edm::ParameterSet& iConfig)
-    : rootDDName_(iConfig.getParameter<std::string>("rootDDName")) {
+    : rootDDName_(iConfig.getParameter<std::string>("rootDDName")),
+      blobToken_(setWhatProduced(this).consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("label")))) {
   usesResources({{edm::ESSharedResourceNames::kDDGeometry}});
-  setWhatProduced(this).setConsumes(blobToken_, edm::ESInputTag("", iConfig.getParameter<std::string>("label")));
 }
 
 XMLIdealGeometryESProducer::ReturnType XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {

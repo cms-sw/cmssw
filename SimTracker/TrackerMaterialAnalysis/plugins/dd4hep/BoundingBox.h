@@ -13,14 +13,16 @@ private:
 public:
   BoundingBox() : r_min(0.), r_max(0.), z_min(0.), z_max(0.) {}
 
-  BoundingBox(double min_r, double max_r, double min_z, double max_z)
+  BoundingBox(const double& min_r, const double& max_r, const double& min_z, const double& max_z)
       : r_min(min_r), r_max(max_r), z_min(min_z), z_max(max_z) {}
 
-  void grow(double r, double z);
+  void grow(const double& r, const double& z);
 
-  void grow(double skin);
+  void grow(const double& skin);
 
-  bool inside(double r, double z) const;
+  inline bool inside(const double& r, const double& z) const {
+    return (r >= r_min and r <= r_max and z >= z_min and z <= z_max);
+  };
 
   std::pair<double, double> range_r() const { return std::make_pair(r_min, r_max); }
 

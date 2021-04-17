@@ -64,6 +64,9 @@ namespace edm {
   class ParameterSetDescriptionFillerBase {
   public:
     ParameterSetDescriptionFillerBase() {}
+    ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&) = delete;  // stop default
+    const ParameterSetDescriptionFillerBase& operator=(const ParameterSetDescriptionFillerBase&) =
+        delete;  // stop default
     virtual ~ParameterSetDescriptionFillerBase();
 
     // ---------- const member functions ---------------------
@@ -80,6 +83,7 @@ namespace edm {
     static const std::string kBaseForService;
     static const std::string kBaseForESSource;
     static const std::string kBaseForESProducer;
+    static const std::string kBaseForEDLooper;
     static const std::string kExtendedBaseForEDAnalyzer;
     static const std::string kExtendedBaseForEDProducer;
     static const std::string kExtendedBaseForEDFilter;
@@ -136,11 +140,6 @@ namespace edm {
     static const std::string& extendedBaseType(void const*) { return kEmpty; }
 
   private:
-    ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&) = delete;  // stop default
-
-    const ParameterSetDescriptionFillerBase& operator=(const ParameterSetDescriptionFillerBase&) =
-        delete;  // stop default
-
     // ---------- member data --------------------------------
   };
 

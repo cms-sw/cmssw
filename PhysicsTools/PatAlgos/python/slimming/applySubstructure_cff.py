@@ -24,7 +24,6 @@ def applySubstructure( process, postfix="" ) :
     from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
     _run2_miniAOD_ANY = (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | run2_miniAOD_UL)
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     if postfix=='':
       # Avoid recomputing the PUPPI collections that are present in AOD
       _rerun_puppijets_task = task.copy()
@@ -32,7 +31,7 @@ def applySubstructure( process, postfix="" ) :
                                 getattr(process,'ak8PFJetsPuppiConstituents'),
                                 getattr(process,'ak8PFJetsPuppiSoftDrop'),
                                 getattr(process,'ak8PFJetsPuppiSoftDropMass'))
-      (_run2_miniAOD_ANY | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
+      (_run2_miniAOD_ANY | pA_2016 ).toReplaceWith(task, _rerun_puppijets_task)
     else:
       task.add(getattr(process,'ak8PFJetsPuppi'+postfix),
                getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
@@ -88,10 +87,10 @@ def applySubstructure( process, postfix="" ) :
     addToProcessAndTask('nb2AK8PuppiSoftDrop'+postfix, process.ecfNbeta2.clone(src = cms.InputTag("ak8PFJetsPuppiSoftDrop"+postfix), cuts = cms.vstring('', '', 'pt > 250')), process, task)
 
     #too slow now ==> disable
-    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-    for e in [pp_on_XeXe_2017, pp_on_AA_2018, phase2_common]:
+
+    for e in [pp_on_XeXe_2017, phase2_common]:
         e.toModify(getattr(process,'nb1AK8PuppiSoftDrop'+postfix), cuts = ['pt > 999999', 'pt > 999999', 'pt > 999999'] )
         e.toModify(getattr(process,'nb2AK8PuppiSoftDrop'+postfix), cuts = ['pt > 999999', 'pt > 999999', 'pt > 999999'] )
 
@@ -106,30 +105,9 @@ def applySubstructure( process, postfix="" ) :
     getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN2','nb2AK8PuppiSoftDropSubjets'+postfix+':ecfN3']
     getattr(process,"patJetsAK8PFPuppiSoftDropSubjets"+postfix).userData.userFloats.src += ['NjettinessAK8Subjets'+postfix+':tau1','NjettinessAK8Subjets'+postfix+':tau2','NjettinessAK8Subjets'+postfix+':tau3','NjettinessAK8Subjets'+postfix+':tau4']
 
-    for e in [pp_on_XeXe_2017, pp_on_AA_2018, phase2_common]:
+    for e in [pp_on_XeXe_2017, phase2_common]:
         e.toModify(getattr(process,'nb1AK8PuppiSoftDropSubjets'+postfix), cuts = ['pt > 999999', 'pt > 999999', 'pt > 999999'] )
         e.toModify(getattr(process,'nb2AK8PuppiSoftDropSubjets'+postfix), cuts = ['pt > 999999', 'pt > 999999', 'pt > 999999'] )
-
-    # rekey the groomed ECF value maps to the ungroomed reco jets, which will then be picked
-    # up by PAT in the user floats. 
-    addToProcessAndTask("ak8PFJetsPuppiSoftDropValueMap"+postfix, 
-                        cms.EDProducer("RecoJetToPatJetDeltaRValueMapProducer",
-                                       src = cms.InputTag("ak8PFJetsPuppi"+postfix),
-                                       matched = cms.InputTag("patJetsAK8PFPuppiSoftDrop"+postfix),
-                                       distMax = cms.double(0.8),
-                                       values = cms.vstring([
-                    'userFloat("nb1AK8PuppiSoftDrop'+postfix+':ecfN2")',
-                    'userFloat("nb1AK8PuppiSoftDrop'+postfix+':ecfN3")',
-                    'userFloat("nb2AK8PuppiSoftDrop'+postfix+':ecfN2")',
-                    'userFloat("nb2AK8PuppiSoftDrop'+postfix+':ecfN3")',
-                    ]),
-                                       valueLabels = cms.vstring( [
-                    'nb1AK8PuppiSoftDropN2',
-                    'nb1AK8PuppiSoftDropN3',
-                    'nb2AK8PuppiSoftDropN2',
-                    'nb2AK8PuppiSoftDropN3',
-                    ]) ),
-                    process, task)
 
         
     # Patify AK8 PF PUPPI
@@ -167,12 +145,6 @@ def applySubstructure( process, postfix="" ) :
     ## now add AK8 groomed masses and ECF
     getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src += ['ak8PFJetsPuppiSoftDropMass'+postfix]
     getattr(process,"patJetsAK8Puppi"+postfix).addTagInfos = cms.bool(False)
-    getattr(process,"patJetsAK8Puppi"+postfix).userData.userFloats.src += [
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb1AK8PuppiSoftDropN2'),
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb1AK8PuppiSoftDropN3'),
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb2AK8PuppiSoftDropN2'),
-        cms.InputTag('ak8PFJetsPuppiSoftDropValueMap'+postfix,'nb2AK8PuppiSoftDropN3'),
-        ]
 
 
     # add PUPPI Njetiness    

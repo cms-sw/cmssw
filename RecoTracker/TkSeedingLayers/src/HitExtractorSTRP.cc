@@ -39,6 +39,7 @@ HitExtractorSTRP::HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet,
       hasMatchedHits(false),
       hasRPhiHits(false),
       hasStereoHits(false),
+      hasVectorHits(false),
       hasRingSelector(false),
       hasSimpleRphiHitsCleaner(true) {
   minGoodCharge = iminGoodCharge;
@@ -48,6 +49,7 @@ HitExtractorSTRP::HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet,
 
 void HitExtractorSTRP::useSkipClusters_(const edm::InputTag& m, edm::ConsumesCollector& iC) {
   theSkipClusters = iC.consumes<SkipClustersCollection>(m);
+  theSkipPhase2Clusters = iC.consumes<SkipPhase2ClustersCollection>(m);
 }
 
 void HitExtractorSTRP::useRingSelector(int minRing, int maxRing) {
@@ -69,8 +71,8 @@ bool HitExtractorSTRP::skipThis(
   if (maskCluster && (stripClusterMask->mask(clus.key())))
     return true;
 
-  if
-    UNLIKELY(minGoodCharge <= 0) return false;
+  if UNLIKELY (minGoodCharge <= 0)
+    return false;
   return siStripClusterTools::chargePerCM(id, *clus.cluster_strip()) <= minGoodCharge;
 }
 
@@ -116,49 +118,74 @@ void HitExtractorSTRP::cleanedOfClusters(const TkTransientTrackingRecHitBuilder&
                                          HitExtractor::Hits& hits,
                                          bool matched,
                                          unsigned int cleanFrom) const {
-  LogDebug("HitExtractorPIX") << "getting: " << hits.size() << " in input.";
-  edm::Handle<SkipClustersCollection> stripClusterMask;
-  if (maskCluster)
-    ev.getByToken(theSkipClusters, stripClusterMask);
   unsigned int skipped = 0;
   unsigned int projected = 0;
-  for (unsigned int iH = cleanFrom; iH < hits.size(); ++iH) {
-    assert(hits[iH]->isValid());
-    auto id = hits[iH]->geographicalId();
-    if (matched) {
-      bool replace;
-      ProjectedSiStripRecHit2D* replaceMe;
-      std::tie(replace, replaceMe) = skipThis(ttrhBuilder, *hits[iH], stripClusterMask);
-      if (replace) {
-        if (!replaceMe) {
-          LogDebug("HitExtractorSTRP") << "skipping a matched hit on :" << hits[iH]->geographicalId().rawId();
-          skipped++;
-        } else
-          projected++;
-        hits[iH].reset(replaceMe);
-        if (replaceMe == nullptr)
-          assert(hits[iH].empty());
-        else
-          assert(hits[iH].isOwn());
+  if (hasMatchedHits || hasRPhiHits || hasStereoHits) {
+    LogTrace("HitExtractorSTRP") << "getting " << hits.size() << " strip hit in input.";
+    edm::Handle<SkipClustersCollection> stripClusterMask;
+    if (maskCluster)
+      ev.getByToken(theSkipClusters, stripClusterMask);
+    for (unsigned int iH = cleanFrom; iH < hits.size(); ++iH) {
+      assert(hits[iH]->isValid());
+      auto id = hits[iH]->geographicalId();
+      if (matched) {
+        auto [replace, replaceMe] = skipThis(ttrhBuilder, *hits[iH], stripClusterMask);
+        if (replace) {
+          if (!replaceMe) {
+            LogTrace("HitExtractorSTRP") << "skipping a matched hit on :" << hits[iH]->geographicalId().rawId();
+            skipped++;
+          } else {
+            projected++;
+          }
+          hits[iH].reset(replaceMe);
+          if (replaceMe == nullptr)
+            assert(hits[iH].empty());
+          else
+            assert(hits[iH].isOwn());
+        }
+      } else if (skipThis(id, hits[iH]->firstClusterRef(), stripClusterMask)) {
+        LogTrace("HitExtractorSTRP") << "skipping a hit on :" << hits[iH]->geographicalId().rawId() << " key: ";
+        skipped++;
+        hits[iH].reset();
       }
-    } else if (skipThis(id, hits[iH]->firstClusterRef(), stripClusterMask)) {
-      LogDebug("HitExtractorSTRP") << "skipping a hit on :" << hits[iH]->geographicalId().rawId() << " key: ";
-      skipped++;
-      hits[iH].reset();
     }
   }
+  if (hasVectorHits) {
+    LogTrace("HitExtractorSTRP") << "getting " << hits.size() << " vector hit in input.";
+    edm::Handle<SkipPhase2ClustersCollection> ph2ClusterMask;
+    if (maskCluster)
+      ev.getByToken(theSkipPhase2Clusters, ph2ClusterMask);
+    for (unsigned int iH = cleanFrom; iH < hits.size(); ++iH) {
+      LogTrace("HitExtractorSTRP") << "analizing hit on :" << hits[iH]->geographicalId().rawId();
+      assert(hits[iH]->isValid());
+      const VectorHit& vhit = dynamic_cast<VectorHit const&>(*hits[iH]);
+      LogTrace("HitExtractorSTRP") << " key lower: " << vhit.lowerClusterRef().key()
+                                   << " and key upper: " << vhit.upperClusterRef().key();
+      LogTrace("HitExtractorSTRP") << " key lower: " << hits[iH]->firstClusterRef().key();
+
+      //FIXME:: introduce a "projected" version later?
+      if (maskCluster &&
+          (ph2ClusterMask->mask(vhit.lowerClusterRef().key()) || ph2ClusterMask->mask(vhit.upperClusterRef().key()))) {
+        LogTrace("HitExtractorSTRP") << "skipping a vector hit on :" << hits[iH]->geographicalId().rawId()
+                                     << " key lower: " << vhit.lowerClusterRef().key()
+                                     << " and key upper: " << vhit.upperClusterRef().key();
+        skipped++;
+        hits[iH].reset();
+      }
+    }
+  }
+
   //  remove empty elements...
   auto last = std::remove_if(hits.begin() + cleanFrom, hits.end(), [](HitPointer const& p) { return p.empty(); });
   hits.resize(last - hits.begin());
 
-  // std::cout << "HitExtractorSTRP " <<"skipped :"<<skipped<<" strip rechits because of clusters and projected: "<<projected << std::endl;
-  LogDebug("HitExtractorSTRP") << "skipped :" << skipped
-                               << " strip rechits because of clusters and projected: " << projected;
+  LogTrace("HitExtractorSTRP") << "skipped :" << skipped << " rechits because of clusters and projected: " << projected;
 }
 
 HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
                                           const edm::Event& ev,
                                           const edm::EventSetup& es) const {
+  LogDebug("HitExtractorSTRP") << "HitExtractorSTRP::hits";
   HitExtractor::Hits result;
   unsigned int cleanFrom = 0;
 
@@ -171,6 +198,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
   // TIB
   //
   if (theLayerSubDet == GeomDetEnumerators::TIB) {
+    LogTrace("HitExtractorSTRP") << "Getting hits into the TIB";
     if (hasMatchedHits) {
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByToken(theMatchedHits, matchedHits);
@@ -208,12 +236,24 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
       if (skipClusters)
         cleanedOfClusters(ttrhBuilder, ev, result, false, cleanFrom);
     }
+    if (hasVectorHits) {
+      LogError("HitExtractorSTRP") << "TIB is not supposed to be in Phase2 TRK detector configuration. What follows "
+                                      "have never been checked before! ";
+      auto const& vectorHits = ev.get(theVectorHits);
+      if (skipClusters)
+        cleanFrom = result.size();
+      range2SeedingHits(vectorHits, result, tTopo->tibDetIdLayerComparator(theIdLayer));
+      if (skipClusters)
+        cleanedOfClusters(ttrhBuilder, ev, result, false, cleanFrom);
+    }
+
   }
 
   //
   // TID
   //
   else if (theLayerSubDet == GeomDetEnumerators::TID) {
+    LogTrace("HitExtractorSTRP") << "Getting hits into the TID";
     if (hasMatchedHits) {
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByToken(theMatchedHits, matchedHits);
@@ -271,11 +311,32 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
       if (skipClusters)
         cleanedOfClusters(ttrhBuilder, ev, result, false, cleanFrom);
     }
+    if (hasVectorHits) {
+      LogTrace("HitExtractorSTRP") << "Getting vector hits for IdLayer " << theIdLayer;
+      auto const& vectorHits = ev.get(theVectorHits);
+      //FIXME: check the skipClusters with VHits
+      if (skipClusters)
+        cleanFrom = result.size();
+      auto getter = tTopo->tidDetIdWheelComparator(static_cast<unsigned int>(theSide), theIdLayer);
+      VectorHitCollection::Range range = vectorHits.equal_range(getter.first, getter.second);
+      for (VectorHitCollection::const_iterator it = range.first; it != range.second; ++it) {
+        int ring = tTopo->tidRing(it->detId());
+        if (!ringRange(ring))
+          continue;
+        for (VectorHitCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
+          result.emplace_back(*hit);
+        }
+      }
+      LogTrace("HitExtractorSTRP") << "result size value:" << result.size();
+      if (skipClusters)
+        cleanedOfClusters(ttrhBuilder, ev, result, false, cleanFrom);
+    }
   }
   //
   // TOB
   //
   else if (theLayerSubDet == GeomDetEnumerators::TOB) {
+    LogTrace("HitExtractorSTRP") << "Getting hits into the TOB";
     if (hasMatchedHits) {
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByToken(theMatchedHits, matchedHits);
@@ -325,12 +386,25 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
       if (skipClusters)
         cleanedOfClusters(ttrhBuilder, ev, result, false, cleanFrom);
     }
+    if (hasVectorHits) {
+      LogTrace("HitExtractorSTRP") << "Getting vector hits for IdLayer " << theIdLayer;
+      edm::Handle<VectorHitCollection> vectorHits;
+      ev.getByToken(theVectorHits, vectorHits);
+      //FIXME: check the skipClusters with VHits
+      if (skipClusters)
+        cleanFrom = result.size();
+      range2SeedingHits(*vectorHits, result, tTopo->tobDetIdLayerComparator(theIdLayer));
+      if (skipClusters)
+        cleanedOfClusters(ttrhBuilder, ev, result, false, cleanFrom);
+    }
+
   }
 
   //
   // TEC
   //
   else if (theLayerSubDet == GeomDetEnumerators::TEC) {
+    LogTrace("HitExtractorSTRP") << "Getting hits into the TEC";
     if (hasMatchedHits) {
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByToken(theMatchedHits, matchedHits);
@@ -388,9 +462,28 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
       if (skipClusters)
         cleanedOfClusters(ttrhBuilder, ev, result, false, cleanFrom);
     }
+    if (hasVectorHits) {
+      LogError("HitExtractorSTRP") << "TEC is not supposed to be in Phase2 TRK detector configuration. What follows "
+                                      "have never been checked before! ";
+      edm::Handle<VectorHitCollection> vectorHits;
+      ev.getByToken(theVectorHits, vectorHits);
+      if (skipClusters)
+        cleanFrom = result.size();
+      auto getter = tTopo->tidDetIdWheelComparator(static_cast<unsigned int>(theSide), theIdLayer);
+      VectorHitCollection::Range range = vectorHits->equal_range(getter.first, getter.second);
+      for (VectorHitCollection::const_iterator it = range.first; it != range.second; ++it) {
+        int ring = tTopo->tidRing(it->detId());
+        if (!ringRange(ring))
+          continue;
+        for (VectorHitCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
+          result.emplace_back(*hit);
+        }
+      }
+      if (skipClusters)
+        cleanedOfClusters(ttrhBuilder, ev, result, false, cleanFrom);
+    }
   }
 
-  LogDebug("HitExtractorSTRP") << " giving: " << result.size() << " out";
-  // std::cout << "HitExtractorSTRP "<<" giving: "<<result.size() << " for charge cut " << minGoodCharge << std::endl;
+  LogDebug("HitExtractorSTRP") << " giving: " << result.size() << " out for charge cut " << minGoodCharge;
   return result;
 }

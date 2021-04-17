@@ -4,7 +4,6 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
   <use name="GeneratorInterface/EvtGenInterface"/>
-  <use name="SimGeneral/HepPDTRecord"/>
   <use name="heppdt"/>
   <use name="clhep"/>
   <use name="hepmc"/>

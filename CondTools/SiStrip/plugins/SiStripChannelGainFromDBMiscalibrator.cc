@@ -65,6 +65,8 @@ private:
   const uint32_t m_gainType;
   const bool m_saveMaps;
   const std::vector<edm::ParameterSet> m_parameters;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   std::unique_ptr<TrackerMap> scale_map;
   std::unique_ptr<TrackerMap> smear_map;
@@ -80,7 +82,9 @@ SiStripChannelGainFromDBMiscalibrator::SiStripChannelGainFromDBMiscalibrator(con
     : m_Record{iConfig.getUntrackedParameter<std::string>("record", "SiStripApvGainRcd")},
       m_gainType{iConfig.getUntrackedParameter<uint32_t>("gainType", 1)},
       m_saveMaps{iConfig.getUntrackedParameter<bool>("saveMaps", true)},
-      m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")} {
+      m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")},
+      gainToken_(esConsumes()),
+      tTopoToken_(esConsumes()) {
   //now do what ever initialization is needed
 
   std::string ss_gain = (m_gainType > 0) ? "G2" : "G1";
@@ -116,9 +120,7 @@ SiStripChannelGainFromDBMiscalibrator::~SiStripChannelGainFromDBMiscalibrator() 
 void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const auto* const tTopo = tTopoHandle.product();
+  const auto* const tTopo = &iSetup.getData(tTopoToken_);
 
   std::vector<std::string> partitions;
 
@@ -147,15 +149,14 @@ void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, co
     mapOfSmearings[region] = params;
   }
 
-  edm::ESHandle<SiStripGain> SiStripApvGain_;
-  iSetup.get<SiStripGainRcd>().get(SiStripApvGain_);
+  const auto& apvGain = iSetup.getData(gainToken_);
 
   std::map<std::pair<uint32_t, int>, float> theMap, oldPayloadMap;
 
   std::vector<uint32_t> detid;
-  SiStripApvGain_->getDetIds(detid);
+  apvGain.getDetIds(detid);
   for (const auto& d : detid) {
-    SiStripApvGain::Range range = SiStripApvGain_->getRange(d, m_gainType);
+    SiStripApvGain::Range range = apvGain.getRange(d, m_gainType);
     float nAPV = 0;
 
     auto regions = SiStripMiscalibrate::getRegionsFromDetId(tTopo, d);
@@ -183,7 +184,7 @@ void SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, co
 
     for (int it = 0; it < range.second - range.first; it++) {
       nAPV += 1;
-      float Gain = SiStripApvGain_->getApvGain(it, range);
+      float Gain = apvGain.getApvGain(it, range);
       std::pair<uint32_t, int> index = std::make_pair(d, nAPV);
 
       oldPayloadMap[index] = Gain;

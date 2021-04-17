@@ -19,12 +19,12 @@ PixelTripletHLTGenerator = cms.PSet(
 
 # do thy make any difference anywhere?
 trackingPhase2PU140.toModify(PixelTripletHLTGenerator,
-    extraHitRPhitolerance = cms.double(0.016),
-    extraHitRZtolerance = cms.double(0.020)
+    extraHitRPhitolerance = 0.016,
+    extraHitRZtolerance   = 0.020
 )
 
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
-PixelTripletHLTGeneratorWithFilter = PixelTripletHLTGenerator.clone()
-PixelTripletHLTGeneratorWithFilter.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
-
+PixelTripletHLTGeneratorWithFilter = PixelTripletHLTGenerator.clone(
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
+)
 

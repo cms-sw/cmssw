@@ -1,6 +1,7 @@
 #include "HcalSimpleReconstructor.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -15,7 +16,8 @@
 HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf)
     : reco_(conf.getParameter<bool>("correctForTimeslew"),
             conf.getParameter<bool>("correctForPhaseContainment"),
-            conf.getParameter<double>("correctionPhaseNS")),
+            conf.getParameter<double>("correctionPhaseNS"),
+            consumesCollector()),
       det_(DetId::Hcal),
       inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),

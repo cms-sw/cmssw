@@ -2,7 +2,6 @@
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/Math"/>
 <use name="clhep"/>
-<use name="geant4core"/>
 <use name="expat"/>
 <export>
   <lib name="1"/>

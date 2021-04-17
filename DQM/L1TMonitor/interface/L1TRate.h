@@ -14,8 +14,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,7 +21,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
@@ -34,6 +31,8 @@
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 
 #include <TString.h>
 
@@ -97,6 +96,9 @@ private:
   edm::EDGetTokenT<LumiScalersCollection> m_scalersSource_colLScal;                 // Where to get L1 Scalers
   edm::EDGetTokenT<Level1TriggerScalersCollection> m_scalersSource_triggerScalers;  // Where to get L1 Scalers
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputTag;             // Where to get L1 GT Data DAQ
+  const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_menuToken;
+  const edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> m_l1GtPfAlgoToken;
+  L1TMenuHelper::Tokens m_helperTokens;
 
   // ParameterSet
   edm::ParameterSet m_parameters;

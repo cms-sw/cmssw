@@ -14,6 +14,13 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.CSCGeometryBuilder.cscGeometry_cfi")
 
+process.MessageLogger = cms.Service("MessageLogger",
+                                destinations = cms.untracked.vstring('myLog'),
+                                myLog = cms.untracked.PSet(
+                                threshold = cms.untracked.string('INFO'),
+                                )
+                            )
+
 process.CSCGeometryESModule.applyAlignment = False
 
 #
@@ -24,7 +31,7 @@ process.CSCGeometryESModule.applyAlignment = False
 #
 process.valid = cms.EDAnalyzer("CSCGeometryValidate",
                                infileName = cms.untracked.string('cmsRecoGeom-2021.root'),
-                               outfileName = cms.untracked.string('validateCSCGeometry2.root'),
+                               outfileName = cms.untracked.string('validateCSCGeometryDDD.root'),
                                tolerance = cms.untracked.int32(7)
                                )
 

@@ -15,32 +15,32 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring("log", "debug", "errors"),
-    statistics = cms.untracked.vstring("stat"),
-    # No constraint on log.txt content...
-    log = cms.untracked.PSet(
-        extension = cms.untracked.string(".txt"),
-        lineLength = cms.untracked.int32(132),
-        noLineBreaks = cms.untracked.bool(True)
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
     ),
-    debug = cms.untracked.PSet(
-        extension = cms.untracked.string(".txt"),
-        threshold = cms.untracked.string("DEBUG"),
-        lineLength = cms.untracked.int32(132),
-        noLineBreaks = cms.untracked.bool(True)
-    ),
-    errors = cms.untracked.PSet(
-        extension = cms.untracked.string(".txt"),
-        threshold = cms.untracked.string("ERROR")
+    debugModules = cms.untracked.vstring('cscTriggerPrimitiveDigis'),
+    files = cms.untracked.PSet(
+        debug = cms.untracked.PSet(
+            extension = cms.untracked.string('.txt'),
+            lineLength = cms.untracked.int32(132),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('DEBUG')
+        ),
+        errors = cms.untracked.PSet(
+            extension = cms.untracked.string('.txt'),
+            threshold = cms.untracked.string('ERROR')
+        ),
+        log = cms.untracked.PSet(
+            extension = cms.untracked.string('.txt'),
+            lineLength = cms.untracked.int32(132),
+            noLineBreaks = cms.untracked.bool(True)
+        )
     ),
     stat = cms.untracked.PSet(
-        extension = cms.untracked.string(".txt"),
-        threshold = cms.untracked.string("INFO")
-    ),
-    # turn on the following to get LogDebug output
-    # ============================================
-    # debugModules = cms.untracked.vstring("*"),
-    debugModules = cms.untracked.vstring("cscTriggerPrimitiveDigis")
+        enableStatistics = cms.untracked.bool(True),
+        extension = cms.untracked.string('.txt'),
+        threshold = cms.untracked.string('INFO')
+    )
 )
 
 # es_source of ideal geometry

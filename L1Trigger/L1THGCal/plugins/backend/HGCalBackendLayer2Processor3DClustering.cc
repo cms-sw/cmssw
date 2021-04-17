@@ -10,6 +10,8 @@
 #include "L1Trigger/L1THGCal/interface/backend/HGCalHistoClusteringImpl.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalTriggerClusterInterpreterBase.h"
 
+#include <utility>
+
 class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2ProcessorBase {
 public:
   HGCalBackendLayer2Processor3DClustering(const edm::ParameterSet& conf) : HGCalBackendLayer2ProcessorBase(conf) {
@@ -39,7 +41,7 @@ public:
   }
 
   void run(const edm::Handle<l1t::HGCalClusterBxCollection>& collHandle,
-           l1t::HGCalMulticlusterBxCollection& collCluster3D,
+           std::pair<l1t::HGCalMulticlusterBxCollection, l1t::HGCalClusterBxCollection>& be_output,
            const edm::EventSetup& es) override {
     es.get<CaloGeometryRecord>().get("", triggerGeometry_);
     if (multiclustering_)
@@ -48,6 +50,9 @@ public:
       multiclusteringHistoSeeding_->eventSetup(es);
     if (multiclusteringHistoClustering_)
       multiclusteringHistoClustering_->eventSetup(es);
+
+    auto& collCluster3D = be_output.first;
+    auto& rejectedClusters = be_output.second;
 
     /* create a persistent vector of pointers to the trigger-cells */
     std::vector<edm::Ptr<l1t::HGCalCluster>> clustersPtrs;
@@ -70,7 +75,7 @@ public:
       case HistoC3d:
         multiclusteringHistoSeeding_->findHistoSeeds(clustersPtrs, seedPositionsEnergy);
         multiclusteringHistoClustering_->clusterizeHisto(
-            clustersPtrs, seedPositionsEnergy, *triggerGeometry_, collCluster3D);
+            clustersPtrs, seedPositionsEnergy, *triggerGeometry_, collCluster3D, rejectedClusters);
         break;
       default:
         // Should not happen, clustering type checked in constructor

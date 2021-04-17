@@ -18,19 +18,17 @@ from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import 
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsP5_cff import *
 from RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cff import *
 from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cff import *
-combinedP5SeedsForCTF = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
-combinedP5SeedsForCTF.seedCollections = cms.VInputTag(
-    cms.InputTag('combinatorialcosmicseedfinderP5'),
-    cms.InputTag('simpleCosmicBONSeeds'),
+combinedP5SeedsForCTF = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone(
+    seedCollections   = ['combinatorialcosmicseedfinderP5',
+	                 'simpleCosmicBONSeeds'],
+    #backward compatibility 2.2/3.1
+    PairCollection    = cms.InputTag('combinatorialcosmicseedfinderP5'),
+    TripletCollection = cms.InputTag('simpleCosmicBONSeeds')
 )
-#backward compatibility 2.2/3.1
-combinedP5SeedsForCTF.PairCollection = cms.InputTag('combinatorialcosmicseedfinderP5')
-combinedP5SeedsForCTF.TripletCollection = cms.InputTag('simpleCosmicBONSeeds')
 
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import *
-ckfTrackCandidatesP5.src = cms.InputTag('combinedP5SeedsForCTF')
+ckfTrackCandidatesP5.src = 'combinedP5SeedsForCTF'
 #backward compatibility 2.2/3.1
-#ckfTrackCandidatesP5.SeedProducer = 'combinedP5SeedsForCTF'
 
 #import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import *
@@ -42,10 +40,9 @@ from RecoTracker.FinalTrackSelectors.CTFFinalTrackSelectorP5_cff import *
 #from RecoTracker.FinalTrackSelectors.RSFinalTrackSelectorP5_cff import *
 
 # TRACK INFO
-#include "AnalysisAlgos/TrackInfoProducer/data/TrackInfoProducerP5.cff"
 
-ckfTrackCandidatesP5LHCNavigation    = ckfTrackCandidatesP5.clone(NavigationSchool = cms.string('SimpleNavigationSchool'))
-ctfWithMaterialTracksP5LHCNavigation = ctfWithMaterialTracksCosmics.clone(src = cms.InputTag("ckfTrackCandidatesP5LHCNavigation"))
+ckfTrackCandidatesP5LHCNavigation    = ckfTrackCandidatesP5.clone(NavigationSchool = 'SimpleNavigationSchool')
+ctfWithMaterialTracksP5LHCNavigation = ctfWithMaterialTracksCosmics.clone(src = "ckfTrackCandidatesP5LHCNavigation")
 
 ctftracksP5Task = cms.Task(combinatorialcosmicseedinglayersP5Task,
                                   combinatorialcosmicseedfinderP5,
@@ -60,10 +57,12 @@ ctftracksP5Task = cms.Task(combinatorialcosmicseedinglayersP5Task,
 ctftracksP5 = cms.Sequence(ctftracksP5Task)
 
 from RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi import *
-cosmicTrackSplitter.tjTkAssociationMapTag = 'cosmictrackfinderCosmics'
-cosmicTrackSplitter.tracks = 'cosmictrackfinderCosmics'
-splittedTracksP5 = cosmictrackfinderCosmics.clone(src = cms.InputTag("cosmicTrackSplitter"))
-    
+cosmicTrackSplitter = RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi.cosmicTrackSplitter.clone(
+    tjTkAssociationMapTag = 'cosmictrackfinderCosmics',
+    tracks = 'cosmictrackfinderCosmics'
+)
+splittedTracksP5 = cosmictrackfinderCosmics.clone(src = "cosmicTrackSplitter")
+
 cosmictracksP5Task = cms.Task(cosmicseedfinderP5,
                                   cosmicCandidateFinderP5,
                                   cosmictrackfinderCosmics,

@@ -16,7 +16,7 @@ class GeometryComparison(GenericValidation):
         "3DSubdetector2":"2",
         "3DTranslationalScaleFactor":"50",
         "modulesToPlot":"all",
-        "moduleList": "/store/caf/user/cschomak/emptyModuleList.txt",
+        "moduleList": "./CREATE_NEW/emptyModuleList.txt",
         "useDefaultRange":"false",
         "plotOnlyGlobal":"true",
         "plotPng":"true",
@@ -256,6 +256,35 @@ class GeometryComparison(GenericValidation):
                         "-c \"cp {} .oO[datadir]Oo./.oO[name]Oo."
                         ".Comparison_common"+name+"_Images/.oO[common]Oo._.oO[name]Oo..Visualization.gif\"\n")
 
+                   # TkAlMap inFile=tree.root compAl=UL2018 refAl=StartGeom savePNG=True TkVersion=phase1 outDir=./test_plots/tanh colPal=2
+                   range_str = ''
+                   plottedDifferences = ["dx","dy","dz","dr","rdphi","dalpha","dbeta","dgamma"]
+                   for diff in plottedDifferences:
+                       range_str += diff+'_range=['+str(repMap[diff+'_min'])+','+str(repMap[diff+'_max'])+'];'
+                   repMap["runComparisonScripts"] += \
+                       ("mkdir -p .oO[datadir]Oo./.oO[name]Oo."
+                        ".Comparison_common"+name+"_Images/TkAlMapPlots\n")
+                   repMap["runComparisonScripts"] += \
+                       ("python .oO[Alignment/OfflineValidation]Oo./python/runGCPTkAlMap.py -b " 
+                        "inFile=.oO[name]Oo..Comparison_common"+name+".root "
+                        "refAl=\".oO[reference]Oo.\" " 
+                        "compAl=\".oO[alignmentName]Oo.\" "
+                        "savePNG=True "
+                        "TkVersion=\"phase0\" "
+                        "colPal=2 "
+                        "defRanges=\""+range_str+"\" "
+                        "outDir=.oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/TkAlMapPlots\n")
+                        #"outDir=.oO[name]Oo.."+name+"_TkMapPlots "
+                        #"useDefaultRanges=.oO[useDefaultRange]Oo. "+range_str+"\n")
+
+                   # Copy root file for check
+                   repMap["runComparisonScripts"] += \
+                       ("cp .oO[name]Oo..Comparison_common"+name+".root "
+                        ".oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/TkAlMapPlots/GCP.root\n")
+                   #repMap["runComparisonScripts"] += \
+                   #    ("cp .oO[alignmentName]Oo.ROOTGeometry.root "
+                   #     ".oO[datadir]Oo./.oO[name]Oo..Comparison_common"+name+"_Images/TkAlMapPlots/comparedGeometry.root\n")
+
                 resultingFile = replaceByMap(("/store/group/alca_trackeralign/AlignmentValidation/.oO[eosdir]Oo./compared%s_"
                                               ".oO[name]Oo..root"%name), repMap)
                 resultingFile = os.path.expandvars( resultingFile )
@@ -275,6 +304,9 @@ class GeometryComparison(GenericValidation):
         elif repMap["moduleList"].startswith("root://"):
             repMap["CommandLine"]+= \
                  "xrdcp .oO[moduleList]Oo. .\n"
+        elif repMap["moduleList"].startswith("./CREATE_NEW/"):
+            repMap["CommandLine"]+= \
+                 "touch .oO[moduleListBase]Oo.\n"
         else:
             repMap["CommandLine"]+= \
                      "cp .oO[moduleList]Oo. .\n"

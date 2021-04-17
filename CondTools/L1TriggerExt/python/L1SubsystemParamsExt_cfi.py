@@ -18,9 +18,9 @@ def initL1SubsystemsExt( tagBaseVec = [],
             key = cms.string(objectKey)
         ),
         cms.PSet(
-            record = cms.string('L1TGlobalPrescalesVetosO2ORcd'),
-            tag = cms.string('L1TGlobalPrescalesVetos_' + tagBaseVec[ L1CondEnumExt.L1TGlobalPrescalesVetos ]),
-            type = cms.string('L1TGlobalPrescalesVetos'),
+            record = cms.string('L1TGlobalPrescalesVetosFractO2ORcd'),
+            tag = cms.string('L1TGlobalPrescalesVetosFract_' + tagBaseVec[ L1CondEnumExt.L1TGlobalPrescalesVetosFract ]),
+            type = cms.string('L1TGlobalPrescalesVetosFract'),
             key = cms.string(objectKey)
         ),
         cms.PSet(

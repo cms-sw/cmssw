@@ -1,8 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Validation/HcalRecHits/interface/HcalRecHitsValidation.h"
 
 HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const &conf)
@@ -37,6 +35,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const &conf)
   tok_EE_ = consumes<EERecHitCollection>(EERecHitCollectionLabel);
 
   tok_hh_ = consumes<edm::PCaloHitContainer>(conf.getUntrackedParameter<edm::InputTag>("SimHitCollectionLabel"));
+
+  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>();
+  tok_Geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   subdet_ = 5;
   if (hcalselector_ == "noise")
@@ -189,9 +190,7 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const &c) {
   using namespace edm;
 
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  c.get<HcalRecNumberingRecord>().get(pHRNDC);
-  const HcalDDDRecConstants *hcons = &(*pHRNDC);
+  const HcalDDDRecConstants *hcons = &c.getData(tok_HRNDC_);
 
   // cuts for each subdet_ector mimiking  "Scheme B"
   //  double cutHB = 0.9, cutHE = 1.4, cutHO = 1.1, cutHFL = 1.2, cutHFS = 1.8;
@@ -257,7 +256,8 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
 
   //   std::cout << "*** 2" << std::endl;
 
-  c.get<CaloGeometryRecord>().get(geometry);
+  geometry_ = &c.getData(tok_Geom_);
+  ;
 
   // Fill working vectors of HCAL RecHits quantities (all of these are drawn)
   fillRecHitsTmp(subdet_, ev);
@@ -282,7 +282,7 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
       for (; RecHit != RecHitEnd; ++RecHit) {
         EBDetId EBid = EBDetId(RecHit->id());
 
-        auto cellGeometry = geometry->getSubdetectorGeometry(EBid)->getGeometry(EBid);
+        auto cellGeometry = geometry_->getSubdetectorGeometry(EBid)->getGeometry(EBid);
         double eta = cellGeometry->getPosition().eta();
         double phi = cellGeometry->getPosition().phi();
         double en = RecHit->energy();
@@ -306,7 +306,7 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
       for (; RecHit != RecHitEnd; ++RecHit) {
         EEDetId EEid = EEDetId(RecHit->id());
 
-        auto cellGeometry = geometry->getSubdetectorGeometry(EEid)->getGeometry(EEid);
+        auto cellGeometry = geometry_->getSubdetectorGeometry(EEid)->getGeometry(EEid);
         double eta = cellGeometry->getPosition().eta();
         double phi = cellGeometry->getPosition().phi();
         double en = RecHit->energy();
@@ -430,7 +430,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   }
 
   // SimHits vs. RecHits
-  const CaloGeometry *geo = geometry.product();
   if (subdet_ > 0 && subdet_ < 6 && imc != 0) {  // not noise
 
     edm::Handle<PCaloHitContainer> hcalHits;
@@ -465,7 +464,7 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
                      // interest, then we won't do any thing with it
 
         const HcalGeometry *cellGeometry =
-            dynamic_cast<const HcalGeometry *>(geo->getSubdetectorGeometry(DetId::Hcal, cell.subdet()));
+            dynamic_cast<const HcalGeometry *>(geometry_->getSubdetectorGeometry(DetId::Hcal, cell.subdet()));
         double etaS = cellGeometry->getPosition(cell).eta();
         double phiS = cellGeometry->getPosition(cell).phi();
         double en = SimHits->energy();
@@ -540,12 +539,10 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
     // HBHE
     edm::Handle<HBHERecHitCollection> hbhecoll;
     if (ev.getByToken(tok_hbhe_, hbhecoll)) {
-      const CaloGeometry *geo = geometry.product();
-
       for (HBHERecHitCollection::const_iterator j = hbhecoll->begin(); j != hbhecoll->end(); j++) {
         HcalDetId cell(j->id());
         const HcalGeometry *cellGeometry =
-            dynamic_cast<const HcalGeometry *>(geo->getSubdetectorGeometry(DetId::Hcal, cell.subdet()));
+            dynamic_cast<const HcalGeometry *>(geometry_->getSubdetectorGeometry(DetId::Hcal, cell.subdet()));
         double eta = cellGeometry->getPosition(cell).eta();
         double phi = cellGeometry->getPosition(cell).phi();
         double zc = cellGeometry->getPosition(cell).z();
@@ -579,7 +576,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
     if (ev.getByToken(tok_hf_, hfcoll)) {
       for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
         HcalDetId cell(j->id());
-        auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry(cell);
+        auto cellGeometry = geometry_->getSubdetectorGeometry(cell)->getGeometry(cell);
 
         double eta = cellGeometry->getPosition().eta();
         double phi = cellGeometry->getPosition().phi();
@@ -613,7 +610,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
     if (ev.getByToken(tok_ho_, hocoll)) {
       for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
         HcalDetId cell(j->id());
-        auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry(cell);
+        auto cellGeometry = geometry_->getSubdetectorGeometry(cell)->getGeometry(cell);
 
         double eta = cellGeometry->getPosition().eta();
         double phi = cellGeometry->getPosition().phi();

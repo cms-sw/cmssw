@@ -22,21 +22,19 @@
 #include <vector>
 
 // user include files
-
-//   base class
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 #include "HLTrigger/HLTcore/interface/HLTStreamFilter.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-
-#include "FWCore/Utilities/interface/InputTag.h"
-
 // forward declarations
-class L1GtTriggerMenu;
-class L1GtTriggerMask;
 class L1GlobalTriggerReadoutRecord;
 class L1GlobalTriggerObjectMapRecord;
 namespace edm {
@@ -108,6 +106,11 @@ private:
   /// trigger menu
   const L1GtTriggerMenu *m_l1GtMenu;
   unsigned long long m_l1GtMenuCacheID;
+
+  // trigger records
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> const m_l1GtTriggerMenuToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> const m_l1GtTriggerMaskAlgoTrigRcdToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> const m_l1GtTriggerMaskTechTrigRcdToken;
 
   /// logic parser for m_l1SeedsLogicalExpression
   L1GtLogicParser m_l1AlgoLogicParser;

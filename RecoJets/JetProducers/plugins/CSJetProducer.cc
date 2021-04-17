@@ -146,7 +146,7 @@ void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSet
         csRParam_);  // free parameter for the maximal allowed distance between particle i and ghost k
     subtractor.set_alpha(
         csAlpha_);  // free parameter for the distance measure (the exponent of particle pt). Note that in older versions of the package alpha was multiplied by two but in newer versions this is not the case anymore
-    subtractor.set_do_mass_subtraction(true);
+    subtractor.set_do_mass_subtraction();
     subtractor.set_remove_all_zero_pt_particles(true);
 
     std::vector<fastjet::PseudoJet> subtracted_particles = subtractor.do_subtraction(particles, ghosts);
@@ -176,8 +176,8 @@ void CSJetProducer::fillDescriptionsFromCSJetProducer(edm::ParameterSetDescripti
   desc.add<double>("csRParam", -1.);
   desc.add<double>("csAlpha", 2.);
   desc.add<bool>("useModulatedRho", false);
-  desc.add<double>("minFlowChi2Prob", false);
-  desc.add<double>("maxFlowChi2Prob", false);
+  desc.add<double>("minFlowChi2Prob", 0.05);
+  desc.add<double>("maxFlowChi2Prob", 0.95);
   desc.add<edm::InputTag>("etaMap", {"hiFJRhoProducer", "mapEtaEdges"});
   desc.add<edm::InputTag>("rho", {"hiFJRhoProducer", "mapToRho"});
   desc.add<edm::InputTag>("rhom", {"hiFJRhoProducer", "mapToRhoM"});

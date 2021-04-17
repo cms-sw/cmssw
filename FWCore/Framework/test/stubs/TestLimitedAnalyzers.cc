@@ -167,7 +167,13 @@ namespace edmtest {
           : edm::limited::EDAnalyzerBase(p),
             edm::limited::EDAnalyzer<edm::LuminosityBlockCache<Cache>>(p),
             trans_(p.getParameter<int>("transitions")),
-            cvalue_(p.getParameter<int>("cachevalue")) {}
+            cvalue_(p.getParameter<int>("cachevalue")) {
+        // just to create a data dependence
+        auto const& tag = p.getParameter<edm::InputTag>("moduleLabel");
+        if (not tag.label().empty()) {
+          consumes<unsigned int, edm::InLumi>(tag);
+        }
+      }
       const unsigned int trans_;
       const unsigned int cvalue_;
       mutable std::atomic<unsigned int> m_count{0};

@@ -16,14 +16,14 @@ process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 process.load("Alignment.MuonAlignment.Scenarios_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    info_txt = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
     cerr = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR')
     ),
-    destinations = cms.untracked.vstring('info_txt', 
-        'cerr')
+    files = cms.untracked.PSet(
+        info_txt = cms.untracked.PSet(
+            threshold = cms.untracked.string('INFO')
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

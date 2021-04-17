@@ -1,11 +1,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibTracker/SiStripESProducers/plugins/DBWriter/SiStripFedCablingManipulator.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include <fstream>
 #include <iostream>
 
-SiStripFedCablingManipulator::SiStripFedCablingManipulator(const edm::ParameterSet& iConfig) : iConfig_(iConfig) {
+SiStripFedCablingManipulator::SiStripFedCablingManipulator(const edm::ParameterSet& iConfig)
+    : iConfig_(iConfig), fedCablingToken_(esConsumes<edm::Transition::EndRun>()) {
   edm::LogInfo("SiStripFedCablingManipulator") << "SiStripFedCablingManipulator constructor " << std::endl;
 }
 
@@ -15,18 +14,16 @@ SiStripFedCablingManipulator::~SiStripFedCablingManipulator() {
 }
 
 void SiStripFedCablingManipulator::endRun(const edm::Run& run, const edm::EventSetup& es) {
-  edm::ESHandle<SiStripFedCabling> esobj;
-  es.get<SiStripFedCablingRcd>().get(esobj);
+  const auto& esobj = es.getData(fedCablingToken_);
 
-  SiStripFedCabling* obj = nullptr;
-  manipulate(esobj.product(), obj);
+  auto obj = manipulate(esobj);
 
   cond::Time_t Time_ = 0;
 
   //And now write  data in DB
   edm::Service<cond::service::PoolDBOutputService> dbservice;
   if (dbservice.isAvailable()) {
-    if (obj == nullptr) {
+    if (!obj) {
       edm::LogError("SiStripFedCablingManipulator") << "null pointer obj. nothing will be written " << std::endl;
       return;
     }
@@ -44,20 +41,21 @@ void SiStripFedCablingManipulator::endRun(const edm::Run& run, const edm::EventS
       edm::LogInfo("SiStripFedCablingManipulator") << "first request for storing objects with Record "
                                                    << "SiStripFedCablingRcd"
                                                    << " at time " << Time_ << std::endl;
-      dbservice->createNewIOV<SiStripFedCabling>(obj, Time_, dbservice->endOfTime(), "SiStripFedCablingRcd");
+      dbservice->createNewIOV<SiStripFedCabling>(obj.release(), Time_, dbservice->endOfTime(), "SiStripFedCablingRcd");
     } else {
       edm::LogInfo("SiStripFedCablingManipulator") << "appending a new object to existing tag "
                                                    << "SiStripFedCablingRcd"
                                                    << " in since mode " << std::endl;
-      dbservice->appendSinceTime<SiStripFedCabling>(obj, Time_, "SiStripFedCablingRcd");
+      dbservice->appendSinceTime<SiStripFedCabling>(obj.release(), Time_, "SiStripFedCablingRcd");
     }
   } else {
     edm::LogError("SiStripFedCablingManipulator") << "Service is unavailable" << std::endl;
   }
 }
 
-void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj, SiStripFedCabling*& oobj) {
+std::unique_ptr<SiStripFedCabling> SiStripFedCablingManipulator::manipulate(const SiStripFedCabling& iobj) {
   std::string fp = iConfig_.getParameter<std::string>("file");
+  std::unique_ptr<SiStripFedCabling> oobj;
 
   std::ifstream inputFile_;
   inputFile_.open(fp.c_str());
@@ -69,8 +67,7 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj, SiS
   if (fp.empty()) {
     edm::LogInfo("SiStripFedCablingManipulator")
         << "::manipulate : since no file is specified, the copy of the input cabling will be applied" << std::endl;
-    oobj = new SiStripFedCabling(*iobj);
-
+    oobj = std::make_unique<SiStripFedCabling>(iobj);
   } else if (!inputFile_.is_open()) {
     edm::LogError("SiStripFedCablingManipulator") << "::manipulate - ERROR in opening file  " << fp << std::endl;
     throw cms::Exception("CorruptedData") << "::manipulate - ERROR in opening file  " << fp << std::endl;
@@ -106,9 +103,9 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj, SiS
 
     std::vector<FedChannelConnection> conns;
 
-    auto feds = iobj->fedIds();
+    auto feds = iobj.fedIds();
     for (auto ifeds = feds.begin(); ifeds != feds.end(); ifeds++) {
-      auto conns_per_fed = iobj->fedConnections(*ifeds);
+      auto conns_per_fed = iobj.fedConnections(*ifeds);
       for (auto iconn = conns_per_fed.begin(); iconn != conns_per_fed.end(); ++iconn) {
         std::map<uint32_t, std::pair<uint32_t, uint32_t> >::const_iterator it = dcuDetIdMap.find(iconn->dcuId());
         if (it != dcuDetIdMap.end() && it->second.first == iconn->detId()) {
@@ -154,6 +151,7 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj, SiS
       }
     }
 
-    oobj = new SiStripFedCabling(conns);
+    oobj = std::make_unique<SiStripFedCabling>(conns);
   }
+  return oobj;
 }

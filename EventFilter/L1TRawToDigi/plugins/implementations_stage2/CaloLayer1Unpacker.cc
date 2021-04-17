@@ -21,11 +21,31 @@ namespace l1t {
       auto ctp7_phi = block.amc().getBoardID();
       const uint32_t* ptr = block.payload().data();
 
-      UCTCTP7RawData ctp7Data(ptr);
-      makeECalTPGs(ctp7_phi, ctp7Data, res->getEcalDigis());
-      makeHCalTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
-      makeHFTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
-      makeRegions(ctp7_phi, ctp7Data, res->getRegions());
+      int N_BX = (block.header().getFlags() >> 16) & 0xf;
+      //      std::cout << " N_BX calculated " << N_BX << std::endl;
+
+      if (N_BX == 1) {
+        UCTCTP7RawData ctp7Data(ptr);
+        makeECalTPGs(ctp7_phi, ctp7Data, res->getEcalDigis());
+        makeHCalTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
+        makeHFTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
+        makeRegions(ctp7_phi, ctp7Data, res->getRegions());
+      } else if (N_BX == 5) {
+        const uint32_t* ptr5 = ptr;
+        UCTCTP7RawData ctp7Data(ptr);
+        makeECalTPGs(ctp7_phi, ctp7Data, res->getEcalDigis());
+        makeHCalTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
+        makeHFTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
+        makeRegions(ctp7_phi, ctp7Data, res->getRegions());
+        for (int i = 0; i < 5; i++) {
+          UCTCTP7RawData ctp7Data(ptr5);
+          makeECalTPGs(ctp7_phi, ctp7Data, res->getEcalDigisBx(i));
+          ptr5 += 192;
+        }
+      } else {
+        LogError("CaloLayer1Unpacker") << "Number of BXs to unpack is not 1 or 5, stop here !!! " << N_BX << std::endl;
+        return false;
+      }
 
       return true;
     }

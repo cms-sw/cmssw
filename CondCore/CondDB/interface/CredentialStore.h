@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <sstream>
 //
 #include "CoralBase/MessageStream.h"
 
@@ -135,9 +136,16 @@ namespace cond {
                            const std::string& connectionString,
                            std::vector<Permission>& destination);
 
+    std::pair<std::string, std::string> getUserCredentials(const std::string& connectionString,
+                                                           const std::string& role);
+
     bool exportAll(coral_bridge::AuthenticationCredentialSet& data);
 
+    const std::string& serviceName();
+
     const std::string& keyPrincipalName();
+
+    std::string log();
 
   private:
     friend class CSScopedSession;
@@ -168,6 +176,8 @@ namespace cond {
     const auth::ServiceCredentials* m_serviceData;
 
     auth::DecodingKey m_key;
+
+    std::stringstream m_log;
   };
 
 }  // namespace cond

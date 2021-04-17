@@ -14,8 +14,8 @@
 
 class L1TMuonGlobalParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams> {
 private:
-  bool transactionSafe;
-  edm::ESGetToken<L1TMuonGlobalParams, L1TMuonGlobalParamsRcd> baseSettings_token;
+  const bool transactionSafe;
+  const edm::ESGetToken<L1TMuonGlobalParams, L1TMuonGlobalParamsRcd> baseSettings_token;
 
 public:
   std::unique_ptr<const L1TMuonGlobalParams> newObject(const std::string &objectKey,
@@ -26,10 +26,9 @@ public:
 };
 
 L1TMuonGlobalParamsOnlineProd::L1TMuonGlobalParamsOnlineProd(const edm::ParameterSet &iConfig)
-    : L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams>(iConfig) {
-  wrappedSetWhatProduced(iConfig).setConsumes(baseSettings_token);
-  transactionSafe = iConfig.getParameter<bool>("transactionSafe");
-}
+    : L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams>(iConfig),
+      transactionSafe(iConfig.getParameter<bool>("transactionSafe")),
+      baseSettings_token(wrappedSetWhatProduced(iConfig).consumes()) {}
 
 std::unique_ptr<const L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(
     const std::string &objectKey, const L1TMuonGlobalParamsO2ORcd &record) {
@@ -46,8 +45,8 @@ std::unique_ptr<const L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObj
     }
   }
 
-  std::string tscKey = objectKey.substr(0, objectKey.find(":"));
-  std::string rsKey = objectKey.substr(objectKey.find(":") + 1, std::string::npos);
+  std::string tscKey = objectKey.substr(0, objectKey.find(':'));
+  std::string rsKey = objectKey.substr(objectKey.find(':') + 1, std::string::npos);
 
   edm::LogInfo("L1-O2O: L1TMuonGlobalParamsOnlineProd")
       << "Producing L1TMuonGlobalParams with TSC key =" << tscKey << " and RS key = " << rsKey;
@@ -88,7 +87,7 @@ std::unique_ptr<const L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObj
 
   // for debugging dump the configs to local files
   {
-    std::ofstream output(std::string("/tmp/").append(hw_key.substr(0, hw_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(hw_key.substr(0, hw_key.find('/'))).append(".xml"));
     output << hw_payload;
     output.close();
   }

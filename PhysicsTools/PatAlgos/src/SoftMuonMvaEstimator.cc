@@ -7,6 +7,8 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
+#include "TMath.h"
+
 using namespace pat;
 
 SoftMuonMvaEstimator::SoftMuonMvaEstimator(const edm::FileInPath& weightsfile) {

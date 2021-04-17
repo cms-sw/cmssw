@@ -21,8 +21,7 @@ void BaselinePFSCRegression::update(const edm::EventSetup& es) {
 
 void BaselinePFSCRegression::set(const reco::SuperCluster& sc, std::vector<float>& vars) const {
   EcalRegressionData regData;
-  regData.fill(
-      sc, rechitsEB.product(), rechitsEE.product(), calogeom.product(), calotopo.product(), vertices.product());
+  regData.fill(sc, rechitsEB, rechitsEE, calogeom.product(), calotopo.product(), vertices);
   regData.fillVec(vars);
 
   //solely to reproduce old exception behaviour, unnessessary although it likely is
@@ -34,16 +33,13 @@ void BaselinePFSCRegression::set(const reco::SuperCluster& sc, std::vector<float
 }
 
 void BaselinePFSCRegression::setTokens(const edm::ParameterSet& ps, edm::ConsumesCollector&& cc) {
-  const edm::InputTag rceb = ps.getParameter<edm::InputTag>("ecalRecHitsEB");
-  const edm::InputTag rcee = ps.getParameter<edm::InputTag>("ecalRecHitsEE");
-  const edm::InputTag vtx = ps.getParameter<edm::InputTag>("vertexCollection");
-  inputTagEBRecHits_ = cc.consumes<EcalRecHitCollection>(rceb);
-  inputTagEERecHits_ = cc.consumes<EcalRecHitCollection>(rcee);
-  inputTagVertices_ = cc.consumes<reco::VertexCollection>(vtx);
+  inputTagEBRecHits_ = cc.consumes(ps.getParameter<edm::InputTag>("ecalRecHitsEB"));
+  inputTagEERecHits_ = cc.consumes(ps.getParameter<edm::InputTag>("ecalRecHitsEE"));
+  inputTagVertices_ = cc.consumes(ps.getParameter<edm::InputTag>("vertexCollection"));
 }
 
 void BaselinePFSCRegression::setEvent(const edm::Event& ev) {
-  ev.getByToken(inputTagEBRecHits_, rechitsEB);
-  ev.getByToken(inputTagEERecHits_, rechitsEE);
-  ev.getByToken(inputTagVertices_, vertices);
+  rechitsEB = &ev.get(inputTagEBRecHits_);
+  rechitsEE = &ev.get(inputTagEERecHits_);
+  vertices = &ev.get(inputTagVertices_);
 }

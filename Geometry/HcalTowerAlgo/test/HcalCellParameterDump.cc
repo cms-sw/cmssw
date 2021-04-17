@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -23,11 +22,13 @@ public:
 private:
   static constexpr int detMax_ = 4;
   int subdet_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 };
 
 HcalCellParameterDump::HcalCellParameterDump(const edm::ParameterSet& iConfig) {
   subdet_ = std::min(detMax_, std::max(iConfig.getParameter<int>("SubDetector"), 1));
   subdet_ = std::min(detMax_, std::max(subdet_, 1));
+  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   std::cout << "Dumps all cells for SubDetId: " << subdet_ << std::endl;
 }
 
@@ -38,9 +39,7 @@ void HcalCellParameterDump::fillDescriptions(edm::ConfigurationDescriptions& des
 }
 
 void HcalCellParameterDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* geo = pG.product();
+  const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const HcalGeometry* hcalGeom = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   std::string subdets[detMax_] = {"HB", "HE", "HO", "HF"};

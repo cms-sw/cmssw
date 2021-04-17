@@ -1,5 +1,5 @@
-#ifndef EcalEBTrigPrimTestAlgo_h
-#define EcalEBTrigPrimTestAlgo_h
+#ifndef SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBTrigPrimTestAlgo_h
+#define SimCalorimetry_EcalEBTrigPrimAlgos_EcalEBTrigPrimTestAlgo_h
 /** \class EcalEBTrigPrimTestAlgo
 \author N. Marinelli - Univ. of Notre Dame
  * forPhase II 
@@ -14,22 +14,17 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
-//#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixLinearizer.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixPeakFinder.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixStripFormatEB.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixLinearizer.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixAmplitudeFilter.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixPeakFinder.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixStripFormatEB.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBFenixTcpFormat.h>
 
 #include <map>
 #include <utility>
@@ -37,21 +32,24 @@
 class EcalTrigTowerDetId;
 class ETPCoherenceTest;
 class EcalEBTriggerPrimitiveSample;
-class CaloSubdetectorGeometry;
 class EBDataFrame;
 
 class EcalEBTrigPrimTestAlgo {
 public:
-  explicit EcalEBTrigPrimTestAlgo(
-      const edm::EventSetup &setup, int nSamples, int binofmax, bool tcpFormat, bool barrelOnly, bool debug, bool famos);
+  // not BarrelOnly
+  explicit EcalEBTrigPrimTestAlgo(const EcalTrigTowerConstituentsMap *eTTmap,
+                                  const CaloGeometry *theGeometry,
+                                  int nSamples,
+                                  int binofmax,
+                                  bool tcpFormat,
+                                  bool debug,
+                                  bool famos);
+  //barrel only
+  explicit EcalEBTrigPrimTestAlgo(int nSamples, int binofmax, bool tcpFormat, bool debug, bool famos);
 
   virtual ~EcalEBTrigPrimTestAlgo();
 
-  //  void run(const edm::EventSetup &, const EcalRecHitCollection *col, EcalEBTrigPrimDigiCollection & result, EcalEBTrigPrimDigiCollection & resultTcp);
-  void run(const edm::EventSetup &,
-           const EBDigiCollection *col,
-           EcalEBTrigPrimDigiCollection &result,
-           EcalEBTrigPrimDigiCollection &resultTcp);
+  void run(const EBDigiCollection *col, EcalEBTrigPrimDigiCollection &result, EcalEBTrigPrimDigiCollection &resultTcp);
 
   void setPointers(const EcalTPGLinearizationConst *ecaltpLin,
                    const EcalTPGPedestals *ecaltpPed,
@@ -76,7 +74,7 @@ public:
   }
 
 private:
-  void init(const edm::EventSetup &);
+  void init();
   template <class T>
   void initStructures(std::vector<std::vector<std::pair<int, std::vector<T> > > > &towMap);
   template <class T>
@@ -97,9 +95,8 @@ private:
     return ind;
   }
 
-  edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
-  //  const CaloSubdetectorGeometry *theEndcapGeometry;
-  edm::ESHandle<CaloGeometry> theGeometry;
+  const EcalTrigTowerConstituentsMap *eTTmap_ = nullptr;
+  const CaloGeometry *theGeometry_ = nullptr;
 
   float threshold;
   int nSamples_;
@@ -129,11 +126,11 @@ private:
 
   const EcalElectronicsMapping *theMapping_;
 
-  std::vector<EcalFenixLinearizer *> linearizer_;
-  EcalFenixAmplitudeFilter *amplitude_filter_;
-  EcalFenixPeakFinder *peak_finder_;
-  EcalFenixStripFormatEB *fenixFormatterEB_;
-  EcalFenixTcpFormat *fenixTcpFormat_;
+  std::vector<EcalEBFenixLinearizer *> linearizer_;
+  EcalEBFenixAmplitudeFilter *amplitude_filter_;
+  EcalEBFenixPeakFinder *peak_finder_;
+  EcalEBFenixStripFormatEB *fenixFormatterEB_;
+  EcalEBFenixTcpFormat *fenixTcpFormat_;
 
   //
   const EcalTPGPedestals *ecaltpPed_;
@@ -147,10 +144,10 @@ private:
   const EcalTPGTowerStatus *ecaltpgBadTT_;
   const EcalTPGSpike *ecaltpgSpike_;
 
-  EcalFenixLinearizer *getLinearizer(int i) const { return linearizer_[i]; }
+  EcalEBFenixLinearizer *getLinearizer(int i) const { return linearizer_[i]; }
   std::vector<std::vector<int> > lin_out_;
   //
-  EcalFenixAmplitudeFilter *getFilter() const { return amplitude_filter_; }
+  EcalEBFenixAmplitudeFilter *getFilter() const { return amplitude_filter_; }
   std::vector<int> filt_out_;
   std::vector<int> peak_out_;
   std::vector<int> format_out_;
@@ -159,10 +156,10 @@ private:
   std::vector<int> fgvb_out_temp_;
 
   //
-  EcalFenixPeakFinder *getPeakFinder() const { return peak_finder_; }
-  EcalFenixStripFormatEB *getFormatterEB() const { return fenixFormatterEB_; }
+  EcalEBFenixPeakFinder *getPeakFinder() const { return peak_finder_; }
+  EcalEBFenixStripFormatEB *getFormatterEB() const { return fenixFormatterEB_; }
   //
-  EcalFenixTcpFormat *getFormatter() const { return fenixTcpFormat_; }
+  EcalEBFenixTcpFormat *getFormatter() const { return fenixTcpFormat_; }
   std::vector<int> tcpformat_out_;
 };
 

@@ -4,6 +4,7 @@ COND_SERIALIZATION_INSTANTIATE(EcalCondObjectContainer<EcalLaserAPDPNRatios::Eca
 COND_SERIALIZATION_INSTANTIATE(EcalCondObjectContainer<EcalMappingElement>);
 COND_SERIALIZATION_INSTANTIATE(EcalCondObjectContainer<EcalMGPAGainRatio>);
 COND_SERIALIZATION_INSTANTIATE(EcalCondObjectContainer<EcalPedestal>);
+COND_SERIALIZATION_INSTANTIATE(EcalCondObjectContainer<EcalLiteDTUPedestals>);
 COND_SERIALIZATION_INSTANTIATE(EcalCondObjectContainer<EcalPulseShape>);
 COND_SERIALIZATION_INSTANTIATE(EcalCondObjectContainer<EcalPulseCovariance>);
 COND_SERIALIZATION_INSTANTIATE(EcalCondObjectContainer<EcalPulseSymmCovariance>);

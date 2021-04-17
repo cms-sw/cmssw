@@ -15,6 +15,7 @@
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="Geometry/Records"/>
+<use name="dd4hep"/>
 <export>
   <lib name="1"/>
 </export>

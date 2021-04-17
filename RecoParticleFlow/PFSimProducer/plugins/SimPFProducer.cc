@@ -2,63 +2,51 @@
 // The times are produced as valuemaps associated to tracks, so the track dataformat doesn't
 // need to be modified.
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Utilities/interface/transform.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
+#include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+#include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-
-#include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
-#include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
-
-#include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
-#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
-
-#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 #include <unordered_map>
 #include <memory>
 
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "FWCore/Utilities/interface/isFinite.h"
-
-#include "FWCore/Utilities/interface/transform.h"
-
 class SimPFProducer : public edm::global::EDProducer<> {
 public:
   SimPFProducer(const edm::ParameterSet&);
-  ~SimPFProducer() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
@@ -84,7 +72,39 @@ private:
   const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> associators_;
 };
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimPFProducer);
+
+void SimPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // simPFProducer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("simClustersSrc", {"particleFlowClusterHGCal"});
+  desc.add<edm::InputTag>("trackSrc", {"generalTracks"});
+  desc.add<std::vector<edm::InputTag>>("associators",
+                                       {
+                                           {"quickTrackAssociatorByHits"},
+                                       });
+  desc.add<edm::InputTag>("pfRecTrackSrc", {"hgcalTrackCollection", "TracksInHGCal"});
+  desc.add<edm::InputTag>("trackingParticleSrc", {"mix", "MergedTrackTruth"});
+  desc.add<double>("neutralEMThreshold", 0.25);
+  desc.add<edm::InputTag>("caloParticlesSrc", {"mix", "MergedCaloTruth"});
+  desc.add<double>("superClusterThreshold", 4.0);
+  desc.add<edm::InputTag>("simClusterTruthSrc", {"mix", "MergedCaloTruth"});
+  desc.add<edm::InputTag>("muonSrc", {"muons1stStep"});
+  desc.add<double>("neutralHADThreshold", 0.25);
+  desc.add<edm::InputTag>("gsfTrackSrc", {"electronGsfTracks"});
+
+  // if useTiming_
+  desc.addOptional<edm::InputTag>("trackTimeValueMap");
+  desc.addOptional<edm::InputTag>("trackTimeErrorMap");
+  desc.addOptional<edm::InputTag>("trackTimeQualityMap");
+  desc.addOptional<double>("timingQualityThreshold");
+  desc.addOptional<edm::InputTag>("gsfTrackTimeValueMap");
+  desc.addOptional<edm::InputTag>("gsfTrackTimeErrorMap");
+  desc.addOptional<edm::InputTag>("gsfTrackTimeQualityMap");
+
+  descriptions.add("simPFProducer", desc);
+}
 
 namespace {
 

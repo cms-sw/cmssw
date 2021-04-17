@@ -34,3 +34,7 @@ run2_GEM_2017.toModify( rawDataCollector.RawCollectionList, func = lambda list: 
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gemPacker")) )
+
+# For Run2 it is needed to include the general ctpps era ctpps_2016
+from Configuration.Eras.Modifier_ctpps_2021_cff import ctpps_2021
+ctpps_2021.toModify(rawDataCollector.RawCollectionList, func = lambda  list: list.extend([cms.InputTag("ctppsTotemRawData"),cms.InputTag("ctppsPixelRawData")]) )

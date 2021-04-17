@@ -198,13 +198,13 @@ namespace cond {
       return proxy;
     }
 
-    cond::RunInfo_t Session::getCurrentRun() {
+    cond::RunInfo_t Session::getLastRun() {
       if (!m_session->transaction.get())
         throwException("The transaction is not active.", "Session::getRunInfo");
-      RunInfoProxy proxy(m_session);
-      boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-      proxy.load(now, now);
-      return proxy.get(now);
+      m_session->openRunInfoDb();
+      cond::RunInfo_t ret;
+      ret.run = m_session->runInfoSchema().runInfoTable().getLastInserted(ret.start, ret.end);
+      return ret;
     }
 
     RunInfoEditor Session::editRunInfo() {

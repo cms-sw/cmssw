@@ -7,35 +7,21 @@
  * Created:     12 Mar 2015
  */
 
-/** @todo nope */
-
 #ifndef tmEventSetup_L1TUtmObject_hh
 #define tmEventSetup_L1TUtmObject_hh
 
-/*====================================================================*
- * declarations
- *====================================================================*/
-/*-----------------------------------------------------------------*
- * headers
- *-----------------------------------------------------------------*/
-#include <string>
-#include <vector>
-#include <limits>
+#include "CondFormats/L1TObjects/interface/L1TUtmCut.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include "CondFormats/L1TObjects/interface/L1TUtmCut.h"
-
-/*-----------------------------------------------------------------*
- * constants
- *-----------------------------------------------------------------*/
-/* nope */
+#include <limits>
+#include <string>
+#include <vector>
 
 /**
  *  This class implements data structure for Object
  */
 class L1TUtmObject {
 public:
-  // ctor
   L1TUtmObject()
       : name_(),
         type_(),
@@ -47,8 +33,7 @@ public:
         cuts_(),
         version(0){};
 
-  // dtor
-  virtual ~L1TUtmObject(){};
+  virtual ~L1TUtmObject() = default;
 
   /** set object name */
   void setName(const std::string& x) { name_ = x; };
@@ -112,4 +97,3 @@ protected:
 };
 
 #endif  // tmEventSetup_L1TUtmObject_hh
-/* eof */

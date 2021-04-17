@@ -24,7 +24,8 @@ enum TrackStatus {
   sOutOfTime = 3,
   sLowEnergy = 4,
   sLowEnergyInVacuum = 5,
-  sEnergyDepNaN = 6
+  sEnergyDepNaN = 6,
+  sVeryForward = 7
 };
 
 class SteppingAction : public G4UserSteppingAction {
@@ -39,9 +40,9 @@ public:
 private:
   bool initPointer();
 
-  bool isInsideDeadRegion(const G4Region* reg) const;
-  bool isOutOfTimeWindow(G4Track* theTrack, const G4Region* reg) const;
-  bool isThisVolume(const G4VTouchable* touch, const G4VPhysicalVolume* pv) const;
+  inline bool isInsideDeadRegion(const G4Region* reg) const;
+  inline bool isOutOfTimeWindow(const G4Track* theTrack, const G4Region* reg) const;
+  inline bool isThisVolume(const G4VTouchable* touch, const G4VPhysicalVolume* pv) const;
 
   bool isLowEnergy(const G4Step* aStep) const;
   void PrintKilledTrack(const G4Track*, const TrackStatus&) const;
@@ -52,6 +53,8 @@ private:
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;
   double maxTrackTime;
+  double maxTrackTimeForward;
+  double maxZCentralCMS;
   std::vector<double> maxTrackTimes, ekinMins;
   std::vector<std::string> maxTimeNames, ekinNames, ekinParticles;
   std::vector<std::string> deadRegionNames;
@@ -72,8 +75,8 @@ private:
 
 inline bool SteppingAction::isInsideDeadRegion(const G4Region* reg) const {
   bool res = false;
-  for (unsigned int i = 0; i < ndeadRegions; ++i) {
-    if (reg == deadRegions[i]) {
+  for (auto& region : deadRegions) {
+    if (reg == region) {
       res = true;
       break;
     }
@@ -81,7 +84,7 @@ inline bool SteppingAction::isInsideDeadRegion(const G4Region* reg) const {
   return res;
 }
 
-inline bool SteppingAction::isOutOfTimeWindow(G4Track* theTrack, const G4Region* reg) const {
+inline bool SteppingAction::isOutOfTimeWindow(const G4Track* theTrack, const G4Region* reg) const {
   double tofM = maxTrackTime;
   for (unsigned int i = 0; i < numberTimes; ++i) {
     if (reg == maxTimeRegions[i]) {
@@ -89,7 +92,7 @@ inline bool SteppingAction::isOutOfTimeWindow(G4Track* theTrack, const G4Region*
       break;
     }
   }
-  return (theTrack->GetGlobalTime() > tofM) ? true : false;
+  return (theTrack->GetGlobalTime() > tofM);
 }
 
 inline bool SteppingAction::isThisVolume(const G4VTouchable* touch, const G4VPhysicalVolume* pv) const {

@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -18,6 +19,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
@@ -42,6 +45,7 @@ private:
 
   edm::EDGetTokenT<EcalUncalibratedRecHitCollection> ebUHitsToken_;
   edm::EDGetTokenT<EcalUncalibratedRecHitCollection> eeUHitsToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 
   std::string barrelClusterCollection_;
   std::string endcapClusterCollection_;

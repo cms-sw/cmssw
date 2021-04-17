@@ -16,6 +16,7 @@
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -30,16 +31,12 @@
 #include <sstream>
 
 namespace edm {
-  class EventPrincipal;
-  class EventSetupImpl;
+  class EventTransitionInfo;
   class ModuleDescription;
   class PathStatusInserter;
-  class RunPrincipal;
-  class LuminosityBlockPrincipal;
   class EarlyDeleteHelper;
   class StreamContext;
   class StreamID;
-  class WaitingTask;
 
   class Path {
   public:
@@ -61,20 +58,17 @@ namespace edm {
 
     Path(Path const&);
 
+    Path& operator=(Path const&) = delete;
+
     template <typename T>
-    void runAllModulesAsync(WaitingTask*,
-                            typename T::MyPrincipal const&,
-                            EventSetupImpl const&,
+    void runAllModulesAsync(WaitingTaskHolder,
+                            typename T::TransitionInfoType const&,
                             ServiceToken const&,
                             StreamID const&,
                             typename T::Context const*);
 
-    void processOneOccurrenceAsync(WaitingTask*,
-                                   EventPrincipal const&,
-                                   EventSetupImpl const&,
-                                   ServiceToken const&,
-                                   StreamID const&,
-                                   StreamContext const*);
+    void processOneOccurrenceAsync(
+        WaitingTaskHolder, EventTransitionInfo const&, ServiceToken const&, StreamID const&, StreamContext const*);
 
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return pathContext_.pathName(); }
@@ -99,10 +93,6 @@ namespace edm {
     void setPathStatusInserter(PathStatusInserter* pathStatusInserter, Worker* pathStatusInserterWorker);
 
   private:
-    // If you define this be careful about the pointer in the
-    // PlaceInPathContext object in the contained WorkerInPath objects.
-    Path const& operator=(Path const&) = delete;  // stop default
-
     int timesRun_;
     int timesPassed_;
     int timesFailed_;
@@ -150,26 +140,22 @@ namespace edm {
     void recordStatus(int nwrwue, hlt::HLTState state);
     void updateCounters(hlt::HLTState state);
 
-    void finished(std::exception_ptr,
-                  StreamContext const*,
-                  EventPrincipal const& iEP,
-                  EventSetupImpl const& iES,
-                  StreamID const& streamID);
+    void finished(std::exception_ptr, StreamContext const*, EventTransitionInfo const&, StreamID const&);
 
     //Handle asynchronous processing
-    void workerFinished(std::exception_ptr const* iException,
+    void workerFinished(std::exception_ptr const*,
                         unsigned int iModuleIndex,
-                        EventPrincipal const& iEP,
-                        EventSetupImpl const& iES,
-                        ServiceToken const& iToken,
-                        StreamID const& iID,
-                        StreamContext const* iContext);
+                        EventTransitionInfo const&,
+                        ServiceToken const&,
+                        StreamID const&,
+                        StreamContext const*,
+                        tbb::task_group& iGroup);
     void runNextWorkerAsync(unsigned int iNextModuleIndex,
-                            EventPrincipal const&,
-                            EventSetupImpl const&,
+                            EventTransitionInfo const&,
                             ServiceToken const&,
                             StreamID const&,
-                            StreamContext const*);
+                            StreamContext const*,
+                            tbb::task_group& iGroup);
   };
 
   namespace {
@@ -199,14 +185,13 @@ namespace edm {
   }  // namespace
 
   template <typename T>
-  void Path::runAllModulesAsync(WaitingTask* task,
-                                typename T::MyPrincipal const& p,
-                                EventSetupImpl const& es,
+  void Path::runAllModulesAsync(WaitingTaskHolder task,
+                                typename T::TransitionInfoType const& info,
                                 ServiceToken const& token,
                                 StreamID const& streamID,
                                 typename T::Context const* context) {
     for (auto& worker : workers_) {
-      worker.runWorkerAsync<T>(task, p, es, token, streamID, context);
+      worker.runWorkerAsync<T>(task, info, token, streamID, context);
     }
   }
 

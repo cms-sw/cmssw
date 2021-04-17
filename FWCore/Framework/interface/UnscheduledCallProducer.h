@@ -7,12 +7,12 @@
 // Class  :     UnscheduledCallProducer
 //
 /**\class UnscheduledCallProducer UnscheduledCallProducer.h "UnscheduledCallProducer.h"
- 
+
  Description: Handles calling of EDProducers which are unscheduled
- 
+
  Usage:
  <usage>
- 
+
  */
 
 #include "FWCore/Framework/interface/BranchActionType.h"
@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/UnscheduledAuxiliary.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
@@ -27,9 +28,11 @@
 #include <unordered_map>
 #include <string>
 #include <sstream>
+#include <cassert>
 
 namespace edm {
 
+  class EventTransitionInfo;
   class ModuleCallingContext;
 
   class UnscheduledCallProducer {
@@ -49,7 +52,14 @@ namespace edm {
       }
     }
 
-    void setEventSetup(EventSetupImpl const& iSetup) { aux_.setEventSetup(&iSetup); }
+    void removeWorker(Worker const* worker) {
+      unscheduledWorkers_.erase(std::remove(unscheduledWorkers_.begin(), unscheduledWorkers_.end(), worker),
+                                unscheduledWorkers_.end());
+      accumulatorWorkers_.erase(std::remove(accumulatorWorkers_.begin(), accumulatorWorkers_.end(), worker),
+                                accumulatorWorkers_.end());
+    }
+
+    void setEventTransitionInfo(EventTransitionInfo const& info) { aux_.setEventTransitionInfo(info); }
 
     UnscheduledAuxiliary const& auxiliary() const { return aux_; }
 
@@ -57,9 +67,8 @@ namespace edm {
     const_iterator end() const { return unscheduledWorkers_.end(); }
 
     template <typename T, typename U>
-    void runNowAsync(WaitingTask* task,
-                     typename T::MyPrincipal& p,
-                     EventSetupImpl const& es,
+    void runNowAsync(WaitingTaskHolder task,
+                     typename T::TransitionInfoType const& info,
                      ServiceToken const& token,
                      StreamID streamID,
                      typename T::Context const* topContext,
@@ -74,21 +83,20 @@ namespace edm {
           // into the runs or lumis in stream transitions, so there can be
           // no data dependencies which require prefetching. Prefetching is
           // needed for global transitions, but they are run elsewhere.
-          worker->doWorkNoPrefetchingAsync<T>(task, p, es, token, streamID, parentContext, topContext);
+          worker->doWorkNoPrefetchingAsync<T>(task, info, token, streamID, parentContext, topContext);
         }
       }
     }
 
     template <typename T>
-    void runAccumulatorsAsync(WaitingTask* task,
-                              typename T::MyPrincipal const& ep,
-                              EventSetupImpl const& es,
+    void runAccumulatorsAsync(WaitingTaskHolder task,
+                              typename T::TransitionInfoType const& info,
                               ServiceToken const& token,
                               StreamID streamID,
                               ParentContext const& parentContext,
                               typename T::Context const* context) {
       for (auto worker : accumulatorWorkers_) {
-        worker->doWorkAsync<T>(task, ep, es, token, streamID, parentContext, context);
+        worker->doWorkAsync<T>(task, info, token, streamID, parentContext, context);
       }
     }
 

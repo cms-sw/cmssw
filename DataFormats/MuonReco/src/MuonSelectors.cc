@@ -43,14 +43,14 @@ unsigned int muon::RequiredStationMask(const reco::Muon& muon,
                                        reco::Muon::ArbitrationType arbitrationType) {
   unsigned int theMask = 0;
 
-  for (int stationIdx = 1; stationIdx < 5; ++stationIdx)
-    for (int detectorIdx = 1; detectorIdx < 3; ++detectorIdx)
-      if (muon.trackDist(stationIdx, detectorIdx, arbitrationType) < maxChamberDist &&
-          muon.trackDist(stationIdx, detectorIdx, arbitrationType) /
-                  muon.trackDistErr(stationIdx, detectorIdx, arbitrationType) <
-              maxChamberDistPull)
+  for (int stationIdx = 1; stationIdx < 5; ++stationIdx) {
+    for (int detectorIdx = 1; detectorIdx < 3; ++detectorIdx) {
+      float dist = muon.trackDist(stationIdx, detectorIdx, arbitrationType);
+      if (dist < maxChamberDist &&
+          dist < maxChamberDistPull * muon.trackDistErr(stationIdx, detectorIdx, arbitrationType))
         theMask += 1 << ((stationIdx - 1) + 4 * (detectorIdx - 1));
-
+    }
+  }
   return theMask;
 }
 
@@ -76,12 +76,13 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
     // ********************************************************;
     // *** fill local info for this muon (do some counting) ***;
     // ************** begin ***********************************;
-    if (i <= 4) {                                            // this is the section for the DTs
-      if (muon.trackDist(i, 1, arbitrationType) < 999999) {  //current "raw" info that a track is close to a chamber
+    if (i <= 4) {  // this is the section for the DTs
+      float thisTrackDist = muon.trackDist(i, 1, arbitrationType);
+      if (thisTrackDist < 999999) {  //current "raw" info that a track is close to a chamber
         ++nr_of_stations_crossed;
         station_was_crossed[i - 1] = 1;
-        if (muon.trackDist(i, 1, arbitrationType) > -10.)
-          stations_w_track_at_boundary[i - 1] = muon.trackDist(i, 1, arbitrationType);
+        if (thisTrackDist > -10.)
+          stations_w_track_at_boundary[i - 1] = thisTrackDist;
         else
           stations_w_track_at_boundary[i - 1] = 0.;
       }
@@ -90,12 +91,13 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
         ++nr_of_stations_with_segment;
         station_has_segmentmatch[i - 1] = 1;
       }
-    } else {                                                     // this is the section for the CSCs
-      if (muon.trackDist(i - 4, 2, arbitrationType) < 999999) {  //current "raw" info that a track is close to a chamber
+    } else {  // this is the section for the CSCs
+      float thisTrackDist = muon.trackDist(i - 4, 2, arbitrationType);
+      if (thisTrackDist < 999999) {  //current "raw" info that a track is close to a chamber
         ++nr_of_stations_crossed;
         station_was_crossed[i - 1] = 1;
-        if (muon.trackDist(i - 4, 2, arbitrationType) > -10.)
-          stations_w_track_at_boundary[i - 1] = muon.trackDist(i - 4, 2, arbitrationType);
+        if (thisTrackDist > -10.)
+          stations_w_track_at_boundary[i - 1] = thisTrackDist;
         else
           stations_w_track_at_boundary[i - 1] = 0.;
       }
@@ -139,38 +141,38 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
 
       switch (nr_of_stations_crossed) {  // define different weights depending on how many stations were crossed
         case 1:
-          station_weight[i - 1] = 1.;
+          station_weight[i - 1] = 1.f;
           break;
         case 2:
           if (position_in_stations == 1)
-            station_weight[i - 1] = 0.33;
+            station_weight[i - 1] = 0.33f;
           else
-            station_weight[i - 1] = 0.67;
+            station_weight[i - 1] = 0.67f;
           break;
         case 3:
           if (position_in_stations == 1)
-            station_weight[i - 1] = 0.23;
+            station_weight[i - 1] = 0.23f;
           else if (position_in_stations == 2)
-            station_weight[i - 1] = 0.33;
+            station_weight[i - 1] = 0.33f;
           else
-            station_weight[i - 1] = 0.44;
+            station_weight[i - 1] = 0.44f;
           break;
         case 4:
           if (position_in_stations == 1)
-            station_weight[i - 1] = 0.10;
+            station_weight[i - 1] = 0.10f;
           else if (position_in_stations == 2)
-            station_weight[i - 1] = 0.20;
+            station_weight[i - 1] = 0.20f;
           else if (position_in_stations == 3)
-            station_weight[i - 1] = 0.30;
+            station_weight[i - 1] = 0.30f;
           else
-            station_weight[i - 1] = 0.40;
+            station_weight[i - 1] = 0.40f;
           break;
 
         default:
           // 	LogTrace("MuonIdentification")<<"            // Message: A muon candidate track has more than 4 stations with matching segments.";
           // 	LogTrace("MuonIdentification")<<"            // Did not expect this - please let me know: ibloch@fnal.gov";
           // for all other cases
-          station_weight[i - 1] = 1. / nr_of_stations_crossed;
+          station_weight[i - 1] = 1.f / nr_of_stations_crossed;
       }
 
       if (use_weight_regain_at_chamber_boundary) {  // reconstitute some weight if there is no match but the segment is close to a boundary:
@@ -179,96 +181,82 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
           // original "match weight" is currently reduced by at least attenuate_weight_regain, variing with an error function down to 0 if the track is
           // inside the chamber.
           // remark: the additional scale of 0.5 normalizes Err to run from 0 to 1 in y
-          station_weight[i - 1] = station_weight[i - 1] * attenuate_weight_regain * 0.5 *
-                                  (TMath::Erf(stations_w_track_at_boundary[i - 1] / 6.) + 1.);
+          station_weight[i - 1] = station_weight[i - 1] * attenuate_weight_regain * 0.5f *
+                                  (std::erf(stations_w_track_at_boundary[i - 1] / 6.f) + 1.f);
         } else if (station_has_segmentmatch[i - 1] <= 0 &&
-                   stations_w_track_at_boundary[i - 1] == 0.) {  // no segment match and track well inside chamber
+                   stations_w_track_at_boundary[i - 1] == 0.f) {  // no segment match and track well inside chamber
           // full penalization
-          station_weight[i - 1] = 0.;
+          station_weight[i - 1] = 0.f;
         }
       } else {  // always fully penalize tracks with no matching segment, whether the segment is close to the boundary or not.
         if (station_has_segmentmatch[i - 1] <= 0)
-          station_weight[i - 1] = 0.;
+          station_weight[i - 1] = 0.f;
       }
 
       // if track has matching segment, but the matching is not high quality, penalize
-      if (station_has_segmentmatch[i - 1] > 0 && 42 == 42) {
+      if (station_has_segmentmatch[i - 1] > 0) {
         if (i <= 4) {  // we are in the DTs
-          if (muon.dY(i, 1, arbitrationType) < 999999 &&
-              muon.dX(i, 1, arbitrationType) < 999999) {  // have both X and Y match
-            if (TMath::Sqrt(TMath::Power(muon.pullX(i, 1, arbitrationType), 2.) +
-                            TMath::Power(muon.pullY(i, 1, arbitrationType), 2.)) > 1.) {
+          if (muon.dY(i, 1, arbitrationType) < 999999.f &&
+              muon.dX(i, 1, arbitrationType) < 999999.f) {  // have both X and Y match
+            const float pullTot2 =
+                std::pow(muon.pullX(i, 1, arbitrationType), 2.) + std::pow(muon.pullY(i, 1, arbitrationType), 2.);
+            if (pullTot2 > 1.f) {
+              const float dxy2 =
+                  std::pow(muon.dX(i, 1, arbitrationType), 2.) + std::pow(muon.dY(i, 1, arbitrationType), 2.);
               // reduce weight
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm
-                if (TMath::Sqrt(TMath::Power(muon.dX(i, 1, arbitrationType), 2.) +
-                                TMath::Power(muon.dY(i, 1, arbitrationType), 2.)) < 3. &&
-                    TMath::Sqrt(TMath::Power(muon.pullX(i, 1, arbitrationType), 2.) +
-                                TMath::Power(muon.pullY(i, 1, arbitrationType), 2.)) > 3.) {
-                  station_weight[i - 1] *=
-                      1. /
-                      TMath::Power(TMath::Max((double)TMath::Sqrt(TMath::Power(muon.dX(i, 1, arbitrationType), 2.) +
-                                                                  TMath::Power(muon.dY(i, 1, arbitrationType), 2.)),
-                                              (double)1.),
-                                   .25);
+                if (dxy2 < 9.f && pullTot2 > 9.f) {
+                  if (dxy2 > 1.f)
+                    station_weight[i - 1] *= 1.f / std::pow(dxy2, .125);
                 } else {
-                  station_weight[i - 1] *=
-                      1. / TMath::Power(TMath::Sqrt(TMath::Power(muon.pullX(i, 1, arbitrationType), 2.) +
-                                                    TMath::Power(muon.pullY(i, 1, arbitrationType), 2.)),
-                                        .25);
+                  station_weight[i - 1] *= 1.f / std::pow(pullTot2, .125);
                 }
               }
             }
-          } else if (muon.dY(i, 1, arbitrationType) >= 999999) {  // has no match in Y
+          } else if (muon.dY(i, 1, arbitrationType) >= 999999.f) {  // has no match in Y
             // has a match in X. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
-            if (muon.pullX(i, 1, arbitrationType) > 1.) {
+            if (muon.pullX(i, 1, arbitrationType) > 1.f) {
               // reduce weight
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm
-                if (muon.dX(i, 1, arbitrationType) < 3. && muon.pullX(i, 1, arbitrationType) > 3.) {
-                  station_weight[i - 1] *=
-                      1. / TMath::Power(TMath::Max((double)muon.dX(i, 1, arbitrationType), (double)1.), .25);
+                if (muon.dX(i, 1, arbitrationType) < 3.f && muon.pullX(i, 1, arbitrationType) > 3.f) {
+                  if (muon.dX(i, 1, arbitrationType) > 1.f)
+                    station_weight[i - 1] *= 1.f / std::pow(muon.dX(i, 1, arbitrationType), .25);
                 } else {
-                  station_weight[i - 1] *= 1. / TMath::Power(muon.pullX(i, 1, arbitrationType), .25);
+                  station_weight[i - 1] *= 1.f / std::pow(muon.pullX(i, 1, arbitrationType), .25);
                 }
               }
             }
           } else {  // has no match in X
             // has a match in Y. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
-            if (muon.pullY(i, 1, arbitrationType) > 1.) {
+            if (muon.pullY(i, 1, arbitrationType) > 1.f) {
               // reduce weight
               if (use_match_dist_penalty) {
                 // only use pull if 3 sigma is not smaller than 3 cm
                 if (muon.dY(i, 1, arbitrationType) < 3. && muon.pullY(i, 1, arbitrationType) > 3.) {
-                  station_weight[i - 1] *=
-                      1. / TMath::Power(TMath::Max((double)muon.dY(i, 1, arbitrationType), (double)1.), .25);
+                  if (muon.dY(i, 1, arbitrationType) > 1.f)
+                    station_weight[i - 1] *= 1.f / std::pow(muon.dY(i, 1, arbitrationType), .25);
                 } else {
-                  station_weight[i - 1] *= 1. / TMath::Power(muon.pullY(i, 1, arbitrationType), .25);
+                  station_weight[i - 1] *= 1.f / std::pow(muon.pullY(i, 1, arbitrationType), .25);
                 }
               }
             }
           }
         } else {  // We are in the CSCs
-          if (TMath::Sqrt(TMath::Power(muon.pullX(i - 4, 2, arbitrationType), 2.) +
-                          TMath::Power(muon.pullY(i - 4, 2, arbitrationType), 2.)) > 1.) {
+          const float pullTot2 =
+              std::pow(muon.pullX(i - 4, 2, arbitrationType), 2.) + std::pow(muon.pullY(i - 4, 2, arbitrationType), 2.);
+          if (pullTot2 > 1.f) {
             // reduce weight
             if (use_match_dist_penalty) {
+              const float dxy2 =
+                  std::pow(muon.dX(i - 4, 2, arbitrationType), 2.) + std::pow(muon.dY(i - 4, 2, arbitrationType), 2.);
               // only use pull if 3 sigma is not smaller than 3 cm
-              if (TMath::Sqrt(TMath::Power(muon.dX(i - 4, 2, arbitrationType), 2.) +
-                              TMath::Power(muon.dY(i - 4, 2, arbitrationType), 2.)) < 3. &&
-                  TMath::Sqrt(TMath::Power(muon.pullX(i - 4, 2, arbitrationType), 2.) +
-                              TMath::Power(muon.pullY(i - 4, 2, arbitrationType), 2.)) > 3.) {
-                station_weight[i - 1] *=
-                    1. /
-                    TMath::Power(TMath::Max((double)TMath::Sqrt(TMath::Power(muon.dX(i - 4, 2, arbitrationType), 2.) +
-                                                                TMath::Power(muon.dY(i - 4, 2, arbitrationType), 2.)),
-                                            (double)1.),
-                                 .25);
+              if (dxy2 < 9.f && pullTot2 > 9.f) {
+                if (dxy2 > 1.f)
+                  station_weight[i - 1] *= 1.f / std::pow(dxy2, .125);
               } else {
-                station_weight[i - 1] *=
-                    1. / TMath::Power(TMath::Sqrt(TMath::Power(muon.pullX(i - 4, 2, arbitrationType), 2.) +
-                                                  TMath::Power(muon.pullY(i - 4, 2, arbitrationType), 2.)),
-                                      .25);
+                station_weight[i - 1] *= 1.f / std::pow(pullTot2, .125);
               }
             }
           }
@@ -280,7 +268,7 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
       // - should also use the segment direction, as it now works!
 
     } else {  // track did not pass a chamber in this station - just reset weight
-      station_weight[i - 1] = 0.;
+      station_weight[i - 1] = 0.f;
     }
 
     //increment final weight for muon:
@@ -292,7 +280,7 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
   // background - we should maybe rather set it to -0.5!
   if (nr_of_stations_crossed == 0) {
     //      full_weight = attenuate_weight_regain*0.5;
-    full_weight = 0.5;
+    full_weight = 0.5f;
   }
 
   // ********************************************************;
@@ -367,7 +355,7 @@ bool muon::isGoodMuon(const reco::Muon& muon,
     // the number of required stations but still greater than zero
     if (syncMinNMatchesNRequiredStationsInBarrelOnly) {
       // Note that we only do this in the barrel region!
-      if (fabs(muon.eta()) < 1.2) {
+      if (std::abs(muon.eta()) < 1.2) {
         if (minNumberOfMatches > numRequiredStations)
           minNumberOfMatches = numRequiredStations;
         if (minNumberOfMatches < 1)  //SK: this only happens for negative values
@@ -417,11 +405,11 @@ bool muon::isGoodMuon(const reco::Muon& muon,
     detector = lastSegBit < 4 ? 1 : 2;
 
     // Check x information
-    if (fabs(muon.pullX(station, detector, arbitrationType, true)) > maxAbsPullX &&
-        fabs(muon.dX(station, detector, arbitrationType)) > maxAbsDx)
+    if (std::abs(muon.pullX(station, detector, arbitrationType, true)) > maxAbsPullX &&
+        std::abs(muon.dX(station, detector, arbitrationType)) > maxAbsDx)
       return false;
 
-    if (applyAlsoAngularCuts && fabs(muon.pullDxDz(station, detector, arbitrationType, true)) > maxAbsPullX)
+    if (applyAlsoAngularCuts && std::abs(muon.pullDxDz(station, detector, arbitrationType, true)) > maxAbsPullX)
       return false;
 
     // Is this a tight algorithm, i.e. do we bother to check y information?
@@ -429,11 +417,11 @@ bool muon::isGoodMuon(const reco::Muon& muon,
 
       // Check y information
       if (detector == 2) {  // CSC
-        if (fabs(muon.pullY(station, 2, arbitrationType, true)) > maxAbsPullY &&
-            fabs(muon.dY(station, 2, arbitrationType)) > maxAbsDy)
+        if (std::abs(muon.pullY(station, 2, arbitrationType, true)) > maxAbsPullY &&
+            std::abs(muon.dY(station, 2, arbitrationType)) > maxAbsDy)
           return false;
 
-        if (applyAlsoAngularCuts && fabs(muon.pullDyDz(station, 2, arbitrationType, true)) > maxAbsPullY)
+        if (applyAlsoAngularCuts && std::abs(muon.pullDyDz(station, 2, arbitrationType, true)) > maxAbsPullY)
           return false;
       } else {
         //
@@ -458,12 +446,12 @@ bool muon::isGoodMuon(const reco::Muon& muon,
           if (muon.dY(stationIdx, 1, arbitrationType) > 999998)  // no y-information
             continue;
 
-          if (fabs(muon.pullY(stationIdx, 1, arbitrationType, true)) > maxAbsPullY &&
-              fabs(muon.dY(stationIdx, 1, arbitrationType)) > maxAbsDy) {
+          if (std::abs(muon.pullY(stationIdx, 1, arbitrationType, true)) > maxAbsPullY &&
+              std::abs(muon.dY(stationIdx, 1, arbitrationType)) > maxAbsDy) {
             return false;
           }
 
-          if (applyAlsoAngularCuts && fabs(muon.pullDyDz(stationIdx, 1, arbitrationType, true)) > maxAbsPullY)
+          if (applyAlsoAngularCuts && std::abs(muon.pullDyDz(stationIdx, 1, arbitrationType, true)) > maxAbsPullY)
             return false;
 
           // If we get this far then great this is a good muon
@@ -507,9 +495,9 @@ bool muon::isGoodMuon(const reco::Muon& muon,
         station = stationIdx < 4 ? stationIdx + 1 : stationIdx - 3;
         detector = stationIdx < 4 ? 1 : 2;
 
-        if ((fabs(muon.pullX(station, detector, arbitrationType, true)) > maxAbsPullX &&
-             fabs(muon.dX(station, detector, arbitrationType)) > maxAbsDx) ||
-            (applyAlsoAngularCuts && fabs(muon.pullDxDz(station, detector, arbitrationType, true)) > maxAbsPullX))
+        if ((std::abs(muon.pullX(station, detector, arbitrationType, true)) > maxAbsPullX &&
+             std::abs(muon.dX(station, detector, arbitrationType)) > maxAbsDx) ||
+            (applyAlsoAngularCuts && std::abs(muon.pullDxDz(station, detector, arbitrationType, true)) > maxAbsPullX))
           continue;
         else if (detector == 1)
           existsGoodDTSegX = true;
@@ -517,9 +505,9 @@ bool muon::isGoodMuon(const reco::Muon& muon,
         // Is this a tight algorithm?  If yes, use y information
         if (maxAbsDy < 999999) {
           if (detector == 2) {  // CSC
-            if ((fabs(muon.pullY(station, 2, arbitrationType, true)) > maxAbsPullY &&
-                 fabs(muon.dY(station, 2, arbitrationType)) > maxAbsDy) ||
-                (applyAlsoAngularCuts && fabs(muon.pullDyDz(station, 2, arbitrationType, true)) > maxAbsPullY))
+            if ((std::abs(muon.pullY(station, 2, arbitrationType, true)) > maxAbsPullY &&
+                 std::abs(muon.dY(station, 2, arbitrationType)) > maxAbsDy) ||
+                (applyAlsoAngularCuts && std::abs(muon.pullDyDz(station, 2, arbitrationType, true)) > maxAbsPullY))
               continue;
           } else {
             if (muon.dY(station, 1, arbitrationType) > 999998)  // no y-information
@@ -527,9 +515,9 @@ bool muon::isGoodMuon(const reco::Muon& muon,
             else
               existsDTSegY = true;
 
-            if ((fabs(muon.pullY(station, 1, arbitrationType, true)) > maxAbsPullY &&
-                 fabs(muon.dY(station, 1, arbitrationType)) > maxAbsDy) ||
-                (applyAlsoAngularCuts && fabs(muon.pullDyDz(station, 1, arbitrationType, true)) > maxAbsPullY)) {
+            if ((std::abs(muon.pullY(station, 1, arbitrationType, true)) > maxAbsPullY &&
+                 std::abs(muon.dY(station, 1, arbitrationType)) > maxAbsDy) ||
+                (applyAlsoAngularCuts && std::abs(muon.pullDyDz(station, 1, arbitrationType, true)) > maxAbsPullY)) {
               continue;
             }
           }
@@ -560,22 +548,17 @@ bool muon::isGoodMuon(const reco::Muon& muon,
       return true;
 
     int nMatch = 0;
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = muon.matches().begin();
-         chamberMatch != muon.matches().end();
-         ++chamberMatch) {
-      if (chamberMatch->detector() != 3)
+    for (const auto& chamberMatch : muon.matches()) {
+      if (chamberMatch.detector() != MuonSubdetId::RPC)
         continue;
 
-      const double trkX = chamberMatch->x;
-      const double errX = chamberMatch->xErr;
+      const float trkX = chamberMatch.x;
+      const float errX = chamberMatch.xErr;
 
-      for (std::vector<reco::MuonRPCHitMatch>::const_iterator rpcMatch = chamberMatch->rpcMatches.begin();
-           rpcMatch != chamberMatch->rpcMatches.end();
-           ++rpcMatch) {
-        const double rpcX = rpcMatch->x;
-
-        const double dX = fabs(rpcX - trkX);
-        if (dX < maxAbsDx or dX / errX < maxAbsPullX) {
+      for (const auto& rpcMatch : chamberMatch.rpcMatches) {
+        const float rpcX = rpcMatch.x;
+        const float dX = std::abs(rpcX - trkX);
+        if (dX < maxAbsDx or dX < maxAbsPullX * errX) {
           ++nMatch;
           break;
         }
@@ -597,23 +580,24 @@ bool muon::isGoodMuon(const reco::Muon& muon,
       if (chamberMatch.detector() != MuonSubdetId::ME0)
         continue;
 
-      const double trkX = chamberMatch.x;
-      const double errX = chamberMatch.xErr;
-      const double trkY = chamberMatch.y;
-      const double errY = chamberMatch.yErr;
+      const float trkX = chamberMatch.x;
+      const float errX2 = chamberMatch.xErr * chamberMatch.xErr;
+      const float trkY = chamberMatch.y;
+      const float errY2 = chamberMatch.yErr * chamberMatch.yErr;
 
       for (const auto& segment : chamberMatch.me0Matches) {
-        const double me0X = segment.x;
-        const double me0ErrX = segment.xErr;
-        const double me0Y = segment.y;
-        const double me0ErrY = segment.yErr;
+        const float me0X = segment.x;
+        const float me0ErrX2 = segment.xErr * segment.xErr;
+        const float me0Y = segment.y;
+        const float me0ErrY2 = segment.yErr * segment.yErr;
 
-        const double dX = fabs(me0X - trkX);
-        const double dY = fabs(me0Y - trkY);
-        const double pullX = dX / std::sqrt(errX + me0ErrX);
-        const double pullY = dY / std::sqrt(errY + me0ErrY);
+        const float dX = std::abs(me0X - trkX);
+        const float dY = std::abs(me0Y - trkY);
+        const float invPullX2 = errX2 + me0ErrX2;
+        const float invPullY2 = errY2 + me0ErrY2;
 
-        if ((dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY)) {
+        if ((dX < maxAbsDx or dX < maxAbsPullX * std::sqrt(invPullX2)) and
+            (dY < maxAbsDy or dY < maxAbsPullY * std::sqrt(invPullY2))) {
           ++nMatch;
           break;
         }
@@ -632,23 +616,24 @@ bool muon::isGoodMuon(const reco::Muon& muon,
       if (chamberMatch.detector() != MuonSubdetId::GEM)
         continue;
 
-      const double trkX = chamberMatch.x;
-      const double errX = chamberMatch.xErr;
-      const double trkY = chamberMatch.y;
-      const double errY = chamberMatch.yErr;
+      const float trkX = chamberMatch.x;
+      const float errX2 = chamberMatch.xErr * chamberMatch.xErr;
+      const float trkY = chamberMatch.y;
+      const float errY2 = chamberMatch.yErr * chamberMatch.yErr;
 
       for (const auto& segment : chamberMatch.gemMatches) {
-        const double gemX = segment.x;
-        const double gemErrX = segment.xErr;
-        const double gemY = segment.y;
-        const double gemErrY = segment.yErr;
+        const float gemX = segment.x;
+        const float gemErrX2 = segment.xErr * segment.xErr;
+        const float gemY = segment.y;
+        const float gemErrY2 = segment.yErr * segment.yErr;
 
-        const double dX = fabs(gemX - trkX);
-        const double dY = fabs(gemY - trkY);
-        const double pullX = dX / std::sqrt(errX + gemErrX);
-        const double pullY = dY / std::sqrt(errY + gemErrY);
+        const float dX = std::abs(gemX - trkX);
+        const float dY = std::abs(gemY - trkY);
+        const float invPullX2 = errX2 + gemErrX2;
+        const float invPullY2 = errY2 + gemErrY2;
 
-        if ((dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY)) {
+        if ((dX < maxAbsDx or dX < maxAbsPullX * std::sqrt(invPullX2)) and
+            (dY < maxAbsDy or dY < maxAbsPullY * std::sqrt(invPullY2))) {
           ++nMatch;
           break;
         }
@@ -712,7 +697,7 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
              isGoodMuon(muon, TMOneStation, 1, 3, 3, 3, 3, 1E9, 1E9, arbitrationType, false, false);
       break;
     case muon::TMLastStationOptimizedLowPtLoose:
-      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+      if (muon.pt() < 8. && std::abs(muon.eta()) < 1.2)
         return muon.isTrackerMuon() &&
                isGoodMuon(muon, TMOneStation, 1, 3, 3, 1E9, 1E9, 1E9, 1E9, arbitrationType, false, false);
       else
@@ -720,7 +705,7 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
                isGoodMuon(muon, TMLastStation, 2, 3, 3, 1E9, 1E9, -3, -3, arbitrationType, false, false);
       break;
     case muon::TMLastStationOptimizedLowPtTight:
-      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+      if (muon.pt() < 8. && std::abs(muon.eta()) < 1.2)
         return muon.isTrackerMuon() &&
                isGoodMuon(muon, TMOneStation, 1, 3, 3, 3, 3, 1E9, 1E9, arbitrationType, false, false);
       else
@@ -737,11 +722,11 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
       break;
     case muon::GMTkChiCompatibility:
       return muon.isGlobalMuon() && muon.isQualityValid() &&
-             fabs(muon.combinedQuality().trkRelChi2 - muon.innerTrack()->normalizedChi2()) < 2.0;
+             std::abs(muon.combinedQuality().trkRelChi2 - muon.innerTrack()->normalizedChi2()) < 2.0;
       break;
     case muon::GMStaChiCompatibility:
       return muon.isGlobalMuon() && muon.isQualityValid() &&
-             fabs(muon.combinedQuality().staRelChi2 - muon.outerTrack()->normalizedChi2()) < 2.0;
+             std::abs(muon.combinedQuality().staRelChi2 - muon.outerTrack()->normalizedChi2()) < 2.0;
       break;
     case muon::GMTkKinkTight:
       return muon.isGlobalMuon() && muon.isQualityValid() && muon.combinedQuality().trkKink < 100.0;
@@ -763,7 +748,7 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
              isGoodMuon(muon, TMOneStation, 1, 3, 3, 3, 3, 1E9, 1E9, arbitrationType, false, true);
       break;
     case muon::TMLastStationOptimizedBarrelLowPtLoose:
-      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+      if (muon.pt() < 8. && std::abs(muon.eta()) < 1.2)
         return muon.isTrackerMuon() &&
                isGoodMuon(muon, TMOneStation, 1, 3, 3, 1E9, 1E9, 1E9, 1E9, arbitrationType, false, false);
       else
@@ -771,7 +756,7 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
                isGoodMuon(muon, TMLastStation, 2, 3, 3, 1E9, 1E9, -3, -3, arbitrationType, true, false);
       break;
     case muon::TMLastStationOptimizedBarrelLowPtTight:
-      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
+      if (muon.pt() < 8. && std::abs(muon.eta()) < 1.2)
         return muon.isTrackerMuon() &&
                isGoodMuon(muon, TMOneStation, 1, 3, 3, 3, 3, 1E9, 1E9, arbitrationType, false, false);
       else
@@ -820,7 +805,7 @@ bool muon::overlap(
       // here we know how close they are
       if (chamber1->id == chamber2->id) {
         // found the same chamber
-        if (fabs(chamber1->x - chamber2->x) <
+        if (std::abs(chamber1->x - chamber2->x) <
             pullX * sqrt(chamber1->xErr * chamber1->xErr + chamber2->xErr * chamber2->xErr)) {
           if (betterMuon == 1)
             nMatches2--;
@@ -830,7 +815,7 @@ bool muon::overlap(
             return true;
           continue;
         }
-        if (fabs(chamber1->y - chamber2->y) <
+        if (std::abs(chamber1->y - chamber2->y) <
             pullY * sqrt(chamber1->yErr * chamber1->yErr + chamber2->yErr * chamber2->yErr)) {
           if (betterMuon == 1)
             nMatches2--;
@@ -853,7 +838,7 @@ bool muon::overlap(
           continue;
         if (id1.ring() != id2.ring())
           continue;
-        if (abs(id1.chamber() - id2.chamber()) > 1)
+        if (std::abs(id1.chamber() - id2.chamber()) > 1)
           continue;
         // FIXME: we don't handle 18->1; 36->1 transitions since
         // I don't know how to check for sure how many chambers
@@ -861,9 +846,9 @@ bool muon::overlap(
 
         // Now we have to make sure that both tracks are close to an edge
         // FIXME: ignored Y coordinate for now
-        if (fabs(chamber1->edgeX) > chamber1->xErr * pullX)
+        if (std::abs(chamber1->edgeX) > chamber1->xErr * pullX)
           continue;
-        if (fabs(chamber2->edgeX) > chamber2->xErr * pullX)
+        if (std::abs(chamber2->edgeX) > chamber2->xErr * pullX)
           continue;
         if (chamber1->x * chamber2->x < 0) {  // check if the same edge
           if (betterMuon == 1)
@@ -901,8 +886,8 @@ bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx) {
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
               muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
 
-  bool ip =
-      fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.muonBestTrack()->dz(vtx.position())) < 0.5;
+  bool ip = std::abs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 &&
+            std::abs(muon.muonBestTrack()->dz(vtx.position())) < 0.5;
 
   return muID && hits && ip;
 }
@@ -939,7 +924,8 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx, bool run2
 
   bool ishighq = muon.innerTrack()->quality(reco::Track::highPurity);
 
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.3 && fabs(muon.innerTrack()->dz(vtx.position())) < 20.;
+  bool ip =
+      std::abs(muon.innerTrack()->dxy(vtx.position())) < 0.3 && std::abs(muon.innerTrack()->dz(vtx.position())) < 20.;
 
   return layers && ip && (ishighq | run2016_hip_mitigation);
 }
@@ -967,7 +953,8 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx) {
 
   bool momQuality = muon.tunePMuonBestTrack()->ptError() / muon.tunePMuonBestTrack()->pt() < 0.3;
 
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.innerTrack()->dz(vtx.position())) < 0.5;
+  bool ip =
+      std::abs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && std::abs(muon.innerTrack()->dz(vtx.position())) < 0.5;
 
   return muID && hits && momQuality && ip;
 }
@@ -980,9 +967,10 @@ bool muon::isTrackerHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx) 
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
               muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
 
-  bool momQuality = muon.tunePMuonBestTrack()->ptError() / muon.tunePMuonBestTrack()->pt() < 0.3;
+  bool momQuality = muon.tunePMuonBestTrack()->ptError() < 0.3 * muon.tunePMuonBestTrack()->pt();
 
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.innerTrack()->dz(vtx.position())) < 0.5;
+  bool ip =
+      std::abs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && std::abs(muon.innerTrack()->dz(vtx.position())) < 0.5;
 
   return muID && hits && momQuality && ip;
 }
@@ -1030,10 +1018,10 @@ bool outOfTimeMuon(const reco::Muon& muon) {
   const auto& combinedTime = muon.time();
   const auto& rpcTime = muon.rpcTime();
   bool combinedTimeIsOk = (combinedTime.nDof > 7);
-  bool rpcTimeIsOk = (rpcTime.nDof > 1 && fabs(rpcTime.timeAtIpInOutErr) < 0.001);
+  bool rpcTimeIsOk = (rpcTime.nDof > 1 && std::abs(rpcTime.timeAtIpInOutErr) < 0.001);
   bool outOfTime = false;
   if (rpcTimeIsOk) {
-    if ((fabs(rpcTime.timeAtIpInOut) > 10) && !(combinedTimeIsOk && fabs(combinedTime.timeAtIpInOut) < 10))
+    if ((std::abs(rpcTime.timeAtIpInOut) > 10) && !(combinedTimeIsOk && std::abs(combinedTime.timeAtIpInOut) < 10))
       outOfTime = true;
   } else {
     if (combinedTimeIsOk && (combinedTime.timeAtIpInOut > 20 || combinedTime.timeAtIpInOut < -45))
@@ -1071,8 +1059,8 @@ reco::Muon::Selector muon::makeSelectorBitset(reco::Muon const& muon,
   }
   if (muon::isMediumMuon(muon, run2016_hip_mitigation)) {
     selectors |= reco::Muon::CutBasedIdMedium;
-    if (vertex and fabs(muon.muonBestTrack()->dz(vertex->position())) < 0.1 and
-        fabs(muon.muonBestTrack()->dxy(vertex->position())) < 0.02)
+    if (vertex and std::abs(muon.muonBestTrack()->dz(vertex->position())) < 0.1 and
+        std::abs(muon.muonBestTrack()->dxy(vertex->position())) < 0.02)
       selectors |= reco::Muon::CutBasedIdMediumPrompt;
   }
 

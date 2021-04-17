@@ -7,47 +7,50 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'dtGeometry'),
-    categories = cms.untracked.vstring('DTGeometryTest', 'Geometry'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING'),
-        noLineBreaks = cms.untracked.bool(True)
-        ),
-    dtGeometry = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-            ),
-        threshold = cms.untracked.string('INFO'),
-        DTGeometryTest = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            ),
-        Geometry = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-            )
-        ),
-    destinations = cms.untracked.vstring('cout',
-                                         'dtGeometry')
-    )
+process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
-                                            appendToDataLabel = cms.string('MUON')
-                                            )
+process.MessageLogger = cms.Service("MessageLogger",
+    cerr = cms.untracked.PSet(
+        enable = cms.untracked.bool(False)
+    ),
+    cout = cms.untracked.PSet(
+        enable = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(True),
+        noLineBreaks = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING')
+    ),
+    files = cms.untracked.PSet(
+        dtGeometry = cms.untracked.PSet(
+            DEBUG = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            DTGeometryTest = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            ERROR = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            Geometry = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            ),
+            INFO = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            WARNING = cms.untracked.PSet(
+                limit = cms.untracked.int32(0)
+            ),
+            enableStatistics = cms.untracked.bool(True),
+            noLineBreaks = cms.untracked.bool(True),
+            threshold = cms.untracked.string('INFO')
+        )
+    )
+)
 
 process.DTGeometryESProducer = cms.ESProducer("DTGeometryESProducer",
-                                              DDDetector = cms.ESInputTag('','MUON'),
+                                              DDDetector = cms.ESInputTag('',''),
                                               appendToDataLabel = cms.string(''),
                                               applyAlignment = cms.bool(False),
                                               alignmentsLabel = cms.string(''),
@@ -56,17 +59,19 @@ process.DTGeometryESProducer = cms.ESProducer("DTGeometryESProducer",
                                               fromDDD = cms.bool(True)
                                               )
 
+process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
+                                                 appendToDataLabel = cms.string('')
+)
+
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
-                                                     appendToDataLabel = cms.string('MUON')
+                                                     appendToDataLabel = cms.string('')
                                                      )
 
-process.MuonNumberingESProducer = cms.ESProducer("MuonNumberingESProducer",
-                                                 label = cms.string('MUON'),
-                                                 key = cms.string('MuonCommonNumbering')
-                                                 )
+process.muonGeometryConstants.fromDD4Hep = True
+
 
 process.test = cms.EDAnalyzer("DTGeometryTest",
-                              DDDetector = cms.ESInputTag('','MUON')
+                              DDDetector = cms.ESInputTag('','')
                               )
 
 process.p = cms.Path(process.test)

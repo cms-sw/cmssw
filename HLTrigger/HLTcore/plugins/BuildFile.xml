@@ -10,7 +10,6 @@
   <use name="DataFormats/RecoCandidate"/>
   <use name="DataFormats/TauReco"/>
   <use name="HLTrigger/HLTcore"/>
-  <use name="FWCore/PrescaleService"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
   <flags EDM_PLUGIN="1"/>

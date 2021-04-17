@@ -51,8 +51,8 @@ public:
 
 private:
   // use the DDD as Geometry source
-  const bool useDDD_;
-  const bool useDD4hep_;
+  const bool fromDDD_;
+  const bool fromDD4hep_;
   bool applyAlignment_;
   const std::string alignmentsLabel_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvToken_;
@@ -65,29 +65,32 @@ private:
 };
 
 GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet& p)
-    : useDDD_{p.getParameter<bool>("useDDD")},
-      useDD4hep_{p.getParameter<bool>("useDD4Hep")},
+    : fromDDD_{p.getParameter<bool>("fromDDD")},
+      fromDD4hep_{p.getParameter<bool>("fromDD4Hep")},
       applyAlignment_(p.getParameter<bool>("applyAlignment")),
       alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")) {
   auto cc = setWhatProduced(this);
-  if (useDDD_) {
-    cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
-  } else if (useDD4hep_) {
-    cc.setConsumes(dd4hepcpvToken_).setConsumes(mdcToken_);
+  if (fromDDD_) {
+    cpvToken_ = cc.consumes();
+    mdcToken_ = cc.consumes();
+  } else if (fromDD4hep_) {
+    dd4hepcpvToken_ = cc.consumes();
+    mdcToken_ = cc.consumes();
   } else {
-    cc.setConsumes(riggemToken_);
+    riggemToken_ = cc.consumes();
   }
   if (applyAlignment_) {
-    cc.setConsumes(globalPositionToken_, edm::ESInputTag{"", alignmentsLabel_})
-        .setConsumes(alignmentsToken_, edm::ESInputTag{"", alignmentsLabel_})
-        .setConsumes(alignmentErrorsToken_, edm::ESInputTag{"", alignmentsLabel_});
+    globalPositionToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
+    alignmentsToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
+    alignmentErrorsToken_ = cc.consumes(edm::ESInputTag{"", alignmentsLabel_});
   }
+  edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::initailized with flags " << fromDDD_ << ":" << fromDD4hep_;
 }
 
 void GEMGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("useDDD", true);
-  desc.add<bool>("useDD4Hep", false);
+  desc.add<bool>("fromDDD", true);
+  desc.add<bool>("fromDD4Hep", false);
   desc.add<bool>("applyAlignment", false);
   desc.add<std::string>("alignmentsLabel", "");
   descriptions.add("gemGeometry", desc);
@@ -96,17 +99,20 @@ void GEMGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descr
 std::unique_ptr<GEMGeometry> GEMGeometryESModule::produce(const MuonGeometryRecord& record) {
   auto gemGeometry = std::make_unique<GEMGeometry>();
 
-  if (useDDD_) {
+  if (fromDDD_) {
+    edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::produce :: GEMGeometryBuilder builder ddd";
     auto cpv = record.getTransientHandle(cpvToken_);
     const auto& mdc = record.get(mdcToken_);
     GEMGeometryBuilder builder;
     builder.build(*gemGeometry, cpv.product(), mdc);
-  } else if (useDD4hep_) {
+  } else if (fromDD4hep_) {
+    edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::produce :: GEMGeometryBuilder builder dd4hep";
     edm::ESTransientHandle<cms::DDCompactView> cpv = record.getTransientHandle(dd4hepcpvToken_);
     const auto& mdc = record.get(mdcToken_);
     GEMGeometryBuilder builder;
     builder.build(*gemGeometry, cpv.product(), mdc);
   } else {
+    edm::LogVerbatim("GEMGeometry") << "GEMGeometryESModule::produce :: GEMGeometryBuilder builder db";
     const auto& riggem = record.get(riggemToken_);
     GEMGeometryBuilderFromCondDB builder;
     builder.build(*gemGeometry, riggem);

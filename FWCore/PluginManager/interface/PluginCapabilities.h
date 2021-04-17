@@ -58,7 +58,7 @@ namespace edmplugin {
     const PluginCapabilities& operator=(const PluginCapabilities&) = delete;  // stop default
 
     // ---------- member data --------------------------------
-    std::map<std::string, boost::filesystem::path> classToLoadable_;
+    std::map<std::string, std::filesystem::path> classToLoadable_;
   };
 
 }  // namespace edmplugin

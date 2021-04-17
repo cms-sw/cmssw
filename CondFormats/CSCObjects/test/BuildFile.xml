@@ -99,5 +99,4 @@
 </library>
 
 <bin file="testSerializationCSCObjects.cpp">
-  <use name="CondFormats/External"/>
 </bin>

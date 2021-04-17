@@ -18,6 +18,10 @@
 #include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+
 #include <vector>
 
 class HcalTrigPrimDigiProducer : public edm::stream::EDProducer<> {
@@ -26,6 +30,7 @@ public:
   ~HcalTrigPrimDigiProducer() override {}
 
   /**Produces the EDM products,*/
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
@@ -40,6 +45,9 @@ private:
 
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+
+  bool overrideDBweightsAndFilterHE_;
+  bool overrideDBweightsAndFilterHB_;
 
   /// input tag for FEDRawDataCollection
   edm::InputTag inputTagFEDRaw_;
@@ -59,7 +67,9 @@ private:
   edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> tok_tpgTranscoder_;
   edm::ESGetToken<HcalLutMetadata, HcalLutMetadataRcd> tok_lutMetadata_;
   edm::ESGetToken<HcalTrigTowerGeometry, CaloGeometryRecord> tok_trigTowerGeom_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_hcalTopo_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_beginRun_;
 };
 
 #endif

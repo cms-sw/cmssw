@@ -45,6 +45,7 @@ private:
   edm::EDGetTokenT<PuppiContainer> tokenPuppiContainer_;
   edm::EDGetTokenT<PFOutputCollection> tokenPuppiCandidates_;
   edm::EDGetTokenT<PackedOutputCollection> tokenPackedPuppiCandidates_;
+  edm::EDGetTokenT<double> puProxyValueToken_;
   edm::EDPutTokenT<edm::ValueMap<float>> ptokenPupOut_;
   edm::EDPutTokenT<edm::ValueMap<LorentzVector>> ptokenP4PupOut_;
   edm::EDPutTokenT<edm::ValueMap<reco::CandidatePtr>> ptokenValues_;
@@ -62,16 +63,19 @@ private:
   bool fPuppiNoLep;
   bool fUseFromPVLooseTight;
   bool fUseDZ;
-  float fDZCut;
+  double fDZCut;
   double fEtaMinUseDZ;
   double fPtMaxCharged;
   double fEtaMaxCharged;
   double fPtMaxPhotons;
   double fEtaMaxPhotons;
+  uint fNumOfPUVtxsForCharged;
+  double fDZCutForChargedFromPUVtxs;
   bool fUseExistingWeights;
   bool fClonePackedCands;
   int fVtxNdofCut;
   double fVtxZCut;
+  bool fUsePUProxyValue;
   std::unique_ptr<PuppiContainer> fPuppiContainer;
   std::vector<RecoObj> fRecoObjCollection;
 };

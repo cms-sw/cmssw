@@ -24,23 +24,22 @@ hiCentrality = cms.EDProducer("CentralityProducer",
                             srcPixelTracks = cms.InputTag("hiPixel3PrimTracks"),
 
                             doPixelCut = cms.bool(True),
-                            UseQuality = cms.bool(True),
-                            TrackQuality = cms.string('highPurity'),
+                            useQuality = cms.bool(True),
+                            trackQuality = cms.string('highPurity'),
                             trackEtaCut = cms.double(2),
                             trackPtCut = cms.double(1),
                             hfEtaCut = cms.double(4), #hf above the absolute value of this cut is used
                             midRapidityRange = cms.double(1),
-                           lowGainZDC = cms.bool(True),
+                            lowGainZDC = cms.bool(True),
 
                             )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toModify(hiCentrality,
-               producePixelTracks = True,
-               srcPixelTracks = "hiConformalPixelTracks",
-               srcTracks = cms.InputTag("generalTracks"),
-               srcVertex = cms.InputTag("offlinePrimaryVertices")
-               )
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+(pp_on_XeXe_2017 | pp_on_AA).toModify(hiCentrality,
+                                      producePixelTracks = True,
+                                      srcPixelTracks = "hiConformalPixelTracks",
+                                      srcTracks = "generalTracks",
+                                      srcVertex = "offlinePrimaryVertices"
+)
 

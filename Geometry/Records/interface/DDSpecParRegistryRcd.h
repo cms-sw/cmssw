@@ -3,10 +3,10 @@
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "boost/mpl/vector.hpp"
+#include "FWCore/Utilities/interface/mplVector.h"
 
 class DDSpecParRegistryRcd
-    : public edm::eventsetup::DependentRecordImplementation<DDSpecParRegistryRcd,
-                                                            boost::mpl::vector<IdealGeometryRecord>> {};
+    : public edm::eventsetup::DependentRecordImplementation<DDSpecParRegistryRcd, edm::mpl::Vector<IdealGeometryRecord>> {
+};
 
 #endif

@@ -17,7 +17,6 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "CondFormats/DTObjects/interface/DTMtime.h"
 
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"

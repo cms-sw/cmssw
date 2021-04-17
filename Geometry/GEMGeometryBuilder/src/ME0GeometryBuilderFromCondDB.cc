@@ -19,10 +19,12 @@
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 #include <iostream>
 #include <algorithm>
+
+using namespace geant_units::operators;
 
 ME0GeometryBuilderFromCondDB::ME0GeometryBuilderFromCondDB() {}
 
@@ -47,8 +49,8 @@ ME0Geometry* ME0GeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo) 
     strStart = rgeo.strStart(id);
     name = *(strStart);
 
-    Surface::PositionType pos(*(tranStart) / cm, *(tranStart + 1) / cm, *(tranStart + 2) / cm);
-    // CLHEP way
+    Surface::PositionType pos(
+        convertMmToCm(*(tranStart)), convertMmToCm(*(tranStart + 1)), convertMmToCm(*(tranStart + 2)));
     Surface::RotationType rot(*(rotStart + 0),
                               *(rotStart + 1),
                               *(rotStart + 2),
@@ -60,10 +62,10 @@ ME0Geometry* ME0GeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo) 
                               *(rotStart + 8));
 
     Bounds* bounds = nullptr;
-    float be = *(shapeStart + 0) / cm;
-    float te = *(shapeStart + 1) / cm;
-    float ap = *(shapeStart + 2) / cm;
-    float ti = *(shapeStart + 3) / cm;
+    float be = convertMmToCm(*(shapeStart + 0));
+    float te = convertMmToCm(*(shapeStart + 1));
+    float ap = convertMmToCm(*(shapeStart + 2));
+    float ti = convertMmToCm(*(shapeStart + 3));
     float nstrip = *(shapeStart + 4);
     float npad = *(shapeStart + 5);
     //  TrapezoidalPlaneBounds*

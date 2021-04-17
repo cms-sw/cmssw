@@ -48,7 +48,6 @@
 //#include "DataFormats/Luminosity/interface/LumiSummary.h"
 
 // L1TMonitor includes
-#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 //#include "DQMOffline/L1Trigger/interface/L1TMenuHelper.h"
 
 #include "TList.h"
@@ -58,7 +57,10 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
-L1TSync_Offline::L1TSync_Offline(const ParameterSet& pset) : m_l1GtUtils(pset, consumesCollector(), false, *this) {
+L1TSync_Offline::L1TSync_Offline(const ParameterSet& pset)
+    : m_menuToken(esConsumes<edm::Transition::BeginRun>()),
+      m_helperTokens(L1TMenuHelper::consumes<edm::Transition::BeginRun>(consumesCollector())),
+      m_l1GtUtils(pset, consumesCollector(), false, *this) {
   m_parameters = pset;
 
   // Mapping parameter input variables
@@ -329,13 +331,11 @@ void L1TSync_Offline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&
   m_certLastLS.clear();
 
   // Getting Trigger menu from GT
-  ESHandle<L1GtTriggerMenu> menuRcd;
-  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
-  const L1GtTriggerMenu* menu = menuRcd.product();
+  const L1GtTriggerMenu& menu = iSetup.getData(m_menuToken);
 
   // Filling Alias-Bit Map
-  for (CItAlgo algo = menu->gtAlgorithmAliasMap().begin(); algo != menu->gtAlgorithmAliasMap().end(); ++algo) {
-    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();
+  for (const auto& algo : menu.gtAlgorithmAliasMap()) {
+    m_algoBit[algo.second.algoAlias()] = algo.second.algoBitNumber();
   }
 
   // Getting fill number for this run
@@ -347,7 +347,7 @@ void L1TSync_Offline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&
   //iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
   //const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
 
-  L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup);
+  L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup, m_helperTokens);
 
   m_selectedTriggers = myMenuHelper.testAlgos(m_selectedTriggers);
 

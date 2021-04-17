@@ -5,16 +5,19 @@
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
 #include "CondCore/SiPixelPlugins/interface/PixelRegionContainers.h"
+#include "DQM/TrackerRemapper/interface/Phase1PixelROCMaps.h"
 
 #include <type_traits>
 #include <memory>
 #include <sstream>
+#include <fmt/printf.h>
 
 // include ROOT
 #include "TH2F.h"
@@ -35,6 +38,90 @@ namespace gainCalibHelper {
   namespace gainCalibPI {
 
     enum type { t_gain = 0, t_pedestal = 1, t_correlation = 2 };
+
+    //===========================================================================
+    // helper method to fill the ratio and diff distributions
+    template <typename PayloadType>
+    static std::array<std::shared_ptr<TH1F>, 2> fillDiffAndRatio(const std::shared_ptr<PayloadType>& payload_A,
+                                                                 const std::shared_ptr<PayloadType>& payload_B,
+                                                                 const gainCalibPI::type& theType) {
+      std::array<std::shared_ptr<TH1F>, 2> arr;
+
+      std::vector<uint32_t> detids_A;
+      payload_A->getDetIds(detids_A);
+      std::vector<uint32_t> detids_B;
+      payload_B->getDetIds(detids_B);
+
+      std::vector<float> v_ratios;
+      std::vector<float> v_diffs;
+
+      if (detids_A != detids_B) {
+        edm::LogError("fillDiffAndRatio") << "the list of DetIds for the two payloads are not equal"
+                                          << " cannot make any comparison!" << std::endl;
+      }
+
+      assert(detids_A == detids_B);
+      for (const auto& d : detids_A) {
+        auto range = payload_A->getRange(d);
+        int numberOfRowsToAverageOver = payload_A->getNumberOfRowsToAverageOver();
+        int ncols = payload_A->getNCols(d);
+        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload_A->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
+
+        auto rAndCol_A = payload_A->getRangeAndNCols(d);
+        auto rAndCol_B = payload_B->getRangeAndNCols(d);
+        bool isDeadCol, isNoisyCol;
+
+        float ratio(-.1), diff(-1.);
+        for (int col = 0; col < ncols; col++) {
+          for (int row = 0; row < nrows; row++) {
+            switch (theType) {
+              case gainCalibPI::t_gain: {
+                auto gainA = payload_A->getGain(col, row, rAndCol_A.first, rAndCol_A.second, isDeadCol, isNoisyCol);
+                auto gainB = payload_B->getGain(col, row, rAndCol_B.first, rAndCol_B.second, isDeadCol, isNoisyCol);
+                ratio = gainB != 0 ? (gainA / gainB) : -1.;  // if the ratio does not make sense the default is -1
+                diff = gainA - gainB;
+                break;
+              }
+              case gainCalibPI::t_pedestal: {
+                auto pedA = payload_A->getPed(col, row, rAndCol_A.first, rAndCol_A.second, isDeadCol, isNoisyCol);
+                auto pedB = payload_B->getPed(col, row, rAndCol_B.first, rAndCol_B.second, isDeadCol, isNoisyCol);
+                ratio = pedB != 0 ? (pedA / pedB) : -1.;  // if the ratio does not make sense the default is -1
+                diff = pedA - pedB;
+                break;
+              }
+              default:
+                edm::LogError("gainCalibPI::fillTheHisto") << "Unrecognized type " << theType << std::endl;
+                break;
+            }
+            // fill the containers
+            v_diffs.push_back(diff);
+            v_ratios.push_back(ratio);
+          }  // loop on rows
+        }    // loop on cols
+      }      // loop on detids
+
+      std::sort(v_diffs.begin(), v_diffs.end());
+      std::sort(v_ratios.begin(), v_ratios.end());
+
+      double minDiff = v_diffs.front();
+      double maxDiff = v_diffs.back();
+      double minRatio = v_ratios.front();
+      double maxRatio = v_ratios.back();
+
+      arr[0] = std::make_shared<TH1F>("h_Ratio", "", 50, minRatio - 1., maxRatio + 1.);
+      arr[1] = std::make_shared<TH1F>("h_Diff", "", 50, minDiff - 1., maxDiff + 1.);
+
+      for (const auto& r : v_ratios) {
+        arr[0]->Fill(r);
+      }
+      for (const auto& d : v_diffs) {
+        arr[1]->Fill(d);
+      }
+      return arr;
+    }
 
     //============================================================================
     // helper method to fill the gain / pedestals distributions
@@ -376,16 +463,15 @@ namespace gainCalibHelper {
         return false;
       }
 
-      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
-      const char* path_toTopologyXML = (detids.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      SiPixelPI::PhaseInfo phaseInfo(detids.size());
+      const char* path_toTopologyXML = phaseInfo.pathToTopoXML();
+
       TrackerTopology tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, (detids.size() == SiPixelPI::phase1size));
+      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, phaseInfo.phase());
       myPlots.bookAll(Form("SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
                       Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
                       Form("# %ss", (isForHLT_ ? "column" : "pixel")),
@@ -397,7 +483,7 @@ namespace gainCalibHelper {
 
       // fill the histograms
       for (const auto& pixelId : PixelRegions::PixelIDs) {
-        auto wantedDets = PixelRegions::attachedDets(pixelId, &tTopo, (detids.size() == SiPixelPI::phase1size));
+        auto wantedDets = PixelRegions::attachedDets(pixelId, &tTopo, phaseInfo.phase());
         gainCalibPI::fillTheHisto(payload, myPlots.getHistoFromMap(pixelId), myType, wantedDets);
       }
 
@@ -482,8 +568,8 @@ namespace gainCalibHelper {
 
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
-      auto tagname1 = cond::payloadInspector::PlotBase::getTag<0>().name;
-      std::string tagname2 = "";
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
       auto firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
 
@@ -492,7 +578,7 @@ namespace gainCalibHelper {
 
       if (this->m_plotAnnotations.ntags == 2) {
         auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
-        tagname2 = cond::payloadInspector::PlotBase::getTag<1>().name;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -546,18 +632,16 @@ namespace gainCalibHelper {
         return false;
       }
 
-      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
       canvas.cd();
 
-      bool is_l_phase0 = (l_detids.size() == SiPixelPI::phase0size);
-      bool is_f_phase0 = (f_detids.size() == SiPixelPI::phase0size);
+      SiPixelPI::PhaseInfo l_phaseInfo(l_detids.size());
+      SiPixelPI::PhaseInfo f_phaseInfo(f_detids.size());
+      const char* path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
-      const char* path_toTopologyXML = is_l_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                                   : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
       auto l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, !is_l_phase0);
+      auto l_myPlots = PixelRegions::PixelRegionContainers(&l_tTopo, l_phaseInfo.phase());
       l_myPlots.bookAll(
           Form("Last SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
           Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
@@ -566,12 +650,12 @@ namespace gainCalibHelper {
           minimum,
           maximum);
 
-      path_toTopologyXML = is_f_phase0 ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                       : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      path_toTopologyXML = f_phaseInfo.pathToTopoXML();
+
       auto f_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, !is_f_phase0);
+      auto f_myPlots = PixelRegions::PixelRegionContainers(&f_tTopo, f_phaseInfo.phase());
       f_myPlots.bookAll(
           Form("First SiPixel Gain Calibration %s - %s", (isForHLT_ ? "ForHLT" : "Offline"), TypeName[myType]),
           Form("per %s %s", (isForHLT_ ? "Column" : "Pixel"), TypeName[myType]),
@@ -582,8 +666,8 @@ namespace gainCalibHelper {
 
       // fill the histograms
       for (const auto& pixelId : PixelRegions::PixelIDs) {
-        auto f_wantedDets = PixelRegions::attachedDets(pixelId, &f_tTopo, !is_f_phase0);
-        auto l_wantedDets = PixelRegions::attachedDets(pixelId, &l_tTopo, !is_l_phase0);
+        auto f_wantedDets = PixelRegions::attachedDets(pixelId, &f_tTopo, f_phaseInfo.phase());
+        auto l_wantedDets = PixelRegions::attachedDets(pixelId, &l_tTopo, l_phaseInfo.phase());
         gainCalibPI::fillTheHisto(first_payload, f_myPlots.getHistoFromMap(pixelId), myType, f_wantedDets);
         gainCalibPI::fillTheHisto(last_payload, l_myPlots.getHistoFromMap(pixelId), myType, l_wantedDets);
       }
@@ -596,8 +680,8 @@ namespace gainCalibHelper {
       l_myPlots.beautify(kRed, -1);
       f_myPlots.beautify(kAzure, -1);
 
-      l_myPlots.draw(canvas, isBarrel, "HIST", (!is_f_phase0 || !is_l_phase0));
-      f_myPlots.draw(canvas, isBarrel, "HISTsames", (!is_f_phase0 || !is_l_phase0));
+      l_myPlots.draw(canvas, isBarrel, "HIST", f_phaseInfo.isPhase1Comparison(l_phaseInfo));
+      f_myPlots.draw(canvas, isBarrel, "HISTsames", f_phaseInfo.isPhase1Comparison(l_phaseInfo));
 
       // rescale the y-axis ranges in order to fit the canvas
       l_myPlots.rescaleMax(f_myPlots);
@@ -607,8 +691,8 @@ namespace gainCalibHelper {
       std::unique_ptr<TLegend> legend;
       if (this->m_plotAnnotations.ntags == 2) {
         legend = std::make_unique<TLegend>(0.36, 0.86, 0.94, 0.92);
-        legend->AddEntry(l_myPlots.getHistoFromMap(colorTag).get(), ("#color[2]{" + tagname2 + "}").c_str(), "F");
-        legend->AddEntry(f_myPlots.getHistoFromMap(colorTag).get(), ("#color[4]{" + tagname1 + "}").c_str(), "F");
+        legend->AddEntry(l_myPlots.getHistoFromMap(colorTag).get(), ("#color[2]{" + l_tagname + "}").c_str(), "F");
+        legend->AddEntry(f_myPlots.getHistoFromMap(colorTag).get(), ("#color[4]{" + f_tagname + "}").c_str(), "F");
         legend->SetTextSize(0.024);
       } else {
         legend = std::make_unique<TLegend>(0.58, 0.80, 0.90, 0.92);
@@ -1041,16 +1125,16 @@ namespace gainCalibHelper {
       legend.Draw("same");
 
       TPaveStats* st1 = (TPaveStats*)hfirst->FindObject("stats");
-      st1->SetTextSize(0.022);
+      st1->SetTextSize(0.021);
       st1->SetLineColor(kRed);
       st1->SetTextColor(kRed);
-      SiPixelPI::adjustStats(st1, 0.13, 0.84, 0.31, 0.94);
+      SiPixelPI::adjustStats(st1, 0.13, 0.86, 0.31, 0.94);
 
       TPaveStats* st2 = (TPaveStats*)hlast->FindObject("stats");
-      st2->SetTextSize(0.022);
+      st2->SetTextSize(0.021);
       st2->SetLineColor(kBlue);
       st2->SetTextColor(kBlue);
-      SiPixelPI::adjustStats(st2, 0.13, 0.73, 0.31, 0.83);
+      SiPixelPI::adjustStats(st2, 0.13, 0.77, 0.31, 0.85);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -1096,6 +1180,172 @@ namespace gainCalibHelper {
     }
   };
 
+  /************************************************
+    Diff and Ratio histograms of 2 IOVs
+  *************************************************/
+  template <gainCalibPI::type myType, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags, class PayloadType>
+  class SiPixelGainCalibDiffAndRatioBase : public cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags> {
+  public:
+    SiPixelGainCalibDiffAndRatioBase()
+        : cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags>(
+              Form("SiPixelGainCalibration %s Diff and Ratio %i tag(s)", TypeName[myType], ntags)) {
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+      } else {
+        isForHLT_ = true;
+      }
+    }
+
+    bool fill() override {
+      gStyle->SetOptStat("emr");
+      TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // Y offset
+      TH1F::SetDefaultSumw2(true);
+
+      COUT << "ntags: " << ntags << " this->m_plotAnnotations.ntags: " << this->m_plotAnnotations.ntags << std::endl;
+
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<PayloadType> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<PayloadType> first_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      TCanvas canvas("Canv", "Canv", 1300, 800);
+      canvas.Divide(2, 1);
+      canvas.cd();
+
+      SiPixelPI::adjustCanvasMargins(canvas.cd(1), 0.05, 0.12, 0.12, 0.04);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(2), 0.05, 0.12, 0.12, 0.04);
+      canvas.Modified();
+
+      auto array = gainCalibPI::fillDiffAndRatio(first_payload, last_payload, myType);
+
+      array[0]->SetTitle(Form("SiPixel Gain Calibration %s - %s;per %s %s ratio;# %ss",
+                              (isForHLT_ ? "ForHLT" : "Offline"),
+                              TypeName[myType],
+                              (isForHLT_ ? "Column" : "Pixel"),
+                              TypeName[myType],
+                              (isForHLT_ ? "column" : "pixel")));
+
+      array[1]->SetTitle(Form("SiPixel Gain Calibration %s - %s;per %s %s difference;# %ss",
+                              (isForHLT_ ? "ForHLT" : "Offline"),
+                              TypeName[myType],
+                              (isForHLT_ ? "Column" : "Pixel"),
+                              TypeName[myType],
+                              (isForHLT_ ? "column" : "pixel")));
+
+      canvas.cd(1)->SetLogy();
+      array[0]->SetTitle("");
+      array[0]->SetLineColor(kBlack);
+      array[0]->SetFillColor(kRed);
+      array[0]->SetBarWidth(0.90);
+      array[0]->SetMaximum(array[0]->GetMaximum() * 10);
+      array[0]->Draw("bar");
+      SiPixelPI::makeNicePlotStyle(array[0].get());
+      array[0]->SetStats(true);
+
+      canvas.cd(2)->SetLogy();
+      array[1]->SetTitle("");
+      array[1]->SetLineColor(kBlack);
+      array[1]->SetFillColor(kBlue);
+      array[1]->SetBarWidth(0.90);
+      array[1]->SetMaximum(array[1]->GetMaximum() * 10);
+      array[1]->Draw("bar");
+      SiPixelPI::makeNicePlotStyle(array[1].get());
+      array[1]->SetStats(true);
+
+      canvas.Update();
+
+      canvas.cd(1);
+      TLatex latex;
+      latex.SetTextSize(0.024);
+      latex.SetTextAlign(13);  //align at top
+      latex.DrawLatexNDC(
+          .41,
+          .94,
+          fmt::sprintf("#scale[1.2]{SiPixelGainCalibration%s Ratio}", (isForHLT_ ? "ForHLT" : "Offline")).c_str());
+      if (this->m_plotAnnotations.ntags == 2) {
+        latex.DrawLatexNDC(
+            .41, .91, ("#splitline{#font[12]{" + f_tagname + "}}{ / #font[12]{" + l_tagname + "}}").c_str());
+      } else {
+        latex.DrawLatexNDC(.41, .91, (firstIOVsince + " / " + lastIOVsince).c_str());
+      }
+
+      canvas.cd(2);
+      TLatex latex2;
+      latex2.SetTextSize(0.024);
+      latex2.SetTextAlign(13);  //align at top
+      latex2.DrawLatexNDC(
+          .41,
+          .94,
+          fmt::sprintf("#scale[1.2]{SiPixelGainCalibration%s Diff}", (isForHLT_ ? "ForHLT" : "Offline")).c_str());
+      if (this->m_plotAnnotations.ntags == 2) {
+        latex2.DrawLatexNDC(
+            .41, .91, ("#splitline{#font[12]{" + f_tagname + "}}{ - #font[12]{" + l_tagname + "}}").c_str());
+      } else {
+        latex2.DrawLatexNDC(.41, .91, (firstIOVsince + " - " + lastIOVsince).c_str());
+      }
+
+      TPaveStats* st1 = (TPaveStats*)array[0]->FindObject("stats");
+      st1->SetTextSize(0.027);
+      st1->SetLineColor(kRed);
+      st1->SetTextColor(kRed);
+      SiPixelPI::adjustStats(st1, 0.13, 0.84, 0.40, 0.94);
+
+      TPaveStats* st2 = (TPaveStats*)array[1]->FindObject("stats");
+      st2->SetTextSize(0.027);
+      st2->SetLineColor(kBlue);
+      st2->SetTextColor(kBlue);
+      SiPixelPI::adjustStats(st2, 0.13, 0.84, 0.40, 0.94);
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      //ltx.SetTextColor(kBlue);
+      ltx.SetTextSize(0.040);
+      ltx.SetTextAlign(11);
+      canvas.cd(1);
+      ltx.DrawLatexNDC(
+          gPad->GetLeftMargin(),
+          1 - gPad->GetTopMargin() + 0.01,
+          fmt::sprintf("SiPixel %s Ratio, IOV %s / %s", TypeName[myType], firstIOVsince, lastIOVsince).c_str());
+
+      canvas.cd(2);
+      ltx.DrawLatexNDC(
+          gPad->GetLeftMargin(),
+          1 - gPad->GetTopMargin() + 0.01,
+          fmt::sprintf("SiPixel %s Diff, IOV %s - %s", TypeName[myType], firstIOVsince, lastIOVsince).c_str());
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+#ifdef MMDEBUG
+      canvas.SaveAs("out.root");
+#endif
+
+      return true;
+    }
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
+  };
+
   // 2D MAPS
 
   /************************************************
@@ -1125,27 +1375,8 @@ namespace gainCalibHelper {
 
       std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));
 
-      static const int n_layers = 4;
-      int nlad_list[n_layers] = {6, 14, 22, 32};
-      int divide_roc = 1;
-
-      // ---------------------    BOOK HISTOGRAMS
-      std::array<TH2D*, n_layers> h_bpix_Gains;
-
-      for (unsigned int lay = 1; lay <= 4; lay++) {
-        int nlad = nlad_list[lay - 1];
-
-        std::string name = "occ_Gain_Layer_" + std::to_string(lay);
-        std::string title = "; Module # ; Ladder #";
-        h_bpix_Gains[lay - 1] = new TH2D(name.c_str(),
-                                         title.c_str(),
-                                         72 * divide_roc,
-                                         -4.5,
-                                         4.5,
-                                         (nlad * 4 + 2) * divide_roc,
-                                         -nlad - 0.5,
-                                         nlad + 0.5);
-      }
+      Phase1PixelROCMaps theBPixGainsMap("");
+      static constexpr int n_layers = 4;
 
       std::map<uint32_t, float> GainCalibMap_;
       gainCalibPI::fillThePerModuleMap(payload, GainCalibMap_, myType);
@@ -1159,49 +1390,40 @@ namespace gainCalibHelper {
       }
 
       // hard-coded phase-I
-      std::array<double, 4> minima = {{999., 999., 999., 999.}};
+      std::array<double, n_layers> minima = {{999., 999., 999., 999.}};
 
       for (const auto& element : GainCalibMap_) {
         int subid = DetId(element.first).subdetId();
         if (subid == PixelSubdetector::PixelBarrel) {
           auto layer = m_trackerTopo.pxbLayer(DetId(element.first));
-          auto s_ladder = SiPixelPI::signed_ladder(DetId(element.first), m_trackerTopo, true);
-          auto s_module = SiPixelPI::signed_module(DetId(element.first), m_trackerTopo, true);
-
-          auto ladder = m_trackerTopo.pxbLadder(DetId(element.first));
-          auto module = m_trackerTopo.pxbModule(DetId(element.first));
-          COUT << "layer:" << layer << " ladder:" << ladder << " module:" << module << " signed ladder: " << s_ladder
-               << " signed module: " << s_module << std::endl;
 
           if (element.second < minima.at(layer - 1))
             minima.at(layer - 1) = element.second;
 
-          auto rocsToMask = SiPixelPI::maskedBarrelRocsToBins(layer, s_ladder, s_module);
-          for (const auto& bin : rocsToMask) {
-            h_bpix_Gains[layer - 1]->SetBinContent(bin.first, bin.second, element.second);
-          }
+          theBPixGainsMap.fillWholeModule(element.first, element.second);
         }
       }
 
       gStyle->SetOptStat(0);
       //=========================
       TCanvas canvas("Summary", "Summary", 1200, 1200);
-      canvas.Divide(2, 2);
+      theBPixGainsMap.drawBarrelMaps(canvas);
 
-      for (unsigned int lay = 1; lay <= 4; lay++) {
+      for (unsigned int lay = 1; lay <= n_layers; lay++) {
         SiPixelPI::adjustCanvasMargins(canvas.cd(lay), -1, 0.08, 0.1, 0.13);
+
+        auto h_bpix_Gains = theBPixGainsMap.getLayerMaps();
 
         COUT << " layer:" << lay << " max:" << h_bpix_Gains[lay - 1]->GetMaximum() << " min: " << minima.at(lay - 1)
              << std::endl;
 
-        SiPixelPI::dress_occup_plot(canvas, h_bpix_Gains[lay - 1], lay, 0, 1, true, true, false);
         h_bpix_Gains[lay - 1]->GetZaxis()->SetRangeUser(minima.at(lay - 1) - 0.001,
                                                         h_bpix_Gains[lay - 1]->GetMaximum() + 0.001);
       }
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
-      for (unsigned int lay = 1; lay <= 4; lay++) {
+      for (unsigned int lay = 1; lay <= n_layers; lay++) {
         canvas.cd(lay);
         auto ltx = TLatex();
         ltx.SetTextFont(62);
@@ -1256,20 +1478,8 @@ namespace gainCalibHelper {
       auto iov = tag.iovs.front();
       std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));
 
-      static const int n_rings = 2;
-      std::array<TH2D*, n_rings> h_fpix_Gains;
-      int divide_roc = 1;
-
-      // ---------------------    BOOK HISTOGRAMS
-      for (unsigned int ring = 1; ring <= n_rings; ring++) {
-        int n = ring == 1 ? 92 : 140;
-        float y = ring == 1 ? 11.5 : 17.5;
-        std::string name = "occ_Gains_ring_" + std::to_string(ring);
-        std::string title = "; Disk # ; Blade/Panel #";
-
-        h_fpix_Gains[ring - 1] =
-            new TH2D(name.c_str(), title.c_str(), 56 * divide_roc, -3.5, 3.5, n * divide_roc, -y, y);
-      }
+      Phase1PixelROCMaps theFPixGainsMap("");
+      static constexpr int n_rings = 2;
 
       std::map<uint32_t, float> GainCalibMap_;
       gainCalibPI::fillThePerModuleMap(payload, GainCalibMap_, myType);
@@ -1283,42 +1493,33 @@ namespace gainCalibHelper {
       }
 
       // hardcoded phase-I
-      std::array<double, 2> minima = {{999., 999.}};
+      std::array<double, n_rings> minima = {{999., 999.}};
 
       for (const auto& element : GainCalibMap_) {
         int subid = DetId(element.first).subdetId();
         if (subid == PixelSubdetector::PixelEndcap) {
           auto ring = SiPixelPI::ring(DetId(element.first), m_trackerTopo, true);
-          auto s_blade = SiPixelPI::signed_blade(DetId(element.first), m_trackerTopo, true);
-          auto s_disk = SiPixelPI::signed_disk(DetId(element.first), m_trackerTopo, true);
-          auto s_blade_panel = SiPixelPI::signed_blade_panel(DetId(element.first), m_trackerTopo, true);
-          auto panel = m_trackerTopo.pxfPanel(element.first);
-
-          COUT << "ring:" << ring << " blade: " << s_blade << " panel: " << panel
-               << " signed blade/panel: " << s_blade_panel << " disk: " << s_disk << std::endl;
 
           if (element.second < minima.at(ring - 1))
             minima.at(ring - 1) = element.second;
 
-          auto rocsToMask = SiPixelPI::maskedForwardRocsToBins(ring, s_blade, panel, s_disk);
-          for (const auto& bin : rocsToMask) {
-            h_fpix_Gains[ring - 1]->SetBinContent(bin.first, bin.second, element.second);
-          }
+          theFPixGainsMap.fillWholeModule(element.first, element.second);
         }
       }
 
       gStyle->SetOptStat(0);
       //=========================
       TCanvas canvas("Summary", "Summary", 1200, 600);
-      canvas.Divide(2, 1);
+      theFPixGainsMap.drawForwardMaps(canvas);
 
       for (unsigned int ring = 1; ring <= n_rings; ring++) {
         SiPixelPI::adjustCanvasMargins(canvas.cd(ring), -1, 0.08, 0.1, 0.13);
 
-        COUT << " ringer:" << ring << " max:" << h_fpix_Gains[ring - 1]->GetMaximum() << " min: " << minima.at(ring - 1)
+        auto h_fpix_Gains = theFPixGainsMap.getRingMaps();
+
+        COUT << " ring:" << ring << " max:" << h_fpix_Gains[ring - 1]->GetMaximum() << " min: " << minima.at(ring - 1)
              << std::endl;
 
-        SiPixelPI::dress_occup_plot(canvas, h_fpix_Gains[ring - 1], 0, ring, 1, true, true, false);
         h_fpix_Gains[ring - 1]->GetZaxis()->SetRangeUser(minima.at(ring - 1) - 0.001,
                                                          h_fpix_Gains[ring - 1]->GetMaximum() + 0.001);
       }
@@ -1355,11 +1556,12 @@ namespace gainCalibHelper {
   /************************************************
    Summary Comparison per region of SiPixelGainCalibration between 2 IOVs
   *************************************************/
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibrationByRegionComparisonBase : public cond::payloadInspector::PlotImage<PayloadType> {
+  template <gainCalibPI::type myType, class PayloadType, cond::payloadInspector::IOVMultiplicity nIOVs, int ntags>
+  class SiPixelGainCalibrationByRegionComparisonBase
+      : public cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags> {
   public:
     SiPixelGainCalibrationByRegionComparisonBase()
-        : cond::payloadInspector::PlotImage<PayloadType>(
+        : cond::payloadInspector::PlotImage<PayloadType, nIOVs, ntags>(
               Form("SiPixelGainCalibration %s Comparison by Region", TypeName[myType])) {
       if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
         isForHLT_ = false;
@@ -1369,18 +1571,27 @@ namespace gainCalibHelper {
         label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
       }
     }
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+
+    bool fill() override {
       gStyle->SetPaintTextFormat(".3f");
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = cond::payloadInspector::PlotBase::getTag<0>().iovs;
+      auto f_tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = cond::payloadInspector::PlotBase::getTag<1>().iovs;
+        l_tagname = cond::payloadInspector::PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
 
       std::shared_ptr<PayloadType> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<PayloadType> first_payload = this->fetchPayload(std::get<1>(firstiov));
@@ -1395,6 +1606,9 @@ namespace gainCalibHelper {
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
       TCanvas canvas("Comparison", "Comparison", 1600, 800);
+
+      SiPixelPI::PhaseInfo f_phaseInfo(f_GainsMap_.size());
+      SiPixelPI::PhaseInfo l_phaseInfo(l_GainsMap_.size());
 
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> FirstGains_spectraByRegion;
       std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> LastGains_spectraByRegion;
@@ -1456,16 +1670,11 @@ namespace gainCalibHelper {
                                            0,
                                            LastGains_spectraByRegion.size());
 
-      const char* path_toTopologyXML = (f_GainsMap_.size() == SiPixelPI::phase0size)
-                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology f_tTopo =
-          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+      // deal with first IOV
+      const char* path_toTopologyXML = f_phaseInfo.pathToTopoXML();
 
-      bool isPhase0(false);
-      if (f_GainsMap_.size() == SiPixelPI::phase0size) {
-        isPhase0 = true;
-      }
+      auto f_tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       // -------------------------------------------------------------------
       // loop on the first Gains Map
@@ -1479,21 +1688,17 @@ namespace gainCalibHelper {
         SiPixelPI::topolInfo t_info_fromXML;
         t_info_fromXML.init();
         DetId detid(it.first);
-        t_info_fromXML.fillGeometryInfo(detid, f_tTopo, isPhase0);
+        t_info_fromXML.fillGeometryInfo(detid, f_tTopo, f_phaseInfo.phase());
 
         SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
         FirstGains_spectraByRegion[thePart]->Fill(it.second);
       }  // ends loop on the vector of error transforms
 
-      path_toTopologyXML = (l_GainsMap_.size() == SiPixelPI::phase0size)
-                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
-                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
-      TrackerTopology l_tTopo =
-          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+      // deal with last IOV
+      path_toTopologyXML = l_phaseInfo.pathToTopoXML();
 
-      if (l_GainsMap_.size() == SiPixelPI::phase0size) {
-        isPhase0 = true;
-      }
+      auto l_tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       // -------------------------------------------------------------------
       // loop on the second Gains Map
@@ -1507,7 +1712,7 @@ namespace gainCalibHelper {
         SiPixelPI::topolInfo t_info_fromXML;
         t_info_fromXML.init();
         DetId detid(it.first);
-        t_info_fromXML.fillGeometryInfo(detid, l_tTopo, isPhase0);
+        t_info_fromXML.fillGeometryInfo(detid, l_tTopo, l_phaseInfo.phase());
 
         SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
         LastGains_spectraByRegion[thePart]->Fill(it.second);
@@ -1574,16 +1779,26 @@ namespace gainCalibHelper {
       TLegend legend = TLegend(0.52, 0.80, 0.98, 0.9);
       legend.SetHeader(Form("#LT %s #GT value comparison", TypeName[myType]),
                        "C");  // option "C" allows to center the header
+
+      legend.SetHeader("#mu_{H} value comparison", "C");  // option "C" allows to center the header
+      std::string l_tagOrHash, f_tagOrHash;
+      if (this->m_plotAnnotations.ntags == 2) {
+        l_tagOrHash = l_tagname;
+        f_tagOrHash = f_tagname;
+      } else {
+        l_tagOrHash = std::get<1>(lastiov);
+        f_tagOrHash = std::get<1>(firstiov);
+      }
+
       legend.AddEntry(
           summaryLast.get(),
-          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[4]{" + std::get<1>(lastiov) + "}")
-              .c_str(),
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[4]{" + l_tagOrHash + "}").c_str(),
           "F");
       legend.AddEntry(
           summaryFirst.get(),
-          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[2]{" + std::get<1>(firstiov) + "}")
-              .c_str(),
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[2]{" + f_tagOrHash + "}").c_str(),
           "F");
+
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
@@ -1595,26 +1810,6 @@ namespace gainCalibHelper {
   protected:
     bool isForHLT_;
     std::string label_;
-  };
-
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibrationByRegionComparisonSingleTag
-      : public SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType> {
-  public:
-    SiPixelGainCalibrationByRegionComparisonSingleTag()
-        : SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType>() {
-      this->setSingleIov(false);
-    }
-  };
-
-  template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibrationByRegionComparisonTwoTags
-      : public SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType> {
-  public:
-    SiPixelGainCalibrationByRegionComparisonTwoTags()
-        : SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType>() {
-      this->setTwoTags(true);
-    }
   };
 }  // namespace gainCalibHelper
 

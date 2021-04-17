@@ -8,6 +8,8 @@
    Author: Sven Dildick (TAMU), Tao Huang (TAMU)
 */
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
@@ -77,7 +79,7 @@ private:
 
   void clear();
 
-  edm::ESHandle<GEMGeometry> gem_geom_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
 
   std::map<unsigned int, edm::PSimHitContainer> superchamber_to_hits_;
 

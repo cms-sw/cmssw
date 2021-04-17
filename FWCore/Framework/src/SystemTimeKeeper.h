@@ -50,11 +50,16 @@ namespace edm {
                      service::TriggerNamesService const& iNameService,
                      ProcessContext const* iProcessContext);
 
+    SystemTimeKeeper(const SystemTimeKeeper&) = delete;
+    SystemTimeKeeper& operator=(const SystemTimeKeeper&) = delete;
+
     // ---------- const member functions ---------------------
 
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
+    void removeModuleIfExists(ModuleDescription const& module);
+
     void startProcessingLoop();
     void stopProcessingLoop();
 
@@ -86,10 +91,6 @@ namespace edm {
     void fillTriggerTimingReport(TriggerTimingReport& rep) const;
 
   private:
-    SystemTimeKeeper(const SystemTimeKeeper&) = delete;  // stop default
-
-    const SystemTimeKeeper& operator=(const SystemTimeKeeper&) = delete;  // stop default
-
     PathTiming& pathTiming(StreamContext const&, PathContext const&);
     bool checkBounds(unsigned int id) const;
 

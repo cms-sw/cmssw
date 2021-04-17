@@ -205,7 +205,7 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
               (recMuon->isGlobalMuon() && chiGlobal < 3 && recMuon->combinedQuality().chi2LocalPosition < 12 &&
                recMuon->combinedQuality().trkKink < 20);
           if (muon::segmentCompatibility(*recMuon) > (goodGlob ? 0.303 : 0.451)) {
-            double dr = deltaR(track1->eta(), track1->phi(), recMuon->eta(), recMuon->phi());
+            double dr = reco::deltaR(track1->eta(), track1->phi(), recMuon->eta(), recMuon->phi());
             if (dr < localMin) {
               localMin = dr;
               if (localMin < globalMin)

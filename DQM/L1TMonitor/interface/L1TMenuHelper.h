@@ -18,7 +18,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -78,8 +77,21 @@ struct SingleObjectTrigger {
 
 class L1TMenuHelper {
 public:
-  L1TMenuHelper(const edm::EventSetup& iSetup);  // Constructor
-  ~L1TMenuHelper();                              // Destructor
+  struct Tokens {
+    edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> menu;
+    edm::ESGetToken<L1GtPrescaleFactors, L1GtPrescaleFactorsAlgoTrigRcd> l1GtPfAlgo;
+  };
+
+  template <edm::Transition Tr = edm::Transition::Event>
+  static Tokens consumes(edm::ConsumesCollector iC) {
+    Tokens tok;
+    tok.menu = iC.esConsumes<Tr>();
+    tok.l1GtPfAlgo = iC.esConsumes<Tr>();
+    return tok;
+  }
+
+  L1TMenuHelper(const edm::EventSetup& iSetup, const Tokens& tokens);  // Constructor
+  ~L1TMenuHelper();                                                    // Destructor
 
   // Get Lowest Unprescaled Single Object Triggers
   std::map<std::string, std::string> getLUSOTrigger(const std::map<std::string, bool>& iCategories,
@@ -98,9 +110,6 @@ public:
   unsigned int getQualityAlias(const TString& iCategory, const TString& iAlias);
 
 private:
-  edm::ESHandle<L1GtTriggerMenu> menuRcd;
-  edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-
   const L1GtTriggerMenu* m_l1GtMenu;
   const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
 

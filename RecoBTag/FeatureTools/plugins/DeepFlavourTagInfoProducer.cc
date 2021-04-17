@@ -48,6 +48,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
 class HistogramProbabilityEstimator;
+#include <memory>
+
 #include <typeinfo>
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
 #include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"
@@ -201,7 +203,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   double negative_cut = 0;  //used only with flip_
   if (flip_) {              //FIXME: Check if can do even less often than once per event
     const edm::Provenance* prov = shallow_tag_infos.provenance();
-    const edm::ParameterSet& psetFromProvenance = edm::parameterSet(*prov, iEvent.processHistory());
+    const edm::ParameterSet& psetFromProvenance = edm::parameterSet(prov->stable(), iEvent.processHistory());
     negative_cut = ((psetFromProvenance.getParameter<edm::ParameterSet>("computer"))
                         .getParameter<edm::ParameterSet>("trackSelection"))
                        .getParameter<double>("sip3dSigMax");
@@ -470,7 +472,8 @@ void DeepFlavourTagInfoProducer::checkEventSetup(const edm::EventSetup& iSetup) 
   {
     ESHandle<TrackProbabilityCalibration> calib2DHandle = iSetup.getHandle(calib2d_token_);
     ESHandle<TrackProbabilityCalibration> calib3DHandle = iSetup.getHandle(calib3d_token_);
-    probabilityEstimator_.reset(new HistogramProbabilityEstimator(calib3DHandle.product(), calib2DHandle.product()));
+    probabilityEstimator_ =
+        std::make_unique<HistogramProbabilityEstimator>(calib3DHandle.product(), calib2DHandle.product());
   }
 
   calibrationCacheId3D_ = cacheId3D;

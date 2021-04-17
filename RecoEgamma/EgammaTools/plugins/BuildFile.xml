@@ -5,7 +5,7 @@
   <use name="CommonTools/Egamma"/>
   <use name="CondCore/DBOutputService"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="CondFormats/EgammaObjects"/>
+  <use name="CondFormats/GBRForest"/>
   <use name="DataFormats/EgammaCandidates"/>
   <use name="RecoEgamma/EgammaTools"/>
 </library>

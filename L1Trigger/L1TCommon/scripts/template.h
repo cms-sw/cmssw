@@ -1,4 +1,4 @@
-// XXXRcd                                                                                            
+// XXXRcd
 // Description: Record for XXX
 //
 // automatically generate by make_records.pl
@@ -14,6 +14,6 @@ class XXXRcd : public edm::eventsetup::EventSetupRecordImplementation<XXXRcd> {}
 //#include "FWCore/Framework/interface/DependentRecordImplementation.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class XXXRcd : public edm::eventsetup::DependentRecordImplementation<XXXRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class XXXRcd : public edm::eventsetup::DependentRecordImplementation<XXXRcd, edm::mpl::Vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

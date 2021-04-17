@@ -92,7 +92,9 @@ public:
   /// Constructor
   ES_TTStubAlgorithm_cbc3(const edm::ParameterSet &p) {
     mPerformZMatching2S = p.getParameter<bool>("zMatching2S");
-    setWhatProduced(this).setConsumes(mGeomToken).setConsumes(mTopoToken);
+    auto cc = setWhatProduced(this);
+    mGeomToken = cc.consumes();
+    mTopoToken = cc.consumes();
   }
 
   /// Destructor

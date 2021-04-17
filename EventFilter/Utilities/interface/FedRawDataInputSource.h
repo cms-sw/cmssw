@@ -20,6 +20,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 
 class FEDRawDataCollection;
@@ -31,7 +32,10 @@ struct InputChunk;
 
 namespace evf {
   class FastMonitoringService;
-}
+  namespace FastMonState {
+    enum InputState : short;
+  }
+}  // namespace evf
 
 class FedRawDataInputSource : public edm::RawInputSource {
   friend struct InputFile;
@@ -47,6 +51,8 @@ public:
 protected:
   Next checkNext() override;
   void read(edm::EventPrincipal& eventPrincipal) override;
+  void setMonState(evf::FastMonState::InputState state);
+  void setMonStateSup(evf::FastMonState::InputState state);
 
 private:
   void rewind_() override;
@@ -92,6 +98,7 @@ private:
   const bool alwaysStartFromFirstLS_;
   const bool verifyChecksum_;
   const bool useL1EventID_;
+  const std::vector<unsigned int> testTCDSFEDRange_;
   std::vector<std::string> fileNames_;
   bool useFileBroker_;
   //std::vector<std::string> fileNamesSorted_;
@@ -119,6 +126,9 @@ private:
   unsigned int eventsThisLumi_;
   unsigned long eventsThisRun_ = 0;
 
+  uint16_t MINTCDSuTCAFEDID_ = FEDNumbering::MINTCDSuTCAFEDID;
+  uint16_t MAXTCDSuTCAFEDID_ = FEDNumbering::MAXTCDSuTCAFEDID;
+
   /*
    *
    * Multithreaded file reader
@@ -127,7 +137,7 @@ private:
 
   typedef std::pair<InputFile*, InputChunk*> ReaderInfo;
 
-  uint32 detectedFRDversion_ = 0;
+  uint16_t detectedFRDversion_ = 0;
   std::unique_ptr<InputFile> currentFile_;
   bool chunkIsFree_ = false;
 

@@ -3,7 +3,17 @@ import FWCore.ParameterSet.Config as cms
 from Validation.HGCalValidation.CaloParticleSelectionForEfficiency_cfi import *
 from Validation.HGCalValidation.HGVHistoProducerAlgoBlock_cfi import *
 
+from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerClusterCaloParticleAssociation
+from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociation
+
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels, ticlIterLabelsMerge
+
+labelMcl = [cms.InputTag("ticlMultiClustersFromTracksters"+iteration) for iteration in ticlIterLabelsMerge]
+labelMcl.extend(["ticlMultiClustersFromSimTracksters"])
+lcInputMask = [cms.InputTag("ticlTracksters"+iteration) for iteration in ticlIterLabels]
+lcInputMask.extend(["ticlSimTracksters"])
 hgcalValidator = DQMEDAnalyzer(
     "HGCalValidator",
 
@@ -13,12 +23,12 @@ hgcalValidator = DQMEDAnalyzer(
 
     ### reco input configuration ###
     #2dlayerclusters, pfclusters, multiclusters
-    label_lcl = cms.InputTag("hgcalLayerClusters"),
-    label_mcl = cms.VInputTag(
-      cms.InputTag("ticlMultiClustersFromTrackstersTrk"),
-      cms.InputTag("ticlMultiClustersFromTrackstersEM"),
-      cms.InputTag("ticlMultiClustersFromTrackstersHAD"),
-      cms.InputTag("ticlMultiClustersFromTrackstersMerge")),
+    label_lcl = layerClusterCaloParticleAssociation.label_lc,
+    label_mcl = cms.VInputTag(labelMcl),
+
+    associator = cms.untracked.InputTag("layerClusterCaloParticleAssociationProducer"),
+
+    associatorSim = cms.untracked.InputTag("layerClusterSimClusterAssociationProducer"),
 
     #General info on layers etc.
     SaveGeneralInfo = cms.untracked.bool(True),
@@ -26,10 +36,12 @@ hgcalValidator = DQMEDAnalyzer(
     doCaloParticlePlots = cms.untracked.bool(True),
     #Select caloParticles for efficiency or pass through
     doCaloParticleSelection = cms.untracked.bool(True),
+    #SimCluster related plots
+    doSimClustersPlots = cms.untracked.bool(True),
     #Layer Cluster related plots
-    dolayerclustersPlots = cms.untracked.bool(True),
+    doLayerClustersPlots = cms.untracked.bool(True),
     #Multi Cluster related plots
-    domulticlustersPlots = cms.untracked.bool(True),
+    doMultiClustersPlots = cms.untracked.bool(True),
 
     #The cumulative material budget in front of each layer. To be more specific, it
     #is the material budget just in front of the active material (not including it).
@@ -37,10 +49,14 @@ hgcalValidator = DQMEDAnalyzer(
     cummatbudinxo = cms.FileInPath('Validation/HGCalValidation/data/D41.cumulative.xo'),
 
     ### sim input configuration ###
-    label_cp_effic = cms.InputTag("mix","MergedCaloTruth"),
+    label_cp_effic = layerClusterCaloParticleAssociation.label_cp,
     label_cp_fake = cms.InputTag("mix","MergedCaloTruth"),
+    #simClusters
+    label_scl = layerClusterSimClusterAssociation.label_scl,
 
     simVertices = cms.InputTag("g4SimHits"),
+
+    LayerClustersInputMask = cms.VInputTag(lcInputMask),
 
     #Total number of layers of HGCal that we want to monitor
     #Could get this also from HGCalImagingAlgo::maxlayer but better to get it from here
@@ -58,7 +74,6 @@ hgcalValidator = DQMEDAnalyzer(
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(hgcalValidator,
-    label_cp_effic = "mixData:MergedCaloTruth",
     label_cp_fake = "mixData:MergedCaloTruth"
 )
 

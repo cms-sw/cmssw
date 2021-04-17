@@ -1,8 +1,8 @@
 #include "FTFPCMS_BERT_HP_EMM.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
-#include "SimG4Core/PhysicsLists/interface/CMSThermalNeutrons.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4ThermalNeutrons.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
@@ -28,7 +28,7 @@ FTFPCMS_BERT_HP_EMM::FTFPCMS_BERT_HP_EMM(const edm::ParameterSet& p) : PhysicsLi
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new CMSEmStandardPhysicsLPM(ver));
+    RegisterPhysics(new CMSEmStandardPhysics(ver, p));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
@@ -60,7 +60,7 @@ FTFPCMS_BERT_HP_EMM::FTFPCMS_BERT_HP_EMM(const edm::ParameterSet& p) : PhysicsLi
       RegisterPhysics(ncut);
     }
     if (thermal) {
-      RegisterPhysics(new CMSThermalNeutrons(ver));
+      RegisterPhysics(new G4ThermalNeutrons(ver));
     }
   }
 }

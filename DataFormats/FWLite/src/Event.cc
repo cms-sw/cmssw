@@ -64,11 +64,11 @@ namespace fwlite {
       // getThinnedProduct assumes getIt was already called and failed to find
       // the product. The input key is the index of the desired element in the
       // container identified by ProductID (which cannot be found).
-      // If the return value is not null, then the desired element was found
-      // in a thinned container and key is modified to be the index into
-      // that thinned container. If the desired element is not found, then
-      // nullptr is returned.
-      edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const override {
+      // If the return value is not null, then the desired element was
+      // found in a thinned container. If the desired element is not
+      // found, then an optional without a value is returned.
+      std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(
+          edm::ProductID const& pid, unsigned int key) const override {
         return event_->getThinnedProduct(pid, key);
       }
 
@@ -87,6 +87,19 @@ namespace fwlite {
                               std::vector<edm::WrapperBase const*>& foundContainers,
                               std::vector<unsigned int>& keys) const override {
         event_->getThinnedProducts(pid, foundContainers, keys);
+      }
+
+      // This overload is allowed to be called also without getIt()
+      // being called first, but the thinned ProductID must come from an
+      // existing RefCore. The input key is the index of the desired
+      // element in the container identified by the parent ProductID.
+      // If the return value is not null, then the desired element was found
+      // in a thinned container. If the desired element is not found, then
+      // an optional without a value is returned.
+      edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const& parent,
+                                                unsigned int key,
+                                                edm::ProductID const& thinned) const override {
+        return event_->getThinnedKeyFrom(parent, key, thinned);
       }
 
     private:
@@ -366,7 +379,8 @@ namespace fwlite {
     return dataHelper_.getByProductID(iID, eventEntry);
   }
 
-  edm::WrapperBase const* Event::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> Event::getThinnedProduct(edm::ProductID const& pid,
+                                                                                            unsigned int key) const {
     Long_t eventEntry = branchMap_.getEventEntry();
     return dataHelper_.getThinnedProduct(pid, key, eventEntry);
   }
@@ -376,6 +390,13 @@ namespace fwlite {
                                  std::vector<unsigned int>& keys) const {
     Long_t eventEntry = branchMap_.getEventEntry();
     return dataHelper_.getThinnedProducts(pid, foundContainers, keys, eventEntry);
+  }
+
+  edm::OptionalThinnedKey Event::getThinnedKeyFrom(edm::ProductID const& parent,
+                                                   unsigned int key,
+                                                   edm::ProductID const& thinned) const {
+    Long_t eventEntry = branchMap_.getEventEntry();
+    return dataHelper_.getThinnedKeyFrom(parent, key, thinned, eventEntry);
   }
 
   edm::TriggerNames const& Event::triggerNames(edm::TriggerResults const& triggerResults) const {

@@ -8,6 +8,9 @@ HcalGainsCheck::HcalGainsCheck(edm::ParameterSet const& ps) {
   emapflag = ps.getUntrackedParameter<bool>("checkEmap", false);
   validategainsflag = ps.getUntrackedParameter<bool>("validateGains", false);
   epsilon = ps.getUntrackedParameter<double>("deltaG", 1000000);
+  m_tok1 = esConsumes<HcalGains, HcalGainsRcd>(edm::ESInputTag("", "update"));
+  m_tok2 = esConsumes<HcalGains, HcalGainsRcd>(edm::ESInputTag("", "reference"));
+  m_tokmap = esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(edm::ESInputTag("", "reference"));
 }
 
 void HcalGainsCheck::beginJob() {
@@ -48,19 +51,13 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   bool epsilonflag = false;
   bool notequalsflag = false;
   // get new gains
-  edm::ESHandle<HcalGains> newGains;
-  es.get<HcalGainsRcd>().get("update", newGains);
-  const HcalGains* myNewGains = newGains.product();
+  const HcalGains* myNewGains = &es.getData(m_tok1);
 
   // get reference gains
-  edm::ESHandle<HcalGains> refGains;
-  es.get<HcalGainsRcd>().get("reference", refGains);
-  const HcalGains* myRefGains = refGains.product();
+  const HcalGains* myRefGains = &es.getData(m_tok2);
 
   // get e-map from reference
-  edm::ESHandle<HcalElectronicsMap> refEMap;
-  es.get<HcalElectronicsMapRcd>().get("reference", refEMap);
-  const HcalElectronicsMap* myRefEMap = refEMap.product();
+  const HcalElectronicsMap* myRefEMap = &es.getData(m_tokmap);
 
   // dump gains:
   if (dumpupdate != "null") {
@@ -162,7 +159,7 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   // or if it doesn't exist, the reference
 
   if (outfile != "null") {
-    HcalGains* resultGains = new HcalGains(refGains->topo());
+    HcalGains* resultGains = new HcalGains(myRefGains->topo());
     for (std::vector<DetId>::const_iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
       DetId mydetid = *it;
       HcalGenericDetId myId(*it);

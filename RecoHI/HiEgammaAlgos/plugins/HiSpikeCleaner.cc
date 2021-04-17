@@ -56,6 +56,7 @@ private:
   edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducerToken_;
   edm::EDGetTokenT<EcalRecHitCollection> rHInputProducerBToken_;
   edm::EDGetTokenT<EcalRecHitCollection> rHInputProducerEToken_;
+  const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
   std::string outputCollection_;
   double TimingCut_;
@@ -63,7 +64,7 @@ private:
   double etCut_;
 };
 
-HiSpikeCleaner::HiSpikeCleaner(const edm::ParameterSet& iConfig) {
+HiSpikeCleaner::HiSpikeCleaner(const edm::ParameterSet& iConfig) : ecalClusterToolsESGetTokens_{consumesCollector()} {
   //register your products
   /* Examples
    produces<ExampleData2>();
@@ -133,7 +134,8 @@ void HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // Create a pointer to the RecHits and raw SuperClusters
   const reco::SuperClusterCollection* rawClusters = pRawSuperClusters.product();
 
-  EcalClusterLazyTools lazyTool(iEvent, iSetup, rHInputProducerBToken_, rHInputProducerEToken_);
+  EcalClusterLazyTools lazyTool(
+      iEvent, ecalClusterToolsESGetTokens_.get(iSetup), rHInputProducerBToken_, rHInputProducerEToken_);
 
   // Define a collection of corrected SuperClusters to put back into the event
   auto corrClusters = std::make_unique<reco::SuperClusterCollection>();
