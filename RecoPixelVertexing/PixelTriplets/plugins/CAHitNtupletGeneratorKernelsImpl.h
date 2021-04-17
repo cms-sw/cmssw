@@ -184,7 +184,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
 
     // find min score
     for (auto it : thisCell.tracks()) {
-      if (tracks->quality(it) == loose && score(it) < mc) {
+      if (tracks->quality(it) >= loose && score(it) < mc) {
         mc = score(it);
         im = it;
       }
@@ -417,7 +417,7 @@ __global__ void kernel_doStatsForTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  //guard
-    if (quality[idx] != pixelTrack::Quality::loose)
+    if (quality[idx] < pixelTrack::Quality::loose)
       continue;
     atomicAdd(&(counters->nGoodTracks), 1);
   }
@@ -430,7 +430,7 @@ __global__ void kernel_countHitInTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  // guard
-    if (quality[idx] != pixelTrack::Quality::loose)
+    if (quality[idx] < pixelTrack::Quality::loose)
       continue;
     for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
       hitToTuple->count(*h);
@@ -444,7 +444,7 @@ __global__ void kernel_fillHitInTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  // guard
-    if (quality[idx] != pixelTrack::Quality::loose)
+    if (quality[idx] < pixelTrack::Quality::loose)
       continue;
     for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
       hitToTuple->fill(*h, idx);
