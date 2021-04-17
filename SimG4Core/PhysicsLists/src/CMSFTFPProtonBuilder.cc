@@ -2,7 +2,8 @@
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTable.hh"
 #include "G4ProcessManager.hh"
-#include "G4ProtonInelasticCrossSection.hh"
+#include "G4ParticleInelasticXS.hh"
+#include "G4Proton.hh"
 #include "G4SystemOfUnits.hh"
 
 CMSFTFPProtonBuilder::CMSFTFPProtonBuilder(G4bool quasiElastic) {
@@ -35,7 +36,7 @@ void CMSFTFPProtonBuilder::Build(G4ProtonInelasticProcess* aP) {
   theModel->SetMinEnergy(theMin);
   theModel->SetMaxEnergy(theMax);
   aP->RegisterMe(theModel);
-  aP->AddDataSet(new G4ProtonInelasticCrossSection);
+  aP->AddDataSet(new G4ParticleInelasticXS(G4Proton::Proton()));
 }
 
 CMSFTFPProtonBuilder::~CMSFTFPProtonBuilder() {
