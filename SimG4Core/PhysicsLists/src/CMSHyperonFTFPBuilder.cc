@@ -9,18 +9,7 @@
 #include "G4ComponentGGHadronNucleusXsc.hh"
 #include "G4HadronicParameters.hh"
 
-#include "G4LambdaInelasticProcess.hh"
-#include "G4AntiLambdaInelasticProcess.hh"
-#include "G4SigmaPlusInelasticProcess.hh"
-#include "G4SigmaMinusInelasticProcess.hh"
-#include "G4AntiSigmaPlusInelasticProcess.hh"
-#include "G4AntiSigmaMinusInelasticProcess.hh"
-#include "G4XiZeroInelasticProcess.hh"
-#include "G4XiMinusInelasticProcess.hh"
-#include "G4AntiXiZeroInelasticProcess.hh"
-#include "G4AntiXiMinusInelasticProcess.hh"
-#include "G4OmegaMinusInelasticProcess.hh"
-#include "G4AntiOmegaMinusInelasticProcess.hh"
+#include "G4HadronInelasticProcess.hh"
 
 #include "G4TheoFSGenerator.hh"
 #include "G4GeneratorPrecompoundInterface.hh"
@@ -68,7 +57,7 @@ void CMSHyperonFTFPBuilder::Build() {
   G4ProcessManager* aProcMan = nullptr;
 
   // Lambda
-  auto theLambdaInelastic = new G4LambdaInelasticProcess();
+  auto theLambdaInelastic = new G4HadronInelasticProcess("lambdaInelastic",G4Lambda::Lambda());
   theLambdaInelastic->RegisterMe(theBertini);
   theLambdaInelastic->RegisterMe(HyperonFTFP);
   theLambdaInelastic->AddDataSet(theInelasticCrossSection);
@@ -76,7 +65,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theLambdaInelastic);
 
   // AntiLambda
-  auto theAntiLambdaInelastic = new G4AntiLambdaInelasticProcess();
+  auto theAntiLambdaInelastic = new G4HadronInelasticProcess("anti_lambdaInelastic",G4AntiLambda::AntiLambda());
   theAntiLambdaInelastic->RegisterMe(AntiHyperonFTFP);
   theAntiLambdaInelastic->AddDataSet(theInelasticCrossSection);
 
@@ -84,7 +73,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theAntiLambdaInelastic);
 
   // SigmaMinus
-  auto theSigmaMinusInelastic = new G4SigmaMinusInelasticProcess();
+  auto theSigmaMinusInelastic = new G4HadronInelasticProcess("sigma-Inelastic",G4SigmaMinus::SigmaMinus());
   theSigmaMinusInelastic->RegisterMe(theBertini);
   theSigmaMinusInelastic->RegisterMe(HyperonFTFP);
   theSigmaMinusInelastic->AddDataSet(theInelasticCrossSection);
@@ -93,7 +82,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theSigmaMinusInelastic);
 
   // anti-SigmaMinus
-  auto theAntiSigmaMinusInelastic = new G4AntiSigmaMinusInelasticProcess();
+  auto theAntiSigmaMinusInelastic = new G4HadronInelasticProcess("anti_sigma-Inelastic",G4AntiSigmaMinus::AntiSigmaMinus());
   theAntiSigmaMinusInelastic->RegisterMe(AntiHyperonFTFP);
   theAntiSigmaMinusInelastic->AddDataSet(theInelasticCrossSection);
 
@@ -101,7 +90,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theAntiSigmaMinusInelastic);
 
   // SigmaPlus
-  auto theSigmaPlusInelastic = new G4SigmaPlusInelasticProcess();
+  auto theSigmaPlusInelastic = new G4HadronInelasticProcess("sigma+Inelastic",G4SigmaPlus::SigmaPlus());
   theSigmaPlusInelastic->RegisterMe(theBertini);
   theSigmaPlusInelastic->RegisterMe(HyperonFTFP);
   theSigmaPlusInelastic->AddDataSet(theInelasticCrossSection);
@@ -110,7 +99,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theSigmaPlusInelastic);
 
   // anti-SigmaPlus
-  auto theAntiSigmaPlusInelastic = new G4AntiSigmaPlusInelasticProcess();
+  auto theAntiSigmaPlusInelastic = new G4HadronInelasticProcess("anti_sigma+Inelastic",G4AntiSigmaPlus::AntiSigmaPlus());
   theAntiSigmaPlusInelastic->RegisterMe(AntiHyperonFTFP);
   theAntiSigmaPlusInelastic->AddDataSet(theInelasticCrossSection);
 
@@ -118,7 +107,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theAntiSigmaPlusInelastic);
 
   // XiMinus
-  auto theXiMinusInelastic = new G4XiMinusInelasticProcess();
+  auto theXiMinusInelastic = new G4HadronInelasticProcess("xi-Inelastic",G4XiMinus::XiMinus());
   theXiMinusInelastic->RegisterMe(theBertini);
   theXiMinusInelastic->RegisterMe(HyperonFTFP);
   theXiMinusInelastic->AddDataSet(theInelasticCrossSection);
@@ -127,7 +116,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theXiMinusInelastic);
 
   // anti-XiMinus
-  auto theAntiXiMinusInelastic = new G4AntiXiMinusInelasticProcess();
+  auto theAntiXiMinusInelastic = new G4HadronInelasticProcess("anti_xi-Inelastic",G4AntiXiMinus::AntiXiMinus());
   theAntiXiMinusInelastic->RegisterMe(AntiHyperonFTFP);
   theAntiXiMinusInelastic->AddDataSet(theInelasticCrossSection);
 
@@ -135,7 +124,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theAntiXiMinusInelastic);
 
   // XiZero
-  auto theXiZeroInelastic = new G4XiZeroInelasticProcess();
+  auto theXiZeroInelastic = new G4HadronInelasticProcess("xi0Inelastic",G4XiZero::XiZero());
   theXiZeroInelastic->RegisterMe(theBertini);
   theXiZeroInelastic->RegisterMe(HyperonFTFP);
   theXiZeroInelastic->AddDataSet(theInelasticCrossSection);
@@ -144,7 +133,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theXiZeroInelastic);
 
   // anti-XiZero
-  auto theAntiXiZeroInelastic = new G4AntiXiZeroInelasticProcess();
+  auto theAntiXiZeroInelastic = new G4HadronInelasticProcess("anti_xi0Inelastic",G4AntiXiZero::AntiXiZero());
   theAntiXiZeroInelastic->RegisterMe(AntiHyperonFTFP);
   theAntiXiZeroInelastic->AddDataSet(theInelasticCrossSection);
 
@@ -152,7 +141,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theAntiXiZeroInelastic);
 
   // OmegaMinus
-  auto theOmegaMinusInelastic = new G4OmegaMinusInelasticProcess();
+  auto theOmegaMinusInelastic = new G4HadronInelasticProcess("omega-Inelastic",G4OmegaMinus::OmegaMinus());
   theOmegaMinusInelastic->RegisterMe(theBertini);
   theOmegaMinusInelastic->RegisterMe(HyperonFTFP);
   theOmegaMinusInelastic->AddDataSet(theInelasticCrossSection);
@@ -161,7 +150,7 @@ void CMSHyperonFTFPBuilder::Build() {
   aProcMan->AddDiscreteProcess(theOmegaMinusInelastic);
 
   // anti-OmegaMinus
-  auto theAntiOmegaMinusInelastic = new G4AntiOmegaMinusInelasticProcess();
+  auto theAntiOmegaMinusInelastic = new G4HadronInelasticProcess("anti_omega-Inelastic",G4AntiOmegaMinus::AntiOmegaMinus());
   theAntiOmegaMinusInelastic->RegisterMe(AntiHyperonFTFP);
   theAntiOmegaMinusInelastic->AddDataSet(theInelasticCrossSection);
 

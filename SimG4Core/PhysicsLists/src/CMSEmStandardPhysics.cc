@@ -23,7 +23,6 @@
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
 #include "G4eplusAnnihilation.hh"
-//#include "G4UAtomicDeexcitation.hh"
 
 #include "G4hIonisation.hh"
 #include "G4ionIonisation.hh"
@@ -80,8 +79,9 @@ void CMSEmStandardPhysics::ConstructProcess() {
   }
 
   // This EM builder takes default models of Geant4 10 EMV.
-  // Multiple scattering by Urban for all particles
-  // except e+e- below 100 MeV for which the Urban93 model is used
+  // Multiple scattering by WentzelVI for all particles except:
+  //   a) e+e- below 100 MeV for which the Urban model is used
+  //   b) ions for which Urban model is used
   G4EmBuilder::PrepareEMPhysics();
 
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
@@ -89,7 +89,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
   G4hMultipleScattering* hmsc = new G4hMultipleScattering("ionmsc");
   G4NuclearStopping* pnuc(nullptr);
 
-  // high energy limit for e+- scattering models and bremsstrahlung
+  // high energy limit for e+- scattering models
   G4double highEnergyLimit = G4EmParameters::Instance()->MscEnergyLimit();
 
   const G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
@@ -127,11 +127,14 @@ void CMSEmStandardPhysics::ConstructProcess() {
   msc1->SetHighEnergyLimit(highEnergyLimit);
   msc2->SetLowEnergyLimit(highEnergyLimit);
   msc3->SetHighEnergyLimit(highEnergyLimit);
+
+  // e-/e+ msc for HCAL and HGCAL using the Urban model
   msc3->SetRangeFactor(fRangeFactor);
   msc3->SetGeomFactor(fGeomFactor);
   msc3->SetSafetyFactor(fSafetyFactor);
   msc3->SetLambdaLimit(fLambdaLimit);
   msc3->SetStepLimitType(fStepLimitType);
+
   msc3->SetLocked(true);
   msc->SetEmModel(msc1);
   msc->SetEmModel(msc2);
@@ -142,6 +145,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
     msc->AddEmModel(-1, msc3, bRegion);
   }
 
+  // single scattering
   G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
   G4CoulombScattering* ss = new G4CoulombScattering();
   ss->SetEmModel(ssm);
@@ -165,11 +169,14 @@ void CMSEmStandardPhysics::ConstructProcess() {
   msc1->SetHighEnergyLimit(highEnergyLimit);
   msc2->SetLowEnergyLimit(highEnergyLimit);
   msc3->SetHighEnergyLimit(highEnergyLimit);
+
+  // e-/e+ msc for HCAL and HGCAL using the Urban model
   msc3->SetRangeFactor(fRangeFactor);
   msc3->SetGeomFactor(fGeomFactor);
   msc3->SetSafetyFactor(fSafetyFactor);
   msc3->SetLambdaLimit(fLambdaLimit);
   msc3->SetStepLimitType(fStepLimitType);
+
   msc3->SetLocked(true);
   msc->SetEmModel(msc1);
   msc->SetEmModel(msc2);
@@ -180,6 +187,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
     msc->AddEmModel(-1, msc3, bRegion);
   }
 
+  // single scattering
   ssm = new G4eCoulombScatteringModel();
   ss = new G4CoulombScattering();
   ss->SetEmModel(ssm);

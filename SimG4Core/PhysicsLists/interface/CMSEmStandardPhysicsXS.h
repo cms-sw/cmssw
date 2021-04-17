@@ -1,11 +1,21 @@
+//--------------------------------------------------------------------
+//
+// 15.04.2021 V.Ivanchenko EM physics of CMS mirgrated to Geant4 10.7
+//                         based on option1 Geant4 EM and called EMN
+//
+//--------------------------------------------------------------------
+
 #ifndef SimG4Core_PhysicsLists_CMSEmStandardPhysicsXS_h
 #define SimG4Core_PhysicsLists_CMSEmStandardPhysicsXS_h
 
 #include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
 
-class CMSEmStandardPhysicsXS : public G4VPhysicsConstructor {
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class CMSEmStandardPhysics : public G4VPhysicsConstructor {
 public:
+  CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSet& p);
   CMSEmStandardPhysicsXS(G4int ver);
   ~CMSEmStandardPhysicsXS() override;
 
@@ -13,6 +23,11 @@ public:
   void ConstructProcess() override;
 
 private:
+  G4double fRangeFactor;
+  G4double fGeomFactor;
+  G4double fSafetyFactor;
+  G4double fLambdaLimit;
+  G4MscStepLimitType fStepLimitType;
   G4int verbose;
 };
 
