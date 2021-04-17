@@ -21,14 +21,18 @@ FTFPCMS_BERT_EMN::FTFPCMS_BERT_EMN(const edm::ParameterSet& p) : PhysicsList(p) 
   double maxBERT = p.getParameter<double>("EmaxBERT") * CLHEP::GeV;
   double maxBERTpi = p.getParameter<double>("EmaxBERTpi") * CLHEP::GeV;
   edm::LogVerbatim("PhysicsList") << "You are using the simulation engine: FTFP_BERT_EMN: \n Flags for EM Physics: "
-                                  << emPhys << "; Hadronic Physics: " << hadPhys << "; tracking cut: " << tracking
-                                  << "; time limit(ns)= " << timeLimit / CLHEP::ns
-                                  << "\n  transition energy Bertini/FTFP from " << minFTFP / CLHEP::GeV << " to "
-                                  << maxBERT / CLHEP::GeV << ":" << maxBERTpi / CLHEP::GeV << " GeV";
+                                  << emPhys << "; Hadronic Physics: " 
+                                  << hadPhys << "; tracking cut: " << tracking
+                                  << "; time limit(ns)= " 
+                                  << timeLimit / CLHEP::ns
+                                  << "\n  transition energy Bertini/FTFP from " 
+                                  << minFTFP / CLHEP::GeV << " to "
+                                  << maxBERT / CLHEP::GeV << ":" 
+                                  << maxBERTpi / CLHEP::GeV << " GeV";
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new CMSEmStandardPhysicsXS(ver));
+    RegisterPhysics(new CMSEmStandardPhysicsXS(ver, p));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
