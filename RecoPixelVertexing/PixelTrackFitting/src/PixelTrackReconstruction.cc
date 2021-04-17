@@ -77,8 +77,8 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
           continue;
         }
       }
-      // all legacy tracks are "highQuality"
-      track->setQuality(reco::Track:highQuality);
+      // all legacy tracks are "highPurity"
+      track->setQuality(reco::TrackBase::highPurity);
       // add tracks
       tracks.emplace_back(track.release(), tuplet);
     }
