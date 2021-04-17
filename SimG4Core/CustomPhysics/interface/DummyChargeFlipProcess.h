@@ -16,7 +16,6 @@ public:
   G4bool IsApplicable(const G4ParticleDefinition& aParticleType) override;
 
 private:
-
   G4ParticleChange* fPartChange;
 };
 #endif

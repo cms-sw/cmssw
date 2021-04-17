@@ -60,13 +60,13 @@ CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSe
   param->SetDefaults();
   param->SetVerbose(verbose);
   param->SetApplyCuts(true);
-  param->SetMinEnergy(100*CLHEP::eV);
+  param->SetMinEnergy(100 * CLHEP::eV);
   param->SetNumberOfBinsPerDecade(20);
   param->SetStepFunction(0.8, 1 * CLHEP::mm);
   param->SetMscRangeFactor(0.2);
   param->SetMscStepLimitType(fMinimal);
   param->SetFluo(true);
-  param->SetUseMottCorrection(true); // use Mott-correction for e-/e+ msc gs
+  param->SetUseMottCorrection(true);  // use Mott-correction for e-/e+ msc gs
   SetPhysicsType(bElectromagnetic);
   fRangeFactor = p.getParameter<double>("G4MscRangeFactor");
   fGeomFactor = p.getParameter<double>("G4MscGeomFactor");
@@ -76,7 +76,7 @@ CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSe
   fStepLimitType = fUseSafety;
   if (msc == "UseSafetyPlus") {
     fStepLimitType = fUseSafetyPlus;
-  } 
+  }
   if (msc == "Minimal") {
     fStepLimitType = fMinimal;
   }
@@ -128,7 +128,7 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   G4VEmModel* conv = new G4BetheHeitler5DModel();
   gc->SetEmModel(conv);
 
-  if(G4EmParameters::Instance()->GeneralProcessActive()) {
+  if (G4EmParameters::Instance()->GeneralProcessActive()) {
     G4GammaGeneralProcess* sp = new G4GammaGeneralProcess();
     sp->AddEmProcess(pe);
     sp->AddEmProcess(cs);
@@ -145,7 +145,7 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
 
   // e-
   particle = G4Electron::Electron();
- 
+
   // multiple scattering
   G4eMultipleScattering* msc = new G4eMultipleScattering();
   G4UrbanMscModel* msc1 = new G4UrbanMscModel();
@@ -182,9 +182,9 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   }
 
   // single scattering
-  G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel(); 
+  G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
   G4CoulombScattering* ss = new G4CoulombScattering();
-  ss->SetEmModel(ssm); 
+  ss->SetEmModel(ssm);
   ss->SetMinKinEnergy(highEnergyLimit);
   ssm->SetLowEnergyLimit(highEnergyLimit);
   ssm->SetActivationLowEnergyLimit(highEnergyLimit);
@@ -248,9 +248,9 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   }
 
   // single scattering
-  ssm = new G4eCoulombScatteringModel(); 
+  ssm = new G4eCoulombScatteringModel();
   ss = new G4CoulombScattering();
-  ss->SetEmModel(ssm); 
+  ss->SetEmModel(ssm);
   ss->SetMinKinEnergy(highEnergyLimit);
   ssm->SetLowEnergyLimit(highEnergyLimit);
   ssm->SetActivationLowEnergyLimit(highEnergyLimit);
@@ -276,7 +276,6 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   ph->RegisterProcess(new G4eplusAnnihilation(), particle);
   ph->RegisterProcess(ss, particle);
 
-
   // generic ion
   particle = G4GenericIon::GenericIon();
   G4ionIonisation* ionIoni = new G4ionIonisation();
@@ -285,5 +284,4 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
 
   // muons, hadrons, ions
   G4EmBuilder::ConstructCharged(hmsc, pnuc);
-
 }

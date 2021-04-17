@@ -7,8 +7,8 @@
 // (BERT) intra-nuclear cascade model and Fritiof (FTF) string model
 // optimized for CMS.
 //
-// 15.04.2021 V.Ivanchenko Hadron inelastic physics of CMS 
-//                         mirgrated to Geant4 10.7  
+// 15.04.2021 V.Ivanchenko Hadron inelastic physics of CMS
+//                         mirgrated to Geant4 10.7
 //
 //---------------------------------------------------------------------------
 //

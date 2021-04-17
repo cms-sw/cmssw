@@ -22,11 +22,9 @@ FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(const edm::ParameterSet& p) : PhysicsLi
   bool thermal = p.getUntrackedParameter<bool>("ThermalNeutrons");
   double timeLimit = p.getParameter<double>("MaxTrackTime") * CLHEP::ns;
   edm::LogVerbatim("PhysicsList") << "You are using the simulation engine: "
-                                  << "FTFP_BERT_HP_EML \n Flags for EM Physics " 
-                                  << emPhys << ", for Hadronic Physics "
-                                  << hadPhys << " and tracking cut " 
-                                  << tracking << "   t(ns)= " << timeLimit / CLHEP::ns
-                                  << " ThermalNeutrons: " << thermal;
+                                  << "FTFP_BERT_HP_EML \n Flags for EM Physics " << emPhys << ", for Hadronic Physics "
+                                  << hadPhys << " and tracking cut " << tracking
+                                  << "   t(ns)= " << timeLimit / CLHEP::ns << " ThermalNeutrons: " << thermal;
 
   if (emPhys) {
     // EM Physics
