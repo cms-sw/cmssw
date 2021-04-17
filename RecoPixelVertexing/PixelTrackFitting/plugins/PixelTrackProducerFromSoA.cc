@@ -92,6 +92,10 @@ void PixelTrackProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions 
 void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
                                         edm::Event &iEvent,
                                         const edm::EventSetup &iSetup) const {
+
+  // enum class Quality : uint8_t { bad = 0, dup, loose, strict, tight, highPurity };
+  reco::Track::TrackQuality recoQuality[reco::Track::undifined,reco::Track::undifined,reco::Track::loose,,reco::Track::tight,reco::Track::tight,reco::Track::highQuality];
+
   // std::cout << "Converting gpu helix in reco tracks" << std::endl;
 
   auto indToEdmP = std::make_unique<IndToEdm>();
@@ -192,6 +196,7 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
     math::XYZVector mom(pp.x(), pp.y(), pp.z());
 
     auto track = std::make_unique<reco::Track>(chi2, ndof, pos, mom, gp.charge(), CurvilinearTrajectoryError(mo));
+    track->setQuality(recoQuality[q]);
     // filter???
     tracks.emplace_back(track.release(), hits);
   }
