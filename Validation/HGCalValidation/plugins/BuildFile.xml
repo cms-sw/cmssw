@@ -19,8 +19,6 @@
 <use name="Geometry/HGCalCommonData"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/Records"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="L1Trigger/L1THGCal"/>
 <use name="SimDataFormats/CaloHit"/>
 <use name="SimDataFormats/CaloTest"/>
@@ -32,7 +30,6 @@
 <use name="SimG4Core/Watcher"/>
 <use name="SimG4CMS/Calo"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
-<use name="RecoLocalCalo/HGCalRecProducers"/>
 <use name="Validation/HGCalValidation"/>
 <use name="geant4core"/>
 <use name="dd4hep"/>
