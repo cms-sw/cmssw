@@ -37,8 +37,7 @@ using edm::ParameterSet;
 class PixelTrackProducer : public edm::stream::EDProducer<> {
 public:
   explicit PixelTrackProducer(const edm::ParameterSet& cfg)
-      : theReconstruction(cfg, consumesCollector()),
-        htTopoToken_(esConsumes()) {
+      : theReconstruction(cfg, consumesCollector()), htTopoToken_(esConsumes()) {
     edm::LogInfo("PixelTrackProducer") << " construction...";
     produces<reco::TrackCollection>();
     produces<TrackingRecHitCollection>();
@@ -73,4 +72,3 @@ private:
 };
 
 DEFINE_FWK_MODULE(PixelTrackProducer);
-
