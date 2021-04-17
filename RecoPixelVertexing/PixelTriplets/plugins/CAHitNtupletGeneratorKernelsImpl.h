@@ -370,6 +370,8 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
       continue;
     }
 
+    quality[it] = pixelTrack::Quality::loose;
+
     // compute a pT-dependent chi2 cut
     // default parameters:
     //   - chi2MaxPt = 10 GeV
@@ -392,6 +394,8 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
       continue;
     }
 
+    quality[it] = pixelTrack::Quality::tight;
+
     // impose "region cuts" based on the fit results (phi, Tip, pt, cotan(theta)), Zip)
     // default cuts:
     //   - for triplets:    |Tip| < 0.3 cm, pT > 0.5 GeV, |Zip| < 12.0 cm
@@ -402,7 +406,7 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
                 (std::abs(tracks->zip(it)) < region.maxZip);
 
     if (isOk)
-      quality[it] = pixelTrack::Quality::loose;
+      quality[it] = pixelTrack::Quality::highPurity;
   }
 }
 
