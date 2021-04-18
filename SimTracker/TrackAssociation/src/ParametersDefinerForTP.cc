@@ -83,12 +83,13 @@ TrackingParticle::Point ParametersDefinerForTP::vertex(const edm::Event &iEvent,
   return vertex;
 }
 
-std::pair<TrackingParticle::Point,TrackingParticle::Vector> ParametersDefinerForTP::vertexAndMomentum( const edm::Event &iEvent,
-                                         const edm::EventSetup &iSetup,
-                                         const Charge charge,
-                                         const Point &vtx,
-                                         const LorentzVector &lv) const {
-   using namespace edm;
+std::pair<TrackingParticle::Point, TrackingParticle::Vector> ParametersDefinerForTP::vertexAndMomentum(
+    const edm::Event &iEvent,
+    const edm::EventSetup &iSetup,
+    const Charge charge,
+    const Point &vtx,
+    const LorentzVector &lv) const {
+  using namespace edm;
 
   edm::ESHandle<MagneticField> theMF;
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);
@@ -111,11 +112,11 @@ std::pair<TrackingParticle::Point,TrackingParticle::Vector> ParametersDefinerFor
     GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
     vertex = TrackingParticle::Point(v.x(), v.y(), v.z());
     GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
-    momentum = TrackingParticle::Vector(p.x(), p.y(), p.z());;
+    momentum = TrackingParticle::Vector(p.x(), p.y(), p.z());
+    ;
   }
 
-  return std::make_pair(vertex,momentum);
-
+  return std::make_pair(vertex, momentum);
 }
 
 TYPELOOKUP_DATA_REG(ParametersDefinerForTP);

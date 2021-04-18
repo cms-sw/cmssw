@@ -342,6 +342,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook,
   }    // end loop ww
 }
 
+#ifdef EDM_ML_DEBUG
 namespace {
   void ensureEffIsSubsetOfFake(const TrackingParticleRefVector& eff, const TrackingParticleRefVector& fake) {
     // If efficiency RefVector is empty, don't check the product ids
@@ -375,6 +376,7 @@ namespace {
     }
   }
 }  // namespace
+#endif
 
 const TrackingVertex::LorentzVector* MultiTrackValidator::getSimPVPosition(
     const edm::Handle<TrackingVertexCollection>& htv) const {
@@ -430,10 +432,10 @@ void MultiTrackValidator::tpParametersAndSelection(
   if (parametersDefinerIsCosmic_) {
     for (size_t j = 0; j < tPCeff.size(); ++j) {
       const TrackingParticleRef& tpr = tPCeff[j];
-      
-      auto const & rec = parametersDefinerTP.vertexAndMomentum(event, setup, tpr);
-      TrackingParticle::Vector const & momentum = rec.second;
-      TrackingParticle::Point const & vertex = rec.first;
+
+      auto const& rec = parametersDefinerTP.vertexAndMomentum(event, setup, tpr);
+      TrackingParticle::Vector const& momentum = rec.second;
+      TrackingParticle::Point const& vertex = rec.first;
       if (doSimPlots_) {
         histoProducerAlgo_->fill_generic_simTrack_histos(
             histograms.histoProducerAlgo, momentum, vertex, tpr->eventId().bunchCrossing());
@@ -464,9 +466,9 @@ void MultiTrackValidator::tpParametersAndSelection(
 
       if (tpSelector(tp)) {
         selected_tPCeff.push_back(j);
-        auto const & rec = parametersDefinerTP.vertexAndMomentum(event, setup, tpr);
-        TrackingParticle::Vector const & momentum = rec.second;
-        TrackingParticle::Point const & vertex = rec.first;
+        auto const& rec = parametersDefinerTP.vertexAndMomentum(event, setup, tpr);
+        TrackingParticle::Vector const& momentum = rec.second;
+        TrackingParticle::Point const& vertex = rec.first;
         momVert_tPCeff.emplace_back(momentum, vertex);
       }
       ++j;
@@ -610,7 +612,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
   const bool tp_effic_refvector = label_tp_effic.isUninitialized();
   if (!tp_effic_refvector) {
     event.getByToken(label_tp_effic, TPCollectionHeff);
-     tmpTPeff.reserve(TPCollectionHeff->size());
+    tmpTPeff.reserve(TPCollectionHeff->size());
     for (size_t i = 0, size = TPCollectionHeff->size(); i < size; ++i) {
       tmpTPeff.push_back(TrackingParticleRef(TPCollectionHeff, i));
     }

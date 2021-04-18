@@ -22,10 +22,9 @@ public:
                                  const edm::EventSetup &iSetup,
                                  const TrackingParticleRef &tpr) const override;
 
-  virtual std::pair<TrackingParticle::Point,TrackingParticle::Vector> vertexAndMomentum(const edm::Event &iEvent,
-                                            const edm::EventSetup &iSetup,
-                                            const TrackingParticleRef &tpr) const override {
-    return std::make_pair( vertex(iEvent,iSetup,tpr), momentum(iEvent,iSetup,tpr));
+  virtual std::pair<TrackingParticle::Point, TrackingParticle::Vector> vertexAndMomentum(
+      const edm::Event &iEvent, const edm::EventSetup &iSetup, const TrackingParticleRef &tpr) const override {
+    return std::make_pair(vertex(iEvent, iSetup, tpr), momentum(iEvent, iSetup, tpr));
   }
 
   TrackingParticle::Vector momentum(const edm::Event &iEvent,
