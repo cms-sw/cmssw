@@ -136,16 +136,17 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
   // prepare temporary map between SimTrackId and TrackingParticle index
   std::unordered_map<std::pair<size_t, EncodedEventId>, TrackingParticleRef,  TkIdHash> mapping;
-  for (TrackingParticleCollection::size_type itp = 0; itp < TPCollectionH.product()->size(); ++itp) {
-    TrackingParticleRef trackingParticle(TPCollectionH, itp);
-
+  auto const & tpColl = *TPCollectionH.product();
+  for (TrackingParticleCollection::size_type itp = 0; itp < tpColl.size(); ++itp) {
+    TrackingParticleRef trackingParticleRef(TPCollectionH, itp);
+    auto const &  trackingParticle = tpColl[itp];
     // SimTracks inside TrackingParticle
-    EncodedEventId eid(trackingParticle->eventId());
+    EncodedEventId eid(trackingParticle.eventId());
     //size_t index = 0;
-    for (auto const & trk : trackingParticle->g4Tracks()) {
+    for (auto const & trk : trackingParticle.g4Tracks()) {
       std::pair<uint32_t, EncodedEventId> trkid(trk.trackId(), eid);
       //std::cout << "creating map for id: " << trkid.first << " with tp: " << trackingParticle.key() << std::endl;
-      mapping.insert(std::make_pair(trkid, trackingParticle));
+      mapping.insert(std::make_pair(trkid, trackingParticleRef));
     }
   }
 
