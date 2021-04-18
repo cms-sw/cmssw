@@ -466,10 +466,7 @@ void MultiTrackValidator::tpParametersAndSelection(
 
       if (tpSelector(tp)) {
         selected_tPCeff.push_back(j);
-        auto const& rec = parametersDefinerTP.vertexAndMomentum(event, setup, tpr);
-        TrackingParticle::Vector const& momentum = rec.second;
-        TrackingParticle::Point const& vertex = rec.first;
-        momVert_tPCeff.emplace_back(momentum, vertex);
+        momVert_tPCeff.emplace_back(parametersDefinerTP.vertexAndMomentum(event, setup, tpr));
       }
       ++j;
     }
