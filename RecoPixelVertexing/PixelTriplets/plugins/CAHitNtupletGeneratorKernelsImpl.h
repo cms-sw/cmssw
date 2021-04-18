@@ -127,7 +127,8 @@ __global__ void kernel_fishboneCleaner(GPUCACell const *cells, uint32_t const *_
 __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
                                              uint32_t const *__restrict__ nCells,
                                              HitContainer *foundNtuplets,
-                                             Quality *quality) {
+                                             Quality *quality,
+                                             bool quadPassThrough) {
   // constexpr auto bad = trackQuality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
   // constexpr auto loose = trackQuality::loose;
@@ -150,8 +151,11 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
       maxNh = std::max(nh, maxNh);
     }
 
+    // if (quadPassThrough)
+    //  maxNh = std::min(4U, maxNh);
+
     for (auto it : thisCell.tracks()) {
-      if (foundNtuplets->size(it) != maxNh)
+      if (foundNtuplets->size(it) < maxNh)
         quality[it] = dup;  //no race:  simple assignment of the same constant
     }
   }
@@ -160,7 +164,8 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
 __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
                                             uint32_t const *__restrict__ nCells,
                                             HitContainer const *__restrict__ foundNtuplets,
-                                            TkSoA *__restrict__ tracks) {
+                                            TkSoA *__restrict__ tracks,
+                                            bool quadPassThrough) {
   constexpr auto bad = pixelTrack::Quality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
   constexpr auto loose = pixelTrack::Quality::loose;
@@ -185,7 +190,8 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
     // find maxQual
     auto maxQual = loose;
     for (auto it : thisCell.tracks()) {
-     if (tracks->quality(it) > maxQual) maxQual = tracks->quality(it);
+      if (tracks->quality(it) > maxQual)
+        maxQual = tracks->quality(it);
     }
 
     // find min score
@@ -198,7 +204,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
 
     // mark all other duplicates
     for (auto it : thisCell.tracks()) {
-      if (tracks->quality(it) != bad && it != im)
+      if (((!quadPassThrough) || foundNtuplets->size(it) < 4) && tracks->quality(it) >= loose && it != im)
         tracks->quality(it) = dup;  //no race:  simple assignment of the same constant
     }
   }
@@ -493,10 +499,11 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
                                         TkSoA const *__restrict__ ptracks,
                                         Quality *__restrict__ quality,
                                         uint16_t nmin,
+                                        bool quadPassThrough,
                                         CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
   constexpr auto bad = pixelTrack::Quality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
-  // constexpr auto loose = trackQuality::loose;
+  constexpr auto loose = pixelTrack::Quality::loose;
 
   auto &hitToTuple = *phitToTuple;
   auto const &foundNtuplets = *ptuples;
@@ -519,6 +526,10 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
       uint32_t nh = foundNtuplets.size(*it);
       maxNh = std::max(nh, maxNh);
     }
+
+    if (quadPassThrough)
+      maxNh = std::min(4U, maxNh);
+
     // kill all tracks shorter than maxHn (only triplets???)
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
       uint32_t nh = foundNtuplets.size(*it);
@@ -527,7 +538,7 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
       if (idx < l1end and nh > nmin)
         continue;
 
-      if (maxNh != nh)
+      if (nh < maxNh)
         quality[*it] = dup;
     }
 
@@ -536,7 +547,7 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
     // for triplets choose best tip!
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      if (quality[it] != bad && std::abs(tracks.tip(it)) < mc) {
+      if (quality[it] >= loose && std::abs(tracks.tip(it)) < mc) {
         mc = std::abs(tracks.tip(it));
         im = it;
       }
@@ -544,7 +555,7 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
     // mark duplicates
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      if (quality[it] != bad && it != im)
+      if (quality[it] >= loose && it != im)
         quality[it] = dup;  //no race:  simple assignment of the same constant
     }
   }  // loop over hits

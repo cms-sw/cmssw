@@ -68,6 +68,7 @@ namespace cAHitNtupletGenerator {
            bool doZ0Cut,
            bool doPtCut,
            bool doSharedHitCut,
+           bool quadPassThrough,
            float ptmin,
            float CAThetaCutBarrel,
            float CAThetaCutForward,
@@ -91,6 +92,7 @@ namespace cAHitNtupletGenerator {
           doZ0Cut_(doZ0Cut),
           doPtCut_(doPtCut),
           doSharedHitCut_(doSharedHitCut),
+          quadPassThrough_(quadPassThrough),
           ptmin_(ptmin),
           CAThetaCutBarrel_(CAThetaCutBarrel),
           CAThetaCutForward_(CAThetaCutForward),
@@ -114,6 +116,7 @@ namespace cAHitNtupletGenerator {
     const bool doZ0Cut_;
     const bool doPtCut_;
     const bool doSharedHitCut_;
+    const bool quadPassThrough_;
     const float ptmin_;
     const float CAThetaCutBarrel_;
     const float CAThetaCutForward_;
