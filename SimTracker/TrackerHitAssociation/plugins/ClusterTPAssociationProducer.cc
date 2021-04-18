@@ -29,6 +29,20 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
+
+namespace {
+  using TkId = std::pair<uint32_t, EncodedEventId>;
+  struct TkIdHash
+  {
+    std::size_t operator()(TkId const& s) const noexcept
+    {
+         std::size_t h1 = std::hash<uint32_t>{}(s.first);
+           std::size_t h2 = std::hash<uint32_t>{}(s.second.rawId());
+           return h1 ^ (h2 << 1);
+    }
+};
+}
+
 class ClusterTPAssociationProducer : public edm::global::EDProducer<> {
 public:
   typedef std::vector<OmniClusterRef> OmniClusterCollection;
@@ -42,7 +56,7 @@ private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   template <typename T>
-  std::vector<std::pair<uint32_t, EncodedEventId> > getSimTrackId(const edm::Handle<edm::DetSetVector<T> >& simLinks,
+  void getSimTrackId(std::vector<TkId> & tkids, const edm::Handle<edm::DetSetVector<T> >& simLinks,
                                                                   const DetId& detId,
                                                                   uint32_t channel) const;
 
@@ -121,22 +135,22 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   auto clusterTPList = std::make_unique<ClusterTPAssociation>(TPCollectionH);
 
   // prepare temporary map between SimTrackId and TrackingParticle index
-  std::map<std::pair<size_t, EncodedEventId>, TrackingParticleRef> mapping;
+  std::unordered_map<std::pair<size_t, EncodedEventId>, TrackingParticleRef,  TkIdHash> mapping;
   for (TrackingParticleCollection::size_type itp = 0; itp < TPCollectionH.product()->size(); ++itp) {
     TrackingParticleRef trackingParticle(TPCollectionH, itp);
 
     // SimTracks inside TrackingParticle
     EncodedEventId eid(trackingParticle->eventId());
     //size_t index = 0;
-    for (std::vector<SimTrack>::const_iterator itrk = trackingParticle->g4Track_begin();
-         itrk != trackingParticle->g4Track_end();
-         ++itrk) {
-      std::pair<uint32_t, EncodedEventId> trkid(itrk->trackId(), eid);
+    for (auto const & trk : trackingParticle->g4Tracks()) {
+      std::pair<uint32_t, EncodedEventId> trkid(trk.trackId(), eid);
       //std::cout << "creating map for id: " << trkid.first << " with tp: " << trackingParticle.key() << std::endl;
       mapping.insert(std::make_pair(trkid, trackingParticle));
     }
   }
 
+  std::unordered_set<std::pair<uint32_t, EncodedEventId>,TkIdHash > simTkIds;
+  std::vector<TkId> trkid;
   if (foundPixelClusters) {
     // Pixel Clusters
     clusterTPList->addKeyID(pixelClusters.id());
@@ -150,18 +164,15 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
         const SiPixelCluster& cluster = (*di);
         edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> c_ref = edmNew::makeRefTo(pixelClusters, di);
 
-        std::set<std::pair<uint32_t, EncodedEventId> > simTkIds;
+        simTkIds.clear();
         for (int irow = cluster.minPixelRow(); irow <= cluster.maxPixelRow(); ++irow) {
           for (int icol = cluster.minPixelCol(); icol <= cluster.maxPixelCol(); ++icol) {
             uint32_t channel = PixelChannelIdentifier::pixelToChannel(irow, icol);
-            std::vector<std::pair<uint32_t, EncodedEventId> > trkid(
-                getSimTrackId<PixelDigiSimLink>(sipixelSimLinks, detId, channel));
-            if (trkid.empty())
-              continue;
+            trkid.clear(); getSimTrackId<PixelDigiSimLink>(trkid, sipixelSimLinks, detId, channel);
             simTkIds.insert(trkid.begin(), trkid.end());
           }
         }
-        for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset = simTkIds.begin();
+        for (auto iset = simTkIds.begin();
              iset != simTkIds.end();
              iset++) {
           auto ipos = mapping.find(*iset);
@@ -190,18 +201,15 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
         const SiStripCluster& cluster = (*di);
         edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> c_ref = edmNew::makeRefTo(stripClusters, di);
 
-        std::set<std::pair<uint32_t, EncodedEventId> > simTkIds;
+        simTkIds.clear();
         int first = cluster.firstStrip();
         int last = first + cluster.amplitudes().size();
 
         for (int istr = first; istr < last; ++istr) {
-          std::vector<std::pair<uint32_t, EncodedEventId> > trkid(
-              getSimTrackId<StripDigiSimLink>(sistripSimLinks, detId, istr));
-          if (trkid.empty())
-            continue;
+                         trkid.clear(); getSimTrackId<StripDigiSimLink>(trkid,sistripSimLinks, detId, istr);
           simTkIds.insert(trkid.begin(), trkid.end());
         }
-        for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset = simTkIds.begin();
+        for (auto iset = simTkIds.begin();
              iset != simTkIds.end();
              iset++) {
           auto ipos = mapping.find(*iset);
@@ -233,18 +241,15 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
           edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> c_ref =
               edmNew::makeRefTo(phase2OTClusters, di);
 
-          std::set<std::pair<uint32_t, EncodedEventId> > simTkIds;
+          simTkIds.clear();
 
           for (unsigned int istr(0); istr < cluster.size(); ++istr) {
             uint32_t channel = Phase2TrackerDigi::pixelToChannel(cluster.firstRow() + istr, cluster.column());
-            std::vector<std::pair<uint32_t, EncodedEventId> > trkid(
-                getSimTrackId<PixelDigiSimLink>(siphase2OTSimLinks, detId, channel));
-            if (trkid.empty())
-              continue;
+                 trkid.clear(); getSimTrackId<PixelDigiSimLink>(trkid, siphase2OTSimLinks, detId, channel);
             simTkIds.insert(trkid.begin(), trkid.end());
           }
 
-          for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset = simTkIds.begin();
+          for (auto iset = simTkIds.begin();
                iset != simTkIds.end();
                iset++) {
             auto ipos = mapping.find(*iset);
@@ -261,13 +266,11 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 }
 
 template <typename T>
-std::vector<std::pair<uint32_t, EncodedEventId> >
-//std::pair<uint32_t, EncodedEventId>
-ClusterTPAssociationProducer::getSimTrackId(const edm::Handle<edm::DetSetVector<T> >& simLinks,
+void
+ClusterTPAssociationProducer::getSimTrackId(std::vector<std::pair<uint32_t, EncodedEventId> > &simTrkId,
+const edm::Handle<edm::DetSetVector<T> >& simLinks,
                                             const DetId& detId,
                                             uint32_t channel) const {
-  //std::pair<uint32_t, EncodedEventId> simTrkId;
-  std::vector<std::pair<uint32_t, EncodedEventId> > simTrkId;
   auto isearch = simLinks->find(detId);
   if (isearch != simLinks->end()) {
     // Loop over DigiSimLink in this det unit
@@ -278,7 +281,6 @@ ClusterTPAssociationProducer::getSimTrackId(const edm::Handle<edm::DetSetVector<
       }
     }
   }
-  return simTrkId;
 }
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -430,9 +430,10 @@ void MultiTrackValidator::tpParametersAndSelection(
   if (parametersDefinerIsCosmic_) {
     for (size_t j = 0; j < tPCeff.size(); ++j) {
       const TrackingParticleRef& tpr = tPCeff[j];
-
-      TrackingParticle::Vector momentum = parametersDefinerTP.momentum(event, setup, tpr);
-      TrackingParticle::Point vertex = parametersDefinerTP.vertex(event, setup, tpr);
+      
+      auto const & rec = parametersDefinerTP.vertexAndMomentum(event, setup, tpr);
+      TrackingParticle::Vector const & momentum = rec.second;
+      TrackingParticle::Point const & vertex = rec.first;
       if (doSimPlots_) {
         histoProducerAlgo_->fill_generic_simTrack_histos(
             histograms.histoProducerAlgo, momentum, vertex, tpr->eventId().bunchCrossing());
@@ -463,8 +464,9 @@ void MultiTrackValidator::tpParametersAndSelection(
 
       if (tpSelector(tp)) {
         selected_tPCeff.push_back(j);
-        TrackingParticle::Vector momentum = parametersDefinerTP.momentum(event, setup, tpr);
-        TrackingParticle::Point vertex = parametersDefinerTP.vertex(event, setup, tpr);
+        auto const & rec = parametersDefinerTP.vertexAndMomentum(event, setup, tpr);
+        TrackingParticle::Vector const & momentum = rec.second;
+        TrackingParticle::Point const & vertex = rec.first;
         momVert_tPCeff.emplace_back(momentum, vertex);
       }
       ++j;
@@ -608,6 +610,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
   const bool tp_effic_refvector = label_tp_effic.isUninitialized();
   if (!tp_effic_refvector) {
     event.getByToken(label_tp_effic, TPCollectionHeff);
+     tmpTPeff.reserve(TPCollectionHeff->size());
     for (size_t i = 0, size = TPCollectionHeff->size(); i < size; ++i) {
       tmpTPeff.push_back(TrackingParticleRef(TPCollectionHeff, i));
     }
@@ -619,6 +622,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
   if (!label_tp_fake.isUninitialized()) {
     edm::Handle<TrackingParticleCollection> TPCollectionHfake;
     event.getByToken(label_tp_fake, TPCollectionHfake);
+    tmpTPfake.reserve(TPCollectionHfake->size());
     for (size_t i = 0, size = TPCollectionHfake->size(); i < size; ++i) {
       tmpTPfake.push_back(TrackingParticleRef(TPCollectionHfake, i));
     }
@@ -632,7 +636,9 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
   TrackingParticleRefVector const& tPCeff = *tmpTPeffPtr;
   TrackingParticleRefVector const& tPCfake = *tmpTPfakePtr;
 
+#ifdef EDM_ML_DEBUG
   ensureEffIsSubsetOfFake(tPCeff, tPCfake);
+#endif
 
   if (parametersDefinerIsCosmic_) {
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
