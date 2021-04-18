@@ -62,18 +62,16 @@ public:
     return vertex(iEvent, iSetup, tp.charge(), tp.vertex(), tp.p4());
   }
 
-  virtual std::pair<TrackingParticle::Point,TrackingParticle::Vector> vertexAndMomentum(const edm::Event &iEvent,
-                                            const edm::EventSetup &iSetup,
-                                            const TrackingParticleRef &tpr) const {
+  virtual std::pair<TrackingParticle::Point, TrackingParticle::Vector> vertexAndMomentum(
+      const edm::Event &iEvent, const edm::EventSetup &iSetup, const TrackingParticleRef &tpr) const {
     return vertexAndMomentum(iEvent, iSetup, tpr->charge(), tpr->vertex(), tpr->p4());
   }
 
-  std::pair<TrackingParticle::Point,TrackingParticle::Vector> vertexAndMomentum( const edm::Event &iEvent,
-                                         const edm::EventSetup &iSetup,
-                                         const Charge ch,
-                                         const Point &vtx,
-                                         const LorentzVector &lv) const;
-
+  std::pair<TrackingParticle::Point, TrackingParticle::Vector> vertexAndMomentum(const edm::Event &iEvent,
+                                                                                 const edm::EventSetup &iSetup,
+                                                                                 const Charge ch,
+                                                                                 const Point &vtx,
+                                                                                 const LorentzVector &lv) const;
 
   virtual void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) {}
 
