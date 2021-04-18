@@ -1,5 +1,5 @@
-#ifndef PFClusterShapeProducer_PFClusterWidthAlgo_H
-#define PFClusterShapeProducer_PFClusterWidthAlgo_H
+#ifndef CommonTools_ParticleFlow_PFClusterWidthAlgo_H
+#define CommonTools_ParticleFlow_PFClusterWidthAlgo_H
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
