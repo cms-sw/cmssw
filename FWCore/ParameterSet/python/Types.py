@@ -1444,7 +1444,7 @@ class EDAlias(_ConfigureComponent,_Labelable,_Parameterizable):
             options.indent()
             resultList.append(options.indentation()+name+' = '+param.dumpPython(options))
             options.unindent()
-        return '\n'.join(resultList)+'\n)'
+        return '\n'.join(resultList) + '\n' + options.indentation() + ')'
 
     # an EDAlias only references other modules by label, so it does not need their definition
     def directDependencies(self):
