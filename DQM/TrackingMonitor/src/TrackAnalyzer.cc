@@ -2022,6 +2022,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       tkmes.TrackEtaPhiInverted->Fill(eta, -1 * phi);
       tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, 3.141592654 + -1 * phi);
       tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, -1 * phi - 3.141592654);
+      /*
       tkmes.TkEtaPhi_Ratio_byFoldingmap->divide(tkmes.TrackEtaPhi, tkmes.TrackEtaPhiInverted, 1., 1., "");
       tkmes.TkEtaPhi_Ratio_byFoldingmap_op->divide(tkmes.TrackEtaPhi, tkmes.TrackEtaPhiInvertedoutofphase, 1., 1., "");
 
@@ -2051,7 +2052,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
           }
         }
       }
-
+      */
       //pT histograms to create efficiency vs pT plot, only for the most inefficient region.
 
       if (eta < 0. && phi < -1.6) {
