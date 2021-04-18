@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "CommonTools/ParticleFlow/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/ValidHandle.h"
