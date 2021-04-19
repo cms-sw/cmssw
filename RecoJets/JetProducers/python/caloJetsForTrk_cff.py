@@ -4,7 +4,8 @@ from RecoJets.JetProducers.ak4CaloJets_cfi import ak4CaloJets as _ak4CaloJets
 from RecoHI.HiJetAlgos.HiRecoJets_cff import akPu4CaloJets as _akPu4CaloJets
 from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import calotowermaker
 caloTowerForTrk = calotowermaker.clone(
-    hbheInput='hbheprereco'
+    hbheInput='hbheprereco',
+    missingHcalRescaleFactorForEcal = 1.0
 )
 
 ak4CaloJetsForTrk = _ak4CaloJets.clone(
@@ -26,8 +27,8 @@ trackingLowPU.toModify(ak4CaloJetsForTrk,
 caloJetsForTrkTask = cms.Task(caloTowerForTrk,ak4CaloJetsForTrk)
 caloJetsForTrk = cms.Sequence(caloJetsForTrkTask)
 
-from Configuration.Eras.Modifier_pf_badHcalMitigation_cff import pf_badHcalMitigation
-pf_badHcalMitigation.toModify( caloTowerForTrk, missingHcalRescaleFactorForEcal = 1.0 )
-
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify( caloTowerForTrk, hbheInput = "hbhereco" )
+
+from Configuration.Eras.Modifier_pf_badHcalMitigationOff_cff import pf_badHcalMitigationOff
+pf_badHcalMitigationOff.toModify( caloTowerForTrk, missingHcalRescaleFactorForEcal = 0.0 )
