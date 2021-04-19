@@ -26,6 +26,12 @@ _trackSelector = cms.EDFilter('TrackSelector',
     cut = cms.string("")
 )
 
+quality = {
+    "L"  : "loose",
+    "T"  : "tight",
+    "HP" : "highPurity",
+}
+
 pixelTracksPt0to1 = _trackSelector.clone(cut = "pt >= 0 & pt < 1 ")
 pixelTracksPt1 = _trackSelector.clone(cut = "pt >= 1 ")
 from DQM.TrackingMonitorSource.TrackCollections2monitor_cff import highPurityPV0p1 as _highPurityPV0p1
@@ -34,6 +40,26 @@ pixelTracksPV0p1 = _highPurityPV0p1.clone(
     quality = "",
     vertexTag = "goodPixelVertices"
 )
+
+for key,value in quality.items():
+    label = "pixelTracksPt0to1"+key
+    print label
+    cutstring = "pt >= 0 & pt < 1 & quality('" + value + "')" 
+    print cutstring
+    locals()[label] = _trackSelector.clone( cut = cutstring )
+    locals()[label].setLabel(label)
+
+    label = "pixelTracksPt1"+key
+    print label
+    cutstring = "pt >= 1 & quality('" + value + "')"
+    print cutstring
+    locals()[label] = _trackSelector.clone( cut = cutstring )
+    locals()[label].setLabel(label)
+
+    label = "pixelTracksPV0p1"+key
+    print label
+    locals()[label] = pixelTracksPV0p1.clone( quality=value )
+    locals()[label].setLabel(label)
 
 pixelTracksMonitorPt0to1 = pixelTracksMonitor.clone(
     TrackProducer = "pixelTracksPt0to1",
@@ -48,6 +74,29 @@ pixelTracksMonitorPV0p1 = pixelTracksMonitor.clone(
     FolderName = "Tracking/PixelTrackParameters/dzPV0p1"
 )
 
+for key,value in quality.items():
+    label = "pixelTracksMonitorPt0to1"+key
+    locals()[label] = pixelTracksMonitor.clone(
+        TrackProducer = "pixelTracksPt0to1"+key,
+        FolderName    = "Tracking/PixelTrackParameters/pt_0to1/"+value
+    )
+    locals()[label].setLabel(label)
+
+    label = "pixelTracksMonitorPt1"+key
+    locals()[label] = pixelTracksMonitor.clone(
+        TrackProducer = "pixelTracksMonitorPt1"+key,
+        FolderName    = "Tracking/PixelTrackParameters/pt_1/"+value
+    )
+    locals()[label].setLabel(label)
+
+    label = "pixelTracksPV0p1"+key
+    locals()[label] = pixelTracksMonitor.clone(
+        TrackProducer = "pixelTracksPV0p1"+key,
+        FolderName    = "Tracking/PixelTrackParameters/dzPV0p1/"+value
+    )
+    locals()[label].setLabel(label)
+
+    
 
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices as _goodOfflinePrimaryVertices
 goodPixelVertices = _goodOfflinePrimaryVertices.clone(
@@ -62,10 +111,14 @@ pixelVertexResolution = _primaryVertexResolution.clone(
 
 pixelTracksMonitoringTask = cms.Task(
     goodPixelVertices,
-    pixelTracksPt0to1,
-    pixelTracksPt1,
-    pixelTracksPV0p1,
 )
+
+for category in ["pixelTracksPV0p1", "pixelTracksPt0to1", "pixelTracksPt1"]:
+    for key in quality:
+        label = category+key
+        print label
+        pixelTracksMonitoringTask.add(locals()[label])
+
 
 pixelTracksMonitoring = cms.Sequence(
     pixelTracksMonitor +

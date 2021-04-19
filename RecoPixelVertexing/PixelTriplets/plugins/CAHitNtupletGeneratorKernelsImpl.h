@@ -124,6 +124,9 @@ __global__ void kernel_fishboneCleaner(GPUCACell const *cells, uint32_t const *_
   }
 }
 
+
+// remove shorter tracks if sharing a cell
+// It does not seem to affect efficiency in any way!
 __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
                                              uint32_t const *__restrict__ nCells,
                                              HitContainer *foundNtuplets,
@@ -161,6 +164,7 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
   }
 }
 
+// assume the above (so, short tracks already removed)
 __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
                                             uint32_t const *__restrict__ nCells,
                                             HitContainer const *__restrict__ foundNtuplets,
@@ -183,8 +187,9 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
     uint16_t im = 60000;
 
     auto score = [&](auto it) {
-      return std::abs(tracks->tip(it));  // tip
-      // return tracks->chi2(it);  //chi2
+      return  foundNtuplets->size(it)<4 ? 
+               std::abs(tracks->tip(it)) :   // tip
+               tracks->chi2(it);  //chi2
     };
 
     // find maxQual
@@ -204,7 +209,9 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
 
     // mark all other duplicates
     for (auto it : thisCell.tracks()) {
-      if (((!quadPassThrough) || foundNtuplets->size(it) < 4) && tracks->quality(it) >= loose && it != im)
+      if (
+       //  ((!quadPassThrough) || foundNtuplets->size(it) < 4) && 
+        tracks->quality(it) >= loose && it != im)
         tracks->quality(it) = dup;  //no race:  simple assignment of the same constant
     }
   }
