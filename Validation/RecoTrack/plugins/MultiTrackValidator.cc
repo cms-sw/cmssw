@@ -802,6 +802,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
 
         // The associator interfaces really need to be fixed...
         edm::RefToBaseVector<reco::Track> trackRefs;
+        // trackRefs.vectorHolder()->reserve(trackCollection.size());  NOT a good idea
         for (edm::View<Track>::size_type i = 0; i < trackCollection.size(); ++i) {
           trackRefs.push_back(trackCollection.refAt(i));
         }
