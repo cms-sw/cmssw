@@ -83,7 +83,7 @@ TrackingParticle::Point ParametersDefinerForTP::vertex(const edm::Event &iEvent,
   return vertex;
 }
 
-std::pair<TrackingParticle::Point, TrackingParticle::Vector> ParametersDefinerForTP::vertexAndMomentum(
+std::tuple<TrackingParticle::Vector, TrackingParticle::Point> ParametersDefinerForTP::momentumAndVertex(
     const edm::Event &iEvent,
     const edm::EventSetup &iSetup,
     const Charge charge,
@@ -116,7 +116,7 @@ std::pair<TrackingParticle::Point, TrackingParticle::Vector> ParametersDefinerFo
     ;
   }
 
-  return std::make_pair(vertex, momentum);
+  return std::make_tuple(momentum,vertex);
 }
 
 TYPELOOKUP_DATA_REG(ParametersDefinerForTP);
