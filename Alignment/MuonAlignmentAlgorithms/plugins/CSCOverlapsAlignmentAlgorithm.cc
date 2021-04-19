@@ -1,7 +1,8 @@
 #include "Alignment/MuonAlignmentAlgorithms/plugins/CSCOverlapsAlignmentAlgorithm.h"
 
-CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet& iConfig)
-    : AlignmentAlgorithmBase(iConfig),
+CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet& iConfig,
+                                                             const edm::ConsumesCollector& iC)
+    : AlignmentAlgorithmBase(iConfig, iC),
       m_minHitsPerChamber(iConfig.getParameter<int>("minHitsPerChamber")),
       m_maxdrdz(iConfig.getParameter<double>("maxdrdz")),
       m_fiducial(iConfig.getParameter<bool>("fiducial")),

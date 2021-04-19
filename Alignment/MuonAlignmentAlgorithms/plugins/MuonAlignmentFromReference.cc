@@ -73,7 +73,7 @@ Implementation:
 
 class MuonAlignmentFromReference : public AlignmentAlgorithmBase {
 public:
-  MuonAlignmentFromReference(const edm::ParameterSet& cfg);
+  MuonAlignmentFromReference(const edm::ParameterSet& cfg, const edm::ConsumesCollector& iC);
   ~MuonAlignmentFromReference() override;
 
   void initialize(const edm::EventSetup& iSetup,
@@ -185,8 +185,8 @@ private:
   bool m_debug;
 };
 
-MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet& cfg)
-    : AlignmentAlgorithmBase(cfg),
+MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet& cfg, const edm::ConsumesCollector& iC)
+    : AlignmentAlgorithmBase(cfg, iC),
       m_muonCollectionTag(cfg.getParameter<edm::InputTag>("muonCollectionTag")),
       m_reference(cfg.getParameter<std::vector<std::string> >("reference")),
       m_minTrackPt(cfg.getParameter<double>("minTrackPt")),

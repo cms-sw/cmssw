@@ -112,7 +112,7 @@ public:
   };
 
   /// Constructor
-  AlignmentAlgorithmBase(const edm::ParameterSet &, edm::ConsumesCollector){};
+  AlignmentAlgorithmBase(const edm::ParameterSet &, const edm::ConsumesCollector &){};
 
   /// Destructor
   virtual ~AlignmentAlgorithmBase(){};

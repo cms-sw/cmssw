@@ -27,7 +27,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //------------------------------------------------------------------------------
-AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
+AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, edm::ConsumesCollector iC)
     : doTracker_{config.getUntrackedParameter<bool>("doTracker")},
       doMuon_{config.getUntrackedParameter<bool>("doMuon")},
       useExtras_{config.getUntrackedParameter<bool>("useExtras")},
@@ -71,7 +71,7 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
     runAtPCL_ = false;
   }
 
-  createAlignmentAlgorithm();
+  createAlignmentAlgorithm(iC);
   createMonitors();
   createCalibrations();
 }
@@ -256,14 +256,14 @@ void AlignmentProducerBase::endLuminosityBlockImpl(const edm::LuminosityBlock&, 
 }
 
 //------------------------------------------------------------------------------
-void AlignmentProducerBase::createAlignmentAlgorithm() {
+void AlignmentProducerBase::createAlignmentAlgorithm(edm::ConsumesCollector& iC) {
   auto algoConfig = config_.getParameter<edm::ParameterSet>("algoConfig");
   algoConfig.addUntrackedParameter("RunRangeSelection", config_.getParameter<edm::VParameterSet>("RunRangeSelection"));
   algoConfig.addUntrackedParameter<align::RunNumber>("firstIOV", runAtPCL_ ? 1 : uniqueRunRanges_.front().first);
   algoConfig.addUntrackedParameter("enableAlignableUpdates", enableAlignableUpdates_);
 
   const auto& algoName = algoConfig.getParameter<std::string>("algoName");
-  alignmentAlgo_ = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);
+  alignmentAlgo_ = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig, iC);
 }
 
 //------------------------------------------------------------------------------

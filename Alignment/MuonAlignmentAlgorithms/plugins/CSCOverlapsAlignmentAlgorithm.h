@@ -60,7 +60,7 @@
 
 class CSCOverlapsAlignmentAlgorithm : public AlignmentAlgorithmBase {
 public:
-  CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet &iConfig);
+  CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet &iConfig, const edm::ConsumesCollector &);
   ~CSCOverlapsAlignmentAlgorithm() override;
 
   void initialize(const edm::EventSetup &iSetup,
