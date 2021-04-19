@@ -199,10 +199,10 @@ void CSCComparatorData::add(const CSCComparatorDigi& digi, int layer) {
   int distrip = digi.getDiStrip();
 
   // Check the distrip and half-strip number
-  assert(cfeb < CSCConstants::MAX_CFEBS);
+  assert(cfeb < CSCConstants::MAX_CFEBS_RUN2);
   assert(distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB);
   // note that half-strips are not staggered in the packer
-  assert(halfstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS);
+  assert(halfstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2);
 
   std::vector<int> timeBinsOn = digi.getTimeBinsOn();
   for (std::vector<int>::const_iterator tbinItr = timeBinsOn.begin(); tbinItr != timeBinsOn.end(); ++tbinItr) {
@@ -244,12 +244,12 @@ void CSCComparatorData::add(const CSCComparatorDigi& digi, const CSCDetId& cid) 
     assert(cfeb < CSCConstants::MAX_CFEBS_RUN2);
     assert(distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB);
     // note that half-strips are not staggered in the packer
-    assert(halfstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS);
+    assert(halfstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2);
   } else {
-    assert(cfeb < CSCConstants::MAX_CFEBS);
+    assert(cfeb < CSCConstants::MAX_CFEBS_RUN1);
     assert(distrip < CSCConstants::NUM_DISTRIPS_PER_CFEB);
     // note that half-strips are not staggered in the packer
-    assert(halfstrip < CSCConstants::NUM_HALF_STRIPS_5CFEBS);
+    assert(halfstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN1);
   }
 
   // Lets try to do ME11 strip flipping

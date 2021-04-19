@@ -414,7 +414,7 @@ void CSCEventData::setEventInformation(int bxnum, int lvl1num) {
 
     assert(theChamberType > 0);
 
-    theTMBData->tmbHeader()->setNCFEBs(CSCConstants::MAX_CFEBS);
+    theTMBData->tmbHeader()->setNCFEBs(CSCConstants::MAX_CFEBS_RUN1);
 
     // Set number of CFEBs to 7 for Post-LS1 ME11
     if ((theFormatVersion == 2013) && ((theChamberType == 1) || (theChamberType == 2))) {
@@ -441,7 +441,7 @@ void CSCEventData::checkALCTClasses() {
 }
 
 void CSCEventData::checkTMBClasses() {
-  int nCFEBs = CSCConstants::MAX_CFEBS;
+  int nCFEBs = CSCConstants::MAX_CFEBS_RUN1;
   if ((theFormatVersion == 2013) && ((theChamberType == 1) || (theChamberType == 2))) {
     nCFEBs = CSCConstants::MAX_CFEBS_RUN2;
   }
