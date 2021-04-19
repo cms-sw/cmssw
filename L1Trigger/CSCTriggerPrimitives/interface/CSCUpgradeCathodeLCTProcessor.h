@@ -51,7 +51,8 @@ private:
 
   //--------------- Functions for Phase2 studies ----------------
   std::vector<CSCCLCTDigi> findLCTs(
-      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) override;
+      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER])
+      override;
 
   /* Phase2 version,  Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern */
   bool preTrigger(const PulseArray pulse, const int start_bx, int& first_bx) override;
