@@ -38,7 +38,7 @@
 <test name="import-keras" command="python3 -c 'import keras'"/>
 <test name="import-markupsafe" command="python -c 'import markupsafe'"/>
 <test name="import-yaml" command="python -c 'import yaml'"/>
-<test name="import-pygments" command="python -c 'import pygments'"/>
+<test name="import-pygments" command="python3 -c 'import pygments'"/>
 <test name="import-appdirs" command="python -c 'import appdirs'"/>
 <test name="import-argparse" command="python -c 'import argparse'"/>
 <test name="import-autopep8" command="python -c 'import autopep8'"/>
@@ -68,27 +68,27 @@
 <test name="import-hep_ml" command="python -c 'import hep_ml'"/>
 <test name="import-histbook" command="python -c 'import histbook'"/>
 <test name="import-html5lib" command="python -c 'import html5lib'"/>
-<test name="import-hyperas" command="python -c 'import hyperas'"/>
+<test name="import-hyperas" command="python3 -c 'import hyperas'"/>
 <test name="import-hyperopt" command="python -c 'import hyperopt'"/>
 <test name="import-idna" command="python -c 'import idna'"/>
-<test name="import-ipykernel" command="python -c 'import ipykernel'"/>
+<test name="import-ipykernel" command="python3 -c 'import ipykernel'"/>
 <test name="import-ipython_genutils" command="python -c 'import ipython_genutils'"/>
-<test name="import-ipywidgets" command="python -c 'import ipywidgets'"/>
+<test name="import-ipywidgets" command="python3 -c 'import ipywidgets'"/>
 <test name="import-jinja2" command="python -c 'import jinja2'"/>
 <test name="import-jsonpickle" command="python -c 'import jsonpickle'"/>
 <test name="import-jsonschema" command="python -c 'import jsonschema'"/>
-<test name="import-jupyter" command="python -c 'import jupyter'"/>
-<test name="import-jupyter_client" command="python -c 'import jupyter_client'"/>
-<test name="import-jupyter_console" command="python -c 'import jupyter_console'"/>
-<test name="import-jupyter_core" command="python -c 'import jupyter_core'"/>
+<test name="import-jupyter" command="python3 -c 'import jupyter'"/>
+<test name="import-jupyter_client" command="python3 -c 'import jupyter_client'"/>
+<test name="import-jupyter_console" command="python3 -c 'import jupyter_console'"/>
+<test name="import-jupyter_core" command="python3 -c 'import jupyter_core'"/>
 <test name="import-matplotlib" command="python -c 'import matplotlib'"/>
 <test name="import-mistune" command="python -c 'import mistune'"/>
 <test name="import-mock" command="python -c 'import mock'"/>
 <test name="import-mpmath" command="python -c 'import mpmath'"/>
-<test name="import-nbformat" command="python -c 'import nbformat'"/>
+<test name="import-nbformat" command="python3 -c 'import nbformat'"/>
 <test name="import-networkx" command="python -c 'import networkx'"/>
 <test name="import-nose" command="python -c 'import nose'"/>
-<test name="import-notebook" command="python -c 'import notebook'"/>
+<test name="import-notebook" command="python3 -c 'import notebook'"/>
 <test name="import-numexpr" command="python -c 'import numexpr'"/>
 <test name="import-numpy" command="python -c 'import numpy'"/>
 <test name="import-ordereddict" command="python2 -c 'import ordereddict'"/>
@@ -115,8 +115,8 @@
 <test name="import-sqlite3" command="python -c 'import sqlite3'"/>
 <test name="import-pytz" command="python -c 'import pytz'"/>
 <test name="import-zmq" command="python -c 'import zmq'"/>
-<test name="import-qtconsole" command="python -c 'import qtconsole'"/>
-<test name="import-rep" command="python -c 'import rep'"/>
+<test name="import-qtconsole" command="python3 -c 'import qtconsole'"/>
+<test name="import-rep" command="python3 -c 'import rep'"/>
 <test name="import-requests" command="python -c 'import requests'"/>
 <test name="import-root_numpy" command="python -c 'import root_numpy'"/>
 <test name="import-root_pandas" command="python -c 'import root_pandas'"/>
@@ -147,15 +147,13 @@
 <test name="import-wcwidth" command="python -c 'import wcwidth'"/>
 <test name="import-webencodings" command="python -c 'import webencodings'"/>
 <test name="import-werkzeug" command="python -c 'import werkzeug'"/>
-<test name="import-widgetsnbextension" command="python -c 'import widgetsnbextension'"/>
+<test name="import-widgetsnbextension" command="python3 -c 'import widgetsnbextension'"/>
 <test name="import-xgboost" command="python -c 'import xgboost'"/>
 <test name="import-h5py_cache" command="python -c 'import h5py_cache'"/>
 <test name="import-google" command="python -c 'import google'"/>
 <test name="import-lxml" command="python -c 'import lxml'"/>
 <test name="import-bs4" command="python -c 'import bs4'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
-<test name="run-ipython" command="ipython -h"/>
-<test name="run-ipython2" command="ipython2 -h"/>
 <test name="run-ipython3" command="ipython3 -h"/>
 <test name="run-pylint" command="pylint -h"/>
 <test name="run-pylint3" command="pylint3 -h"/>
