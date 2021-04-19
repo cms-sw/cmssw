@@ -47,7 +47,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalSmallBiasScan_cff import 
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
 # AlCaReco for SiPixel Bad Components using ZeroBias events in ExpressPhysics stream
 from CalibTracker.SiPixelQuality.ALCARECOSiPixelCalZeroBias_cff import *
-# AlCaReco for tracker calibration using Cosmics events 
+# AlCaReco for tracker calibration using Cosmics events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmics_cff import *
 
 ###############################################################
@@ -119,6 +119,12 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_cff import *
 ###############################################################
 from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
 
+###############################################################
+# PPS calibration
+###############################################################
+# Timing calibration
+from CalibPPS.TimingCalibration.ALCARECOPPSCalTrackBasedSel_cff import *
+from CalibPPS.TimingCalibration.ALCARECOPPSTimingCalib_cff import *
 
 ###############################################################
 # nonbeam alcas
@@ -182,6 +188,8 @@ pathALCARECOLumiPixelsMinBias       = cms.Path(seqALCARECOLumiPixelsMinBias)
 pathALCARECOAlCaPCCZeroBiasFromRECO = cms.Path(seqALCARECOAlCaPCCZeroBiasFromRECO)
 pathALCARECOAlCaPCCRandomFromRECO   = cms.Path(seqALCARECOAlCaPCCRandomFromRECO)
 
+pathALCARECOPPSCalTrackBasedSel = cms.Path(seqALCARECOPPSCalTrackBasedSel)
+
 #### ECAL
 pathALCARECOEcalCalZElectron     = cms.Path(seqALCARECOEcalCalZElectron)
 pathALCARECOEcalCalZSCElectron   = cms.Path(seqALCARECOEcalCalZSCElectron)
@@ -217,6 +225,7 @@ pathALCARECOMuAlZMuMuGeneralTracks = cms.Path(seqALCARECOMuAlZMuMuGeneralTracks)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
 pathALCARECOMuAlOverlapsGeneralTracks = cms.Path(seqALCARECOMuAlOverlapsGeneralTracks)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
+pathALCARECOPPSTimingCalib = cms.Path(taskALCARECOPPSTimingCalib)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo)
@@ -460,6 +469,15 @@ ALCARECOStreamAlCaPCCRandomFromRECO = cms.FilteredStream(
 	paths  = (pathALCARECOAlCaPCCRandomFromRECO),
 	content = OutALCARECOAlCaPCCRandomFromRECO.outputCommands,
 	selectEvents = OutALCARECOAlCaPCCRandomFromRECO.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamPPSCalTrackBasedSel = cms.FilteredStream(
+	responsible = 'Laurent Forthomme',
+	name = 'PPSCalTrackBasedSel',
+	paths  = (pathALCARECOPPSCalTrackBasedSel),
+	content = OutALCARECOPPSCalTrackBasedSel.outputCommands,
+	selectEvents = OutALCARECOPPSCalTrackBasedSel.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -795,6 +813,14 @@ ALCARECOStreamTkAlLAS = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamPPSTimingCalib = cms.FilteredStream(
+	responsible = 'Laurent Forthomme',
+	name = 'PPSTimingCalib',
+	paths  = (pathALCARECOPPSTimingCalib),
+	content = OutALCARECOPPSTimingCalib.outputCommands,
+	selectEvents = OutALCARECOPPSTimingCalib.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
 
 ALCARECOStreamPromptCalibProd = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
