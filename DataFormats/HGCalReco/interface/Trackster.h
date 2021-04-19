@@ -114,7 +114,7 @@ namespace ticl {
         p = *(probs++);
       }
     }
-    inline void setIdProbability(ParticleType type, float value) { id_probabilities_[int(type)] = 1.f; }
+    inline void setIdProbability(ParticleType type, float value) { id_probabilities_[int(type)] = value; }
 
     inline const Trackster::IterationIndex ticlIteration() const { return (IterationIndex)iterationIndex_; }
     inline const std::vector<unsigned int> &vertices() const { return vertices_; }
