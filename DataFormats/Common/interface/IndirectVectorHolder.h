@@ -32,6 +32,7 @@ namespace edm {
       bool empty() const override;
       size_type size() const override;
       void clear() override;
+      void reserve(size_type n) override;
       base_ref_type const at(size_type idx) const override;
       std::unique_ptr<reftobase::RefVectorHolderBase> vectorHolder() const override {
         return std::unique_ptr<reftobase::RefVectorHolderBase>(helper_->clone());
@@ -160,6 +161,11 @@ namespace edm {
     template <typename T>
     void IndirectVectorHolder<T>::clear() {
       return helper_->clear();
+    }
+
+    template <typename T>
+    void IndirectVectorHolder<T>::reserve(size_type n) {
+      return helper_->reserve(n);
     }
 
     template <typename T>

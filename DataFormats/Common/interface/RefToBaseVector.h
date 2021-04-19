@@ -48,7 +48,7 @@ namespace edm {
 
     ~RefToBaseVector();
 
-    //void reserve(size_type n);
+    void reserve(size_type n);
     void clear();
 
     value_type at(size_type idx) const;
@@ -159,6 +159,12 @@ namespace edm {
   template <class T>
   inline typename RefToBaseVector<T>::size_type RefToBaseVector<T>::size() const {
     return holder_ ? holder_->size() : 0;
+  }
+
+  template <class T>
+  inline void RefToBaseVector<T>::reserve(size_type n) {
+    if (holder_ != nullptr)
+      holder_->reserve(n);
   }
 
   template <class T>

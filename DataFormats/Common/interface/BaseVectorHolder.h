@@ -28,6 +28,7 @@ namespace edm {
       //virtual size_type capacity() const = 0;
       //virtual void reserve(size_type n) = 0;
       virtual void clear() = 0;
+      virtual void reserve(size_type n) = 0;
       virtual ProductID id() const = 0;
       virtual EDProductGetter const* productGetter() const = 0;
       void swap(BaseVectorHolder&) {}  // nothing to swap

@@ -37,6 +37,7 @@ namespace edm {
       //size_type capacity() const { return refVector_.capacity(); }
       //void reserve(size_type n) { refVector_.reserve(n); }
       void clear() override { refVector_.clear(); }
+      void reserve(size_type n) override { refVector_.reserve(n); }
       ProductID id() const override { return refVector_.id(); }
       EDProductGetter const* productGetter() const override { return refVector_.productGetter(); }
       void swap(VectorHolder& other) noexcept {
