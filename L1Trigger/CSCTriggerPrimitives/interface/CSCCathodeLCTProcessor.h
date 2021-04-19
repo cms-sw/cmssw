@@ -125,8 +125,9 @@ protected:
   // Multiple hits on the same strip are allowed.
   void readComparatorDigis(
       std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
-  void pulseExtension(const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
-                      PulseArray pulse);
+  void pulseExtension(
+      const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+      PulseArray pulse);
 
   //--------------- Functions for post-2007 version of the firmware -----------
   virtual std::vector<CSCCLCTDigi> findLCTs(
@@ -146,14 +147,17 @@ protected:
   void cleanComparatorContainer(CSCCLCTDigi& lct) const;
 
   /* Mark the half-strips around the best half-strip as busy */
-  void markBusyKeys(const int best_hstrip, const int best_patid, int quality[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
+  void markBusyKeys(const int best_hstrip,
+                    const int best_patid,
+                    int quality[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
 
   //--------------------------- Auxiliary methods -----------------------------
   /** Dump CLCT configuration parameters. */
   void dumpConfigParams() const;
 
   /** Dump half-strip digis */
-  void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) const;
+  void dumpDigis(
+      const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) const;
 
   // --------Functions for the comparator code algorith for Run-3 ---------//
   //calculates the id based on location of hits

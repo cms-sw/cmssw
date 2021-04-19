@@ -777,7 +777,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
 
 // Common to all versions.
 void CSCCathodeLCTProcessor::pulseExtension(
-    const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER], PulseArray pulse) {
+    const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+    PulseArray pulse) {
   static const unsigned int bits_in_pulse = 8 * sizeof(pulse[0][0]);
 
   // Clear pulse array.  This array will be used as a bit representation of
