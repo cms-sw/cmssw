@@ -38,7 +38,7 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
   uint32_t wallCopy(0), hawCopy(0), fawCopy(0), supmCopy(0);
   const int off(13 < nLevels ? 3 : 0);
 
-  if ((nLevels != 11) && (nLevels != 14))  {
+  if ((nLevels != 11) && (nLevels != 14)) {
     wallCopy = baseNumber.getCopyNumber(3 + off);
     hawCopy = baseNumber.getCopyNumber(4 + off);
     fawCopy = baseNumber.getCopyNumber(5 + off);
@@ -122,21 +122,22 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
   return intindex;
 }
 
-std::pair<int,int> EcalBarrelNumberingScheme::numbers(const std::string& name) const {
+std::pair<int, int> EcalBarrelNumberingScheme::numbers(const std::string& name) const {
   int num1(-1), num2(-1);
-  if (name.find("#") != std::string::npos) {
-    uint32_t ip1 = name.find("#");
-    if (name.find("!") != std::string::npos) {
-      uint32_t ip2 = name.find("!");
-      num1 = ::atoi(name.substr(ip1+1, ip2-ip1-1).c_str());
-      if (name.find("#", ip2) != std::string::npos) {
-	uint32_t ip3 = name.find("#", ip2);
-	num2 = ::atoi(name.substr(ip3+1, name.size()-ip3-1).c_str());
+  if (name.find('#') != std::string::npos) {
+    uint32_t ip1 = name.find('#');
+    if (name.find('!') != std::string::npos) {
+      uint32_t ip2 = name.find('!');
+      num1 = ::atoi(name.substr(ip1 + 1, ip2 - ip1 - 1).c_str());
+      if (name.find('#', ip2) != std::string::npos) {
+        uint32_t ip3 = name.find('#', ip2);
+        num2 = ::atoi(name.substr(ip3 + 1, name.size() - ip3 - 1).c_str());
       }
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << "EcalBarrelNumberingScheme::Numbers from " << name << " are " << num1 << " and " << num2;
+  edm::LogVerbatim("EcalGeom") << "EcalBarrelNumberingScheme::Numbers from " << name << " are " << num1 << " and "
+                               << num2;
 #endif
   return std::make_pair(num1, num2);
 }
