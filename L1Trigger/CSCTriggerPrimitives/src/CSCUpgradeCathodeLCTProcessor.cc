@@ -135,7 +135,7 @@ bool CSCUpgradeCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int
 
 // Phase2 version.
 std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
-    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS]) {
+    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
   // run the original algorithm in case we do not use dead time zoning
   if (runPhase2_ and !use_dead_time_zoning) {
     return CSCCathodeLCTProcessor::findLCTs(halfstrip);
@@ -152,7 +152,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
     dumpDigis(halfstrip);
 
   // keeps dead-time zones around key halfstrips of triggered CLCTs
-  for (int i = 0; i < CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS; i++) {
+  for (int i = 0; i < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; i++) {
     for (int j = 0; j < CSCConstants::MAX_CLCT_TBINS; j++) {
       busyMap[i][j] = false;
     }
@@ -160,7 +160,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
 
   std::vector<CSCCLCTDigi> lctListBX;
 
-  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS];
+  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
   // Fire half-strip one-shots for hit_persist bx's (4 bx's by default).
   pulseExtension(halfstrip, pulse);
@@ -210,30 +210,30 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
       int keystrip_data[CSCConstants::MAX_CLCTS_PER_PROCESSOR][CLCT_NUM_QUANTITIES] = {{0}};
 
       // Quality for sorting.
-      int quality[CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS];
+      int quality[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
       int best_halfstrip[CSCConstants::MAX_CLCTS_PER_PROCESSOR], best_quality[CSCConstants::MAX_CLCTS_PER_PROCESSOR];
       for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
         best_halfstrip[ilct] = -1;
         best_quality[ilct] = 0;
       }
 
-      bool pretrig_zone[CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS];
+      bool pretrig_zone[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER];
 
       // Calculate quality from pattern id and number of hits, and
       // simultaneously select best-quality LCT.
       if (hits_in_time) {
         // first, mark half-strip zones around pretriggers
         // that happened at the current first_bx
-        for (int hstrip = 0; hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS; hstrip++)
+        for (int hstrip = 0; hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; hstrip++)
           pretrig_zone[hstrip] = false;
-        for (int hstrip = 0; hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS; hstrip++) {
+        for (int hstrip = 0; hstrip < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; hstrip++) {
           if (ispretrig[hstrip]) {
             int min_hs = hstrip - pretrig_trig_zone;
             int max_hs = hstrip + pretrig_trig_zone;
             if (min_hs < 0)
               min_hs = 0;
-            if (max_hs > CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS - 1)
-              max_hs = CSCConstants::MAX_NUM_HALF_STRIPS_7CFEBS - 1;
+            if (max_hs > CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER - 1)
+              max_hs = CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER - 1;
             for (int hs = min_hs; hs <= max_hs; hs++)
               pretrig_zone[hs] = true;
             if (infoV > 1)

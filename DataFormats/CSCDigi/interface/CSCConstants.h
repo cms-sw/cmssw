@@ -13,7 +13,7 @@ public:
 
   enum CFEB_Info {
     // Run-1: Maximum number of cathode front-end boards
-    MAX_CFEBS = 5,
+    MAX_CFEBS_RUN1 = 5,
     // ME1/1 cases
     NUM_CFEBS_ME1A_GANGED = 1,
     NUM_CFEBS_ME1A_UNGANGED = 3,
@@ -51,17 +51,17 @@ public:
     //...32 half-strips.
     NUM_HALF_STRIPS_PER_CFEB = 2 * NUM_STRIPS_PER_CFEB,
     // There are exactly 80 or 112 strips...
-    NUM_STRIPS_5CFEBS = MAX_CFEBS * NUM_STRIPS_PER_CFEB,  // 80
-    NUM_STRIPS_7CFEBS = MAX_CFEBS_RUN2 * NUM_STRIPS_PER_CFEB,  // 112
+    MAX_NUM_STRIPS_RUN1 = MAX_CFEBS_RUN1 * NUM_STRIPS_PER_CFEB,  // 80
+    MAX_NUM_STRIPS_RUN2 = MAX_CFEBS_RUN2 * NUM_STRIPS_PER_CFEB,  // 112
     //...and 160 or 224 half-strips for 5 or 7 CFEBs...
-    NUM_HALF_STRIPS_5CFEBS = MAX_CFEBS * NUM_HALF_STRIPS_PER_CFEB,  // 160
-    NUM_HALF_STRIPS_7CFEBS = MAX_CFEBS_RUN2 * NUM_HALF_STRIPS_PER_CFEB,  // 224
+    MAX_NUM_HALF_STRIPS_RUN1 = MAX_CFEBS_RUN1 * NUM_HALF_STRIPS_PER_CFEB,  // 160
+    MAX_NUM_HALF_STRIPS_RUN2 = MAX_CFEBS_RUN2 * NUM_HALF_STRIPS_PER_CFEB,  // 224
     // ...but depending on the chamber, there may or may not be strip staggering.
     /* CMS-MUO-16-001: "[..] alternate layers in a CSC are staggered by half a strip width, except
        in the ME1/1 chambers where the strips are narrower and the effect is small" */
-    // MAX_ is added in front because it truly is a maximum number
-    MAX_NUM_HALF_STRIPS_5CFEBS = 1 + NUM_HALF_STRIPS_5CFEBS,  // 161
-    MAX_NUM_HALF_STRIPS_7CFEBS = 1 + NUM_HALF_STRIPS_7CFEBS,  // 225
+    // _TRIGGER is added at the end, because these constants are only used in the trigger
+    MAX_NUM_HALF_STRIPS_RUN1_TRIGGER = 1 + MAX_NUM_HALF_STRIPS_RUN1,  // 161
+    MAX_NUM_HALF_STRIPS_RUN2_TRIGGER = 1 + MAX_NUM_HALF_STRIPS_RUN2,  // 225
     // Number of strips in ME11 (special case)
     NUM_STRIPS_ME1A_GANGED = NUM_CFEBS_ME1A_GANGED * NUM_STRIPS_PER_CFEB,      // 16
     NUM_STRIPS_ME1A_UNGANGED = NUM_CFEBS_ME1A_UNGANGED * NUM_STRIPS_PER_CFEB,  // 48
