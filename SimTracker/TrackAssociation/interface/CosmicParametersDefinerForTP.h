@@ -10,6 +10,8 @@
 #include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h>
 
+#include <memory>
+
 class CosmicParametersDefinerForTP : public ParametersDefinerForTP {
 public:
   CosmicParametersDefinerForTP(){};
@@ -22,7 +24,7 @@ public:
                                  const edm::EventSetup &iSetup,
                                  const TrackingParticleRef &tpr) const override;
 
-  virtual std::pair<TrackingParticle::Point, TrackingParticle::Vector> vertexAndMomentum(
+  std::pair<TrackingParticle::Point, TrackingParticle::Vector> vertexAndMomentum(
       const edm::Event &iEvent, const edm::EventSetup &iSetup, const TrackingParticleRef &tpr) const override {
     return std::make_pair(vertex(iEvent, iSetup, tpr), momentum(iEvent, iSetup, tpr));
   }
@@ -48,7 +50,7 @@ public:
   }
 
   std::unique_ptr<ParametersDefinerForTP> clone() const override {
-    return std::unique_ptr<CosmicParametersDefinerForTP>(new CosmicParametersDefinerForTP(*this));
+    return std::make_unique<CosmicParametersDefinerForTP>(*this);
   }
 
 private:
