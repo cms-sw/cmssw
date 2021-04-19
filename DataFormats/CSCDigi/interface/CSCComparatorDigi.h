@@ -9,7 +9,6 @@
  * \author M. Schmitt, Northwestern
  *
  */
-#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include <iosfwd>
 #include <vector>
 #include <cstdint>

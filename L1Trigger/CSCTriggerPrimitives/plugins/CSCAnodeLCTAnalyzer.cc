@@ -3,6 +3,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "L1Trigger/CSCTriggerPrimitives/plugins/CSCAnodeLCTAnalyzer.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 
 using namespace std;
 

@@ -29,6 +29,8 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 //Digi stuff
+
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"

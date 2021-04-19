@@ -1,5 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData2006.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cstring>  // for bzero
 #include <iostream>

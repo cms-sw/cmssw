@@ -10,7 +10,6 @@
  *
  */
 
-#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include <vector>
 #include <iosfwd>
 #include <cstdint>

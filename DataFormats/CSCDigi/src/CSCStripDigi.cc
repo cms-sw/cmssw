@@ -4,6 +4,7 @@
  * \author M.Schmitt, Northwestern
  */
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <cstdint>
