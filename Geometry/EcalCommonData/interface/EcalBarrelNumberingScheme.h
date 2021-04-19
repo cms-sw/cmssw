@@ -13,8 +13,9 @@ public:
   EcalBarrelNumberingScheme();
   ~EcalBarrelNumberingScheme() override;
   uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override;
+
 private:
-  std::pair<int,int> numbers(const std::string&) const;
+  std::pair<int, int> numbers(const std::string&) const;
 };
 
 #endif
