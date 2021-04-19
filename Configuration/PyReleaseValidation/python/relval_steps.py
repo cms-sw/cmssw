@@ -438,7 +438,6 @@ steps['RunDisplacedJet2018B']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018B
 steps['RunCharmonium2018B']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018B-v1/RAW',label='2018B',events=100000,location='STD', ls=Run2018B)}
 steps['RunParkingBPH2018B']={'INPUT':InputInfo(dataSet='/ParkingBPH5/Run2018B-v1/RAW',label='2018B',events=100000,location='STD', ls=Run2018B_parkingBPH)}
 steps['RunJetHT2018BHEfail']={'INPUT':InputInfo(dataSet='/JetHT/Run2018B-v1/RAW',label='HEfail',events=100000,location='STD', ls=Run2018B)}
-steps['RunJetHT2018BBadHcalMitig']={'INPUT':InputInfo(dataSet='/JetHT/Run2018B-v1/RAW',label='BadHcalMitig',events=100000,location='STD', ls=Run2018B)}
 
 #### run2 2018C ####
 Run2018C={319450: [[1, 100]]}
@@ -807,7 +806,6 @@ steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17INPUT']={'INPUT':InputInfo(dataSet='/R
 # INPUT commands for 2018 wf
 steps['TTbar_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[18],),location='STD')}
 steps['TTbar_13UP18HEfailINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[18],),location='STD')}
-steps['TTbar_13UP18BadHcalMitigINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[18],),label='Mitig',location='STD')}
 steps['ZEE_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM'%(baseDataSetRelease[18],),location='STD')}
 steps['ZMM_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM'%(baseDataSetRelease[18],),location='STD')}
 steps['ZTT_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM'%(baseDataSetRelease[18],),location='STD')}
@@ -1879,7 +1877,6 @@ steps['HLTDR2_2018ml']=merge( [ {'--customise_commands':'"process.source.skipEve
 
 
 steps['HLTDR2_2018_hBStar']=merge( [ {'--era' : 'Run2_2018_highBetaStar'},steps['HLTDR2_2018'] ] )
-steps['HLTDR2_2018_BadHcalMitig']=merge( [ {'--era' : 'Run2_2018,pf_badHcalMitigation'},steps['HLTDR2_2018'] ] )
 
 # use --era
 steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_50ns',},dataReco])
@@ -2386,8 +2383,6 @@ steps['RECODR2_2018reHLTAlCaTkCosmics_Offline']=merge([{'--conditions':'auto:run
 steps['RECODR2_2018reHLT_Prompt_hBStar']=merge([{'--era':'Run2_2018_highBetaStar'},steps['RECODR2_2018reHLT_Prompt']])
 steps['RECODR2_2018reHLT_Offline_hBStar']=merge([{'--era':'Run2_2018_highBetaStar'},steps['RECODR2_2018reHLT_Offline']])
 steps['RECODR2_2018reHLT_skimJetHT_Prompt_HEfail']=merge([{'--conditions':'auto:run2_data_HEfail'},steps['RECODR2_2018reHLT_skimJetHT']])
-steps['RECODR2_2018reHLT_skimJetHT_Prompt_BadHcalMitig']=merge([{'--conditions':'auto:run2_data_HEfail','--era':'Run2_2018,pf_badHcalMitigation'},steps['RECODR2_2018reHLT_skimJetHT']])
-
 steps['RECO']=merge([step3Defaults])
 
 
@@ -2745,7 +2740,6 @@ steps['HARVEST2018_ECALOnly'] = merge([ {'-s':'HARVESTING:@ecal'}, steps['HARVES
 steps['HARVEST2018_HCALOnly'] = merge([ {'-s':'HARVESTING:@hcalOnly'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_hBStar'] = merge([ {'--era' : 'Run2_2018_highBetaStar'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_HEfail'] = merge([ {'--conditions':'auto:run2_data_HEfail'}, steps['HARVEST2018'] ])
-steps['HARVEST2018_BadHcalMitig'] = merge([ {'--era' : 'Run2_2018,pf_badHcalMitigation','--conditions':'auto:run2_data_HEfail'}, steps['HARVEST2018'] ])
 
 steps['HARVEST2018_L1TEgDQM_MULTIRUN'] = merge([ {
         '--customise':"Configuration/StandardSequences/DQMSaverAtJobEnd_cff",
@@ -3235,10 +3229,6 @@ steps['NanoFullHEfail']={'-s':'NANO',
                          '--datatier':'NANOAODSIM',
                          '--eventcontent':'NANOEDMAODSIM',
                          '--filein':'file:step3_inMINIAODSIM.root'}
-steps['DigiFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['DigiFullHEfail']])
-steps['RecoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['RecoFullHEfail']])
-steps['HARVESTFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['HARVESTFullHEfail']])
-steps['NanoFullBadHcalMitig']=merge([{'--era' : 'Run2_2018,pf_badHcalMitigation'}, steps['NanoFullHEfail']])
 
 #################################################################################
 ####From this line till the end of the file :
