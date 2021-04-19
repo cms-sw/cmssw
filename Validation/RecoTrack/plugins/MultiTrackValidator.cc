@@ -433,9 +433,9 @@ void MultiTrackValidator::tpParametersAndSelection(
     for (size_t j = 0; j < tPCeff.size(); ++j) {
       const TrackingParticleRef& tpr = tPCeff[j];
 
-      auto const& rec = parametersDefinerTP.vertexAndMomentum(event, setup, tpr);
-      TrackingParticle::Vector const& momentum = rec.second;
-      TrackingParticle::Point const& vertex = rec.first;
+      auto const& rec = parametersDefinerTP.momentumAndVertex(event, setup, tpr);
+      TrackingParticle::Vector const& momentum = std::get<0>(rec);
+      TrackingParticle::Point const& vertex = std::get<1>(rec);
       if (doSimPlots_) {
         histoProducerAlgo_->fill_generic_simTrack_histos(
             histograms.histoProducerAlgo, momentum, vertex, tpr->eventId().bunchCrossing());
@@ -466,7 +466,7 @@ void MultiTrackValidator::tpParametersAndSelection(
 
       if (tpSelector(tp)) {
         selected_tPCeff.push_back(j);
-        momVert_tPCeff.emplace_back(parametersDefinerTP.vertexAndMomentum(event, setup, tpr));
+        momVert_tPCeff.emplace_back(parametersDefinerTP.momentumAndVertex(event, setup, tpr));
       }
       ++j;
     }

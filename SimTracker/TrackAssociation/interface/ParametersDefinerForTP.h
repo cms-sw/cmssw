@@ -62,12 +62,12 @@ public:
     return vertex(iEvent, iSetup, tp.charge(), tp.vertex(), tp.p4());
   }
 
-  virtual std::pair<TrackingParticle::Point, TrackingParticle::Vector> vertexAndMomentum(
+  virtual std::tuple<TrackingParticle::Vector, TrackingParticle::Point> momentumAndVertex(
       const edm::Event &iEvent, const edm::EventSetup &iSetup, const TrackingParticleRef &tpr) const {
-    return vertexAndMomentum(iEvent, iSetup, tpr->charge(), tpr->vertex(), tpr->p4());
+    return momentumAndVertex(iEvent, iSetup, tpr->charge(), tpr->vertex(), tpr->p4());
   }
 
-  std::pair<TrackingParticle::Point, TrackingParticle::Vector> vertexAndMomentum(const edm::Event &iEvent,
+  std::tuple<TrackingParticle::Vector, TrackingParticle::Point> momentumAndVertex(const edm::Event &iEvent,
                                                                                  const edm::EventSetup &iSetup,
                                                                                  const Charge ch,
                                                                                  const Point &vtx,
