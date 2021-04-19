@@ -16,6 +16,7 @@
 
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCLayerInfo.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
