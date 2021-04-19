@@ -141,6 +141,7 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     seedingLayerSets = cms.vstring(),
 
     doMTDPlots = cms.untracked.bool(False), # meant to be switch on in Phase2 workflows
+    doDzPVcutPlots = cms.untracked.bool(True)
 )
 
 def _modifyForPhase1(pset):

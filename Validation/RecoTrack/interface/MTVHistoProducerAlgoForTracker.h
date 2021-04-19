@@ -339,6 +339,7 @@ private:
 
   const bool doSeedPlots_;
   const bool doMTDPlots_;
+  const bool doDzPVcutPlots_;
 
   //
   double ptRes_rangeMin, ptRes_rangeMax;
