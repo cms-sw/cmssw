@@ -1413,4 +1413,11 @@ upgradeFragments = OrderedDict([
     ('QCD_Pt_1800_2400_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50), 'QCD_Pt_1800_2400_14')),
     ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_14TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_14TeV')),
     ('GluGluTo2Jets_M_300_2000_14TeV_Exhume_cff',UpgradeFragment(Kby(9,100),'GluGluTo2Jets_14TeV')),
+    ('TTbarLepton_14TeV_TuneCP5_cfi',UpgradeFragment(Kby(9,50),'TTbarLepton_14TeV')),
+    ('QQH1252T_14TeV_TuneCP5_cfi',UpgradeFragment(Kby(9,50),'QQH1252T_14TeV')),
+    ('ZpEE_6000_14TeV_TuneCP5_cfi',UpgradeFragment(Kby(9,50),'ZpEE_6000_14TeV')),
+    ('ZpMM_6000_14TeV_TuneCP5_cfi',UpgradeFragment(Kby(9,50),'ZpMM_6000_14TeV')),
+    ('SMS-T1tttt_mGl-1500_mLSP-100_14TeV-pythia8_TuneCP5_cfi',UpgradeFragment(Kby(9,50),'SMS-T1tttt_14TeV')),
+    ('VBFHZZ4Nu_14TeV_TuneCP5_cfi',UpgradeFragment(Kby(9,50),'VBFHZZ4Nu_14TeV')),
+    ('EtaBToJpsiJpsi_14TeV_TuneCP5_cfi',UpgradeFragment(Kby(9,50),'EtaBToJpsiJpsi_14TeV')),
 ])
