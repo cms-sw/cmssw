@@ -40,6 +40,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_Output_cff import *
 
 # AlCaReco for pixel calibration using muons
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuon_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuonLoose_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuonTight_Output_cff import *
 # AlCaReco for tracker calibration using MinBias events
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAG_Output_cff import *
