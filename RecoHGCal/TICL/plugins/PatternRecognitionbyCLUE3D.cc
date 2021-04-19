@@ -420,8 +420,17 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
   const int siblingLayers = 3;
   const float delta_eta_phi_sqr = 0.0009;
   for (unsigned int i = 0; i < numberOfClusters; i++) {
-    unsigned int minLayer = std::max((int)layerId - siblingLayers, 0);
-    unsigned int maxLayer = std::min((int)layerId + siblingLayers, 103);
+    // We need to partition the two sides of the HGCAL detector
+    auto lastLayerPerSide = int(rhtools_.lastLayer(false)) - 1;
+    unsigned int minLayer = 0;
+    unsigned int maxLayer = 2*lastLayerPerSide;
+    if (int(layerId) <= lastLayerPerSide) {
+      minLayer = std::max((int)layerId - siblingLayers, 0);
+      maxLayer = std::min((int)layerId + siblingLayers, lastLayerPerSide);
+    } else {
+      minLayer = std::max((int)layerId - siblingLayers, lastLayerPerSide+1);
+      maxLayer = std::min((int)layerId + siblingLayers, 2*lastLayerPerSide);
+    }
     for (unsigned int currentLayer = minLayer; currentLayer <= maxLayer; currentLayer++) {
       edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "RefLayer: " << layerId << " SoaIDX: " << i;
       edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "NextLayer: " << currentLayer;
@@ -504,10 +513,17 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
       << " with rho: " << clustersOnLayer.rho[i]
       << " at eta, phi: " << tiles[layerId].etaBin(clustersOnLayer.eta[i]) << ", "
       << tiles[layerId].etaBin(clustersOnLayer.phi[i]);
-    unsigned int minLayer = std::max((int)layerId - siblingLayers, 0);
-    unsigned int maxLayer = std::min((int)layerId + siblingLayers, 103);
-    //FIXME(rovere): implement wrapping between +Z and -Z to avoid mixing last
-    //of one with first of the other
+    // We need to partition the two sides of the HGCAL detector
+    auto lastLayerPerSide = int(rhtools_.lastLayer(false)) - 1;
+    unsigned int minLayer = 0;
+    unsigned int maxLayer = 2*lastLayerPerSide;
+    if (int(layerId) <= lastLayerPerSide) {
+      minLayer = std::max((int)layerId - siblingLayers, 0);
+      maxLayer = std::min((int)layerId + siblingLayers, lastLayerPerSide);
+    } else {
+      minLayer = std::max((int)layerId - siblingLayers, lastLayerPerSide+1);
+      maxLayer = std::min((int)layerId + siblingLayers, 2*lastLayerPerSide);
+    }
     float maxDelta = std::numeric_limits<float>::max();
     float i_delta = maxDelta;
     std::pair<int, int> i_nearestHigher(-1, -1);
@@ -582,8 +598,8 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
     auto &clustersOnLayer = clusters_[layer];
     unsigned int numberOfClusters = clustersOnLayer.x.size();
     for (unsigned int i = 0; i < numberOfClusters; i++) {
-      float rho_c = 8.f;
-      float delta = 0.04;
+      float rho_c = 4.f;
+      float delta = 0.035;
       float outlierDeltaFactor = 3.;
 
       // initialize clusterIndex
