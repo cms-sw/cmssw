@@ -68,10 +68,10 @@ public:
   }
 
   std::tuple<TrackingParticle::Vector, TrackingParticle::Point> momentumAndVertex(const edm::Event &iEvent,
-                                                                                 const edm::EventSetup &iSetup,
-                                                                                 const Charge ch,
-                                                                                 const Point &vtx,
-                                                                                 const LorentzVector &lv) const;
+                                                                                  const edm::EventSetup &iSetup,
+                                                                                  const Charge ch,
+                                                                                  const Point &vtx,
+                                                                                  const LorentzVector &lv) const;
 
   virtual void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) {}
 
