@@ -61,6 +61,39 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
 }
 
 template <typename TILES>
+void PatternRecognitionbyCLUE3D<TILES>::dumpTracksters(
+    const std::vector<std::pair<int, int>> &layerIdx2layerandSoa,
+    const int eventNumber,
+    const std::vector<Trackster> & tracksters) const {
+  edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "[evt, tracksterId, cells, layer_i, x_i, y_i, eta_i, phi_i, energy_i, radius_i, rho_i, delta_i, isSeed_i";
+
+  int num = 0;
+  const std::string sep(", ");
+  for (auto const & t : tracksters) {
+    for (auto v : t.vertices()) {
+      auto [lyrIdx, soaIdx] = layerIdx2layerandSoa[v];
+      auto const &thisLayer = clusters_[lyrIdx];
+      edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "TracksterInfo: "
+        << eventNumber << sep
+        << num << sep
+        << t.vertices().size() << sep
+        << lyrIdx << sep
+        << thisLayer.x[soaIdx] << sep
+        << thisLayer.y[soaIdx] << sep
+        << thisLayer.eta[soaIdx] << sep
+        << thisLayer.phi[soaIdx] << sep
+        << thisLayer.energy[soaIdx] << sep
+        << thisLayer.radius[soaIdx] << sep
+        << thisLayer.rho[soaIdx] << sep
+        << thisLayer.delta[soaIdx] << sep
+        << thisLayer.isSeed[soaIdx]
+        << '\n';
+    }
+    num++;
+  }
+}
+
+template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(
     const std::vector<std::pair<int, int>> &layerIdx2layerandSoa,
     const int eventNumber) const {
@@ -220,6 +253,9 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Energy: " << t.raw_energy();
     edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "Regressed: " << t.regressed_energy();
   }
+
+  // Dump Tracksters information
+  dumpTracksters(layerIdx2layerandSoa, eventNumber, result);
 
   // Reset internal clusters_ structure of array for next event
   reset();
