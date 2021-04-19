@@ -227,7 +227,9 @@ namespace edm {
       // for this purpose.
       using StreamID_value = decltype(std::declval<StreamID>().value());
       using ModuleID = decltype(std::declval<ModuleDescription>().id());
-      tbb::concurrent_unordered_map<std::pair<StreamID_value, ModuleID>, std::pair<decltype(beginTime_), bool>, edm::StdPairHasher>
+      tbb::concurrent_unordered_map<std::pair<StreamID_value, ModuleID>,
+                                    std::pair<decltype(beginTime_), bool>,
+                                    edm::StdPairHasher>
           stallStart_{};
 
       std::vector<std::string> moduleLabels_{};
