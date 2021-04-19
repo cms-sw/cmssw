@@ -22,7 +22,6 @@
 
 #include <sys/wait.h>
 
-
 using namespace edmplugin;
 
 // We process DSOs by forking and processing them in the child, in bunches of

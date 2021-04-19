@@ -19,36 +19,36 @@
 #include "tbb/tbb_allocator.h"
 
 namespace edm {
-  template <typename T, template<typename X> class Allocator = tbb::tbb_allocator>
-  class zero_allocator : public Allocator<T>
-  {
+  template <typename T, template <typename X> class Allocator = tbb::tbb_allocator>
+  class zero_allocator : public Allocator<T> {
   public:
-      using value_type = T;
-      using base_allocator_type = Allocator<T>;
-      template<typename U> struct rebind {
-          typedef zero_allocator<U, Allocator> other;
-      };
+    using value_type = T;
+    using base_allocator_type = Allocator<T>;
+    template <typename U>
+    struct rebind {
+      typedef zero_allocator<U, Allocator> other;
+    };
 
-      zero_allocator() throw() { }
-      zero_allocator(const zero_allocator &a) throw() : base_allocator_type( a ) { }
-      template<typename U>
-      zero_allocator(const zero_allocator<U> &a) throw() : base_allocator_type( Allocator<U>( a ) ) { }
+    zero_allocator() throw() {}
+    zero_allocator(const zero_allocator &a) throw() : base_allocator_type(a) {}
+    template <typename U>
+    zero_allocator(const zero_allocator<U> &a) throw() : base_allocator_type(Allocator<U>(a)) {}
 
-      T* allocate(const std::size_t n, const void *hint = 0 ) {
-          //T* ptr = base_allocator_type::allocate( n, hint );
-          T* ptr = base_allocator_type::allocate( n );
-          std::memset( static_cast<void*>(ptr), 0, n * sizeof(value_type) );
-          return ptr;
-      }
+    T *allocate(const std::size_t n, const void *hint = nullptr) {
+      //T* ptr = base_allocator_type::allocate( n, hint );
+      T *ptr = base_allocator_type::allocate(n);
+      std::memset(static_cast<void *>(ptr), 0, n * sizeof(value_type));
+      return ptr;
+    }
   };
 
-  template<typename T1, template<typename X1> class B1, typename T2, template<typename X2> class B2>
-  inline bool operator==( const zero_allocator<T1,B1> &a, const zero_allocator<T2,B2> &b) {
-      return static_cast< B1<T1> >(a) == static_cast< B2<T2> >(b);
+  template <typename T1, template <typename X1> class B1, typename T2, template <typename X2> class B2>
+  inline bool operator==(const zero_allocator<T1, B1> &a, const zero_allocator<T2, B2> &b) {
+    return static_cast<B1<T1> >(a) == static_cast<B2<T2> >(b);
   }
-  template<typename T1, template<typename X1> class B1, typename T2, template<typename X2> class B2>
-  inline bool operator!=( const zero_allocator<T1,B1> &a, const zero_allocator<T2,B2> &b) {
-      return static_cast< B1<T1> >(a) != static_cast< B2<T2> >(b);
+  template <typename T1, template <typename X1> class B1, typename T2, template <typename X2> class B2>
+  inline bool operator!=(const zero_allocator<T1, B1> &a, const zero_allocator<T2, B2> &b) {
+    return static_cast<B1<T1> >(a) != static_cast<B2<T2> >(b);
   }
-}
+}  // namespace edm
 #endif
