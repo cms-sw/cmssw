@@ -116,7 +116,7 @@ std::tuple<TrackingParticle::Vector, TrackingParticle::Point> ParametersDefinerF
     ;
   }
 
-  return std::make_tuple(momentum,vertex);
+  return std::make_tuple(momentum, vertex);
 }
 
 TYPELOOKUP_DATA_REG(ParametersDefinerForTP);
