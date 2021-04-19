@@ -90,8 +90,7 @@ void VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   size_t totalNumPV = 0;
   size_t totalNumBADndofPV = 0;
-  edm::Handle<reco::VertexCollection> pvHandle;
-  iEvent.getByToken(pvToken_, pvHandle);
+  edm::Handle<reco::VertexCollection> pvHandle = iEvent.getHandle(pvToken_);
   if (pvHandle.isValid()) {
     totalNumPV = pvHandle->size();
     //      std::cout << "totalNumPV : " << totalNumPV << std::endl;
@@ -110,8 +109,7 @@ void VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   size_t totalNumGoodPV = 0;
-  edm::Handle<reco::VertexCollection> selpvHandle;
-  iEvent.getByToken(selpvToken_, selpvHandle);
+  edm::Handle<reco::VertexCollection> selpvHandle = iEvent.getHandle(selpvToken_);
   if (selpvHandle.isValid())
     totalNumGoodPV = selpvHandle->size();
   else
