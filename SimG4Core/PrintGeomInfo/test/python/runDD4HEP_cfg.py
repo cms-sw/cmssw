@@ -16,6 +16,7 @@ process = printGeomInfo(process)
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.G4cerr=dict()
     process.MessageLogger.G4cout=dict()
+
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     DumpSummary      = cms.untracked.bool(True),
     DumpLVTree       = cms.untracked.bool(False),
@@ -37,5 +38,6 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     LVFileName       = cms.untracked.string('lvfileDD4Hep.txt'),
     PVFileName       = cms.untracked.string('pvfileDD4Hep.txt'),
     TouchFileName    = cms.untracked.string('touchfileDD4Hep.txt'),
+    FileDetail       = cms.untracked.bool(True),
     type             = cms.string('PrintGeomInfoAction')
 ))

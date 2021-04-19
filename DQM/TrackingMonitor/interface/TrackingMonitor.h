@@ -74,7 +74,6 @@ public:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  //        virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
 private:
   void doProfileX(TH2* th2, MonitorElement* me);

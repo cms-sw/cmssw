@@ -1,9 +1,12 @@
 <use name="cuda"/>
+<use name="CommonTools/UtilAlgos"/>
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/HGCDigi"/>
 <use name="DataFormats/HGCRecHit"/>
 <use name="DataFormats/HcalDetId"/>
@@ -13,7 +16,6 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/HGCalCommonData"/>
-<use name="PhysicsTools/UtilAlgos"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/HGCalObjects"/>
 <library   file="*.cc *.cu" name="RecoLocalCaloHGCalRecProducersPlugins">

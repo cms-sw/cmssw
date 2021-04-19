@@ -38,15 +38,15 @@ private:
   std::vector<std::string> getNames(DDFilteredView &fv);
   std::vector<std::string> getNames(cms::DDFilteredView &fv);
   std::vector<double> getDDDArray(const std::string &str, const DDsvalues_type &sv);
-  bool isSensitive(std::string);
+  bool isSensitive(const std::string &);
   bool isItHF(const G4VTouchable *);
-  bool isItEC(std::string);
+  bool isItEC(const std::string &);
 
 private:
   static const int maxSet_ = 25, maxSet2_ = 9;
   std::vector<std::string> sensitives_, hfNames_, sensitiveEC_;
   std::vector<int> hfLevels_;
-  bool fillHistos_, printSum_;
+  bool fillHistos_, printSum_, fromdd4hep_;
   int binEta_, binPhi_;
   double maxEta_, etaLow_, etaHigh_, etaLowMin_, etaLowMax_, etaMidMin_;
   double etaMidMax_, etaHighMin_, etaHighMax_, etaMinP_, etaMaxP_;

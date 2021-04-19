@@ -18,7 +18,6 @@
 #include "G4HadronicProcessStore.hh"
 #include "G4HadronicInteraction.hh"
 
-#include "G4HadronInelasticDataSet.hh"
 #include "G4ParticleDefinition.hh"
 
 //////////////////////////////////////////////////////////////////
