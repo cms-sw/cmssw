@@ -84,10 +84,10 @@ using namespace gbl;
 
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
-MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg, edm::ConsumesCollector iC)
+MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : AlignmentAlgorithmBase(cfg, iC),
-      topoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd>()),
-      aliThrToken_(iC.esConsumes<AlignPCLThresholds, AlignPCLThresholdsRcd>()),
+      topoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
+      aliThrToken_(iC.esConsumes<AlignPCLThresholds, AlignPCLThresholdsRcd, edm::Transition::BeginRun>()),
       theConfig(cfg),
       theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
       theDir(theConfig.getUntrackedParameter<std::string>("fileDir")),

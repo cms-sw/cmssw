@@ -61,7 +61,7 @@
 class ApeSettingAlgorithm : public AlignmentAlgorithmBase {
 public:
   /// Constructor
-  ApeSettingAlgorithm(const edm::ParameterSet &cfg, edm::ConsumesCollector iC);
+  ApeSettingAlgorithm(const edm::ParameterSet &cfg, const edm::ConsumesCollector &iC);
 
   /// Destructor
   ~ApeSettingAlgorithm() override;
@@ -95,7 +95,7 @@ private:
 
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
-ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg, edm::ConsumesCollector iC)
+ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg, const edm::ConsumesCollector &iC)
     : AlignmentAlgorithmBase(cfg, iC), theConfig(cfg), theAlignableNavigator(nullptr) {
   edm::LogInfo("Alignment") << "@SUB=ApeSettingAlgorithm"
                             << "Start.";

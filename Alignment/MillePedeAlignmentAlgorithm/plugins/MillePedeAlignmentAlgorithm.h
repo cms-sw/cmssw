@@ -59,7 +59,7 @@ class TrajectoryFactoryBase;
 class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase {
 public:
   /// Constructor
-  MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg, edm::ConsumesCollector iC);
+  MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC);
 
   /// Destructor
   ~MillePedeAlignmentAlgorithm() override;

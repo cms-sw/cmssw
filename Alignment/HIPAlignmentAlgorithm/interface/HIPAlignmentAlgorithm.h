@@ -36,7 +36,7 @@ class TTree;
 class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase {
 public:
   /// Constructor
-  HIPAlignmentAlgorithm(const edm::ParameterSet& cfg, edm::ConsumesCollector iC);
+  HIPAlignmentAlgorithm(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   /// Destructor
   ~HIPAlignmentAlgorithm() override{};

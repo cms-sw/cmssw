@@ -38,10 +38,10 @@
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignmentAlgorithm.h"
 
 // Constructor ----------------------------------------------------------------
-HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg, edm::ConsumesCollector iC)
+HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
     : AlignmentAlgorithmBase(cfg, iC),
-      topoToken_(iC.esConsumes<TrackerTopology, IdealGeometryRecord>()),
-      topoToken2_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      topoToken_(iC.esConsumes<TrackerTopology, IdealGeometryRecord, edm::Transition::EndRun>()),
+      topoToken2_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::EndRun>()),
       verbose(cfg.getParameter<bool>("verbosity")),
       theMonitorConfig(cfg),
       doTrackHitMonitoring(theMonitorConfig.fillTrackMonitoring || theMonitorConfig.fillTrackHitMonitoring),

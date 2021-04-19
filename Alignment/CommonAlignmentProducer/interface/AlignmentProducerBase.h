@@ -48,6 +48,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -69,7 +70,7 @@ class TrackerDigiGeometryRecord;
 
 class AlignmentProducerBase {
 protected:
-  AlignmentProducerBase(const edm::ParameterSet&);
+  AlignmentProducerBase(const edm::ParameterSet&, edm::ConsumesCollector);
 
   // 'noexcept(false)' is needed currently for multiple inheritance with Framework modules
   virtual ~AlignmentProducerBase() noexcept(false);
@@ -132,7 +133,7 @@ protected:
 
 private:
   /// Creates the choosen alignment algorithm
-  void createAlignmentAlgorithm();
+  void createAlignmentAlgorithm(edm::ConsumesCollector&);
 
   /// Creates the monitors
   void createMonitors();
