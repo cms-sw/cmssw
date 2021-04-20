@@ -1071,14 +1071,14 @@ void ZToMuMuGammaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
         h_ecalSum_[0]->Fill(aPho->ecalRecHitSumEtConeDR04());
         h_hcalSum_[0]->Fill(aPho->hcalTowerSumEtConeDR04());
         h_hOverE_[0]->Fill(aPho->hadTowOverEm());
-        h_h1OverE_[0]->Fill(aPho->hadTowDepth1OverEm());
-        h_h2OverE_[0]->Fill(aPho->hadTowDepth2OverEm());
+        h_h1OverE_[0]->Fill(aPho->hadTowOverEm(1));
+        h_h2OverE_[0]->Fill(aPho->hadTowOverEm(2));
         h_newhOverE_[0]->Fill(aPho->hadTowOverEm());
         h_ecalSum_[iDet]->Fill(aPho->ecalRecHitSumEtConeDR04());
         h_hcalSum_[iDet]->Fill(aPho->hcalTowerSumEtConeDR04());
         h_hOverE_[iDet]->Fill(aPho->hadTowOverEm());
-        h_h1OverE_[iDet]->Fill(aPho->hadTowDepth1OverEm());
-        h_h2OverE_[iDet]->Fill(aPho->hadTowDepth2OverEm());
+        h_h1OverE_[iDet]->Fill(aPho->hadTowOverEm(1));
+        h_h2OverE_[iDet]->Fill(aPho->hadTowOverEm(2));
         h_newhOverE_[iDet]->Fill(aPho->hadTowOverEm());
         // Isolation from particle flow
         h_chHadIso_[0]->Fill(aPho->chargedHadronIso());

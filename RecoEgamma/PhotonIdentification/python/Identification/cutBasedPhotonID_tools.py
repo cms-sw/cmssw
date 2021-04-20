@@ -116,15 +116,15 @@ def psetPhoSCEtaMultiRangeCut():
         isIgnored = cms.bool(False)
         )
 
-# Configure the cut on the single tower H/E
-def psetPhoSingleTowerHadOverEmCut( wpEB, wpEE):
+# Configure the cut on H/E
+def psetPhoHcalOverEcalBcCut( wpEB, wpEE):
     """
     Arguments: two containers of working point cut values of the type WorkingPoint_*
     """
     return cms.PSet( 
-        cutName = cms.string('PhoSingleTowerHadOverEmCut'),
-        hadronicOverEMCutValueEB = cms.double( wpEB.hOverECut ),
-        hadronicOverEMCutValueEE = cms.double( wpEE.hOverECut ),
+        cutName = cms.string('PhotonHcalOverEcalBcCut'),
+        hcalOverEcalCutValueEB = cms.double( wpEB.hOverECut ),
+        hcalOverEcalCutValueEE = cms.double( wpEE.hOverECut ),
         barrelCutOff = cms.double(ebCutOff),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
@@ -332,7 +332,7 @@ def configureVIDCutBasedPhoID_V1( wpEB, wpEE, isoInputs ):
         cutFlow = cms.VPSet( 
             psetMinPtCut(),                                        # pt cut
             psetPhoSCEtaMultiRangeCut(),                           # eta cut
-            psetPhoSingleTowerHadOverEmCut(wpEB,wpEE),             # H/E cut
+            psetPhoHcalOverEcalBcCut(wpEB,wpEE),                   # H/E cut
             psetPhoFull5x5SigmaIEtaIEtaValueMapCut(wpEB,wpEE),     # full 5x5 sigmaIEtaIEta cut
             psetChHadIsoWithEALinScalingCut(wpEB,wpEE,isoInputs),  # charged hadron isolation cut
             psetNeuHadIsoWithEALinScalingCut(wpEB,wpEE,isoInputs), # neutral hadron isolation cut
@@ -360,7 +360,7 @@ def configureVIDCutBasedPhoID_V2( wpEB, wpEE, isoInputs ):
         cutFlow = cms.VPSet( 
             psetMinPtCut(),                                           # pt cut
             psetPhoSCEtaMultiRangeCut(),                              # eta cut
-            psetPhoSingleTowerHadOverEmCut(wpEB,wpEE),                # H/E cut
+            psetPhoHcalOverEcalBcCut(wpEB,wpEE),                      # H/E cut
             psetPhoFull5x5SigmaIEtaIEtaValueMapCut(wpEB,wpEE),        # full 5x5 sigmaIEtaIEta cut
             psetChHadIsoWithEALinScalingCut(wpEB,wpEE,isoInputs),     # charged hadron isolation cut
             psetNeuHadIsoWithEAExpoScalingEBCut(wpEB,wpEE,isoInputs), # neutral hadron isolation cut
@@ -389,7 +389,7 @@ def configureVIDCutBasedPhoID_V3( wpEB, wpEE, isoInputs ):
         cutFlow = cms.VPSet( 
             psetMinPtCut(),                                           # pt cut
             psetPhoSCEtaMultiRangeCut(),                              # eta cut
-            psetPhoSingleTowerHadOverEmCut(wpEB,wpEE),                # H/E cut
+            psetPhoHcalOverEcalBcCut(wpEB,wpEE),                      # H/E cut
             psetPhoFull5x5SigmaIEtaIEtaCut(wpEB,wpEE),                # full 5x5 sigmaIEtaIEta cut
             psetChHadIsoWithEALinScalingCut(wpEB,wpEE,isoInputs),     # charged hadron isolation cut
             psetNeuHadIsoWithEAExpoScalingEBCut(wpEB,wpEE,isoInputs), # neutral hadron isolation cut
@@ -418,7 +418,7 @@ def configureVIDCutBasedPhoID_V4( wpEB, wpEE, isoInputs ):
         cutFlow = cms.VPSet( 
             psetMinPtCut(),                                           # pt cut
             psetPhoSCEtaMultiRangeCut(),                              # eta cut
-            psetPhoSingleTowerHadOverEmCut(wpEB,wpEE),                # H/E cut
+            psetPhoHcalOverEcalBcCut(wpEB,wpEE),                      # H/E cut
             psetPhoFull5x5SigmaIEtaIEtaCut(wpEB,wpEE),                # full 5x5 sigmaIEtaIEta cut
             psetChHadIsoWithEALinScalingCut(wpEB,wpEE,isoInputs),     # charged hadron isolation cut
             psetNeuHadIsoWithEAExpoScalingCut(wpEB,wpEE,isoInputs), # neutral hadron isolation cut
@@ -446,7 +446,7 @@ def configureVIDCutBasedPhoID_V5( wpEB, wpEE, isoInputs ):
         cutFlow = cms.VPSet( 
             psetMinPtCut(),                                           # pt cut
             psetPhoSCEtaMultiRangeCut(),                              # eta cut
-            psetPhoSingleTowerHadOverEmCut(wpEB,wpEE),                # H/E cut
+            psetPhoHcalOverEcalBcCut(wpEB,wpEE),                      # H/E cut
             psetPhoFull5x5SigmaIEtaIEtaCut(wpEB,wpEE),                # full 5x5 sigmaIEtaIEta cut
             psetChHadIsoWithEALinScalingCut(wpEB,wpEE,isoInputs),     # charged hadron isolation cut
             psetNeuHadIsoWithEAQuadScalingCut(wpEB,wpEE,isoInputs),   # neutral hadron isolation cut

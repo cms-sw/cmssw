@@ -304,8 +304,8 @@ void ElectronTagProbeAnalyzer::bookHistograms(DQMStore::IBooker& iBooker, edm::R
                                    "EcalIsoSum, cone 0.3 (GeV)",
                                    "Events",
                                    "ELE_LOGY E1 P");
-  h1_hcalTowerSumEt_dr03 = bookH1(iBooker,
-                                  "hcalTowerSumEt_dr03",
+  h1_hcalRecHitSumEt_dr03 = bookH1(iBooker,
+                                  "hcalRecHitSumEt_dr03",
                                   "hcal isolation sum, dR=0.3",
                                   100,
                                   0.0,
@@ -555,7 +555,7 @@ void ElectronTagProbeAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
         // isolation
         h1_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
         h1_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
-        h1_hcalTowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt());
+        h1_hcalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt());
 
         // inv Mass with opposite sign
         bool invMassTTAlreadyFilled = false;
@@ -665,11 +665,11 @@ bool ElectronTagProbeAnalyzer::isolationCut(const reco::GsfElectronCollection::c
 
   if (gsfIter->dr03TkSumPt() > tkIso03Max_)
     return true;
-  if (gsfIter->isEB() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxBarrel_)
+  if (gsfIter->isEB() && gsfIter->dr03HcalTowerSumEt(1) > hcalIso03Depth1MaxBarrel_)
     return true;
-  if (gsfIter->isEE() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxEndcaps_)
+  if (gsfIter->isEE() && gsfIter->dr03HcalTowerSumEt(1) > hcalIso03Depth1MaxEndcaps_)
     return true;
-  if (gsfIter->isEE() && gsfIter->dr03HcalDepth2TowerSumEt() > hcalIso03Depth2MaxEndcaps_)
+  if (gsfIter->isEE() && gsfIter->dr03HcalTowerSumEt(2) > hcalIso03Depth2MaxEndcaps_)
     return true;
   if (gsfIter->isEB() && gsfIter->dr03EcalRecHitSumEt() > ecalIso03MaxBarrel_)
     return true;

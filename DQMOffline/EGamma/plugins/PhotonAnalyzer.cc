@@ -1711,8 +1711,8 @@ void PhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup) {
         fill2DHistoVector(p_hOverEVsEta_, aPho->eta(), aPho->hadronicOverEm(), cut, type);
         fill2DHistoVector(p_hOverEVsEt_, aPho->et(), aPho->hadronicOverEm(), cut, type);
 
-        fill3DHistoVector(h_h1OverE_, aPho->hadronicDepth1OverEm(), cut, type, part);
-        fill3DHistoVector(h_h2OverE_, aPho->hadronicDepth2OverEm(), cut, type, part);
+        fill3DHistoVector(h_h1OverE_, aPho->hadronicOverEm(1), cut, type, part);
+        fill3DHistoVector(h_h2OverE_, aPho->hadronicOverEm(2), cut, type, part);
 
         // filling pf isolation variables
         if (aPho->isEB()) {
