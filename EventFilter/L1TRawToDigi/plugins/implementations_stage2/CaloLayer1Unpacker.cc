@@ -30,6 +30,9 @@ namespace l1t {
         makeHCalTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
         makeHFTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
         makeRegions(ctp7_phi, ctp7Data, res->getRegions());
+        for (int i = 0; i < 5; i++) {
+          makeECalTPGs(ctp7_phi, ctp7Data, res->getEcalDigisBx(i));
+        }
       } else if (N_BX == 5) {
         const uint32_t* ptr5 = ptr;
         UCTCTP7RawData ctp7Data(ptr);

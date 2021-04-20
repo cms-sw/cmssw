@@ -228,7 +228,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     if (tp.compressedEt() > tpFillThreshold_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
-      eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
+      eventMonitors.ecalOccRecdBx2_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(2);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(2, tp.compressedEt());
     }
@@ -237,7 +237,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     if (tp.compressedEt() > tpFillThreshold_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
-      eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
+      eventMonitors.ecalOccRecdBx3_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(3);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(3, tp.compressedEt());
     }
@@ -246,7 +246,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     if (tp.compressedEt() > tpFillThreshold_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
-      eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
+      eventMonitors.ecalOccRecdBx4_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(4);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(4, tp.compressedEt());
     }
@@ -255,7 +255,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     if (tp.compressedEt() > tpFillThreshold_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
-      eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
+      eventMonitors.ecalOccRecdBx5_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(5);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(5, tp.compressedEt());
     }
@@ -483,9 +483,9 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   eventMonitors.ecalTPRawEtSentAndRecd_ = bookEt("ecalTPRawEtMatch", "ECal Raw Et FULL MATCH");
   eventMonitors.ecalTPRawEtSent_ = bookEt("ecalTPRawEtSent", "ECal Raw Et TCC Readout");
   eventMonitors.ecalOccRecd5Bx_ = ibooker.book1D(
-      "ecalOccRecd5Bx", "ECal TP Occupancies for 5BX", 5, 0, 5);
+      "ecalOccRecd5Bx", "ECal TP Occupancies for 5BX", 5, 1, 6);
   eventMonitors.ecalOccRecd5BxEtWgt_ = ibooker.book1D(
-      "ecalOccRecd5BxEtWgt", "ECal TP ET-weighted Occupancies for 5BX", 5, 0, 5);
+      "ecalOccRecd5BxEtWgt", "ECal TP ET-weighted Occupancies for 5BX", 5, 1, 6);
   eventMonitors.ecalOccRecdBx1_ = bookEcalOccupancy("ecalOccRecdBx1", "ECal TP Occupancy for BX1");
   eventMonitors.ecalOccRecdBx2_ = bookEcalOccupancy("ecalOccRecdBx2", "ECal TP Occupancy for BX2");
   eventMonitors.ecalOccRecdBx3_ = bookEcalOccupancy("ecalOccRecdBx3", "ECal TP Occupancy for BX3");
