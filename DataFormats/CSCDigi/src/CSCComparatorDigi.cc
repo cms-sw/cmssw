@@ -4,6 +4,7 @@
  * \author M.Schmitt, Northwestern
  */
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <algorithm>
@@ -60,6 +61,14 @@ int CSCComparatorDigi::getTimeBin() const {
   }
   return tbin;
 }
+
+/// Get the distrip number. Counts from 0.
+// originally defined in EventFilter/CSCRawToDigi/src/CSCComparatorData.cc
+int CSCComparatorDigi::getDiStrip() const { return ((strip_ - 1) % CSCConstants::NUM_STRIPS_PER_CFEB) / 2; }
+
+/// Get the CFEB number. Counts from 0.
+// originally defined in EventFilter/CSCRawToDigi/src/CSCComparatorData.cc
+int CSCComparatorDigi::getCFEB() const { return (strip_ - 1) / CSCConstants::NUM_STRIPS_PER_CFEB; }
 
 // This definition is consistent with the one used in
 // the function CSCComparatorData::add() in EventFilter/CSCRawToDigi
