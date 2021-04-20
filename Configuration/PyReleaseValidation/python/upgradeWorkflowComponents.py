@@ -1420,4 +1420,6 @@ upgradeFragments = OrderedDict([
     ('SMS-T1tttt_mGl-1500_mLSP-100_14TeV-pythia8_TuneCP5_cfi',UpgradeFragment(Kby(9,50),'SMS-T1tttt_14TeV')),
     ('VBFHZZ4Nu_14TeV_TuneCP5_cfi',UpgradeFragment(Kby(9,50),'VBFHZZ4Nu_14TeV')),
     ('EtaBToJpsiJpsi_14TeV_TuneCP5_cfi',UpgradeFragment(Kby(9,50),'EtaBToJpsiJpsi_14TeV')),
+    ('WToLNu_14TeV_TuneCP5_cfi',UpgradeFragment(Kby(21,50),'WToLNu_14TeV')),
+    ('WprimeToLNu_M2000_14TeV_TuneCP5_cfi',UpgradeFragment(Kby(21,50),'WprimeToLNu_M2000_14TeV')),
 ])
