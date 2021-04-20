@@ -72,7 +72,7 @@ private:
   TH1D *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;
   TH1D *meDetectHit_, *meSubdetHit_, *meDepthHit_, *meEtaHit_;
   TH2D *meEtaPhiHit_;
-  std::vector<TH2D*> meEtaPhiHitDepth_;
+  std::vector<TH2D *> meEtaPhiHitDepth_;
   TH1D *mePhiHit_, *mePhiHitb_, *meEnergyHit_, *meTimeHit_, *meTimeWHit_;
   TH1D *meHBDepHit_, *meHEDepHit_, *meHODepHit_, *meHFDepHit_, *meHFDepHitw_;
   TH1D *meHBEtaHit_, *meHEEtaHit_, *meHOEtaHit_, *meHFEtaHit_;
@@ -100,7 +100,8 @@ HcalSimHitCheck::HcalSimHitCheck(const edm::ParameterSet &ps) {
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hcalHits));
   tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
 
-  edm::LogVerbatim("HcalSim") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_ << "   Output: " << outFile_;
+  edm::LogVerbatim("HcalSim") << "Module Label: " << g4Label << "   Hits: " << hcalHits << " / " << checkHit_
+                              << "   Output: " << outFile_;
 }
 
 void HcalSimHitCheck::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -114,7 +115,7 @@ void HcalSimHitCheck::fillDescriptions(edm::ConfigurationDescriptions &descripti
   descriptions.add("hcalSimHitCheck", desc);
 }
 
-void HcalSimHitCheck::beginRun(const edm::Run&, const edm::EventSetup& es) {
+void HcalSimHitCheck::beginRun(const edm::Run &, const edm::EventSetup &es) {
   hcons_ = &es.getData(tok_HRNDC_);
   maxDepthHB_ = hcons_->getMaxDepth(0);
   maxDepthHE_ = hcons_->getMaxDepth(1);
@@ -192,11 +193,13 @@ void HcalSimHitCheck::beginRun(const edm::Run&, const edm::EventSetup& es) {
     meSubdetHit_ = fs->make<TH1D>("Hit10", "Subdetectors in HCal", 50, 0., 50.);
     meDepthHit_ = fs->make<TH1D>("Hit11", "Depths in HCal", 20, 0., 20.);
     meEtaHit_ = fs->make<TH1D>("Hit12", "Eta in HCal", ieta_bins_HF, ieta_min_HF, ieta_max_HF);
-    meEtaPhiHit_ = fs->make<TH2D>("Hit12b", "Eta-phi in HCal", ieta_bins_HF, ieta_min_HF, ieta_max_HF, iphi_bins, iphi_min, iphi_max);
+    meEtaPhiHit_ = fs->make<TH2D>(
+        "Hit12b", "Eta-phi in HCal", ieta_bins_HF, ieta_min_HF, ieta_max_HF, iphi_bins, iphi_min, iphi_max);
     for (int depth = 1; depth <= maxDepth_; depth++) {
       sprintf(hname, "Hit12bd%d", depth);
       sprintf(htitle, "Eta-phi in HCal d%d", depth);
-      meEtaPhiHitDepth_.emplace_back(fs->make<TH2D>(hname, htitle, ieta_bins_HF, ieta_min_HF, ieta_max_HF, iphi_bins, iphi_min, iphi_max));
+      meEtaPhiHitDepth_.emplace_back(
+          fs->make<TH2D>(hname, htitle, ieta_bins_HF, ieta_min_HF, ieta_max_HF, iphi_bins, iphi_min, iphi_max));
     }
     // KC: There are different phi segmentation schemes, this plot uses wider
     // bins to represent the most sparse segmentation
@@ -227,20 +230,28 @@ void HcalSimHitCheck::beginRun(const edm::Run&, const edm::EventSetup& es) {
     // HxEneMap, HxEneSum, HxEneSum_vs_ieta plot the sum of the simhits energy
     // within a single ieta-iphi tower.
 
-    meHBEneMap_ = fs->make<TH2D>("HBEneMap", "HBEneMap", ieta_bins_HB, ieta_min_HB, ieta_max_HB, iphi_bins, iphi_min, iphi_max);
-    meHEEneMap_ = fs->make<TH2D>("HEEneMap", "HEEneMap", ieta_bins_HE, ieta_min_HE, ieta_max_HE, iphi_bins, iphi_min, iphi_max);
-    meHOEneMap_ = fs->make<TH2D>("HOEneMap", "HOEneMap", ieta_bins_HO, ieta_min_HO, ieta_max_HO, iphi_bins, iphi_min, iphi_max);
-    meHFEneMap_ = fs->make<TH2D>("HFEneMap", "HFEneMap", ieta_bins_HF, ieta_min_HF, ieta_max_HF, iphi_bins, iphi_min, iphi_max);
+    meHBEneMap_ =
+        fs->make<TH2D>("HBEneMap", "HBEneMap", ieta_bins_HB, ieta_min_HB, ieta_max_HB, iphi_bins, iphi_min, iphi_max);
+    meHEEneMap_ =
+        fs->make<TH2D>("HEEneMap", "HEEneMap", ieta_bins_HE, ieta_min_HE, ieta_max_HE, iphi_bins, iphi_min, iphi_max);
+    meHOEneMap_ =
+        fs->make<TH2D>("HOEneMap", "HOEneMap", ieta_bins_HO, ieta_min_HO, ieta_max_HO, iphi_bins, iphi_min, iphi_max);
+    meHFEneMap_ =
+        fs->make<TH2D>("HFEneMap", "HFEneMap", ieta_bins_HF, ieta_min_HF, ieta_max_HF, iphi_bins, iphi_min, iphi_max);
 
     meHBEneSum_ = fs->make<TH1D>("HBEneSum", "HBEneSum", 2000, 0., 20.);
     meHEEneSum_ = fs->make<TH1D>("HEEneSum", "HEEneSum", 500, 0., 5.);
     meHOEneSum_ = fs->make<TH1D>("HOEneSum", "HOEneSum", 500, 0., 5.);
     meHFEneSum_ = fs->make<TH1D>("HFEneSum", "HFEneSum", 1001, -0.5, 1000.5);
 
-    meHBEneSum_vs_ieta_ = fs->make<TProfile>("HBEneSum_vs_ieta", "HBEneSum_vs_ieta", ieta_bins_HB, ieta_min_HB, ieta_max_HB, -10.5, 2000.5);
-    meHEEneSum_vs_ieta_ = fs->make<TProfile>("HEEneSum_vs_ieta", "HEEneSum_vs_ieta", ieta_bins_HE, ieta_min_HE, ieta_max_HE, -10.5, 2000.5);
-    meHOEneSum_vs_ieta_ = fs->make<TProfile>("HOEneSum_vs_ieta", "HOEneSum_vs_ieta", ieta_bins_HO, ieta_min_HO, ieta_max_HO, -10.5, 2000.5);
-    meHFEneSum_vs_ieta_ = fs->make<TProfile>("HFEneSum_vs_ieta", "HFEneSum_vs_ieta", ieta_bins_HF, ieta_min_HF, ieta_max_HF, -10.5, 2000.5);
+    meHBEneSum_vs_ieta_ = fs->make<TProfile>(
+        "HBEneSum_vs_ieta", "HBEneSum_vs_ieta", ieta_bins_HB, ieta_min_HB, ieta_max_HB, -10.5, 2000.5);
+    meHEEneSum_vs_ieta_ = fs->make<TProfile>(
+        "HEEneSum_vs_ieta", "HEEneSum_vs_ieta", ieta_bins_HE, ieta_min_HE, ieta_max_HE, -10.5, 2000.5);
+    meHOEneSum_vs_ieta_ = fs->make<TProfile>(
+        "HOEneSum_vs_ieta", "HOEneSum_vs_ieta", ieta_bins_HO, ieta_min_HO, ieta_max_HO, -10.5, 2000.5);
+    meHFEneSum_vs_ieta_ = fs->make<TProfile>(
+        "HFEneSum_vs_ieta", "HFEneSum_vs_ieta", ieta_bins_HF, ieta_min_HF, ieta_max_HF, -10.5, 2000.5);
 
     meHBTimHit_ = fs->make<TH1D>("Hit33", "Time in HB", 528, 0., 528.);
     meHETimHit_ = fs->make<TH1D>("Hit34", "Time in HE", 528, 0., 528.);
@@ -350,7 +361,9 @@ void HcalSimHitCheck::analyzeHits(std::vector<PCaloHit> &hits) {
     phi = hid.iphi();
 
     if (verbose_ > 1)
-      edm::LogVerbatim("HcalSim") << "Hit[" << i << "] ID " << std::hex << id << std::dec << " Det " << det << " Sub " << subdet << " depth " << depth << " Eta " << eta << " Phi " << phi << " E " << energy << " time " << time;
+      edm::LogVerbatim("HcalSim") << "Hit[" << i << "] ID " << std::hex << id << std::dec << " Det " << det << " Sub "
+                                  << subdet << " depth " << depth << " Eta " << eta << " Phi " << phi << " E " << energy
+                                  << " time " << time;
     if (det == 4) {  // Check DetId.h
       if (subdet == static_cast<int>(HcalBarrel))
         nHB++;
@@ -534,7 +547,8 @@ void HcalSimHitCheck::analyzeHits(std::vector<PCaloHit> &hits) {
   }
 
   if (verbose_ > 0)
-    edm::LogVerbatim("HcalSim") << "HcalSimHitCheck::analyzeHits: HB " << nHB << " HE " << nHE << " HO " << nHO << " HF " << nHF << " Bad " << nBad << " All " << nHit;
+    edm::LogVerbatim("HcalSim") << "HcalSimHitCheck::analyzeHits: HB " << nHB << " HE " << nHE << " HO " << nHO
+                                << " HF " << nHF << " Bad " << nBad << " All " << nHit;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
