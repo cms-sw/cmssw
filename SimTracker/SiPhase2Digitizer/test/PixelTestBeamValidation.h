@@ -145,6 +145,7 @@ private:
   std::map<int, MonitorElement *> vME_track_dydzAngle_;
   std::map<int, MonitorElement *> vME_dx1D_;
   std::map<int, MonitorElement *> vME_dy1D_;
+  std::map<int, MonitorElement *> vME_dxy2D_;
   std::map<int, MonitorElement *> vME_digi_charge1D_;
   std::map<int, MonitorElement *> vME_digi_chargeElec1D_;
   std::map<int, MonitorElement *> vME_sim_cluster_charge_;
@@ -167,9 +168,11 @@ private:
   // Geometry to use
   std::string geomType_;
 
-  // The conversion between ToT to electrons (Be carefull, this should
+  // The threshold and the conversion between ToT to electrons (Be carefull, this should
   // be using the same value used in the digitization module)
+  double thresholdInElectrons_;
   double electronsPerADC_;
+  double electronsAtToT0_;
   // The tracks entry angle to accept (if any)
   std::vector<double> tracksEntryAngleX_;
   std::vector<double> tracksEntryAngleY_;
