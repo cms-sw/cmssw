@@ -17,8 +17,8 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 #process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
-process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2018_cfi") # CMS frame, 2021 = 2018
-process.load('CalibPPS.ESProducers.ppsPixelTopologyESSourceRun2_cfi')          # temporary solution, the 2021 geometry is the same as run2, force the usage of run2 topology 
+#process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2018_cfi") # CMS frame, 2021 = 2018
+#process.load('CalibPPS.ESProducers.ppsPixelTopologyESSourceRun2_cfi')          # temporary solution, the 2021 geometry is the same as run2, force the usage of run2 topology 
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -41,15 +41,15 @@ process.options = cms.untracked.PSet(
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('step3_RAW2DIGI_RECO2021.root'),
-    outputCommands = cms.untracked.vstring("drop *","keep SimVertexs_g4SimHits_*_*","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_LHCTransport_*_*')
+    outputCommands = cms.untracked.vstring("drop *","keep SimVertexs_g4SimHits_*_*","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_generatorSmeared_*_*')
 )
 
 
 # Additional output definition
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '113X_mcRun3_2021_realistic_Candidate_2021_04_06_19_59_53', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '113X_mcRun3_2021_realistic_Candidate_2021_04_06_19_59_53', '')
 
 # Path and EndPath definitions
 #process.raw2digi_step = cms.Path(process.RawToDigi)

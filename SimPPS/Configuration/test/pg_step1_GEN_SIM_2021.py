@@ -32,16 +32,28 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptySource")
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '113X_mcRun3_2021_realistic_Candidate_2021_04_06_19_59_53', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '113X_mcRun3_2021_realistic_Candidate_2021_04_06_19_59_53', '')
 # generator
+"""
+process.GlobalTag.toGet = cms.VPSet(
+                 cms.PSet(
+                     record = cms.string('LHCInfoRcd'),
+                     tag = cms.string("LHCInfo_2021_mc_v1")
+                 ),
+                 cms.PSet(
+                     record = cms.string('CTPPSOpticsRcd'),
+                     tag = cms.string("PPSOpticalFunctions_2021_mc_v1")
+                 )
+     )
+"""
 
 phi_min = -math.pi
 phi_max = math.pi
 t_min   = 0.
 t_max   = 2.
-xi_min  = 0.03
-xi_max  = 0.15
+xi_min  = 0.02
+xi_max  = 0.20
 ecms = 14000. # ATTENTION: if using HECTOR propagator, currently the energy is hardcoded as 6500 but the optics file is prepared for 7 TeV
 
 process.generator = cms.EDProducer("RandomtXiGunProducer",
