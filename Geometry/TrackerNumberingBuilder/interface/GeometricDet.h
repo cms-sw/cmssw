@@ -74,10 +74,13 @@ public:
     OTPhase2Stack = 215,
     PixelPhase2Barrel = 201,
     PixelPhase2EndCap = 202,
+    PixelPhase2NearEndCap = 302,
     OTPhase2Wheel = 209,
     PixelPhase2FullDisk = 217,
     PixelPhase2ReducedDisk = 227,
-    PixelPhase2TDRDisk = 237
+    PixelPhase2TDRDisk = 237,
+    PixelPhase2DoubleDisk = 347,
+    PixelPhase2SubDisk = 357
   } GeometricEnumType;
 
   // Constructors from Filtered View (called while looping over DD).
