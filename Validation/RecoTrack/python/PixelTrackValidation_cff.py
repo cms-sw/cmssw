@@ -10,23 +10,6 @@ quality = {
     "T"  : "tight",
     "HP" : "highPurity",
 }
-def _addSelectorsByQuality(moduleName, modulesDict):
-    task = cms.Task()
-    names = []
-    for key,value in quality.items():
-        moduleNameQ = moduleName+key
-        if moduleNameQ not in modulesDict:
-            if moduleName == "pixelTracks":
-                mod = cutsRecoTracks_cfi.cutsRecoTracks.clone(quality=[value])
-            else:
-                mod = modulesDict[moduleName].clone(quality=[value])
-            modulesDict[moduleNameQ] = mod
-        else:
-            mod = modulesDict[moduleNameQ]
-        names.append(moduleNameQ)
-        task.add(mod)
-    print task
-    return (names, task)
 
 ### Pixel tracking only mode (placeholder for now)
 trackingParticlePixelTrackAsssociation = trackingParticleRecoTrackAsssociation.clone(
@@ -58,38 +41,29 @@ pixelTracksFromPV = _trackWithVertexRefSelector.clone(
 
 ### pixelTracks loose, tight, highPurity
 for key,value in quality.items():
-    label = "pixelTracks"+key
+    label = "pixelTracks"+str(key)
     print label
     locals()[label] = cutsRecoTracks_cfi.cutsRecoTracks.clone(
-        quality = [value], **_pixelTracksCustom) ## quality
-    locals()[label].setLabel(label)
+        quality = [value], **_pixelTracksCustom) ## quality    
 
-### pixelTracksPt09 + pixelTracksFromPVPt09 loose, tight, highPurity
-for key,value in quality.items():
     label = "pixelTracksPt09"+key
     print label
     locals()[label] = cutsRecoTracks_cfi.cutsRecoTracks.clone(
         ptMin=0.9, quality = [value], **_pixelTracksCustom) ## quality
-    locals()[label].setLabel(label)
 
     labelFromPV = "pixelTracksFromPVPt09"+key
     print labelFromPV
     locals()[labelFromPV] = locals()[label].clone(src = "pixelTracksFromPV")
-    locals()[labelFromPV].setLabel(labelFromPV)
 
     label = "pixelTracks4hits"+key
     print label
     locals()[label] = cutsRecoTracks_cfi.cutsRecoTracks.clone(
         minHit = 4, quality = [value], **_pixelTracksCustom) ## quality
-    locals()[label].setLabel(label)
 
     labelFromPV = "pixelTracksFromPV4hits"+key
     print labelFromPV
     locals()[labelFromPV] = locals()[label].clone(src = "pixelTracksFromPV")
-    locals()[labelFromPV].setLabel(labelFromPV)
 
-#pixelTracksPt09 = generalTracksPt09.clone(quality = ["undefQuality"], **_pixelTracksCustom)
-# select tracks from the PV
 
 trackSelector = cms.EDFilter('TrackSelector',
                              src = cms.InputTag('pixelTracks'),
@@ -101,14 +75,10 @@ for key,value in quality.items():
     cutstring = "numberOfValidHits == 3 & quality('" + value + "')" 
     print cutstring
     locals()[label] = trackSelector.clone( cut = cutstring )
-    locals()[label].setLabel(label)
 
     labelFromPV = "pixelTracksFromPV4hits"+key
     print labelFromPV
     locals()[labelFromPV] = locals()[label].clone(src = "pixelTracksFromPV")
-    locals()[labelFromPV].setLabel(labelFromPV)
-
-#pixelTracksFromPV = generalTracksFromPV.clone(quality = "undefQuality", **_pixelTracksCustom)
 
 import Validation.RecoTrack.MultiTrackValidator_cfi
 trackValidatorPixelTrackingOnly = Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(
@@ -203,6 +173,7 @@ tracksPreValidationPixelTrackingOnly = cms.Task(
 )
 
 for category in ["pixelTracks","pixelTracksPt09","pixelTracksFromPVPt09","pixelTracks4hits","pixelTracksFromPV4hits","pixelTracks3hits","pixelTracksFromPV4hits"]:    
+#for category in ["pixelTracks"]:
     for key in quality:
         label = category+key
 #        label = "pixelTracks"+key
@@ -216,4 +187,3 @@ tracksValidationPixelTrackingOnly = cms.Sequence(
     trackValidatorBHadronPixelTrackingOnly,
     tracksPreValidationPixelTrackingOnly
 )
-
