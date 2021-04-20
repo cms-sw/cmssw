@@ -20,6 +20,16 @@ namespace ticl {
 
     void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
 
+    static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+      iDesc.add<int>("algo_verbosity", 0);
+      iDesc.add<std::string>("eid_input_name", "input");
+      iDesc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
+      iDesc.add<std::string>("eid_output_name_id", "output/id_probabilities");
+      iDesc.add<double>("eid_min_cluster_energy", 1.);
+      iDesc.add<int>("eid_n_layers", 50);
+      iDesc.add<int>("eid_n_clusters", 10);
+    }
+
   private:
     struct ClustersOnLayer {
       std::vector<float> x;
