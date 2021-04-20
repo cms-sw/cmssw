@@ -189,6 +189,10 @@ void HcalSimHitCheck::beginRun(const edm::Run &, const edm::EventSetup &es) {
     meHENHit_ = fs->make<TH1D>("Hit06", "Number of Hits in HE", 10000, 0., 10000.);
     meHONHit_ = fs->make<TH1D>("Hit07", "Number of Hits in HO", 10000, 0., 10000.);
     meHFNHit_ = fs->make<TH1D>("Hit08", "Number of Hits in HF", 10000, 0., 10000.);
+    meHBNHit_->Sumw2();
+    meHENHit_->Sumw2();
+    meHONHit_->Sumw2();
+    meHFNHit_->Sumw2();
     meDetectHit_ = fs->make<TH1D>("Hit09", "Detector ID", 50, 0., 50.);
     meSubdetHit_ = fs->make<TH1D>("Hit10", "Subdetectors in HCal", 50, 0., 50.);
     meDepthHit_ = fs->make<TH1D>("Hit11", "Depths in HCal", 20, 0., 20.);
@@ -212,20 +216,36 @@ void HcalSimHitCheck::beginRun(const edm::Run &, const edm::EventSetup &es) {
     meHEDepHit_ = fs->make<TH1D>("Hit18", "Depths in HE", 20, 0., 20.);
     meHODepHit_ = fs->make<TH1D>("Hit19", "Depths in HO", 20, 0., 20.);
     meHFDepHit_ = fs->make<TH1D>("Hit20", "Depths in HF", 20, 0., 20.);
+    meHBDepHit_->Sumw2();
+    meHEDepHit_->Sumw2();
+    meHODepHit_->Sumw2();
+    meHFDepHit_->Sumw2();
     meHFDepHitw_ = fs->make<TH1D>("Hit20b", "Depths in HF (p.e. weighted)", 20, 0., 20.);
     meHBEtaHit_ = fs->make<TH1D>("Hit21", "Eta in HB", ieta_bins_HB, ieta_min_HB, ieta_max_HB);
     meHEEtaHit_ = fs->make<TH1D>("Hit22", "Eta in HE", ieta_bins_HE, ieta_min_HE, ieta_max_HE);
     meHOEtaHit_ = fs->make<TH1D>("Hit23", "Eta in HO", ieta_bins_HO, ieta_min_HO, ieta_max_HO);
     meHFEtaHit_ = fs->make<TH1D>("Hit24", "Eta in HF", ieta_bins_HF, ieta_min_HF, ieta_max_HF);
+    meHBEtaHit_->Sumw2();
+    meHEEtaHit_->Sumw2();
+    meHOEtaHit_->Sumw2();
+    meHFEtaHit_->Sumw2();
     meHBPhiHit_ = fs->make<TH1D>("Hit25", "Phi in HB", iphi_bins, iphi_min, iphi_max);
     meHEPhiHit_ = fs->make<TH1D>("Hit26", "Phi in HE", iphi_bins, iphi_min, iphi_max);
     meHOPhiHit_ = fs->make<TH1D>("Hit27", "Phi in HO", iphi_bins, iphi_min, iphi_max);
     meHFPhiHit_ = fs->make<TH1D>("Hit28", "Phi in HF", iphi_bins, iphi_min, iphi_max);
+    meHBPhiHit_->Sumw2();
+    meHEPhiHit_->Sumw2();
+    meHOPhiHit_->Sumw2();
+    meHFPhiHit_->Sumw2();
     meHBEneHit_ = fs->make<TH1D>("Hit29", "Energy in HB", 2000, 0., 20.);
     meHEEneHit_ = fs->make<TH1D>("Hit30", "Energy in HE", 500, 0., 5.);
     meHEP17EneHit_ = fs->make<TH1D>("Hit30b", "Energy in HEP17", 500, 0., 5.);
     meHOEneHit_ = fs->make<TH1D>("Hit31", "Energy in HO", 500, 0., 5.);
     meHFEneHit_ = fs->make<TH1D>("Hit32", "Energy in HF", 1001, -0.5, 1000.5);
+    meHBEneHit_->Sumw2();
+    meHEEneHit_->Sumw2();
+    meHOEneHit_->Sumw2();
+    meHFEneHit_->Sumw2();
 
     // HxEneMap, HxEneSum, HxEneSum_vs_ieta plot the sum of the simhits energy
     // within a single ieta-iphi tower.
@@ -243,6 +263,10 @@ void HcalSimHitCheck::beginRun(const edm::Run &, const edm::EventSetup &es) {
     meHEEneSum_ = fs->make<TH1D>("HEEneSum", "HEEneSum", 500, 0., 5.);
     meHOEneSum_ = fs->make<TH1D>("HOEneSum", "HOEneSum", 500, 0., 5.);
     meHFEneSum_ = fs->make<TH1D>("HFEneSum", "HFEneSum", 1001, -0.5, 1000.5);
+    meHBEneSum_->Sumw2();
+    meHEEneSum_->Sumw2();
+    meHOEneSum_->Sumw2();
+    meHFEneSum_->Sumw2();
 
     meHBEneSum_vs_ieta_ = fs->make<TProfile>(
         "HBEneSum_vs_ieta", "HBEneSum_vs_ieta", ieta_bins_HB, ieta_min_HB, ieta_max_HB, -10.5, 2000.5);
@@ -257,6 +281,10 @@ void HcalSimHitCheck::beginRun(const edm::Run &, const edm::EventSetup &es) {
     meHETimHit_ = fs->make<TH1D>("Hit34", "Time in HE", 528, 0., 528.);
     meHOTimHit_ = fs->make<TH1D>("Hit35", "Time in HO", 528, 0., 528.);
     meHFTimHit_ = fs->make<TH1D>("Hit36", "Time in HF", 528, 0., 528.);
+    meHBTimHit_->Sumw2();
+    meHETimHit_->Sumw2();
+    meHOTimHit_->Sumw2();
+    meHFTimHit_->Sumw2();
     // These are the zoomed in energy ranges
     meHBEneHit2_ = fs->make<TH1D>("Hit37", "Energy in HB 2", 100, 0., 0.0001);
     meHEEneHit2_ = fs->make<TH1D>("Hit38", "Energy in HE 2", 100, 0., 0.0001);
