@@ -34,17 +34,6 @@ CSCGEMMotherboardME11::CSCGEMMotherboardME11(unsigned endcap,
   cscTmbLUT_ = std::make_unique<CSCMotherboardLUTME11>();
 }
 
-CSCGEMMotherboardME11::CSCGEMMotherboardME11() : CSCGEMMotherboard() {
-  // Constructor used only for testing.
-  if (!runPhase2_) {
-    edm::LogError("CSCGEMMotherboardME11|SetupError") << "+++ TMB constructed while runPhase2 is not set! +++\n";
-  }
-
-  if (!runME11ILT_) {
-    edm::LogError("CSCGEMMotherboardME11|SetupError") << "+++ TMB constructed while runME11ILT_ is not set! +++\n";
-  }
-}
-
 CSCGEMMotherboardME11::~CSCGEMMotherboardME11() {}
 
 //===============================================

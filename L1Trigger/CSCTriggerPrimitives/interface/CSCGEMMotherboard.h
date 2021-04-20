@@ -38,9 +38,6 @@ public:
                     unsigned chamber,
                     const edm::ParameterSet& conf);
 
-  //Default constructor for testing
-  CSCGEMMotherboard();
-
   ~CSCGEMMotherboard() override;
 
   // clear stored pads and copads

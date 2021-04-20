@@ -33,14 +33,6 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap,
   ignoreAlctCrossClct = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
 }
 
-CSCMotherboardME11::CSCMotherboardME11() : CSCUpgradeMotherboard() {
-  if (!runPhase2_)
-    edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while runPhase2_ is not set! +++\n";
-
-  if (!runME11Up_)
-    edm::LogError("CSCMotherboardME11|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
-}
-
 CSCMotherboardME11::~CSCMotherboardME11() {}
 
 void CSCMotherboardME11::clear() { CSCUpgradeMotherboard::clear(); }

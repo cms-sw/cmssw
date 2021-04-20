@@ -58,31 +58,6 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   showerSource_ = showerParams_.getParameter<unsigned>("source");
 }
 
-CSCMotherboard::CSCMotherboard() : CSCBaseboard() {
-  // Constructor used only for testing.  -JM
-  static std::atomic<bool> config_dumped{false};
-
-  early_tbins = 4;
-
-  alctProc = std::make_unique<CSCAnodeLCTProcessor>();
-  clctProc = std::make_unique<CSCCathodeLCTProcessor>();
-  mpc_block_me1a = def_mpc_block_me1a;
-  alct_trig_enable = def_alct_trig_enable;
-  clct_trig_enable = def_clct_trig_enable;
-  match_trig_enable = def_match_trig_enable;
-  match_trig_window_size = def_match_trig_window_size;
-  tmb_l1a_window_size = def_tmb_l1a_window_size;
-
-  infoV = 2;
-
-  // Check and print configuration parameters.
-  checkConfigParameters();
-  if (infoV > 0 && !config_dumped) {
-    dumpConfigParams();
-    config_dumped = true;
-  }
-}
-
 void CSCMotherboard::clear() {
   // clear the processors
   if (alctProc)
