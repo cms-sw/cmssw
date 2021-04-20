@@ -33,41 +33,44 @@ quality = {
 }
 
 for key,value in quality.items():
-    label = "pixelTracks"+key
-    print label
+    label = "pixelTrks"+key
+#    print label
     cutstring = "quality('" + value + "')" 
-    print cutstring
-    locals()[label] = _trackSelector.clone( cut = cutstring )
-    locals()[label].setLabel(label)
+#    print cutstring
+    if label not in globals():
+        locals()[label] = _trackSelector.clone( cut = cutstring )
+        locals()[label].setLabel(label)
+    else :
+        print label,"already configured"
 
 for key,value in quality.items():
-    label = "pixelTracksMonitor"+key
+    label = "pixelTrksMonitor"+key
     locals()[label] = pixelTracksMonitor.clone(
-        TrackProducer = "pixelTracks"+key,
+        TrackProducer = "pixelTrks"+key,
         FolderName    = "Tracking/PixelTrackParameters/"+value
     )
     locals()[label].setLabel(label)
 
 ntuplet = {
-    '3' : "3hits", # ==3
-    '4' : "4hits"  # >=4 
+    '3' : "3Hits", # ==3
+    '4' : "4Hits"  # >=4 
 }
 for kN,vN in ntuplet.items():
     for key,value in quality.items():
-        label = "pixelTracks" + vN + key
-        print label
+        label = "pixelTrks" + vN + key
+#        print label
 
         cutstring = "numberOfValidHits == " + kN + " & quality('" + value + "')" 
-        print cutstring
+#        print cutstring
         locals()[label] = _trackSelector.clone( cut = cutstring )
         locals()[label].setLabel(label)
 
 for kN,vN in ntuplet.items():
     for key,value in quality.items():
-        label = "pixelTracks" + vN + "Monitor" + key
-        print label
+        label = "pixelTrks" + vN + "Monitor" + key
+#        print label
         locals()[label] = pixelTracksMonitor.clone(
-            TrackProducer = "pixelTracks" + vN + key,
+            TrackProducer = "pixelTrks" + vN + key,
             FolderName    = "Tracking/PixelTrackParameters/" + vN + "/" + value
         )
         locals()[label].setLabel(label)
@@ -88,17 +91,17 @@ pixelTracksMonitoringTask = cms.Task(
     goodPixelVertices,
 )
 
-for category in ["pixelTracks", "pixelTracks3hits", "pixelTracks4hits"]:
+for category in ["pixelTrks", "pixelTrks3Hits", "pixelTrks4Hits"]:
     for key in quality:
         label = category+key
-        print label
+#        print label
         pixelTracksMonitoringTask.add(locals()[label])
 
 allPixelTracksMonitoring = cms.Sequence()
-for category in ["pixelTracksMonitor", "pixelTracks3hitsMonitor", "pixelTracks4hitsMonitor" ]:
+for category in ["pixelTrksMonitor", "pixelTrks3HitsMonitor", "pixelTrks4HitsMonitor" ]:
     for key in quality:
         label = category+key
-        print label
+#        print label
         allPixelTracksMonitoring += locals()[label]
 
 pixelTracksMonitoring = cms.Sequence(
