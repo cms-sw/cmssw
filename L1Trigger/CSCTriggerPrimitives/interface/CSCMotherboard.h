@@ -116,10 +116,6 @@ protected:
   /** Phase2: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
 
-  /** if true: use regular CLCT-to-ALCT matching in TMB
-      if false: do ALCT-to-CLCT matching */
-  bool clct_to_alct;
-
   // encode special bits for high-multiplicity triggers
   unsigned showerSource_;
 

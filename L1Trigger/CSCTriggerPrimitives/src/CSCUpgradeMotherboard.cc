@@ -37,7 +37,6 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
 
   match_earliest_alct_only = tmbParams_.getParameter<bool>("matchEarliestAlctOnly");
   match_earliest_clct_only = tmbParams_.getParameter<bool>("matchEarliestClctOnly");
-  clct_to_alct = tmbParams_.getParameter<bool>("clctToAlct");
   drop_used_clcts = tmbParams_.getParameter<bool>("tmbDropUsedClcts");
   tmb_cross_bx_algo = tmbParams_.getParameter<unsigned int>("tmbCrossBxAlgorithm");
   max_lcts = tmbParams_.getParameter<unsigned int>("maxLCTs");
