@@ -1746,30 +1746,6 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibo
     tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #eta", 1);
     tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #phi", 2);
 
-    histname = "TkEtaPhi_Ratio_byFoldingmap_" + histTag;
-    tkmes.TkEtaPhi_Ratio_byFoldingmap =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #phi", 2);
-
-    histname = "TkEtaPhi_Ratio_byFoldingmap_op_" + histTag;
-    tkmes.TkEtaPhi_Ratio_byFoldingmap_op =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #phi", 2);
-
-    histname = "TkEtaPhi_RelativeDifference_byFoldingmap_" + histTag;
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #phi", 2);
-
-    histname = "TkEtaPhi_RelativeDifference_byFoldingmap_op_" + histTag;
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op =
-        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #eta", 1);
-    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #phi", 2);
-
     histname = "TrackQoverP_" + histTag;
     tkmes.TrackQoverP = ibooker.book1D(histname, histname, 10 * TrackQBin, TrackQMin, TrackQMax);
     tkmes.TrackQoverP->setAxisTitle("Track QoverP", 1);
@@ -2026,38 +2002,8 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 
     if (Folder == "Tr") {
       tkmes.TrackEtaPhiInverted->Fill(eta, -1 * phi);
-      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, 3.141592654 + -1 * phi);
-      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, -1 * phi - 3.141592654);
-      tkmes.TkEtaPhi_Ratio_byFoldingmap->divide(tkmes.TrackEtaPhi, tkmes.TrackEtaPhiInverted, 1., 1., "");
-      tkmes.TkEtaPhi_Ratio_byFoldingmap_op->divide(tkmes.TrackEtaPhi, tkmes.TrackEtaPhiInvertedoutofphase, 1., 1., "");
-
-      int nx = tkmes.TrackEtaPhi->getNbinsX();
-      int ny = tkmes.TrackEtaPhi->getNbinsY();
-
-      //NOTE: for full reproducibility when using threads, this loop needs to be
-      // a critical section
-      for (int ii = 1; ii <= nx; ii++) {
-        for (int jj = 1; jj <= ny; jj++) {
-          double Sum1 = tkmes.TrackEtaPhi->getBinContent(ii, jj) + tkmes.TrackEtaPhiInverted->getBinContent(ii, jj);
-          double Sum2 =
-              tkmes.TrackEtaPhi->getBinContent(ii, jj) + tkmes.TrackEtaPhiInvertedoutofphase->getBinContent(ii, jj);
-
-          double Sub1 = tkmes.TrackEtaPhi->getBinContent(ii, jj) - tkmes.TrackEtaPhiInverted->getBinContent(ii, jj);
-          double Sub2 =
-              tkmes.TrackEtaPhi->getBinContent(ii, jj) - tkmes.TrackEtaPhiInvertedoutofphase->getBinContent(ii, jj);
-
-          if (Sum1 == 0 || Sum2 == 0) {
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setBinContent(ii, jj, 1);
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setBinContent(ii, jj, 1);
-          } else {
-            double ratio1 = Sub1 / Sum1;
-            double ratio2 = Sub2 / Sum2;
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setBinContent(ii, jj, ratio1);
-            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setBinContent(ii, jj, ratio2);
-          }
-        }
-      }
-
+      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, M_PI - phi);
+      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, -(phi + M_PI));
       //pT histograms to create efficiency vs pT plot, only for the most inefficient region.
 
       if (eta < 0. && phi < -1.6) {
