@@ -12,6 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
@@ -89,11 +90,17 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
           consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
       itername_(ps.getParameter<std::string>("itername")) {
   if (doNose_) {
-    myAlgoHFNose_ = PatternRecognitionHFNoseFactory::get()->create(ps.getParameter<std::string>("patternRecognitionAlgo"), ps, cache, consumesCollector());
+    auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
+    auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
+    myAlgoHFNose_ = PatternRecognitionHFNoseFactory::get()->create(
+        ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, cache, consumesCollector());
     layer_clusters_tiles_hfnose_token_ =
         consumes<TICLLayerTilesHFNose>(ps.getParameter<edm::InputTag>("layer_clusters_hfnose_tiles"));
   } else {
-    myAlgo_ = PatternRecognitionFactory::get()->create(ps.getParameter<std::string>("patternRecognitionAlgo"), ps, cache, consumesCollector());
+    auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
+    auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
+    myAlgo_ =
+        PatternRecognitionFactory::get()->create(ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, cache, consumesCollector());
     layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
   }
 
@@ -123,33 +130,20 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("layer_clusters_tiles", edm::InputTag("ticlLayerTileProducer"));
   desc.add<edm::InputTag>("layer_clusters_hfnose_tiles", edm::InputTag("ticlLayerTileHFNose"));
   desc.add<edm::InputTag>("seeding_regions", edm::InputTag("ticlSeedingRegionProducer"));
-  desc.add<std::vector<int>>("filter_on_categories", {0});
-  desc.add<double>("pid_threshold", 0.);                    // make default such that no filtering is applied
-  desc.add<double>("energy_em_over_total_threshold", -1.);  // make default such that no filtering is applied
-  desc.add<double>("max_longitudinal_sigmaPCA", 9999);
-  desc.add<int>("shower_start_max_layer", 9999);  // make default such that no filtering is applied
-  desc.add<int>("algo_verbosity", 0);
-  desc.add<double>("min_cos_theta", 0.915);
-  desc.add<double>("root_doublet_max_distance_from_seed_squared", 9999);
-  desc.add<double>("min_cos_pointing", -1.);
-  desc.add<int>("skip_layers", 0);
-  desc.add<int>("max_missing_layers_in_trackster", 9999);
-  desc.add<double>("etaLimitIncreaseWindow", 2.1);
-  desc.add<int>("min_layers_per_trackster", 10);
-  desc.add<double>("max_delta_time", 3.);  //nsigma
-  desc.add<bool>("out_in_dfs", true);
-  desc.add<int>("max_out_in_hops", 10);
-  desc.add<bool>("oneTracksterPerTrackSeed", false);
-  desc.add<bool>("promoteEmptyRegionToTrackster", false);
-  desc.add<std::string>("patternRecognitionAlgo", "CA");
+  desc.add<std::string>("patternRecognitionBy", "CA");
   desc.add<std::string>("eid_graph_path", "RecoHGCal/TICL/data/tf_models/energy_id_v0.pb");
-  desc.add<std::string>("eid_input_name", "input");
-  desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
-  desc.add<std::string>("eid_output_name_id", "output/id_probabilities");
   desc.add<std::string>("itername", "unknown");
-  desc.add<double>("eid_min_cluster_energy", 1.);
-  desc.add<int>("eid_n_layers", 50);
-  desc.add<int>("eid_n_clusters", 10);
+
+  // CA Plugin
+  edm::ParameterSetDescription pluginDesc;
+  pluginDesc.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "CA", true));
+
+  // CLUE3D Plugin
+  desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByCA", pluginDesc);
+  edm::ParameterSetDescription pluginDescClue3D;
+  pluginDescClue3D.addNode(edm::PluginDescription<PatternRecognitionFactory>("type", "CLUE3D", true));
+  desc.add<edm::ParameterSetDescription>("pluginPatternRecognitionByCLUE3D", pluginDescClue3D);
+
   descriptions.add("trackstersProducer", desc);
 }
 
