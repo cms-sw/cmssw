@@ -226,7 +226,7 @@ namespace edm {
         checkHistoryConsistency(eventPrincipal, secondaryEventPrincipal);
         eventPrincipal.recombine(secondaryEventPrincipal, branchIDsToReplace_[InEvent]);
         eventPrincipal.mergeProvenanceRetrievers(secondaryEventPrincipal);
-        secondaryEventPrincipal.clearPrincipal();
+        secondaryEventPrincipal.clearEventPrincipal();
       } else {
         throw Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_")
             << eventPrincipal.id() << " is not found in the secondary input files\n";
