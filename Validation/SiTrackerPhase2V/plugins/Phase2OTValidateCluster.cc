@@ -386,8 +386,8 @@ void Phase2OTValidateCluster::fillDescriptions(edm::ConfigurationDescriptions& d
     psd0.add<std::string>("name", "Delta_Y_Pixel_Primary");
     psd0.add<std::string>("title", "#Delta Y " + mptag + ";cluster resolution Y coordinate [#mum]");
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmin", -500);
-    psd0.add<double>("xmax", 500);
+    psd0.add<double>("xmin", -1500);
+    psd0.add<double>("xmax", 1500);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Pixel_Primary", psd0);
   }
