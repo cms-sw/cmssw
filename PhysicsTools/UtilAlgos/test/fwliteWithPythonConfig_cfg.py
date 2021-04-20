@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.PSet()
 
 process.fwliteInput = cms.PSet(
-    fileNames   = cms.vstring('root://eoscms.cern.ch//eos/cms/store/relval/CMSSW_7_2_0_pre5/RelValProdTTbar/GEN-SIM-RECO/START72_V1-v1/00000/022350A9-AC30-E411-B225-0025905A6076.root'), ## mandatory
+     fileNames   = cms.vstring('root://eoscms.cern.ch//eos/cms/store/user/cmsbuild/store/relval/CMSSW_9_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PU25ns_92X_upgrade2017_realistic_v7-v1/00000/32EA1438-3D61-E711-8FE7-0025905B85B2.root'), ## mandatory
     maxEvents   = cms.int32(100),                            ## optional
     outputEvery = cms.uint32(10),                            ## optional
 )
