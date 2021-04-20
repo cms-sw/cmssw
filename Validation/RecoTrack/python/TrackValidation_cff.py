@@ -1002,9 +1002,12 @@ trackValidatorFromPVPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
     dirName = "Tracking/PixelTrackFromPV/",
 #    label = ["pixelTracksFromPV", "pixelTracksFromPVPt09"],
     label = [
-        "pixelTracksFromPVL", "pixelTracksFromPVPt09L", "pixelTracksFromPV3hitsL", "pixelTracksFromPV4hitsL"
-        "pixelTracksFromPVT", "pixelTracksFromPVPt09T", "pixelTracksFromPV3hitsT", "pixelTracksFromPV4hitsT"
-        "pixelTracksFromPVHP", "pixelTracksFromPVPt09HP", "pixelTracksFromPV3hitsHP", "pixelTracksFromPV4hitsHP"
+        "pixelTracksFromPVL", "pixelTracksFromPVPt09L", "pixelTracksFromPV4hitsL",
+        "pixelTracksFromPVT", "pixelTracksFromPVPt09T", "pixelTracksFromPV4hitsT",
+        "pixelTracksFromPVHP", "pixelTracksFromPVPt09HP", "pixelTracksFromPV4hitsHP",
+#        "pixelTracksFromPVL", "pixelTracksFromPVPt09L", "pixelTracksFromPV3hitsL", "pixelTracksFromPV4hitsL",
+#        "pixelTracksFromPVT", "pixelTracksFromPVPt09T", "pixelTracksFromPV3hitsT", "pixelTracksFromPV4hitsT",
+#        "pixelTracksFromPVHP", "pixelTracksFromPVPt09HP", "pixelTracksFromPV3hitsHP", "pixelTracksFromPV4hitsHP",
     ],
     label_tp_effic = "trackingParticlesSignal",
     label_tp_fake = "trackingParticlesSignal",
@@ -1042,6 +1045,7 @@ tracksValidationTruthPixelTrackingOnly = tracksValidationTruth.copy()
 tracksValidationTruthPixelTrackingOnly.replace(trackingParticleRecoTrackAsssociation, trackingParticlePixelTrackAsssociation)
 tracksValidationTruthPixelTrackingOnly.replace(VertexAssociatorByPositionAndTracks, PixelVertexAssociatorByPositionAndTracks)
 tracksValidationTruthPixelTrackingOnly.add(trackingParticlesBHadron)
+tracksValidationTruthPixelTrackingOnly.add(pixelTracksFromPV)
 
 tracksPreValidationPixelTrackingOnly = cms.Task(
     tracksValidationTruthPixelTrackingOnly,
@@ -1068,6 +1072,12 @@ for key,value in quality.items():
     labelFromPV = "pixelTracksFromPVPt09"+key
     print labelFromPV
     locals()[labelFromPV] = locals()[label].clone(src = "pixelTracksFromPV")
+    tracksPreValidationPixelTrackingOnly.add(locals()[labelFromPV])
+    
+    label = "pixelTracksFromPV"+key
+    print label
+    locals()[label] = cutsRecoTracks_cfi.cutsRecoTracks.clone(
+        src = "pixelTracksFromPV", vertexTag = "pixelVertices", quality = [value]) ## quality    
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
     
     label = "pixelTracks4hits"+key
@@ -1079,7 +1089,7 @@ for key,value in quality.items():
     labelFromPV = "pixelTracksFromPV4hits"+key
     print labelFromPV
     locals()[labelFromPV] = locals()[label].clone(src = "pixelTracksFromPV")
-    tracksPreValidationPixelTrackingOnly.add(locals()[label])
+    tracksPreValidationPixelTrackingOnly.add(locals()[labelFromPV])
     
 trackSelector = cms.EDFilter('TrackSelector',
                              src = cms.InputTag('pixelTracks'),
@@ -1094,10 +1104,10 @@ for key,value in quality.items():
     locals()[label] = trackSelector.clone( cut = cutstring )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
 
-    labelFromPV = "pixelTracksFromPV4hits"+key
+    labelFromPV = "pixelTracksFromPV3hits"+key
     print labelFromPV
     locals()[labelFromPV] = locals()[label].clone(src = "pixelTracksFromPV")
-    tracksPreValidationPixelTrackingOnly.add(locals()[label])
+    tracksPreValidationPixelTrackingOnly.add(locals()[labelFromPV])
      
 tracksValidationPixelTrackingOnly = cms.Sequence(
     trackValidatorPixelTrackingOnly +
