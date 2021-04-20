@@ -94,3 +94,16 @@ from DQM.TrackingMonitor.TrackFoldedOccupancyClient_cfi import *
 TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient*foldedMapClientSeq)
 
 TrackingOfflineDQMClientZeroBias = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPatternZeroBias*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient*foldedMapClientSeq)
+
+# fastsim customs
+_TrackingOfflineDQMClient_fastsim = TrackingOfflineDQMClient.copy()
+_TrackingOfflineDQMClient_fastsim.remove(foldedMapClientSeq)
+
+_TrackingOfflineDQMClientZeroBias_fastsim = TrackingOfflineDQMClientZeroBias.copy()
+_TrackingOfflineDQMClientZeroBias_fastsim.remove(foldedMapClientSeq)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(TrackingOfflineDQMClient,_TrackingOfflineDQMClient_fastsim)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(TrackingOfflineDQMClientZeroBias,_TrackingOfflineDQMClientZeroBias_fastsim)
