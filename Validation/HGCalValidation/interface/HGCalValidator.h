@@ -75,7 +75,7 @@ protected:
   const edm::FileInPath cummatbudinxo_;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
-  edm::EDGetTokenT<std::vector<SimCluster>> simclusters_;
+  edm::EDGetTokenT<std::vector<SimCluster>> simClusters_;
   edm::EDGetTokenT<reco::CaloClusterCollection> layerclusters_;
   std::vector<edm::EDGetTokenT<std::vector<reco::HGCalMultiCluster>>> label_mclTokens;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_effic;
