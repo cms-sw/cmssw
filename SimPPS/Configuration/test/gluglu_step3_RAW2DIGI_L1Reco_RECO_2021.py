@@ -16,8 +16,6 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2018_cfi")           # CMS frame
-process.load('CalibPPS.ESProducers.ppsPixelTopologyESSourceRun2_cfi')          # temporary solution, the 2021 geometry is the same as run2, force the usage of run2 topology 
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -26,7 +24,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:GluGlu_step2_DIGI_DIGI2RAW2021.root'),
+    fileNames = cms.untracked.vstring('file:GluGlu_step2_DIGI_DIGI2RAW_2021.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -41,15 +39,13 @@ process.options = cms.untracked.PSet(
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('GluGlu_step3_RAW2DIGI_RECO_2021.root'),
-    outputCommands = cms.untracked.vstring("drop *","keep SimVertexs_g4SimHits_*_*","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_LHCTransport_*_*')
+    outputCommands = cms.untracked.vstring("drop *","keep SimVertexs_g4SimHits_*_*","keep PSimHits*_*_*_*","keep CTPPS*_*_*_*","keep *_*RP*_*_*",'keep *_generatorSmeared_*_*')
 )
 
 # Additional output definition
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, '113X_mcRun3_2021_realistic_Candidate_2021_04_09_15_03_03', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, "113X_mcRun3_2021_realistic_Candidate_2021_04_06_19_59_53")
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
