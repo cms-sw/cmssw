@@ -109,7 +109,7 @@ struct HGVHistoProducerAlgoHistograms {
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_lastlayer_matchedtoRecHit;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_caloparticle_layersnum_matchedtoRecHit;
 
-  //For simclusters
+  //For SimClusters
   std::unordered_map<int, dqm::reco::MonitorElement*> h_simclusternum_perlayer;
   std::unordered_map<int, dqm::reco::MonitorElement*> h_simclusternum_perthick;
   dqm::reco::MonitorElement* h_mixedhitssimcluster_zminus;
@@ -244,7 +244,7 @@ public:
                                     edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                     const reco::CaloClusterCollection& clusters,
                                     edm::Handle<std::vector<SimCluster>> simClusterHandle,
-                                    std::vector<SimCluster> const& simclusters,
+                                    std::vector<SimCluster> const& simClusters,
                                     std::vector<size_t> const& sCIndices,
                                     const std::vector<float>& mask,
                                     std::unordered_map<DetId, const HGCRecHit*> const&,
@@ -281,16 +281,16 @@ public:
                                    std::vector<int> thicknesses,
                                    const hgcal::RecoToSimCollection& recSimColl,
                                    const hgcal::SimToRecoCollection& simRecColl) const;
-  void fill_simcluster_histos(const Histograms& histograms,
-                              std::vector<SimCluster> const& simclusters,
+  void fill_simCluster_histos(const Histograms& histograms,
+                              std::vector<SimCluster> const& simClusters,
                               unsigned int layers,
                               std::vector<int> thicknesses) const;
-  void fill_simclusterassosiation_histos(const Histograms& histograms,
+  void fill_simClusterassosiation_histos(const Histograms& histograms,
                                          int count,
                                          edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                          const reco::CaloClusterCollection& clusters,
                                          edm::Handle<std::vector<SimCluster>> simClusterHandle,
-                                         std::vector<SimCluster> const& simclusters,
+                                         std::vector<SimCluster> const& simClusters,
                                          std::vector<size_t> const& sCIndices,
                                          const std::vector<float>& mask,
                                          std::unordered_map<DetId, const HGCRecHit*> const& hitMap,

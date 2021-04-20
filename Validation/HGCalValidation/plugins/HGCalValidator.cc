@@ -42,7 +42,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
 
-  simclusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
+  simClusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
 
   layerclusters_ = consumes<reco::CaloClusterCollection>(label_lcl);
 
@@ -115,7 +115,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
     ibook.setCurrentFolder(dirName_);
   }
 
-  //Booking histograms concerning with simclusters
+  //Booking histograms concerning with simClusters
   if (doSimClustersPlots_) {
     ibook.cd();
     ibook.setCurrentFolder(dirName_ + "simClusters/ClusterLevel");
@@ -147,7 +147,7 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
       histoProducerAlgo_->bookSimClusterAssociationHistos(
           ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
     }  //end of loop over masks
-  }    //if for simcluster plots
+  }    //if for simCluster plots
 
   //Booking histograms concerning with hgcal layer clusters
   if (doLayerClustersPlots_) {
@@ -278,8 +278,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   //get collections from the event
   //simClusters
   edm::Handle<std::vector<SimCluster>> simClustersHandle;
-  event.getByToken(simclusters_, simClustersHandle);
-  std::vector<SimCluster> const& simclusters = *simClustersHandle;
+  event.getByToken(simClusters_, simClustersHandle);
+  std::vector<SimCluster> const& simClusters = *simClustersHandle;
 
   //Layer clusters
   edm::Handle<reco::CaloClusterCollection> clusterHandle;
@@ -291,16 +291,16 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(density_, densityHandle);
   const Density& densities = *densityHandle;
 
-  auto nSimClusters = simclusters.size();
+  auto nSimClusters = simClusters.size();
   std::vector<size_t> sCIndices;
   //There shouldn't be any SimTracks from different crossings, but maybe they will be added later.
   //At the moment there should be one SimTrack in each SimCluster.
   for (unsigned int scId = 0; scId < nSimClusters; ++scId) {
-    if (simclusters[scId].g4Tracks()[0].eventId().event() != 0 or
-        simclusters[scId].g4Tracks()[0].eventId().bunchCrossing() != 0) {
+    if (simClusters[scId].g4Tracks()[0].eventId().event() != 0 or
+        simClusters[scId].g4Tracks()[0].eventId().bunchCrossing() != 0) {
       LogDebug("HGCalValidator") << "Excluding SimClusters from event: "
-                                 << simclusters[scId].g4Tracks()[0].eventId().event()
-                                 << " with BX: " << simclusters[scId].g4Tracks()[0].eventId().bunchCrossing()
+                                 << simClusters[scId].g4Tracks()[0].eventId().event()
+                                 << " with BX: " << simClusters[scId].g4Tracks()[0].eventId().bunchCrossing()
                                  << std::endl;
       continue;
     }
@@ -308,11 +308,11 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   // ##############################################
-  // fill simcluster histograms
+  // fill simCluster histograms
   // ##############################################
   if (doSimClustersPlots_) {
-    histoProducerAlgo_->fill_simcluster_histos(
-        histograms.histoProducerAlgo, simclusters, totallayers_to_monitor_, thicknesses_to_monitor_);
+    histoProducerAlgo_->fill_simCluster_histos(
+        histograms.histoProducerAlgo, simClusters, totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
       const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
@@ -324,12 +324,12 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       event.getByToken(associatorMapRtSim, recotosimCollectionH);
       auto recSimColl = *recotosimCollectionH;
 
-      histoProducerAlgo_->fill_simclusterassosiation_histos(histograms.histoProducerAlgo,
+      histoProducerAlgo_->fill_simClusterassosiation_histos(histograms.histoProducerAlgo,
                                                             ws,
                                                             clusterHandle,
                                                             clusters,
                                                             simClustersHandle,
-                                                            simclusters,
+                                                            simClusters,
                                                             sCIndices,
                                                             inputClusterMask,
                                                             *hitMap,
@@ -338,7 +338,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                             simRecColl);
 
       //General Info on simClusters
-      LogTrace("HGCalValidator") << "\n# of simclusters: " << nSimClusters << " label_clustersmask[ws].label() "
+      LogTrace("HGCalValidator") << "\n# of SimClusters: " << nSimClusters << ", layerClusters mask label: "
                                  << label_clustersmask[ws].label() << "\n";
     }  //end of loop overs masks
   }
