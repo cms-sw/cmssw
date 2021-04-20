@@ -12,6 +12,7 @@
 <use name="Geometry/CaloTopology"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="RecoEgamma/EgammaIsolationAlgos"/>
+<use name="RecoEgamma/EgammaElectronAlgos"/>
 <use name="RecoEgamma/EgammaPhotonAlgos"/>
 <use name="RecoEgamma/PhotonIdentification"/>
 <use name="RecoEgamma/EgammaTools"/>

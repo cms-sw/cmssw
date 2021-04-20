@@ -96,7 +96,7 @@ private:
   GsfElectronAlgo::Tokens inputCfg_;
   GsfElectronAlgo::StrategyConfiguration strategyCfg_;
   const GsfElectronAlgo::CutsConfiguration cutsCfg_;
-  ElectronHcalHelper::Configuration hcalCfg_;
+  ElectronHcalHelper::Configuration hcalCfg_, hcalCfgBc_;
 
   bool isPreselected(reco::GsfElectron const& ele) const;
   void setAmbiguityData(reco::GsfElectronCollection& electrons,
@@ -120,7 +120,6 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   edm::ParameterSetDescription desc;
   // input collections
   desc.add<edm::InputTag>("gsfElectronCoresTag", {"ecalDrivenGsfElectronCores"});
-  desc.add<edm::InputTag>("hcalTowers", {"towerMaker"});
   desc.add<edm::InputTag>("vtxTag", {"offlinePrimaryVertices"});
   desc.add<edm::InputTag>("conversionsTag", {"allConversions"});
   desc.add<edm::InputTag>("gsfPfRecTracksTag", {"pfTrackElec"});
@@ -130,6 +129,7 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("beamSpotTag", {"offlineBeamSpot"});
   desc.add<edm::InputTag>("egmPFCandidatesTag", {"particleFlowEGamma"});
   desc.add<bool>("checkHcalStatus", true);
+  desc.add<edm::InputTag>("hcalRecHits", edm::InputTag("hbhereco"));
 
   // steering
   desc.add<bool>("useDefaultEnergyCorrection", true);
@@ -152,6 +152,11 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<std::vector<std::string>>("recHitFlagsToBeExcludedEndcaps");
   desc.add<std::vector<std::string>>("recHitSeverityToBeExcludedBarrel");
   desc.add<std::vector<std::string>>("recHitSeverityToBeExcludedEndcaps");
+
+  // Hcal rec hits configuration
+  desc.add<std::vector<double>>("recHitEThresholdHB", {0.1, 0.2, 0.3, 0.3}); // FIXME defaults for tests
+  desc.add<std::vector<double>>("recHitEThresholdHE", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
+  desc.add<int>("maxHcalRecHitSeverity", 9);
 
   // Isolation algos configuration
   desc.add("trkIsol03Cfg", EleTkIsolFromCands::pSetDescript());
@@ -190,15 +195,14 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd0.add<double>("maxDeltaPhiBarrel", 0.15);
     psd0.add<double>("maxDeltaPhiEndcaps", 0.15);
     psd0.add<double>("hOverEConeSize", 0.15);
-    psd0.add<double>("hOverEPtMin", 0.0);
     psd0.add<double>("maxHOverEBarrelCone", 0.15);
     psd0.add<double>("maxHOverEEndcapsCone", 0.15);
     psd0.add<double>("maxHBarrelCone", 0.0);
     psd0.add<double>("maxHEndcapsCone", 0.0);
-    psd0.add<double>("maxHOverEBarrelTower", 0.15);
-    psd0.add<double>("maxHOverEEndcapsTower", 0.15);
-    psd0.add<double>("maxHBarrelTower", 0.0);
-    psd0.add<double>("maxHEndcapsTower", 0.0);
+    psd0.add<double>("maxHOverEBarrelBc", 0.15);
+    psd0.add<double>("maxHOverEEndcapsBc", 0.15);
+    psd0.add<double>("maxHBarrelBc", 0.0);
+    psd0.add<double>("maxHEndcapsBc", 0.0);
     psd0.add<double>("maxSigmaIetaIetaBarrel", 999999999.0);
     psd0.add<double>("maxSigmaIetaIetaEndcaps", 999999999.0);
     psd0.add<double>("maxFbremBarrel", 999999999.0);
@@ -258,10 +262,10 @@ namespace {
         .maxHOverEEndcapsCone = pset.getParameter<double>("maxHOverEEndcapsCone"),
         .maxHBarrelCone = pset.getParameter<double>("maxHBarrelCone"),
         .maxHEndcapsCone = pset.getParameter<double>("maxHEndcapsCone"),
-        .maxHOverEBarrelTower = pset.getParameter<double>("maxHOverEBarrelTower"),
-        .maxHOverEEndcapsTower = pset.getParameter<double>("maxHOverEEndcapsTower"),
-        .maxHBarrelTower = pset.getParameter<double>("maxHBarrelTower"),
-        .maxHEndcapsTower = pset.getParameter<double>("maxHEndcapsTower"),
+        .maxHOverEBarrelBc = pset.getParameter<double>("maxHOverEBarrelBc"),
+        .maxHOverEEndcapsBc = pset.getParameter<double>("maxHOverEEndcapsBc"),
+        .maxHBarrelBc = pset.getParameter<double>("maxHBarrelBc"),
+        .maxHEndcapsBc = pset.getParameter<double>("maxHEndcapsBc"),
         .maxDeltaEtaBarrel = pset.getParameter<double>("maxDeltaEtaBarrel"),
         .maxDeltaEtaEndcaps = pset.getParameter<double>("maxDeltaEtaEndcaps"),
         .maxDeltaPhiBarrel = pset.getParameter<double>("maxDeltaPhiBarrel"),
@@ -293,7 +297,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   }
 
   inputCfg_.gsfElectronCores = consumes(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
-  inputCfg_.hcalTowersTag = consumes(cfg.getParameter<edm::InputTag>("hcalTowers"));
+  inputCfg_.hcalRecHitsTag = consumes(cfg.getParameter<edm::InputTag>("hcalRecHits"));
   inputCfg_.barrelRecHitCollection = consumes(cfg.getParameter<edm::InputTag>("barrelRecHitCollectionTag"));
   inputCfg_.endcapRecHitCollection = consumes(cfg.getParameter<edm::InputTag>("endcapRecHitCollectionTag"));
   inputCfg_.ctfTracks = consumes(cfg.getParameter<edm::InputTag>("ctfTracksTag"));
@@ -328,11 +332,23 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   auto const& psetPreselection = cfg.getParameter<edm::ParameterSet>("preselection");
   hcalCfg_.hOverEConeSize = psetPreselection.getParameter<double>("hOverEConeSize");
   if (hcalCfg_.hOverEConeSize > 0) {
-    hcalCfg_.useTowers = true;
+    hcalCfg_.onlyBehindCluster = false;
     hcalCfg_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus");
-    hcalCfg_.hcalTowers = consumes(cfg.getParameter<edm::InputTag>("hcalTowers"));
-    hcalCfg_.hOverEPtMin = psetPreselection.getParameter<double>("hOverEPtMin");
+    hcalCfg_.hcalRecHits = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hcalRecHits"));
+    hcalCfg_.eThresHB = cfg.getParameter<std::array<double, 4>>("recHitEThresholdHB");
+    hcalCfg_.maxSeverityHB = cfg.getParameter<int>("maxHcalRecHitSeverity");
+    hcalCfg_.eThresHE = cfg.getParameter<std::array<double, 7>>("recHitEThresholdHE");
+    hcalCfg_.maxSeverityHE = hcalCfg_.maxSeverityHB;
   }
+
+  hcalCfgBc_.hOverEConeSize = 0.;
+  hcalCfgBc_.onlyBehindCluster = true;
+  hcalCfgBc_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus");
+  hcalCfgBc_.hcalRecHits = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hcalRecHits"));
+  hcalCfgBc_.eThresHB = cfg.getParameter<std::array<double, 4>>("recHitEThresholdHB");
+  hcalCfgBc_.maxSeverityHB = cfg.getParameter<int>("maxHcalRecHitSeverity");
+  hcalCfgBc_.eThresHE = cfg.getParameter<std::array<double, 7>>("recHitEThresholdHE");
+  hcalCfgBc_.maxSeverityHE = hcalCfgBc_.maxSeverityHB;
 
   // Ecal rec hits configuration
   GsfElectronAlgo::EcalRecHitsConfiguration recHitsCfg;
@@ -377,6 +393,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
       strategyCfg_,
       cutsCfg_,
       hcalCfg_,
+      hcalCfgBc_,
       isoCfg,
       recHitsCfg,
       EcalClusterFunctionFactory::get()->create(cfg.getParameter<std::string>("crackCorrectionFunction"), cfg),
