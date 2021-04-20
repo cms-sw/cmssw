@@ -986,9 +986,12 @@ trackValidatorPixelTrackingOnly = trackValidator.clone(
     dirName = "Tracking/PixelTrack/",
 #    label = ["pixelTracks", "pixelTracksPt09"],
     label = [
-        "pixelTracksL", "pixelTracksPt09L", "pixelTracks3hitsL", "pixelTracks4hitsL",
-        "pixelTracksT", "pixelTracksPt09T", "pixelTracks3hitsT", "pixelTracks4hitsT",
-        "pixelTracksHP", "pixelTracksPt09HP", "pixelTracks3hitsHP", "pixelTracks4hitsHP",
+#        "pixelTracksL", "pixelTracksPt09L", "pixelTracks3hitsL", "pixelTracks4hitsL",
+#        "pixelTracksT", "pixelTracksPt09T", "pixelTracks3hitsT", "pixelTracks4hitsT",
+#        "pixelTracksHP", "pixelTracksPt09HP", "pixelTracks3hitsHP", "pixelTracks4hitsHP",
+        "pixelTracksL", "pixelTracksPt09L", "pixelTracks4hitsL",
+        "pixelTracksT", "pixelTracksPt09T", "pixelTracks4hitsT",
+        "pixelTracksHP", "pixelTracksPt09HP", "pixelTracks4hitsHP",
          ],
     doResolutionPlotsForLabels = [],
     trackCollectionForDrCalculation = "pixelTracks",
@@ -1002,12 +1005,12 @@ trackValidatorFromPVPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
     dirName = "Tracking/PixelTrackFromPV/",
 #    label = ["pixelTracksFromPV", "pixelTracksFromPVPt09"],
     label = [
-        "pixelTracksFromPVL", "pixelTracksFromPVPt09L", "pixelTracksFromPV4hitsL",
-        "pixelTracksFromPVT", "pixelTracksFromPVPt09T", "pixelTracksFromPV4hitsT",
-        "pixelTracksFromPVHP", "pixelTracksFromPVPt09HP", "pixelTracksFromPV4hitsHP",
 #        "pixelTracksFromPVL", "pixelTracksFromPVPt09L", "pixelTracksFromPV3hitsL", "pixelTracksFromPV4hitsL",
 #        "pixelTracksFromPVT", "pixelTracksFromPVPt09T", "pixelTracksFromPV3hitsT", "pixelTracksFromPV4hitsT",
 #        "pixelTracksFromPVHP", "pixelTracksFromPVPt09HP", "pixelTracksFromPV3hitsHP", "pixelTracksFromPV4hitsHP",
+        "pixelTracksFromPVL", "pixelTracksFromPVPt09L", "pixelTracksFromPV4hitsL",
+        "pixelTracksFromPVT", "pixelTracksFromPVPt09T", "pixelTracksFromPV4hitsT",
+        "pixelTracksFromPVHP", "pixelTracksFromPVPt09HP", "pixelTracksFromPV4hitsHP",
     ],
     label_tp_effic = "trackingParticlesSignal",
     label_tp_fake = "trackingParticlesSignal",
@@ -1030,9 +1033,12 @@ trackValidatorFromPVAllTPPixelTrackingOnly = trackValidatorFromPVPixelTrackingOn
 trackValidatorBHadronPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
     dirName = "Tracking/PixelTrackBHadron/",
     label = [
-        "pixelTracksL", "pixelTracks3hitsL", "pixelTracks4hitsL",
-        "pixelTracksT", "pixelTracks3hitsT", "pixelTracks4hitsT",
-        "pixelTracksHP", "pixelTracks3hitsHP", "pixelTracks4hitsHP",
+        "pixelTracksL", "pixelTracks4hitsL",
+        "pixelTracksT", "pixelTracks4hitsT",
+        "pixelTracksHP", "pixelTracks4hitsHP",
+#        "pixelTracksL", "pixelTracks3hitsL", "pixelTracks4hitsL",
+#        "pixelTracksT", "pixelTracks3hitsT", "pixelTracks4hitsT",
+#        "pixelTracksHP", "pixelTracks3hitsHP", "pixelTracks4hitsHP",
          ],
     label_tp_effic = "trackingParticlesBHadron",
     label_tp_effic_refvector = True,
@@ -1091,7 +1097,7 @@ for key,value in quality.items():
     locals()[labelFromPV] = locals()[label].clone(src = "pixelTracksFromPV")
     tracksPreValidationPixelTrackingOnly.add(locals()[labelFromPV])
     
-trackSelector = cms.EDFilter('TrackSelector',
+trackSelector = cms.EDFilter('TrackRefSelector',
                              src = cms.InputTag('pixelTracks'),
                              cut = cms.string("")
 )
