@@ -440,8 +440,8 @@ void ElectronAnalyzer::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const
                                    "EcalIsoSum (GeV)",
                                    "Events",
                                    "ELE_LOGY E1 P");
-  h1_hcalTowerSumEt_dr03 = bookH1(iBooker,
-                                  "hcalTowerSumEt_dr03",
+  h1_hcalRecHitSumEt_dr03 = bookH1(iBooker,
+                                  "hcalRecHitSumEt_dr03",
                                   "hcal isolation sum, dR=0.3",
                                   100,
                                   0.0,
@@ -691,7 +691,7 @@ void ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // isolation
     h1_tkSumPt_dr03->Fill(gsfIter->dr03TkSumPt());
     h1_ecalRecHitSumEt_dr03->Fill(gsfIter->dr03EcalRecHitSumEt());
-    h1_hcalTowerSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt());
+    h1_hcalRecHitSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt());
 
     // PF isolation
     GsfElectron::PflowIsolationVariables pfIso = gsfIter->pfIsolationVariables();
@@ -814,11 +814,11 @@ bool ElectronAnalyzer::isolationCut(const reco::GsfElectronCollection::const_ite
 
   if (gsfIter->dr03TkSumPt() > tkIso03Max_)
     return true;
-  if (gsfIter->isEB() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxBarrel_)
+  if (gsfIter->isEB() && gsfIter->dr03HcalTowerSumEt(1) > hcalIso03Depth1MaxBarrel_)
     return true;
-  if (gsfIter->isEE() && gsfIter->dr03HcalDepth1TowerSumEt() > hcalIso03Depth1MaxEndcaps_)
+  if (gsfIter->isEE() && gsfIter->dr03HcalTowerSumEt(1) > hcalIso03Depth1MaxEndcaps_)
     return true;
-  if (gsfIter->isEE() && gsfIter->dr03HcalDepth2TowerSumEt() > hcalIso03Depth2MaxEndcaps_)
+  if (gsfIter->isEE() && gsfIter->dr03HcalTowerSumEt(2) > hcalIso03Depth2MaxEndcaps_)
     return true;
   if (gsfIter->isEB() && gsfIter->dr03EcalRecHitSumEt() > ecalIso03MaxBarrel_)
     return true;
