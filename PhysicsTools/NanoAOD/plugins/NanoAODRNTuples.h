@@ -4,6 +4,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -56,6 +57,19 @@ private:
   std::shared_ptr<RCollectionNTuple> m_collection;
   RNTupleFieldPtr<std::string> m_psetId;
   RNTupleFieldPtr<std::string> m_psetBlob;
+  std::unique_ptr<RNTupleWriter> m_ntuple;
+};
+
+class MetadataNTuple {
+public:
+  MetadataNTuple() = default;
+  void fill(const edm::ProcessHistoryRegistry& procHist, TFile& file);
+  void finalizeWrite();
+private:
+  void createFields(TFile& file);
+  std::shared_ptr<RCollectionNTuple> m_procHist;
+
+  RNTupleFieldPtr<std::string> m_phId;
   std::unique_ptr<RNTupleWriter> m_ntuple;
 };
 

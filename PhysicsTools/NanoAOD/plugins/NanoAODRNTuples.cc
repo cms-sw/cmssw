@@ -98,3 +98,34 @@ void PSetNTuple::fill(edm::pset::Registry* pset, TFile& file) {
 void PSetNTuple::finalizeWrite() {
   m_ntuple.reset();
 }
+
+void MetadataNTuple::createFields(TFile& file) {
+  auto procHistModel = RNTupleModel::Create();
+  // ProcessHistory.transients_.phid_ replacement
+  m_phId = RNTupleFieldPtr<std::string>("transients_phid_", *procHistModel);
+  auto model = RNTupleModel::Create();
+  m_procHist = model->MakeCollection(edm::poolNames::processHistoryBranchName(),
+    std::move(procHistModel));
+  RNTupleWriteOptions options;
+  options.SetCompression(file.GetCompressionSettings());
+  m_ntuple = std::make_unique<RNTupleWriter>(std::move(model),
+    std::make_unique<RPageSinkFile>(edm::poolNames::metaDataTreeName(), file, options)
+  );
+}
+
+void MetadataNTuple::fill(const edm::ProcessHistoryRegistry& procHist, TFile& file) {
+  if (!m_ntuple) {
+    createFields(file);
+  }
+  for (const auto& ph : procHist) {
+    std::string phid;
+    ph.second.id().toString(phid);
+    m_phId.fill(phid);
+    m_procHist->Fill();
+  }
+  m_ntuple->Fill();
+}
+
+void MetadataNTuple::finalizeWrite() {
+  m_ntuple.reset();
+}

@@ -284,6 +284,11 @@ void NanoAODRNTupleOutputModule::reallyCloseFile() {
   pset_ntuple->PrintInfo();
   pset_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
 
+  auto md_ntuple = ROOT::Experimental::RNTupleReader::Open(
+    edm::poolNames::metaDataTreeName(), m_fileName);
+  md_ntuple->PrintInfo();
+  md_ntuple->PrintInfo(ROOT::Experimental::ENTupleInfo::kStorageDetails);
+
   edm::Service<edm::JobReport> jr;
   jr->outputFileClosed(m_jrToken);
 }
@@ -292,6 +297,10 @@ void NanoAODRNTupleOutputModule::writeProvenance() {
   PSetNTuple pntuple;
   pntuple.fill(edm::pset::Registry::instance(), *m_file);
   pntuple.finalizeWrite();
+
+  MetadataNTuple mdntuple;
+  mdntuple.fill(m_processHistoryRegistry, *m_file);
+  mdntuple.finalizeWrite();
 }
 
 void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
