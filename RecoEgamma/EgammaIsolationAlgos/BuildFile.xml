@@ -11,6 +11,7 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="CondFormats/HcalObjects"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
+<use name="RecoLocalCalo/HcalRecAlgos"/>
 <use name="CommonTools/Statistics"/>
 <export>
   <lib name="1"/>
