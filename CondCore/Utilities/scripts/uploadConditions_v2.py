@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 """
-
+Primary Author:
 Joshua Dawes - CERN, CMS - The University of Manchester
+
+Debugging, Integration and Maintenance:
+Andres Cardenas - CERN, CMS - Universidad San Francisco
 
 Upload script wrapper - controls the automatic update system.
 
