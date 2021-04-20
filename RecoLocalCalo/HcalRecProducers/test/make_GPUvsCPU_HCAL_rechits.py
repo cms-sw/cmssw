@@ -59,32 +59,32 @@ process.hcalCPURecHitsProducer.recHitsM0LabelOut = cms.string("")
 #process.hbheprereco.algorithm.correctForPhaseContainment = cms.bool(False)
 
 ## do always 8 pulse
-process.hbheprereco.algorithm.chiSqSwitch = cms.double(-1)
+process.hbheprereco.cpu.algorithm.chiSqSwitch = cms.double(-1)
 
 ## to match hard coded setting (will be fixed on CPU)
-process.hbheprereco.algorithm.nMaxItersMin = cms.int32(50)
+process.hbheprereco.cpu.algorithm.nMaxItersMin = cms.int32(50)
 
 #-----------------------------------------
 # Final Custmization for Run3
 #-----------------------------------------
 
 # we will not run arrival Time at HLT
-process.hbheprereco.algorithm.calculateArrivalTime = cms.bool(False)
+process.hbheprereco.cpu.algorithm.calculateArrivalTime = cms.bool(False)
 
 ## we do not need this
-process.hbheprereco.algorithm.applyLegacyHBMCorrection = cms.bool(False)
+process.hbheprereco.cpu.algorithm.applyLegacyHBMCorrection = cms.bool(False)
 
 # we only run Mahi at HLT
-process.hbheprereco.algorithm.useM3 = cms.bool(False)
+process.hbheprereco.cpu.algorithm.useM3 = cms.bool(False)
 
 # we will not have the HPD noise flags in Run3, as will be all siPM
-process.hbheprereco.setLegacyFlagsQIE8 = cms.bool(False)
-process.hbheprereco.setNegativeFlagsQIE8 = cms.bool(False)
-process.hbheprereco.setNoiseFlagsQIE8 = cms.bool(False)
-process.hbheprereco.setPulseShapeFlagsQIE8 = cms.bool(False)
+process.hbheprereco.cpu.setLegacyFlagsQIE8 = cms.bool(False)
+process.hbheprereco.cpu.setNegativeFlagsQIE8 = cms.bool(False)
+process.hbheprereco.cpu.setNoiseFlagsQIE8 = cms.bool(False)
+process.hbheprereco.cpu.setPulseShapeFlagsQIE8 = cms.bool(False)
 
 # for testing M0 only
-##process.hbheprereco.algorithm.useMahi = cms.bool(False)
+##process.hbheprereco.cpu.algorithm.useMahi = cms.bool(False)
 
 #-----------------------------------------
 # OUTPUT
@@ -148,4 +148,4 @@ process.options = cms.untracked.PSet(
 
 # report CUDAService messages
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.MessageLogger.categories.append("CUDAService")
+process.MessageLogger.CUDAService = cms.untracked.PSet()
