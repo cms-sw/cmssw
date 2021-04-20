@@ -61,6 +61,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   if ((DoCosmics_))
     useErrorsFromTemplates_ = false;
 
+
   if (!useErrorsFromTemplates_ && (truncatePixelCharge_ || IrradiationBiasCorrection_ || LoadTemplatesFromDB_)) {
     throw cms::Exception("PixelCPEGeneric::PixelCPEGeneric: ")
         << "\nERROR: useErrorsFromTemplates_ is set to False in PixelCPEGeneric_cfi.py. "
