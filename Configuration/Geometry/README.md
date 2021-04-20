@@ -60,6 +60,7 @@ Calorimeters:
 * C13: HGCal (reading the constants of the flat file and made provision to be used downstream) + Phase2 HCAL and EB
 * C14: HGCal (reading the constants of the flat file and use it to create geometry) + Phase2 HCAL and EB
 * C15: HGCal (as in C14) + HFNose with corrected wafer size  + Phase2 HCAL and EB
+* C16: HGCal (create HGCal geometry with real full and partial silicon modules using the constants of the flat file) + Phase2 HCAL and EB
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -98,3 +99,4 @@ Several detector combinations have been generated:
 * D80 = T25+C14+M9+I13+O7+F6
 * D81 = T26+C14+M9+I13+O7+F6
 * D82 = T21+C15+M9+I13+O7+F7
+* D83 = T24+C16+M9+I13+O7+F6
