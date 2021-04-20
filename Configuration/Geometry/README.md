@@ -99,4 +99,5 @@ Several detector combinations have been generated:
 * D80 = T25+C14+M9+I13+O7+F6
 * D81 = T26+C14+M9+I13+O7+F6
 * D82 = T21+C15+M9+I13+O7+F7
-* D83 = T21+C16+M9+I13+O7+F6
+* D83 = T24+C16+M9+I13+O7+F6
+* D84 = T24+C13+M7+I11+O6+F6 (For HGCAL study on evolution of HGCal replacing D70)
