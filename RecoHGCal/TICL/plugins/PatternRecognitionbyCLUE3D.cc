@@ -270,6 +270,12 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
         }
         result[thisLayer.clusterIndex[lc]].vertices().push_back(thisLayer.layerClusterOriginalIdx[lc]);
         result[thisLayer.clusterIndex[lc]].vertex_multiplicity().push_back(1);
+        // loop over followers
+        for (auto [follower_lyrIdx, follower_soaIdx] : thisLayer.followers[lc]) {
+          std::array<unsigned int, 2> edge = {
+            {(unsigned int)thisLayer.layerClusterOriginalIdx[lc], (unsigned int)clusters_[follower_lyrIdx].layerClusterOriginalIdx[follower_soaIdx]}};
+          result[thisLayer.clusterIndex[lc]].edges().push_back(edge);
+        }
       }
     }
   }
