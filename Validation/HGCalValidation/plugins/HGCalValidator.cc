@@ -11,7 +11,7 @@ using namespace edm;
 HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
-      label_mcl(pset.getParameter<std::vector<edm::InputTag>>("label_mcl")),
+      label_tst(pset.getParameter<std::vector<edm::InputTag>>("label_tst")),
       associator_(pset.getUntrackedParameter<edm::InputTag>("associator")),
       associatorSim_(pset.getUntrackedParameter<edm::InputTag>("associatorSim")),
       SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
@@ -19,7 +19,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       doCaloParticleSelection_(pset.getUntrackedParameter<bool>("doCaloParticleSelection")),
       doSimClustersPlots_(pset.getUntrackedParameter<bool>("doSimClustersPlots")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
-      doMultiClustersPlots_(pset.getUntrackedParameter<bool>("doMultiClustersPlots")),
+      doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
       label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
   //In this way we can easily generalize to associations between other objects also.
@@ -46,8 +46,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   layerclusters_ = consumes<reco::CaloClusterCollection>(label_lcl);
 
-  for (auto& itag : label_mcl) {
-    label_mclTokens.push_back(consumes<std::vector<reco::HGCalMultiCluster>>(itag));
+  for (auto& itag : label_tst) {
+    label_tstTokens.push_back(consumes<ticl::TracksterCollection>(itag));
   }
 
   associatorMapRtS = consumes<hgcal::RecoToSimCollection>(associator_);
@@ -169,10 +169,10 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
         ibook, histograms.histoProducerAlgo, totallayers_to_monitor_, thicknesses_to_monitor_);
   }
 
-  //Booking histograms for multiclusters
-  for (unsigned int www = 0; www < label_mcl.size(); www++) {
+  //Booking histograms for Tracksters
+  for (unsigned int www = 0; www < label_tst.size(); www++) {
     ibook.cd();
-    InputTag algo = label_mcl[www];
+    InputTag algo = label_tst[www];
     string dirName = dirName_;
     if (!algo.process().empty())
       dirName += algo.process() + "_";
@@ -192,11 +192,11 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
 
     ibook.setCurrentFolder(dirName);
 
-    //Booking histograms concerning for hgcal multi clusters
-    if (doMultiClustersPlots_) {
-      histoProducerAlgo_->bookMultiClusterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
+    //Booking histograms concerning for HGCal tracksters
+    if (doTrackstersPlots_) {
+      histoProducerAlgo_->bookTracksterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
     }
-  }  //end of booking multiclusters loop
+  }  //end of booking Tracksters loop
 }
 
 void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
@@ -374,28 +374,29 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   // ##############################################
-  // fill multicluster histograms
+  // fill Trackster histograms
   // ##############################################
-  for (unsigned int wml = 0; wml < label_mclTokens.size(); wml++) {
-    if (doMultiClustersPlots_) {
-      edm::Handle<std::vector<reco::HGCalMultiCluster>> multiClusterHandle;
-      event.getByToken(label_mclTokens[wml], multiClusterHandle);
-      const std::vector<reco::HGCalMultiCluster>& multiClusters = *multiClusterHandle;
+  for (unsigned int wml = 0; wml < label_tstTokens.size(); wml++) {
+    if (doTrackstersPlots_) {
+      edm::Handle<ticl::TracksterCollection> tracksterHandle;
+      event.getByToken(label_tstTokens[wml], tracksterHandle);
+      const ticl::TracksterCollection& tracksters = *tracksterHandle;
 
-      histoProducerAlgo_->fill_multi_cluster_histos(histograms.histoProducerAlgo,
-                                                    wml,
-                                                    multiClusters,
-                                                    caloParticles,
-                                                    cPIndices,
-                                                    selected_cPeff,
-                                                    *hitMap,
-                                                    totallayers_to_monitor_);
+      histoProducerAlgo_->fill_trackster_histos(histograms.histoProducerAlgo,
+                                                wml,
+                                                tracksters,
+                                                clusters,
+                                                caloParticles,
+                                                cPIndices,
+                                                selected_cPeff,
+                                                *hitMap,
+                                                totallayers_to_monitor_);
 
-      //General Info on multiclusters
-      LogTrace("HGCalValidator") << "\n# of multi clusters with " << label_mcl[wml].process() << ":"
-                                 << label_mcl[wml].label() << ":" << label_mcl[wml].instance() << ": "
-                                 << multiClusters.size() << "\n"
+      //General Info on Tracksters
+      LogTrace("HGCalValidator") << "\n# of Tracksters with " << label_tst[wml].process() << ":"
+                                 << label_tst[wml].label() << ":" << label_tst[wml].instance() << ": "
+                                 << tracksters.size() << "\n"
                                  << std::endl;
     }
-  }  //end of loop over multicluster input labels
+  }  //end of loop over Trackster input labels
 }
