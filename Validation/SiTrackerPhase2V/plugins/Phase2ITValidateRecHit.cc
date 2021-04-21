@@ -123,15 +123,13 @@ Phase2ITValidateRecHit::~Phase2ITValidateRecHit() {
 void Phase2ITValidateRecHit::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<edm::Handle<edm::PSimHitContainer>> simHits;
   for (const auto& itoken : simHitTokens_) {
-    edm::Handle<edm::PSimHitContainer> simHitHandle;
-    iEvent.getByToken(itoken, simHitHandle);
+    const auto& simHitHandle = iEvent.getHandle(itoken);
     if (!simHitHandle.isValid())
       continue;
     simHits.emplace_back(simHitHandle);
   }
   // Get the SimTracks and push them in a map of id, SimTrack
-  edm::Handle<edm::SimTrackContainer> simTracks;
-  iEvent.getByToken(simTracksToken_, simTracks);
+  const auto& simTracks = iEvent.getHandle(simTracksToken_);
 
   std::map<unsigned int, SimTrack> selectedSimTrackMap;
   for (const auto& simTrackIt : *simTracks) {
@@ -148,8 +146,7 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
                                           const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
                                           const std::map<unsigned int, SimTrack>& selectedSimTrackMap) {
   // Get the RecHits
-  edm::Handle<SiPixelRecHitCollection> rechits;
-  iEvent.getByToken(tokenRecHitsIT_, rechits);
+  const auto& rechits = iEvent.getHandle(tokenRecHitsIT_);
   if (!rechits.isValid())
     return;
   std::map<std::string, unsigned int> nrechitLayerMap_primary;
@@ -238,10 +235,8 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
 }
 
 void Phase2ITValidateRecHit::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &iSetup.getData(geomToken_);
+  tTopo_ = &iSetup.getData(topoToken_);
 }
 //
 // -- Book Histograms

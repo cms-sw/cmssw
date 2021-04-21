@@ -92,10 +92,8 @@ Phase2ITMonitorCluster::~Phase2ITMonitorCluster() {
 //
 // -- DQM Begin Run
 void Phase2ITMonitorCluster::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &iSetup.getData(geomToken_);
+  tTopo_ = &iSetup.getData(topoToken_);
 }
 
 //
@@ -103,8 +101,7 @@ void Phase2ITMonitorCluster::dqmBeginRun(const edm::Run& iRun, const edm::EventS
 //
 void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Getting the clusters
-  edm::Handle<edmNew::DetSetVector<SiPixelCluster>> itPixelClusterHandle;
-  iEvent.getByToken(itPixelClusterToken_, itPixelClusterHandle);
+  const auto& itPixelClusterHandle = iEvent.getHandle(itPixelClusterToken_);
   // Number of clusters
   std::map<std::string, unsigned int> nClsmap;
   unsigned int nclusGlobal = 0;
@@ -196,7 +193,6 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
   //Now book layer wise histos
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
   if (theTkDigiGeomWatcher.check(iSetup)) {
-    edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
     for (auto const& det_u : tkGeom_->detUnits()) {
       //Always check TrackerNumberingBuilder before changing this part
       if (!(det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXB ||

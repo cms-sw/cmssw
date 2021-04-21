@@ -115,7 +115,8 @@ Phase2OTMonitorRecHit::~Phase2OTMonitorRecHit() {
 // -- DQM Begin Run
 void Phase2OTMonitorRecHit::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
-  tTopo_ = &iSetup.getData(topoToken_);;
+  tTopo_ = &iSetup.getData(topoToken_);
+  ;
 }
 
 //
