@@ -37,6 +37,7 @@ using ROOT::Experimental::RNTupleWriteOptions;
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
+#include "PhysicsTools/NanoAOD/plugins/EventStringOutputFields.h"
 #include "PhysicsTools/NanoAOD/plugins/NanoAODRNTuples.h"
 #include "PhysicsTools/NanoAOD/plugins/TableOutputFields.h"
 #include "PhysicsTools/NanoAOD/plugins/TriggerOutputFields.h"
@@ -71,6 +72,7 @@ private:
   std::unique_ptr<RNTupleWriter> m_ntuple;
   TableCollections m_tables;
   std::vector<TriggerOutputFields> m_triggers;
+  EventStringOutputFields m_evstrings;
 
   class CommonEventFields {
   public:
@@ -208,7 +210,7 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
       m_triggers.emplace_back(TriggerOutputFields(keep.first->processName(), keep.second));
     } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&
                keep.first->productInstanceName() == "genModel") {
-      // m_evstrings.emplace_back(keep.first, keep.second, true);
+      m_evstrings.register_token(keep.second);
     } else {
       throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className());
     }
@@ -218,6 +220,7 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
     trigger.createFields(iEvent, *model);
   }
   m_tables.print();
+  m_evstrings.createFields(*model);
   // todo use Append
   RNTupleWriteOptions options;
   options.SetCompression(m_file->GetCompressionSettings());
@@ -239,6 +242,7 @@ void NanoAODRNTupleOutputModule::write(edm::EventForOutput const& iEvent) {
   for (auto& trigger: m_triggers) {
     trigger.fill(iEvent);
   }
+  m_evstrings.fill(iEvent);
   m_ntuple->Fill();
   m_processHistoryRegistry.registerProcessHistory(iEvent.processHistory());
 }
