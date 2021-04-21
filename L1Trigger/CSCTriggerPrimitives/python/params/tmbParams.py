@@ -26,13 +26,6 @@ tmbPhase1 = cms.PSet(
     # to ALCTs in this BX, and not use them in the following BX
     tmbDropUsedClcts = cms.bool(False),
 
-    # Switch to enable
-    #  True = CLCT-centric matching (default non-upgrade behavior,
-    #         take CLCTs in BX look for matching ALCTs in window)
-        #  False = ALCT-centric matching (recommended for Phase-2,
-    #         take ALCTs in BX look for matching CLCTs in window)
-    clctToAlct = cms.bool(False),
-
     ## bits for high-multiplicity triggers
     useHighMultiplicityBits = cms.bool(False),
 )
