@@ -133,7 +133,7 @@ bool PythiaFilterMultiAncestor::filter(edm::Event& iEvent, const edm::EventSetup
                 ++good_dau;
               }
               // check charge conjugation
-              if (-(*dau)->pdg_id() == daughterIDs[i]) { // notice minus sign
+              if (-(*dau)->pdg_id() == daughterIDs[i]) {  // notice minus sign
                 if ((*dau)->momentum().perp() < daughterMinPts[i])
                   continue;
                 if ((*dau)->momentum().perp() > daughterMaxPts[i])
