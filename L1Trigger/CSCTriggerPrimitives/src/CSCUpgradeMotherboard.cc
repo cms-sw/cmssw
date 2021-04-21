@@ -47,24 +47,6 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap,
   setPrefIndex();
 }
 
-CSCUpgradeMotherboard::CSCUpgradeMotherboard() : CSCMotherboard(), allLCTs(match_trig_window_size) {
-  if (!runPhase2_)
-    edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runPhase2_ is not set! +++\n";
-
-  if (theRing == 1) {
-    if (theStation == 1 and !runME11Up_)
-      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME11Up_ is not set! +++\n";
-    if (theStation == 2 and !runME21Up_)
-      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME21Up_ is not set! +++\n";
-    if (theStation == 3 and !runME31Up_)
-      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME31Up_ is not set! +++\n";
-    if (theStation == 4 and !runME41Up_)
-      edm::LogError("CSCUpgradeMotherboard|SetupError") << "+++ TMB constructed while runME41Up_ is not set! +++\n";
-  }
-
-  setPrefIndex();
-}
-
 void CSCUpgradeMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc) {
   clear();
 

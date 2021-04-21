@@ -54,9 +54,6 @@ public:
                        unsigned chamber,
                        const edm::ParameterSet& conf);
 
-  /** Default constructor. Used for testing. */
-  CSCAnodeLCTProcessor();
-
   /** Default destructor. */
   ~CSCAnodeLCTProcessor() override = default;
 

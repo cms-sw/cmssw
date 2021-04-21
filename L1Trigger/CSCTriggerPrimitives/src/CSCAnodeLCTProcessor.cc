@@ -90,30 +90,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
   showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
 }
 
-CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() : CSCBaseboard() {
-  // Used for debugging. -JM
-  static std::atomic<bool> config_dumped{false};
-
-  // ALCT parameters.
-  setDefaultConfigParameters();
-  infoV = 2;
-
-  early_tbins = 4;
-
-  // Check and print configuration parameters.
-  checkConfigParameters();
-  if (!config_dumped) {
-    dumpConfigParams();
-    config_dumped = true;
-  }
-
-  numWireGroups = CSCConstants::MAX_NUM_WIREGROUPS;
-  MESelection = (theStation < 3) ? 0 : 1;
-
-  // Load pattern mask.
-  loadPatternMask();
-}
-
 void CSCAnodeLCTProcessor::loadPatternMask() {
   // Load appropriate pattern mask.
   if (narrow_mask_r1 && (theRing == 1 || theRing == 4)) {

@@ -49,9 +49,6 @@ public:
                  unsigned chamber,
                  const edm::ParameterSet& conf);
 
-  /** Constructor for use during testing. */
-  CSCMotherboard();
-
   /** Default destructor. */
   ~CSCMotherboard() override = default;
 
