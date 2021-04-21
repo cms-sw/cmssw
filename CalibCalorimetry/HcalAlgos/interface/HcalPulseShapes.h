@@ -7,6 +7,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShape.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
@@ -62,7 +63,7 @@ public:
     for (unsigned i = 0; i < 2 * nbin - 1; ++i) {
       for (unsigned j = 0; j < std::min(i + 1, nbin); ++j) {
         double tmp = f1(j) * f2(i - j);
-        if (std::isnan(tmp) or std::isinf(tmp))
+        if (edm::isNotFinite(tmp))
           continue;
         result[i] += tmp;
       }
