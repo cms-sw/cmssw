@@ -150,19 +150,32 @@ I will ask you some questions to fill the metadata file. For some of the questio
             inputTag = getInputChoose(inputTags, '0',
                                       '\nWhich is the input tag (i.e. the tag to be read from the SQLite data file)?\ne.g. 0 (you select the first in the list)\ninputTag [0]: ')
 
+        databases = {
+            'oraprod': 'oracle://cms_orcon_prod/CMS_CONDITIONS',
+			'prod': 'oracle://cms_orcon_prod/CMS_CONDITIONS',
+            'oradev': 'oracle://cms_orcoff_prep/CMS_CONDITIONS',
+			'prep': 'oracle://cms_orcoff_prep/CMS_CONDITIONS',
+        }
+
         destinationDatabase = ''
         ntry = 0
-        while ( destinationDatabase != 'oracle://cms_orcon_prod/CMS_CONDITIONS' and destinationDatabase != 'oracle://cms_orcoff_prep/CMS_CONDITIONS' ): 
+        print('\nWhich is the destination database where the tags should be exported?')
+        print('\n%s) %s' % ('oraprod', databases['oraprod']))
+        print('\n%s) %s' % ('oradev', databases['oradev']))
+            
+        while ( destinationDatabase not in databases.values() ): 
             if ntry==0:
                 inputMessage = \
-                '\nWhich is the destination database where the tags should be exported? \nPossible choices: oracle://cms_orcon_prod/CMS_CONDITIONS (for prod) or oracle://cms_orcoff_prep/CMS_CONDITIONS (for prep) \ndestinationDatabase: '
+                '\nPossible choices: oraprod or oradev \ndestinationDatabase: '
             elif ntry==1:
                 inputMessage = \
-                '\nPlease choose one of the two valid destinations: \noracle://cms_orcon_prod/CMS_CONDITIONS (for prod) or oracle://cms_orcoff_prep/CMS_CONDITIONS (for prep) \
-\ndestinationDatabase: '
+                '\nPlease choose one of the two valid destinations: oraprod or oradev \ndestinationDatabase: '
             else:
                 raise Exception('No valid destination chosen. Bailing out...')
-            destinationDatabase = getInputRepeat(inputMessage)
+			
+            databaseInput = getInputRepeat(inputMessage).lower()
+            if databaseInput in databases.keys():
+                destinationDatabase = databases[databaseInput]
             ntry += 1
 
         while True:
@@ -262,8 +275,7 @@ def parse_arguments():
 	server_alias_to_url = {
 		"prep" : "https://cms-conddb-dev.cern.ch/cmsDbCondUpload/",
 		"dev" : "https://cms-conddb-dev.cern.ch/cmsDbCondUpload/",
-		"prod" : "https://cms-conddb.cern.ch/cmsDbCondUpload/",
-		None : "https://cms-conddb.cern.ch/cmsDbCondUpload/"
+		"prod" : "https://cms-conddb.cern.ch/cmsDbCondUpload/"
 	}
 
 	# if prep, prod or None were given, convert to URLs in dictionary server_alias_to_url
@@ -280,6 +292,7 @@ def parse_arguments():
 	
 	if command_line_data.destinationDatabase in database_alias_to_connection.keys():
 		command_line_data.destinationDatabase = database_alias_to_connection[command_line_data.destinationDatabase]
+
 
 	# use netrc to get username and password
 	try:
@@ -378,8 +391,6 @@ def parse_arguments():
 		metadata_dictionary["userText"] = metadata_dictionary.get("userText")\
 											if metadata_dictionary.get("userText") != None\
 											else str(raw_input("Tag's description [can be empty]:"))
-		# set the server to use to be the default one
-		metadata_dictionary["server"] = server_alias_to_url[None]
 
 		# go through command line options and, if they are set, overwrite entries
 		for (option_name, option_value) in command_line_data.__dict__.items():
@@ -412,6 +423,12 @@ def parse_arguments():
 
 		if raw_input("\nDo you want to continue? [y/n] ") != "y":
 			exit()
+
+	if metadata_dictionary["server"] == None:
+		if metadata_dictionary["destinationDatabase"] == "oracle://cms_orcoff_prep/CMS_CONDITIONS":
+			metadata_dictionary["server"] = server_alias_to_url["prep"]
+		else:
+			metadata_dictionary["server"] = server_alias_to_url["prod"]
 
 	return metadata_dictionary
 
