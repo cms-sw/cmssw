@@ -14,6 +14,7 @@
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="SimDataFormats/Vertex"/>
+<use name="DataFormats/ParticleFlowReco"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>
