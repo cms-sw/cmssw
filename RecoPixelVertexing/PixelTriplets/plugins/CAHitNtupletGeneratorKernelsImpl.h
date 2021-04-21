@@ -111,7 +111,8 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
 }
 
 __global__ void kernel_fishboneCleaner(GPUCACell const *cells, uint32_t const *__restrict__ nCells, Quality *quality) {
-  constexpr auto bad = pixelTrack::Quality::bad;
+  constexpr auto dup = pixelTrack::Quality::dup;
+  constexpr auto loose = pixelTrack::Quality::loose;
 
   auto first = threadIdx.x + blockIdx.x * blockDim.x;
   for (int idx = first, nt = (*nCells); idx < nt; idx += gridDim.x * blockDim.x) {
@@ -120,7 +121,7 @@ __global__ void kernel_fishboneCleaner(GPUCACell const *cells, uint32_t const *_
       continue;
 
     for (auto it : thisCell.tracks())
-      quality[it] = bad;
+      quality[it] = dup;
   }
 }
 
@@ -173,6 +174,8 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
   constexpr auto bad = pixelTrack::Quality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
   constexpr auto loose = pixelTrack::Quality::loose;
+  constexpr auto strict = pixelTrack::Quality::strict;
+
 
   assert(nCells);
 
@@ -188,12 +191,12 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
 
     auto score = [&](auto it) {
       return  foundNtuplets->size(it)<4 ? 
-               std::abs(tracks->tip(it)) :   // tip
+               std::abs(tracks->tip(it)) :   // tip for triplets
                tracks->chi2(it);  //chi2
     };
 
     // find maxQual
-    auto maxQual = loose;
+    auto maxQual = strict;  // no duplicate!
     for (auto it : thisCell.tracks()) {
       if (tracks->quality(it) > maxQual)
         maxQual = tracks->quality(it);
@@ -211,8 +214,8 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
     for (auto it : thisCell.tracks()) {
       if (
        //  ((!quadPassThrough) || foundNtuplets->size(it) < 4) && 
-        tracks->quality(it) >= loose && it != im)
-        tracks->quality(it) = dup;  //no race:  simple assignment of the same constant
+        tracks->quality(it) >= strict && it != im)
+        tracks->quality(it) = loose;  //no race:  simple assignment of the same constant
     }
   }
 }
@@ -390,7 +393,7 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
       continue;
     }
 
-    quality[it] = pixelTrack::Quality::loose;
+    quality[it] = pixelTrack::Quality::strict;
 
     // compute a pT-dependent chi2 cut
     // default parameters:
@@ -437,7 +440,7 @@ __global__ void kernel_doStatsForTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  //guard
-    if (quality[idx] < pixelTrack::Quality::loose)
+    if (quality[idx] < pixelTrack::Quality::strict)
       continue;
     atomicAdd(&(counters->nGoodTracks), 1);
   }
@@ -511,6 +514,8 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
   constexpr auto bad = pixelTrack::Quality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
   constexpr auto loose = pixelTrack::Quality::loose;
+  constexpr auto strict = pixelTrack::Quality::strict;
+
 
   auto &hitToTuple = *phitToTuple;
   auto const &foundNtuplets = *ptuples;
@@ -546,15 +551,15 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
         continue;
 
       if (nh < maxNh)
-        quality[*it] = dup;
+        quality[*it] = loose;
     }
 
     if (maxNh > 3)
       continue;
-    // for triplets choose best tip!
+    // for triplets choose best tip!  (should we first find best quality???)
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      if (quality[it] >= loose && std::abs(tracks.tip(it)) < mc) {
+      if (quality[it] >= strict && std::abs(tracks.tip(it)) < mc) {
         mc = std::abs(tracks.tip(it));
         im = it;
       }
@@ -562,8 +567,8 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
     // mark duplicates
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      if (quality[it] >= loose && it != im)
-        quality[it] = dup;  //no race:  simple assignment of the same constant
+      if (quality[it] >= strict && it != im)
+        quality[it] = loose;  //no race:  simple assignment of the same constant
     }
   }  // loop over hits
 }
