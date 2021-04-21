@@ -25,12 +25,6 @@ CSCUpgradeCathodeLCTProcessor::CSCUpgradeCathodeLCTProcessor(unsigned endcap,
   use_corrected_bx = clctParams_.getParameter<bool>("clctUseCorrectedBx");
 }
 
-CSCUpgradeCathodeLCTProcessor::CSCUpgradeCathodeLCTProcessor() : CSCCathodeLCTProcessor() {
-  if (!runPhase2_)
-    edm::LogError("CSCUpgradeCathodeLCTProcessor|ConfigError")
-        << "+++ Upgrade CSCUpgradeCathodeLCTProcessor constructed while runPhase2_ is not set! +++\n";
-}
-
 // --------------------------------------------------------------------------
 // The code below is for Phase2 studies of the CLCT algorithm (half-strips only).
 // --------------------------------------------------------------------------
