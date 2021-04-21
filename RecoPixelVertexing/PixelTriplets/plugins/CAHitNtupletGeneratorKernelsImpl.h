@@ -377,6 +377,9 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
 
     assert(quality[it] == pixelTrack::Quality::bad);
 
+    if(quality[it] != pixelTrack::Quality::bad) printf("big mess\n");
+
+
     // mark doublets as bad
     if (nhits < 3)
       continue;
