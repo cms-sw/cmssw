@@ -22,6 +22,12 @@ namespace ticl {
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
       iDesc.add<int>("algo_verbosity", 0);
+      iDesc.add<double>("criticalDensity", 4); // in GeV
+      iDesc.add<int>("densitySiblingLayers", 3);
+      iDesc.add<double>("densityEtaPhiDistanceSqr", 0.0009);
+      iDesc.add<bool>("densityOnSameLayer", false);
+      iDesc.add<double>("criticalEtaPhiDistance", 0.035);
+      iDesc.add<double>("outlierMultiplier", 2);
       iDesc.add<std::string>("eid_input_name", "input");
       iDesc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
       iDesc.add<std::string>("eid_output_name_id", "output/id_probabilities");
@@ -100,6 +106,12 @@ namespace ticl {
 
     std::vector<ClustersOnLayer> clusters_;
 
+    const double criticalDensity_;
+    const int densitySiblingLayers_;
+    const double densityEtaPhiDistanceSqr_;
+    const double densityOnSameLayer_;
+    const double criticalEtaPhiDistance_;
+    const double outlierMultiplier_;
     const std::vector<int> filter_on_categories_;
     const std::string eidInputName_;
     const std::string eidOutputNameEnergy_;
