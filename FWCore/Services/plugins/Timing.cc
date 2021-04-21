@@ -71,6 +71,9 @@ namespace edm {
       void preModuleGlobal(GlobalContext const&, ModuleCallingContext const&);
       void postModuleGlobal(GlobalContext const&, ModuleCallingContext const&);
 
+      void postGlobalBeginRun(GlobalContext const&);
+      void postGlobalBeginLumi(GlobalContext const&);
+
       void preModuleStream(StreamContext const&, ModuleCallingContext const&);
       void postModuleStream(StreamContext const&, ModuleCallingContext const&);
 
@@ -93,6 +96,8 @@ namespace edm {
       std::vector<double> min_events_time_; // seconds
       std::vector<double> sum_events_time_;
       std::atomic<unsigned long> total_event_count_;
+      std::atomic<unsigned long> begin_lumi_count_;
+      std::atomic<unsigned long> begin_run_count_;
       unsigned int nStreams_;
       unsigned int nThreads_;
     };
@@ -177,7 +182,9 @@ namespace edm {
         threshold_(iPS.getUntrackedParameter<double>("excessiveTimeThreshold")),
         max_events_time_(),
         min_events_time_(),
-        total_event_count_(0) {
+        total_event_count_(0),
+        begin_lumi_count_(0),
+        begin_run_count_(0) {
       iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
       iRegistry.watchPostEndJob(this, &Timing::postEndJob);
 
@@ -243,6 +250,9 @@ namespace edm {
         iRegistry.watchPreSourceConstruction(this, &Timing::preModule);
         iRegistry.watchPostSourceConstruction(this, &Timing::postModule);
       }
+
+      iRegistry.watchPostGlobalBeginRun(this, &Timing::postGlobalBeginRun);
+      iRegistry.watchPostGlobalBeginLumi(this, &Timing::postGlobalBeginLumi);
 
       iRegistry.preallocateSignal_.connect([this](service::SystemBounds const& iBounds){
         nStreams_ = iBounds.maxNumberOfStreams();
@@ -346,8 +356,11 @@ namespace edm {
         << " CPU Summary: \n"
         << " - Total loop:  " << total_loop_cpu << "\n"
         << " - Total extra: " << extra_job_cpu_ << "\n"
-        << " - Total job:   " << total_job_cpu << "\n";
-
+        << " - Total job:   " << total_job_cpu << "\n"
+        << " Processing Summary: \n"
+        << " - Number of Events:  " << total_event_count_ << "\n"
+        << " - Number of Global Begin Lumi Calls:  " << begin_lumi_count_ << "\n"
+        << " - Number of Global Begin Run Calls: " << begin_run_count_ << "\n";
 
       if(report_summary_) {
         Service<JobReport> reportSvc;
@@ -363,6 +376,12 @@ namespace edm {
         reportData.insert(std::make_pair("NumberOfStreams",ui2str(nStreams_)));
         reportData.insert(std::make_pair("NumberOfThreads",ui2str(nThreads_)));
         reportSvc->reportPerformanceSummary("Timing", reportData);
+
+        std::map<std::string, std::string> reportData1;
+        reportData1.insert(std::make_pair("NumberEvents", ui2str(total_event_count_)));
+        reportData1.insert(std::make_pair("NumberBeginLumiCalls", ui2str(begin_lumi_count_)));
+        reportData1.insert(std::make_pair("NumberBeginRunCalls", ui2str(begin_run_count_)));
+        reportSvc->reportPerformanceSummary("ProcessingSummary", reportData1);
       }
     }
 
@@ -454,6 +473,16 @@ namespace edm {
     void
     Timing::postModuleGlobal(GlobalContext const&, ModuleCallingContext const& mcc) {
       postCommon();
+    }
+
+    void
+    Timing::postGlobalBeginRun(GlobalContext const&) {
+      ++begin_run_count_;
+    }
+
+    void
+    Timing::postGlobalBeginLumi(GlobalContext const&) {
+      ++begin_lumi_count_;
     }
 
     void
