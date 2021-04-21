@@ -52,7 +52,10 @@ namespace edm {
       
       void preModule(StreamContext const&, ModuleCallingContext const&);
       void postModule(StreamContext const&, ModuleCallingContext const&);
-      
+
+      void postGlobalBeginRun(GlobalContext const&);
+      void postGlobalBeginLumi(GlobalContext const&);
+
       double curr_job_time_;    // seconds
       double curr_job_cpu_;     // seconds
                                 //use last run time for determining end of processing
@@ -69,6 +72,8 @@ namespace edm {
       std::vector<double> min_events_time_; // seconds
       std::vector<double> sum_events_time_;
       std::atomic<unsigned long> total_event_count_;
+      std::atomic<unsigned long> begin_lumi_count_;
+      std::atomic<unsigned long> begin_run_count_;
     };
   }
 }
@@ -80,6 +85,12 @@ namespace edm {
         std::stringstream t;
         t << d;
         return t.str();
+    }
+
+    static std::string ui2str(unsigned int i) {
+      std::stringstream t;
+      t << i;
+      return t.str();
     }
 
     static double getTime() {
@@ -118,7 +129,9 @@ namespace edm {
         report_summary_(iPS.getUntrackedParameter<bool>("useJobReport")),
         max_events_time_(),
         min_events_time_(),
-        total_event_count_(0) {
+        total_event_count_(0),
+        begin_lumi_count_(0),
+        begin_run_count_(0) {
       iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
       iRegistry.watchPostEndJob(this, &Timing::postEndJob);
 
@@ -130,6 +143,9 @@ namespace edm {
         iRegistry.watchPostModuleEvent(this, &Timing::postModule);
       }
           
+      iRegistry.watchPostGlobalBeginRun(this, &Timing::postGlobalBeginRun);
+      iRegistry.watchPostGlobalBeginLumi(this, &Timing::postGlobalBeginLumi);
+
       iRegistry.preallocateSignal_.connect([this](service::SystemBounds const& iBounds){
         auto nStreams = iBounds.maxNumberOfStreams();
         curr_events_time_.resize(nStreams,0.);
@@ -208,7 +224,11 @@ namespace edm {
         << " Event Throughput: "<<total_event_count_/ total_loop_time<<" ev/s\n"
         << " CPU Summary: \n"
         << " - Total loop:  " << total_loop_cpu << "\n"
-        << " - Total job:   " << total_job_cpu << "\n";
+        << " - Total job:   " << total_job_cpu << "\n"
+        << " Processing Summary: \n"
+        << " - Number of Events:  " << total_event_count_ << "\n"
+        << " - Number of Global Begin Lumi Calls:  " << begin_lumi_count_ << "\n"
+        << " - Number of Global Begin Run Calls: " << begin_run_count_ << "\n";
 
       if(report_summary_) {
         Service<JobReport> reportSvc;
@@ -223,6 +243,12 @@ namespace edm {
         reportData.insert(std::make_pair("TotalLoopCPU", d2str(total_loop_cpu)));
 
         reportSvc->reportPerformanceSummary("Timing", reportData);
+
+        std::map<std::string, std::string> reportData1;
+        reportData1.insert(std::make_pair("NumberEvents", ui2str(total_event_count_)));
+        reportData1.insert(std::make_pair("NumberBeginLumiCalls", ui2str(begin_lumi_count_)));
+        reportData1.insert(std::make_pair("NumberBeginRunCalls", ui2str(begin_run_count_)));
+        reportSvc->reportPerformanceSummary("ProcessingSummary", reportData1);
       }
     }
 
@@ -277,6 +303,15 @@ namespace edm {
       << desc.moduleName() << " "
       << t;
     }
+
+    void Timing::postGlobalBeginRun(GlobalContext const&) {
+      ++begin_run_count_;
+    }
+
+    void Timing::postGlobalBeginLumi(GlobalContext const&) {
+      ++begin_lumi_count_;
+    }
+
   }
 }
 
