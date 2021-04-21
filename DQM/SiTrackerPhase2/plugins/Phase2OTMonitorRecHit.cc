@@ -114,19 +114,16 @@ Phase2OTMonitorRecHit::~Phase2OTMonitorRecHit() {
 //
 // -- DQM Begin Run
 void Phase2OTMonitorRecHit::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &iSetup.getData(geomToken_);
+  tTopo_ = &iSetup.getData(topoToken_);;
 }
 
 //
 // -- Analyze
 //
 void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // Get the RecHits
-  edm::Handle<Phase2TrackerRecHit1DCollectionNew> rechits;
-  iEvent.getByToken(tokenRecHitsOT_, rechits);
+  // Get the RecHits Phase2TrackerRecHit1DCollectionNew
+  const auto& rechits = iEvent.getHandle(tokenRecHitsOT_);
   if (!rechits.isValid())
     return;
   std::map<std::string, unsigned int> nrechitLayerMapP;

@@ -150,10 +150,8 @@ Phase2OTValidateRecHit::~Phase2OTValidateRecHit() {
 //
 // -- DQM Begin Run
 void Phase2OTValidateRecHit::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &iSetup.getData(geomToken_);
+  tTopo_ = &iSetup.getData(topoToken_);
 }
 
 //
@@ -162,16 +160,13 @@ void Phase2OTValidateRecHit::dqmBeginRun(const edm::Run& iRun, const edm::EventS
 void Phase2OTValidateRecHit::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<edm::Handle<edm::PSimHitContainer>> simHits;
   for (const auto& itoken : simHitTokens_) {
-    edm::Handle<edm::PSimHitContainer> simHitHandle;
-    iEvent.getByToken(itoken, simHitHandle);
+    const auto& simHitHandle = iEvent.getHandle(itoken);
     if (!simHitHandle.isValid())
       continue;
     simHits.emplace_back(simHitHandle);
   }
   // Get the SimTracks and push them in a map of id, SimTrack
-  edm::Handle<edm::SimTrackContainer> simTracks;
-  iEvent.getByToken(simTracksToken_, simTracks);
-
+  const auto& simTracks = iEvent.getHandle(simTracksToken_);
   std::map<unsigned int, SimTrack> selectedSimTrackMap;
   for (edm::SimTrackContainer::const_iterator simTrackIt(simTracks->begin()); simTrackIt != simTracks->end();
        ++simTrackIt) {
@@ -188,8 +183,7 @@ void Phase2OTValidateRecHit::fillOTHistos(const edm::Event& iEvent,
                                           const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
                                           const std::map<unsigned int, SimTrack>& selectedSimTrackMap) {
   // Get the RecHits
-  edm::Handle<Phase2TrackerRecHit1DCollectionNew> rechits;
-  iEvent.getByToken(tokenRecHitsOT_, rechits);
+  const auto& rechits = iEvent.getHandle(tokenRecHitsOT_);
   if (!rechits.isValid())
     return;
   std::map<std::string, unsigned int> nrechitLayerMapP_primary;
@@ -228,7 +222,6 @@ void Phase2OTValidateRecHit::fillOTHistos(const edm::Event& iEvent,
       LocalPoint lp = rechitIt->localPosition();
       //GetSimHits
       const std::vector<SimHitIdpr>& matchedId = associateRecHit.associateHitId(*rechitIt);
-      //std::cout << "Nmatched SimHits = "  << matchedId.size() << ",";
       const PSimHit* simhitClosest = nullptr;
       float mind = 1e4;
       for (unsigned int si = 0; si < simHits.size(); ++si) {

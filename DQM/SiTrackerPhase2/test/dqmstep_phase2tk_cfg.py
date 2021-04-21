@@ -110,12 +110,12 @@ process.rechits_step = cms.Path(process.siPhase2RecHits * process.siPixelRecHits
 process.load('DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff')
 process.load('DQM.SiTrackerPhase2.Phase2OTMonitorRecHit_cfi')
 
-process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy())#*process.Phase2OTMonitorRecHit)
+process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy()*process.Phase2OTMonitorRecHit)
 
 process.load('Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff')
 process.load('Validation.SiTrackerPhase2V.Phase2OTValidateRecHit_cfi')
 
-process.otvalid_seq = cms.Sequence(process.trackerphase2ValidationSource.copy())#*process.Phase2OTValidateRecHit)
+process.otvalid_seq = cms.Sequence(process.trackerphase2ValidationSource.copy()*process.Phase2OTValidateRecHit)
 
 process.dqm_step=cms.Path(process.otdqm_seq)
 process.validation_step=cms.Path(process.otvalid_seq)
