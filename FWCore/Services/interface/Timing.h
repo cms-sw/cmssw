@@ -15,6 +15,7 @@ namespace edm {
   class ActivityRegistry;
   class Event;
   class EventSetup;
+  class GlobalContext;
   class ParameterSet;
   class ConfigurationDescriptions;
   class StreamContext;
@@ -39,6 +40,9 @@ namespace edm {
       void preModule(StreamContext const&, ModuleCallingContext const&);
       void postModule(StreamContext const&, ModuleCallingContext const&);
 
+      void postGlobalBeginRun(GlobalContext const&);
+      void postGlobalBeginLumi(GlobalContext const&);
+
       double curr_job_time_;    // seconds
       double curr_job_cpu_;     // seconds
       std::vector<double> curr_events_time_;  // seconds
@@ -55,6 +59,8 @@ namespace edm {
       std::vector<double> min_events_time_; // seconds
       std::vector<double> min_events_cpu_;  // seconds
       std::atomic<unsigned long> total_event_count_;
+      std::atomic<unsigned long> begin_lumi_count_;
+      std::atomic<unsigned long> begin_run_count_;
     };
   }
 }
