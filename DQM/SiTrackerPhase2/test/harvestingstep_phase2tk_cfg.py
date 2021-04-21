@@ -31,17 +31,6 @@ process.source = cms.Source("DQMRootSource",
     fileNames = cms.untracked.vstring('file:step3_pre4_inDQM.root'
     )
 )
-'''
-'file:crab/crab_nopu_pre4/step3_pre4_inDQM_1.root',
-'file:crab/crab_nopu_pre4/step3_pre4_inDQM_2.root',
-'file:crab/crab_nopu_pre4/step3_pre4_inDQM_3.root',
-'file:crab/crab_nopu_pre4/step3_pre4_inDQM_4.root',
-'file:crab/crab_nopu_pre4/step3_pre4_inDQM_5.root',
-'file:crab/crab_nopu_pre4/step3_pre4_inDQM_6.root',
-'file:crab/crab_nopu_pre4/step3_pre4_inDQM_7.root',
-'file:crab/crab_nopu_pre4/step3_pre4_inDQM_8.root',
-'file:crab/crab_nopu_pre4/step3_pre4_inDQM_9.root',
-'''
 
 process.options = cms.untracked.PSet(
     FailPath = cms.untracked.vstring(),
