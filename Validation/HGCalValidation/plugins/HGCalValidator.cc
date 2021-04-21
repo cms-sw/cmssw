@@ -338,8 +338,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                             simRecColl);
 
       //General Info on simClusters
-      LogTrace("HGCalValidator") << "\n# of SimClusters: " << nSimClusters << ", layerClusters mask label: "
-                                 << label_clustersmask[ws].label() << "\n";
+      LogTrace("HGCalValidator") << "\n# of SimClusters: " << nSimClusters
+                                 << ", layerClusters mask label: " << label_clustersmask[ws].label() << "\n";
     }  //end of loop overs masks
   }
 

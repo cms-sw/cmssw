@@ -300,14 +300,14 @@ public:
                                          const hgcal::SimToRecoCollectionWithSimClusters& simRecColl) const;
   void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
   void fill_trackster_histos(const Histograms& histograms,
-                                 int count,
-                                 const ticl::TracksterCollection& Tracksters,
-                                 const reco::CaloClusterCollection& layerClusters,
-                                 std::vector<CaloParticle> const& cP,
-                                 std::vector<size_t> const& cPIndices,
-                                 std::vector<size_t> const& cPSelectedIndices,
-                                 std::unordered_map<DetId, const HGCRecHit*> const&,
-                                 unsigned int layers) const;
+                             int count,
+                             const ticl::TracksterCollection& Tracksters,
+                             const reco::CaloClusterCollection& layerClusters,
+                             std::vector<CaloParticle> const& cP,
+                             std::vector<size_t> const& cPIndices,
+                             std::vector<size_t> const& cPSelectedIndices,
+                             std::unordered_map<DetId, const HGCRecHit*> const&,
+                             unsigned int layers) const;
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
