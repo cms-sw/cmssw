@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoHGCal.TICL.CLUE3DStep_cff import *
+from RecoHGCal.TICL.CLUE3DHighStep_cff import *
 from RecoHGCal.TICL.MIPStep_cff import *
 from RecoHGCal.TICL.TrkEMStep_cff import *
 from RecoHGCal.TICL.TrkStep_cff import *
@@ -21,7 +21,7 @@ pfTICL = _pfTICLProducer.clone()
 ticlPFTask = cms.Task(pfTICL)
 
 iterTICLTask = cms.Task(ticlLayerTileTask
-    ,ticlCLUE3DStepTask
+    ,ticlCLUE3DHighStepTask
     ,ticlTrkEMStepTask
     ,ticlEMStepTask
     ,ticlTrkStepTask

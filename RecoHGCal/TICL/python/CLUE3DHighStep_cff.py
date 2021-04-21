@@ -7,30 +7,30 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 
 # CLUSTER FILTERING/MASKING
 
-filteredLayerClustersCLUE3D = _filteredLayerClustersProducer.clone(
+filteredLayerClustersCLUE3DHigh = _filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterByAlgoAndSize",
     min_cluster_size = 2, # inclusive
     algo_number = 8,
-    iteration_label = "CLUE3D"
+    iteration_label = "CLUE3DHigh"
 )
 
 # CA - PATTERN RECOGNITION
 
-ticlTrackstersCLUE3D = _trackstersProducer.clone(
-    filtered_mask = "filteredLayerClustersCLUE3D:CLUE3D",
+ticlTrackstersCLUE3DHigh = _trackstersProducer.clone(
+    filtered_mask = "filteredLayerClustersCLUE3DHigh:CLUE3DHigh",
     seeding_regions = "ticlSeedingGlobal",
-    itername = "CLUE3D",
+    itername = "CLUE3DHigh",
     patternRecognitionBy = "CLUE3D"
 )
 
 # MULTICLUSTERS
 
-ticlMultiClustersFromTrackstersCLUE3D = _multiClustersFromTrackstersProducer.clone(
-    Tracksters = "ticlTrackstersCLUE3D"
+ticlMultiClustersFromTrackstersCLUE3DHigh = _multiClustersFromTrackstersProducer.clone(
+    Tracksters = "ticlTrackstersCLUE3DHigh"
 )
 
-ticlCLUE3DStepTask = cms.Task(ticlSeedingGlobal
-    ,filteredLayerClustersCLUE3D
-    ,ticlTrackstersCLUE3D
-    ,ticlMultiClustersFromTrackstersCLUE3D)
+ticlCLUE3DHighStepTask = cms.Task(ticlSeedingGlobal
+    ,filteredLayerClustersCLUE3DHigh
+    ,ticlTrackstersCLUE3DHigh
+    ,ticlMultiClustersFromTrackstersCLUE3DHigh)
 
