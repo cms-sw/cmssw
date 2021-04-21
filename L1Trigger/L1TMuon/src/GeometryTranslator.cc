@@ -12,7 +12,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
-#include "DataFormats/L1TMuon/interface/CSCConstants.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"

@@ -9,12 +9,12 @@ from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleV
 import Validation.HGCalValidation.hgcalPlots as hgcalPlots
 import Validation.RecoTrack.plotting.plotting as plotting
 
-simClustersIters = ["ClusterLevel","ticlTrackstersTrkEM","ticlTrackstersEM","ticlTrackstersTrk","ticlTrackstersHAD"]
+simClustersIters = ["ClusterLevel","ticlTrackstersTrkEM","ticlTrackstersEM","ticlTrackstersTrk","ticlTrackstersHAD","ticlSimTracksters"]
 
 trackstersIters = ["ticlMultiClustersFromTrackstersMerge", "ticlMultiClustersFromTrackstersMIP",
                    "ticlMultiClustersFromTrackstersTrk","ticlMultiClustersFromTrackstersTrkEM",
                    "ticlMultiClustersFromTrackstersEM", "ticlMultiClustersFromTrackstersHAD",
-                   "ticlMultiClustersFromTrackstersDummy"]
+                   "ticlMultiClustersFromSimTracksters"]
 
 simClustersGeneralLabel = 'simClusters'
 layerClustersGeneralLabel = 'hgcalLayerClusters'
@@ -53,8 +53,8 @@ def main(opts):
 
     #layerClusters
     if (opts.collection == layerClustersGeneralLabel):
-	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
+        hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
+        hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
         val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
     #simClusters
     elif (opts.collection == simClustersGeneralLabel):
@@ -74,6 +74,11 @@ def main(opts):
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
+        # TICLTrackstersEdges plots
+        for i_iter in trackstersIters :
+            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
+            hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection, tracksterCollection)]
+            val.doPlots(hgctracksters, plotterDrawArgs=drawArgs)
     elif (opts.collection == caloParticlesLabel):
         particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
                          "muon-": "-13", "muon+":"13", 
@@ -86,7 +91,7 @@ def main(opts):
         val.doPlots(hgcaloPart, plotterDrawArgs=drawArgs)
     #hitValidation
     elif (opts.collection == hitValidationLabel):
-    	hgchit = [hgcalPlots.hgcalHitPlotter]
+        hgchit = [hgcalPlots.hgcalHitPlotter]
         hgcalPlots.append_hgcalHitsPlots('HGCalSimHitsV', "Simulated Hits")
         hgcalPlots.append_hgcalHitsPlots('HGCalRecHitsV', "Reconstruced Hits")
         hgcalPlots.append_hgcalDigisPlots('HGCalDigisV', "Digis")
@@ -108,11 +113,11 @@ def main(opts):
         val.doPlots(hgcaloPart, plotterDrawArgs=drawArgs)
 
         #hits
-    	hgchit = [hgcalPlots.hgcalHitPlotter]
+        hgchit = [hgcalPlots.hgcalHitPlotter]
         hgcalPlots.append_hgcalHitsPlots('HGCalSimHitsV', "Simulated Hits")
         hgcalPlots.append_hgcalHitsPlots('HGCalRecHitsV', "Reconstruced Hits")
         hgcalPlots.append_hgcalDigisPlots('HGCalDigisV', "Digis")
-    	val.doPlots(hgchit, plotterDrawArgs=drawArgs)   
+        val.doPlots(hgchit, plotterDrawArgs=drawArgs)   
 
         #calib
         hgchitcalib = [hgcalPlots.hgcalHitCalibPlotter]
@@ -124,10 +129,10 @@ def main(opts):
             hgcalPlots.append_hgcalSimClustersPlots(i_iter, i_iter)
         val.doPlots(hgcsimclus, plotterDrawArgs=drawArgs)
 
-	#layer clusters
-	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-	hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
-	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+        #layer clusters
+        hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter] 
+        hgcalPlots.append_hgcalLayerClustersPlots("hgcalLayerClusters", "Layer Clusters", extendedFlag)
+        val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
 
         #multiclusters
         hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
@@ -135,6 +140,11 @@ def main(opts):
             tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
             hgcalPlots.append_hgcalMultiClustersPlots(i_iter, tracksterCollection)
         val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
+        #TICLTrackstersEdges plots
+        for i_iter in trackstersIters :
+            tracksterCollection = i_iter.replace("ticlMultiClustersFromTracksters","ticlTracksters")
+            hgctracksters = [hgcalPlots.create_hgcalTrackstersPlotter(sample.files(), tracksterCollection, tracksterCollection)]
+            val.doPlots(hgctracksters, plotterDrawArgs=drawArgs)
 
 
     if opts.no_html:

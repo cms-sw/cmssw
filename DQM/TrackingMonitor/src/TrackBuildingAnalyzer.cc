@@ -20,8 +20,6 @@
 #include <string>
 #include "TMath.h"
 
-#include <iostream>
-
 TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig)
     : doAllPlots(iConfig.getParameter<bool>("doAllPlots")),
       doAllSeedPlots(iConfig.getParameter<bool>("doSeedParameterHistos")),

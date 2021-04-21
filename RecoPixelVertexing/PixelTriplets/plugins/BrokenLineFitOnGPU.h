@@ -45,7 +45,7 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
 
 #ifdef BROKENLINE_DEBUG
   if (0 == local_start) {
-    printf("%d total Ntuple\n", foundNtuplets->nbins());
+    printf("%d total Ntuple\n", foundNtuplets->nOnes());
     printf("%d Ntuple of size %d for %d hits to fit\n", tupleMultiplicity->size(nHits), nHits, hitsInFit);
   }
 #endif
@@ -58,7 +58,7 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
 
     // get it from the ntuple container (one to one to helix)
     auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_idx);
-    assert(tkid < foundNtuplets->nbins());
+    assert(tkid < foundNtuplets->nOnes());
 
     assert(foundNtuplets->size(tkid) == nHits);
 

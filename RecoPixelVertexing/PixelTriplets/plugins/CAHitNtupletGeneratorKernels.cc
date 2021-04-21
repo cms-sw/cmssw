@@ -84,7 +84,6 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   cms::cuda::launchZero(tuples_d, cudaStream);
 
   auto nhits = hh.nHits();
-  assert(nhits <= pixelGPUConstants::maxNumberOfHits);
 
   // std::cout << "N hits " << nhits << std::endl;
   // if (nhits<2) std::cout << "too few hits " << nhits << std::endl;
@@ -170,12 +169,17 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   kernel_fastDuplicateRemover(device_theCells_.get(), device_nCells_, tuples_d, tracks_d);
 
   // fill hit->track "map"
-  kernel_countHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
-  cms::cuda::launchFinalize(device_hitToTuple_.get(), cudaStream);
-  kernel_fillHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
+  if (params_.doSharedHitCut_ || params_.doStats_) {
+    kernel_countHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
+    cms::cuda::launchFinalize(hitToTupleView_, cudaStream);
+    kernel_fillHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
+  }
 
   // remove duplicates (tracks that share a hit)
-  kernel_tripletCleaner(hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get());
+  if (params_.doSharedHitCut_) {
+    kernel_sharedHitCleaner(
+        hh.view(), tuples_d, tracks_d, quality_d, params_.minHitsForSharingCut_, device_hitToTuple_.get());
+  }
 
   if (params_.doStats_) {
     // counters (add flag???)

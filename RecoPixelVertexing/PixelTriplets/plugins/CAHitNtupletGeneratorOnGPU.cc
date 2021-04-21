@@ -2,6 +2,8 @@
 // Original Author: Felice Pantaleo, CERN
 //
 
+// #define GPU_DEBUG
+
 #include <array>
 #include <cassert>
 #include <functional>
@@ -57,6 +59,7 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
     : m_params(cfg.getParameter<bool>("onGPU"),
                cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
                cfg.getParameter<unsigned int>("maxNumberOfDoublets"),
+               cfg.getParameter<unsigned int>("minHitsForSharingCut"),
                cfg.getParameter<bool>("useRiemannFit"),
                cfg.getParameter<bool>("fit5as4"),
                cfg.getParameter<bool>("includeJumpingForwardDoublets"),
@@ -67,6 +70,7 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
                cfg.getParameter<bool>("doClusterCut"),
                cfg.getParameter<bool>("doZ0Cut"),
                cfg.getParameter<bool>("doPtCut"),
+               cfg.getParameter<bool>("doSharedHitCut"),
                cfg.getParameter<double>("ptmin"),
                cfg.getParameter<double>("CAThetaCutBarrel"),
                cfg.getParameter<double>("CAThetaCutForward"),
@@ -141,12 +145,15 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
   desc.add<bool>("fillStatistics", false);
   desc.add<unsigned int>("minHitsPerNtuplet", 4);
   desc.add<unsigned int>("maxNumberOfDoublets", caConstants::maxNumberOfDoublets);
+  desc.add<unsigned int>("minHitsForSharingCut", 5)
+      ->setComment("Maximum number of hits in a tuple to clean also if the shared hit is on bpx1");
   desc.add<bool>("includeJumpingForwardDoublets", false);
   desc.add<bool>("fit5as4", true);
   desc.add<bool>("doClusterCut", true);
   desc.add<bool>("doZ0Cut", true);
   desc.add<bool>("doPtCut", true);
   desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
+  desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
 
   edm::ParameterSetDescription trackQualityCuts;
   trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");
@@ -174,11 +181,11 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
   PixelTrackHeterogeneous tracks(cms::cuda::make_device_unique<pixelTrack::TrackSoA>(stream));
 
   auto* soa = tracks.get();
+  assert(soa);
 
   CAHitNtupletGeneratorKernelsGPU kernels(m_params);
   kernels.setCounters(m_counters);
-
-  kernels.allocateOnGPU(stream);
+  kernels.allocateOnGPU(hits_d.nHits(), stream);
 
   kernels.buildDoublets(hits_d, stream);
   kernels.launchKernels(hits_d, soa, stream);
@@ -193,6 +200,12 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecH
   }
   kernels.classifyTuples(hits_d, soa, stream);
 
+#ifdef GPU_DEBUG
+  cudaDeviceSynchronize();
+  cudaCheck(cudaGetLastError());
+  std::cout << "finished building pixel tracks on GPU" << std::endl;
+#endif
+
   return tracks;
 }
 
@@ -204,7 +217,7 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
 
   CAHitNtupletGeneratorKernelsCPU kernels(m_params);
   kernels.setCounters(m_counters);
-  kernels.allocateOnGPU(nullptr);
+  kernels.allocateOnGPU(hits_d.nHits(), nullptr);
 
   kernels.buildDoublets(hits_d, nullptr);
   kernels.launchKernels(hits_d, soa, nullptr);
@@ -224,6 +237,10 @@ PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuples(TrackingRecHit2DC
   }
 
   kernels.classifyTuples(hits_d, soa, nullptr);
+
+#ifdef GPU_DEBUG
+  std::cout << "finished building pixel tracks on CPU" << std::endl;
+#endif
 
   return tracks;
 }

@@ -37,6 +37,7 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCAnodeLCTProcessor.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCCathodeLCTProcessor.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 
 class CSCMotherboard : public CSCBaseboard {
 public:
@@ -64,6 +65,9 @@ public:
   /** Returns vector of all found correlated LCTs, if any. */
   std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
 
+  /** Returns shower bits */
+  CSCShowerDigi readoutShower() const;
+
   /** Clears correlated LCT and passes clear signal on to cathode and anode
       LCT processors. */
   void clear();
@@ -88,6 +92,8 @@ protected:
 
   /** Container for second correlated LCT. */
   CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
+
+  CSCShowerDigi shower_;
 
   // helper function to return ALCT/CLCT with correct central BX
   CSCALCTDigi getBXShiftedALCT(const CSCALCTDigi&) const;
@@ -115,8 +121,7 @@ protected:
   bool clct_to_alct;
 
   // encode special bits for high-multiplicity triggers
-  unsigned int highMultiplicityBits_;
-  bool useHighMultiplicityBits_;
+  unsigned showerSource_;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
@@ -178,6 +183,6 @@ protected:
   void dumpConfigParams() const;
 
   /* encode high multiplicity bits for Run-3 exotic triggers */
-  void encodeHighMultiplicityBits(unsigned alctBits);
+  void encodeHighMultiplicityBits();
 };
 #endif

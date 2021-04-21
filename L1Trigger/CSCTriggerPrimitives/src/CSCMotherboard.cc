@@ -38,10 +38,6 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
 
   clct_to_alct = tmbParams_.getParameter<bool>("clctToAlct");
 
-  // special tmb bits
-  useHighMultiplicityBits_ = tmbParams_.getParameter<bool>("useHighMultiplicityBits");
-  highMultiplicityBits_ = 0;
-
   // whether to readout only the earliest two LCTs in readout window
   readout_earliest_2 = tmbParams_.getParameter<bool>("tmbReadoutEarliest2");
 
@@ -59,6 +55,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
 
   // quality control of stubs
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
+
+  // shower-trigger source
+  showerSource_ = showerParams_.getParameter<unsigned>("source");
 }
 
 CSCMotherboard::CSCMotherboard() : CSCBaseboard() {
@@ -102,6 +101,9 @@ void CSCMotherboard::clear() {
     firstLCT[bx].clear();
     secondLCT[bx].clear();
   }
+
+  // reset the shower trigger
+  shower_.clear();
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
@@ -150,8 +152,7 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
     return;
 
   // encode high multiplicity bits
-  unsigned alctBits = alctProc->getHighMultiplictyBits();
-  encodeHighMultiplicityBits(alctBits);
+  encodeHighMultiplicityBits();
 
   // CLCT-centric matching
   if (clct_to_alct) {
@@ -428,6 +429,8 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() const {
   return tmpV;
 }
 
+CSCShowerDigi CSCMotherboard::readoutShower() const { return shower_; }
+
 void CSCMotherboard::correlateLCTs(
     const CSCALCTDigi& bALCT, const CSCALCTDigi& sALCT, const CSCCLCTDigi& bCLCT, const CSCCLCTDigi& sCLCT, int type) {
   CSCALCTDigi bestALCT = bALCT;
@@ -524,13 +527,9 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
     // 4-bit slope value derived with the CCLUT algorithm
     thisLCT.setSlope(cLCT.getSlope());
     thisLCT.setQuartStrip(cLCT.getQuartStrip());
-    thisLCT.setEightStrip(cLCT.getEightStrip());
+    thisLCT.setEighthStrip(cLCT.getEighthStrip());
     thisLCT.setRun3Pattern(cLCT.getRun3Pattern());
   }
-
-  // in Run-3 we plan to denote the presence of exotic signatures in the chamber
-  if (useHighMultiplicityBits_)
-    thisLCT.setHMT(highMultiplicityBits_);
 
   // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!
   thisLCT.setALCT(getBXShiftedALCT(aLCT));
@@ -708,11 +707,38 @@ CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
   return cLCT_shifted;
 }
 
-void CSCMotherboard::encodeHighMultiplicityBits(unsigned alctBits) {
-  // encode the high multiplicity bits in the (O)TMB based on
-  // the high multiplicity bits from the ALCT processor
-  // draft version: simply rellay the ALCT bits.
-  // future versions may involve also bits from the CLCT processor
-  // this depends on memory constraints in the TMB FPGA
-  highMultiplicityBits_ = alctBits;
+void CSCMotherboard::encodeHighMultiplicityBits() {
+  // get the high multiplicity
+  // for anode this reflects what is already in the anode CSCShowerDigi object
+  unsigned cathodeInTime = clctProc->getInTimeHMT();
+  unsigned cathodeOutTime = clctProc->getOutTimeHMT();
+  unsigned anodeInTime = alctProc->getInTimeHMT();
+  unsigned anodeOutTime = alctProc->getOutTimeHMT();
+
+  // assign the bits
+  unsigned inTimeHMT_;
+  unsigned outTimeHMT_;
+
+  // set the value according to source
+  switch (showerSource_) {
+    case 0:
+      inTimeHMT_ = cathodeInTime;
+      outTimeHMT_ = cathodeOutTime;
+      break;
+    case 1:
+      inTimeHMT_ = anodeInTime;
+      outTimeHMT_ = anodeOutTime;
+      break;
+    case 2:
+      inTimeHMT_ = (anodeInTime & CSCShowerDigi::kInTimeMask) | (cathodeInTime & CSCShowerDigi::kInTimeMask);
+      outTimeHMT_ = (anodeOutTime & CSCShowerDigi::kOutTimeMask) | (cathodeOutTime & CSCShowerDigi::kOutTimeMask);
+      break;
+    default:
+      inTimeHMT_ = cathodeInTime;
+      outTimeHMT_ = cathodeOutTime;
+      break;
+  };
+
+  // create a new object
+  shower_ = CSCShowerDigi(inTimeHMT_, outTimeHMT_, theTrigChamber);
 }

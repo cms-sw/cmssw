@@ -1,5 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="DataFormats/HGCalReco"/>
 <library name="CPLCAssociation_plugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

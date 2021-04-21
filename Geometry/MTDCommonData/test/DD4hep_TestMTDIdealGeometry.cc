@@ -40,7 +40,7 @@ using namespace cms;
 class DD4hep_TestMTDIdealGeometry : public edm::one::EDAnalyzer<> {
 public:
   explicit DD4hep_TestMTDIdealGeometry(const edm::ParameterSet&);
-  ~DD4hep_TestMTDIdealGeometry() = default;
+  ~DD4hep_TestMTDIdealGeometry() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

@@ -849,7 +849,7 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<int>("maxInMiss", 0);
   desc.add<int>("maxOutMiss", 0);
   // Minimum momentum of selected isolated track and signal zone
-  desc.add<double>("minimumTrackP", 20.0);
+  desc.add<double>("minimumTrackP", 10.0);
   desc.add<double>("coneRadius", 34.98);
   // signal zone in ECAL and MIP energy cutoff
   desc.add<double>("coneRadiusMIP", 14.0);

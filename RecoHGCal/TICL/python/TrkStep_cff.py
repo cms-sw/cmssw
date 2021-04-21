@@ -32,7 +32,7 @@ ticlTrackstersTrk = _trackstersProducer.clone(
   algo_verbosity = 2,
   oneTracksterPerTrackSeed = True,
   promoteEmptyRegionToTrackster = True,
-  itername = "TRK"
+  itername = "Trk"
 )
 
 # MULTICLUSTERS

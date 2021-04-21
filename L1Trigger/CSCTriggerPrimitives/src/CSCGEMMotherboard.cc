@@ -150,7 +150,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
       // 4-bit slope value derived with the CCLUT algorithm
       thisLCT.setSlope(clct.getSlope());
       thisLCT.setQuartStrip(clct.getQuartStrip());
-      thisLCT.setEightStrip(clct.getEightStrip());
+      thisLCT.setEighthStrip(clct.getEighthStrip());
       thisLCT.setRun3Pattern(clct.getRun3Pattern());
     }
   } else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
@@ -175,7 +175,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
       // 4-bit slope value derived with the CCLUT algorithm
       thisLCT.setSlope(clct.getSlope());
       thisLCT.setQuartStrip(clct.getQuartStrip());
-      thisLCT.setEightStrip(clct.getEightStrip());
+      thisLCT.setEighthStrip(clct.getEighthStrip());
       thisLCT.setRun3Pattern(clct.getRun3Pattern());
     }
   } else if (alct.isValid() and gem2.isValid() and not clct.isValid()) {
@@ -249,7 +249,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
       // 4-bit slope value derived with the CCLUT algorithm
       thisLCT.setSlope(clct.getSlope());
       thisLCT.setQuartStrip(clct.getQuartStrip());
-      thisLCT.setEightStrip(clct.getEightStrip());
+      thisLCT.setEighthStrip(clct.getEighthStrip());
       thisLCT.setRun3Pattern(clct.getRun3Pattern());
     }
   }
@@ -273,9 +273,6 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   // Not used in Run-2. Will not be assigned in Run-3
   thisLCT.setSyncErr(0);
   thisLCT.setCSCID(theTrigChamber);
-  // in Run-3 we plan to denote the presence of exotic signatures in the chamber
-  if (useHighMultiplicityBits_)
-    thisLCT.setHMT(highMultiplicityBits_);
 
   // future work: add a section that produces LCTs according
   // to the new LCT dataformat (not yet defined)

@@ -68,6 +68,8 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> Sigmat0SafePidToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> trackMVAQualToken_;
 
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+
   MonitorElement* meBTLTrackRPTime_;
   MonitorElement* meBTLTrackEffEtaTot_;
   MonitorElement* meBTLTrackEffPhiTot_;
@@ -122,6 +124,7 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   t0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0SafePID"));
   Sigmat0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0SafePID"));
   trackMVAQualToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("trackMVAQual"));
+  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
 
 MtdTracksValidation::~MtdTracksValidation() {}
@@ -132,8 +135,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   using namespace geant_units::operators;
   using namespace std;
 
-  edm::ESHandle<MTDTopology> topologyHandle;
-  iSetup.get<MTDTopologyRcd>().get(topologyHandle);
+  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
 
   bool topo1Dis = false;

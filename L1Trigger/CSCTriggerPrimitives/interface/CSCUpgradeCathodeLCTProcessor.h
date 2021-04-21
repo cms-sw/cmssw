@@ -36,7 +36,7 @@ public:
 
 protected:
   /* is a given half-strip in a pretrigger dead zone */
-  bool busyMap[CSCConstants::NUM_HALF_STRIPS_7CFEBS][CSCConstants::MAX_CLCT_TBINS];
+  bool busyMap[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER][CSCConstants::MAX_CLCT_TBINS];
 
 private:
   /** VK: use of localized dead-time zones */
@@ -51,7 +51,8 @@ private:
 
   //--------------- Functions for Phase2 studies ----------------
   std::vector<CSCCLCTDigi> findLCTs(
-      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) override;
+      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER])
+      override;
 
   /* Phase2 version,  Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern */
   bool preTrigger(const PulseArray pulse, const int start_bx, int& first_bx) override;

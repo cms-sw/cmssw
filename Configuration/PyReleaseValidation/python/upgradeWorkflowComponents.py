@@ -48,6 +48,12 @@ upgradeKeys[2026] = [
     '2026D80PU',
     '2026D81',
     '2026D81PU',
+    '2026D82',
+    '2026D82PU',
+    '2026D83',
+    '2026D83PU',
+    '2026D84',
+    '2026D84PU',
 ]
 
 # pre-generation of WF numbers
@@ -435,7 +441,26 @@ upgradeWFs['PatatrackPixelOnlyCPU'].step3 = {
     '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
-    '--procModifiers': 'pixelNtupleFit'
+    '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksSoAonCPU'
+}
+
+upgradeWFs['PatatrackPixelOnlyTripletsCPU'] = UpgradeWorkflowPatatrack_PixelOnlyCPU(
+    steps = [
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_PixelOnlyTripletsCPU',
+    offset = 0.505,
+)
+
+upgradeWFs['PatatrackPixelOnlyTripletsCPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+    '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksSoAonCPU,RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksForTriplets'
 }
 
 class UpgradeWorkflowPatatrack_PixelOnlyGPU(UpgradeWorkflowPatatrack):
@@ -467,6 +492,26 @@ upgradeWFs['PatatrackPixelOnlyGPU'].step3 = {
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
     '--procModifiers': 'gpu'
+}
+
+upgradeWFs['PatatrackPixelOnlyTripletsGPU'] = UpgradeWorkflowPatatrack_PixelOnlyGPU(
+    steps = [
+        'Reco',
+        'HARVEST',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    PU = [],
+    suffix = 'Patatrack_PixelOnlyTripletsGPU',
+    offset = 0.506,
+)
+
+upgradeWFs['PatatrackPixelOnlyTripletsGPU'].step3 = {
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+    '--datatier': 'GEN-SIM-RECO,DQMIO',
+    '--eventcontent': 'RECOSIM,DQM',
+    '--procModifiers': 'gpu',
+    '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksSoAonCPU.customizePixelTracksForTriplets'
 }
 
 class UpgradeWorkflowPatatrack_ECALOnlyCPU(UpgradeWorkflowPatatrack):
@@ -1216,6 +1261,27 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T26',
         'Era' : 'Phase2C11I13T26M9', # customized for square pixels and Muon M9
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D82' : {
+        'Geom' : 'Extended2026D82',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D83' : {
+        'Geom' : 'Extended2026D83',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D84' : {
+        'Geom' : 'Extended2026D84',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C11',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
 }

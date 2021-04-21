@@ -69,14 +69,24 @@ EcalEBTrigPrimProducer::EcalEBTrigPrimProducer(const edm::ParameterSet& iConfig)
   produces<EcalEBTrigPrimDigiCollection>();
   if (tcpFormat_)
     produces<EcalEBTrigPrimDigiCollection>("formatTCP");
+  if (not barrelOnly_) {
+    eTTmapToken_ = esConsumes<edm::Transition::BeginRun>();
+    theGeometryToken_ = esConsumes<edm::Transition::BeginRun>();
+  }
 }
 
 void EcalEBTrigPrimProducer::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
   //ProcessHistory is guaranteed to be constant for an entire Run
   //binOfMaximum_ = findBinOfMaximum(fillBinOfMaximumFromHistory_,binOfMaximum_,run.processHistory());
 
-  algo_ = std::make_unique<EcalEBTrigPrimTestAlgo>(
-      setup, nSamples_, binOfMaximum_, tcpFormat_, barrelOnly_, debug_, famos_);
+  if (barrelOnly_) {
+    algo_ = std::make_unique<EcalEBTrigPrimTestAlgo>(nSamples_, binOfMaximum_, tcpFormat_, debug_, famos_);
+  } else {
+    auto const& theGeometry = setup.getData(theGeometryToken_);
+    auto const& eTTmap = setup.getData(eTTmapToken_);
+    algo_ = std::make_unique<EcalEBTrigPrimTestAlgo>(
+        &eTTmap, &theGeometry, nSamples_, binOfMaximum_, tcpFormat_, debug_, famos_);
+  }
   // get a first version of the records
   cacheID_ = this->getRecords(setup);
   nEvent_ = 0;
@@ -164,7 +174,7 @@ void EcalEBTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup& iSetu
 
   const EBDigiCollection* ebdigi = nullptr;
   ebdigi = barrelDigiHandle.product();
-  algo_->run(iSetup, ebdigi, *pOut, *pOutTcp);
+  algo_->run(ebdigi, *pOut, *pOutTcp);
 
   if (debug_)
     std::cout << "produce"

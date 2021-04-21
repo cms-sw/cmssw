@@ -71,6 +71,9 @@ private:
   edm::EDGetTokenT<CrossingFrame<PSimHit> > btlSimHitsToken_;
   edm::EDGetTokenT<FTLClusterCollection> btlRecCluToken_;
 
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+
   // --- histograms declaration
 
   MonitorElement* meNhits_;
@@ -130,6 +133,8 @@ BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsTag"));
   btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("simHitsTag"));
   btlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
+  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
 
 BtlLocalRecoValidation::~BtlLocalRecoValidation() {}
@@ -140,12 +145,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   using namespace std;
   using namespace geant_units::operators;
 
-  edm::ESHandle<MTDGeometry> geometryHandle;
-  iSetup.get<MTDDigiGeometryRecord>().get(geometryHandle);
+  auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geometryHandle.product();
 
-  edm::ESHandle<MTDTopology> topologyHandle;
-  iSetup.get<MTDTopologyRcd>().get(topologyHandle);
+  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
 
   auto btlRecHitsHandle = makeValid(iEvent.getHandle(btlRecHitsToken_));
