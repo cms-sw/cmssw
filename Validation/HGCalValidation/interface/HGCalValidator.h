@@ -16,7 +16,7 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
+#include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -62,7 +62,7 @@ public:
 protected:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   edm::InputTag label_lcl;
-  std::vector<edm::InputTag> label_mcl;
+  std::vector<edm::InputTag> label_tst;
   edm::InputTag associator_;
   edm::InputTag associatorSim_;
   const bool SaveGeneralInfo_;
@@ -70,14 +70,14 @@ protected:
   const bool doCaloParticleSelection_;
   const bool doSimClustersPlots_;
   const bool doLayerClustersPlots_;
-  const bool doMultiClustersPlots_;
+  const bool doTrackstersPlots_;
   std::vector<edm::InputTag> label_clustersmask;
   const edm::FileInPath cummatbudinxo_;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
   edm::EDGetTokenT<std::vector<SimCluster>> simClusters_;
   edm::EDGetTokenT<reco::CaloClusterCollection> layerclusters_;
-  std::vector<edm::EDGetTokenT<std::vector<reco::HGCalMultiCluster>>> label_mclTokens;
+  std::vector<edm::EDGetTokenT<ticl::TracksterCollection>> label_tstTokens;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_effic;
   edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
