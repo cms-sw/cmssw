@@ -2493,8 +2493,11 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
                     "Rec-matched Hits Sum Energy vs layer"]
 
   dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
-  print(dqmfolder)
   templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  if not gDirectory.GetDirectory(dqmfolder):
+    print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
+    return hgcalTrackstersPlotter
+
   keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
   key = keys[0]
   while key:
@@ -2511,12 +2514,129 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
                   ncols=1)
 
     if name in list_2D_histos :
-        pg= PlotOnSideGroup(fileName.Data(),
+        pg= PlotOnSideGroup(plotName.Data(),
                       Plot(name,
                            xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                            drawCommand = "COLZ",
                            normalizeToNumberOfEvents = True, **_common_Calo)
                       ,
+                      ncols=1)
+
+    hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [
+              dqmfolder
+              ], PlotFolder(
+                pg,
+                loopSubFolders=False,
+                purpose=PlotPurpose.Timing, page="CaloParticles", section=name_collection)
+              )
+
+    key = keys.After(key)
+
+  templateFile.Close()
+
+  return hgcalCaloParticlesPlotter
+
+#=================================================================================================
+def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', name_collection = "MultiClustersMerge"):
+  grouped = {"cosAngle Beta": PlotGroup("cosAngle_Beta_per_layer",[],ncols=10), "cosAngle Beta Weighted": PlotGroup("cosAngle_Beta_Weighted_per_layer",[],ncols=10)}
+  groupingFlag = " on Layer "
+
+  hgcalTrackstersPlotter = Plotter()
+  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/" + collection
+  #_multiplicity_tracksters_numberOfEventsHistogram = dqmfolder+"/Number of Trackster per Event"
+
+  _common["ymin"] = 0.0
+  _common["staty"] = 0.85
+  templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  if not gDirectory.GetDirectory(dqmfolder):
+    print("Error: GeneralInfo directory %s not found in DQM file, exit"%dqmfolder)
+    return hgcalTrackstersPlotter
+
+  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  key = keys[0]
+  while key:
+    obj = key.ReadObj()
+    name = obj.GetName()
+    plotName = TString(name)
+    plotName.ReplaceAll(" ","_")
+
+    if groupingFlag in name:
+        for group in grouped:
+            if group+groupingFlag in name:
+                grouped[group].append(Plot(name,
+                                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                           **_common)
+                                     )
+    else:
+        pg = None
+        if obj.InheritsFrom("TH2"):
+            pg = PlotOnSideGroup(plotName.Data(),
+                                 Plot(name,
+                                      xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                      drawCommand = "COLZ",
+                                      **_common),
+                                 ncols=1)
+        else:
+            pg = PlotGroup(plotName.Data(),
+                           [Plot(name,
+                                 xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                                 drawCommand = "COLZ", # ineffective for TH1
+                                 **_common)
+                           ],
+                           ncols=1, legendDh=-0.03 * len(files))
+
+        hgcalTrackstersPlotter.append(name_collection+"_TICLDebugger",
+            [dqmfolder], PlotFolder(pg,
+                                    loopSubFolders=False,
+                                    purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection)
+            #numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
+            )
+
+    key = keys.After(key)
+
+  for group in grouped:
+      hgcalTrackstersPlotter.append(name_collection+"_TICLDebugger",
+          [dqmfolder], PlotFolder(grouped[group],
+                                  loopSubFolders=False,
+                                  purpose=PlotPurpose.Timing, page="MultiClusters", section=name_collection)
+          #numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
+          )
+
+  templateFile.Close()
+
+  return hgcalTrackstersPlotter
+
+#=================================================================================================
+_common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False}
+
+hgcalCaloParticlesPlotter = Plotter()
+
+def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection = "pion-"):
+  dqmfolder = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/SelectedCaloParticles/" + collection
+  print(dqmfolder)
+#  _common["ymin"] = 0.0
+  templateFile = ROOT.TFile.Open(files[0]) # assuming all files have same structure
+  keys = gDirectory.GetDirectory(dqmfolder,True).GetListOfKeys()
+  key = keys[0]
+  while key:
+    obj = key.ReadObj()
+    name = obj.GetName()
+    plotName = TString(name)
+    plotName.ReplaceAll(" ","_")
+    pg= PlotGroup(plotName.Data(),[
+                  Plot(name,
+                       xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                       drawCommand = "", # may want to customize for TH2 (colz, etc.)
+                       normalizeToNumberOfEvents = True, **_common_Calo)
+                  ],
+                  ncols=1)
+
+    if obj.InheritsFrom("TH2"):
+        pg= PlotOnSideGroup(plotName.Data(),
+                      Plot(name,
+                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                           drawCommand = "COLZ",
+                           normalizeToNumberOfEvents = True, **_common_Calo),
                       ncols=1)
 
     hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [

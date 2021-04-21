@@ -237,29 +237,25 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
   float lumi = -1.;
   if (forceSCAL_) {
-    edm::Handle<LumiScalersCollection> lumiScalers;
-    iEvent.getByToken(lumiscalersToken_, lumiScalers);
+    edm::Handle<LumiScalersCollection> lumiScalers = iEvent.getHandle(lumiscalersToken_);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
       LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
       lumi = scalit->instantLumi();
     }
   } else {
-    edm::Handle<OnlineLuminosityRecord> metaData;
-    iEvent.getByToken(metaDataToken_, metaData);
+    edm::Handle<OnlineLuminosityRecord> metaData = iEvent.getHandle(metaDataToken_);
     if (metaData.isValid())
       lumi = metaData->instLumi();
   }
 
   n_vs_lumi_->Fill(lumi);
 
-  edm::Handle<reco::BeamSpot> beamspotHandle;
-  iEvent.getByToken(bsToken_, beamspotHandle);
+  edm::Handle<reco::BeamSpot> beamspotHandle = iEvent.getHandle(bsToken_);
   reco::BeamSpot const* bs = nullptr;
   if (beamspotHandle.isValid())
     bs = &(*beamspotHandle);
 
-  edm::Handle<reco::VertexCollection> pvHandle;
-  iEvent.getByToken(pvToken_, pvHandle);
+  edm::Handle<reco::VertexCollection> pvHandle = iEvent.getHandle(pvToken_);
   reco::Vertex const* pv = nullptr;
   size_t nPV = 0;
   if (pvHandle.isValid()) {
@@ -286,8 +282,7 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   float nLS = static_cast<float>(iEvent.id().luminosityBlock());
   n_vs_LS_->Fill(nLS);
 
-  edm::Handle<reco::VertexCompositeCandidateCollection> v0Handle;
-  iEvent.getByToken(v0Token_, v0Handle);
+  edm::Handle<reco::VertexCompositeCandidateCollection> v0Handle = iEvent.getHandle(v0Token_);
   int n = (v0Handle.isValid() ? v0Handle->size() : -1);
   v0_N_->Fill(n);
   v0_N_vs_BX_->Fill(bx, n);

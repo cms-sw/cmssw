@@ -18,12 +18,14 @@
 
 class CSCCorrelatedLCTDigi {
 public:
-  enum LCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0xff };
-  enum LCTKeyStripShifts { kEightStripShift = 9, kQuartStripShift = 8, kHalfStripShift = 0 };
+  enum LCTKeyStripMasks { kEighthStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0xff };
+  enum LCTKeyStripShifts { kEighthStripShift = 9, kQuartStripShift = 8, kHalfStripShift = 0 };
   // temporary to facilitate CCLUT-EMTF/OMTF integration studies
   enum LCTPatternMasks { kRun3SlopeMask = 0xf, kRun3PatternMask = 0x7, kLegacyPatternMask = 0xf };
   enum LCTPatternShifts { kRun3SlopeShift = 7, kRun3PatternShift = 4, kLegacyPatternShift = 0 };
   enum class Version { Legacy = 0, Run3 };
+  // for data vs emulator studies
+  enum LCTBXMask { kBXDataMask = 0x1 };
 
   /// Constructors
   CSCCorrelatedLCTDigi(const uint16_t trknmb,
@@ -67,11 +69,11 @@ public:
   /// get single quart strip bit
   bool getQuartStrip() const;
 
-  /// set single eight strip bit
-  void setEightStrip(const bool eightStrip);
+  /// set single eighth strip bit
+  void setEighthStrip(const bool eighthStrip);
 
-  /// get single eight strip bit
-  bool getEightStrip() const;
+  /// get single eighth strip bit
+  bool getEighthStrip() const;
 
   /*
     Strips are numbered starting from 1 in CMSSW
@@ -102,11 +104,21 @@ public:
   /// return the slope
   uint16_t getSlope() const;
 
+  /// slope in number of half-strips/layer
+  /// negative means left-bending
+  /// positive means right-bending
+  float getFractionalSlope() const;
+
   /// return left/right bending
+  /// 0: left-bending (negative delta-strip / delta layer)
+  /// 1: right-bending (positive delta-strip / delta layer)
   uint16_t getBend() const { return bend; }
 
   /// return BX
   uint16_t getBX() const { return bx; }
+
+  /// return 1-bit BX as in data
+  uint16_t getBXData() const { return bx & kBXDataMask; }
 
   /// return CLCT pattern number (in use again Feb 2011)
   /// This function should not be used for Run-3

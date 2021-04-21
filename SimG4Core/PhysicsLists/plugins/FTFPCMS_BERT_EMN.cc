@@ -28,7 +28,7 @@ FTFPCMS_BERT_EMN::FTFPCMS_BERT_EMN(const edm::ParameterSet& p) : PhysicsList(p) 
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new CMSEmStandardPhysicsXS(ver));
+    RegisterPhysics(new CMSEmStandardPhysicsXS(ver, p));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);

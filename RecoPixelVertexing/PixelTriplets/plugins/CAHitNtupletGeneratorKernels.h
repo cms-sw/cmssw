@@ -1,6 +1,8 @@
 #ifndef RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h
 #define RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h
 
+// #define GPU_DEBUG
+
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "GPUCACell.h"
 
@@ -54,6 +56,7 @@ namespace cAHitNtupletGenerator {
     Params(bool onGPU,
            uint32_t minHitsPerNtuplet,
            uint32_t maxNumberOfDoublets,
+           uint16_t minHitsForSharingCuts,
            bool useRiemannFit,
            bool fit5as4,
            bool includeJumpingForwardDoublets,
@@ -64,16 +67,19 @@ namespace cAHitNtupletGenerator {
            bool doClusterCut,
            bool doZ0Cut,
            bool doPtCut,
+           bool doSharedHitCut,
            float ptmin,
            float CAThetaCutBarrel,
            float CAThetaCutForward,
            float hardCurvCut,
            float dcaCutInnerTriplet,
            float dcaCutOuterTriplet,
+
            QualityCuts const& cuts)
         : onGPU_(onGPU),
           minHitsPerNtuplet_(minHitsPerNtuplet),
           maxNumberOfDoublets_(maxNumberOfDoublets),
+          minHitsForSharingCut_(minHitsForSharingCuts),
           useRiemannFit_(useRiemannFit),
           fit5as4_(fit5as4),
           includeJumpingForwardDoublets_(includeJumpingForwardDoublets),
@@ -84,6 +90,7 @@ namespace cAHitNtupletGenerator {
           doClusterCut_(doClusterCut),
           doZ0Cut_(doZ0Cut),
           doPtCut_(doPtCut),
+          doSharedHitCut_(doSharedHitCut),
           ptmin_(ptmin),
           CAThetaCutBarrel_(CAThetaCutBarrel),
           CAThetaCutForward_(CAThetaCutForward),
@@ -95,6 +102,7 @@ namespace cAHitNtupletGenerator {
     const bool onGPU_;
     const uint32_t minHitsPerNtuplet_;
     const uint32_t maxNumberOfDoublets_;
+    const uint16_t minHitsForSharingCut_;
     const bool useRiemannFit_;
     const bool fit5as4_;
     const bool includeJumpingForwardDoublets_;
@@ -105,6 +113,7 @@ namespace cAHitNtupletGenerator {
     const bool doClusterCut_;
     const bool doZ0Cut_;
     const bool doPtCut_;
+    const bool doSharedHitCut_;
     const float ptmin_;
     const float CAThetaCutBarrel_;
     const float CAThetaCutForward_;
@@ -172,7 +181,7 @@ public:
   void fillHitDetIndices(HitsView const* hv, TkSoA* tuples_d, cudaStream_t cudaStream);
 
   void buildDoublets(HitsOnCPU const& hh, cudaStream_t stream);
-  void allocateOnGPU(cudaStream_t stream);
+  void allocateOnGPU(int32_t nHits, cudaStream_t stream);
   void cleanup(cudaStream_t cudaStream);
 
   static void printCounters(Counters const* counters);
@@ -193,6 +202,9 @@ private:
   uint32_t* device_nCells_ = nullptr;
 
   unique_ptr<HitToTuple> device_hitToTuple_;
+  unique_ptr<HitToTuple::Counter[]> device_hitToTupleStorage_;
+  HitToTuple::View hitToTupleView_;
+
   cms::cuda::AtomicPairCounter* device_hitToTuple_apc_ = nullptr;
 
   cms::cuda::AtomicPairCounter* device_hitTuple_apc_ = nullptr;

@@ -15,7 +15,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "RecoLocalTracker/SiPixelClusterizer/plugins/PixelClusterizerBase.h"
+
+// local include(s)
+#include "PixelClusterizerBase.h"
+#include "SiPixelClusterThresholds.h"
 
 class SiPixelDigisClustersFromSoA : public edm::global::EDProducer<> {
 public:
@@ -33,17 +36,23 @@ private:
 
   edm::EDPutTokenT<edm::DetSetVector<PixelDigi>> digiPutToken_;
   edm::EDPutTokenT<SiPixelClusterCollectionNew> clusterPutToken_;
+
+  const SiPixelClusterThresholds clusterThresholds_;  // Cluster threshold in electrons
 };
 
 SiPixelDigisClustersFromSoA::SiPixelDigisClustersFromSoA(const edm::ParameterSet& iConfig)
     : topoToken_(esConsumes()),
       digiGetToken_(consumes<SiPixelDigisSoA>(iConfig.getParameter<edm::InputTag>("src"))),
       digiPutToken_(produces<edm::DetSetVector<PixelDigi>>()),
-      clusterPutToken_(produces<SiPixelClusterCollectionNew>()) {}
+      clusterPutToken_(produces<SiPixelClusterCollectionNew>()),
+      clusterThresholds_{iConfig.getParameter<int>("clusterThreshold_layer1"),
+                         iConfig.getParameter<int>("clusterThreshold_otherLayers")} {}
 
 void SiPixelDigisClustersFromSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigisSoA"));
+  desc.add<int>("clusterThreshold_layer1", kSiPixelClusterThresholdsDefaultPhase1.layer1);
+  desc.add<int>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase1.otherLayers);
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -77,7 +86,7 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
       return;  // this in reality should never happen
     edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(*outputClusters, detId);
     auto layer = (DetId(detId).subdetId() == 1) ? ttopo.pxbLayer(detId) : 0;
-    auto clusterThreshold = (layer == 1) ? 2000 : 4000;
+    auto clusterThreshold = clusterThresholds_.getThresholdForLayerOnCondition(layer == 1);
     for (int32_t ic = 0; ic < nclus + 1; ++ic) {
       auto const& acluster = aclusters[ic];
       // in any case we cannot  go out of sync with gpu...

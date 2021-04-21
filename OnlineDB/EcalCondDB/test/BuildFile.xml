@@ -1,6 +1,16 @@
 <use name="OnlineDB/EcalCondDB"/>
 <use name="CalibCalorimetry/EcalLaserAnalyzer"/>
 <use name="root"/>
+
+<bin file="TestFEConfig2.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+
+<bin file="TestOddWeightConf_v1.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
+
+
 <bin file="LaserSeqToDB.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>

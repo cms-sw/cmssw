@@ -31,5 +31,7 @@ namespace reco {
   private:
     edm::PtrVector<reco::BasicCluster> myclusters;
   };
+
+  typedef std::vector<HGCalMultiCluster> HGCalMultiClusterCollection;
 }  // namespace reco
 #endif

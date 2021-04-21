@@ -179,9 +179,9 @@ double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, boo
         std::cout << " d2p " << d2p << ":" << DELTA_CUT << " coeff " << icor << ":" << CONST_COR_COEF[icor] << ":"
                   << LINEAR_COR_COEF[icor] << ":" << SQUARE_COR_COEF[icor] << " Fac " << fac;
     } else {  // 21pu
-      const double CONST_COR_COEF[6] = {0.98555, 0.976956, 0.976892, 0.544262, 0.447506, 0.380405};
-      const double LINEAR_COR_COEF[6] = {-0.0452436, -0.140628, -0.229334, -0.0520421, -0.0892927, -0.0810484};
-      const double SQUARE_COR_COEF[6] = {0, 0, 0.0333082, 0.00426112, 0.00887433, 0.0085219};
+      const double CONST_COR_COEF[6] = {0.98913, 0.982008, 0.974011, 0.496234, 0.368110, 0.294053};
+      const double LINEAR_COR_COEF[6] = {-0.0491388, -0.124058, -0.249718, -0.0667390, -0.0770766, -0.0580492};
+      const double SQUARE_COR_COEF[6] = {0, 0, 0.0368657, 0.00656337, 0.00724508, 0.00568967};
       const int PU_IETA_1 = 7;
       const int PU_IETA_2 = 16;
       const int PU_IETA_3 = 25;

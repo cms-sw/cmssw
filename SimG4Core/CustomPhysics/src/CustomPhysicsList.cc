@@ -67,7 +67,7 @@ void CustomPhysicsList::ConstructProcess() {
         theQGSPSIMPB->Build(simpInelPr);
         pmanager->AddDiscreteProcess(simpInelPr);
       } else
-        edm::LogInfo("CustomPhysics") << "   No pmanager";
+        edm::LogVerbatim("CustomPhysics") << "   No pmanager";
     }
 
     CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);

@@ -53,19 +53,18 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << cms::convert2mm(waferSize) << " T "
                                 << cms::convert2mm(waferT) << " Cell T " << cms::convert2mm(cellT) << " Cells/Wafer "
                                 << nCells << " Material " << material << "Sensitive Position " << posSens
-                                << " Full Cell: " << fullCN << ":" << fullSensN;
+                                << " NameSpace " << ns.name() << " Full Cell: " << fullCN << ":" << fullSensN;
   for (int k = 0; k < 3; ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Truncated Cell[" << k << "] " << truncCN[k] << ":" << truncSensN[k];
   for (int k = 0; k < 3; ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Extended Cell[" << k << "] " << extenCN[k] << ":" << extenSensN[k];
   for (int k = 0; k < 6; ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Corner Cell[" << k << "] " << cornrCN[k] << ":" << cornrSensN[k];
-  edm::LogVerbatim("HGCalGeom") << "Name space " << ns.name();
 #endif
 
   dd4hep::Material matter = ns.material(material);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << material << " initialized at " << &matter;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << material << " initialized";
 #endif
   dd4hep::Volume glog1, glog2;
 
@@ -119,8 +118,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":" << cms::convert2mm(yw[k]);
 #endif
 
-  dd4hep::Rotation3D rotation;
-  glog1.placeVolume(glog2, 1, dd4hep::Transform3D(rotation, tran));
+  glog1.placeVolume(glog2, 1, tran);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
                                 << " at (0,0," << cms::convert2mm(zpos) << ") with no rotation";
@@ -155,14 +153,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                  << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":" << cms::convert2mm(zx[0]) << ":"
+                                  << " z|x|y|s (0) " << cms::convert2mm(zc[0]) << ":" << cms::convert2mm(zx[0]) << ":"
                                   << cms::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) "
-                                  << cms::convert2mm(zw[1]) << ":" << cms::convert2mm(zx[1]) << ":"
+                                  << cms::convert2mm(zc[1]) << ":" << cms::convert2mm(zx[1]) << ":"
                                   << cms::convert2mm(zy[1]) << ":" << scale[1] << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":" << cms::convert2mm(yw[k]);
 #endif
-    glog1.placeVolume(glog2, 1, dd4hep::Transform3D(rotation, tran));
+    glog1.placeVolume(glog2, 1, tran);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
                                   << " at (0,0," << cms::convert2mm(zpos) << ") with no rotation";
@@ -196,17 +194,17 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                  << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":" << cms::convert2mm(zx[0]) << ":"
+                                  << " z|x|y|s (0) " << cms::convert2mm(zc[0]) << ":" << cms::convert2mm(zx[0]) << ":"
                                   << cms::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) "
-                                  << cms::convert2mm(zw[1]) << ":" << cms::convert2mm(zx[1]) << ":"
+                                  << cms::convert2mm(zc[1]) << ":" << cms::convert2mm(zx[1]) << ":"
                                   << cms::convert2mm(zy[1]) << ":" << scale[1] << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":" << cms::convert2mm(yw[k]);
 #endif
-    glog1.placeVolume(glog2, 1, dd4hep::Transform3D(rotation, tran));
+    glog1.placeVolume(glog2, 1, tran);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
-                                  << " at (0,0," << cms::convert2mm(zpos) << " with no rotation";
+                                  << " at (0,0," << cms::convert2mm(zpos) << ") with no rotation";
 #endif
   }
 
@@ -237,17 +235,17 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     ns.addVolumeNS(glog2);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() << " extruded polygon made of " << material
-                                  << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":" << cms::convert2mm(zx[0]) << ":"
+                                  << " z|x|y|s (0) " << cms::convert2mm(zc[0]) << ":" << cms::convert2mm(zx[0]) << ":"
                                   << cms::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) "
-                                  << cms::convert2mm(zw[1]) << ":" << cms::convert2mm(zx[1]) << ":"
+                                  << cms::convert2mm(zc[1]) << ":" << cms::convert2mm(zx[1]) << ":"
                                   << cms::convert2mm(zy[1]) << ":" << scale[1] << " and " << xw.size() << " edges";
     for (unsigned int k = 0; k < xw.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << cms::convert2mm(xw[k]) << ":" << cms::convert2mm(yw[k]);
 #endif
-    glog1.placeVolume(glog2, 1, dd4hep::Transform3D(rotation, tran));
+    glog1.placeVolume(glog2, 1, tran);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << glog2.name() << " number 1 position in " << glog1.name()
-                                  << " at (0,0," << cms::convert2mm(zpos) << " with no rotation";
+                                  << " at (0,0," << cms::convert2mm(zpos) << ") with no rotation";
 #endif
   }
   return cms::s_executed;
