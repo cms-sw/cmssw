@@ -85,6 +85,19 @@ public:
   virtual geom_set getCellsFromModule(const unsigned cell_det_id) const = 0;
   virtual geom_set getTriggerCellsFromModule(const unsigned trigger_cell_det_id) const = 0;
 
+  virtual geom_set getStage1FpgasFromStage2Fpga(const unsigned stage2_id) const = 0;
+  virtual geom_set getStage2FpgasFromStage1Fpga(const unsigned stage1_id) const = 0;
+
+  virtual geom_set getStage1LinksFromStage2Fpga(const unsigned) const = 0;
+  virtual unsigned getStage1FpgaFromStage1Link(const unsigned) const = 0;
+  virtual unsigned getStage2FpgaFromStage1Link(const unsigned) const = 0;
+  virtual geom_set getStage1LinksFromStage1Fpga(const unsigned) const = 0;
+  virtual geom_set getLpgbtsFromStage1Fpga(const unsigned stage1_id) const = 0;
+  virtual unsigned getStage1FpgaFromLpgbt(const unsigned lpgbt_id) const = 0;
+  virtual geom_set getModulesFromLpgbt(const unsigned lpgbt_id) const = 0;
+  virtual geom_set getLpgbtsFromModule(const unsigned module_id) const = 0;
+  virtual unsigned getStage1FpgaFromModule(const unsigned module_id) const = 0;
+
   virtual geom_ordered_set getOrderedCellsFromModule(const unsigned cell_det_id) const = 0;
   virtual geom_ordered_set getOrderedTriggerCellsFromModule(const unsigned trigger_cell_det_id) const = 0;
 
