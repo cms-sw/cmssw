@@ -14,7 +14,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.dtVDriftAnalyzer = cms.EDAnalyzer("DTVDriftAnalyzer",
-    rootFileName = cms.untracked.string('') 
+    rootFileName = cms.untracked.string(''),
+    readLegacyVDriftDB =cms.bool(True),
 )
 
 process.p = cms.Path(process.dtVDriftAnalyzer)
