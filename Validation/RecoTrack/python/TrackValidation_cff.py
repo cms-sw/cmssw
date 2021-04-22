@@ -999,8 +999,14 @@ cutstring = "pt > 0.9"
 pixelTracksPt09 = trackRefSelector.clone( cut = cutstring )
 #pixelTracksPt09 = generalTracksPt09.clone(quality = ["undefQuality"], **_pixelTracksCustom)
 
-pixelTracksFromPV = generalTracksFromPV.clone(quality = "undefQuality", **_pixelTracksCustom)
-pixelTracksFromPVPt09 = generalTracksPt09.clone(quality = ["undefQuality"], vertexTag = "pixelVertices", src = "pixelTracksFromPV")
+pixelTracksFromPV = generalTracksFromPV.clone(quality = "highPurity", ptMin = 0.0, ptMax = 99999., ptErrorCut = 99999., copyExtras = True, **_pixelTracksCustom)
+#pixelTracksFromPVPt09 = generalTracksPt09.clone(quality = ["loose","tight","highPurity"], vertexTag = "pixelVertices", src = "pixelTracksFromPV")
+pixelTracksFromPVPt09 = pixelTracksFromPV.clone(ptMin = 0.9)
+
+cutstring = "numberOfValidHits >= 4"
+#pixelTracksFromPV4hits = trackRefSelector.clone( cut = cutstring, src = "pixelTracksFromPV" )
+pixelTracksFromPV4hits = pixelTracksFromPV.clone( numberOfValidPixelHits = 4 )
+
 
 trackValidatorPixelTrackingOnly = trackValidator.clone(
     dirName = "Tracking/PixelTrack/",
@@ -1020,9 +1026,8 @@ trackValidatorPixelTrackingOnly = trackValidator.clone(
 )
 trackValidatorFromPVPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
     dirName = "Tracking/PixelTrackFromPV/",
-#    label = ["pixelTracksFromPV", "pixelTracksFromPVPt09"],
     label = [
-        "pixelTracksFromPV", "pixelTracksFromPVPt09",
+        "pixelTracksFromPV", "pixelTracksFromPVPt09", "pixelTracksFromPV4hits",
         "pixelTracksFromPVL", "pixelTracksFromPVT", "pixelTracksFromPVHP",
         "pixelTracksFromPVPt09L", "pixelTracksFromPVPt09T", "pixelTracksFromPVPt09HP",
         "pixelTracksFromPV4hitsL", "pixelTracksFromPV4hitsT", "pixelTracksFromPV4hitsHP",
@@ -1069,6 +1074,7 @@ tracksValidationTruthPixelTrackingOnly.add( pixelTracks4hits )
 tracksValidationTruthPixelTrackingOnly.add( pixelTracksPt09 )
 tracksValidationTruthPixelTrackingOnly.add( pixelTracksFromPV )
 tracksValidationTruthPixelTrackingOnly.add( pixelTracksFromPVPt09 )
+tracksValidationTruthPixelTrackingOnly.add( pixelTracksFromPV4hits )
 
 tracksPreValidationPixelTrackingOnly = cms.Task(
     tracksValidationTruthPixelTrackingOnly,
@@ -1095,7 +1101,8 @@ for key,value in quality.items():
 
     label = "pixelTracksFromPV"+key
     print label
-    locals()[label] = generalTracksPt09.clone( ptMin = 0.0, vertexTag = "pixelVertices", src = "pixelTracksFromPV", quality = qualityList )
+#    locals()[label] = generalTracksPt09.clone( ptMin = 0.0, vertexTag = "pixelVertices", src = "pixelTracksFromPV", quality = qualityList )
+    locals()[label] = pixelTracksFromPV.clone( quality = qualityName )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
 #-----------    
     cutstring = "pt > 0.9 & qualityMask >= " + str(qualityBit) 
@@ -1107,7 +1114,8 @@ for key,value in quality.items():
 
     label = "pixelTracksFromPVPt09"+key
     print label
-    locals()[label] = generalTracksPt09.clone( ptMin = 0.9, vertexTag = "pixelVertices", src = "pixelTracksFromPV", quality = qualityList )
+ #   locals()[label] = generalTracksPt09.clone( ptMin = 0.9, vertexTag = "pixelVertices", src = "pixelTracksFromPV", quality = qualityList )
+    locals()[label] = pixelTracksFromPVPt09.clone( quality = qualityName )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
 #-----------         
     label = "pixelTracks4hits"+key
@@ -1119,9 +1127,10 @@ for key,value in quality.items():
     
     label = "pixelTracksFromPV4hits"+key
     print label
-    locals()[label] = generalTracksPt09.clone( ptMin = 0.0, minHit = 4, vertexTag = "pixelVertices", src = "pixelTracksFromPV", quality = qualityList )
+#    locals()[label] = generalTracksPt09.clone( ptMin = 0.0, minHit = 4, vertexTag = "pixelVertices", src = "pixelTracksFromPV", quality = qualityList )
+    locals()[label] = pixelTracksFromPV4hits.clone( quality = qualityName )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
-    
+#--------    
     label = "pixelTracks3hits"+key
     print label
     cutstring = "numberOfValidHits == 3 & qualityMask >= " + str(qualityBit)
