@@ -20,20 +20,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-class SimHitTPAssociationProducer final : public edm::global::EDProducer<> {
-public:
-  using SimHitTPPair = std::pair<TrackingParticleRef, TrackPSimHitRef>;
-  using SimHitTPAssociationList = std::vector<SimHitTPPair>;
-
-  explicit SimHitTPAssociationProducer(const edm::ParameterSet &);
-  ~SimHitTPAssociationProducer() override = default;
-
-private:
-  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
-
-  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> _simHitSrc;
-  edm::EDGetTokenT<TrackingParticleCollection> _trackingParticleSrc;
-};
+#include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 
 SimHitTPAssociationProducer::SimHitTPAssociationProducer(const edm::ParameterSet &cfg)
     : _simHitSrc(),
@@ -46,6 +33,8 @@ SimHitTPAssociationProducer::SimHitTPAssociationProducer(const edm::ParameterSet
     _simHitSrc.emplace_back(consumes<edm::PSimHitContainer>(tag));
   }
 }
+
+SimHitTPAssociationProducer::~SimHitTPAssociationProducer(){}
 
 void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &es) const {
   std::unique_ptr<SimHitTPAssociationList> simHitTPList(new SimHitTPAssociationList);
@@ -84,9 +73,7 @@ void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, con
     }
   }
 
-  std::sort(simHitTPList->begin(), simHitTPList->end(), [](SimHitTPPair i, SimHitTPPair j) {
-    return i.first.key() > j.first.key();
-  });
+  std::sort(simHitTPList->begin(), simHitTPList->end(), simHitTPAssociationListGreater);
   iEvent.put(std::move(simHitTPList));
 }
 
