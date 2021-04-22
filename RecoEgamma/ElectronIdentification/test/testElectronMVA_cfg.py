@@ -19,7 +19,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-         '/store/mc/RunIIFall17MiniAOD/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/RECOSIMstep_94X_mc2017_realistic_v10-v1/00000/0293A280-B5F3-E711-8303-3417EBE33927.root'
+        #'/store/mc/RunIIFall17MiniAOD/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/RECOSIMstep_94X_mc2017_realistic_v10-v1/00000/0293A280-B5F3-E711-8303-3417EBE33927.root'
+        '/store/mc/RunIISummer20UL18MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1_ext1-v1/40000/14856128-17A6-9E4D-864A-D18AD0C61DAF.root'
     )
 )
 
@@ -46,6 +47,9 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 
 # define which IDs we want to produce
 my_id_modules = [
+        'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer16UL_ID_ISO_cff',
+        'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer17UL_ID_ISO_cff',
+        'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer18UL_ID_ISO_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff',
@@ -60,7 +64,11 @@ for idmod in my_id_modules:
 
 process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
         #
-        eleMVAs             = cms.vstring(
+                                   eleMVAs             = cms.vstring(
+                                       "egmGsfElectronIDs:mvaEleID-Summer16UL-ID-ISO-HZZ",
+                                       "egmGsfElectronIDs:mvaEleID-Summer17UL-ID-ISO-HZZ",
+                                       "egmGsfElectronIDs:mvaEleID-Summer18UL-ID-ISO-HZZ",
+                                       
                                           "egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80",
                                           "egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90",
                                           "egmGsfElectronIDs:mvaEleID-Spring16-HZZ-V1-wpLoose",
@@ -79,6 +87,10 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                           "egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wpLoose",
                                           ),
         eleMVALabels        = cms.vstring(
+            "Summer16ULIDISOHZZ",
+            "Summer17ULIDISOHZZ",
+            "Summer18ULIDISOHZZ",
+            
                                           "Spring16GPV1wp80",
                                           "Spring16GPV1wp90",
                                           "Spring16HZZV1wpLoose",
@@ -97,6 +109,13 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                           "Fall17isoV1wpLoose",
                                           ),
         eleMVAValMaps        = cms.vstring(
+            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer16ULIdIsoValues",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer16ULIdIsoRawValues",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer17ULIdIsoValues",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer17ULIdIsoRawValues",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer18ULIdIsoValues",
+                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer18ULIdIsoRawValues",
+
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1RawValues",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values",
@@ -109,6 +128,13 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Values",
                                            ),
         eleMVAValMapLabels   = cms.vstring(
+            "Summer16ULIdIsoVals",
+                                           "Summer16ULIdIsoRawVals",
+                                           "Summer17ULIdIsoVals",
+                                           "Summer17ULIdIsoRawVals",
+                                           "Summer18ULIdIsoVals",
+                                           "Summer18ULIdIsoRawVals",
+
                                            "Spring16GPV1Vals",
                                            "Spring16GPV1RawVals",
                                            "Spring16HZZV1Vals",
