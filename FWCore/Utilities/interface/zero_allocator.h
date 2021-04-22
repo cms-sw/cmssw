@@ -17,6 +17,7 @@
 */
 
 #include "tbb/tbb_allocator.h"
+#include <cstring>
 
 namespace edm {
   template <typename T, template <typename X> class Allocator = tbb::tbb_allocator>
