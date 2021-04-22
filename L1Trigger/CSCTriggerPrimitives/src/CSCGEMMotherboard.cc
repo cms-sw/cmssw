@@ -26,8 +26,6 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
                               : tmbParams_.getParameter<int>("maxDeltaPadL2Odd"));
 }
 
-CSCGEMMotherboard::CSCGEMMotherboard() : CSCUpgradeMotherboard() {}
-
 CSCGEMMotherboard::~CSCGEMMotherboard() {}
 
 void CSCGEMMotherboard::clear() {

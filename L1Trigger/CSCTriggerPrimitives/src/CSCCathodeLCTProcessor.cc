@@ -111,37 +111,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
 }
 
-CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() : CSCBaseboard() {
-  // constructor for debugging.
-  static std::atomic<bool> config_dumped{false};
-
-  // CLCT configuration parameters.
-  setDefaultConfigParameters();
-  infoV = 2;
-
-  early_tbins = 4;
-
-  start_bx_shift = 0;
-
-  // Check and print configuration parameters.
-  checkConfigParameters();
-  if (!config_dumped) {
-    dumpConfigParams();
-    config_dumped = true;
-  }
-
-  numStrips_ = CSCConstants::MAX_NUM_STRIPS_RUN1;
-  // Should be OK for all stations except ME1.
-  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-    if ((i_layer + 1) % 2 == 0)
-      stagger[i_layer] = 0;
-    else
-      stagger[i_layer] = 1;
-  }
-
-  thePreTriggerDigis.clear();
-}
-
 void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
   // Set default values for configuration parameters.
   fifo_tbins = def_fifo_tbins;
