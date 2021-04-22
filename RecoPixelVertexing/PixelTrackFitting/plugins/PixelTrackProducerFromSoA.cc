@@ -201,7 +201,10 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
     math::XYZVector mom(pp.x(), pp.y(), pp.z());
 
     auto track = std::make_unique<reco::Track>(chi2, ndof, pos, mom, gp.charge(), CurvilinearTrajectoryError(mo));
-    track->setQuality(recoQuality[int(q)]);
+    track->setQuality(reco::TrackBase::loose);  // all at least loose
+    auto tkq = recoQuality[int(q)];
+    if (reco::TrackBase::highPurity == tkq)  track->setQuality(reco::TrackBase::tight);
+    track->setQuality(tkq);
     // filter???
     tracks.emplace_back(track.release(), hits);
   }
