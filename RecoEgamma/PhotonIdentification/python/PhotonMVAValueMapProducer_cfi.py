@@ -15,8 +15,8 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cf
 mvaConfigsForPhoProducer.append( mvaPhoID_RunIIFall17_v2_producer_config )
 
 ###Phase II ID valid for EB 
-from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Winter20_PhaseII_V0_cff import *
-mvaConfigsForPhoProducer.append( mvaPhoID_PhaseIIWinter20_v0_producer_config )
+from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Summer20_PhaseII_V0_cff import *
+mvaConfigsForPhoProducer.append( mvaPhoID_PhaseIISummer20_v0_producer_config )
 
 photonMVAValueMapProducer = cms.EDProducer('PhotonMVAValueMapProducer',
                                            src = cms.InputTag('slimmedPhotons'),

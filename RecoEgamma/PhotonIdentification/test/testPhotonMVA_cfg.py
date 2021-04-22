@@ -52,7 +52,7 @@ my_id_modules = [
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff',
-    'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Winter20_PhaseII_V0_cff',
+    'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Summer20_PhaseII_V0_cff',
                  ]
 
 #add them to the VID producer
@@ -65,21 +65,21 @@ process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
                                    phoMVALabels         = cms.vstring(
                                    ),
                                    phoMVAValMaps        = cms.vstring(
-                                       "photonMVAValueMapProducer:PhotonMVAEstimatorPhaseIIWinter20v0Values",
+                                       "photonMVAValueMapProducer:PhotonMVAEstimatorPhaseIISummer20v0Values",
                                        "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values",
                                        #"photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1Values",
                                        "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1p1Values",
                                        "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v2Values",
                                 ),
                                    phoMVAValMapLabels   = cms.vstring(
-                                       "PhaseIIWinter20v0",
+                                       "PhaseIISummer20v0",
                                        "Spring16NonTrigV1",
                                        #"Fall17v1",
                                        "Fall17v1p1",
                                        "Fall17v2",
                                 ),
                                    phoMVACats           = cms.vstring(
-                                       "photonMVAValueMapProducer:PhotonMVAEstimatorPhaseIIWinter20v0Categories",
+                                       "photonMVAValueMapProducer:PhotonMVAEstimatorPhaseIISummer20v0Categories",
                                        "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v2Categories",
                                    ),
                                    phoMVACatLabels      = cms.vstring(
