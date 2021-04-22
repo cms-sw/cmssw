@@ -2,38 +2,23 @@
 #define RecoEgamma_EgammaTools_HGCalShowerShapeHelper_h
 
 // system include files
-#include <algorithm>
-#include <cstdlib>
-#include <iostream>
 #include <map>
 #include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 
 // external include files
-#include <CLHEP/Vector/LorentzVector.h>
-#include <Math/Point3D.h>
-#include <Math/Point3Dfwd.h>
-#include <TMatrixD.h>
-#include <TVectorD.h>
+#include <Math/Vector3Dfwd.h>
 
 // CMSSW include files
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/FWLite/interface/ESHandle.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,7 +27,6 @@
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 
 class HGCalShowerShapeHelper {
   // Good to filter/compute/store this stuff beforehand as they are common to the shower shape variables.

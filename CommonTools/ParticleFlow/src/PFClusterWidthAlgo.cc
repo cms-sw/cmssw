@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "CommonTools/ParticleFlow/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
