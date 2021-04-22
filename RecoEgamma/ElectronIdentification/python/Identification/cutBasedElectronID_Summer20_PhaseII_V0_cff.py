@@ -20,7 +20,7 @@ from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_tools \
 #
 
 # Veto working point Barrel
-idName = "cutBasedElectronID-Summer20_PhaseII_V0-veto"
+idName = "cutBasedElectronID-Summer20-PhaseII-V0-veto"
 WP_Veto_EB = EleWorkingPoint_V5(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       =  0.0181 , # full5x5_sigmaIEtaIEtaCut
@@ -52,7 +52,7 @@ WP_Veto_EE = EleWorkingPoint_V5(
     )
 
 # Loose working point Barrel and Endcap
-idName = "cutBasedElectronID-Summer20_PhaseII_V0-loose"
+idName = "cutBasedElectronID-Summer20-PhaseII-V0-loose"
 WP_Loose_EB = EleWorkingPoint_V5(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0162  , # full5x5_sigmaIEtaIEtaCut
@@ -84,7 +84,7 @@ WP_Loose_EE = EleWorkingPoint_V5(
     )
 
 # Medium working point Barrel and Endcap
-idName = "cutBasedElectronID-Summer20_PhaseII_V0-medium"
+idName = "cutBasedElectronID-Summer20-PhaseII-V0-medium"
 WP_Medium_EB = EleWorkingPoint_V5(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0156 , # full5x5_sigmaIEtaIEtaCut
@@ -117,7 +117,7 @@ WP_Medium_EE = EleWorkingPoint_V5(
 
 
 # Tight working point Barrel and Endcap
-idName = "cutBasedElectronID-Summer20_PhaseII_V0-tight"
+idName = "cutBasedElectronID-Summer20-PhaseII-V0-tight"
 WP_Tight_EB = EleWorkingPoint_V5(
     idName                         = idName  , # idName
     full5x5_sigmaIEtaIEtaCut       = 0.0137  , # full5x5_sigmaIEtaIEtaCut
