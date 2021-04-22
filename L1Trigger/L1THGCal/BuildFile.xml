@@ -6,6 +6,7 @@
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="SimDataFormats/CaloTest"/>
 <use name="PhysicsTools/TensorFlow" />
+<use name="json" />
 <export>
   <lib name="1"/>
 </export>
