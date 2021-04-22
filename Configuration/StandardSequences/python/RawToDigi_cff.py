@@ -87,7 +87,7 @@ from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([castorDigis]))
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-# Remove siPixelDigis until we have phase1 pixel digis
+# Remove siPixelDigis until we have Phase 2 pixel digis
 phase2_tracker.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([siPixelDigis])) # FIXME
 
 

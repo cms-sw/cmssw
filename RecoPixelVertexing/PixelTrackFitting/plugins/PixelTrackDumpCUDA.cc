@@ -54,7 +54,7 @@ void PixelTrackDumpCUDA::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("onGPU", true);
-  desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("caHitNtupletCUDA"));
+  desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksCUDA"));
   desc.add<edm::InputTag>("pixelVertexSrc", edm::InputTag("pixelVertexCUDA"));
   descriptions.add("pixelTrackDumpCUDA", desc);
 }
