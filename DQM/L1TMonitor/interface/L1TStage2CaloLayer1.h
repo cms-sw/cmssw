@@ -293,6 +293,7 @@ private:
   edm::EDGetTokenT<FEDRawDataCollection> fedRawData_;
   std::string histFolder_;
   int tpFillThreshold_;
+  int tpFillThreshold5Bx_;
   bool ignoreHFfbs_;
 };
 

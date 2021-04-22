@@ -35,6 +35,7 @@ namespace l1t {
         }
       } else if (N_BX == 5) {
         const uint32_t* ptr5 = ptr;
+        ptr += 192*2;
         UCTCTP7RawData ctp7Data(ptr);
         makeECalTPGs(ctp7_phi, ctp7Data, res->getEcalDigis());
         makeHCalTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());

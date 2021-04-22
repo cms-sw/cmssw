@@ -5,6 +5,7 @@
  */
 //Modified by Bhawna Gomber <bhawna.gomber@cern.ch>
 //Modified by Andrew Loeliger <andrew.loeliger@cern.ch>
+//Modified by Ho-Fung Tsoi <ho.fung.tsoi@cern.ch>
 
 #include "DQM/L1TMonitor/interface/L1TStage2CaloLayer1.h"
 
@@ -40,6 +41,7 @@ L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet& ps)
       fedRawData_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("fedRawDataLabel"))),
       histFolder_(ps.getParameter<std::string>("histFolder")),
       tpFillThreshold_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold", 0)),
+      tpFillThreshold5Bx_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold5Bx", 1)),
       ignoreHFfbs_(ps.getUntrackedParameter<bool>("ignoreHFfbs", false)) {}
 
 L1TStage2CaloLayer1::~L1TStage2CaloLayer1() {}
@@ -216,7 +218,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
   event.getByToken(ecalTPSourceRecdBx5_, ecalTPsRecdBx5);
 
   for (const auto& tp : (*ecalTPsRecdBx1)) {
-    if (tp.compressedEt() > tpFillThreshold_) {
+    if (tp.compressedEt() > tpFillThreshold5Bx_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
       eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
@@ -225,7 +227,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     }
   }
   for (const auto& tp : (*ecalTPsRecdBx2)) {
-    if (tp.compressedEt() > tpFillThreshold_) {
+    if (tp.compressedEt() > tpFillThreshold5Bx_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
       eventMonitors.ecalOccRecdBx2_->Fill(ieta, iphi);
@@ -234,7 +236,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     }
   }
   for (const auto& tp : (*ecalTPsRecdBx3)) {
-    if (tp.compressedEt() > tpFillThreshold_) {
+    if (tp.compressedEt() > tpFillThreshold5Bx_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
       eventMonitors.ecalOccRecdBx3_->Fill(ieta, iphi);
@@ -243,7 +245,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     }
   }
   for (const auto& tp : (*ecalTPsRecdBx4)) {
-    if (tp.compressedEt() > tpFillThreshold_) {
+    if (tp.compressedEt() > tpFillThreshold5Bx_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
       eventMonitors.ecalOccRecdBx4_->Fill(ieta, iphi);
@@ -252,7 +254,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     }
   }
   for (const auto& tp : (*ecalTPsRecdBx5)) {
-    if (tp.compressedEt() > tpFillThreshold_) {
+    if (tp.compressedEt() > tpFillThreshold5Bx_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
       eventMonitors.ecalOccRecdBx5_->Fill(ieta, iphi);
@@ -483,9 +485,9 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   eventMonitors.ecalTPRawEtSentAndRecd_ = bookEt("ecalTPRawEtMatch", "ECal Raw Et FULL MATCH");
   eventMonitors.ecalTPRawEtSent_ = bookEt("ecalTPRawEtSent", "ECal Raw Et TCC Readout");
   eventMonitors.ecalOccRecd5Bx_ = ibooker.book1D(
-      "ecalOccRecd5Bx", "ECal TP Occupancies for 5BX", 5, 1, 6);
+      "ecalOccRecd5Bx", "ECal TP Values Averaged vs BX", 5, 1, 6);
   eventMonitors.ecalOccRecd5BxEtWgt_ = ibooker.book1D(
-      "ecalOccRecd5BxEtWgt", "ECal TP ET-weighted Occupancies for 5BX", 5, 1, 6);
+      "ecalOccRecd5BxEtWgt", "ECal TP*Et Averaged vs BX", 5, 1, 6);
   eventMonitors.ecalOccRecdBx1_ = bookEcalOccupancy("ecalOccRecdBx1", "ECal TP Occupancy for BX1");
   eventMonitors.ecalOccRecdBx2_ = bookEcalOccupancy("ecalOccRecdBx2", "ECal TP Occupancy for BX2");
   eventMonitors.ecalOccRecdBx3_ = bookEcalOccupancy("ecalOccRecdBx3", "ECal TP Occupancy for BX3");
