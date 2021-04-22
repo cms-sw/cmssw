@@ -25,6 +25,7 @@
 #include "FWCore/Utilities/interface/OStreamColumn.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/hash_combine.h"
+#include "FWCore/Utilities/interface/std_pair_hasher.h"
 #include "tbb/concurrent_unordered_map.h"
 
 #include <atomic>

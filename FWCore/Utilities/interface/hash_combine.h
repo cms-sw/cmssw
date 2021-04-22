@@ -39,14 +39,6 @@ namespace edm {
     return seed;
   }
 
-  struct StdPairHasher {
-    std::size_t operator()(const std::pair<const std::string, const std::string>& a) const noexcept {
-      return edm::hash_value(a.first, a.second);
-    }
-    std::size_t operator()(const std::pair<const unsigned int, const unsigned int>& a) const noexcept {
-      return edm::hash_value(a.first, a.second);
-    }
-  };
 }  // namespace edm
 
 #endif
