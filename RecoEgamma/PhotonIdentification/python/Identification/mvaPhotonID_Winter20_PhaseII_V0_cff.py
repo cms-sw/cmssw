@@ -4,9 +4,9 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 # for specific working points, and configure those cuts in VID
 #
 #
-# The following MVA is derived for Fall17 samples for photons.
+# The following MVA is derived for PhaseII samples for photons.
 # See more documentation in these presentations:
-# https://indico.cern.ch/event/697079/contributions/2968123/attachments/1632966/2604131/PhotonID_EGM_13.04.2018.pdf
+# https://indico.cern.ch/event/879937/contributions/4108370/attachments/2147472/3619954/Update_PhaseII_photonIDMVA_XGBoost_TMVA_Egamma_Prasant_20112020.pdf
 #
 
 ###################This ID is valid for Phase II EB only##############################3
@@ -50,8 +50,8 @@ mvaPhoID_PhaseIIWinter20_v0_wp80            = configs["VID_config"]["mvaPhoID-Ph
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 central_id_registry.register( mvaPhoID_PhaseIIWinter20_v0_wp90.idName,
-                              '6f2fa300ab5678298eac082620c65038')
+                              '5e47410687d92780e001aafcb1db208d')
 central_id_registry.register( mvaPhoID_PhaseIIWinter20_v0_wp80.idName,
-                              'ceb73819fb1ad37185f81e5290eb9e77')
-mvaPhoID_PhaseIIWinter20_v0_wp90.isPOGApproved = cms.bool(True)
-mvaPhoID_PhaseIIWinter20_v0_wp80.isPOGApproved = cms.bool(True)
+                              '95fa9e58694799b506a3aedcf516763e')
+mvaPhoID_PhaseIIWinter20_v0_wp90.isPOGApproved = cms.bool(False)
+mvaPhoID_PhaseIIWinter20_v0_wp80.isPOGApproved = cms.bool(False)

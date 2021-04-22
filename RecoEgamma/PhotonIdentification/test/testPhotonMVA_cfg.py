@@ -74,7 +74,7 @@ process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
                                    phoMVAValMapLabels   = cms.vstring(
                                        "PhaseIIWinter20v0",
                                        "Spring16NonTrigV1",
-                                       "Fall17v1",
+                                       #"Fall17v1",
                                        "Fall17v1p1",
                                        "Fall17v2",
                                 ),
