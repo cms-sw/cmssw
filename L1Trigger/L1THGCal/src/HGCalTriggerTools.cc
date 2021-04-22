@@ -6,6 +6,7 @@
 #include "DataFormats/ForwardDetId/interface/HFNoseTriggerDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerModuleDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
@@ -110,10 +111,13 @@ unsigned HGCalTriggerTools::layers(DetId::Detector type) const {
 
 unsigned HGCalTriggerTools::layer(const DetId& id) const {
   unsigned int layer = std::numeric_limits<unsigned int>::max();
-  if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose) {
+  if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose &&
+      id.subdetId() != ForwardSubdetector::HGCTrigger) {
     layer = HGCalDetId(id).layer();
   } else if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
     layer = HFNoseDetId(id).layer();
+  } else if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HGCTrigger) {
+    layer = HGCalTriggerModuleDetId(id).layer();
   } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
     layer = HcalDetId(id).depth();
   } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
@@ -151,10 +155,13 @@ unsigned HGCalTriggerTools::layerWithOffset(const DetId& id) const {
 bool HGCalTriggerTools::isEm(const DetId& id) const {
   bool em = false;
 
-  if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose) {
+  if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose &&
+      id.subdetId() != ForwardSubdetector::HGCTrigger) {
     em = (id.subdetId() == HGCEE);
   } else if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
     em = HFNoseDetId(id).isEE();
+  } else if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HGCTrigger) {
+    em = HGCalTriggerModuleDetId(id).isEE();
   } else if (id.det() == DetId::HGCalEE) {
     em = true;
   } else if (id.det() == DetId::HGCalTrigger &&
@@ -180,8 +187,10 @@ bool HGCalTriggerTools::isNose(const DetId& id) const {
 
 bool HGCalTriggerTools::isSilicon(const DetId& id) const {
   bool silicon = false;
-  if (id.det() == DetId::Forward) {
+  if (id.det() == DetId::Forward && id.subdetId() != HGCTrigger) {
     silicon = (id.subdetId() != HGCHEB);
+  } else if (id.det() == DetId::Forward && id.subdetId() == HGCTrigger) {
+    silicon = (HGCalTriggerModuleDetId(id).triggerSubdetId() != HGCalHScTrigger);
   } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
     silicon = true;
   } else if (id.det() == DetId::HGCalTrigger &&
@@ -209,10 +218,13 @@ HGCalTriggerTools::SubDetectorType HGCalTriggerTools::getSubDetectorType(const D
 
 int HGCalTriggerTools::zside(const DetId& id) const {
   int zside = 0;
-  if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose) {
+  if (id.det() == DetId::Forward && id.subdetId() != ForwardSubdetector::HFNose &&
+      id.subdetId() != ForwardSubdetector::HGCTrigger) {
     zside = HGCalDetId(id).zside();
   } else if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
     zside = HFNoseDetId(id).zside();
+  } else if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HGCTrigger) {
+    zside = HGCalTriggerModuleDetId(id).zside();
   } else if (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) {
     zside = HcalDetId(id).zside();
   } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
