@@ -27,7 +27,7 @@ namespace tensorflow {
     }
 
     explicit TBBThreadPool(int nThreads = -1)
-        : nThreads_(nThreads > 0 ? nThreads : tbb::global_control::max_allowed_parallelism), numScheduleCalled_(0) {
+        : nThreads_(nThreads > 0 ? nThreads : tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism)), numScheduleCalled_(0) {
       // when nThreads is zero or smaller, use the default value determined by tbb
     }
 

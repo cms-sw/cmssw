@@ -19,6 +19,12 @@
 #include "tbb/tbb_allocator.h"
 #include <cstring>
 
+/* Copied from tbb_2020 branch's tbb/tbb_allocator linked here
+   https://github.com/oneapi-src/oneTBB/blob/tbb_2020/include/tbb/tbb_allocator.h
+   and renamed to edm namespace because it was removed from oneapi_2021 branch's
+   tbb/tbb_allocator.
+ */
+
 namespace edm {
   template <typename T, template <typename X> class Allocator = tbb::tbb_allocator>
   class zero_allocator : public Allocator<T> {
