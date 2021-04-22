@@ -61,7 +61,7 @@ void CAHitNtupletCUDA::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingCUDA"));
 
   CAHitNtupletGeneratorOnGPU::fillDescriptions(desc);
-  descriptions.add("caHitNtupletCUDA", desc);
+  descriptions.add("pixelTracksCUDA", desc);
 }
 
 void CAHitNtupletCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& es) const {
