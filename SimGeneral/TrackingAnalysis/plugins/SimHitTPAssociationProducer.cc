@@ -1,7 +1,5 @@
-#include <fstream>
-#include <iostream>
-#include <memory>
-#include <utility>
+#include <algorithm>
+#include <map>
 #include <vector>
 
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -29,8 +27,6 @@ public:
 
   explicit SimHitTPAssociationProducer(const edm::ParameterSet &);
   ~SimHitTPAssociationProducer() override = default;
-
-  static bool simHitTPAssociationListGreater(SimHitTPPair i, SimHitTPPair j) { return i.first.key() > j.first.key(); }
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
@@ -88,7 +84,9 @@ void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, con
     }
   }
 
-  std::sort(simHitTPList->begin(), simHitTPList->end(), simHitTPAssociationListGreater);
+  std::sort(simHitTPList->begin(), simHitTPList->end(), [](SimHitTPPair i, SimHitTPPair j) {
+    return i.first.key() > j.first.key();
+  });
   iEvent.put(std::move(simHitTPList));
 }
 
