@@ -34,7 +34,7 @@ SimHitTPAssociationProducer::SimHitTPAssociationProducer(const edm::ParameterSet
   }
 }
 
-SimHitTPAssociationProducer::~SimHitTPAssociationProducer(){}
+SimHitTPAssociationProducer::~SimHitTPAssociationProducer() {}
 
 void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &es) const {
   std::unique_ptr<SimHitTPAssociationList> simHitTPList(new SimHitTPAssociationList);
