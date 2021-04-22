@@ -129,7 +129,7 @@ def customiseFor2018Input(process):
 
     return process
 
-def customiseForPixelCPE(process):
+def customiseFor33495(process):
     """Customize HLT menu to remove deprecated parameters for pixel Generic and Template CPE's """
     for producer in esproducers_by_type(process, "PixelCPEGenericESProducer"):
         if hasattr(producer, "DoLorentz"):
@@ -149,6 +149,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseForPixelCPE(process)
+    process = customiseFor33495(process)
 
     return process
