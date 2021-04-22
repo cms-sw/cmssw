@@ -5,25 +5,39 @@
 #include <vector>
 
 #include "FWCore/Utilities/interface/InputTag.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 #include "DataFormats/Common/interface/Handle.h"
+#include "SimDataFormats/Track/interface/UniqueSimTrackId.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
+class SimHitTPAssociationProducer final : public edm::global::EDProducer<> {
+public:
+  using SimHitTPPair = std::pair<TrackingParticleRef, TrackPSimHitRef>;
+  using SimHitTPAssociationList = std::vector<SimHitTPPair>;
 
-namespace {
-  using TkId = std::pair<uint32_t, EncodedEventId>;
-  struct TkIdHash {
-    std::size_t operator()(TkId const &s) const noexcept {
-      std::size_t h1 = std::hash<uint32_t>{}(s.first);
-      std::size_t h2 = std::hash<uint32_t>{}(s.second.rawId());
-      return h1 ^ (h2 << 1);
-    }
-  };
-}  // namespace
+  explicit SimHitTPAssociationProducer(const edm::ParameterSet &);
+  ~SimHitTPAssociationProducer() override = default;
+
+  static bool simHitTPAssociationListGreater(SimHitTPPair i, SimHitTPPair j) { return i.first.key() > j.first.key(); }
+
+private:
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
+
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> _simHitSrc;
+  edm::EDGetTokenT<TrackingParticleCollection> _trackingParticleSrc;
+};
 
 SimHitTPAssociationProducer::SimHitTPAssociationProducer(const edm::ParameterSet &cfg)
     : _simHitSrc(),
@@ -37,8 +51,6 @@ SimHitTPAssociationProducer::SimHitTPAssociationProducer(const edm::ParameterSet
   }
 }
 
-SimHitTPAssociationProducer::~SimHitTPAssociationProducer() {}
-
 void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &es) const {
   std::unique_ptr<SimHitTPAssociationList> simHitTPList(new SimHitTPAssociationList);
 
@@ -47,7 +59,7 @@ void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, con
   iEvent.getByToken(_trackingParticleSrc, TPCollectionH);
 
   // prepare temporary map between SimTrackId and TrackingParticle index
-  std::unordered_map<TkId, TrackingParticleRef, TkIdHash> mapping;
+  std::unordered_map<UniqueSimTrackId, TrackingParticleRef, UniqueSimTrackIdHash> mapping;
   auto const &tpColl = *TPCollectionH.product();
   for (TrackingParticleCollection::size_type itp = 0, size = tpColl.size(); itp < size; ++itp) {
     auto const &trackingParticle = tpColl[itp];
@@ -55,7 +67,7 @@ void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, con
     // SimTracks inside TrackingParticle
     EncodedEventId eid(trackingParticle.eventId());
     for (auto const &trk : trackingParticle.g4Tracks()) {
-      TkId trkid(trk.trackId(), eid);
+      UniqueSimTrackId trkid(trk.trackId(), eid);
       mapping.insert(std::make_pair(trkid, trackingParticleRef));
     }
   }
@@ -68,10 +80,10 @@ void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event &iEvent, con
     for (unsigned int psimHitI = 0, size = pSimHitCollection.size(); psimHitI < size; ++psimHitI) {
       TrackPSimHitRef pSimHitRef(PSimHitCollectionH, psimHitI);
       auto const &pSimHit = pSimHitCollection[psimHitI];
-      TkId simTkIds(pSimHit.trackId(), pSimHit.eventId());
+      UniqueSimTrackId simTkIds(pSimHit.trackId(), pSimHit.eventId());
       auto ipos = mapping.find(simTkIds);
       if (ipos != mapping.end()) {
-        simHitTPList->push_back(std::make_pair(ipos->second, pSimHitRef));
+        simHitTPList->emplace_back(ipos->second, pSimHitRef);
       }
     }
   }
