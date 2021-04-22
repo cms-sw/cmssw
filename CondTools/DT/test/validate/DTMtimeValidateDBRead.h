@@ -22,4 +22,5 @@ public:
 private:
   std::string dataFileName;
   std::string elogFileName;
+  bool readLegacyVDriftDB;  // which DB to use
 };

@@ -93,7 +93,7 @@ void DTRunConditionVar::analyze(const Event& event, const EventSetup& eventSetup
     mTimeMap_ = &eventSetup.getData(mTimeToken_);
     vDriftMap_ = nullptr;
   } else {
-    vDriftMap_ = eventSetup.getData(vDriftToken_);
+    vDriftMap_ = &eventSetup.getData(vDriftToken_);
     mTimeMap_ = nullptr;
     // Consistency check: no parametrization is implemented for the time being
     int version = vDriftMap_->version();
