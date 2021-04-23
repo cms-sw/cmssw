@@ -324,7 +324,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       event.getByToken(associatorMapRtSim, recotosimCollectionH);
       auto recSimColl = *recotosimCollectionH;
 
-      histoProducerAlgo_->fill_simClusterassosiation_histos(histograms.histoProducerAlgo,
+      histoProducerAlgo_->fill_simClusterAssociation_histos(histograms.histoProducerAlgo,
                                                             ws,
                                                             clusterHandle,
                                                             clusters,

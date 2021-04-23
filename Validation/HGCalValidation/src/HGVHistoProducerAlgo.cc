@@ -1444,7 +1444,7 @@ void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simCluster_histos(const Hi
   histograms.h_mixedhitssimcluster_zminus->Fill(tnscpthminus["mixed"]);
 }
 
-void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simClusterassosiation_histos(
+void HGVHistoProducerAlgo::HGVHistoProducerAlgo::fill_simClusterAssociation_histos(
     const Histograms& histograms,
     int count,
     edm::Handle<reco::CaloClusterCollection> clusterHandle,
