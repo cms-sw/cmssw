@@ -91,7 +91,7 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
     edm::LogInfo("SiPixelRawToDigi") << " Using phase1";
 
   //CablingMap could have a label //Tav
-  cablingMapLabel = config_.getParameter<std::string>("CablingMapLabel");
+  auto cablingMapLabel = config_.getParameter<std::string>("CablingMapLabel");
   tCablingMap = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(edm::ESInputTag("", cablingMapLabel));
 }
 

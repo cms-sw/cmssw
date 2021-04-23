@@ -61,6 +61,5 @@ private:
   int nwords;
   bool usePilotBlade;
   bool usePhase1;
-  std::string cablingMapLabel;
 };
 #endif
