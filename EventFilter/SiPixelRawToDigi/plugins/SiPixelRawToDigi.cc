@@ -35,14 +35,11 @@
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "TH1D.h"
-#include "TFile.h"
-
 using namespace std;
 
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
-    : config_(conf), badPixelInfo_(nullptr), regions_(nullptr), hCPU(nullptr), hDigi(nullptr) {
+    : config_(conf), badPixelInfo_(nullptr), regions_(nullptr) {
   includeErrors = config_.getParameter<bool>("IncludeErrors");
   useQuality = config_.getParameter<bool>("UseQualityInfo");
 
@@ -53,10 +50,6 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
   if (useQuality) {
     tSiPixelQuality = esConsumes<SiPixelQuality, SiPixelQualityRcd>();
   }
-
-  //start counters
-  ndigis = 0;
-  nwords = 0;
 
   // Products
   produces<edm::DetSetVector<PixelDigi>>();
@@ -70,14 +63,6 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
   // regions
   if (!config_.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty()) {
     regions_ = new PixelUnpackingRegions(config_, consumesCollector());
-  }
-
-  // Timing
-  bool timing = config_.getUntrackedParameter<bool>("Timing", false);
-  if (timing) {
-    theTimer = std::make_unique<edm::CPUTimer>();
-    hCPU = new TH1D("hCPU", "hCPU", 100, 0., 0.050);
-    hDigi = new TH1D("hDigi", "hDigi", 50, 0., 15000.);
   }
 
   // Control the usage of pilot-blade data, FED=40
@@ -98,15 +83,8 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::~SiPixelRawToDigi() {
   edm::LogInfo("SiPixelRawToDigi") << " HERE ** SiPixelRawToDigi destructor!";
-
   if (regions_)
     delete regions_;
-
-  if (theTimer) {
-    TFile rootFile("analysis.root", "RECREATE", "my histograms");
-    hCPU->Write();
-    hDigi->Write();
-  }
 }
 
 void SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -131,7 +109,6 @@ void SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descript
     desc.add<edm::ParameterSetDescription>("Regions", psd0)
         ->setComment("## Empty Regions PSet means complete unpacking");
   }
-  desc.addUntracked<bool>("Timing", false);
   desc.add<bool>("UsePilotBlade", false)->setComment("##  Use pilot blades");
   desc.add<bool>("UsePhase1", false)->setComment("##  Use phase1");
   desc.add<std::string>("CablingMapLabel", "")->setComment("CablingMap label");  //Tav
@@ -182,8 +159,6 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   if (useQuality)
     formatter.setQualityStatus(useQuality, badPixelInfo_);
 
-  if (theTimer)
-    theTimer->start();
   bool errorsInEvent = false;
   PixelDataFormatter::DetErrors nodeterrors;
 
@@ -291,17 +266,6 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   }
   if (errorsInEvent)
     LogDebug("SiPixelRawToDigi") << "Error words were stored in this event";
-
-  if (theTimer) {
-    theTimer->stop();
-    LogDebug("SiPixelRawToDigi") << "TIMING IS: (real)" << theTimer->realTime();
-    ndigis += formatter.nDigis();
-    nwords += formatter.nWords();
-    LogDebug("SiPixelRawToDigi") << " (Words/Digis) this ev: " << formatter.nWords() << "/" << formatter.nDigis()
-                                 << "--- all :" << nwords << "/" << ndigis;
-    hCPU->Fill(theTimer->realTime());
-    hDigi->Fill(formatter.nDigis());
-  }
 
   ev.put(std::move(collection));
   if (includeErrors) {
