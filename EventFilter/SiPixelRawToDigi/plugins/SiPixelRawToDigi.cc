@@ -144,7 +144,6 @@ void SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descript
 // -----------------------------------------------------------------------------
 void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   const uint32_t dummydetid = 0xffffffff;
-  debug = edm::MessageDrop::instance()->debugEnabled;
 
   // initialize cabling map or update if necessary
   if (recordWatcher.check(es)) {
@@ -205,8 +204,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
     if (regions_ && !regions_->mayUnpackFED(fedId))
       continue;
 
-    if (debug)
-      LogDebug("SiPixelRawToDigi") << " PRODUCE DIGI FOR FED: " << fedId << endl;
+    LogDebug("SiPixelRawToDigi") << " PRODUCE DIGI FOR FED: " << fedId << endl;
 
     PixelDataFormatter::Errors errors;
 
