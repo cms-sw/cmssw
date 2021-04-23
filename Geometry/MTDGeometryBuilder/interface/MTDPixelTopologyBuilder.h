@@ -1,5 +1,5 @@
-#ifndef Geometry_MTDGeometryBuilder_MTDTopologyBuilder_H
-#define Geometry_MTDGeometryBuilder_MTDTopologyBuilder_H
+#ifndef Geometry_MTDGeometryBuilder_MTDPixelTopologyBuilder_H
+#define Geometry_MTDGeometryBuilder_MTDPixelTopologyBuilder_H
 
 #include <string>
 class PixelTopology;
@@ -9,9 +9,9 @@ class Bounds;
  * Called by GeomTopologyBuilder, chooses the right topology for Pixels.
  */
 
-class MTDTopologyBuilder {
+class MTDPixelTopologyBuilder {
 public:
-  MTDTopologyBuilder();
+  MTDPixelTopologyBuilder();
 
   PixelTopology* build(const Bounds* bounds,
                        int ROWS_PER_ROC,  // Num of Rows per ROC
