@@ -286,7 +286,7 @@ public:
                               std::vector<SimCluster> const& simClusters,
                               unsigned int layers,
                               std::vector<int> thicknesses) const;
-  void fill_simClusterassosiation_histos(const Histograms& histograms,
+  void fill_simClusterAssociation_histos(const Histograms& histograms,
                                          int count,
                                          edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                          const reco::CaloClusterCollection& clusters,
