@@ -2,9 +2,8 @@
 #define FWCore_Utilities_std_pair_hasher_h
 /*
  tbb::hash was changed to used std::hash which does not have an implementation for std::pair.
- This hasher is taken from the boost::hash implementation.
 */
-#include "FWCore/Utilities/interface/zero_allocator.h"
+#include "FWCore/Utilities/interface/hash_combine.h"
 
 namespace edm {
   struct StdPairHasher {
