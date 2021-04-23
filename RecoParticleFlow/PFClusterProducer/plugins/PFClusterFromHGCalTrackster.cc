@@ -47,12 +47,13 @@ void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHit
     reco::PFCluster& back = output.back();
 
     std::vector<std::pair<DetId, float> > hitsAndFractions;
-    for (uint8_t lcId = 0; lcId < tst.vertices().size(); ++lcId) {
-      const auto fraction = 1.f / tst.vertex_multiplicity(lcId);
-      for (const auto& cell : clusters[tst.vertices(lcId)].hitsAndFractions()) {
+    int iLC =0;
+    std::for_each(std::begin(tst.vertices()), std::end(tst.vertices()), [&](unsigned int lcId) {
+      const auto fraction = 1.f / tst.vertex_multiplicity(iLC++);
+      for (const auto& cell : clusters[lcId].hitsAndFractions()) {
         hitsAndFractions.emplace_back(cell.first, cell.second * fraction);
       }
-    }
+    });
 
     for (const auto& hAndF : hitsAndFractions) {
       auto itr = detIdToIndex.find(hAndF.first);
