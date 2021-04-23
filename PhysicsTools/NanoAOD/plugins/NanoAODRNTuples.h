@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "TFile.h"
 #include <ROOT/RNTuple.hxx>
@@ -15,6 +16,7 @@ using ROOT::Experimental::RCollectionNTuple;
 using ROOT::Experimental::RNTupleWriter;
 
 #include "RNTupleFieldPtr.h"
+#include "SummaryTableOutputFields.h"
 
 class LumiNTuple {
 public:
@@ -31,13 +33,15 @@ private:
 class RunNTuple {
 public:
   RunNTuple() = default;
+  void register_token(const edm::EDGetToken &token);
   void fill(const edm::RunForOutput& iRun, TFile& file);
   void finalizeWrite();
 private:
   void createFields(const edm::RunForOutput& iRun, TFile& file);
+  std::vector<edm::EDGetToken> m_tokens;
   std::unique_ptr<RNTupleWriter> m_ntuple;
   RNTupleFieldPtr<UInt_t> m_run;
-  // TODO SummaryTableOutput fields
+  std::vector<SummaryTableOutputFields> m_tables;
 };
 
 class PSetNTuple {

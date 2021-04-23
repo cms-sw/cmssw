@@ -173,7 +173,7 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InRun]) {
     if (keep.first->className() == "nanoaod::MergeableCounterTable") {
-      //m_runTables.push_back(SummaryTableOutputBranches(keep.first, keep.second));
+      m_run.register_token(keep.second);
     }
     else if (keep.first->className() == "nanoaod::UniqueString" &&
              keep.first->moduleLabel() == "nanoMetadata")

@@ -1,5 +1,8 @@
 #include "PhysicsTools/NanoAOD/plugins/NanoAODRNTuples.h"
 
+#include "DataFormats/NanoAOD/interface/MergeableCounterTable.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
+
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
 #include <ROOT/RNTupleOptions.hxx>
@@ -10,6 +13,7 @@ using ROOT::Experimental::Detail::RPageSinkFile;
 using ROOT::Experimental::RNTupleWriteOptions;
 
 #include "RNTupleFieldPtr.h"
+#include "SummaryTableOutputFields.h"
 
 void LumiNTuple::createFields(const edm::LuminosityBlockID& id, TFile& file) {
   auto model = RNTupleModel::Create();
@@ -37,10 +41,22 @@ void LumiNTuple::finalizeWrite() {
   m_ntuple.reset();
 }
 
+void RunNTuple::register_token(const edm::EDGetToken &token) {
+  m_tokens.push_back(token);
+}
+
 // TODO SummaryTableOutput fields
 void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
   auto model = RNTupleModel::Create();
   m_run = RNTupleFieldPtr<UInt_t>("run", *model);
+
+  edm::Handle<nanoaod::MergeableCounterTable> handle;
+  for (const auto &token : m_tokens) {
+    iRun.getByToken(token, handle);
+    const nanoaod::MergeableCounterTable &tab = *handle;
+    m_tables.push_back(SummaryTableOutputFields(tab, *model));
+  }
+
   // TODO use Append when we bump our RNTuple version
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
@@ -54,7 +70,12 @@ void RunNTuple::fill(const edm::RunForOutput& iRun, TFile& file) {
     createFields(iRun, file);
   }
   m_run.fill(iRun.id().run());
-  // todo fill SummaryTableOutputs
+  edm::Handle<nanoaod::MergeableCounterTable> handle;
+  for (std::size_t i = 0; i < m_tokens.size(); i++) {
+    iRun.getByToken(m_tokens.at(i), handle);
+    const nanoaod::MergeableCounterTable &tab = *handle;
+    m_tables.at(i).fill(tab);
+  }
   m_ntuple->Fill();
 }
 
