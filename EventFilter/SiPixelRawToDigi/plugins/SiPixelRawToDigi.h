@@ -54,7 +54,6 @@ private:
   std::vector<unsigned int> fedIds;
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   edm::ESWatcher<SiPixelQualityRcd> qualityWatcher;
-  edm::InputTag label;
   edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> tSiPixelQuality;
   edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> tCablingMap;
   int ndigis;
