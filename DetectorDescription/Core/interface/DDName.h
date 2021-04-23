@@ -5,8 +5,7 @@
 #include <string>
 #include <utility>
 
-#include "FWCore/Utilities/interface/hash_combine.h"
-#include "FWCore/Utilities/interface/std_pair_hasher.h"
+#include "FWCore/Utilities/interface/StdPairHasher.h"
 #include <tbb/concurrent_vector.h>
 #include <tbb/concurrent_unordered_map.h>
 

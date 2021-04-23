@@ -40,5 +40,4 @@ namespace edm {
   }
 
 }  // namespace edm
-
 #endif
