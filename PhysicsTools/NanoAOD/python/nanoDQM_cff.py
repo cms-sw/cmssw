@@ -64,8 +64,6 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.FatJet, plots = _FatJet_plots_80x)
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.Flag, plots = _Flag_plots_80x)
 
-run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
-
 
 ## no-change policy in run2_nanoAOD_106Xv1 (nanoAOD-v8)
 _sv_plots_nom = copy.deepcopy(nanoDQM.vplots.SV.plots)
@@ -92,6 +90,8 @@ nanoDQMMC.vplots.Photon.sels.Prompt = cms.string("genPartFlav == 1")
 nanoDQMMC.vplots.Tau.sels.Prompt = cms.string("genPartFlav == 5")
 nanoDQMMC.vplots.Jet.sels.Prompt = cms.string("genJetIdx != 1")
 nanoDQMMC.vplots.Jet.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavour == 5")
+
+run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
 
 nanoDQMQTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('PhysicsTools/NanoAOD/test/dqmQualityTests.xml'),
