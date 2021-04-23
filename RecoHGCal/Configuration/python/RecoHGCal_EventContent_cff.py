@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsMerge
 
 trackstersIters = ['keep *_ticlTracksters'+iteration+'_*_*' for iteration in ticlIterLabelsMerge]
-trackstersHFNoseIters = ['keep *_ticlTrackstersHFNose'+iteration+'_*_*' for iteration in ticlIterLabelsMerge]
 
 #AOD content
 TICL_AOD = cms.PSet(
@@ -14,7 +13,11 @@ TICL_AOD = cms.PSet(
 TICL_RECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
       trackstersIters +
-      trackstersHFNoseIters +
+      ['keep *_ticlTrackstersHFNoseTrkEM_*_*',
+       'keep *_ticlTrackstersHFNoseEM_*_*',
+       'keep *_ticlTrackstersHFNoseMIP_*_*',
+       'keep *_ticlTrackstersHFNoseHAD_*_*',
+       'keep *_ticlTrackstersHFNoseMerge_*_*',] +
       ['keep *_pfTICL_*_*']
       )
     )
