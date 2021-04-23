@@ -278,6 +278,8 @@ AODEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
 ctpps.toModify(AODEventContent, 
     outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
+phase2_hgcal.toModify(AODEventContent,
+    outputCommands = AODEventContent.outputCommands + TICL_AOD.outputCommands)
 #
 #
 # RAWAOD Data Tier definition
