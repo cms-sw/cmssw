@@ -5,6 +5,11 @@ from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsMerge
 trackstersIters = ['keep *_ticlTracksters'+iteration+'_*_*' for iteration in ticlIterLabelsMerge]
 trackstersHFNoseIters = ['keep *_ticlTrackstersHFNose'+iteration+'_*_*' for iteration in ticlIterLabelsMerge]
 
+#AOD content
+TICL_AOD = cms.PSet(
+    outputCommands = cms.untracked.vstring()
+    )
+
 #RECO content
 TICL_RECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -13,6 +18,7 @@ TICL_RECO = cms.PSet(
       ['keep *_pfTICL_*_*']
       )
     )
+TICL_RECO.outputCommands.extend(TICL_AOD.outputCommands)
 
 # FEVT Content
 TICL_FEVT = cms.PSet(
