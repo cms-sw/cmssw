@@ -3,7 +3,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetUnit.h"
-#include "Geometry/MTDGeometryBuilder/interface/MTDTopologyBuilder.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDPixelTopologyBuilder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
@@ -146,7 +146,7 @@ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(
     if (theMTDDetTypeMap.find(detName) == theMTDDetTypeMap.end()) {
       std::unique_ptr<const Bounds> bounds(i->bounds());
 
-      PixelTopology* t = MTDTopologyBuilder().build(
+      PixelTopology* t = MTDPixelTopologyBuilder().build(
           &*bounds, ROCrows, ROCcols, ROCSx, ROCSy, GAPxInterpad, GAPxBorder, GAPyInterpad, GAPyBorder);
 
       theMTDDetTypeMap[detName] = new MTDGeomDetType(t, detName, det);
