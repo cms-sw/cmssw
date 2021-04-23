@@ -114,17 +114,11 @@ void SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<bool>("IncludeErrors", true);
   desc.add<bool>("UseQualityInfo", false);
   {
-    std::vector<int> temp1;
-    temp1.reserve(1);
-    temp1.push_back(29);
-    desc.add<std::vector<int>>("ErrorList", temp1)
+    desc.add<std::vector<int>>("ErrorList", std::vector<int>{29})
         ->setComment("## ErrorList: list of error codes used by tracking to invalidate modules");
   }
   {
-    std::vector<int> temp1;
-    temp1.reserve(1);
-    temp1.push_back(40);
-    desc.add<std::vector<int>>("UserErrorList", temp1)
+    desc.add<std::vector<int>>("UserErrorList", std::vector<int>{40})
         ->setComment("## UserErrorList: list of error codes used by Pixel experts for investigation");
   }
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("siPixelRawData"));
