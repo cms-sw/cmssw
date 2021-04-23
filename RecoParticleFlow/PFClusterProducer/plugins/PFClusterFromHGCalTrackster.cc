@@ -11,9 +11,9 @@ void PFClusterFromHGCalTrackster::updateEvent(const edm::Event& ev) {
 }
 
 void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
-                                                   const std::vector<bool>& rechitMask,
-                                                   const std::vector<bool>& seedable,
-                                                   reco::PFClusterCollection& output) {
+                                                const std::vector<bool>& rechitMask,
+                                                const std::vector<bool>& seedable,
+                                                reco::PFClusterCollection& output) {
   auto const& hits = *input;
 
   const auto& tracksters = *trackstersH_;
