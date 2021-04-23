@@ -46,4 +46,4 @@ mvaEleID_Summer18UL_ID_ISO_producer_config = cms.PSet(
 
 mvaEleID_Summer18UL_ID_ISO_HZZ = configureVIDMVAEleID( mvaEleID_Summer18UL_ID_ISO_HZZ_container )
 
-mvaEleID_Summer18UL_ID_ISO_HZZ.isPOGApproved = cms.untracked.bool(False)
+mvaEleID_Summer18UL_ID_ISO_HZZ.isPOGApproved = cms.untracked.bool(True)
