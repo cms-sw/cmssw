@@ -25,9 +25,7 @@ void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHit
     detIdToIndex[hits[i].detId()] = i;
   }
 
-  int iTrackster = -1;
   for (const auto& tst : tracksters) {
-    iTrackster++;
     // Skip empty tracksters
     if (tst.vertices().empty()) {
       continue;
@@ -36,7 +34,7 @@ void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHit
     if (filterByTracksterPID_) {
       float probTotal = 0.0f;
       for (int cat : filter_on_categories_) {
-        probTotal += tracksters[iTrackster].id_probabilities(cat);
+        probTotal += tst.id_probabilities(cat);
       }
       if (probTotal < pid_threshold_) {
         continue;
@@ -49,9 +47,11 @@ void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHit
     reco::PFCluster& back = output.back();
 
     std::vector<std::pair<DetId, float> > hitsAndFractions;
-    for (const auto lcId : tst.vertices()) {
-      const auto& hAndF_temp = clusters[lcId].hitsAndFractions();
-      hitsAndFractions.insert(hitsAndFractions.end(), hAndF_temp.begin(), hAndF_temp.end());
+    for (uint8_t lcId = 0; lcId < tst.vertices().size(); ++lcId) {
+      const auto fraction = 1.f / tst.vertex_multiplicity(lcId);
+      for (const auto& cell : clusters[tst.vertices(lcId)].hitsAndFractions()) {
+        hitsAndFractions.emplace_back(cell.first, cell.second * fraction);
+      }
     }
 
     for (const auto& hAndF : hitsAndFractions) {
