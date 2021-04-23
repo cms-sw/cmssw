@@ -155,11 +155,13 @@ for era in [run2_nanoAOD_94XMiniAODv1,]:
 run2_miniAOD_80XLegacy.toModify(tauTable,
                                 variables = _variables80X
 )
-for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, \
+for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv2, \
             run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
     era.toModify(tauTable,
                  variables = cms.PSet(tauTable.variables, _mvaAntiEVars, _mvaIsoVars2015Reduced, _mvaIsoVars2017v1, _mvaIsoVars2017v2)
     )
+for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, \
+            run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
     era.toModify(tauTable.variables,
                  rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw2018')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
                  rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
