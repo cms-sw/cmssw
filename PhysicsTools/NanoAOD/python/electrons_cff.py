@@ -155,11 +155,12 @@ calibratedPatElectronsNano = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibr
     src = "slimmedElectrons"
 )
 
-(run2_egamma_2016 & tracker_apv_vfp30_2016).toModify(calibratedPatElectronsNano,
+#the second part is introduced to protect v8 since (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel) is the v8 condition
+(run2_egamma_2016 & tracker_apv_vfp30_2016 & ~(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel)).toModify(calibratedPatElectronsNano,
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain")
 ) 
 
-(run2_egamma_2016 & ~tracker_apv_vfp30_2016).toModify(calibratedPatElectronsNano,
+(run2_egamma_2016 & ~tracker_apv_vfp30_2016 & ~(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel)).toModify(calibratedPatElectronsNano,
     correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain")
 )
 
