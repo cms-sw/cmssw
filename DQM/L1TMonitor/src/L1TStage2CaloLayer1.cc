@@ -510,10 +510,8 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   eventMonitors.ecalTPRawEtRecd_ = bookEt("ecalTPRawEtRecd", "ECal Raw Et Layer1 Readout");
   eventMonitors.ecalTPRawEtSentAndRecd_ = bookEt("ecalTPRawEtMatch", "ECal Raw Et FULL MATCH");
   eventMonitors.ecalTPRawEtSent_ = bookEt("ecalTPRawEtSent", "ECal Raw Et TCC Readout");
-  eventMonitors.ecalOccRecd5Bx_ = ibooker.book1D(
-      "ecalOccRecd5Bx", "ECal TP Values Averaged vs BX", 5, 1, 6);
-  eventMonitors.ecalOccRecd5BxEtWgt_ = ibooker.book1D(
-      "ecalOccRecd5BxEtWgt", "ECal TP*Et Averaged vs BX", 5, 1, 6);
+  eventMonitors.ecalOccRecd5Bx_ = ibooker.book1D("ecalOccRecd5Bx", "ECal TP Values Averaged vs BX", 5, 1, 6);
+  eventMonitors.ecalOccRecd5BxEtWgt_ = ibooker.book1D("ecalOccRecd5BxEtWgt", "ECal TP*Et Averaged vs BX", 5, 1, 6);
   eventMonitors.ecalOccRecdBx1_ = bookEcalOccupancy("ecalOccRecdBx1", "ECal TP Occupancy for BX1");
   eventMonitors.ecalOccRecdBx2_ = bookEcalOccupancy("ecalOccRecdBx2", "ECal TP Occupancy for BX2");
   eventMonitors.ecalOccRecdBx3_ = bookEcalOccupancy("ecalOccRecdBx3", "ECal TP Occupancy for BX3");
