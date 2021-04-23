@@ -17,7 +17,6 @@
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
 class SiPixelFedCablingTree;
@@ -45,8 +44,6 @@ private:
   const SiPixelQuality* badPixelInfo_;
   PixelUnpackingRegions* regions_;
   edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection;
-  TH1D *hCPU, *hDigi;
-  std::unique_ptr<edm::CPUTimer> theTimer;
   bool includeErrors;
   bool useQuality;
   std::vector<int> tkerrorlist;
@@ -56,8 +53,6 @@ private:
   edm::ESWatcher<SiPixelQualityRcd> qualityWatcher;
   edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> tSiPixelQuality;
   edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> tCablingMap;
-  int ndigis;
-  int nwords;
   bool usePilotBlade;
   bool usePhase1;
 };
