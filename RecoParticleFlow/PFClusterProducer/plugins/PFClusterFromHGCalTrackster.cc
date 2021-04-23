@@ -47,7 +47,7 @@ void PFClusterFromHGCalTrackster::buildClusters(const edm::Handle<reco::PFRecHit
     reco::PFCluster& back = output.back();
 
     std::vector<std::pair<DetId, float> > hitsAndFractions;
-    int iLC =0;
+    int iLC = 0;
     std::for_each(std::begin(tst.vertices()), std::end(tst.vertices()), [&](unsigned int lcId) {
       const auto fraction = 1.f / tst.vertex_multiplicity(iLC++);
       for (const auto& cell : clusters[lcId].hitsAndFractions()) {
