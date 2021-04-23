@@ -83,4 +83,40 @@ TrackingParticle::Point ParametersDefinerForTP::vertex(const edm::Event &iEvent,
   return vertex;
 }
 
+std::tuple<TrackingParticle::Vector, TrackingParticle::Point> ParametersDefinerForTP::momentumAndVertex(
+    const edm::Event &iEvent,
+    const edm::EventSetup &iSetup,
+    const Charge charge,
+    const Point &vtx,
+    const LorentzVector &lv) const {
+  using namespace edm;
+
+  edm::ESHandle<MagneticField> theMF;
+  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+
+  edm::Handle<reco::BeamSpot> bs;
+  iEvent.getByLabel(beamSpotInputTag_, bs);
+
+  TrackingParticle::Point vertex(bs->x0(), bs->y0(), bs->z0());
+  TrackingParticle::Vector momentum(0, 0, 0);
+
+  FreeTrajectoryState ftsAtProduction(GlobalPoint(vtx.x(), vtx.y(), vtx.z()),
+                                      GlobalVector(lv.x(), lv.y(), lv.z()),
+                                      TrackCharge(charge),
+                                      theMF.product());
+
+  TSCBLBuilderNoMaterial tscblBuilder;
+  TrajectoryStateClosestToBeamLine tsAtClosestApproach =
+      tscblBuilder(ftsAtProduction, *bs);  // as in TrackProducerAlgorithm
+  if (tsAtClosestApproach.isValid()) {
+    GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
+    vertex = TrackingParticle::Point(v.x(), v.y(), v.z());
+    GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
+    momentum = TrackingParticle::Vector(p.x(), p.y(), p.z());
+    ;
+  }
+
+  return std::make_tuple(momentum, vertex);
+}
+
 TYPELOOKUP_DATA_REG(ParametersDefinerForTP);
