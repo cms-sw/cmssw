@@ -49,7 +49,6 @@ private:
   std::unique_ptr<edm::CPUTimer> theTimer;
   bool includeErrors;
   bool useQuality;
-  bool debug;
   std::vector<int> tkerrorlist;
   std::vector<int> usererrorlist;
   std::vector<unsigned int> fedIds;
