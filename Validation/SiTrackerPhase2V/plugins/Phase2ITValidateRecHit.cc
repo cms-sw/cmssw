@@ -85,6 +85,11 @@ private:
     MonitorElement* pullY = nullptr;
     MonitorElement* deltaX_eta = nullptr;
     MonitorElement* deltaY_eta = nullptr;
+    MonitorElement* deltaX_clsizex = nullptr;
+    MonitorElement* deltaX_clsizey = nullptr;
+    MonitorElement* deltaY_clsizex = nullptr;
+    MonitorElement* deltaY_clsizey = nullptr;
+    MonitorElement* deltaYvsdeltaX = nullptr;
     MonitorElement* pullX_eta = nullptr;
     MonitorElement* pullY_eta = nullptr;
     //For rechits matched to primary simhits
@@ -118,15 +123,13 @@ Phase2ITValidateRecHit::~Phase2ITValidateRecHit() {
 void Phase2ITValidateRecHit::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<edm::Handle<edm::PSimHitContainer>> simHits;
   for (const auto& itoken : simHitTokens_) {
-    edm::Handle<edm::PSimHitContainer> simHitHandle;
-    iEvent.getByToken(itoken, simHitHandle);
+    const auto& simHitHandle = iEvent.getHandle(itoken);
     if (!simHitHandle.isValid())
       continue;
     simHits.emplace_back(simHitHandle);
   }
   // Get the SimTracks and push them in a map of id, SimTrack
-  edm::Handle<edm::SimTrackContainer> simTracks;
-  iEvent.getByToken(simTracksToken_, simTracks);
+  const auto& simTracks = iEvent.getHandle(simTracksToken_);
 
   std::map<unsigned int, SimTrack> selectedSimTrackMap;
   for (const auto& simTrackIt : *simTracks) {
@@ -143,8 +146,7 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
                                           const std::vector<edm::Handle<edm::PSimHitContainer>>& simHits,
                                           const std::map<unsigned int, SimTrack>& selectedSimTrackMap) {
   // Get the RecHits
-  edm::Handle<SiPixelRecHitCollection> rechits;
-  iEvent.getByToken(tokenRecHitsIT_, rechits);
+  const auto& rechits = iEvent.getHandle(tokenRecHitsIT_);
   if (!rechits.isValid())
     return;
   std::map<std::string, unsigned int> nrechitLayerMap_primary;
@@ -209,6 +211,11 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
       layerMEs_[key].pullY->Fill(pully);
       layerMEs_[key].deltaX_eta->Fill(eta, dx);
       layerMEs_[key].deltaY_eta->Fill(eta, dy);
+      layerMEs_[key].deltaX_clsizex->Fill(rechit.cluster()->sizeX(), dx);
+      layerMEs_[key].deltaX_clsizey->Fill(rechit.cluster()->sizeY(), dx);
+      layerMEs_[key].deltaY_clsizex->Fill(rechit.cluster()->sizeX(), dy);
+      layerMEs_[key].deltaY_clsizey->Fill(rechit.cluster()->sizeY(), dy);
+      layerMEs_[key].deltaYvsdeltaX->Fill(dx, dy);
       layerMEs_[key].pullX_eta->Fill(eta, pullx);
       layerMEs_[key].pullY_eta->Fill(eta, pully);
       if (isPrimary) {
@@ -228,10 +235,8 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
 }
 
 void Phase2ITValidateRecHit::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  tkGeom_ = &(*geomHandle);
-  edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(topoToken_);
-  tTopo_ = tTopoHandle.product();
+  tkGeom_ = &iSetup.getData(geomToken_);
+  tTopo_ = &iSetup.getData(topoToken_);
 }
 //
 // -- Book Histograms
@@ -278,6 +283,21 @@ void Phase2ITValidateRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigne
 
     local_histos.deltaY_eta =
         phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY_eta"), ibooker);
+
+    local_histos.deltaX_clsizex =
+        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX_clsizex"), ibooker);
+
+    local_histos.deltaX_clsizey =
+        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX_clsizey"), ibooker);
+
+    local_histos.deltaY_clsizex =
+        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY_clsizex"), ibooker);
+
+    local_histos.deltaY_clsizey =
+        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY_clsizey"), ibooker);
+
+    local_histos.deltaYvsdeltaX =
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaY_vs_DeltaX"), ibooker);
 
     local_histos.pullX_eta =
         phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("PullX_eta"), ibooker);
@@ -371,6 +391,68 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<double>("xmin", -4.1);
     desc.add<edm::ParameterSetDescription>("DeltaY_eta", psd0);
   }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_X_vs_ClusterSizeX");
+    psd0.add<std::string>("title", ";Cluster size X;#Delta x [#mum]");
+    psd0.add<double>("ymin", -100.0);
+    psd0.add<double>("ymax", 100.0);
+    psd0.add<int>("NxBins", 21);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 20.5);
+    psd0.add<double>("xmin", -0.5);
+    desc.add<edm::ParameterSetDescription>("DeltaX_clsizex", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_X_vs_ClusterSizeY");
+    psd0.add<std::string>("title", ";Cluster size Y;#Delta y [#mum]");
+    psd0.add<double>("ymin", -100.0);
+    psd0.add<double>("ymax", 100.0);
+    psd0.add<int>("NxBins", 21);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 20.5);
+    psd0.add<double>("xmin", -0.5);
+    desc.add<edm::ParameterSetDescription>("DeltaX_clsizey", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Y_vs_ClusterSizeX");
+    psd0.add<std::string>("title", ";Cluster size Y;#Delta y [#mum]");
+    psd0.add<double>("ymin", -100.0);
+    psd0.add<double>("ymax", 100.0);
+    psd0.add<int>("NxBins", 21);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 20.5);
+    psd0.add<double>("xmin", -0.5);
+    desc.add<edm::ParameterSetDescription>("DeltaY_clsizex", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Y_vs_ClusterSizeY");
+    psd0.add<std::string>("title", ";Cluster size Y;#Delta y [#mum]");
+    psd0.add<double>("ymin", -100.0);
+    psd0.add<double>("ymax", 100.0);
+    psd0.add<int>("NxBins", 21);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 20.5);
+    psd0.add<double>("xmin", -0.5);
+    desc.add<edm::ParameterSetDescription>("DeltaY_clsizey", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "Delta_Y_vs_DeltaX");
+    psd0.add<std::string>("title", ";#Delta x[#mum];#Delta y[#mum]");
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("ymin", -100.0);
+    psd0.add<double>("ymax", 100.0);
+    psd0.add<int>("NyBins", 100);
+    psd0.add<double>("xmax", 100.);
+    psd0.add<double>("xmin", -100.);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("DeltaY_vs_DeltaX", psd0);
+  }
+
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Pull_X_vs_Eta");
