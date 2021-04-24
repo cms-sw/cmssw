@@ -387,7 +387,6 @@ class _TypedParameterizable(_Parameterizable):
         #    arg = arg[1:]
         #else:
         #    del args['type_']
-        arg = tuple([x for x in arg if x != None])
         super(_TypedParameterizable,self).__init__(*arg,**kargs)
         saveOrigin(self, 1) 
     def _place(self,name,proc):
@@ -398,11 +397,7 @@ class _TypedParameterizable(_Parameterizable):
     def copy(self):
         returnValue =_TypedParameterizable.__new__(type(self))
         params = self.parameters_()
-        args = list()
-        if len(params) == 0:
-            args.append(None)
-        returnValue.__init__(self.__type,*args,
-                             **params)
+        returnValue.__init__(self.__type,**params)
         returnValue._isModified = self._isModified
         return returnValue
     def clone(self, *args, **params):
@@ -419,8 +414,6 @@ class _TypedParameterizable(_Parameterizable):
         """
         returnValue =_TypedParameterizable.__new__(type(self))
         myparams = self.parameters_()
-        if len(myparams) == 0 and len(params) and len(args):
-            args = args + (None,)
         
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
         if self._Parameterizable__validator is not None:
@@ -870,7 +863,7 @@ if __name__ == "__main__":
             self.assertEqual(hasattr(b,"w"), False)
             self.assertEqual(hasattr(c.x,"a"), False)
             self.assertEqual(hasattr(c.x,"c"), False)
-            self.assertRaises(TypeError,a.clone,None,**{"v":1})
+            self.assertRaises(TypeError,a.clone,**{"v":1})
             d = a.clone(__PSet(k=__TestType(42)))
             self.assertEqual(d.t.value(), 1)
             self.assertEqual(d.k.value(), 42)
