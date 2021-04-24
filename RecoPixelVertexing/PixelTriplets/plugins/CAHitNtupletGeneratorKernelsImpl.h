@@ -195,6 +195,28 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
                tracks->chi2(it);  //chi2
     };
 
+   // full crazy combinatorics
+   int ntr = thisCell.tracks().size();
+   for (int i= 0; i<ntr; ++i) {
+     auto it = thisCell.tracks()[i];
+     if (tracks->quality(it) < strict) continue;
+     auto opi = 1.f/tracks->pt(it);
+     auto eta = std::abs(tracks->eta(it));
+     auto fact = 0.1f + ( (eta<1.0f) ? 0.0f : 0.1f*(eta-1.0f)) ;
+     for (auto j=i+1; j<ntr; ++j) {
+       auto jt = thisCell.tracks()[j];
+       if (tracks->quality(jt) < strict) continue;
+       if (foundNtuplets->size(it)!=foundNtuplets->size(jt)) printf(" a mess\n");
+       auto pj = tracks->pt(jt);
+       auto rp = pj*opi;
+       if (rp>(1.f-fact) and rp<(1.f+fact)) {
+         if (score(it)<score(jt))  tracks->quality(jt) = dup;
+         else  {tracks->quality(it) = dup; break;}
+       }
+     }
+   }
+   
+
     // find maxQual
     auto maxQual = dup;  // no duplicate!
     for (auto it : thisCell.tracks()) {
@@ -204,34 +226,14 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
 
     if (maxQual <= dup) continue;
 
-    // find min score
+
+   // find min score
     for (auto it : thisCell.tracks()) {
       if (tracks->quality(it) == maxQual && score(it) < mc) {
         mc = score(it);
         im = it;
       }
     }
-
-   
-   // full crazy combinatorics
-   int ntr = thisCell.tracks().size();
-   for (int i= 0; i<ntr; ++i) {
-     auto it = thisCell.tracks()[i];
-     if (tracks->quality(it) < strict) continue;
-     auto opi = 1.f/tracks->pt(it);
-     for (auto j=i+1; j<ntr; ++j) {
-       auto jt = thisCell.tracks()[j];
-       if (tracks->quality(jt) < strict) continue;
-       if (foundNtuplets->size(it)!=foundNtuplets->size(jt)) printf(" a mess\n");
-       auto pj = tracks->pt(jt);
-       auto rp = pj*opi;
-       if (rp>0.90 and rp<1.10) {
-         if (score(it)<score(jt))  tracks->quality(jt) = dup;
-         else  {tracks->quality(it) = dup; break;}
-       }
-     }
-   }
-   
 
     // mark all other duplicates
     for (auto it : thisCell.tracks()) {
@@ -590,18 +592,21 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
                tracks.chi2(it);  //chi2
     };
 
-
+    
+   // full combinatorics
    for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
      auto const it = *ip;
      if (tracks.quality(it) < loose) continue;
      auto opi = 1.f/tracks.pt(it);
+     auto eta = std::abs(tracks.eta(it));
+     auto fact = 0.1f + ( (eta<1.0f) ? 0.0f : 0.1f*(eta-1.0f)) ;
      auto nhi = foundNtuplets.size(it);   
      for (auto jp = ip+1; jp != hitToTuple.end(idx); ++jp) {
        auto const jt = *jp;
        if (tracks.quality(jt) < loose) continue;
        auto pj = tracks.pt(jt);
        auto rp = pj*opi;
-       if (rp>0.95 and rp<1.05) {
+       if (rp>(1.f-fact) and rp<(1.f+fact)) {
          auto nhj = foundNtuplets.size(jt);
          if ( nhj<nhi || 
              (nhj==nhi && score(it,nhi)<score(jt,nhj)) 
@@ -628,6 +633,8 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
       if (quality[it] >= strict && it != im)
         quality[it] = loose;  //no race:  simple assignment of the same constant
     }
+
+
   }  // loop over hits
 }
 
