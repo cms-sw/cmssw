@@ -171,7 +171,8 @@ class _Parameterizable(object):
         if len(arg) != 0:
             #raise ValueError("unnamed arguments are not allowed. Please use the syntax 'name = value' when assigning arguments.")
             for block in arg:
-                if type(block).__name__ != "PSet":
+                # Allow __PSet for testing
+                if type(block).__name__ not in ["PSet", "__PSet"]:
                     raise ValueError("Only PSets can be passed as unnamed argument blocks.  This is a "+type(block).__name__)
                 self.__setParameters(block.parameters_())
         self.__setParameters(kargs)
@@ -419,7 +420,7 @@ class _TypedParameterizable(_Parameterizable):
         returnValue =_TypedParameterizable.__new__(type(self))
         myparams = self.parameters_()
         if len(myparams) == 0 and len(params) and len(args):
-            args.append(None)
+            args = args + (None,)
         
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
         if self._Parameterizable__validator is not None:
@@ -795,6 +796,25 @@ if __name__ == "__main__":
         def testUsingBlock(self):
             a = UsingBlock("a")
             self.assert_(isinstance(a, _ParameterTypeBase))
+        def testConstruction(self):
+            class __Test(_TypedParameterizable):
+                pass
+            class __TestType(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            class __PSet(_ParameterTypeBase,_Parameterizable):
+                def __init__(self,*arg,**args):
+                    #need to call the inits separately
+                    _ParameterTypeBase.__init__(self)
+                    _Parameterizable.__init__(self,*arg,**args)
+
+            a = __Test("MyType", __PSet(a=__TestType(1)))
+            self.assertEqual(a.a.value(), 1)
+            b = __Test("MyType", __PSet(a=__TestType(1)), __PSet(b=__TestType(2)))
+            self.assertEqual(b.a.value(), 1)
+            self.assertEqual(b.b.value(), 2)
+            self.assertRaises(ValueError, lambda: __Test("MyType", __PSet(a=__TestType(1)), __PSet(a=__TestType(2))))
+
         def testCopy(self):
             class __Test(_TypedParameterizable):
                 pass
@@ -805,6 +825,11 @@ if __name__ == "__main__":
             b = a.copy()
             self.assertEqual(b.t.value(),1)
             self.assertEqual(b.u.value(),2)
+
+            c = __Test("MyType")
+            self.assertEqual(len(c.parameterNames_()), 0)
+            d = c.copy()
+            self.assertEqual(len(d.parameterNames_()), 0)
         def testClone(self):
             class __Test(_TypedParameterizable):
                 pass
@@ -816,6 +841,9 @@ if __name__ == "__main__":
                     #need to call the inits separately
                     _ParameterTypeBase.__init__(self)
                     _Parameterizable.__init__(self,*arg,**args)
+                def dumpPython(self,options=PrintOptions()):
+                    return "__PSet(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
+
             a = __Test("MyType",
                        t=__TestType(1),
                        u=__TestType(2),
@@ -843,6 +871,19 @@ if __name__ == "__main__":
             self.assertEqual(hasattr(c.x,"a"), False)
             self.assertEqual(hasattr(c.x,"c"), False)
             self.assertRaises(TypeError,a.clone,None,**{"v":1})
+            d = a.clone(__PSet(k=__TestType(42)))
+            self.assertEqual(d.t.value(), 1)
+            self.assertEqual(d.k.value(), 42)
+            # TODO: following case that currently raises an exception
+            # will be made to work in the near future
+            self.assertRaises(ValueError, a.clone, __PSet(t=__TestType(42)))
+
+            e = __Test("MyType")
+            self.assertEqual(len(e.parameterNames_()), 0)
+            f = d.clone(__PSet(a = __TestType(1)), b = __TestType(2))
+            self.assertEqual(f.a.value(), 1)
+            self.assertEqual(f.b.value(), 2)
+
         def testModified(self):
             class __TestType(_SimpleParameterTypeBase):
                 def _isValid(self,value):
