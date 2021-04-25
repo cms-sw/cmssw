@@ -125,7 +125,7 @@ void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   cms::cuda::finalizeBulk(device_hitTuple_apc_, tuples_d);
 
   // remove duplicates (tracks that share a doublet)
-  kernel_earlyDuplicateRemover(device_theCells_.get(), device_nCells_, tuples_d, quality_d, params_.quadPassThrough_);
+  kernel_earlyDuplicateRemover(device_theCells_.get(), device_nCells_, tuples_d, quality_d, params_.dupPassThrough_);
 
   kernel_countMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get());
   cms::cuda::launchFinalize(device_tupleMultiplicity_.get(), cudaStream);
@@ -166,7 +166,7 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   }
 
   // remove duplicates (tracks that share a doublet)
-  kernel_fastDuplicateRemover(device_theCells_.get(), device_nCells_, tuples_d, tracks_d, params_.quadPassThrough_);
+  kernel_fastDuplicateRemover(device_theCells_.get(), device_nCells_, tuples_d, tracks_d, params_.dupPassThrough_);
 
   // fill hit->track "map"
   if (params_.doSharedHitCut_ || params_.doStats_) {
@@ -182,7 +182,7 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
                             tracks_d,
                             quality_d,
                             params_.minHitsForSharingCut_,
-                            params_.quadPassThrough_,
+                            params_.dupPassThrough_,
                             device_hitToTuple_.get());
   }
 

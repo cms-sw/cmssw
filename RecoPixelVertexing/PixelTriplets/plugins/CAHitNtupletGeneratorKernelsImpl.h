@@ -132,13 +132,10 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
                                              uint32_t const *__restrict__ nCells,
                                              HitContainer *foundNtuplets,
                                              Quality *quality,
-                                             bool quadPassThrough) {
-  // constexpr auto bad = trackQuality::bad;
-  constexpr auto dup = pixelTrack::Quality::dup;
-  // constexpr auto loose = trackQuality::loose;
+                                             bool dupPassThrough) {
 
   // quality to mark rejected 
-  constexpr auto reject = dup;
+  constexpr auto reject =  pixelTrack::Quality::dup;  /// cannot be loose
 
   assert(nCells);
   auto first = threadIdx.x + blockIdx.x * blockDim.x;
@@ -158,7 +155,7 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
       maxNh = std::max(nh, maxNh);
     }
 
-    // if (quadPassThrough)
+    // quad pass through
     //  maxNh = std::min(4U, maxNh);
 
     for (auto it : thisCell.tracks()) {
@@ -173,14 +170,13 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
                                             uint32_t const *__restrict__ nCells,
                                             HitContainer const *__restrict__ foundNtuplets,
                                             TkSoA *__restrict__ tracks,
-                                            bool quadPassThrough) {
-  constexpr auto bad = pixelTrack::Quality::bad;
+                                            bool dupPassThrough) {
+  // constexpr auto bad = pixelTrack::Quality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
   constexpr auto loose = pixelTrack::Quality::loose;
-  constexpr auto strict = pixelTrack::Quality::strict;
 
   // quality to    mark rejected
-  constexpr auto reject = dup;
+  auto const reject = dupPassThrough ? loose : dup;
 
 
   assert(nCells);
@@ -243,11 +239,10 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       }
     }
 
-    // mark all other duplicates
+    // mark all other duplicates  (not yet, keep it loose)
     for (auto it : thisCell.tracks()) {
       if (
-       //  ((!quadPassThrough) || foundNtuplets->size(it) < 4) && 
-        tracks->quality(it) >= strict && it != im)
+        tracks->quality(it) > loose && it != im)
         tracks->quality(it) = loose;  //no race:  simple assignment of the same constant
     }
   }
@@ -410,7 +405,7 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
 
     assert(quality[it] == pixelTrack::Quality::bad);
 
-    // if(quality[it] != pixelTrack::Quality::bad) printf("big mess\n");
+    if(quality[it] != pixelTrack::Quality::bad) printf("big mess\n");
 
 
     // mark doublets as bad
@@ -545,7 +540,7 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
                                         TkSoA const *__restrict__ ptracks,
                                         Quality *__restrict__ quality,
                                         uint16_t nmin,
-                                        bool quadPassThrough,
+                                        bool dupPassThrough,
                                         CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
   constexpr auto bad = pixelTrack::Quality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
@@ -553,7 +548,7 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
   constexpr auto strict = pixelTrack::Quality::strict;
 
   // quality to mark rejected
-  constexpr auto reject = dup;
+  auto const reject = dupPassThrough ? loose : dup;
 
 
   auto &hitToTuple = *phitToTuple;
@@ -581,8 +576,8 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
 
     if (maxNh<3) continue;
 
-    if (quadPassThrough)
-      maxNh = std::min(4U, maxNh);
+   // quad pass thotough
+   //   maxNh = std::min(4U, maxNh);
 
     // kill all tracks shorter than maxHn (only triplets???
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {

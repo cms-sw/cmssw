@@ -103,7 +103,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   // remove duplicates (tracks that share a doublet)
   numberOfBlocks = nDoubletBlocks(blockSize);
   kernel_earlyDuplicateRemover<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      device_theCells_.get(), device_nCells_, tuples_d, quality_d, params_.quadPassThrough_);
+      device_theCells_.get(), device_nCells_, tuples_d, quality_d, params_.dupPassThrough_);
   cudaCheck(cudaGetLastError());
 
   blockSize = 128;
@@ -247,7 +247,7 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   // mark duplicates (tracks that share a doublet)
   numberOfBlocks = nDoubletBlocks(blockSize);
   kernel_fastDuplicateRemover<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      device_theCells_.get(), device_nCells_, tuples_d, tracks_d, params_.quadPassThrough_);
+      device_theCells_.get(), device_nCells_, tuples_d, tracks_d, params_.dupPassThrough_);
   cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
   cudaCheck(cudaDeviceSynchronize());
@@ -279,7 +279,7 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
                                                                           tracks_d,
                                                                           quality_d,
                                                                           params_.minHitsForSharingCut_,
-                                                                          params_.quadPassThrough_,
+                                                                          params_.dupPassThrough_,
                                                                           device_hitToTuple_.get());
     cudaCheck(cudaGetLastError());
   }
