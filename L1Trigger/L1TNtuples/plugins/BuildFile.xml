@@ -42,7 +42,6 @@
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/Provenance"/>
 <use name="DataFormats/TauReco"/>
-<use name="EventFilter/L1TRawToDigi"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>
