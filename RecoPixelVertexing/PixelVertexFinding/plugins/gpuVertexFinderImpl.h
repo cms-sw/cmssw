@@ -39,7 +39,7 @@ namespace gpuVertexFinder {
 
       if (nHits < 4)
         continue;  // no triplets
-      if (quality[idx] != pixelTrack::Quality::loose)
+      if (quality[idx] < pixelTrack::Quality::highPurity)
         continue;
 
       auto pt = tracks.pt(idx);

@@ -103,7 +103,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   // remove duplicates (tracks that share a doublet)
   numberOfBlocks = nDoubletBlocks(blockSize);
   kernel_earlyDuplicateRemover<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      device_theCells_.get(), device_nCells_, tuples_d, quality_d);
+      device_theCells_.get(), device_nCells_, tuples_d, quality_d, params_.quadPassThrough_);
   cudaCheck(cudaGetLastError());
 
   blockSize = 128;
@@ -244,10 +244,10 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     cudaCheck(cudaGetLastError());
   }
 
-  // remove duplicates (tracks that share a doublet)
+  // mark duplicates (tracks that share a doublet)
   numberOfBlocks = nDoubletBlocks(blockSize);
   kernel_fastDuplicateRemover<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      device_theCells_.get(), device_nCells_, tuples_d, tracks_d);
+      device_theCells_.get(), device_nCells_, tuples_d, tracks_d, params_.quadPassThrough_);
   cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
   cudaCheck(cudaDeviceSynchronize());
@@ -272,10 +272,15 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   }
 
   if (params_.doSharedHitCut_) {
-    // remove duplicates (tracks that share a hit)
+    // mark duplicates (tracks that share a hit)
     numberOfBlocks = (hitToTupleView_.offSize + blockSize - 1) / blockSize;
-    kernel_sharedHitCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-        hh.view(), tuples_d, tracks_d, quality_d, params_.minHitsForSharingCut_, device_hitToTuple_.get());
+    kernel_sharedHitCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(hh.view(),
+                                                                          tuples_d,
+                                                                          tracks_d,
+                                                                          quality_d,
+                                                                          params_.minHitsForSharingCut_,
+                                                                          params_.quadPassThrough_,
+                                                                          device_hitToTuple_.get());
     cudaCheck(cudaGetLastError());
   }
 
