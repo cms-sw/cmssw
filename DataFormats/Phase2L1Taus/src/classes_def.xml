@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="l1t::L1HPSPFTau" ClassVersion="0">
+   <version ClassVersion="0" checksum="572259018"/>
+  </class>
+  <class name="l1t::L1HPSPFTauCollection"/>
+  <class name="edm::Wrapper<l1t::L1HPSPFTauCollection>"/>
+</lcgdict>
