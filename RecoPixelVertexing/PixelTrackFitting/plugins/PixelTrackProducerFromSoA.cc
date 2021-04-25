@@ -146,6 +146,8 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
   auto const &hitIndices = tsoa.hitIndices;
   auto maxTracks = tsoa.stride();
 
+  tracks.reserve(maxTracks);
+
   int32_t nt = 0;
 
   for (int32_t it = 0; it < maxTracks; ++it) {
