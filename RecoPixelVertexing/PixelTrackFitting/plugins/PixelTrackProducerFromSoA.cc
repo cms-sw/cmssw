@@ -92,6 +92,15 @@ void PixelTrackProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions 
 void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
                                         edm::Event &iEvent,
                                         const edm::EventSetup &iSetup) const {
+  // enum class Quality : uint8_t { bad = 0, dup, loose, strict, tight, highPurity };
+  reco::TrackBase::TrackQuality recoQuality[] = {reco::TrackBase::undefQuality,
+                                                 reco::TrackBase::undefQuality,
+                                                 reco::TrackBase::loose,
+                                                 reco::TrackBase::tight,
+                                                 reco::TrackBase::tight,
+                                                 reco::TrackBase::highPurity};
+  assert(reco::TrackBase::highPurity == recoQuality[int(pixelTrack::Quality::highPurity)]);
+
   // std::cout << "Converting gpu helix in reco tracks" << std::endl;
 
   auto indToEdmP = std::make_unique<IndToEdm>();
@@ -145,7 +154,7 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
       break;  // this is a guard: maybe we need to move to nTracks...
     indToEdm.push_back(-1);
     auto q = quality[it];
-    if (q != pixelTrack::Quality::loose)
+    if (q < pixelTrack::Quality::loose)
       continue;
     if (nHits < minNumberOfHits_)
       continue;
@@ -192,6 +201,10 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
     math::XYZVector mom(pp.x(), pp.y(), pp.z());
 
     auto track = std::make_unique<reco::Track>(chi2, ndof, pos, mom, gp.charge(), CurvilinearTrajectoryError(mo));
+    track->setQuality(reco::TrackBase::loose);  // all at least loose
+    auto tkq = recoQuality[int(q)];
+    if (reco::TrackBase::highPurity == tkq)  track->setQuality(reco::TrackBase::tight);
+    track->setQuality(tkq);
     // filter???
     tracks.emplace_back(track.release(), hits);
   }

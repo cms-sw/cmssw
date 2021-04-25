@@ -111,7 +111,8 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
 }
 
 __global__ void kernel_fishboneCleaner(GPUCACell const *cells, uint32_t const *__restrict__ nCells, Quality *quality) {
-  constexpr auto bad = pixelTrack::Quality::bad;
+  constexpr auto dup = pixelTrack::Quality::dup;
+  constexpr auto loose = pixelTrack::Quality::loose;
 
   auto first = threadIdx.x + blockIdx.x * blockDim.x;
   for (int idx = first, nt = (*nCells); idx < nt; idx += gridDim.x * blockDim.x) {
@@ -120,14 +121,18 @@ __global__ void kernel_fishboneCleaner(GPUCACell const *cells, uint32_t const *_
       continue;
 
     for (auto it : thisCell.tracks())
-      quality[it] = bad;
+      quality[it] = dup;
   }
 }
 
+
+// remove shorter tracks if sharing a cell
+// It does not seem to affect efficiency in any way!
 __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
                                              uint32_t const *__restrict__ nCells,
                                              HitContainer *foundNtuplets,
-                                             Quality *quality) {
+                                             Quality *quality,
+                                             bool quadPassThrough) {
   // constexpr auto bad = trackQuality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
   // constexpr auto loose = trackQuality::loose;
@@ -150,20 +155,27 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
       maxNh = std::max(nh, maxNh);
     }
 
+    // if (quadPassThrough)
+    //  maxNh = std::min(4U, maxNh);
+
     for (auto it : thisCell.tracks()) {
-      if (foundNtuplets->size(it) != maxNh)
+      if (foundNtuplets->size(it) < maxNh)
         quality[it] = dup;  //no race:  simple assignment of the same constant
     }
   }
 }
 
+// assume the above (so, short tracks already removed)
 __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
                                             uint32_t const *__restrict__ nCells,
                                             HitContainer const *__restrict__ foundNtuplets,
-                                            TkSoA *__restrict__ tracks) {
+                                            TkSoA *__restrict__ tracks,
+                                            bool quadPassThrough) {
   constexpr auto bad = pixelTrack::Quality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
   constexpr auto loose = pixelTrack::Quality::loose;
+  constexpr auto strict = pixelTrack::Quality::strict;
+
 
   assert(nCells);
 
@@ -178,21 +190,57 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
     uint16_t im = 60000;
 
     auto score = [&](auto it) {
-      return std::abs(tracks->tip(it));  // tip
-      // return tracks->chi2(it);  //chi2
+      return  foundNtuplets->size(it)<4 ? 
+               std::abs(tracks->tip(it)) :   // tip for triplets
+               tracks->chi2(it);  //chi2
     };
 
-    // find min score
+   // full crazy combinatorics
+   int ntr = thisCell.tracks().size();
+   for (int i= 0; i<ntr; ++i) {
+     auto it = thisCell.tracks()[i];
+     if (tracks->quality(it) < strict) continue;
+     auto opi = 1.f/tracks->pt(it);
+     auto eta = std::abs(tracks->eta(it));
+     auto fact = 0.1f + ( (eta<1.0f) ? 0.0f : 0.1f*(eta-1.0f)) ;
+     for (auto j=i+1; j<ntr; ++j) {
+       auto jt = thisCell.tracks()[j];
+       if (tracks->quality(jt) < strict) continue;
+       if (foundNtuplets->size(it)!=foundNtuplets->size(jt)) printf(" a mess\n");
+       auto pj = tracks->pt(jt);
+       auto rp = pj*opi;
+       if (rp>(1.f-fact) and rp<(1.f+fact)) {
+         if (score(it)<score(jt))  tracks->quality(jt) = dup;
+         else  {tracks->quality(it) = dup; break;}
+       }
+     }
+   }
+   
+
+    // find maxQual
+    auto maxQual = dup;  // no duplicate!
     for (auto it : thisCell.tracks()) {
-      if (tracks->quality(it) == loose && score(it) < mc) {
+      if (tracks->quality(it) > maxQual)
+        maxQual = tracks->quality(it);
+    }
+
+    if (maxQual <= dup) continue;
+
+
+   // find min score
+    for (auto it : thisCell.tracks()) {
+      if (tracks->quality(it) == maxQual && score(it) < mc) {
         mc = score(it);
         im = it;
       }
     }
+
     // mark all other duplicates
     for (auto it : thisCell.tracks()) {
-      if (tracks->quality(it) != bad && it != im)
-        tracks->quality(it) = dup;  //no race:  simple assignment of the same constant
+      if (
+       //  ((!quadPassThrough) || foundNtuplets->size(it) < 4) && 
+        tracks->quality(it) >= strict && it != im)
+        tracks->quality(it) = loose;  //no race:  simple assignment of the same constant
     }
   }
 }
@@ -354,6 +402,9 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
 
     assert(quality[it] == pixelTrack::Quality::bad);
 
+    // if(quality[it] != pixelTrack::Quality::bad) printf("big mess\n");
+
+
     // mark doublets as bad
     if (nhits < 3)
       continue;
@@ -369,6 +420,8 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
 #endif
       continue;
     }
+
+    quality[it] = pixelTrack::Quality::strict;
 
     // compute a pT-dependent chi2 cut
     // default parameters:
@@ -392,6 +445,8 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
       continue;
     }
 
+    quality[it] = pixelTrack::Quality::tight;
+
     // impose "region cuts" based on the fit results (phi, Tip, pt, cotan(theta)), Zip)
     // default cuts:
     //   - for triplets:    |Tip| < 0.3 cm, pT > 0.5 GeV, |Zip| < 12.0 cm
@@ -402,7 +457,7 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
                 (std::abs(tracks->zip(it)) < region.maxZip);
 
     if (isOk)
-      quality[it] = pixelTrack::Quality::loose;
+      quality[it] = pixelTrack::Quality::highPurity;
   }
 }
 
@@ -413,7 +468,7 @@ __global__ void kernel_doStatsForTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  //guard
-    if (quality[idx] != pixelTrack::Quality::loose)
+    if (quality[idx] < pixelTrack::Quality::strict)
       continue;
     atomicAdd(&(counters->nGoodTracks), 1);
   }
@@ -426,7 +481,7 @@ __global__ void kernel_countHitInTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  // guard
-    if (quality[idx] != pixelTrack::Quality::loose)
+    if (quality[idx] < pixelTrack::Quality::loose)
       continue;
     for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
       hitToTuple->count(*h);
@@ -440,7 +495,7 @@ __global__ void kernel_fillHitInTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  // guard
-    if (quality[idx] != pixelTrack::Quality::loose)
+    if (quality[idx] < pixelTrack::Quality::loose)
       continue;
     for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
       hitToTuple->fill(*h, idx);
@@ -482,10 +537,13 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
                                         TkSoA const *__restrict__ ptracks,
                                         Quality *__restrict__ quality,
                                         uint16_t nmin,
+                                        bool quadPassThrough,
                                         CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
   constexpr auto bad = pixelTrack::Quality::bad;
   constexpr auto dup = pixelTrack::Quality::dup;
-  // constexpr auto loose = trackQuality::loose;
+  constexpr auto loose = pixelTrack::Quality::loose;
+  constexpr auto strict = pixelTrack::Quality::strict;
+
 
   auto &hitToTuple = *phitToTuple;
   auto const &foundNtuplets = *ptuples;
@@ -505,10 +563,17 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
 
     // find maxNh
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
+      if (quality[*it] < strict ) continue;
       uint32_t nh = foundNtuplets.size(*it);
       maxNh = std::max(nh, maxNh);
     }
-    // kill all tracks shorter than maxHn (only triplets???)
+
+    if (maxNh<3) continue;
+
+    if (quadPassThrough)
+      maxNh = std::min(4U, maxNh);
+
+    // kill all tracks shorter than maxHn (only triplets???
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
       uint32_t nh = foundNtuplets.size(*it);
 
@@ -516,16 +581,48 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
       if (idx < l1end and nh > nmin)
         continue;
 
-      if (maxNh != nh)
-        quality[*it] = dup;
+      if (nh < maxNh && quality[*it] >= strict)
+          quality[*it] = loose;  // dup; // loose;
     }
+
+
+    auto score = [&](auto it,auto nh) {
+      return   nh<4 ?
+               std::abs(tracks.tip(it)) :   // tip for triplets
+               tracks.chi2(it);  //chi2
+    };
+
+    
+   // full combinatorics
+   for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
+     auto const it = *ip;
+     if (tracks.quality(it) < loose) continue;
+     auto opi = 1.f/tracks.pt(it);
+     auto eta = std::abs(tracks.eta(it));
+     auto fact = 0.05f + ( (eta<1.0f) ? 0.0f : 0.1f*(eta-1.0f)) ;
+     auto nhi = foundNtuplets.size(it);   
+     for (auto jp = ip+1; jp != hitToTuple.end(idx); ++jp) {
+       auto const jt = *jp;
+       if (tracks.quality(jt) < loose) continue;
+       auto pj = tracks.pt(jt);
+       auto rp = pj*opi;
+       if (rp>(1.f-fact) and rp<(1.f+fact)) {
+         auto nhj = foundNtuplets.size(jt);
+         if ( nhj<nhi || 
+             (nhj==nhi && score(it,nhi)<score(jt,nhj)) 
+            )  quality[jt] = dup;
+         else  {quality[it] = dup; break;}
+       }
+     }
+   }
+
 
     if (maxNh > 3)
       continue;
-    // for triplets choose best tip!
+    // for triplets choose best tip!  (should we first find best quality???)
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      if (quality[it] != bad && std::abs(tracks.tip(it)) < mc) {
+      if (quality[it] >= strict && std::abs(tracks.tip(it)) < mc) {
         mc = std::abs(tracks.tip(it));
         im = it;
       }
@@ -533,9 +630,11 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
     // mark duplicates
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      if (quality[it] != bad && it != im)
-        quality[it] = dup;  //no race:  simple assignment of the same constant
+      if (quality[it] >= strict && it != im)
+        quality[it] = loose;  //no race:  simple assignment of the same constant
     }
+
+
   }  // loop over hits
 }
 
