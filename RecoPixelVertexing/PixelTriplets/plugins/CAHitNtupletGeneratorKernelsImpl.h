@@ -599,7 +599,7 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
      if (tracks.quality(it) < loose) continue;
      auto opi = 1.f/tracks.pt(it);
      auto eta = std::abs(tracks.eta(it));
-     auto fact = 0.1f + ( (eta<1.0f) ? 0.0f : 0.1f*(eta-1.0f)) ;
+     auto fact = 0.05f + ( (eta<1.0f) ? 0.0f : 0.1f*(eta-1.0f)) ;
      auto nhi = foundNtuplets.size(it);   
      for (auto jp = ip+1; jp != hitToTuple.end(idx); ++jp) {
        auto const jt = *jp;
