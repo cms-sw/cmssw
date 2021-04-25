@@ -137,6 +137,9 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
   constexpr auto dup = pixelTrack::Quality::dup;
   // constexpr auto loose = trackQuality::loose;
 
+  // quality to mark rejected 
+  constexpr auto reject = dup;
+
   assert(nCells);
   auto first = threadIdx.x + blockIdx.x * blockDim.x;
   for (int idx = first, nt = (*nCells); idx < nt; idx += gridDim.x * blockDim.x) {
@@ -160,7 +163,7 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
 
     for (auto it : thisCell.tracks()) {
       if (foundNtuplets->size(it) < maxNh)
-        quality[it] = dup;  //no race:  simple assignment of the same constant
+        quality[it] = reject;  //no race:  simple assignment of the same constant
     }
   }
 }
@@ -175,6 +178,9 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
   constexpr auto dup = pixelTrack::Quality::dup;
   constexpr auto loose = pixelTrack::Quality::loose;
   constexpr auto strict = pixelTrack::Quality::strict;
+
+  // quality to    mark rejected
+  constexpr auto reject = dup;
 
 
   assert(nCells);
@@ -199,32 +205,34 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
    int ntr = thisCell.tracks().size();
    for (int i= 0; i<ntr; ++i) {
      auto it = thisCell.tracks()[i];
-     if (tracks->quality(it) < strict) continue;
+     if (tracks->quality(it) <= reject) continue;
      auto opi = 1.f/tracks->pt(it);
      auto eta = std::abs(tracks->eta(it));
      auto fact = 0.1f + ( (eta<1.0f) ? 0.0f : 0.1f*(eta-1.0f)) ;
      for (auto j=i+1; j<ntr; ++j) {
        auto jt = thisCell.tracks()[j];
-       if (tracks->quality(jt) < strict) continue;
+       if (tracks->quality(jt) <= reject) continue;
        if (foundNtuplets->size(it)!=foundNtuplets->size(jt)) printf(" a mess\n");
        auto pj = tracks->pt(jt);
        auto rp = pj*opi;
        if (rp>(1.f-fact) and rp<(1.f+fact)) {
-         if (score(it)<score(jt))  tracks->quality(jt) = dup;
-         else  {tracks->quality(it) = dup; break;}
+         if ( tracks->quality(jt)<tracks->quality(it) ||
+              ( tracks->quality(jt)==tracks->quality(it) && score(it)<score(jt) )
+            )  tracks->quality(jt) = reject;
+         else  {tracks->quality(it) = reject; break;}
        }
      }
    }
    
 
     // find maxQual
-    auto maxQual = dup;  // no duplicate!
+    auto maxQual = reject;  // no duplicate!
     for (auto it : thisCell.tracks()) {
       if (tracks->quality(it) > maxQual)
         maxQual = tracks->quality(it);
     }
 
-    if (maxQual <= dup) continue;
+    if (maxQual <= reject) continue;
 
 
    // find min score
@@ -544,6 +552,9 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
   constexpr auto loose = pixelTrack::Quality::loose;
   constexpr auto strict = pixelTrack::Quality::strict;
 
+  // quality to mark rejected
+  constexpr auto reject = dup;
+
 
   auto &hitToTuple = *phitToTuple;
   auto const &foundNtuplets = *ptuples;
@@ -596,22 +607,26 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
    // full combinatorics
    for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
      auto const it = *ip;
-     if (tracks.quality(it) < loose) continue;
+     if (quality[it] <= reject) continue;
      auto opi = 1.f/tracks.pt(it);
      auto eta = std::abs(tracks.eta(it));
      auto fact = 0.05f + ( (eta<1.0f) ? 0.0f : 0.1f*(eta-1.0f)) ;
      auto nhi = foundNtuplets.size(it);   
      for (auto jp = ip+1; jp != hitToTuple.end(idx); ++jp) {
        auto const jt = *jp;
-       if (tracks.quality(jt) < loose) continue;
+       if (quality[jt] <= reject) continue;
        auto pj = tracks.pt(jt);
        auto rp = pj*opi;
        if (rp>(1.f-fact) and rp<(1.f+fact)) {
          auto nhj = foundNtuplets.size(jt);
          if ( nhj<nhi || 
-             (nhj==nhi && score(it,nhi)<score(jt,nhj)) 
-            )  quality[jt] = dup;
-         else  {quality[it] = dup; break;}
+             ( nhj==nhi && 
+               ( quality[jt]<quality[it] ||
+                 (quality[jt]==quality[it] && score(it,nhi)<score(jt,nhj))
+               )
+             ) 
+            )  quality[jt] = reject;
+         else  {quality[it] = reject; break;}
        }
      }
    }
