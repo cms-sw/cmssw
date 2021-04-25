@@ -535,6 +535,64 @@ __global__ void kernel_doStatsForHitInTracks(CAHitNtupletGeneratorKernelsGPU::Hi
   }
 }
 
+__global__ void kernel_countSharedHit(int * __restrict__ nshared,
+                                       HitContainer const *__restrict__ ptuples,
+                                       Quality const * __restrict__ quality,
+                                       CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple) {
+
+  constexpr auto loose = pixelTrack::Quality::loose;
+
+  auto &hitToTuple = *phitToTuple;
+  auto const &foundNtuplets = *ptuples;
+
+  int first = blockDim.x * blockIdx.x + threadIdx.x;
+  for (int idx = first, ntot = hitToTuple.nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
+    if (hitToTuple.size(idx) < 2)
+      continue;
+
+    uint32_t maxNh = 0;
+
+    // find maxNh
+    for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
+      if (quality[*it] < loose ) continue;
+      uint32_t nh = foundNtuplets.size(*it);
+      maxNh = std::max(nh, maxNh);
+    }
+
+    if (maxNh<4) continue;
+    // there is at least a good quad
+    // now mark  each track triplet as sharing a hit
+    for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
+      if (foundNtuplets.size(*it)>3) continue;
+      atomicAdd(&nshared[*it],1);
+    }
+  }  //  hit loop
+}
+
+__global__ void kernel_markSharedHit(
+           int const * __restrict__ nshared,
+           HitContainer const *__restrict__ tuples,
+           Quality *__restrict__ quality,
+           bool dupPassThrough) {
+
+  // constexpr auto bad = pixelTrack::Quality::bad;
+  constexpr auto dup = pixelTrack::Quality::dup;
+  constexpr auto loose = pixelTrack::Quality::loose;
+  // constexpr auto strict = pixelTrack::Quality::strict;
+
+  // quality to mark rejected
+  auto const reject = dupPassThrough ? loose : dup;
+
+
+  int first = blockDim.x * blockIdx.x + threadIdx.x;
+  for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
+    if (tuples->size(idx) == 0)
+      break;  //guard
+    if (quality[idx] <=reject) continue;
+    if (nshared[idx]>1) quality[idx] =  reject;
+  }
+}
+
 __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
                                         HitContainer const *__restrict__ ptuples,
                                         TkSoA const *__restrict__ ptracks,
