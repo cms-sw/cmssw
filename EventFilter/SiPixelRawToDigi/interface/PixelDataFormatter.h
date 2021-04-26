@@ -85,7 +85,7 @@ public:
 
   void formatRawData(unsigned int lvl1_ID, RawData& fedRawData, const Digis& digis, const BadChannels& badChannels);
 
-  void unpackFEDErrors(Errors& errors,
+  void unpackFEDErrors(Errors const& errors,
                        std::vector<int> const& tkerrorlist,
                        std::vector<int> const& usererrorlist,
                        edm::DetSetVector<SiPixelRawDataError>& errorcollection,
