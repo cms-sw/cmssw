@@ -33,7 +33,7 @@ ticlTrackstersTrk = _trackstersProducer.clone(
     oneTracksterPerTrackSeed = True,
     promoteEmptyRegionToTrackster = True
   ),
-  itername = "TRK"
+  itername = "Trk"
 )
 
 ticlTrkStepTask = cms.Task(ticlSeedingTrk

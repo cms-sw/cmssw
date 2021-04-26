@@ -31,7 +31,7 @@ ticlTrackstersHAD = _trackstersProducer.clone(
        min_cos_pointing = 0.819, # ~35 degrees
        max_delta_time = -1
     ),
-    itername = "HADRONIC"
+    itername = "HAD"
 )
 
 ticlHADStepTask = cms.Task(ticlSeedingGlobal
