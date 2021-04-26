@@ -1,7 +1,10 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonShower.h"
 
-l1t::RegionalMuonShower::RegionalMuonShower(bool oneNominalInTime, bool oneNominalOutOfTime, bool twoLooseInTime, bool twoLooseOutOfTime) :
-      isOneNominalInTime_(oneNominalInTime),
+l1t::RegionalMuonShower::RegionalMuonShower(bool oneNominalInTime,
+                                            bool oneNominalOutOfTime,
+                                            bool twoLooseInTime,
+                                            bool twoLooseOutOfTime)
+    : isOneNominalInTime_(oneNominalInTime),
       isOneNominalOutOfTime_(oneNominalOutOfTime),
       isTwoLooseInTime_(twoLooseInTime),
       isTwoLooseOutOfTime_(twoLooseOutOfTime),
