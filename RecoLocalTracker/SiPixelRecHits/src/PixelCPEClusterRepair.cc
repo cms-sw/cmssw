@@ -382,10 +382,8 @@ void PixelCPEClusterRepair::callTempReco1D(DetParam const& theDetParam,
                                              << "Should never be here. PixelCPEClusterRepair should always be called "
                                                 "with track angles. This is a bad error !!! ";
 
-      theClusterParam.templXrec_ =
-          theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) + lorentzshiftX;
-      theClusterParam.templYrec_ =
-          theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred) + lorentzshiftY;
+      theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) + lorentzshiftX;
+      theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y()) + lorentzshiftY;
     }
   } else {
     //--- Template Reco succeeded.  The probabilities are filled.
@@ -500,10 +498,8 @@ void PixelCPEClusterRepair::callTempReco2D(DetParam const& theDetParam,
                                              << "Should never be here. PixelCPEClusterRepair should always be called "
                                                 "with track angles. This is a bad error !!! ";
 
-      theClusterParam.templXrec_ =
-          theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) + lorentzshiftX;
-      theClusterParam.templYrec_ =
-          theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred) + lorentzshiftY;
+      theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) + lorentzshiftX;
+      theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y()) + lorentzshiftY;
     }
 
   } else {

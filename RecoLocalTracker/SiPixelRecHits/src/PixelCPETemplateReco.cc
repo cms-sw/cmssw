@@ -328,10 +328,8 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
         edm::LogError("PixelCPETemplateReco") << "@SUB = PixelCPETemplateReco::localPosition"
                                               << "Should never be here. PixelCPETemplateReco should always be called "
                                                  "with track angles. This is a bad error !!! ";
-        theClusterParam.templXrec_ =
-            theDetParam.theTopol->localX(theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred) + lorentzshiftX;
-        theClusterParam.templYrec_ =
-            theDetParam.theTopol->localY(theClusterParam.theCluster->y(), theClusterParam.loc_trk_pred) + lorentzshiftY;
+        theClusterParam.templXrec_ = theDetParam.theTopol->localX(theClusterParam.theCluster->x()) + lorentzshiftX;
+        theClusterParam.templYrec_ = theDetParam.theTopol->localY(theClusterParam.theCluster->y()) + lorentzshiftY;
       }
     } else {
       // go from micrometer to centimeter

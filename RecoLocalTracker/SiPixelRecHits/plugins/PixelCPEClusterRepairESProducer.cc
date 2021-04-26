@@ -53,14 +53,9 @@ PixelCPEClusterRepairESProducer::PixelCPEClusterRepairESProducer(const edm::Para
   hTTToken_ = c.consumes();
   templateDBobjectToken_ = c.consumes();
   templateDBobject2DToken_ = c.consumes();
-
-  char const* laLabel = "";  // standard LA, from calibration, label=""
-  lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
-
-  if (doLorentzFromAlignment_) {
-    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", "fromAlignment"));
-
-    //std::cout<<" from ES Producer Templates "<<myname<<" "<<DoLorentz_<<std::endl;  //dk
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
+    char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
+    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
   }
 }
 
@@ -78,7 +73,6 @@ void PixelCPEClusterRepairESProducer::fillDescriptions(edm::ConfigurationDescrip
   PixelCPEClusterRepair::fillPSetDescription(desc);
 
   // specific to PixelCPEClusterRepairESProducer
-  desc.add<bool>("DoLorentz", true);
   descriptions.add("_templates2_default", desc);
 }
 

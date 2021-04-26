@@ -196,7 +196,7 @@ void PixelCPEBase::fillDetParams() {
 
     //---  Compute the Lorentz shifts for this detector element
     if ((theFlag_ == 0) || useLAFromDB_ ||
-        doLorentzFromAlignment_) {  // do always for generic and if(DOLorentz) for templates
+        doLorentzFromAlignment_) {  // do always for generic and if using LA from DB or alignment for templates
       p.driftDirection = driftDirection(p, Bfield);
       computeLorentzShifts(p);
     }
