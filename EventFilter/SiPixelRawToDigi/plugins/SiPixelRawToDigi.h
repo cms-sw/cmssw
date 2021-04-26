@@ -10,14 +10,23 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 
 class SiPixelFedCablingTree;
 class SiPixelFedCabling;
@@ -48,9 +57,18 @@ private:
   std::vector<unsigned int> fedIds_;
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher_;
   edm::ESWatcher<SiPixelQualityRcd> qualityWatcher_;
+  // always consumed
   const edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollectionToken_;
+  const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
+  // consume only if pixel quality is used -> useQuality_
   edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> siPixelQualityToken_;
-  edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
+  // always produced
+  edm::EDPutTokenT<edm::DetSetVector<PixelDigi>> siPixelDigiCollectionToken_;
+  // produce only if error collections are included -> includeErrors_
+  edm::EDPutTokenT<edm::DetSetVector<SiPixelRawDataError>> errorPutToken_;
+  edm::EDPutTokenT<DetIdCollection> tkErrorPutToken_;
+  edm::EDPutTokenT<DetIdCollection> userErrorPutToken_;
+  edm::EDPutTokenT<edmNew::DetSetVector<PixelFEDChannel>> disabledChannelPutToken_;
   const bool includeErrors_;
   const bool useQuality_;
   const bool usePilotBlade_;

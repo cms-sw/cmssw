@@ -18,22 +18,13 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-
-#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 
-#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 using namespace std;
 
@@ -44,7 +35,10 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
       regions_(nullptr),
       tkerrorlist_(config_.getParameter<std::vector<int>>("ErrorList")),
       usererrorlist_(config_.getParameter<std::vector<int>>("UserErrorList")),
-      fedRawDataCollectionToken_(consumes<FEDRawDataCollection>(config_.getParameter<edm::InputTag>("InputLabel"))),
+      fedRawDataCollectionToken_{consumes<FEDRawDataCollection>(config_.getParameter<edm::InputTag>("InputLabel"))},
+      cablingMapToken_{esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(
+          edm::ESInputTag("", config_.getParameter<std::string>("CablingMapLabel")))},
+      siPixelDigiCollectionToken_{produces<edm::DetSetVector<PixelDigi>>()},
       includeErrors_(config_.getParameter<bool>("IncludeErrors")),
       useQuality_(config_.getParameter<bool>("UseQualityInfo")),
       usePilotBlade_(config_.getParameter<bool>("UsePilotBlade")),
@@ -56,12 +50,11 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
   }
 
   // Products
-  produces<edm::DetSetVector<PixelDigi>>();
   if (includeErrors_) {
-    produces<edm::DetSetVector<SiPixelRawDataError>>();
-    produces<DetIdCollection>();
-    produces<DetIdCollection>("UserErrorModules");
-    produces<edmNew::DetSetVector<PixelFEDChannel>>();
+    errorPutToken_ = produces<edm::DetSetVector<SiPixelRawDataError>>();
+    tkErrorPutToken_ = produces<DetIdCollection>();
+    userErrorPutToken_ = produces<DetIdCollection>("UserErrorModules");
+    disabledChannelPutToken_ = produces<edmNew::DetSetVector<PixelFEDChannel>>();
   }
 
   // regions
@@ -76,10 +69,6 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
   // Control the usage of phase1
   if (usePhase1_)
     edm::LogInfo("SiPixelRawToDigi") << " Using phase1";
-
-  //CablingMap could have a label //Tav
-  auto cablingMapLabel = config_.getParameter<std::string>("CablingMapLabel");
-  cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(edm::ESInputTag("", cablingMapLabel));
 }
 
 // -----------------------------------------------------------------------------
@@ -114,7 +103,9 @@ void SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<bool>("UsePilotBlade", false)->setComment("##  Use pilot blades");
   desc.add<bool>("UsePhase1", false)->setComment("##  Use phase1");
   desc.add<std::string>("CablingMapLabel", "")->setComment("CablingMap label");  //Tav
-  desc.addOptional<bool>("CheckPixelOrder");  // never used, kept for back-compatibility
+  // unused options, kept for back-compatibility
+  desc.addOptional<bool>("CheckPixelOrder");
+  desc.addOptional<bool>("Timing");
   descriptions.add("siPixelRawToDigi", desc);
 }
 
@@ -147,12 +138,12 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   ev.getByToken(fedRawDataCollectionToken_, buffers);
 
   // create product (digis & errors)
-  auto collection = std::make_unique<edm::DetSetVector<PixelDigi>>();
+  auto collection = edm::DetSetVector<PixelDigi>();
   // collection->reserve(8*1024);
-  auto errorcollection = std::make_unique<edm::DetSetVector<SiPixelRawDataError>>();
-  auto tkerror_detidcollection = std::make_unique<DetIdCollection>();
-  auto usererror_detidcollection = std::make_unique<DetIdCollection>();
-  auto disabled_channelcollection = std::make_unique<edmNew::DetSetVector<PixelFEDChannel>>();
+  auto errorcollection = edm::DetSetVector<SiPixelRawDataError>{};
+  auto tkerror_detidcollection = DetIdCollection{};
+  auto usererror_detidcollection = DetIdCollection{};
+  auto disabled_channelcollection = edmNew::DetSetVector<PixelFEDChannel>{};
 
   PixelDataFormatter formatter(cabling_.get(), usePhase1_);  // for phase 1 & 0
 
@@ -189,34 +180,34 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
     const FEDRawData& fedRawData = buffers->FEDData(fedId);
 
     //convert data to digi and strip off errors
-    formatter.interpretRawData(errorsInEvent, fedId, fedRawData, *collection, errors);
+    formatter.interpretRawData(errorsInEvent, fedId, fedRawData, collection, errors);
 
     //pack errors into collection
     if (includeErrors_) {
       formatter.unpackFEDErrors(errors,
                                 tkerrorlist_,
                                 usererrorlist_,
-                                *errorcollection.get(),
-                                *tkerror_detidcollection.get(),
-                                *usererror_detidcollection.get(),
-                                *disabled_channelcollection.get(),
+                                errorcollection,
+                                tkerror_detidcollection,
+                                usererror_detidcollection,
+                                disabled_channelcollection,
                                 nodeterrors);
     }  // if errors to be included in the event
   }    // loop on FED data to be unpacked
 
   if (includeErrors_) {
-    edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(dummydetid);
+    edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection.find_or_insert(dummydetid);
     errorDetSet.data = nodeterrors;
   }
   if (errorsInEvent)
     LogDebug("SiPixelRawToDigi") << "Error words were stored in this event";
 
-  ev.put(std::move(collection));
+  ev.emplace(siPixelDigiCollectionToken_, std::move(collection));
   if (includeErrors_) {
-    ev.put(std::move(errorcollection));
-    ev.put(std::move(tkerror_detidcollection));
-    ev.put(std::move(usererror_detidcollection), "UserErrorModules");
-    ev.put(std::move(disabled_channelcollection));
+    ev.emplace(errorPutToken_, std::move(errorcollection));
+    ev.emplace(tkErrorPutToken_, std::move(tkerror_detidcollection));
+    ev.emplace(userErrorPutToken_, std::move(usererror_detidcollection));
+    ev.emplace(disabledChannelPutToken_, std::move(disabled_channelcollection));
   }
 }
 // declare this as a framework plugin
