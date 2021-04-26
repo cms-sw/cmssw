@@ -521,7 +521,7 @@ std::string PixelDataFormatter::print(const Word64& word) const {
   return str.str();
 }
 
-void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors& errors,
+void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors const& errors,
                                          std::vector<int> const& tkerrorlist,
                                          std::vector<int> const& usererrorlist,
                                          edm::DetSetVector<SiPixelRawDataError>& errorcollection,
@@ -533,7 +533,7 @@ void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors& errors,
   for (auto& error : errors) {
     uint32_t errordetid = error.first;
     if (errordetid == dummydetid) {  // errors given dummy detId must be sorted by Fed
-      nodeterrors.insert(nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end());
+      nodeterrors.insert(nodeterrors.end(), error.second.begin(), error.second.end());
     } else {
       edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection.find_or_insert(errordetid);
       errorDetSet.data.insert(errorDetSet.data.end(), error.second.begin(), error.second.end());
