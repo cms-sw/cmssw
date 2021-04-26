@@ -21,14 +21,15 @@ ticlTracksterMergeTask = cms.Task(ticlTrackstersMerge)
 pfTICL = _pfTICLProducer.clone()
 ticlPFTask = cms.Task(pfTICL)
 
-iterTICLTask = cms.Task(ticlLayerTileTask
-    ,ticlCLUE3DHighStepTask
+ticlIterationsTask = cms.Task(
+    ticlCLUE3DHighStepTask
     ,ticlCLUE3DLowStepTask
     ,ticlTrkEMStepTask
     ,ticlEMStepTask
     ,ticlTrkStepTask
     ,ticlHADStepTask
 )
+
 ticlIterLabels = [_step.itername.value() for _iteration in ticlIterationsTask for _step in _iteration if (_step._TypedParameterizable__type == "TrackstersProducer")]
 
 iterTICLTask = cms.Task(ticlLayerTileTask
