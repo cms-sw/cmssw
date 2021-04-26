@@ -43,17 +43,17 @@ private:
   std::unique_ptr<SiPixelFedCablingTree> cabling_;
   const SiPixelQuality* badPixelInfo_;
   PixelUnpackingRegions* regions_;
-  std::vector<int> tkerrorlist_;
-  std::vector<int> usererrorlist_;
+  const std::vector<int> tkerrorlist_;
+  const std::vector<int> usererrorlist_;
   std::vector<unsigned int> fedIds_;
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher_;
   edm::ESWatcher<SiPixelQualityRcd> qualityWatcher_;
-  edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollectionToken_;
+  const edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollectionToken_;
   edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> siPixelQualityToken_;
   edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
-  bool includeErrors_;
-  bool useQuality_;
-  bool usePilotBlade_;
-  bool usePhase1_;
+  const bool includeErrors_;
+  const bool useQuality_;
+  const bool usePilotBlade_;
+  const bool usePhase1_;
 };
 #endif

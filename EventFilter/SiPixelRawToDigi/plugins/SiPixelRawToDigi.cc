@@ -39,14 +39,18 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
-    : config_(conf), badPixelInfo_(nullptr), regions_(nullptr) {
-  includeErrors_ = config_.getParameter<bool>("IncludeErrors");
-  useQuality_ = config_.getParameter<bool>("UseQualityInfo");
+    : config_(conf),
+      badPixelInfo_(nullptr),
+      regions_(nullptr),
+      tkerrorlist_(config_.getParameter<std::vector<int>>("ErrorList")),
+      usererrorlist_(config_.getParameter<std::vector<int>>("UserErrorList")),
+      fedRawDataCollectionToken_(consumes<FEDRawDataCollection>(config_.getParameter<edm::InputTag>("InputLabel"))),
+      includeErrors_(config_.getParameter<bool>("IncludeErrors")),
+      useQuality_(config_.getParameter<bool>("UseQualityInfo")),
+      usePilotBlade_(config_.getParameter<bool>("UsePilotBlade")),
+      usePhase1_(config_.getParameter<bool>("UsePhase1"))
 
-  tkerrorlist_ = config_.getParameter<std::vector<int>>("ErrorList");
-  usererrorlist_ = config_.getParameter<std::vector<int>>("UserErrorList");
-
-  fedRawDataCollectionToken_ = consumes<FEDRawDataCollection>(config_.getParameter<edm::InputTag>("InputLabel"));
+{
   if (useQuality_) {
     siPixelQualityToken_ = esConsumes<SiPixelQuality, SiPixelQualityRcd>();
   }
@@ -66,12 +70,10 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
   }
 
   // Control the usage of pilot-blade data, FED=40
-  usePilotBlade_ = config_.getParameter<bool>("UsePilotBlade");
   if (usePilotBlade_)
     edm::LogInfo("SiPixelRawToDigi") << " Use pilot blade data (FED 40)";
 
   // Control the usage of phase1
-  usePhase1_ = config_.getParameter<bool>("UsePhase1");
   if (usePhase1_)
     edm::LogInfo("SiPixelRawToDigi") << " Using phase1";
 
