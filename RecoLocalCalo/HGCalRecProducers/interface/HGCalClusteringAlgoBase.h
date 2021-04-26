@@ -2,6 +2,7 @@
 #define RecoLocalCalo_HGCalRecProducers_HGCalClusteringAlgoBase_h
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -48,7 +49,8 @@ class HGCalClusteringAlgoBase {
 public:
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 
-  HGCalClusteringAlgoBase(VerbosityLevel v, reco::CaloCluster::AlgoId algo) : verbosity_(v), algoId_(algo){};
+  HGCalClusteringAlgoBase(VerbosityLevel v, reco::CaloCluster::AlgoId algo, edm::ConsumesCollector iC)
+      : verbosity_(v), algoId_(algo), caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
   virtual ~HGCalClusteringAlgoBase() {}
 
   virtual void populate(const HGCRecHitCollection &hits) = 0;
@@ -59,8 +61,7 @@ public:
   virtual void getEventSetupPerAlgorithm(const edm::EventSetup &es) {}
 
   inline void getEventSetup(const edm::EventSetup &es) {
-    edm::ESHandle<CaloGeometry> geom;
-    es.get<CaloGeometryRecord>().get(geom);
+    edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
     rhtools_.setGeometry(*geom);
     maxlayer_ = rhtools_.lastLayer(isNose_);
     lastLayerEE_ = rhtools_.lastLayerEE(isNose_);
@@ -95,6 +96,8 @@ protected:
 
   // The algo id
   reco::CaloCluster::AlgoId algoId_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 };
 
 #endif

@@ -30,13 +30,13 @@ public:
       : radii(radii_in),
         minClusters(min_clusters),
         realSpaceCone(real_space_cone),
-        clusterTools(std::make_unique<hgcal::ClusterTools>(conf, sumes)) {}
+        clusterTools(std::make_unique<hgcal::ClusterTools>(conf, sumes)),
+        caloGeomToken_(sumes.esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
 
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
   void getEventSetup(const edm::EventSetup& es) {
     clusterTools->getEventSetup(es);
-    edm::ESHandle<CaloGeometry> geom;
-    es.get<CaloGeometryRecord>().get(geom);
+    edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
     rhtools_.setGeometry(*geom);
   }
 
@@ -52,6 +52,7 @@ private:
 
   std::unique_ptr<hgcal::ClusterTools> clusterTools;
   hgcal::RecHitTools rhtools_; /*!< instance of tools to access RecHit information. */
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 };
 
 #endif
