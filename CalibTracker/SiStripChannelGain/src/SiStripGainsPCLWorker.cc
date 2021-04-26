@@ -217,7 +217,6 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
 
       // there can be 2 (stereo module), 1 (no stereo module), or 0 (no pixel or strip hit) clusters
       auto clusters = getClusters(meas.recHit()->hit());
-      nStoredClusters += clusters.size();
       for (const auto hitCluster : clusters) {
         ++iCluster;
         bool saturation = false;
@@ -304,6 +303,7 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
           // keep processing of pixel cluster charge until here
           continue;
         }
+        ++nStoredClusters;
 
         // real histogram for calibration
         histograms.Charge_Vs_Index[elepos]->Fill(APV->Index, ClusterChargeOverPath);
