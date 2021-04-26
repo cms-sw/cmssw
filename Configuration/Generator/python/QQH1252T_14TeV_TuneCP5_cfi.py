@@ -9,7 +9,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
                          # put here the cross section of your process (in pb)
                          crossSection = cms.untracked.double(0.388),
-                         maxEventsToPrint = cms.untracked.int32(3),
+                         maxEventsToPrint = cms.untracked.int32(0),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CP5SettingsBlock,
