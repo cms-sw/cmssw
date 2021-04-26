@@ -66,9 +66,6 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet& p)
   if (UseErrorsFromTemplates_) {
     genErrorDBObjectToken_ = c.consumes();
   }
-
-  //std::cout<<" ESProducer "<<myname<<" "<<useLAWidthFromDB_<<" "<<useLAAlignmentOffsets_<<" "
-  //	   <<UseErrorsFromTemplates_<<std::endl; //dk
 }
 
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPEGenericESProducer::produce(const TkPixelCPERecord& iRecord) {
