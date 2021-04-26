@@ -57,7 +57,7 @@ public:
   virtual void addALCT1(const CSCALCTDigi& digi) = 0;
   virtual void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) = 0;
   virtual void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) = 0;
-  void addShower(const CSCShowerDigi& digi) {}
+  virtual void addShower(const CSCShowerDigi& digi) = 0;
 
   virtual void print(std::ostream& os) const = 0;
 
