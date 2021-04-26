@@ -27,10 +27,10 @@ namespace l1t {
 
   class MuonShower : public L1Candidate {
   public:
-    MuonShower(bool oneNominalInTime = 0,
-               bool oneNominalOutOfTime = 0,
-               bool twoLooseInTime = 0,
-               bool twoLooseOutOfTime = 0);
+    MuonShower(bool oneNominalInTime = false,
+               bool oneNominalOutOfTime = false,
+               bool twoLooseInTime = false,
+               bool twoLooseOutOfTime = false);
 
     ~MuonShower() override;
 

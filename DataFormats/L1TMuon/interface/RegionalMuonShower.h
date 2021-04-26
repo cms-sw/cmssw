@@ -15,10 +15,10 @@ namespace l1t {
 
   class RegionalMuonShower {
   public:
-    RegionalMuonShower(bool oneNominalInTime = 0,
-                       bool oneNominalOutOfTime = 0,
-                       bool twoLooseInTime = 0,
-                       bool twoLooseOutOfTime = 0);
+    RegionalMuonShower(bool oneNominalInTime = false,
+                       bool oneNominalOutOfTime = false,
+                       bool twoLooseInTime = false,
+                       bool twoLooseOutOfTime = false);
 
     ~RegionalMuonShower();
 
