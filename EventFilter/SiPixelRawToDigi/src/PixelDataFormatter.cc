@@ -39,7 +39,6 @@ namespace {
   // Special for layer 1 bpix rocs 6/9/16 d.k. THIS STAYS.
   constexpr int COL_bits1_l1 = 6;
   constexpr int ROW_bits1_l1 = 7;
-
 }  // namespace
 
 PixelDataFormatter::PixelDataFormatter(const SiPixelFedCablingTree* map, bool phase)
@@ -69,25 +68,25 @@ PixelDataFormatter::PixelDataFormatter(const SiPixelFedCablingTree* map, bool ph
 
   if (phase1) {  // for phase 1
     LINK_shift = ROC_shift + ROC_bits1;
-    LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits1);
-    ROC_mask = ~(~PixelDataFormatter::Word32(0) << ROC_bits1);
+    LINK_mask = ~(~Word32(0) << LINK_bits1);
+    ROC_mask = ~(~Word32(0) << ROC_bits1);
     // special for layer 1 ROC
     ROW_shift = ADC_shift + ADC_bits;
     COL_shift = ROW_shift + ROW_bits1_l1;
-    COL_mask = ~(~PixelDataFormatter::Word32(0) << COL_bits1_l1);
-    ROW_mask = ~(~PixelDataFormatter::Word32(0) << ROW_bits1_l1);
+    COL_mask = ~(~Word32(0) << COL_bits1_l1);
+    ROW_mask = ~(~Word32(0) << ROW_bits1_l1);
     maxROCIndex = 8;
 
   } else {  // for phase 0
     LINK_shift = ROC_shift + ROC_bits;
-    LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
-    ROC_mask = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
+    LINK_mask = ~(~Word32(0) << LINK_bits);
+    ROC_mask = ~(~Word32(0) << ROC_bits);
     maxROCIndex = 25;
   }
 
-  DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
-  PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
-  ADC_mask = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
+  DCOL_mask = ~(~Word32(0) << DCOL_bits);
+  PXID_mask = ~(~Word32(0) << PXID_bits);
+  ADC_mask = ~(~Word32(0) << ADC_bits);
 
   if (phase1) {
     errorcheck = std::unique_ptr<ErrorCheckerBase>(new ErrorChecker());
