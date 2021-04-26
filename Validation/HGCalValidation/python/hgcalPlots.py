@@ -2505,7 +2505,7 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
     name = obj.GetName()
     fileName = TString(name)
     fileName.ReplaceAll(" ","_")
-    pg= PlotGroup(fileName.Data(),[
+    pg = PlotGroup(fileName.Data(),[
                   Plot(name,
                        xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                        drawCommand = "",
@@ -2514,7 +2514,7 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
                   ncols=1)
 
     if name in list_2D_histos :
-        pg= PlotOnSideGroup(plotName.Data(),
+        pg = PlotOnSideGroup(plotName.Data(),
                       Plot(name,
                            xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                            drawCommand = "COLZ",
@@ -2576,7 +2576,7 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
                                       drawCommand = "COLZ",
                                       **_common),
                                  ncols=1)
-        else:
+        elif obj.InheritsFrom("TH1"):
             pg = PlotGroup(plotName.Data(),
                            [Plot(name,
                                  xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
@@ -2585,12 +2585,13 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
                            ],
                            ncols=1, legendDh=-0.03 * len(files))
 
-        hgcalTrackstersPlotter.append(name_collection+"_TICLDebugger",
-            [dqmfolder], PlotFolder(pg,
-                                    loopSubFolders=False,
-                                    purpose=PlotPurpose.Timing, page="Tracksters", section=name_collection)
-            #numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
-            )
+        if (pg is not None):
+            hgcalTrackstersPlotter.append(name_collection+"_TICLDebugger",
+                [dqmfolder], PlotFolder(pg,
+                                        loopSubFolders=False,
+                                        purpose=PlotPurpose.Timing, page="Tracksters", section=name_collection)
+                #numberOfEventsHistogram=_multiplicity_tracksters_numberOfEventsHistogram)
+                )
 
     key = keys.After(key)
 
@@ -2623,29 +2624,32 @@ def append_hgcalCaloParticlesPlots(files, collection = '-211', name_collection =
     name = obj.GetName()
     plotName = TString(name)
     plotName.ReplaceAll(" ","_")
-    pg= PlotGroup(plotName.Data(),[
-                  Plot(name,
-                       xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
-                       drawCommand = "", # may want to customize for TH2 (colz, etc.)
-                       normalizeToNumberOfEvents = True, **_common_Calo)
-                  ],
-                  ncols=1)
 
+    pg = None
     if obj.InheritsFrom("TH2"):
-        pg= PlotOnSideGroup(plotName.Data(),
+        pg = PlotOnSideGroup(plotName.Data(),
                       Plot(name,
                            xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
                            drawCommand = "COLZ",
                            normalizeToNumberOfEvents = True, **_common_Calo),
                       ncols=1)
+    elif obj.InheritsFrom("TH1"):
+        pg = PlotGroup(plotName.Data(),[
+                      Plot(name,
+                           xtitle=obj.GetXaxis().GetTitle(), ytitle=obj.GetYaxis().GetTitle(),
+                           drawCommand = "", # may want to customize for TH2 (colz, etc.)
+                           normalizeToNumberOfEvents = True, **_common_Calo)
+                      ],
+                      ncols=1)
 
-    hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [
-              dqmfolder
-              ], PlotFolder(
-                pg,
-                loopSubFolders=False,
-                purpose=PlotPurpose.Timing, page="CaloParticles", section=name_collection)
-              )
+    if (pg is not None):
+        hgcalCaloParticlesPlotter.append("CaloParticles_"+name_collection, [
+                  dqmfolder
+                  ], PlotFolder(
+                    pg,
+                    loopSubFolders=False,
+                    purpose=PlotPurpose.Timing, page="CaloParticles", section=name_collection)
+                  )
 
     key = keys.After(key)
 
