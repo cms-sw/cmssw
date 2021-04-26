@@ -176,18 +176,12 @@ for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAOD
     )
 
 tauGenJets.GenParticles = "finalGenParticles"
-(run2_nanoAOD_92X | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 |
- run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 |
- run2_nanoAOD_106Xv2).toModify(tauGenJets, GenParticles = "prunedGenParticles")
 tauGenJets.includeNeutrinos = False
 
 genVisTaus = cms.EDProducer("GenVisTauProducer",
     src = cms.InputTag("tauGenJetsSelectorAllHadrons"),         
     srcGenParticles = cms.InputTag("finalGenParticles")
 )
-(run2_nanoAOD_92X | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 |
- run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 |
- run2_nanoAOD_106Xv2).toModify(genVisTaus, srcGenParticles = "prunedGenParticles")
 
 genVisTauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("genVisTaus"),
