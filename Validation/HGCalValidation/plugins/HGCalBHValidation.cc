@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -57,6 +56,7 @@ private:
   const int iSample_, geomType_;
   const double threshold_;
   const bool ifHCAL_;
+  const edm::ESGetToken<HcalParameters, HcalParametersRcd> parToken_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
   edm::EDGetToken tok_hbhe_;
   int etaMax_;
@@ -75,6 +75,7 @@ HGCalBHValidation::HGCalBHValidation(const edm::ParameterSet& ps)
       geomType_(ps.getUntrackedParameter<int>("GeometryType", 0)),
       threshold_(ps.getUntrackedParameter<double>("Threshold", 12.0)),
       ifHCAL_(ps.getUntrackedParameter<bool>("ifHCAL", false)),
+      parToken_(esConsumes<HcalParameters, HcalParametersRcd, edm::Transition::BeginRun>(edm::ESInputTag{})),
       etaMax_(100) {
   usesResource(TFileService::kSharedResource);
 
@@ -103,9 +104,7 @@ void HGCalBHValidation::fillDescriptions(edm::ConfigurationDescriptions& descrip
 void HGCalBHValidation::beginRun(edm::Run const&, edm::EventSetup const& es) {
   if (geomType_ == 0) {
     std::string label;
-    edm::ESHandle<HcalParameters> parHandle;
-    es.get<HcalParametersRcd>().get(label, parHandle);
-    const HcalParameters* hpar = &(*parHandle);
+    const HcalParameters* hpar = &es.getData(parToken_);
     const std::vector<int> etaM = hpar->etaMax;
     etaMax_ = etaM[1];
   }
