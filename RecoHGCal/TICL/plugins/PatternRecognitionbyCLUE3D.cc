@@ -74,7 +74,7 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTracksters(
     const int eventNumber,
     const std::vector<Trackster> & tracksters) const {
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > PatternRecognitionAlgoBaseT<TILES>::Advanced) {
-    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "[evt, tracksterId, cells, layer_i, x_i, y_i, eta_i, phi_i, energy_i, radius_i, rho_i, delta_i, isSeed_i";
+    edm::LogVerbatim("PatternRecogntionbyCLUE3D") << "[evt, tracksterId, cells, prob_photon, prob_ele, prob_chad, prob_nhad, layer_i, x_i, y_i, eta_i, phi_i, energy_i, radius_i, rho_i, delta_i, isSeed_i";
   }
 
   int num = 0;
@@ -88,6 +88,10 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTracksters(
           << eventNumber << sep
           << num << sep
           << t.vertices().size() << sep
+          << t.id_probability(ticl::Trackster::ParticleType::photon) << sep
+          << t.id_probability(ticl::Trackster::ParticleType::electron) << sep
+          << t.id_probability(ticl::Trackster::ParticleType::charged_hadron) << sep
+          << t.id_probability(ticl::Trackster::ParticleType::neutral_hadron) << sep
           << lyrIdx << sep
           << thisLayer.x[soaIdx] << sep
           << thisLayer.y[soaIdx] << sep
