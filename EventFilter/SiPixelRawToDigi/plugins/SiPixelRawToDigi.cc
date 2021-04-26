@@ -1,7 +1,7 @@
 // Skip FED40 pilot-blade
 // Include parameter driven interface to SiPixelQuality for study purposes
 // exclude ROC(raw) based on bad ROC list in SiPixelQuality
-// enabled by: process.siPixelDigis.UseQualityInfo = True (BY DEFAULT NOT USED)
+// enabled by: process.siPixelDigis.useQuality_Info = True (BY DEFAULT NOT USED)
 // 20-10-2010 Andrew York (Tennessee)
 // Jan 2016 Tamas Almos Vami (Tav) (Wigner RCP) -- Cabling Map label option
 // Jul 2017 Viktor Veszpremi -- added PixelFEDChannel
@@ -40,20 +40,20 @@ using namespace std;
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
     : config_(conf), badPixelInfo_(nullptr), regions_(nullptr) {
-  includeErrors = config_.getParameter<bool>("IncludeErrors");
-  useQuality = config_.getParameter<bool>("UseQualityInfo");
+  includeErrors_ = config_.getParameter<bool>("IncludeErrors");
+  useQuality_ = config_.getParameter<bool>("UseQualityInfo");
 
-  tkerrorlist = config_.getParameter<std::vector<int>>("ErrorList");
-  usererrorlist = config_.getParameter<std::vector<int>>("UserErrorList");
+  tkerrorlist_ = config_.getParameter<std::vector<int>>("ErrorList");
+  usererrorlist_ = config_.getParameter<std::vector<int>>("UserErrorList");
 
-  tFEDRawDataCollection = consumes<FEDRawDataCollection>(config_.getParameter<edm::InputTag>("InputLabel"));
-  if (useQuality) {
-    tSiPixelQuality = esConsumes<SiPixelQuality, SiPixelQualityRcd>();
+  fedRawDataCollectionToken_ = consumes<FEDRawDataCollection>(config_.getParameter<edm::InputTag>("InputLabel"));
+  if (useQuality_) {
+    siPixelQualityToken_ = esConsumes<SiPixelQuality, SiPixelQualityRcd>();
   }
 
   // Products
   produces<edm::DetSetVector<PixelDigi>>();
-  if (includeErrors) {
+  if (includeErrors_) {
     produces<edm::DetSetVector<SiPixelRawDataError>>();
     produces<DetIdCollection>();
     produces<DetIdCollection>("UserErrorModules");
@@ -66,18 +66,18 @@ SiPixelRawToDigi::SiPixelRawToDigi(const edm::ParameterSet& conf)
   }
 
   // Control the usage of pilot-blade data, FED=40
-  usePilotBlade = config_.getParameter<bool>("UsePilotBlade");
-  if (usePilotBlade)
+  usePilotBlade_ = config_.getParameter<bool>("UsePilotBlade");
+  if (usePilotBlade_)
     edm::LogInfo("SiPixelRawToDigi") << " Use pilot blade data (FED 40)";
 
   // Control the usage of phase1
-  usePhase1 = config_.getParameter<bool>("UsePhase1");
-  if (usePhase1)
+  usePhase1_ = config_.getParameter<bool>("UsePhase1");
+  if (usePhase1_)
     edm::LogInfo("SiPixelRawToDigi") << " Using phase1";
 
   //CablingMap could have a label //Tav
   auto cablingMapLabel = config_.getParameter<std::string>("CablingMapLabel");
-  tCablingMap = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(edm::ESInputTag("", cablingMapLabel));
+  cablingMapToken_ = esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(edm::ESInputTag("", cablingMapLabel));
 }
 
 // -----------------------------------------------------------------------------
@@ -123,17 +123,17 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   const uint32_t dummydetid = 0xffffffff;
 
   // initialize cabling map or update if necessary
-  if (recordWatcher.check(es)) {
+  if (recordWatcher_.check(es)) {
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
-    edm::ESHandle<SiPixelFedCablingMap> cablingMap = es.getHandle(tCablingMap);
-    fedIds = cablingMap->fedIds();
+    edm::ESHandle<SiPixelFedCablingMap> cablingMap = es.getHandle(cablingMapToken_);
+    fedIds_ = cablingMap->fedIds();
     cabling_ = cablingMap->cablingTree();
     LogDebug("map version:") << cabling_->version();
   }
   // initialize quality record or update if necessary
-  if (qualityWatcher.check(es) && useQuality) {
+  if (qualityWatcher_.check(es) && useQuality_) {
     // quality info for dead pixel modules or ROCs
-    edm::ESHandle<SiPixelQuality> qualityInfo = es.getHandle(tSiPixelQuality);
+    edm::ESHandle<SiPixelQuality> qualityInfo = es.getHandle(siPixelQualityToken_);
     badPixelInfo_ = qualityInfo.product();
     if (!badPixelInfo_) {
       edm::LogError("SiPixelQualityNotPresent")
@@ -142,7 +142,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   }
 
   edm::Handle<FEDRawDataCollection> buffers;
-  ev.getByToken(tFEDRawDataCollection, buffers);
+  ev.getByToken(fedRawDataCollectionToken_, buffers);
 
   // create product (digis & errors)
   auto collection = std::make_unique<edm::DetSetVector<PixelDigi>>();
@@ -152,12 +152,12 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
   auto usererror_detidcollection = std::make_unique<DetIdCollection>();
   auto disabled_channelcollection = std::make_unique<edmNew::DetSetVector<PixelFEDChannel>>();
 
-  PixelDataFormatter formatter(cabling_.get(), usePhase1);  // for phase 1 & 0
+  PixelDataFormatter formatter(cabling_.get(), usePhase1_);  // for phase 1 & 0
 
-  formatter.setErrorStatus(includeErrors);
+  formatter.setErrorStatus(includeErrors_);
 
-  if (useQuality)
-    formatter.setQualityStatus(useQuality, badPixelInfo_);
+  if (useQuality_)
+    formatter.setQualityStatus(useQuality_, badPixelInfo_);
 
   bool errorsInEvent = false;
   PixelDataFormatter::DetErrors nodeterrors;
@@ -170,10 +170,10 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
                                  << regions_->nForwardModules() << " " << regions_->nModules();
   }
 
-  for (auto aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
+  for (auto aFed = fedIds_.begin(); aFed != fedIds_.end(); ++aFed) {
     int fedId = *aFed;
 
-    if (!usePilotBlade && (fedId == 40))
+    if (!usePilotBlade_ && (fedId == 40))
       continue;  // skip pilot blade data
 
     if (regions_ && !regions_->mayUnpackFED(fedId))
@@ -190,10 +190,10 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
     formatter.interpretRawData(errorsInEvent, fedId, fedRawData, *collection, errors);
 
     //pack errors into collection
-    if (includeErrors) {
+    if (includeErrors_) {
       formatter.unpackFEDErrors(errors,
-                                tkerrorlist,
-                                usererrorlist,
+                                tkerrorlist_,
+                                usererrorlist_,
                                 *errorcollection.get(),
                                 *tkerror_detidcollection.get(),
                                 *usererror_detidcollection.get(),
@@ -202,7 +202,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
     }  // if errors to be included in the event
   }    // loop on FED data to be unpacked
 
-  if (includeErrors) {
+  if (includeErrors_) {
     edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(dummydetid);
     errorDetSet.data = nodeterrors;
   }
@@ -210,7 +210,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
     LogDebug("SiPixelRawToDigi") << "Error words were stored in this event";
 
   ev.put(std::move(collection));
-  if (includeErrors) {
+  if (includeErrors_) {
     ev.put(std::move(errorcollection));
     ev.put(std::move(tkerror_detidcollection));
     ev.put(std::move(usererror_detidcollection), "UserErrorModules");
