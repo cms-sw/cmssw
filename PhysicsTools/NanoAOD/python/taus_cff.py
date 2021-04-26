@@ -175,11 +175,17 @@ for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAOD
                  idAntiEleDeadECal = Var("tauID('againstElectronDeadECALForNano')", bool, doc = "Anti-electron dead-ECal discriminator"),
     )
 
-tauGenJets.GenParticles = "finalGenParticles"
-tauGenJets.includeNeutrinos = False
+tauGenJetsForNano = tauGenJets.clone(
+    GenParticles = "finalGenParticles",
+    includeNeutrinos = False
+)
+
+tauGenJetsSelectorAllHadronsForNano = tauGenJetsSelectorAllHadrons.clone(
+    src = "tauGenJetsForNano"
+)
 
 genVisTaus = cms.EDProducer("GenVisTauProducer",
-    src = cms.InputTag("tauGenJetsSelectorAllHadrons"),         
+    src = cms.InputTag("tauGenJetsSelectorAllHadronsForNano"),
     srcGenParticles = cms.InputTag("finalGenParticles")
 )
 
@@ -240,5 +246,5 @@ tauSequence = cms.Sequence(patTauMVAIDsSeq + finalTaus)
 _tauSequence80X =  cms.Sequence(finalTaus)
 run2_miniAOD_80XLegacy.toReplaceWith(tauSequence,_tauSequence80X)
 tauTables = cms.Sequence(tauTable)
-tauMC = cms.Sequence(tauGenJets + tauGenJetsSelectorAllHadrons + genVisTaus + genVisTauTable + tausMCMatchLepTauForTable + tausMCMatchHadTauForTable + tauMCTable)
+tauMC = cms.Sequence(tauGenJetsForNano + tauGenJetsSelectorAllHadronsForNano + genVisTaus + genVisTauTable + tausMCMatchLepTauForTable + tausMCMatchHadTauForTable + tauMCTable)
 
