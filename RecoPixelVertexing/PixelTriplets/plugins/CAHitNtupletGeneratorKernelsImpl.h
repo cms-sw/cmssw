@@ -62,7 +62,7 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
            apc->get().n,
            nHits,
            hitToTuple->totOnes());
-    if (apc->get().m < caConstants::maxNumberOfQuadruplets()) {
+    if (apc->get().m < caConstants::maxNumberOfQuadruplets) {
       assert(foundNtuplets->size(apc->get().m) == 0);
       assert(foundNtuplets->size() == apc->get().n);
     }
@@ -133,7 +133,7 @@ __global__ void kernel_earlyDuplicateRemover(GPUCACell const *cells,
                                              Quality *quality,
                                              bool dupPassThrough) {
   // quality to mark rejected
-  constexpr auto reject = pixelTrack::Quality::dup;  /// cannot be loose
+  constexpr auto reject = pixelTrack::Quality::edup;  /// cannot be loose
 
   assert(nCells);
   auto first = threadIdx.x + blockIdx.x * blockDim.x;
@@ -361,7 +361,7 @@ __global__ void kernel_countMultiplicity(HitContainer const *__restrict__ foundN
     auto nhits = foundNtuplets->size(it);
     if (nhits < 3)
       continue;
-    if (quality[it] == pixelTrack::Quality::dup)
+    if (quality[it] == pixelTrack::Quality::edup)
       continue;
     assert(quality[it] == pixelTrack::Quality::bad);
     if (nhits > 5)
@@ -379,7 +379,7 @@ __global__ void kernel_fillMultiplicity(HitContainer const *__restrict__ foundNt
     auto nhits = foundNtuplets->size(it);
     if (nhits < 3)
       continue;
-    if (quality[it] == pixelTrack::Quality::dup)
+    if (quality[it] == pixelTrack::Quality::edup)
       continue;
     assert(quality[it] == pixelTrack::Quality::bad);
     if (nhits > 5)
@@ -400,7 +400,7 @@ __global__ void kernel_classifyTracks(HitContainer const *__restrict__ tuples,
       break;  // guard
 
     // if duplicate: not even fit
-    if (quality[it] == pixelTrack::Quality::dup)
+    if (quality[it] == pixelTrack::Quality::edup)
       continue;
 
     assert(quality[it] == pixelTrack::Quality::bad);

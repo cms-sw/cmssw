@@ -63,6 +63,7 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttTopoToken_;
 
   int32_t const minNumberOfHits_;
+  pixelTrack::Quality const minQuality_;
 };
 
 PixelTrackProducerFromSoA::PixelTrackProducerFromSoA(const edm::ParameterSet &iConfig)
@@ -72,7 +73,14 @@ PixelTrackProducerFromSoA::PixelTrackProducerFromSoA(const edm::ParameterSet &iC
       hmsToken_(consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
       idealMagneticFieldToken_(esConsumes()),
       ttTopoToken_(esConsumes()),
-      minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")) {
+      minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")),
+      minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))) {
+  if (minQuality_==pixelTrack::Quality::notQuality) {
+    throw cms::Exception("PixelTrackConfiguration") << iConfig.getParameter<std::string>("minQuality")+" is not a pixelTrack::Quality";
+  }
+  if (minQuality_<pixelTrack::Quality::dup) {
+    throw cms::Exception("PixelTrackConfiguration") << iConfig.getParameter<std::string>("minQuality")+" not supported";
+  }
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
@@ -85,16 +93,17 @@ void PixelTrackProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions 
   desc.add<edm::InputTag>("trackSrc", edm::InputTag("pixelTrackSoA"));
   desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsPreSplittingLegacy"));
   desc.add<int>("minNumberOfHits", 0);
-
+  desc.add<std::string>("minQuality","loose");
   descriptions.addWithDefaultLabel(desc);
 }
 
 void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
                                         edm::Event &iEvent,
                                         const edm::EventSetup &iSetup) const {
-  // enum class Quality : uint8_t { bad = 0, dup, loose, strict, tight, highPurity };
+  // enum class Quality : uint8_t { bad = 0, edup, dup, loose, strict, tight, highPurity };
   reco::TrackBase::TrackQuality recoQuality[] = {reco::TrackBase::undefQuality,
                                                  reco::TrackBase::undefQuality,
+                                                 reco::TrackBase::discarded,
                                                  reco::TrackBase::loose,
                                                  reco::TrackBase::tight,
                                                  reco::TrackBase::tight,
@@ -156,7 +165,7 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
       break;  // this is a guard: maybe we need to move to nTracks...
     indToEdm.push_back(-1);
     auto q = quality[it];
-    if (q < pixelTrack::Quality::loose)
+    if (q < minQuality_)
       continue;
     if (nHits < minNumberOfHits_)
       continue;
@@ -203,10 +212,17 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
     math::XYZVector mom(pp.x(), pp.y(), pp.z());
 
     auto track = std::make_unique<reco::Track>(chi2, ndof, pos, mom, gp.charge(), CurvilinearTrajectoryError(mo));
-    track->setQuality(reco::TrackBase::loose);  // all at least loose
+
+    // bad and edup not supported as fit not present or not reliable
     auto tkq = recoQuality[int(q)];
-    if (reco::TrackBase::highPurity == tkq)
+    track->setQuality(tkq);
+    // loose,tight and HP are inclusive
+    if (reco::TrackBase::highPurity == tkq) {
       track->setQuality(reco::TrackBase::tight);
+      track->setQuality(reco::TrackBase::loose);
+    } else if (reco::TrackBase::tight == tkq) {
+       track->setQuality(reco::TrackBase::loose);
+    }
     track->setQuality(tkq);
     // filter???
     tracks.emplace_back(track.release(), hits);
