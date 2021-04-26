@@ -562,7 +562,7 @@ void DeepCoreSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("pixelClusters", edm::InputTag("siPixelClustersPreSplitting"));
   desc.add<edm::InputTag>("cores", edm::InputTag("jetsForCoreTracking"));
   desc.add<double>("ptMin", 100);
-  desc.add<double>("deltaR", 0.25); // the current training makes use of 0.1
+  desc.add<double>("deltaR", 0.25);  // the current training makes use of 0.1
   desc.add<double>("chargeFractionMin", 18000.0);
   desc.add<double>("centralMIPCharge", 2);
   desc.add<std::string>("pixelCPE", "PixelCPEGeneric");
