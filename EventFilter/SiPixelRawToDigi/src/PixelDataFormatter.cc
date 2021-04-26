@@ -54,7 +54,7 @@ namespace {
   //const bool DANEK = false;
 }  // namespace
 
-PixelDataFormatter::PixelDataFormatter(const SiPixelFedCabling* map, bool phase)
+PixelDataFormatter::PixelDataFormatter(const SiPixelFedCablingTree* map, bool phase)
     : theDigiCounter(0),
       theWordCounter(0),
       theCablingTree(map),
@@ -332,11 +332,11 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
       } else if (detBadChannels != badChannels.end()) {
         auto badChannel =
             std::find_if(detBadChannels->second.begin(), detBadChannels->second.end(), [&](const PixelFEDChannel& ch) {
-              return (int(ch.fed) == fedId && ch.link == linkId(words[fedId].back()));
+              return (int(ch.fed) == fedId && ch.link == getLinkId(words[fedId].back()));
             });
         if (badChannel != detBadChannels->second.end()) {
           LogError("FormatDataException") << " while marked bad, found digi for FED " << fedId << " Link "
-                                          << linkId(words[fedId].back()) << " on module " << rawId << endl
+                                          << getLinkId(words[fedId].back()) << " on module " << rawId << endl
                                           << print(digi) << endl;
         }
       }  // if (fedId)
@@ -519,4 +519,78 @@ std::string PixelDataFormatter::print(const Word64& word) const {
   ostringstream str;
   str << "word64:  " << reinterpret_cast<const bitset<64>&>(word);
   return str.str();
+}
+
+void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors& errors,
+                                         std::vector<int> const& tkerrorlist,
+                                         std::vector<int> const& usererrorlist,
+                                         edm::DetSetVector<SiPixelRawDataError>& errorcollection,
+                                         DetIdCollection& tkerror_detidcollection,
+                                         DetIdCollection& usererror_detidcollection,
+                                         edmNew::DetSetVector<PixelFEDChannel>& disabled_channelcollection,
+                                         DetErrors& nodeterrors) {
+  const uint32_t dummydetid = 0xffffffff;
+  for (auto& error : errors) {
+    uint32_t errordetid = error.first;
+    if (errordetid == dummydetid) {  // errors given dummy detId must be sorted by Fed
+      nodeterrors.insert(nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end());
+    } else {
+      edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection.find_or_insert(errordetid);
+      errorDetSet.data.insert(errorDetSet.data.end(), error.second.begin(), error.second.end());
+      // Fill detid of the detectors where there is error AND the error number is listed
+      // in the configurable error list in the job option cfi.
+      // Code needs to be here, because there can be a set of errors for each
+      // entry in the for loop over PixelDataFormatter::Errors
+
+      std::vector<PixelFEDChannel> disabledChannelsDetSet;
+
+      for (auto const& aPixelError : errorDetSet) {
+        // For the time being, we extend the error handling functionality with ErrorType 25
+        // In the future, we should sort out how the usage of tkerrorlist can be generalized
+        if (aPixelError.getType() == 25) {
+          int fedId = aPixelError.getFedId();
+          const sipixelobjects::PixelFEDCabling* fed = theCablingTree->fed(fedId);
+          if (fed) {
+            cms_uint32_t linkId = getLinkId(aPixelError.getWord32());
+            const sipixelobjects::PixelFEDLink* link = fed->link(linkId);
+            if (link) {
+              // The "offline" 0..15 numbering is fixed by definition, also, the FrameConversion depends on it
+              // in contrast, the ROC-in-channel numbering is determined by hardware --> better to use the "offline" scheme
+              PixelFEDChannel ch = {fed->id(), linkId, 25, 0};
+              for (unsigned int iRoc = 1; iRoc <= link->numberOfROCs(); iRoc++) {
+                const sipixelobjects::PixelROC* roc = link->roc(iRoc);
+                if (roc->idInDetUnit() < ch.roc_first)
+                  ch.roc_first = roc->idInDetUnit();
+                if (roc->idInDetUnit() > ch.roc_last)
+                  ch.roc_last = roc->idInDetUnit();
+              }
+              disabledChannelsDetSet.push_back(ch);
+            }
+          }
+        } else {
+          // fill list of detIds to be turned off by tracking
+          if (!tkerrorlist.empty()) {
+            auto it_find = std::find(tkerrorlist.begin(), tkerrorlist.end(), aPixelError.getType());
+            if (it_find != tkerrorlist.end()) {
+              tkerror_detidcollection.push_back(errordetid);
+            }
+          }
+        }
+
+        // fill list of detIds with errors to be studied
+        if (!usererrorlist.empty()) {
+          auto it_find = std::find(usererrorlist.begin(), usererrorlist.end(), aPixelError.getType());
+          if (it_find != usererrorlist.end()) {
+            usererror_detidcollection.push_back(errordetid);
+          }
+        }
+
+      }  // loop on DetSet of errors
+
+      if (!disabledChannelsDetSet.empty()) {
+        disabled_channelcollection.insert(errordetid, disabledChannelsDetSet.data(), disabledChannelsDetSet.size());
+      }
+
+    }  // if error assigned to a real DetId
+  }    // loop on errors in event for this FED
 }
