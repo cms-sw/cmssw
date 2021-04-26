@@ -102,6 +102,20 @@
   <class name="l1t::MuonVectorRef"/>
   <class name="edm::Wrapper<l1t::MuonVectorRef>"/>
 
+  <class name="l1t::MuonShower" ClassVersion="10">
+   <version ClassVersion="10" checksum="3869296059"/>
+  </class>
+  <class name="edm::Ptr<l1t::MuonShower>"/>
+  <class name="l1t::MuonShowerBxCollection"/>
+  <class name="std::vector<l1t::MuonShower>"/>
+  <class name="edm::Wrapper<l1t::MuonShowerBxCollection>"/>
+  <class name="l1t::MuonShowerRef"/>
+  <class name="edm::Wrapper<l1t::MuonShowerRef>"/>
+  <class name="l1t::MuonShowerRefVector"/>
+  <class name="edm::Wrapper<l1t::MuonShowerRefVector>"/>
+  <class name="l1t::MuonShowerVectorRef"/>
+  <class name="edm::Wrapper<l1t::MuonShowerVectorRef>"/>
+
   <class name="l1t::CaloSpare" ClassVersion="13">
    <version ClassVersion="13" checksum="50826133"/>
    <version ClassVersion="12" checksum="3118488206"/>
