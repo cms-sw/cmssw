@@ -197,22 +197,24 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
     int ntr = thisCell.tracks().size();
     for (int i = 0; i < ntr; ++i) {
       auto it = thisCell.tracks()[i];
-      if (tracks->quality(it) <= reject)
+      auto qi = tracks->quality(it);
+      if (qi <= reject)
         continue;
       auto opi = 1.f / tracks->pt(it);
       auto eta = std::abs(tracks->eta(it));
       auto fact = 0.1f + ((eta < 1.0f) ? 0.0f : 0.1f * (eta - 1.0f));
       for (auto j = i + 1; j < ntr; ++j) {
         auto jt = thisCell.tracks()[j];
-        if (tracks->quality(jt) <= reject)
+        auto qj =    tracks->quality(jt);
+        if (qj <= reject)
           continue;
         if (foundNtuplets->size(it) != foundNtuplets->size(jt))
           printf(" a mess\n");
         auto pj = tracks->pt(jt);
         auto rp = pj * opi;
         if (rp > (1.f - fact) and rp < (1.f + fact)) {
-          if (tracks->quality(jt) < tracks->quality(it) ||
-              (tracks->quality(jt) == tracks->quality(it) && score(it) < score(jt)))
+          if ( (qj < qi) ||
+              (qj == qi && score(it) < score(jt)))
             tracks->quality(jt) = reject;
           else {
             tracks->quality(it) = reject;
@@ -229,7 +231,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
         maxQual = tracks->quality(it);
     }
 
-    if (maxQual <= reject)
+    if (maxQual <= loose)
       continue;
 
     // find min score
@@ -665,7 +667,8 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
     // full combinatorics
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      if (quality[it] <= reject)
+      auto qi = quality[it];
+      if (qi <= reject)
         continue;
       auto opi = 1.f / tracks.pt(it);
       auto etai = tracks.eta(it);
@@ -674,7 +677,8 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
       auto nhi = foundNtuplets.size(it);
       for (auto jp = ip + 1; jp != hitToTuple.end(idx); ++jp) {
         auto const jt = *jp;
-        if (quality[jt] <= reject)
+        auto qj = quality[jt];
+        if (qj <= reject)
           continue;
         if (std::abs(etai - tracks.eta(jt)) > 0.01f)
           continue;
@@ -683,8 +687,8 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
         auto rp = pj * opi;
         if (rp > (1.f - fact) and rp < (1.f + fact)) {
           auto nhj = foundNtuplets.size(jt);
-          if (nhj < nhi || (nhj == nhi && (quality[jt] < quality[it] ||
-                                           (quality[jt] == quality[it] && score(it, nhi) < score(jt, nhj)))))
+          if (nhj < nhi || (nhj == nhi && (qj < qi ||
+                                           (qj == qi && score(it, nhi) < score(jt, nhj)))))
             quality[jt] = reject;
           else {
             quality[it] = reject;
