@@ -552,15 +552,20 @@ __global__ void kernel_countSharedHit(int * __restrict__ nshared,
 
     uint32_t maxNh = 0;
 
+    int n3=0;
+
     // find maxNh
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
       if (quality[*it] < loose ) continue;
       uint32_t nh = foundNtuplets.size(*it);
+      if(3==nh) ++n3;
       maxNh = std::max(nh, maxNh);
     }
 
-    if (maxNh<4) continue;
+    //if (maxNh<4) continue;
     // there is at least a good quad
+
+    if (n3<2) continue;
     // now mark  each track triplet as sharing a hit
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
       if (foundNtuplets.size(*it)>3) continue;
@@ -589,7 +594,7 @@ __global__ void kernel_markSharedHit(
     if (tuples->size(idx) == 0)
       break;  //guard
     if (quality[idx] <=reject) continue;
-    if (nshared[idx]>1) quality[idx] =  reject;
+    if (nshared[idx]>2) quality[idx] =  reject;
   }
 }
 
@@ -662,12 +667,14 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
      auto const it = *ip;
      if (quality[it] <= reject) continue;
      auto opi = 1.f/tracks.pt(it);
-     auto eta = std::abs(tracks.eta(it));
+     auto etai = tracks.eta(it);
+     auto eta = std::abs(etai);
      auto fact = 0.05f + ( (eta<1.0f) ? 0.0f : 0.1f*(eta-1.0f)) ;
      auto nhi = foundNtuplets.size(it);   
      for (auto jp = ip+1; jp != hitToTuple.end(idx); ++jp) {
        auto const jt = *jp;
        if (quality[jt] <= reject) continue;
+       if (std::abs(etai - tracks.eta(jt)) > 0.01f) continue;;
        auto pj = tracks.pt(jt);
        auto rp = pj*opi;
        if (rp>(1.f-fact) and rp<(1.f+fact)) {

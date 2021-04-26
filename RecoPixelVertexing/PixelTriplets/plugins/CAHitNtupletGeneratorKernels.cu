@@ -275,6 +275,8 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
 
     // mark duplicates (tracks that share a hit)
     numberOfBlocks = (hitToTupleView_.offSize + blockSize - 1) / blockSize;
+
+    /* makes only damange
     {
     // once understood merge with above and below....
     auto nShared = cms::cuda::make_device_unique<int32_t[]>(caConstants::maxNumberOfQuadruplets,cudaStream);
@@ -282,6 +284,7 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     kernel_countSharedHit<<<numberOfBlocks, blockSize, 0, cudaStream>>>(nShared.get(), tuples_d,quality_d, device_hitToTuple_.get());
     kernel_markSharedHit<<<nQuadrupletBlocks(blockSize), blockSize, 0, cudaStream>>>(nShared.get(), tuples_d, quality_d, params_.dupPassThrough_);
     }
+    */
 
     kernel_sharedHitCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(hh.view(),
                                                                           tuples_d,
