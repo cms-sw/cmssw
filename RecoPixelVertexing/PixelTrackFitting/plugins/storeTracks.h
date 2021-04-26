@@ -26,14 +26,14 @@ void storeTracks(Ev& ev, const TWH& tracksWithHits, const TrackerTopology& ttopo
 
   trackExtras->resize(nTracks);
   tracks->reserve(nTracks);
-  recHits->reserve(4*nTracks);
+  recHits->reserve(4 * nTracks);
 
   for (int i = 0; i < nTracks; i++) {
     reco::Track* track = tracksWithHits[i].first;
     const auto& hits = tracksWithHits[i].second;
 
     for (unsigned int k = 0; k < hits.size(); k++) {
-      auto* hit = hits[k]->clone(); // need to clone (at least if from SoA)
+      auto* hit = hits[k]->clone();  // need to clone (at least if from SoA)
       track->appendHitPattern(*hit, ttopo);
       recHits->push_back(hit);
     }
@@ -47,7 +47,7 @@ void storeTracks(Ev& ev, const TWH& tracksWithHits, const TrackerTopology& ttopo
 
   edm::RefProd<TrackingRecHitCollection> hitCollProd(ohRH);
   for (int k = 0; k < nTracks; k++) {
-    auto & aTrackExtra = (*trackExtras)[k];
+    auto& aTrackExtra = (*trackExtras)[k];
 
     //fill the TrackExtra with TrackingRecHitRef
     unsigned int nHits = (*tracks)[k].numberOfValidHits();
