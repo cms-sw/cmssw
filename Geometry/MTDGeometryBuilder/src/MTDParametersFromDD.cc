@@ -142,7 +142,7 @@ bool MTDParametersFromDD::build(const cms::DDCompactView* cvp, PMTDParameters& p
     int sector(0), oldsector(-1);
     for (const auto& name : etlLayout) {
       for (auto const& it : vmap) {
-	      edm::LogWarning("MTDParametersFromDD") << name << " " << dd4hep::dd::noNamespace(it.first);
+        edm::LogWarning("MTDParametersFromDD") << name << " " << dd4hep::dd::noNamespace(it.first);
         if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), name)) {
           sector++;
           oldsector = sector;
