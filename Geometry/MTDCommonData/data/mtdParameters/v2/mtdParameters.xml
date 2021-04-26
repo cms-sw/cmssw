@@ -11,7 +11,7 @@
     0, 0, 0, 0, 3733, 1867, 112, 60, 1, 16, 3, 1
   </Vector>
   <Vector name="ETL" type="numeric" nEntries="12">
-    516, 516, 512, 513, 50, 50, 50, 50, 16, 16, 2, 1
+    0, 0, 0, 0, 50, 50, 50, 50, 16, 16, 2, 1
   </Vector>
 
   </ConstantsSection>
