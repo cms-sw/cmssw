@@ -48,14 +48,10 @@ PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::Parame
   pDDToken_ = c.consumes();
   hTTToken_ = c.consumes();
   templateDBobjectToken_ = c.consumes();
-
-  char const* laLabel = "";  // standard LA, from calibration, label=""
-  lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
-
-  if (doLorentzFromAlignment_) {
-    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", "fromAlignment"));
+  if (useLAFromDB_ || doLorentzFromAlignment_) {
+    char const* laLabel = doLorentzFromAlignment_ ? "fromAlignment" : "";
+    lorentzAngleToken_ = c.consumes(edm::ESInputTag("", laLabel));
   }
-  //std::cout<<" from ES Producer Templates "<<myname<<" "<<DoLorentz_<<std::endl;  //dk
 }
 
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPETemplateRecoESProducer::produce(
