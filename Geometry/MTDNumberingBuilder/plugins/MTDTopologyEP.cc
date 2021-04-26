@@ -64,10 +64,10 @@ void MTDTopologyEP::fillParameters(const PMTDParameters& ptp, int& mtdTopologyMo
   tmpFace.idDiscSide_ = 0;  // ETL front side
   tmpFace.idDetType1_ = 2;  // ETL module type right
 
-  tmpFace.start_copy_1_ = ptp.vitems_[3].vpars_;  // start_copy_FR
-  tmpFace.start_copy_2_ = ptp.vitems_[2].vpars_;  // start_copy_FL
-  tmpFace.offset_1_ = ptp.vitems_[7].vpars_;      // offset_FR
-  tmpFace.offset_2_ = ptp.vitems_[6].vpars_;      // offset_FL
+  tmpFace.start_copy_[0] = ptp.vitems_[3].vpars_;  // start_copy_FR
+  tmpFace.start_copy_[1] = ptp.vitems_[2].vpars_;  // start_copy_FL
+  tmpFace.offset_[0] = ptp.vitems_[7].vpars_;      // offset_FR
+  tmpFace.offset_[1] = ptp.vitems_[6].vpars_;      // offset_FL
 
   etlVals.emplace_back(tmpFace);
 
@@ -76,10 +76,10 @@ void MTDTopologyEP::fillParameters(const PMTDParameters& ptp, int& mtdTopologyMo
   tmpFace.idDiscSide_ = 1;  // ETL back side
   tmpFace.idDetType1_ = 1;  // ETL module type left
 
-  tmpFace.start_copy_1_ = ptp.vitems_[4].vpars_;  // start_copy_BL
-  tmpFace.start_copy_2_ = ptp.vitems_[5].vpars_;  // start_copy_BR
-  tmpFace.offset_1_ = ptp.vitems_[8].vpars_;      // offset_BL
-  tmpFace.offset_2_ = ptp.vitems_[9].vpars_;      // offset_BR
+  tmpFace.start_copy_[0] = ptp.vitems_[4].vpars_;  // start_copy_BL
+  tmpFace.start_copy_[1] = ptp.vitems_[5].vpars_;  // start_copy_BR
+  tmpFace.offset_[0] = ptp.vitems_[8].vpars_;      // offset_BL
+  tmpFace.offset_[1] = ptp.vitems_[9].vpars_;      // offset_BR
 
   etlVals.emplace_back(tmpFace);
 
@@ -96,10 +96,10 @@ void MTDTopologyEP::fillParameters(const PMTDParameters& ptp, int& mtdTopologyMo
 
   for (auto const& ilay : etlVals) {
     edm::LogVerbatim("MTDTopologyEP") << " disc face = " << ilay.idDiscSide_ << " start det type = " << ilay.idDetType1_
-                                      << "\n start_copy_1 = " << print_array(ilay.start_copy_1_)
-                                      << "\n start_copy_2 = " << print_array(ilay.start_copy_2_)
-                                      << "\n offset_1 = " << print_array(ilay.offset_1_)
-                                      << "\n offset_2 = " << print_array(ilay.offset_2_);
+                                      << "\n start_copy[0]= " << print_array(ilay.start_copy_[0])
+                                      << "\n start_copy[1]= " << print_array(ilay.start_copy_[1])
+                                      << "\n offset[0]= " << print_array(ilay.offset_[0])
+                                      << "\n offset[1]= " << print_array(ilay.offset_[1]);
   }
 
 #endif
