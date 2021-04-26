@@ -126,13 +126,6 @@ private:
                             const PixelDigi& digi,
                             std::map<int, std::vector<Word32> >& words) const;
 
-  int word2digi(const int fedId,
-                const SiPixelFrameConverter* converter,
-                const bool includeError,
-                const bool useQuality,
-                const Word32& word,
-                Digis& digis) const;
-
   std::string print(const PixelDigi& digi) const;
   std::string print(const Word64& word) const;
 
