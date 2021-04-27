@@ -98,6 +98,16 @@ parser.add_option("--runsScenarioForMC",
                   default=None,
                   dest="runsScenarioForMC")
 
+parser.add_option("--runsAndWeightsForMCInteger",
+                  help="Assign run numbers to MC source according to relative weights where weighting is determined by the number of times the run number appears. [(run1,run2,...,runN)])",
+                  default=None,
+                  dest="runsAndWeightsForMCInteger")
+
+parser.add_option("--runsScenarioForMCInteger",
+                  help="Load a scenario to set run numbers in MC.)",
+                  default=None,
+                  dest="runsScenarioForMCInteger")
+
 parser.add_option("--runUnscheduled",
                   help="Automatically convert configuration to run unscheduled the EDProducers/EDFilters that were scheduled",
                   action="store_true",
