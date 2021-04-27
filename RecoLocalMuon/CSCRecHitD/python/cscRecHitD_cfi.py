@@ -14,57 +14,57 @@ csc2DRecHits = _mod.cscRecHitDProducer.clone(
     #
     #    Parameters for strip hits
     #
-    CSCStripPeakThreshold = cms.double(10.0),
-    CSCStripClusterChargeCut = cms.double(25.0),
-    CSCStripxtalksOffset = cms.double(0.03),
+    CSCStripPeakThreshold = 10.0,
+    CSCStripClusterChargeCut = 25.0,
+    CSCStripxtalksOffset = 0.03,
     #
     #    How to find SCA peak time?
     #                              
-    UseAverageTime = cms.bool(False),
-    UseParabolaFit = cms.bool(False),
-    UseFivePoleFit = cms.bool(True),                       
+    UseAverageTime = False,
+    UseParabolaFit = False,
+    UseFivePoleFit = True,                       
     #
     #    Parameters for wire hits
-    CSCWireClusterDeltaT = cms.int32(1),
+    CSCWireClusterDeltaT = 1,
     #
     #    wire time window used for reconstruction
-    CSCUseReducedWireTimeWindow = cms.bool(True),
-    CSCWireTimeWindowLow = cms.int32(5),
-    CSCWireTimeWindowHigh = cms.int32(11),
+    CSCUseReducedWireTimeWindow = True,
+    CSCWireTimeWindowLow = 5,
+    CSCWireTimeWindowHigh = 11,
     #
     #    Calibration info:
-    CSCUseCalibrations = cms.bool(True),
+    CSCUseCalibrations = True,
     #    Pedestal treatment
-    CSCUseStaticPedestals = cms.bool(False),
-    CSCNoOfTimeBinsForDynamicPedestal = cms.int32(2),
+    CSCUseStaticPedestals = False,
+    CSCNoOfTimeBinsForDynamicPedestal = 2,
     #
     #    Which digis:
     #
     #  When using data from unpacker
-    wireDigiTag = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
-    stripDigiTag = cms.InputTag("muonCSCDigis","MuonCSCStripDigi"),
+    wireDigiTag = "muonCSCDigis:MuonCSCWireDigi",
+    stripDigiTag = "muonCSCDigis:MuonCSCStripDigi",
     #  When using data from simulation
-    #    wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
-    #    stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
+    #    wireDigiTag = "simMuonCSCDigis:MuonCSCWireDigi",
+    #    stripDigiTag = "simMuonCSCDigis:MuonCSCStripDigi",
     #
     # Use dead channels information 
-    readBadChannels = cms.bool(True),
-    readBadChambers = cms.bool(True),
+    readBadChannels = True,
+    readBadChambers = True,
     #                          
     # Do we use the chip and chamber and L1A phase corrections when filling the recHit time?
     #
-    CSCUseTimingCorrections = cms.bool(True),
+    CSCUseTimingCorrections = True,
     #
     # Do we correct the energy deposited for gas gains?
-    CSCUseGasGainCorrections = cms.bool(True),
+    CSCUseGasGainCorrections = True,
     #
     #    Parameters which are not used currently
     #
-    CSCDebug = cms.untracked.bool(False),
+    CSCDebug = False,
     #  To be set once wire digis have proper timing info:
-    CSCstripWireDeltaTime = cms.int32(8),
+    CSCstripWireDeltaTime = 8,
     # to be deleted
-    CSCStripClusterSize = cms.untracked.int32(3),
+    CSCStripClusterSize = 3,
     #
     **cscRecHitDParameters
 )
