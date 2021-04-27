@@ -4,13 +4,13 @@ import FWCore.ParameterSet.Config as cms
 
 # parameters for CSC rechit building
 from RecoLocalMuon.CSCRecHitD.cscRecHitD_cff import *
-csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
+import RecoLocalMuon.CSCRecHitD.cscRecHitDProducer_cfi as _mod
+
+csc2DRecHits = _mod.cscRecHitDProducer.clone(
     #
     #    Parameters for coordinate and uncertainty calculations
     #    Data and MC parameters are (still) different
     #    Needs tuning
-    #
-    cscRecHitDParameters,
     #
     #    Parameters for strip hits
     #
@@ -64,13 +64,15 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #  To be set once wire digis have proper timing info:
     CSCstripWireDeltaTime = cms.int32(8),
     # to be deleted
-    CSCStripClusterSize = cms.untracked.int32(3)
+    CSCStripClusterSize = cms.untracked.int32(3),
+    #
+    **cscRecHitDParameters
 )
 
 ##
 ## Modify for running in Run 2
 ##
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify( csc2DRecHits, readBadChannels = False )
-run2_common.toModify( csc2DRecHits, CSCUseGasGainCorrections = False )
-
+run2_common.toModify( csc2DRecHits, 
+     readBadChannels = False,
+     CSCUseGasGainCorrections = False )
