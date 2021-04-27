@@ -22,6 +22,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelROCsStatusAndMapping.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
@@ -51,14 +52,6 @@ namespace pixelgpudetails {
   }
 
   ////////////////////
-
-  __device__ uint32_t getLink(uint32_t ww) {
-    return ((ww >> pixelgpudetails::LINK_shift) & pixelgpudetails::LINK_mask);
-  }
-
-  __device__ uint32_t getRoc(uint32_t ww) { return ((ww >> pixelgpudetails::ROC_shift) & pixelgpudetails::ROC_mask); }
-
-  __device__ uint32_t getADC(uint32_t ww) { return ((ww >> pixelgpudetails::ADC_shift) & pixelgpudetails::ADC_mask); }
 
   __device__ bool isBarrel(uint32_t rawId) {
     return (PixelSubdetector::PixelBarrel == ((rawId >> DetId::kSubdetOffset) & DetId::kSubdetMask));
@@ -378,8 +371,8 @@ namespace pixelgpudetails {
         continue;
       }
 
-      uint32_t link = getLink(ww);  // Extract link
-      uint32_t roc = getRoc(ww);    // Extract Roc in link
+      uint32_t link = sipixelconstants::getLink(ww);  // Extract link
+      uint32_t roc = sipixelconstants::getROC(ww);    // Extract Roc in link
       pixelgpudetails::DetIdGPU detId = getRawId(cablingMap, fedId, link, roc);
 
       uint8_t errorType = checkROC(ww, fedId, link, cablingMap, debug);
@@ -454,7 +447,7 @@ namespace pixelgpudetails {
       pixelgpudetails::Pixel globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
       xx[gIndex] = globalPix.row;  // origin shifting by 1 0-159
       yy[gIndex] = globalPix.col;  // origin shifting by 1 0-415
-      adc[gIndex] = getADC(ww);
+      adc[gIndex] = sipixelconstants::getADC(ww);
       pdigi[gIndex] = pixelgpudetails::pack(globalPix.row, globalPix.col, adc[gIndex]);
       moduleId[gIndex] = detId.moduleId;
       rawIdArr[gIndex] = rawId;
