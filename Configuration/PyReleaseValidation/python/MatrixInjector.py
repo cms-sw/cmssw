@@ -175,6 +175,7 @@ class MatrixInjector(object):
             "Multicore" : opt.nThreads,                  # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "EventStreams": self.numberOfStreams,
             "KeepOutput" : False,
+            "RequiresGPU" : None,
             "GPUParams": None
             }
         self.defaultInput={
@@ -188,6 +189,7 @@ class MatrixInjector(object):
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "EventStreams": self.numberOfStreams,
             "KeepOutput" : False,
+            "RequiresGPU" : None,
             "GPUParams": None
             }
         self.defaultTask={
