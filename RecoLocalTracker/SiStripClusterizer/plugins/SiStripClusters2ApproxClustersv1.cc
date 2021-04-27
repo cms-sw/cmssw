@@ -1,5 +1,32 @@
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusters2ApproxClustersv1.h"
+
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterv1.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+
+#include <vector>
+#include <memory>
 #include <iostream>
+
+class SiStripClusters2ApproxClustersv1: public edm::stream::EDProducer<>  {
+
+public:
+
+  explicit SiStripClusters2ApproxClustersv1(const edm::ParameterSet& conf);
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+
+  edm::InputTag inputClusters;
+  edm::EDGetTokenT< edmNew::DetSetVector<SiStripCluster> > clusterToken;  
+};
+
 
 
 SiStripClusters2ApproxClustersv1::SiStripClusters2ApproxClustersv1(const edm::ParameterSet& conf){
@@ -13,7 +40,7 @@ SiStripClusters2ApproxClustersv1::SiStripClusters2ApproxClustersv1(const edm::Pa
 void SiStripClusters2ApproxClustersv1::produce(edm::Event& e, edm::EventSetup const&){
   std::unique_ptr<edmNew::DetSetVector< SiStripApproximateClusterv1 > > result(new edmNew::DetSetVector< SiStripApproximateClusterv1 > );
 
-  edm::Handle<edmNew::DetSetVector< SiStripCluster >> clusterCollection = e.getHandle(clusterToken_)
+  edm::Handle<edmNew::DetSetVector< SiStripCluster >> clusterCollection = e.getHandle(clusterToken);
 
   uint32_t minID = 470444276;
   int maxFirst = -1;
@@ -47,3 +74,4 @@ void SiStripClusters2ApproxClustersv1::produce(edm::Event& e, edm::EventSetup co
   e.put(std::move(result));
 }
 
+DEFINE_FWK_MODULE(SiStripClusters2ApproxClustersv1);
