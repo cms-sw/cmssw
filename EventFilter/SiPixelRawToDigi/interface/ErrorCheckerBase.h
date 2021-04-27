@@ -1,5 +1,5 @@
-#ifndef ErrorCheckerBase_H
-#define ErrorCheckerBase_H
+#ifndef EventFilter_SiPixelRawToDigi_interface_ErrorCheckerBase_h
+#define EventFilter_SiPixelRawToDigi_interface_ErrorCheckerBase_h
 /** \class ErrorCheckerBase
  *
  *  
@@ -44,4 +44,4 @@ private:
   virtual cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const = 0;
 };
 
-#endif
+#endif  // EventFilter_SiPixelRawToDigi_interface_ErrorCheckerBase_h
