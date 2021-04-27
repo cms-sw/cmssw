@@ -118,9 +118,11 @@ namespace edm {
         branchesWithStoredHistory_(),
         wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
     if (om_->compressionAlgorithm() == std::string("ZLIB")) {
-      filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
+      filePtr_->SetCompressionAlgorithm(ROOT::kZLIB); 
     } else if (om_->compressionAlgorithm() == std::string("LZMA")) {
       filePtr_->SetCompressionAlgorithm(ROOT::kLZMA);
+    } else if (om_->compressionAlgorithm() == std::string("ZSTD")) {
+      filePtr_->SetCompressionAlgorithm(ROOT::kZSTD);
     } else {
       throw Exception(errors::Configuration)
           << "PoolOutputModule configured with unknown compression algorithm '" << om_->compressionAlgorithm() << "'\n"
