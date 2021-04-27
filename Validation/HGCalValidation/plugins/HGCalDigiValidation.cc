@@ -109,7 +109,8 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig)
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       SampleIndx_(iConfig.getUntrackedParameter<int>("SampleIndx", 0)),
       tok_hcalc_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{})),
-      tok_hgcalc_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})),
+      tok_hgcalc_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
       tok_hcalg_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       tok_hgcalg_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_})),
       tok_cond_(esConsumes<HcalDbService, HcalDbRecord>()),
@@ -174,8 +175,9 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType == 0) ? HGCalDetId(detId).layer()
-                                     : (geomType == 1) ? HGCSiliconDetId(detId).layer() : HFNoseDetId(detId).layer());
+        int layer = ((geomType == 0)   ? HGCalDetId(detId).layer()
+                     : (geomType == 1) ? HGCSiliconDetId(detId).layer()
+                                       : HFNoseDetId(detId).layer());
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t gain = hgcSample.toa();
         uint16_t adc = hgcSample.data();
@@ -355,10 +357,10 @@ void HGCalDigiValidation::fillDigiInfo() {
 
 void HGCalDigiValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   if (nameDetector_ == "HCal") {
-    const HcalDDDRecConstants *hcons = &iSetup.getData(tok_hcalc_);
+    const HcalDDDRecConstants* hcons = &iSetup.getData(tok_hcalc_);
     layers_ = hcons->getMaxDepth(1);
   } else {
-    const HGCalDDDConstants *hgcons = &iSetup.getData(tok_hgcalc_);
+    const HGCalDDDConstants* hgcons = &iSetup.getData(tok_hgcalc_);
     layers_ = hgcons->layers(true);
     firstLayer_ = hgcons->firstLayer();
   }

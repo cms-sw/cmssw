@@ -47,7 +47,8 @@ HGCalSimHitsClient::HGCalSimHitsClient(const edm::ParameterSet &iConfig)
       nTimes_(iConfig.getParameter<int>("TimeSlices")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       tok_hcal_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{})),
-      tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})) {}
+      tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})) {}
 
 void HGCalSimHitsClient::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
   if (nameDetector_ == "HCal") {

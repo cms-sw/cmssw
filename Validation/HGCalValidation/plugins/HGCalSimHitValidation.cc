@@ -122,7 +122,8 @@ HGCalSimHitValidation::HGCalSimHitValidation(const edm::ParameterSet& iConfig)
       testNumber_(iConfig.getUntrackedParameter<bool>("TestNumber", true)),
       fromDDD_(iConfig.getUntrackedParameter<bool>("fromDDD", true)),
       tok_hcal_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{})),
-      tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})),
+      tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
       tok_cpv_(esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>()),
       tok_cpvc_(esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>()),
       symmDet_(true),
