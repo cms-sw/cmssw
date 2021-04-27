@@ -11,13 +11,15 @@
 
 #include "RecoPPS/Local/interface/TimingRecHitProducerAlgorithm.h"
 
+#include "Geometry/ForwardGeometry/interface/TotemGeometry.h"
+
 #include "DataFormats/TotemReco/interface/TotemT2Digi.h"
 #include "DataFormats/TotemReco/interface/TotemT2RecHit.h"
 
-class TotemT2RecHitProducerAlgorithm : public TimingRecHitProducerAlgorithm<TotemT2Digi, TotemT2RecHit> {
+class TotemT2RecHitProducerAlgorithm : public TimingRecHitProducerAlgorithm<TotemGeometry, TotemT2Digi, TotemT2RecHit> {
 public:
   using TimingRecHitProducerAlgorithm::TimingRecHitProducerAlgorithm;
-  void build(const CTPPSGeometry&, const edm::DetSetVector<TotemT2Digi>&, edm::DetSetVector<TotemT2RecHit>&) override;
+  void build(const TotemGeometry&, const edm::DetSetVector<TotemT2Digi>&, edm::DetSetVector<TotemT2RecHit>&) override;
 };
 
 #endif

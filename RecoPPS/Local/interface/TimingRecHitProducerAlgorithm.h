@@ -13,11 +13,10 @@
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
 #include "CondFormats/PPSObjects/interface/PPSTimingCalibrationLUT.h"
 
-template <typename D, typename R>
+template <typename G, typename D, typename R>
 class TimingRecHitProducerAlgorithm {
 public:
   explicit TimingRecHitProducerAlgorithm(const edm::ParameterSet& iConfig)
@@ -30,7 +29,7 @@ public:
     calibLUT_ = calibLUT;
     calib_fct_ = std::make_unique<reco::FormulaEvaluator>(calib_.formula());
   }
-  virtual void build(const CTPPSGeometry&, const edm::DetSetVector<D>&, edm::DetSetVector<R>&) = 0;
+  virtual void build(const G&, const edm::DetSetVector<D>&, edm::DetSetVector<R>&) = 0;
 
 protected:
   /// Conversion constant between time slice and absolute time (in ns)

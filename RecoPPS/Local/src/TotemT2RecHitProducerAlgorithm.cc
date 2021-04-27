@@ -10,7 +10,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
 
-void TotemT2RecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
+void TotemT2RecHitProducerAlgorithm::build(const TotemGeometry& geom,
                                            const edm::DetSetVector<TotemT2Digi>& input,
                                            edm::DetSetVector<TotemT2RecHit>& output) {
   for (const auto& vec : input) {
@@ -27,7 +27,7 @@ void TotemT2RecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     edm::DetSet<TotemT2RecHit>& rec_hits = output.find_or_insert(detid);
 
     // retrieve the geometry element associated to this DetID
-    const DetGeomDesc* det = geom.sensor(detid);
+    const DetGeomDesc* det = geom.tile(detid);
 
     const float x_pos = det->translation().x(), y_pos = det->translation().y();
     float z_pos = det->parentZPosition();  // retrieve the plane position;

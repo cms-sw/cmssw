@@ -11,10 +11,12 @@
 
 #include "RecoPPS/Local/interface/TimingRecHitProducerAlgorithm.h"
 
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 
-class CTPPSDiamondRecHitProducerAlgorithm : public TimingRecHitProducerAlgorithm<CTPPSDiamondDigi, CTPPSDiamondRecHit> {
+class CTPPSDiamondRecHitProducerAlgorithm : public TimingRecHitProducerAlgorithm<CTPPSGeometry, CTPPSDiamondDigi, CTPPSDiamondRecHit> {
 public:
   using TimingRecHitProducerAlgorithm::TimingRecHitProducerAlgorithm;
   void build(const CTPPSGeometry&,
