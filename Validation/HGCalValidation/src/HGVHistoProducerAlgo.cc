@@ -2839,42 +2839,39 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
   // reco-level, namely fake-rate an merge-rate. In this loop we should *not*
   // restrict only to the selected caloParaticles.
   for (unsigned int tstId = 0; tstId < nTracksters; ++tstId) {
-    for (const auto lcId : tracksters[tstId].vertices()) {
-      const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
-      if (hits_and_fractions.empty())
-        continue;
-      auto assocFakeMerge = tracksters_fakemerge[tstId];
-      auto assocDuplicate = tracksters_duplicate[tstId];
-      if (assocDuplicate) {
-        histograms.h_numDup_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
-        histograms.h_numDup_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
-      }
-      if (assocFakeMerge > 0) {
-        histograms.h_num_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
-        histograms.h_num_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
-        auto best = std::min_element(std::begin(cpsInTrackster[tstId]),
-                                     std::end(cpsInTrackster[tstId]),
-                                     [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
-
-        //This is the shared energy taking the best caloparticle in each layer
-        float sharedeneCPallLayers = 0.;
-        //Loop through all layers
-        for (unsigned int j = 0; j < layers * 2; ++j) {
-          auto const& best_cp_linked = cPOnLayer[best->first][j].layerClusterIdToEnergyAndScore[tstId];
-          sharedeneCPallLayers += best_cp_linked.first;
-        }  //end of loop through layers
-        histograms.h_sharedenergy_trackster2caloparticle_vs_eta[count]->Fill(
-            tracksters[tstId].barycenter().eta(), sharedeneCPallLayers / tracksters[tstId].raw_energy());
-        histograms.h_sharedenergy_trackster2caloparticle_vs_phi[count]->Fill(
-            tracksters[tstId].barycenter().phi(), sharedeneCPallLayers / tracksters[tstId].raw_energy());
-      }
-      if (assocFakeMerge >= 2) {
-        histograms.h_numMerge_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
-        histograms.h_numMerge_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
-      }
-      histograms.h_denom_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
-      histograms.h_denom_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
+    if (tracksters[tstId].vertices().empty())
+      continue;
+    auto assocFakeMerge = tracksters_fakemerge[tstId];
+    auto assocDuplicate = tracksters_duplicate[tstId];
+    if (assocDuplicate) {
+      histograms.h_numDup_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
+      histograms.h_numDup_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
     }
+    if (assocFakeMerge > 0) {
+      histograms.h_num_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
+      histograms.h_num_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
+      auto best = std::min_element(std::begin(cpsInTrackster[tstId]),
+                                   std::end(cpsInTrackster[tstId]),
+                                   [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
+
+      //This is the shared energy taking the best caloparticle in each layer
+      float sharedeneCPallLayers = 0.;
+      //Loop through all layers
+      for (unsigned int j = 0; j < layers * 2; ++j) {
+        auto const& best_cp_linked = cPOnLayer[best->first][j].layerClusterIdToEnergyAndScore[tstId];
+        sharedeneCPallLayers += best_cp_linked.first;
+      }  //end of loop through layers
+      histograms.h_sharedenergy_trackster2caloparticle_vs_eta[count]->Fill(
+          tracksters[tstId].barycenter().eta(), sharedeneCPallLayers / tracksters[tstId].raw_energy());
+      histograms.h_sharedenergy_trackster2caloparticle_vs_phi[count]->Fill(
+          tracksters[tstId].barycenter().phi(), sharedeneCPallLayers / tracksters[tstId].raw_energy());
+    }
+    if (assocFakeMerge >= 2) {
+      histograms.h_numMerge_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
+      histograms.h_numMerge_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
+    }
+    histograms.h_denom_trackster_eta[count]->Fill(tracksters[tstId].barycenter().eta());
+    histograms.h_denom_trackster_phi[count]->Fill(tracksters[tstId].barycenter().phi());
   }
 }
 
