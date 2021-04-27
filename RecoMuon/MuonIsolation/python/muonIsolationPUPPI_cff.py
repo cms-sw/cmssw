@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import PhysicsTools.IsolationAlgos.CITKPFIsolationSumProducerForPUPPI_cfi as _mod
 
 IsoConeDefinitions = cms.VPSet(
         cms.PSet( isolationAlgo = cms.string('MuonPFIsolationWithConeVeto'),
@@ -21,20 +22,20 @@ IsoConeDefinitions = cms.VPSet(
                   miniAODVertexCodes = cms.vuint32(2,3) ),                  
 )
 
-muonIsolationAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
+muonIsolationAODPUPPI = _mod.CITKPFIsolationSumProducerForPUPPI.clone(
                 srcToIsolate = cms.InputTag("muons"),
                 srcForIsolationCone = cms.InputTag(''),
                 isolationConeDefinitions = IsoConeDefinitions
 )
 
-muonIsolationMiniAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
+muonIsolationMiniAODPUPPI = _mod.CITKPFIsolationSumProducerForPUPPI.clone(
                 srcToIsolate = cms.InputTag("slimmedMuons"),
                 srcForIsolationCone = cms.InputTag('packedPFCandidates'),
                 puppiValueMap = cms.InputTag(''),
                 isolationConeDefinitions = IsoConeDefinitions
 )
 
-muonIsolationMiniAODPUPPINoLeptons = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
+muonIsolationMiniAODPUPPINoLeptons = _mod.CITKPFIsolationSumProducerForPUPPI.clone(
                 srcToIsolate = cms.InputTag("slimmedMuons"),
                 srcForIsolationCone = cms.InputTag('packedPFCandidates'),
                 puppiValueMap = cms.InputTag(''),

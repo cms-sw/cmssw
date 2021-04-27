@@ -3,8 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.MuonSeedGenerator.ptSeedParameterization_cfi import *
 from RecoMuon.MuonSeedGenerator.MuonSeedPtScale_cfi import *
 
+import RecoMuon.MuonSeedGenerator.produceMuons_cfi as _mod
 # module standAloneMuonSeeds = MuonSeedGenerator {
-ancientMuonSeed = cms.EDProducer("MuonSeedGenerator",
+ancientMuonSeed = _mod.produceMuons.clone(
                                  ptSeedParameterization,
                                  dphiScale,
                                  beamSpotTag = cms.InputTag("offlineBeamSpot"),
