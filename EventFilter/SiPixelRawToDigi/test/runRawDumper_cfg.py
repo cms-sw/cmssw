@@ -283,7 +283,6 @@ process.d = cms.EDAnalyzer("SiPixelRawDumper",
 # old
 #    InputLabel = cms.untracked.string('siPixelRawData'),
 #    InputLabel = cms.untracked.string('source'),
-    CheckPixelOrder = cms.untracked.bool(False),
 # 0 - nothing, 1 - error , 2- data, 3-headers, 4-hex
     Verbosity = cms.untracked.int32(1),
 # threshold, print fed/channel num of errors if tot_errors > events * PrintThreshold, default 0,001 
