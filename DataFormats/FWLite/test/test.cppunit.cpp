@@ -34,7 +34,7 @@ class testRefInROOT : public CppUnit::TestFixture {
 
   CPPUNIT_TEST(testOneGoodFile);
   CPPUNIT_TEST_EXCEPTION(failOneBadFile, std::exception);
-  CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
+  CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile, std::exception);
   CPPUNIT_TEST(testRefFirst);
   CPPUNIT_TEST(testAllLabels);
   CPPUNIT_TEST(testGoodChain);
@@ -354,8 +354,7 @@ void testRefInROOT::testGoodChain() {
   }
 }
 
-void testRefInROOT::failChainWithMissingFile()
-{
+void testRefInROOT::failChainWithMissingFile() {
   std::vector<std::string> files{(tmpdir + "goodDataFormatsFWLite.root").c_str(),
                                  (tmpdir + "2ndFileDoesNotExist.root").c_str()};
   fwlite::ChainEvent events(files);
