@@ -65,10 +65,8 @@ csc2DRecHits = _mod.cscRecHitDProducer.clone(
     CSCstripWireDeltaTime = 8,
     # to be deleted
     CSCStripClusterSize = 3,
-    #
     **cscRecHitDParameters
 )
-
 ##
 ## Modify for running in Run 2
 ##
