@@ -5,6 +5,8 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterv1.h"
+
 #include "DataFormats/Common/interface/ContainerMask.h"
 
 #endif  // SISTRIPCLUSTER_CLASSES_H
