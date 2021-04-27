@@ -9,6 +9,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
+//#include "FWCore/Framework/interface/ESHandle.h"
+//#include "FWCore/Framework/interface/EventSetup.h"
+//#include "FWCore/Framework/interface/ConsumesCollector.h"
+//#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 
 class RealisticSimClusterMapper : public InitialClusteringStepBase {
@@ -24,7 +29,9 @@ public:
         minNHitsforTiming_(conf.getParameter<unsigned int>("minNHitsforTiming")),
         useMCFractionsForExclEnergy_(conf.getParameter<bool>("useMCFractionsForExclEnergy")),
         calibMinEta_(conf.getParameter<double>("calibMinEta")),
-        calibMaxEta_(conf.getParameter<double>("calibMaxEta")) {
+        calibMaxEta_(conf.getParameter<double>("calibMaxEta")),
+        geomToken_(esConsumes()) {
+        //calibMaxEta_(conf.getParameter<double>("calibMaxEta")) {
     simClusterToken_ = sumes.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
     hadronCalib_ = conf.getParameter<std::vector<double> >("hadronCalib");
     egammaCalib_ = conf.getParameter<std::vector<double> >("egammaCalib");
@@ -59,6 +66,8 @@ private:
 
   edm::EDGetTokenT<SimClusterCollection> simClusterToken_;
   edm::Handle<SimClusterCollection> simClusterH_;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, RealisticSimClusterMapper, "RealisticSimClusterMapper");
