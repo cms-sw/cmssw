@@ -10,21 +10,20 @@
 
 #include <iostream>
 #include <vector>
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+//#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "CondFormats/DataRecord/interface/PFCalibrationRcd.h"
-
 #include "TF1.h"
 
 using namespace std;
 using namespace edm;
 
-ProducePFCalibrationObject::ProducePFCalibrationObject(const edm::ParameterSet& pSet) {
+ProducePFCalibrationObject::ProducePFCalibrationObject(const edm::ParameterSet& pSet) 
+    : perfToken(esConsumes<edm::Transition::BeginRun>()) {
   read = pSet.getUntrackedParameter<bool>("read");
   write = pSet.getUntrackedParameter<bool>("write");
 
@@ -117,8 +116,10 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
   if (read) {
     // ---------------------------------------------------------------------------------
     // Read the objects
-    edm::ESHandle<PerformancePayload> perfH;
-    eSetup.get<PFCalibrationRcd>().get(perfH);
+    auto perfH = eSetup.getHandle(perfToken); 
+    
+    //edm::ESHandle<PerformancePayload> perfH;
+    //eSetup.get<PFCalibrationRcd>().get(perfH);
 
     const PerformancePayloadFromTFormula* pfCalibrations =
         static_cast<const PerformancePayloadFromTFormula*>(perfH.product());
