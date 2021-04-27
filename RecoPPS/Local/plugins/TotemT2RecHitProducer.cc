@@ -42,7 +42,7 @@ private:
 
   edm::EDGetTokenT<edm::DetSetVector<TotemT2Digi> > digiToken_;
   edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> timingCalibrationToken_;
-  edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geometryToken_;
+  edm::ESGetToken<TotemGeometry, VeryForwardRealGeometryRecord> geometryToken_;
   /// A watcher to detect timing calibration changes.
   edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 
@@ -52,7 +52,7 @@ private:
 
 TotemT2RecHitProducer::TotemT2RecHitProducer(const edm::ParameterSet& iConfig)
     : digiToken_(consumes<edm::DetSetVector<TotemT2Digi> >(iConfig.getParameter<edm::InputTag>("digiTag"))),
-      geometryToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
+      geometryToken_(esConsumes<TotemGeometry, VeryForwardRealGeometryRecord>()),
       applyCalib_(iConfig.getParameter<bool>("applyCalibration")),
       algo_(iConfig) {
   if (applyCalib_)
@@ -74,7 +74,7 @@ void TotemT2RecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       algo_.setCalibration(*hTimingCalib);
     }
     // get the geometry
-    edm::ESHandle<CTPPSGeometry> geometry = iSetup.getHandle(geometryToken_);
+    edm::ESHandle<TotemGeometry> geometry = iSetup.getHandle(geometryToken_);
 
     // produce the rechits collection
     algo_.build(*geometry, *digis, *pOut);
