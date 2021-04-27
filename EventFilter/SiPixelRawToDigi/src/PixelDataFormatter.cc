@@ -129,8 +129,8 @@ void PixelDataFormatter::interpretRawData(
       theWordCounter--;
       continue;
     }
-    int nlink = (ww >> LINK_shift) & LINK_mask;
-    int nroc = (ww >> ROC_shift) & ROC_mask;
+    int nlink = getLink(ww);
+    int nroc = getROC(ww);
 
     if ((nlink != link) | (nroc != roc)) {  // new roc
       link = nlink;
@@ -173,13 +173,13 @@ void PixelDataFormatter::interpretRawData(
     if UNLIKELY (skipROC || !rocp)
       continue;
 
-    int adc = (ww >> ADC_shift) & ADC_mask;
+    int adc = getADC(ww);
     std::unique_ptr<LocalPixel> local;
 
     if (phase1 && layer == 1) {  // special case for layer 1ROC
       // for l1 roc use the roc column and row index instead of dcol and pixel index.
-      int col = (ww >> COL_shift) & COL_mask;
-      int row = (ww >> ROW_shift) & ROW_mask;
+      int col = getCol(ww);
+      int row = getRow(ww);
 
       LocalPixel::RocRowCol localCR = {row, col};  // build pixel
       if UNLIKELY (!localCR.valid()) {
@@ -191,9 +191,8 @@ void PixelDataFormatter::interpretRawData(
       local = std::make_unique<LocalPixel>(localCR);  // local pixel coordinate
 
     } else {  // phase0 and phase1 except bpix layer 1
-      int dcol = (ww >> DCOL_shift) & DCOL_mask;
-      int pxid = (ww >> PXID_shift) & PXID_mask;
-
+      int dcol = getDCol(ww);
+      int pxid = getPxId(ww);
       LocalPixel::DcolPxid localDP = {dcol, pxid};
 
       if UNLIKELY (!localDP.valid()) {
