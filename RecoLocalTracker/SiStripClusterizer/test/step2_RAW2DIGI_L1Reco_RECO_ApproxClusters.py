@@ -63,9 +63,7 @@ process.outputCompressed = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:step2approximated.root'),
     outputCommands = cms.untracked.vstring(
     'drop *',   
-    'keep *_*SiStripClusters2ApproxClustersv1*_*_*',
-	'keep *_*SiStripClusters2ApproxClustersv2*_*_*', 
-    'keep *_*SiStripClusters2ApproxClustersv3*_*_*'         
+    'keep *_*SiStripClusters2ApproxClustersv1*_*_*'       
     )
 )
 
