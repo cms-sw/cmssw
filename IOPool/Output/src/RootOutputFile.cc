@@ -52,19 +52,14 @@ namespace edm {
 
   namespace {
     bool sorterForJobReportHash(BranchDescription const* lh, BranchDescription const* rh) {
-      return lh->fullClassName() < rh->fullClassName()
-                 ? true
-                 : lh->fullClassName() > rh->fullClassName()
-                       ? false
-                       : lh->moduleLabel() < rh->moduleLabel()
-                             ? true
-                             : lh->moduleLabel() > rh->moduleLabel()
-                                   ? false
-                                   : lh->productInstanceName() < rh->productInstanceName()
-                                         ? true
-                                         : lh->productInstanceName() > rh->productInstanceName()
-                                               ? false
-                                               : lh->processName() < rh->processName() ? true : false;
+      return lh->fullClassName() < rh->fullClassName()               ? true
+             : lh->fullClassName() > rh->fullClassName()             ? false
+             : lh->moduleLabel() < rh->moduleLabel()                 ? true
+             : lh->moduleLabel() > rh->moduleLabel()                 ? false
+             : lh->productInstanceName() < rh->productInstanceName() ? true
+             : lh->productInstanceName() > rh->productInstanceName() ? false
+             : lh->processName() < rh->processName()                 ? true
+                                                                     : false;
     }
 
     TFile* openTFile(char const* name, int compressionLevel) {
@@ -118,7 +113,7 @@ namespace edm {
         branchesWithStoredHistory_(),
         wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
     if (om_->compressionAlgorithm() == std::string("ZLIB")) {
-      filePtr_->SetCompressionAlgorithm(ROOT::kZLIB); 
+      filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
     } else if (om_->compressionAlgorithm() == std::string("LZMA")) {
       filePtr_->SetCompressionAlgorithm(ROOT::kLZMA);
     } else if (om_->compressionAlgorithm() == std::string("ZSTD")) {
