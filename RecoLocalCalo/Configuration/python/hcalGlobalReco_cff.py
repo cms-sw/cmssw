@@ -4,7 +4,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 #--- for Run 1 and Run 2
 from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import hbhereco as _phase0_hbhereco
 hbhereco = SwitchProducerCUDA(
-    cpu = _phase0_hbhereco
+    cpu = _phase0_hbhereco.clone()
 )
 hcalGlobalRecoTask = cms.Task(hbhereco)
 hcalGlobalRecoSequence = cms.Sequence(hcalGlobalRecoTask)

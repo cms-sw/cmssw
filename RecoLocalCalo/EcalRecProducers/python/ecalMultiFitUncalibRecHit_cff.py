@@ -5,7 +5,7 @@ from Configuration.ProcessModifiers.gpu_cff import gpu
 # ECAL multifit running on CPU
 from RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi import ecalMultiFitUncalibRecHit as _ecalMultiFitUncalibRecHit
 ecalMultiFitUncalibRecHit = SwitchProducerCUDA(
-  cpu = _ecalMultiFitUncalibRecHit
+  cpu = _ecalMultiFitUncalibRecHit.clone()
 )
 
 ecalMultiFitUncalibRecHitTask = cms.Task(
