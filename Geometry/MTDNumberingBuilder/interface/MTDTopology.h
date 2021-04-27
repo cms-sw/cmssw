@@ -28,7 +28,7 @@ public:
 
   // ETL topology navigation is based on a predefined order of dets in sector
 
-  bool orderETLSector(const GeomDet*& gd1, const GeomDet*& gd2);
+  static bool orderETLSector(const GeomDet*& gd1, const GeomDet*& gd2);
 
   // navigation methods in ETL topology, provide the index of the det next to DetId for
   // horizontal and vertical shifts in both directions, assuming the predefined order in a sector

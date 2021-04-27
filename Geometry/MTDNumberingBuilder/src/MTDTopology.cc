@@ -28,7 +28,7 @@ size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) c
   }
   int hsh = horizontalShift > 0 ? 1 : -1;
 
-  int module = start_mod.module() + hsh;
+  int module = start_mod.module();
   uint32_t modtyp = start_mod.modType();
   uint32_t discside = start_mod.discSide();
 
@@ -44,7 +44,11 @@ size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) c
   for (size_t iloop = 0; iloop < etlVals_[discside].start_copy_[iHome].size() - 1; iloop++) {
     if (module >= etlVals_[discside].start_copy_[iHome][iloop] &&
         module < etlVals_[discside].start_copy_[iHome][iloop + 1]) {
-      return module - 1 + nmodLeft;
+      if (module + hsh >= etlVals_[discside].start_copy_[iHome][iloop] &&
+          module + hsh < etlVals_[discside].start_copy_[iHome][iloop + 1]) {
+        return module + hsh - 1 + nmodLeft;
+      }
+      break;
     }
   }
 
