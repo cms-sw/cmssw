@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+import RecoMuon.L2MuonIsolationProducer.hltL2MuonIsolations_cfi as _mod
 
-hltL2MuonIsolationsCR = cms.EDProducer("L2MuonIsolationProducer",
+hltL2MuonIsolationsCR = _mod.hltL2MuonIsolations.clone(
     StandAloneCollectionLabel = cms.InputTag("L2Muons","UpdatedAtVtx"),
     IsolatorPSet = cms.PSet( 
       ComponentName = cms.string( "CutsIsolatorWithCorrection" ),

@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
-
+import RecoMuon.L3MuonProducer.L3MuonProducer_cfi as _mod
 #this is a dump of the latest configuration of that module
 #this is not the actual configuration of HLT
 #changing this file will not change the behavior of HLT
 #see the actual configuration in confDB
 
-L3Muons = cms.EDProducer("L3MuonProducer",
+L3Muons = _mod.L3MuonProducer.clone(
     ServiceParameters = cms.PSet(
         Propagators = cms.untracked.vstring('SmartPropagatorAny',
             'SteppingHelixPropagatorAny',

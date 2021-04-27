@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-
 # The services
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
-L2Muons = cms.EDProducer("L2MuonProducer",
+import RecoMuon.L2MuonProducer.L2MuonProducer_cfi as _mod
+
+L2Muons = _mod.L2MuonProducer.clone(
     MuonTrackLoaderForSTA,
     MuonServiceProxy,
     InputObjects = cms.InputTag("L2MuonSeeds"),
