@@ -167,14 +167,18 @@ HGCHitValidation::HGCHitValidation(const edm::ParameterSet &cfg)
     bhRecHitTokeng_ = consumes<HGChebRecHitCollection>(bhRecHitSource);
   tok_hcals_ = esConsumes<HcalDDDSimConstants, HcalSimNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{});
   tok_hcalr_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{});
- tok_caloG_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{});
+  tok_caloG_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{});
   for (size_t i = 0; i < geometrySource_.size(); i++) {
     if (geometrySource_[i].find("Hcal") != std::string::npos) {
-      tok_hgcal_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{}));
-      tok_hgcalg_.emplace_back(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{}));
+      tok_hgcal_.emplace_back(
+          esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{}));
+      tok_hgcalg_.emplace_back(
+          esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{}));
     } else {
-      tok_hgcal_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", geometrySource_[i]}));
-      tok_hgcalg_.emplace_back(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", geometrySource_[i]}));
+      tok_hgcal_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", geometrySource_[i]}));
+      tok_hgcalg_.emplace_back(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", geometrySource_[i]}));
     }
   }
 
