@@ -414,7 +414,18 @@ class _TypedParameterizable(_Parameterizable):
         """
         returnValue =_TypedParameterizable.__new__(type(self))
         myparams = self.parameters_()
-        
+
+        # Prefer parameters given in PSet blocks over those in clone-from module
+        for block in args:
+            # Allow __PSet for testing
+            if type(block).__name__ not in ["PSet", "__PSet"]:
+                raise ValueError("Only PSets can be passed as unnamed argument blocks.  This is a "+type(block).__name__)
+            for name in block.parameterNames_():
+                try:
+                    del myparams[name]
+                except KeyError:
+                    pass
+
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
         if self._Parameterizable__validator is not None:
             myparams["allowAnyLabel_"] = self._Parameterizable__validator
@@ -868,9 +879,19 @@ if __name__ == "__main__":
             d = a.clone(__PSet(k=__TestType(42)))
             self.assertEqual(d.t.value(), 1)
             self.assertEqual(d.k.value(), 42)
-            # TODO: following case that currently raises an exception
-            # will be made to work in the near future
-            self.assertRaises(ValueError, a.clone, __PSet(t=__TestType(42)))
+            d2 = a.clone(__PSet(t=__TestType(42)))
+            self.assertEqual(d2.t.value(), 42)
+            d3 = a.clone(__PSet(t=__TestType(42)),
+                         __PSet(u=__TestType(56)))
+            self.assertEqual(d3.t.value(), 42)
+            self.assertEqual(d3.u.value(), 56)
+            self.assertRaises(ValueError,a.clone,
+                              __PSet(t=__TestType(42)),
+                              __PSet(t=__TestType(56)))
+            d4 = a.clone(__PSet(t=__TestType(43)), u = 57)
+            self.assertEqual(d4.t.value(), 43)
+            self.assertEqual(d4.u.value(), 57)
+            self.assertRaises(TypeError,a.clone,t=__TestType(43),**{"doesNotExist":57})
 
             e = __Test("MyType")
             self.assertEqual(len(e.parameterNames_()), 0)
