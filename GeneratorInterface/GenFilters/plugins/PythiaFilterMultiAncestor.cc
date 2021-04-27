@@ -181,6 +181,7 @@ bool PythiaFilterMultiAncestor::filter(edm::StreamID, edm::Event& iEvent, const 
           // use a counter, if there's enough daughters that match the pdg and kinematic
           // criteria accept the event
           uint good_dau = 0;
+          uint good_dau_cc = 0;
           for (HepMC::GenVertex::particle_iterator dau = (*p)->end_vertex()->particles_begin(HepMC::children);
                dau != (*p)->end_vertex()->particles_end(HepMC::children);
                ++dau) {
@@ -198,9 +199,21 @@ bool PythiaFilterMultiAncestor::filter(edm::StreamID, edm::Event& iEvent, const 
                   continue;
                 ++good_dau;
               }
+              // check charge conjugation
+              if (-(*dau)->pdg_id() == daughterIDs[i]) {  // notice minus sign
+                if ((*dau)->momentum().perp() < daughterMinPts[i])
+                  continue;
+                if ((*dau)->momentum().perp() > daughterMaxPts[i])
+                  continue;
+                if ((*dau)->momentum().eta() < daughterMinEtas[i])
+                  continue;
+                if ((*dau)->momentum().eta() > daughterMaxEtas[i])
+                  continue;
+                ++good_dau_cc;
+              }
             }
           }
-          if (good_dau < daughterIDs.size())
+          if (good_dau < daughterIDs.size() && good_dau_cc < daughterIDs.size())
             accepted = false;
         }
       }
