@@ -53,7 +53,11 @@ public:
                       const std::array<double, 7> &eThresHE,
                       const std::array<double, 7> &etThresHE,
                       int maxSeverityHE,
+                      const std::array<double, 7> &eThresHF,
+                      const std::array<double, 7> &etThresHF,
+                      int maxSeverityHF,
                       const HBHERecHitCollection &mhbhe,
+                      const HFRecHitCollection &mhf,
                       edm::ESHandle<CaloGeometry> caloGeometry,
                       edm::ESHandle<HcalTopology> hcalTopology,
                       edm::ESHandle<HcalChannelQuality> hcalChStatus,
@@ -70,25 +74,29 @@ public:
                       const std::array<double, 7> &eThresHE,
                       const std::array<double, 7> &etThresHE,
                       int maxSeverityHE,
+                      const std::array<double, 7> &eThresHF,
+                      const std::array<double, 7> &etThresHF,
+                      int maxSeverityHF,
                       const HBHERecHitCollection &mhbhe,
+                      const HFRecHitCollection &mhf,
                       const CaloGeometry &caloGeometry,
                       const HcalTopology &hcalTopology,
                       const HcalChannelQuality &hcalChStatus,
                       const HcalSeverityLevelComputer &hcalSevLvlComputer,
                       const CaloTowerConstituentsMap &towerMap);
 
-  double getHcalESum(const reco::Candidate *c, int depth = 0) const { return getHcalESum(c->get<reco::SuperClusterRef>().get(), depth); }
-  double getHcalEtSum(const reco::Candidate *c, int depth = 0) const { return getHcalEtSum(c->get<reco::SuperClusterRef>().get(), depth); }
-  double getHcalESum(const reco::SuperCluster *sc, int depth = 0) const { return getHcalESum(sc->position(), depth); }
-  double getHcalEtSum(const reco::SuperCluster *sc, int depth = 0) const { return getHcalEtSum(sc->position(), depth); }
-  double getHcalESum(const math::XYZPoint &p, int depth = 0) const { return getHcalESum(GlobalPoint(p.x(), p.y(), p.z()), depth); }
-  double getHcalEtSum(const math::XYZPoint &p, int depth = 0) const { return getHcalEtSum(GlobalPoint(p.x(), p.y(), p.z()), depth); }
-  double getHcalESum(const GlobalPoint &pclu, int depth = 0) const { return getHcalSum(pclu, depth, 0, 0, 0, &scaleToE); }
-  double getHcalEtSum(const GlobalPoint &pclu, int depth = 0) const { return getHcalSum(pclu, depth, 0, 0, 0, &scaleToEt); }
+  double getHcalESum(const reco::Candidate *c, int depth) const { return getHcalESum(c->get<reco::SuperClusterRef>().get(), depth); }
+  double getHcalEtSum(const reco::Candidate *c, int depth) const { return getHcalEtSum(c->get<reco::SuperClusterRef>().get(), depth); }
+  double getHcalESum(const reco::SuperCluster *sc, int depth) const { return getHcalESum(sc->position(), depth); }
+  double getHcalEtSum(const reco::SuperCluster *sc, int depth) const { return getHcalEtSum(sc->position(), depth); }
+  double getHcalESum(const math::XYZPoint &p, int depth) const { return getHcalESum(GlobalPoint(p.x(), p.y(), p.z()), depth); }
+  double getHcalEtSum(const math::XYZPoint &p, int depth) const { return getHcalEtSum(GlobalPoint(p.x(), p.y(), p.z()), depth); }
+  double getHcalESum(const GlobalPoint &pclu, int depth) const { return getHcalSum(pclu, depth, 0, 0, 0, &scaleToE); }
+  double getHcalEtSum(const GlobalPoint &pclu, int depth) const { return getHcalSum(pclu, depth, 0, 0, 0, &scaleToEt); }
 
-  double getHcalESumBc(const reco::Candidate *c, int depth = 0) const { return getHcalESumBc(c->get<reco::SuperClusterRef>().get(), depth); }
-  double getHcalEtSumBc(const reco::Candidate *c, int depth = 0) const { return getHcalEtSumBc(c->get<reco::SuperClusterRef>().get(), depth); }
-  double getHcalESumBc(const reco::SuperCluster *sc, int depth = 0) const {
+  double getHcalESumBc(const reco::Candidate *c, int depth) const { return getHcalESumBc(c->get<reco::SuperClusterRef>().get(), depth); }
+  double getHcalEtSumBc(const reco::Candidate *c, int depth) const { return getHcalEtSumBc(c->get<reco::SuperClusterRef>().get(), depth); }
+  double getHcalESumBc(const reco::SuperCluster *sc, int depth) const {
     const auto tower = egamma::towerOf(*(sc->seed()), towerMap_);
 
     if (extIncRule_ == InclusionRule::isBehindClusterSeed and intIncRule_ == InclusionRule::withinConeAroundCluster)
@@ -98,7 +106,7 @@ public:
 
     return getHcalESumBc(sc->position(), depth, tower.ieta(), tower.iphi(), 0);
   }
-  double getHcalEtSumBc(const reco::SuperCluster *sc, int depth = 0) const {
+  double getHcalEtSumBc(const reco::SuperCluster *sc, int depth) const {
     const auto tower = egamma::towerOf(*(sc->seed()), towerMap_);
 
     if (extIncRule_ == InclusionRule::isBehindClusterSeed and intIncRule_ == InclusionRule::withinConeAroundCluster)
@@ -122,7 +130,8 @@ public:
   }
 
 private:
-  double goodHitEnergy(const GlobalPoint &pclu, const HBHERecHit &hit, int depth, int ieta, int iphi, int include_or_exclude, double (*scale)(const double &)) const;
+  template <typename HcalRecHit>
+  double goodHitEnergy(const GlobalPoint &pclu, const HcalRecHit &hit, int depth, int ieta, int iphi, int include_or_exclude, double (*scale)(const double &)) const;
 
   double getHcalSum(const GlobalPoint &pclu, int depth, int ieta, int iphi, int include_or_exclude, double (*scale)(const double &)) const;
 
@@ -139,7 +148,12 @@ private:
   std::array<double, 7> etThresHE_;
   int maxSeverityHE_;
 
+  std::array<double, 7> eThresHF_;
+  std::array<double, 7> etThresHF_;
+  int maxSeverityHF_;
+
   const HBHERecHitCollection &mhbhe_;
+  const HFRecHitCollection &mhf_;
   const CaloGeometry &caloGeometry_;
   const HcalTopology &hcalTopology_;
   const HcalChannelQuality &hcalChStatus_;

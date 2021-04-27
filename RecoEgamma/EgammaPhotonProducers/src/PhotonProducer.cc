@@ -66,7 +66,8 @@ private:
   edm::EDGetTokenT<reco::PhotonCoreCollection> photonCoreProducer_;
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
-  edm::EDGetTokenT<HBHERecHitCollection> hcalRecHits_;
+  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHits_;
+  edm::EDGetTokenT<HFRecHitCollection> hfRecHits_;
   edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
 
   //AA
@@ -116,7 +117,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
   barrelEcalHits_ = consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalHits"));
   endcapEcalHits_ = consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("endcapEcalHits"));
   vertexProducer_ = consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("primaryVertexProducer"));
-  hcalRecHits_ = consumes<HBHERecHitCollection>(config.getParameter<edm::InputTag>("hcalRecHits"));
+  hbheRecHits_ = consumes<HBHERecHitCollection>(config.getParameter<edm::InputTag>("hbheRecHits"));
+  hfRecHits_ = consumes<HFRecHitCollection>(config.getParameter<edm::InputTag>("hfRecHits"));
   hOverEConeSize_ = config.getParameter<double>("hOverEConeSize");
   highEt_ = config.getParameter<double>("highEt");
   // R9 value to decide converted/unconverted
@@ -157,21 +159,31 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
   if (cfgCone.hOverEConeSize > 0) {
     cfgCone.onlyBehindCluster = false;
     cfgCone.checkHcalStatus = false;
-    cfgCone.hcalRecHits = hcalRecHits_;
+
+    cfgCone.hbheRecHits = hbheRecHits_;
+    cfgCone.hfRecHits = hfRecHits_;
+
     cfgCone.eThresHB = config.getParameter<std::array<double, 4>>("recHitEThresholdHB");
     cfgCone.maxSeverityHB = config.getParameter<int>("maxHcalRecHitSeverity");
     cfgCone.eThresHE = config.getParameter<std::array<double, 7>>("recHitEThresholdHE");
     cfgCone.maxSeverityHE = cfgCone.maxSeverityHB;
+    cfgCone.eThresHF = config.getParameter<std::array<double, 7>>("recHitEThresholdHF");
+    cfgCone.maxSeverityHF = cfgCone.maxSeverityHB;
   }
 
   cfgBc.hOverEConeSize = 0.;
   cfgBc.onlyBehindCluster = true;
   cfgBc.checkHcalStatus = false;
-  cfgBc.hcalRecHits = hcalRecHits_;
+
+  cfgBc.hbheRecHits = hbheRecHits_;
+  cfgBc.hfRecHits = hfRecHits_;
+
   cfgBc.eThresHB = config.getParameter<std::array<double, 4>>("recHitEThresholdHB");
   cfgBc.maxSeverityHB = config.getParameter<int>("maxHcalRecHitSeverity");
   cfgBc.eThresHE = config.getParameter<std::array<double, 7>>("recHitEThresholdHE");
   cfgBc.maxSeverityHE = cfgBc.maxSeverityHB;
+  cfgBc.eThresHF = config.getParameter<std::array<double, 7>>("recHitEThresholdHF");
+  cfgBc.maxSeverityHF = cfgBc.maxSeverityHB;
 
   hcalHelperCone_ = std::make_unique<ElectronHcalHelper>(cfgCone, consumesCollector());
   hcalHelperBc_ = std::make_unique<ElectronHcalHelper>(cfgBc, consumesCollector());
@@ -441,8 +453,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.sigmaEtaEta = sigmaEtaEta;
     showerShape.sigmaIetaIeta = sigmaIetaIeta;
     for (int id = 0; id < 7; ++id) {
-      showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id) / scRef->energy();
-      showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id) / scRef->energy();
+      showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1) / scRef->energy();
+      showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1) / scRef->energy();
     }
     showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*scRef);
     newCandidate.setShowerShapeVariables(showerShape);
@@ -457,8 +469,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.sigmaEtaEta = full5x5_sigmaEtaEta;
     full5x5_showerShape.sigmaIetaIeta = full5x5_sigmaIetaIeta;
     for (int id = 0; id < 7; ++id) {
-      full5x5_showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id) / full5x5_e5x5;
-      full5x5_showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id) / full5x5_e5x5;
+      full5x5_showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*scRef, id + 1) / full5x5_e5x5;
+      full5x5_showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*scRef, id + 1) / full5x5_e5x5;
     }
     full5x5_showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*scRef);
     newCandidate.full5x5_setShowerShapeVariables(full5x5_showerShape);

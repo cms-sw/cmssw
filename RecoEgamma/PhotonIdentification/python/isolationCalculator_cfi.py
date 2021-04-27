@@ -7,8 +7,10 @@ isolationSumsCalculator = cms.PSet(
 
     barrelEcalRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB'),
     endcapEcalRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEE'),
-    HcalRecHitCollection = cms.InputTag('hbhereco'),
-    
+    HBHERecHitCollection = cms.InputTag('hbhereco'),
+    HFRecHitCollection = cms.InputTag('hfreco'),
+    maxHcalRecHitSeverity = cms.int32(9), # FIXME recheck thresholds
+
     # Photon will be marked as being near phi module boundary if
     #  it is closer than this.  Currently half a crystal.
     #  1 Ecal Crystal = 0.0174 radians = 1 degree
@@ -173,8 +175,6 @@ isolationSumsCalculator = cms.PSet(
     HcalDepth7RecHitInnerRadiusB_Endcap = cms.double(0.15),
     HcalDepth7RecHitOuterRadiusB_Endcap = cms.double(0.3),
     HcalDepth7RecHitThreshEB_Endcap     = cms.double(0.0),
-
-    maxHcalRecHitSeverity = cms.int32(9),
 
     #recHitFlagsToBeExcluded = cms.vstring(
     #    'kFaultyHardware',

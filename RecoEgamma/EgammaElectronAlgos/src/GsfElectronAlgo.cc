@@ -340,15 +340,11 @@ reco::GsfElectron::ShowerShape GsfElectronAlgo::calculateShowerShape(const reco:
   const float scale = full5x5 ? showerShape.e5x5 : theClus->energy();
 
   for (int id = 0; id < 7; ++id) {
-    showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*theClus, id) / scale;
-    showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*theClus, id) / scale;
+    showerShape.hcalOverEcal[id] = hcalHelperCone.hcalESum(*theClus, id + 1) / scale;
+    showerShape.hcalOverEcalBc[id] = hcalHelperBc.hcalESum(*theClus, id + 1) / scale;
   }
   showerShape.invalidHcal = !hcalHelperBc.hasActiveHcal(*theClus);
   showerShape.hcalTowersBehindClusters = hcalHelperBc.hcalTowersBehindClusters(*theClus);
-  std::cout << "GsfEleAlgo :: ntower behind cluster: " << showerShape.hcalTowersBehindClusters.size() << std::endl; 
-  for (uint ibc = 0; ibc < showerShape.hcalTowersBehindClusters.size(); ++ibc)
-    std::cout << "GsfEleAlgo :: calotower " << ibc << " detid ieta iphi: " << showerShape.hcalTowersBehindClusters[ibc] 
-              << " " << showerShape.hcalTowersBehindClusters[ibc].ieta() << " " << showerShape.hcalTowersBehindClusters[ibc].iphi() << std::endl;
 
   // extra shower shapes
   const float see_by_spp = showerShape.sigmaIetaIeta * showerShape.sigmaIphiIphi;
@@ -422,7 +418,8 @@ void GsfElectronAlgo::checkSetup(const edm::EventSetup& es) {
 GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                                                        CaloGeometry const& caloGeometry,
                                                        EcalSeverityLevelAlgo const& ecalSeveretyLevelAlgo) {
-  auto const& hcalRecHits = event.get(cfg_.tokens.hcalRecHitsTag);
+  auto const& hbheRecHits = event.get(cfg_.tokens.hbheRecHitsTag);
+  auto const& hfRecHits = event.get(cfg_.tokens.hfRecHitsTag);
 
   // Isolation algos
   float egHcalIsoConeSizeOutSmall = 0.3, egHcalIsoConeSizeOutLarge = 0.4;
@@ -461,7 +458,11 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                           std::array<double, 7>{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin,
                                 egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
                           hcalHelperCone_.maxSeverityHE(),
-                          hcalRecHits, caloGeometry,
+                          std::array<double, 7>{{0., 0., 0., 0., 0., 0., 0.}},
+                          std::array<double, 7>{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin,
+                                egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+                          hcalHelperCone_.maxSeverityHF(),
+                          hbheRecHits, hfRecHits, caloGeometry,
                           *hcalHelperCone_.hcalTopology(), *hcalHelperCone_.hcalChannelQuality(),
                           *hcalHelperCone_.hcalSevLvlComputer(), *hcalHelperCone_.towerMap()),
       .hadIsolation04 =
@@ -474,7 +475,11 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                           std::array<double, 7>{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin,
                                 egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
                           hcalHelperCone_.maxSeverityHE(),
-                          hcalRecHits, caloGeometry,
+                          std::array<double, 7>{{0., 0., 0., 0., 0., 0., 0.}},
+                          std::array<double, 7>{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin,
+                                egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+                          hcalHelperCone_.maxSeverityHF(),
+                          hbheRecHits, hfRecHits, caloGeometry,
                           *hcalHelperCone_.hcalTopology(), *hcalHelperCone_.hcalChannelQuality(),
                           *hcalHelperCone_.hcalSevLvlComputer(), *hcalHelperCone_.towerMap()),
       .hadIsolation03Bc =
@@ -487,7 +492,11 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                           std::array<double, 7>{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin,
                                 egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
                           hcalHelperCone_.maxSeverityHE(),
-                          hcalRecHits, caloGeometry,
+                          std::array<double, 7>{{0., 0., 0., 0., 0., 0., 0.}},
+                          std::array<double, 7>{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin,
+                                egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+                          hcalHelperCone_.maxSeverityHF(),
+                          hbheRecHits, hfRecHits, caloGeometry,
                           *hcalHelperCone_.hcalTopology(), *hcalHelperCone_.hcalChannelQuality(),
                           *hcalHelperCone_.hcalSevLvlComputer(), *hcalHelperCone_.towerMap()),
       .hadIsolation04Bc =
@@ -500,7 +509,11 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event,
                           std::array<double, 7>{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin,
                                 egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
                           hcalHelperCone_.maxSeverityHE(),
-                          hcalRecHits, caloGeometry,
+                          std::array<double, 7>{{0., 0., 0., 0., 0., 0., 0.}},
+                          std::array<double, 7>{{egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin,
+                                egHcalIsoPtMin, egHcalIsoPtMin, egHcalIsoPtMin}},
+                          hcalHelperCone_.maxSeverityHF(),
+                          hbheRecHits, hfRecHits, caloGeometry,
                           *hcalHelperCone_.hcalTopology(), *hcalHelperCone_.hcalChannelQuality(),
                           *hcalHelperCone_.hcalSevLvlComputer(), *hcalHelperCone_.towerMap()),
 
@@ -626,8 +639,6 @@ reco::GsfElectronCollection GsfElectronAlgo::completeElectrons(edm::Event const&
       gsfTrackTable = egamma::conv::TrackTable(*eventData.originalGsfTracks);
     }
 
-    std::cout << "GsfEleAlgo :: run lumi event " << event.eventAuxiliary().run() << " " << event.eventAuxiliary().luminosityBlock()
-              << " " << event.eventAuxiliary().event() << std::endl; 
     createElectron(electrons,
                    electronData,
                    eventData,
@@ -1067,11 +1078,11 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
 
   if (!EcalTools::isHGCalDet((DetId::Detector)region)) {
     for (int id = 0; id < 7; ++id) {
-      dr03.hcalRecHitSumEt[id]   = eventData.hadIsolation03.getHcalEtSum(&ele, id);
-      dr03.hcalRecHitSumEtBc[id] = eventData.hadIsolation03Bc.getHcalEtSumBc(&ele, id);
+      dr03.hcalRecHitSumEt[id]   = eventData.hadIsolation03.getHcalEtSum(&ele, id + 1);
+      dr03.hcalRecHitSumEtBc[id] = eventData.hadIsolation03Bc.getHcalEtSumBc(&ele, id + 1);
 
-      dr04.hcalRecHitSumEt[id]   = eventData.hadIsolation04.getHcalEtSum(&ele, id);
-      dr04.hcalRecHitSumEtBc[id] = eventData.hadIsolation04Bc.getHcalEtSumBc(&ele, id);
+      dr04.hcalRecHitSumEt[id]   = eventData.hadIsolation04.getHcalEtSum(&ele, id + 1);
+      dr04.hcalRecHitSumEtBc[id] = eventData.hadIsolation04Bc.getHcalEtSumBc(&ele, id + 1);
     }
 
     dr03.ecalRecHitSumEt = eventData.ecalBarrelIsol03.getEtSum(&ele);
