@@ -42,7 +42,8 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
   endcapecalCollection_ =
       iC.consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
 
-  hcalRecHitsTag_ = iC.consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("HcalRecHitCollection"));
+  hbheRecHitsTag_ = iC.consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("HBHERecHitCollection"));
+  hfRecHitsTag_ = iC.consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("HFRecHitCollection"));
 
   caloGeometryToken_ = decltype(caloGeometryToken_){iC.esConsumes()};
   hcalTopologyToken_ = decltype(hcalTopologyToken_){iC.esConsumes()};
@@ -242,7 +243,8 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   phofid.isEEDeeGap = isEEDeeGap;
   phofid.isEBEEGap = isEBEEGap;
 
-  auto const& hcalRecHits = e.get(hcalRecHitsTag_);
+  auto const& hbheRecHits = e.get(hbheRecHitsTag_);
+  auto const& hfRecHits = e.get(hfRecHitsTag_);
   auto const& caloGeometry = es.getData(caloGeometryToken_);
   auto const& hcalTopology = &es.getData(hcalTopologyToken_);
   auto const& hcalChannelQuality = &es.getData(hcalChannelQualityToken_);
@@ -463,28 +465,28 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   for (size_t id = 0; id < 7; ++id) {
     phoisolR1.hcalRecHitSumEt[id] = calculateHcalRecHitIso<false>(pho, caloGeometry,
                                                                   *hcalTopology, *hcalChannelQuality, *hcalSevLvlComputer,
-                                                                  towerMap, hcalRecHits,
+                                                                  towerMap, hbheRecHits, hfRecHits,
                                                                   photonHcalRecHitConeOuterRadiusA_[id],
                                                                   photonHcalRecHitConeInnerRadiusA_[id],
                                                                   photonHcalRecHitThreshEA_[id], maxHcalSeverity_, id + 1);
 
     phoisolR2.hcalRecHitSumEt[id] = calculateHcalRecHitIso<false>(pho, caloGeometry,
                                                                   *hcalTopology, *hcalChannelQuality, *hcalSevLvlComputer,
-                                                                  towerMap, hcalRecHits,
+                                                                  towerMap, hbheRecHits, hfRecHits,
                                                                   photonHcalRecHitConeOuterRadiusB_[id],
                                                                   photonHcalRecHitConeInnerRadiusB_[id],
                                                                   photonHcalRecHitThreshEB_[id], maxHcalSeverity_, id + 1);
 
     phoisolR1.hcalRecHitSumEtBc[id] = calculateHcalRecHitIso<true>(pho, caloGeometry,
                                                                    *hcalTopology, *hcalChannelQuality, *hcalSevLvlComputer,
-                                                                   towerMap, hcalRecHits,
+                                                                   towerMap, hbheRecHits, hfRecHits,
                                                                    photonHcalRecHitConeOuterRadiusA_[id],
                                                                    0.,
                                                                    photonHcalRecHitThreshEA_[id], maxHcalSeverity_, id + 1);
 
     phoisolR2.hcalRecHitSumEtBc[id] = calculateHcalRecHitIso<true>(pho, caloGeometry,
                                                                    *hcalTopology, *hcalChannelQuality, *hcalSevLvlComputer,
-                                                                   towerMap, hcalRecHits,
+                                                                   towerMap, hbheRecHits, hfRecHits,
                                                                    photonHcalRecHitConeOuterRadiusB_[id],
                                                                    0.,
                                                                    photonHcalRecHitThreshEB_[id], maxHcalSeverity_, id + 1);
@@ -632,7 +634,8 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                                          const HcalChannelQuality &hcalChStatus,
                                                          const HcalSeverityLevelComputer &hcalSevLvlComputer,
                                                          const CaloTowerConstituentsMap &towerMap,
-                                                         const HBHERecHitCollection &hcalRecHits,
+                                                         const HBHERecHitCollection &hbheRecHits,
+                                                         const HFRecHitCollection &hfRecHits,
                                                          double RCone,
                                                          double RConeInner,
                                                          double eMin,
@@ -650,7 +653,10 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                          std::array<double, 7>{{eMin, eMin, eMin, eMin, eMin, eMin, eMin}},
                                          e07,
                                          maxSeverity,
-                                         hcalRecHits, geometry, hcalTopology, hcalChStatus, hcalSevLvlComputer, towerMap);
+                                         std::array<double, 7>{{eMin, eMin, eMin, eMin, eMin, eMin, eMin}},
+                                         e07,
+                                         maxSeverity,
+                                         hbheRecHits, hfRecHits, geometry, hcalTopology, hcalChStatus, hcalSevLvlComputer, towerMap);
 
       return hcaliso.getHcalEtSumBc(photon, depth);
     }
@@ -663,7 +669,10 @@ double PhotonIsolationCalculator::calculateHcalRecHitIso(const reco::Photon* pho
                                          std::array<double, 7>{{eMin, eMin, eMin, eMin, eMin, eMin, eMin}},
                                          e07,
                                          maxSeverity,
-                                         hcalRecHits, geometry, hcalTopology, hcalChStatus, hcalSevLvlComputer, towerMap);
+                                         std::array<double, 7>{{eMin, eMin, eMin, eMin, eMin, eMin, eMin}},
+                                         e07,
+                                         maxSeverity,
+                                         hbheRecHits, hfRecHits, geometry, hcalTopology, hcalChStatus, hcalSevLvlComputer, towerMap);
 
       return hcaliso.getHcalEtSum(photon, depth);
   }

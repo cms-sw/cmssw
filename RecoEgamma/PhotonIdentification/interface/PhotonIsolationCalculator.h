@@ -82,7 +82,8 @@ private:
                                 const HcalChannelQuality &hcalChStatus,
                                 const HcalSeverityLevelComputer &hcalSevLvlComputer,
                                 const CaloTowerConstituentsMap &towerMap,
-                                const HBHERecHitCollection &hcalRecHits,
+                                const HBHERecHitCollection &hbheRecHits,
+                                const HFRecHitCollection &hfRecHits,
                                 double RCone,
                                 double RConeInner,
                                 double eMin,
@@ -92,7 +93,8 @@ private:
 private:
   edm::EDGetToken barrelecalCollection_;
   edm::EDGetToken endcapecalCollection_;
-  edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitsTag_;
+  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitsTag_;
+  edm::EDGetTokenT<HFRecHitCollection> hfRecHitsTag_;
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalTopologyToken_;
