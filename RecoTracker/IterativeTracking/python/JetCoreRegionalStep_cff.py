@@ -9,8 +9,8 @@ from RecoTracker.IterativeTracking.dnnQualityCuts import qualityCutDictionary
 # run only if there are high pT jets
 jetsForCoreTracking = cms.EDFilter('CandPtrSelector', src = cms.InputTag('ak4CaloJetsForTrk'), cut = cms.string('pt > 100 && abs(eta) < 2.5'))
 
-jetsForCoreTrackingBarrel = cms.EDFilter('CandPtrSelector', src = cms.InputTag('ak4CaloJetsForTrk'), cut = cms.string('pt > 100 && abs(eta) < 2.5'))
-jetsForCoreTrackingEndcap = cms.EDFilter('CandPtrSelector', src = cms.InputTag('ak4CaloJetsForTrk'), cut = cms.string('pt > 100 && abs(eta) > 1.4 && abs(eta) < 2.5'))
+jetsForCoreTrackingBarrel = cms.EDFilter('CandPtrSelector', src = cms.InputTag('ak4CaloJetsForTrk'), cut = cms.string('pt > 100 && abs(eta) < 2.5'), filter = cms.bool(False))
+jetsForCoreTrackingEndcap = cms.EDFilter('CandPtrSelector', src = cms.InputTag('ak4CaloJetsForTrk'), cut = cms.string('pt > 100 && abs(eta) > 1.4 && abs(eta) < 2.5'), filter = cms.bool(False))
 
 # care only at tracks from main PV
 firstStepGoodPrimaryVertices = cms.EDFilter('PrimaryVertexObjectFilter',
@@ -121,7 +121,8 @@ jetCoreRegionalStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone
 )
 import RecoTracker.TkSeedGenerator.deepCoreSeedGenerator_cfi
 jetCoreRegionalStepBarrelSeeds = RecoTracker.TkSeedGenerator.deepCoreSeedGenerator_cfi.deepCoreSeedGenerator.clone(#to run MCtruthSeedGenerator clone here from Validation.RecoTrack
-    vertices="firstStepPrimaryVertices" 
+    vertices = "firstStepPrimaryVertices",
+    cores    = "jetsForCoreTrackingBarrel"
 )
 
 jetCoreRegionalStepEndcapSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
@@ -417,7 +418,8 @@ JetCoreRegionalStepBarrelTask = cms.Task(jetsForCoreTrackingBarrel,
                                          jetCoreRegionalStepBarrelTracks,
                                          #                                   jetCoreRegionalStepClassifier1,jetCoreRegionalStepClassifier2,
                                          jetCoreRegionalStepBarrel)
-JetCoreRegionalBarrelStep = cms.Sequence(JetCoreRegionalStepBarrelTask)
+#JetCoreRegionalBarrelStep = cms.Sequence(JetCoreRegionalStepBarrelTask)
+
 JetCoreRegionalStepEndcapTask = cms.Task(jetsForCoreTrackingEndcap,
                                          firstStepGoodPrimaryVertices,
                                          #jetCoreRegionalStepClusters,
@@ -429,12 +431,43 @@ JetCoreRegionalStepEndcapTask = cms.Task(jetsForCoreTrackingEndcap,
                                          jetCoreRegionalStepEndcapTracks,
                                          #                                   jetCoreRegionalStepClassifier1,jetCoreRegionalStepClassifier2,
                                          jetCoreRegionalStepEndcap)
-JetCoreRegionalEndcapStep = cms.Sequence(JetCoreRegionalStepEndcapTask)
+#JetCoreRegionalEndcapStep = cms.Sequence(JetCoreRegionalStepEndcapTask)
 
 
-allJetCoreRegionalStep = cms.Sequence(JetCoreRegionalBarrelStep+JetCoreRegionalEndcapStep)
 
-seedingDeepCore.toReplaceWith(JetCoreRegionalStep, allJetCoreRegionalStep)
+from RecoTracker.FinalTrackSelectors.TrackCollectionMerger_cfi import *
+seedingDeepCore.toReplaceWith(jetCoreRegionalStepTracks, TrackCollectionMerger.clone(
+    trackProducers   = ["jetCoreRegionalStepBarrelTracks",
+                        "jetCoreRegionalStepEndcapTracks",],
+    inputClassifiers = ["jetCoreRegionalStepBarrel",
+                        "jetCoreRegionalStepEndcap",],
+    foundHitBonus    = 100.0,
+    lostHitPenalty   = 1.0
+))
+
+seedingDeepCore.toReplaceWith(jetCoreRegionalStep, jetCoreRegionalStepTracks.clone()) #(*)
+
+## rename jetCoreRegionalStep to e.g. jetCoreRegionalStepImpl
+## alias the MVAValues and QualityMasks products from jetCoreRegionalStepImpl to jetCoreRegionalStep
+#jetCoreRegionalStep = cms.EDAlias(
+#    jetCoreRegionalStepImpl = cms.VPSet(
+#        cms.PSet(type = cms.string("floats")),
+#        cms.PSet(type = cms.string("uchars")),
+#    )
+#)
+
+## change the alias-from to point to jetCoreRegionalStepTracks
+#seedingDeepCore.toModify(jetCoreRegionalStep,
+#    jetCoreRegionalStepImpl = None,
+#    jetCoreRegionalStepTracks = jetCoreRegionalStep.jetCoreRegionalStepImpl.copy()
+#)
+#
+
+seedingDeepCore.toReplaceWith(JetCoreRegionalStepTask, cms.Task(
+    JetCoreRegionalStepBarrelTask,
+    JetCoreRegionalStepEndcapTask,
+    cms.Task(jetCoreRegionalStepTracks,jetCoreRegionalStep)
+))
 
 fastSim.toReplaceWith(JetCoreRegionalStepTask, 
                       cms.Task(jetCoreRegionalStepTracks,
