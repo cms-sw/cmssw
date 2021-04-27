@@ -172,7 +172,7 @@ if __name__ == '__main__':
                       )
 
     parser.add_option('-l','--list',
-                      help='Coma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
+                      help='Comma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
                       dest='testList',
                       default=None
                      )
@@ -183,7 +183,7 @@ if __name__ == '__main__':
                       )
 
     parser.add_option('-i','--useInput',
-                      help='Use recyling where available. Either all, or a coma separated list of wf number.',
+                      help='Use recyling where available. Either all, or a comma separated list of wf number.',
                       dest='useInput',
                       default=None
                       )
@@ -208,7 +208,7 @@ if __name__ == '__main__':
                       )
 
     parser.add_option('--fromScratch',
-                      help='Coma separated list of wf to be run without recycling. all is not supported as default.',
+                      help='Comma separated list of wf to be run without recycling. all is not supported as default.',
                       dest='fromScratch',
                       default=None
                        )
@@ -239,7 +239,7 @@ if __name__ == '__main__':
                       dest='wmoptions')
 
     parser.add_option('--keep',
-                      help='allow to specify for which coma separated steps the output is needed',
+                      help='allow to specify for which comma separated steps the output is needed',
                       default=None)
 
     parser.add_option('--label',
@@ -253,7 +253,7 @@ if __name__ == '__main__':
                       )
 
     parser.add_option('--apply',
-                      help='allow to use the --command only for 1 coma separeated',
+                      help='allow to use the --command only for 1 comma separeated',
                       dest='apply',
                       default=None)
 
@@ -343,7 +343,7 @@ if __name__ == '__main__':
                       default='8000')
 
     parser.add_option('--CUDACapabilities',
-                      help='to specify CUDA capabilities. Default = 7.5 (for RequiresGPU = required).',
+                      help='to specify CUDA capabilities. Default = 7.5 (for RequiresGPU = required). Use comma to identify various CUDACapabilities',
                       dest='CUDACapabilities',
                       default='7.5')
 
