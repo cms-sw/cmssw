@@ -41,8 +41,7 @@ namespace fwlite {
     for (auto const& fileName : iFileNames) {
       TFile* tfilePtr = TFile::Open(fileName.c_str());
       if (nullptr == tfilePtr) {
-        throw cms::Exception("FileOpenFailed")
-            << "TFile::Open of " << fileName << " failed";
+        throw cms::Exception("FileOpenFailed") << "TFile::Open of " << fileName << " failed";
       }
       file_ = std::shared_ptr<TFile>(tfilePtr);
       gROOT->GetListOfFiles()->Remove(tfilePtr);
