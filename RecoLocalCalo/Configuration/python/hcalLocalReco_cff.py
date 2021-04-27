@@ -34,10 +34,12 @@ _phase1_hcalLocalRecoTask = hcalLocalRecoTask.copy()
 _phase1_hcalLocalRecoTask.add(hfprereco)
 
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
-run2_HF_2017.toReplaceWith( hcalLocalRecoTask, _phase1_hcalLocalRecoTask )
-run2_HF_2017.toReplaceWith( hfreco, _phase1_hfreco )
+run2_HF_2017.toReplaceWith(hcalLocalRecoTask, _phase1_hcalLocalRecoTask)
+run2_HF_2017.toReplaceWith(hfreco, _phase1_hfreco)
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toReplaceWith(hbheprereco.cpu, _phase1_hbheprereco)
+run2_HCAL_2017.toModify(hbheprereco,
+    cpu = _phase1_hbheprereco.clone()
+)
 
 _plan1_hcalLocalRecoTask = _phase1_hcalLocalRecoTask.copy()
 _plan1_hcalLocalRecoTask.add(hbheplan1)

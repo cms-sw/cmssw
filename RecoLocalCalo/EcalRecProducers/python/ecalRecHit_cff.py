@@ -5,7 +5,7 @@ from Configuration.ProcessModifiers.gpu_cff import gpu
 # ECAL calibrated rechit reconstruction on CPU
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import ecalRecHit as _ecalRecHit
 ecalRecHit = SwitchProducerCUDA(
-    cpu = _ecalRecHit
+    cpu = _ecalRecHit.clone()
 )
 
 ecalCalibratedRecHitTask = cms.Task(
