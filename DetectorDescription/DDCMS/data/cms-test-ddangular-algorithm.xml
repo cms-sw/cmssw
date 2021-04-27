@@ -20,6 +20,7 @@
   
   <open_geometry/>
   <close_geometry/>
+  <xml_geometry_payload/>
 
   <ConstantsSection label="" eval="true">
     <Constant name="world_x" value="5*m"/>

@@ -7,15 +7,16 @@
     <debug_includes/>
     <debug_volumes/>
     <debug_constants/>
-    <debug_namespaces/-->
+    <debug_namespaces/
     <debug_placements/>
-    <!--debug_algorithms/>
+    <debug_algorithms/>
     <debug_materials/>
     <debug_visattr/-->
   </debug>
   
   <open_geometry/>
   <!--close_geometry/-->
+  <xml_geometry_payload/>
 
   <ConstantsSection label="" eval="true">
     <Constant name="world_x" value="5*m"/>

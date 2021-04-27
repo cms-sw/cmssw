@@ -12,6 +12,7 @@
 #include "XML/Utilities.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
@@ -35,6 +36,7 @@ using namespace std;
 using namespace dd4hep;
 using namespace cms;
 using namespace cms_units::operators;
+using namespace geant_units::operators;
 
 namespace dd4hep {
 
@@ -469,6 +471,13 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
     TGeoElementTable* tab = mgr.GetElementTable();
     int nElem = tab->GetNelements();
 
+    if (ns.context()->xml_geometry_payload) {
+      std::cout << "<ElementaryMaterial name=\"" << matname << "\""
+                << " density=\"" << std::scientific << std::setprecision(5) << density << "*mg/cm3\""
+                << " atomicWeight=\"" << std::fixed << atomicWeight << "*g/mole\"" << std::setprecision(0) << std::fixed
+                << " atomicNumber=\"" << atomicNumber << "\"/>" << std::endl;
+    }
+
 #ifdef EDM_ML_DEBUG
 
     printout(ns.context()->debug_materials ? ALWAYS : DEBUG, "DD4CMS", "+++ Element table size = %d", nElem);
@@ -582,6 +591,13 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
   if (nullptr == mat) {
     const char* matname = nam.c_str();
     double density = xmat.attr<double>(DD_CMU(density)) / (dd4hep::g / dd4hep::cm3);
+    if (ns.context()->xml_geometry_payload) {
+      std::cout << "<CompositeMaterial name=\"" << nam << "\""
+                << " density=\"" << std::scientific << std::setprecision(5) << convertUnitsTo(1._mg_per_cm3, density)
+                << "*mg/cm3\""
+                << " method=\"mixture by weight\">" << std::endl;
+    }
+
     xml_coll_t composites(xmat, DD_CMU(MaterialFraction));
     TGeoMixture* mix = new TGeoMixture(nam.c_str(), composites.size(), density);
 
@@ -601,6 +617,12 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
       xml_dim_t xfrac_mat(xfrac.child(DD_CMU(rMaterial)));
       double fraction = xfrac.fraction();
       string fracname = ns.realName(xfrac_mat.nameStr());
+      if (ns.context()->xml_geometry_payload) {
+        std::cout << "<MaterialFraction fraction=\"" << std::fixed << std::setprecision(9) << fraction << "\">"
+                  << std::endl;
+        std::cout << "<rMaterial name=\"" << fracname << "\"/>" << std::endl;
+        std::cout << "</MaterialFraction>" << std::endl;
+      }
 
       TGeoMaterial* frac_mat = mgr.GetMaterial(fracname.c_str());
       if (frac_mat == nullptr)  // Try to find it within this namespace
@@ -633,6 +655,9 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
       medium = new TGeoMedium(matname, unique_mat_id, mix);
       medium->SetTitle("material");
       medium->SetUniqueID(unique_mat_id);
+    }
+    if (ns.context()->xml_geometry_payload) {
+      std::cout << "</CompositeMaterial>" << std::endl;
     }
   }
 }
@@ -834,6 +859,11 @@ void Converter<DDLTransform3D>::operator()(xml_h element) const {
     double y = ns.attr<double>(translation, _U(y));
     double z = ns.attr<double>(translation, _U(z));
     pos = Position(x, y, z);
+    if (ns.context()->xml_geometry_payload) {
+      std::cout << "<Translation x=\"" << x << "*mm\""
+                << " y=\"" << y << "*mm\""
+                << " z=\"" << z << "*mm\"/>" << std::endl;
+    }
   }
   if (rotation.ptr()) {
     double x = ns.attr<double>(rotation, _U(x));
@@ -843,6 +873,9 @@ void Converter<DDLTransform3D>::operator()(xml_h element) const {
   } else if (refRotation.ptr()) {
     string rotName = ns.prepend(refRotation.nameStr());
     rot = ns.rotation(rotName);
+    if (ns.context()->xml_geometry_payload) {
+      std::cout << "<rRotation name=\"" << rotName << "\"/>" << std::endl;
+    }
   } else if (refReflectionRotation.ptr()) {
     string rotName = ns.prepend(refReflectionRotation.nameStr());
     rot = ns.rotation(rotName);
@@ -897,6 +930,11 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
 
 #endif
 
+  if (ns.context()->xml_geometry_payload) {
+    std::cout << "<PosPart copyNumber=\"" << copy << "\">" << std::endl;
+    std::cout << "<rParent name=\"" << parentName << "\"/>" << std::endl;
+    std::cout << "<rChild name=\"" << childName << "\"/>" << std::endl;
+  }
   PlacedVolume pv;
   if (child.isValid()) {
     Transform3D transform;
@@ -947,6 +985,9 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
              parent.name(),
              childName.c_str(),
              yes_no(child.isValid()));
+  }
+  if (ns.context()->xml_geometry_payload) {
+    std::cout << "</PosPart>" << std::endl;
   }
 }
 
@@ -2068,6 +2109,9 @@ static long load_dddefinition(Detector& det, xml_h element) {
     bool open_geometry = dddef.hasChild(DD_CMU(open_geometry)) ? dddef.child(DD_CMU(open_geometry)) : true;
     bool close_geometry = dddef.hasChild(DD_CMU(close_geometry)) ? dddef.hasChild(DD_CMU(close_geometry)) : true;
 
+    // if (dddef.hasChild(DD_CMU(xml_geometry_payload)))
+    //   context.xml_geometry_payload = true;
+
     xml_coll_t(dddef, _U(debug)).for_each(Converter<debug>(det, &context));
 
     // Here we define the order how XML elements are processed.
@@ -2087,6 +2131,8 @@ static long load_dddefinition(Detector& det, xml_h element) {
       xml_coll_t(dddef, DD_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det, &context));
 
       xml_coll_t(dddef, DD_CMU(IncludeSection)).for_each(DD_CMU(Include), Converter<include_load>(det, &context, &res));
+      if (dddef.hasChild(DD_CMU(xml_geometry_payload)))
+        context.xml_geometry_payload = true;
 
       for (xml::Document d : res.includes) {
         print_doc((doc = d).root());
@@ -2115,6 +2161,11 @@ static long load_dddefinition(Detector& det, xml_h element) {
         }
       }
       // Now we can process the include files one by one.....
+      if (ns.context()->xml_geometry_payload) {
+        std::cout << "<MaterialSection label=\""
+                  << "FIXME: file name!"
+                  << "\">" << std::endl;
+      }
       for (xml::Document d : res.includes) {
         print_doc((doc = d).root());
         xml_coll_t(d.root(), DD_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det, &context));
@@ -2164,6 +2215,10 @@ static long load_dddefinition(Detector& det, xml_h element) {
           // materials left after this pass
         }
       }
+      if (ns.context()->xml_geometry_payload) {
+        std::cout << "</MaterialSection>" << std::endl;
+      }
+
       if (open_geometry) {
         det.init();
         ns.addVolume(det.worldVolume());
@@ -2184,9 +2239,17 @@ static long load_dddefinition(Detector& det, xml_h element) {
         print_doc((doc = d).root());
         xml_coll_t(d.root(), DD_CMU(Algorithm)).for_each(Converter<DDLAlgorithm>(det, &context));
       }
+      if (ns.context()->xml_geometry_payload) {
+        std::cout << "<PosPartSection label=\""
+                  << "FIXME: file name!"
+                  << "\">" << std::endl;
+      }
       for (xml::Document d : res.includes) {
         print_doc((doc = d).root());
         xml_coll_t(d.root(), DD_CMU(PosPartSection)).for_each(Converter<PosPartSection>(det, &context));
+      }
+      if (ns.context()->xml_geometry_payload) {
+        std::cout << "</PosPartSection>" << std::endl;
       }
       for (xml::Document d : res.includes) {
         print_doc((doc = d).root());

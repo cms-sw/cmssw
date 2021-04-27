@@ -64,6 +64,7 @@ namespace cms {
     bool debug_namespaces = false;
     bool debug_algorithms = false;
     bool debug_specpars = false;
+    bool xml_geometry_payload = false;
 
     dd4hep::Detector& description;
 

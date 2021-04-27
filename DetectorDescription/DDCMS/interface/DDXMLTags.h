@@ -174,6 +174,7 @@ namespace cms {
   UNICODE(close_geometry);
   UNICODE(IncludeSection);
   UNICODE(Include);
+  UNICODE(xml_geometry_payload);
 
 }  // namespace cms
 
