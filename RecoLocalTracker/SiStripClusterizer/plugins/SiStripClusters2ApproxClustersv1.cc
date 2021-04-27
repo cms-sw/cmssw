@@ -13,8 +13,7 @@ SiStripClusters2ApproxClustersv1::SiStripClusters2ApproxClustersv1(const edm::Pa
 void SiStripClusters2ApproxClustersv1::produce(edm::Event& e, edm::EventSetup const&){
   std::unique_ptr<edmNew::DetSetVector< SiStripApproximateClusterv1 > > result(new edmNew::DetSetVector< SiStripApproximateClusterv1 > );
 
-  edm::Handle<edmNew::DetSetVector< SiStripCluster >> clusterCollection;
-  e.getByToken(clusterToken, clusterCollection);
+  edm::Handle<edmNew::DetSetVector< SiStripCluster >> clusterCollection = e.getHandle(clusterToken_)
 
   uint32_t minID = 470444276;
   int maxFirst = -1;
@@ -47,5 +46,4 @@ void SiStripClusters2ApproxClustersv1::produce(edm::Event& e, edm::EventSetup co
 
   e.put(std::move(result));
 }
-
 
