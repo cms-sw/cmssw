@@ -112,7 +112,7 @@ void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("CSCUseReducedWireTimeWindow", false);
   desc.add<int>("CSCWireTimeWindowLow", 0);
   desc.add<int>("CSCWireTimeWindowHigh", 15);
-  descriptions.add("configWireTimeWindow", desc);
+  descriptions.add("cscRecHitDProducer", desc);
 }
 
 //define this as a plug-in

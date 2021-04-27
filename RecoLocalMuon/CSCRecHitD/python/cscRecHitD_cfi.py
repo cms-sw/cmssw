@@ -4,15 +4,13 @@ import FWCore.ParameterSet.Config as cms
 
 # parameters for CSC rechit building
 from RecoLocalMuon.CSCRecHitD.cscRecHitD_cff import *
-import RecoLocalMuon.CSCRecHitD.configWireTimeWindow_cfi as _mod
+import RecoLocalMuon.CSCRecHitD.cscRecHitDProducer_cfi as _mod
 
-csc2DRecHits = _mod.configWireTimeWindow.clone(
+csc2DRecHits = _mod.cscRecHitDProducer.clone(
     #
     #    Parameters for coordinate and uncertainty calculations
     #    Data and MC parameters are (still) different
     #    Needs tuning
-    #
-    cscRecHitDParameters,
     #
     #    Parameters for strip hits
     #
@@ -66,7 +64,9 @@ csc2DRecHits = _mod.configWireTimeWindow.clone(
     #  To be set once wire digis have proper timing info:
     CSCstripWireDeltaTime = 8,
     # to be deleted
-    CSCStripClusterSize = 3
+    CSCStripClusterSize = 3,
+    #
+    **cscRecHitDParameters
 )
 
 ##
