@@ -1,5 +1,5 @@
-#ifndef PixelDataFormatter_H
-#define PixelDataFormatter_H
+#ifndef EventFilter_SiPixelRawToDigi_interface_PixelDataFormatter_h
+#define EventFilter_SiPixelRawToDigi_interface_PixelDataFormatter_h
 /** \class PixelDataFormatter
  *
  *  Transforms Pixel raw data of a given  FED to orca digi
@@ -130,4 +130,4 @@ private:
   cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int fedId, int errorType, const Word32& word) const;
 };
 
-#endif
+#endif  // EventFilter_SiPixelRawToDigi_interface_PixelDataFormatter_h

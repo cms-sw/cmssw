@@ -1,5 +1,5 @@
-#ifndef ErrorChecker_H
-#define ErrorChecker_H
+#ifndef EventFilter_SiPixelRawToDigi_interface_ErrorChecker_h
+#define EventFilter_SiPixelRawToDigi_interface_ErrorChecker_h
 /** \class ErrorChecker
  *
  *  
@@ -29,4 +29,4 @@ private:
   cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const override;
 };
 
-#endif
+#endif  // EventFilter_SiPixelRawToDigi_interface_ErrorChecker_h
