@@ -103,7 +103,6 @@ void SiPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<bool>("UsePilotBlade", false)->setComment("##  Use pilot blades");
   desc.add<bool>("UsePhase1", false)->setComment("##  Use phase1");
   desc.add<std::string>("CablingMapLabel", "")->setComment("CablingMap label");  //Tav
-  desc.addOptional<bool>("CheckPixelOrder");  // unused option, kept for back-compatibility
   descriptions.add("siPixelRawToDigi", desc);
 }
 
