@@ -70,9 +70,12 @@ class MatrixInjector(object):
         ####################################
         # require
         self.RequiresGPU = opt.RequiresGPU
-        if self.RequiresGPU not in (0,1,2):
-            print('RequiresGPU should be 0,1,2. Now, reset to 0.')
-            self.RequiresGPU = 0 #reset if number is not 0,1,2 
+        if self.RequiresGPU not in ('forbidden','optional','required'):
+            print('RequiresGPU must be forbidden, optional, required. Now, set to forbidden.')
+            self.RequiresGPU = 'forbidden'
+        if self.RequiresGPU == 'optional':
+            print('Optional GPU is turned off for RelVals. Now, changing it to forbidden')
+            self.RequiresGPU = 'forbidden'
         self.GPUMemory = opt.GPUMemory
         self.CUDACapabilities = opt.CUDACapabilities.split(',')
         self.CUDARuntime = opt.CUDARuntime
@@ -171,7 +174,8 @@ class MatrixInjector(object):
             "nowmIO": {},
             "Multicore" : opt.nThreads,                  # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "EventStreams": self.numberOfStreams,
-            "KeepOutput" : False
+            "KeepOutput" : False,
+            "GPUParams": None
             }
         self.defaultInput={
             "TaskName" : "DigiHLT",                                      #Task Name
@@ -183,7 +187,8 @@ class MatrixInjector(object):
             "nowmIO": {},
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "EventStreams": self.numberOfStreams,
-            "KeepOutput" : False
+            "KeepOutput" : False,
+            "GPUParams": None
             }
         self.defaultTask={
             "TaskName" : None,                                 #Task Name
@@ -197,8 +202,8 @@ class MatrixInjector(object):
             "Multicore" : opt.nThreads,                       # this is the per-taskchain Multicore; it's the default assigned to a task if it has no value specified 
             "EventStreams": self.numberOfStreams,
             "KeepOutput" : False,
-            "RequiresGPU" : 0,
-            "GPUParams": {None}
+            "RequiresGPU" : None,
+            "GPUParams": None
             }
         self.defaultGPUParams={
             "GPUMemory": self.GPUMemory,
@@ -404,7 +409,6 @@ class MatrixInjector(object):
                                     thisLabel+='_FastSim'
                                 if 'lhe' in s[2][index] in s[2][index]:
                                     chainDict['nowmTasklist'][-1]['LheInputFiles'] =True
-
                             elif nextHasDSInput:
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultInput))
                                 try:
@@ -434,6 +438,9 @@ class MatrixInjector(object):
                                     if setPrimaryDs:
                                         chainDict['nowmTasklist'][-1]['PrimaryDataset']=setPrimaryDs
                                 nextHasDSInput=None
+                                if 'GPU' in step and self.RequiresGPU == 'required':
+                                    chainDict['nowmTasklist'][-1]['RequiresGPU'] = self.RequiresGPU
+                                    chainDict['nowmTasklist'][-1]['GPUParams']=self.defaultGPUParams
                             else:
                                 #not first step and no inputDS
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultTask))
@@ -446,7 +453,7 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
                                 if step in wmsplit:
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=wmsplit[step]
-                                if 'GPU' in step and (self.RequiresGPU == 1 or self.RequiresGPU == 2):
+                                if 'GPU' in step and self.RequiresGPU == 'required':
                                     chainDict['nowmTasklist'][-1]['RequiresGPU'] = self.RequiresGPU
                                     chainDict['nowmTasklist'][-1]['GPUParams']=self.defaultGPUParams 
 

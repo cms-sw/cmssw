@@ -333,22 +333,22 @@ if __name__ == '__main__':
                       action='store')
 
     parser.add_option('--RequiresGPU',
-                      help='if GPU is reuired or not: 0 = Not (default), 1 = can use if available, 2 = must use. Default = 0.',
+                      help='if GPU is reuired or not: forbidden (default, CPU-only), optional, required',
                       dest='RequiresGPU',
                       default=0)
 
     parser.add_option('--GPUMemory',
-                      help='to specify GPU memory. Default = 8000 MB (for RequiresGPU=2).',
+                      help='to specify GPU memory. Default = 8000 MB (for RequiresGPU = required).',
                       dest='GPUMemory',
                       default='8000')
 
     parser.add_option('--CUDACapabilities',
-                      help='to specify CUDA capabilities. Default = 7.5 (for RequiresGPU=2).',
+                      help='to specify CUDA capabilities. Default = 7.5 (for RequiresGPU = required).',
                       dest='CUDACapabilities',
                       default='7.5')
 
     parser.add_option('--CUDARuntime',
-                      help='to specify CUDA runtime. Default = 11.2 (for RequiresGPU=2).',
+                      help='to specify CUDA runtime. Default = 11.2 (for RequiresGPU= required).',
                       dest='CUDARuntime',
                       default='11.2')
 
@@ -436,7 +436,6 @@ if __name__ == '__main__':
     if opt.numberEventsInLuminosityBlock: opt.numberEventsInLuminosityBlock=int(opt.numberEventsInLuminosityBlock)
     if opt.memoryOffset: opt.memoryOffset=int(opt.memoryOffset)
     if opt.memPerCore: opt.memPerCore=int(opt.memPerCore)
-    if opt.RequiresGPU: opt.RequiresGPU=int(opt.RequiresGPU)
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
