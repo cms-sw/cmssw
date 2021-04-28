@@ -17,6 +17,7 @@ namespace cAHitNtupletGenerator {
     unsigned long long nCells;
     unsigned long long nTuples;
     unsigned long long nFitTracks;
+    unsigned long long nLooseTracks;
     unsigned long long nGoodTracks;
     unsigned long long nUsedHits;
     unsigned long long nDupHits;

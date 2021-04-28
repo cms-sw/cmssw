@@ -75,11 +75,13 @@ PixelTrackProducerFromSoA::PixelTrackProducerFromSoA(const edm::ParameterSet &iC
       ttTopoToken_(esConsumes()),
       minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")),
       minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))) {
-  if (minQuality_==pixelTrack::Quality::notQuality) {
-    throw cms::Exception("PixelTrackConfiguration") << iConfig.getParameter<std::string>("minQuality")+" is not a pixelTrack::Quality";
+  if (minQuality_ == pixelTrack::Quality::notQuality) {
+    throw cms::Exception("PixelTrackConfiguration")
+        << iConfig.getParameter<std::string>("minQuality") + " is not a pixelTrack::Quality";
   }
-  if (minQuality_<pixelTrack::Quality::dup) {
-    throw cms::Exception("PixelTrackConfiguration") << iConfig.getParameter<std::string>("minQuality")+" not supported";
+  if (minQuality_ < pixelTrack::Quality::dup) {
+    throw cms::Exception("PixelTrackConfiguration")
+        << iConfig.getParameter<std::string>("minQuality") + " not supported";
   }
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
@@ -93,7 +95,7 @@ void PixelTrackProducerFromSoA::fillDescriptions(edm::ConfigurationDescriptions 
   desc.add<edm::InputTag>("trackSrc", edm::InputTag("pixelTrackSoA"));
   desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsPreSplittingLegacy"));
   desc.add<int>("minNumberOfHits", 0);
-  desc.add<std::string>("minQuality","loose");
+  desc.add<std::string>("minQuality", "loose");
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -221,7 +223,7 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
       track->setQuality(reco::TrackBase::tight);
       track->setQuality(reco::TrackBase::loose);
     } else if (reco::TrackBase::tight == tkq) {
-       track->setQuality(reco::TrackBase::loose);
+      track->setQuality(reco::TrackBase::loose);
     }
     track->setQuality(tkq);
     // filter???

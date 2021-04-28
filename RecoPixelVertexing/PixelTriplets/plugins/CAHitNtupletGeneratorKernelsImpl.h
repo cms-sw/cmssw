@@ -205,7 +205,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       auto fact = 0.1f + ((eta < 1.0f) ? 0.0f : 0.1f * (eta - 1.0f));
       for (auto j = i + 1; j < ntr; ++j) {
         auto jt = thisCell.tracks()[j];
-        auto qj =    tracks->quality(jt);
+        auto qj = tracks->quality(jt);
         if (qj <= reject)
           continue;
         if (foundNtuplets->size(it) != foundNtuplets->size(jt))
@@ -213,8 +213,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
         auto pj = tracks->pt(jt);
         auto rp = pj * opi;
         if (rp > (1.f - fact) and rp < (1.f + fact)) {
-          if ( (qj < qi) ||
-              (qj == qi && score(it) < score(jt)))
+          if ((qj < qi) || (qj == qi && score(it) < score(jt)))
             tracks->quality(jt) = reject;
           else {
             tracks->quality(it) = reject;
@@ -473,6 +472,9 @@ __global__ void kernel_doStatsForTracks(HitContainer const *__restrict__ tuples,
   for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
     if (tuples->size(idx) == 0)
       break;  //guard
+    if (quality[idx] < pixelTrack::Quality::loose)
+      continue;
+    atomicAdd(&(counters->nLooseTracks), 1);
     if (quality[idx] < pixelTrack::Quality::strict)
       continue;
     atomicAdd(&(counters->nGoodTracks), 1);
@@ -687,8 +689,7 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
         auto rp = pj * opi;
         if (rp > (1.f - fact) and rp < (1.f + fact)) {
           auto nhj = foundNtuplets.size(jt);
-          if (nhj < nhi || (nhj == nhi && (qj < qi ||
-                                           (qj == qi && score(it, nhi) < score(jt, nhj)))))
+          if (nhj < nhi || (nhj == nhi && (qj < qi || (qj == qi && score(it, nhi) < score(jt, nhj)))))
             quality[jt] = reject;
           else {
             quality[it] = reject;
@@ -755,14 +756,16 @@ __global__ void kernel_print_found_ntuplets(TrackingRecHit2DSOAView const *__res
 __global__ void kernel_printCounters(cAHitNtupletGenerator::Counters const *counters) {
   auto const &c = *counters;
   printf(
-      "||Counters | nEvents | nHits | nCells | nTuples | nFitTacks  |  nGoodTracks | nUsedHits | nDupHits | "
+      "||Counters | nEvents | nHits | nCells | nTuples | nFitTacks  |  nLooseTracks  |  nGoodTracks | nUsedHits | "
+      "nDupHits | "
       "nKilledCells | "
       "nEmptyCells | nZeroTrackCells ||\n");
-  printf("Counters Raw %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
+  printf("Counters Raw %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
          c.nEvents,
          c.nHits,
          c.nCells,
          c.nTuples,
+         c.nLooseTracks,
          c.nGoodTracks,
          c.nFitTracks,
          c.nUsedHits,
@@ -770,12 +773,13 @@ __global__ void kernel_printCounters(cAHitNtupletGenerator::Counters const *coun
          c.nKilledCells,
          c.nEmptyCells,
          c.nZeroTrackCells);
-  printf("Counters Norm %lld ||  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.3f|  %.3f||\n",
+  printf("Counters Norm %lld ||  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.3f|  %.3f||\n",
          c.nEvents,
          c.nHits / double(c.nEvents),
          c.nCells / double(c.nEvents),
          c.nTuples / double(c.nEvents),
          c.nFitTracks / double(c.nEvents),
+         c.nLooseTracks / double(c.nEvents),
          c.nGoodTracks / double(c.nEvents),
          c.nUsedHits / double(c.nEvents),
          c.nDupHits / double(c.nEvents),
