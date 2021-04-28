@@ -2367,6 +2367,16 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
     }    // end of loop through SimClusters
   }      // end of loop through CaloParticles
 
+  auto apply_LCMultiplicity = [](const ticl::Trackster& trackster,
+                                 const std::vector<std::pair<DetId, float>>& hitsAndFractions) {
+    auto hits_and_fractions_norm = hitsAndFractions;
+    int iLC = 0;
+    for (auto& haf : hits_and_fractions_norm) {
+      haf.second /= trackster.vertex_multiplicity(iLC++);
+    }
+    return hits_and_fractions_norm;
+  };
+
   //Loop through Tracksters
   for (unsigned int tstId = 0; tstId < nTracksters; ++tstId) {
     if (tracksters[tstId].vertices().empty())
@@ -2391,9 +2401,10 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
     unsigned int numberOfHitsInTST = 0;
 
     for (const auto lcId : tracksters[tstId].vertices()) {
-      const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
+      const auto hits_and_fractions_norm =
+          apply_LCMultiplicity(tracksters[tstId], layerClusters[lcId].hitsAndFractions());
       //number of hits related to that cluster.
-      unsigned int numberOfHitsInLC = hits_and_fractions.size();
+      unsigned int numberOfHitsInLC = hits_and_fractions_norm.size();
       numberOfHitsInTST += numberOfHitsInLC;
       std::unordered_map<unsigned, float> CPEnergyInLC;
 
@@ -2417,14 +2428,14 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
       std::vector<int> hitsToCaloParticleId(numberOfHitsInLC);
       //det id of the first hit just to make the lcLayerId variable
       //which maps the layers in -z: 0->51 and in +z: 52->103
-      const auto firstHitDetId = hits_and_fractions[0].first;
+      const auto firstHitDetId = hits_and_fractions_norm[0].first;
       int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId) +
                       layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
 
       //Loop though the hits of the layer cluster under study
       for (unsigned int hitId = 0; hitId < numberOfHitsInLC; hitId++) {
-        DetId rh_detid = hits_and_fractions[hitId].first;
-        auto rhFraction = hits_and_fractions[hitId].second;
+        DetId rh_detid = hits_and_fractions_norm[hitId].first;
+        auto rhFraction = hits_and_fractions_norm[hitId].second;
 
         //Since the hit is belonging to the layer cluster, it must also be in the rechits map.
         std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(rh_detid);
@@ -2580,21 +2591,24 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
       continue;
     }
 
+    std::vector<std::pair<DetId, float>> hits_and_fractions_norm;
+    // Compute the correct normalization
+    float invTracksterEnergyWeight = 0.f;
     for (const auto lcId : tracksters[tstId].vertices()) {
-      const auto& hits_and_fractions = layerClusters[lcId].hitsAndFractions();
+      hits_and_fractions_norm = apply_LCMultiplicity(tracksters[tstId], layerClusters[lcId].hitsAndFractions());
 
-      // Compute the correct normalization
-      float invTracksterEnergyWeight = 0.f;
-      for (auto const& haf : hits_and_fractions) {
+      for (auto const& haf : hits_and_fractions_norm) {
         invTracksterEnergyWeight +=
             (haf.second * hitMap.at(haf.first)->energy()) * (haf.second * hitMap.at(haf.first)->energy());
       }
-      invTracksterEnergyWeight = 1.f / invTracksterEnergyWeight;
+    }
+    invTracksterEnergyWeight = 1.f / invTracksterEnergyWeight;
 
-      unsigned int numberOfHitsInLC = hits_and_fractions.size();
+    for ([[maybe_unused]] const auto lcId : tracksters[tstId].vertices()) {
+      unsigned int numberOfHitsInLC = hits_and_fractions_norm.size();
       for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
-        DetId rh_detid = hits_and_fractions[i].first;
-        float rhFraction = hits_and_fractions[i].second;
+        DetId rh_detid = hits_and_fractions_norm[i].first;
+        float rhFraction = hits_and_fractions_norm[i].second;
         bool hitWithNoCP = false;
 
         auto hit_find_in_CP = detIdToCaloParticleId_Map.find(rh_detid);
