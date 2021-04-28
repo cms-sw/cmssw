@@ -120,12 +120,12 @@ jetCoreRegionalStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone
     forceKinematicWithRegionDirection = True
 )
 import RecoTracker.TkSeedGenerator.deepCoreSeedGenerator_cfi
-jetCoreRegionalStepBarrelSeeds = RecoTracker.TkSeedGenerator.deepCoreSeedGenerator_cfi.deepCoreSeedGenerator.clone(#to run MCtruthSeedGenerator clone here from Validation.RecoTrack
+jetCoreRegionalStepSeedsBarrel = RecoTracker.TkSeedGenerator.deepCoreSeedGenerator_cfi.deepCoreSeedGenerator.clone(#to run MCtruthSeedGenerator clone here from Validation.RecoTrack
     vertices = "firstStepPrimaryVertices",
     cores    = "jetsForCoreTrackingBarrel"
 )
 
-jetCoreRegionalStepEndcapSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
+jetCoreRegionalStepSeedsEndcap = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = 'jetCoreRegionalStepEndcapHitDoublets',
     forceKinematicWithRegionDirection = True
 )
@@ -239,7 +239,7 @@ jetCoreRegionalStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_c
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
 )
 jetCoreRegionalStepBarrelTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src                    = 'jetCoreRegionalStepBarrelSeeds',
+    src                    = 'jetCoreRegionalStepSeedsBarrel',
     maxSeedsBeforeCleaning = 10000,
     TrajectoryBuilderPSet  = cms.PSet( refToPSet_ = cms.string('jetCoreRegionalStepBarrelTrajectoryBuilder')),
     NavigationSchool       = 'SimpleNavigationSchool',
@@ -250,7 +250,7 @@ jetCoreRegionalStepBarrelTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandid
     doSeedingRegionRebuilding = True,
 )
 jetCoreRegionalStepEndcapTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src                    = 'jetCoreRegionalStepEndcapSeeds',
+    src                    = 'jetCoreRegionalStepSeedsEndcap',
     maxSeedsBeforeCleaning = 10000,
     TrajectoryBuilderPSet  = cms.PSet( refToPSet_ = cms.string('jetCoreRegionalStepEndcapTrajectoryBuilder')),
     NavigationSchool       = 'SimpleNavigationSchool',
@@ -413,7 +413,7 @@ JetCoreRegionalStepBarrelTask = cms.Task(jetsForCoreTrackingBarrel,
                                          jetCoreRegionalStepSeedLayers,
                                          jetCoreRegionalStepBarrelTrackingRegions,
                                          jetCoreRegionalStepBarrelHitDoublets,
-                                         jetCoreRegionalStepBarrelSeeds,
+                                         jetCoreRegionalStepSeedsBarrel,
                                          jetCoreRegionalStepBarrelTrackCandidates,
                                          jetCoreRegionalStepBarrelTracks,
                                          #                                   jetCoreRegionalStepClassifier1,jetCoreRegionalStepClassifier2,
@@ -426,7 +426,7 @@ JetCoreRegionalStepEndcapTask = cms.Task(jetsForCoreTrackingEndcap,
                                          jetCoreRegionalStepSeedLayers,
                                          jetCoreRegionalStepEndcapTrackingRegions,
                                          jetCoreRegionalStepEndcapHitDoublets,
-                                         jetCoreRegionalStepEndcapSeeds,
+                                         jetCoreRegionalStepSeedsEndcap,
                                          jetCoreRegionalStepEndcapTrackCandidates,
                                          jetCoreRegionalStepEndcapTracks,
                                          #                                   jetCoreRegionalStepClassifier1,jetCoreRegionalStepClassifier2,
@@ -455,7 +455,6 @@ seedingDeepCore.toReplaceWith(jetCoreRegionalStep, jetCoreRegionalStepTracks.clo
 #        cms.PSet(type = cms.string("uchars")),
 #    )
 #)
-
 ## change the alias-from to point to jetCoreRegionalStepTracks
 #seedingDeepCore.toModify(jetCoreRegionalStep,
 #    jetCoreRegionalStepImpl = None,
