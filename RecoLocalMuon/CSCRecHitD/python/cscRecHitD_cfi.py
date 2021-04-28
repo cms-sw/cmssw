@@ -8,10 +8,6 @@ import RecoLocalMuon.CSCRecHitD.cscRecHitDProducer_cfi as _mod
 
 csc2DRecHits = _mod.cscRecHitDProducer.clone(
     #
-    #    Parameters for coordinate and uncertainty calculations
-    #    Data and MC parameters are (still) different
-    #    Needs tuning
-    #
     #    Parameters for strip hits
     #
     CSCStripPeakThreshold = 10.0,
@@ -63,8 +59,11 @@ csc2DRecHits = _mod.cscRecHitDProducer.clone(
     CSCDebug = False,
     #  To be set once wire digis have proper timing info:
     CSCstripWireDeltaTime = 8,
-    # to be deleted
-    CSCStripClusterSize = 3,
+    #
+    #    Parameters for coordinate and uncertainty calculations
+    #    Data and MC parameters are (still) different
+    #    Needs tuning
+    #
     **cscRecHitDParameters
 )
 ##
