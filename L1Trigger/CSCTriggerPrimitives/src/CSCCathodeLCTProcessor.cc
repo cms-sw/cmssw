@@ -92,9 +92,9 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     patternConversionLUTFiles_ = conf.getParameter<std::vector<std::string>>("patternConversionLUTFiles");
 
     for (int i = 0; i < 5; ++i) {
-      lutpos_[i] = std::make_unique<CSCComparatorCodeLUT>(positionLUTFiles_[i]);
-      lutslope_[i] = std::make_unique<CSCComparatorCodeLUT>(slopeLUTFiles_[i]);
-      lutpatconv_[i] = std::make_unique<CSCComparatorCodeLUT>(patternConversionLUTFiles_[i]);
+      lutpos_[i] = std::make_unique<CSCLUTReader>(positionLUTFiles_[i]);
+      lutslope_[i] = std::make_unique<CSCLUTReader>(slopeLUTFiles_[i]);
+      lutpatconv_[i] = std::make_unique<CSCLUTReader>(patternConversionLUTFiles_[i]);
     }
   }
 
