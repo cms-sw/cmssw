@@ -34,7 +34,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCComparatorCodeLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
 
 #include <vector>
@@ -100,9 +100,9 @@ protected:
   CSCCLCTDigi secondCLCT[CSCConstants::MAX_CLCT_TBINS];
 
   // unique pointers to the luts
-  std::array<std::unique_ptr<CSCComparatorCodeLUT>, 5> lutpos_;
-  std::array<std::unique_ptr<CSCComparatorCodeLUT>, 5> lutslope_;
-  std::array<std::unique_ptr<CSCComparatorCodeLUT>, 5> lutpatconv_;
+  std::array<std::unique_ptr<CSCLUTReader>, 5> lutpos_;
+  std::array<std::unique_ptr<CSCLUTReader>, 5> lutslope_;
+  std::array<std::unique_ptr<CSCLUTReader>, 5> lutpatconv_;
 
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);

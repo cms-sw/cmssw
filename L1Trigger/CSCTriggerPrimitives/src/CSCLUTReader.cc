@@ -1,8 +1,8 @@
-#include "L1Trigger/CSCTriggerPrimitives/interface/CSCComparatorCodeLUT.h"
+#include "L1Trigger/CSCTriggerPrimitives/interface/CSCLUTReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-CSCComparatorCodeLUT::CSCComparatorCodeLUT(const std::string& fname)
+CSCLUTReader::CSCLUTReader(const std::string& fname)
     : nrBitsAddress_(0), nrBitsData_(0), addressMask_(0), dataMask_(0), data_(), m_codeInWidth(12), m_outWidth(32) {
   if (fname != std::string("")) {
     load(fname);
@@ -12,13 +12,13 @@ CSCComparatorCodeLUT::CSCComparatorCodeLUT(const std::string& fname)
 }
 
 // I/O functions
-void CSCComparatorCodeLUT::save(std::ofstream& output) { write(output); }
+void CSCLUTReader::save(std::ofstream& output) { write(output); }
 
-float CSCComparatorCodeLUT::data(unsigned int address) const {
+float CSCLUTReader::data(unsigned int address) const {
   return (address & addressMask_) < data_.size() ? data_[address] : 0;
 }
 
-int CSCComparatorCodeLUT::load(const std::string& inFileName) {
+int CSCLUTReader::load(const std::string& inFileName) {
   std::ifstream fstream;
   fstream.open(edm::FileInPath(inFileName.c_str()).fullPath());
   if (!fstream.good()) {
@@ -33,14 +33,14 @@ int CSCComparatorCodeLUT::load(const std::string& inFileName) {
   return readCode;
 }
 
-float CSCComparatorCodeLUT::lookup(int code) const {
+float CSCLUTReader::lookup(int code) const {
   if (m_initialized) {
     return lookupPacked(code);
   }
   return 0;
 }
 
-float CSCComparatorCodeLUT::lookupPacked(const int input) const {
+float CSCLUTReader::lookupPacked(const int input) const {
   if (m_initialized) {
     return data((unsigned int)input);
   }
@@ -48,7 +48,7 @@ float CSCComparatorCodeLUT::lookupPacked(const int input) const {
   return 0;
 }
 
-void CSCComparatorCodeLUT::initialize() {
+void CSCLUTReader::initialize() {
   if (empty()) {
     std::stringstream stream;
     stream << "#<header> V1 " << m_codeInWidth << " " << m_outWidth << " </header> " << std::endl;
@@ -61,12 +61,12 @@ void CSCComparatorCodeLUT::initialize() {
   m_initialized = true;
 }
 
-unsigned CSCComparatorCodeLUT::checkedInput(unsigned in, unsigned maxWidth) const {
+unsigned CSCLUTReader::checkedInput(unsigned in, unsigned maxWidth) const {
   unsigned maxIn = (1 << maxWidth) - 1;
   return (in < maxIn ? in : maxIn);
 }
 
-int CSCComparatorCodeLUT::read(std::istream& stream) {
+int CSCLUTReader::read(std::istream& stream) {
   data_.clear();
 
   int readHeaderCode = readHeader(stream);
@@ -120,18 +120,18 @@ int CSCComparatorCodeLUT::read(std::istream& stream) {
   return SUCCESS;
 }
 
-void CSCComparatorCodeLUT::write(std::ostream& stream) const {
+void CSCLUTReader::write(std::ostream& stream) const {
   stream << "#<header> V1 " << nrBitsAddress_ << " " << nrBitsData_ << " </header> " << std::endl;
   for (unsigned int address = 0; address < data_.size(); address++) {
     stream << (address & addressMask_) << " " << data(address) << std::endl;
   }
 }
 
-unsigned int CSCComparatorCodeLUT::maxSize() const {
+unsigned int CSCLUTReader::maxSize() const {
   return addressMask_ == std::numeric_limits<unsigned int>::max() ? addressMask_ : addressMask_ + 1;
 }
 
-int CSCComparatorCodeLUT::readHeader(std::istream& stream) {
+int CSCLUTReader::readHeader(std::istream& stream) {
   int startPos = stream.tellg();  //we are going to reset to this position before we exit
   std::string line;
   while (std::getline(stream, line)) {

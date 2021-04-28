@@ -1,5 +1,5 @@
-#ifndef L1Trigger_CSCTriggerPrimitives_CSCComparatorCodeLUT
-#define L1Trigger_CSCTriggerPrimitives_CSCComparatorCodeLUT
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCLUTReader
+#define L1Trigger_CSCTriggerPrimitives_CSCLUTReader
 
 #include <fstream>
 #include <sstream>
@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class CSCComparatorCodeLUT {
+class CSCLUTReader {
 public:
   enum ReadCodes {
     SUCCESS = 0,
@@ -22,10 +22,9 @@ public:
     NO_HEADER = 5
   };
 
-  /* CSCComparatorCodeLUT(); */
-  explicit CSCComparatorCodeLUT(const std::string&);
-  /* explicit CSCComparatorCodeLUT(l1t::LUT*); */
-  ~CSCComparatorCodeLUT() {}
+  /* CSCLUTReader(); */
+  explicit CSCLUTReader(const std::string&);
+  ~CSCLUTReader() {}
 
   float lookup(int code) const;
   float lookupPacked(const int input) const;
