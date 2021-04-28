@@ -92,7 +92,6 @@ void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("CSCUseGasGainCorrections", true);
   desc.addUntracked<bool>("CSCDebug", false);
   desc.add<int>("CSCstripWireDeltaTime", 8);
-  desc.addUntracked<int>("CSCStripClusterSize", 3);
 
   desc.add<double>("XTasymmetry_ME1a", 0.023), desc.add<double>("XTasymmetry_ME1b", 0.01),
       desc.add<double>("XTasymmetry_ME12", 0.015), desc.add<double>("XTasymmetry_ME13", 0.02),
