@@ -24,7 +24,7 @@ public:
                 Errors& errors) override;
 
 private:
-  bool includeErrors;
+  bool includeErrors_;
 
   cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const override;
 };

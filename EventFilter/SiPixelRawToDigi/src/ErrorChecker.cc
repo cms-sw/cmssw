@@ -85,7 +85,7 @@ bool ErrorChecker::checkROC(bool& errorsInEvent,
       return true;
   };
 
-  if (includeErrors) {
+  if (includeErrors_) {
     // store error
     SiPixelRawDataError error(errorWord, errorType, fedId);
     cms_uint32_t detId;

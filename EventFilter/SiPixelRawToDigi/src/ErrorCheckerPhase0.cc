@@ -70,7 +70,7 @@ bool ErrorCheckerPhase0::checkROC(bool& errorsInEvent,
       return true;
   };
 
-  if (includeErrors) {
+  if (includeErrors_) {
     // check to see if overflow error for type 30, change type to 40 if so
     if (errorType == 30) {
       int StateMach_bits = 4;
