@@ -18,20 +18,17 @@ SiStripApproximatedClustersDump::SiStripApproximatedClustersDump(const edm::Para
 SiStripApproximatedClustersDump::~SiStripApproximatedClustersDump() {}
 
 void SiStripApproximatedClustersDump::analyze(const edm::Event& event, const edm::EventSetup& es) {
-  
-  edm::Handle<edmNew::DetSetVector<SiStripApproximateClusterv1>> inClusters;
-  event.getByToken(clusterToken, inClusters);
+  edm::Handle<edmNew::DetSetVector< SiStripApproximateClusterv1 >> clusterCollection = event.getHandle(clusterToken);
 
   
-  for (edmNew::DetSetVector<SiStripApproximateClusterv1>::const_iterator itApprox = inClusters->begin(); itApprox!= inClusters->end(); itApprox++) {
-    detId = itApprox->detId();
+  for ( const auto& detClusters : *clusterCollection ) {
+    detId = detClusters.detId();
     eventN = event.id().event();
     
-    for (edmNew::DetSet<SiStripApproximateClusterv1>::const_iterator itClusters = itApprox->begin(); itClusters!= itApprox->end(); itClusters++){
-
-      barycenter = itClusters->barycenter();
-      width = itClusters->width();
-      avCharge=itClusters->avgCharge();
+   for ( const auto& cluster : detClusters ){
+      barycenter = cluster.barycenter();
+      width = cluster.width();
+      avCharge=cluster.avgCharge();
       outNtuple->Fill();
       
     }
