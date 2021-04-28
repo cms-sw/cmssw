@@ -577,10 +577,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     evtSetup.get<EcalPedestalsRcd>().get(pedHandle);
     pedMap = pedHandle.product()->getMap();
 
+    const auto& pedMapEB = pedMap.barrelItems();
+    const auto& pedMapEE = pedMap.endcapItems();
     EcalPedestalsMapIterator pedIter;
     int nPed = 0;
-    for (pedIter = pedMap.begin(); pedIter != pedMap.end() && nPed < 10; ++pedIter, nPed++) {
-      EcalPedestals::Item aped = (*pedIter);
+    for (pedIter = pedMapEB.begin(); pedIter != pedMapEB.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
+      ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
+    }
+    for (pedIter = pedMapEE.begin(); pedIter != pedMapEE.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
       ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
     }
   } else if (m_write_ped == 0) {
@@ -653,10 +659,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
     pedMap = peds.getMap();
 
+    const auto& pedMapEB = pedMap.barrelItems();
+    const auto& pedMapEE = pedMap.endcapItems();
     EcalPedestalsMapIterator pedIter;
     int nPed = 0;
-    for (pedIter = pedMap.begin(); pedIter != pedMap.end() && nPed < 10; ++pedIter, nPed++) {
-      EcalPedestals::Item aped = (*pedIter);
+    for (pedIter = pedMapEB.begin(); pedIter != pedMapEB.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
+      ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
+    }
+    for (pedIter = pedMapEE.begin(); pedIter != pedMapEE.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
       ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
     }
 
@@ -721,10 +733,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
     pedMap = peds.getMap();
 
+    const auto& pedMapEB = pedMap.barrelItems();
+    const auto& pedMapEE = pedMap.endcapItems();
     EcalPedestalsMapIterator pedIter;
     int nPed = 0;
-    for (pedIter = pedMap.begin(); pedIter != pedMap.end() && nPed < 10; ++pedIter, nPed++) {
-      EcalPedestals::Item aped = (*pedIter);
+    for (pedIter = pedMapEB.begin(); pedIter != pedMapEB.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
+      ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
+    }
+    for (pedIter = pedMapEE.begin(); pedIter != pedMapEE.end() && nPed < 10; ++pedIter, ++nPed) {
+      const auto aped = (*pedIter);
       ss << aped.mean_x12 << ", " << aped.mean_x6 << ", " << aped.mean_x1 << "\n";
     }
   }
@@ -738,9 +756,14 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   evtSetup.get<EcalIntercalibConstantsRcd>().get(pIntercalib);
   const EcalIntercalibConstants* intercalib = pIntercalib.product();
   const EcalIntercalibConstantMap& calibMap = intercalib->getMap();
+  const auto& calibMapEB = calibMap.barrelItems();
+  const auto& calibMapEE = calibMap.endcapItems();
   EcalIntercalibConstantMap::const_iterator calIter;
   int nCal = 0;
-  for (calIter = calibMap.begin(); calIter != calibMap.end() && nCal < 10; ++calIter, nCal++) {
+  for (calIter = calibMapEB.begin(); calIter != calibMapEB.end() && nCal < 10; ++calIter, ++nCal) {
+    ss << (*calIter) << "\n";
+  }
+  for (calIter = calibMapEE.begin(); calIter != calibMapEE.end() && nCal < 10; ++calIter, ++nCal) {
     ss << (*calIter) << "\n";
   }
   edm::LogInfo("TopInfo") << ss.str();
@@ -770,10 +793,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   ESHandle<EcalGainRatios> pRatio;
   evtSetup.get<EcalGainRatiosRcd>().get(pRatio);
   const EcalGainRatioMap& gainMap = pRatio.product()->getMap();
+  const auto& gainMapEB = gainMap.barrelItems();
+  const auto& gainMapEE = gainMap.endcapItems();
   EcalGainRatioMap::const_iterator gainIter;
   int nGain = 0;
-  for (gainIter = gainMap.begin(); gainIter != gainMap.end() && nGain < 10; ++gainIter, nGain++) {
-    const EcalMGPAGainRatio& aGain = (*gainIter);
+  for (gainIter = gainMapEB.begin(); gainIter != gainMapEB.end() && nGain < 10; ++gainIter, ++nGain) {
+    const auto aGain = (*gainIter);
+    ss << aGain.gain12Over6() << ", " << aGain.gain6Over1() * aGain.gain12Over6() << "\n";
+  }
+  for (gainIter = gainMapEE.begin(); gainIter != gainMapEE.end() && nGain < 10; ++gainIter, ++nGain) {
+    const auto aGain = (*gainIter);
     ss << aGain.gain12Over6() << ", " << aGain.gain6Over1() * aGain.gain12Over6() << "\n";
   }
   edm::LogInfo("TopInfo") << ss.str();
