@@ -129,7 +129,7 @@ def customiseFor2018Input(process):
 
     return process
 
-def customizeForCSCRecHitDProducer(process):
+def customizeFor33453(process):
     """ Customize HLT menu to remove deprecated parameters for the CSCRecHitDProducer in RecoLocalMuon"""
     for producer in producers_by_type(process, "CSCRecHitDProducer"):
         if hasattr(producer, "CSCStripClusterSize"):
