@@ -78,6 +78,12 @@ from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_deve
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.SV, plots = _sv_plots_106Xv1 )
 
 
+egammascalesystvars=['dEscaleUp','dEscaleDown','dEsigmaUp','dEsigmaDown']
+_electron_noscalesyst = [plot for plot in nanoDQM.vplots.Electron.plots if plot.name.value() not in egammascalesystvars]
+_photon_noscalesyst = [plot for plot in nanoDQM.vplots.Photon.plots if plot.name.value() not in egammascalesystvars]
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.Electron, plots = _electron_noscalesyst)
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.Photon, plots = _photon_noscalesyst)
+
 ## MC
 nanoDQMMC = nanoDQM.clone()
 nanoDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")
