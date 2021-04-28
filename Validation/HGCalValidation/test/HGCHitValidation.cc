@@ -114,6 +114,11 @@ private:
   edm::EDGetTokenT<HGChefRecHitCollection> fhRecHitToken_;
   edm::EDGetTokenT<HGChebRecHitCollection> bhRecHitTokeng_;
   edm::EDGetTokenT<HBHERecHitCollection> bhRecHitTokenh_;
+  edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> tok_hcals_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hcalr_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_caloG_;
+  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> tok_hgcal_;
+  std::vector<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>> tok_hgcalg_;
 
   TTree *hgcHits_;
   std::vector<float> *heeRecX_, *heeRecY_, *heeRecZ_, *heeRecEnergy_;
@@ -160,6 +165,23 @@ HGCHitValidation::HGCHitValidation(const edm::ParameterSet &cfg)
     bhRecHitTokenh_ = consumes<HBHERecHitCollection>(bhRecHitSource);
   else
     bhRecHitTokeng_ = consumes<HGChebRecHitCollection>(bhRecHitSource);
+  tok_hcals_ = esConsumes<HcalDDDSimConstants, HcalSimNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{});
+  tok_hcalr_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{});
+  tok_caloG_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{});
+  for (size_t i = 0; i < geometrySource_.size(); i++) {
+    if (geometrySource_[i].find("Hcal") != std::string::npos) {
+      tok_hgcal_.emplace_back(
+          esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{}));
+      tok_hgcalg_.emplace_back(
+          esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{}));
+    } else {
+      tok_hgcal_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", geometrySource_[i]}));
+      tok_hgcalg_.emplace_back(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", geometrySource_[i]}));
+    }
+  }
+
   makeTree_ = cfg.getUntrackedParameter<bool>("makeTree", true);
   hgcHits_ = nullptr;
   heeRecX_ = heeRecY_ = heeRecZ_ = heeRecEnergy_ = nullptr;
@@ -286,23 +308,20 @@ void HGCHitValidation::beginRun(edm::Run const &iRun, edm::EventSetup const &iSe
       edm::LogVerbatim("HGCalValid") << "Tries to initialize HcalGeometry "
                                      << " and HcalDDDSimConstants for " << i;
       ifHcalG_ = true;
-      edm::ESHandle<HcalDDDSimConstants> pHSNDC;
-      iSetup.get<HcalSimNumberingRecord>().get(pHSNDC);
+      edm::ESHandle<HcalDDDSimConstants> pHSNDC = iSetup.getHandle(tok_hcals_);
       if (pHSNDC.isValid()) {
         hcCons_ = pHSNDC.product();
         hgcCons_.push_back(nullptr);
       } else {
         edm::LogWarning("HGCalValid") << "Cannot initiate HcalDDDSimConstants: " << geometrySource_[i] << std::endl;
       }
-      edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-      iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
+      edm::ESHandle<HcalDDDRecConstants> pHRNDC = iSetup.getHandle(tok_hcalr_);
       if (pHRNDC.isValid()) {
         hcConr_ = pHRNDC.product();
       } else {
         edm::LogWarning("HGCalValid") << "Cannot initiate HcalDDDRecConstants: " << geometrySource_[i] << std::endl;
       }
-      edm::ESHandle<CaloGeometry> caloG;
-      iSetup.get<CaloGeometryRecord>().get(caloG);
+      edm::ESHandle<CaloGeometry> caloG = iSetup.getHandle(tok_caloG_);
       if (caloG.isValid()) {
         const CaloGeometry *geo = caloG.product();
         hcGeometry_ = geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
@@ -313,15 +332,13 @@ void HGCHitValidation::beginRun(edm::Run const &iRun, edm::EventSetup const &iSe
     } else {
       edm::LogVerbatim("HGCalValid") << "Tries to initialize HGCalGeometry "
                                      << " and HGCalDDDConstants for " << i;
-      edm::ESHandle<HGCalDDDConstants> hgcCons;
-      iSetup.get<IdealGeometryRecord>().get(geometrySource_[i], hgcCons);
+      edm::ESHandle<HGCalDDDConstants> hgcCons = iSetup.getHandle(tok_hgcal_[i]);
       if (hgcCons.isValid()) {
         hgcCons_.push_back(hgcCons.product());
       } else {
         edm::LogWarning("HGCalValid") << "Cannot initiate HGCalDDDConstants for " << geometrySource_[i] << std::endl;
       }
-      edm::ESHandle<HGCalGeometry> hgcGeom;
-      iSetup.get<IdealGeometryRecord>().get(geometrySource_[i], hgcGeom);
+      edm::ESHandle<HGCalGeometry> hgcGeom = iSetup.getHandle(tok_hgcalg_[i]);
       if (hgcGeom.isValid()) {
         hgcGeometry_.push_back(hgcGeom.product());
       } else {
