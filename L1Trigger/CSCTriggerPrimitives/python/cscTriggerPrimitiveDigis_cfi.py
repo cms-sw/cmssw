@@ -39,8 +39,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer(
     # Write out special trigger collections
     writeOutAllCLCTs = cms.bool(False),
     writeOutAllALCTs = cms.bool(False),
-    savePreTriggers = cms.bool(False),
-    writeOutShowers = cms.bool(False),
+    savePreTriggers = cms.bool(True),
+    writeOutShowers = cms.bool(True),
 
     commonParam = auxPSets.commonParam.clone(),
     mpcParam = auxPSets.mpcParamRun1.clone(),
