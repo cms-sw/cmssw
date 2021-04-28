@@ -34,11 +34,9 @@ private:
 
 
 SiStripClusters2ApproxClustersv1::SiStripClusters2ApproxClustersv1(const edm::ParameterSet& conf){
-  //inputClusters = conf.getParameter< edm::InputTag >("inputClusters");
-  auto cc = setWhatProduced(this, conf.getParameter< edm::InputTag >("inputClusters"));
+  inputClusters = conf.getParameter< edm::InputTag >("inputClusters");
 
-  //clusterToken = consumes< edmNew::DetSetVector< SiStripCluster > >(inputClusters);
-  clusterToken = cc.consumes< edmNew::DetSetVector< SiStripCluster > >(inputClusters);
+  clusterToken = consumes< edmNew::DetSetVector< SiStripCluster > >(inputClusters);
   produces< edmNew::DetSetVector< SiStripApproximateClusterv1 > >(); 
 
 }
@@ -59,8 +57,7 @@ void SiStripClusters2ApproxClustersv1::produce(edm::Event& e, edm::EventSetup co
   e.put(std::move(result));
 }
 
-void
-SiStripClusters2ApproxClustersv1::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiStripClusters2ApproxClustersv1::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputClusters", edm::InputTag("siStripClusters"));
   descriptions.add("SiStripClusters2ApproxClustersv1", desc);  

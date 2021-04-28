@@ -6,7 +6,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -39,7 +40,8 @@ class SiStripApproximatedClustersDump : public edm::one::EDAnalyzer<edm::one::Sh
 public:
   explicit SiStripApproximatedClustersDump(const edm::ParameterSet&);
   ~SiStripApproximatedClustersDump() override;
-
+   
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
