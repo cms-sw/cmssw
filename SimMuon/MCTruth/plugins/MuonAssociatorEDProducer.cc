@@ -1,5 +1,5 @@
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+#include "SimDataFormats/Associations/interface/TrackAssociation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/MCTruth/plugins/MuonAssociatorEDProducer.h"
 #include <memory>

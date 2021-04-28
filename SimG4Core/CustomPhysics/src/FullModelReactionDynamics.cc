@@ -53,8 +53,6 @@
 #include "G4AntiNeutron.hh"
 #include "Randomize.hh"
 #include <iostream>
-#include "G4HadReentrentException.hh"
-#include <csignal>
 #include "G4ParticleTable.hh"
 
 using namespace CLHEP;
@@ -405,10 +403,9 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
             for (G4int i = 0; i < vecLen; i++)
               delete vec[i];
             vecLen = 0;
-            throw G4HadReentrentException(
-                __FILE__,
-                __LINE__,
-                "FullModelReactionDynamics::GenerateXandPt : a pion has been counted as a backward nucleon");
+            G4ExceptionDescription ed;
+            ed << "FullModelReactionDynamics::GenerateXandPt : a pion has been counted as a backward nucleon";
+            G4Exception("FullModelReactionDynamics::GenerateXandPt", "had064", FatalException, ed);
           }
           vec[i]->SetSide(-3);
           ++backwardNucleonCount;
@@ -1339,8 +1336,9 @@ G4bool FullModelReactionDynamics::TwoCluster(
       for (G4int i = 0; i < vecLen; i++)
         delete vec[i];
       vecLen = 0;
-      throw G4HadReentrentException(
-          __FILE__, __LINE__, "FullModelReactionDynamics::TwoCluster: Negative number of particles");
+      G4ExceptionDescription ed;
+      ed << "Negative number of particles";
+      G4Exception("FullModelReactionDynamics::TwoCluster", "had064", FatalException, ed);
     }
     delete vec[vecLen - 1];
     delete vec[vecLen - 2];

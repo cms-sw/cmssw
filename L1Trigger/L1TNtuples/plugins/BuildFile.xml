@@ -30,6 +30,32 @@
 <use name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="L1Trigger/L1TNtuples"/>
+<use name="CondFormats/AlignmentRecord"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/HLTReco"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/Provenance"/>
+<use name="DataFormats/TauReco"/>
+<use name="EventFilter/L1TRawToDigi"/>
+<use name="FWCore/Common"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/Records"/>
+<use name="JetMETCorrections/JetCorrector"/>
+<use name="MagneticField/Engine"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/PileupSummaryInfo"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/Records"/>
 <library file="*.cc" name="L1TriggerL1TNtuplePlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

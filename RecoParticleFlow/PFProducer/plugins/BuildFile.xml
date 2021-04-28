@@ -62,6 +62,7 @@
 </library>
 
 <library name="RecoParticleFlowPFProducerPlugins" file="*.cc">
+  <use name="CommonTools/ParticleFlow"/>
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/PhysicsToolsObjects"/>
   <use name="DataFormats/CaloRecHit"/>

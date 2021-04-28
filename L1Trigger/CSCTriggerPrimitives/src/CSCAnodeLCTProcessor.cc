@@ -81,30 +81,13 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
 
   // quality control of stubs
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
-}
 
-CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() : CSCBaseboard() {
-  // Used for debugging. -JM
-  static std::atomic<bool> config_dumped{false};
-
-  // ALCT parameters.
-  setDefaultConfigParameters();
-  infoV = 2;
-
-  early_tbins = 4;
-
-  // Check and print configuration parameters.
-  checkConfigParameters();
-  if (!config_dumped) {
-    dumpConfigParams();
-    config_dumped = true;
-  }
-
-  numWireGroups = CSCConstants::MAX_NUM_WIRES;
-  MESelection = (theStation < 3) ? 0 : 1;
-
-  // Load pattern mask.
-  loadPatternMask();
+  const auto& shower = showerParams_.getParameterSet("anodeShower");
+  thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
+  showerMinInTBin_ = shower.getParameter<unsigned>("showerMinInTBin");
+  showerMaxInTBin_ = shower.getParameter<unsigned>("showerMaxInTBin");
+  showerMinOutTBin_ = shower.getParameter<unsigned>("showerMinOutTBin");
+  showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
 }
 
 void CSCAnodeLCTProcessor::loadPatternMask() {
@@ -195,6 +178,8 @@ void CSCAnodeLCTProcessor::clear() {
     secondALCT[bx].clear();
   }
   lct_list.clear();
+  inTimeHMT_ = 0;
+  outTimeHMT_ = 0;
 }
 
 void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
@@ -216,14 +201,14 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
 
   // Get the number of wire groups for the given chamber.  Do it only once
   // per chamber.
-  if (numWireGroups <= 0 or numWireGroups > CSCConstants::MAX_NUM_WIRES) {
+  if (numWireGroups <= 0 or numWireGroups > CSCConstants::MAX_NUM_WIREGROUPS) {
     if (cscChamber_) {
       numWireGroups = cscChamber_->layer(1)->geometry()->numberOfWireGroups();
-      if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {
+      if (numWireGroups > CSCConstants::MAX_NUM_WIREGROUPS) {
         edm::LogError("CSCAnodeLCTProcessor|SetupError")
             << "+++ Number of wire groups, " << numWireGroups << " found in " << theCSCName_ << " (sector " << theSector
             << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
-            << " exceeds max expected, " << CSCConstants::MAX_NUM_WIRES << " +++\n"
+            << " exceeds max expected, " << CSCConstants::MAX_NUM_WIREGROUPS << " +++\n"
             << "+++ CSC geometry looks garbled; no emulation possible +++\n";
         numWireGroups = -1;
       }
@@ -247,12 +232,12 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
   }
 
   // Get wire digis in this chamber from wire digi collection.
-  bool noDigis = getDigis(wiredc);
+  bool hasDigis = getDigis(wiredc);
 
-  if (!noDigis) {
-    // First get wire times from the wire digis.
-    std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
-    readWireDigis(wire);
+  if (hasDigis) {
+    // First get wiregroup times from the wire digis.
+    std::vector<int> wireGroupTimes[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS];
+    readWireDigis(wireGroupTimes);
 
     // Pass an array of wire times on to another run() doing the LCT search.
     // If the number of layers containing digis is smaller than that
@@ -265,28 +250,30 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
     unsigned int layersHit = 0;
     for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
       for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
-        if (!wire[i_layer][i_wire].empty()) {
+        if (!wireGroupTimes[i_layer][i_wire].empty()) {
           layersHit++;
           break;
         }
       }
     }
     if (layersHit >= min_layers)
-      run(wire);
+      run(wireGroupTimes);
+    // Get the high multiplicity bits in this chamber
+    encodeHighMultiplicityBits(wireGroupTimes);
   }
 
   // Return vector of all found ALCTs.
   return getALCTs();
 }
 
-void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   bool trigger = false;
 
   // Check if there are any in-time hits and do the pulse extension.
   bool chamber_empty = pulseExtension(wire);
 
   // define a new pattern map
-  // for each key half wire, and for each pattern, store the 2D collection of fired wire digis
+  // for each key wiregroup, and for each pattern, store the 2D collection of fired wiregroup digis
   std::map<int, std::map<int, CSCALCTDigi::WireContainer>> hits_in_patterns;
   hits_in_patterns.clear();
 
@@ -369,7 +356,7 @@ void CSCAnodeLCTProcessor::run(const std::vector<int> wire[CSCConstants::NUM_LAY
 
 bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
   // Routine for getting digis and filling digiV vector.
-  bool noDigis = true;
+  bool hasDigis = false;
 
   // Loop over layers and save wire digis on each one into digiV[layer].
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
@@ -385,7 +372,7 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
     }
 
     if (!digiV[i_layer].empty()) {
-      noDigis = false;
+      hasDigis = true;
       if (infoV > 1) {
         LogTrace("CSCAnodeLCTProcessor") << "found " << digiV[i_layer].size() << " wire digi(s) in layer " << i_layer
                                          << " of " << theCSCName_ << " (trig. sector " << theSector << " subsector "
@@ -397,7 +384,7 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
     }
   }
 
-  return noDigis;
+  return hasDigis;
 }
 
 void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc, const CSCDetId& id) {
@@ -407,7 +394,8 @@ void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc, const C
   }
 }
 
-void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+void CSCAnodeLCTProcessor::readWireDigis(
+    std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   // Loop over all 6 layers.
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     // Loop over all digis in the layer and find the wireGroup and bx
@@ -464,7 +452,7 @@ void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM
 }
 
 bool CSCAnodeLCTProcessor::pulseExtension(
-    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) {
+    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
   bool chamber_empty = true;
   int i_wire, i_layer, digi_num;
   const unsigned int bits_in_pulse = 8 * sizeof(pulse[0][0]);
@@ -740,7 +728,7 @@ bool CSCAnodeLCTProcessor::patternDetection(
 }
 
 void CSCAnodeLCTProcessor::ghostCancellationLogic() {
-  int ghost_cleared[CSCConstants::MAX_NUM_WIRES][2];
+  int ghost_cleared[CSCConstants::MAX_NUM_WIREGROUPS][2];
 
   for (int key_wire = 0; key_wire < numWireGroups; key_wire++) {
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
@@ -1203,7 +1191,7 @@ void CSCAnodeLCTProcessor::dumpConfigParams() const {
 
 // Dump of digis on wire groups.
 void CSCAnodeLCTProcessor::dumpDigis(
-    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const {
+    const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) const {
   LogDebug("CSCAnodeLCTProcessor") << theCSCName_ << " nWiregroups " << numWireGroups;
 
   std::ostringstream strstrm;
@@ -1326,6 +1314,9 @@ CSCALCTDigi CSCAnodeLCTProcessor::getBestALCT(int bx) const { return bestALCT[bx
 
 CSCALCTDigi CSCAnodeLCTProcessor::getSecondALCT(int bx) const { return secondALCT[bx]; }
 
+/** Returns shower bits */
+CSCShowerDigi CSCAnodeLCTProcessor::readoutShower() const { return shower_; }
+
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////Test Routines///////////////////////////////
 
@@ -1382,4 +1373,46 @@ void CSCAnodeLCTProcessor::setWireContainer(CSCALCTDigi& alct, CSCALCTDigi::Wire
 
   // set the hit container
   alct.setHits(wireHits);
+}
+
+void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(
+    const std::vector<int> wires[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) {
+  inTimeHMT_ = 0;
+  outTimeHMT_ = 0;
+
+  // functions for in-time and out-of-time
+  auto inTime = [=](unsigned time) { return time >= showerMinInTBin_ and time <= showerMaxInTBin_; };
+  auto outTime = [=](unsigned time) { return time >= showerMinOutTBin_ and time <= showerMaxOutTBin_; };
+
+  // count the wires in-time and out-time
+  unsigned hitsInTime = 0;
+  unsigned hitsOutTime = 0;
+  for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (int i_wire = 0; i_wire < CSCConstants::MAX_NUM_WIREGROUPS; i_wire++) {
+      auto times = wires[i_layer][i_wire];
+      hitsInTime += std::count_if(times.begin(), times.end(), inTime);
+      hitsOutTime += std::count_if(times.begin(), times.end(), outTime);
+    }
+  }
+
+  // convert station and ring number to index
+  // index runs from 2 to 10, subtract 2
+  unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
+
+  // loose, nominal and tight
+  std::vector<unsigned> station_thresholds = {
+      thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
+
+  // assign the bits
+  for (unsigned i = 0; i < station_thresholds.size(); i++) {
+    if (hitsInTime >= station_thresholds[i]) {
+      inTimeHMT_ = i + 1;
+    }
+    if (hitsOutTime >= station_thresholds[i]) {
+      outTimeHMT_ = i + 1;
+    }
+  }
+
+  // create a new object
+  shower_ = CSCShowerDigi(inTimeHMT_, outTimeHMT_, theTrigChamber);
 }

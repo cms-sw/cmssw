@@ -108,7 +108,9 @@ private:
 
   void fillHistogram(MonitorElement* th1, MonitorElement* th2, MonitorElement* th3, float val, int primary);
   int fillSimHitInfo(const edm::Event& iEvent, const SimTrack simTrk);
+
   bool findOTDigi(unsigned int detid, unsigned int id);
+
   bool findITPixelDigi(unsigned int detid, unsigned int id);
   void fillOTBXInfo();
   void fillITPixelBXInfo();
@@ -128,18 +130,17 @@ private:
   edm::InputTag simTrackSrc_;
   edm::InputTag simVertexSrc_;
 
-  const edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi> > otDigiToken_;
-  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > otDigiSimLinkToken_;
-  const edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > itPixelDigiToken_;
-  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > itPixelDigiSimLinkToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi>> otDigiToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> otDigiSimLinkToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> itPixelDigiToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>> itPixelDigiSimLinkToken_;
   const edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
   const edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
-  std::vector<edm::EDGetTokenT<edm::PSimHitContainer> > simHitTokens_;
-
-  edm::Handle<edm::DetSetVector<PixelDigi> > itPixelDigiHandle_;
-  edm::Handle<edm::DetSetVector<Phase2TrackerDigi> > otDigiHandle_;
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > itPixelSimLinkHandle_;
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > otSimLinkHandle_;
+  const edm::DetSetVector<PixelDigiSimLink>* otSimLink_;
+  const edm::DetSetVector<PixelDigiSimLink>* itSimLink_;
+  const edm::DetSetVector<Phase2TrackerDigi>* otdigis_;
+  const edm::DetSetVector<PixelDigi>* itdigis_;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> simHitTokens_;
   edm::Handle<edm::PSimHitContainer> simHits;
   edm::Handle<edm::SimTrackContainer> simTracks;
   edm::Handle<edm::SimVertexContainer> simVertices;

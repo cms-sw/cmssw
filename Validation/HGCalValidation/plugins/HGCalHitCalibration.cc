@@ -62,6 +62,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::Photon> > photons_;
 
   int algo_, depletion0_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   bool rawRecHits_;
   int debug_;
   hgcal::RecHitTools recHitTools_;
@@ -81,7 +82,9 @@ private:
 };
 
 HGCalHitCalibration::HGCalHitCalibration(const edm::ParameterSet& iConfig)
-    : rawRecHits_(iConfig.getParameter<bool>("rawRecHits")), debug_(iConfig.getParameter<int>("debug")) {
+    : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      rawRecHits_(iConfig.getParameter<bool>("rawRecHits")),
+      debug_(iConfig.getParameter<int>("debug")) {
   auto detector = iConfig.getParameter<std::string>("detector");
   auto recHitsEE = iConfig.getParameter<edm::InputTag>("recHitsEE");
   auto recHitsFH = iConfig.getParameter<edm::InputTag>("recHitsFH");
@@ -191,8 +194,7 @@ void HGCalHitCalibration::fillWithRecHits(std::map<DetId, const HGCRecHit*>& hit
 void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  edm::ESHandle<CaloGeometry> geom;
-  iSetup.get<CaloGeometryRecord>().get(geom);
+  edm::ESHandle<CaloGeometry> geom = iSetup.getHandle(caloGeomToken_);
   recHitTools_.setGeometry(*geom);
 
   Handle<HGCRecHitCollection> recHitHandleEE;

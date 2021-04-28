@@ -16,18 +16,8 @@ CSCUpgradeAnodeLCTProcessor::CSCUpgradeAnodeLCTProcessor(unsigned endcap,
         << "+++ Upgrade CSCUpgradeAnodeLCTProcessor constructed while enableAlctPhase2_ is not set! +++\n";
 }
 
-CSCUpgradeAnodeLCTProcessor::CSCUpgradeAnodeLCTProcessor() : CSCAnodeLCTProcessor() {
-  if (!runPhase2_)
-    edm::LogError("CSCUpgradeAnodeLCTProcessor|ConfigError")
-        << "+++ Upgrade CSCUpgradeAnodeLCTProcessor constructed while runPhase2_ is not set! +++\n";
-
-  if (!enableAlctPhase2_)
-    edm::LogError("CSCUpgradeAnodeLCTProcessor|ConfigError")
-        << "+++ Upgrade CSCUpgradeAnodeLCTProcessor constructed while enableAlctPhase2_ is not set! +++\n";
-}
-
 void CSCUpgradeAnodeLCTProcessor::ghostCancellationLogic() {
-  int ghost_cleared[CSCConstants::MAX_NUM_WIRES][2];
+  int ghost_cleared[CSCConstants::MAX_NUM_WIREGROUPS][2];
 
   for (int key_wire = 0; key_wire < numWireGroups; key_wire++) {
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {

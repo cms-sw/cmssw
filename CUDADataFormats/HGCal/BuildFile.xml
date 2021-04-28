@@ -1,6 +1,6 @@
-<use name="FWCore/Utilities"/>
-<use name="Geometry/HGCalGeometry"/>
-<use name="HeterogeneousCore/CUDACore"/>
+<use name="CUDADataFormats/Common"/>
+<use name="DataFormats/Common"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="cuda"/>
 
 <export>
