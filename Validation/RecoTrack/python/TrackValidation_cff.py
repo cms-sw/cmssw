@@ -46,7 +46,7 @@ for _eraName, _postfix, _era in _cfg.allEras():
         locals()["_electronSeedProducers"+_postfix] = ["tripletElectronSeeds"]
 
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
-                                 "jetCoreRegionalStepSeeds",
+                                 "jetCoreRegionalStepSeedsBarrel","jetCoreRegionalStepSeedsEndcap",
                                  "muonSeededSeedsInOut",
                                  "muonSeededSeedsOutIn"]
 _seedProducers_fastSim = [ x for x in _seedProducers if x not in _removeForFastSimSeedProducers]
@@ -892,8 +892,10 @@ trackValidatorSeedingTrackingOnly = _trackValidatorSeedingBuilding.clone(
     dirName = "Tracking/TrackSeeding/",
     label = _seedSelectors,
     doSeedPlots = True,
-    doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeeds",]
+    doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap"]
 )
+seedingDeepCore.toModify(trackValidatorSeedingTrackingOnly, doResolutionPlotsForLabels = ["seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap"] )
+
 trackValidatorSeedingPreSplittingTrackingOnly = trackValidatorSeedingTrackingOnly.clone(
     associators = ["quickTrackAssociatorByHitsPreSplitting"],
     label = _seedSelectorsPreSplitting,
@@ -911,8 +913,8 @@ trackValidatorJetCoreSeedingTrackingOnly = trackValidatorSeedingTrackingOnly.clo
 for _eraName, _postfix, _era in _relevantEras:
     if 'jetCoreRegionalStep' in _cfg.iterationAlgos(_postfix) :
       _setForEra(trackValidatorJetCoreSeedingTrackingOnly, _eraName, _era,
-            label = [ "seedTracksjetCoreRegionalStepSeeds",],
-            doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeeds",]
+                 label = [ "seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap"],
+                 doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap"]
       )
     
 for _eraName, _postfix, _era in _relevantErasAndFastSim:
