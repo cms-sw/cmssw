@@ -18,18 +18,18 @@ using namespace edm;
 using namespace sipixelobjects;
 using namespace sipixelconstants;
 
-ErrorCheckerBase::ErrorCheckerBase() : includeErrors(false) {}
+ErrorCheckerBase::ErrorCheckerBase() : includeErrors_(false) {}
 
-void ErrorCheckerBase::setErrorStatus(bool ErrorStatus) { includeErrors = ErrorStatus; }
+void ErrorCheckerBase::setErrorStatus(bool ErrorStatus) { includeErrors_ = ErrorStatus; }
 
 bool ErrorCheckerBase::checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors) {
   const int CRC_BIT = (*trailer >> CRC_shift) & CRC_mask;
   const bool isCRCcorrect = (CRC_BIT == 0);
   errorsInEvent = (errorsInEvent || !isCRCcorrect);
-  if (includeErrors && !isCRCcorrect) {
+  if (includeErrors_ && !isCRCcorrect) {
     const int errorType = 39;
     SiPixelRawDataError error(*trailer, errorType, fedId);
-    errors[dummyDetId].push_back(error);
+    errors[sipixelconstants::dummyDetId].push_back(error);
   }
   return isCRCcorrect;
 }
@@ -42,10 +42,10 @@ bool ErrorCheckerBase::checkHeader(bool& errorsInEvent, int fedId, const Word64*
     LogDebug("PixelDataFormatter::interpretRawData, fedHeader.sourceID() != fedId")
         << ", sourceID = " << fedHeader.sourceID() << ", fedId = " << fedId << ", errorType = 32";
     errorsInEvent = true;
-    if (includeErrors) {
+    if (includeErrors_) {
       int errorType = 32;
       SiPixelRawDataError error(*header, errorType, fedId);
-      errors[dummyDetId].push_back(error);
+      errors[sipixelconstants::dummyDetId].push_back(error);
     }
   }
   return fedHeader.moreHeaders();
@@ -55,10 +55,10 @@ bool ErrorCheckerBase::checkTrailer(
     bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors) {
   FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
   if (!fedTrailer.check()) {
-    if (includeErrors) {
+    if (includeErrors_) {
       int errorType = 33;
       SiPixelRawDataError error(*trailer, errorType, fedId);
-      errors[dummyDetId].push_back(error);
+      errors[sipixelconstants::dummyDetId].push_back(error);
     }
     errorsInEvent = true;
     LogError("FedTrailerCheck") << "fedTrailer.check failed, Fed: " << fedId << ", errorType = 33";
@@ -67,10 +67,10 @@ bool ErrorCheckerBase::checkTrailer(
   if (fedTrailer.fragmentLength() != nWords) {
     LogError("FedTrailerLenght") << "fedTrailer.fragmentLength()!= nWords !! Fed: " << fedId << ", errorType = 34";
     errorsInEvent = true;
-    if (includeErrors) {
+    if (includeErrors_) {
       int errorType = 34;
       SiPixelRawDataError error(*trailer, errorType, fedId);
-      errors[dummyDetId].push_back(error);
+      errors[sipixelconstants::dummyDetId].push_back(error);
     }
   }
   return fedTrailer.moreTrailers();
@@ -78,9 +78,9 @@ bool ErrorCheckerBase::checkTrailer(
 
 void ErrorCheckerBase::conversionError(
     int fedId, const SiPixelFrameConverter* converter, int status, Word32& errorWord, Errors& errors) {
-  // errorType == 0 means unexpected error, in this case we don't include it in the error collection
   const int errorType = getConversionErrorTypeAndIssueLogMessage(status, fedId);
-  if (errorType && includeErrors) {
+  // errorType == 0 means unexpected error, in this case we don't include it in the error collection
+  if (errorType && includeErrors_) {
     SiPixelRawDataError error(errorWord, errorType, fedId);
     cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
     errors[detId].push_back(error);

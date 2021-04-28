@@ -40,7 +40,7 @@ public:
                         Errors& errors) = 0;
 
 private:
-  bool includeErrors;
+  bool includeErrors_;
   int getConversionErrorTypeAndIssueLogMessage(int status, int fedId) const;
   virtual cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, int errorType, const Word32& word) const = 0;
 };
