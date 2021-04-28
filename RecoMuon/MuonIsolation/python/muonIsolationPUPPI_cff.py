@@ -23,22 +23,22 @@ IsoConeDefinitions = cms.VPSet(
 )
 
 muonIsolationAODPUPPI = _mod.CITKPFIsolationSumProducerForPUPPI.clone(
-                srcToIsolate = cms.InputTag("muons"),
-                srcForIsolationCone = cms.InputTag(''),
+                srcToIsolate = "muons",
+                srcForIsolationCone = '',
                 isolationConeDefinitions = IsoConeDefinitions
 )
 
 muonIsolationMiniAODPUPPI = _mod.CITKPFIsolationSumProducerForPUPPI.clone(
-                srcToIsolate = cms.InputTag("slimmedMuons"),
-                srcForIsolationCone = cms.InputTag('packedPFCandidates'),
-                puppiValueMap = cms.InputTag(''),
+                srcToIsolate = "slimmedMuons",
+                srcForIsolationCone = 'packedPFCandidates',
+                puppiValueMap = '',
                 isolationConeDefinitions = IsoConeDefinitions
 )
 
 muonIsolationMiniAODPUPPINoLeptons = _mod.CITKPFIsolationSumProducerForPUPPI.clone(
-                srcToIsolate = cms.InputTag("slimmedMuons"),
-                srcForIsolationCone = cms.InputTag('packedPFCandidates'),
-                puppiValueMap = cms.InputTag(''),
-                usePUPPINoLepton = cms.bool(True),
+                srcToIsolate = "slimmedMuons",
+                srcForIsolationCone = 'packedPFCandidates',
+                puppiValueMap = '',
+                usePUPPINoLepton = True,
                 isolationConeDefinitions = IsoConeDefinitions
 )
