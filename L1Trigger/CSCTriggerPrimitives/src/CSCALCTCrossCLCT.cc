@@ -4,7 +4,8 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 
-CSCALCTCrossCLCT::CSCALCTCrossCLCT(unsigned endcap, unsigned station, unsigned ring, bool isganged, const edm::ParameterSet& luts)
+CSCALCTCrossCLCT::CSCALCTCrossCLCT(
+    unsigned endcap, unsigned station, unsigned ring, bool isganged, const edm::ParameterSet& luts)
     : endcap_(endcap), station_(station), ring_(ring), isganged_(isganged) {
   wgCrossHsME1aFiles_ = luts.getParameter<std::vector<std::string>>("wgCrossHsME1aFiles");
   wgCrossHsME1aGangedFiles_ = luts.getParameter<std::vector<std::string>>("wgCrossHsME1aGangedFiles");
