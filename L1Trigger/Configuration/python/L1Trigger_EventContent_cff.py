@@ -115,6 +115,16 @@ stage2L1Trigger.toModify(L1TriggerRECO, func=_appendStage2Digis)
 stage2L1Trigger.toModify(L1TriggerAOD, func=_appendStage2Digis)
 stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendStage2Digis)
 
+## Run-3 EMTF and GMT showers
+def _appendRun3ShowerDigis(obj):
+    run3ShowerDigis = [
+        "keep *_simEmtfShowers_*_*",
+        'keep *_simGmtShowerDigis_*_*',
+        ]
+    obj.outputCommands += run3ShowerDigis
+stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendRun3ShowerDigis)
+
+
 # adding HGCal L1 trigger digis
 def _appendHGCalDigis(obj):
     l1HGCalDigis = [
