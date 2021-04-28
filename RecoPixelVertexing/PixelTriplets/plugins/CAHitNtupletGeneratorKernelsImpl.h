@@ -559,8 +559,8 @@ __global__ void kernel_countSharedHit(int *__restrict__ nshared,
 
     // find maxNh
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-      if (quality[*it] < loose)
-        continue;
+    //  if (quality[*it] < loose)
+    //    continue;
       uint32_t nh = foundNtuplets.size(*it);
       if (3 == nh)
         ++n3;
@@ -572,13 +572,16 @@ __global__ void kernel_countSharedHit(int *__restrict__ nshared,
 
     if (n3 < 2)
       continue;
+
     // now mark  each track triplet as sharing a hit
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
       if (foundNtuplets.size(*it) > 3)
         continue;
       atomicAdd(&nshared[*it], 1);
     }
+
   }  //  hit loop
+
 }
 
 __global__ void kernel_markSharedHit(int const *__restrict__ nshared,
@@ -604,7 +607,7 @@ __global__ void kernel_markSharedHit(int const *__restrict__ nshared,
   }
 }
 
-__global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restrict__ hhp,
+__global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared, TrackingRecHit2DSOAView const *__restrict__ hhp,
                                         HitContainer const *__restrict__ ptuples,
                                         TkSoA const *__restrict__ ptracks,
                                         Quality *__restrict__ quality,
@@ -701,6 +704,8 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
 
     if (maxNh > 3)
       continue;
+
+   
     // for triplets choose best tip!  (should we first find best quality???)
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
@@ -709,13 +714,15 @@ __global__ void kernel_sharedHitCleaner(TrackingRecHit2DSOAView const *__restric
         im = it;
       }
     }
+    if (60000==im) continue;
     // mark duplicates
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
+      if (nshared[it]<2) continue;
       if (quality[it] >= strict && it != im)
         quality[it] = loose;  //no race:  simple assignment of the same constant
     }
-
+    
   }  // loop over hits
 }
 
