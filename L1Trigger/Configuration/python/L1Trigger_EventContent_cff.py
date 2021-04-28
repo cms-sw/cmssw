@@ -122,8 +122,9 @@ def _appendRun3ShowerDigis(obj):
         'keep *_simGmtShowerDigis_*_*',
         ]
     obj.outputCommands += run3ShowerDigis
-stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendRun3ShowerDigis)
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+(stage2L1Trigger & run3_common).toModify(L1TriggerFEVTDEBUG, func=_appendRun3ShowerDigis)
 
 # adding HGCal L1 trigger digis
 def _appendHGCalDigis(obj):
