@@ -69,21 +69,21 @@ public:
   int layer2_middle_es_me1a() const { return layer2_middle_es_me1a_; }
 
   // setters for first/last 1/2-strip
-  void set_layer1_first_hs(const int hs) { layer1_first_hs_= hs; }
-  void set_layer2_first_hs(const int hs) { layer2_first_hs_= hs; }
-  void set_layer1_last_hs(const int hs) { layer1_last_hs_= hs; }
-  void set_layer2_last_hs(const int hs) { layer2_last_hs_= hs; }
+  void set_layer1_first_hs(const int hs) { layer1_first_hs_ = hs; }
+  void set_layer2_first_hs(const int hs) { layer2_first_hs_ = hs; }
+  void set_layer1_last_hs(const int hs) { layer1_last_hs_ = hs; }
+  void set_layer2_last_hs(const int hs) { layer2_last_hs_ = hs; }
 
-  void set_layer1_first_hs_me1a(const int hs) { layer1_first_hs_me1a_= hs; }
-  void set_layer2_first_hs_me1a(const int hs) { layer2_first_hs_me1a_= hs; }
-  void set_layer1_last_hs_me1a(const int hs) { layer1_last_hs_me1a_= hs; }
-  void set_layer2_last_hs_me1a(const int hs) { layer2_last_hs_me1a_= hs; }
+  void set_layer1_first_hs_me1a(const int hs) { layer1_first_hs_me1a_ = hs; }
+  void set_layer2_first_hs_me1a(const int hs) { layer2_first_hs_me1a_ = hs; }
+  void set_layer1_last_hs_me1a(const int hs) { layer1_last_hs_me1a_ = hs; }
+  void set_layer2_last_hs_me1a(const int hs) { layer2_last_hs_me1a_ = hs; }
 
   // setters for middle 1/2-strip
-  void set_layer1_middle_hs(const int hs) { layer1_middle_hs_= hs; }
-  void set_layer2_middle_hs(const int hs) { layer2_middle_hs_= hs; }
-  void set_layer1_middle_hs_me1a(const int hs) { layer1_middle_hs_me1a_= hs; }
-  void set_layer2_middle_hs_me1a(const int hs) { layer2_middle_hs_me1a_= hs; }
+  void set_layer1_middle_hs(const int hs) { layer1_middle_hs_ = hs; }
+  void set_layer2_middle_hs(const int hs) { layer2_middle_hs_ = hs; }
+  void set_layer1_middle_hs_me1a(const int hs) { layer1_middle_hs_me1a_ = hs; }
+  void set_layer2_middle_hs_me1a(const int hs) { layer2_middle_hs_me1a_ = hs; }
 
   // setters for first/last 1/8-strip
   void set_layer1_first_es(const int es) { layer1_first_es_ = es; }
