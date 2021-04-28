@@ -64,8 +64,6 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.FatJet, plots = _FatJet_plots_80x)
 run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots.Flag, plots = _Flag_plots_80x)
 
-run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
-
 
 ## no-change policy in run2_nanoAOD_106Xv1 (nanoAOD-v8)
 _sv_plots_nom = copy.deepcopy(nanoDQM.vplots.SV.plots)
@@ -77,6 +75,12 @@ from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106
 from Configuration.Eras.Modifier_run2_nanoAOD_devel_cff import run2_nanoAOD_devel
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.SV, plots = _sv_plots_106Xv1 )
 
+#remove new plots from old campaign
+_Muon_noIsStandalone = [plot for plot in nanoDQM.vplots.Muon.plots if plot.name.value() != 'isStandalone']
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.Muon, plots = _Muon_noIsStandalone)
+_Isotk_nocharge = [plot for plot in nanoDQM.vplots.IsoTrack.plots if plot.name.value() != 'charge']
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(nanoDQM.vplots.IsoTrack, plots = _Isotk_nocharge)
+
 
 ## MC
 nanoDQMMC = nanoDQM.clone()
@@ -86,6 +90,8 @@ nanoDQMMC.vplots.Photon.sels.Prompt = cms.string("genPartFlav == 1")
 nanoDQMMC.vplots.Tau.sels.Prompt = cms.string("genPartFlav == 5")
 nanoDQMMC.vplots.Jet.sels.Prompt = cms.string("genJetIdx != 1")
 nanoDQMMC.vplots.Jet.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavour == 5")
+
+run2_miniAOD_80XLegacy.toModify(nanoDQM.vplots, IsoTrack = None)
 
 nanoDQMQTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('PhysicsTools/NanoAOD/test/dqmQualityTests.xml'),

@@ -1,7 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
+
+
 from PhysicsTools.NanoAOD.common_cff import *
 import PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi
+
 
 # this below is used only in some eras
 slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
@@ -46,8 +49,9 @@ slimmedMuonsWithUserData = cms.EDProducer("PATMuonUserDataEmbedder",
 
 finalMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("slimmedMuonsWithUserData"),
-    cut = cms.string("pt > 3 && (passed('CutBasedIdLoose') || passed('SoftCutBasedId') || passed('SoftMvaId') || passed('CutBasedIdGlobalHighPt') || passed('CutBasedIdTrkHighPt'))")
+    cut = cms.string("pt > 15 || (pt > 3 && (passed('CutBasedIdLoose') || passed('SoftCutBasedId') || passed('SoftMvaId') || passed('CutBasedIdGlobalHighPt') || passed('CutBasedIdTrkHighPt')))")
 )
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(finalMuons, cut = "(pt > 3 && (passed('CutBasedIdLoose') || passed('SoftCutBasedId') || passed('SoftMvaId') || passed('CutBasedIdGlobalHighPt') || passed('CutBasedIdTrkHighPt')))")
 
 finalLooseMuons = cms.EDFilter("PATMuonRefSelector", # for isotrack cleaning
     src = cms.InputTag("slimmedMuonsWithUserData"),
@@ -147,6 +151,7 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         isPFcand = Var("isPFMuon",bool,doc="muon is PF candidate"),
         isGlobal = Var("isGlobalMuon",bool,doc="muon is global muon"),
         isTracker = Var("isTrackerMuon",bool,doc="muon is tracker muon"),
+        isStandalone = Var("isStandAloneMuon",bool,doc="muon is a standalone muon"),
         mediumId = Var("passed('CutBasedIdMedium')",bool,doc="cut-based ID, medium WP"),
         mediumPromptId = Var("passed('CutBasedIdMediumPrompt')",bool,doc="cut-based ID, medium prompt WP"),
         tightId = Var("passed('CutBasedIdTight')",bool,doc="cut-based ID, tight WP"),
@@ -178,6 +183,7 @@ for modifier in  run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XM
 
 run2_nanoAOD_102Xv1.toModify(muonTable.variables, puppiIsoId = None)
 
+(run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(muonTable.variables, isStandalone = None)
 
 muonsMCMatchForTable = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = muonTable.src,                         # final reco collection
