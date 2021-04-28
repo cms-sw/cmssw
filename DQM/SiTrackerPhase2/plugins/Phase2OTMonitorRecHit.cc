@@ -48,7 +48,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
 class Phase2OTMonitorRecHit : public DQMEDAnalyzer {
