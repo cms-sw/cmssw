@@ -4,7 +4,6 @@ from RecoMuon.MuonSeedGenerator.ptSeedParameterization_cfi import *
 from RecoMuon.MuonSeedGenerator.MuonSeedPtScale_cfi import *
 
 import RecoMuon.MuonSeedGenerator.produceMuons_cfi as _mod
-# module standAloneMuonSeeds = MuonSeedGenerator {
 ancientMuonSeed = _mod.produceMuons.clone(
                                  ptSeedParameterization,
                                  dphiScale,
@@ -13,9 +12,6 @@ ancientMuonSeed = _mod.produceMuons.clone(
                                  CSCRecSegmentLabel = cms.InputTag("cscSegments"),
                                  DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
                                  ME0RecSegmentLabel = cms.InputTag("me0Segments"),
-                                 EnableDTMeasurement = cms.bool(True),
-                                 EnableCSCMeasurement = cms.bool(True),
-                                 EnableME0Measurement = cms.bool(False),
                                  # places where it's OK to have single-segment seeds
                                  crackEtas = cms.vdouble(0.2, 1.6, 1.7),
                                  crackWindow = cms.double(0.04),
