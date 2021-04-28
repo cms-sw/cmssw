@@ -5,7 +5,8 @@
 
 EcalLaserAPDPNRatiosRefGPU::EcalLaserAPDPNRatiosRefGPU(EcalLaserAPDPNRatiosRef const& values) {
   values_.reserve(values.size());
-  std::copy(values.begin(), values.end(), values_.begin());
+  values_.insert(values_.end(), values.barrelItems().begin(), values.barrelItems().end());
+  values_.insert(values_.end(), values.endcapItems().begin(), values.endcapItems().end());
   offset_ = values.barrelItems().size();
 }
 
