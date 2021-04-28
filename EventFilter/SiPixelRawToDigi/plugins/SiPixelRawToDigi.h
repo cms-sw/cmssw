@@ -63,7 +63,7 @@ private:
   // consume only if pixel quality is used -> useQuality_
   edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> siPixelQualityToken_;
   // always produced
-  edm::EDPutTokenT<edm::DetSetVector<PixelDigi>> siPixelDigiCollectionToken_;
+  const edm::EDPutTokenT<edm::DetSetVector<PixelDigi>> siPixelDigiCollectionToken_;
   // produce only if error collections are included -> includeErrors_
   edm::EDPutTokenT<edm::DetSetVector<SiPixelRawDataError>> errorPutToken_;
   edm::EDPutTokenT<DetIdCollection> tkErrorPutToken_;
