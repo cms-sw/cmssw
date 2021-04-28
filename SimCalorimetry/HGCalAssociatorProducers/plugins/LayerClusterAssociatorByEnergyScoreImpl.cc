@@ -28,7 +28,7 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
   std::vector<size_t> cPIndices;
   //Consider CaloParticles coming from the hard scatterer
   //excluding the PU contribution and save the indices.
-  removeCPFromPU(caloParticles, cPIndices);
+  removeCPFromPU(caloParticles, cPIndices, hardScatterOnly_);
   auto nCaloParticles = cPIndices.size();
 
   // Initialize cPOnLayer. To be returned outside, since it contains the

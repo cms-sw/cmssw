@@ -4,7 +4,7 @@ from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import cscTrigg
 
 # Default parameters for CSCTriggerPrimitives analyzer
 # =====================================================
-lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
+cscTriggerPrimitivesReader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
     # Parameters common for all boards
     commonParam = cscTriggerPrimitiveDigis.commonParam,
     # Switch on/off the verbosity and turn on/off histogram production

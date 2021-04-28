@@ -137,11 +137,27 @@ def customizeFor33543(process):
 
     return process
 
+  def customiseFor33495(process):
+    """Customize HLT menu to remove deprecated parameters for pixel Generic and Template CPE's """
+    for producer in esproducers_by_type(process, "PixelCPEGenericESProducer"):
+        if hasattr(producer, "DoLorentz"):
+            del producer.DoLorentz
+        if hasattr(producer, "useLAAlignmentOffsets"):
+            del producer.useLAAlignmentOffsets
+
+    for producer in esproducers_by_type(process, "PixelCPETemplateRecoESProducer"):
+        if hasattr(producer, "DoLorentz"):
+            del producer.DoLorentz
+    return process
+
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customiseFor33495(process)
     process = customizeFor33543(process)
 
     return process

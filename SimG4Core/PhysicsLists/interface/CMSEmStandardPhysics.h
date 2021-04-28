@@ -1,3 +1,10 @@
+//--------------------------------------------------------------------
+//
+// 15.04.2021 V.Ivanchenko EM physics of CMS mirgrated to Geant4 10.7
+//                         based on option1 Geant4 EM and called EMM
+//
+//--------------------------------------------------------------------
+
 #ifndef SimG4Core_PhysicsLists_CMSEmStandardPhysics_h
 #define SimG4Core_PhysicsLists_CMSEmStandardPhysics_h
 

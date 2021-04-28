@@ -7,13 +7,14 @@
 #include "RecoHGCal/TICL/plugins/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "HGCGraph.h"
 
 namespace ticl {
   template <typename TILES>
   class PatternRecognitionbyCA final : public PatternRecognitionAlgoBaseT<TILES> {
   public:
-    PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache);
+    PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache, edm::ConsumesCollector iC);
     ~PatternRecognitionbyCA() override;
 
     void makeTracksters(const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
@@ -30,6 +31,7 @@ namespace ticl {
                             const std::vector<reco::CaloCluster>&,
                             std::vector<Trackster>&,
                             std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const std::unique_ptr<HGCGraphT<TILES>> theGraph_;
     const bool oneTracksterPerTrackSeed_;
     const bool promoteEmptyRegionToTrackster_;

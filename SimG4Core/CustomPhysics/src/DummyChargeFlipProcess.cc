@@ -1,44 +1,29 @@
+#include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
+
 #include <iostream>
 #include "G4ParticleTable.hh"
 #include "Randomize.hh"
-
-#include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
+#include "G4NeutronElasticXS.hh"
+#include "G4Step.hh"
+#include "G4TrackStatus.hh"
+#include "G4Element.hh"
 
 using namespace CLHEP;
 
-DummyChargeFlipProcess::DummyChargeFlipProcess(const G4String& processName) : G4HadronicProcess(processName) {
-  AddDataSet(new G4HadronElasticDataSet);
+DummyChargeFlipProcess::DummyChargeFlipProcess(const G4String& pname) : G4HadronicProcess(pname, fHadronic) {
+  AddDataSet(new G4NeutronElasticXS());
+  fPartChange = new G4ParticleChange();
 }
 
-DummyChargeFlipProcess::~DummyChargeFlipProcess() {}
-
-void DummyChargeFlipProcess::BuildPhysicsTable(const G4ParticleDefinition& aParticleType) {
-  if (!G4HadronicProcess::GetCrossSectionDataStore()) {
-    return;
-  }
-  G4HadronicProcess::GetCrossSectionDataStore()->BuildPhysicsTable(aParticleType);
-}
-
-G4double DummyChargeFlipProcess::GetMicroscopicCrossSection(const G4DynamicParticle* /*aParticle*/,
-                                                            const G4Element* element,
-                                                            G4double /*aTemp*/) {
-  return 30 * millibarn * element->GetN();
-}
+DummyChargeFlipProcess::~DummyChargeFlipProcess() { delete fPartChange; }
 
 G4bool DummyChargeFlipProcess::IsApplicable(const G4ParticleDefinition& aParticleType) {
-  if (aParticleType.GetParticleType() == "rhadron")
-    return true;
-  else
-    return false;
+  return (aParticleType.GetParticleType() == "rhadron");
 }
 
-void DummyChargeFlipProcess::DumpPhysicsTable(const G4ParticleDefinition& /*aParticleType*/) {}
-
-G4VParticleChange* DummyChargeFlipProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& /*aStep*/) {
-  G4ParticleChange* pc = new G4ParticleChange();
-  pc->Initialize(aTrack);
+G4VParticleChange* DummyChargeFlipProcess::PostStepDoIt(const G4Track& aTrack, const G4Step&) {
+  fPartChange->Initialize(aTrack);
   const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
-  //G4ParticleDefinition* aParticleDef = aParticle->GetDefinition();
 
   G4double ParentEnergy = aParticle->GetTotalEnergy();
   const G4ThreeVector& ParentDirection(aParticle->GetMomentumDirection());
@@ -47,7 +32,7 @@ G4VParticleChange* DummyChargeFlipProcess::PostStepDoIt(const G4Track& aTrack, c
   G4double finalGlobalTime = aTrack.GetGlobalTime();
 
   G4int numberOfSecondaries = 1;
-  pc->SetNumberOfSecondaries(numberOfSecondaries);
+  fPartChange->SetNumberOfSecondaries(numberOfSecondaries);
   const G4TouchableHandle& thand = aTrack.GetTouchableHandle();
 
   // get current position of the track
@@ -63,7 +48,7 @@ G4VParticleChange* DummyChargeFlipProcess::PostStepDoIt(const G4Track& aTrack, c
   else
     newType = particleTable->FindParticle(1009113);
 
-  G4cout << "RHADRON: New charge = " << newType->GetPDGCharge() << G4endl;
+  //G4cout << "RHADRON: New charge = " << newType->GetPDGCharge() << G4endl;
 
   G4DynamicParticle* newP = new G4DynamicParticle(newType, ParentDirection, ParentEnergy);
   G4Track* secondary = new G4Track(newP, finalGlobalTime, aTrack.GetPosition());
@@ -71,14 +56,14 @@ G4VParticleChange* DummyChargeFlipProcess::PostStepDoIt(const G4Track& aTrack, c
   secondary->SetGoodForTrackingFlag();
   secondary->SetTouchableHandle(thand);
   // add the secondary track in the List
-  pc->AddSecondary(secondary);
+  fPartChange->AddSecondary(secondary);
 
   // Kill the parent particle
-  pc->ProposeTrackStatus(fStopAndKill);
-  pc->ProposeLocalEnergyDeposit(energyDeposit);
-  pc->ProposeGlobalTime(finalGlobalTime);
-  // Clear NumberOfInteractionLengthLeft
+  fPartChange->ProposeTrackStatus(fStopAndKill);
+  fPartChange->ProposeLocalEnergyDeposit(energyDeposit);
+  fPartChange->ProposeGlobalTime(finalGlobalTime);
+
   ClearNumberOfInteractionLengthLeft();
 
-  return pc;
+  return fPartChange;
 }

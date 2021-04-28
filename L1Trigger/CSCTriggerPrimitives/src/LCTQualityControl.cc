@@ -313,7 +313,7 @@ unsigned LCTQualityControl::get_csc_max_eighthstrip(int station, int ring) const
 std::pair<unsigned, unsigned> LCTQualityControl::get_csc_min_max_cfeb(int station, int ring) const {
   // 5 CFEBs [0,4] for non-ME1/1 chambers
   int min_cfeb = 0;
-  int max_cfeb = CSCConstants::MAX_CFEBS - 1;  // 4
+  int max_cfeb = CSCConstants::MAX_CFEBS_RUN1 - 1;  // 4
   // 7 CFEBs [0,6] for ME1/1 chambers
   if (station == 1 and ring == 1) {
     max_cfeb = 6;

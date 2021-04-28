@@ -16,6 +16,25 @@ std::pair<float, float> RectangularMTDTopology::pixel(const LocalPoint& p) const
   return std::pair<float, float>(newxbin, newybin);
 }
 
+//The following lines check whether the point is actually out of the active pixel area.
+bool RectangularMTDTopology::isInPixel(const LocalPoint& p) const {
+  bool isInside = true;
+  const auto& thepixel = pixel(p);
+  const int ixbin = static_cast<int>(thepixel.first);
+  const int iybin = static_cast<int>(thepixel.second);
+  const float fractionX = thepixel.first - ixbin;
+  const float fractionY = thepixel.second - iybin;
+  if ((fractionX > 1.0 - m_GAPxInterpadFrac || fractionX < m_GAPxInterpadFrac) ||
+      (ixbin == 0 && fractionX < m_GAPxBorderFrac) || (ixbin == m_nrows - 1 && fractionX > 1.0 - m_GAPxBorderFrac)) {
+    isInside = false;
+  }
+  if ((fractionY > 1.0 - m_GAPyInterpadFrac || fractionY < m_GAPyInterpadFrac) ||
+      (iybin == 0 && fractionY < m_GAPyBorderFrac) || (iybin == m_ncols - 1 && fractionY > 1.0 - m_GAPyBorderFrac)) {
+    isInside = false;
+  }
+  return isInside;
+}
+
 //----------------------------------------------------------------------
 // Topology interface, go from Measurement to Local corrdinates
 // pixel coordinates (mp) -> cm (LocalPoint)

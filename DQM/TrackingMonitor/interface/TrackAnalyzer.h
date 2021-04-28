@@ -270,10 +270,6 @@ namespace tadqm {
       MonitorElement* TrackEtaPhi = nullptr;
       MonitorElement* TrackEtaPhiInverted = nullptr;
       MonitorElement* TrackEtaPhiInvertedoutofphase = nullptr;
-      MonitorElement* TkEtaPhi_Ratio_byFoldingmap = nullptr;
-      MonitorElement* TkEtaPhi_Ratio_byFoldingmap_op = nullptr;
-      MonitorElement* TkEtaPhi_RelativeDifference_byFoldingmap = nullptr;
-      MonitorElement* TkEtaPhi_RelativeDifference_byFoldingmap_op = nullptr;
       MonitorElement* TrackEtaPhiInner = nullptr;
       MonitorElement* TrackEtaPhiOuter = nullptr;
 

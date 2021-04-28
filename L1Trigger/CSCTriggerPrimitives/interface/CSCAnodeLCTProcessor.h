@@ -37,6 +37,7 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTPreTriggerDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCShowerDigi.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCBaseboard.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/LCTQualityControl.h"
@@ -52,9 +53,6 @@ public:
                        unsigned subsector,
                        unsigned chamber,
                        const edm::ParameterSet& conf);
-
-  /** Default constructor. Used for testing. */
-  CSCAnodeLCTProcessor();
 
   /** Default destructor. */
   ~CSCAnodeLCTProcessor() override = default;
@@ -73,7 +71,7 @@ public:
   // test, being passed the time array, or called by the run() function above.
   // It gets wire times from an input array and then loops over the keywires.
   // All found LCT candidates are sorted and the best two are retained.
-  void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  void run(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
 
   /** Returns vector of ALCTs in the read-out time window, if any. */
   std::vector<CSCALCTDigi> readoutALCTs(int nMaxALCTs = CSCConstants::MAX_ALCTS_READOUT) const;
@@ -88,8 +86,12 @@ public:
   CSCALCTDigi getBestALCT(int bx) const;
   CSCALCTDigi getSecondALCT(int bx) const;
 
-  /* encode special bits for high multiplicity triggers */
-  unsigned getHighMultiplictyBits() const { return highMultiplicityBits_; }
+  /* get special bits for high multiplicity triggers */
+  unsigned getInTimeHMT() const { return inTimeHMT_; }
+  unsigned getOutTimeHMT() const { return outTimeHMT_; }
+
+  /** Returns shower bits */
+  CSCShowerDigi readoutShower() const;
 
 protected:
   /** Best LCTs in this chamber, as found by the processor.
@@ -105,6 +107,8 @@ protected:
   /** LCTs in this chamber, as found by the processor. */
   std::vector<std::vector<CSCALCTDigi> > ALCTContainer_;
 
+  CSCShowerDigi shower_;
+
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
   void getDigis(const CSCWireDigiCollection* wiredc, const CSCDetId& id);
@@ -112,19 +116,26 @@ protected:
   int numWireGroups;
   int MESelection;
 
-  int first_bx[CSCConstants::MAX_NUM_WIRES];
-  int first_bx_corrected[CSCConstants::MAX_NUM_WIRES];
-  int quality[CSCConstants::MAX_NUM_WIRES][3];
+  int first_bx[CSCConstants::MAX_NUM_WIREGROUPS];
+  int first_bx_corrected[CSCConstants::MAX_NUM_WIREGROUPS];
+  int quality[CSCConstants::MAX_NUM_WIREGROUPS][3];
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
-  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
+  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS];
 
   std::vector<CSCALCTDigi> lct_list;
 
   std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
 
   /* data members for high multiplicity triggers */
-  void encodeHighMultiplicityBits();
-  unsigned int highMultiplicityBits_;
+  void encodeHighMultiplicityBits(
+      const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
+  unsigned inTimeHMT_;
+  unsigned outTimeHMT_;
+  std::vector<unsigned> thresholds_;
+  unsigned showerMinInTBin_;
+  unsigned showerMaxInTBin_;
+  unsigned showerMinOutTBin_;
+  unsigned showerMaxOutTBin_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;
@@ -182,14 +193,14 @@ protected:
   void clear(const int wire, const int pattern);
 
   /* Gets wire times from the wire digis and fills wire[][] vector */
-  void readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  void readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
 
   /* A pulse array will be used as a bit representation of hit times.
      For example: if a keywire has a bx_time of 3, then 1 shifted
      left 3 will be bit pattern 0000000000001000.  Bits are then added to
      signify the duration of a signal (hit_persist, formerly bx_width).  So
      for the pulse with a hit_persist of 6 will look like 0000000111111000. */
-  bool pulseExtension(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
+  bool pulseExtension(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
 
   /* Check that there are nplanes_hit_pretrig or more layers hit in collision
      or accelerator patterns for a particular key_wire.  If so, return
@@ -246,7 +257,7 @@ protected:
   void dumpConfigParams() const;
 
   /** Dump digis on wire groups. */
-  void dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
+  void dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]) const;
 
   void showPatterns(const int key_wire);
 };

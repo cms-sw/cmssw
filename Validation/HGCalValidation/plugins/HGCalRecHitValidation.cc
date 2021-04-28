@@ -69,6 +69,10 @@ private:
 
   // ----------member data ---------------------------
   std::string nameDetector_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geometry_token_;
+  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> pHRNDCToken_;
+  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geometry_beginRun_token_;
   edm::EDGetToken recHitSource_;
   bool ifHCAL_;
   int verbosity_;
@@ -88,6 +92,11 @@ private:
 
 HGCalRecHitValidation::HGCalRecHitValidation(const edm::ParameterSet& iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
+      caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      geometry_token_(esConsumes(edm::ESInputTag("", nameDetector_))),
+      pHRNDCToken_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord>()),
+      geometry_beginRun_token_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", nameDetector_))),
       ifHCAL_(iConfig.getParameter<bool>("ifHCAL")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       firstLayer_(1) {
@@ -123,8 +132,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   bool ok(true);
   unsigned int ntot(0), nused(0);
   if (nameDetector_ == "HCal") {
-    edm::ESHandle<CaloGeometry> geom;
-    iSetup.get<CaloGeometryRecord>().get(geom);
+    edm::ESHandle<CaloGeometry> geom = iSetup.getHandle(caloGeomToken_);
     if (!geom.isValid()) {
       edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
                                           << "Object for " << nameDetector_;
@@ -171,13 +179,12 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
   } else {
-    edm::ESHandle<HGCalGeometry> geom;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
-    if (!geom.isValid()) {
+    edm::ESHandle<HGCalGeometry> geomHandle = iSetup.getHandle(geometry_token_);
+    if (!geomHandle.isValid()) {
       edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
                                           << "Object for " << nameDetector_;
     } else {
-      const HGCalGeometry* geom0 = geom.product();
+      const HGCalGeometry* geom0 = geomHandle.product();
       int geomType = ((geom0->topology().waferHexagon8()) ? 1 : ((geom0->topology().tileTrapezoid()) ? 2 : 0));
 
       edm::Handle<HGCRecHitCollection> theRecHitContainers;
@@ -271,16 +278,19 @@ void HGCalRecHitValidation::fillHitsInfo(HitsInfo& hits) {
 
 void HGCalRecHitValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   if (nameDetector_ == "HCal") {
-    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-    iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-    const HcalDDDRecConstants* hcons = &(*pHRNDC);
-    layers_ = hcons->getMaxDepth(1);
+    const HcalDDDRecConstants& hcons = iSetup.getData(pHRNDCToken_);
+    layers_ = hcons.getMaxDepth(1);
   } else {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
-    const HGCalDDDConstants& hgcons_ = (*pHGDC);
-    layers_ = hgcons_.layers(true);
-    firstLayer_ = hgcons_.firstLayer();
+    edm::ESHandle<HGCalGeometry> geomHandle = iSetup.getHandle(geometry_beginRun_token_);
+    if (!geomHandle.isValid()) {
+      edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
+                                          << "Object for " << nameDetector_;
+    } else {
+      const HGCalGeometry* geom = geomHandle.product();
+      const HGCalDDDConstants& hgcons_ = geom->topology().dddConstants();
+      layers_ = hgcons_.layers(true);
+      firstLayer_ = hgcons_.firstLayer();
+    }
   }
 }
 
