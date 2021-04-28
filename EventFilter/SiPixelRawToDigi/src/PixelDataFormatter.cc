@@ -415,14 +415,13 @@ void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors const& error
                                          DetIdCollection& usererror_detidcollection,
                                          edmNew::DetSetVector<PixelFEDChannel>& disabled_channelcollection,
                                          DetErrors& nodeterrors) {
-  const uint32_t dummydetid = 0xffffffff;
-  for (auto& error : errors) {
-    uint32_t errordetid = error.first;
-    if (errordetid == dummydetid) {  // errors given dummy detId must be sorted by Fed
-      nodeterrors.insert(nodeterrors.end(), error.second.begin(), error.second.end());
+  const uint32_t dummyDetId = 0xffffffff;
+  for (const auto& [errorDetId, rawErrorsVec] : errors) {
+    if (errorDetId == dummyDetId) {  // errors given dummy detId must be sorted by Fed
+      nodeterrors.insert(nodeterrors.end(), rawErrorsVec.begin(), rawErrorsVec.end());
     } else {
-      edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection.find_or_insert(errordetid);
-      errorDetSet.data.insert(errorDetSet.data.end(), error.second.begin(), error.second.end());
+      edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection.find_or_insert(errorDetId);
+      errorDetSet.data.insert(errorDetSet.data.end(), rawErrorsVec.begin(), rawErrorsVec.end());
       // Fill detid of the detectors where there is error AND the error number is listed
       // in the configurable error list in the job option cfi.
       // Code needs to be here, because there can be a set of errors for each
@@ -458,7 +457,7 @@ void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors const& error
           if (!tkerrorlist.empty()) {
             auto it_find = std::find(tkerrorlist.begin(), tkerrorlist.end(), aPixelError.getType());
             if (it_find != tkerrorlist.end()) {
-              tkerror_detidcollection.push_back(errordetid);
+              tkerror_detidcollection.push_back(errorDetId);
             }
           }
         }
@@ -467,14 +466,14 @@ void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors const& error
         if (!usererrorlist.empty()) {
           auto it_find = std::find(usererrorlist.begin(), usererrorlist.end(), aPixelError.getType());
           if (it_find != usererrorlist.end()) {
-            usererror_detidcollection.push_back(errordetid);
+            usererror_detidcollection.push_back(errorDetId);
           }
         }
 
       }  // loop on DetSet of errors
 
       if (!disabledChannelsDetSet.empty()) {
-        disabled_channelcollection.insert(errordetid, disabledChannelsDetSet.data(), disabledChannelsDetSet.size());
+        disabled_channelcollection.insert(errorDetId, disabledChannelsDetSet.data(), disabledChannelsDetSet.size());
       }
 
     }  // if error assigned to a real DetId
