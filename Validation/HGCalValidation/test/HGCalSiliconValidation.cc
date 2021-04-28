@@ -51,6 +51,7 @@ private:
   const std::string g4Label_, nameDetector_, hgcalHits_;
   const edm::InputTag hgcalDigis_;
   const int iSample_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcalgeom_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
   edm::EDGetToken tok_digi_;
 
@@ -64,7 +65,8 @@ HGCalSiliconValidation::HGCalSiliconValidation(const edm::ParameterSet& ps)
       nameDetector_(ps.getUntrackedParameter<std::string>("detectorName", "HGCalEESensitive")),
       hgcalHits_((ps.getUntrackedParameter<std::string>("HitCollection", "HGCHitsEE"))),
       hgcalDigis_(ps.getUntrackedParameter<edm::InputTag>("DigiCollection")),
-      iSample_(ps.getUntrackedParameter<int>("Sample", 5)) {
+      iSample_(ps.getUntrackedParameter<int>("Sample", 5)),
+      tok_hgcalgeom_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_})) {
   usesResource(TFileService::kSharedResource);
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hgcalHits_));
@@ -105,8 +107,7 @@ void HGCalSiliconValidation::analyze(const edm::Event& e, const edm::EventSetup&
   edm::LogVerbatim("HGCalValidation") << "HGCalSiliconValidation:Run = " << e.id().run()
                                       << " Event = " << e.id().event();
 
-  edm::ESHandle<HGCalGeometry> geom;
-  iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
+  edm::ESHandle<HGCalGeometry> geom = iSetup.getHandle(tok_hgcalgeom_);
   if (!geom.isValid()) {
     edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
   } else {
