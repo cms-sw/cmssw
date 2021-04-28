@@ -75,13 +75,20 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_v2', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
-process.load('RecoLocalTracker.SiStripClusterizer.SiStripClusters2ApproxClustersv1_cfi')
+process.SiStripClusters2ApproxClustersv1 = cms.EDProducer("SiStripClusters2ApproxClustersv1",
+	inputClusters = cms.InputTag("siStripClusters")
+)
+
+process.SiStripApproximatedClustersDump = cms.EDAnalyzer("SiStripApproximatedClustersDump",
+    approximatedClustersTag = cms.InputTag("SiStripClusters2ApproxClustersv1")
+)
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
 process.approxClusters_step = cms.Path(process.SiStripClusters2ApproxClustersv1)
+process.analyzer_step = cms.Path(process.SiStripApproximatedClustersDump) 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.outputClusters+process.outputCompressed)
 
