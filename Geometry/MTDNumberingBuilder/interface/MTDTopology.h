@@ -34,7 +34,7 @@ public:
   // horizontal and vertical shifts in both directions, assuming the predefined order in a sector
 
   size_t hshiftETL(const uint32_t detid, const int horizontalShift) const;
-  size_t vshiftETL(const uint32_t detid, const int verticalShift) const;
+  size_t vshiftETL(const uint32_t detid, const int verticalShift, size_t& closest) const;
 
 private:
   const int mtdTopologyMode_;

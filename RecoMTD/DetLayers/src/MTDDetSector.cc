@@ -112,11 +112,16 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
     for (int iside = -1; iside <= 1; iside += 2) {
       bool isCompatible(true);
       size_t idetNew(idetMin);
+      size_t closest = theDets.size();
 
       while (isCompatible) {
-        idetNew = vshift(theDets[idetNew]->geographicalId().rawId(), iside);
+        idetNew = vshift(theDets[idetNew]->geographicalId().rawId(), iside, closest);
         if (idetNew >= theDets.size()) {
-          break;
+          if (closest < theDets.size()) {
+            idetNew = closest;
+          } else {
+            break;
+          }
         }
         isCompatible = add(idetNew, result, tsos, prop, est);
         if (isCompatible) {
@@ -209,6 +214,6 @@ size_t MTDDetSector::hshift(const uint32_t detid, const int horizontalShift) con
   return topo_->hshiftETL(detid, horizontalShift);
 }
 
-size_t MTDDetSector::vshift(const uint32_t detid, const int verticalShift) const {
-  return topo_->vshiftETL(detid, verticalShift);
+size_t MTDDetSector::vshift(const uint32_t detid, const int verticalShift, size_t& closest) const {
+  return topo_->vshiftETL(detid, verticalShift, closest);
 }
