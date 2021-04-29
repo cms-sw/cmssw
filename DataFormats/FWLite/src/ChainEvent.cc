@@ -40,6 +40,9 @@ namespace fwlite {
 
     for (auto const& fileName : iFileNames) {
       TFile* tfilePtr = TFile::Open(fileName.c_str());
+      if (nullptr == tfilePtr) {
+        throw cms::Exception("FileOpenFailed") << "TFile::Open of " << fileName << " failed";
+      }
       file_ = std::shared_ptr<TFile>(tfilePtr);
       gROOT->GetListOfFiles()->Remove(tfilePtr);
       TTree* tree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::eventTreeName().c_str()));
