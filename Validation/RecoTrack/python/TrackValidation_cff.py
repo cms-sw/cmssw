@@ -46,9 +46,11 @@ for _eraName, _postfix, _era in _cfg.allEras():
         locals()["_electronSeedProducers"+_postfix] = ["tripletElectronSeeds"]
 
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
+                                 "jetCoreRegionalStepSeeds",
                                  "jetCoreRegionalStepSeedsBarrel","jetCoreRegionalStepSeedsEndcap",
                                  "muonSeededSeedsInOut",
                                  "muonSeededSeedsOutIn"]
+
 _seedProducers_fastSim = [ x for x in _seedProducers if x not in _removeForFastSimSeedProducers]
 
 _removeForFastTrackProducers = ["initialStepTracksPreSplitting",

@@ -83,7 +83,6 @@ _multipleSeedProducers_trackingPhase1 = {
     "PixelPairStep": ["A", "B"],
     "MixedTripletStep": ["A", "B"],
     "TobTecStep": ["Pair", "Tripl"],
-#    "JetCoreRegionalStep": ["Barrel","Endcap"],
 }
 from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
 seedingDeepCore.toModify(_multipleSeedProducers_trackingPhase1, func=lambda x: x.update({"JetCoreRegionalStep": ["Barrel","Endcap"]}))

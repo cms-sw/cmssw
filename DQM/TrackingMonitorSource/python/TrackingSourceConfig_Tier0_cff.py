@@ -381,7 +381,7 @@ for _eraName, _postfix, _era in _cfg.allEras():
 
 _seedingDeepCore_TrackSeedMonSequence = TrackSeedMonSequence.copy()
 _seedingDeepCore_TrackSeedMonSequence.remove(locals()["TrackSeedMonjetCoreRegionalStep"])
-_seedingDeepCore_TrackSeedMonSequence += (locals()["TrackSeedMonjetCoreRegionalStepBarrel"])
+#_seedingDeepCore_TrackSeedMonSequence += (locals()["TrackSeedMonjetCoreRegionalStepBarrel"])
 _seedingDeepCore_TrackSeedMonSequence += (locals()["TrackSeedMonjetCoreRegionalStepEndcap"])
 from Configuration.ProcessModifiers.seedingDeepCore_cff import seedingDeepCore
 seedingDeepCore.toReplaceWith(TrackSeedMonSequence,_seedingDeepCore_TrackSeedMonSequence)
