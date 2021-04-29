@@ -277,7 +277,7 @@ namespace pixelgpudetails {
       case 36:
       case 40: {
         uint32_t roc = 1;
-        uint32_t link = (errWord >> sipixelconstants::LINK_shift) & sipixelconstants::LINK_mask;
+        uint32_t link = sipixelconstants::getLink(errWord);
         uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
         if (rID_temp != gpuClustering::invalidModuleId)
           rID = rID_temp;
@@ -318,8 +318,8 @@ namespace pixelgpudetails {
       }
       case 37:
       case 38: {
-        uint32_t roc = (errWord >> sipixelconstants::ROC_shift) & sipixelconstants::ROC_mask;
-        uint32_t link = (errWord >> sipixelconstants::LINK_shift) & sipixelconstants::LINK_mask;
+        uint32_t roc = sipixelconstants::getROC(errWord);
+        uint32_t link = sipixelconstants::getLink(errWord);
         uint32_t rID_temp = getRawId(cablingMap, fedId, link, roc).rawId;
         if (rID_temp != gpuClustering::invalidModuleId)
           rID = rID_temp;
@@ -414,8 +414,8 @@ namespace pixelgpudetails {
       // ***special case of layer to 1 be handled here
       pixelgpudetails::Pixel localPix;
       if (layer == 1) {
-        uint32_t col = (ww >> sipixelconstants::COL_shift) & sipixelconstants::COL_mask;
-        uint32_t row = (ww >> sipixelconstants::ROW_shift) & sipixelconstants::ROW_mask;
+        uint32_t col = sipixelconstants::getCol(ww);
+        uint32_t row = sipixelconstants::getRow(ww);
         localPix.row = row;
         localPix.col = col;
         if (includeErrors) {
@@ -429,8 +429,8 @@ namespace pixelgpudetails {
         }
       } else {
         // ***conversion rules for dcol and pxid
-        uint32_t dcol = (ww >> sipixelconstants::DCOL_shift) & sipixelconstants::DCOL_mask;
-        uint32_t pxid = (ww >> sipixelconstants::PXID_shift) & sipixelconstants::PXID_mask;
+        uint32_t dcol = sipixelconstants::getDCol(ww);
+        uint32_t pxid = sipixelconstants::getPxId(ww);
         uint32_t row = pixelgpudetails::numRowsInRoc - pxid / 2;
         uint32_t col = dcol * 2 + pxid % 2;
         localPix.row = row;
