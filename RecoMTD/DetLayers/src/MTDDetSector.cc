@@ -107,7 +107,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
   //look for the compatibledets considering each line of the sector
 
   if (add(idetMin, result, tsos, prop, est)) {
-    compatibleDetsLine(idetMin, result, tsos, prop, est, startPos);
+    compatibleDetsLine(idetMin, result, tsos, prop, est);
 
     for (int iside = -1; iside <= 1; iside += 2) {
       bool isCompatible(true);
@@ -120,7 +120,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
         }
         isCompatible = add(idetNew, result, tsos, prop, est);
         if (isCompatible) {
-          compatibleDetsLine(idetNew, result, tsos, prop, est, startPos);
+          compatibleDetsLine(idetNew, result, tsos, prop, est);
         }
       }
     }
@@ -188,8 +188,7 @@ void MTDDetSector::compatibleDetsLine(const size_t idetMin,
                                       vector<DetWithState>& result,
                                       const TrajectoryStateOnSurface& tsos,
                                       const Propagator& prop,
-                                      const MeasurementEstimator& est,
-                                      GlobalPoint startPos) const {
+                                      const MeasurementEstimator& est) const {
   for (int iside = -1; iside <= 1; iside += 2) {
     bool isCompatible(true);
     size_t idetNew(idetMin);

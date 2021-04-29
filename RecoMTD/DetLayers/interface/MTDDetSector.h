@@ -56,8 +56,7 @@ public:
                           std::vector<DetWithState>& result,
                           const TrajectoryStateOnSurface& tsos,
                           const Propagator& prop,
-                          const MeasurementEstimator& est,
-                          GlobalPoint startPos) const;
+                          const MeasurementEstimator& est) const;
 
   size_t hshift(const uint32_t detid, const int horizontalShift) const;
   size_t vshift(const uint32_t detid, const int verticalShift) const;
