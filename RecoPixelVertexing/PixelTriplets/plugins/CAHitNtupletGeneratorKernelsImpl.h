@@ -241,6 +241,8 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       }
     }
 
+    if (60000==im) continue;
+
     // mark all other duplicates  (not yet, keep it loose)
     for (auto it : thisCell.tracks()) {
       if (tracks->quality(it) > loose && it != im)
@@ -553,7 +555,8 @@ __global__ void kernel_countSharedHit(int *__restrict__ nshared,
     if (hitToTuple.size(idx) < 2)
       continue;
 
-    uint32_t maxNh = 0;
+    /*
+    // uint32_t maxNh = 0;
 
     int n3 = 0;
 
@@ -564,7 +567,7 @@ __global__ void kernel_countSharedHit(int *__restrict__ nshared,
       uint32_t nh = foundNtuplets.size(*it);
       if (3 == nh)
         ++n3;
-      maxNh = std::max(nh, maxNh);
+      // maxNh = std::max(nh, maxNh);
     }
 
     //if (maxNh<4) continue;
@@ -572,6 +575,8 @@ __global__ void kernel_countSharedHit(int *__restrict__ nshared,
 
     if (n3 < 2)
       continue;
+    */
+
 
     // now mark  each track triplet as sharing a hit
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
@@ -634,36 +639,6 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared, Trackin
     if (hitToTuple.size(idx) < 2)
       continue;
 
-    float mc = 10000.f;
-    uint16_t im = 60000;
-    uint32_t maxNh = 0;
-
-    // find maxNh
-    for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-      if (quality[*it] < strict)
-        continue;
-      uint32_t nh = foundNtuplets.size(*it);
-      maxNh = std::max(nh, maxNh);
-    }
-
-    if (maxNh < 3)
-      continue;
-
-    // quad pass thotough
-    //   maxNh = std::min(4U, maxNh);
-
-    // kill all tracks shorter than maxHn (only triplets???
-    for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-      uint32_t nh = foundNtuplets.size(*it);
-
-      //checking if shared hit is on bpix1 and if the tuple is short enough
-      if (idx < l1end and nh > nmin)
-        continue;
-
-      if (nh < maxNh && quality[*it] >= strict)
-        quality[*it] = loose;  // dup; // loose;
-    }
-
     auto score = [&](auto it, auto nh) {
       return nh < 4 ? std::abs(tracks.tip(it)) :  // tip for triplets
                  tracks.chi2(it);                 //chi2
@@ -687,7 +662,6 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared, Trackin
           continue;
         if (std::abs(etai - tracks.eta(jt)) > 0.01f)
           continue;
-        ;
         auto pj = tracks.pt(jt);
         auto rp = pj * opi;
         if (rp > (1.f - fact) and rp < (1.f + fact)) {
@@ -702,9 +676,40 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared, Trackin
       }
     }
 
-    if (maxNh > 3)
+
+    float mc = 10000.f;
+    uint16_t im = 60000;
+    uint32_t maxNh = 0;
+
+    // find maxNh
+    for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
+      if (quality[*it] < strict)
+        continue;
+      uint32_t nh = foundNtuplets.size(*it);
+      maxNh = std::max(nh, maxNh);
+    }
+
+    if (maxNh < 3)
       continue;
 
+    // quad pass thotough
+    // maxNh = std::min(4U, maxNh);
+
+    // kill all tracks shorter than maxHn (only triplets???
+    for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
+      uint32_t nh = foundNtuplets.size(*it);
+
+      //checking if shared hit is on bpix1 and if the tuple is short enough
+      if (idx < l1end and nh > nmin)
+        continue;
+
+      if (nh < maxNh && quality[*it] >= strict)
+        quality[*it] = loose;  // dup; // loose;
+    }
+
+
+    if (maxNh > 3)
+      continue;
    
     // for triplets choose best tip!  (should we first find best quality???)
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
@@ -714,11 +719,13 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared, Trackin
         im = it;
       }
     }
+
     if (60000==im) continue;
+
     // mark duplicates
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
-      if (nshared[it]<2) continue;
+      // if (nshared[it]<2) continue;  // kill only tracks that share also other hits
       if (quality[it] >= strict && it != im)
         quality[it] = loose;  //no race:  simple assignment of the same constant
     }
