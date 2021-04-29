@@ -243,7 +243,7 @@ void DeepCoreSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& i
         input_tensors[1].second.matrix<float>()(0, 0) = 0.0;
         for (int x = 0; x < jetDimX; x++) {
           for (int y = 0; y < jetDimY; y++) {
-            for (int l = 0; l < 4; l++) {
+            for (int l = 0; l < Nlayer; l++) {
               input_tensors[2].second.tensor<float, 4>()(0, x, y, l) = 0.0;
             }
           }
