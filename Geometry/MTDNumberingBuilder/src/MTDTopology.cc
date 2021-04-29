@@ -55,8 +55,9 @@ size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) c
   return failIndex;
 }
 
-size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift) const {
+size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift, size_t& closest) const {
   size_t failIndex(std::numeric_limits<unsigned int>::max());  // return out-of-range value for any failure
+  closest = failIndex;
 
   ETLDetId start_mod(detid);
 
@@ -111,12 +112,19 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift) con
   // determine the position of the other type corresponding to the same column of the home type
 
   int vpos = etlVals_[discside].offset_[iHome][iBin] + module - etlVals_[discside].start_copy_[iHome][iBin] + 1;
-  if (vpos <= etlVals_[discside].offset_[iOther][iBinOther] ||
-      vpos > etlVals_[discside].offset_[iOther][iBinOther] + etlVals_[discside].start_copy_[iOther][iBinOther + 1] -
-                 etlVals_[discside].start_copy_[iOther][iBinOther] ||
-      (vpos == etlVals_[discside].offset_[iOther][iBinOther] + etlVals_[discside].start_copy_[iOther][iBinOther + 1] -
-                   etlVals_[discside].start_copy_[iOther][iBinOther] &&
-       iBinOther + 1 == static_cast<int>(etlVals_[discside].start_copy_[iOther].size()))) {
+  if (vpos <= etlVals_[discside].offset_[iOther][iBinOther]) {
+    closest = etlVals_[discside].start_copy_[iOther][iBinOther];
+  } else if (vpos > etlVals_[discside].offset_[iOther][iBinOther] +
+                        etlVals_[discside].start_copy_[iOther][iBinOther + 1] -
+                        etlVals_[discside].start_copy_[iOther][iBinOther] ||
+             (vpos == etlVals_[discside].offset_[iOther][iBinOther] +
+                          etlVals_[discside].start_copy_[iOther][iBinOther + 1] -
+                          etlVals_[discside].start_copy_[iOther][iBinOther] &&
+              iBinOther + 1 == static_cast<int>(etlVals_[discside].start_copy_[iOther].size()))) {
+    closest = etlVals_[discside].start_copy_[iOther][iBinOther + 1] - 1;
+  }
+  if (closest < failIndex) {
+    closest = closest + nmodOffset - 1;
     return failIndex;
   } else {
     // number of module shifted by 1 wrt the position in the array (i.e. module 1 has index 0)

@@ -59,7 +59,7 @@ public:
                           const MeasurementEstimator& est) const;
 
   size_t hshift(const uint32_t detid, const int horizontalShift) const;
-  size_t vshift(const uint32_t detid, const int verticalShift) const;
+  size_t vshift(const uint32_t detid, const int verticalShift, size_t& closest) const;
 
 protected:
   void setDisk(BoundDiskSector* diskS) { theDiskS = diskS; }
