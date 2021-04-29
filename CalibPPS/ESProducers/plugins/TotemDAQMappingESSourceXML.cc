@@ -23,6 +23,7 @@
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
 
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 #include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
@@ -77,6 +78,10 @@ public:
   static const std::string tagTotemTimingCh;
   static const std::string tagTotemTimingPlane;
 
+  /// TOTEM nT2 specific tags
+  static const std::string tagTotemT2Plane;
+  static const std::string tagTotemT2Tile;
+
   TotemDAQMappingESSourceXML(const edm::ParameterSet &);
   ~TotemDAQMappingESSourceXML() override;
 
@@ -129,7 +134,9 @@ private:
     nSampicBoard,
     nSampicChannel,
     nTotemTimingPlane,
-    nTotemTimingCh
+    nTotemTimingCh,
+    nTotemT2Plane,
+    nTotemT2Tile
   };
 
   /// whether to parse a mapping of a mask XML
@@ -164,6 +171,14 @@ private:
                             unsigned int parentID,
                             const std::unique_ptr<TotemDAQMapping> &,
                             const std::unique_ptr<TotemAnalysisMask> &);
+
+  /// recursive method to extract nT2-related information from the DOM tree
+  void ParseTreeTotemT2(ParseType,
+                        xercesc::DOMNode*,
+                        NodeType,
+                        unsigned int parentID,
+                        const std::unique_ptr<TotemDAQMapping>&,
+                        const std::unique_ptr<TotemAnalysisMask>&);
 
 private:
   /// adds the path prefix, if needed
@@ -200,6 +215,10 @@ private:
   bool TotemTimingNode(NodeType type) {
     return ((type == nArm) || (type == nRPStation) || (type == nRPPot) || (type == nSampicBoard) ||
             (type == nSampicChannel) || (type == nTotemTimingPlane) || (type == nTotemTimingCh));
+  }
+
+  bool TotemT2Node(NodeType type) {
+    return type == nArm || type == nTotemT2Plane || type == nTotemT2Tile;
   }
 
   bool CommonNode(NodeType type) { return ((type == nChip) || (type == nArm)); }
@@ -242,6 +261,10 @@ const string TotemDAQMappingESSourceXML::tagSampicBoard = "rp_sampic_board";
 const string TotemDAQMappingESSourceXML::tagSampicCh = "rp_sampic_channel";
 const string TotemDAQMappingESSourceXML::tagTotemTimingCh = "timing_channel";
 const string TotemDAQMappingESSourceXML::tagTotemTimingPlane = "timing_plane";
+
+// specific tags for TOTEM nT2
+const string TotemDAQMappingESSourceXML::tagTotemT2Plane = "nt2_plane";
+const string TotemDAQMappingESSourceXML::tagTotemT2Tile = "nt2_tile";
 
 //----------------------------------------------------------------------------------------------------
 
@@ -369,6 +392,8 @@ void TotemDAQMappingESSourceXML::ParseXML(ParseType pType,
   ParseTreeDiamond(pType, elementRoot, nTop, 0, mapping, mask);
 
   ParseTreeTotemTiming(pType, elementRoot, nTop, 0, mapping, mask);
+
+  ParseTreeTotemT2(pType, elementRoot, nTop, 0, mapping, mask);
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -782,6 +807,97 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType,
 
 //----------------------------------------------------------------------------------------------------
 
+void TotemDAQMappingESSourceXML::ParseTreeTotemT2(ParseType pType,
+                                                  xercesc::DOMNode *parent,
+                                                  NodeType parentType,
+                                                  unsigned int parentID,
+                                                  const std::unique_ptr<TotemDAQMapping> &mapping,
+                                                  const std::unique_ptr<TotemAnalysisMask> &mask) {
+  DOMNodeList *children = parent->getChildNodes();
+
+  for (unsigned int i = 0; i < children->getLength(); i++) {
+    DOMNode *child = children->item(i);
+    if (child->getNodeType() != DOMNode::ELEMENT_NODE)
+      continue;
+
+    NodeType type = GetNodeType(child);
+
+    // structure control
+    if (!TotemT2Node(type))
+      continue;
+
+    NodeType expectedParentType;
+    switch (type) {
+      case nArm:
+        expectedParentType = nTop;
+        break;
+      case nTotemT2Plane:
+        expectedParentType = nArm;
+        break;
+      case nTotemT2Tile:
+        expectedParentType = nTotemT2Plane;
+        break;
+      default:
+        expectedParentType = nUnknown;
+        break;
+    }
+
+    if (expectedParentType != parentType) {
+      throw cms::Exception("TotemDAQMappingESSourceXML")
+          << "Node " << cms::xerces::toString(child->getNodeName()) << " not allowed within "
+          << cms::xerces::toString(parent->getNodeName()) << " block.\n";
+    }
+
+    unsigned int id = 0;
+    bool id_set = false;
+    DOMNamedNodeMap *attr = child->getAttributes();
+
+    for (unsigned int j = 0; j < attr->getLength(); j++) {
+      DOMNode *a = attr->item(j);
+      if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "id")) {
+        sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%u", &id);
+        id_set = true;
+      }
+    }
+    if (pType == pMapping && type == nTotemT2Tile) {
+      // parse tag attributes
+      unsigned int hw_id = 0;
+      bool hw_id_set = false;
+      DOMNamedNodeMap *attr = child->getAttributes();
+
+      for (unsigned int j = 0; j < attr->getLength(); j++) {
+        DOMNode *a = attr->item(j);
+        if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "hwId")) {
+          sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%u", &hw_id);
+          hw_id_set = true;
+        }
+      }
+
+      // content control
+      if (!id_set)
+        throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeTotemT2")
+            << "id not given for element `" << cms::xerces::toString(child->getNodeName()) << "'";
+      if (!hw_id_set)
+        throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeTotemT2")
+            << "hwId not given for element `" << cms::xerces::toString(child->getNodeName()) << "'";
+
+      // store mapping data
+      const TotemFramePosition& framepos = ChipFramePosition(child);
+      TotemVFATInfo vfatInfo;
+      unsigned int arm = parentID / 10, plane = parentID % 10;
+      vfatInfo.symbolicID.symbolicID = TotemT2DetId(arm, plane, id);
+
+      mapping->insert(framepos, vfatInfo);
+
+      continue;
+    }
+    // follow tree recursively
+    ParseTreeTotemT2(pType, child, type, parentID * 10 + id, mapping, mask);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------
+
 TotemFramePosition TotemDAQMappingESSourceXML::ChipFramePosition(xercesc::DOMNode *chipnode) {
   TotemFramePosition fp;
   unsigned char attributeFlag = 0;
@@ -839,6 +955,12 @@ TotemDAQMappingESSourceXML::NodeType TotemDAQMappingESSourceXML::GetNodeType(xer
     return nTotemTimingCh;
   if (Test(n, tagTotemTimingPlane))
     return nTotemTimingPlane;
+
+  // TOTEM nT2 specifics
+  if (Test(n, tagTotemT2Plane))
+    return nTotemT2Plane;
+  if (Test(n, tagTotemT2Tile))
+    return nTotemT2Tile;
 
   // for backward compatibility
   if (Test(n, "trigger_vfat"))

@@ -67,4 +67,13 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const TotemT2DetId& id);
 
+namespace std {
+  template <>
+  struct hash<TotemT2DetId> {
+    typedef TotemT2DetId argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(const argument_type& id) const noexcept { return std::hash<uint64_t>()(id.rawId()); }
+  };
+}  // namespace std
+
 #endif
