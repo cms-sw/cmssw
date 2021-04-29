@@ -99,8 +99,8 @@ def customisePostEra_Run2_2018_pp_on_AA_express_trackingOnly(process):
     _customise_PPonAATrackingOnlyDQM(process)
     return process
 
-# 2021 equivalents
-def customise2021(process):
+# Run3 equivalents
+def _hcalCustomsRun3(process):
     import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
     HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHENegativeNoise",8)
     return process
@@ -108,15 +108,13 @@ def customise2021(process):
 def customisePostEra_Run3(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018(process)
-    #add Run3 setting
-    customise2021(process)
+    #add Run3 HCAL setting
+    _hcalCustomsRun3(process)
     return process
 
 def customisePostEra_Run3_express_trackingOnly(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018_express_trackingOnly(process)
-    #add Run3 setting
-    customise2021(process)
     return process
 
 ##############################################################################
