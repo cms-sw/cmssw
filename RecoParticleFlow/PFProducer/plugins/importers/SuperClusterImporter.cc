@@ -5,7 +5,6 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoParticleFlow/PFProducer/interface/PFBlockElementSCEqual.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
 // for single tower H/E
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 
@@ -34,6 +33,8 @@ private:
   CaloTowerConstituentsMap const* towerMap_;
   bool _superClustersArePF;
   static const math::XYZPoint _zero;
+
+  const edm::ESGetToken<CaloTowerConstituentsMap, CaloGeometryRecord> _ctmapToken;
 };
 
 const math::XYZPoint SuperClusterImporter::_zero = math::XYZPoint(0, 0, 0);
@@ -48,11 +49,11 @@ SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf, edm::C
       _maxHoverE(conf.getParameter<double>("maximumHoverE")),
       _pTbyPass(conf.getParameter<double>("minPTforBypass")),
       _minSCPt(conf.getParameter<double>("minSuperClusterPt")),
-      _superClustersArePF(conf.getParameter<bool>("superClustersArePF")) {}
+      _superClustersArePF(conf.getParameter<bool>("superClustersArePF")),
+      _ctmapToken(sumes.esConsumes()) {}
 
 void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) {
-  edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
-  es.get<CaloGeometryRecord>().get(ctmaph);
+  edm::ESHandle<CaloTowerConstituentsMap> ctmaph = es.getHandle(_ctmapToken);
   towerMap_ = ctmaph.product();
 }
 
