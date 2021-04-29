@@ -137,7 +137,7 @@ def customizeFor33543(process):
 
     return process
 
-  def customiseFor33495(process):
+def customiseFor33495(process):
     """Customize HLT menu to remove deprecated parameters for pixel Generic and Template CPE's """
     for producer in esproducers_by_type(process, "PixelCPEGenericESProducer"):
         if hasattr(producer, "DoLorentz"):
