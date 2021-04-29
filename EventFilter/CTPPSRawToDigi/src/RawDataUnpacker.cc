@@ -77,8 +77,6 @@ int RawDataUnpacker::processOptoRxFrame(const word *buf,
       optoRxId <= FEDNumbering::MAXTotemRPTimingVerticalFEDID) {
     processOptoRxFrameSampic(buf, frameSize, fedInfo, fc);
     return 0;
-  } else if (optoRxId >= FEDNumbering::MINTotemT2FEDID && optoRxId <= FEDNumbering::MAXTotemT2FEDID) {
-    throw cms::Exception("Totem") << "FIXME: NOT YET IMPLEMENTED!";
   }
 
   // parallel or serial transmission?
