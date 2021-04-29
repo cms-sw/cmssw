@@ -41,7 +41,7 @@ void TestETLNavigation::analyze(const Event& ev, const EventSetup& es) {
 
   // dump of ETL layers structure
 
-  LogInfo("MTDLayerDump") << "Test of ETL navigation \n\n";
+  LogVerbatim("MTDLayerDump") << "\n\nTest of ETL navigation \n\n";
 
   for (const auto& ilay : layers) {
     const MTDSectorForwardDoubleLayer* layer = static_cast<const MTDSectorForwardDoubleLayer*>(ilay);

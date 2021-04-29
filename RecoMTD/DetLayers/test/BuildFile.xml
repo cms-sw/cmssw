@@ -15,3 +15,5 @@
 <library file="TestETLNavigation.cc" name="testETLNavigation">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<test name="RecoMTDDetLayersTestDriver" command="runTest.sh"/>
