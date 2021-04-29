@@ -20,8 +20,7 @@ TotemT2DetId::TotemT2DetId(uint32_t id) : CTPPSDetId(id) {
 
 //----------------------------------------------------------------------------------------------------
 
-TotemT2DetId::TotemT2DetId(uint32_t arm, uint32_t plane, uint32_t channel)
-    : CTPPSDetId(sdTimingFastSilicon, arm, 0, 0) {
+TotemT2DetId::TotemT2DetId(uint32_t arm, uint32_t plane, uint32_t channel) : CTPPSDetId(sdTotemT2, arm, 0, 0) {
   if (arm > maxArm || plane > maxPlane || channel > maxChannel)
     throw cms::Exception("InvalidDetId") << "TotemT2DetId ctor:"
                                          << " Invalid parameters:"
