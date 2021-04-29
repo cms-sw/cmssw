@@ -950,7 +950,7 @@ step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          },
                         step1Defaults])
 
-step1LHEGenDQM = merge([{'-s':'LHE,GEN,VALIDATION:genvalid','--datatier'    : 'GEN-SIM,LHE,DQMIO','--eventcontent': 'LHE,RAWSIM,DQM'},step1GenDefaults])
+step1LHEGenDQM = merge([{'-s':'LHE,GEN,VALIDATION:genvalid','--datatier'    : 'LHE,GEN-SIM,DQMIO','--eventcontent': 'LHE,RAWSIM,DQM'},step1GenDefaults])
 
 
 step1HadronizerDefaults=merge([{'--datatier':'GEN-SIM,DQMIO',
