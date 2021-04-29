@@ -1,5 +1,11 @@
 #include "RecoEgamma/EgammaTools/interface/HGCalShowerShapeHelper.h"
 
+#include <Math/Vector3D.h>
+#include <TMatrixD.h>
+#include <TVectorD.h>
+
+#include <algorithm>
+
 const double HGCalShowerShapeHelper::kLDWaferCellSize_ = 0.698;
 const double HGCalShowerShapeHelper::kHDWaferCellSize_ = 0.465;
 

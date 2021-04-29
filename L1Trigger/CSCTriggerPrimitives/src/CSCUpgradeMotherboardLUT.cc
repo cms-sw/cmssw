@@ -1,4 +1,5 @@
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboardLUT.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 
 CSCMotherboardLUTME11::CSCMotherboardLUTME11() {
   // Keep in mind that ME1A is considered an extension of ME1B

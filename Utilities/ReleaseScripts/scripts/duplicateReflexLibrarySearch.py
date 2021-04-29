@@ -35,7 +35,7 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
-         {'Associations': ['TTTrackTruthPair']},
+         {'Associations': ['TTTrackTruthPair', 'edm::Wrapper.+edm::AssociationMap.+TrackingParticle']},
          {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
          {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
                                        '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
@@ -48,7 +48,7 @@ equivDict = \
          {'BTauReco'              : ['reco::.*SoftLeptonTagInfo', 'reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo','reco::TemplatedSecondaryVertexTagInfo', 'reco::CATopJetProperties','reco::HTTTopJetProperties']},
          {'CastorReco'            : ['reco::CastorJet']},
          {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour','reco::MatchedPartons']},
-         {'RecoCandidate'         : ['reco::Candidate','edm::Wrapper.+edm::AssociationMap.+TrackingParticle']},
+         {'RecoCandidate'         : ['reco::Candidate']},
          {'TrackingAnalysis'      : ['TrackingParticle']},
          {'Egamma'                : ['reco::ElectronID']},
          {'TopObjects'            : ['reco::CATopJetProperties']},

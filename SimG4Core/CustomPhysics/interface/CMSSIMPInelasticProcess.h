@@ -16,11 +16,10 @@ public:
   // generic PostStepDoIt recommended for all derived classes
   G4VParticleChange* PostStepDoIt(const G4Track& aTrack, const G4Step& aStep) override;
 
-private:
-  // hide assignment operator as private
   CMSSIMPInelasticProcess& operator=(const CMSSIMPInelasticProcess& right) = delete;
   CMSSIMPInelasticProcess(const CMSSIMPInelasticProcess&) = delete;
 
+private:
   G4ParticleDefinition* theParticle;
 };
 

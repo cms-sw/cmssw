@@ -1,4 +1,3 @@
-<use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EcalDigi"/>
 <use name="DataFormats/EcalDetId"/>
 <use name="CondFormats/EcalObjects"/>
@@ -7,7 +6,6 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/EcalMapping"/>
-<use name="FWCore/Framework"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>

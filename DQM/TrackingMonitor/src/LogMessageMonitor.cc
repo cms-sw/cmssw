@@ -114,8 +114,7 @@ void LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
     lumiDetails_->getValue(iEvent);
 
   // Take the ErrorSummaryEntry container
-  edm::Handle<std::vector<edm::ErrorSummaryEntry> > errors;
-  iEvent.getByToken(errorToken_, errors);
+  edm::Handle<std::vector<edm::ErrorSummaryEntry> > errors = iEvent.getHandle(errorToken_);
   // Check that errors is valid
   if (!errors.isValid())
     return;

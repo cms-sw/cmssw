@@ -1,0 +1,69 @@
+<html>
+<body>
+Technical details on <font size=+2><tt>CSCFileReader</tt></font>:
+<br><br>
+To build FED buffers <tt>CSCFileReader</tt> merges DDU data streams and
+constructs fake DCC Headers and DCC Trailers for FED buffers.
+<br>
+<br>
+For every RUI stream module instantiates <tt>FileReaderDDU</tt> class inherited from our on-line software (in TriDAS).
+<br>
+<br>
+<tt>FileReaderDDU</tt> reads file with DDU data, searches for <b>DDU Headers</b>
+and <b>DDU Trailers</b>, and finally returns event buffer. It also handles data
+corruptions.
+<br><br>
+<tt>FileReaderDDU</tt> continuously reads DDU data in blocks of definite length.
+Each time it passes through block, it searches for <b>DDU Header</b> or <b>DDU
+Trailer</b>. In same time it composes event buffer. Once it find <b>DDU Trailer</b>
+it sets an ``end mark'' in current data block and returns event buffer
+with event <i>status flag</i>, which tells that we have <i>DDU Trailer</i> in this
+event. On next call it continues passing through data block starting from
+``end mark''. If it finds <b>DDU Header</b> pattern in first two DDU words it
+sets <i>status flag</i> accordingly and goes further until it finds <b>DDU Trailer</b>
+or another <b>DDU Header</b>. If <b>DDU Header</b> appeared in a place anywhere after
+first two DDU words, program sets <i>Unknown</i> bit in <i>status flag</i> and
+returns buffer composed with data in front of this <b>DDU Header</b>.
+If program finds <b>DDU Header</b> in a right place and encounters
+second <b>DDU Header</b> it returns data between these <b>DDU Headers</b>, sets <i>DDU Header</i>
+bit in <i>status flag</i>, and starts from second <b>DDU Header</b> on next call.
+If buffer size reaches value of 50000 DDU words, <i>status flag</i> contains
+<i>DDUoversize</i> bit set.
+<br><br>
+Described scheme can be presented by following diagrams of
+buffer structure:
+<br><br>
+<table border=0 width=100%>
+<tr>
+<td valign=top>1)</td><td valign=top><nobr>[H-T]</nobr></td><td valign=top><nobr>// Normal event</nobr></td>
+</tr><tr>
+<td valign=top>2)</td><td valign=top><nobr>[H-?]H</nobr></td><td valign=top><nobr>// More likely event with corrupted trailer</nobr></td>
+</tr><tr>
+<td valign=top>3)</td><td valign=top><nobr>[H-max]</nobr></td><td valign=top><nobr>// <i>DDUoversize</i> condition</nobr></td>
+</tr><tr>
+<td valign=top>4)</td><td valign=top><nobr>[?-T]</nobr></td><td valign=top><nobr>// Could be anything</nobr></td>
+</tr><tr>
+<td valign=top>5)</td><td valign=top><nobr>[?-?]H</nobr></td><td valign=top><nobr>// Could be anything (depends on previous event)</nobr></td>
+</tr><tr>
+<td valign=top>6)</td><td valign=top><nobr>[?-max]</nobr></td><td valign=top><nobr>// Could be anything</nobr></td>
+</tr><tr>
+<td valign=top>7)</td><td valign=top><nobr>[FFFF]</nobr></td><td valign=top><nobr>// Some standard sequence to complete ethernet package</nobr></td>
+</tr>
+</table>
+<br><br>
+One remark to be made here is that <b>DDU Header</b> (as well as <b>DDU Trailer</b>)
+consists of three words with identifying pattern in second word.
+If two consecutive <b>DDU Headers</b> were found, first word of second
+<b>Header</b> goes to both events.
+<br><br>
+In <tt>FileReaderDDU</tt> for user convenience additional to <tt>read</tt> function <tt>next</tt> was
+implemented. Together with <tt>select</tt>, <tt>accept</tt>, and <tt>reject</tt>
+functions it allows user to get events of specified type. Function
+<tt>reject</tt> helps to filter out events with any of <i>status flag</i>
+bits matches defined criteria. Function <tt>accept</tt> forces <tt>next</tt>
+to return events with any of <i>status flag</i> bits matches its
+criteria. Function <tt>select</tt> requires events exactly match its
+criteria. In <tt>CSCFileReader</tt> module selection/rejection criteria
+are set to default (safe) values and cannot be changed.
+</body>
+</html>

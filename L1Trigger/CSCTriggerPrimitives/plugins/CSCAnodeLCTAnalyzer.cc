@@ -3,6 +3,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "L1Trigger/CSCTriggerPrimitives/plugins/CSCAnodeLCTAnalyzer.h"
+#include "DataFormats/CSCDigi/interface/CSCConstants.h"
 
 using namespace std;
 
@@ -100,7 +101,7 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(const CSCALCTDigi& alct,
         // check the mask
         if (CSCPatternBank::alct_pattern_legacy_[alct_pattern][i_layer][i_wire]) {
           int wire = alct_keywire + CSCPatternBank::alct_keywire_offset_[MESelection][i_wire];
-          if (wire >= 0 && wire < CSCConstants::MAX_NUM_WIRES) {
+          if (wire >= 0 && wire < CSCConstants::MAX_NUM_WIREGROUPS) {
             // Check if there is a "good" Digi on this wire.
             if (digiMap.count(wire) > 0) {
               tempInfo.setId(layerId);               // store the layer of this object
@@ -299,9 +300,9 @@ int CSCAnodeLCTAnalyzer::nearestWG(const vector<CSCAnodeLayerInfo>& allLayerInfo
     // Wire groups in ALCTs are counted starting from 0, whereas they
     // are counted from 1 in MC-related info.
     nearestWG -= 1;
-    if (nearestWG < 0 || nearestWG >= CSCConstants::MAX_NUM_WIRES) {
+    if (nearestWG < 0 || nearestWG >= CSCConstants::MAX_NUM_WIREGROUPS) {
       edm::LogWarning("L1CSCTPEmulatorWrongInput")
-          << "+++ Warning: nearest wire group, " << nearestWG << ", is not in [0-" << CSCConstants::MAX_NUM_WIRES
+          << "+++ Warning: nearest wire group, " << nearestWG << ", is not in [0-" << CSCConstants::MAX_NUM_WIREGROUPS
           << ") interval +++\n";
     }
 
@@ -330,9 +331,9 @@ void CSCAnodeLCTAnalyzer::setGeometry(const CSCGeometry* geom) { geom_ = geom; }
 
 double CSCAnodeLCTAnalyzer::getWGEta(const CSCDetId& layerId, const int wiregroup) {
   // Returns eta position of a given wiregroup.
-  if (wiregroup < 0 || wiregroup >= CSCConstants::MAX_NUM_WIRES) {
+  if (wiregroup < 0 || wiregroup >= CSCConstants::MAX_NUM_WIREGROUPS) {
     edm::LogWarning("L1CSCTPEmulatorWrongInput") << "+++ Warning: wire group, " << wiregroup << ", is not in [0-"
-                                                 << CSCConstants::MAX_NUM_WIRES << ") interval +++\n";
+                                                 << CSCConstants::MAX_NUM_WIREGROUPS << ") interval +++\n";
   }
 
   const CSCLayer* csclayer = geom_->layer(layerId);

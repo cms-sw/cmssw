@@ -42,9 +42,6 @@ public:
                         unsigned chamber,
                         const edm::ParameterSet& conf);
 
-  //Default constructor for testing
-  CSCUpgradeMotherboard();
-
   ~CSCUpgradeMotherboard() override;
 
   // Empty the LCT container

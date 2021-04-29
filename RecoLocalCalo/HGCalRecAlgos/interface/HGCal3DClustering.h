@@ -24,7 +24,8 @@ public:
       : radii(radii_in),
         minClusters(min_clusters),
         es(0),
-        clusterTools(std::make_unique<hgcal::ClusterTools>(conf, sumes)) {}
+        clusterTools(std::make_unique<hgcal::ClusterTools>(conf, sumes)),
+        caloGeomToken_(sumes.esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
 
   HGCal3DClustering(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : HGCal3DClustering(conf,
@@ -35,9 +36,8 @@ public:
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
   void getEventSetup(const edm::EventSetup& es) {
     clusterTools->getEventSetup(es);
-    edm::ESHandle<CaloGeometry> geom;
-    es.get<CaloGeometryRecord>().get(geom);
-    rhtools_.setGeometry(*geom);
+    const CaloGeometry& geom = es.getData(caloGeomToken_);
+    rhtools_.setGeometry(geom);
     maxlayer = rhtools_.lastLayerBH();
     points.clear();
     minpos.clear();
@@ -91,6 +91,7 @@ private:
   std::vector<float> zees;                           /*!< vector to contain z position of each layer. */
   std::unique_ptr<hgcal::ClusterTools> clusterTools; /*!< instance of tools to simplify cluster access. */
   hgcal::RecHitTools rhtools_;                       /*!< instance of tools to access RecHit information. */
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 };
 
 #endif

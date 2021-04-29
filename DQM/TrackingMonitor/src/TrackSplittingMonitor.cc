@@ -4,33 +4,33 @@
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
+#include "DQM/TrackingMonitor/interface/TrackSplittingMonitor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-//#include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
-#include "DQM/TrackingMonitor/interface/TrackSplittingMonitor.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+//#include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
 #include <string>
 
 TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig)
-    : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig) {
+    : dqmStore_(edm::Service<DQMStore>().operator->()),
+      conf_(iConfig),
+      mfToken_(esConsumes()),
+      tkGeomToken_(esConsumes()),
+      dtGeomToken_(esConsumes()),
+      cscGeomToken_(esConsumes()),
+      rpcGeomToken_(esConsumes()) {
   splitTracks_ = conf_.getParameter<edm::InputTag>("splitTrackCollection");
   splitMuons_ = conf_.getParameter<edm::InputTag>("splitMuonCollection");
   splitTracksToken_ = consumes<std::vector<reco::Track> >(splitTracks_);
@@ -176,20 +176,19 @@ void TrackSplittingMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 // -- Analyse
 //
 void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-  iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
-  iSetup.get<MuonGeometryRecord>().get(dtGeometry);
-  iSetup.get<MuonGeometryRecord>().get(cscGeometry);
-  iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
+  theMagField = &iSetup.getData(mfToken_);
+  theGeometry = &iSetup.getData(tkGeomToken_);
+  dtGeometry = &iSetup.getData(dtGeomToken_);
+  cscGeometry = &iSetup.getData(cscGeomToken_);
+  rpcGeometry = &iSetup.getData(rpcGeomToken_);
 
-  edm::Handle<std::vector<reco::Track> > splitTracks;
-  iEvent.getByToken(splitTracksToken_, splitTracks);
+  edm::Handle<std::vector<reco::Track> > splitTracks = iEvent.getHandle(splitTracksToken_);
   if (!splitTracks.isValid())
     return;
 
   edm::Handle<std::vector<reco::Muon> > splitMuons;
   if (plotMuons_) {
-    iEvent.getByToken(splitMuonsToken_, splitMuons);
+    splitMuons = iEvent.getHandle(splitMuonsToken_);
   }
 
   if (splitTracks->size() == 2) {

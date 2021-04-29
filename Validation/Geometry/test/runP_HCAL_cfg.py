@@ -12,6 +12,7 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(10000)
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.MaterialBudget=dict()
 

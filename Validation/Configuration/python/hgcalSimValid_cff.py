@@ -10,6 +10,7 @@ from Validation.HGCalValidation.simhitValidation_cff    import *
 from Validation.HGCalValidation.digiValidation_cff      import *
 from Validation.HGCalValidation.rechitValidation_cff    import *
 from Validation.HGCalValidation.hgcalHitValidation_cfi  import *
+from RecoHGCal.TICL.SimTracksters_cff import *
 
 from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 from Validation.RecoParticleFlow.PFJetValidation_cff import pfJetValidation1 as _hgcalPFJetValidation

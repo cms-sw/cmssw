@@ -26,6 +26,8 @@ ALCARECOEventContent = cms.PSet(
         'keep *_ALCARECOMuAlOverlaps_*_*', 
         'keep *_ALCARECOMuAlCalIsolatedMu_*_*',
         'keep *_ALCARECOSiPixelCalSingleMuon_*_*',
+        'keep *_ALCARECOSiPixelCalSingleMuonLoose_*_*',
+        'keep *_ALCARECOSiPixelCalSingleMuonTight_*_*',
         'keep *_ALCARECOSiPixelCalCosmics_*_*',
         'keep *_cosmicMuons_*_*',
         'keep *_cosmictrackfinderP5_*_*',

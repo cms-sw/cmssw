@@ -430,7 +430,7 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   }
   {
     edm::ParameterSetDescription psd;
-    psd.add<bool>("enableProtections", false);
+    psd.add<bool>("enableProtections", true);
     psd.add<std::vector<double>>("full5x5_sigmaIetaIeta",  // EB, EE; 94Xv2 cut-based medium id
                                  {0.0106, 0.0387});
     psd.add<std::vector<double>>("eInvPInv", {0.184, 0.0721});
@@ -455,7 +455,7 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   {
     edm::ParameterSetDescription psd;
     psd.add<double>("solidConeTrkIsoSlope", 0.3);
-    psd.add<bool>("enableProtections", false);
+    psd.add<bool>("enableProtections", true);
     psd.add<double>("solidConeTrkIsoOffset", 10.0);
     iDesc.add<edm::ParameterSetDescription>("photon_protectionsForBadHcal", psd);
   }
