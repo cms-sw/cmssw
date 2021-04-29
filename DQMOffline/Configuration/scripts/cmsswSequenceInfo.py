@@ -39,7 +39,7 @@ def inspectsequence(seq):
     if seq.step not in ("HARVESTING", "ALCAHARVEST"):
         # cmsDriver refuses to run some steps on their own, so we add this to them
         # only loading a single module that we can blacklist later
-        otherstep = "RAW2DIGI:siPixelDigis,"
+        otherstep = ""
 
     wd = tempfile.mkdtemp()
 
