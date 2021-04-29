@@ -46,5 +46,4 @@ process.Timing = cms.Service("Timing")
 process.prod = cms.EDAnalyzer("MTDRecoGeometryAnalyzer")
 process.prod1 = cms.EDAnalyzer("TestETLNavigation")
 
-process.p1 = cms.Path(process.prod)
 process.p1 = cms.Path(process.prod+process.prod1)
