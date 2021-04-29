@@ -39,14 +39,14 @@ size_t MTDTopology::hshiftETL(const uint32_t detid, const int horizontalShift) c
 
   // for left type modules the position according to the default order is module - 1, for the rigth type modules the total number of left modules must be added
 
-  size_t nmodLeft = (modtyp == 1) ? 0 : etlVals_[discside].start_copy_[iLeft].back() - 1;
+  size_t nmodOffset = (modtyp == 1) ? 0 : etlVals_[discside].start_copy_[iLeft].back() - 1;
 
   for (size_t iloop = 0; iloop < etlVals_[discside].start_copy_[iHome].size() - 1; iloop++) {
     if (module >= etlVals_[discside].start_copy_[iHome][iloop] &&
         module < etlVals_[discside].start_copy_[iHome][iloop + 1]) {
       if (module + hsh >= etlVals_[discside].start_copy_[iHome][iloop] &&
           module + hsh < etlVals_[discside].start_copy_[iHome][iloop + 1]) {
-        return module + hsh - 1 + nmodLeft;
+        return module + hsh - 1 + nmodOffset;
       }
       break;
     }
@@ -76,9 +76,10 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift) con
   size_t iOther = (iHome == 0) ? 1 : 0;
   size_t iLeft = (etlVals_[discside].idDetType1_ == 1) ? 0 : 1;
 
-  // for left type modules the position according to the default order is module - 1, for the rigth type modules the total number of left modules must be added
+  // for right type modules the offset of the total number of left modules needs to be added,
+  // what matters here is the other type, i.e. if the starting module is left the vertical shift moves towards a right type, and viceversa
 
-  size_t nmodLeft = (modtyp == 1) ? 0 : etlVals_[discside].start_copy_[iLeft].back() - 1;
+  size_t nmodOffset = (modtyp == 1) ? etlVals_[discside].start_copy_[iLeft].back() - 1 : 0;
 
   size_t iBin(etlVals_[discside].start_copy_[iHome].size());  // never allowed
   for (size_t iloop = 0; iloop < etlVals_[discside].start_copy_[iHome].size() - 1; iloop++) {
@@ -98,23 +99,28 @@ size_t MTDTopology::vshiftETL(const uint32_t detid, const int verticalShift) con
 
   int iBinOther(iBin);
   if (iHome == 0 && vsh < 0) {
-    iBinOther--;
+    iBinOther = iBin - 1;
   }
   if (iHome == 1 && vsh > 0) {
-    iBinOther++;
+    iBinOther = iBin + 1;
   }
-  if (iBinOther < 0 || iBinOther >= static_cast<int>(etlVals_[discside].start_copy_[iOther].size())) {
+  if (iBinOther < 0 || iBinOther >= static_cast<int>(etlVals_[discside].start_copy_[iOther].size()) - 1) {
     return failIndex;
   }
 
-  // determine the position of the other type corresponding to the same column of the home type, accounting for the possible different offsets
+  // determine the position of the other type corresponding to the same column of the home type
 
-  int vpos = etlVals_[discside].offset_[iHome][iBin] + module - etlVals_[discside].start_copy_[iHome][iBin] -
-             etlVals_[discside].offset_[iOther][iBinOther];
-  if (vpos < 0 ||
-      vpos >= etlVals_[discside].offset_[iOther][iBinOther] + etlVals_[discside].start_copy_[iOther][iBinOther]) {
+  int vpos = etlVals_[discside].offset_[iHome][iBin] + module - etlVals_[discside].start_copy_[iHome][iBin] + 1;
+  if (vpos <= etlVals_[discside].offset_[iOther][iBinOther] ||
+      vpos > etlVals_[discside].offset_[iOther][iBinOther] + etlVals_[discside].start_copy_[iOther][iBinOther + 1] -
+                 etlVals_[discside].start_copy_[iOther][iBinOther] ||
+      (vpos == etlVals_[discside].offset_[iOther][iBinOther] + etlVals_[discside].start_copy_[iOther][iBinOther + 1] -
+                   etlVals_[discside].start_copy_[iOther][iBinOther] &&
+       iBinOther + 1 == static_cast<int>(etlVals_[discside].start_copy_[iOther].size()))) {
     return failIndex;
   } else {
-    return etlVals_[discside].start_copy_[iOther][iBinOther] + vpos - 1 + nmodLeft;
+    // number of module shifted by 1 wrt the position in the array (i.e. module 1 has index 0)
+    return etlVals_[discside].start_copy_[iOther][iBinOther] + vpos - 1 -
+           etlVals_[discside].offset_[iOther][iBinOther] + nmodOffset - 1;
   }
 }
