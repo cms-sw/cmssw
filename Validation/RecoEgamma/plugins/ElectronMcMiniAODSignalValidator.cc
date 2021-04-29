@@ -123,7 +123,6 @@ ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::Pa
   h1_ele_photonRelativeIso_mAOD = nullptr;
   h1_ele_photonRelativeIso_mAOD_barrel = nullptr;
   h1_ele_photonRelativeIso_mAOD_endcaps = nullptr;
-
 }
 
 ElectronMcSignalValidatorMiniAOD::~ElectronMcSignalValidatorMiniAOD() {}
@@ -417,7 +416,6 @@ void ElectronMcSignalValidatorMiniAOD::bookHistograms(DQMStore::IBooker& iBooker
                                                           "photonRelativeIso_endcaps",
                                                           "Events",
                                                           "ELE_LOGY E1 P");
-
 }
 
 void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -558,7 +556,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
               pt_ = elePtr->pt();
 
               okGsfFound = true;
-
             }
           }
         }

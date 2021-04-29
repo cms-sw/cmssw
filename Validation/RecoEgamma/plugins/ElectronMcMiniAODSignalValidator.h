@@ -131,7 +131,6 @@ private:
   MonitorElement *h1_ele_photonRelativeIso_mAOD;
   MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
   MonitorElement *h1_ele_photonRelativeIso_mAOD_endcaps;
-
 };
 
 #endif
