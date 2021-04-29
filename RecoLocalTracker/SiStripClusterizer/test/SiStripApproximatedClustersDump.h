@@ -13,7 +13,7 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterv1.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -47,7 +47,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   edm::InputTag inputTagClusters;
-  edm::EDGetTokenT< edmNew::DetSetVector<SiStripApproximateClusterv1> > clusterToken;  
+  edm::EDGetTokenT< edmNew::DetSetVector<SiStripApproximateCluster> > clusterToken;  
 
   TTree* outNtuple;
   edm::Service<TFileService> fs;
