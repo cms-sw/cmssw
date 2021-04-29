@@ -2,10 +2,14 @@
 // Author: Vladimir Ivanchenko
 // Date:   March 2018
 //
-// Hadron physics for the new CMS physics list FTFP_BERT_EMM_TRK.
+// Hadron inelastic physics for the new CMS physics list FTFP_BERT.
 // The hadron physics of FTFP_BERT has the transition between Bertini
 // (BERT) intra-nuclear cascade model and Fritiof (FTF) string model
 // optimized for CMS.
+//
+// 15.04.2021 V.Ivanchenko Hadron inelastic physics of CMS
+//                         mirgrated to Geant4 10.7
+//
 //---------------------------------------------------------------------------
 //
 #ifndef SimG4Core_PhysicsLists_CMSHadronPhysicsFTFP_BERT_h

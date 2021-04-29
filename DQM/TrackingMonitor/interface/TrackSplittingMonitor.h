@@ -11,26 +11,27 @@
 // Original Author:  Nhan Tran
 //         Created:  Thu 28 22:45:30 CEST 2008
 
-#include <memory>
 #include <fstream>
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <memory>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 class TProfile;
 
@@ -58,11 +59,17 @@ private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
 
-  edm::ESHandle<TrackerGeometry> theGeometry;
-  edm::ESHandle<MagneticField> theMagField;
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  edm::ESHandle<RPCGeometry> rpcGeometry;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
+
+  const TrackerGeometry* theGeometry;
+  const MagneticField* theMagField;
+  const DTGeometry* dtGeometry;
+  const CSCGeometry* cscGeometry;
+  const RPCGeometry* rpcGeometry;
 
   edm::InputTag splitTracks_;
   edm::InputTag splitMuons_;

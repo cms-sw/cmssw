@@ -700,7 +700,7 @@ if __name__ == "__main__":
         foo = cms.VPSet(cms.PSet(
             type = cms.string('Foo2')
         ))
-)
+    )
 )
 """)
 

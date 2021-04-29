@@ -23,9 +23,6 @@ class CSCStripDigi;
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include <boost/dynamic_bitset.hpp>
 
-/// Maximum available CFEBs per chamber (for old system 5, for new ME11 should be 7)
-#define MAX_CFEB 7
-
 class CSCEventData {
 public:
   explicit CSCEventData(int chamberType, uint16_t format_version = 2005);
@@ -105,6 +102,7 @@ public:
   void add(const std::vector<CSCALCTDigi> &);
   void add(const std::vector<CSCCLCTDigi> &);
   void add(const std::vector<CSCCorrelatedLCTDigi> &);
+  void add(const std::vector<CSCShowerDigi> &);
   void add(const std::vector<GEMPadDigiCluster> &, const GEMDetId &);
 
   /// this will fill the DMB header, and change all related fields in
@@ -159,7 +157,7 @@ private:
   CSCTMBData *theTMBData;
 
   /// for up to MAX_CFEB CFEB boards
-  CSCCFEBData *theCFEBData[MAX_CFEB];
+  CSCCFEBData *theCFEBData[CSCConstants::MAX_CFEBS_RUN2];
 
   CSCDMBTrailer theDMBTrailer;
 

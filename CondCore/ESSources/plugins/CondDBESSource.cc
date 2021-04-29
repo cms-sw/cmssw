@@ -98,6 +98,7 @@ namespace {
 CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     : m_connection(),
       m_connectionString(""),
+      m_frontierKey(""),
       m_lastRun(0),   // for the stat
       m_lastLumi(0),  // for the stat
       m_policy(NOREFRESH),
@@ -138,6 +139,11 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     }
   } else if (iConfig.exists("connect"))  // default connection string
     m_connectionString = iConfig.getParameter<std::string>("connect");
+
+  // frontier key
+  if (iConfig.exists("frontierKey")) {
+    m_frontierKey = iConfig.getParameter<std::string>("frontierKey");
+  }
 
   // snapshot
   boost::posix_time::ptime snapshotTime;
@@ -453,8 +459,10 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
             << "Checking if the session must be closed and re-opened for getting correct conditions"
             << "; from CondDBESSource::setIntervalFor";
         std::stringstream transId;
-        //transId << "long" << m_lastRun;
         transId << lastTime;
+        if (!m_frontierKey.empty()) {
+          transId << "_" << m_frontierKey;
+        }
         std::string connStr = m_connectionString;
         std::pair<std::string, std::string> tagParams = cond::persistency::parseTag(tcIter->second.tagName());
         if (!tagParams.second.empty())

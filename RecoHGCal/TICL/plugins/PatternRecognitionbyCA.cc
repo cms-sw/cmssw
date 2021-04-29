@@ -16,8 +16,11 @@
 using namespace ticl;
 
 template <typename TILES>
-PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf, const CacheBase *cache)
+PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf,
+                                                      const CacheBase *cache,
+                                                      edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, cache),
+      caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
       promoteEmptyRegionToTrackster_(conf.getParameter<bool>("promoteEmptyRegionToTrackster")),
@@ -67,10 +70,9 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   if (input.regions.empty())
     return;
 
-  edm::ESHandle<CaloGeometry> geom;
   edm::EventSetup const &es = input.es;
-  es.get<CaloGeometryRecord>().get(geom);
-  rhtools_.setGeometry(*geom);
+  const CaloGeometry &geom = es.getData(caloGeomToken_);
+  rhtools_.setGeometry(geom);
 
   theGraph_->setVerbosity(PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_);
   theGraph_->clear();

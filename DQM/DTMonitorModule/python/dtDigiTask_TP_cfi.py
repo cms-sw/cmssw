@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 dtTPmonitor = DQMEDAnalyzer('DTDigiTask',
     # set the max TDC counts for the time-box (6400 or 1600)
@@ -35,8 +34,8 @@ dtTPmonitor = DQMEDAnalyzer('DTDigiTask',
     testPulseMode = cms.untracked.bool(True),
     # switch on the mode for running on slice test (different top folder and customizations)
     sliceTestMode = cms.untracked.bool(False),
-    # time pedestal to be subtracted if sliceTestMode is true
-    tdcPedestal = cms.untracked.int32(105100),
+    # time pedestal defining the lower edge of the timebox plots
+    tdcPedestal = cms.untracked.int32(0),
     # switch for filtering on synch noise events (threshold on # of digis per chamber)
     filterSyncNoise = cms.untracked.bool(False),
     # threshold on # of digis per chamber to define sync noise

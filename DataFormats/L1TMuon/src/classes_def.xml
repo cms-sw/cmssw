@@ -13,6 +13,13 @@
   <class name="l1t::RegionalMuonCandBxCollection"/>
   <class name="edm::Wrapper<l1t::RegionalMuonCandBxCollection>"/>
 
+  <class name="l1t::RegionalMuonShower" ClassVersion="10">
+    <version ClassVersion="10" checksum="3501434665"/>
+  </class>
+  <class name="std::vector<l1t::RegionalMuonShower>"/>
+  <class name="l1t::RegionalMuonShowerBxCollection"/>
+  <class name="edm::Wrapper<l1t::RegionalMuonShowerBxCollection>"/>
+
   <class name="l1t::MuonCaloSum"/>
   <class name="std::vector<l1t::MuonCaloSum>"/>
   <class name="l1t::MuonCaloSumBxCollection"/>

@@ -1,6 +1,7 @@
 #include "DQMOffline/Muon/interface/GEMEfficiencyHarvester.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "TEfficiency.h"
 
@@ -365,7 +366,7 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
     // FIXME
     // `GetSkewness` seems to returns nan when its histogram has no entry..
     const double skewness = hist->GetSkewness();
-    if (not std::isnan(skewness))
+    if (edm::isFinite(skewness))
       h_skewness->SetBinContent(xbin, ybin, skewness);
 
     h_mean->SetBinError(xbin, ybin, hist->GetMeanError());

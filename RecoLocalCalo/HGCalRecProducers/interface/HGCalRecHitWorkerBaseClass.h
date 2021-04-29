@@ -2,6 +2,7 @@
 #define RecoLocalCalo_HGCalRecProducers_HGCalRecHitWorkerBaseClass_hh
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class Event;
@@ -11,7 +12,7 @@ namespace edm {
 
 class HGCalRecHitWorkerBaseClass {
 public:
-  HGCalRecHitWorkerBaseClass(const edm::ParameterSet&){};
+  HGCalRecHitWorkerBaseClass(const edm::ParameterSet&, edm::ConsumesCollector){};
   virtual ~HGCalRecHitWorkerBaseClass(){};
 
   virtual void set(const edm::EventSetup& es) = 0;
