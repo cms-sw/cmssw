@@ -50,7 +50,7 @@ SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf, edm::C
       _pTbyPass(conf.getParameter<double>("minPTforBypass")),
       _minSCPt(conf.getParameter<double>("minSuperClusterPt")),
       _superClustersArePF(conf.getParameter<bool>("superClustersArePF")),
-      _ctmapToken(sumes.esConsumes()) {}
+      _ctmapToken(sumes.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
 
 void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) {
   edm::ESHandle<CaloTowerConstituentsMap> ctmaph = es.getHandle(_ctmapToken);

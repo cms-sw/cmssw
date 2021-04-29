@@ -47,13 +47,13 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if (!pfcConf.empty()) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-    _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf);
+    _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf, sumes);
   }
   //setup (possible) recalcuation of positions
   const edm::ParameterSet& pConf = conf.getParameterSet("positionReCalc");
   if (!pConf.empty()) {
     const std::string& pName = pConf.getParameter<std::string>("algoName");
-    _positionReCalc = PFCPositionCalculatorFactory::get()->create(pName, pConf);
+    _positionReCalc = PFCPositionCalculatorFactory::get()->create(pName, pConf, sumes);
   }
   // see if new need to apply corrections, setup if there.
   const edm::ParameterSet& cConf = conf.getParameterSet("energyCorrector");

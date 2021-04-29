@@ -7,6 +7,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -16,8 +17,8 @@
 /// This is EGM version of the ECAL position + depth correction calculation
 class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
 public:
-  ECAL2DPositionCalcWithDepthCorr(const edm::ParameterSet& conf)
-      : PFCPositionCalculatorBase(conf),
+  ECAL2DPositionCalcWithDepthCorr(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+      : PFCPositionCalculatorBase(conf, sumes),
         _param_T0_EB(conf.getParameter<double>("T0_EB")),
         _param_T0_EE(conf.getParameter<double>("T0_EE")),
         _param_T0_ES(conf.getParameter<double>("T0_ES")),
@@ -28,7 +29,8 @@ public:
         _eeGeom(nullptr),
         _esGeom(nullptr),
         _esPlus(false),
-        _esMinus(false) {
+        _esMinus(false),
+        _geomToken(sumes.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     _timeResolutionCalc.reset(nullptr);
     if (conf.exists("timeResolutionCalc")) {
       const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalc");
@@ -60,6 +62,8 @@ private:
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalc;
 
   void calculateAndSetPositionActual(reco::PFCluster&) const;
+
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> _geomToken;
 };
 
 DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory, ECAL2DPositionCalcWithDepthCorr, "ECAL2DPositionCalcWithDepthCorr");
