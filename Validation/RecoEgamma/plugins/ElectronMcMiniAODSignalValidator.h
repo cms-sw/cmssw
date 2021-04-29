@@ -43,13 +43,6 @@ private:
   std::vector<int> matchingMotherIDs_;
   std::string outputInternalPath_;
 
-  float sumChargedHadronPt_recomp;
-  float sumNeutralHadronPt_recomp;
-  float sumPhotonPt_recomp;
-  float relisoChargedHadronPt_recomp;
-  float relisoNeutralHadronPt_recomp;
-  float relisoPhotonPt_recomp;
-
   // histos limits and binning
 
   int xyz_nbin;
@@ -139,9 +132,6 @@ private:
   MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
   MonitorElement *h1_ele_photonRelativeIso_mAOD_endcaps;
 
-  MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_recomp;
-  MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_recomp;
-  MonitorElement *h1_ele_photonRelativeIso_mAOD_recomp;
 };
 
 #endif
