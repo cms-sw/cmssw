@@ -7,7 +7,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterv1.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -37,20 +37,20 @@ SiStripClusters2ApproxClustersv1::SiStripClusters2ApproxClustersv1(const edm::Pa
   inputClusters = conf.getParameter< edm::InputTag >("inputClusters");
 
   clusterToken = consumes< edmNew::DetSetVector< SiStripCluster > >(inputClusters);
-  produces< edmNew::DetSetVector< SiStripApproximateClusterv1 > >(); 
+  produces< edmNew::DetSetVector< SiStripApproximateCluster > >(); 
 
 }
 
 void SiStripClusters2ApproxClustersv1::produce(edm::Event& e, edm::EventSetup const&){
-  auto result = std::make_unique<edmNew::DetSetVector< SiStripApproximateClusterv1 > >();
+  auto result = std::make_unique<edmNew::DetSetVector< SiStripApproximateCluster > >();
   edm::Handle<edmNew::DetSetVector< SiStripCluster >> clusterCollection = e.getHandle(clusterToken);
 
 
   for ( const auto& detClusters : *clusterCollection ) {
-    std::vector< SiStripApproximateClusterv1 > tempVec;    
-    edmNew::DetSetVector<SiStripApproximateClusterv1>::FastFiller ff{*result, detClusters.id()};
+    std::vector< SiStripApproximateCluster > tempVec;    
+    edmNew::DetSetVector<SiStripApproximateCluster>::FastFiller ff{*result, detClusters.id()};
 
-    for ( const auto& cluster : detClusters ) ff.push_back(SiStripApproximateClusterv1(cluster));
+    for ( const auto& cluster : detClusters ) ff.push_back(SiStripApproximateCluster(cluster));
     
   }
 
