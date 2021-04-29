@@ -25,14 +25,6 @@ ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::Pa
   edm::ParameterSet histosSet = iConfig.getParameter<edm::ParameterSet>("histosCfg");
   edm::ParameterSet isolationSet = iConfig.getParameter<edm::ParameterSet>("isolationCfg");
 
-  //recomp
-  pfSumChargedHadronPtTmp_ =
-      consumes<edm::ValueMap<float> >(isolationSet.getParameter<edm::InputTag>("pfSumChargedHadronPtTmp"));  // iConfig
-  pfSumNeutralHadronEtTmp_ =
-      consumes<edm::ValueMap<float> >(isolationSet.getParameter<edm::InputTag>("pfSumNeutralHadronEtTmp"));  // iConfig
-  pfSumPhotonEtTmp_ =
-      consumes<edm::ValueMap<float> >(isolationSet.getParameter<edm::InputTag>("pfSumPhotonEtTmp"));  // iConfig
-
   maxPt_ = iConfig.getParameter<double>("MaxPt");
   maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
   deltaR_ = iConfig.getParameter<double>("DeltaR");
@@ -131,10 +123,6 @@ ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::Pa
   h1_ele_photonRelativeIso_mAOD = nullptr;
   h1_ele_photonRelativeIso_mAOD_barrel = nullptr;
   h1_ele_photonRelativeIso_mAOD_endcaps = nullptr;
-
-  h1_ele_chargedHadronRelativeIso_mAOD_recomp = nullptr;
-  h1_ele_neutralHadronRelativeIso_mAOD_recomp = nullptr;
-  h1_ele_photonRelativeIso_mAOD_recomp = nullptr;
 }
 
 ElectronMcSignalValidatorMiniAOD::~ElectronMcSignalValidatorMiniAOD() {}
@@ -428,35 +416,6 @@ void ElectronMcSignalValidatorMiniAOD::bookHistograms(DQMStore::IBooker& iBooker
                                                           "photonRelativeIso_endcaps",
                                                           "Events",
                                                           "ELE_LOGY E1 P");
-
-  // -- recomputed pflow over pT
-  h1_ele_chargedHadronRelativeIso_mAOD_recomp = bookH1withSumw2(iBooker,
-                                                                "chargedHadronRelativeIso_mAOD_recomp",
-                                                                "recomputed chargedHadronRelativeIso",
-                                                                100,
-                                                                0.0,
-                                                                2.,
-                                                                "chargedHadronRelativeIso",
-                                                                "Events",
-                                                                "ELE_LOGY E1 P");
-  h1_ele_neutralHadronRelativeIso_mAOD_recomp = bookH1withSumw2(iBooker,
-                                                                "neutralHadronRelativeIso_mAOD_recomp",
-                                                                "recomputed neutralHadronRelativeIso",
-                                                                100,
-                                                                0.0,
-                                                                2.,
-                                                                "neutralHadronRelativeIso",
-                                                                "Events",
-                                                                "ELE_LOGY E1 P");
-  h1_ele_photonRelativeIso_mAOD_recomp = bookH1withSumw2(iBooker,
-                                                         "photonRelativeIso_mAOD_recomp",
-                                                         "recomputed photonRelativeIso",
-                                                         100,
-                                                         0.0,
-                                                         2.,
-                                                         "photonRelativeIso",
-                                                         "Events",
-                                                         "ELE_LOGY E1 P");
 }
 
 void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -471,16 +430,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   iEvent.getByToken(mcTruthCollection_, genParticles);
 
   edm::Handle<pat::ElectronCollection> mergedElectrons;
-
-  //recomp
-  edm::Handle<edm::ValueMap<float> > pfSumChargedHadronPtTmp;
-  edm::Handle<edm::ValueMap<float> > pfSumNeutralHadronEtTmp;
-  edm::Handle<edm::ValueMap<float> > pfSumPhotonEtTmp; /**/
-
-  //recomp
-  iEvent.getByToken(pfSumChargedHadronPtTmp_, pfSumChargedHadronPtTmp);
-  iEvent.getByToken(pfSumNeutralHadronEtTmp_, pfSumNeutralHadronEtTmp);
-  iEvent.getByToken(pfSumPhotonEtTmp_, pfSumPhotonEtTmp); /**/
 
   edm::LogInfo("ElectronMcSignalValidatorMiniAOD::analyze")
       << "Treating event " << iEvent.id() << " with " << electrons.product()->size() << " electrons";
@@ -607,17 +556,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
               pt_ = elePtr->pt();
 
               okGsfFound = true;
-
-              if (i_elec == 0) {
-                sumChargedHadronPt_recomp = (*pfSumChargedHadronPtTmp)[elePtr];
-                relisoChargedHadronPt_recomp = sumChargedHadronPt_recomp / pt_;
-
-                sumNeutralHadronPt_recomp = (*pfSumNeutralHadronEtTmp)[elePtr];
-                relisoNeutralHadronPt_recomp = sumNeutralHadronPt_recomp / pt_;
-
-                sumPhotonPt_recomp = (*pfSumPhotonEtTmp)[elePtr];
-                relisoPhotonPt_recomp = sumPhotonPt_recomp / pt_; /**/
-              }
             }
           }
         }
@@ -699,12 +637,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
                                                              one_over_pt);
           h1_ele_photonRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt);
         }
-        //if (i_elec==0){
-        // -- recomputed pflow over pT
-        h1_ele_chargedHadronRelativeIso_mAOD_recomp->Fill(relisoChargedHadronPt_recomp);
-        h1_ele_neutralHadronRelativeIso_mAOD_recomp->Fill(relisoNeutralHadronPt_recomp);
-        h1_ele_photonRelativeIso_mAOD_recomp->Fill(relisoPhotonPt_recomp);
-        //} /**/
       }
     }
     //} // end loop i_elec
