@@ -115,6 +115,8 @@ def customisePostEra_Run3(process):
 def customisePostEra_Run3_express_trackingOnly(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018_express_trackingOnly(process)
+    #add Run3 HCAL setting
+    _hcalCustomsRun3(process)
     return process
 
 ##############################################################################
