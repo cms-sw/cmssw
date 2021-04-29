@@ -873,9 +873,11 @@ if __name__ == "__main__":
 
             e = __Test("MyType")
             self.assertEqual(len(e.parameterNames_()), 0)
-            f = d.clone(__PSet(a = __TestType(1)), b = __TestType(2))
+            f = e.clone(__PSet(a = __TestType(1)), b = __TestType(2))
             self.assertEqual(f.a.value(), 1)
             self.assertEqual(f.b.value(), 2)
+            g = e.clone()
+            self.assertEqual(len(g.parameterNames_()), 0)
 
         def testModified(self):
             class __TestType(_SimpleParameterTypeBase):
