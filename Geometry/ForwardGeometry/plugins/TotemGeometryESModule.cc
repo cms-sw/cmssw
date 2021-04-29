@@ -15,7 +15,7 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/Records/interface/TotemGeometryRcd.h"
 #include "Geometry/ForwardGeometry/interface/TotemGeometry.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDescBuilder.h"
 
@@ -24,12 +24,12 @@ public:
   TotemGeometryESModule(const edm::ParameterSet&);
 
   std::unique_ptr<DetGeomDesc> produceGeomDesc(const IdealGeometryRecord&);
-  std::unique_ptr<TotemGeometry> produceGeometry(const VeryForwardRealGeometryRecord&);
+  std::unique_ptr<TotemGeometry> produceGeometry(const TotemGeometryRcd&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  const edm::ESGetToken<DetGeomDesc, VeryForwardRealGeometryRecord> detGeomDescToken_;
+  const edm::ESGetToken<DetGeomDesc, TotemGeometryRcd> detGeomDescToken_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
 };
 
@@ -43,14 +43,14 @@ std::unique_ptr<DetGeomDesc> TotemGeometryESModule::produceGeomDesc(const IdealG
   return detgeomdescbuilder::buildDetGeomDescFromCompactView(dd4hep, false);
 }
 
-std::unique_ptr<TotemGeometry> TotemGeometryESModule::produceGeometry(const VeryForwardRealGeometryRecord& iRecord) {
+std::unique_ptr<TotemGeometry> TotemGeometryESModule::produceGeometry(const TotemGeometryRcd& iRecord) {
   const auto& geom_desc = iRecord.get(detGeomDescToken_);
   return std::make_unique<TotemGeometry>(&geom_desc);
 }
 
 void TotemGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("compactViewTag", std::string());
+  desc.add<std::string>("compactViewTag", std::string("XMLIdealGeometryESSource"));
   descriptions.addWithDefaultLabel(desc);
 }
 

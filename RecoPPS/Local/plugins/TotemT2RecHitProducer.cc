@@ -27,7 +27,7 @@
 
 #include "RecoPPS/Local/interface/TotemT2RecHitProducerAlgorithm.h"
 
-#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/Records/interface/TotemGeometryRcd.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
 
@@ -42,7 +42,7 @@ private:
 
   edm::EDGetTokenT<edm::DetSetVector<TotemT2Digi> > digiToken_;
   edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> timingCalibrationToken_;
-  edm::ESGetToken<TotemGeometry, VeryForwardRealGeometryRecord> geometryToken_;
+  edm::ESGetToken<TotemGeometry, TotemGeometryRcd> geometryToken_;
   /// A watcher to detect timing calibration changes.
   edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 
@@ -52,7 +52,7 @@ private:
 
 TotemT2RecHitProducer::TotemT2RecHitProducer(const edm::ParameterSet& iConfig)
     : digiToken_(consumes<edm::DetSetVector<TotemT2Digi> >(iConfig.getParameter<edm::InputTag>("digiTag"))),
-      geometryToken_(esConsumes<TotemGeometry, VeryForwardRealGeometryRecord>()),
+      geometryToken_(esConsumes<TotemGeometry, TotemGeometryRcd>()),
       applyCalib_(iConfig.getParameter<bool>("applyCalibration")),
       algo_(iConfig) {
   if (applyCalib_)
