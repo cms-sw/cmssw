@@ -174,11 +174,11 @@ private:
 
   /// recursive method to extract nT2-related information from the DOM tree
   void ParseTreeTotemT2(ParseType,
-                        xercesc::DOMNode*,
+                        xercesc::DOMNode *,
                         NodeType,
                         unsigned int parentID,
-                        const std::unique_ptr<TotemDAQMapping>&,
-                        const std::unique_ptr<TotemAnalysisMask>&);
+                        const std::unique_ptr<TotemDAQMapping> &,
+                        const std::unique_ptr<TotemAnalysisMask> &);
 
 private:
   /// adds the path prefix, if needed
@@ -217,9 +217,7 @@ private:
             (type == nSampicChannel) || (type == nTotemTimingPlane) || (type == nTotemTimingCh));
   }
 
-  bool TotemT2Node(NodeType type) {
-    return type == nArm || type == nTotemT2Plane || type == nTotemT2Tile;
-  }
+  bool TotemT2Node(NodeType type) { return type == nArm || type == nTotemT2Plane || type == nTotemT2Tile; }
 
   bool CommonNode(NodeType type) { return ((type == nChip) || (type == nArm)); }
 
@@ -882,7 +880,7 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemT2(ParseType pType,
             << "hwId not given for element `" << cms::xerces::toString(child->getNodeName()) << "'";
 
       // store mapping data
-      const TotemFramePosition& framepos = ChipFramePosition(child);
+      const TotemFramePosition &framepos = ChipFramePosition(child);
       TotemVFATInfo vfatInfo;
       unsigned int arm = parentID / 10, plane = parentID % 10;
       vfatInfo.symbolicID.symbolicID = TotemT2DetId(arm, plane, id);
