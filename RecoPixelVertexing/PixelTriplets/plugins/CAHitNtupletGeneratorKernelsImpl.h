@@ -200,9 +200,10 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       auto qi = tracks->quality(it);
       if (qi <= reject)
         continue;
-      auto opi = 1.f / tracks->pt(it);
-      auto eta = std::abs(tracks->eta(it));
-      auto fact = 0.1f + ((eta < 1.0f) ? 0.0f : 0.1f * (eta - 1.0f));
+      auto opi = tracks->stateAtBS.state(i)(2);
+      auto dop = 5.f * std::sqrt(tracks->stateAtBS.covariance(i)(9));
+      auto cti = tracks->stateAtBS.state(i)(3);
+      auto dct = 5.f * std::sqrt(tracks->stateAtBS.covariance(i)(12));
       for (auto j = i + 1; j < ntr; ++j) {
         auto jt = thisCell.tracks()[j];
         auto qj = tracks->quality(jt);
@@ -210,15 +211,17 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
           continue;
         if (foundNtuplets->size(it) != foundNtuplets->size(jt))
           printf(" a mess\n");
-        auto pj = tracks->pt(jt);
-        auto rp = pj * opi;
-        if (rp > (1.f - fact) and rp < (1.f + fact)) {
-          if ((qj < qi) || (qj == qi && score(it) < score(jt)))
-            tracks->quality(jt) = reject;
-          else {
-            tracks->quality(it) = reject;
-            break;
-          }
+        auto opj = tracks->stateAtBS.state(j)(2);
+        auto ctj = tracks->stateAtBS.state(j)(3);
+        if (std::abs(cti - ctj) > dct)
+          continue;
+        if (std::abs(opi - opj) > dop)
+          continue;
+        if ((qj < qi) || (qj == qi && score(it) < score(jt)))
+          tracks->quality(jt) = reject;
+        else {
+          tracks->quality(it) = reject;
+          break;
         }
       }
     }
@@ -241,7 +244,8 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       }
     }
 
-    if (60000==im) continue;
+    if (60000 == im)
+      continue;
 
     // mark all other duplicates  (not yet, keep it loose)
     for (auto it : thisCell.tracks()) {
@@ -577,7 +581,6 @@ __global__ void kernel_countSharedHit(int *__restrict__ nshared,
       continue;
     */
 
-
     // now mark  each track triplet as sharing a hit
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
       if (foundNtuplets.size(*it) > 3)
@@ -586,7 +589,6 @@ __global__ void kernel_countSharedHit(int *__restrict__ nshared,
     }
 
   }  //  hit loop
-
 }
 
 __global__ void kernel_markSharedHit(int const *__restrict__ nshared,
@@ -612,7 +614,8 @@ __global__ void kernel_markSharedHit(int const *__restrict__ nshared,
   }
 }
 
-__global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared, TrackingRecHit2DSOAView const *__restrict__ hhp,
+__global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
+                                        TrackingRecHit2DSOAView const *__restrict__ hhp,
                                         HitContainer const *__restrict__ ptuples,
                                         TkSoA const *__restrict__ ptracks,
                                         Quality *__restrict__ quality,
@@ -650,32 +653,31 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared, Trackin
       auto qi = quality[it];
       if (qi <= reject)
         continue;
-      auto opi = 1.f / tracks.pt(it);
-      auto etai = tracks.eta(it);
-      auto eta = std::abs(etai);
-      auto fact = 0.05f + ((eta < 1.0f) ? 0.0f : 0.1f * (eta - 1.0f));
+      auto opi = tracks.stateAtBS.state(it)(2);
+      auto dop = 5.f * std::sqrt(tracks.stateAtBS.covariance(it)(9));
+      auto cti = tracks.stateAtBS.state(it)(3);
+      auto dct = 5.f * std::sqrt(tracks.stateAtBS.covariance(it)(12));
       auto nhi = foundNtuplets.size(it);
       for (auto jp = ip + 1; jp != hitToTuple.end(idx); ++jp) {
         auto const jt = *jp;
         auto qj = quality[jt];
         if (qj <= reject)
           continue;
-        if (std::abs(etai - tracks.eta(jt)) > 0.01f)
+        auto opj = tracks.stateAtBS.state(jt)(2);
+        auto ctj = tracks.stateAtBS.state(jt)(3);
+        if (std::abs(cti - ctj) > dct)
           continue;
-        auto pj = tracks.pt(jt);
-        auto rp = pj * opi;
-        if (rp > (1.f - fact) and rp < (1.f + fact)) {
-          auto nhj = foundNtuplets.size(jt);
-          if (nhj < nhi || (nhj == nhi && (qj < qi || (qj == qi && score(it, nhi) < score(jt, nhj)))))
-            quality[jt] = reject;
-          else {
-            quality[it] = reject;
-            break;
-          }
+        if (std::abs(opi - opj) > dop)
+          continue;
+        auto nhj = foundNtuplets.size(jt);
+        if (nhj < nhi || (nhj == nhi && (qj < qi || (qj == qi && score(it, nhi) < score(jt, nhj)))))
+          quality[jt] = reject;
+        else {
+          quality[it] = reject;
+          break;
         }
       }
     }
-
 
     float mc = 10000.f;
     uint16_t im = 60000;
@@ -707,10 +709,9 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared, Trackin
         quality[*it] = loose;  // dup; // loose;
     }
 
-
     if (maxNh > 3)
       continue;
-   
+
     // for triplets choose best tip!  (should we first find best quality???)
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
@@ -720,7 +721,8 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared, Trackin
       }
     }
 
-    if (60000==im) continue;
+    if (60000 == im)
+      continue;
 
     // mark duplicates
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
@@ -729,7 +731,7 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared, Trackin
       if (quality[it] >= strict && it != im)
         quality[it] = loose;  //no race:  simple assignment of the same constant
     }
-    
+
   }  // loop over hits
 }
 

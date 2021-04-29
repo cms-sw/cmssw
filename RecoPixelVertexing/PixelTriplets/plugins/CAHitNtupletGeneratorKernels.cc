@@ -177,13 +177,12 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
 
   // remove duplicates (tracks that share a hit)
   if (params_.doSharedHitCut_) {
-
     auto nShared = std::make_unique<int32_t[]>(caConstants::maxNumberOfQuadruplets);
-    memset(nShared.get(), 0, caConstants::maxNumberOfQuadruplets*sizeof(int32_t));
-    kernel_countSharedHit(nShared.get(), tuples_d,quality_d, device_hitToTuple_.get());
+    memset(nShared.get(), 0, caConstants::maxNumberOfQuadruplets * sizeof(int32_t));
+    kernel_countSharedHit(nShared.get(), tuples_d, quality_d, device_hitToTuple_.get());
 
-
-    kernel_sharedHitCleaner(nShared.get(), hh.view(),
+    kernel_sharedHitCleaner(nShared.get(),
+                            hh.view(),
                             tuples_d,
                             tracks_d,
                             quality_d,
