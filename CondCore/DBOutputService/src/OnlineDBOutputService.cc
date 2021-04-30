@@ -84,9 +84,17 @@ cond::service::OnlineDBOutputService::OnlineDBOutputService(const edm::Parameter
       m_latencyInLumisections(iConfig.getUntrackedParameter<unsigned int>("latency", 1)),
       m_omsServiceUrl(iConfig.getUntrackedParameter<std::string>("omsServiceUrl", "")),
       m_preLoadConnectionString(iConfig.getUntrackedParameter<std::string>("preLoadConnectionString", "")),
+      m_frontierKey(""),
       m_debug(iConfig.getUntrackedParameter<bool>("debugLogging", false)) {
   if (m_omsServiceUrl.empty()) {
     m_lastLumiFile = iConfig.getUntrackedParameter<std::string>("lastLumiFile", "");
+  }
+  std::string frontierKeyFilePath(iConfig.getUntrackedParameter<std::string>("frontierKeyFilePath", ""));
+  if (!frontierKeyFilePath.empty()) {
+    std::ifstream frontierKeyFile(frontierKeyFilePath);
+    if (!frontierKeyFile)
+      throw Exception(std::string("Can't access frontierKey file ") + frontierKeyFilePath);
+    frontierKeyFile >> m_frontierKey;
   }
 }
 
@@ -124,5 +132,10 @@ cond::Iov_t cond::service::OnlineDBOutputService::preLoadIov(const std::string& 
 }
 
 cond::persistency::Session cond::service::OnlineDBOutputService::getReadOnlyCache(cond::Time_t targetTime) {
-  return PoolDBOutputService::newReadOnlySession(m_preLoadConnectionString, std::to_string(targetTime));
+  std::stringstream transId;
+  transId << targetTime;
+  if (!m_frontierKey.empty()) {
+    transId << "_" << m_frontierKey;
+  }
+  return PoolDBOutputService::newReadOnlySession(m_preLoadConnectionString, transId.str());
 }
