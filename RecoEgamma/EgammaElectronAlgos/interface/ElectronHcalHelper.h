@@ -31,14 +31,11 @@ public:
 
     // specific parameters if use rechits
     edm::EDGetTokenT<HBHERecHitCollection> hbheRecHits;
-    edm::EDGetTokenT<HFRecHitCollection> hfRecHits;
 
     std::array<double, 4> eThresHB;
     int maxSeverityHB;
     std::array<double, 7> eThresHE;
     int maxSeverityHE;
-    std::array<double, 7> eThresHF;
-    int maxSeverityHF;
   };
 
   ElectronHcalHelper(const Configuration &cfg, edm::ConsumesCollector &&cc);
@@ -50,7 +47,6 @@ public:
   double hOverEConeSize() const { return cfg_.hOverEConeSize; }
   int maxSeverityHB() const { return cfg_.maxSeverityHB; }
   int maxSeverityHE() const { return cfg_.maxSeverityHE; }
-  int maxSeverityHF() const { return cfg_.maxSeverityHF; }
 
   // forward EgammaHadTower methods, if checkHcalStatus is enabled, using towers and H/E
   bool hasActiveHcal(const reco::SuperCluster &sc) const;

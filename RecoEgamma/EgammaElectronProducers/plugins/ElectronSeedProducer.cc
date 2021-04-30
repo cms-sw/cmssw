@@ -83,15 +83,13 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
       hcalCfg.onlyBehindCluster = false;
       hcalCfg.checkHcalStatus = false;
 
+      //hcalCfg.hbheRecHits = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheRecHits"));
       hcalCfg.hbheRecHits = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheRecHits"));
-      hcalCfg.hfRecHits = consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("hfRecHits"));
 
       hcalCfg.eThresHB = conf.getParameter<std::array<double, 4>>("recHitEThresholdHB");
       hcalCfg.maxSeverityHB = conf.getParameter<int>("maxHcalRecHitSeverity");
       hcalCfg.eThresHE = conf.getParameter<std::array<double, 7>>("recHitEThresholdHE");
       hcalCfg.maxSeverityHE = hcalCfg.maxSeverityHB;
-      hcalCfg.eThresHF = conf.getParameter<std::array<double, 7>>("recHitEThresholdHF");
-      hcalCfg.maxSeverityHF = hcalCfg.maxSeverityHB;
     }
     hcalHelper_ = std::make_unique<ElectronHcalHelper>(hcalCfg, consumesCollector());
 
@@ -222,11 +220,9 @@ void ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("maxHOverEBarrel", 0.15);
   desc.add<double>("maxHOverEEndcaps", 0.15);
   desc.add<edm::InputTag>("hbheRecHits", {"hbhereco"});
-  desc.add<edm::InputTag>("hfRecHits", {"hfreco"});
-  desc.add<std::vector<double>>("recHitEThresholdHB", {0.1, 0.2, 0.3, 0.3}); // FIXME defaults for tests
-  desc.add<std::vector<double>>("recHitEThresholdHE", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
-  desc.add<std::vector<double>>("recHitEThresholdHF", {0.5, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85});
-  desc.add<int>("maxHcalRecHitSeverity", 9);
+  desc.add<std::vector<double>>("recHitEThresholdHB", {0., 0., 0., 0.});
+  desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
+  desc.add<int>("maxHcalRecHitSeverity", 999999);
 
   // H/E equivalent for HGCal
   desc.add<bool>("allowHGCal", false);

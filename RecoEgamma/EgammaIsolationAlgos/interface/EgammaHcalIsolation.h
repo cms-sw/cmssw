@@ -53,11 +53,7 @@ public:
                       const std::array<double, 7> &eThresHE,
                       const std::array<double, 7> &etThresHE,
                       int maxSeverityHE,
-                      const std::array<double, 7> &eThresHF,
-                      const std::array<double, 7> &etThresHF,
-                      int maxSeverityHF,
                       const HBHERecHitCollection &mhbhe,
-                      const HFRecHitCollection &mhf,
                       edm::ESHandle<CaloGeometry> caloGeometry,
                       edm::ESHandle<HcalTopology> hcalTopology,
                       edm::ESHandle<HcalChannelQuality> hcalChStatus,
@@ -74,11 +70,7 @@ public:
                       const std::array<double, 7> &eThresHE,
                       const std::array<double, 7> &etThresHE,
                       int maxSeverityHE,
-                      const std::array<double, 7> &eThresHF,
-                      const std::array<double, 7> &etThresHF,
-                      int maxSeverityHF,
                       const HBHERecHitCollection &mhbhe,
-                      const HFRecHitCollection &mhf,
                       const CaloGeometry &caloGeometry,
                       const HcalTopology &hcalTopology,
                       const HcalChannelQuality &hcalChStatus,
@@ -130,8 +122,7 @@ public:
   }
 
 private:
-  template <typename HcalRecHit>
-  double goodHitEnergy(const GlobalPoint &pclu, const HcalRecHit &hit, int depth, int ieta, int iphi, int include_or_exclude, double (*scale)(const double &)) const;
+  double goodHitEnergy(const GlobalPoint &pclu, const HBHERecHit &hit, int depth, int ieta, int iphi, int include_or_exclude, double (*scale)(const double &)) const;
 
   double getHcalSum(const GlobalPoint &pclu, int depth, int ieta, int iphi, int include_or_exclude, double (*scale)(const double &)) const;
 
@@ -148,12 +139,7 @@ private:
   std::array<double, 7> etThresHE_;
   int maxSeverityHE_;
 
-  std::array<double, 7> eThresHF_;
-  std::array<double, 7> etThresHF_;
-  int maxSeverityHF_;
-
   const HBHERecHitCollection &mhbhe_;
-  const HFRecHitCollection &mhf_;
   const CaloGeometry &caloGeometry_;
   const HcalTopology &hcalTopology_;
   const HcalChannelQuality &hcalChStatus_;

@@ -23,6 +23,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+
 class PhotonIsolationCalculator {
 public:
   PhotonIsolationCalculator() {}
@@ -83,18 +85,14 @@ private:
                                 const HcalSeverityLevelComputer &hcalSevLvlComputer,
                                 const CaloTowerConstituentsMap &towerMap,
                                 const HBHERecHitCollection &hbheRecHits,
-                                const HFRecHitCollection &hfRecHits,
                                 double RCone,
                                 double RConeInner,
-                                double eMin,
-                                int maxSeverity,
                                 int depth) const dso_internal;
 
 private:
   edm::EDGetToken barrelecalCollection_;
   edm::EDGetToken endcapecalCollection_;
   edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitsTag_;
-  edm::EDGetTokenT<HFRecHitCollection> hfRecHitsTag_;
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalTopologyToken_;
@@ -111,23 +109,34 @@ private:
 
   std::array<double, 6> trkIsoBarrelRadiusA_;
   std::array<double, 5> ecalIsoBarrelRadiusA_;
-  std::array<double, 21> hcalIsoBarrelRadiusA_;
   std::array<double, 6> trkIsoBarrelRadiusB_;
   std::array<double, 5> ecalIsoBarrelRadiusB_;
-  std::array<double, 21> hcalIsoBarrelRadiusB_;
 
   std::array<double, 6> trkIsoEndcapRadiusA_;
   std::array<double, 5> ecalIsoEndcapRadiusA_;
-  std::array<double, 21> hcalIsoEndcapRadiusA_;
   std::array<double, 6> trkIsoEndcapRadiusB_;
   std::array<double, 5> ecalIsoEndcapRadiusB_;
-  std::array<double, 21> hcalIsoEndcapRadiusB_;
+
+  std::array<double, 7> hcalIsoInnerRadAEB_;
+  std::array<double, 7> hcalIsoOuterRadAEB_;
+
+  std::array<double, 7> hcalIsoInnerRadBEB_;
+  std::array<double, 7> hcalIsoOuterRadBEB_;
+
+  std::array<double, 7> hcalIsoInnerRadAEE_;
+  std::array<double, 7> hcalIsoOuterRadAEE_;
+
+  std::array<double, 7> hcalIsoInnerRadBEE_;
+  std::array<double, 7> hcalIsoOuterRadBEE_;
+
+  std::array<double, 4> hcalIsoEThresHB_;
+  std::array<double, 7> hcalIsoEThresHE_;
+  int maxHcalSeverity_;
 
   std::vector<int> flagsEB_;
   std::vector<int> flagsEE_;
   std::vector<int> severityExclEB_;
   std::vector<int> severityExclEE_;
-  int maxHcalSeverity_;
 };
 
 #endif  // PhotonIsolationCalculator_H
