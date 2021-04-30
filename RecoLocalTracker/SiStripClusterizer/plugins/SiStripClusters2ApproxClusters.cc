@@ -16,11 +16,11 @@
 #include <vector>
 #include <memory>
 
-class SiStripClusters2ApproxClustersv1: public edm::stream::EDProducer<>  {
+class SiStripClusters2ApproxClusters: public edm::stream::EDProducer<>  {
 
 public:
 
-  explicit SiStripClusters2ApproxClustersv1(const edm::ParameterSet& conf);
+  explicit SiStripClusters2ApproxClusters(const edm::ParameterSet& conf);
   void produce(edm::Event&, const edm::EventSetup&) override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -33,7 +33,7 @@ private:
 
 
 
-SiStripClusters2ApproxClustersv1::SiStripClusters2ApproxClustersv1(const edm::ParameterSet& conf){
+SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::ParameterSet& conf){
   inputClusters = conf.getParameter< edm::InputTag >("inputClusters");
 
   clusterToken = consumes< edmNew::DetSetVector< SiStripCluster > >(inputClusters);
@@ -41,7 +41,7 @@ SiStripClusters2ApproxClustersv1::SiStripClusters2ApproxClustersv1(const edm::Pa
 
 }
 
-void SiStripClusters2ApproxClustersv1::produce(edm::Event& e, edm::EventSetup const&){
+void SiStripClusters2ApproxClusters::produce(edm::Event& e, edm::EventSetup const&){
   auto result = std::make_unique<edmNew::DetSetVector< SiStripApproximateCluster > >();
   edm::Handle<edmNew::DetSetVector< SiStripCluster >> clusterCollection = e.getHandle(clusterToken);
 
@@ -57,11 +57,11 @@ void SiStripClusters2ApproxClustersv1::produce(edm::Event& e, edm::EventSetup co
   e.put(std::move(result));
 }
 
-void SiStripClusters2ApproxClustersv1::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiStripClusters2ApproxClusters::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputClusters", edm::InputTag("siStripClusters"));
-  descriptions.add("SiStripClusters2ApproxClustersv1", desc);  
+  descriptions.add("SiStripClusters2ApproxClusters", desc);  
 }
 
 
-DEFINE_FWK_MODULE(SiStripClusters2ApproxClustersv1);
+DEFINE_FWK_MODULE(SiStripClusters2ApproxClusters);
