@@ -8,9 +8,9 @@ IDWPdefinitionsSimple = cms.VPSet()
 for wp in hpsPFTauDiscriminationByMuonRejection3.IDWPdefinitions:
     aWP = copy.deepcopy(wp)
     aWP.IDname = wp.IDname.value().replace('MuonRejection3','MuonRejectionSimple')
-    delattr(aWP,"discriminatorOption")
-    setattr(aWP,"maxNumberOfRPCMuons",cms.int32(-1))
-    setattr(aWP,"maxNumberOfSTAMuons",cms.int32(-1))
+    del aWP.discriminatorOption
+    aWP.maxNumberOfRPCMuons = cms.int32(-1)
+    aWP.maxNumberOfSTAMuons = cms.int32(-1)
     IDWPdefinitionsSimple.append(aWP)
 
 hpsPFTauDiscriminationByMuonRejectionSimple = pfRecoTauDiscriminationAgainstMuonSimple.clone(
