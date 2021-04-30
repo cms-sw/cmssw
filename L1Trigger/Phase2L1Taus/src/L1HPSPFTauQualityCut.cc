@@ -38,8 +38,6 @@ L1HPSPFTauQualityCut::L1HPSPFTauQualityCut(const edm::ParameterSet& cfg)
   }
 }
 
-L1HPSPFTauQualityCut::~L1HPSPFTauQualityCut() {}
-
 bool L1HPSPFTauQualityCut::operator()(const l1t::PFCandidate& pfCand, float_t primaryVertex_z) const {
   if (pfCand.id() == pfCandType_) {
     if (pfCand.pt() < minPt_) {
