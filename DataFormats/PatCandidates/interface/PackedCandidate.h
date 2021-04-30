@@ -992,13 +992,13 @@ namespace pat {
     /// set time measurement
     void setTime(float aTime, float aTimeError = 0) { setDTimeAssociatedPV(aTime - vertexRef()->t(), aTimeError); }
 
-    bool useLut() static
+    static bool useLut()
     {
       std::call_once(useLut_load_flag, [](bool v) { useLut_ = v; }, false);
       return useLut_;
     }
 
-    void setLut (int covV) static
+    static void setLut (int covV)
     {
         std::call_once(useLut_load_flag, [](bool v) { useLut_ = v; }, true);
         std::call_once(covariance_load_flag, [](int v) { covarianceParameterization_.load(v); }, covV);
