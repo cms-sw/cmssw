@@ -12,7 +12,7 @@ public:
   L1HPSPFTauQualityCut(const edm::ParameterSet& cfg);
 
   /// destructor
-  ~L1HPSPFTauQualityCut();
+  ~L1HPSPFTauQualityCut() = default;
 
   /// returns true (false) if PFCandidate passes (fails) quality cuts
   bool operator()(const l1t::PFCandidate& pfCand, float_t primaryVertexZ) const;

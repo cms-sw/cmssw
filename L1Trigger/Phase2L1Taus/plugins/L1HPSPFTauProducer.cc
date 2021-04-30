@@ -1,4 +1,4 @@
-#include "L1Trigger/Phase2L1Taus/interface/L1HPSPFTauProducer.h"
+#include "L1Trigger/Phase2L1Taus/plugins/L1HPSPFTauProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <cmath>  // std::fabs
 
@@ -47,8 +47,6 @@ L1HPSPFTauProducer::L1HPSPFTauProducer(const edm::ParameterSet& cfg)
 
   produces<l1t::L1HPSPFTauCollection>();
 }
-
-L1HPSPFTauProducer::~L1HPSPFTauProducer() {}
 
 namespace {
   bool isHigherPt_pfCandRef(const l1t::PFCandidateRef& l1PFCand1, const l1t::PFCandidateRef& l1PFCand2) {
@@ -212,6 +210,110 @@ void L1HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   evt.put(std::move(l1PFTauCollectionCleaned));
 }
+
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+void
+L1HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // L1HPSPFTauProducerPF
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("useJetSeeds", true);
+  desc.add<double>("minPFTauPt", 20.0);
+  desc.add<double>("minSignalConeSize", 0.05);
+  {
+    edm::ParameterSetDescription psd0;
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("minPt", 0.0);
+      psd0.add<edm::ParameterSetDescription>("neutralHadron", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("maxDz", 0.4);
+      psd1.add<double>("minPt", 0.0);
+      psd0.add<edm::ParameterSetDescription>("muon", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("maxDz", 0.4);
+      psd1.add<double>("minPt", 0.0);
+      psd0.add<edm::ParameterSetDescription>("electron", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("minPt", 0.0);
+      psd0.add<edm::ParameterSetDescription>("photon", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("maxDz", 0.4);
+      psd1.add<double>("minPt", 0.0);
+      psd0.add<edm::ParameterSetDescription>("chargedHadron", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("isolationQualityCuts", psd0);
+  }
+  desc.add<double>("stripSizePhi", 0.2);
+  desc.add<double>("minSeedJetPt", 30.0);
+  desc.add<double>("maxChargedRelIso", 1.0);
+  desc.add<double>("minSeedChargedPFCandPt", 5.0);
+  desc.add<edm::InputTag>("srcL1PFCands", edm::InputTag("l1pfCandidates","PF"));
+  desc.add<double>("stripSizeEta", 0.05);
+  desc.add<double>("maxLeadChargedPFCandEta", 2.4);
+  desc.add<double>("deltaRCleaning", 0.4);
+  desc.add<bool>("useStrips", true);
+  desc.add<double>("maxSeedChargedPFCandDz", 1000.0);
+  desc.add<double>("minLeadChargedPFCandPt", 1.0);
+  desc.add<double>("maxSeedChargedPFCandEta", 2.4);
+  desc.add<bool>("applyPreselection", false);
+  desc.add<double>("isolationConeSize", 0.4);
+  desc.add<edm::InputTag>("srcL1Vertices", edm::InputTag("L1TkPrimaryVertex"));
+  desc.add<double>("maxChargedIso", 1000.0);
+  {
+    edm::ParameterSetDescription psd0;
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("minPt", 0.0);
+      psd0.add<edm::ParameterSetDescription>("neutralHadron", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("maxDz", 0.4);
+      psd1.add<double>("minPt", 0.0);
+      psd0.add<edm::ParameterSetDescription>("muon", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("maxDz", 0.4);
+      psd1.add<double>("minPt", 0.0);
+      psd0.add<edm::ParameterSetDescription>("electron", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("minPt", 0.0);
+      psd0.add<edm::ParameterSetDescription>("photon", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("maxDz", 0.4);
+      psd1.add<double>("minPt", 0.0);
+      psd0.add<edm::ParameterSetDescription>("chargedHadron", psd1);
+    }
+    desc.add<edm::ParameterSetDescription>("signalQualityCuts", psd0);
+  }
+  desc.add<bool>("useChargedPFCandSeeds", true);
+  desc.add<double>("maxLeadChargedPFCandDz", 1000.0);
+  desc.add<double>("maxSeedJetEta", 2.4);
+  desc.add<std::string>("signalConeSize", "2.8/max(1., pt)");
+  desc.add<edm::InputTag>("srcL1Jets", edm::InputTag("Phase1L1TJetProducer","UncalibratedPhase1L1TJetFromPfCandidates"));
+  desc.addUntracked<bool>("debug", false);
+  desc.add<double>("maxPFTauEta", 2.4);
+  desc.add<double>("maxSignalConeSize", 0.1);
+  descriptions.addWithDefaultLabel(desc);
+}
+
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L1HPSPFTauProducer);

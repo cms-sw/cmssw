@@ -22,7 +22,9 @@
 class L1HPSPFTauProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1HPSPFTauProducer(const edm::ParameterSet& cfg);
-  ~L1HPSPFTauProducer();
+  ~L1HPSPFTauProducer() = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event& evt, const edm::EventSetup& es);

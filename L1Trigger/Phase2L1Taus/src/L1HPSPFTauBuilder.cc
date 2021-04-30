@@ -8,7 +8,7 @@
 #include <cmath>                                   // std::fabs
 
 L1HPSPFTauBuilder::L1HPSPFTauBuilder(const edm::ParameterSet& cfg)
-    : signalConeSizeFormula_(nullptr),
+  : signalConeSizeFormula_(nullptr),
       minSignalConeSize_(cfg.getParameter<double>("minSignalConeSize")),
       maxSignalConeSize_(cfg.getParameter<double>("maxSignalConeSize")),
       useStrips_(cfg.getParameter<bool>("useStrips")),
@@ -225,6 +225,7 @@ void L1HPSPFTauBuilder::addL1PFCandidates(const std::vector<l1t::PFCandidateRef>
   sumAllL1PFCandidatesPt[0] = sumAllL1PFCandidatesPt_;
 
   signalConeSize_ = signalConeSizeFormula_->evaluate(sumAllL1PFCandidatesPt, emptyV);
+
 
   if (signalConeSize_ < minSignalConeSize_)
     signalConeSize_ = minSignalConeSize_;

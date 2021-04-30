@@ -9,10 +9,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
-#include <TFormula.h>  // TFormula
-#include <TFile.h>     // TFile
-#include <TH1.h>       // TH1
-
 #include <vector>
 
 class L1HPSPFTauBuilder {
@@ -39,6 +35,7 @@ private:
   bool isWithinIsolationCone(const l1t::PFCandidate& l1PFCand);
 
   std::unique_ptr<reco::FormulaEvaluator> signalConeSizeFormula_;
+
   double signalConeSize_;
   double signalConeSize2_;
   double minSignalConeSize_;
