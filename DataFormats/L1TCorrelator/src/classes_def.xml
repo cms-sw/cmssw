@@ -16,7 +16,8 @@
   <class name="edm::Wrapper<l1t::TkEtMiss>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkEtMiss> >"/>
 
-  <class name="l1t::TkEm" ClassVersion="3">
+  <class name="l1t::TkEm" ClassVersion="4">
+   <version ClassVersion="4" checksum="1043577432"/>
    <version ClassVersion="3" checksum="2161257944"/>
   </class>
   <class name="std::vector<l1t::TkEm>"/>
@@ -45,7 +46,8 @@
   <class name="edm::Wrapper<std::vector<l1t::L1CaloTkTau> >"/>
   <class name="edm::Ref<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau> >"/>
 
-  <class name="l1t::TkElectron" ClassVersion="3">
+  <class name="l1t::TkElectron" ClassVersion="4">
+   <version ClassVersion="4" checksum="3922083203"/>
    <version ClassVersion="3" checksum="3970647299"/>
   </class>
   <class name="std::vector<l1t::TkElectron>"/>
