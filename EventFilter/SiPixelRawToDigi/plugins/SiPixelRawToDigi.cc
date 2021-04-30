@@ -1,7 +1,7 @@
 // Skip FED40 pilot-blade
 // Include parameter driven interface to SiPixelQuality for study purposes
 // exclude ROC(raw) based on bad ROC list in SiPixelQuality
-// enabled by: process.siPixelDigis.useQuality_Info = True (BY DEFAULT NOT USED)
+// enabled by: process.siPixelDigis.useQualityInfo = True (BY DEFAULT NOT USED)
 // 20-10-2010 Andrew York (Tennessee)
 // Jan 2016 Tamas Almos Vami (Tav) (Wigner RCP) -- Cabling Map label option
 // Jul 2017 Viktor Veszpremi -- added PixelFEDChannel
@@ -34,21 +34,12 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
-
-using namespace std;
-
-class SiPixelFedCablingTree;
-class SiPixelFedCabling;
-class SiPixelQuality;
-class TH1D;
-class PixelUnpackingRegions;
 
 /** \class SiPixelRawToDigi
  *  Plug-in module that performs Raw data to digi conversion 
@@ -194,8 +185,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
     edm::ESHandle<SiPixelQuality> qualityInfo = es.getHandle(siPixelQualityToken_);
     badPixelInfo_ = qualityInfo.product();
     if (!badPixelInfo_) {
-      edm::LogError("SiPixelQualityNotPresent")
-          << " Configured to use SiPixelQuality, but SiPixelQuality not present" << endl;
+      edm::LogError("SiPixelQualityNotPresent") << "Configured to use SiPixelQuality, but SiPixelQuality not present";
     }
   }
 
@@ -237,7 +227,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
     if (regions_ && !regions_->mayUnpackFED(fedId))
       continue;
 
-    LogDebug("SiPixelRawToDigi") << " PRODUCE DIGI FOR FED: " << fedId << endl;
+    LogDebug("SiPixelRawToDigi") << "PRODUCE DIGI FOR FED:" << fedId;
 
     PixelDataFormatter::Errors errors;
 
