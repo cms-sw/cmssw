@@ -66,7 +66,7 @@ process.outputCompressed = cms.OutputModule("EventStreamFileWriter",
     
     outputCommands = cms.untracked.vstring(
     'drop *',   
-	'keep *_*SiStripClusters2ApproxClustersv1*_*_*'              
+	'keep *_*SiStripClusters2ApproxClusters*_*_*'              
     )
 )
 
@@ -75,19 +75,19 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_v2', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
-process.SiStripClusters2ApproxClustersv1 = cms.EDProducer("SiStripClusters2ApproxClustersv1",
+process.SiStripClusters2ApproxClusters = cms.EDProducer("SiStripClusters2ApproxClusters",
 	inputClusters = cms.InputTag("siStripClusters")
 )
 
 process.SiStripApproximatedClustersDump = cms.EDAnalyzer("SiStripApproximatedClustersDump",
-    approximatedClustersTag = cms.InputTag("SiStripClusters2ApproxClustersv1")
+    approximatedClustersTag = cms.InputTag("SiStripClusters2ApproxClusters")
 )
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
-process.approxClusters_step = cms.Path(process.SiStripClusters2ApproxClustersv1)
+process.approxClusters_step = cms.Path(process.SiStripClusters2ApproxClusters)
 process.analyzer_step = cms.Path(process.SiStripApproximatedClustersDump) 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.outputClusters+process.outputCompressed)

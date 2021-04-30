@@ -40,4 +40,21 @@
  <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripApproximateCluster>,SiStripApproximateCluster,edmNew::DetSetVector<SiStripApproximateCluster>::FindForDetSetVector> >" />
  <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripApproximateCluster>,SiStripApproximateCluster,edmNew::DetSetVector<SiStripApproximateCluster>::FindForDetSetVector> > >" />
 
+<class name="SiStripApproximateClusterHigherBarycenterRes"/>
+ <class name="edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes>"/>
+ <class name="edm::Wrapper<edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes>>"/>
+ 
+ <class name="std::vector<SiStripApproximateClusterHigherBarycenterRes>"/>
+
+ <class name="edm::Ref<edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes>, SiStripApproximateClusterHigherBarycenterRes, edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes>::FindForDetSetVector>"/>
+
+
+ <class name="edm::ContainerMask<edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes> >"/>
+ <class name="edm::Wrapper<edm::ContainerMask<edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes> > >"/>
+
+
+ <class name="std::vector<edm::Ref<edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes>,SiStripApproximateClusterHigherBarycenterRes,edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes>::FindForDetSetVector> >" />
+ <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes>,SiStripApproximateClusterHigherBarycenterRes,edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes>::FindForDetSetVector> >" />
+ <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes>,SiStripApproximateClusterHigherBarycenterRes,edmNew::DetSetVector<SiStripApproximateClusterHigherBarycenterRes>::FindForDetSetVector> > >" />
+
 </lcgdict>

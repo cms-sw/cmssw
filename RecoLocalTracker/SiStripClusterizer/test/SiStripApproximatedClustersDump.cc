@@ -37,7 +37,7 @@ void SiStripApproximatedClustersDump::analyze(const edm::Event& event, const edm
 
 void SiStripApproximatedClustersDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("approximatedClustersTag", edm::InputTag("SiStripClusters2ApproxClustersv1"));
+  desc.add<edm::InputTag>("approximatedClustersTag", edm::InputTag("SiStripClusters2ApproxClusters"));
   descriptions.add("SiStripApproximatedClustersDump", desc);
 }
 
