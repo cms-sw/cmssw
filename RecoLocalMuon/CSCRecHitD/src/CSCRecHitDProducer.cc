@@ -92,7 +92,6 @@ void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("CSCUseGasGainCorrections", true);
   desc.addUntracked<bool>("CSCDebug", false);
   desc.add<int>("CSCstripWireDeltaTime", 8);
-  desc.addUntracked<int>("CSCStripClusterSize", 3);
 
   desc.add<double>("XTasymmetry_ME1a", 0.023), desc.add<double>("XTasymmetry_ME1b", 0.01),
       desc.add<double>("XTasymmetry_ME12", 0.015), desc.add<double>("XTasymmetry_ME13", 0.02),
@@ -112,7 +111,7 @@ void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("CSCUseReducedWireTimeWindow", false);
   desc.add<int>("CSCWireTimeWindowLow", 0);
   desc.add<int>("CSCWireTimeWindowHigh", 15);
-  descriptions.add("configWireTimeWindow", desc);
+  descriptions.add("cscRecHitDProducer", desc);
 }
 
 //define this as a plug-in
