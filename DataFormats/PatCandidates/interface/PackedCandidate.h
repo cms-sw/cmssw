@@ -10,6 +10,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <atomic>
 #include <mutex>
 
@@ -776,6 +777,16 @@ namespace pat {
       return *track_;
     }
 
+    /// Return a pointer to the track with the covariance extrapolated from
+    /// the LUT if the candidate was originally associated to a track
+    virtual const reco::Track *fallBackTrack(int n = 8, int np = 3, int schema = 523) const {
+      if (useLut() && covarianceParameterization_.loadedVersion() == covarianceVersion_) {
+        maybeUnpackTrack(n,np,schema);
+        return track_.load();
+      } else
+        return nullptr;
+    }
+
     /// return a pointer to the track if present. otherwise, return a null pointer
     const reco::Track *bestTrack() const override {
       if (packedHits_ != 0 || packedLayers_ != 0) {
@@ -981,11 +992,32 @@ namespace pat {
     /// set time measurement
     void setTime(float aTime, float aTimeError = 0) { setDTimeAssociatedPV(aTime - vertexRef()->t(), aTimeError); }
 
-  private:
-    void unpackCovarianceElement(reco::TrackBase::CovarianceMatrix &m, uint16_t packed, int i, int j) const {
-      m(i, j) = covarianceParameterization().unpack(
-          packed, covarianceSchema_, i, j, pt(), eta(), numberOfHits(), numberOfPixelHits());
+    bool useLut() static
+    {
+      std::call_once(useLut_load_flag, [](bool v) { useLut_ = v; }, false);
+      return useLut_;
     }
+
+    void setLut (int covV) static
+    {
+        std::call_once(useLut_load_flag, [](bool v) { useLut_ = v; }, true);
+        std::call_once(covariance_load_flag, [](int v) { covarianceParameterization_.load(v); }, covV);
+    }
+
+  private:
+
+    void unpackCovarianceElement(reco::TrackBase::CovarianceMatrix &m,uint16_t packed, int i, int j,int n = 8, int np = 3, int s = 523) const
+    {
+      if(hasTrackDetails() || !useLut())
+      {
+        m(i, j) = covarianceParameterization().unpack(packed, covarianceSchema_, i, j, pt(), eta(), numberOfHits(),numberOfPixelHits());
+      }
+      else
+      {
+        m(i, j) = covarianceParameterization().unpack(0,s, i, j, pt(),eta(), n ,np);
+      }
+    }
+
     uint16_t packCovarianceElement(const reco::TrackBase::CovarianceMatrix &m, int i, int j) const {
       return covarianceParameterization().pack(
           m(i, j), covarianceSchema_, i, j, pt(), eta(), numberOfHits(), numberOfPixelHits());
@@ -1005,20 +1037,21 @@ namespace pat {
     void packVtx(bool unpackAfterwards = true);
     void unpackVtx() const;
     void packCovariance(const reco::TrackBase::CovarianceMatrix &m, bool unpackAfterwards = true);
-    void unpackCovariance() const;
+    void unpackCovariance(int n = 8, int np = 3, int schema = 523) const;
     void maybeUnpackBoth() const {
       if (!p4c_)
         unpack();
       if (!vertex_)
         unpackVtx();
     }
-    void maybeUnpackTrack() const {
+    void maybeUnpackTrack(int n = 8, int np = 3, int schema = 523) const {
       if (!track_)
-        unpackTrk();
+        unpackTrk(n,np,schema);
     }
-    void maybeUnpackCovariance() const {
+
+    void maybeUnpackCovariance(int n = 8, int np = 3, int schema = 523) const {
       if (!m_)
-        unpackCovariance();
+        unpackCovariance(n,np,schema);
     }
     void packBoth() {
       pack(false);
@@ -1030,7 +1063,7 @@ namespace pat {
       unpackVtx();
     }  // do it this way, so that we don't loose precision on the angles before
     // computing dxy,dz
-    void unpackTrk() const;
+    void unpackTrk(int n = 8, int np = 3, int schema = 523) const;
 
     uint8_t packedPuppiweight_;
     int8_t packedPuppiweightNoLepDiff_;  // storing the DIFFERENCE of (all - "no
@@ -1071,15 +1104,23 @@ namespace pat {
     uint16_t covarianceVersion_;
     uint16_t covarianceSchema_;
     CMS_THREAD_SAFE static CovarianceParameterization covarianceParameterization_;
+    CMS_THREAD_SAFE static bool useLut_;
     // static std::atomic<CovarianceParameterization*>
     // covarianceParameterization_;
     static std::once_flag covariance_load_flag;
+    static std::once_flag useLut_load_flag;
+
+  protected:
+
     const CovarianceParameterization &covarianceParameterization() const {
-      if (!hasTrackDetails())
-        throw edm::Exception(edm::errors::InvalidReference,
-                             "Trying to access covariance matrix for a "
-                             "PackedCandidate for which it's not available. "
-                             "Check hasTrackDetails() before!\n");
+      if (!hasTrackDetails() and !useLut())
+      {
+          throw edm::Exception(edm::errors::InvalidReference,
+                           "Trying to access covariance matrix for a "
+                           "PackedCandidate for which it's not available. "
+                           "Check hasTrackDetails() before or use setLut() "
+                           "to extrapolate the convariance from a LUT! \n");
+      }
       std::call_once(
           covariance_load_flag, [](int v) { covarianceParameterization_.load(v); }, covarianceVersion_);
       if (covarianceParameterization_.loadedVersion() != covarianceVersion_) {
@@ -1087,6 +1128,7 @@ namespace pat {
             << "Attempting to load multiple covariance version in same process. "
                "This is not supported.";
       }
+
       return covarianceParameterization_;
     }
 
