@@ -16,7 +16,7 @@ class PFCPositionCalculatorBase {
   typedef PFCPositionCalculatorBase PosCalc;
 
 public:
-  PFCPositionCalculatorBase(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+  PFCPositionCalculatorBase(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
       : _minFractionInCalc(conf.getParameter<double>("minFractionInCalc")),
         _algoName(conf.getParameter<std::string>("algoName")) {}
   virtual ~PFCPositionCalculatorBase() = default;

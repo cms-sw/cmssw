@@ -21,8 +21,8 @@
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
-Basic2DGenericPFlowClusterizer::Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-    : PFClusterBuilderBase(conf, sumes),
+Basic2DGenericPFlowClusterizer::Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+    : PFClusterBuilderBase(conf, cc),
       _maxIterations(conf.getParameter<unsigned>("maxIterations")),
       _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),
       _showerSigma2(std::pow(conf.getParameter<double>("showerSigma"), 2.0)),
@@ -70,13 +70,13 @@ Basic2DGenericPFlowClusterizer::Basic2DGenericPFlowClusterizer(const edm::Parame
   if (conf.exists("allCellsPositionCalc")) {
     const edm::ParameterSet& acConf = conf.getParameterSet("allCellsPositionCalc");
     const std::string& algoac = acConf.getParameter<std::string>("algoName");
-    _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, sumes);
+    _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
   }
   // if necessary a third pos calc for convergence testing
   if (conf.exists("positionCalcForConvergence")) {
     const edm::ParameterSet& convConf = conf.getParameterSet("positionCalcForConvergence");
     const std::string& algoconv = convConf.getParameter<std::string>("algoName");
-    _convergencePosCalc = PFCPositionCalculatorFactory::get()->create(algoconv, convConf, sumes);
+    _convergencePosCalc = PFCPositionCalculatorFactory::get()->create(algoconv, convConf, cc);
   }
 }
 

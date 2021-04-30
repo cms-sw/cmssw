@@ -18,8 +18,8 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 class PFHBHERecHitCreator : public PFRecHitCreatorBase {
 public:
-  PFHBHERecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<edm::SortedCollection<HBHERecHit> >(iConfig.getParameter<edm::InputTag>("src"));
+  PFHBHERecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitCreatorBase(iConfig, cc) {
+    recHitToken_ = cc.consumes<edm::SortedCollection<HBHERecHit> >(iConfig.getParameter<edm::InputTag>("src"));
   }
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,

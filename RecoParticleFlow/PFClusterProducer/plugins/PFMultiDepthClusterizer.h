@@ -11,7 +11,7 @@ class PFMultiDepthClusterizer final : public PFClusterBuilderBase {
   typedef PFMultiDepthClusterizer B2DGPF;
 
 public:
-  PFMultiDepthClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes);
+  PFMultiDepthClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
 
   ~PFMultiDepthClusterizer() override = default;
   PFMultiDepthClusterizer(const B2DGPF&) = delete;

@@ -4,6 +4,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -20,7 +21,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 public:
   PFECALHashNavigator() {}
 
-  PFECALHashNavigator(const edm::ParameterSet& iConfig) : PFRecHitNavigatorBase(iConfig) {
+  PFECALHashNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitNavigatorBase(iConfig, cc) {
     crossBarrelEndcapBorder_ = iConfig.getParameter<bool>("crossBarrelEndcapBorder");
 
     neighbourmapcalculated_ = false;
