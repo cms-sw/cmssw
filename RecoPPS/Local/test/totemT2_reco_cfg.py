@@ -34,6 +34,9 @@ process.load('EventFilter.CTPPSRawToDigi.totemT2Digis_cfi')
 process.totemT2Digis.rawDataTag = cms.InputTag("rawDataCollector")
 
 # rechits production
+process.load('Geometry.ForwardCommonData.totemT22021V2XML_cfi')
+process.load('Geometry.ForwardGeometry.totemGeometryESModule_cfi')
+process.load('RecoPPS.Local.totemT2RecHits_cfi')
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("file:output.root"),
@@ -46,6 +49,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # execution configuration
 process.p = cms.Path(
     process.totemT2Digis
+    * process.totemT2RecHits
 )
 
 process.outpath = cms.EndPath(process.output)
