@@ -13,8 +13,8 @@
 
 class RealisticSimClusterMapper : public InitialClusteringStepBase {
 public:
-  RealisticSimClusterMapper(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : InitialClusteringStepBase(conf, sumes),
+  RealisticSimClusterMapper(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : InitialClusteringStepBase(conf, cc),
         invisibleFraction_(conf.getParameter<double>("invisibleFraction")),
         exclusiveFraction_(conf.getParameter<double>("exclusiveFraction")),
         maxDistanceFilter_(conf.getParameter<bool>("maxDistanceFilter")),
@@ -25,8 +25,8 @@ public:
         useMCFractionsForExclEnergy_(conf.getParameter<bool>("useMCFractionsForExclEnergy")),
         calibMinEta_(conf.getParameter<double>("calibMinEta")),
         calibMaxEta_(conf.getParameter<double>("calibMaxEta")),
-        geomToken_(sumes.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
-    simClusterToken_ = sumes.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
+        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
+    simClusterToken_ = cc.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"));
     hadronCalib_ = conf.getParameter<std::vector<double> >("hadronCalib");
     egammaCalib_ = conf.getParameter<std::vector<double> >("egammaCalib");
   }

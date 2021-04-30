@@ -5,6 +5,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -25,7 +26,7 @@
 template <typename D, typename T, bool ownsTopo = true>
 class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 public:
-  PFRecHitCaloNavigatorWithTime(const edm::ParameterSet& iConfig) {
+  PFRecHitCaloNavigatorWithTime(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {
     sigmaCut2_ = pow(iConfig.getParameter<double>("sigmaCut"), 2);
     const edm::ParameterSet& timeResConf = iConfig.getParameterSet("timeResolutionCalc");
     _timeResolutionCalc.reset(new CaloRecHitResolutionProvider(timeResConf));

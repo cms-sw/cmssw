@@ -17,8 +17,8 @@
 /// This is EGM version of the ECAL position + depth correction calculation
 class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
 public:
-  ECAL2DPositionCalcWithDepthCorr(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : PFCPositionCalculatorBase(conf, sumes),
+  ECAL2DPositionCalcWithDepthCorr(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : PFCPositionCalculatorBase(conf, cc),
         _param_T0_EB(conf.getParameter<double>("T0_EB")),
         _param_T0_EE(conf.getParameter<double>("T0_EE")),
         _param_T0_ES(conf.getParameter<double>("T0_ES")),
@@ -30,7 +30,7 @@ public:
         _esGeom(nullptr),
         _esPlus(false),
         _esMinus(false),
-        _geomToken(sumes.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
+        _geomToken(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
     _timeResolutionCalc.reset(nullptr);
     if (conf.exists("timeResolutionCalc")) {
       const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalc");

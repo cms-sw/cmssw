@@ -3,6 +3,7 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <unordered_map>
 
@@ -18,7 +19,7 @@ public:
     double _doubleSpikeThresh;
   };
 
-  SpikeAndDoubleSpikeCleaner(const edm::ParameterSet& conf);
+  SpikeAndDoubleSpikeCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
   SpikeAndDoubleSpikeCleaner(const SpikeAndDoubleSpikeCleaner&) = delete;
   SpikeAndDoubleSpikeCleaner& operator=(const SpikeAndDoubleSpikeCleaner&) = delete;
 

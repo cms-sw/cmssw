@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitFakeNavigator.h"
 
@@ -12,7 +13,7 @@
 
 class PFRecHitEcalBarrelNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<EBDetId, EcalBarrelTopology> {
 public:
-  PFRecHitEcalBarrelNavigatorWithTime(const edm::ParameterSet& iConfig) : PFRecHitCaloNavigatorWithTime(iConfig) {}
+  PFRecHitEcalBarrelNavigatorWithTime(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitCaloNavigatorWithTime(iConfig, cc) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
@@ -23,7 +24,7 @@ public:
 
 class PFRecHitEcalEndcapNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<EEDetId, EcalEndcapTopology> {
 public:
-  PFRecHitEcalEndcapNavigatorWithTime(const edm::ParameterSet& iConfig) : PFRecHitCaloNavigatorWithTime(iConfig) {}
+  PFRecHitEcalEndcapNavigatorWithTime(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitCaloNavigatorWithTime(iConfig, cc) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
@@ -34,7 +35,7 @@ public:
 
 class PFRecHitEcalBarrelNavigator final : public PFRecHitCaloNavigator<EBDetId, EcalBarrelTopology> {
 public:
-  PFRecHitEcalBarrelNavigator(const edm::ParameterSet& iConfig) {}
+  PFRecHitEcalBarrelNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
@@ -45,7 +46,7 @@ public:
 
 class PFRecHitEcalEndcapNavigator final : public PFRecHitCaloNavigator<EEDetId, EcalEndcapTopology> {
 public:
-  PFRecHitEcalEndcapNavigator(const edm::ParameterSet& iConfig) {}
+  PFRecHitEcalEndcapNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle;
@@ -56,19 +57,19 @@ public:
 
 class PFRecHitPreshowerNavigator final : public PFRecHitCaloNavigator<ESDetId, EcalPreshowerTopology> {
 public:
-  PFRecHitPreshowerNavigator(const edm::ParameterSet& iConfig) {}
+  PFRecHitPreshowerNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {}
 
   void init(const edm::EventSetup& iSetup) override { topology_ = std::make_unique<EcalPreshowerTopology>(); }
 };
 
 class PFRecHitHCALDenseIdNavigator final : public PFHCALDenseIdNavigator<HcalDetId, HcalTopology, false> {
 public:
-  PFRecHitHCALDenseIdNavigator(const edm::ParameterSet& iConfig) : PFHCALDenseIdNavigator(iConfig) {}
+  PFRecHitHCALDenseIdNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFHCALDenseIdNavigator(iConfig, cc) {}
 };
 
 class PFRecHitHCALNavigator : public PFRecHitCaloNavigator<HcalDetId, HcalTopology, false> {
 public:
-  PFRecHitHCALNavigator(const edm::ParameterSet& iConfig) {}
+  PFRecHitHCALNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<HcalTopology> hcalTopology;
@@ -80,7 +81,7 @@ public:
 
 class PFRecHitHCALNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<HcalDetId, HcalTopology, false> {
 public:
-  PFRecHitHCALNavigatorWithTime(const edm::ParameterSet& iConfig) : PFRecHitCaloNavigatorWithTime(iConfig) {}
+  PFRecHitHCALNavigatorWithTime(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitCaloNavigatorWithTime(iConfig, cc) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<HcalTopology> hcalTopology;
@@ -92,7 +93,7 @@ public:
 
 class PFRecHitCaloTowerNavigator : public PFRecHitCaloNavigator<CaloTowerDetId, CaloTowerTopology> {
 public:
-  PFRecHitCaloTowerNavigator(const edm::ParameterSet& iConfig) {}
+  PFRecHitCaloTowerNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloTowerTopology> caloTowerTopology;
@@ -120,21 +121,21 @@ typedef PFRecHitDualNavigator<PFLayer::ECAL_BARREL,
 
 class PFRecHitHGCEENavigator : public PFRecHitFakeNavigator<HGCEEDetId> {
 public:
-  PFRecHitHGCEENavigator(const edm::ParameterSet& iConfig) {}
+  PFRecHitHGCEENavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {}
 
   void init(const edm::EventSetup& iSetup) override {}
 };
 
 class PFRecHitHGCHENavigator : public PFRecHitFakeNavigator<HGCHEDetId> {
 public:
-  PFRecHitHGCHENavigator(const edm::ParameterSet& iConfig) {}
+  PFRecHitHGCHENavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {}
 
   void init(const edm::EventSetup& iSetup) override {}
 };
 
 class PFRecHitHGCHexNavigator : public PFRecHitFakeNavigator<HGCalDetId> {
 public:
-  PFRecHitHGCHexNavigator(const edm::ParameterSet& iConfig) {}
+  PFRecHitHGCHexNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {}
 
   void init(const edm::EventSetup& iSetup) override {}
 };

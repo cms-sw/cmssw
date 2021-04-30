@@ -25,8 +25,8 @@
 
 class PFPSRecHitCreator final : public PFRecHitCreatorBase {
 public:
-  PFPSRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
+  PFPSRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitCreatorBase(iConfig, cc) {
+    recHitToken_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
   }
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,

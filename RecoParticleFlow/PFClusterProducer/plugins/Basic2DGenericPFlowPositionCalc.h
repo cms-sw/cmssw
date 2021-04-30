@@ -13,8 +13,8 @@
 
 class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
 public:
-  Basic2DGenericPFlowPositionCalc(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : PFCPositionCalculatorBase(conf, sumes),
+  Basic2DGenericPFlowPositionCalc(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : PFCPositionCalculatorBase(conf, cc),
         _posCalcNCrystals(conf.getParameter<int>("posCalcNCrystals")),
         _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization")) {
     std::vector<int> detectorEnum;

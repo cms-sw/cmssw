@@ -6,6 +6,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -30,7 +31,7 @@ public:
     }
   }
 
-  PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig) {
+  PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {
     vhcalEnum_ = iConfig.getParameter<std::vector<int>>("hcalEnums");
   }
 

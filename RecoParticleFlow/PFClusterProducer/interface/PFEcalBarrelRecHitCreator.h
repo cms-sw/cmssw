@@ -27,12 +27,12 @@
 
 class PFEcalBarrelRecHitCreator : public PFRecHitCreatorBase {
 public:
-  PFEcalBarrelRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
-      : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
+  PFEcalBarrelRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc) {
+    recHitToken_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
     if (not srF.label().empty())
-      srFlagToken_ = iC.consumes<EBSrFlagCollection>(srF);
+      srFlagToken_ = cc.consumes<EBSrFlagCollection>(srF);
     triggerTowerMap_ = nullptr;
   }
 

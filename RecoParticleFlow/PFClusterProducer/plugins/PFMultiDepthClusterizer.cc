@@ -9,11 +9,11 @@
 
 #include <iterator>
 
-PFMultiDepthClusterizer::PFMultiDepthClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes) : PFClusterBuilderBase(conf, sumes) {
+PFMultiDepthClusterizer::PFMultiDepthClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) : PFClusterBuilderBase(conf, cc) {
   if (conf.exists("allCellsPositionCalc")) {
     const edm::ParameterSet& acConf = conf.getParameterSet("allCellsPositionCalc");
     const std::string& algoac = acConf.getParameter<std::string>("algoName");
-    _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, sumes);
+    _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
   }
 
   nSigmaEta_ = pow(conf.getParameter<double>("nSigmaEta"), 2);

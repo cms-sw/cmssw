@@ -29,12 +29,12 @@
 
 class PFEcalEndcapRecHitCreator : public PFRecHitCreatorBase {
 public:
-  PFEcalEndcapRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
-      : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
+  PFEcalEndcapRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc) {
+    recHitToken_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
     if (not srF.label().empty())
-      srFlagToken_ = iC.consumes<EESrFlagCollection>(srF);
+      srFlagToken_ = cc.consumes<EESrFlagCollection>(srF);
     elecMap_ = nullptr;
   }
 

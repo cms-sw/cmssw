@@ -41,16 +41,16 @@ const math::XYZPoint SuperClusterImporter::_zero = math::XYZPoint(0, 0, 0);
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, SuperClusterImporter, "SuperClusterImporter");
 
-SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-    : BlockElementImporterBase(conf, sumes),
-      _srcEB(sumes.consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("source_eb"))),
-      _srcEE(sumes.consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("source_ee"))),
-      _srcTowers(sumes.consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("source_towers"))),
+SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+    : BlockElementImporterBase(conf, cc),
+      _srcEB(cc.consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("source_eb"))),
+      _srcEE(cc.consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("source_ee"))),
+      _srcTowers(cc.consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("source_towers"))),
       _maxHoverE(conf.getParameter<double>("maximumHoverE")),
       _pTbyPass(conf.getParameter<double>("minPTforBypass")),
       _minSCPt(conf.getParameter<double>("minSuperClusterPt")),
       _superClustersArePF(conf.getParameter<bool>("superClustersArePF")),
-      _ctmapToken(sumes.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+      _ctmapToken(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
 
 void SuperClusterImporter::updateEventSetup(const edm::EventSetup& es) {
   edm::ESHandle<CaloTowerConstituentsMap> ctmaph = es.getHandle(_ctmapToken);

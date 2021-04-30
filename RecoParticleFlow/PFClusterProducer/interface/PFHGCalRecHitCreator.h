@@ -25,9 +25,9 @@
 template <typename DET, PFLayer::Layer Layer, DetId::Detector det, unsigned subdet>
 class PFHGCalRecHitCreator : public PFRecHitCreatorBase {
 public:
-  PFHGCalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
-      : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
+  PFHGCalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitCreatorBase(iConfig, cc) {
+    recHitToken_ = cc.consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     geometryInstance_ = iConfig.getParameter<std::string>("geometryInstance");
   }
 

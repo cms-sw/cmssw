@@ -20,8 +20,8 @@ class PFRecHitQTestThreshold : public PFRecHitQTestBase {
 public:
   PFRecHitQTestThreshold() {}
 
-  PFRecHitQTestThreshold(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig), threshold_(iConfig.getParameter<double>("threshold")) {}
+  PFRecHitQTestThreshold(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc), threshold_(iConfig.getParameter<double>("threshold")) {}
 
   void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {}
 
@@ -50,8 +50,8 @@ class PFRecHitQTestDBThreshold : public PFRecHitQTestBase {
 public:
   PFRecHitQTestDBThreshold() : eventSetup_(nullptr) {}
 
-  PFRecHitQTestDBThreshold(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig),
+  PFRecHitQTestDBThreshold(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc),
         applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")),
         eventSetup_(nullptr) {}
 
@@ -91,7 +91,7 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
 public:
   PFRecHitQTestHCALChannel() {}
 
-  PFRecHitQTestHCALChannel(const edm::ParameterSet& iConfig) : PFRecHitQTestBase(iConfig) {
+  PFRecHitQTestHCALChannel(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitQTestBase(iConfig, cc) {
     thresholds_ = iConfig.getParameter<std::vector<int> >("maxSeverities");
     cleanThresholds_ = iConfig.getParameter<std::vector<double> >("cleaningThresholds");
     std::vector<std::string> flags = iConfig.getParameter<std::vector<std::string> >("flags");
@@ -194,7 +194,7 @@ class PFRecHitQTestHCALTimeVsDepth : public PFRecHitQTestBase {
 public:
   PFRecHitQTestHCALTimeVsDepth() {}
 
-  PFRecHitQTestHCALTimeVsDepth(const edm::ParameterSet& iConfig) : PFRecHitQTestBase(iConfig) {
+  PFRecHitQTestHCALTimeVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitQTestBase(iConfig, cc) {
     std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
     for (auto& pset : psets) {
       depths_.push_back(pset.getParameter<int>("depth"));
@@ -250,7 +250,7 @@ class PFRecHitQTestHCALThresholdVsDepth : public PFRecHitQTestBase {
 public:
   PFRecHitQTestHCALThresholdVsDepth() {}
 
-  PFRecHitQTestHCALThresholdVsDepth(const edm::ParameterSet& iConfig) : PFRecHitQTestBase(iConfig) {
+  PFRecHitQTestHCALThresholdVsDepth(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitQTestBase(iConfig, cc) {
     std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
     for (auto& pset : psets) {
       depths_ = pset.getParameter<std::vector<int> >("depth");
@@ -308,8 +308,8 @@ class PFRecHitQTestHOThreshold : public PFRecHitQTestBase {
 public:
   PFRecHitQTestHOThreshold() : threshold0_(0.), threshold12_(0.) {}
 
-  PFRecHitQTestHOThreshold(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig),
+  PFRecHitQTestHOThreshold(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc),
         threshold0_(iConfig.getParameter<double>("threshold_ring0")),
         threshold12_(iConfig.getParameter<double>("threshold_ring12")) {}
 
@@ -351,8 +351,8 @@ class PFRecHitQTestECALMultiThreshold : public PFRecHitQTestBase {
 public:
   PFRecHitQTestECALMultiThreshold() {}
 
-  PFRecHitQTestECALMultiThreshold(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig),
+  PFRecHitQTestECALMultiThreshold(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc),
         thresholds_(iConfig.getParameter<std::vector<double> >("thresholds")),
         applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")) {
     if (thresholds_.size() != EcalRingCalibrationTools::N_RING_TOTAL)
@@ -426,8 +426,8 @@ class PFRecHitQTestECAL : public PFRecHitQTestBase {
 public:
   PFRecHitQTestECAL() {}
 
-  PFRecHitQTestECAL(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig),
+  PFRecHitQTestECAL(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc),
         thresholdCleaning_(iConfig.getParameter<double>("cleaningThreshold")),
         timingCleaning_(iConfig.getParameter<bool>("timingCleaning")),
         topologicalCleaning_(iConfig.getParameter<bool>("topologicalCleaning")),
@@ -477,8 +477,8 @@ class PFRecHitQTestES : public PFRecHitQTestBase {
 public:
   PFRecHitQTestES() : thresholdCleaning_(0.), topologicalCleaning_(false) {}
 
-  PFRecHitQTestES(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig),
+  PFRecHitQTestES(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc),
         thresholdCleaning_(iConfig.getParameter<double>("cleaningThreshold")),
         topologicalCleaning_(iConfig.getParameter<bool>("topologicalCleaning")) {}
 
@@ -524,8 +524,8 @@ class PFRecHitQTestHCALCalib29 : public PFRecHitQTestBase {
 public:
   PFRecHitQTestHCALCalib29() : calibFactor_(0.) {}
 
-  PFRecHitQTestHCALCalib29(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig), calibFactor_(iConfig.getParameter<double>("calibFactor")) {}
+  PFRecHitQTestHCALCalib29(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc), calibFactor_(iConfig.getParameter<double>("calibFactor")) {}
 
   void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {}
 
@@ -557,8 +557,8 @@ class PFRecHitQTestThresholdInMIPs : public PFRecHitQTestBase {
 public:
   PFRecHitQTestThresholdInMIPs() : recHitEnergy_keV_(false), threshold_(0.), mip_(0.), recHitEnergyMultiplier_(0.) {}
 
-  PFRecHitQTestThresholdInMIPs(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig),
+  PFRecHitQTestThresholdInMIPs(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc),
         recHitEnergy_keV_(iConfig.getParameter<bool>("recHitEnergyIs_keV")),
         threshold_(iConfig.getParameter<double>("thresholdInMIPs")),
         mip_(iConfig.getParameter<double>("mipValueInkeV")),
@@ -612,8 +612,8 @@ public:
   PFRecHitQTestThresholdInThicknessNormalizedMIPs()
       : geometryInstance_(""), recHitEnergy_keV_(0.), threshold_(0.), mip_(0.), recHitEnergyMultiplier_(0.) {}
 
-  PFRecHitQTestThresholdInThicknessNormalizedMIPs(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig),
+  PFRecHitQTestThresholdInThicknessNormalizedMIPs(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc),
         geometryInstance_(iConfig.getParameter<std::string>("geometryInstance")),
         recHitEnergy_keV_(iConfig.getParameter<bool>("recHitEnergyIs_keV")),
         threshold_(iConfig.getParameter<double>("thresholdInMIPs")),
@@ -674,8 +674,8 @@ class PFRecHitQTestHGCalThresholdSNR : public PFRecHitQTestBase {
 public:
   PFRecHitQTestHGCalThresholdSNR() : thresholdSNR_(0.) {}
 
-  PFRecHitQTestHGCalThresholdSNR(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig), thresholdSNR_(iConfig.getParameter<double>("thresholdSNR")) {}
+  PFRecHitQTestHGCalThresholdSNR(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc), thresholdSNR_(iConfig.getParameter<double>("thresholdSNR")) {}
 
   void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {}
 
@@ -714,8 +714,8 @@ protected:
 //
 class PFRecHitQTestDBSeedingThreshold : public PFRecHitQTestBase {
 public:
-  PFRecHitQTestDBSeedingThreshold(const edm::ParameterSet& iConfig)
-      : PFRecHitQTestBase(iConfig),
+  PFRecHitQTestDBSeedingThreshold(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
+      : PFRecHitQTestBase(iConfig, cc),
         applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")) {}
 
   void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {

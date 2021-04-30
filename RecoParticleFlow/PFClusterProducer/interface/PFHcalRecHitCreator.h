@@ -21,8 +21,8 @@
 template <typename Digi, typename Geometry, PFLayer::Layer Layer, int Detector>
 class PFHcalRecHitCreator final : public PFRecHitCreatorBase {
 public:
-  PFHcalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<edm::SortedCollection<Digi> >(iConfig.getParameter<edm::InputTag>("src"));
+  PFHcalRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitCreatorBase(iConfig, cc) {
+    recHitToken_ = cc.consumes<edm::SortedCollection<Digi> >(iConfig.getParameter<edm::InputTag>("src"));
   }
 
   void importRecHits(std::unique_ptr<reco::PFRecHitCollection>& out,

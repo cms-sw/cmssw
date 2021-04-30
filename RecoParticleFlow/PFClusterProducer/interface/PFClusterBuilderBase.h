@@ -21,7 +21,7 @@ class PFClusterBuilderBase {
 
 public:
   typedef PFCPositionCalculatorBase PosCalc;
-  PFClusterBuilderBase(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+  PFClusterBuilderBase(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
       : _nSeeds(0),
         _nClustersFound(0),
         _minFractionToKeep(conf.getParameter<double>("minFractionToKeep")),
@@ -29,7 +29,7 @@ public:
     if (conf.exists("positionCalc")) {
       const edm::ParameterSet& pcConf = conf.getParameterSet("positionCalc");
       const std::string& algo = pcConf.getParameter<std::string>("algoName");
-      _positionCalc = PFCPositionCalculatorFactory::get()->create(algo, pcConf, sumes);
+      _positionCalc = PFCPositionCalculatorFactory::get()->create(algo, pcConf, cc);
     }
   }
   virtual ~PFClusterBuilderBase() = default;

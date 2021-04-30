@@ -11,7 +11,7 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
   typedef Basic2DGenericPFlowClusterizer B2DGPF;
 
 public:
-  Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes);
+  Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
 
   ~Basic2DGenericPFlowClusterizer() override = default;
   Basic2DGenericPFlowClusterizer(const B2DGPF&) = delete;

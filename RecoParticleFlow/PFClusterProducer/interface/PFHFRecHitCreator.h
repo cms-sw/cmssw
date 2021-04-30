@@ -20,8 +20,8 @@
 
 class PFHFRecHitCreator final : public PFRecHitCreatorBase {
 public:
-  PFHFRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) : PFRecHitCreatorBase(iConfig, iC) {
-    recHitToken_ = iC.consumes<edm::SortedCollection<HFRecHit> >(iConfig.getParameter<edm::InputTag>("src"));
+  PFHFRecHitCreator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) : PFRecHitCreatorBase(iConfig, cc) {
+    recHitToken_ = cc.consumes<edm::SortedCollection<HFRecHit> >(iConfig.getParameter<edm::InputTag>("src"));
     EM_Depth_ = iConfig.getParameter<double>("EMDepthCorrection");
     HAD_Depth_ = iConfig.getParameter<double>("HADDepthCorrection");
     shortFibre_Cut = iConfig.getParameter<double>("ShortFibre_Cut");

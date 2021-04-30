@@ -19,8 +19,8 @@
 
 class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
 public:
-  Cluster3DPCACalculator(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : PFCPositionCalculatorBase(conf, sumes),
+  Cluster3DPCACalculator(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
+      : PFCPositionCalculatorBase(conf, cc),
         updateTiming_(conf.getParameter<bool>("updateTiming")),
         pca_(new TPrincipal(3, "D")) {}
   Cluster3DPCACalculator(const Cluster3DPCACalculator&) = delete;
