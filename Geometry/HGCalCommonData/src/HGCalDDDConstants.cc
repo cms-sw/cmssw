@@ -1121,10 +1121,13 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                           int& celltype,
                                           double& wt,
                                           bool debug) const {
+  waferU = waferV = 1 + hgpar_->waferUVMax_;
+  cellU = cellV = celltype = 0;
+  if ((hgpar_->xLayerHex_.empty()) || (hgpar_->yLayerHex_.empty()))
+    return;
   int ll = layer - hgpar_->firstLayer_;
   double xx = HGCalParameters::k_ScaleFromDDD * x - hgpar_->xLayerHex_[ll];
   double yy = HGCalParameters::k_ScaleFromDDD * y - hgpar_->yLayerHex_[ll];
-  waferU = waferV = 1 + hgpar_->waferUVMax_;
   for (unsigned int k = 0; k < hgpar_->waferPosX_.size(); ++k) {
     double dx = std::abs(xx - hgpar_->waferPosX_[k]);
     double dy = std::abs(yy - hgpar_->waferPosY_[k]);
