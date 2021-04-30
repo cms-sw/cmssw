@@ -26,18 +26,18 @@ void SiStripFedZeroSuppression::init(const edm::EventSetup& es) {
 void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
                                          std::vector<SiStripDigi>& selectedSignal,
                                          uint32_t detID) {
-  suppress(in, selectedSignal, detID, noiseHandle, thresholdHandle);
+  suppress(in, selectedSignal, detID, *noiseHandle, *thresholdHandle);
 }
 
 void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
                                          std::vector<SiStripDigi>& selectedSignal,
                                          uint32_t detID,
-                                         edm::ESHandle<SiStripNoises>& noiseHandle,
-                                         edm::ESHandle<SiStripThreshold>& thresholdHandle) {
+                                         const SiStripNoises& noise,
+                                         const SiStripThreshold& threshold) {
   int i;
   int inSize = in.size();
-  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
-  SiStripThreshold::Range detThRange = thresholdHandle->getRange(detID);
+  SiStripNoises::Range detNoiseRange = noise.getRange(detID);
+  SiStripThreshold::Range detThRange = threshold.getRange(detID);
 
   // reserving more than needed, but quicker than one at a time
   selectedSignal.clear();
@@ -48,10 +48,9 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
 
     adc = in[i].adc();
 
-    SiStripThreshold::Data thresholds = thresholdHandle->getData(strip, detThRange);
-    theFEDlowThresh = static_cast<int16_t>(thresholds.getLth() * noiseHandle->getNoiseFast(strip, detNoiseRange) + 0.5);
-    theFEDhighThresh =
-        static_cast<int16_t>(thresholds.getHth() * noiseHandle->getNoiseFast(strip, detNoiseRange) + 0.5);
+    SiStripThreshold::Data thresholds = threshold.getData(strip, detThRange);
+    theFEDlowThresh = static_cast<int16_t>(thresholds.getLth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5);
+    theFEDhighThresh = static_cast<int16_t>(thresholds.getHth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5);
 
     adcPrev = -9999;
     adcNext = -9999;
@@ -80,19 +79,18 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
       theNextFEDhighThresh = 9999;
     } else if (i + 1 < inSize && in[i + 1].strip() == strip + 1) {
       adcNext = in[i + 1].adc();
-      SiStripThreshold::Data thresholds_1 = thresholdHandle->getData(strip + 1, detThRange);
+      SiStripThreshold::Data thresholds_1 = threshold.getData(strip + 1, detThRange);
       theNextFEDlowThresh =
-          static_cast<int16_t>(thresholds_1.getLth() * noiseHandle->getNoiseFast(strip + 1, detNoiseRange) + 0.5);
+          static_cast<int16_t>(thresholds_1.getLth() * noise.getNoiseFast(strip + 1, detNoiseRange) + 0.5);
       theNextFEDhighThresh =
-          static_cast<int16_t>(thresholds_1.getHth() * noiseHandle->getNoiseFast(strip + 1, detNoiseRange) + 0.5);
+          static_cast<int16_t>(thresholds_1.getHth() * noise.getNoiseFast(strip + 1, detNoiseRange) + 0.5);
       if (((strip) % 128) == 126) {
         adcNext2 = 0;
         theNext2FEDlowThresh = 9999;
       } else if (i + 2 < inSize && in[i + 2].strip() == strip + 2) {
         adcNext2 = in[i + 2].adc();
-        theNext2FEDlowThresh = static_cast<int16_t>(thresholdHandle->getData(strip + 2, detThRange).getLth() *
-                                                        noiseHandle->getNoiseFast(strip + 2, detNoiseRange) +
-                                                    0.5);
+        theNext2FEDlowThresh = static_cast<int16_t>(
+            threshold.getData(strip + 2, detThRange).getLth() * noise.getNoiseFast(strip + 2, detNoiseRange) + 0.5);
       }
     }
 
@@ -102,19 +100,18 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
       thePrevFEDhighThresh = 9999;
     } else if (i - 1 >= 0 && in[i - 1].strip() == strip - 1) {
       adcPrev = in[i - 1].adc();
-      SiStripThreshold::Data thresholds_1 = thresholdHandle->getData(strip - 1, detThRange);
+      SiStripThreshold::Data thresholds_1 = threshold.getData(strip - 1, detThRange);
       thePrevFEDlowThresh =
-          static_cast<int16_t>(thresholds_1.getLth() * noiseHandle->getNoiseFast(strip - 1, detNoiseRange) + 0.5);
+          static_cast<int16_t>(thresholds_1.getLth() * noise.getNoiseFast(strip - 1, detNoiseRange) + 0.5);
       thePrevFEDhighThresh =
-          static_cast<int16_t>(thresholds_1.getHth() * noiseHandle->getNoiseFast(strip - 1, detNoiseRange) + 0.5);
+          static_cast<int16_t>(thresholds_1.getHth() * noise.getNoiseFast(strip - 1, detNoiseRange) + 0.5);
       if (((strip) % 128) == 1) {
         adcPrev2 = 0;
         thePrev2FEDlowThresh = 9999;
       } else if (i - 2 >= 0 && in[i - 2].strip() == strip - 2) {
         adcPrev2 = in[i - 2].adc();
-        thePrev2FEDlowThresh = static_cast<int16_t>(thresholdHandle->getData(strip - 2, detThRange).getLth() *
-                                                        noiseHandle->getNoiseFast(strip - 2, detNoiseRange) +
-                                                    0.5);
+        thePrev2FEDlowThresh = static_cast<int16_t>(
+            threshold.getData(strip - 2, detThRange).getLth() * noise.getNoiseFast(strip - 2, detNoiseRange) + 0.5);
       }
     }
 

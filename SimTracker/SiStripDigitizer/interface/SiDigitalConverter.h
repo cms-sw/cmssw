@@ -2,7 +2,6 @@
 #define Tracker_SiDigitalConverter_H
 
 #include "SiPileUpSignals.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
@@ -15,8 +14,8 @@ public:
   typedef std::vector<SiStripRawDigi> DigitalRawVecType;
 
   virtual ~SiDigitalConverter() {}
-  virtual DigitalVecType convert(const std::vector<float>&, edm::ESHandle<SiStripGain>&, unsigned int detid) = 0;
-  virtual DigitalRawVecType convertRaw(const std::vector<float>&, edm::ESHandle<SiStripGain>&, unsigned int detid) = 0;
+  virtual DigitalVecType convert(const std::vector<float>&, const SiStripGain*, unsigned int detid) = 0;
+  virtual DigitalRawVecType convertRaw(const std::vector<float>&, const SiStripGain*, unsigned int detid) = 0;
 };
 
 #endif

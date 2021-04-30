@@ -7,7 +7,6 @@
 #include <iostream>
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimTracker/Common/interface/SimHitInfoForLinks.h"
@@ -15,10 +14,17 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "CalibTracker/Records/interface/SiPixelFEDChannelContainerESProducerRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelStatusScenarioProbabilityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "boost/multi_array.hpp"
 
 typedef boost::multi_array<float, 2> array_2d;
@@ -29,11 +35,6 @@ typedef boost::multi_array<float, 2> array_2d;
 namespace CLHEP {
   class HepRandomEngine;
 }
-
-namespace edm {
-  class EventSetup;
-  class ParameterSet;
-}  // namespace edm
 
 class DetId;
 class GaussianTailNoiseGenerator;
@@ -54,7 +55,7 @@ class SiPixelChargeReweightingAlgorithm;
 
 class SiPixelDigitizerAlgorithm {
 public:
-  SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf);
+  SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   ~SiPixelDigitizerAlgorithm();
 
   // initialization that cannot be done in the constructor
@@ -146,22 +147,29 @@ public:
 
 private:
   //Accessing Lorentz angle from DB:
-  edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
+  edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleSimRcd> SiPixelLorentzAngleToken_;
+  const SiPixelLorentzAngle* SiPixelLorentzAngle_ = nullptr;
 
   //Accessing Dead pixel modules from DB:
-  std::string siPixelQualityLabel;
-  edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
+  edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> SiPixelBadModuleToken_;
+  const SiPixelQuality* SiPixelBadModule_ = nullptr;
 
   //Accessing Map and Geom:
-  edm::ESHandle<SiPixelFedCablingMap> map_;
-  edm::ESHandle<TrackerGeometry> geom_;
+  const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> mapToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const SiPixelFedCablingMap* map_ = nullptr;
+  const TrackerGeometry* geom_ = nullptr;
 
   // Get Dynamic Inefficiency scale factors from DB
-  edm::ESHandle<SiPixelDynamicInefficiency> SiPixelDynamicInefficiency_;
+  edm::ESGetToken<SiPixelDynamicInefficiency, SiPixelDynamicInefficiencyRcd> SiPixelDynamicInefficiencyToken_;
+  edm::ESGetToken<SiPixelDynamicInefficiency, SiPixelDynamicInefficiencyRcd> SiPixelDynamicInefficiencyToken50ns_;
+  const SiPixelDynamicInefficiency* SiPixelDynamicInefficiency_ = nullptr;
 
   // For BadFEDChannel simulation
-  edm::ESHandle<SiPixelQualityProbabilities> scenarioProbabilityHandle;
-  edm::ESHandle<PixelFEDChannelCollectionMap> PixelFEDChannelCollectionMapHandle;
+  edm::ESGetToken<SiPixelQualityProbabilities, SiPixelStatusScenarioProbabilityRcd> scenarioProbabilityToken_;
+  edm::ESGetToken<PixelFEDChannelCollectionMap, SiPixelFEDChannelContainerESProducerRcd>
+      PixelFEDChannelCollectionMapToken_;
+  const SiPixelQualityProbabilities* scenarioProbability_ = nullptr;
   // Define internal classes
 
   // definition class
@@ -274,7 +282,7 @@ private:
     // constants for ROC level simulation for Phase1
     enum shiftEnumerator { FPixRocIdShift = 3, BPixRocIdShift = 6 };
     static const int rocIdMaskBits = 0x1F;
-    void init_from_db(const edm::ESHandle<TrackerGeometry>&, const edm::ESHandle<SiPixelDynamicInefficiency>&);
+    void init_from_db(const TrackerGeometry*, const SiPixelDynamicInefficiency*);
     bool matches(const DetId&, const DetId&, const std::vector<uint32_t>&);
     std::unique_ptr<PixelFEDChannelCollection> PixelFEDChannelCollection_;
   };
