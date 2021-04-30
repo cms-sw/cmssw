@@ -154,11 +154,11 @@ def nanoAOD_addTauIds(process):
 
 def nanoAOD_addBoostedTauIds(process):
     updatedBoostedTauName = "slimmedTausBoostedNewID"
-    boostedTauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug=False, 
+    boostedTauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug=False, 
                                                      originalTauName = "slimmedTausBoosted",
                                                      updatedTauName = updatedBoostedTauName,
                                                      postfix="Boosted",
-                                                     toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2","againstEle2018",])
+                                                     toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2", "againstEle2018",])
     boostedTauIdEmbedder.runTauID()
     process.boostedTauSequence.insert(process.boostedTauSequence.index(process.finalBoostedTaus),
                                       process.rerunMvaIsolationSequenceBoosted)
@@ -398,7 +398,7 @@ def nanoAOD_customizeCommon(process):
                                      addParticleNet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNet_switch,
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
     addTauIds_switch = cms.PSet(
-        nanoAOD_addTauIds_switch = cms.untracked.bool(True)
+        nanoAOD_addTauIds_switch = cms.untracked.bool(True),
         nanoAOD_addBoostedTauIds_switch = cms.untracked.bool(False)
     )
     run2_miniAOD_80XLegacy.toModify(addTauIds_switch, nanoAOD_addTauIds_switch = False)
