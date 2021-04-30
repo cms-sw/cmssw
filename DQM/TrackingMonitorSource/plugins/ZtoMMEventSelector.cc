@@ -1,16 +1,12 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TLorentzVector.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1.h"
 #include "DQM/TrackingMonitorSource/interface/ZtoMMEventSelector.h"
 
 using namespace std;
@@ -64,15 +60,13 @@ bool ZtoMMEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       if (chbyndof >= maxNormChi2_)
         continue;
 
-      reco::TrackRef tk = mu.innerTrack();
-      double trkd0 = tk->d0();
-      double trkdz = tk->dz();
       if (beamSpot.isValid()) {
-        trkd0 = -(tk->dxy(beamSpot->position()));
-        if (std::fabs(trkd0) >= maxD0_)
+        reco::TrackRef tk = mu.innerTrack();
+        double abstrkd0 = std::abs(tk->dxy(beamSpot->position()));
+        if (abstrkd0 >= maxD0_)
           continue;
-        trkdz = tk->dz(beamSpot->position());
-        if (std::fabs(trkdz) >= maxDz_)
+        double abstrkdz = std::abs(tk->dz(beamSpot->position()));
+        if (abstrkdz >= maxDz_)
           continue;
       } else {
         edm::LogError("ZtoMMEventSelector") << "Error >> Failed to get BeamSpot for label: " << bsTag_;
