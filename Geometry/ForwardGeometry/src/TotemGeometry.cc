@@ -15,15 +15,51 @@ TotemGeometry::TotemGeometry(const DetGeomDesc* dgd) {
     // get the next item
     const auto* desc = buffer.front();
     buffer.pop_front();
-
-    desc->print();
+    browse(desc, false);
   }
 }
 
-bool TotemGeometry::addT2Sector(const TotemT2DetId&, const DetGeomDesc*&) { return true; }
+void TotemGeometry::browse(const DetGeomDesc*& parent, bool in_t2) {
+  if (parent->name() == "TotemT2")
+    in_t2 = true;  // define the mother volume for all children
+  if (in_t2)
+    browseT2(parent);
+  // start the recursive browsing
+  for (const auto& child : parent->components())
+    browse(const_cast<const DetGeomDesc*&>(child), in_t2);
+}
 
-bool TotemGeometry::addT2Plane(const TotemT2DetId&, const DetGeomDesc*&) { return true; }
+void TotemGeometry::browseT2(const DetGeomDesc*& parent) {
+  const unsigned short arm = parent->parentZPosition() > 0. ? 0 : 1;
+  if (parent->name() == "TotemT2SupportBox")
+    addT2Plane(TotemT2DetId(arm, parent->copyno() - 1), parent);
+  else if (parent->name() == "TotemT2Scint") {
+    unsigned short plane = 2 * (parent->copyno() / 10);
+    unsigned short tile = parent->copyno() % 10;
+    if (tile % 2 != 0)
+      tile += 1;
+    else
+      plane += 1;
+    tile = tile / 2 - 1;
+    addT2Tile(TotemT2DetId(arm, plane, tile), parent);
+    parent->print();
+  }
+}
 
-bool TotemGeometry::addT2Tile(const TotemT2DetId&, const DetGeomDesc*&) { return true; }
+bool TotemGeometry::addT2Plane(const TotemT2DetId& detid, const DetGeomDesc*& dgd) {
+  if (nt2_planes_.count(detid) != 0)
+    return true;
+  nt2_planes_[detid] = dgd;
+  return true;
+}
 
-const DetGeomDesc*& TotemGeometry::tile(const TotemT2DetId& detid) const { return nt2_tiles_.at(detid); }
+const DetGeomDesc* TotemGeometry::plane(const TotemT2DetId& detid) const { return nt2_planes_.at(detid); }
+
+bool TotemGeometry::addT2Tile(const TotemT2DetId& detid, const DetGeomDesc*& dgd) {
+  if (nt2_tiles_.count(detid) != 0)
+    return false;
+  nt2_tiles_[detid] = TotemT2Tile(dgd);
+  return true;
+}
+
+const TotemT2Tile& TotemGeometry::tile(const TotemT2DetId& detid) const { return nt2_tiles_.at(detid); }

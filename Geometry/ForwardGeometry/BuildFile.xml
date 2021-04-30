@@ -7,3 +7,7 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="FWCore/MessageLogger"/>
 <use name="clhep"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="FWCore/Utilities"/>
+<use name="Geom"/>
+<use name="dd4hep"/>
