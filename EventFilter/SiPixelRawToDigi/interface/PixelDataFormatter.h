@@ -107,7 +107,6 @@ private:
 
   bool includeErrors;
   bool useQualityInfo;
-  bool debug;
   int allDetDigis;
   int hasDetDigis;
   std::unique_ptr<ErrorCheckerBase> errorcheck;
