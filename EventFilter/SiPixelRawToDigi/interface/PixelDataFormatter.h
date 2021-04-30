@@ -37,7 +37,6 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorCheckerPhase0.h"
