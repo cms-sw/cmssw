@@ -50,7 +50,9 @@ using namespace edm;
 using namespace std;
 
 LHEmttFilter::LHEmttFilter(const edm::ParameterSet& iConfig)
-    : ptMin_(iConfig.getParameter<double>("ptMin")), MinInvMass_(iConfig.getParameter<double>("MinInvMass")), MaxInvMass_(iConfig.getParameter<double>("MaxInvMass")) {
+    : ptMin_(iConfig.getParameter<double>("ptMin")),
+      MinInvMass_(iConfig.getParameter<double>("MinInvMass")),
+      MaxInvMass_(iConfig.getParameter<double>("MaxInvMass")) {
   src_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"));
 }
 
@@ -96,11 +98,11 @@ bool LHEmttFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSet
         ttmass_ = tot.mass();
       }
     } else if (pdgId_cands.at(0) + pdgId_cands.at(1) != 0) {
-        edm::LogWarning("LHEmttFilter Error") << "Found two t/tbar quarks instead of a ttbar pair" << endl;
-      }
+      edm::LogWarning("LHEmttFilter Error") << "Found two t/tbar quarks instead of a ttbar pair" << endl;
+    }
   }
 
-  if ((MinInvMass_ > -1 && ttmass_ < MinInvMass_) || (MaxInvMass_ > -1 && ttmass_ > MaxInvMass_)){
+  if ((MinInvMass_ > -1 && ttmass_ < MinInvMass_) || (MaxInvMass_ > -1 && ttmass_ > MaxInvMass_)) {
     return false;
   } else {
     return true;
