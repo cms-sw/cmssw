@@ -246,5 +246,6 @@ tauSequence = cms.Sequence(patTauMVAIDsSeq + finalTaus)
 _tauSequence80X =  cms.Sequence(finalTaus)
 run2_miniAOD_80XLegacy.toReplaceWith(tauSequence,_tauSequence80X)
 tauTables = cms.Sequence(tauTable)
-tauMC = cms.Sequence(tauGenJetsForNano + tauGenJetsSelectorAllHadronsForNano + genVisTaus + genVisTauTable + tausMCMatchLepTauForTable + tausMCMatchHadTauForTable + tauMCTable)
+genTauSequence = cms.Sequence(tauGenJetsForNano + tauGenJetsSelectorAllHadronsForNano + genVisTaus + genVisTauTable)
+tauMC = cms.Sequence(genTauSequence + tausMCMatchLepTauForTable + tausMCMatchHadTauForTable + tauMCTable)
 
