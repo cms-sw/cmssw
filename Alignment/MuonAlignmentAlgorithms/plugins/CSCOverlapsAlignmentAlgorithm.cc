@@ -1,7 +1,7 @@
 #include "Alignment/MuonAlignmentAlgorithms/plugins/CSCOverlapsAlignmentAlgorithm.h"
 
 CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet& iConfig,
-                                                             const edm::ConsumesCollector& iC)
+                                                             edm::ConsumesCollector& iC)
     : AlignmentAlgorithmBase(iConfig, iC),
       m_minHitsPerChamber(iConfig.getParameter<int>("minHitsPerChamber")),
       m_maxdrdz(iConfig.getParameter<double>("maxdrdz")),
@@ -16,6 +16,13 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
       m_errorFromRMS(iConfig.getParameter<bool>("errorFromRMS")),
       m_minTracksPerOverlap(iConfig.getParameter<int>("minTracksPerOverlap")),
       m_makeHistograms(iConfig.getParameter<bool>("makeHistograms")),
+      m_cscGeometryToken(iC.esConsumes<edm::Transition::BeginRun>()),
+      m_propToken(iC.esConsumes(edm::ESInputTag(
+          "",
+          m_slopeFromTrackRefit
+              ? iConfig.getParameter<edm::ParameterSet>("TrackTransformer").getParameter<std::string>("Propagator")
+              : std::string("")))),
+      m_tthbToken(iC.esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
       m_mode_string(iConfig.getParameter<std::string>("mode")),
       m_reportFileName(iConfig.getParameter<std::string>("reportFileName")),
       m_minP(iConfig.getParameter<double>("minP")),
@@ -49,11 +56,8 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
 
   if (m_slopeFromTrackRefit) {
     m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("TrackTransformer"));
-    m_propagatorName =
-        iConfig.getParameter<edm::ParameterSet>("TrackTransformer").getParameter<std::string>("Propagator");
   } else {
     m_trackTransformer = nullptr;
-    m_propagatorName = std::string("");
   }
 
   m_propagatorPointer = nullptr;
@@ -217,13 +221,12 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup,
     }
   }
 
-  edm::ESHandle<CSCGeometry> cscGeometry;
-  iSetup.get<MuonGeometryRecord>().get(cscGeometry);
+  const CSCGeometry* cscGeometry = &iSetup.getData(m_cscGeometryToken);
 
   for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();
        residualsConstraint != m_residualsConstraints.end();
        ++residualsConstraint) {
-    (*residualsConstraint)->setZplane(&*cscGeometry);
+    (*residualsConstraint)->setZplane(cscGeometry);
   }
 
   if (!m_readTemporaryFiles.empty()) {
@@ -249,7 +252,7 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup,
 void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const EventInfo& eventInfo) {
   edm::ESHandle<Propagator> propagator;
   if (m_slopeFromTrackRefit) {
-    iSetup.get<TrackingComponentsRecord>().get(m_propagatorName, propagator);
+    iSetup.getHandle(m_propToken);
     if (m_propagatorPointer != &*propagator) {
       m_propagatorPointer = &*propagator;
 
@@ -262,8 +265,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
     }
   }
 
-  edm::ESHandle<TransientTrackBuilder> transientTrackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder);
+  const TransientTrackBuilder* transientTrackBuilder = &iSetup.getData(m_tthbToken);
 
   if (m_trackTransformer != nullptr)
     m_trackTransformer->setServices(iSetup);
