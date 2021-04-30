@@ -432,7 +432,7 @@ void PixelDataFormatter::unpackFEDErrors(PixelDataFormatter::Errors const& error
       for (auto const& aPixelError : errorDetSet) {
         // For the time being, we extend the error handling functionality with ErrorType 25
         // In the future, we should sort out how the usage of tkerrorlist can be generalized
-        if (aPixelError.getType() == 25) {
+        if (phase1 && aPixelError.getType() == 25) {
           int fedId = aPixelError.getFedId();
           const sipixelobjects::PixelFEDCabling* fed = theCablingTree->fed(fedId);
           if (fed) {
