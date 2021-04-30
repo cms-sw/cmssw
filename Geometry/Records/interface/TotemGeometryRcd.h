@@ -21,6 +21,8 @@
  * \ingroup TotemGeometry
  * \brief Event setup record containing the real (actual) geometry information.
  **/
-class TotemGeometryRcd : public edm::eventsetup::DependentRecordImplementation<TotemGeometryRcd, edm::mpl::Vector<IdealGeometryRecord, PTotemRcd> > {};
+class TotemGeometryRcd
+    : public edm::eventsetup::DependentRecordImplementation<TotemGeometryRcd,
+                                                            edm::mpl::Vector<IdealGeometryRecord, PTotemRcd> > {};
 
 #endif

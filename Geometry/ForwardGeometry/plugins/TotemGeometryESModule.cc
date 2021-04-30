@@ -12,7 +12,8 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"   // DDL
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"  // DD4hep
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TotemGeometryRcd.h"
@@ -23,34 +24,44 @@ class TotemGeometryESModule : public edm::ESProducer {
 public:
   TotemGeometryESModule(const edm::ParameterSet&);
 
-  std::unique_ptr<DetGeomDesc> produceGeomDesc(const IdealGeometryRecord&);
-  std::unique_ptr<TotemGeometry> produceGeometry(const TotemGeometryRcd&);
+  std::unique_ptr<TotemGeometry> produce(const TotemGeometryRcd&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   const edm::ESGetToken<DetGeomDesc, TotemGeometryRcd> detGeomDescToken_;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddlToken_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4hepToken_;
+
+  const bool useDDL_;
+  const bool useDD4hep_;
 };
 
 TotemGeometryESModule::TotemGeometryESModule(const edm::ParameterSet& iConfig)
-    : detGeomDescToken_{setWhatProduced(this, &TotemGeometryESModule::produceGeometry).consumes<DetGeomDesc>(edm::ESInputTag())},
-      dd4hepToken_{setWhatProduced(this, &TotemGeometryESModule::produceGeomDesc).consumes<cms::DDCompactView>(edm::ESInputTag("", iConfig.getParameter<std::string>("compactViewTag")))} {
+    : useDDL_(iConfig.getParameter<bool>("useDDL")), useDD4hep_(iConfig.getParameter<bool>("useDD4hep")) {
+  auto cc = setWhatProduced(this);
+  if (useDDL_)
+    ddlToken_ = cc.consumes();
+  else if (useDD4hep_)
+    dd4hepToken_ = cc.consumes();
+  else
+    throw cms::Exception("TotemGeometryESModule") << "Geometry must either be retrieved from a DDL or DD4hep payload!";
 }
 
-std::unique_ptr<DetGeomDesc> TotemGeometryESModule::produceGeomDesc(const IdealGeometryRecord& iRecord) {
-  const auto& dd4hep = iRecord.get(dd4hepToken_);
-  return detgeomdescbuilder::buildDetGeomDescFromCompactView(dd4hep, false);
-}
-
-std::unique_ptr<TotemGeometry> TotemGeometryESModule::produceGeometry(const TotemGeometryRcd& iRecord) {
-  const auto& geom_desc = iRecord.get(detGeomDescToken_);
-  return std::make_unique<TotemGeometry>(&geom_desc);
+std::unique_ptr<TotemGeometry> TotemGeometryESModule::produce(const TotemGeometryRcd& iRecord) {
+  if (useDDL_) {
+    edm::ESTransientHandle<DDCompactView> hnd = iRecord.getTransientHandle(ddlToken_);
+    return std::make_unique<TotemGeometry>(detgeomdescbuilder::buildDetGeomDescFromCompactView(*hnd, false).get());
+  } else {
+    edm::ESTransientHandle<cms::DDCompactView> hnd = iRecord.getTransientHandle(dd4hepToken_);
+    return std::make_unique<TotemGeometry>(detgeomdescbuilder::buildDetGeomDescFromCompactView(*hnd, false).get());
+  }
 }
 
 void TotemGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("compactViewTag", std::string("XMLIdealGeometryESSource"));
+  desc.add<bool>("useDDL", true);
+  desc.add<bool>("useDD4hep", false);
   descriptions.addWithDefaultLabel(desc);
 }
 

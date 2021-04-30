@@ -20,19 +20,10 @@ TotemGeometry::TotemGeometry(const DetGeomDesc* dgd) {
   }
 }
 
-bool TotemGeometry::addT2Sector(const TotemT2DetId&, const DetGeomDesc*&) {
-  return true;
-}
+bool TotemGeometry::addT2Sector(const TotemT2DetId&, const DetGeomDesc*&) { return true; }
 
-bool TotemGeometry::addT2Plane(const TotemT2DetId&, const DetGeomDesc*&) {
-  return true;
-}
+bool TotemGeometry::addT2Plane(const TotemT2DetId&, const DetGeomDesc*&) { return true; }
 
-bool TotemGeometry::addT2Tile(const TotemT2DetId&, const DetGeomDesc*&) {
-  return true;
-}
+bool TotemGeometry::addT2Tile(const TotemT2DetId&, const DetGeomDesc*&) { return true; }
 
-const DetGeomDesc*& TotemGeometry::tile(const TotemT2DetId& detid) const {
-  return nt2_tiles_.at(detid);
-}
-
+const DetGeomDesc*& TotemGeometry::tile(const TotemT2DetId& detid) const { return nt2_tiles_.at(detid); }
