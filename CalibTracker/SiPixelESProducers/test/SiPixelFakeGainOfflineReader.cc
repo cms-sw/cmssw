@@ -7,7 +7,7 @@
 namespace cms {
   SiPixelFakeGainOfflineReader::SiPixelFakeGainOfflineReader(const edm::ParameterSet& conf)
       : conf_(conf),
-        SiPixelGainCalibrationOfflineService_(conf),
+        SiPixelGainCalibrationOfflineService_(conf, consumesCollector()),
         trackerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
         trackerGeomTokenBeginRun_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
         filename_(conf.getParameter<std::string>("fileName")) {}

@@ -288,6 +288,7 @@ namespace edm {
   }
 
   void MixingModule::reload(const edm::EventSetup& setup) {
+    // TODO for esConsumes migration: assume for now this function is mostly unused
     //change the basic parameters.
     edm::ESHandle<MixingModuleConfig> config;
     setup.get<MixingRcd>().get(config);
@@ -612,8 +613,8 @@ namespace edm {
 
     std::unique_ptr<PileupMixingContent> PileupMixing_;
 
-    PileupMixing_ = std::unique_ptr<PileupMixingContent>(new PileupMixingContent(
-        bunchCrossingList, numInteractionList, TrueInteractionList, eventInfoList, bunchSpace_));
+    PileupMixing_ = std::make_unique<PileupMixingContent>(
+        bunchCrossingList, numInteractionList, TrueInteractionList, eventInfoList, bunchSpace_);
 
     e.put(std::move(PileupMixing_));
 

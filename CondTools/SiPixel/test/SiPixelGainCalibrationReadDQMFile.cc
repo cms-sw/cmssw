@@ -142,8 +142,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
             << std::endl;
   uint32_t detid = 0;
   therootfile->cd();
-  edm::ESHandle<TrackerGeometry> pDD;
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  const TrackerGeometry *pDD = &iSetup.getData(pddToken_);
   edm::LogInfo("SiPixelCondObjOfflineBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
 
   int NDetid = 0;
@@ -486,7 +485,8 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup &iSet
 
 SiPixelGainCalibrationReadDQMFile::SiPixelGainCalibrationReadDQMFile(const edm::ParameterSet &iConfig)
     : appendMode_(iConfig.getUntrackedParameter<bool>("appendMode", true)),
-      theGainCalibrationDbInputService_(iConfig),
+      pddToken_(esConsumes()),
+      theGainCalibrationDbInputService_(iConfig, consumesCollector()),
       record_(iConfig.getUntrackedParameter<std::string>("record", "SiPixelGainCalibrationOfflineRcd")),
       gainlow_(10.),
       gainhi_(0.),

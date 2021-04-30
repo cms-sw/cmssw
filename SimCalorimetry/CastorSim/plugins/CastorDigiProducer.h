@@ -1,10 +1,14 @@
 #ifndef CastorDigiProducer_h
 #define CastorDigiProducer_h
 
+#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/CastorSim/src/CastorAmplifier.h"
@@ -19,11 +23,6 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 #include <vector>
-
-namespace edm {
-  class StreamID;
-  class ConsumesCollector;
-}  // namespace edm
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -54,6 +53,9 @@ private:
   void checkGeometry(const edm::EventSetup &eventSetup);
 
   edm::InputTag theHitsProducerTag;
+  const edm::ESGetToken<CastorDbService, CastorDbRecord> theConditionsToken;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theGeometryToken;
+  edm::ESWatcher<CaloGeometryRecord> theGeometryWatcher;
 
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<CastorDigitizerTraits> CastorDigitizer;

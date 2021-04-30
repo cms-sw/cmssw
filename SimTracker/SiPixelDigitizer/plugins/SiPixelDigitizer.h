@@ -18,20 +18,16 @@
 #include <string>
 #include <vector>
 
-#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ProducesCollector.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-
-namespace edm {
-  class ConsumesCollector;
-  class Event;
-  class EventSetup;
-  class ParameterSet;
-  template <typename T>
-  class Handle;
-  class StreamID;
-}  // namespace edm
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/ProducesCollector.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 class MagneticField;
 class PileUpEventPrincipal;
@@ -91,9 +87,8 @@ namespace cms {
     typedef std::vector<std::string> vstring;
     const std::string hitsProducer;
     const vstring trackerContainers;
-    const std::string geometryType;
-    edm::ESHandle<TrackerGeometry> pDD;
-    edm::ESHandle<MagneticField> pSetup;
+    const TrackerGeometry* pDD = nullptr;
+    const MagneticField* pSetup = nullptr;
     std::map<unsigned int, PixelGeomDetUnit const*> detectorUnits;
     CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 
@@ -101,6 +96,10 @@ namespace cms {
 
     const bool pilotBlades;         // Default = false
     const int NumberOfEndcapDisks;  // Default = 2
+
+    const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> pSetupToken_;
 
     // infrastructure to reject dead pixels as defined in db (added by F.Blekman)
   };
