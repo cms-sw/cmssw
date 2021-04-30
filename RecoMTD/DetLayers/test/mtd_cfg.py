@@ -10,21 +10,15 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
-process.MessageLogger.cout = cms.untracked.PSet(
-    threshold = cms.untracked.string('INFO'),
-    INFO= cms.untracked.PSet(
-        limit = cms.untracked.int32(0)
-    ),
-    DEBUG = cms.untracked.PSet(
-        limit = cms.untracked.int32(0)
-    ),
-    MTDLayerDump = cms.untracked.PSet(
-        limit = cms.untracked.int32(-1)
-    ),
-    MTDDetLayers = cms.untracked.PSet(
-        limit = cms.untracked.int32(-1)
-    ),
-    enableStatistics = cms.untracked.bool(True)
+process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
+process.MessageLogger.cerr.DEBUG = cms.untracked.PSet(
+    limit = cms.untracked.int32(0)
+)
+process.MessageLogger.cerr.MTDLayerDump = cms.untracked.PSet(
+    limit = cms.untracked.int32(-1)
+)
+process.MessageLogger.cerr.MTDDetLayers = cms.untracked.PSet(
+    limit = cms.untracked.int32(-1)
 )
 process.MessageLogger.files.mtdDetLayerGeometry = cms.untracked.PSet(
     MTDLayerDump = cms.untracked.PSet(
