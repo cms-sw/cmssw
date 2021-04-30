@@ -41,9 +41,9 @@ private:
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<LHEEventProduct> src_;
-  double ptMin_;
-  double MinInvMass_;
-  double MaxInvMass_;
+  double ptMin_ = 0;
+  double MinInvMass_ = -1;
+  double MaxInvMass_ = -1;
 };
 
 using namespace edm;
