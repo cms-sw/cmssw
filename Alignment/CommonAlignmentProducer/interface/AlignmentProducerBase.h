@@ -43,6 +43,7 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "CondFormats/Common/interface/Time.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -57,6 +58,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -241,6 +243,22 @@ private:
   const bool useSurvey_;
   const bool enableAlignableUpdates_;
   std::string idealGeometryLabel;
+
+  /*** ESTokens ***/
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
+  const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
+  const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
+  const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
+  const edm::ESGetToken<Alignments, TrackerSurveyRcd> tkSurveyToken_;
+  const edm::ESGetToken<SurveyErrors, TrackerSurveyErrorExtendedRcd> tkSurvErrorToken_;
+  const edm::ESGetToken<Alignments, DTSurveyRcd> dtSurveyToken_;
+  const edm::ESGetToken<SurveyErrors, DTSurveyErrorExtendedRcd> dtSurvErrorToken_;
+  const edm::ESGetToken<Alignments, CSCSurveyRcd> cscSurveyToken_;
+  const edm::ESGetToken<SurveyErrors, CSCSurveyErrorExtendedRcd> cscSurvErrorToken_;
+
   /*** ESWatcher ***/
 
   edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;

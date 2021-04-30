@@ -17,14 +17,12 @@
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/Alignment/interface/SurveyError.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
-#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //------------------------------------------------------------------------------
 AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, edm::ConsumesCollector iC)
@@ -49,7 +47,20 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, ed
       saveDeformationsToDB_{config.getParameter<bool>("saveDeformationsToDB")},
       useSurvey_{config.getParameter<bool>("useSurvey")},
       enableAlignableUpdates_{config.getParameter<bool>("enableAlignableUpdates")},
-      idealGeometryLabel("idealForAlignmentProducerBase") {
+      idealGeometryLabel("idealForAlignmentProducerBase"),
+      ttopoToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      geomDetToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      ptpToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      dtGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", idealGeometryLabel))),
+      cscGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", idealGeometryLabel))),
+      gemGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", idealGeometryLabel))),
+      gprToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      tkSurveyToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      tkSurvErrorToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      dtSurveyToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      dtSurvErrorToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      cscSurveyToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      cscSurvErrorToken_(iC.esConsumes<edm::Transition::BeginRun>()) {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducerBase::AlignmentProducerBase";
 
   const auto& algoConfig = config_.getParameterSet("algoConfig");
@@ -345,9 +356,7 @@ void AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
   auto isTrueUpdate = update && isAlgoInitialized_;
 
   // Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  const TrackerTopology* const tTopo = &setup.getData(ttopoToken_);
 
   // Create the geometries from the ideal geometries
   createGeometries(setup, tTopo);
@@ -411,21 +420,16 @@ void AlignmentProducerBase::initBeamSpot(const edm::Event& event) {
 //------------------------------------------------------------------------------
 void AlignmentProducerBase::createGeometries(const edm::EventSetup& iSetup, const TrackerTopology* tTopo) {
   if (doTracker_) {
-    edm::ESHandle<GeometricDet> geometricDet;
-    iSetup.get<IdealGeometryRecord>().get(geometricDet);
-
-    edm::ESHandle<PTrackerParameters> ptp;
-    iSetup.get<PTrackerParametersRcd>().get(ptp);
-
+    const GeometricDet* geometricDet = &iSetup.getData(geomDetToken_);
+    const PTrackerParameters* ptp = &iSetup.getData(ptpToken_);
     TrackerGeomBuilderFromGeometricDet trackerBuilder;
-
-    trackerGeometry_ = std::shared_ptr<TrackerGeometry>(trackerBuilder.build(&(*geometricDet), *ptp, tTopo));
+    trackerGeometry_ = std::shared_ptr<TrackerGeometry>(trackerBuilder.build(geometricDet, *ptp, tTopo));
   }
 
   if (doMuon_) {
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonDTGeometry_);
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonCSCGeometry_);
-    iSetup.get<MuonGeometryRecord>().get(idealGeometryLabel, muonGEMGeometry_);
+    muonDTGeometry_ = &iSetup.getData(dtGeomToken_);
+    muonCSCGeometry_ = &iSetup.getData(cscGeomToken_);
+    muonGEMGeometry_ = &iSetup.getData(gemGeomToken_);
   }
 }
 
@@ -436,8 +440,7 @@ void AlignmentProducerBase::applyAlignmentsToDB(const edm::EventSetup& setup) {
     // we need GlobalPositionRcd - and have to keep track for later removal
     // before writing again to DB...
 
-    edm::ESHandle<Alignments> globalAlignments;
-    setup.get<GlobalPositionRcd>().get(globalAlignments);
+    const Alignments* globalAlignments = &setup.getData(gprToken_);
     globalPositions_ = std::make_unique<Alignments>(*globalAlignments);
 
     if (doTracker_) {
@@ -672,11 +675,8 @@ void AlignmentProducerBase::readInSurveyRcds(const edm::EventSetup& iSetup) {
     edm::LogInfo("Alignment") << "watcher tksurveyerrrcd: " << tkSurveyErrBool;
     if (tkSurveyBool || tkSurveyErrBool) {
       edm::LogInfo("Alignment") << "ADDING THE SURVEY INFORMATION";
-      edm::ESHandle<Alignments> surveys;
-      edm::ESHandle<SurveyErrors> surveyErrors;
-
-      iSetup.get<TrackerSurveyRcd>().get(surveys);
-      iSetup.get<TrackerSurveyErrorExtendedRcd>().get(surveyErrors);
+      const Alignments* surveys = &iSetup.getData(tkSurveyToken_);
+      const SurveyErrors* surveyErrors = &iSetup.getData(tkSurvErrorToken_);
 
       surveyIndex_ = 0;
       surveyValues_ = &*surveys;
@@ -692,15 +692,10 @@ void AlignmentProducerBase::readInSurveyRcds(const edm::EventSetup& iSetup) {
     bool CSCSurveyErrBool = watchTkSurveyErrExtRcd_.check(iSetup);
 
     if (DTSurveyBool || DTSurveyErrBool || CSCSurveyBool || CSCSurveyErrBool) {
-      edm::ESHandle<Alignments> dtSurveys;
-      edm::ESHandle<SurveyErrors> dtSurveyErrors;
-      edm::ESHandle<Alignments> cscSurveys;
-      edm::ESHandle<SurveyErrors> cscSurveyErrors;
-
-      iSetup.get<DTSurveyRcd>().get(dtSurveys);
-      iSetup.get<DTSurveyErrorExtendedRcd>().get(dtSurveyErrors);
-      iSetup.get<CSCSurveyRcd>().get(cscSurveys);
-      iSetup.get<CSCSurveyErrorExtendedRcd>().get(cscSurveyErrors);
+      const Alignments* dtSurveys = &iSetup.getData(dtSurveyToken_);
+      const SurveyErrors* dtSurveyErrors = &iSetup.getData(dtSurvErrorToken_);
+      const Alignments* cscSurveys = &iSetup.getData(cscSurveyToken_);
+      const SurveyErrors* cscSurveyErrors = &iSetup.getData(cscSurvErrorToken_);
 
       surveyIndex_ = 0;
       surveyValues_ = &*dtSurveys;
