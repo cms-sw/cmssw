@@ -3,13 +3,11 @@
 
 #include "SimTracker/SiPhase2Digitizer/plugins/SSDigitizerAlgorithm.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerLorentzAngleRcd.h"
 
 // Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
@@ -29,19 +27,23 @@ namespace {
 
 void SSDigitizerAlgorithm::init(const edm::EventSetup& es) {
   if (use_LorentzAngle_DB_) {  // Get Lorentz angle from DB record
-    es.get<SiPhase2OuterTrackerLorentzAngleSimRcd>().get(siPhase2OTLorentzAngle_);
+    siPhase2OTLorentzAngle_ = &es.getData(siPhase2OTLorentzAngleToken_);
   }
 
-  es.get<TrackerDigiGeometryRecord>().get(geom_);
+  geom_ = &es.getData(geomToken_);
 }
 
-SSDigitizerAlgorithm::SSDigitizerAlgorithm(const edm::ParameterSet& conf)
+SSDigitizerAlgorithm::SSDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
-                                      conf.getParameter<ParameterSet>("SSDigitizerAlgorithm")),
+                                      conf.getParameter<ParameterSet>("SSDigitizerAlgorithm"),
+                                      iC),
       hitDetectionMode_(conf.getParameter<ParameterSet>("SSDigitizerAlgorithm").getParameter<int>("HitDetectionMode")),
       pulseShapeParameters_(conf.getParameter<ParameterSet>("SSDigitizerAlgorithm")
                                 .getParameter<std::vector<double> >("PulseShapeParameters")),
-      deadTime_(conf.getParameter<ParameterSet>("SSDigitizerAlgorithm").getParameter<double>("CBCDeadTime")) {
+      deadTime_(conf.getParameter<ParameterSet>("SSDigitizerAlgorithm").getParameter<double>("CBCDeadTime")),
+      geomToken_(iC.esConsumes()) {
+  if (use_LorentzAngle_DB_)
+    siPhase2OTLorentzAngleToken_ = iC.esConsumes();
   pixelFlag_ = false;
   LogDebug("SSDigitizerAlgorithm ") << "SSDigitizerAlgorithm constructed "
                                     << "Configuration parameters:"

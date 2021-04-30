@@ -5,13 +5,11 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/CastorSim/plugins/CastorDigiProducer.h"
@@ -22,7 +20,9 @@
 CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet &ps,
                                        edm::ProducesCollector producesCollector,
                                        edm::ConsumesCollector &iC)
-    : theParameterMap(new CastorSimParameterMap(ps)),
+    : theConditionsToken(iC.esConsumes()),
+      theGeometryToken(iC.esConsumes()),
+      theParameterMap(new CastorSimParameterMap(ps)),
       theCastorShape(new CastorShape()),
       theCastorIntegratedShape(new CaloShapeIntegrator(theCastorShape)),
       theCastorResponse(new CaloHitResponse(theParameterMap, theCastorIntegratedShape)),
@@ -75,11 +75,10 @@ CastorDigiProducer::~CastorDigiProducer() {
 
 void CastorDigiProducer::initializeEvent(edm::Event const &event, edm::EventSetup const &eventSetup) {
   // get the appropriate gains, noises, & widths for this event
-  edm::ESHandle<CastorDbService> conditions;
-  eventSetup.get<CastorDbRecord>().get(conditions);
-  theAmplifier->setDbService(conditions.product());
-  theCoderFactory->setDbService(conditions.product());
-  theParameterMap->setDbService(conditions.product());
+  const CastorDbService *conditions = &eventSetup.getData(theConditionsToken);
+  theAmplifier->setDbService(conditions);
+  theCoderFactory->setDbService(conditions);
+  theParameterMap->setDbService(conditions);
 
   // Cache random number engine
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -156,14 +155,14 @@ void CastorDigiProducer::fillFakeHits() {
 }
 
 void CastorDigiProducer::checkGeometry(const edm::EventSetup &eventSetup) {
-  // TODO find a way to avoid doing this every event
-  edm::ESHandle<CaloGeometry> geometry;
-  eventSetup.get<CaloGeometryRecord>().get(geometry);
-  theCastorResponse->setGeometry(&*geometry);
+  if (theGeometryWatcher.check(eventSetup)) {
+    const CaloGeometry *geometry = &eventSetup.getData(theGeometryToken);
+    theCastorResponse->setGeometry(geometry);
 
-  const std::vector<DetId> &castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
+    const std::vector<DetId> &castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 
-  // std::cout<<"CastorDigiProducer::CheckGeometry number of cells:
-  // "<<castorCells.size()<<std::endl;
-  theCastorDigitizer->setDetIds(castorCells);
+    // std::cout<<"CastorDigiProducer::CheckGeometry number of cells:
+    // "<<castorCells.size()<<std::endl;
+    theCastorDigitizer->setDetIds(castorCells);
+  }
 }
