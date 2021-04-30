@@ -9,6 +9,7 @@
 #include "CondFormats/DataRecord/interface/EcalPFSeedingThresholdsRcd.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 
 #include <iostream>
 
@@ -110,6 +111,9 @@ public:
       } else if (flag == "HFShort") {
         flags_.push_back(1 << HcalCaloFlagLabels::HFLongShort);
         depths_.push_back(2);
+      } else if (flag == "HFSignalAsymmetry") {
+        flags_.push_back(1 << HcalPhase1FlagLabels::HFSignalAsymmetry);
+        depths_.push_back(-1);
       } else {
         flags_.push_back(-1);
         depths_.push_back(-1);

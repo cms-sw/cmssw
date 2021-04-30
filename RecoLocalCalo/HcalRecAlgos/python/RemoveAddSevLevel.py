@@ -88,6 +88,7 @@ def AddFlag(sevLevelComputer,flag="UserDefinedBit0",severity=10,verbose=True):
                 continue
             else:
                 Flags.remove(flag)
+                ChanStat=sevLevelComputer.SeverityLevels[i].ChannelStatus.value()
                 # Removing flag leaves nothing else:  need to remove this level completely
                 if len(Flags)==0 and ChanStat==['']:
                     removeSeverity=i
