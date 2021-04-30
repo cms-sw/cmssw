@@ -67,7 +67,6 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
   edm::EDGetTokenT<HBHERecHitCollection> hbheRecHits_;
-  edm::EDGetTokenT<HFRecHitCollection> hfRecHits_;
   edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
 
   //AA
@@ -118,7 +117,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
   endcapEcalHits_ = consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("endcapEcalHits"));
   vertexProducer_ = consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("primaryVertexProducer"));
   hbheRecHits_ = consumes<HBHERecHitCollection>(config.getParameter<edm::InputTag>("hbheRecHits"));
-  hfRecHits_ = consumes<HFRecHitCollection>(config.getParameter<edm::InputTag>("hfRecHits"));
   hOverEConeSize_ = config.getParameter<double>("hOverEConeSize");
   highEt_ = config.getParameter<double>("highEt");
   // R9 value to decide converted/unconverted
@@ -161,14 +159,11 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
     cfgCone.checkHcalStatus = false;
 
     cfgCone.hbheRecHits = hbheRecHits_;
-    cfgCone.hfRecHits = hfRecHits_;
 
     cfgCone.eThresHB = config.getParameter<std::array<double, 4>>("recHitEThresholdHB");
     cfgCone.maxSeverityHB = config.getParameter<int>("maxHcalRecHitSeverity");
     cfgCone.eThresHE = config.getParameter<std::array<double, 7>>("recHitEThresholdHE");
     cfgCone.maxSeverityHE = cfgCone.maxSeverityHB;
-    cfgCone.eThresHF = config.getParameter<std::array<double, 7>>("recHitEThresholdHF");
-    cfgCone.maxSeverityHF = cfgCone.maxSeverityHB;
   }
 
   cfgBc.hOverEConeSize = 0.;
@@ -176,14 +171,11 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : photonEnergyCo
   cfgBc.checkHcalStatus = false;
 
   cfgBc.hbheRecHits = hbheRecHits_;
-  cfgBc.hfRecHits = hfRecHits_;
 
   cfgBc.eThresHB = config.getParameter<std::array<double, 4>>("recHitEThresholdHB");
   cfgBc.maxSeverityHB = config.getParameter<int>("maxHcalRecHitSeverity");
   cfgBc.eThresHE = config.getParameter<std::array<double, 7>>("recHitEThresholdHE");
   cfgBc.maxSeverityHE = cfgBc.maxSeverityHB;
-  cfgBc.eThresHF = config.getParameter<std::array<double, 7>>("recHitEThresholdHF");
-  cfgBc.maxSeverityHF = cfgBc.maxSeverityHB;
 
   hcalHelperCone_ = std::make_unique<ElectronHcalHelper>(cfgCone, consumesCollector());
   hcalHelperBc_ = std::make_unique<ElectronHcalHelper>(cfgBc, consumesCollector());

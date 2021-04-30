@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.EgammaIsolationAlgos.egammaHBHERecHitThreshold_cff import egammaHBHERecHit
 
 isolationSumsCalculator = cms.PSet(
     #required inputs
@@ -7,9 +8,11 @@ isolationSumsCalculator = cms.PSet(
 
     barrelEcalRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB'),
     endcapEcalRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEE'),
-    HBHERecHitCollection = cms.InputTag('hbhereco'),
-    HFRecHitCollection = cms.InputTag('hfreco'),
-    maxHcalRecHitSeverity = cms.int32(9), # FIXME recheck thresholds
+
+    HBHERecHitCollection = egammaHBHERecHit.hbheRecHits,
+    recHitEThresholdHB = egammaHBHERecHit.recHitEThresholdHB,
+    recHitEThresholdHE = egammaHBHERecHit.recHitEThresholdHE,
+    maxHcalRecHitSeverity = egammaHBHERecHit.maxHcalRecHitSeverity,
 
     # Photon will be marked as being near phi module boundary if
     #  it is closer than this.  Currently half a crystal.
@@ -53,50 +56,13 @@ isolationSumsCalculator = cms.PSet(
     EcalRecHitEtaSliceB_Barrel      = cms.double(2.5),
     EcalRecHitThreshEB_Barrel       = cms.double(0.095),
     EcalRecHitThreshEtB_Barrel      = cms.double(0.0),
-    #Hcal rechits
-    HcalDepth1RecHitInnerRadiusA_Barrel = cms.double(0.15),
-    HcalDepth1RecHitOuterRadiusA_Barrel = cms.double(0.4),
-    HcalDepth1RecHitThreshEA_Barrel     = cms.double(0.0),
-    HcalDepth2RecHitInnerRadiusA_Barrel = cms.double(0.15),
-    HcalDepth2RecHitOuterRadiusA_Barrel = cms.double(0.4),
-    HcalDepth2RecHitThreshEA_Barrel     = cms.double(0.0),
-    HcalDepth3RecHitInnerRadiusA_Barrel = cms.double(0.15),
-    HcalDepth3RecHitOuterRadiusA_Barrel = cms.double(0.4),
-    HcalDepth3RecHitThreshEA_Barrel     = cms.double(0.0),
-    HcalDepth4RecHitInnerRadiusA_Barrel = cms.double(0.15),
-    HcalDepth4RecHitOuterRadiusA_Barrel = cms.double(0.4),
-    HcalDepth4RecHitThreshEA_Barrel     = cms.double(0.0),
-    HcalDepth5RecHitInnerRadiusA_Barrel = cms.double(0.15),
-    HcalDepth5RecHitOuterRadiusA_Barrel = cms.double(0.4),
-    HcalDepth5RecHitThreshEA_Barrel     = cms.double(0.0),
-    HcalDepth6RecHitInnerRadiusA_Barrel = cms.double(0.15),
-    HcalDepth6RecHitOuterRadiusA_Barrel = cms.double(0.4),
-    HcalDepth6RecHitThreshEA_Barrel     = cms.double(0.0),
-    HcalDepth7RecHitInnerRadiusA_Barrel = cms.double(0.15),
-    HcalDepth7RecHitOuterRadiusA_Barrel = cms.double(0.4),
-    HcalDepth7RecHitThreshEA_Barrel     = cms.double(0.0),
-#
-    HcalDepth1RecHitInnerRadiusB_Barrel = cms.double(0.15),
-    HcalDepth1RecHitOuterRadiusB_Barrel = cms.double(0.3),
-    HcalDepth1RecHitThreshEB_Barrel     = cms.double(0.0),
-    HcalDepth2RecHitInnerRadiusB_Barrel = cms.double(0.15),
-    HcalDepth2RecHitOuterRadiusB_Barrel = cms.double(0.3),
-    HcalDepth2RecHitThreshEB_Barrel     = cms.double(0.0),
-    HcalDepth3RecHitInnerRadiusB_Barrel = cms.double(0.15),
-    HcalDepth3RecHitOuterRadiusB_Barrel = cms.double(0.3),
-    HcalDepth3RecHitThreshEB_Barrel     = cms.double(0.0),
-    HcalDepth4RecHitInnerRadiusB_Barrel = cms.double(0.15),
-    HcalDepth4RecHitOuterRadiusB_Barrel = cms.double(0.3),
-    HcalDepth4RecHitThreshEB_Barrel     = cms.double(0.0),
-    HcalDepth5RecHitInnerRadiusB_Barrel = cms.double(0.15),
-    HcalDepth5RecHitOuterRadiusB_Barrel = cms.double(0.3),
-    HcalDepth5RecHitThreshEB_Barrel     = cms.double(0.0),
-    HcalDepth6RecHitInnerRadiusB_Barrel = cms.double(0.15),
-    HcalDepth6RecHitOuterRadiusB_Barrel = cms.double(0.3),
-    HcalDepth6RecHitThreshEB_Barrel     = cms.double(0.0),
-    HcalDepth7RecHitInnerRadiusB_Barrel = cms.double(0.15),
-    HcalDepth7RecHitOuterRadiusB_Barrel = cms.double(0.3),
-    HcalDepth7RecHitThreshEB_Barrel     = cms.double(0.0),
+
+    # hcal rechits
+    HcalRecHitInnerRadiusA_Barrel = cms.vdouble(0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15),
+    HcalRecHitOuterRadiusA_Barrel = cms.vdouble(0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4),
+
+    HcalRecHitInnerRadiusB_Barrel = cms.vdouble(0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15),
+    HcalRecHitOuterRadiusB_Barrel = cms.vdouble(0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3),
 
 #### ENDCAP
     #tracks
@@ -131,50 +97,12 @@ isolationSumsCalculator = cms.PSet(
     #spikeIdString = cms.string('kSwissCrossBordersIncluded'),
     #spikeIdThreshold = cms.double(0.95),
 
-    #Hcal towers
-    HcalDepth1RecHitInnerRadiusA_Endcap = cms.double(0.15),
-    HcalDepth1RecHitOuterRadiusA_Endcap = cms.double(0.4),
-    HcalDepth1RecHitThreshEA_Endcap     = cms.double(0.0),
-    HcalDepth2RecHitInnerRadiusA_Endcap = cms.double(0.15),
-    HcalDepth2RecHitOuterRadiusA_Endcap = cms.double(0.4),
-    HcalDepth2RecHitThreshEA_Endcap     = cms.double(0.0),
-    HcalDepth3RecHitInnerRadiusA_Endcap = cms.double(0.15),
-    HcalDepth3RecHitOuterRadiusA_Endcap = cms.double(0.4),
-    HcalDepth3RecHitThreshEA_Endcap     = cms.double(0.0),
-    HcalDepth4RecHitInnerRadiusA_Endcap = cms.double(0.15),
-    HcalDepth4RecHitOuterRadiusA_Endcap = cms.double(0.4),
-    HcalDepth4RecHitThreshEA_Endcap     = cms.double(0.0),
-    HcalDepth5RecHitInnerRadiusA_Endcap = cms.double(0.15),
-    HcalDepth5RecHitOuterRadiusA_Endcap = cms.double(0.4),
-    HcalDepth5RecHitThreshEA_Endcap     = cms.double(0.0),
-    HcalDepth6RecHitInnerRadiusA_Endcap = cms.double(0.15),
-    HcalDepth6RecHitOuterRadiusA_Endcap = cms.double(0.4),
-    HcalDepth6RecHitThreshEA_Endcap     = cms.double(0.0),
-    HcalDepth7RecHitInnerRadiusA_Endcap = cms.double(0.15),
-    HcalDepth7RecHitOuterRadiusA_Endcap = cms.double(0.4),
-    HcalDepth7RecHitThreshEA_Endcap     = cms.double(0.0),
-#
-    HcalDepth1RecHitInnerRadiusB_Endcap = cms.double(0.15),
-    HcalDepth1RecHitOuterRadiusB_Endcap = cms.double(0.3),
-    HcalDepth1RecHitThreshEB_Endcap     = cms.double(0.0),
-    HcalDepth2RecHitInnerRadiusB_Endcap = cms.double(0.15),
-    HcalDepth2RecHitOuterRadiusB_Endcap = cms.double(0.3),
-    HcalDepth2RecHitThreshEB_Endcap     = cms.double(0.0),
-    HcalDepth3RecHitInnerRadiusB_Endcap = cms.double(0.15),
-    HcalDepth3RecHitOuterRadiusB_Endcap = cms.double(0.3),
-    HcalDepth3RecHitThreshEB_Endcap     = cms.double(0.0),
-    HcalDepth4RecHitInnerRadiusB_Endcap = cms.double(0.15),
-    HcalDepth4RecHitOuterRadiusB_Endcap = cms.double(0.3),
-    HcalDepth4RecHitThreshEB_Endcap     = cms.double(0.0),
-    HcalDepth5RecHitInnerRadiusB_Endcap = cms.double(0.15),
-    HcalDepth5RecHitOuterRadiusB_Endcap = cms.double(0.3),
-    HcalDepth5RecHitThreshEB_Endcap     = cms.double(0.0),
-    HcalDepth6RecHitInnerRadiusB_Endcap = cms.double(0.15),
-    HcalDepth6RecHitOuterRadiusB_Endcap = cms.double(0.3),
-    HcalDepth6RecHitThreshEB_Endcap     = cms.double(0.0),
-    HcalDepth7RecHitInnerRadiusB_Endcap = cms.double(0.15),
-    HcalDepth7RecHitOuterRadiusB_Endcap = cms.double(0.3),
-    HcalDepth7RecHitThreshEB_Endcap     = cms.double(0.0),
+    # Hcal rechits
+    HcalRecHitInnerRadiusA_Endcap = cms.vdouble(0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15),
+    HcalRecHitOuterRadiusA_Endcap = cms.vdouble(0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4),
+
+    HcalRecHitInnerRadiusB_Endcap = cms.vdouble(0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15),
+    HcalRecHitOuterRadiusB_Endcap = cms.vdouble(0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3),
 
     #recHitFlagsToBeExcluded = cms.vstring(
     #    'kFaultyHardware',

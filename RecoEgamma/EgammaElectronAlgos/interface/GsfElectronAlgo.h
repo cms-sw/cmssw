@@ -60,7 +60,6 @@ public:
   struct Tokens {
     edm::EDGetTokenT<reco::GsfElectronCoreCollection> gsfElectronCores;
     edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitsTag;
-    edm::EDGetTokenT<HFRecHitCollection> hfRecHitsTag;
     edm::EDGetTokenT<reco::SuperClusterCollection> barrelSuperClusters;
     edm::EDGetTokenT<reco::SuperClusterCollection> endcapSuperClusters;
     edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollection;

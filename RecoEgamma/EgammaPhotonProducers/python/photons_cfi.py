@@ -4,6 +4,7 @@ from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
+from RecoEgamma.EgammaIsolationAlgos.egammaHBHERecHitThreshold_cff import egammaHBHERecHit
 #
 # producer for photons
 #
@@ -36,8 +37,6 @@ photons = cms.EDProducer("GEDPhotonProducer",
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     preshowerHits = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
-    hbheRecHits = cms.InputTag("hbhereco"),
-    hfRecHits = cms.InputTag("hfreco"),
     runMIPTagger = cms.bool(True),
     highEt  = cms.double(100.),                       
     minR9Barrel = cms.double(0.94),
@@ -45,10 +44,10 @@ photons = cms.EDProducer("GEDPhotonProducer",
     multThresEB = cms.double(1.00),
     multThresEE = cms.double(1.25),
     hOverEConeSize = cms.double(0.15),
-    recHitEThresholdHB = cms.vdouble( 0., 0., 0., 0. ), # FIXME recheck thresholds
-    recHitEThresholdHE = cms.vdouble( 0., 0., 0., 0., 0., 0., 0. ),
-    recHitEThresholdHF = cms.vdouble( 0., 0., 0., 0., 0., 0., 0. ),
-    maxHcalRecHitSeverity = isolationSumsCalculator.maxHcalRecHitSeverity,
+    hbheRecHits = egammaHBHERecHit.hbheRecHits,
+    recHitEThresholdHB = egammaHBHERecHit.recHitEThresholdHB,
+    recHitEThresholdHE = egammaHBHERecHit.recHitEThresholdHE,
+    maxHcalRecHitSeverity = egammaHBHERecHit.maxHcalRecHitSeverity,
     posCalc_x0 = cms.double(0.89),
     posCalc_t0_barl = cms.double(7.7),
     minSCEtBarrel = cms.double(10.0),
@@ -114,16 +113,15 @@ islandPhotons = cms.EDProducer("PhotonProducer",
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    hbheRecHits = cms.InputTag("hbhereco"),
-    hfRecHits = cms.InputTag("hfreco"),
     runMIPTagger = cms.bool(True),
     highEt  = cms.double(100.),
     minR9Barrel = cms.double(10.0),
     minR9Endcap = cms.double(10.0),
     hOverEConeSize = cms.double(0.15),
-    recHitEThresholdHB = cms.vdouble( 0., 0., 0., 0. ), # FIXME recheck thresholds
-    recHitEThresholdHE = cms.vdouble( 0., 0., 0., 0., 0., 0., 0. ),
-    recHitEThresholdHF = cms.vdouble( 0., 0., 0., 0., 0., 0., 0. ),
+    hbheRecHits = egammaHBHERecHit.hbheRecHits,
+    recHitEThresholdHB = egammaHBHERecHit.recHitEThresholdHB,
+    recHitEThresholdHE = egammaHBHERecHit.recHitEThresholdHE,
+    maxHcalRecHitSeverity = egammaHBHERecHit.maxHcalRecHitSeverity,
     posCalc_x0 = cms.double(0.89),
     posCalc_t0_barl = cms.double(7.7),
     minSCEtBarrel = cms.double(5.0),

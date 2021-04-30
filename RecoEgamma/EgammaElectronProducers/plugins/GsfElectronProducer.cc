@@ -128,9 +128,6 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("seedsTag", {"ecalDrivenElectronSeeds"});
   desc.add<edm::InputTag>("beamSpotTag", {"offlineBeamSpot"});
   desc.add<edm::InputTag>("egmPFCandidatesTag", {"particleFlowEGamma"});
-  desc.add<bool>("checkHcalStatus", true);
-  desc.add<edm::InputTag>("hbheRecHits", edm::InputTag("hbhereco"));
-  desc.add<edm::InputTag>("hfRecHits", edm::InputTag("hfreco"));
 
   // steering
   desc.add<bool>("useDefaultEnergyCorrection", true);
@@ -155,10 +152,11 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<std::vector<std::string>>("recHitSeverityToBeExcludedEndcaps");
 
   // Hcal rec hits configuration
-  desc.add<std::vector<double>>("recHitEThresholdHB", {0.1, 0.2, 0.3, 0.3}); // FIXME defaults for tests
-  desc.add<std::vector<double>>("recHitEThresholdHE", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
-  desc.add<std::vector<double>>("recHitEThresholdHF", {0.5, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85});
-  desc.add<int>("maxHcalRecHitSeverity", 9);
+  desc.add<bool>("checkHcalStatus", true);
+  desc.add<edm::InputTag>("hbheRecHits", edm::InputTag("hbhereco"));
+  desc.add<std::vector<double>>("recHitEThresholdHB", {0., 0., 0., 0.});
+  desc.add<std::vector<double>>("recHitEThresholdHE", {0., 0., 0., 0., 0., 0., 0.});
+  desc.add<int>("maxHcalRecHitSeverity", 999999);
 
   // Isolation algos configuration
   desc.add("trkIsol03Cfg", EleTkIsolFromCands::pSetDescript());
@@ -300,7 +298,6 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
 
   inputCfg_.gsfElectronCores = consumes(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
   inputCfg_.hbheRecHitsTag = consumes(cfg.getParameter<edm::InputTag>("hbheRecHits"));
-  inputCfg_.hfRecHitsTag = consumes(cfg.getParameter<edm::InputTag>("hfRecHits"));
   inputCfg_.barrelRecHitCollection = consumes(cfg.getParameter<edm::InputTag>("barrelRecHitCollectionTag"));
   inputCfg_.endcapRecHitCollection = consumes(cfg.getParameter<edm::InputTag>("endcapRecHitCollectionTag"));
   inputCfg_.ctfTracks = consumes(cfg.getParameter<edm::InputTag>("ctfTracksTag"));
@@ -338,30 +335,26 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
     hcalCfg_.onlyBehindCluster = false;
     hcalCfg_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus");
 
+    //hcalCfg_.hbheRecHits = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hbheRecHits"));
     hcalCfg_.hbheRecHits = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hbheRecHits"));
-    hcalCfg_.hfRecHits = consumes<HFRecHitCollection>(cfg.getParameter<edm::InputTag>("hfRecHits"));
 
     hcalCfg_.eThresHB = cfg.getParameter<std::array<double, 4>>("recHitEThresholdHB");
     hcalCfg_.maxSeverityHB = cfg.getParameter<int>("maxHcalRecHitSeverity");
     hcalCfg_.eThresHE = cfg.getParameter<std::array<double, 7>>("recHitEThresholdHE");
     hcalCfg_.maxSeverityHE = hcalCfg_.maxSeverityHB;
-    hcalCfg_.eThresHF = cfg.getParameter<std::array<double, 7>>("recHitEThresholdHF");
-    hcalCfg_.maxSeverityHF = hcalCfg_.maxSeverityHB;
   }
 
   hcalCfgBc_.hOverEConeSize = 0.;
   hcalCfgBc_.onlyBehindCluster = true;
   hcalCfgBc_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus");
 
+  //hcalCfgBc_.hbheRecHits = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hbheRecHits"));
   hcalCfgBc_.hbheRecHits = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("hbheRecHits"));
-  hcalCfgBc_.hfRecHits = consumes<HFRecHitCollection>(cfg.getParameter<edm::InputTag>("hfRecHits"));
 
   hcalCfgBc_.eThresHB = cfg.getParameter<std::array<double, 4>>("recHitEThresholdHB");
   hcalCfgBc_.maxSeverityHB = cfg.getParameter<int>("maxHcalRecHitSeverity");
   hcalCfgBc_.eThresHE = cfg.getParameter<std::array<double, 7>>("recHitEThresholdHE");
   hcalCfgBc_.maxSeverityHE = hcalCfgBc_.maxSeverityHB;
-  hcalCfgBc_.eThresHF = cfg.getParameter<std::array<double, 7>>("recHitEThresholdHF");
-  hcalCfgBc_.maxSeverityHF = hcalCfgBc_.maxSeverityHB;
 
   // Ecal rec hits configuration
   GsfElectronAlgo::EcalRecHitsConfiguration recHitsCfg;
