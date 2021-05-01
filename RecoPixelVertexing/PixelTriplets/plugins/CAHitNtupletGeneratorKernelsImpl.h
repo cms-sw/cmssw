@@ -213,10 +213,10 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
           printf(" a mess\n");
         auto opj = tracks->stateAtBS.state(jt)(2);
         auto ctj = tracks->stateAtBS.state(jt)(3);
-        auto dct = 5.f * std::sqrt(tracks->stateAtBS.covariance(jt)(12)+tracks->stateAtBS.covariance(it)(12));
+        auto dct = 5.f * std::sqrt(tracks->stateAtBS.covariance(jt)(12) + tracks->stateAtBS.covariance(it)(12));
         if (std::abs(cti - ctj) > dct)
           continue;
-        auto dop = 5.f * std::sqrt(tracks->stateAtBS.covariance(jt)(9)+tracks->stateAtBS.covariance(it)(9));
+        auto dop = 5.f * std::sqrt(tracks->stateAtBS.covariance(jt)(9) + tracks->stateAtBS.covariance(it)(9));
         if (std::abs(opi - opj) > dop)
           continue;
         if ((qj < qi) || (qj == qi && score(it) < score(jt)))
@@ -656,9 +656,9 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
       if (qi <= reject)
         continue;
       auto opi = tracks.stateAtBS.state(it)(2);
-//      auto dop = 5.f * std::sqrt(tracks.stateAtBS.covariance(it)(9));
+      //      auto dop = 5.f * std::sqrt(tracks.stateAtBS.covariance(it)(9));
       auto cti = tracks.stateAtBS.state(it)(3);
-//      auto dct = 5.f * std::sqrt(tracks.stateAtBS.covariance(it)(12));
+      //      auto dct = 5.f * std::sqrt(tracks.stateAtBS.covariance(it)(12));
       auto nhi = foundNtuplets.size(it);
       for (auto jp = ip + 1; jp != hitToTuple.end(idx); ++jp) {
         auto const jt = *jp;
@@ -667,10 +667,10 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
           continue;
         auto opj = tracks.stateAtBS.state(jt)(2);
         auto ctj = tracks.stateAtBS.state(jt)(3);
-        auto dct = 5.f * std::sqrt(tracks.stateAtBS.covariance(jt)(12)+tracks.stateAtBS.covariance(it)(12));
+        auto dct = 5.f * std::sqrt(tracks.stateAtBS.covariance(jt)(12) + tracks.stateAtBS.covariance(it)(12));
         if (std::abs(cti - ctj) > dct)
           continue;
-        auto dop = 5.f * std::sqrt(tracks.stateAtBS.covariance(jt)(9)+tracks.stateAtBS.covariance(it)(9));
+        auto dop = 5.f * std::sqrt(tracks.stateAtBS.covariance(jt)(9) + tracks.stateAtBS.covariance(it)(9));
         if (std::abs(opi - opj) > dop)
           continue;
         auto nhj = foundNtuplets.size(jt);
