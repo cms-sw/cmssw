@@ -26,10 +26,7 @@ nanogenSequence = cms.Sequence(
     genJetAK8Table+
     genJetAK8FlavourAssociation+
     genJetAK8FlavourTable+
-    tauGenJets+
-    tauGenJetsSelectorAllHadrons+
-    genVisTaus+
-    genVisTauTable+
+    genTauSequence+
     genTable+
     genParticleTables+
     genVertexTables+
@@ -80,7 +77,7 @@ def customizeNanoGENFromMini(process):
 
     process.genJetTable.src = "slimmedGenJets"
     process.genJetAK8Table.src = "slimmedGenJetsAK8"
-    process.tauGenJets.GenParticles = "prunedGenParticles"
+    process.tauGenJetsForNano.GenParticles = "prunedGenParticles"
     process.genVisTaus.srcGenParticles = "prunedGenParticles"
 
     nanoGenCommonCustomize(process)
@@ -98,7 +95,7 @@ def customizeNanoGEN(process):
 
     process.genJetTable.src = "ak4GenJets"
     process.genJetAK8Table.src = "ak8GenJets"
-    process.tauGenJets.GenParticles = "genParticles"
+    process.tauGenJetsForNano.GenParticles = "genParticles"
     process.genVisTaus.srcGenParticles = "genParticles"
 
     # In case customizeNanoGENFromMini has already been called
