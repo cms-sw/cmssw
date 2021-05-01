@@ -103,7 +103,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
   // remove duplicates (tracks that share a doublet)
   numberOfBlocks = nDoubletBlocks(blockSize);
   kernel_earlyDuplicateRemover<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      device_theCells_.get(), device_nCells_, tuples_d, quality_d);
+      device_theCells_.get(), device_nCells_, tuples_d, quality_d, params_.dupPassThrough_);
   cudaCheck(cudaGetLastError());
 
   blockSize = 128;
@@ -244,10 +244,10 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     cudaCheck(cudaGetLastError());
   }
 
-  // remove duplicates (tracks that share a doublet)
+  // mark duplicates (tracks that share a doublet)
   numberOfBlocks = nDoubletBlocks(blockSize);
   kernel_fastDuplicateRemover<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-      device_theCells_.get(), device_nCells_, tuples_d, tracks_d);
+      device_theCells_.get(), device_nCells_, tuples_d, tracks_d, params_.dupPassThrough_);
   cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
   cudaCheck(cudaDeviceSynchronize());
@@ -272,11 +272,30 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   }
 
   if (params_.doSharedHitCut_) {
-    // remove duplicates (tracks that share a hit)
+    // mark duplicates (tracks that share a hit)
     numberOfBlocks = (hitToTupleView_.offSize + blockSize - 1) / blockSize;
-    kernel_sharedHitCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
-        hh.view(), tuples_d, tracks_d, quality_d, params_.minHitsForSharingCut_, device_hitToTuple_.get());
+
+    // once understood merge with above and below....
+    auto nShared = cms::cuda::make_device_unique<int32_t[]>(caConstants::maxNumberOfQuadruplets, cudaStream);
+    cudaCheck(cudaMemsetAsync(nShared.get(), 0, caConstants::maxNumberOfQuadruplets * sizeof(int32_t), cudaStream));
+    kernel_countSharedHit<<<numberOfBlocks, blockSize, 0, cudaStream>>>(
+        nShared.get(), tuples_d, quality_d, device_hitToTuple_.get());
+    /* makes only damange
+      kernel_markSharedHit<<<nQuadrupletBlocks(blockSize), blockSize, 0, cudaStream>>>(nShared.get(), tuples_d, quality_d, params_.dupPassThrough_);
+    */
+
+    kernel_sharedHitCleaner<<<numberOfBlocks, blockSize, 0, cudaStream>>>(nShared.get(),
+                                                                          hh.view(),
+                                                                          tuples_d,
+                                                                          tracks_d,
+                                                                          quality_d,
+                                                                          params_.minHitsForSharingCut_,
+                                                                          params_.dupPassThrough_,
+                                                                          device_hitToTuple_.get());
     cudaCheck(cudaGetLastError());
+#ifdef GPU_DEBUG
+    cudaCheck(cudaDeviceSynchronize());
+#endif
   }
 
   if (params_.doStats_) {
