@@ -69,8 +69,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 
   static constexpr double tol = 0.00001 * dd4hep::mm;
   static const double sqrt3 = std::sqrt(3.0);
-//double rM = 0.5 * (waferSize + waferSepar);
-//double RM = 2.0 * rM / sqrt3;
+  //double rM = 0.5 * (waferSize + waferSepar);
+  //double RM = 2.0 * rM / sqrt3;
   double r = 0.5 * waferSize;
   double R = 2.0 * r / sqrt3;
 
@@ -80,7 +80,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     std::string mother = parentName + tags[k];
     std::vector<std::pair<double, double>> wxy =
         HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, r, R, 0.0, 0.0);
-//      HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, rM, RM, 0.0, 0.0);
+    //      HGCalWaferMask::waferXY(partialTypes[k], orientations[k], 1, rM, RM, 0.0, 0.0);
     std::vector<double> xM, yM;
     for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
       xM.emplace_back(wxy[i].first);
