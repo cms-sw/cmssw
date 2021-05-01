@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+import copy
 
 from RecoTauTag.RecoTau.pfRecoTauDiscriminationAgainstMuonSimple_cfi import pfRecoTauDiscriminationAgainstMuonSimple
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMuonRejection3
 
 IDWPdefinitionsSimple = cms.VPSet()
 for wp in hpsPFTauDiscriminationByMuonRejection3.IDWPdefinitions:
-    aWP = wp.copy()
+    aWP = copy.deepcopy(wp)
     aWP.IDname = wp.IDname.value().replace('MuonRejection3','MuonRejectionSimple')
     del aWP.discriminatorOption
     aWP.maxNumberOfRPCMuons = cms.int32(-1)
