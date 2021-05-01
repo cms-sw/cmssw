@@ -137,8 +137,8 @@ volumeHandle::volumeHandle(const cms::DDFilteredView &fv, bool expand2Pi, bool d
           << "ctor: Unexpected shape # " << static_cast<int>(theShape) << " for vol " << name;
   }
 
-  // Get material for this volume
-  if (fv.materialName() == "Iron")
+  // The only materials used in the geometry are: materials:Air, d=0.001214; materials:Iron, d=7.87
+  if (fv.volume().material().density() > 3.)
     isIronFlag = true;
 
   if (debug) {

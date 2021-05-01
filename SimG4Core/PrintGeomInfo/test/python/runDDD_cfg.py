@@ -11,7 +11,8 @@ process.load('Configuration.Geometry.GeometryExtended2021_cff')
 
 #from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 #process = cms.Process('G4PrintGeometry',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
