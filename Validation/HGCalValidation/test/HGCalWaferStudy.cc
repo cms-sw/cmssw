@@ -13,7 +13,6 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,13 +26,10 @@
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
