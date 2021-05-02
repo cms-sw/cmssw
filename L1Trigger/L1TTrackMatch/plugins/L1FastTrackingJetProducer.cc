@@ -1,8 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-// Producer of TkJet,                                                    //
-// Cluster L1 tracks using fastjet                                       //
-//                                                                       //
+//               
+// Producer of Tracking Jets
+// Tracking Jets: Uses L1 tracks that are matched to Gen Particles to form jets. Jets are clustered with FastJet Algorithm
+// Author: G. Karathanasis, Univ. of Colorado, Boulder
+//                                                    
 ///////////////////////////////////////////////////////////////////////////
 
 // system include files
