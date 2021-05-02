@@ -306,17 +306,17 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       const CLHEP::HepRotationZ cutm(ffived);
 
       DDRotationMatrix cutRot(5 != iSCType ? DDRotationMatrix()
-                                     : myrot(ns,
-                                             "EECry5Rot",
-                                             DDRotationMatrix(cutm.xx(),
-                                                        cutm.xy(),
-                                                        cutm.xz(),
-                                                        cutm.yx(),
-                                                        cutm.yy(),
-                                                        cutm.yz(),
-                                                        cutm.zx(),
-                                                        cutm.zy(),
-                                                        cutm.zz())));
+                                           : myrot(ns,
+                                                   "EECry5Rot",
+                                                   DDRotationMatrix(cutm.xx(),
+                                                                    cutm.xy(),
+                                                                    cutm.xz(),
+                                                                    cutm.yx(),
+                                                                    cutm.yy(),
+                                                                    cutm.yz(),
+                                                                    cutm.zx(),
+                                                                    cutm.zy(),
+                                                                    cutm.zz())));
 
       dd4hep::Solid eeCutEnv = dd4hep::SubtractionSolid(ee.envName + std::to_string(iSCType),
                                                         ns.solid(ee.envName + std::to_string(iSCType) + "Tmp"),
