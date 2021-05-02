@@ -1094,7 +1094,7 @@ for key,value in quality.items():
 
     label = "pixelTracks"+str(key)
     print label
-    cutstring = "qualityMask >= " + str(qualityBit)
+    cutstring = "qualityMask <= 7 & qualityMask >= " + str(qualityBit)
     print cutstring
     locals()[label] = trackRefSelector.clone( cut = cutstring )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
@@ -1105,7 +1105,7 @@ for key,value in quality.items():
     locals()[label] = pixelTracksFromPV.clone( quality = qualityName )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
 #-----------    
-    cutstring = "pt > 0.9 & qualityMask >= " + str(qualityBit) 
+    cutstring = "pt > 0.9 & qualityMask <= 7 & qualityMask >= " + str(qualityBit) 
     print cutstring
     label = "pixelTracksPt09"+key
     print label
@@ -1120,7 +1120,7 @@ for key,value in quality.items():
 #-----------         
     label = "pixelTracks4hits"+key
     print label
-    cutstring = "numberOfValidHits == 4 & qualityMask >= " + str(qualityBit)
+    cutstring = "numberOfValidHits == 4 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
     print cutstring
     locals()[label] = trackRefSelector.clone( cut = cutstring )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
@@ -1133,7 +1133,7 @@ for key,value in quality.items():
 #--------    
     label = "pixelTracks3hits"+key
     print label
-    cutstring = "numberOfValidHits == 3 & qualityMask >= " + str(qualityBit)
+    cutstring = "numberOfValidHits == 3 & qualityMask <= 7 & qualityMask >= " + str(qualityBit)
     print cutstring
     locals()[label] = trackRefSelector.clone( cut = cutstring )
     tracksPreValidationPixelTrackingOnly.add(locals()[label])
