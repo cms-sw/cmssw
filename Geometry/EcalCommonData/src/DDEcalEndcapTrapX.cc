@@ -130,7 +130,12 @@ void DDEcalEndcapTrapX::moveto(const DDTranslation& frontCentre, const DDTransla
 
   //  Rotate to correct angle (X then Y)
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << "moveto: frontCentre " << frontCentre << std::endl << "moveto: rearCentre  " << rearCentre << std::endl << "moveto: X rotation: " << targetTheta << " " << currentTheta << " " << targetTheta-currentTheta << std::endl << "moveto: Y rotation: " << targetPhi << " " << currentPhi << " " << " " << targetPhi-currentPhi << std::endl;
+  edm::LogVerbatim("EcalGeom") << "moveto: frontCentre " << frontCentre << std::endl
+                               << "moveto: rearCentre  " << rearCentre << std::endl
+                               << "moveto: X rotation: " << targetTheta << " " << currentTheta << " "
+                               << targetTheta - currentTheta << std::endl
+                               << "moveto: Y rotation: " << targetPhi << " " << currentPhi << " "
+                               << " " << targetPhi - currentPhi << std::endl;
 #endif
   rotateX(targetTheta - currentTheta);
   rotateY(targetPhi - currentPhi);
@@ -138,7 +143,7 @@ void DDEcalEndcapTrapX::moveto(const DDTranslation& frontCentre, const DDTransla
   //  Translate SC to final position
   DDTranslation targetCentre = 0.5 * (frontCentre + rearCentre);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom") << "moveto: translation " << targetCentre-centrePos();
+  edm::LogVerbatim("EcalGeom") << "moveto: translation " << targetCentre - centrePos();
 #endif
   translate(targetCentre - centrePos());
 }
@@ -269,6 +274,6 @@ void DDEcalEndcapTrapX::print() {
     edm::LogVerbatim("EcalGeom") << "Corner " << ic << " " << cc << std::endl;
   }
   edm::LogVerbatim("EcalGeom") << "    Centre " << centrePos() << std::endl
-			       << "   fCentre " << fcentrePos() << std::endl
-			       << "   rCentre " << rcentrePos();
+                               << "   fCentre " << fcentrePos() << std::endl
+                               << "   rCentre " << rcentrePos();
 }
