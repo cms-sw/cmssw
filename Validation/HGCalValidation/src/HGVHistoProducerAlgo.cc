@@ -1556,7 +1556,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
 
     for (unsigned int hitId = 0; hitId < numberOfHitsInLC; hitId++) {
       DetId rh_detid = hits_and_fractions[hitId].first;
-      auto rhFraction = hits_and_fractions[hitId].second;
+      const auto rhFraction = hits_and_fractions[hitId].second;
 
       std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(rh_detid);
       const HGCRecHit* hit = itcheck->second;
@@ -2367,13 +2367,15 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
     }    // end of loop through SimClusters
   }      // end of loop through CaloParticles
 
-  auto apply_LCMultiplicity = [](const ticl::Trackster& trackster,
-                                 const std::vector<std::pair<DetId, float>>& hitsAndFractions) {
-    auto hits_and_fractions_norm = hitsAndFractions;
-    int iLC = 0;
-    for (auto& haf : hits_and_fractions_norm) {
-      haf.second /= trackster.vertex_multiplicity(iLC++);
-    }
+  auto apply_LCMultiplicity = [](const ticl::Trackster& trackster, const reco::CaloClusterCollection& layerClusters) {
+    std::vector<std::pair<DetId, float>> hits_and_fractions_norm;
+    int lcInTst = 0;
+    std::for_each(std::begin(trackster.vertices()), std::end(trackster.vertices()), [&](unsigned int idx) {
+      const auto fraction = 1.f / trackster.vertex_multiplicity(lcInTst++);
+      for (const auto& cell : layerClusters[idx].hitsAndFractions()) {
+        hits_and_fractions_norm.emplace_back(cell.first, cell.second * fraction);
+      }
+    });
     return hits_and_fractions_norm;
   };
 
@@ -2398,175 +2400,166 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
     std::unordered_map<unsigned, unsigned> occurrencesCPinTST;
     unsigned int numberOfNoiseHitsInTST = 0;
     unsigned int numberOfHaloHitsInTST = 0;
-    unsigned int numberOfHitsInTST = 0;
 
-    for (const auto lcId : tracksters[tstId].vertices()) {
-      const auto hits_and_fractions_norm =
-          apply_LCMultiplicity(tracksters[tstId], layerClusters[lcId].hitsAndFractions());
-      //number of hits related to that cluster.
-      unsigned int numberOfHitsInLC = hits_and_fractions_norm.size();
-      numberOfHitsInTST += numberOfHitsInLC;
-      std::unordered_map<unsigned, float> CPEnergyInLC;
+    const auto tst_hitsAndFractions = apply_LCMultiplicity(tracksters[tstId], layerClusters);
+    const auto numberOfHitsInTST = tst_hitsAndFractions.size();
 
-      //hitsToCaloParticleId is a vector of ints, one for each rechit of the
-      //layer cluster under study. If negative, there is no simhit from any CaloParticle related.
-      //If positive, at least one CaloParticle has been found with matched simhit.
-      //In more detail:
-      // 1. hitsToCaloParticleId[hitId] = -3
-      //    TN:  These represent Halo Cells(N) that have not been
-      //    assigned to any CaloParticle (hence the T).
-      // 2. hitsToCaloParticleId[hitId] = -2
-      //    FN: There represent Halo Cells(N) that have been assigned
-      //    to a CaloParticle (hence the F, since those should have not been marked as halo)
-      // 3. hitsToCaloParticleId[hitId] = -1
-      //    FP: These represent Real Cells(P) that have not been
-      //    assigned to any CaloParticle (hence the F, since these are fakes)
-      // 4. hitsToCaloParticleId[hitId] >= 0
-      //    TP There represent Real Cells(P) that have been assigned
-      //    to a CaloParticle (hence the T)
+    //hitsToCaloParticleId is a vector of ints, one for each rechit of the
+    //layer cluster under study. If negative, there is no simhit from any CaloParticle related.
+    //If positive, at least one CaloParticle has been found with matched simhit.
+    //In more detail:
+    // 1. hitsToCaloParticleId[hitId] = -3
+    //    TN:  These represent Halo Cells(N) that have not been
+    //    assigned to any CaloParticle (hence the T).
+    // 2. hitsToCaloParticleId[hitId] = -2
+    //    FN: There represent Halo Cells(N) that have been assigned
+    //    to a CaloParticle (hence the F, since those should have not been marked as halo)
+    // 3. hitsToCaloParticleId[hitId] = -1
+    //    FP: These represent Real Cells(P) that have not been
+    //    assigned to any CaloParticle (hence the F, since these are fakes)
+    // 4. hitsToCaloParticleId[hitId] >= 0
+    //    TP There represent Real Cells(P) that have been assigned
+    //    to a CaloParticle (hence the T)
 
-      std::vector<int> hitsToCaloParticleId(numberOfHitsInLC);
-      //det id of the first hit just to make the lcLayerId variable
-      //which maps the layers in -z: 0->51 and in +z: 52->103
-      const auto firstHitDetId = hits_and_fractions_norm[0].first;
-      int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId) +
-                      layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
+    std::vector<int> hitsToCaloParticleId(numberOfHitsInTST);
+    //Det id of the first hit just to make the lcLayerId variable
+    //which maps the layers in -z: 0->51 and in +z: 52->103
+    const auto firstHitDetId = tst_hitsAndFractions[0].first;
+    int lcLayerId =
+        recHitTools_->getLayerWithOffset(firstHitDetId) + layers * ((recHitTools_->zside(firstHitDetId) + 1) >> 1) - 1;
 
-      //Loop though the hits of the layer cluster under study
-      for (unsigned int hitId = 0; hitId < numberOfHitsInLC; hitId++) {
-        DetId rh_detid = hits_and_fractions_norm[hitId].first;
-        auto rhFraction = hits_and_fractions_norm[hitId].second;
+    //Loop through the hits of the trackster under study
+    for (unsigned int hitId = 0; hitId < numberOfHitsInTST; hitId++) {
+      const auto rh_detid = tst_hitsAndFractions[hitId].first;
+      const auto rhFraction = tst_hitsAndFractions[hitId].second;
 
-        //Since the hit is belonging to the layer cluster, it must also be in the rechits map.
-        std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(rh_detid);
-        const HGCRecHit* hit = itcheck->second;
+      //Since the hit is belonging to the layer cluster, it must also be in the rechits map.
+      std::unordered_map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap.find(rh_detid);
+      const HGCRecHit* hit = itcheck->second;
 
-        //Make a map that will connect a detid (that belongs to a rechit of the layer cluster under study,
-        //no need to save others) with:
-        //1. the layer clusters that have rechits in that detid
-        //2. the fraction of the rechit of each layer cluster that contributes to that detid.
-        //So, something like:
-        //detid: (layer cluster 1, hit fraction) , (layer cluster 2, hit fraction), (layer cluster 3, hit fraction) ...
-        //here comparing with the calo particle map above the
-        auto hit_find_in_LC = detIdToTracksterId_Map.find(rh_detid);
-        if (hit_find_in_LC == detIdToTracksterId_Map.end()) {
-          detIdToTracksterId_Map[rh_detid] = std::vector<HGVHistoProducerAlgo::detIdInfoInTrackster>();
-        }
-        detIdToTracksterId_Map[rh_detid].emplace_back(
-            HGVHistoProducerAlgo::detIdInfoInTrackster{tstId, tstId, rhFraction});
+      //Make a map that will connect a detid (that belongs to a rechit of the layer cluster under study,
+      //no need to save others) with:
+      //1. the layer clusters that have rechits in that detid
+      //2. the fraction of the rechit of each layer cluster that contributes to that detid.
+      //So, something like:
+      //detid: (layer cluster 1, hit fraction) , (layer cluster 2, hit fraction), (layer cluster 3, hit fraction) ...
+      //here comparing with the calo particle map above the
+      auto hit_find_in_LC = detIdToTracksterId_Map.find(rh_detid);
+      if (hit_find_in_LC == detIdToTracksterId_Map.end()) {
+        detIdToTracksterId_Map[rh_detid] = std::vector<HGVHistoProducerAlgo::detIdInfoInTrackster>();
+      }
+      detIdToTracksterId_Map[rh_detid].emplace_back(
+          HGVHistoProducerAlgo::detIdInfoInTrackster{tstId, tstId, rhFraction});
 
-        //Check whether the rechit of the layer cluster under study has a sim hit in the same cell.
-        auto hit_find_in_CP = detIdToCaloParticleId_Map.find(rh_detid);
+      //Check whether the rechit of the layer cluster under study has a sim hit in the same cell.
+      auto hit_find_in_CP = detIdToCaloParticleId_Map.find(rh_detid);
 
-        // if the fraction is zero or the hit does not belong to any calo
-        // particle, set the caloparticleId for the hit to -1 this will
-        // contribute to the number of noise hits
+      // if the fraction is zero or the hit does not belong to any calo
+      // particle, set the caloparticleId for the hit to -1 this will
+      // contribute to the number of noise hits
 
-        // MR Remove the case in which the fraction is 0, since this could be a
-        // real hit that has been marked as halo.
-        if (rhFraction == 0.) {
-          hitsToCaloParticleId[hitId] = -2;
-          numberOfHaloHitsInTST++;
-        }
-        if (hit_find_in_CP == detIdToCaloParticleId_Map.end()) {
-          hitsToCaloParticleId[hitId] -= 1;
-        } else {
-          auto maxCPEnergyInLC = 0.f;
-          auto maxCPId = -1;
-          for (auto& h : hit_find_in_CP->second) {
-            auto shared_fraction = std::min(rhFraction, h.fraction);
-            //We are in the case where there are calo particles with simhits connected via detid with the rechit under study
-            //So, from all layers clusters, find the rechits that are connected with a calo particle and save/calculate the
-            //energy of that calo particle as the sum over all rechits of the rechits energy weighted
-            //by the caloparticle's fraction related to that rechit.
-            CPEnergyInTST[h.clusterId] += shared_fraction * hit->energy();
-            //Same but for layer clusters for the cell association per layer
-            CPEnergyInLC[h.clusterId] += shared_fraction * hit->energy();
-            //Here cPOnLayer[caloparticle][layer] describe above is set.
-            //Here for Tracksters with matched rechit the CP fraction times hit energy is added and saved .
-            cPOnLayer[h.clusterId][lcLayerId].layerClusterIdToEnergyAndScore[tstId].first +=
-                shared_fraction * hit->energy();
-            cPOnLayer[h.clusterId][lcLayerId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
-            //cpsInTrackster[trackster][CPids]
-            //Connects a Trackster with all related CaloParticles.
-            cpsInTrackster[tstId].emplace_back(h.clusterId, FLT_MAX);
-            //From all CaloParticles related to a layer cluster, he saves id and energy of the calo particle
-            //that after simhit-rechit matching in layer has the maximum energy.
-            if (shared_fraction > maxCPEnergyInLC) {
-              //energy is used only here. cpid is saved for Tracksters
-              maxCPEnergyInLC = CPEnergyInLC[h.clusterId];
-              maxCPId = h.clusterId;
-            }
+      // MR Remove the case in which the fraction is 0, since this could be a
+      // real hit that has been marked as halo.
+      if (rhFraction == 0.) {
+        hitsToCaloParticleId[hitId] = -2;
+        numberOfHaloHitsInTST++;
+      }
+      if (hit_find_in_CP == detIdToCaloParticleId_Map.end()) {
+        hitsToCaloParticleId[hitId] -= 1;
+      } else {
+        auto maxCPEnergyInTST = 0.f;
+        auto maxCPId = -1;
+        for (const auto& h : hit_find_in_CP->second) {
+          auto shared_fraction = std::min(rhFraction, h.fraction);
+          //We are in the case where there are calo particles with simhits connected via detid with the rechit under study
+          //So, from all layers clusters, find the rechits that are connected with a calo particle and save/calculate the
+          //energy of that calo particle as the sum over all rechits of the rechits energy weighted
+          //by the caloparticle's fraction related to that rechit.
+          CPEnergyInTST[h.clusterId] += shared_fraction * hit->energy();
+          //Here cPOnLayer[caloparticle][layer] describe above is set.
+          //Here for Tracksters with matched rechit the CP fraction times hit energy is added and saved .
+          cPOnLayer[h.clusterId][lcLayerId].layerClusterIdToEnergyAndScore[tstId].first +=
+              shared_fraction * hit->energy();
+          cPOnLayer[h.clusterId][lcLayerId].layerClusterIdToEnergyAndScore[tstId].second = FLT_MAX;
+          //cpsInTrackster[trackster][CPids]
+          //Connects a Trackster with all related CaloParticles.
+          cpsInTrackster[tstId].emplace_back(h.clusterId, FLT_MAX);
+          //From all CaloParticles related to a layer cluster, he saves id and energy of the calo particle
+          //that after simhit-rechit matching in layer has the maximum energy.
+          if (shared_fraction > maxCPEnergyInTST) {
+            //energy is used only here. cpid is saved for Tracksters
+            maxCPEnergyInTST = CPEnergyInTST[h.clusterId];
+            maxCPId = h.clusterId;
           }
-          //Keep in mind here maxCPId could be zero. So, below ask for negative not including zero to count noise.
-          hitsToCaloParticleId[hitId] = maxCPId;
         }
-
-      }  //end of loop through rechits of the layer cluster.
-
-      //Loop through all rechits to count how many of them are noise and how many are matched.
-      //In case of matched rechit-simhit, he counts and saves the number of rechits related to the maximum energy CaloParticle.
-      for (auto c : hitsToCaloParticleId) {
-        if (c < 0) {
-          numberOfNoiseHitsInTST++;
-        } else {
-          occurrencesCPinTST[c]++;
-        }
+        //Keep in mind here maxCPId could be zero. So, below ask for negative not including zero to count noise.
+        hitsToCaloParticleId[hitId] = maxCPId;
       }
 
-      //Below from all maximum energy CaloParticles, he saves the one with the largest amount
-      //of related rechits.
-      for (auto& c : occurrencesCPinTST) {
-        if (c.second > maxCPNumberOfHitsInTST) {
-          maxCPId_byNumberOfHits = c.first;
-          maxCPNumberOfHitsInTST = c.second;
-        }
-      }
+    }  //end of loop through rechits of the layer cluster.
 
-      //Find the CaloParticle that has the maximum energy shared with the Trackster under study.
-      for (auto& c : CPEnergyInTST) {
-        if (c.second > maxEnergySharedTSTandCP) {
-          maxCPId_byEnergy = c.first;
-          maxEnergySharedTSTandCP = c.second;
-        }
+    //Loop through all rechits to count how many of them are noise and how many are matched.
+    //In case of matched rechit-simhit, he counts and saves the number of rechits related to the maximum energy CaloParticle.
+    for (auto c : hitsToCaloParticleId) {
+      if (c < 0) {
+        numberOfNoiseHitsInTST++;
+      } else {
+        occurrencesCPinTST[c]++;
       }
-      //The energy of the CaloParticle that found to have the maximum energy shared with the Trackster under study.
-      float totalCPEnergyFromLayerCP = 0.f;
-      if (maxCPId_byEnergy >= 0) {
-        //Loop through all layers
-        for (unsigned int j = 0; j < layers * 2; ++j) {
-          totalCPEnergyFromLayerCP = totalCPEnergyFromLayerCP + cPOnLayer[maxCPId_byEnergy][j].energy;
-        }
-        energyFractionOfCPinTST = maxEnergySharedTSTandCP / totalCPEnergyFromLayerCP;
-        if (tracksters[tstId].raw_energy() > 0.f) {
-          energyFractionOfTSTinCP = maxEnergySharedTSTandCP / tracksters[tstId].raw_energy();
-        }
+    }
+
+    //Below from all maximum energy CaloParticles, he saves the one with the largest amount
+    //of related rechits.
+    for (auto& c : occurrencesCPinTST) {
+      if (c.second > maxCPNumberOfHitsInTST) {
+        maxCPId_byNumberOfHits = c.first;
+        maxCPNumberOfHitsInTST = c.second;
       }
+    }
 
-      LogDebug("HGCalValidator") << std::setw(12) << "Trackster"
-                                 << "\t"  //LogDebug("HGCalValidator")
-                                 << std::setw(10) << "mulcl energy"
-                                 << "\t" << std::setw(5) << "nhits"
-                                 << "\t" << std::setw(12) << "noise hits"
-                                 << "\t" << std::setw(22) << "maxCPId_byNumberOfHits"
-                                 << "\t" << std::setw(8) << "nhitsCP"
-                                 << "\t" << std::setw(16) << "maxCPId_byEnergy"
-                                 << "\t" << std::setw(23) << "maxEnergySharedTSTandCP"
-                                 << "\t" << std::setw(22) << "totalCPEnergyFromAllLayerCP"
-                                 << "\t" << std::setw(22) << "energyFractionOfTSTinCP"
-                                 << "\t" << std::setw(25) << "energyFractionOfCPinTST"
-                                 << "\t" << std::endl;
-      LogDebug("HGCalValidator") << std::setw(12) << tstId << "\t"  //LogDebug("HGCalValidator")
-                                 << std::setw(10) << tracksters[tstId].raw_energy() << "\t" << std::setw(5)
-                                 << numberOfHitsInTST << "\t" << std::setw(12) << numberOfNoiseHitsInTST << "\t"
-                                 << std::setw(22) << maxCPId_byNumberOfHits << "\t" << std::setw(8)
-                                 << maxCPNumberOfHitsInTST << "\t" << std::setw(16) << maxCPId_byEnergy << "\t"
-                                 << std::setw(23) << maxEnergySharedTSTandCP << "\t" << std::setw(22)
-                                 << totalCPEnergyFromLayerCP << "\t" << std::setw(22) << energyFractionOfTSTinCP << "\t"
-                                 << std::setw(25) << energyFractionOfCPinTST << std::endl;
+    //Find the CaloParticle that has the maximum energy shared with the Trackster under study.
+    for (auto& c : CPEnergyInTST) {
+      if (c.second > maxEnergySharedTSTandCP) {
+        maxCPId_byEnergy = c.first;
+        maxEnergySharedTSTandCP = c.second;
+      }
+    }
+    //The energy of the CaloParticle that found to have the maximum energy shared with the Trackster under study.
+    float totalCPEnergyFromLayerCP = 0.f;
+    if (maxCPId_byEnergy >= 0) {
+      //Loop through all layers
+      for (unsigned int j = 0; j < layers * 2; ++j) {
+        totalCPEnergyFromLayerCP = totalCPEnergyFromLayerCP + cPOnLayer[maxCPId_byEnergy][j].energy;
+      }
+      energyFractionOfCPinTST = maxEnergySharedTSTandCP / totalCPEnergyFromLayerCP;
+      if (tracksters[tstId].raw_energy() > 0.f) {
+        energyFractionOfTSTinCP = maxEnergySharedTSTandCP / tracksters[tstId].raw_energy();
+      }
+    }
 
-    }  //end of loop through Trackster's layerClusters
-  }    //end of loop through Tracksters
+    LogDebug("HGCalValidator") << std::setw(12) << "Trackster"
+                               << "\t"  //LogDebug("HGCalValidator")
+                               << std::setw(10) << "mulcl energy"
+                               << "\t" << std::setw(5) << "nhits"
+                               << "\t" << std::setw(12) << "noise hits"
+                               << "\t" << std::setw(22) << "maxCPId_byNumberOfHits"
+                               << "\t" << std::setw(8) << "nhitsCP"
+                               << "\t" << std::setw(16) << "maxCPId_byEnergy"
+                               << "\t" << std::setw(23) << "maxEnergySharedTSTandCP"
+                               << "\t" << std::setw(22) << "totalCPEnergyFromAllLayerCP"
+                               << "\t" << std::setw(22) << "energyFractionOfTSTinCP"
+                               << "\t" << std::setw(25) << "energyFractionOfCPinTST"
+                               << "\t" << std::endl;
+    LogDebug("HGCalValidator") << std::setw(12) << tstId << "\t"  //LogDebug("HGCalValidator")
+                               << std::setw(10) << tracksters[tstId].raw_energy() << "\t" << std::setw(5)
+                               << numberOfHitsInTST << "\t" << std::setw(12) << numberOfNoiseHitsInTST << "\t"
+                               << std::setw(22) << maxCPId_byNumberOfHits << "\t" << std::setw(8)
+                               << maxCPNumberOfHitsInTST << "\t" << std::setw(16) << maxCPId_byEnergy << "\t"
+                               << std::setw(23) << maxEnergySharedTSTandCP << "\t" << std::setw(22)
+                               << totalCPEnergyFromLayerCP << "\t" << std::setw(22) << energyFractionOfTSTinCP << "\t"
+                               << std::setw(25) << energyFractionOfCPinTST << std::endl;
+
+  }  //end of loop through Tracksters
 
   //Loop through Tracksters
   for (unsigned int tstId = 0; tstId < nTracksters; ++tstId) {
@@ -2591,51 +2584,45 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
       continue;
     }
 
-    std::vector<std::pair<DetId, float>> hits_and_fractions_norm;
+    const auto tst_hitsAndFractions = apply_LCMultiplicity(tracksters[tstId], layerClusters);
+    ;
     // Compute the correct normalization
     float invTracksterEnergyWeight = 0.f;
-    for (const auto lcId : tracksters[tstId].vertices()) {
-      hits_and_fractions_norm = apply_LCMultiplicity(tracksters[tstId], layerClusters[lcId].hitsAndFractions());
-
-      for (auto const& haf : hits_and_fractions_norm) {
-        invTracksterEnergyWeight +=
-            (haf.second * hitMap.at(haf.first)->energy()) * (haf.second * hitMap.at(haf.first)->energy());
-      }
+    for (const auto& haf : tst_hitsAndFractions) {
+      invTracksterEnergyWeight +=
+          (haf.second * hitMap.at(haf.first)->energy()) * (haf.second * hitMap.at(haf.first)->energy());
     }
     invTracksterEnergyWeight = 1.f / invTracksterEnergyWeight;
 
-    for ([[maybe_unused]] const auto lcId : tracksters[tstId].vertices()) {
-      unsigned int numberOfHitsInLC = hits_and_fractions_norm.size();
-      for (unsigned int i = 0; i < numberOfHitsInLC; ++i) {
-        DetId rh_detid = hits_and_fractions_norm[i].first;
-        float rhFraction = hits_and_fractions_norm[i].second;
-        bool hitWithNoCP = false;
+    for (unsigned int i = 0; i < tst_hitsAndFractions.size(); ++i) {
+      const auto rh_detid = tst_hitsAndFractions[i].first;
+      const auto rhFraction = tst_hitsAndFractions[i].second;
+      bool hitWithNoCP = false;
 
-        auto hit_find_in_CP = detIdToCaloParticleId_Map.find(rh_detid);
-        if (hit_find_in_CP == detIdToCaloParticleId_Map.end())
-          hitWithNoCP = true;
-        auto itcheck = hitMap.find(rh_detid);
-        const HGCRecHit* hit = itcheck->second;
-        float hitEnergyWeight = hit->energy() * hit->energy();
+      auto hit_find_in_CP = detIdToCaloParticleId_Map.find(rh_detid);
+      if (hit_find_in_CP == detIdToCaloParticleId_Map.end())
+        hitWithNoCP = true;
+      auto itcheck = hitMap.find(rh_detid);
+      const HGCRecHit* hit = itcheck->second;
+      float hitEnergyWeight = hit->energy() * hit->energy();
 
-        for (auto& cpPair : cpsInTrackster[tstId]) {
-          float cpFraction = 0.f;
-          if (!hitWithNoCP) {
-            auto findHitIt = std::find(detIdToCaloParticleId_Map[rh_detid].begin(),
-                                       detIdToCaloParticleId_Map[rh_detid].end(),
-                                       HGVHistoProducerAlgo::detIdInfoInCluster{cpPair.first, 0.f});
-            if (findHitIt != detIdToCaloParticleId_Map[rh_detid].end()) {
-              cpFraction = findHitIt->fraction;
-            }
+      for (auto& cpPair : cpsInTrackster[tstId]) {
+        float cpFraction = 0.f;
+        if (!hitWithNoCP) {
+          auto findHitIt = std::find(detIdToCaloParticleId_Map[rh_detid].begin(),
+                                     detIdToCaloParticleId_Map[rh_detid].end(),
+                                     HGVHistoProducerAlgo::detIdInfoInCluster{cpPair.first, 0.f});
+          if (findHitIt != detIdToCaloParticleId_Map[rh_detid].end()) {
+            cpFraction = findHitIt->fraction;
           }
-          if (cpPair.second == FLT_MAX) {
-            cpPair.second = 0.f;
-          }
-          cpPair.second +=
-              (rhFraction - cpFraction) * (rhFraction - cpFraction) * hitEnergyWeight * invTracksterEnergyWeight;
         }
-      }  //end of loop through rechits of layer cluster
-    }    //end of loop through Trackster's layerClusters
+        if (cpPair.second == FLT_MAX) {
+          cpPair.second = 0.f;
+        }
+        cpPair.second +=
+            (rhFraction - cpFraction) * (rhFraction - cpFraction) * hitEnergyWeight * invTracksterEnergyWeight;
+      }
+    }  //end of loop through rechits of trackster
 
     //In case of a Trackster with some energy but none related CaloParticles print some info.
     if (cpsInTrackster[tstId].empty())
@@ -2643,27 +2630,20 @@ void HGVHistoProducerAlgo::tracksters_to_CaloParticles(const Histograms& histogr
                                  << "\t score \t-1"
                                  << "\n";
 
-    auto score = std::min_element(std::begin(cpsInTrackster[tstId]),
-                                  std::end(cpsInTrackster[tstId]),
-                                  [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
+    const auto score = std::min_element(std::begin(cpsInTrackster[tstId]),
+                                        std::end(cpsInTrackster[tstId]),
+                                        [](const auto& obj1, const auto& obj2) { return obj1.second < obj2.second; });
     for (auto& cpPair : cpsInTrackster[tstId]) {
-      // LogDebug("HGCalValidator") << "Trackster Id: \t" << tstId
-      // 			   << "\t CP id: \t" << cpPair.first
-      // 			   << "\t score \t" << cpPair.second
-      // 			   << "\n";
       LogDebug("HGCalValidator") << "Trackster Id: \t" << tstId << "\t CP id: \t" << cpPair.first << "\t score \t"
                                  << cpPair.second << std::endl;
-      if (cpPair.first == score->first) {
-        histograms.h_score_trackster2caloparticle[count]->Fill(score->second);
-      }
       float sharedeneCPallLayers = 0.;
-      //Loop through all layers
       for (unsigned int j = 0; j < layers * 2; ++j) {
         auto const& cp_linked = cPOnLayer[cpPair.first][j].layerClusterIdToEnergyAndScore[tstId];
         sharedeneCPallLayers += cp_linked.first;
-      }  //end of loop through layers
+      }
       LogDebug("HGCalValidator") << "sharedeneCPallLayers " << sharedeneCPallLayers << std::endl;
       if (cpPair.first == score->first) {
+        histograms.h_score_trackster2caloparticle[count]->Fill(score->second);
         histograms.h_sharedenergy_trackster2caloparticle[count]->Fill(sharedeneCPallLayers /
                                                                       tracksters[tstId].raw_energy());
         histograms.h_energy_vs_score_trackster2caloparticle[count]->Fill(
