@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.Phase2L1Taus.l1HPSPFTauProducer import l1HPSPFTauProducer as _l1HPSPFTauProducer
-L1HPSPFTauProducerPuppi = _l1HPSPFTauProducer.clone(
+from L1Trigger.Phase2L1Taus.hpspfTauProducer_cfi import hpspfTauProducer as _hpspfTauProducer
+HPSPFTauProducerPuppi = _hpspfTauProducer.clone(
   srcL1PFCands = "l1pfCandidates:Puppi",
   signalQualityCuts = dict(
     chargedHadron = dict(

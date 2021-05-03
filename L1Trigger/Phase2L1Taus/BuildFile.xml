@@ -1,5 +1,5 @@
 <use name="CommonTools/UtilAlgos"/>
-<use name="DataFormats/Phase2L1Taus"/>
+<use name="DataFormats/L1TParticleFlow"/>
 <export>
   <lib name="1"/>
 </export>

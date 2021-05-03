@@ -1,14 +1,14 @@
-#include "L1Trigger/Phase2L1Taus/interface/L1HPSPFTauBuilder.h"
+#include "L1Trigger/Phase2L1Taus/interface/HPSPFTauBuilder.h"
 #include "FWCore/Utilities/interface/Exception.h"  // cms::Exception
 #include "DataFormats/Math/interface/deltaR.h"     // reco::deltaR
-#include <TString.h>                               // TString, Form()
+#include <regex>                                   // sd::regex_replace
 #include <TMath.h>                                 // TMath::Pi()
 #include <string>                                  // std::string
 #include <algorithm>                               // std::max(), std::sort()
 #include <cmath>                                   // std::fabs
 
-L1HPSPFTauBuilder::L1HPSPFTauBuilder(const edm::ParameterSet& cfg)
-  : signalConeSizeFormula_(nullptr),
+HPSPFTauBuilder::HPSPFTauBuilder(const edm::ParameterSet& cfg)
+  : signalConeSizeFormula_(std::regex_replace(cfg.getParameter<std::string>("signalConeSize"), std::regex("pt"), "x")),
       minSignalConeSize_(cfg.getParameter<double>("minSignalConeSize")),
       maxSignalConeSize_(cfg.getParameter<double>("maxSignalConeSize")),
       useStrips_(cfg.getParameter<bool>("useStrips")),
@@ -16,14 +16,7 @@ L1HPSPFTauBuilder::L1HPSPFTauBuilder(const edm::ParameterSet& cfg)
       stripSizePhi_(cfg.getParameter<double>("stripSizePhi")),
       isolationConeSize_(cfg.getParameter<double>("isolationConeSize")),
       debug_(cfg.getUntrackedParameter<bool>("debug", false)) {
-  std::string signalConeSizeFormulaOriginal = cfg.getParameter<std::string>("signalConeSize");
-  TString signalConeSizeFormulaModified = signalConeSizeFormulaOriginal.data();
-  signalConeSizeFormulaModified.ReplaceAll("pt", "x");
-  signalConeSizeFormula_ = std::make_unique<reco::FormulaEvaluator>(signalConeSizeFormulaModified.Data());
-  if (!signalConeSizeFormula_) {
-    throw cms::Exception("L1HPSPFTauBuilder")
-        << "Invalid Configuration parameter 'signalConeSize' = '" << signalConeSizeFormulaOriginal << "' !!\n";
-  }
+
   assert(maxSignalConeSize_ >= minSignalConeSize_);
 
   isolationConeSize2_ = isolationConeSize_ * isolationConeSize_;
@@ -44,9 +37,7 @@ L1HPSPFTauBuilder::L1HPSPFTauBuilder(const edm::ParameterSet& cfg)
   isolationQualityCutsDzCutEnabledPileup_ = readL1PFTauQualityCuts(cfg_isolationQualityCuts, "enabled_pileup", debug_);
 }
 
-L1HPSPFTauBuilder::~L1HPSPFTauBuilder() {}
-
-void L1HPSPFTauBuilder::reset() {
+void HPSPFTauBuilder::reset() {
   signalConeSize_ = 0.;
   signalConeSize2_ = 0.;
 
@@ -60,7 +51,7 @@ void L1HPSPFTauBuilder::reset() {
   l1PFTauSeedZVtx_ = 0.;
   sumAllL1PFCandidatesPt_ = 0.;
   primaryVertex_ = l1t::TkPrimaryVertexRef();
-  l1PFTau_ = l1t::L1HPSPFTau();
+  l1PFTau_ = l1t::HPSPFTau();
 
   stripP4_ = reco::Particle::LorentzVector(0., 0., 0., 0.);
 
@@ -92,16 +83,16 @@ void L1HPSPFTauBuilder::reset() {
   sumChargedIsoPileup_ = 0.;
 }
 
-void L1HPSPFTauBuilder::setL1PFCandProductID(const edm::ProductID& l1PFCandProductID) {
+void HPSPFTauBuilder::setL1PFCandProductID(const edm::ProductID& l1PFCandProductID) {
   l1PFCandProductID_ = l1PFCandProductID;
 }
 
-void L1HPSPFTauBuilder::setVertex(const l1t::TkPrimaryVertexRef& primaryVertex) { primaryVertex_ = primaryVertex; }
+void HPSPFTauBuilder::setVertex(const l1t::TkPrimaryVertexRef& primaryVertex) { primaryVertex_ = primaryVertex; }
 
-void L1HPSPFTauBuilder::setL1PFTauSeed(const l1t::PFCandidateRef& l1PFCandSeed) {
+void HPSPFTauBuilder::setL1PFTauSeed(const l1t::PFCandidateRef& l1PFCandSeed) {
   if (debug_) {
-    std::cout << "<L1HPSPFTauBuilder::setL1PFTauSeed>:" << std::endl;
-    std::cout << "seeding L1HPSPFTau with ChargedPFCand:";
+    std::cout << "<HPSPFTauBuilder::setL1PFTauSeed>:" << std::endl;
+    std::cout << "seeding HPSPFTau with ChargedPFCand:";
     printPFCand(std::cout, *l1PFCandSeed, primaryVertex_);
   }
 
@@ -116,10 +107,10 @@ void L1HPSPFTauBuilder::setL1PFTauSeed(const l1t::PFCandidateRef& l1PFCandSeed) 
 // This is commented as l1JetSeed->numberOfDaughters() = 0
 // Alternative way is used below for the moment
 /* 
-void L1HPSPFTauBuilder::setL1PFTauSeed(const reco::CaloJetRef& l1JetSeed) {
+void HPSPFTauBuilder::setL1PFTauSeed(const reco::CaloJetRef& l1JetSeed) {
   if (debug_) {
-    std::cout << "<L1HPSPFTauBuilder::setL1PFTauSeed>:" << std::endl;
-    std::cout << "seeding L1HPSPFTau with Jet:";
+    std::cout << "<HPSPFTauBuilder::setL1PFTauSeed>:" << std::endl;
+    std::cout << "seeding HPSPFTau with Jet:";
     std::cout << " pT = " << l1JetSeed->pt() << ", eta = " << l1JetSeed->eta() << ", phi = " << l1JetSeed->phi()
               << std::endl;
   }
@@ -133,7 +124,7 @@ void L1HPSPFTauBuilder::setL1PFTauSeed(const reco::CaloJetRef& l1JetSeed) {
   for (size_t idxConstituent = 0; idxConstituent < numConstituents; ++idxConstituent) {
     const l1t::PFCandidate* l1PFCand = dynamic_cast<const l1t::PFCandidate*>(l1JetSeed->daughter(idxConstituent));
     if (!l1PFCand) {
-      throw cms::Exception("L1HPSPFTauBuilder") << "Jet was not built from l1t::PFCandidates !!\n";
+      throw cms::Exception("HPSPFTauBuilder") << "Jet was not built from l1t::PFCandidates !!\n";
     }
     if (l1PFCand->id() == l1t::PFCandidate::ChargedHadron || l1PFCand->id() == l1t::PFCandidate::Electron ||
         l1PFCand->id() == l1t::PFCandidate::Photon || l1PFCand->id() == l1t::PFCandidate::Muon) {
@@ -153,11 +144,11 @@ void L1HPSPFTauBuilder::setL1PFTauSeed(const reco::CaloJetRef& l1JetSeed) {
   }
 }
 */
-void L1HPSPFTauBuilder::setL1PFTauSeed(const reco::CaloJetRef& l1JetSeed,
+void HPSPFTauBuilder::setL1PFTauSeed(const reco::CaloJetRef& l1JetSeed,
                                        const std::vector<l1t::PFCandidateRef>& l1PFCands) {
   if (debug_) {
-    std::cout << "<L1HPSPFTauBuilder::setL1PFTauSeed>:" << std::endl;
-    std::cout << "seeding L1HPSPFTau with Jet:";
+    std::cout << "<HPSPFTauBuilder::setL1PFTauSeed>:" << std::endl;
+    std::cout << "seeding HPSPFTau with Jet:";
     std::cout << " pT = " << l1JetSeed->pt() << ", eta = " << l1JetSeed->eta() << ", phi = " << l1JetSeed->phi()
               << std::endl;
   }
@@ -189,9 +180,9 @@ void L1HPSPFTauBuilder::setL1PFTauSeed(const reco::CaloJetRef& l1JetSeed,
   }
 }
 
-void L1HPSPFTauBuilder::addL1PFCandidates(const std::vector<l1t::PFCandidateRef>& l1PFCands) {
+void HPSPFTauBuilder::addL1PFCandidates(const std::vector<l1t::PFCandidateRef>& l1PFCands) {
   if (debug_) {
-    std::cout << "<L1HPSPFTauBuilder::addL1PFCandidates>:" << std::endl;
+    std::cout << "<HPSPFTauBuilder::addL1PFCandidates>:" << std::endl;
   }
 
   // do not build tau candidates for which no reference z-position exists,
@@ -224,8 +215,7 @@ void L1HPSPFTauBuilder::addL1PFCandidates(const std::vector<l1t::PFCandidateRef>
   std::vector<double> sumAllL1PFCandidatesPt(1);
   sumAllL1PFCandidatesPt[0] = sumAllL1PFCandidatesPt_;
 
-  signalConeSize_ = signalConeSizeFormula_->evaluate(sumAllL1PFCandidatesPt, emptyV);
-
+  signalConeSize_ = signalConeSizeFormula_.evaluate(sumAllL1PFCandidatesPt, emptyV);
 
   if (signalConeSize_ < minSignalConeSize_)
     signalConeSize_ = minSignalConeSize_;
@@ -315,9 +305,9 @@ void L1HPSPFTauBuilder::addL1PFCandidates(const std::vector<l1t::PFCandidateRef>
   }
 }
 
-//void L1HPSPFTauBuilder::setRho(double rho) { rho_ = rho; }
+//void HPSPFTauBuilder::setRho(double rho) { rho_ = rho; }
 
-bool L1HPSPFTauBuilder::isWithinSignalCone(const l1t::PFCandidate& l1PFCand) {
+bool HPSPFTauBuilder::isWithinSignalCone(const l1t::PFCandidate& l1PFCand) {
   if (isPFCandSeeded_ || isJetSeeded_) {
     double deltaEta = l1PFCand.eta() - l1PFTauSeedEta_;
     double deltaPhi = l1PFCand.phi() - l1PFTauSeedPhi_;
@@ -327,7 +317,7 @@ bool L1HPSPFTauBuilder::isWithinSignalCone(const l1t::PFCandidate& l1PFCand) {
   return false;
 }
 
-bool L1HPSPFTauBuilder::isWithinStrip(const l1t::PFCandidate& l1PFCand) {
+bool HPSPFTauBuilder::isWithinStrip(const l1t::PFCandidate& l1PFCand) {
   if (isPFCandSeeded_ || isJetSeeded_) {
     double deltaEta = l1PFCand.eta() - l1PFTauSeedEta_;
     double deltaPhi = l1PFCand.phi() - l1PFTauSeedPhi_;
@@ -337,7 +327,7 @@ bool L1HPSPFTauBuilder::isWithinStrip(const l1t::PFCandidate& l1PFCand) {
   return false;
 }
 
-bool L1HPSPFTauBuilder::isWithinIsolationCone(const l1t::PFCandidate& l1PFCand) {
+bool HPSPFTauBuilder::isWithinIsolationCone(const l1t::PFCandidate& l1PFCand) {
   double deltaEta = l1PFCand.eta() - l1PFTauSeedEta_;
   double deltaPhi = l1PFCand.phi() - l1PFTauSeedPhi_;
   if ((deltaEta * deltaEta + deltaPhi * deltaPhi) < isolationConeSize2_)
@@ -346,7 +336,7 @@ bool L1HPSPFTauBuilder::isWithinIsolationCone(const l1t::PFCandidate& l1PFCand) 
     return false;
 }
 
-void L1HPSPFTauBuilder::buildL1PFTau() {
+void HPSPFTauBuilder::buildL1PFTau() {
   reco::Particle::LorentzVector l1PFTau_p4;
   for (auto l1PFCand : signalAllL1PFCandidates_) {
     if (l1PFCand->id() == l1t::PFCandidate::ChargedHadron || l1PFCand->id() == l1t::PFCandidate::Electron ||
@@ -392,14 +382,14 @@ void L1HPSPFTauBuilder::buildL1PFTau() {
 
   if (l1PFTau_.signalChargedHadrons().size() > 1) {
     if (stripP4_.pt() < 5.)
-      l1PFTau_.setTauType(l1t::L1HPSPFTau::kThreeProng0Pi0);
+      l1PFTau_.setTauType(l1t::HPSPFTau::kThreeProng0Pi0);
     else
-      l1PFTau_.setTauType(l1t::L1HPSPFTau::kThreeProng1Pi0);
+      l1PFTau_.setTauType(l1t::HPSPFTau::kThreeProng1Pi0);
   } else {
     if (stripP4_.pt() < 5.)
-      l1PFTau_.setTauType(l1t::L1HPSPFTau::kOneProng0Pi0);
+      l1PFTau_.setTauType(l1t::HPSPFTau::kOneProng0Pi0);
     else
-      l1PFTau_.setTauType(l1t::L1HPSPFTau::kOneProng1Pi0);
+      l1PFTau_.setTauType(l1t::HPSPFTau::kOneProng1Pi0);
   }
 
   l1PFTau_.setStripP4(stripP4_);
@@ -438,7 +428,7 @@ void L1HPSPFTauBuilder::buildL1PFTau() {
   }
 }
 
-l1t::PFCandidateRefVector L1HPSPFTauBuilder::convertToRefVector(const std::vector<l1t::PFCandidateRef>& l1PFCands) {
+l1t::PFCandidateRefVector HPSPFTauBuilder::convertToRefVector(const std::vector<l1t::PFCandidateRef>& l1PFCands) {
   l1t::PFCandidateRefVector l1PFCandsRefVector(l1PFCandProductID_);
   for (auto l1PFCand : l1PFCands) {
     l1PFCandsRefVector.push_back(l1PFCand);

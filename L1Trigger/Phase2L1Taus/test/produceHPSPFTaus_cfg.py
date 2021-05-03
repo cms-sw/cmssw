@@ -108,11 +108,11 @@ process.productionSequence += process.genTaus
 # produce  L1 HPS PF Tau objects
 ############################################################
 
-from L1Trigger.Phase2L1Taus.L1HPSPFTauProducerPF_cfi import L1HPSPFTauProducerPF
-from L1Trigger.Phase2L1Taus.L1HPSPFTauProducerPuppi_cfi import L1HPSPFTauProducerPuppi
+from L1Trigger.Phase2L1Taus.HPSPFTauProducerPF_cfi import HPSPFTauProducerPF
+from L1Trigger.Phase2L1Taus.HPSPFTauProducerPuppi_cfi import HPSPFTauProducerPuppi
 for useStrips in [ True, False ]:
     for applyPreselection in [ True, False ]:
-        moduleNameBase = "L1HPSPFTauProducer"
+        moduleNameBase = "HPSPFTauProducer"
         if useStrips and applyPreselection:
             moduleNameBase += "WithStripsAndPreselection"
         elif useStrips and not applyPreselection:
@@ -125,7 +125,7 @@ for useStrips in [ True, False ]:
             raise ValueError("Invalid Combination of 'useStrips' and 'applyPreselection' Configuration parameters !!")
         
         moduleNamePF = moduleNameBase + "PF"
-        modulePF = L1HPSPFTauProducerPF.clone(
+        modulePF = HPSPFTauProducerPF.clone(
             useStrips = cms.bool(useStrips),
             applyPreselection = cms.bool(applyPreselection),
             debug = cms.untracked.bool(False)
@@ -134,7 +134,7 @@ for useStrips in [ True, False ]:
         process.productionSequence += getattr(process, moduleNamePF)
 
         moduleNamePuppi = moduleNameBase + "Puppi"
-        modulePuppi = L1HPSPFTauProducerPuppi.clone(
+        modulePuppi = HPSPFTauProducerPuppi.clone(
             useStrips = cms.bool(useStrips),
             applyPreselection = cms.bool(applyPreselection),
             debug = cms.untracked.bool(False)
@@ -150,7 +150,7 @@ process.production_step = cms.Path(process.productionSequence)
 ############################################################ 
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string("NTuple_L1HPSPFTauProducer_part_1.root"),                           
+    fileName = cms.untracked.string("NTuple_HPSPFTauProducer_part_1.root"),                           
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('production_step')
     ),
@@ -168,8 +168,8 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_packedPFCandidates_*_*',
         'keep *_generator_*_*',
         'keep *_caloStage2Digis_*_*',
-        'keep *_L1HPSPFTauProducer*PF_*_*',                           
-        'keep *_L1HPSPFTauProducer*Puppi_*_*',                            
+        'keep *_HPSPFTauProducer*PF_*_*',                           
+        'keep *_HPSPFTauProducer*Puppi_*_*',                            
         'keep *_prunedGenParticles_*_*',
         'keep *_tauGenJetsSelectorAllHadrons_*_*',
         'keep *_particleFlow_*_*',
