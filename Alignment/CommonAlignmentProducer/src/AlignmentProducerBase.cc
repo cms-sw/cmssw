@@ -54,6 +54,15 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, ed
       //dtGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
       //cscGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
       //gemGeomToken_(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "idealForAlignmentProducerBase"))),
+      tkAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      dtAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      cscAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      gemAliToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      tkAliErrToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      dtAliErrToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      cscAliErrToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      gemAliErrToken_(iC.esConsumes<edm::Transition::BeginRun>()),
+      tkSurfDefToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       gprToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       tkSurveyToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       tkSurvErrorToken_(iC.esConsumes<edm::Transition::BeginRun>()),
@@ -448,20 +457,36 @@ void AlignmentProducerBase::applyAlignmentsToDB(const edm::EventSetup& setup) {
 
     if (doTracker_) {
       applyDB<TrackerGeometry, TrackerAlignmentRcd, TrackerAlignmentErrorExtendedRcd>(
-          trackerGeometry_.get(), setup, align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker)));
+          trackerGeometry_.get(),
+          setup,
+          tkAliToken_,
+          tkAliErrToken_,
+          align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker)));
 
-      applyDB<TrackerGeometry, TrackerSurfaceDeformationRcd>(trackerGeometry_.get(), setup);
+      applyDB<TrackerGeometry, TrackerSurfaceDeformationRcd>(trackerGeometry_.get(), setup, tkSurfDefToken_);
     }
 
     if (doMuon_) {
       applyDB<DTGeometry, DTAlignmentRcd, DTAlignmentErrorExtendedRcd>(
-          &*muonDTGeometry_, setup, align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
+          &*muonDTGeometry_,
+          setup,
+          dtAliToken_,
+          dtAliErrToken_,
+          align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
 
       applyDB<CSCGeometry, CSCAlignmentRcd, CSCAlignmentErrorExtendedRcd>(
-          &*muonCSCGeometry_, setup, align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
+          &*muonCSCGeometry_,
+          setup,
+          cscAliToken_,
+          cscAliErrToken_,
+          align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
 
       applyDB<GEMGeometry, GEMAlignmentRcd, GEMAlignmentErrorExtendedRcd>(
-          &*muonGEMGeometry_, setup, align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
+          &*muonGEMGeometry_,
+          setup,
+          gemAliToken_,
+          gemAliErrToken_,
+          align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
     }
   }
 }

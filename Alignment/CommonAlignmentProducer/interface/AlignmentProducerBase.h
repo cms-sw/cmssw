@@ -176,11 +176,17 @@ private:
   /// Applies DB constants belonging to (Err)Rcd to Geometry, taking into
   /// account 'globalPosition' correction.
   template <class G, class Rcd, class ErrRcd>
-  void applyDB(const G*, const edm::EventSetup&, const AlignTransform&) const;
+  void applyDB(const G*,
+               const edm::EventSetup&,
+               const edm::ESGetToken<Alignments, Rcd>&,
+               const edm::ESGetToken<AlignmentErrorsExtended, ErrRcd>&,
+               const AlignTransform&) const;
 
   /// Applies DB constants for SurfaceDeformations
   template <class G, class DeformationRcd>
-  void applyDB(const G*, const edm::EventSetup&) const;
+  void applyDB(const G*,
+               const edm::EventSetup&,
+               const edm::ESGetToken<AlignmentSurfaceDeformations, DeformationRcd>&) const;
 
   /// Reads in survey records
   void readInSurveyRcds(const edm::EventSetup&);
@@ -251,6 +257,17 @@ private:
   const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken_;
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken_;
   const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeomToken_;
+
+  const edm::ESGetToken<Alignments, TrackerAlignmentRcd> tkAliToken_;
+  const edm::ESGetToken<Alignments, DTAlignmentRcd> dtAliToken_;
+  const edm::ESGetToken<Alignments, CSCAlignmentRcd> cscAliToken_;
+  const edm::ESGetToken<Alignments, GEMAlignmentRcd> gemAliToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> tkAliErrToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd> dtAliErrToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, CSCAlignmentErrorExtendedRcd> cscAliErrToken_;
+  const edm::ESGetToken<AlignmentErrorsExtended, GEMAlignmentErrorExtendedRcd> gemAliErrToken_;
+  const edm::ESGetToken<AlignmentSurfaceDeformations, TrackerSurfaceDeformationRcd> tkSurfDefToken_;
+
   const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
   const edm::ESGetToken<Alignments, TrackerSurveyRcd> tkSurveyToken_;
   const edm::ESGetToken<SurveyErrors, TrackerSurveyErrorExtendedRcd> tkSurvErrorToken_;
@@ -297,6 +314,8 @@ private:
 template <class G, class Rcd, class ErrRcd>
 void AlignmentProducerBase::applyDB(const G* geometry,
                                     const edm::EventSetup& iSetup,
+                                    const edm::ESGetToken<Alignments, Rcd>& aliToken,
+                                    const edm::ESGetToken<AlignmentErrorsExtended, ErrRcd>& errToken,
                                     const AlignTransform& globalCoordinates) const {
   // 'G' is the geometry class for that DB should be applied,
   // 'Rcd' is the record class for its Alignments
@@ -316,18 +335,18 @@ void AlignmentProducerBase::applyDB(const G* geometry,
     }
   }
 
-  edm::ESHandle<Alignments> alignments;
-  record.get(alignments);
-
-  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<ErrRcd>().get(alignmentErrors);
+  const Alignments* alignments = &record.get(aliToken);
+  const AlignmentErrorsExtended* alignmentErrors = &iSetup.getData(errToken);
 
   GeometryAligner aligner;
-  aligner.applyAlignments<G>(geometry, &(*alignments), &(*alignmentErrors), globalCoordinates);
+  aligner.applyAlignments<G>(geometry, alignments, alignmentErrors, globalCoordinates);
 }
 
 template <class G, class DeformationRcd>
-void AlignmentProducerBase::applyDB(const G* geometry, const edm::EventSetup& iSetup) const {
+void AlignmentProducerBase::applyDB(
+    const G* geometry,
+    const edm::EventSetup& iSetup,
+    const edm::ESGetToken<AlignmentSurfaceDeformations, DeformationRcd>& surfDefToken) const {
   // 'G' is the geometry class for that DB should be applied,
   // 'DeformationRcd' is the record class for its surface deformations
 
@@ -343,11 +362,10 @@ void AlignmentProducerBase::applyDB(const G* geometry, const edm::EventSetup& iS
           << "Validity range is " << first.eventID().run() << " - " << last.eventID().run();
     }
   }
-  edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
-  record.get(surfaceDeformations);
+  const AlignmentSurfaceDeformations* surfaceDeformations = &record.get(surfDefToken);
 
   GeometryAligner aligner;
-  aligner.attachSurfaceDeformations<G>(geometry, &(*surfaceDeformations));
+  aligner.attachSurfaceDeformations<G>(geometry, surfaceDeformations);
 }
 
 #endif /* Alignment_CommonAlignmentProducer_AlignmentProducerBase_h */
