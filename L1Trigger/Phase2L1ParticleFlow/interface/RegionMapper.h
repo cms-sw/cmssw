@@ -11,6 +11,10 @@
 
 #include <unordered_map>
 
+namespace edm {
+  class Event;
+}
+
 namespace l1tpf_impl {
   class RegionMapper {
     // This does the input and filling of regions.
@@ -36,6 +40,13 @@ namespace l1tpf_impl {
     std::unique_ptr<l1t::PFCandidateCollection> fetch(bool puppi = true, float ptMin = 0.01) const;
     std::unique_ptr<l1t::PFCandidateCollection> fetchCalo(float ptMin = 0.01, bool emcalo = false) const;
     std::unique_ptr<l1t::PFCandidateCollection> fetchTracks(float ptMin = 0.01, bool fromPV = false) const;
+
+    void putEgObjects(edm::Event &iEvent,
+                      const bool writeEgSta,
+                      const std::string &egLablel,
+                      const std::string &tkEmLabel,
+                      const std::string &tkEleLabel,
+                      const float ptMin = 0.01) const;
 
     std::pair<unsigned, unsigned> totAndMaxInput(/*Region::InputType*/ int type) const;
     std::pair<unsigned, unsigned> totAndMaxOutput(/*Region::OutputType*/ int type, bool puppi) const;
