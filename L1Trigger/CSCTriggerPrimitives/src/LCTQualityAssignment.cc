@@ -5,7 +5,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-LCTQualityAssignment::LCTQualityAssignment(bool isRun3, unsigned station) : isRun3_(isRun3), station_(station) {}
+LCTQualityAssignment::LCTQualityAssignment(unsigned station) : station_(station) {}
 
 // 4-bit LCT quality number.
 unsigned LCTQualityAssignment::findQualityRun2(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const {
