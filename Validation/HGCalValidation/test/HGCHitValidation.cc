@@ -143,8 +143,10 @@ HGCHitValidation::HGCHitValidation(const edm::ParameterSet &cfg) {
   ietaExcludeBH_ = cfg.getParameter<std::vector<int>>("ietaExcludeBH");
   bhRecHitTokeng_ = consumes<HGChebRecHitCollection>(bhRecHitSource);
   for (size_t i = 0; i < geometrySource_.size(); i++) {
-    tok_hgcal_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", geometrySource_[i]}));
-    tok_hgcalg_.emplace_back(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", geometrySource_[i]}));
+    tok_hgcal_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+        edm::ESInputTag{"", geometrySource_[i]}));
+    tok_hgcalg_.emplace_back(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
+        edm::ESInputTag{"", geometrySource_[i]}));
   }
 
   makeTree_ = cfg.getUntrackedParameter<bool>("makeTree", true);
@@ -327,7 +329,9 @@ void HGCHitValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &
     analyzeHGCalSimHit(bhSimHits, 2, hebEnSim_, bhHitRefs);
     for (std::map<unsigned int, HGCHitTuple>::iterator itr = bhHitRefs.begin(); itr != bhHitRefs.end(); ++itr) {
       int idx = std::distance(bhHitRefs.begin(), itr);
-      edm::LogVerbatim("HGCalValid") << "BHHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy " << std::get<0>(itr->second) << "; Position (" << std::get<1>(itr->second) << ", " << std::get<2>(itr->second) << ", " << std::get<3>(itr->second) << ")";
+      edm::LogVerbatim("HGCalValid") << "BHHit[" << idx << "] " << std::hex << itr->first << std::dec << "; Energy "
+                                     << std::get<0>(itr->second) << "; Position (" << std::get<1>(itr->second) << ", "
+                                     << std::get<2>(itr->second) << ", " << std::get<3>(itr->second) << ")";
     }
   } else {
     edm::LogWarning("HGCalValid") << "No BH SimHit Found " << std::endl;
@@ -550,32 +554,32 @@ void HGCHitValidation::analyzeHGCalRecHit(T1 const &theHits, std::map<unsigned i
       double xp = pT * cos(std::get<2>(itr->second));
       double yp = pT * sin(std::get<2>(itr->second));
       if (makeTree_) {
-	hebRecX_->push_back(xyz.x());
-	hebRecY_->push_back(xyz.y());
-	hebRecZ_->push_back(xyz.z());
-	hebRecEnergy_->push_back(energy);
-	hebSimX_->push_back(xp);
-	hebSimY_->push_back(yp);
-	hebSimZ_->push_back(std::get<3>(itr->second));
-	hebSimEnergy_->push_back(std::get<0>(itr->second));
-	hebSimEta_->push_back(std::get<1>(itr->second));
-	hebRecEta_->push_back(xyz.eta());
-	hebSimPhi_->push_back(std::get<2>(itr->second));
-	hebRecPhi_->push_back(ang3);
-	hebDetID_->push_back(itr->first);
+        hebRecX_->push_back(xyz.x());
+        hebRecY_->push_back(xyz.y());
+        hebRecZ_->push_back(xyz.z());
+        hebRecEnergy_->push_back(energy);
+        hebSimX_->push_back(xp);
+        hebSimY_->push_back(yp);
+        hebSimZ_->push_back(std::get<3>(itr->second));
+        hebSimEnergy_->push_back(std::get<0>(itr->second));
+        hebSimEta_->push_back(std::get<1>(itr->second));
+        hebRecEta_->push_back(xyz.eta());
+        hebSimPhi_->push_back(std::get<2>(itr->second));
+        hebRecPhi_->push_back(ang3);
+        hebDetID_->push_back(itr->first);
       } else {
-	hebRecVsSimX_->Fill(xp, xyz.x());
-	hebRecVsSimY_->Fill(yp, xyz.y());
-	hebRecVsSimZ_->Fill(std::get<3>(itr->second), xyz.z());
-	hebdEtaVsEta_->Fill(std::get<1>(itr->second), (xyz.eta() - std::get<1>(itr->second)));
-	hebdPhiVsPhi_->Fill(std::get<2>(itr->second), (ang3 - std::get<2>(itr->second)));
-	hebdzVsZ_->Fill(std::get<3>(itr->second), (xyz.z() - std::get<3>(itr->second)));
-	hebEnSimRec_->Fill(std::get<0>(itr->second), energy);
+        hebRecVsSimX_->Fill(xp, xyz.x());
+        hebRecVsSimY_->Fill(yp, xyz.y());
+        hebRecVsSimZ_->Fill(std::get<3>(itr->second), xyz.z());
+        hebdEtaVsEta_->Fill(std::get<1>(itr->second), (xyz.eta() - std::get<1>(itr->second)));
+        hebdPhiVsPhi_->Fill(std::get<2>(itr->second), (ang3 - std::get<2>(itr->second)));
+        hebdzVsZ_->Fill(std::get<3>(itr->second), (xyz.z() - std::get<3>(itr->second)));
+        hebEnSimRec_->Fill(std::get<0>(itr->second), energy);
       }
       edm::LogVerbatim("HGCalValid") << "BHHit: " << std::hex << id.rawId() << std::dec << " Sim ("
-				     << std::get<0>(itr->second) << ", " << std::get<1>(itr->second) << ", "
-				     << std::get<2>(itr->second) << ", " << std::get<3>(itr->second) << ") Rec ("
-				     << energy << ", " << xyz.eta() << ", " << ang3 << ", " << xyz.z() << ")";
+                                     << std::get<0>(itr->second) << ", " << std::get<1>(itr->second) << ", "
+                                     << std::get<2>(itr->second) << ", " << std::get<3>(itr->second) << ") Rec ("
+                                     << energy << ", " << xyz.eta() << ", " << ang3 << ", " << xyz.z() << ")";
     }
   }
 }
