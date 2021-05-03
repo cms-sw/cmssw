@@ -1422,4 +1422,8 @@ upgradeFragments = OrderedDict([
     ('EtaBToJpsiJpsi_14TeV_TuneCP5_pythia8_cfi',UpgradeFragment(Kby(9,50),'EtaBToJpsiJpsi_14TeV')),
     ('WToLNu_14TeV_TuneCP5_pythia8_cfi',UpgradeFragment(Kby(21,50),'WToLNu_14TeV')),
     ('WprimeToLNu_M2000_14TeV_TuneCP5_pythia8_cfi',UpgradeFragment(Kby(21,50),'WprimeToLNu_M2000_14TeV')),
+    ('DoubleMuFlatPt1p5To8_cfi', UpgradeFragment(Kby(9,100),'SingleMuFlatPt1p5To8')),
+    ('DoubleElectronFlatPt1p5To8_cfi', UpgradeFragment(Kby(9,100),'SingleElectronFlatPt1p5To8')),
+    ('DoubleMuFlatPt1p5To8Dxy100GunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt1p5To8Dxy100')),
+    ('DoubleMuFlatPt2To100Dxy100GunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt2To100Dxy100')),
 ])
