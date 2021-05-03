@@ -308,7 +308,6 @@ void GEMCSCLUTAnalyzer::generateLUTsME21(const CSCDetId& csc_id) const {
     ofos << p.second << std::endl;
   ofos.close();
 
-
   // firmware LUTs
   ofos.open("GEMCSCLUT_pad_hs_ME21" + oddeven + ".mem");
   for (const auto& p : gemPadToCscHs)
