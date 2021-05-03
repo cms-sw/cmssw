@@ -772,7 +772,7 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
             }
 
             if (ext == "") {
-              ext = "_" + iTCStr(iTC);
+              ext = "_" + LayerName(l1)+iTCStr(iTC);
             }
 
             if (iSeed < 4) {  //Barrel seeding
@@ -914,13 +914,13 @@ void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& mem
         memories << "VMStubsME: VMSME_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << iVMME + 1 << "n1 [18]"
                  << std::endl;
         os << "VMSME_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << iVMME + 1 << "n1"
-           << " input=> VMR_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".vmstuboutPHI" << iTCStr(iReg)
+           << " input=> VMR_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".vmstuboutMEPHI" << iTCStr(iReg)
            << iVMME + 1 << " output=> ME_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << iVMME + 1 << ".vmstubin"
            << std::endl;
       }
     }
 
-    //Next write VMS memories used by MatchCalculator
+    //Next write VMS memories used by TrackletEngine
     for (unsigned int iSeed = 0; iSeed < N_SEED_PROMPT; iSeed++) {
       for (unsigned int innerouterseed = 0; innerouterseed < 2; innerouterseed++) {
         //FIXME - code could be cleaner
@@ -959,11 +959,16 @@ void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& mem
 
             if (!used)
               continue;
+
+	    string inorout = "I";
+	    if (innerouterseed == 1 )
+	      inorout = "O";
+	    
             nmem++;
             memories << "VMStubsTE: VMSTE_" << LayerName(ilayer) << "PHI" << iRegStr(iReg, iSeed) << iVMTE + 1 << "n"
                      << nmem << " [18]" << std::endl;
             os << "VMSTE_" << LayerName(ilayer) << "PHI" << iRegStr(iReg, iSeed) << iVMTE + 1 << "n" << nmem
-               << " input=> VMR_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".vmstuboutPHI" << iTCStr(iReg)
+               << " input=> VMR_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << ".vmstuboutTE"<<inorout<<"PHI" << iRegStr(iReg,iSeed)
                << iVMTE + 1 << " output=> TE_" << LayerName(l1) << "PHI" << iRegStr(TE1 / NVMTE1, iSeed) << TE1 + 1
                << "_" << LayerName(l2) << "PHI" << iRegStr(TE2 / NVMTE2, iSeed) << TE2 + 1;
             if (innerouterseed == 0) {

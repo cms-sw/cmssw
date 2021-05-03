@@ -466,7 +466,7 @@ void TripletEngine::writeTables() {
   tableName << "table/table_" << name_ << ".txt";
 
   fout.open(tableName.str(), ofstream::out);
-  for (const auto &entry : table_)
+  for (const auto entry : table_)
     fout << entry << endl;
   fout.close();
 
