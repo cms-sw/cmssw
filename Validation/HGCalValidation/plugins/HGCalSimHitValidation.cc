@@ -24,7 +24,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -86,18 +85,23 @@ private:
   void analyzeHits(std::vector<PCaloHit>& hits);
   void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
   void fillHitsInfo(std::pair<hitsinfo, energysum> hit_, unsigned int itimeslice, double esum);
-  bool defineGeometry(edm::ESTransientHandle<DDCompactView>& ddViewH);
-  bool defineGeometry(edm::ESTransientHandle<cms::DDCompactView>& ddViewH);
+  bool defineGeometry(const DDCompactView* ddViewH);
+  bool defineGeometry(const cms::DDCompactView* ddViewH);
 
   // ----------member data ---------------------------
-  std::string nameDetector_, caloHitSource_;
+  const std::string nameDetector_, caloHitSource_;
   const HGCalDDDConstants* hgcons_;
   const HcalDDDRecConstants* hcons_;
-  std::vector<double> times_;
-  int verbosity_;
-  bool heRebuild_, testNumber_, symmDet_, fromDDD_;
+  const std::vector<double> times_;
+  const int verbosity_;
+  const bool testNumber_, fromDDD_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hcal_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcal_;
+  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> tok_cpv_;
+  const edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> tok_cpvc_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
   edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
+  bool heRebuild_, symmDet_;
   unsigned int layers_;
   int firstLayer_;
   std::map<uint32_t, HepGeom::Transform3D> transMap_;
@@ -116,8 +120,13 @@ HGCalSimHitValidation::HGCalSimHitValidation(const edm::ParameterSet& iConfig)
       times_(iConfig.getParameter<std::vector<double> >("TimeSlices")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       testNumber_(iConfig.getUntrackedParameter<bool>("TestNumber", true)),
-      symmDet_(true),
       fromDDD_(iConfig.getUntrackedParameter<bool>("fromDDD", true)),
+      tok_hcal_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{})),
+      tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
+      tok_cpv_(esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>()),
+      tok_cpvc_(esConsumes<cms::DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>()),
+      symmDet_(true),
       firstLayer_(1) {
   heRebuild_ = (nameDetector_ == "HCal") ? true : false;
   tok_hepMC_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
@@ -365,7 +374,7 @@ void HGCalSimHitValidation::fillHitsInfo(std::pair<hitsinfo, energysum> hits, un
   }
 }
 
-bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>& ddViewH) {
+bool HGCalSimHitValidation::defineGeometry(const DDCompactView* ddViewH) {
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants (DDD) for " << nameDetector_ << " : "
                                         << hgcons_;
@@ -413,7 +422,7 @@ bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>
   return true;
 }
 
-bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<cms::DDCompactView>& ddViewH) {
+bool HGCalSimHitValidation::defineGeometry(const cms::DDCompactView* ddViewH) {
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants (DD4hep) for " << nameDetector_ << " : "
                                         << hgcons_;
@@ -458,23 +467,17 @@ bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<cms::DDCompact
 // ------------ method called when starting to processes a run  ------------
 void HGCalSimHitValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   if (heRebuild_) {
-    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-    iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-    hcons_ = &(*pHRNDC);
+    hcons_ = &iSetup.getData(tok_hcal_);
     layers_ = hcons_->getMaxDepth(1);
   } else {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
-    hgcons_ = &(*pHGDC);
+    hgcons_ = &iSetup.getData(tok_hgcal_);
     layers_ = hgcons_->layers(false);
     firstLayer_ = hgcons_->firstLayer();
     if (fromDDD_) {
-      edm::ESTransientHandle<DDCompactView> pDD;
-      iSetup.get<IdealGeometryRecord>().get(pDD);
+      const DDCompactView* pDD = &iSetup.getData(tok_cpv_);
       defineGeometry(pDD);
     } else {
-      edm::ESTransientHandle<cms::DDCompactView> pDD;
-      iSetup.get<IdealGeometryRecord>().get(pDD);
+      const cms::DDCompactView* pDD = &iSetup.getData(tok_cpvc_);
       defineGeometry(pDD);
     }
   }
