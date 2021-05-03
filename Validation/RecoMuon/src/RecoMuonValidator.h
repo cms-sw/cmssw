@@ -45,6 +45,9 @@ protected:
   edm::InputTag muonLabel_;
   std::string muonSelection_;
   edm::EDGetTokenT<TrackingParticleCollection> simToken_;
+  edm::EDGetTokenT<TrackingParticleRefVector> tpRefVectorToken_;
+  bool tpRefVector;
+
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
 
   edm::InputTag muAssocLabel_;
@@ -128,4 +131,3 @@ private:
 };
 
 #endif
-/* vim:set ts=2 sts=2 sw=2 expandtab: */

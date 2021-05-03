@@ -23,8 +23,10 @@ private:
   edm::InputTag tracksTag;
   edm::InputTag tpTag;
   edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
+  edm::EDGetTokenT<TrackingParticleRefVector> tpRefVectorToken_;
   edm::EDGetTokenT<edm::View<reco::Track>> tracksToken_;
 
+  bool tpRefVector;
   bool ignoreMissingTrackCollection;
   edm::ParameterSet parset_;
   MuonAssociatorByHits *associatorByHits;
