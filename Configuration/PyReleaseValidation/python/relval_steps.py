@@ -950,6 +950,9 @@ step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          },
                         step1Defaults])
 
+step1LHEGenDQM = merge([{'-s':'LHE,GEN,VALIDATION:genvalid','--datatier'    : 'LHE,GEN-SIM,DQMIO','--eventcontent': 'LHE,RAWSIM,DQM'},step1GenDefaults])
+
+
 step1HadronizerDefaults=merge([{'--datatier':'GEN-SIM,DQMIO',
                            '--relval':'200000,5000'
                             },step1GenDefaults])
@@ -1097,6 +1100,9 @@ steps['VBFHToBB_M125_Pow_py8_Evt_13UP17']=lhegensim2017('Configuration/Generator
 #Sherpa
 steps['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER_cff',step1GenDefaults)
 steps['sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER_cff',step1GenDefaults)
+
+#Herwig7
+steps['TTbar_13TeV_Pow_herwig7']=genvalid('Configuration/Generator/python/TT_13TeV_Pow_Herwig7_cff',step1LHEGenDQM)
 
 # Heavy Ion
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
