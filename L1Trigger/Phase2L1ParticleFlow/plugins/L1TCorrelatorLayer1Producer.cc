@@ -230,10 +230,10 @@ void L1TCorrelatorLayer1Producer::beginStream(edm::StreamID id) {
   if (!regionDumpName_.empty()) {
     if (id == 0) {
       fRegionDump_.open(regionDumpName_.c_str(), std::ios::out | std::ios::binary);
-    } else {
+    } /*else {
       edm::LogWarning("L1TCorrelatorLayer1Producer")
           << "Job running with multiple streams, but dump file will have only events on stream zero.";
-    }
+    }*/
   }
 }
 
