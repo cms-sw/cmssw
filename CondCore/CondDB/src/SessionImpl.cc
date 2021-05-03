@@ -43,15 +43,15 @@ namespace cond {
     SessionImpl::~SessionImpl() { close(); }
 
     void SessionImpl::close() {
-      if( isActive() ) {
-	if(coralSession->transaction().isActive()){
-	  rollbackTransaction();
-	}
+      if (isActive()) {
+        if (coralSession->transaction().isActive()) {
+          rollbackTransaction();
+        }
         if (!lockedTags.empty()) {
-	  startTransaction(false);
-	  releaseTagLocks();
+          startTransaction(false);
+          releaseTagLocks();
           commitTransaction();
-	}
+        }
         coralSession.reset();
       }
       transaction.reset();
