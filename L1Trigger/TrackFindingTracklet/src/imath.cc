@@ -420,13 +420,13 @@ bool VarFlag::passes() {
   bool passes = true;
   for (const auto &cut_var : passes0) {
     bool local_passes = false;
-    for (const auto &pass : cut_var.second)
+    for (const auto pass : cut_var.second)
       local_passes = local_passes || pass;
     passes = passes && local_passes;
   }
   for (const auto &cut_var : passes1) {
     bool local_passes = false;
-    for (const auto &pass : cut_var.second)
+    for (const auto pass : cut_var.second)
       local_passes = local_passes || pass;
     passes = passes && local_passes;
   }

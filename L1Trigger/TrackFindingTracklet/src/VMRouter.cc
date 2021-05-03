@@ -41,7 +41,8 @@ void VMRouter::addOutput(MemoryBase* memory, string output) {
     return;
   }
 
-  if (output.substr(0, 12) == "vmstuboutPHI") {
+  if (output.substr(0, 12) == "vmstuboutPHI" || output.substr(0, 14) == "vmstuboutMEPHI" ||
+      output.substr(0, 15) == "vmstuboutTEIPHI" ||output.substr(0, 15) == "vmstuboutTEOPHI" ) {
     char seedtype = memory->getName().substr(11, 1)[0];
     unsigned int pos = 12;
     int vmbin = memory->getName().substr(pos, 1)[0] - '0';
