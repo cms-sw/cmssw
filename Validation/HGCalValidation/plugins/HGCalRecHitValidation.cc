@@ -116,7 +116,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::ESHandle<HGCalGeometry> geomHandle = iSetup.getHandle(geometry_token_);
   if (!geomHandle.isValid()) {
     edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
-					<< "Object for " << nameDetector_;
+                                        << "Object for " << nameDetector_;
   } else {
     const HGCalGeometry* geom0 = geomHandle.product();
     int geomType = ((geom0->topology().waferHexagon8()) ? 1 : ((geom0->topology().tileTrapezoid()) ? 2 : 0));
@@ -125,18 +125,21 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     iEvent.getByToken(recHitSource_, theRecHitContainers);
     if (theRecHitContainers.isValid()) {
       if (verbosity_ > 0)
-	edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " << theRecHitContainers->size() << " element(s)";
+        edm::LogVerbatim("HGCalValidation")
+            << nameDetector_ << " with " << theRecHitContainers->size() << " element(s)";
       for (const auto& it : *(theRecHitContainers.product())) {
-	ntot++;
-	nused++;
-	DetId detId = it.id();
-	int layer = ((geomType == 0) ? HGCalDetId(detId).layer() : ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer()));
-	recHitValidation(detId, layer, geom0, &it);
+        ntot++;
+        nused++;
+        DetId detId = it.id();
+        int layer = ((geomType == 0)
+                         ? HGCalDetId(detId).layer()
+                         : ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer()));
+        recHitValidation(detId, layer, geom0, &it);
       }
     } else {
       ok = false;
       edm::LogVerbatim("HGCalValidation") << "HGCRecHitCollection Handle "
-					  << "does not exist !!!";
+                                          << "does not exist !!!";
     }
   }
   if (ok)
@@ -210,7 +213,7 @@ void HGCalRecHitValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup& 
   edm::ESHandle<HGCalGeometry> geomHandle = iSetup.getHandle(geometry_beginRun_token_);
   if (!geomHandle.isValid()) {
     edm::LogVerbatim("HGCalValidation") << "Cannot get valid HGCalGeometry "
-					<< "Object for " << nameDetector_;
+                                        << "Object for " << nameDetector_;
   } else {
     const HGCalGeometry* geom = geomHandle.product();
     const HGCalDDDConstants& hgcons_ = geom->topology().dddConstants();
