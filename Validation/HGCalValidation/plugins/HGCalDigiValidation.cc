@@ -29,7 +29,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -79,11 +78,16 @@ private:
       const T1& detId, const T2* geom, int layer, uint16_t adc, double charge, bool mode, bool threshold);
 
   // ----------member data ---------------------------
-  std::string nameDetector_;
-  edm::EDGetToken digiSource_;
-  bool ifNose_, ifHCAL_;
-  int verbosity_, SampleIndx_;
+  const std::string nameDetector_;
+  const bool ifNose_, ifHCAL_;
+  const int verbosity_, SampleIndx_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hcalc_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcalc_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_hcalg_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcalg_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tok_cond_;
   int layers_, firstLayer_;
+  edm::EDGetToken digiSource_;
 
   std::map<int, int> OccupancyMap_plus_;
   std::map<int, int> OccupancyMap_minus_;
@@ -104,6 +108,12 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig)
       ifHCAL_(iConfig.getParameter<bool>("ifHCAL")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
       SampleIndx_(iConfig.getUntrackedParameter<int>("SampleIndx", 0)),
+      tok_hcalc_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{})),
+      tok_hgcalc_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})),
+      tok_hcalg_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_hgcalg_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_})),
+      tok_cond_(esConsumes<HcalDbService, HcalDbRecord>()),
       firstLayer_(1) {
   auto temp = iConfig.getParameter<edm::InputTag>("DigiSource");
   if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive") ||
@@ -141,19 +151,9 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   const CaloGeometry* geom1(nullptr);
   int geomType(0);
   if (nameDetector_ == "HCal") {
-    edm::ESHandle<CaloGeometry> geom;
-    iSetup.get<CaloGeometryRecord>().get(geom);
-    if (!geom.isValid())
-      edm::LogVerbatim("HGCalValidation") << "HGCalDigiValidation: Cannot get "
-                                          << "valid Geometry Object for " << nameDetector_;
-    geom1 = geom.product();
+    geom1 = &iSetup.getData(tok_hcalg_);
   } else {
-    edm::ESHandle<HGCalGeometry> geom;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, geom);
-    if (!geom.isValid())
-      edm::LogVerbatim("HGCalValidation") << "HGCalDigiValidation: Cannot get "
-                                          << "valid Geometry Object for " << nameDetector_;
-    geom0 = geom.product();
+    geom0 = &iSetup.getData(tok_hgcalg_);
     if (geom0->topology().waferHexagon8())
       geomType = 1;
     else if (geom0->topology().tileTrapezoid())
@@ -175,8 +175,9 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType == 0) ? HGCalDetId(detId).layer()
-                                     : (geomType == 1) ? HGCSiliconDetId(detId).layer() : HFNoseDetId(detId).layer());
+        int layer = ((geomType == 0)   ? HGCalDetId(detId).layer()
+                     : (geomType == 1) ? HGCSiliconDetId(detId).layer()
+                                       : HFNoseDetId(detId).layer());
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t gain = hgcSample.toa();
         uint16_t adc = hgcSample.data();
@@ -252,8 +253,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       if (verbosity_ > 0)
         edm::LogVerbatim("HGCalValidation")
             << nameDetector_ << " with " << theHEDigiContainers->size() << " element(s)";
-      edm::ESHandle<HcalDbService> conditions;
-      iSetup.get<HcalDbRecord>().get(conditions);
+      const HcalDbService* conditions = &iSetup.getData(tok_cond_);
 
       for (const auto& it : *(theHEDigiContainers.product())) {
         QIE11DataFrame df(it);
@@ -357,16 +357,12 @@ void HGCalDigiValidation::fillDigiInfo() {
 
 void HGCalDigiValidation::dqmBeginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   if (nameDetector_ == "HCal") {
-    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-    iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-    const HcalDDDRecConstants* hcons = &(*pHRNDC);
+    const HcalDDDRecConstants* hcons = &iSetup.getData(tok_hcalc_);
     layers_ = hcons->getMaxDepth(1);
   } else {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
-    const HGCalDDDConstants& hgcons_ = (*pHGDC);
-    layers_ = hgcons_.layers(true);
-    firstLayer_ = hgcons_.firstLayer();
+    const HGCalDDDConstants* hgcons = &iSetup.getData(tok_hgcalc_);
+    layers_ = hgcons->layers(true);
+    firstLayer_ = hgcons->firstLayer();
   }
 
   if (verbosity_ > 0)

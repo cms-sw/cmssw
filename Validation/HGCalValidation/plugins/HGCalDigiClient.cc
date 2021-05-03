@@ -21,8 +21,10 @@
 
 class HGCalDigiClient : public DQMEDHarvester {
 private:
-  std::string nameDetector_;
-  int verbosity_;
+  const std::string nameDetector_;
+  const int verbosity_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hcal_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcal_;
   int layers_;
 
 public:
@@ -37,19 +39,18 @@ public:
 
 HGCalDigiClient::HGCalDigiClient(const edm::ParameterSet &iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
-      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)) {}
+      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
+      tok_hcal_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{})),
+      tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})) {}
 
 void HGCalDigiClient::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
   if (nameDetector_ == "HCal") {
-    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-    iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-    const HcalDDDRecConstants *hcons = &(*pHRNDC);
+    const HcalDDDRecConstants *hcons = &iSetup.getData(tok_hcal_);
     layers_ = hcons->getMaxDepth(1);
   } else {
-    edm::ESHandle<HGCalDDDConstants> pHGDC;
-    iSetup.get<IdealGeometryRecord>().get(nameDetector_, pHGDC);
-    const HGCalDDDConstants &hgcons_ = (*pHGDC);
-    layers_ = hgcons_.layers(true);
+    const HGCalDDDConstants *hgcons = &iSetup.getData(tok_hgcal_);
+    layers_ = hgcons->layers(true);
   }
 }
 
