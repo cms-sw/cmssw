@@ -1,10 +1,10 @@
-#include "L1Trigger/Phase2L1Taus/plugins/L1HPSPFTauProducer.h"
+#include "L1Trigger/Phase2L1Taus/plugins/HPSPFTauProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <cmath>  // std::fabs
 
-L1HPSPFTauProducer::L1HPSPFTauProducer(const edm::ParameterSet& cfg)
+HPSPFTauProducer::HPSPFTauProducer(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-      tauBuilder_(nullptr),
+      tauBuilder_(cfg),
       useChargedPFCandSeeds_(cfg.getParameter<bool>("useChargedPFCandSeeds")),
       minSeedChargedPFCandPt_(cfg.getParameter<double>("minSeedChargedPFCandPt")),
       maxSeedChargedPFCandEta_(cfg.getParameter<double>("maxSeedChargedPFCandEta")),
@@ -23,10 +23,8 @@ L1HPSPFTauProducer::L1HPSPFTauProducer(const edm::ParameterSet& cfg)
       applyPreselection_(cfg.getParameter<bool>("applyPreselection")),
       debug_(cfg.getUntrackedParameter<bool>("debug", false)) {
   if (debug_) {
-    std::cout << "<L1HPSPFTauProducer::L1HPSPFTauProducer (moduleLabel = " << moduleLabel_ << ")>:" << std::endl;
+    std::cout << "<HPSPFTauProducer::HPSPFTauProducer (moduleLabel = " << moduleLabel_ << ")>:" << std::endl;
   }
-
-  tauBuilder_.reset(new L1HPSPFTauBuilder(cfg));
 
   srcL1PFCands_ = cfg.getParameter<edm::InputTag>("srcL1PFCands");
   tokenL1PFCands_ = consumes<l1t::PFCandidateCollection>(srcL1PFCands_);
@@ -45,7 +43,7 @@ L1HPSPFTauProducer::L1HPSPFTauProducer(const edm::ParameterSet& cfg)
   edm::ParameterSet cfg_isolationQualityCuts = cfg.getParameter<edm::ParameterSet>("isolationQualityCuts");
   isolationQualityCutsDzCutDisabled_ = readL1PFTauQualityCuts(cfg_isolationQualityCuts, "disabled");
 
-  produces<l1t::L1HPSPFTauCollection>();
+  produces<l1t::HPSPFTauCollection>();
 }
 
 namespace {
@@ -53,13 +51,13 @@ namespace {
     return l1PFCand1->pt() > l1PFCand2->pt();
   }
 
-  bool isHigherPt_pfTau(const l1t::L1HPSPFTau& l1PFTau1, const l1t::L1HPSPFTau& l1PFTau2) {
+  bool isHigherPt_pfTau(const l1t::HPSPFTau& l1PFTau1, const l1t::HPSPFTau& l1PFTau2) {
     return l1PFTau1.pt() > l1PFTau2.pt();
   }
 }  // namespace
 
-void L1HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  std::unique_ptr<l1t::L1HPSPFTauCollection> l1PFTauCollectionCleaned(new l1t::L1HPSPFTauCollection());
+void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+  std::unique_ptr<l1t::HPSPFTauCollection> l1PFTauCollectionCleaned(new l1t::HPSPFTauCollection());
 
   edm::Handle<l1t::PFCandidateCollection> l1PFCands;
   evt.getByToken(tokenL1PFCands_, l1PFCands);
@@ -111,7 +109,7 @@ void L1HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     }
   }
 
-  l1t::L1HPSPFTauCollection l1PFTauCollectionUncleaned;
+  l1t::HPSPFTauCollection l1PFTauCollectionUncleaned;
 
   if (useChargedPFCandSeeds_) {
     for (auto l1PFCand : selectedL1PFCandsSignalQualityCuts) {
@@ -128,13 +126,13 @@ void L1HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
           isFromPrimaryVertex = true;
         }
         if (isFromPrimaryVertex) {
-          tauBuilder_->reset();
-          tauBuilder_->setL1PFCandProductID(l1PFCands.id());
-          tauBuilder_->setVertex(primaryVertex);
-          tauBuilder_->setL1PFTauSeed(l1PFCand);
-          tauBuilder_->addL1PFCandidates(selectedL1PFCandsSignalOrIsolationQualityCuts);
-          tauBuilder_->buildL1PFTau();
-          l1t::L1HPSPFTau l1PFTau = tauBuilder_->getL1PFTau();
+          tauBuilder_.reset();
+          tauBuilder_.setL1PFCandProductID(l1PFCands.id());
+          tauBuilder_.setVertex(primaryVertex);
+          tauBuilder_.setL1PFTauSeed(l1PFCand);
+          tauBuilder_.addL1PFCandidates(selectedL1PFCandsSignalOrIsolationQualityCuts);
+          tauBuilder_.buildL1PFTau();
+          l1t::HPSPFTau l1PFTau = tauBuilder_.getL1PFTau();
           if (l1PFTau.pt() > 1.)
             l1PFTauCollectionUncleaned.push_back(l1PFTau);
         }
@@ -150,14 +148,14 @@ void L1HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     for (size_t idxL1Jet = 0; idxL1Jet < numL1Jets; ++idxL1Jet) {
       reco::CaloJetRef l1Jet(l1Jets, idxL1Jet);
       if (l1Jet->pt() > minSeedJetPt_ && std::fabs(l1Jet->eta()) < maxSeedJetEta_) {
-        tauBuilder_->reset();
-        tauBuilder_->setL1PFCandProductID(l1PFCands.id());
-        tauBuilder_->setVertex(primaryVertex);
-        //tauBuilder_->setL1PFTauSeed(l1Jet);
-        tauBuilder_->setL1PFTauSeed(l1Jet, selectedL1PFCandsSignalQualityCuts);
-        tauBuilder_->addL1PFCandidates(selectedL1PFCandsSignalOrIsolationQualityCuts);
-        tauBuilder_->buildL1PFTau();
-        l1t::L1HPSPFTau l1PFTau = tauBuilder_->getL1PFTau();
+        tauBuilder_.reset();
+        tauBuilder_.setL1PFCandProductID(l1PFCands.id());
+        tauBuilder_.setVertex(primaryVertex);
+        //tauBuilder_.setL1PFTauSeed(l1Jet);
+        tauBuilder_.setL1PFTauSeed(l1Jet, selectedL1PFCandsSignalQualityCuts);
+        tauBuilder_.addL1PFCandidates(selectedL1PFCandsSignalOrIsolationQualityCuts);
+        tauBuilder_.buildL1PFTau();
+        l1t::HPSPFTau l1PFTau = tauBuilder_.getL1PFTau();
         if (l1PFTau.pt() > 1.)
           l1PFTauCollectionUncleaned.push_back(l1PFTau);
       }
@@ -170,8 +168,8 @@ void L1HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   if (debug_) {
     std::cout << "BEFORE cleaning:" << std::endl;
     for (size_t idx = 0; idx < l1PFTauCollectionUncleaned.size(); ++idx) {
-      const l1t::L1HPSPFTau& l1PFTau = l1PFTauCollectionUncleaned.at(idx);
-      std::cout << "L1HPSPFTau #" << idx << ": " << l1PFTau;
+      const l1t::HPSPFTau& l1PFTau = l1PFTauCollectionUncleaned.at(idx);
+      std::cout << "HPSPFTau #" << idx << ": " << l1PFTau;
     }
   }
 
@@ -203,8 +201,8 @@ void L1HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   if (debug_) {
     std::cout << "AFTER cleaning:" << std::endl;
     for (size_t idx = 0; idx < l1PFTauCollectionCleaned->size(); ++idx) {
-      const l1t::L1HPSPFTau& l1PFTau = l1PFTauCollectionCleaned->at(idx);
-      std::cout << "L1HPSPFTau #" << idx << ": " << l1PFTau;
+      const l1t::HPSPFTau& l1PFTau = l1PFTauCollectionCleaned->at(idx);
+      std::cout << "HPSPFTau #" << idx << ": " << l1PFTau;
     }
   }
 
@@ -216,8 +214,8 @@ void L1HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 void
-L1HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // L1HPSPFTauProducerPF
+HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // HPSPFTauProducerPF
   edm::ParameterSetDescription desc;
   desc.add<bool>("useJetSeeds", true);
   desc.add<double>("minPFTauPt", 20.0);
@@ -316,4 +314,4 @@ L1HPSPFTauProducer::fillDescriptions(edm::ConfigurationDescriptions& description
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(L1HPSPFTauProducer);
+DEFINE_FWK_MODULE(HPSPFTauProducer);
