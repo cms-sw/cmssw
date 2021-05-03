@@ -109,8 +109,10 @@ HGCalHitValidation::HGCalHitValidation(const edm::ParameterSet& cfg) {
   ietaExcludeBH_ = cfg.getParameter<std::vector<int>>("ietaExcludeBH");
 
   for (const auto& name : geometrySource_) {
-    tok_ddd_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
-    tok_geom_.emplace_back(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+    tok_ddd_.emplace_back(
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+    tok_geom_.emplace_back(
+        esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
   }
 
 #ifdef EDM_ML_DEBUG
@@ -178,7 +180,7 @@ void HGCalHitValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const&, 
 void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   //initiating hgc Geometry
   for (size_t i = 0; i < geometrySource_.size(); i++) {
-    edm::ESHandle<HGCalDDDConstants> hgcCons= iSetup.getHandle(tok_ddd_[i]);
+    edm::ESHandle<HGCalDDDConstants> hgcCons = iSetup.getHandle(tok_ddd_[i]);
     if (hgcCons.isValid()) {
       hgcCons_.push_back(hgcCons.product());
     } else {
