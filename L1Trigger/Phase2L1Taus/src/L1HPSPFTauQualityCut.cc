@@ -1,7 +1,7 @@
-#include "L1Trigger/Phase2L1Taus/interface/HPSPFTauQualityCut.h"
+#include "L1Trigger/Phase2L1Taus/interface/L1HPSPFTauQualityCut.h"
 #include "FWCore/Utilities/interface/Exception.h"  // cms::Exception
 
-HPSPFTauQualityCut::HPSPFTauQualityCut(const edm::ParameterSet& cfg)
+L1HPSPFTauQualityCut::L1HPSPFTauQualityCut(const edm::ParameterSet& cfg)
     : debug_(cfg.getUntrackedParameter<bool>("debug", false)) {
   std::string pfCandTypeString = cfg.getParameter<std::string>("pfCandType");
   if (pfCandTypeString == "chargedHadron")
@@ -15,7 +15,7 @@ HPSPFTauQualityCut::HPSPFTauQualityCut(const edm::ParameterSet& cfg)
   else if (pfCandTypeString == "photon")
     pfCandType_ = l1t::PFCandidate::Photon;
   else
-    throw cms::Exception("HPSPFTauQualityCut")
+    throw cms::Exception("L1HPSPFTauQualityCut")
         << "Invalid Configuration parameter 'pfCandType' = '" << pfCandTypeString << "' !!\n";
 
   std::string dzCutString = cfg.getParameter<std::string>("dzCut");
@@ -26,7 +26,7 @@ HPSPFTauQualityCut::HPSPFTauQualityCut(const edm::ParameterSet& cfg)
   else if (dzCutString == "enabled_pileup")
     dzCut_ = kEnabledPileup;
   else
-    throw cms::Exception("HPSPFTauQualityCut")
+    throw cms::Exception("L1HPSPFTauQualityCut")
         << "Invalid Configuration parameter 'dzCut' = '" << dzCutString << "' !!\n";
 
   minPt_ = cfg.getParameter<double>("minPt");
@@ -38,7 +38,7 @@ HPSPFTauQualityCut::HPSPFTauQualityCut(const edm::ParameterSet& cfg)
   }
 }
 
-bool HPSPFTauQualityCut::operator()(const l1t::PFCandidate& pfCand, float_t primaryVertex_z) const {
+bool L1HPSPFTauQualityCut::operator()(const l1t::PFCandidate& pfCand, float_t primaryVertex_z) const {
   if (pfCand.id() == pfCandType_) {
     if (pfCand.pt() < minPt_) {
       return false;
@@ -60,15 +60,15 @@ bool HPSPFTauQualityCut::operator()(const l1t::PFCandidate& pfCand, float_t prim
   return true;
 }
 
-l1t::PFCandidate::ParticleType HPSPFTauQualityCut::pfCandType() const { return pfCandType_; }
+l1t::PFCandidate::ParticleType L1HPSPFTauQualityCut::pfCandType() const { return pfCandType_; }
 
-int HPSPFTauQualityCut::dzCut() const { return dzCut_; }
+int L1HPSPFTauQualityCut::dzCut() const { return dzCut_; }
 
-float_t HPSPFTauQualityCut::minPt() const { return minPt_; }
+float_t L1HPSPFTauQualityCut::minPt() const { return minPt_; }
 
-float_t HPSPFTauQualityCut::maxDz() const { return maxDz_; }
+float_t L1HPSPFTauQualityCut::maxDz() const { return maxDz_; }
 
-HPSPFTauQualityCut readL1PFTauQualityCut(const edm::ParameterSet& cfg,
+L1HPSPFTauQualityCut readL1PFTauQualityCut(const edm::ParameterSet& cfg,
                                            const std::string& pfCandType,
                                            const std::string& dzCut,
                                            bool debug) {
@@ -76,14 +76,14 @@ HPSPFTauQualityCut readL1PFTauQualityCut(const edm::ParameterSet& cfg,
   cfg_pfCandType.addParameter<std::string>("pfCandType", pfCandType);
   cfg_pfCandType.addParameter<std::string>("dzCut", dzCut);
   cfg_pfCandType.addUntrackedParameter<bool>("debug", debug);
-  HPSPFTauQualityCut qualityCut(cfg_pfCandType);
+  L1HPSPFTauQualityCut qualityCut(cfg_pfCandType);
   return qualityCut;
 }
 
-std::vector<HPSPFTauQualityCut> readL1PFTauQualityCuts(const edm::ParameterSet& cfg,
+std::vector<L1HPSPFTauQualityCut> readL1PFTauQualityCuts(const edm::ParameterSet& cfg,
                                                          const std::string& dzCut,
                                                          bool debug) {
-  std::vector<HPSPFTauQualityCut> qualityCuts;
+  std::vector<L1HPSPFTauQualityCut> qualityCuts;
   qualityCuts.push_back(readL1PFTauQualityCut(cfg, "chargedHadron", dzCut, debug));
   qualityCuts.push_back(readL1PFTauQualityCut(cfg, "electron", dzCut, debug));
   qualityCuts.push_back(readL1PFTauQualityCut(cfg, "muon", dzCut, debug));
@@ -92,7 +92,7 @@ std::vector<HPSPFTauQualityCut> readL1PFTauQualityCuts(const edm::ParameterSet& 
   return qualityCuts;
 }
 
-bool isSelected(const std::vector<HPSPFTauQualityCut>& qualityCuts,
+bool isSelected(const std::vector<L1HPSPFTauQualityCut>& qualityCuts,
                 const l1t::PFCandidate& pfCand,
                 float_t primaryVertex_z) {
   for (auto qualityCut : qualityCuts) {

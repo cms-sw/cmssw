@@ -1,18 +1,18 @@
-#ifndef L1Trigger_Phase2L1Taus_HPSPFTauQualityCut_h
-#define L1Trigger_Phase2L1Taus_HPSPFTauQualityCut_h
+#ifndef L1Trigger_Phase2L1Taus_L1HPSPFTauQualityCut_h
+#define L1Trigger_Phase2L1Taus_L1HPSPFTauQualityCut_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"         // edm::ParameterSet
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"  // l1t::PFCandidate
 #include <string>                                               // std::string
 #include <vector>                                               // std::vector
 
-class HPSPFTauQualityCut {
+class L1HPSPFTauQualityCut {
 public:
   /// constructor
-  HPSPFTauQualityCut(const edm::ParameterSet& cfg);
+  L1HPSPFTauQualityCut(const edm::ParameterSet& cfg);
 
   /// destructor
-  ~HPSPFTauQualityCut() = default;
+  ~L1HPSPFTauQualityCut() = default;
 
   /// returns true (false) if PFCandidate passes (fails) quality cuts
   bool operator()(const l1t::PFCandidate& pfCand, float_t primaryVertexZ) const;
@@ -35,11 +35,11 @@ private:
   bool debug_;
 };
 
-std::vector<HPSPFTauQualityCut> readL1PFTauQualityCuts(const edm::ParameterSet& cfg,
+std::vector<L1HPSPFTauQualityCut> readL1PFTauQualityCuts(const edm::ParameterSet& cfg,
                                                          const std::string& dzCut,
                                                          bool debug = false);
 
-bool isSelected(const std::vector<HPSPFTauQualityCut>& qualityCuts,
+bool isSelected(const std::vector<L1HPSPFTauQualityCut>& qualityCuts,
                 const l1t::PFCandidate& pfCand,
                 float_t primaryVertexZ);
 

@@ -1,9 +1,9 @@
-#ifndef L1Trigger_Phase2L1Taus_HPSPFTauBuilder_h
-#define L1Trigger_Phase2L1Taus_HPSPFTauBuilder_h
+#ifndef L1Trigger_Phase2L1Taus_L1HPSPFTauBuilder_h
+#define L1Trigger_Phase2L1Taus_L1HPSPFTauBuilder_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"             // edm::ParameterSet
 #include "DataFormats/Provenance/interface/ProductID.h"             // edm::ProductID
-#include "L1Trigger/Phase2L1Taus/interface/HPSPFTauQualityCut.h"  // HPSPFTauQualityCut
+#include "L1Trigger/Phase2L1Taus/interface/L1HPSPFTauQualityCut.h"  // L1HPSPFTauQualityCut
 #include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"          // l1t::HPSPFTau
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"  // l1t::PFCandidate, l1t::PFCandidateCollection, l1t::PFCandidateRef
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -11,10 +11,10 @@
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 #include <vector>
 
-class HPSPFTauBuilder {
+class L1HPSPFTauBuilder {
 public:
-  HPSPFTauBuilder(const edm::ParameterSet& cfg);
-  ~HPSPFTauBuilder() = default;
+  L1HPSPFTauBuilder(const edm::ParameterSet& cfg);
+  ~L1HPSPFTauBuilder() = default;
 
   void reset();
   void setL1PFCandProductID(const edm::ProductID& l1PFCandProductID);
@@ -48,11 +48,11 @@ private:
   double isolationConeSize_;
   double isolationConeSize2_;
 
-  std::vector<HPSPFTauQualityCut> signalQualityCutsDzCutDisabled_;
-  std::vector<HPSPFTauQualityCut> signalQualityCutsDzCutEnabledPrimary_;
-  std::vector<HPSPFTauQualityCut> isolationQualityCutsDzCutDisabled_;
-  std::vector<HPSPFTauQualityCut> isolationQualityCutsDzCutEnabledPrimary_;
-  std::vector<HPSPFTauQualityCut> isolationQualityCutsDzCutEnabledPileup_;
+  std::vector<L1HPSPFTauQualityCut> signalQualityCutsDzCutDisabled_;
+  std::vector<L1HPSPFTauQualityCut> signalQualityCutsDzCutEnabledPrimary_;
+  std::vector<L1HPSPFTauQualityCut> isolationQualityCutsDzCutDisabled_;
+  std::vector<L1HPSPFTauQualityCut> isolationQualityCutsDzCutEnabledPrimary_;
+  std::vector<L1HPSPFTauQualityCut> isolationQualityCutsDzCutEnabledPileup_;
   edm::ProductID l1PFCandProductID_;
   bool isPFCandSeeded_;
   l1t::PFCandidateRef l1PFCandSeed_;
