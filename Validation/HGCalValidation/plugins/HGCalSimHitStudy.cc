@@ -100,7 +100,8 @@ HGCalSimHitStudy::HGCalSimHitStudy(const edm::ParameterSet& iConfig)
   usesResource(TFileService::kSharedResource);
 
   for (auto const& name : nameDetectors_)
-    tok_hgcGeom_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+    tok_hgcGeom_.emplace_back(
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
   for (auto const& source : caloHitSources_)
     tok_hits_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", source)));
 }
@@ -206,7 +207,9 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
     double xp = (zp < 0) ? -xy.first : xy.first;
     gcoord = HepGeom::Point3D<float>(xp, xy.second, zp);
     if (verbosity_ > 2)
-      edm::LogVerbatim("HGCalValidation") << "i/p " << subdet << ":" << zside << ":" << layer << ":" << sector << ":" << sector2 << ":" << cell << ":" << cell2 << " o/p " << xy.first << ":" << xy.second << ":" << zp;
+      edm::LogVerbatim("HGCalValidation")
+          << "i/p " << subdet << ":" << zside << ":" << layer << ":" << sector << ":" << sector2 << ":" << cell << ":"
+          << cell2 << " o/p " << xy.first << ":" << xy.second << ":" << zp;
     nused++;
     double tof = (gcoord.mag() * CLHEP::mm) / CLHEP::c_light;
     if (verbosity_ > 1)

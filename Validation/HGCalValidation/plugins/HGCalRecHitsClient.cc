@@ -42,10 +42,11 @@ public:
 HGCalRecHitsClient::HGCalRecHitsClient(const edm::ParameterSet &iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
-      ddc_token_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_})) {}
+      ddc_token_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag{"", nameDetector_})) {}
 
 void HGCalRecHitsClient::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
-  const HGCalDDDConstants& hgcons_ = iSetup.getData(ddc_token_);
+  const HGCalDDDConstants &hgcons_ = iSetup.getData(ddc_token_);
   layers_ = hgcons_.layers(true);
 }
 

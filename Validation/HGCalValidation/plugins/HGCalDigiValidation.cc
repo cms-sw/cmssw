@@ -121,7 +121,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   OccupancyMap_minus_.clear();
 
   int geomType(0);
-  const HGCalGeometry*  geom0 = &iSetup.getData(tok_hgcalg_);
+  const HGCalGeometry* geom0 = &iSetup.getData(tok_hgcalg_);
   if (geom0->topology().waferHexagon8())
     geomType = 1;
   else if (geom0->topology().tileTrapezoid())
