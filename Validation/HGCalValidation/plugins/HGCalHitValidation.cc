@@ -80,6 +80,8 @@ private:
   edm::EDGetTokenT<HGCeeRecHitCollection> eeRecHitToken_;
   edm::EDGetTokenT<HGChefRecHitCollection> fhRecHitToken_;
   edm::EDGetTokenT<HGChebRecHitCollection> bhRecHitToken_;
+  std::vector<edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord>> tok_ddd_;
+  std::vector<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>> tok_geom_;
 
   //histogram related stuff
   MonitorElement *heedzVsZ, *heedyVsY, *heedxVsX;
@@ -105,6 +107,11 @@ HGCalHitValidation::HGCalHitValidation(const edm::ParameterSet& cfg) {
   fhRecHitToken_ = consumes<HGChefRecHitCollection>(cfg.getParameter<edm::InputTag>("fhRecHitSource"));
   bhRecHitToken_ = consumes<HGChebRecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"));
   ietaExcludeBH_ = cfg.getParameter<std::vector<int>>("ietaExcludeBH");
+
+  for (const auto& name : geometrySource_) {
+    tok_ddd_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+    tok_geom_.emplace_back(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+  }
 
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HGCalValid") << "Exclude the following " << ietaExcludeBH_.size() << " ieta values from BH plots";
@@ -171,15 +178,13 @@ void HGCalHitValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const&, 
 void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   //initiating hgc Geometry
   for (size_t i = 0; i < geometrySource_.size(); i++) {
-    edm::ESHandle<HGCalDDDConstants> hgcCons;
-    iSetup.get<IdealGeometryRecord>().get(geometrySource_[i], hgcCons);
+    edm::ESHandle<HGCalDDDConstants> hgcCons= iSetup.getHandle(tok_ddd_[i]);
     if (hgcCons.isValid()) {
       hgcCons_.push_back(hgcCons.product());
     } else {
       edm::LogWarning("HGCalValid") << "Cannot initiate HGCalDDDConstants for " << geometrySource_[i] << std::endl;
     }
-    edm::ESHandle<HGCalGeometry> hgcGeom;
-    iSetup.get<IdealGeometryRecord>().get(geometrySource_[i], hgcGeom);
+    edm::ESHandle<HGCalGeometry> hgcGeom = iSetup.getHandle(tok_geom_[i]);
     if (hgcGeom.isValid()) {
       hgcGeometry_.push_back(hgcGeom.product());
     } else {
