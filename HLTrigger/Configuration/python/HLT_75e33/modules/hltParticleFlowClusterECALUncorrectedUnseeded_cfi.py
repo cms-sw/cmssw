@@ -9,12 +9,12 @@ hltParticleFlowClusterECALUncorrectedUnseeded = cms.EDProducer("PFClusterProduce
         thresholdsByDetector = cms.VPSet(
             cms.PSet(
                 detector = cms.string('ECAL_BARREL'),
-                gatheringThreshold = cms.double(0.08),
+                gatheringThreshold = cms.double(0.08),      # this shoud be 0.175 for consistency with the E/Gamma reconstruction
                 gatheringThresholdPt = cms.double(0.0)
             ),
             cms.PSet(
                 detector = cms.string('ECAL_ENDCAP'),
-                gatheringThreshold = cms.double(0.3),
+                gatheringThreshold = cms.double(0.3),       # this shoud be 0.4375 for consistency with the E/Gamma reconstruction
                 gatheringThresholdPt = cms.double(0.0)
             )
         ),
