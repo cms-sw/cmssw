@@ -9,10 +9,9 @@
 #include <iostream>
 
 LumiBasedUpdateAnalyzer::LumiBasedUpdateAnalyzer(const edm::ParameterSet& iConfig)
-  : m_record(iConfig.getParameter<std::string>("record")), m_ret(-2) {}
+    : m_record(iConfig.getParameter<std::string>("record")), m_ret(-2) {}
 
-LumiBasedUpdateAnalyzer::~LumiBasedUpdateAnalyzer() {
-}
+LumiBasedUpdateAnalyzer::~LumiBasedUpdateAnalyzer() {}
 
 void LumiBasedUpdateAnalyzer::beginJob() {
   edm::Service<cond::service::OnlineDBOutputService> mydbservice;
@@ -21,7 +20,7 @@ void LumiBasedUpdateAnalyzer::beginJob() {
   }
   mydbservice->lockRecords();
 }
-    
+
 void LumiBasedUpdateAnalyzer::endJob() {
   edm::Service<cond::service::OnlineDBOutputService> mydbservice;
   if (mydbservice.isAvailable()) {
@@ -29,7 +28,8 @@ void LumiBasedUpdateAnalyzer::endJob() {
   }
 }
 
-void LumiBasedUpdateAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
+void LumiBasedUpdateAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                                                   const edm::EventSetup& context) {
   edm::Service<cond::service::OnlineDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     return;
