@@ -9,7 +9,7 @@ from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerC
 from Validation.HGCalValidation.simhitValidation_cff    import *
 from Validation.HGCalValidation.digiValidation_cff      import *
 from Validation.HGCalValidation.rechitValidation_cff    import *
-from Validation.HGCalValidation.hgcalHitValidation_cfi  import *
+from Validation.HGCalValidation.hgcalHitValidation_cff  import *
 from RecoHGCal.TICL.SimTracksters_cff import *
 
 from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
