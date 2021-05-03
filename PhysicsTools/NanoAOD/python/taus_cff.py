@@ -109,14 +109,6 @@ _mvaIsoVars2017v2 = cms.PSet(
     idMVAoldDM2017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBoldDMwLT2017v2", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2017v2)"),
     idMVAoldDMdR032017v2 = _tauId7WPMask( "by%sIsolationMVArun2v1DBdR03oldDMwLT2017v2", doc="IsolationMVArun2v1DBoldDMdR0p3wLT ID working point (2017v2)")
 )
-_mvaAntiEVars = cms.PSet(
-       rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
-       rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
-       idAntiEle2018 = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6 (2018)"),
-       rawAntiEle = Var("tauID('againstElectronMVA6Raw2015')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2015)", precision=10),
-       rawAntiEleCat = Var("tauID('againstElectronMVA6category2015')", int, doc="Anti-electron MVA discriminator V6 category (2015"),
-       idAntiEle = _tauId5WPMask("againstElectron%sMVA62015", doc= "Anti-electron MVA discriminator V6 (2015)"),
-)
 _mvaAntiEVars2015 = cms.PSet(
        rawAntiEle = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2015)", precision=10),
        rawAntiEleCat = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2015"),
@@ -135,7 +127,10 @@ _variablesMiniV2 = cms.PSet(
     _tauVarsBase,
     _deepTauVars2017v2p1
 )
-_variablesMiniV1 = _variablesMiniV2.clone()
+_variablesMiniV1 = cms.PSet(
+    _variablesMiniV2,
+    _mvaIsoVars2017v2
+)
 _variablesMiniV1.rawMVAoldDM = Var( "tauID('byIsolationMVArun2v1DBoldDMwLTraw')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2015)",precision=10)
 _variablesMiniV1.rawMVAoldDM2017v1 = Var( "tauID('byIsolationMVArun2v1DBoldDMwLTraw2017v1')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2017v1)",precision=10)
 _variablesMiniV1.idMVAoldDM = _tauId6WPMask( "by%sIsolationMVArun2v1DBoldDMwLT", doc="IsolationMVArun2v1DBoldDMwLT ID working point (2015)")
@@ -149,7 +144,7 @@ _variables80X =  cms.PSet(
 tauTable.variables = _variablesMiniV2
 
 (run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(tauTable,
-                 variables = cms.PSet(tauTable.variables, _mvaAntiEVars, _mvaIsoVars2015Reduced, _mvaIsoVars2017v1, _mvaIsoVars2017v2)
+                 variables = cms.PSet(tauTable.variables, _mvaIsoVars2015Reduced, _mvaIsoVars2017v1, _mvaIsoVars2017v2)
     )
 for era in [run2_nanoAOD_94XMiniAODv1,]:
     era.toModify(tauTable,
