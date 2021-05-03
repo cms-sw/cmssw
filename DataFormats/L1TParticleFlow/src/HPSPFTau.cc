@@ -1,4 +1,5 @@
 #include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // default constructor
 l1t::HPSPFTau::HPSPFTau()
@@ -34,20 +35,24 @@ ostream& operator<<(ostream& os, const l1t::HPSPFTau& l1PFTau) {
     os << " chargedPFCand";
   } else if (l1PFTau.isJetSeeded()) {
     os << " PFJet";
-  } else
-    assert(0);
+  } else {
+    cms::Exception ex("InconsistentTau");
+    ex.addContext("Calling HPSPFTau::operator <<");
+    ex.addAdditionalInfo("This tau is not seed by either a chargedPFCand or a PFJet!");
+    throw ex;
+  }
   os << std::endl;
   os << "signalPFCands:" << std::endl;
-  for (auto l1PFCand : l1PFTau.signalAllL1PFCandidates()) {
+  for (const auto& l1PFCand : l1PFTau.signalAllL1PFCandidates()) {
     printPFCand(os, *l1PFCand, l1PFTau.primaryVertex());
   }
   os << "stripPFCands:" << std::endl;
-  for (auto l1PFCand : l1PFTau.stripAllL1PFCandidates()) {
+  for (const auto& l1PFCand : l1PFTau.stripAllL1PFCandidates()) {
     printPFCand(os, *l1PFCand, l1PFTau.primaryVertex());
   }
   os << "strip pT = " << l1PFTau.stripP4().pt() << std::endl;
   os << "isolationPFCands:" << std::endl;
-  for (auto l1PFCand : l1PFTau.isoAllL1PFCandidates()) {
+  for (const auto& l1PFCand : l1PFTau.isoAllL1PFCandidates()) {
     printPFCand(os, *l1PFCand, l1PFTau.primaryVertex());
   }
   os << "isolation pT-sum: charged = " << l1PFTau.sumChargedIso() << ", neutral = " << l1PFTau.sumNeutralIso()

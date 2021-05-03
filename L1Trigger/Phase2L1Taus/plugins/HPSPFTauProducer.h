@@ -8,8 +8,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
-#include "L1Trigger/Phase2L1Taus/interface/HPSPFTauQualityCut.h"  // HPSPFTauQualityCut
-#include "L1Trigger/Phase2L1Taus/interface/HPSPFTauBuilder.h"     // HPSPFTauBuilder
+#include "L1Trigger/Phase2L1Taus/interface/L1HPSPFTauQualityCut.h"  // L1HPSPFTauQualityCut
+#include "L1Trigger/Phase2L1Taus/interface/L1HPSPFTauBuilder.h"     // L1HPSPFTauBuilder
 #include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"          // l1t::HPSPFTau
 #include "DataFormats/L1TParticleFlow/interface/HPSPFTauFwd.h"       // l1t::HPSPFTauCollection
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"  // l1t::PFCandidate, l1t::PFCandidateCollection, l1t::PFCandidateRef
@@ -31,7 +31,7 @@ private:
 
   std::string moduleLabel_;
 
-  HPSPFTauBuilder tauBuilder_;
+  L1HPSPFTauBuilder tauBuilder_;
 
   edm::InputTag srcL1PFCands_;
   edm::EDGetTokenT<l1t::PFCandidateCollection> tokenL1PFCands_;
@@ -40,8 +40,8 @@ private:
   edm::InputTag srcL1Vertices_;
   edm::EDGetTokenT<std::vector<l1t::TkPrimaryVertex>> tokenL1Vertices_;
 
-  std::vector<HPSPFTauQualityCut> signalQualityCutsDzCutDisabled_;
-  std::vector<HPSPFTauQualityCut> isolationQualityCutsDzCutDisabled_;
+  std::vector<L1HPSPFTauQualityCut> signalQualityCutsDzCutDisabled_;
+  std::vector<L1HPSPFTauQualityCut> isolationQualityCutsDzCutDisabled_;
 
   bool useChargedPFCandSeeds_;
   double minSeedChargedPFCandPt_;
@@ -66,6 +66,7 @@ private:
   bool applyPreselection_;
 
   bool debug_;
+  const double isPFTauPt_ = 1.;
 };
 
 #endif

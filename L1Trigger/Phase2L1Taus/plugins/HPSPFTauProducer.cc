@@ -133,7 +133,7 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
           tauBuilder_.addL1PFCandidates(selectedL1PFCandsSignalOrIsolationQualityCuts);
           tauBuilder_.buildL1PFTau();
           l1t::HPSPFTau l1PFTau = tauBuilder_.getL1PFTau();
-          if (l1PFTau.pt() > 1.)
+          if (l1PFTau.pt() > isPFTauPt_)
             l1PFTauCollectionUncleaned.push_back(l1PFTau);
         }
       }
@@ -156,7 +156,7 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         tauBuilder_.addL1PFCandidates(selectedL1PFCandsSignalOrIsolationQualityCuts);
         tauBuilder_.buildL1PFTau();
         l1t::HPSPFTau l1PFTau = tauBuilder_.getL1PFTau();
-        if (l1PFTau.pt() > 1.)
+        if (l1PFTau.pt() > isPFTauPt_)
           l1PFTauCollectionUncleaned.push_back(l1PFTau);
       }
     }
