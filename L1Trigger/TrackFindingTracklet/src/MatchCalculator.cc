@@ -290,22 +290,9 @@ void MatchCalculator::execute(double phioffset) {
             << ideltaz * fact_ * settings_.kz() << " " << dz << " " << zmatchcut_[seedindex] * settings_.kz() << endl;
       }
 
-      bool imatch = false;
-      if (std::abs(dphi) < 0.2 && std::abs(dphiapprox) < 0.2) {  //Changed the Asserts into if statements
-        if (settings_.writeMonitorData("Residuals")) {
-          double pt = 0.01 * settings_.c() * settings_.bfield() / std::abs(tracklet->rinv());
+      bool imatch = (std::abs(ideltaphi) <= (int)phimatchcut_[seedindex]) &&
+	(std::abs(ideltaz * fact_) <= (int)zmatchcut_[seedindex]);
 
-          globals_->ofstream("layerresiduals.txt")
-              << layerdisk_ + 1 << " " << seedindex << " " << pt << " "
-              << ideltaphi * settings_.kphi1() * settings_.rmean(layerdisk_) << " "
-              << dphiapprox * settings_.rmean(layerdisk_) << " "
-              << phimatchcut_[seedindex] * settings_.kphi1() * settings_.rmean(layerdisk_) << "   "
-              << ideltaz * fact_ * settings_.kz() << " " << dz << " " << zmatchcut_[seedindex] * settings_.kz() << endl;
-        }
-
-        imatch = (std::abs(ideltaphi) <= (int)phimatchcut_[seedindex]) &&
-                 (std::abs(ideltaz * fact_) <= (int)zmatchcut_[seedindex]);
-      }
       if (settings_.debugTracklet()) {
         edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
                                      << phimatchcut_[seedindex] << " ideltaz*fact cut " << ideltaz * fact_ << " "
