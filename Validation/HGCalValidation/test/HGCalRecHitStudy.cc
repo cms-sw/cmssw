@@ -116,7 +116,8 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
   }
   edm::LogVerbatim("HGCalValidation") << "Initialize HGCalRecHitStudy for " << nameDetector_ << " with i/p tag " << temp
                                       << " Flag " << ifNose_ << ":" << verbosity_;
-  tok_hgcaldd_ = esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_});
+  tok_hgcaldd_ =
+      esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_});
   tok_hgcGeom_ = esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameDetector_});
 }
 
@@ -163,10 +164,10 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       nused++;
       DetId detId = it.id();
       int layer = (ifNose_ ? HFNoseDetId(detId).layer()
-		   : ((detId.det() == DetId::Forward)
-		      ? HGCalDetId(detId).layer()
-		      : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
-			 : HGCSiliconDetId(detId).layer())));
+                           : ((detId.det() == DetId::Forward)
+                                  ? HGCalDetId(detId).layer()
+                                  : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
+                                                                      : HGCSiliconDetId(detId).layer())));
       recHitValidation(detId, layer, geom0, &it);
     }
   } else {
@@ -250,7 +251,7 @@ void HGCalRecHitStudy::beginRun(edm::Run const&, edm::EventSetup const& iSetup) 
   const HGCalDDDConstants& hgcons_ = (*pHGDC);
   layers_ = hgcons_.layers(true);
   firstLayer_ = hgcons_.firstLayer();
-  
+
   edm::LogVerbatim("HGCalValidation") << "Finds " << layers_ << " layers for " << nameDetector_;
 
   edm::Service<TFileService> fs;

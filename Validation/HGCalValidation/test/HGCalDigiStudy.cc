@@ -96,7 +96,7 @@ HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig)
       zmin_(iConfig.getUntrackedParameter<double>("zMin", 300.0)),
       zmax_(iConfig.getUntrackedParameter<double>("zMax", 600.0)),
       etamin_(iConfig.getUntrackedParameter<double>("etaMin", 1.0)),
-  etamax_(iConfig.getUntrackedParameter<double>("etaMax", 3.0)) {
+      etamax_(iConfig.getUntrackedParameter<double>("etaMax", 3.0)) {
   usesResource(TFileService::kSharedResource);
 
   if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive") ||
@@ -109,7 +109,8 @@ HGCalDigiStudy::HGCalDigiStudy(const edm::ParameterSet& iConfig)
   }
   edm::LogVerbatim("HGCalValidation") << "HGCalDigiStudy: request for Digi "
                                       << "collection " << source_ << " for " << nameDetector_;
-  tok_hgcGeom_ = esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_});
+  tok_hgcGeom_ =
+      esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", nameDetector_});
 }
 
 void HGCalDigiStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -221,7 +222,7 @@ void HGCalDigiStudy::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   edm::ESHandle<HGCalGeometry> geom = iSetup.getHandle(tok_hgcGeom_);
   if (!geom.isValid())
     edm::LogVerbatim("HGCalValidation") << "HGCalDigiStudy: Cannot get "
-					<< "valid Geometry Object for " << nameDetector_;
+                                        << "valid Geometry Object for " << nameDetector_;
   hgcGeom_ = geom.product();
   layerFront_ = hgcGeom_->topology().dddConstants().firstLayer();
   layers_ = hgcGeom_->topology().dddConstants().layers(true);
@@ -252,8 +253,9 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType_ == 0) ? (HGCalDetId(detId).layer())
-                                      : (geomType_ == 1) ? HGCSiliconDetId(detId).layer() : HFNoseDetId(detId).layer());
+        int layer = ((geomType_ == 0)   ? (HGCalDetId(detId).layer())
+                     : (geomType_ == 1) ? HGCSiliconDetId(detId).layer()
+                                        : HFNoseDetId(detId).layer());
         const HGCSample& hgcSample = it.sample(SampleIndx_);
         uint16_t adc = hgcSample.data();
         double charge = adc;
@@ -327,7 +329,7 @@ void HGCalDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     } else {
       edm::LogVerbatim("HGCalValidation")
-	<< "DigiCollection handle " << source_ << " does not exist for " << nameDetector_ << " !!!";
+          << "DigiCollection handle " << source_ << " does not exist for " << nameDetector_ << " !!!";
     }
   } else {
     edm::LogWarning("HGCalValidation") << "invalid detector name !! " << nameDetector_ << " source " << source_;

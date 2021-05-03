@@ -65,7 +65,8 @@ HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) {
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
   geometrySource_ = cfg.getUntrackedParameter<std::vector<std::string> >("geometrySource");
   for (const auto &name : geometrySource_) {
-    tok_hgcGeom_.emplace_back(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
+    tok_hgcGeom_.emplace_back(
+        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name}));
   }
 
   edm::LogVerbatim("HGCalValid") << "HGCGeometryCheck:: use information from "
