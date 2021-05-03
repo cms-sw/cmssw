@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
@@ -49,7 +50,11 @@ MTDTopologyEP::ReturnType MTDTopologyEP::produce(const MTDTopologyRcd& iRecord) 
 void MTDTopologyEP::fillParameters(const PMTDParameters& ptp, int& mtdTopologyMode, MTDTopology::ETLValues& etlVals) {
   mtdTopologyMode = ptp.topologyMode_;
 
-  // Check on the internal consistency of thr ETL layour information provided by parameters
+  // for legacy geometry scenarios no topology informastion is stored, only for newer ETL 2-discs layout
+
+  if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) { return; }
+
+  // Check on the internal consistency of thr ETL layout information provided by parameters
 
   for (size_t it = 3; it <= 9; it++) {
     if (ptp.vitems_[it].vpars_.size() != ptp.vitems_[2].vpars_.size()) {
