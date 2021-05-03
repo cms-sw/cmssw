@@ -193,6 +193,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
                  tracks->chi2(it);                                      //chi2
     };
 
+
     // full crazy combinatorics
     int ntr = thisCell.tracks().size();
     for (int i = 0; i < ntr; ++i) {
@@ -201,23 +202,25 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
       if (qi <= reject)
         continue;
       auto opi = tracks->stateAtBS.state(it)(2);
-      // auto dop = 5.f * std::sqrt(tracks->stateAtBS.covariance(it)(9));
+      auto e2opi = tracks->stateAtBS.covariance(it)(9);
       auto cti = tracks->stateAtBS.state(it)(3);
-      // auto dct = 5.f * std::sqrt(tracks->stateAtBS.covariance(it)(12));
+      auto e2cti = tracks->stateAtBS.covariance(it)(12);
       for (auto j = i + 1; j < ntr; ++j) {
         auto jt = thisCell.tracks()[j];
         auto qj = tracks->quality(jt);
         if (qj <= reject)
           continue;
+#ifdef GPU_DEBUG
         if (foundNtuplets->size(it) != foundNtuplets->size(jt))
           printf(" a mess\n");
+#endif
         auto opj = tracks->stateAtBS.state(jt)(2);
         auto ctj = tracks->stateAtBS.state(jt)(3);
-        auto dct = 5.f * std::sqrt(tracks->stateAtBS.covariance(jt)(12) + tracks->stateAtBS.covariance(it)(12));
-        if (std::abs(cti - ctj) > dct)
+        auto dct = 25.f * (tracks->stateAtBS.covariance(jt)(12) + e2cti);
+        if ((cti - ctj)*(cti - ctj) > dct)
           continue;
-        auto dop = 5.f * std::sqrt(tracks->stateAtBS.covariance(jt)(9) + tracks->stateAtBS.covariance(it)(9));
-        if (std::abs(opi - opj) > dop)
+        auto dop = 25.f * (tracks->stateAtBS.covariance(jt)(9) + e2opi);
+        if ((opi - opj)*(opi - opj) > dop)
           continue;
         if ((qj < qi) || (qj == qi && score(it) < score(jt)))
           tracks->quality(jt) = reject;
@@ -227,6 +230,8 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
         }
       }
     }
+
+
 
     // find maxQual
     auto maxQual = reject;  // no duplicate!
@@ -561,17 +566,17 @@ __global__ void kernel_countSharedHit(int *__restrict__ nshared,
     if (hitToTuple.size(idx) < 2)
       continue;
 
-    /*
+    
     // uint32_t maxNh = 0;
 
     int n3 = 0;
 
-    // find maxNh
+    // count "good" tracks
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-    //  if (quality[*it] < loose)
-    //    continue;
-      uint32_t nh = foundNtuplets.size(*it);
-      if (3 == nh)
+      if (quality[*it] < loose)
+        continue;
+    //  uint32_t nh = foundNtuplets.size(*it);
+    //  if (3 == nh)
         ++n3;
       // maxNh = std::max(nh, maxNh);
     }
@@ -581,7 +586,7 @@ __global__ void kernel_countSharedHit(int *__restrict__ nshared,
 
     if (n3 < 2)
       continue;
-    */
+    
 
     // now mark  each track triplet as sharing a hit
     for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
@@ -656,9 +661,9 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
       if (qi <= reject)
         continue;
       auto opi = tracks.stateAtBS.state(it)(2);
-      //      auto dop = 5.f * std::sqrt(tracks.stateAtBS.covariance(it)(9));
+      auto e2opi = tracks.stateAtBS.covariance(it)(9);
       auto cti = tracks.stateAtBS.state(it)(3);
-      //      auto dct = 5.f * std::sqrt(tracks.stateAtBS.covariance(it)(12));
+      auto e2cti = tracks.stateAtBS.covariance(it)(12);
       auto nhi = foundNtuplets.size(it);
       for (auto jp = ip + 1; jp != hitToTuple.end(idx); ++jp) {
         auto const jt = *jp;
@@ -667,11 +672,11 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
           continue;
         auto opj = tracks.stateAtBS.state(jt)(2);
         auto ctj = tracks.stateAtBS.state(jt)(3);
-        auto dct = 5.f * std::sqrt(tracks.stateAtBS.covariance(jt)(12) + tracks.stateAtBS.covariance(it)(12));
-        if (std::abs(cti - ctj) > dct)
+        auto dct = 25.f * (tracks.stateAtBS.covariance(jt)(12) + e2cti);
+        if ((cti - ctj)*(cti - ctj) > dct)
           continue;
-        auto dop = 5.f * std::sqrt(tracks.stateAtBS.covariance(jt)(9) + tracks.stateAtBS.covariance(it)(9));
-        if (std::abs(opi - opj) > dop)
+        auto dop = 25.f * (tracks.stateAtBS.covariance(jt)(9) + e2opi);
+        if ((opi - opj)*(opi - opj) > dop)
           continue;
         auto nhj = foundNtuplets.size(jt);
         if (nhj < nhi || (nhj == nhi && (qj < qi || (qj == qi && score(it, nhi) < score(jt, nhj)))))
@@ -716,6 +721,17 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
     if (maxNh > 3)
       continue;
 
+    //  not a quality criteria.....
+    int minSh = 1000;
+    for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
+      auto const it = *ip;
+      if (quality[it] >= strict && nshared[it]<minSh) {
+        minSh = nshared[it];      
+      }
+    }
+    if (minSh==1000) continue;
+    if (minSh==0) printf("problem with 0 sharing\n");    
+
     // for triplets choose best tip!  (should we first find best quality???)
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
@@ -728,7 +744,7 @@ __global__ void kernel_sharedHitCleaner(int const *__restrict__ nshared,
     if (60000 == im)
       continue;
 
-    // mark duplicates
+    // mark worse ambiguities
     for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
       auto const it = *ip;
       // if (nshared[it]<2) continue;  // kill only tracks that share also other hits
