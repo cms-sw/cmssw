@@ -10,6 +10,7 @@ recoMuonValidator = DQMEDAnalyzer('RecoMuonValidator',
     usePFMuon = cms.untracked.bool(False),
 
     simLabel = cms.InputTag("mix","MergedTrackTruth"),
+    tpRefVector = cms.bool(False),
     muonLabel = cms.InputTag("muons"),
 
     muAssocLabel = cms.InputTag("muonAssociatorByHitsHelper"),
