@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
-##################### Updated tau collection with MVA-based tau-Ids rerun #######
-# Used only in some eras
-from PhysicsTools.NanoAOD.taus_updatedMVAIds_cff import *
+##################### Import reusable funtions and objects from std taus ########
+from PhysicsTools.NanoAOD.taus_cff import _tauId2WPMask,_tauId5WPMask,_tauId7WPMask,tausMCMatchLepTauForTable,tausMCMatchHadTauForTable,tauMCTable
 
 ##################### User floats producers, selectors ##########################
 
@@ -12,26 +11,6 @@ finalBoostedTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTausBoostedNewID"),
     cut = cms.string("pt > 40 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017') || tauID('byVVLooseIsolationMVArun2017v2DBnewDMwLT2017'))")
 )
-
-
-##################### Tables for final output and docs ##########################
-def _tauIdWPMask(pattern, choices, doc=""):
-    return Var(" + ".join(["%d * tauID('%s')" % (pow(2,i), pattern % c) for (i,c) in enumerate(choices)]), "uint8", 
-               doc=doc+": bitmask "+", ".join(["%d = %s" % (pow(2,i),c) for (i,c) in enumerate(choices)]))
-def _tauId2WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("Loose","Tight"),doc=doc)
-def _tauId3WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("Loose","Medium","Tight"),doc=doc)
-def _tauId4WPMask(pattern,doc):
-    return _tauIdWPMask(pattern, choices=("VLoose", "Loose", "Medium", "Tight"), doc=doc)
-def _tauId5WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("VLoose","Loose","Medium","Tight","VTight"),doc=doc)
-def _tauId6WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
-def _tauId7WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
-def _tauId8WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
 
 boostedTauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("finalBoostedTaus"),
@@ -72,39 +51,20 @@ _boostedTauVarsBase = cms.PSet(P4Vars,
 boostedTauTable.variables = _boostedTauVarsBase
 
 
-boostedTausMCMatchLepTauForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
-    src         = boostedTauTable.src,                 # final reco collection
-    matched     = cms.InputTag("finalGenParticles"), # final mc-truth particle collection
-    mcPdgId     = cms.vint32(11,13),            # one or more PDG ID (11 = electron, 13 = muon); absolute values (see below)
-    checkCharge = cms.bool(False),              # True = require RECO and MC objects to have the same charge
-    mcStatus    = cms.vint32(),                 # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
-    maxDeltaR   = cms.double(0.3),              # Minimum deltaR for the match
-    maxDPtRel   = cms.double(0.5),              # Minimum deltaPt/Pt for the match
-    resolveAmbiguities    = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
-    resolveByMatchQuality = cms.bool(True),     # False = just match input in order; True = pick lowest deltaR pair first
+boostedTausMCMatchLepTauForTable = tausMCMatchLepTauForTable.clone(
+    src = boostedTauTable.src
 )
 
 #This requires genVisTaus in taus_cff.py
-boostedTausMCMatchHadTauForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
-    src         = boostedTauTable.src,                 # final reco collection
-    matched     = cms.InputTag("genVisTaus"),   # generator level hadronic tau decays
-    mcPdgId     = cms.vint32(15),               # one or more PDG ID (15 = tau); absolute values (see below)
-    checkCharge = cms.bool(False),              # True = require RECO and MC objects to have the same charge
-    mcStatus    = cms.vint32(),                 # CV: no *not* require certain status code for matching (status code corresponds to decay mode for hadronic tau decays)
-    maxDeltaR   = cms.double(0.3),              # Maximum deltaR for the match
-    maxDPtRel   = cms.double(1.),               # Maximum deltaPt/Pt for the match
-    resolveAmbiguities    = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
-    resolveByMatchQuality = cms.bool(True),     # False = just match input in order; True = pick lowest deltaR pair first
+boostedTausMCMatchHadTauForTable = tausMCMatchHadTauForTable.clone(
+    src = boostedTauTable.src
 )
 
-boostedTauMCTable = cms.EDProducer("CandMCMatchTableProducer",
+boostedTauMCTable = tauMCTable.clone(
     src = boostedTauTable.src,
     mcMap = cms.InputTag("boostedTausMCMatchLepTauForTable"),
     mcMapVisTau = cms.InputTag("boostedTausMCMatchHadTauForTable"),                         
     objName = boostedTauTable.name,
-    objType = cms.string("Tau"),
-    branchName = cms.string("genPart"),
-    docString = cms.string("MC matching to status==2 taus"),
 )
 
 
