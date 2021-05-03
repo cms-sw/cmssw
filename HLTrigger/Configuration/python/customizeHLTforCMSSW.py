@@ -150,14 +150,23 @@ def customiseFor33495(process):
             del producer.DoLorentz
     return process
 
+def customizeFor33526(process):
+    """ Customize HLT menu to remove deprecated parameters for the pixel raw to digi step"""
+    for producer in producers_by_type(process, "SiPixelRawToDigi"):
+        if hasattr(producer, "Timing"):
+            del producer.Timing
+        if hasattr(producer, "CheckPixelOrder"):
+            del producer.CheckPixelOrder
 
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
-
+    
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
     process = customiseFor33495(process)
+    process = customizeFor33526(process)
     process = customizeFor33543(process)
 
     return process
