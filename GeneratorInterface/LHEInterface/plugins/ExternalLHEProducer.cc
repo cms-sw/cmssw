@@ -290,12 +290,11 @@ void ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& 
   }
 
   //run post-generation command if specified
-  if (postGenerationCommand_.size() > 0) {
+  if (!postGenerationCommand_.empty()) {
     std::vector<std::string> postcmd = postGenerationCommand_;
     try {
       postcmd[0] = edm::FileInPath(postcmd[0]).fullPath();
-    }
-    catch (const edm::Exception & e) {
+    } catch (const edm::Exception& e) {
       edm::LogWarning("ExternalLHEProducer") << postcmd[0] << " is not a relative path. Run it as a shell command.";
     }
     executeScript(postcmd, 0, true);
@@ -547,7 +546,8 @@ void ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.addUntracked<bool>("generateConcurrently", false)
       ->setComment("If true, run the script concurrently in separate processes.");
   desc.addUntracked<std::vector<std::string>>("postGenerationCommand", std::vector<std::string>())
-      ->setComment("Command to run after the generation script has completed. The first argument can be a relative path.");
+      ->setComment(
+          "Command to run after the generation script has completed. The first argument can be a relative path.");
 
   edm::ParameterSetDescription nPartonMappingDesc;
   nPartonMappingDesc.add<unsigned>("idprup");
