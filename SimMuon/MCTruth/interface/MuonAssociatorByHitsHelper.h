@@ -100,6 +100,7 @@ private:
 
   const bool includeZeroHitMuons;
   const bool acceptOneStubMatchings;
+  const bool rejectBadGlobal;
   bool UseTracker;
   bool UseMuon;
   const bool AbsoluteNumberOfHits_track;
