@@ -18,9 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCalSimHitsClient : public DQMEDHarvester {
@@ -28,7 +26,6 @@ private:
   //member data
   const std::string nameDetector_;
   const int nTimes_, verbosity_;
-  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hcal_;
   const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcal_;
   unsigned int layers_;
 
@@ -39,25 +36,19 @@ public:
   void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
   void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
   virtual void runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
-  int simHitsEndjob(const std::vector<MonitorElement *> &hcalMEs);
+  int simHitsEndjob(const std::vector<MonitorElement *> &hgcalMEs);
 };
 
 HGCalSimHitsClient::HGCalSimHitsClient(const edm::ParameterSet &iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
       nTimes_(iConfig.getParameter<int>("TimeSlices")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
-      tok_hcal_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{})),
       tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})) {}
 
 void HGCalSimHitsClient::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
-  if (nameDetector_ == "HCal") {
-    const HcalDDDRecConstants *hcons = &iSetup.getData(tok_hcal_);
-    layers_ = hcons->getMaxDepth(1);
-  } else {
-    const HGCalDDDConstants *hgcons = &iSetup.getData(tok_hgcal_);
-    layers_ = hgcons->layers(true);
-  }
+  const HGCalDDDConstants *hgcons = &iSetup.getData(tok_hgcal_);
+  layers_ = hgcons->layers(true);
   if (verbosity_ > 0)
     edm::LogVerbatim("HGCalValidation") << "Initialize HGCalSimHitsClient for " << nameDetector_ << " : " << layers_;
 }

@@ -14,16 +14,13 @@
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCalDigiClient : public DQMEDHarvester {
 private:
   const std::string nameDetector_;
   const int verbosity_;
-  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_hcal_;
   const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcal_;
   int layers_;
 
@@ -34,24 +31,18 @@ public:
   void beginRun(const edm::Run &run, const edm::EventSetup &c) override;
   void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
   void runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
-  int digisEndjob(const std::vector<MonitorElement *> &hcalMEs);
+  int digisEndjob(const std::vector<MonitorElement *> &hgcalMEs);
 };
 
 HGCalDigiClient::HGCalDigiClient(const edm::ParameterSet &iConfig)
     : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
-      tok_hcal_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>(edm::ESInputTag{})),
       tok_hgcal_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})) {}
 
 void HGCalDigiClient::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
-  if (nameDetector_ == "HCal") {
-    const HcalDDDRecConstants *hcons = &iSetup.getData(tok_hcal_);
-    layers_ = hcons->getMaxDepth(1);
-  } else {
-    const HGCalDDDConstants *hgcons = &iSetup.getData(tok_hgcal_);
-    layers_ = hgcons->layers(true);
-  }
+  const HGCalDDDConstants *hgcons = &iSetup.getData(tok_hgcal_);
+  layers_ = hgcons->layers(true);
 }
 
 void HGCalDigiClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) { runClient_(ib, ig); }
