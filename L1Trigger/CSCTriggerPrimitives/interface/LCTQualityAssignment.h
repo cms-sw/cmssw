@@ -57,7 +57,7 @@ public:
   };
 
   // constructor
-  LCTQualityAssignment(bool isRun3, unsigned station);
+  LCTQualityAssignment(unsigned station);
 
   // quality for all LCTs in Run-1 and Run-2
   unsigned findQualityRun2(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
@@ -72,7 +72,6 @@ public:
   unsigned findQualityGEMv2(const CSCALCTDigi&, const CSCCLCTDigi&, int gemlayer) const;
 
 private:
-  bool isRun3_;
   unsigned station_;
 };
 

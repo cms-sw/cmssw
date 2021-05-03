@@ -130,9 +130,9 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   if (alct.isValid() and clct.isValid() and gem1.isValid() and not gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
     if (runCCLUT_) {
-      quality = static_cast<unsigned int>(findQualityGEMv2(alct, clct, 1));
+      quality = qualityAssignment_->findQualityGEMv2(alct, clct, 1);
     } else {
-      quality = static_cast<unsigned int>(findQualityGEMv1(alct, clct, 1));
+      quality = qualityAssignment_->findQualityGEMv1(alct, clct, 1);
     }
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
@@ -154,9 +154,9 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   } else if (alct.isValid() and clct.isValid() and not gem1.isValid() and gem2.isValid()) {
     pattern = encodePattern(clct.getPattern());
     if (runCCLUT_) {
-      quality = static_cast<unsigned int>(findQualityGEMv2(alct, clct, 2));
+      quality = qualityAssignment_->findQualityGEMv2(alct, clct, 2);
     } else {
-      quality = static_cast<unsigned int>(findQualityGEMv1(alct, clct, 2));
+      quality = qualityAssignment_->findQualityGEMv1(alct, clct, 2);
     }
     bx = alct.getBX();
     keyStrip = clct.getKeyStrip();
