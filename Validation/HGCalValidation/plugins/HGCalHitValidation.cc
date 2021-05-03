@@ -117,16 +117,14 @@ HGCalHitValidation::~HGCalHitValidation() {}
 
 void HGCalHitValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  std::vector<std::string> source = {"HGCalEESensitive",
-				     "HGCalHESiliconSensitive",
-				     "HGCalHEScintillatorSensitive"};
+  std::vector<std::string> source = {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"};
   desc.add<std::vector<std::string>>("geometrySource", source);
-  desc.add<edm::InputTag>("eeSimHitSource", edm::InputTag("g4SimHits","HGCHitsEE"));
-  desc.add<edm::InputTag>("fhSimHitSource", edm::InputTag("g4SimHits","HGCHitsHEfront"));
-  desc.add<edm::InputTag>("bhSimHitSource", edm::InputTag("g4SimHits","HGCHitsHEback"));
-  desc.add<edm::InputTag>("eeRecHitSource", edm::InputTag("HGCalRecHit","HGCEERecHits"));
-  desc.add<edm::InputTag>("fhRecHitSource", edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
-  desc.add<edm::InputTag>("bhRecHitSource", edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
+  desc.add<edm::InputTag>("eeSimHitSource", edm::InputTag("g4SimHits", "HGCHitsEE"));
+  desc.add<edm::InputTag>("fhSimHitSource", edm::InputTag("g4SimHits", "HGCHitsHEfront"));
+  desc.add<edm::InputTag>("bhSimHitSource", edm::InputTag("g4SimHits", "HGCHitsHEback"));
+  desc.add<edm::InputTag>("eeRecHitSource", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
+  desc.add<edm::InputTag>("fhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
+  desc.add<edm::InputTag>("bhRecHitSource", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
   std::vector<int> dummy;
   desc.add<std::vector<int>>("ietaExcludeBH", dummy);
   descriptions.add("hgcalHitValidation", desc);
@@ -164,7 +162,7 @@ void HGCalHitValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const&, 
   hefEnRec = iB.book1D("hefEnRec", "", 1000, 0, 10);
   hefEnSim = iB.book1D("hefEnSim", "", 1000, 0, 0.01);
   hefEnSimRec = iB.book2D("hefEnSimRec", "", 200, 0, 0.001, 200, 0, 0.5);
-  
+
   hebEnRec = iB.book1D("hebEnRec", "", 1000, 0, 15);
   hebEnSim = iB.book1D("hebEnSim", "", 1000, 0, 0.01);
   hebEnSimRec = iB.book2D("hebEnSimRec", "", 200, 0, 0.02, 200, 0, 4);
@@ -196,7 +194,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   //Accesing ee simhits
   edm::Handle<std::vector<PCaloHit>> eeSimHits;
   iEvent.getByToken(eeSimHitToken_, eeSimHits);
-  
+
   if (eeSimHits.isValid()) {
     analyzeHGCalSimHit(eeSimHits, 0, heeEnSim, eeHitRefs);
 #ifdef EDM_ML_DEBUG
@@ -210,7 +208,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   } else {
     edm::LogVerbatim("HGCalValid") << "No EE SimHit Found ";
   }
-  
+
   //Accesing fh simhits
   edm::Handle<std::vector<PCaloHit>> fhSimHits;
   iEvent.getByToken(fhSimHitToken_, fhSimHits);
@@ -227,7 +225,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   } else {
     edm::LogVerbatim("HGCalValid") << "No FH SimHit Found ";
   }
-  
+
   //Accessing bh simhits
   edm::Handle<std::vector<PCaloHit>> bhSimHits;
   iEvent.getByToken(bhSimHitToken_, bhSimHits);
@@ -274,7 +272,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   } else {
     edm::LogVerbatim("HGCalValid") << "No EE RecHit Found ";
   }
-  
+
   //accessing FH Rechit information
   edm::Handle<HGChefRecHitCollection> fhRecHit;
   iEvent.getByToken(fhRecHitToken_, fhRecHit);
@@ -286,7 +284,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
       std::map<unsigned int, HGCHitTuple>::const_iterator itr = fhHitRefs.find(it->id().rawId());
       if (itr != fhHitRefs.end()) {
         GlobalPoint xyz = hgcGeometry_[1]->getPosition(it->id());
-	
+
         hefRecVsSimX->Fill(std::get<1>(itr->second), xyz.x());
         hefRecVsSimY->Fill(std::get<2>(itr->second), xyz.y());
         hefRecVsSimZ->Fill(std::get<3>(itr->second), xyz.z());
@@ -305,7 +303,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   } else {
     edm::LogVerbatim("HGCalValid") << "No FH RecHit Found ";
   }
-  
+
   //accessing BH Rechit information
   edm::Handle<HGChebRecHitCollection> bhRecHit;
   iEvent.getByToken(bhRecHitToken_, bhRecHit);
@@ -329,7 +327,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
         hebdPhiVsPhi->Fill(std::get<2>(itr->second), (ang3 - std::get<2>(itr->second)));
         hebdzVsZ->Fill(std::get<3>(itr->second), (xyz.z() - std::get<3>(itr->second)));
         hebEnSimRec->Fill(std::get<0>(itr->second), energy);
-	
+
 #ifdef EDM_ML_DEBUG
         edm::LogInfo("HGCalValid") << "BHHit: " << std::hex << id.rawId() << std::dec << " Sim ("
                                    << std::get<0>(itr->second) << ", " << std::get<1>(itr->second) << ", "
