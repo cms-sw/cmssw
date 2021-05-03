@@ -52,7 +52,9 @@ void MTDTopologyEP::fillParameters(const PMTDParameters& ptp, int& mtdTopologyMo
 
   // for legacy geometry scenarios no topology informastion is stored, only for newer ETL 2-discs layout
 
-  if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) { return; }
+  if (mtdTopologyMode <= static_cast<int>(MTDTopologyMode::Mode::barphiflat)) {
+    return;
+  }
 
   // Check on the internal consistency of thr ETL layout information provided by parameters
 
