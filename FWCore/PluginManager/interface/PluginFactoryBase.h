@@ -26,7 +26,7 @@
 #include <atomic>
 #include "tbb/concurrent_unordered_map.h"
 #include "tbb/concurrent_vector.h"
-
+#include "FWCore/Utilities/interface/zero_allocator.h"
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 // user include files
@@ -61,7 +61,7 @@ namespace edmplugin {
       std::atomic<void*> m_ptr;
     };
 
-    typedef tbb::concurrent_vector<PluginMakerInfo, tbb::zero_allocator<PluginMakerInfo>> PMakers;
+    typedef tbb::concurrent_vector<PluginMakerInfo, edm::zero_allocator<PluginMakerInfo>> PMakers;
     typedef tbb::concurrent_unordered_map<std::string, PMakers> Plugins;
 
     // ---------- const member functions ---------------------
