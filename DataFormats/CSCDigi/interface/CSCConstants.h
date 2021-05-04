@@ -109,6 +109,12 @@ public:
     MAX_LCTS_PER_CSC = 2,
     // An MPC receives up to 18 LCTs from 9 CSCs in the trigger sector
     MAX_LCTS_PER_MPC = 18,
+    /*
+      An EMTF sector processor receives LCTs from 5 MPCS
+      or 45 chambers when not considering overlapping EMTF SPs
+      18 CSCs in ME1; 9 x 3 CSCs in ME2,3,4
+    */
+    MAX_CSCS_PER_EMTF_SP_NO_OVERLAP = 45,
     // Reference BX for LCTs in simulation and firmware
     LCT_CENTRAL_BX = 8,
     /*
