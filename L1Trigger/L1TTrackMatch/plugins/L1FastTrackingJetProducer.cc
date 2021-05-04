@@ -1,9 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////
-//               
-// Producer of Tracking Jets
-// Tracking Jets: Uses L1 tracks that are matched to Gen Particles to form jets. Jets are clustered with FastJet Algorithm
-// Author: G. Karathanasis, Univ. of Colorado, Boulder
-//                                                    
+//                                                                       //
+// Producer of TkJet,                                                    //
+// Cluster L1 tracks using fastjet                                       //
+//                                                                       //
 ///////////////////////////////////////////////////////////////////////////
 
 // system include files
@@ -28,7 +27,8 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TCorrelator/interface/TkJet.h"
 #include "DataFormats/L1TCorrelator/interface/TkJetFwd.h"
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
+#include "DataFormats/L1Trigger/interface/Vertex.h"
+
 
 // geometry
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -87,14 +87,14 @@ private:
   bool selectTrkMatchGenOrPU_;
 
   const edm::EDGetTokenT<std::vector<TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken_;
-  edm::EDGetTokenT<TkPrimaryVertexCollection> pvToken_;
+  edm::EDGetTokenT<std::vector<l1t::Vertex>> pvToken_;
   const edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_> > genToken_;
 };
 
 // constructor
 L1FastTrackingJetProducer::L1FastTrackingJetProducer(const edm::ParameterSet& iConfig) :
 trackToken_(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-pvToken_(consumes<TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))),
+pvToken_(consumes<std::vector<l1t::Vertex>>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))),
 genToken_(consumes< TTTrackAssociationMap<Ref_Phase2TrackerDigi_> > (iConfig.getParameter<edm::InputTag>("GenInfo")))
 {
   trkZMax_    = (float)iConfig.getParameter<double>("trk_zMax");
@@ -139,15 +139,15 @@ void L1FastTrackingJetProducer::produce(edm::Event& iEvent, const edm::EventSetu
   ESHandle<TrackerGeometry> tGeomHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
 
-  edm::Handle<TkPrimaryVertexCollection>TkPrimaryVertexHandle;
-  iEvent.getByToken(pvToken_, TkPrimaryVertexHandle);
+  edm::Handle<std::vector<l1t::Vertex>> L1VertexHandle;
+  iEvent.getByToken(pvToken_, L1VertexHandle);
 
   fastjet::JetDefinition jet_def(fastjet::antikt_algorithm, coneSize_);
   std::vector<fastjet::PseudoJet>  JetInputs;
 
  
 
-  float recoVtx = TkPrimaryVertexHandle->begin()->zvertex();
+  float recoVtx = L1VertexHandle->begin()->z0();
   unsigned int this_l1track = 0;
   for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
     this_l1track++;
